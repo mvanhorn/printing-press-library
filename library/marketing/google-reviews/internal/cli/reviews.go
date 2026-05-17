@@ -117,7 +117,7 @@ func extractChromeCookies() string {
 }
 
 // fetchReviews calls the listentitiesreviews endpoint and returns raw JSON response body.
-func fetchReviews(lo, hi uint64, count, offset, sc int, lang, country, cookieOverride string) ([]byte, error) {
+func fetchReviews(lo, hi uint64, count, offset, sc int, lang, country, cookieOverride string, timeout time.Duration) ([]byte, error) {
 	pb := buildPB(lo, hi, count, offset, sc)
 	apiURL := fmt.Sprintf(
 		"https://www.google.com/maps/preview/review/listentitiesreviews?authuser=0&hl=%s&gl=%s&pb=%s",
@@ -135,7 +135,10 @@ func fetchReviews(lo, hi uint64, count, offset, sc int, lang, country, cookieOve
 		req.Header.Set("Cookie", cookieOverride)
 	}
 
-	client := &http.Client{Timeout: 30 * time.Second}
+	if timeout <= 0 {
+		timeout = 30 * time.Second
+	}
+	client := &http.Client{Timeout: timeout}
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("request failed: %w", err)
@@ -147,7 +150,11 @@ func fetchReviews(lo, hi uint64, count, offset, sc int, lang, country, cookieOve
 		return nil, err
 	}
 	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf("HTTP %d: %s", resp.StatusCode, string(body[:min(200, len(body))]))
+		preview := body
+		if len(preview) > 200 {
+			preview = body[:200]
+		}
+		return nil, fmt.Errorf("HTTP %d: %s", resp.StatusCode, string(preview))
 	}
 	return body, nil
 }
@@ -232,11 +239,12 @@ func parseReviewsResponse(body []byte) ([]Review, *RatingSummary, error) {
 	return reviews, summary, nil
 }
 
-func min(a, b int) int {
-	if a < b {
-		return a
+func truncateRunes(s string, maxRunes int) string {
+	runes := []rune(s)
+	if len(runes) <= maxRunes {
+		return s
 	}
-	return b
+	return string(runes[:maxRunes-3]) + "..."
 }
 
 func newReviewsCmd(flags *rootFlags) *cobra.Command {
@@ -304,7 +312,7 @@ Examples:
 			offset := flagOffset
 
 			for {
-				body, err := fetchReviews(lo, hi, flagCount, offset, sc, flagLang, flagCountry, cookies)
+				body, err := fetchReviews(lo, hi, flagCount, offset, sc, flagLang, flagCountry, cookies, flags.timeout)
 				if err != nil {
 					if flagAll && len(allReviews) > 0 {
 						// Google's API uses cursor-based pagination internally;
@@ -359,18 +367,9 @@ func printReviewsTable(w io.Writer, reviews []Review) {
 	fmt.Fprintf(w, "%-6s  %-20s  %-16s  %s\n", "------", "--------------------", "----------------", "------")
 	for _, r := range reviews {
 		stars := strings.Repeat("★", r.Rating) + strings.Repeat("☆", 5-r.Rating)
-		author := r.Author
-		if len(author) > 20 {
-			author = author[:17] + "..."
-		}
-		date := r.Date
-		if len(date) > 16 {
-			date = date[:16]
-		}
-		text := r.Text
-		if len(text) > 60 {
-			text = text[:57] + "..."
-		}
+		author := truncateRunes(r.Author, 20)
+		date := truncateRunes(r.Date, 16)
+		text := truncateRunes(r.Text, 60)
 		fmt.Fprintf(w, "%-6s  %-20s  %-16s  %s\n", stars, author, date, text)
 	}
 	if len(reviews) > 0 {
@@ -417,7 +416,7 @@ Examples:
 			}
 
 			cookies := extractChromeCookies()
-			body, err := fetchReviews(lo, hi, 1, 0, 1, flagLang, flagCountry, cookies)
+			body, err := fetchReviews(lo, hi, 1, 0, 1, flagLang, flagCountry, cookies, flags.timeout)
 			if err != nil {
 				return fmt.Errorf("fetch summary: %w", err)
 			}

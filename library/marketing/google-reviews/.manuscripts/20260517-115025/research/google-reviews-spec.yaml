@@ -1,0 +1,101 @@
+name: google-reviews
+description: Discovered API spec for google
+version: 0.1.0
+base_url: https://www.google.com
+spec_source: sniffed
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+config:
+    format: toml
+    path: ~/.config/google-reviews-pp-cli/config.toml
+resources:
+    maps:
+        description: Operations on listentitiesreviews
+        endpoints:
+            list_listentitiesreviews:
+                method: GET
+                path: /maps/preview/review/listentitiesreviews
+                description: GET /maps/preview/review/listentitiesreviews
+                params:
+                    - name: authuser
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: gl
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: hl
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: pb
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: listentitiesreviews
+                pagination: null
+            list_place:
+                method: GET
+                path: /maps/preview/place
+                description: GET /maps/preview/place
+                params:
+                    - name: authuser
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: gl
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: hl
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: pb
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: q
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: place
+                pagination: null
+types: {}
