@@ -181,29 +181,44 @@ func queryTopFiles(db *sql.DB, limit int, mediaType string) ([]Asset, error) {
 }
 
 // queryByUUIDs returns assets matching the given UUIDs (used by the delete command).
+// Batches requests in chunks of 999 to stay within SQLite's SQLITE_LIMIT_VARIABLE_NUMBER.
 func queryByUUIDs(db *sql.DB, uuids []string) ([]Asset, error) {
 	if len(uuids) == 0 {
 		return nil, nil
 	}
-	placeholders := make([]string, len(uuids))
-	args := make([]any, len(uuids))
-	for i, u := range uuids {
-		placeholders[i] = "?"
-		args[i] = u
+	const batchSize = 999
+	var out []Asset
+	for i := 0; i < len(uuids); i += batchSize {
+		end := i + batchSize
+		if end > len(uuids) {
+			end = len(uuids)
+		}
+		batch := uuids[i:end]
+		placeholders := make([]string, len(batch))
+		args := make([]any, len(batch))
+		for j, u := range batch {
+			placeholders[j] = "?"
+			args[j] = u
+		}
+		q := fmt.Sprintf(`
+			SELECT
+				COALESCE(a.ZUUID, ''),
+				COALESCE(aa.ZORIGINALFILENAME, a.ZFILENAME, ''),
+				COALESCE(aa.ZORIGINALFILESIZE, 0),
+				COALESCE(a.ZKIND, 0),
+				COALESCE(a.ZDATECREATED, 0)
+			FROM ZASSET a
+			JOIN ZADDITIONALASSETATTRIBUTES aa ON aa.ZASSET = a.Z_PK
+			WHERE a.ZUUID IN (%s)
+			  AND a.ZTRASHEDSTATE = 0
+		`, strings.Join(placeholders, ","))
+		assets, err := scanAssets(db, q, args...)
+		if err != nil {
+			return nil, err
+		}
+		out = append(out, assets...)
 	}
-	q := fmt.Sprintf(`
-		SELECT
-			COALESCE(a.ZUUID, ''),
-			COALESCE(aa.ZORIGINALFILENAME, a.ZFILENAME, ''),
-			COALESCE(aa.ZORIGINALFILESIZE, 0),
-			COALESCE(a.ZKIND, 0),
-			COALESCE(a.ZDATECREATED, 0)
-		FROM ZASSET a
-		JOIN ZADDITIONALASSETATTRIBUTES aa ON aa.ZASSET = a.Z_PK
-		WHERE a.ZUUID IN (%s)
-		  AND a.ZTRASHEDSTATE = 0
-	`, strings.Join(placeholders, ","))
-	return scanAssets(db, q, args...)
+	return out, nil
 }
 
 // queryTotals returns a single summary row across all non-trashed assets.
