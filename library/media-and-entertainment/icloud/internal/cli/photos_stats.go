@@ -62,15 +62,15 @@ func printStatsTable(cmd *cobra.Command, f *rootFlags, count, sizeBytes int64, b
 	gb := float64(sizeBytes) / (1 << 30)
 
 	fmt.Fprintf(out, "%s  %d items · %s\n",
-		bold(f, "Photos library"),
+		bold(f, out, "Photos library"),
 		count,
-		formatSize(f, gb),
+		formatSize(f, out, gb),
 	)
 	fmt.Fprintln(out)
 
 	w := newTabWriter(out)
 	for _, r := range byType {
-		fmt.Fprintf(w, "  %s\t%d items\t%s\n", r.Label, r.Count, formatSizeBytes(f, r.SizeBytes))
+		fmt.Fprintf(w, "  %s\t%d items\t%s\n", r.Label, r.Count, formatSizeBytes(f, out, r.SizeBytes))
 	}
 	return w.Flush()
 }

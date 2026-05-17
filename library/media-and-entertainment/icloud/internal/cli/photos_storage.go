@@ -83,22 +83,22 @@ func toStorageJSON(rows []StorageRow) []storageRowJSON {
 func printStorageTable(cmd *cobra.Command, f *rootFlags, byType, byYear []StorageRow) error {
 	out := cmd.OutOrStdout()
 
-	fmt.Fprintln(out, bold(f, "By media type"))
+	fmt.Fprintln(out, bold(f, out, "By media type"))
 	w := newTabWriter(out)
-	fmt.Fprintf(w, "  %s\t%s\t%s\n", bold(f, "Type"), bold(f, "Items"), bold(f, "Size"))
+	fmt.Fprintf(w, "  %s\t%s\t%s\n", bold(f, out, "Type"), bold(f, out, "Items"), bold(f, out, "Size"))
 	for _, r := range byType {
-		fmt.Fprintf(w, "  %s\t%d\t%s\n", r.Label, r.Count, formatSizeBytes(f, r.SizeBytes))
+		fmt.Fprintf(w, "  %s\t%d\t%s\n", r.Label, r.Count, formatSizeBytes(f, out, r.SizeBytes))
 	}
 	if err := w.Flush(); err != nil {
 		return err
 	}
 
 	fmt.Fprintln(out)
-	fmt.Fprintln(out, bold(f, "By year"))
+	fmt.Fprintln(out, bold(f, out, "By year"))
 	w2 := newTabWriter(out)
-	fmt.Fprintf(w2, "  %s\t%s\t%s\n", bold(f, "Year"), bold(f, "Items"), bold(f, "Size"))
+	fmt.Fprintf(w2, "  %s\t%s\t%s\n", bold(f, out, "Year"), bold(f, out, "Items"), bold(f, out, "Size"))
 	for _, r := range byYear {
-		fmt.Fprintf(w2, "  %s\t%d\t%s\n", r.Label, r.Count, formatSizeBytes(f, r.SizeBytes))
+		fmt.Fprintf(w2, "  %s\t%d\t%s\n", r.Label, r.Count, formatSizeBytes(f, out, r.SizeBytes))
 	}
 	return w2.Flush()
 }

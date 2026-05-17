@@ -20,9 +20,8 @@ type cliError struct {
 func (e *cliError) Error() string { return e.err.Error() }
 func (e *cliError) Unwrap() error { return e.err }
 
-func usageErr(err error) error   { return &cliError{code: 2, err: err} }
-func notFoundErr(err error) error { return &cliError{code: 3, err: err} }
-func configErr(err error) error  { return &cliError{code: 10, err: err} }
+func usageErr(err error) error  { return &cliError{code: 2, err: err} }
+func configErr(err error) error { return &cliError{code: 10, err: err} }
 
 // ── output ────────────────────────────────────────────────────────────────────
 
@@ -51,33 +50,33 @@ func newTabWriter(w io.Writer) *tabwriter.Writer {
 
 // ── color ─────────────────────────────────────────────────────────────────────
 
-func colorize(f *rootFlags, code, s string) string {
-	if f.noColor || !isTerminal(os.Stdout) {
+func colorize(f *rootFlags, w io.Writer, code, s string) string {
+	if f.noColor || !isTerminal(w) {
 		return s
 	}
 	return "\033[" + code + "m" + s + "\033[0m"
 }
 
-func bold(f *rootFlags, s string) string   { return colorize(f, "1", s) }
-func red(f *rootFlags, s string) string    { return colorize(f, "31", s) }
-func yellow(f *rootFlags, s string) string { return colorize(f, "33", s) }
-func green(f *rootFlags, s string) string  { return colorize(f, "32", s) }
+func bold(f *rootFlags, w io.Writer, s string) string   { return colorize(f, w, "1", s) }
+func red(f *rootFlags, w io.Writer, s string) string    { return colorize(f, w, "31", s) }
+func yellow(f *rootFlags, w io.Writer, s string) string { return colorize(f, w, "33", s) }
+func green(f *rootFlags, w io.Writer, s string) string  { return colorize(f, w, "32", s) }
 
 // ── size formatting ───────────────────────────────────────────────────────────
 
-func formatSize(f *rootFlags, gb float64) string {
+func formatSize(f *rootFlags, w io.Writer, gb float64) string {
 	s := fmt.Sprintf("%.2f GB", gb)
 	switch {
 	case gb >= 2:
-		return red(f, s)
+		return red(f, w, s)
 	case gb >= 0.5:
-		return yellow(f, s)
+		return yellow(f, w, s)
 	default:
-		return green(f, s)
+		return green(f, w, s)
 	}
 }
 
-func formatSizeBytes(f *rootFlags, b int64) string {
+func formatSizeBytes(f *rootFlags, w io.Writer, b int64) string {
 	gb := float64(b) / (1 << 30)
-	return formatSize(f, gb)
+	return formatSize(f, w, gb)
 }

@@ -87,18 +87,19 @@ func printVideosJSON(cmd *cobra.Command, f *rootFlags, videos []Asset) error {
 }
 
 func printVideosTable(cmd *cobra.Command, f *rootFlags, videos []Asset) error {
-	w := newTabWriter(cmd.OutOrStdout())
+	out := cmd.OutOrStdout()
+	w := newTabWriter(out)
 	fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\n",
-		bold(f, "#"),
-		bold(f, "Size"),
-		bold(f, "Date"),
-		bold(f, "Filename"),
-		bold(f, "UUID"),
+		bold(f, out, "#"),
+		bold(f, out, "Size"),
+		bold(f, out, "Date"),
+		bold(f, out, "Filename"),
+		bold(f, out, "UUID"),
 	)
 	for i, v := range videos {
 		fmt.Fprintf(w, "%d\t%s\t%s\t%s\t%s\n",
 			i+1,
-			formatSize(f, v.SizeGB()),
+			formatSize(f, out, v.SizeGB()),
 			v.Date.Format("2006-01-02"),
 			v.Filename,
 			v.UUID,

@@ -69,7 +69,7 @@ Get UUIDs from:  icloud-pp-cli photos top --json | jq '.[].uuid'`,
 				a, ok := found[uuid]
 				if ok {
 					fmt.Fprintf(out, "  %s %s  %s  %s GB\n",
-						yellow(f, "→"),
+						yellow(f, out, "→"),
 						a.Date.Format("2006-01-02"),
 						a.Filename,
 						formatFloat(a.SizeGB()),
@@ -80,7 +80,7 @@ Get UUIDs from:  icloud-pp-cli photos top --json | jq '.[].uuid'`,
 						short = uuid[:8] + "..."
 					}
 					fmt.Fprintf(out, "  %s %s  (not found in library)\n",
-						red(f, "✗"), short,
+						red(f, out, "✗"), short,
 					)
 				}
 			}
@@ -101,11 +101,11 @@ Get UUIDs from:  icloud-pp-cli photos top --json | jq '.[].uuid'`,
 			deleted, errors := 0, 0
 			for _, a := range assets {
 				if err := deleteViaPhotos(a.UUID); err != nil {
-					fmt.Fprintf(out, "  %s %s: %v\n", red(f, "✗"), a.Filename, err)
+					fmt.Fprintf(out, "  %s %s: %v\n", red(f, out, "✗"), a.Filename, err)
 					errors++
 				} else {
 					fmt.Fprintf(out, "  %s moved to Recently Deleted: %s\n",
-						green(f, "✓"), a.Filename)
+						green(f, out, "✓"), a.Filename)
 					deleted++
 				}
 			}

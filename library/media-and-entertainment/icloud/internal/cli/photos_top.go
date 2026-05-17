@@ -90,20 +90,21 @@ func printTopJSON(cmd *cobra.Command, f *rootFlags, assets []Asset) error {
 }
 
 func printTopTable(cmd *cobra.Command, f *rootFlags, assets []Asset) error {
-	w := newTabWriter(cmd.OutOrStdout())
+	out := cmd.OutOrStdout()
+	w := newTabWriter(out)
 	fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\t%s\n",
-		bold(f, "#"),
-		bold(f, "Type"),
-		bold(f, "Size"),
-		bold(f, "Date"),
-		bold(f, "Filename"),
-		bold(f, "UUID"),
+		bold(f, out, "#"),
+		bold(f, out, "Type"),
+		bold(f, out, "Size"),
+		bold(f, out, "Date"),
+		bold(f, out, "Filename"),
+		bold(f, out, "UUID"),
 	)
 	for i, a := range assets {
 		fmt.Fprintf(w, "%d\t%s\t%s\t%s\t%s\t%s\n",
 			i+1,
 			a.TypeLabel(),
-			formatSize(f, a.SizeGB()),
+			formatSize(f, out, a.SizeGB()),
 			a.Date.Format("2006-01-02"),
 			a.Filename,
 			a.UUID,

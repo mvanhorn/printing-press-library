@@ -31,9 +31,9 @@ database schema, and asset count.`,
 			check := func(label, hint string, ok bool) {
 				allOK = allOK && ok
 				if ok {
-					fmt.Fprintf(out, "  %s %s\n", green(f, "✓"), label)
+					fmt.Fprintf(out, "  %s %s\n", green(f, out, "✓"), label)
 				} else {
-					fmt.Fprintf(out, "  %s %s\n", red(f, "✗"), label)
+					fmt.Fprintf(out, "  %s %s\n", red(f, out, "✗"), label)
 					if hint != "" {
 						fmt.Fprintf(out, "      %s\n", hint)
 					}
@@ -41,13 +41,13 @@ database schema, and asset count.`,
 			}
 
 			// ── System ────────────────────────────────────────────────
-			fmt.Fprintln(out, bold(f, "System"))
+			fmt.Fprintln(out, bold(f, out, "System"))
 
 			isDarwin := runtime.GOOS == "darwin"
 			check("macOS required", "icloud-pp-cli only runs on macOS.", isDarwin)
 			if !isDarwin {
 				fmt.Fprintln(out)
-				fmt.Fprintln(out, red(f, "Stopped — macOS required."))
+				fmt.Fprintln(out, red(f, out, "Stopped — macOS required."))
 				return nil
 			}
 
@@ -60,7 +60,7 @@ database schema, and asset count.`,
 
 			// ── Library ───────────────────────────────────────────────
 			fmt.Fprintln(out)
-			fmt.Fprintln(out, bold(f, "Library"))
+			fmt.Fprintln(out, bold(f, out, "Library"))
 
 			libPath := f.libraryPath
 			if libPath == "" {
@@ -74,7 +74,7 @@ database schema, and asset count.`,
 
 			if statErr != nil {
 				fmt.Fprintln(out)
-				fmt.Fprintln(out, red(f, "Stopped — library not found."))
+				fmt.Fprintln(out, red(f, out, "Stopped — library not found."))
 				return nil
 			}
 			fmt.Fprintf(out, "      %s\n", libPath)
@@ -85,7 +85,7 @@ database schema, and asset count.`,
 
 			if openErr != nil {
 				fmt.Fprintln(out)
-				fmt.Fprintln(out, red(f, "Stopped — cannot read library."))
+				fmt.Fprintln(out, red(f, out, "Stopped — cannot read library."))
 				return nil
 			}
 			defer db.Close()
@@ -96,7 +96,7 @@ database schema, and asset count.`,
 
 			// ── Assets ────────────────────────────────────────────────
 			fmt.Fprintln(out)
-			fmt.Fprintln(out, bold(f, "Assets"))
+			fmt.Fprintln(out, bold(f, out, "Assets"))
 
 			count, sizeBytes, countErr := queryTotals(db)
 			check("Can query assets", "Unexpected query error.", countErr == nil)
@@ -116,9 +116,9 @@ database schema, and asset count.`,
 			// ── Result ────────────────────────────────────────────────
 			fmt.Fprintln(out)
 			if allOK {
-				fmt.Fprintln(out, green(f, "All checks passed. Ready to use."))
+				fmt.Fprintln(out, green(f, out, "All checks passed. Ready to use."))
 			} else {
-				fmt.Fprintln(out, yellow(f, "Some checks failed — see above."))
+				fmt.Fprintln(out, yellow(f, out, "Some checks failed — see above."))
 			}
 
 			return nil

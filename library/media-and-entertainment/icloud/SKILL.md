@@ -126,7 +126,6 @@ icloud-pp-cli photos videos --year 2022 --month 1 --json
 |------|---------|
 | 0 | Success |
 | 2 | Usage error |
-| 3 | Resource not found |
 | 10 | Config error (wrong OS, library not found) |
 
 ## Direct Use
