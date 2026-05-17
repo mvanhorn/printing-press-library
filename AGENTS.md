@@ -184,40 +184,34 @@ Some CLIs have no archived spec on disk (docs-driven, sniff-driven, plan-driven)
 
 ## `.printing-press-patches.json` records library-side customizations
 
-If you modify a published CLI under `library/<cat>/<slug>/` beyond what the generator produced, record each customization so it isn't lost on the next regen and is visible to the next reader. SKILL.md / README.md edits are owned by `tools/sweep-canonical/` or direct edit and don't need a patch manifest; this convention is for code-level customizations.
+If you modify a published CLI under `library/<cat>/<slug>/` beyond what the generator produced, **catalog the change in `.printing-press-patches.json`** at the CLI's root (parallel to `.printing-press.json`). SKILL.md / README.md edits are owned by `tools/sweep-canonical/` or direct edit and don't need a patch manifest; this convention is for code-level customizations.
 
-1. **Mark every changed site** in source with a comment summarizing the deviation:
+Minimum shape:
 
-    ```
-    // PATCH: <one-line summary>
-    ```
-
-    Include an upstream reference inline when there is one (e.g. `// PATCH(upstream cli-printing-press#689): …`). `grep -rn 'PATCH' library/` then surfaces every customization.
-
-2. **Catalog the change** in a `.printing-press-patches.json` at the CLI's root (parallel to `.printing-press.json`). Minimum shape:
-
-    ```json
+```json
+{
+  "schema_version": 1,
+  "applied_at": "YYYY-MM-DD",
+  "base_run_id": "<copy from .printing-press.json>",
+  "base_printing_press_version": "<copy from .printing-press.json>",
+  "patches": [
     {
-      "schema_version": 1,
-      "applied_at": "YYYY-MM-DD",
-      "base_run_id": "<copy from .printing-press.json>",
-      "base_printing_press_version": "<copy from .printing-press.json>",
-      "patches": [
-        {
-          "id": "short-identifier",
-          "summary": "What changed (one sentence).",
-          "reason": "Why this customization was needed (one or two sentences).",
-          "files": ["internal/cli/foo.go"],
-          "validated_outcome": "Optional: non-obvious test result that confirms the fix.",
-          "upstream_issue": "Optional: https://github.com/mvanhorn/cli-printing-press/issues/<n>"
-        }
-      ]
+      "id": "short-identifier",
+      "summary": "What changed (one sentence).",
+      "reason": "Why this customization was needed (one or two sentences).",
+      "files": ["internal/cli/foo.go"],
+      "validated_outcome": "Optional: non-obvious test result that confirms the fix.",
+      "upstream_issue": "Optional: https://github.com/mvanhorn/cli-printing-press/issues/<n>"
     }
-    ```
+  ]
+}
+```
 
-    Optional top-level fields the kalshi example uses when relevant: `upstream_tracking[]`, `deferred_to_upstream[]`.
+Optional top-level fields the kalshi example uses when relevant: `upstream_tracking[]`, `deferred_to_upstream[]`.
 
-This file is an **index of customizations**, not a second copy of the diff. Diffs live in `git`; code lives in the source files; the inline `// PATCH:` comment carries the local semantics. Keep `summary` and `reason` short — if you find yourself writing tables of field renames or SQL transformations, that detail belongs in the source comment or commit message, not here. A fresh print from the generator overwrites this tree, and the manifest is what tells the next agent (or regeneration tooling) what was customized and why.
+This file is an **index of customizations**, not a second copy of the diff. Diffs live in `git`; the manifest is what tells the next agent (or regeneration tooling) what was customized and why. Keep `summary` and `reason` short — if you find yourself writing tables of field renames or SQL transformations, that detail belongs in the commit message, not here. A fresh print from the generator overwrites this tree, and the manifest is what survives that overwrite.
+
+**Inline `// PATCH:` source comments are optional, not required.** Earlier guidance asked agents to mark each changed site in source alongside the manifest entry; `verify_publish_package.py` enforced a bidirectional pairing that doubled the commit count on every in-session customization without surfacing a class of bug git history and the manifest didn't already cover. The pairing requirement is gone; if you find a marker helpful as a navigation aid for yourself, fine, but the CI no longer cares whether you add one.
 
 **Delete stale workaround entries.** A `reason` field that describes a verifier or pipeline bug (e.g. *"the package verifier currently treats X as Y; this entry exists to silence the false positive"*) is a placeholder, not a real customization. When the underlying bug is fixed, delete the entry — leaving it behind makes future contributors think there's a hand-edit to preserve when there isn't.
 

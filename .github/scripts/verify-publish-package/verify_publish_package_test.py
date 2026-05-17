@@ -182,164 +182,49 @@ class PublishPackageVerifierTest(unittest.TestCase):
 
         self.assertFalse(any("-pp-cli/-pp-mcp binary suffix" in msg for msg in messages))
 
-    def test_readme_only_touch_skips_unrelated_patch_manifest(self) -> None:
-        """A docs-only PR that touches README.md must not re-validate a
-        pre-existing patches manifest whose state didn't change in this PR.
+    def test_patch_manifest_with_marker_and_no_entry_passes(self) -> None:
+        """The bidirectional pairing rule that used to require markers and
+        patches[] entries to mirror each other is gone. A source file with a
+        `// PATCH:` comment but an empty patches[] is fine — markers are now
+        optional navigation aids, not CI-enforced contracts.
         """
         cli_dir = self.tmp / "library" / "cloud" / "legacy"
-        # Seed pre-existing state on the base ref (main): a patches manifest
-        # that references a source file missing a `// PATCH:` marker. This
-        # mirrors the real digitalocean/fireflies inconsistency we're guarding
-        # against.
-        self.git("checkout", "-B", "scenario-main", self.base)
-        patch_manifest = {
-            "schema_version": 1,
-            "applied_at": "2026-05-09",
-            "patches": [
-                {
-                    "id": "old-customization",
-                    "summary": "Historic tweak",
-                    "reason": "Pre-existing state.",
-                    "files": ["internal/cli/legacy.go"],
-                }
-            ],
-        }
-        self.write(
-            "library/cloud/legacy/.printing-press.json",
-            json.dumps({"schema_version": 1, "api_name": "legacy", "cli_name": "legacy-pp-cli"}),
-        )
-        self.write("library/cloud/legacy/.printing-press-patches.json", json.dumps(patch_manifest))
-        self.write("library/cloud/legacy/internal/cli/legacy.go", "package cli\n")
-        self.write("library/cloud/legacy/README.md", "# Legacy\n")
-        self.git("add", ".")
-        self.git("commit", "-m", "seed legacy CLI on main")
-        new_base = self.git("rev-parse", "HEAD").stdout.strip()
-        self.git("switch", "feature")
-        self.git("merge", "--ff-only", "scenario-main")
-        # Now bump only the README on the feature branch.
-        self.write("library/cloud/legacy/README.md", "# Legacy v2\n")
-        self.git("add", ".")
-        self.git("commit", "-m", "docs: bump legacy README")
-
-        touched, files_by_dir = verifier.changed_cli_dirs(new_base)
-        self.assertEqual([cli_dir], touched)
-        problems = verifier.validate_cli_dir(
-            cli_dir,
-            strict=False,
-            changed_files=files_by_dir.get(cli_dir, set()),
-        )
-
-        self.assertFalse(
-            any("PATCH marker" in p.message for p in problems),
-            msg=f"docs-only touch should skip patch-manifest validation; got {[p.message for p in problems]}",
-        )
-
-    def test_touched_patches_file_triggers_validation(self) -> None:
-        """If the patches manifest itself changes in the PR, validation runs
-        even on an existing CLI (non-strict).
-        """
-        cli_dir = self.tmp / "library" / "cloud" / "legacy"
-        self.git("checkout", "-B", "scenario-main", self.base)
-        self.write(
-            "library/cloud/legacy/.printing-press.json",
-            json.dumps({"schema_version": 1, "api_name": "legacy", "cli_name": "legacy-pp-cli"}),
-        )
-        self.write("library/cloud/legacy/internal/cli/legacy.go", "package cli\n")
-        self.git("add", ".")
-        self.git("commit", "-m", "seed legacy CLI without patches")
-        new_base = self.git("rev-parse", "HEAD").stdout.strip()
-        self.git("switch", "feature")
-        self.git("merge", "--ff-only", "scenario-main")
-
-        patch_manifest = {
-            "schema_version": 1,
-            "applied_at": "2026-05-09",
-            "patches": [
-                {
-                    "id": "added-now",
-                    "summary": "New tweak",
-                    "reason": "Reason.",
-                    "files": ["internal/cli/legacy.go"],
-                }
-            ],
-        }
-        self.write("library/cloud/legacy/.printing-press-patches.json", json.dumps(patch_manifest))
-        self.git("add", ".")
-        self.git("commit", "-m", "add patches manifest")
-
-        _, files_by_dir = verifier.changed_cli_dirs(new_base)
-        problems = verifier.validate_cli_dir(
-            cli_dir,
-            strict=False,
-            changed_files=files_by_dir.get(cli_dir, set()),
-        )
-
-        self.assertTrue(
-            any("PATCH marker" in p.message for p in problems),
-            msg=f"patches manifest changed → marker check should fire; got {[p.message for p in problems]}",
-        )
-
-    def test_marker_added_with_empty_patches_array_is_caught(self) -> None:
-        """Regression for greptile-flagged scope-guard bug on #587: if a PR
-        adds a // PATCH: marker to a source file but the CLI's
-        .printing-press-patches.json has patches: [], the prior scope guard
-        only added the manifest path to relevant_paths so the diff (which
-        touched only the .go file) bypassed the check entirely. Validation
-        must still fire and report markers-without-manifest.
-        """
-        cli_dir = self.tmp / "library" / "cloud" / "legacy"
-        # Seed pre-existing state on main: empty-patches manifest +
-        # marker-free source file.
-        self.git("checkout", "-B", "scenario-main", self.base)
         self.write(
             "library/cloud/legacy/.printing-press.json",
             json.dumps({"schema_version": 1, "api_name": "legacy", "cli_name": "legacy-pp-cli"}),
         )
         self.write(
             "library/cloud/legacy/.printing-press-patches.json",
-            json.dumps({"schema_version": 1, "applied_at": "2026-05-09", "patches": []}),
+            json.dumps({"schema_version": 1, "applied_at": "2026-05-17", "patches": []}),
         )
-        self.write("library/cloud/legacy/internal/cli/legacy.go", "package cli\n")
-        self.git("add", ".")
-        self.git("commit", "-m", "seed legacy CLI with empty patches[]")
-        new_base = self.git("rev-parse", "HEAD").stdout.strip()
-        self.git("switch", "feature")
-        self.git("merge", "--ff-only", "scenario-main")
-
-        # PR adds a PATCH marker to the Go file without touching the manifest.
         self.write(
             "library/cloud/legacy/internal/cli/legacy.go",
-            "// PATCH: tweak request envelope\npackage cli\n",
-        )
-        self.git("add", ".")
-        self.git("commit", "-m", "add patch marker but forget manifest entry")
-
-        _, files_by_dir = verifier.changed_cli_dirs(new_base)
-        problems = verifier.validate_cli_dir(
-            cli_dir,
-            strict=False,
-            changed_files=files_by_dir.get(cli_dir, set()),
-        )
-        self.assertTrue(
-            any("PATCH markers but patches[] is empty" in p.message for p in problems),
-            msg=f"empty patches[] + new marker should fire; got {[p.message for p in problems]}",
+            "// PATCH: leftover from a prior convention\npackage cli\n",
         )
 
-    def test_patch_entry_with_only_non_go_files_skips_marker_check(self) -> None:
-        """JSON/YAML-only customizations (e.g. spec.json redaction, schema
-        bump in .printing-press.json) record the patch in the manifest but
-        can't carry an inline // PATCH: comment. The manifest entry IS the
-        marker."""
+        problems = verifier.validate_patch_manifest(cli_dir, changed_files=None)
+        self.assertEqual(
+            [],
+            problems,
+            msg=f"marker-without-entry must no longer fire; got {[p.message for p in problems]}",
+        )
+
+    def test_patch_entry_referencing_missing_go_file_passes(self) -> None:
+        """The per-patch schema validation (files[] required, referenced
+        files must exist, .go files must carry markers) is gone. Agents are
+        trusted to follow the AGENTS.md shape; CI catches only structural
+        bugs that break downstream readers.
+        """
         cli_dir = self.tmp / "library" / "cloud" / "legacy"
         patch_manifest = {
             "schema_version": 1,
-            "applied_at": "2026-05-09",
+            "applied_at": "2026-05-17",
             "patches": [
                 {
-                    "id": "spec-redaction",
-                    "summary": "Redacted example tokens in spec.",
-                    "reason": "Push-protection.",
-                    "files": ["spec.json"],
+                    "id": "spec-edit",
+                    "summary": "tweak",
+                    "reason": "test",
+                    "files": ["internal/cli/never-existed.go"],
                 }
             ],
         }
@@ -348,97 +233,74 @@ class PublishPackageVerifierTest(unittest.TestCase):
             json.dumps({"schema_version": 1, "api_name": "legacy", "cli_name": "legacy-pp-cli"}),
         )
         self.write("library/cloud/legacy/.printing-press-patches.json", json.dumps(patch_manifest))
-        self.write("library/cloud/legacy/spec.json", '{"openapi": "3.0.0"}\n')
 
         problems = verifier.validate_patch_manifest(cli_dir, changed_files=None)
-        self.assertFalse(
-            any("PATCH marker" in p.message for p in problems),
-            msg=f"JSON-only patch should skip marker check; got {[p.message for p in problems]}",
+        self.assertEqual(
+            [],
+            problems,
+            msg=f"missing referenced file must no longer fire; got {[p.message for p in problems]}",
         )
 
-
-class HasPatchMarkerTest(unittest.TestCase):
-    """Unit tests for ``has_patch_marker`` to ensure only the documented
-    ``// PATCH:`` / ``// PATCH(...)`` comment convention is detected, not bare
-    HTTP method literals or other coincidental occurrences of the word.
-    """
-
-    def setUp(self) -> None:
-        self.tmp = Path(tempfile.mkdtemp(prefix="has-patch-marker-"))
-        self.addCleanup(lambda: shutil.rmtree(self.tmp))
-
-    def _write(self, name: str, body: str) -> Path:
-        path = self.tmp / name
-        path.write_text(body)
-        return path
-
-    def test_detects_real_patch_marker(self) -> None:
-        path = self._write(
-            "real.go",
-            "// PATCH: align response envelope with upstream\nfunc foo() {}\n",
+    def test_patches_set_to_non_array_fails(self) -> None:
+        """The one shape check CI still enforces: `patches` must be an array.
+        Downstream readers iterate over patches[]; a string or object here
+        would break every consumer of the file.
+        """
+        cli_dir = self.tmp / "library" / "cloud" / "legacy"
+        self.write(
+            "library/cloud/legacy/.printing-press.json",
+            json.dumps({"schema_version": 1, "api_name": "legacy", "cli_name": "legacy-pp-cli"}),
         )
-        self.assertTrue(verifier.has_patch_marker(path))
-
-    def test_detects_patch_marker_with_upstream_ref(self) -> None:
-        path = self._write(
-            "real.go",
-            "    // PATCH(upstream cli-printing-press#842): auto-fill AccountSid\n",
+        self.write(
+            "library/cloud/legacy/.printing-press-patches.json",
+            json.dumps({"schema_version": 1, "patches": "not-an-array"}),
         )
-        self.assertTrue(verifier.has_patch_marker(path))
 
-    def test_ignores_http_method_string_literal(self) -> None:
-        path = self._write(
-            "client.go",
-            'return c.do("PATCH", path, nil, body, nil)\n',
+        problems = verifier.validate_patch_manifest(cli_dir, changed_files=None)
+        self.assertTrue(
+            any("patches must be an array" in p.message for p in problems),
+            msg=f"non-array patches must fail; got {[p.message for p in problems]}",
         )
-        self.assertFalse(verifier.has_patch_marker(path))
 
-    def test_ignores_makeAPIHandler_PATCH(self) -> None:
-        path = self._write(
-            "tools.go",
-            'makeAPIHandler("PATCH", "/conversations/{id}", bindings, positional)\n',
+    def test_patches_set_to_null_passes(self) -> None:
+        """`patches: null` is treated as an empty array (the JSON spec's
+        documented shape uses an array literal, but `null` is a natural
+        intermediate state for an unedited template).
+        """
+        cli_dir = self.tmp / "library" / "cloud" / "legacy"
+        self.write(
+            "library/cloud/legacy/.printing-press.json",
+            json.dumps({"schema_version": 1, "api_name": "legacy", "cli_name": "legacy-pp-cli"}),
         )
-        self.assertFalse(verifier.has_patch_marker(path))
+        self.write(
+            "library/cloud/legacy/.printing-press-patches.json",
+            json.dumps({"schema_version": 1, "patches": None}),
+        )
 
-    def test_ignores_switch_case_PATCH(self) -> None:
-        path = self._write(
-            "tools.go",
-            'switch method {\ncase "POST", "PUT", "PATCH":\n    return body\n}\n',
-        )
-        self.assertFalse(verifier.has_patch_marker(path))
+        problems = verifier.validate_patch_manifest(cli_dir, changed_files=None)
+        self.assertEqual([], problems)
 
-    def test_ignores_annotation_map_value(self) -> None:
-        path = self._write(
-            "cmd.go",
-            'Annotations: map[string]string{"pp:method": "PATCH", "pp:path": "/x"},\n',
+    def test_malformed_json_in_patches_file_fails(self) -> None:
+        """`read_json` records a problem when the file isn't parseable, so
+        validate_patch_manifest inherits that behavior — we just need to
+        confirm the verifier still surfaces it after the simplification.
+        """
+        cli_dir = self.tmp / "library" / "cloud" / "legacy"
+        self.write(
+            "library/cloud/legacy/.printing-press.json",
+            json.dumps({"schema_version": 1, "api_name": "legacy", "cli_name": "legacy-pp-cli"}),
         )
-        self.assertFalse(verifier.has_patch_marker(path))
+        self.write(
+            "library/cloud/legacy/.printing-press-patches.json",
+            "{ not valid json",
+        )
 
-    def test_ignores_word_PATCH_in_string_or_comment(self) -> None:
-        path = self._write(
-            "doc.go",
-            "// This handler issues HTTP PATCH requests against the upstream API.\n",
+        problems = verifier.validate_patch_manifest(cli_dir, changed_files=None)
+        self.assertNotEqual(
+            [],
+            problems,
+            msg="malformed JSON should still surface as a problem",
         )
-        # Plain prose comment without the colon/paren marker shape is not a
-        # customization marker.
-        self.assertFalse(verifier.has_patch_marker(path))
-
-    def test_detects_marker_with_inline_patch_id(self) -> None:
-        # The `// PATCH <id>:` form is in use across pre-existing CLIs
-        # (e.g. openrouter, fireflies) and mirrors the `id` field shape from
-        # .printing-press-patches.json. Treat it as a documented third form.
-        path = self._write(
-            "marked.go",
-            "// PATCH mcp-http-transport: added --http :addr flag\n",
-        )
-        self.assertTrue(verifier.has_patch_marker(path))
-
-    def test_detects_marker_with_inline_patch_id_and_parens(self) -> None:
-        path = self._write(
-            "marked.go",
-            "// PATCH transcendence-commands(upstream cli-printing-press#825): hand-built\n",
-        )
-        self.assertTrue(verifier.has_patch_marker(path))
 
 
 if __name__ == "__main__":
