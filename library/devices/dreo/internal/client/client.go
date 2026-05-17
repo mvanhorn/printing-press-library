@@ -302,7 +302,14 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 			bodyReader = strings.NewReader(string(bodyBytes))
 		}
 
-		req, err := http.NewRequest(method, targetURL, bodyReader)
+		// NewRequestWithContext wires the request to a cancellable context
+		// so http.Client.Timeout (and any caller-installed SIGINT handler)
+		// can interrupt in-flight I/O. context.Background() is a placeholder
+		// until cmd.Context() is threaded through do()'s public callers
+		// (Get/Post/Put/Delete) — tracked for retro into the generator
+		// template; for now the timeout-bound cancellation path works.
+		ctx := context.Background()
+		req, err := http.NewRequestWithContext(ctx, method, targetURL, bodyReader)
 		if err != nil {
 			return nil, 0, fmt.Errorf("creating request: %w", err)
 		}

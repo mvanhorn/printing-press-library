@@ -16,36 +16,37 @@ import (
 )
 
 func newAuthLoginCmd(flags *rootFlags) *cobra.Command {
-	var (
-		username string
-		password string
-	)
+	// auth login intentionally has NO --password flag.
+	//
+	// A `--password <secret>` invocation leaks the plaintext value into
+	// /proc/<pid>/cmdline, `ps aux`, audit logs, and the user's shell
+	// history. Greptile P1 finding (auth_login.go) called this out;
+	// every reasonable IoT/cloud CLI rejects flag-supplied passwords
+	// for the same reason. Credentials come from env vars only:
+	//   DREO_USERNAME, DREO_PASSWORD (or `read -s` piped via the env).
 	cmd := &cobra.Command{
 		Use:   "login",
-		Short: "Exchange Dreo email/password for an access token (cached for subsequent calls)",
-		Example: `  dreo-pp-cli auth login
-  DREO_USERNAME=me@example.com DREO_PASSWORD=secret dreo-pp-cli auth login
-  dreo-pp-cli auth login --username me@example.com --password "$(cat ~/.dreo)"`,
+		Short: "Exchange DREO_USERNAME/DREO_PASSWORD env vars for an access token (cached for subsequent calls)",
+		Example: `  # Credentials come from env, never from flags (process tables / shell history leak).
+  export DREO_USERNAME=me@example.com
+  export DREO_PASSWORD='your-password'
+  dreo-pp-cli auth login`,
 		Annotations: map[string]string{"mcp:hidden": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cfg, err := config.Load(flags.configPath)
 			if err != nil {
 				return configErr(err)
 			}
-			if username == "" {
-				username = os.Getenv("DREO_USERNAME")
-			}
+			username := os.Getenv("DREO_USERNAME")
 			if username == "" {
 				username = cfg.DreoUsername
 			}
-			if password == "" {
-				password = os.Getenv("DREO_PASSWORD")
-			}
+			password := os.Getenv("DREO_PASSWORD")
 			if password == "" {
 				password = cfg.DreoPassword
 			}
 			if username == "" || password == "" {
-				return usageErr(fmt.Errorf("auth login requires DREO_USERNAME and DREO_PASSWORD (or --username/--password)"))
+				return usageErr(fmt.Errorf("auth login requires DREO_USERNAME and DREO_PASSWORD env vars. Flag-supplied passwords are rejected because they leak into ps/proc/shell history"))
 			}
 
 			if cliutil.IsVerifyEnv() {
@@ -93,7 +94,5 @@ func newAuthLoginCmd(flags *rootFlags) *cobra.Command {
 			return nil
 		},
 	}
-	cmd.Flags().StringVar(&username, "username", "", "Dreo email (defaults to $DREO_USERNAME)")
-	cmd.Flags().StringVar(&password, "password", "", "Dreo password (defaults to $DREO_PASSWORD)")
 	return cmd
 }

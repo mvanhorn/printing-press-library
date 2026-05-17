@@ -156,8 +156,19 @@ func convertDeviceList(rows []map[string]any) []store.Device {
 	return out
 }
 
-// listCachedOrFetch returns devices from the cache, or fetches+caches
-// them when the cache is empty / forced.
+// deviceCacheTTL bounds how long a synced device catalog can be served
+// without a refresh. Past this age the cache is treated as stale and
+// listCachedOrFetch falls through to the live endpoint. The window is
+// generous because device-list churn on a single Dreo account is rare
+// (devices are added/removed manually in the app), but bounded so that
+// `bulk --all`, `scene save`, and `rooms` never silently operate on a
+// snapshot from weeks ago when the account has changed.
+const deviceCacheTTL = 1 * time.Hour
+
+// listCachedOrFetch returns devices from the cache when at least one row
+// exists AND every row was updated within deviceCacheTTL. If the cache
+// is empty, stale, or forceLive is set, it refetches from the live API
+// and writes through the store.
 func listCachedOrFetch(ctx context.Context, flags *rootFlags, forceLive bool) ([]store.Device, error) {
 	if !forceLive {
 		st, err := openStore()
@@ -165,7 +176,16 @@ func listCachedOrFetch(ctx context.Context, flags *rootFlags, forceLive bool) ([
 			defer st.Close()
 			devs, err := st.ListDevices(ctx)
 			if err == nil && len(devs) > 0 {
-				return devs, nil
+				oldest := time.Now()
+				for _, d := range devs {
+					if d.UpdatedAt.Before(oldest) {
+						oldest = d.UpdatedAt
+					}
+				}
+				if time.Since(oldest) <= deviceCacheTTL {
+					return devs, nil
+				}
+				// Cache is stale: fall through to live fetch.
 			}
 		}
 	}
