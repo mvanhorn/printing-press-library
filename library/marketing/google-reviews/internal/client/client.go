@@ -377,7 +377,11 @@ func (c *Client) do(ctx context.Context, method, path string, params map[string]
 			c.limiter.OnRateLimit()
 			wait := cliutil.RetryAfter(resp)
 			fmt.Fprintf(os.Stderr, "rate limited, waiting %s (attempt %d/%d, rate adjusted to %.1f req/s)\n", wait, attempt+1, maxRetries, c.limiter.Rate())
-			time.Sleep(wait)
+			select {
+			case <-time.After(wait):
+			case <-ctx.Done():
+				return nil, 0, ctx.Err()
+			}
 			lastErr = apiErr
 			continue
 		}
@@ -386,7 +390,11 @@ func (c *Client) do(ctx context.Context, method, path string, params map[string]
 		if resp.StatusCode >= 500 && attempt < maxRetries {
 			wait := time.Duration(math.Pow(2, float64(attempt))) * time.Second
 			fmt.Fprintf(os.Stderr, "server error %d, retrying in %s (attempt %d/%d)\n", resp.StatusCode, wait, attempt+1, maxRetries)
-			time.Sleep(wait)
+			select {
+			case <-time.After(wait):
+			case <-ctx.Done():
+				return nil, 0, ctx.Err()
+			}
 			lastErr = apiErr
 			continue
 		}
