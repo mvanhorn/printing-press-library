@@ -59,7 +59,7 @@ func newWatchlistCheckCmd(flags *rootFlags) *cobra.Command {
 			cacheHits := 0
 			for _, entry := range entries {
 				issuesPath := "/types/" + strconv.FormatInt(entry.TypeID, 10) + "/issues"
-				issuesData, live, err := quotaTrackedGet(cmd.Context(), c, issuesPath, map[string]string{"lang": lang})
+				issuesData, live, err := quotaTrackedGet(cmd.Context(), c, s, issuesPath, map[string]string{"lang": lang})
 				if err != nil {
 					return classifyAPIError(err, flags)
 				}
@@ -78,7 +78,7 @@ func newWatchlistCheckCmd(flags *rootFlags) *cobra.Command {
 						continue
 					}
 					pricePath := fmt.Sprintf("/types/%d/issues/%d/prices", entry.TypeID, issueID)
-					priceData, live, err := quotaTrackedGet(cmd.Context(), c, pricePath, map[string]string{"currency": currency, "lang": lang})
+					priceData, live, err := quotaTrackedGet(cmd.Context(), c, s, pricePath, map[string]string{"currency": currency, "lang": lang})
 					if err != nil {
 						return classifyAPIError(err, flags)
 					}
@@ -142,7 +142,7 @@ func newWatchlistCheckCmd(flags *rootFlags) *cobra.Command {
 					})
 				}
 			}
-			q, err := readQuota(cmd.Context())
+			q, err := readQuota(cmd.Context(), s)
 			if err != nil {
 				return err
 			}

@@ -51,8 +51,13 @@ func newUsersCollectionsHydrateCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			s, err := store.OpenWithContext(cmd.Context(), defaultDBPath("numista-pp-cli"))
+			if err != nil {
+				return err
+			}
+			defer s.Close()
 			if withPrices {
-				q, err := readQuota(cmd.Context())
+				q, err := readQuota(cmd.Context(), s)
 				if err != nil {
 					return err
 				}
@@ -61,11 +66,6 @@ func newUsersCollectionsHydrateCmd(flags *rootFlags) *cobra.Command {
 					return usageErr(fmt.Errorf("collection has %d items needing price lookups but only %d quota remaining this month", needed, q.Remaining))
 				}
 			}
-			s, err := store.OpenWithContext(cmd.Context(), defaultDBPath("numista-pp-cli"))
-			if err != nil {
-				return err
-			}
-			defer s.Close()
 			synced := 0
 			for _, item := range items {
 				raw, _ := json.Marshal(item)
@@ -100,7 +100,7 @@ func newUsersCollectionsHydrateCmd(flags *rootFlags) *cobra.Command {
 					pricesFetched++
 				}
 			}
-			q, err := readQuota(cmd.Context())
+			q, err := readQuota(cmd.Context(), s)
 			if err != nil {
 				return err
 			}

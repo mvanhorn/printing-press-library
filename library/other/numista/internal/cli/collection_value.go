@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
+	"github.com/mvanhorn/printing-press-library/library/other/numista/internal/store"
 )
 
 type collectionValueItem struct {
@@ -49,6 +50,11 @@ func newCollectionValueCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			s, err := store.OpenWithContext(cmd.Context(), defaultDBPath("numista-pp-cli"))
+			if err != nil {
+				return err
+			}
+			defer s.Close()
 			path := fmt.Sprintf("/users/%d/collected_items", userID)
 			params := map[string]string{"lang": "en"}
 			if collectionID != 0 {
@@ -64,7 +70,7 @@ func newCollectionValueCmd(flags *rootFlags) *cobra.Command {
 			}
 			priceKeys := distinctPriceKeys(items)
 			if !noRefreshStale {
-				q, err := readQuota(cmd.Context())
+				q, err := readQuota(cmd.Context(), s)
 				if err != nil {
 					return err
 				}
@@ -109,7 +115,7 @@ func newCollectionValueCmd(flags *rootFlags) *cobra.Command {
 				}
 				outItems = append(outItems, row)
 			}
-			q, err := readQuota(cmd.Context())
+			q, err := readQuota(cmd.Context(), s)
 			if err != nil {
 				return err
 			}

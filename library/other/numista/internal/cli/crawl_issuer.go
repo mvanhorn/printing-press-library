@@ -44,16 +44,19 @@ func newCrawlIssuerCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			s, err := store.OpenWithContext(cmd.Context(), defaultDBPath("numista-pp-cli"))
+			if err != nil {
+				return err
+			}
+			defer s.Close()
 			if flags.dryRun {
 				// PATCH: crawl dry-run forecasts from the live first page, not
 				// the generated client's generic no-request dry-run preview.
 				c.DryRun = false
-				if s, err := store.OpenWithContext(cmd.Context(), defaultDBPath("numista-pp-cli")); err == nil {
-					c.SetLogHook(makeLookupLogHook(s))
-				}
+				c.SetLogHook(makeLookupLogHook(s))
 			}
 			params := issuerParams(issuer, years, category, 1)
-			first, firstLive, err := quotaTrackedGet(cmd.Context(), c, "/types", params)
+			first, firstLive, err := quotaTrackedGet(cmd.Context(), c, s, "/types", params)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -63,7 +66,7 @@ func newCrawlIssuerCmd(flags *rootFlags) *cobra.Command {
 				pagesNeeded = 1
 				total = len(items)
 			}
-			q, err := readQuota(cmd.Context())
+			q, err := readQuota(cmd.Context(), s)
 			if err != nil {
 				return err
 			}
@@ -85,17 +88,20 @@ func newCrawlIssuerCmd(flags *rootFlags) *cobra.Command {
 			fetched := len(items)
 			liveCalls := boolToCount(firstLive)
 			cacheHits := 1 - liveCalls
+			stored, _ := persistTypeItems(s, items)
 			for page := 2; page <= maxPages; page++ {
 				if page > pagesNeeded && pagesNeeded > 0 {
 					break
 				}
 				params := issuerParams(issuer, years, category, page)
-				data, live, err := quotaTrackedGet(cmd.Context(), c, "/types", params)
+				data, live, err := quotaTrackedGet(cmd.Context(), c, s, "/types", params)
 				if err != nil {
 					return classifyAPIError(err, flags)
 				}
 				pageItems, _ := extractTypesAndTotal(data)
 				fetched += len(pageItems)
+				pageStored, _ := persistTypeItems(s, pageItems)
+				stored += pageStored
 				if live {
 					liveCalls++
 				} else {
@@ -105,13 +111,14 @@ func newCrawlIssuerCmd(flags *rootFlags) *cobra.Command {
 					break
 				}
 			}
-			after, err := readQuota(cmd.Context())
+			after, err := readQuota(cmd.Context(), s)
 			if err != nil {
 				return err
 			}
 			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
 				"issuer":        issuer,
 				"fetched_types": fetched,
+				"stored_types":  stored,
 				"live_calls":    liveCalls,
 				"cache_hits":    cacheHits,
 				"quota_after":   after,
@@ -138,6 +145,35 @@ func issuerParams(issuer, years, category string, page int) map[string]string {
 		params["category"] = category
 	}
 	return params
+}
+
+// persistTypeItems writes each type object returned by /types into the local
+// store so subsequent search/audit commands can find them offline. Skips
+// items that fail to re-marshal (they were already-decoded map[string]any).
+// Returns (stored, skipped). Errors from individual rows are folded into
+// skipped rather than aborting — a partial crawl is still useful.
+func persistTypeItems(s *store.Store, items []map[string]any) (int, int) {
+	if len(items) == 0 {
+		return 0, 0
+	}
+	raws := make([]json.RawMessage, 0, len(items))
+	skipped := 0
+	for _, item := range items {
+		b, err := json.Marshal(item)
+		if err != nil {
+			skipped++
+			continue
+		}
+		raws = append(raws, b)
+	}
+	if len(raws) == 0 {
+		return 0, skipped
+	}
+	stored, batchSkipped, err := s.UpsertBatch("types", raws)
+	if err != nil {
+		return stored, skipped + batchSkipped + (len(raws) - stored - batchSkipped)
+	}
+	return stored, skipped + batchSkipped
 }
 
 func extractTypesAndTotal(raw json.RawMessage) ([]map[string]any, int) {

@@ -8,6 +8,7 @@ import (
 	"strconv"
 
 	"github.com/spf13/cobra"
+	"github.com/mvanhorn/printing-press-library/library/other/numista/internal/store"
 )
 
 // PATCH: hand-written full type/issue/price curve command promised by README Highlights.
@@ -40,13 +41,18 @@ func newTypesSeriesCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			s, err := store.OpenWithContext(cmd.Context(), defaultDBPath("numista-pp-cli"))
+			if err != nil {
+				return err
+			}
+			defer s.Close()
 			typePath := "/types/" + strconv.FormatInt(typeID, 10)
-			typeData, typeLive, err := quotaTrackedGet(cmd.Context(), c, typePath, map[string]string{"lang": lang})
+			typeData, typeLive, err := quotaTrackedGet(cmd.Context(), c, s, typePath, map[string]string{"lang": lang})
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
 			issuesPath := typePath + "/issues"
-			issuesData, issuesLive, err := quotaTrackedGet(cmd.Context(), c, issuesPath, map[string]string{"lang": lang})
+			issuesData, issuesLive, err := quotaTrackedGet(cmd.Context(), c, s, issuesPath, map[string]string{"lang": lang})
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -64,7 +70,7 @@ func newTypesSeriesCmd(flags *rootFlags) *cobra.Command {
 					continue
 				}
 				pricePath := fmt.Sprintf("%s/issues/%d/prices", typePath, issueID)
-				priceData, live, err := quotaTrackedGet(cmd.Context(), c, pricePath, map[string]string{"currency": currency, "lang": lang})
+				priceData, live, err := quotaTrackedGet(cmd.Context(), c, s, pricePath, map[string]string{"currency": currency, "lang": lang})
 				if err != nil {
 					issues[i]["prices"] = nil
 					continue

@@ -59,8 +59,13 @@ func newTypesBatchCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return usageErr(err)
 			}
+			s, err := store.OpenWithContext(cmd.Context(), defaultDBPath("numista-pp-cli"))
+			if err != nil {
+				return err
+			}
+			defer s.Close()
 			if flags.dryRun {
-				forecast, err := forecastBatch(cmd.Context(), ids)
+				forecast, err := forecastBatch(cmd.Context(), s, ids)
 				if err != nil {
 					return err
 				}
@@ -91,7 +96,7 @@ func newTypesBatchCmd(flags *rootFlags) *cobra.Command {
 				if done[id] {
 					continue
 				}
-				_, live, err := quotaTrackedGet(cmd.Context(), c, "/types/"+strconv.FormatInt(id, 10), map[string]string{"lang": lang})
+				_, live, err := quotaTrackedGet(cmd.Context(), c, s, "/types/"+strconv.FormatInt(id, 10), map[string]string{"lang": lang})
 				if err != nil {
 					summary["errors"] = summary["errors"].(int) + 1
 					var apiError *client.APIError
@@ -115,7 +120,7 @@ func newTypesBatchCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 			}
-			q, err := readQuota(cmd.Context())
+			q, err := readQuota(cmd.Context(), s)
 			if err != nil {
 				return err
 			}
@@ -239,14 +244,14 @@ func parsePositiveInt64(s string) (int64, error) {
 	return id, nil
 }
 
-func forecastBatch(ctx context.Context, ids []int64) (map[string]any, error) {
-	q, err := readQuota(ctx)
+func forecastBatch(ctx context.Context, s *store.Store, ids []int64) (map[string]any, error) {
+	q, err := readQuota(ctx, s)
 	if err != nil {
 		return nil, err
 	}
 	cached := 0
 	for _, id := range ids {
-		ok, err := recentFreshLookup(ctx, "/types/"+strconv.FormatInt(id, 10))
+		ok, err := recentFreshLookup(ctx, s, "/types/"+strconv.FormatInt(id, 10))
 		if err != nil {
 			return nil, err
 		}
@@ -267,23 +272,17 @@ func forecastBatch(ctx context.Context, ids []int64) (map[string]any, error) {
 	}, nil
 }
 
-func readQuota(ctx context.Context) (cliutil.QuotaSnapshot, error) {
-	s, err := store.OpenWithContext(ctx, defaultDBPath("numista-pp-cli"))
-	if err != nil {
-		return cliutil.QuotaSnapshot{}, err
-	}
-	defer s.Close()
+// readQuota reads this month's used/remaining quota from the lookup_log table
+// on the caller-supplied store handle. Callers MUST open the store once per
+// command invocation and reuse the handle across every readQuota call to
+// avoid per-call open+migrate+close churn under the SQLite migration lock.
+func readQuota(ctx context.Context, s *store.Store) (cliutil.QuotaSnapshot, error) {
 	return cliutil.ReadQuotaFromDB(ctx, s.DB())
 }
 
-func recentFreshLookup(ctx context.Context, endpoint string) (bool, error) {
-	s, err := store.OpenWithContext(ctx, defaultDBPath("numista-pp-cli"))
-	if err != nil {
-		return false, err
-	}
-	defer s.Close()
+func recentFreshLookup(ctx context.Context, s *store.Store, endpoint string) (bool, error) {
 	var n int
-	err = s.DB().QueryRowContext(ctx,
+	err := s.DB().QueryRowContext(ctx,
 		`SELECT COUNT(*) FROM lookup_log
 		 WHERE endpoint = ?
 		   AND is_valid_request = 1
@@ -294,13 +293,16 @@ func recentFreshLookup(ctx context.Context, endpoint string) (bool, error) {
 	return n > 0, nil
 }
 
-func quotaTrackedGet(ctx context.Context, c *client.Client, path string, params map[string]string) (json.RawMessage, bool, error) {
-	before, err := readQuota(ctx)
+// quotaTrackedGet wraps a client GET and reports whether the call was live
+// (vs cache-served) by comparing the lookup_log row count before/after. The
+// store handle threads through from the caller's RunE — see readQuota.
+func quotaTrackedGet(ctx context.Context, c *client.Client, s *store.Store, path string, params map[string]string) (json.RawMessage, bool, error) {
+	before, err := readQuota(ctx, s)
 	if err != nil {
 		return nil, false, err
 	}
 	data, err := c.GetWithHeaders(path, params, nil)
-	after, qerr := readQuota(ctx)
+	after, qerr := readQuota(ctx, s)
 	if qerr != nil {
 		return nil, false, qerr
 	}

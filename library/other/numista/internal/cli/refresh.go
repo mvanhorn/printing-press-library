@@ -61,6 +61,11 @@ func newRefreshCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			s, err := store.OpenWithContext(cmd.Context(), defaultDBPath("numista-pp-cli"))
+			if err != nil {
+				return err
+			}
+			defer s.Close()
 			refreshed := 0
 			errs := 0
 			for _, entry := range stale {
@@ -76,7 +81,7 @@ func newRefreshCmd(flags *rootFlags) *cobra.Command {
 					refreshed++
 				}
 			}
-			q, err := readQuota(cmd.Context())
+			q, err := readQuota(cmd.Context(), s)
 			if err != nil {
 				return err
 			}
