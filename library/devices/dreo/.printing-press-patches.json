@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-17",
+  "base_run_id": "20260517-015408",
+  "base_printing_press_version": "4.8.0",
+  "patches": [
+    {
+      "id": "fix-bearer-auth-from-email",
+      "summary": "Remove the generator's `Bearer <DreoUsername>` synthesis path in Config.AuthHeader(); return empty string when no AccessToken is set.",
+      "reason": "When env_vars are declared as `[USERNAME, PASSWORD]` (a credential pair for an OAuth exchange, not a bearer-shaped token), the generator emits an AuthHeader() that falls back to `\"Bearer \" + c.DreoUsername`. DreoUsername is the user's email address, not a token, so every authenticated request goes out with `Authorization: Bearer trevin@trevinchow.com` and the server returns 401. The fix keeps the AccessToken branch and drops the email-as-token fallback.",
+      "files": [
+        "internal/config/config.go"
+      ],
+      "validated_outcome": "go build + go vet pass; `auth login` now correctly populates AccessToken; subsequent requests carry the real bearer token; `doctor` reports authenticated against the real Dreo API.",
+      "upstream_issue": "cli-printing-press: when auth.env_vars is a credential pair (USERNAME+PASSWORD) rather than a single token, the generator should either not emit the synthesis fallback in Config.AuthHeader() or emit an obvious sentinel — the current Bearer-the-username path silently 401s every call."
+    },
+    {
+      "id": "dont-persist-plaintext-credentials",
+      "summary": "Change Config.DreoUsername / Config.DreoPassword toml tags from `username`/`password` to `-` so plaintext credentials are never written to ~/.config/dreo-pp-cli/config.toml.",
+      "reason": "Generator emits toml tags that mirror the env var names; when SaveTokens marshals the Config struct back to disk it persists the live password in plaintext alongside the OAuth access_token. The bearer token is the durable at-rest artifact; the credential pair should live in env only.",
+      "files": [
+        "internal/config/config.go"
+      ],
+      "validated_outcome": "After `auth login` the saved config contains only access_token and region; grep confirms zero occurrences of the plaintext password and email in ~/.config/dreo-pp-cli/config.toml.",
+      "upstream_issue": "cli-printing-press: when auth.env_vars is a credential pair the generator should emit toml:`-` for the credential fields by default; only durable token artifacts should round-trip through SaveTokens."
+    },
+    {
+      "id": "lazy-login-from-env",
+      "summary": "Add Client.lazyLogin() and call it from authHeader() when DREO_USERNAME+DREO_PASSWORD are set but no AccessToken is cached.",
+      "reason": "`printing-press dogfood --live` runs each subprocess under a scoped HOME (a fresh tempdir) so the printed CLI's auth login can't pollute the operator's real ~/.config. Without auto-login, every subprocess starts with no cached token and every auth-requiring command returns 401. Adding a lazy-login path that uses DREO_USERNAME/PASSWORD from env makes the CLI work under env-only credentials (matches how every other API-key CLI works) and unblocks live dogfood. The fix also makes the first-time UX correct: set the env vars, run any command, the CLI exchanges credentials for a token transparently.",
+      "files": [
+        "internal/client/client.go"
+      ],
+      "validated_outcome": "Live dogfood matrix: 64/64 tests pass under scoped HOME with only DREO_USERNAME and DREO_PASSWORD in env. Manually verified: `HOME=$(mktemp -d) DREO_USERNAME=... DREO_PASSWORD=... ./dreo-pp-cli devices list` returns the live device list.",
+      "upstream_issue": "cli-printing-press: for credential-pair auth (USERNAME+PASSWORD or two-secret pairs that need exchange), the generator should emit a lazy-login hook in the client constructor so dogfood --live's scoped-HOME pattern doesn't require every CLI to hand-write it."
+    },
+    {
+      "id": "dreo-state-envelope-flatten",
+      "summary": "Add flattenState() in internal/cli/dreo_helpers.go that unwraps Dreo's `{state: <value>, timestamp: <unix>}` field envelopes and merges the `mixed` and `deviceInfo` sub-objects into a flat state map.",
+      "reason": "Dreo's `/api/user-device/device/state` endpoint returns `{data: {mixed: {temperature: {state: 74, timestamp: 1779010394}, ...}}}`. Without flattening, every novel command that reads state (sensors, alerts, scene save, etc.) sees `temperature = map[state:74 timestamp:...]` and asFloat returns 0/false. The flatten step is Dreo-specific packaging the generator can't infer from the spec alone.",
+      "files": [
+        "internal/cli/dreo_helpers.go"
+      ],
+      "validated_outcome": "Live sensors command returns the real device's 74°F reading; rooms aggregates correctly; scene save captures real state values. All 8 novel features verified live."
+    },
+    {
+      "id": "devices-online-default-true",
+      "summary": "In convertDeviceList(), default `online: true` when the device list response doesn't include an `online` field.",
+      "reason": "Dreo's `/api/v2/user-device/device/list` endpoint does not return an `online` key. The generator's `asBool()` returns false on missing field, so every freshly-synced device is misreported as offline before any subsequent state call has run. Online status actually comes from `mixed.connected` in the state endpoint.",
+      "files": [
+        "internal/cli/dreo_helpers.go"
+      ],
+      "validated_outcome": "`devices search Fan --json` reports online=true for the real device, matching its actual state."
+    },
+    {
+      "id": "sensors-lazy-state-fetch",
+      "summary": "In `sensors`, fetch state for each device live when the local cache is empty (previously required --live flag).",
+      "reason": "First-run `sensors` returned 'No sensor data found' because the local device_state cache was empty and sensors only fetched live when --live was passed explicitly. Switching to a cache-first-then-live fallback makes the command useful on first invocation.",
+      "files": [
+        "internal/cli/sensors.go"
+      ],
+      "validated_outcome": "First-run `dreo-pp-cli sensors` returns the live sensor snapshot without needing --live."
+    },
+    {
+      "id": "watch-validate-filter",
+      "summary": "In `watch <device>`, resolve the positional filter against the local catalog before opening the WebSocket; exit non-zero on not-found instead of silently watching forever.",
+      "reason": "`watch <unknown-device>` previously fell through to opening the WS and filtering by a sn that never appears in any frame — appears to work but silently produces no output. The dogfood error_path probe expects a non-zero exit for invalid positional args.",
+      "files": [
+        "internal/cli/watch.go"
+      ],
+      "validated_outcome": "`watch unknown-zzz` returns exit code 9 (not-found); dogfood error_path PASS."
+    },
+    {
+      "id": "novel-features-build-out",
+      "summary": "Build the 8 transcendence features approved at the Phase 1.5 absorb gate: bulk, sensors (+ record, + query), watch, alerts, scene (save/apply/list), rooms, devices search.",
+      "reason": "These are the differentiating commands that make dreo-pp-cli a useful standalone tool rather than a thin endpoint mirror. Every existing Dreo client (hass-dreo, homebridge-dreo, dreo-team SDK) is bundled inside Home Assistant, Homebridge, or a Python provider library — none are runnable from cron or callable by an agent. The CLI's value is the local SQLite cache + WebSocket fan-out + sensor history that no other Dreo tool keeps.",
+      "files": [
+        "internal/cli/auth_login.go",
+        "internal/cli/set.go",
+        "internal/cli/bulk.go",
+        "internal/cli/watch.go",
+        "internal/cli/sensors.go",
+        "internal/cli/sensors_record.go",
+        "internal/cli/sensors_query.go",
+        "internal/cli/alerts.go",
+        "internal/cli/scene.go",
+        "internal/cli/rooms.go",
+        "internal/cli/devices_search.go",
+        "internal/dreoauth/login.go",
+        "internal/dreows/client.go",
+        "internal/store/store.go"
+      ],
+      "validated_outcome": "All 8 novel features built and behaviorally verified against the real Dreo API (64/64 live dogfood tests pass against the test account)."
+    }
+  ]
+}
