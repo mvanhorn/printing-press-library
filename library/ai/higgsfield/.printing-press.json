@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-17T03:13:25.8401101Z",
+  "printing_press_version": "4.7.0",
+  "api_name": "higgsfield",
+  "display_name": "Higgsfield",
+  "cli_name": "higgsfield-pp-cli",
+  "owner": "higgsfield-ai",
+  "printer": "kizillion",
+  "printer_name": "kizillion",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:6b797877c25295b7a1fad0589e2e5805d4769ce4eb9736a409101ce1a85e30f2",
+  "run_id": "20260516-185459",
+  "description": "Drive Higgsfield image and video generation, train Soul IDs, fan out across models, and search past prompts \u00e2\u20ac\u201d with a local SQLite store no other Higgsfield tool has.",
+  "mcp_binary": "higgsfield-pp-mcp",
+  "mcp_tool_count": 13,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "HIGGSFIELD_JWT"
+  ],
+  "novel_features": [
+    {
+      "name": "Batch model fanout",
+      "command": "fanout",
+      "description": "Submit one prompt to N models in parallel and track them as a single fanout group."
+    },
+    {
+      "name": "Fanout wait + compare",
+      "command": "fanout wait",
+      "description": "Poll every job in a fanout, then render a side-by-side table of model, cost, duration, and result URL."
+    },
+    {
+      "name": "Soul library search",
+      "command": "soul-ids search",
+      "description": "Full-text search across Soul ID names plus the prompts each Soul ID has been used in, ranked by last-used."
+    },
+    {
+      "name": "Credit guard for batches",
+      "command": "fanout --max-cost",
+      "description": "Pre-flight cost estimate across every fanout model; refuses to submit if total exceeds the cap and prints the per-model breakdown."
+    },
+    {
+      "name": "Prompt history search",
+      "command": "search",
+      "description": "FTS5 search across every prompt you've ever submitted, joined with model, Soul ID name, and transaction memo."
+    },
+    {
+      "name": "Soul usage report",
+      "command": "soul-ids usage",
+      "description": "Every generation that used a given Soul ID, ordered by date, with thumbnail URLs and total cost."
+    },
+    {
+      "name": "Account spend report",
+      "command": "account spend",
+      "description": "Local SQL aggregation over synced credit transactions, grouped by model, day, or Soul ID."
+    },
+    {
+      "name": "Generations export",
+      "command": "generate export",
+      "description": "Export the local generations table joined with models and Soul IDs to CSV or JSONL for spreadsheet review or downstream pipelines."
+    }
+  ],
+  "category": "ai"
+}

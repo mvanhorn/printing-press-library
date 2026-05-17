@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-05-17T03:24:58.2955509Z",
+  "cli_dir": "\u003ccli-dir\u003e\\higgsfield",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 7,
+    "captured": "2026-05-17T03:18:55.9991846Z"
+  }
+}

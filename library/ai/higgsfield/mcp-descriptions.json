@@ -1,0 +1,5 @@
+{
+  "descriptions": {
+    "generations_cancel": "Cancel a pending Higgsfield generation job before it completes. Required: request_id (path) — the generation/job ID returned when the generation was submitted (UUID format). Returns the job's final state with status set to canceled. Use this when a long-running video or image job is no longer needed; cancellation may not be possible once a job has reached a terminal state (succeeded, failed). Prefer over deleting via the local store, which only forgets the job locally without freeing remote compute."
+  }
+}

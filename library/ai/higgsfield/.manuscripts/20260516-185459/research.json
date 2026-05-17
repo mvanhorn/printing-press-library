@@ -1,0 +1,296 @@
+{
+  "api_name": "higgsfield",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "higgsfield-ai/cli",
+      "url": "https://github.com/higgsfield-ai/cli",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 30,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Hikhakk/higgsfield-mcp-unified",
+      "url": "https://github.com/Hikhakk/higgsfield-mcp-unified",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "higgsfield-ai/higgsfield-client",
+      "url": "https://github.com/higgsfield-ai/higgsfield-client",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 10,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "higgsfield-ai/higgsfield-js",
+      "url": "https://github.com/higgsfield-ai/higgsfield-js",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 10,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "geopopos/higgsfield_ai_mcp",
+      "url": "https://github.com/geopopos/higgsfield_ai_mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-16T10:55:00Z",
+  "novel_features": [
+    {
+      "name": "Batch model fanout",
+      "command": "fanout",
+      "description": "Submit one prompt to N models in parallel and track them as a single fanout group.",
+      "rationale": "Requires local SQLite to link request_ids under a fanout_id; the official CLI and both MCPs are single-job primitives.",
+      "example": "higgsfield-pp-cli fanout --prompt \"cinematic dawn over Manhattan, slow camera push\" --models veo3_1,seedance_2_0,kling3_0 --max-cost 200 --json",
+      "why_it_matters": "Reach for this whenever you need to compare the same prompt across models; one command replaces N submits and N polls.",
+      "group": "Batch orchestration"
+    },
+    {
+      "name": "Fanout wait + compare",
+      "command": "fanout wait",
+      "description": "Poll every job in a fanout, then render a side-by-side table of model, cost, duration, and result URL.",
+      "rationale": "Requires a local generations table joined on fanout_id; no upstream tool persists grouped runs.",
+      "example": "higgsfield-pp-cli fanout wait fan_20260516_001 --json --select model,cost,result_url",
+      "why_it_matters": "Decide which model to ship by reading one table, not N tabs.",
+      "group": "Batch orchestration"
+    },
+    {
+      "name": "Soul library search",
+      "command": "soul-ids search",
+      "description": "Full-text search across Soul ID names plus the prompts each Soul ID has been used in, ranked by last-used.",
+      "rationale": "FTS5 index over the local soul_ids and generations tables; the official soul-id list is unindexed and exposes only the raw API page.",
+      "example": "higgsfield-pp-cli soul-ids search \"riggs\" --json",
+      "why_it_matters": "Stop scrolling Soul IDs to find the one you trained two months ago; ask by name or by the prompt that used it.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Credit guard for batches",
+      "command": "fanout --max-cost",
+      "description": "Pre-flight cost estimate across every fanout model; refuses to submit if total exceeds the cap and prints the per-model breakdown.",
+      "rationale": "Sums real per-model cost endpoint estimates locally before any submit lands; no upstream tool enforces a pre-flight budget.",
+      "example": "higgsfield-pp-cli fanout --prompt \"...\" --models veo3_1,veo3_1_lite --max-cost 80",
+      "why_it_matters": "Run before you spend; the operator (or agent) sees the credit hit before the run lands.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Prompt history search",
+      "command": "search",
+      "description": "FTS5 search across every prompt you've ever submitted, joined with model, Soul ID name, and transaction memo.",
+      "rationale": "Built on the framework's local FTS index over synced generations; the official CLI's generate list re-paginates the API.",
+      "example": "higgsfield-pp-cli search \"cinematic riggs dawn\" --json --select prompt,model,result_url,created_at",
+      "why_it_matters": "Recall the exact prompt that produced last week's hero shot without re-typing or guessing.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Soul usage report",
+      "command": "soul-ids usage",
+      "description": "Every generation that used a given Soul ID, ordered by date, with thumbnail URLs and total cost.",
+      "rationale": "Local SQL join over soul_ids and generations; impossible without persisting both tables locally.",
+      "example": "higgsfield-pp-cli soul-ids usage soul_riggs_42 --since 30d --json",
+      "why_it_matters": "Audit a Soul ID's history before retiring it, or pull every cut-in for an episode summary.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Account spend report",
+      "command": "account spend",
+      "description": "Local SQL aggregation over synced credit transactions, grouped by model, day, or Soul ID.",
+      "rationale": "Joins transactions × generations × models on request_id; the official account transactions returns flat events.",
+      "example": "higgsfield-pp-cli account spend --since 7d --group-by model --json",
+      "why_it_matters": "Weekly credit review without manual pagination; forecasts next month's spend by trend.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Generations export",
+      "command": "generate export",
+      "description": "Export the local generations table joined with models and Soul IDs to CSV or JSONL for spreadsheet review or downstream pipelines.",
+      "rationale": "Reads from the local synced store with a standard CSV/JSONL encoder; agent-friendly pipeline output.",
+      "example": "higgsfield-pp-cli export models --format jsonl --output models.jsonl",
+      "why_it_matters": "Hand the week's output to any tool that reads CSV/JSONL; no manual scraping required.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Batch model fanout",
+      "command": "fanout",
+      "description": "Submit one prompt to N models in parallel and track them as a single fanout group.",
+      "rationale": "Requires local SQLite to link request_ids under a fanout_id; the official CLI and both MCPs are single-job primitives.",
+      "example": "higgsfield-pp-cli fanout --prompt \"cinematic dawn over Manhattan, slow camera push\" --models veo3_1,seedance_2_0,kling3_0 --max-cost 200 --json",
+      "why_it_matters": "Reach for this whenever you need to compare the same prompt across models; one command replaces N submits and N polls.",
+      "group": "Batch orchestration"
+    },
+    {
+      "name": "Fanout wait + compare",
+      "command": "fanout wait",
+      "description": "Poll every job in a fanout, then render a side-by-side table of model, cost, duration, and result URL.",
+      "rationale": "Requires a local generations table joined on fanout_id; no upstream tool persists grouped runs.",
+      "example": "higgsfield-pp-cli fanout wait fan_20260516_001 --json --select model,cost,result_url",
+      "why_it_matters": "Decide which model to ship by reading one table, not N tabs.",
+      "group": "Batch orchestration"
+    },
+    {
+      "name": "Soul library search",
+      "command": "soul-ids search",
+      "description": "Full-text search across Soul ID names plus the prompts each Soul ID has been used in, ranked by last-used.",
+      "rationale": "FTS5 index over the local soul_ids and generations tables; the official soul-id list is unindexed and exposes only the raw API page.",
+      "example": "higgsfield-pp-cli soul-ids search \"riggs\" --json",
+      "why_it_matters": "Stop scrolling Soul IDs to find the one you trained two months ago; ask by name or by the prompt that used it.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Credit guard for batches",
+      "command": "fanout --max-cost",
+      "description": "Pre-flight cost estimate across every fanout model; refuses to submit if total exceeds the cap and prints the per-model breakdown.",
+      "rationale": "Sums real per-model cost endpoint estimates locally before any submit lands; no upstream tool enforces a pre-flight budget.",
+      "example": "higgsfield-pp-cli fanout --prompt \"...\" --models veo3_1,veo3_1_lite --max-cost 80",
+      "why_it_matters": "Run before you spend; the operator (or agent) sees the credit hit before the run lands.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Prompt history search",
+      "command": "search",
+      "description": "FTS5 search across every prompt you've ever submitted, joined with model, Soul ID name, and transaction memo.",
+      "rationale": "Built on the framework's local FTS index over synced generations; the official CLI's generate list re-paginates the API.",
+      "example": "higgsfield-pp-cli search \"cinematic riggs dawn\" --json --select prompt,model,result_url,created_at",
+      "why_it_matters": "Recall the exact prompt that produced last week's hero shot without re-typing or guessing.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Soul usage report",
+      "command": "soul-ids usage",
+      "description": "Every generation that used a given Soul ID, ordered by date, with thumbnail URLs and total cost.",
+      "rationale": "Local SQL join over soul_ids and generations; impossible without persisting both tables locally.",
+      "example": "higgsfield-pp-cli soul-ids usage soul_riggs_42 --since 30d --json",
+      "why_it_matters": "Audit a Soul ID's history before retiring it, or pull every cut-in for an episode summary.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Account spend report",
+      "command": "account spend",
+      "description": "Local SQL aggregation over synced credit transactions, grouped by model, day, or Soul ID.",
+      "rationale": "Joins transactions × generations × models on request_id; the official account transactions returns flat events.",
+      "example": "higgsfield-pp-cli account spend --since 7d --group-by model --json",
+      "why_it_matters": "Weekly credit review without manual pagination; forecasts next month's spend by trend.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Generations export",
+      "command": "generate export",
+      "description": "Export the local generations table joined with models and Soul IDs to CSV or JSONL for spreadsheet review or downstream pipelines.",
+      "rationale": "Reads from the local synced store with a standard CSV/JSONL encoder; agent-friendly pipeline output.",
+      "example": "higgsfield-pp-cli export models --format jsonl --output models.jsonl",
+      "why_it_matters": "Hand the week's output to any tool that reads CSV/JSONL; no manual scraping required.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "narrative": {
+    "display_name": "Higgsfield",
+    "headline": "Every Higgsfield workflow with a local memory: batch model fanouts, Soul library search, and credit guards no other Higgsfield tool has.",
+    "value_prop": "This CLI mirrors the official Higgsfield CLI surface (auth, generate, soul-id, marketing-studio, product-photoshoot, marketplace-cards, upload, account, workspace) and adds the local SQLite store that powers fanout, soul-ids search, credit guards, and prompt history search. Single binary, agent-native JSON-first, MCP-exposed via the runtime Cobra-tree mirror.",
+    "auth_narrative": "Two auth paths. Web backend (default, recommended for most 2026 models): set HIGGSFIELD_JWT from your logged-in Higgsfield CLI's credentials file and HIGGSFIELD_ENABLE_WEB_BACKEND=1. Platform API (stable, ~8 models): set HIGGSFIELD_API_KEY and HIGGSFIELD_SECRET (or HF_CREDENTIALS=KEY:SECRET). The CLI picks the right backend per model; commands that need the unselected backend will print an actionable error.",
+    "quickstart": [
+      {
+        "command": "higgsfield-pp-cli models list --type video --json --select job_set_type,display_name",
+        "comment": "browse the 17 video models locally with offline search"
+      },
+      {
+        "command": "higgsfield-pp-cli soul-ids search \"riggs\" --json",
+        "comment": "find the Soul ID you trained for your recurring character"
+      },
+      {
+        "command": "higgsfield-pp-cli fanout --prompt \"cinematic dawn over Manhattan\" --models veo3_1,seedance_2_0 --max-cost 80",
+        "comment": "submit one prompt to two models with a credit guard"
+      },
+      {
+        "command": "higgsfield-pp-cli fanout wait fan_\u003cid\u003e --json",
+        "comment": "poll all jobs in the fanout and render results side by side"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "auth: no token configured",
+        "fix": "Run `higgsfield auth login` in your terminal (the official CLI), then `higgsfield-pp-cli auth set-token \"$(higgsfield auth token)\"`"
+      },
+      {
+        "symptom": "web backend disabled",
+        "fix": "Export HIGGSFIELD_ENABLE_WEB_BACKEND=1 to opt into cloud.higgsfield.ai endpoints (Veo 3.x, Sora 2, Kling 3, Soul V2, Nano Banana 2, Seedance 2)"
+      },
+      {
+        "symptom": "model X requires platform API key",
+        "fix": "Set HIGGSFIELD_API_KEY and HIGGSFIELD_SECRET (or HF_CREDENTIALS=KEY:SECRET); generate a key at platform.higgsfield.ai"
+      },
+      {
+        "symptom": "fanout: cost cap exceeded ($240 \u003e $200)",
+        "fix": "Raise --max-cost, drop a model from --models, or run `generate cost \u003cmodel\u003e --prompt ...` individually to inspect"
+      },
+      {
+        "symptom": "JWT expired",
+        "fix": "The web backend __session cookie rotates every ~1 minute. Re-run `higgsfield auth login` (the official CLI handles the refresh) then re-set HIGGSFIELD_JWT"
+      }
+    ],
+    "when_to_use": "Use higgsfield-pp-cli whenever you need to drive Higgsfield from an agent or want local memory across runs. Pick the official `higgsfield` CLI when you only need a single human one-shot generation. Pick higgsfield-pp-cli when you want batch fanouts, Soul ID search, credit guards, persistent generation history, or MCP exposure. The CLI mirrors every command the official one offers, so switching is loss-free.",
+    "recipes": [
+      {
+        "title": "Compare a prompt across two video models with a budget cap",
+        "command": "higgsfield-pp-cli fanout --prompt \"cinematic dawn over Manhattan, slow camera push\" --models veo3_1,seedance_2_0 --max-cost 80 --json",
+        "explanation": "Submits the prompt to Veo 3.1 and Seedance 2.0 in parallel, refuses if estimated cost exceeds 80 credits, and returns a single fanout_id linking both jobs."
+      },
+      {
+        "title": "Find every generation that used a Soul ID this month",
+        "command": "higgsfield-pp-cli soul-ids usage soul_riggs_42 --since 30d --json --select prompt,model,result_url,cost",
+        "explanation": "Local SQL join over generations × soul_ids; reads from the synced store with no API call."
+      },
+      {
+        "title": "Search past prompts and narrow the output for an agent",
+        "command": "higgsfield-pp-cli search \"cinematic riggs dawn\" --json --select prompt,model,result_url,created_at",
+        "explanation": "FTS5 over your full prompt history; --select keeps the response compact for downstream tools."
+      },
+      {
+        "title": "Weekly credit review by model",
+        "command": "higgsfield-pp-cli account spend --since 7d --group-by model --json",
+        "explanation": "Aggregates synced transactions by model; pipe to jq for trend analysis or `--format csv` for spreadsheet review."
+      },
+      {
+        "title": "Export the week's generations for review",
+        "command": "higgsfield-pp-cli export models --format jsonl --output models.jsonl",
+        "explanation": "Streams generations joined with models and Soul IDs as JSONL; one line per record, agent-friendly."
+      }
+    ],
+    "trigger_phrases": [
+      "generate a video with higgsfield",
+      "fanout this prompt across models",
+      "find my higgsfield soul id",
+      "search my higgsfield prompts",
+      "how much have I spent on higgsfield this week",
+      "use higgsfield",
+      "run higgsfield"
+    ]
+  }
+}

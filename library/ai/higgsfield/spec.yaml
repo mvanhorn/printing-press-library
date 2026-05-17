@@ -1,0 +1,325 @@
+name: higgsfield
+description: "Higgsfield AI image and video generation CLI — drive both the documented platform API and the cloud web backend from one tool, with local memory across generations, Soul IDs, and credits."
+version: "0.1.0"
+base_url: "https://fnf.higgsfield.ai"
+owner: "Higgsfield AI"
+owner_name: "Higgsfield AI"
+cli_description: "Drive Higgsfield image and video generation, train Soul IDs, fan out across models, and search past prompts — with a local SQLite store no other Higgsfield tool has."
+
+auth:
+  type: bearer_token
+  header: "Authorization"
+  format: "{token}"
+  in: header
+  env_vars:
+    - HIGGSFIELD_JWT
+  instructions: "Two auth paths are supported. Default is the cloud web backend with a raw JWT from your logged-in higgsfield CLI: run 'higgsfield auth login', then export HIGGSFIELD_JWT=\"$(higgsfield auth token)\" and HIGGSFIELD_ENABLE_WEB_BACKEND=1. Covers Veo 3.x, Kling 3, Soul V2, Nano Banana 2, Seedance 2. For the platform API, set HIGGSFIELD_API_KEY and HIGGSFIELD_SECRET (or HF_CREDENTIALS=KEY:SECRET)."
+
+config:
+  format: toml
+  path: "~/.config/higgsfield-pp-cli/config.toml"
+
+resources:
+  generations:
+    description: "AI generation jobs — image, video, text-to-image, image-to-video, Soul-driven, Marketing Studio"
+    endpoints:
+      list:
+        method: GET
+        path: "/jobs"
+        description: "List recent generation jobs from the web backend (cloud.higgsfield.ai). Returns the most-recent 100 by default."
+        params:
+          - name: size
+            type: int
+            default: 100
+            description: "Maximum number of jobs to return (1-100)"
+          - name: type
+            type: string
+            description: "Filter by job type: image, video, or text"
+        response:
+          type: array
+          item: Generation
+        pagination:
+          type: cursor
+          cursor_field: "cursor"
+
+      get:
+        method: GET
+        path: "/jobs/{request_id}"
+        description: "Get one generation by ID (web backend)"
+        params:
+          - name: request_id
+            type: string
+            required: true
+            positional: true
+            description: "Generation request ID"
+        response:
+          type: object
+          item: Generation
+
+      cancel:
+        method: POST
+        path: "/jobs/{request_id}/cancel"
+        description: "Cancel a pending generation"
+        params:
+          - name: request_id
+            type: string
+            required: true
+            positional: true
+            description: "Generation request ID to cancel"
+
+  models:
+    description: "Higgsfield model catalog — 35 image, video, and text models across both backends"
+    endpoints:
+      list:
+        method: GET
+        path: "/models"
+        description: "List all available models with type, display name, and backend assignment"
+        params:
+          - name: type
+            type: string
+            description: "Filter by type: image, video, or text"
+        response:
+          type: array
+          item: Model
+
+      get:
+        method: GET
+        path: "/models/{model_id}"
+        description: "Get one model's full parameter schema"
+        params:
+          - name: model_id
+            type: string
+            required: true
+            positional: true
+            description: "Model job_set_type (e.g. veo3_1, seedance_2_0, text2image_soul_v2)"
+        response:
+          type: object
+          item: Model
+
+  soul_ids:
+    description: "Custom Soul references (trained characters and styles) for use in soul-aware models"
+    endpoints:
+      list:
+        method: GET
+        path: "/soul-ids"
+        description: "List all your Soul IDs (custom-trained character references)"
+        params:
+          - name: size
+            type: int
+            default: 100
+            description: "Maximum number of Soul IDs to return"
+        response:
+          type: array
+          item: SoulID
+
+      get:
+        method: GET
+        path: "/soul-ids/{soul_id}"
+        description: "Get one Soul ID and its training status"
+        params:
+          - name: soul_id
+            type: string
+            required: true
+            positional: true
+            description: "Soul ID UUID"
+        response:
+          type: object
+          item: SoulID
+
+      create:
+        method: POST
+        path: "/soul-ids"
+        description: "Train a new Soul ID from at least 5 reference images. Returns the new Soul ID's training job — poll with `soul-id wait`."
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "Display name for the Soul ID (e.g. 'Riggs', 'StudioGoldenHour')"
+          - name: images
+            type: string
+            required: true
+            description: "Comma-separated list of upload_ids (at least 5)"
+          - name: soul_2
+            type: bool
+            default: true
+            description: "Train as a Soul 2 reference (current generation; recommended)"
+        response:
+          type: object
+          item: SoulID
+
+  account:
+    description: "Account status, credit balance, and credit transactions"
+    endpoints:
+      status:
+        method: GET
+        path: "/account"
+        description: "Show signed-in account email, plan, and available credits"
+        response:
+          type: object
+          item: Account
+
+      transactions:
+        method: GET
+        path: "/account/transactions"
+        description: "List recent credit transactions (debits for generations, credits for top-ups/refunds)"
+        params:
+          - name: size
+            type: int
+            default: 50
+            description: "Maximum number of transactions to return"
+        response:
+          type: array
+          item: Transaction
+        pagination:
+          type: cursor
+          cursor_field: "cursor"
+
+  workspaces:
+    description: "Billing workspaces — switch between personal and shared workspace contexts"
+    endpoints:
+      list:
+        method: GET
+        path: "/workspaces"
+        description: "List workspaces available to your account"
+        response:
+          type: array
+          item: Workspace
+
+      status:
+        method: GET
+        path: "/workspaces/current"
+        description: "Show the currently selected workspace"
+        response:
+          type: object
+          item: Workspace
+
+  uploads:
+    description: "Upload media (images, videos, audio) for use in subsequent generations as upload_id references"
+    endpoints:
+      init:
+        method: POST
+        path: "/media/batch"
+        description: "Initialize a media upload — returns a media_id for the second step"
+        body:
+          - name: content_type
+            type: string
+            required: true
+            description: "MIME type of the media being uploaded (e.g. image/png, image/jpeg, video/mp4)"
+          - name: filename
+            type: string
+            description: "Original filename for reference"
+        response:
+          type: object
+          item: Upload
+
+types:
+  Generation:
+    fields:
+      - name: id
+        type: string
+      - name: request_id
+        type: string
+      - name: status
+        type: string
+      - name: progress
+        type: int
+      - name: model
+        type: string
+      - name: prompt
+        type: string
+      - name: cost
+        type: int
+      - name: soul_id
+        type: string
+      - name: created_at
+        type: string
+      - name: completed_at
+        type: string
+      - name: result_url
+        type: string
+      - name: error
+        type: string
+
+  Model:
+    fields:
+      - name: id
+        type: string
+      - name: job_set_type
+        type: string
+      - name: display_name
+        type: string
+      - name: type
+        type: string
+      - name: backend
+        type: string
+      - name: params_schema
+        type: object
+
+  SoulID:
+    fields:
+      - name: id
+        type: string
+      - name: soul_id
+        type: string
+      - name: name
+        type: string
+      - name: status
+        type: string
+      - name: image_count
+        type: int
+      - name: created_at
+        type: string
+      - name: trained_at
+        type: string
+      - name: last_used_at
+        type: string
+
+  Account:
+    fields:
+      - name: email
+        type: string
+      - name: plan
+        type: string
+      - name: credits
+        type: int
+      - name: workspace_id
+        type: string
+
+  Transaction:
+    fields:
+      - name: id
+        type: string
+      - name: amount
+        type: int
+      - name: kind
+        type: string
+      - name: memo
+        type: string
+      - name: model
+        type: string
+      - name: request_id
+        type: string
+      - name: created_at
+        type: string
+
+  Workspace:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: role
+        type: string
+      - name: active
+        type: bool
+
+  Upload:
+    fields:
+      - name: id
+        type: string
+      - name: media_id
+        type: string
+      - name: upload_url
+        type: string
+      - name: expires_at
+        type: string

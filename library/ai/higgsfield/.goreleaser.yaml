@@ -1,0 +1,51 @@
+version: 2
+project_name: higgsfield-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: higgsfield-pp-cli
+    main: ./cmd/higgsfield-pp-cli
+    binary: higgsfield-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/ai/higgsfield/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: higgsfield-pp-mcp
+    main: ./cmd/higgsfield-pp-mcp
+    binary: higgsfield-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: higgsfield-pp-cli
+    repository:
+      owner: higgsfield-ai
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every Higgsfield workflow with a local memory: batch model fanouts, Soul library search, and credit guards no other..."
+    install: |
+      bin.install "higgsfield-pp-cli"
+      bin.install "higgsfield-pp-mcp"

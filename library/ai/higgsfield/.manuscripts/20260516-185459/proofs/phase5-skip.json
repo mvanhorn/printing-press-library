@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "api_name": "higgsfield",
+  "run_id": "20260516-185459",
+  "status": "skip",
+  "level": "none",
+  "skip_reason": "auth_required_no_credential",
+  "auth_context": {
+    "type": "bearer_token",
+    "api_key_available": false,
+    "browser_session_available": false
+  },
+  "notes": "User has only the official higgsfield CLI's JWT (in credentials.json), no platform API key. Spec auth.type is bearer_token. Per the API Key Gate, Phase 5 live dogfood is skipped. The user can run Phase 5 manually by exporting HIGGSFIELD_JWT and re-running 'printing-press dogfood --live'."
+}

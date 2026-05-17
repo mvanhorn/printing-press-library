@@ -1,0 +1,220 @@
+{
+  "api_name": "higgsfield",
+  "base_url": "https://fnf.higgsfield.ai",
+  "description": "Higgsfield AI image and video generation CLI — drive both the documented platform API and the cloud web backend from one tool, with local memory across generations, Soul IDs, and credits.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "format": "{HIGGSFIELD_JWT}",
+    "in": "header",
+    "env_vars": [
+      "HIGGSFIELD_JWT"
+    ],
+    "env_var_specs": [
+      {
+        "name": "HIGGSFIELD_JWT",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "account_status",
+      "description": "Show signed-in account email, plan, and available credits. Returns the Account.",
+      "method": "GET",
+      "path": "/account",
+      "params": []
+    },
+    {
+      "name": "account_transactions",
+      "description": "List recent credit transactions (debits for generations, credits for top-ups/refunds). Optional: size (default: 50). Returns array of Transaction.",
+      "method": "GET",
+      "path": "/account/transactions",
+      "params": [
+        {
+          "name": "size",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of transactions to return"
+        }
+      ]
+    },
+    {
+      "name": "generations_cancel",
+      "description": "Cancel a pending Higgsfield generation job before it completes. Required: request_id (path) — the generation/job ID returned when the generation was submitted (UUID format). Returns the job's final state with status set to canceled. Use this when a long-running video or image job is no longer needed; cancellation may not be possible once a job has reached a terminal state (succeeded, failed). Prefer over deleting via the local store, which only forgets the job locally without freeing remote compute.",
+      "method": "POST",
+      "path": "/jobs/{request_id}/cancel",
+      "params": [
+        {
+          "name": "request_id",
+          "type": "string",
+          "location": "path",
+          "description": "Generation request ID to cancel",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "generations_get",
+      "description": "Get one generation by ID (web backend). Required: request_id. Returns the Generation.",
+      "method": "GET",
+      "path": "/jobs/{request_id}",
+      "params": [
+        {
+          "name": "request_id",
+          "type": "string",
+          "location": "path",
+          "description": "Generation request ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "generations_list",
+      "description": "List recent generation jobs from the web backend (cloud.higgsfield.ai). Returns the most-recent 100 by default. Optional: size (default: 100), type.",
+      "method": "GET",
+      "path": "/jobs",
+      "params": [
+        {
+          "name": "size",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of jobs to return (1-100)"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by job type: image, video, or text"
+        }
+      ]
+    },
+    {
+      "name": "models_get",
+      "description": "Get one model's full parameter schema. Required: model_id. Returns the Model.",
+      "method": "GET",
+      "path": "/models/{model_id}",
+      "params": [
+        {
+          "name": "model_id",
+          "type": "string",
+          "location": "path",
+          "description": "Model job_set_type (e.g. veo3_1, seedance_2_0, text2image_soul_v2)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "models_list",
+      "description": "List all available models with type, display name, and backend assignment. Optional: type. Returns array of Model.",
+      "method": "GET",
+      "path": "/models",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by type: image, video, or text"
+        }
+      ]
+    },
+    {
+      "name": "soul_ids_create",
+      "description": "Train a new Soul ID from at least 5 reference images. Returns the new Soul ID's training job — poll with `soul-id wait`. Required: name, images. Optional: soul_2 (default: true).",
+      "method": "POST",
+      "path": "/soul-ids",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Display name for the Soul ID (e.g. 'Riggs', 'StudioGoldenHour')",
+          "required": true
+        },
+        {
+          "name": "images",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated list of upload_ids (at least 5)",
+          "required": true
+        },
+        {
+          "name": "soul_2",
+          "type": "bool",
+          "location": "body",
+          "description": "Train as a Soul 2 reference (current generation; recommended)"
+        }
+      ]
+    },
+    {
+      "name": "soul_ids_get",
+      "description": "Get one Soul ID and its training status. Required: soul_id. Returns the SoulID.",
+      "method": "GET",
+      "path": "/soul-ids/{soul_id}",
+      "params": [
+        {
+          "name": "soul_id",
+          "type": "string",
+          "location": "path",
+          "description": "Soul ID UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "soul_ids_list",
+      "description": "List all your Soul IDs (custom-trained character references). Optional: size (default: 100). Returns array of SoulID.",
+      "method": "GET",
+      "path": "/soul-ids",
+      "params": [
+        {
+          "name": "size",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of Soul IDs to return"
+        }
+      ]
+    },
+    {
+      "name": "uploads_init",
+      "description": "Initialize a media upload — returns a media_id for the second step. Required: content_type. Optional: filename.",
+      "method": "POST",
+      "path": "/media/batch",
+      "params": [
+        {
+          "name": "content_type",
+          "type": "string",
+          "location": "body",
+          "description": "MIME type of the media being uploaded (e.g. image/png, image/jpeg, video/mp4)",
+          "required": true
+        },
+        {
+          "name": "filename",
+          "type": "string",
+          "location": "body",
+          "description": "Original filename for reference"
+        }
+      ]
+    },
+    {
+      "name": "workspaces_list",
+      "description": "List workspaces available to your account. Returns array of Workspace.",
+      "method": "GET",
+      "path": "/workspaces",
+      "params": []
+    },
+    {
+      "name": "workspaces_status",
+      "description": "Show the currently selected workspace. Returns the Workspace.",
+      "method": "GET",
+      "path": "/workspaces/current",
+      "params": []
+    }
+  ]
+}

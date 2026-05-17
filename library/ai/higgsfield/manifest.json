@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "higgsfield-pp-mcp",
+  "display_name": "Higgsfield",
+  "version": "4.7.0",
+  "description": "Drive Higgsfield image and video generation, train Soul IDs, fan out across models, and search past prompts — with a local SQLite store no other Higgsfield tool has.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/higgsfield-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/higgsfield-pp-mcp",
+      "args": [],
+      "env": {
+        "HIGGSFIELD_JWT": "${user_config.higgsfield_jwt}"
+      }
+    }
+  },
+  "user_config": {
+    "higgsfield_jwt": {
+      "type": "string",
+      "title": "HIGGSFIELD_JWT",
+      "description": "Sets HIGGSFIELD_JWT for the Higgsfield MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-17",
+  "base_run_id": "20260516-185459",
+  "base_printing_press_version": "4.7.0",
+  "patches": [
+    {
+      "id": "novel-features-wiring",
+      "summary": "Register the eight hand-coded transcendence commands (fanout group + soul-ids search/usage + account spend) into the generator-emitted Cobra tree.",
+      "reason": "Phase 1.5 brainstorm approved eight novel commands the generator does not emit. Registering them required adding AddCommand calls to root.go (fanout top-level), soul_ids.go (search + usage subcommands), and account.go (spend subcommand). These three files are otherwise templated; the additions are bracketed by PATCH comments so regen reviewers can preserve the wiring.",
+      "files": [
+        "internal/cli/root.go",
+        "internal/cli/soul_ids.go",
+        "internal/cli/account.go"
+      ],
+      "validated_outcome": "go build ./... && printing-press shipcheck (6/6 legs PASS, scorecard 87/100 Grade A)"
+    }
+  ]
+}
