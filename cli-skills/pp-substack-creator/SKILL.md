@@ -11,6 +11,11 @@ metadata:
       bins:
         - substack-creator-pp-cli
 ---
+<!-- GENERATED FILE — DO NOT EDIT.
+     This file is a verbatim mirror of library/media-and-entertainment/substack-creator/SKILL.md,
+     regenerated post-merge by tools/generate-skills/. Hand-edits here are
+     silently overwritten on the next regen. Edit the library/ source instead.
+     See AGENTS.md "Generated artifacts: registry.json, cli-skills/". -->
 
 <!-- // PATCH: skill-install-canonical — restored the canonical SKILL.md install section so verify-skill's canonical-sections drift check passes after manifest got a category. See .printing-press-patches.json. -->
 
