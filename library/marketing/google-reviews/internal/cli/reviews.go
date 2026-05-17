@@ -86,14 +86,18 @@ func buildPB(lo, hi uint64, count, offset, sort int) string {
 
 // extractChromeCookies tries to get NID and __Secure-STRP from Chrome via agent-browser.
 // Returns an empty string on failure (caller proceeds without cookies).
-func extractChromeCookies() string {
+func extractChromeCookies(ctx context.Context) string {
 	// Check env override first
 	if nid := os.Getenv("GOOGLE_NID"); nid != "" {
 		return "NID=" + nid
 	}
 
+	// Cap agent-browser to 10 s so a stalled Chrome profile doesn't hang the CLI.
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+
 	// Use agent-browser cookies get (reads HttpOnly cookies that JS can't access)
-	out, err := exec.Command("agent-browser", "cookies", "get", "--domain", ".google.com").Output()
+	out, err := exec.CommandContext(ctx, "agent-browser", "cookies", "get", "--domain", ".google.com").Output()
 	if err != nil || len(out) < 5 {
 		return ""
 	}
@@ -308,7 +312,7 @@ Examples:
 				return fmt.Errorf("invalid input: %w\nProvide a Google Maps URL or CID (0xHEX:0xHEX)", err)
 			}
 
-			cookies := extractChromeCookies()
+			cookies := extractChromeCookies(cmd.Context())
 			allReviews := make([]Review, 0)
 			offset := flagOffset
 
@@ -427,7 +431,7 @@ Examples:
 				return fmt.Errorf("invalid input: %w", err)
 			}
 
-			cookies := extractChromeCookies()
+			cookies := extractChromeCookies(cmd.Context())
 			body, err := fetchReviews(cmd.Context(), lo, hi, 1, 0, 1, flagLang, flagCountry, cookies, flags.timeout)
 			if err != nil {
 				return fmt.Errorf("fetch summary: %w", err)
