@@ -13,7 +13,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mvanhorn/printing-press-library/library/payments/exchangerate-api/internal/store"
+	"exchangerate-api-pp-cli/internal/store"
 	"github.com/spf13/cobra"
 )
 
@@ -114,6 +114,10 @@ func newWatchListCmd(flags *rootFlags) *cobra.Command {
 					return fmt.Errorf("scan: %w", err)
 				}
 				out = append(out, e)
+			}
+			// PATCH exchangerate-rows-err-checks: see drift.go rationale.
+			if err := rows.Err(); err != nil {
+				return fmt.Errorf("iterating watchlist: %w", err)
 			}
 			payload := map[string]any{"count": len(out), "watchlist": out}
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
@@ -220,6 +224,13 @@ stored rate in either case.`,
 					return fmt.Errorf("scan: %w", err)
 				}
 				entries = append(entries, e)
+			}
+			// PATCH exchangerate-rows-err-checks: surface mid-iteration sql
+			// errors so threshold crossings for the dropped pairs aren't
+			// silently missed. Greptile P1 review of PR #635.
+			if err := rows.Err(); err != nil {
+				rows.Close()
+				return fmt.Errorf("iterating watchlist for check: %w", err)
 			}
 			rows.Close()
 			if len(entries) == 0 {

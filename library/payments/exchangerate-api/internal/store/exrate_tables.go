@@ -4,6 +4,8 @@
 // EnsureExrateTables(ctx); idempotent CREATE IF NOT EXISTS.
 package store
 
+// PATCH exchangerate-novel-store-tables: novel-feature SQLite tables (rates_snapshots, quota_snapshots, watchlist, conversions_log) with typed Inserts.
+
 import (
 	"context"
 	"fmt"

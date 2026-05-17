@@ -3,14 +3,18 @@
 
 package client
 
+// PATCH exchangerate-suppress-bogus-auth-query: skip placeholder apikey_placeholder query param; real auth lives in URL path.
+
+// PATCH exchangerate-url-credential-mask: mask the API key in every URL render path (dryRun, APIError, transport-error wrap).
+
 import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
-	"github.com/mvanhorn/printing-press-library/library/payments/exchangerate-api/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/payments/exchangerate-api/internal/config"
+	"exchangerate-api-pp-cli/internal/cliutil"
+	"exchangerate-api-pp-cli/internal/config"
 	"fmt"
 	"io"
 	"math"

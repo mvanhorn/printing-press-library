@@ -3,6 +3,8 @@
 // without an API key. Attribution: rates by ExchangeRate-API.
 package cli
 
+// PATCH exchangerate-novel-open: keyless https://open.er-api.com/v6/latest endpoint with attribution.
+
 import (
 	"context"
 	"encoding/json"

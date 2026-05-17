@@ -5,14 +5,16 @@
 // can't access /history.
 package cli
 
+// PATCH exchangerate-novel-sync-rates: append rates_snapshots from /latest; foundation for snapshot-driven features.
+
 import (
 	"context"
 	"encoding/json"
 	"fmt"
 	"strings"
 
-	"github.com/mvanhorn/printing-press-library/library/payments/exchangerate-api/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/payments/exchangerate-api/internal/store"
+	"exchangerate-api-pp-cli/internal/client"
+	"exchangerate-api-pp-cli/internal/store"
 	"github.com/spf13/cobra"
 )
 

@@ -87,6 +87,10 @@ func newLogShowCmd(flags *rootFlags) *cobra.Command {
 				}
 				results = append(results, r)
 			}
+			// PATCH exchangerate-rows-err-checks: see drift.go rationale.
+			if err := rows.Err(); err != nil {
+				return fmt.Errorf("iterating conversions_log: %w", err)
+			}
 			payload := map[string]any{"count": len(results), "entries": results, "limit": limit}
 			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 				return printJSONFiltered(cmd.OutOrStdout(), payload, flags)

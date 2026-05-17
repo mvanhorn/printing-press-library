@@ -4,6 +4,8 @@
 // 'convert' per amount.
 package cli
 
+// PATCH exchangerate-novel-convert: convert-batch (stdin-driven, 1 /pair fetch for N amounts).
+
 import (
 	"bufio"
 	"encoding/json"
@@ -13,7 +15,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/mvanhorn/printing-press-library/library/payments/exchangerate-api/internal/store"
+	"exchangerate-api-pp-cli/internal/store"
 	"github.com/spf13/cobra"
 )
 

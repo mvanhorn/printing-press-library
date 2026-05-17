@@ -4,6 +4,8 @@
 // cross-rate computation idiom from matrix.go.
 package cli
 
+// PATCH exchangerate-novel-helper-tests: table-driven tests for pure-logic helpers (splitAndUpper, parseDurationOrDate, nextRefreshDate, tierRank, lastN, cross-rate math).
+
 import (
 	"math"
 	"testing"

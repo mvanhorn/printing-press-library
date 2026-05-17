@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/mvanhorn/printing-press-library/library/payments/exchangerate-api/internal/store"
+	"exchangerate-api-pp-cli/internal/store"
 	"github.com/spf13/cobra"
 )
 
@@ -91,6 +91,13 @@ reading before computing (use --no-fetch to suppress).`,
 				}
 				snaps = append(snaps, sn)
 			}
+			// PATCH exchangerate-rows-err-checks: surface mid-iteration sql errors.
+			// Without this rows.Err() check, a truncated snaps slice produces a
+			// falsely-optimistic burn projection with no diagnostic. Greptile P1
+			// review of PR #635.
+			if err := rows.Err(); err != nil {
+				return fmt.Errorf("iterating quota_snapshots: %w", err)
+			}
 			payload := map[string]any{
 				"snapshot_count": len(snaps),
 			}
@@ -159,11 +166,31 @@ reading before computing (use --no-fetch to suppress).`,
 	return cmd
 }
 
+// PATCH exchangerate-next-refresh-month-clamp: clamp refresh day to the last
+// day of the month before constructing the candidate. Without this, a
+// refresh_day_of_month of 31 in a 30-day month (e.g. April) normalises via
+// time.Date to May 1, pushing next_refresh one month later than it really is
+// and suppressing a real WARNING projected-exhaustion status. Greptile P2
+// review of PR #635. The original refreshDay is preserved across the
+// next-month rollover branch — clamping for the current month must not
+// shorten the intended day for next month (Jun 30 day=31 → Jul 31, not Jul 30).
 func nextRefreshDate(now time.Time, refreshDay int) time.Time {
+	lastDay := func(year int, month time.Month) int {
+		return time.Date(year, month+1, 0, 0, 0, 0, 0, time.UTC).Day()
+	}
 	year, month, _ := now.Date()
-	candidate := time.Date(year, month, refreshDay, 0, 0, 0, 0, time.UTC)
+	thisDay := refreshDay
+	if max := lastDay(year, month); thisDay > max {
+		thisDay = max
+	}
+	candidate := time.Date(year, month, thisDay, 0, 0, 0, 0, time.UTC)
 	if !candidate.After(now) {
-		candidate = candidate.AddDate(0, 1, 0)
+		nextYear, nextMonth, _ := time.Date(year, month, 1, 0, 0, 0, 0, time.UTC).AddDate(0, 1, 0).Date()
+		nextDay := refreshDay
+		if max := lastDay(nextYear, nextMonth); nextDay > max {
+			nextDay = max
+		}
+		candidate = time.Date(nextYear, nextMonth, nextDay, 0, 0, 0, 0, time.UTC)
 	}
 	return candidate
 }

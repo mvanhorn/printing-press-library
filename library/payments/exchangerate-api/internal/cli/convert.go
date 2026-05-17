@@ -3,13 +3,15 @@
 // multi-target conversion from a single /latest call.
 package cli
 
+// PATCH exchangerate-novel-convert: ergonomic convert (single/multi-target via /pair or /latest).
+
 import (
 	"encoding/json"
 	"fmt"
 	"strconv"
 	"strings"
 
-	"github.com/mvanhorn/printing-press-library/library/payments/exchangerate-api/internal/store"
+	"exchangerate-api-pp-cli/internal/store"
 	"github.com/spf13/cobra"
 )
 

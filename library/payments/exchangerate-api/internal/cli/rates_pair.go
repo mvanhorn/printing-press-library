@@ -3,6 +3,8 @@
 
 package cli
 
+// PATCH exchangerate-pair-as-of-live-fallback: rates pair --as-of: local-snapshot lookup with live-API fallback for cutoffs <=24h.
+
 import (
 	"encoding/json"
 	"fmt"
@@ -10,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mvanhorn/printing-press-library/library/payments/exchangerate-api/internal/store"
+	"exchangerate-api-pp-cli/internal/store"
 	"github.com/spf13/cobra"
 )
 

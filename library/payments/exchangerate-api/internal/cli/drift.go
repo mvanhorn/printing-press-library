@@ -10,7 +10,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/mvanhorn/printing-press-library/library/payments/exchangerate-api/internal/store"
+	"exchangerate-api-pp-cli/internal/store"
 	"github.com/spf13/cobra"
 )
 
@@ -92,6 +92,13 @@ Requires you to have been running 'sync-rates' periodically.`,
 				}
 				m.ChangePct = (m.To - m.From) / m.From * 100.0
 				movers = append(movers, m)
+			}
+			// PATCH exchangerate-rows-err-checks: surface mid-iteration sql errors.
+			// Without this rows.Err() check a transient SQLite error after the
+			// first row truncates movers silently and the sort emits a partial
+			// ranking with no diagnostic. Greptile P1 review of PR #635.
+			if err := rows.Err(); err != nil {
+				return fmt.Errorf("iterating drift rows: %w", err)
 			}
 			sort.Slice(movers, func(i, j int) bool {
 				return math.Abs(movers[i].ChangePct) > math.Abs(movers[j].ChangePct)

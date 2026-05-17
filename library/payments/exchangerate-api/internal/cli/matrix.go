@@ -3,6 +3,8 @@
 // the API's base→target rates. One API request, N² output rates.
 package cli
 
+// PATCH exchangerate-novel-matrix: NxN cross-rate matrix derived locally from a single /latest call.
+
 import (
 	"encoding/csv"
 	"encoding/json"

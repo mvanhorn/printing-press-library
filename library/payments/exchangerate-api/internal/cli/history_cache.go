@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mvanhorn/printing-press-library/library/payments/exchangerate-api/internal/store"
+	"exchangerate-api-pp-cli/internal/store"
 	"github.com/spf13/cobra"
 )
 
@@ -87,6 +87,10 @@ Use --since to limit to recent history (e.g. "30d", "7d", "24h").`,
 					return fmt.Errorf("scan: %w", err)
 				}
 				results = append(results, r)
+			}
+			// PATCH exchangerate-rows-err-checks: see drift.go rationale.
+			if err := rows.Err(); err != nil {
+				return fmt.Errorf("iterating rates_snapshots: %w", err)
 			}
 			payload := map[string]any{
 				"base":    base,

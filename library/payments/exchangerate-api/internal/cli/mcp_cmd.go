@@ -9,6 +9,8 @@
 // produce a Go import cycle. Subprocess exec sidesteps that cleanly.
 package cli
 
+// PATCH exchangerate-novel-mcp-subprocess-wrapper: mcp serve subprocess wrapper to the standalone MCP binary (avoids internal/cli<->internal/mcp import cycle).
+
 import (
 	"errors"
 	"fmt"

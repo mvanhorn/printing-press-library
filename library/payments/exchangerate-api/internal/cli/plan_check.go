@@ -4,6 +4,8 @@
 // will return data.
 package cli
 
+// PATCH exchangerate-novel-plan-check: probe tier-gated endpoints; report supported tier; key masked in output.
+
 import (
 	"encoding/json"
 	"fmt"

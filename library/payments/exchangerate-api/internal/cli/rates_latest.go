@@ -3,6 +3,8 @@
 
 package cli
 
+// PATCH exchangerate-path-key-auto-inject: auto-inject EXCHANGERATE_API_KEY from config; remove user-facing <api_key> positional.
+
 import (
 	"encoding/json"
 	"fmt"
