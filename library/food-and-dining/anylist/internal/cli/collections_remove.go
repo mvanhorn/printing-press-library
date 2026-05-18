@@ -4,11 +4,9 @@
 package cli
 
 import (
-	"encoding/json"
 	"fmt"
-	"io"
-	"os"
 
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/anylist/internal/anylist"
 	"github.com/spf13/cobra"
 )
 
@@ -23,105 +21,66 @@ func newCollectionsRemoveCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  anylist-pp-cli collections remove --collection example-value",
 		Annotations: map[string]string{"pp:endpoint": "collections.remove", "pp:method": "POST", "pp:path": "/data/user-recipe-data/update"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if !stdinBody {
-				if !cmd.Flags().Changed("collection") && !flags.dryRun {
-					return fmt.Errorf("required flag \"%s\" not set", "collection")
-				}
-				if !cmd.Flags().Changed("recipe") && !flags.dryRun {
-					return fmt.Errorf("required flag \"%s\" not set", "recipe")
-				}
-			}
-			c, err := flags.newClient()
-			if err != nil {
-				return err
-			}
-
-			path := "/data/user-recipe-data/update"
-			var body map[string]any
 			if stdinBody {
-				stdinData, err := io.ReadAll(os.Stdin)
-				if err != nil {
-					return fmt.Errorf("reading stdin: %w", err)
-				}
-				var jsonBody map[string]any
-				if err := json.Unmarshal(stdinData, &jsonBody); err != nil {
-					return fmt.Errorf("parsing stdin JSON: %w", err)
-				}
-				body = jsonBody
-			} else {
-				body = map[string]any{}
-				if bodyCollection != "" {
-					body["collection"] = bodyCollection
-				}
-				if bodyRecipe != "" {
-					body["recipe"] = bodyRecipe
-				}
-			}
-			data, statusCode, err := c.Post(path, body)
-			if err != nil {
-				return classifyAPIError(err, flags)
-			}
-			if wantsHumanTable(cmd.OutOrStdout(), flags) {
-				// Check if response contains an array (directly or wrapped in "data")
-				var items []map[string]any
-				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
-					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
-						fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)
-					} else {
-						return nil
-					}
-				} else {
-					var wrapped struct {
-						Data []map[string]any `json:"data"`
-					}
-					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
-						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
-							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)
-						} else {
-							return nil
-						}
-					}
-				}
-			}
-			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
-				if flags.quiet {
-					return nil
-				}
-				// Apply --compact and --select to the API response before wrapping.
-				// --select wins when both are set: explicit field choice trumps the
-				// generic high-gravity allow-list. Otherwise --compact still applies
-				// when --agent is on but the user did not name fields.
-				filtered := data
-				if flags.selectFields != "" {
-					filtered = filterFields(filtered, flags.selectFields)
-				} else if flags.compact {
-					filtered = compactFields(filtered)
-				}
-				envelope := map[string]any{
-					"action":   "post",
-					"resource": "collections",
-					"path":     path,
-					"status":   statusCode,
-					"success":  statusCode >= 200 && statusCode < 300,
-				}
-				if flags.dryRun {
-					envelope["dry_run"] = true
-					envelope["status"] = 0
-					envelope["success"] = false
-				}
-				if len(filtered) > 0 {
-					var parsed any
-					if err := json.Unmarshal(filtered, &parsed); err == nil {
-						envelope["data"] = parsed
-					}
-				}
-				envelopeJSON, err := json.Marshal(envelope)
+				body, err := readStdinJSONMap()
 				if err != nil {
 					return err
 				}
-				return printOutput(cmd.OutOrStdout(), json.RawMessage(envelopeJSON), true)
+				bodyCollection = stringFromBody(body, "collection")
+				bodyRecipe = stringFromBody(body, "recipe")
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			if bodyCollection == "" && !cmd.Flags().Changed("collection") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "collection")
+			}
+			if bodyRecipe == "" && !cmd.Flags().Changed("recipe") && !flags.dryRun {
+				return fmt.Errorf("required flag \"%s\" not set", "recipe")
+			}
+			if dryRunOK(flags) {
+				return nil
+			}
+			ctx := cmd.Context()
+			cfg, st, err := openAuthedLocalStore(flags)
+			if err != nil {
+				return err
+			}
+			defer st.Close()
+			userData, recipeDataID, err := currentRecipeData(ctx, cfg)
+			if err != nil {
+				return err
+			}
+			collection, err := findLiveRecipeCollectionByName(userData, bodyCollection)
+			if err != nil {
+				return err
+			}
+			recipe, err := findLiveRecipeByName(userData, bodyRecipe)
+			if err != nil {
+				return err
+			}
+			recipeIDs := make([]string, 0, len(collection.GetRecipeIds()))
+			removed := false
+			for _, id := range collection.GetRecipeIds() {
+				if id == recipe.GetIdentifier() {
+					removed = true
+					continue
+				}
+				recipeIDs = append(recipeIDs, id)
+			}
+			collection.RecipeIds = recipeIDs
+			if err := anylist.New(cfg).SaveRecipeCollection(ctx, recipeDataID, collection); err != nil {
+				return err
+			}
+			if err := syncStoreFromLive(ctx, cfg, st); err != nil {
+				return fmt.Errorf("refreshing data after updating collection: %w", err)
+			}
+			if flags.asJSON {
+				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+					"collection": collection.GetName(),
+					"recipe":     recipe.GetName(),
+					"removed":    removed,
+				}, flags)
+			}
+			fmt.Fprintf(cmd.OutOrStdout(), "Removed %q from collection %q\n", recipe.GetName(), collection.GetName())
+			return nil
 		},
 	}
 	cmd.Flags().StringVarP(&bodyCollection, "collection", "c", "", "Name of the recipe collection to remove the recipe from")

@@ -306,6 +306,35 @@ func (c *Client) RemoveRecipe(ctx context.Context, recipeDataID string, recipe *
 	return c.sendRecipeOperation(ctx, op)
 }
 
+// SaveRecipeCollection creates or updates a recipe collection.
+func (c *Client) SaveRecipeCollection(ctx context.Context, recipeDataID string, collection *pb.PBRecipeCollection) error {
+	op := &pb.PBRecipeOperation{
+		Metadata: &pb.PBOperationMetadata{
+			OperationId: uuid.NewString(),
+			HandlerId:   "save-recipe-collection",
+			UserId:      c.cfg.UserID,
+		},
+		RecipeDataId:     recipeDataID,
+		RecipeCollection: collection,
+	}
+	return c.sendRecipeOperation(ctx, op)
+}
+
+// RemoveRecipeCollection deletes a recipe collection.
+func (c *Client) RemoveRecipeCollection(ctx context.Context, recipeDataID string, collection *pb.PBRecipeCollection) error {
+	op := &pb.PBRecipeOperation{
+		Metadata: &pb.PBOperationMetadata{
+			OperationId: uuid.NewString(),
+			HandlerId:   "remove-recipe-collection",
+			UserId:      c.cfg.UserID,
+		},
+		RecipeDataId:        recipeDataID,
+		RecipeCollection:    collection,
+		RecipeCollectionIds: []string{collection.GetIdentifier()},
+	}
+	return c.sendRecipeOperation(ctx, op)
+}
+
 func (c *Client) sendRecipeOperation(ctx context.Context, op *pb.PBRecipeOperation) error {
 	req := &pb.PBRecipeOperationList{Operations: []*pb.PBRecipeOperation{op}}
 	dat, err := proto.Marshal(req)
@@ -323,6 +352,56 @@ func (c *Client) sendRecipeOperation(ctx context.Context, op *pb.PBRecipeOperati
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
 		return fmt.Errorf("recipe operation failed (HTTP %d): %s", resp.StatusCode, strings.TrimSpace(string(body)))
+	}
+	return nil
+}
+
+// SaveListFolder creates or updates a list folder.
+func (c *Client) SaveListFolder(ctx context.Context, listDataID string, folder *pb.PBListFolder, parentFolderID string) error {
+	op := &pb.PBListFolderOperation{
+		Metadata: &pb.PBOperationMetadata{
+			OperationId: uuid.NewString(),
+			HandlerId:   "save-list-folder",
+			UserId:      c.cfg.UserID,
+		},
+		ListDataId:            listDataID,
+		ListFolder:            folder,
+		UpdatedParentFolderId: parentFolderID,
+	}
+	return c.sendListFolderOperation(ctx, op)
+}
+
+// RemoveListFolder deletes a list folder.
+func (c *Client) RemoveListFolder(ctx context.Context, listDataID string, folder *pb.PBListFolder) error {
+	op := &pb.PBListFolderOperation{
+		Metadata: &pb.PBOperationMetadata{
+			OperationId: uuid.NewString(),
+			HandlerId:   "remove-list-folder",
+			UserId:      c.cfg.UserID,
+		},
+		ListDataId: listDataID,
+		ListFolder: folder,
+	}
+	return c.sendListFolderOperation(ctx, op)
+}
+
+func (c *Client) sendListFolderOperation(ctx context.Context, op *pb.PBListFolderOperation) error {
+	req := &pb.PBListFolderOperationList{Operations: []*pb.PBListFolderOperation{op}}
+	dat, err := proto.Marshal(req)
+	if err != nil {
+		return fmt.Errorf("marshaling list folder operations: %w", err)
+	}
+	data := url.Values{}
+	data.Set("operations", string(dat))
+
+	resp, err := c.postFormAuthed(ctx, "/data/list-folders/update", data)
+	if err != nil {
+		return fmt.Errorf("sending list folder operation: %w", err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return fmt.Errorf("list folder operation failed (HTTP %d): %s", resp.StatusCode, strings.TrimSpace(string(body)))
 	}
 	return nil
 }

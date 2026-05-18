@@ -163,6 +163,57 @@ func findLiveRecipeByName(userData *pb.PBUserDataResponse, name string) (*pb.PBR
 	return nil, fmt.Errorf("recipe %q not found", name)
 }
 
+func currentListFolderData(ctx context.Context, cfg *config.Config) (*pb.PBUserDataResponse, string, string, error) {
+	alClient := anylist.New(cfg)
+	userData, err := alClient.GetUserData(ctx)
+	if err != nil {
+		return nil, "", "", err
+	}
+	lfr := userData.GetListFoldersResponse()
+	if lfr == nil || lfr.GetListDataId() == "" {
+		return nil, "", "", fmt.Errorf("list folder data id not found in AnyList user data")
+	}
+	return userData, lfr.GetListDataId(), lfr.GetRootFolderId(), nil
+}
+
+func findLiveRecipeCollectionByName(userData *pb.PBUserDataResponse, name string) (*pb.PBRecipeCollection, error) {
+	rdr := userData.GetRecipeDataResponse()
+	if rdr == nil {
+		return nil, fmt.Errorf("recipe collection %q not found", name)
+	}
+	lower := strings.ToLower(name)
+	for _, collection := range rdr.GetRecipeCollections() {
+		if strings.EqualFold(collection.GetName(), name) {
+			return collection, nil
+		}
+	}
+	for _, collection := range rdr.GetRecipeCollections() {
+		if strings.Contains(strings.ToLower(collection.GetName()), lower) {
+			return collection, nil
+		}
+	}
+	return nil, fmt.Errorf("recipe collection %q not found", name)
+}
+
+func findLiveListFolderByName(userData *pb.PBUserDataResponse, name string) (*pb.PBListFolder, error) {
+	lfr := userData.GetListFoldersResponse()
+	if lfr == nil {
+		return nil, fmt.Errorf("list folder %q not found", name)
+	}
+	lower := strings.ToLower(name)
+	for _, folder := range lfr.GetListFolders() {
+		if strings.EqualFold(folder.GetName(), name) {
+			return folder, nil
+		}
+	}
+	for _, folder := range lfr.GetListFolders() {
+		if strings.Contains(strings.ToLower(folder.GetName()), lower) {
+			return folder, nil
+		}
+	}
+	return nil, fmt.Errorf("list folder %q not found", name)
+}
+
 func newRecipeID() string {
 	return strings.ReplaceAll(uuid.NewString(), "-", "")
 }
