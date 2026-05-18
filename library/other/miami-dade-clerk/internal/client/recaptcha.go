@@ -15,12 +15,16 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
+	"os"
 	"sync"
 	"time"
 
 	"github.com/chromedp/cdproto/runtime"
 	"github.com/chromedp/chromedp"
 )
+
+var debugRecaptcha = os.Getenv("MDC_RECAPTCHA_DEBUG") != ""
 
 const (
 	// ClerkSiteURL is the public landing page where grecaptcha is loaded.
@@ -39,31 +43,24 @@ const (
 )
 
 var (
-	// browserMu serializes access to the package-scoped allocator. chromedp
-	// allocators are themselves safe for concurrent use, but we lazily
-	// initialize browserAllocCtx + browserAllocCancel and need a mutex to
-	// guard the one-time setup. Subsequent calls acquire the mutex only to
-	// read the live context.
+	// browserMu serializes both the lazy allocator init and per-call tab
+	// creation. chromedp's allocator is safe for concurrent use, but
+	// serializing tab creation keeps the headless Chrome footprint small
+	// and matches the rate-limited single-request-at-a-time pattern of
+	// the surrounding HTTP client.
 	browserMu          sync.Mutex
 	browserAllocCtx    context.Context
 	browserAllocCancel context.CancelFunc
-
-	// pageReady tracks whether the package-scoped Chromium tab has already
-	// navigated to the Clerk site. grecaptcha.execute requires the page to
-	// be loaded and the reCAPTCHA script to have registered the site key;
-	// navigating once per process is much faster than per-call.
-	pageMu     sync.Mutex
-	pageCtx    context.Context
-	pageCancel context.CancelFunc
-	pageLoaded bool
 )
 
 // GetRecaptchaToken returns a fresh reCAPTCHA Enterprise v3 token for the
 // given (siteURL, siteKey). Tokens are single-use and expire after 2
 // minutes — callers must request a new one per protected API call.
 //
-// The first call in a process pays ~2s for Chromium launch + page load;
-// subsequent calls reuse the same browser tab and complete in <500ms.
+// Each call opens a fresh chromedp tab inside a long-lived process-wide
+// allocator so the underlying Chromium browser is only spawned on the
+// first call. End-to-end takes ~2-3s per token (cold-start chrome ~1s
+// reused after the first call, navigate ~1s, script load+execute ~1s).
 // The browser is left running for the lifetime of the process; the OS
 // reaps it on exit. Callers that need explicit shutdown can call
 // CloseRecaptchaBrowser.
@@ -80,24 +77,63 @@ func GetRecaptchaToken(ctx context.Context, siteURL, siteKey string) (string, er
 		return "", fmt.Errorf("recaptcha: starting browser: %w", err)
 	}
 
-	tabCtx, err := ensurePage(allocCtx, siteURL)
-	if err != nil {
-		return "", fmt.Errorf("recaptcha: opening page: %w", err)
+	var tabCtx context.Context
+	var tabCancel context.CancelFunc
+	if debugRecaptcha {
+		tabCtx, tabCancel = chromedp.NewContext(allocCtx, chromedp.WithErrorf(log.Printf))
+	} else {
+		tabCtx, tabCancel = chromedp.NewContext(allocCtx)
 	}
+	defer tabCancel()
 
-	// Bound the actual execute call to recaptchaTimeout regardless of the
-	// caller's ctx — a hung grecaptcha.execute must not block forever even
-	// if the caller passed context.Background().
-	execCtx, cancel := context.WithTimeout(tabCtx, recaptchaTimeout)
-	defer cancel()
-
-	// Honor cancellation from the user-supplied ctx too.
+	// Bound the whole sequence (navigate + inject + execute) to a single
+	// timeout. recaptchaTimeout is generous enough for cold-start Chromium
+	// boot (~2s) + script load (~1s) + execute (<500ms).
+	runCtx, runCancel := context.WithTimeout(tabCtx, 2*recaptchaTimeout)
+	defer runCancel()
 	if ctx != nil {
-		stop := context.AfterFunc(ctx, cancel)
+		stop := context.AfterFunc(ctx, runCancel)
 		defer stop()
 	}
 
-	token, err := executeRecaptcha(execCtx, siteKey)
+	// Inject the reCAPTCHA script ourselves (the Clerk SPA only loads it
+	// after the user mounts a search form) and call grecaptcha.execute
+	// in the same Promise chain. Doing this in a single chromedp.Run
+	// avoids cross-call context lifetime issues with tab contexts.
+	combined := fmt.Sprintf(`new Promise(function(resolve, reject) {
+  function run() {
+    try {
+      window.grecaptcha.ready(function() {
+        window.grecaptcha.execute(%q, {action: 'submit'})
+          .then(function(t) { resolve(t); })
+          .catch(function(e) { reject(String(e)); });
+      });
+    } catch (e) { reject(String(e)); }
+  }
+  if (window.grecaptcha && window.grecaptcha.execute) { run(); return; }
+  var s = document.createElement('script');
+  s.src = 'https://www.google.com/recaptcha/api.js?render=%s';
+  s.async = true;
+  s.onload = run;
+  s.onerror = function() { reject('failed to load recaptcha/api.js'); };
+  document.head.appendChild(s);
+})`, siteKey, siteKey)
+
+	var token string
+	var t0 time.Time
+	if debugRecaptcha {
+		t0 = time.Now()
+	}
+	err = chromedp.Run(runCtx,
+		chromedp.Navigate(siteURL),
+		chromedp.Evaluate(combined, &token, func(p *runtime.EvaluateParams) *runtime.EvaluateParams {
+			return p.WithAwaitPromise(true)
+		}),
+	)
+	if debugRecaptcha {
+		fmt.Fprintf(os.Stderr, "[recaptcha] elapsed=%v err=%v runCtx.Err=%v token.len=%d\n",
+			time.Since(t0), err, runCtx.Err(), len(token))
+	}
 	if err != nil {
 		return "", err
 	}
@@ -110,15 +146,6 @@ func GetRecaptchaToken(ctx context.Context, siteURL, siteKey string) (string, er
 // CloseRecaptchaBrowser shuts down the package-scoped Chromium instance.
 // Safe to call multiple times; a no-op if nothing was started.
 func CloseRecaptchaBrowser() {
-	pageMu.Lock()
-	if pageCancel != nil {
-		pageCancel()
-		pageCancel = nil
-		pageCtx = nil
-		pageLoaded = false
-	}
-	pageMu.Unlock()
-
 	browserMu.Lock()
 	if browserAllocCancel != nil {
 		browserAllocCancel()
@@ -139,11 +166,6 @@ func ensureAllocator() (context.Context, error) {
 		// Reset state and re-init below.
 		browserAllocCancel = nil
 		browserAllocCtx = nil
-		pageMu.Lock()
-		pageCtx = nil
-		pageCancel = nil
-		pageLoaded = false
-		pageMu.Unlock()
 	}
 
 	opts := append(chromedp.DefaultExecAllocatorOptions[:],
@@ -159,55 +181,3 @@ func ensureAllocator() (context.Context, error) {
 	return allocCtx, nil
 }
 
-func ensurePage(allocCtx context.Context, siteURL string) (context.Context, error) {
-	pageMu.Lock()
-	defer pageMu.Unlock()
-	if pageLoaded && pageCtx != nil && pageCtx.Err() == nil {
-		return pageCtx, nil
-	}
-
-	if pageCancel != nil {
-		pageCancel()
-	}
-	tabCtx, cancel := chromedp.NewContext(allocCtx)
-	pageCtx = tabCtx
-	pageCancel = cancel
-
-	loadCtx, loadCancel := context.WithTimeout(tabCtx, recaptchaTimeout)
-	defer loadCancel()
-
-	// Navigate, then wait for grecaptcha global to register so the first
-	// execute() call doesn't race the script load. We poll instead of
-	// chromedp.WaitVisible because grecaptcha is invisible by design.
-	err := chromedp.Run(loadCtx,
-		chromedp.Navigate(siteURL),
-		chromedp.Poll(`typeof grecaptcha !== 'undefined' && typeof grecaptcha.execute === 'function'`, nil,
-			chromedp.WithPollingTimeout(recaptchaTimeout),
-		),
-	)
-	if err != nil {
-		pageCancel()
-		pageCtx = nil
-		pageCancel = nil
-		return nil, err
-	}
-	pageLoaded = true
-	return tabCtx, nil
-}
-
-func executeRecaptcha(ctx context.Context, siteKey string) (string, error) {
-	// grecaptcha.execute returns a Promise. chromedp.Evaluate awaits
-	// promises when the third arg is opts including AwaitPromise(true).
-	// We use chromedp.EvaluateAsDevTools to get promise-aware evaluation.
-	var token string
-	expr := fmt.Sprintf(
-		`grecaptcha.execute(%q, {action: 'submit'}).then(function(t) { return t; })`,
-		siteKey,
-	)
-	if err := chromedp.Run(ctx, chromedp.Evaluate(expr, &token, func(p *runtime.EvaluateParams) *runtime.EvaluateParams {
-		return p.WithAwaitPromise(true)
-	})); err != nil {
-		return "", err
-	}
-	return token, nil
-}

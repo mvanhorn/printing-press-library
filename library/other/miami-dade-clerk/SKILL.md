@@ -180,7 +180,7 @@ Orchestrates lien-chain + surviving-liens + chain-of-title for every folio in th
 
 ## Auth Setup
 
-Public records, no API key. The clerk portal uses a NetScaler session cookie plus reCAPTCHA Enterprise v3 (invisible). Run `miami-dade-clerk-pp-cli auth login --chrome` once to capture a browser session, then every subsequent command replays through Surf transport with fresh reCAPTCHA tokens.
+Public records, no login required. The clerk portal is gated by reCAPTCHA Enterprise v3 (invisible scoring); the CLI mints a fresh token per call from a headless Chromium driver via chromedp, so search commands work out of the box. `auth login --chrome` is only useful for reusing an existing browser session cookie when sticky NetScaler affinity matters.
 
 Run `miami-dade-clerk-pp-cli doctor` to verify setup.
 

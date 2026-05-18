@@ -68,12 +68,6 @@ Install the pp-miami-dade-clerk skill from https://github.com/mvanhorn/printing-
 
 This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
 
-The bundle reuses your local browser session — set it up first if you haven't:
-
-```bash
-miami-dade-clerk-pp-cli auth login --chrome
-```
-
 To install:
 
 1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/miami-dade-clerk-current).
@@ -105,16 +99,12 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 
 ## Authentication
 
-Public records, no API key. The clerk portal uses a NetScaler session cookie plus reCAPTCHA Enterprise v3 (invisible). Run `miami-dade-clerk-pp-cli auth login --chrome` once to capture a browser session, then every subsequent command replays through Surf transport with fresh reCAPTCHA tokens.
+Public records, no login required. The clerk portal is gated by reCAPTCHA Enterprise v3 (invisible scoring); the CLI mints a fresh token per call from a headless Chromium driver, so search commands work out of the box. `auth login --chrome` is only useful if you want to reuse an existing browser session cookie for the rare endpoints that benefit from sticky NetScaler affinity.
 
 ## Quick Start
 
 ```bash
-# One-time browser-cookie capture so reCAPTCHA-gated calls replay through Surf.
-miami-dade-clerk-pp-cli auth login --chrome
-
-
-# Confirm session + portal reachability + recording-cutoff date.
+# Confirm portal reachability + recording-cutoff date.
 miami-dade-clerk-pp-cli doctor
 
 
@@ -287,7 +277,7 @@ Static request headers can be configured under `headers`; per-command header ove
 ### API-specific
 
 - **search returns `{isValidSearch:false,qs:null}`** — The address is not in the clerk's property index (folio renumbering, recent subdivision). Use `lien-chain` instead — its 4-layer fallback recovers the chain via owner-name search.
-- **reCAPTCHA token rejected (HTTP 403 on search)** — Token expired. Re-run `auth login --chrome` to refresh the session cookie.
+- **reCAPTCHA token rejected (HTTP 403 on search)** — Single-use token replayed or page-script blocked. Re-run the command (the helper mints a fresh token per call). If the page-load step itself fails, check that Google Chrome is installed locally — chromedp launches it headless to acquire the token.
 - **Search returns exactly 500 records** — Hit the portal's 500-row cap. Narrow by `--doc-type <code>` (use `doc-types` to list) or shorter `--since`/`--until` window. The CLI's auto-pagination handles this when `--auto-narrow` is set.
 - **Condo unit search fails with unit number from address line** — Use the unit from PA's legal_description (e.g. 'UNIT B312'), not the '#312' display form. The CLI does this automatically when given `--folio` instead of `--address`.
 
