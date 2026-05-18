@@ -24,7 +24,11 @@ jobs:
     name: Greptile policy gate
     if: github.event_name != 'pull_request_target' || github.event.pull_request.draft == false
     runs-on: ubuntu-latest
-    timeout-minutes: 17
+    # 27min = 25min inner polling deadline + 2min buffer for checkout/setup.
+    # Bumped from 17 → 27 because Greptile re-reviews queue behind rate
+    # limits when a PR rapidly accumulates pushes; the prior 15-min inner
+    # deadline left zero headroom on busy days.
+    timeout-minutes: 27
     concurrency:
       group: greptile-policy-gate-${{ github.event.pull_request.number || inputs.pr || github.run_id }}
       cancel-in-progress: true
@@ -66,7 +70,7 @@ jobs:
 
           echo "Evaluating PR #${PR_NUMBER} at ${HEAD_SHA}"
 
-          deadline=$((SECONDS + 900))
+          deadline=$((SECONDS + 1500))
           nudge_after=180
           start="${SECONDS}"
           nudged=0

@@ -9,6 +9,7 @@ on:
       - 'library/**/SKILL.md'
       - 'library/**/README.md'
       - 'tools/generate-skills/main.go'
+  workflow_dispatch:
 
 jobs:
   generate:
@@ -27,6 +28,9 @@ jobs:
       - uses: actions/checkout@v6
         with:
           ref: main
+          # Admin-scoped PAT so the post-commit push bypasses the
+          # main-branch ruleset (default GITHUB_TOKEN cannot bypass).
+          token: ${{ secrets.ADMIN_PUSH_PAT }}
 
       - uses: actions/setup-go@v6
         with:
@@ -44,5 +48,13 @@ jobs:
             echo "No skill changes to commit"
           else
             git commit -m "chore(skills): regenerate per-app skills [skip ci]"
+            # Defense-in-depth against the cross-workflow race with
+            # generate-registry.yml — the concurrency group serializes
+            # most runs, but a rebase before push handles the moment
+            # when the sibling workflow lands between our checkout and
+            # our push. The two workflows touch disjoint paths
+            # (cli-skills/ vs registry.json + README.md), so the rebase
+            # is conflict-free in practice.
+            git pull --rebase origin main
             git push
           fi
