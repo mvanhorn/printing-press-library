@@ -4,6 +4,7 @@ package store
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"path/filepath"
 	"strconv"
@@ -942,6 +943,27 @@ func (s *Store) GetRecipes() ([]RecipeRow, error) {
 	}
 	defer rows.Close()
 	return scanRecipes(rows)
+}
+
+// FindRecipeByID returns a recipe by its stable AnyList identifier.
+func (s *Store) FindRecipeByID(id string) (*RecipeRow, error) {
+	var r RecipeRow
+	err := s.db.QueryRow(
+		`SELECT id, name, note, source_name, source_url, rating, prep_time, cook_time,
+		        servings, timestamp, creation_timestamp FROM recipes WHERE id = ?`,
+		id,
+	).Scan(
+		&r.ID, &r.Name, &r.Note, &r.SourceName, &r.SourceURL,
+		&r.Rating, &r.PrepTime, &r.CookTime, &r.Servings,
+		&r.Timestamp, &r.CreationTimestamp,
+	)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, fmt.Errorf("recipe id %q not found — run 'anylist-pp-cli sync' first", id)
+		}
+		return nil, err
+	}
+	return &r, nil
 }
 
 // FindRecipeByName finds a recipe by name with case-insensitive fuzzy matching.

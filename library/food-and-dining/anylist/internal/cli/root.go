@@ -5,6 +5,7 @@ package cli
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io"
 	"os"
@@ -44,6 +45,7 @@ type rootFlags struct {
 	// non-stdout sink. Flushed to the sink after Execute returns.
 	deliverBuf  *bytes.Buffer
 	deliverSink DeliverSink
+	requestCtx  context.Context
 }
 
 // RootCmd returns the Cobra command tree without executing it. The MCP server
@@ -220,6 +222,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 
 		// Auto-refresh freshness hook: for registered store-backed read commands,
 		// run the bounded freshness check before the command reads local data.
+		flags.requestCtx = cmd.Context()
 		if resources, ok := readCommandResources[cmd.CommandPath()]; ok {
 			flags.freshnessMeta = autoRefreshIfStale(cmd.Context(), flags, resources)
 		}
@@ -268,6 +271,7 @@ func (f *rootFlags) newClient() (*client.Client, error) {
 		return nil, configErr(err)
 	}
 	c := client.New(cfg, f.timeout, f.rateLimit)
+	c.Context = f.requestCtx
 	c.DryRun = f.dryRun
 	c.NoCache = f.noCache
 	return c, nil

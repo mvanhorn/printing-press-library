@@ -86,3 +86,28 @@ func TestGetMissingIngredientsEscapesLikeWildcards(t *testing.T) {
 		t.Fatalf("missing = %#v, want both wildcard ingredients", missing)
 	}
 }
+
+func TestFindRecipeByID(t *testing.T) {
+	t.Parallel()
+
+	st, err := Open(&config.Config{Path: filepath.Join(t.TempDir(), "config.toml")})
+	if err != nil {
+		t.Fatalf("Open returned error: %v", err)
+	}
+	defer st.Close()
+
+	if _, err := st.db.Exec(`INSERT INTO recipes (id, name) VALUES ('recipe-1', 'Pancakes')`); err != nil {
+		t.Fatalf("insert recipe: %v", err)
+	}
+
+	recipe, err := st.FindRecipeByID("recipe-1")
+	if err != nil {
+		t.Fatalf("FindRecipeByID returned error: %v", err)
+	}
+	if recipe.Name != "Pancakes" {
+		t.Fatalf("Name = %q, want Pancakes", recipe.Name)
+	}
+	if _, err := st.FindRecipeByID("missing"); err == nil {
+		t.Fatal("FindRecipeByID missing id returned nil error")
+	}
+}

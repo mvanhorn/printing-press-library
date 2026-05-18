@@ -4,9 +4,8 @@
 package client
 
 import (
-	"github.com/mvanhorn/printing-press-library/library/food-and-dining/anylist/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/food-and-dining/anylist/internal/config"
 	"bytes"
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -19,12 +18,16 @@ import (
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/anylist/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/anylist/internal/config"
 )
 
 type Client struct {
 	BaseURL    string
 	Config     *config.Config
 	HTTPClient *http.Client
+	Context    context.Context
 	DryRun     bool
 	NoCache    bool
 	cacheDir   string
@@ -63,6 +66,13 @@ func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 // RateLimit returns the current effective rate limit in req/s. Returns 0 if disabled.
 func (c *Client) RateLimit() float64 {
 	return c.limiter.Rate()
+}
+
+func (c *Client) requestContext() context.Context {
+	if c.Context != nil {
+		return c.Context
+	}
+	return context.Background()
 }
 
 func (c *Client) Get(path string, params map[string]string) (json.RawMessage, error) {
@@ -236,8 +246,12 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 
 	const maxRetries = 3
 	var lastErr error
+	ctx := c.requestContext()
 
 	for attempt := 0; attempt <= maxRetries; attempt++ {
+		if err := ctx.Err(); err != nil {
+			return nil, 0, err
+		}
 		// Proactive rate limiting — wait before sending
 		c.limiter.Wait()
 		var bodyReader io.Reader
@@ -245,7 +259,7 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 			bodyReader = strings.NewReader(string(bodyBytes))
 		}
 
-		req, err := http.NewRequest(method, targetURL, bodyReader)
+		req, err := http.NewRequestWithContext(ctx, method, targetURL, bodyReader)
 		if err != nil {
 			return nil, 0, fmt.Errorf("creating request: %w", err)
 		}
@@ -328,7 +342,9 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 			c.limiter.OnRateLimit()
 			wait := cliutil.RetryAfter(resp)
 			fmt.Fprintf(os.Stderr, "rate limited, waiting %s (attempt %d/%d, rate adjusted to %.1f req/s)\n", wait, attempt+1, maxRetries, c.limiter.Rate())
-			time.Sleep(wait)
+			if err := waitWithContext(ctx, wait); err != nil {
+				return nil, 0, err
+			}
 			lastErr = apiErr
 			continue
 		}
@@ -337,7 +353,9 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 		if resp.StatusCode >= 500 && attempt < maxRetries {
 			wait := time.Duration(math.Pow(2, float64(attempt))) * time.Second
 			fmt.Fprintf(os.Stderr, "server error %d, retrying in %s (attempt %d/%d)\n", resp.StatusCode, wait, attempt+1, maxRetries)
-			time.Sleep(wait)
+			if err := waitWithContext(ctx, wait); err != nil {
+				return nil, 0, err
+			}
 			lastErr = apiErr
 			continue
 		}
@@ -347,6 +365,20 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 	}
 
 	return nil, 0, lastErr
+}
+
+func waitWithContext(ctx context.Context, d time.Duration) error {
+	if d <= 0 {
+		return ctx.Err()
+	}
+	timer := time.NewTimer(d)
+	defer timer.Stop()
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-timer.C:
+		return nil
+	}
 }
 
 // dryRun prints the outgoing request exactly as the live path would send it,

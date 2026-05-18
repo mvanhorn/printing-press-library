@@ -4,9 +4,15 @@
 package cli
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
+	"path/filepath"
+	"strings"
 	"testing"
+
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/anylist/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/anylist/internal/store"
 )
 
 // TestIsCobraUsageError covers the six pre-RunE error shapes Cobra and
@@ -82,5 +88,37 @@ func TestAuthLoginDoesNotExposePasswordFlag(t *testing.T) {
 	cmd := newAuthLoginCmd(&rootFlags{})
 	if flag := cmd.Flags().Lookup("password"); flag != nil {
 		t.Fatalf("auth login must not expose --password; got flag %q", flag.Name)
+	}
+}
+
+func TestMealAddToListDryRunResolvesRecipesByEventID(t *testing.T) {
+	t.Parallel()
+
+	configPath := filepath.Join(t.TempDir(), "config.toml")
+	st, err := store.Open(&config.Config{Path: configPath})
+	if err != nil {
+		t.Fatalf("Open returned error: %v", err)
+	}
+	defer st.Close()
+
+	if _, err := st.DB().Exec(`INSERT INTO recipes (id, name) VALUES ('recipe-1', 'Pancakes')`); err != nil {
+		t.Fatalf("insert recipe: %v", err)
+	}
+	if _, err := st.DB().Exec(`INSERT INTO meal_events
+		(id, calendar_id, date, title, details, recipe_id, label_id, sort_index, scale_factor)
+		VALUES ('event-1', 'calendar-1', '2026-05-18', 'Unrelated title', '', 'recipe-1', '', 1, 1.0)`); err != nil {
+		t.Fatalf("insert meal event: %v", err)
+	}
+
+	flags := &rootFlags{asJSON: true, configPath: configPath}
+	cmd := newMealAddToListCmd(flags)
+	var out bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetArgs([]string{"--list", "Groceries", "--from", "2026-05-18", "--to", "2026-05-18", "--dry-run"})
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("Execute returned error: %v", err)
+	}
+	if got := out.String(); !strings.Contains(got, `"recipe": "Pancakes"`) {
+		t.Fatalf("output = %s, want recipe resolved from meal event recipe_id", got)
 	}
 }

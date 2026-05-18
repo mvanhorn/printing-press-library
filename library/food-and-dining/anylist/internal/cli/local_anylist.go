@@ -167,6 +167,8 @@ func newRecipeID() string {
 	return strings.ReplaceAll(uuid.NewString(), "-", "")
 }
 
+const maxImportedRecipeBytes = 10 << 20
+
 func importedRecipeFromURL(ctx context.Context, recipeURL string) (*pb.PBRecipe, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, recipeURL, nil)
 	if err != nil {
@@ -181,9 +183,12 @@ func importedRecipeFromURL(ctx context.Context, recipeURL string) (*pb.PBRecipe,
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		return nil, fmt.Errorf("fetching recipe URL failed (HTTP %d)", resp.StatusCode)
 	}
-	body, err := io.ReadAll(resp.Body)
+	body, err := io.ReadAll(io.LimitReader(resp.Body, maxImportedRecipeBytes+1))
 	if err != nil {
 		return nil, fmt.Errorf("reading recipe URL: %w", err)
+	}
+	if len(body) > maxImportedRecipeBytes {
+		return nil, fmt.Errorf("reading recipe URL: response exceeds %d bytes", maxImportedRecipeBytes)
 	}
 	recipe, err := extractRecipeFromHTML(string(body), recipeURL)
 	if err != nil {

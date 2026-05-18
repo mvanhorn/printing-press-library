@@ -15,6 +15,22 @@
         "internal/store/store.go"
       ],
       "validated_outcome": "Added regression coverage for the removed password flag, persisted client identifiers, and exact store ID matching."
+    },
+    {
+      "id": "review-meal-and-rate-limit-fixes",
+      "summary": "Routed meal-plan list writes through the typed AnyList ingredient path and tightened request, import, MCP, and limiter safeguards.",
+      "reason": "The published AnyList CLI used the generic JSON client for a protobuf shopping-list write endpoint, generic HTTP calls did not inherit command cancellation, imported recipe bodies were unbounded, MCP could disable rate limiting, and concurrent limiter callers could reserve the same request slot.",
+      "files": [
+        "internal/cli/meal_add-to-list.go",
+        "internal/cli/local_anylist.go",
+        "internal/cli/root.go",
+        "internal/cli/recipes_to_list.go",
+        "internal/client/client.go",
+        "internal/cliutil/ratelimit.go",
+        "internal/mcp/cobratree/shellout.go",
+        "internal/store/store.go"
+      ],
+      "validated_outcome": "Added regression coverage for meal event recipe-ID resolution, context cancellation, MCP rate-limit blocking, recipe lookup by ID, and concurrent limiter spacing."
     }
   ]
 }

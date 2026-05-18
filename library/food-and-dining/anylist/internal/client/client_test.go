@@ -5,9 +5,16 @@ package client
 
 import (
 	"bytes"
+	"context"
+	"errors"
+	"net/http"
+	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 	"unicode/utf8"
+
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/anylist/internal/config"
 )
 
 func TestTruncateBody(t *testing.T) {
@@ -68,5 +75,32 @@ func TestTruncateBody_UTF8RuneAtBoundary(t *testing.T) {
 	// Partial rune must be dropped, not replaced: 4094 valid bytes + "...".
 	if want := 4094 + 3; len(got) != want {
 		t.Fatalf("len = %d, want %d (partial rune should be dropped, not replaced)", len(got), want)
+	}
+}
+
+func TestClientDoUsesRequestContext(t *testing.T) {
+	t.Parallel()
+
+	called := make(chan struct{}, 1)
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		called <- struct{}{}
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(`{"ok":true}`))
+	}))
+	defer srv.Close()
+
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	c := New(&config.Config{BaseURL: srv.URL}, time.Second, 0)
+	c.Context = ctx
+	_, err := c.Get("/test", nil)
+	if !errors.Is(err, context.Canceled) {
+		t.Fatalf("Get error = %v, want context.Canceled", err)
+	}
+	select {
+	case <-called:
+		t.Fatal("server was called despite canceled request context")
+	default:
 	}
 }

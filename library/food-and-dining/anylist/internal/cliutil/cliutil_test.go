@@ -229,6 +229,32 @@ func TestFanoutRunBoundedConcurrency(t *testing.T) {
 	}
 }
 
+func TestAdaptiveLimiterWaitReservesConcurrentSlots(t *testing.T) {
+	t.Parallel()
+
+	limiter := NewAdaptiveLimiter(20) // one slot every 50ms
+	limiter.Wait()                    // prime lastRequest so all workers must reserve future slots
+
+	const workers = 3
+	start := make(chan struct{})
+	done := make(chan struct{}, workers)
+	began := time.Now()
+	for i := 0; i < workers; i++ {
+		go func() {
+			<-start
+			limiter.Wait()
+			done <- struct{}{}
+		}()
+	}
+	close(start)
+	for i := 0; i < workers; i++ {
+		<-done
+	}
+	if elapsed := time.Since(began); elapsed < 120*time.Millisecond {
+		t.Fatalf("concurrent Wait() calls completed in %s, want serialized spacing", elapsed)
+	}
+}
+
 func TestFanoutRunEmptySources(t *testing.T) {
 	results, errs := FanoutRun(context.Background(), []string{},
 		func(s string) string { return s },
