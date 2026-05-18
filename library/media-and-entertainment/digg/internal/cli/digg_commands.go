@@ -1483,7 +1483,8 @@ func newHistoryCmd(flags *rootFlags) *cobra.Command {
 func newAuthorsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "authors",
-		Short:       "Inspect the Digg AI 1000 — the curated leaderboard of AI accounts on X",
+		// PATCH(digg-rename-and-github-feeds): drop Digg AI 1000 branding.
+		Short:       "Inspect the accounts Digg tracks — the curated leaderboard of AI-news influencers on X",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 	}
 	cmd.AddCommand(newAuthorsTopCmd(flags))
@@ -1497,7 +1498,7 @@ func newAuthorsTopCmd(flags *rootFlags) *cobra.Command {
 	var limit int
 	cmd := &cobra.Command{
 		Use:         "top",
-		Short:       "Top contributors across the Digg AI 1000, ranked by influence, post count, or reach",
+		Short:       "Top contributors across Digg's tracked accounts, ranked by influence, post count, or reach",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		Example: `  digg-pp-cli authors top --by influence --limit 25
   digg-pp-cli authors top --by posts --json`,
@@ -1617,9 +1618,9 @@ func newAuthorsListCmd(flags *rootFlags) *cobra.Command {
 	var onlyFallers bool
 	cmd := &cobra.Command{
 		Use:         "list",
-		Short:       "Full ranked AI 1000 with rich fields (rank, category, bio, vibeDistribution); fetches /ai/1000 by default",
+		Short:       "Full ranked roster of Digg-tracked accounts with rich fields (rank, category, bio, vibeDistribution); fetches /ai/1000 by default",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Long: `List the full Digg AI 1000 with per-author rank, category, bio, GitHub URL, and vibe distribution.
+		Long: `List the full roster of Digg-tracked accounts with per-author rank, category, bio, GitHub URL, and vibe distribution.
 
 Live by default: fetches /ai/1000, parses the embedded RSC payload, upserts
 the roster into the local store, then reads back. Pass --data-source local

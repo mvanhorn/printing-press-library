@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-16T15:17:47.03852601Z",
+  "printing_press_version": "4.8.0",
+  "api_name": "smartlead",
+  "display_name": "Smartlead",
+  "cli_name": "smartlead-pp-cli",
+  "owner": "bossriceshark",
+  "printer": "bossriceshark",
+  "printer_name": "bossriceshark",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:8a2bd46122eef7049c2f6ca0d45ddeb0d166fc9e6e1bef96cb6423633795d020",
+  "run_id": "20260516-065803",
+  "mcp_binary": "smartlead-pp-mcp",
+  "mcp_tool_count": 44,
+  "mcp_ready": "full",
+  "api_version": "1.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "SMARTLEAD_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Campaign health scorecard",
+      "command": "health",
+      "description": "One-shot scorecard for every campaign — bounce rate, reply rate, silent-lead count, sender count, and a stale flag — without clicking through the dashboard."
+    },
+    {
+      "name": "Silent-lead finder",
+      "command": "silent",
+      "description": "Finds leads that were emailed but have not replied within N days — the exact set to follow up with or retire."
+    },
+    {
+      "name": "Cross-campaign dupe and domain ledger",
+      "command": "dupes",
+      "description": "Scans the whole lead mirror for emails or domains that appear in two or more campaigns; --domain prints the full pitch ledger for one site."
+    },
+    {
+      "name": "Sender health ranking",
+      "command": "sender-health",
+      "description": "Ranks every email sender account by a composite of inbox-warmup landing rate, SMTP/IMAP connection health, and sending utilization."
+    },
+    {
+      "name": "Warmup-readiness gate",
+      "command": "warmup-gate",
+      "description": "Checks each sender account against warmup thresholds (--min-days, --min-inbox-rate); with --strict it exits non-zero when any account fails — a scriptable launch gate."
+    },
+    {
+      "name": "Reply-rate drift",
+      "command": "drift",
+      "description": "Computes week-over-week reply, open, and bounce deltas for a campaign by querying analytics one seven-day window at a time."
+    }
+  ]
+}

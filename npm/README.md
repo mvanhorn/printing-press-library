@@ -1,6 +1,6 @@
 # @mvanhorn/printing-press
 
-Installer and catalog CLI for [Printing Press](https://printingpress.dev)-generated CLIs. Each install pulls down a Go binary plus its focused Claude Code skill.
+Installer and catalog CLI for [Printing Press](https://printingpress.dev)-generated CLIs. Each install pulls down a Go binary plus its focused agent skill — the skill lands in every supported agent on your machine (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents the upstream [`skills`](https://github.com/vercel-labs/skills) CLI detects).
 
 ## Quick start
 

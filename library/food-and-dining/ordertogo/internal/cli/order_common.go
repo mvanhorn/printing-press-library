@@ -39,12 +39,14 @@ type activeCart struct {
 }
 
 type lastOrderOutput struct {
-	Restaurant string            `json:"restaurant"`
-	Items      []store.OrderItem `json:"items"`
-	Totals     orderTotals       `json:"totals"`
-	Payment    string            `json:"payment"`
-	Points     int               `json:"points"`
-	OrderedAt  time.Time         `json:"ordered_at"`
+	Restaurant     string            `json:"restaurant"`
+	RestID         string            `json:"restid,omitempty"`
+	RestaurantSlug string            `json:"restaurant_slug,omitempty"`
+	Items          []store.OrderItem `json:"items"`
+	Totals         orderTotals       `json:"totals"`
+	Payment        string            `json:"payment"`
+	Points         int               `json:"points"`
+	OrderedAt      time.Time         `json:"ordered_at"`
 }
 
 func defaultConfigDirFile(name string) string {
@@ -83,8 +85,10 @@ func orderOutput(order *store.Order) lastOrderOutput {
 		return lastOrderOutput{}
 	}
 	return lastOrderOutput{
-		Restaurant: order.Restaurant,
-		Items:      order.Items,
+		Restaurant:     order.Restaurant,
+		RestID:         order.RestID,
+		RestaurantSlug: order.RestaurantSlug,
+		Items:          order.Items,
 		Totals: orderTotals{
 			Subtotal: order.Subtotal,
 			Tax:      order.Tax,

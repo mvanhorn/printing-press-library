@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "smartlead-pp-mcp",
+  "display_name": "Smartlead",
+  "version": "4.8.0",
+  "description": "Smartlead API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/smartlead-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/smartlead-pp-mcp",
+      "args": [],
+      "env": {
+        "SMARTLEAD_API_KEY": "${user_config.smartlead_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "smartlead_api_key": {
+      "type": "string",
+      "title": "SMARTLEAD_API_KEY",
+      "description": "Sets SMARTLEAD_API_KEY for the Smartlead MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,625 @@
+openapi: 3.0.3
+info:
+  title: SmartLead API
+  version: "1.0"
+  description: >-
+    SmartLead is a cold email outreach automation platform. This CLI drives the
+    SmartLead REST API to manage campaigns, leads, email sender accounts,
+    sequences, webhooks, and deliverability analytics.
+servers:
+  - url: https://server.smartlead.ai/api/v1
+security:
+  - apiKey: []
+components:
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      in: query
+      name: api_key
+      description: SmartLead API key. Find it under Settings -> API in the SmartLead app.
+      x-auth-env-vars:
+        - SMARTLEAD_API_KEY
+  parameters:
+    campaignId:
+      name: campaign_id
+      in: path
+      required: true
+      schema: { type: integer }
+      description: Numeric SmartLead campaign ID.
+    leadIdPath:
+      name: lead_id
+      in: path
+      required: true
+      schema: { type: integer }
+      description: Numeric SmartLead lead ID.
+    emailAccountId:
+      name: email_account_id
+      in: path
+      required: true
+      schema: { type: integer }
+      description: Numeric SmartLead email (sender) account ID.
+paths:
+  /campaigns:
+    get:
+      tags: [campaigns]
+      operationId: listCampaigns
+      summary: List all email campaigns
+      description: Retrieves every email campaign for the authenticated SmartLead account.
+      responses:
+        "200": { description: Array of campaigns }
+  /campaigns/{campaign_id}:
+    get:
+      tags: [campaigns]
+      operationId: getCampaign
+      summary: Get a campaign by ID
+      parameters:
+        - $ref: '#/components/parameters/campaignId'
+      responses:
+        "200": { description: Campaign object }
+    delete:
+      tags: [campaigns]
+      operationId: deleteCampaign
+      summary: Delete a campaign
+      parameters:
+        - $ref: '#/components/parameters/campaignId'
+      responses:
+        "200": { description: Deletion result }
+  /campaigns/create:
+    post:
+      tags: [campaigns]
+      operationId: createCampaign
+      summary: Create a new campaign
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string, description: Campaign name }
+                client_id: { type: integer, description: Optional client/whitelabel ID to assign the campaign to }
+      responses:
+        "200": { description: Created campaign }
+  /campaigns/{campaign_id}/status:
+    post:
+      tags: [campaigns]
+      operationId: updateCampaignStatus
+      summary: Start, pause, or stop a campaign
+      parameters:
+        - $ref: '#/components/parameters/campaignId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status:
+                  type: string
+                  enum: [START, PAUSED, STOPPED]
+                  description: New campaign run state.
+      responses:
+        "200": { description: Updated status }
+  /campaigns/{campaign_id}/settings:
+    post:
+      tags: [campaigns]
+      operationId: updateCampaignSettings
+      summary: Update campaign tracking and stop-condition settings
+      parameters:
+        - $ref: '#/components/parameters/campaignId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                track_settings:
+                  type: array
+                  items:
+                    type: string
+                    enum: [DONT_TRACK_EMAIL_OPEN, DONT_TRACK_LINK_CLICK, DONT_TRACK_REPLY_TO_AN_EMAIL]
+                  description: Tracking behaviors to disable.
+                stop_lead_settings:
+                  type: array
+                  items:
+                    type: string
+                    enum: [REPLY_TO_AN_EMAIL, CLICK_ON_A_LINK, OPEN_AN_EMAIL]
+                  description: Lead actions that stop further follow-ups.
+                unsubscribe_text: { type: string, description: Unsubscribe footer text }
+                send_as_plain_text: { type: boolean, description: Send emails as plain text }
+                follow_up_percentage: { type: integer, description: Percentage of leads to follow up with }
+                client_id: { type: integer, description: Optional client/whitelabel ID }
+      responses:
+        "200": { description: Updated settings }
+  /campaigns/{campaign_id}/schedule:
+    post:
+      tags: [campaigns]
+      operationId: updateCampaignSchedule
+      summary: Update a campaign sending schedule
+      parameters:
+        - $ref: '#/components/parameters/campaignId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                timezone: { type: string, description: IANA timezone, e.g. America/Chicago }
+                days_of_the_week:
+                  type: array
+                  items: { type: integer }
+                  description: Active sending days, 0=Sunday through 6=Saturday.
+                start_hour: { type: string, description: Daily send window start, e.g. "09:00" }
+                end_hour: { type: string, description: Daily send window end, e.g. "17:00" }
+                min_time_btw_emails: { type: integer, description: Minimum minutes between emails }
+                max_new_leads_per_day: { type: integer, description: Cap on new leads contacted per day }
+                schedule_start_time: { type: string, description: ISO 8601 datetime to start sending }
+      responses:
+        "200": { description: Updated schedule }
+  /campaigns/{campaign_id}/sequences:
+    get:
+      tags: [sequences]
+      operationId: getSequences
+      summary: Get the email sequence steps for a campaign
+      parameters:
+        - $ref: '#/components/parameters/campaignId'
+      responses:
+        "200": { description: Sequence steps }
+    post:
+      tags: [sequences]
+      operationId: saveSequences
+      summary: Save the email sequence steps for a campaign
+      parameters:
+        - $ref: '#/components/parameters/campaignId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [sequences]
+              properties:
+                sequences:
+                  type: array
+                  items: { type: object }
+                  description: Ordered list of sequence step objects (subject, body, delay, variants).
+      responses:
+        "200": { description: Saved sequences }
+  /campaigns/{campaign_id}/email-accounts:
+    get:
+      tags: [campaigns]
+      operationId: getCampaignEmailAccounts
+      summary: List email accounts attached to a campaign
+      parameters:
+        - $ref: '#/components/parameters/campaignId'
+      responses:
+        "200": { description: Attached email accounts }
+    post:
+      tags: [campaigns]
+      operationId: addCampaignEmailAccounts
+      summary: Attach email accounts to a campaign
+      parameters:
+        - $ref: '#/components/parameters/campaignId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email_account_ids]
+              properties:
+                email_account_ids:
+                  type: array
+                  items: { type: integer }
+                  description: Email account IDs to attach as senders.
+      responses:
+        "200": { description: Attach result }
+    delete:
+      tags: [campaigns]
+      operationId: removeCampaignEmailAccounts
+      summary: Detach email accounts from a campaign
+      parameters:
+        - $ref: '#/components/parameters/campaignId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email_account_ids]
+              properties:
+                email_account_ids:
+                  type: array
+                  items: { type: integer }
+                  description: Email account IDs to detach.
+      responses:
+        "200": { description: Detach result }
+  /campaigns/{campaign_id}/leads:
+    get:
+      tags: [leads]
+      operationId: listCampaignLeads
+      x-resource-id: campaign_lead_map_id
+      summary: List leads in a campaign
+      parameters:
+        - $ref: '#/components/parameters/campaignId'
+        - { name: offset, in: query, schema: { type: integer }, description: Pagination offset }
+        - { name: limit, in: query, schema: { type: integer }, description: Max leads to return per page }
+      responses:
+        "200": { description: Paginated leads }
+    post:
+      tags: [leads]
+      operationId: addLeadsToCampaign
+      summary: Add leads to a campaign
+      parameters:
+        - $ref: '#/components/parameters/campaignId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [lead_list]
+              properties:
+                lead_list:
+                  type: array
+                  items: { type: object }
+                  description: Lead objects (email, first_name, last_name, company_name, custom_fields).
+      responses:
+        "200": { description: Upload result with counts }
+  /campaigns/{campaign_id}/leads/{lead_id}:
+    delete:
+      tags: [leads]
+      operationId: deleteLeadFromCampaign
+      summary: Remove a lead from a campaign
+      parameters:
+        - $ref: '#/components/parameters/campaignId'
+        - $ref: '#/components/parameters/leadIdPath'
+      responses:
+        "200": { description: Removal result }
+  /campaigns/{campaign_id}/leads/{lead_id}/unsubscribe:
+    post:
+      tags: [leads]
+      operationId: unsubscribeLeadFromCampaign
+      summary: Unsubscribe a lead from a single campaign
+      parameters:
+        - $ref: '#/components/parameters/campaignId'
+        - $ref: '#/components/parameters/leadIdPath'
+      responses:
+        "200": { description: Unsubscribe result }
+  /campaigns/{campaign_id}/leads/{lead_id}/category:
+    post:
+      tags: [leads]
+      operationId: updateLeadCategory
+      summary: Set the category of a lead within a campaign
+      parameters:
+        - $ref: '#/components/parameters/campaignId'
+        - $ref: '#/components/parameters/leadIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [category_id]
+              properties:
+                category_id: { type: integer, description: Lead category ID (see leads list-categories) }
+      responses:
+        "200": { description: Updated category }
+  /campaigns/{campaign_id}/leads/{lead_id}/message-history:
+    get:
+      tags: [leads]
+      operationId: getLeadMessageHistory
+      summary: Get the full email thread for a lead in a campaign
+      parameters:
+        - $ref: '#/components/parameters/campaignId'
+        - $ref: '#/components/parameters/leadIdPath'
+      responses:
+        "200": { description: Message history }
+  /campaigns/{campaign_id}/leads-export:
+    get:
+      tags: [leads]
+      operationId: exportCampaignLeads
+      summary: Export all leads in a campaign as CSV data
+      parameters:
+        - $ref: '#/components/parameters/campaignId'
+      responses:
+        "200": { description: Lead export payload }
+  /campaigns/{campaign_id}/statistics:
+    get:
+      tags: [analytics]
+      operationId: getCampaignStatistics
+      x-resource-id: stats_id
+      summary: Get per-lead send statistics for a campaign
+      parameters:
+        - $ref: '#/components/parameters/campaignId'
+        - { name: offset, in: query, schema: { type: integer }, description: Pagination offset }
+        - { name: limit, in: query, schema: { type: integer }, description: Max rows per page }
+        - { name: email_sequence_number, in: query, schema: { type: integer }, description: Filter to one sequence step }
+        - name: email_status
+          in: query
+          schema:
+            type: string
+            enum: [opened, clicked, replied, unsubscribed, bounced]
+          description: Filter rows by email outcome.
+      responses:
+        "200": { description: Statistics rows }
+  /campaigns/{campaign_id}/analytics-by-date:
+    get:
+      tags: [analytics]
+      operationId: getCampaignAnalyticsByDate
+      summary: Get campaign analytics for a date range
+      parameters:
+        - $ref: '#/components/parameters/campaignId'
+        - { name: start_date, in: query, required: true, schema: { type: string }, description: Range start, YYYY-MM-DD }
+        - { name: end_date, in: query, required: true, schema: { type: string }, description: Range end, YYYY-MM-DD }
+      responses:
+        "200": { description: Date-bucketed analytics }
+  /campaigns/{campaign_id}/analytics:
+    get:
+      tags: [analytics]
+      operationId: getCampaignAnalytics
+      summary: Get top-level analytics for a campaign
+      parameters:
+        - $ref: '#/components/parameters/campaignId'
+      responses:
+        "200": { description: Top-level analytics (sent, opens, replies, bounces) }
+  /campaigns/{campaign_id}/webhooks:
+    get:
+      tags: [webhooks]
+      operationId: listCampaignWebhooks
+      summary: List webhooks registered on a campaign
+      parameters:
+        - $ref: '#/components/parameters/campaignId'
+      responses:
+        "200": { description: Webhooks }
+    post:
+      tags: [webhooks]
+      operationId: upsertCampaignWebhook
+      summary: Create or update a campaign webhook
+      parameters:
+        - $ref: '#/components/parameters/campaignId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, webhook_url, event_types]
+              properties:
+                id: { type: integer, description: Webhook ID to update; omit to create }
+                name: { type: string, description: Webhook label }
+                webhook_url: { type: string, description: Destination URL for event POSTs }
+                event_types:
+                  type: array
+                  items:
+                    type: string
+                    enum: [EMAIL_SENT, EMAIL_OPEN, EMAIL_LINK_CLICK, EMAIL_REPLY, LEAD_UNSUBSCRIBED, LEAD_CATEGORY_UPDATED]
+                  description: Events to subscribe to.
+                categories:
+                  type: array
+                  items:
+                    type: string
+                    enum: [Interested, "Meeting Request", "Not Interested", "Do Not Contact", "Information Request", "Out Of Office", "Wrong Person"]
+                  description: Lead categories that trigger LEAD_CATEGORY_UPDATED events.
+      responses:
+        "200": { description: Upserted webhook }
+    delete:
+      tags: [webhooks]
+      operationId: deleteCampaignWebhook
+      summary: Delete a campaign webhook
+      parameters:
+        - $ref: '#/components/parameters/campaignId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [id]
+              properties:
+                id: { type: integer, description: Webhook ID to delete }
+      responses:
+        "200": { description: Deletion result }
+  /leads:
+    get:
+      tags: [leads]
+      operationId: getLeadByEmail
+      summary: Look up a lead by email address
+      parameters:
+        - { name: email, in: query, required: true, schema: { type: string }, description: Lead email address to search for }
+      responses:
+        "200": { description: Lead object }
+  /leads/{lead_id}/campaigns:
+    get:
+      tags: [leads]
+      operationId: getLeadCampaigns
+      summary: List every campaign a lead belongs to
+      parameters:
+        - $ref: '#/components/parameters/leadIdPath'
+      responses:
+        "200": { description: Campaigns the lead is in }
+  /leads/fetch-categories:
+    get:
+      tags: [leads]
+      operationId: listLeadCategories
+      summary: List all lead categories for the account
+      responses:
+        "200": { description: Lead categories }
+  /leads/{lead_id}/unsubscribe:
+    post:
+      tags: [leads]
+      operationId: unsubscribeLeadFromAll
+      summary: Unsubscribe a lead from every campaign
+      parameters:
+        - $ref: '#/components/parameters/leadIdPath'
+      responses:
+        "200": { description: Global unsubscribe result }
+  /leads/add-domain-block-list:
+    post:
+      tags: [leads]
+      operationId: addDomainBlockList
+      summary: Add domains to the account-wide block list
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [domain_block_list]
+              properties:
+                domain_block_list:
+                  type: array
+                  items: { type: string }
+                  description: Domains to block from all campaigns.
+                client_id: { type: integer, description: Optional client/whitelabel ID }
+      responses:
+        "200": { description: Block list result }
+  /leads/{lead_id}:
+    post:
+      tags: [leads]
+      operationId: updateLead
+      summary: Update a lead's fields
+      parameters:
+        - $ref: '#/components/parameters/leadIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Lead fields to update (first_name, last_name, company_name, custom_fields, etc.).
+      responses:
+        "200": { description: Updated lead }
+  /email-accounts:
+    get:
+      tags: [email-accounts]
+      operationId: listEmailAccounts
+      summary: List all email sender accounts
+      responses:
+        "200": { description: Email accounts }
+    post:
+      tags: [email-accounts]
+      operationId: createEmailAccount
+      summary: Add a new email sender account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [from_name, from_email, user_name, password, smtp_host, smtp_port, imap_host, imap_port]
+              properties:
+                from_name: { type: string, description: Display name on outgoing mail }
+                from_email: { type: string, description: Sender email address }
+                user_name: { type: string, description: SMTP/IMAP login username }
+                password: { type: string, description: SMTP/IMAP password }
+                smtp_host: { type: string, description: SMTP server host }
+                smtp_port: { type: integer, description: SMTP server port }
+                imap_host: { type: string, description: IMAP server host }
+                imap_port: { type: integer, description: IMAP server port }
+                max_email_per_day: { type: integer, description: Daily send cap }
+                custom_tracking_url: { type: string, description: Custom open/click tracking domain }
+                bcc: { type: string, description: BCC address for all sends }
+                signature: { type: string, description: Email signature HTML }
+                warmup_enabled: { type: boolean, description: Enable inbox warmup }
+                total_warmup_per_day: { type: integer, description: Warmup emails per day }
+                daily_rampup: { type: integer, description: Warmup ramp-up increment per day }
+                reply_rate_percentage: { type: integer, description: Warmup reply rate target }
+                client_id: { type: integer, description: Optional client/whitelabel ID }
+      responses:
+        "200": { description: Created email account }
+  /email-accounts/{email_account_id}:
+    post:
+      tags: [email-accounts]
+      operationId: updateEmailAccount
+      summary: Update an email sender account
+      parameters:
+        - $ref: '#/components/parameters/emailAccountId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                max_email_per_day: { type: integer, description: Daily send cap }
+                custom_tracking_url: { type: string, description: Custom tracking domain }
+                bcc: { type: string, description: BCC address for all sends }
+                signature: { type: string, description: Email signature HTML }
+                client_id: { type: integer, description: Optional client/whitelabel ID }
+      responses:
+        "200": { description: Updated email account }
+  /email-accounts/{email_account_id}/warmup:
+    post:
+      tags: [email-accounts]
+      operationId: setWarmupSettings
+      summary: Configure inbox warmup for an email account
+      parameters:
+        - $ref: '#/components/parameters/emailAccountId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [warmup_enabled]
+              properties:
+                warmup_enabled: { type: boolean, description: Turn warmup on or off }
+                total_warmup_per_day: { type: integer, description: Warmup emails per day }
+                daily_rampup: { type: integer, description: Ramp-up increment per day }
+                reply_rate_percentage: { type: integer, description: Target warmup reply rate }
+      responses:
+        "200": { description: Updated warmup settings }
+  /email-accounts/{email_account_id}/warmup-stats:
+    get:
+      tags: [email-accounts]
+      operationId: getWarmupStats
+      summary: Get warmup performance stats for an email account
+      parameters:
+        - $ref: '#/components/parameters/emailAccountId'
+      responses:
+        "200": { description: Warmup stats (sent, landed in inbox, spam) }
+  /email-accounts/reconnect-failed-email-accounts:
+    post:
+      tags: [email-accounts]
+      operationId: reconnectFailedEmailAccounts
+      summary: Trigger a reconnect of all disconnected email accounts
+      responses:
+        "200": { description: Reconnect result }
+  /client/save:
+    post:
+      tags: [clients]
+      operationId: createClient
+      summary: Create a whitelabel client
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email]
+              properties:
+                name: { type: string, description: Client name }
+                email: { type: string, description: Client login email }
+                permission:
+                  type: array
+                  items:
+                    type: string
+                    enum: [reply_master_inbox, full_access]
+                  description: Access scopes granted to the client.
+                logo: { type: string, description: Client logo label }
+                logo_url: { type: string, description: Client logo image URL }
+                password: { type: string, description: Client login password }
+      responses:
+        "200": { description: Created client }
+  /client:
+    get:
+      tags: [clients]
+      operationId: listClients
+      summary: List all whitelabel clients
+      responses:
+        "200": { description: Clients }
