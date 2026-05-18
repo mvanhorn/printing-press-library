@@ -135,7 +135,7 @@ jobs:
 
           touched=$(git log "${BASE_REMOTE_REF}..HEAD" --name-only --format= \
             -- 'registry.json' 'cli-skills/pp-*/SKILL.md' \
-            | grep -v '^$' | sort -u)
+            | grep -v '^$' | sort -u || true)
           differs=$(git diff --name-only "${BASE_REMOTE_REF}" HEAD \
             -- 'registry.json' 'cli-skills/pp-*/SKILL.md' \
             | sort -u)
