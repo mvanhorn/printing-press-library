@@ -474,8 +474,8 @@ def signal_npm_lifecycle_script(change: FileChange) -> list[Finding]:
         except (json.JSONDecodeError, TypeError):
             base_data = {}
 
-    head_scripts = head_data.get("scripts", {}) if isinstance(head_data, dict) else {}
-    base_scripts = base_data.get("scripts", {}) if isinstance(base_data, dict) else {}
+    head_scripts = (head_data.get("scripts") or {}) if isinstance(head_data, dict) else {}
+    base_scripts = (base_data.get("scripts") or {}) if isinstance(base_data, dict) else {}
 
     findings: list[Finding] = []
     for name in _WATCHED_NPM_SCRIPTS:
