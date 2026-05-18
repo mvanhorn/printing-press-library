@@ -1,5 +1,6 @@
 // Copyright 2026 nikica-jokic. Licensed under Apache-2.0. See LICENSE.
 
+// PATCH novel-commands: hand-built person timeline/complaints (local SQLite, no upstream endpoint).
 package cli
 
 import (

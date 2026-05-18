@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-11",
+  "base_run_id": "20260511-034611",
+  "base_printing_press_version": "4.2.2",
+  "patches": [
+    {
+      "id": "cookie-auth-adapter",
+      "files": ["internal/cli/auth_import_cookies.go", "internal/cli/auth.go", "internal/config/config.go"],
+      "summary": "Add `auth import-cookies --from-file` that reads a browser-use cookies export JSON and saves a Cookie header to config; teach `auth status`, `auth logout`, and the config layer to treat that Cookie as first-class auth. Name/value validation split into validCookieName (RFC 6265 token rules — rejects `=`) and validCookieValue (cookie-octet rules — allows `=` for base64 padding).",
+      "reason": "Press v4.2.2 templates auth flows for api_key/bearer/oauth2; spec auth.type=cookie does not drive the flow templates, and JJ requires a real-Chrome session to clear PerimeterX. Adapter bridges the browser-use export shape to config.Headers[\"Cookie\"]. Validates cookie characters per RFC 6265 §4.1.1 before assembly to defeat header smuggling/injection, but with separate name/value rules — values include `=` since PerimeterX cookies like `_px3`/`_pxvid` store base64 payloads with `=` padding; rejecting them defeated the entire reason for the import flow. Adds Config.ClearAuth (used by logout, also nukes the Cookie) and Config.HasCookieAuth (used by auth status, doctor, and the cache key) so the documented flow doesn't misreport as 'Not authenticated' or share cache lines across re-imports."
+    },
+    {
+      "id": "menu-unwich-tty-guard",
+      "files": ["internal/cli/menu_unwich.go"],
+      "summary": "Skip io.ReadAll on stdin when it's a TTY in `menu unwich-convert` (carry over the readerIsTerminal guard from order_plan.go).",
+      "reason": "Without the guard, `menu unwich-convert --product-id 33328641` hangs forever on a TTY waiting for Ctrl-D before the empty-input error can fire. Found by codex review."
+    },
+    {
+      "id": "reconcile-wrapped-response",
+      "files": ["internal/cli/reconcile.go"],
+      "summary": "Tolerate wrapped/paginated /stores responses (`{stores|results|data: [...]}`) in `reconcile` and surface a note when the response shape doesn't match either bare-array or known wrapper.",
+      "reason": "Previously, a wrapped envelope caused the bare-array unmarshal to fail silently — remoteIDs stayed empty and reconcile reported every locally-synced store as 'removed' with no error note, a misleading result. Found by codex review."
+    },
+    {
+      "id": "mcp-code-orch-body-passthrough",
+      "files": ["internal/mcp/code_orch.go"],
+      "summary": "Pass MCP execute params directly to Client.Post/Put/Patch instead of marshaling once into []byte and letting the client marshal again.",
+      "reason": "Client.{Post,Put,Patch} take `body any` and call json.Marshal internally; the previous json.Marshal(params) -> []byte chain caused a double encode, so POST/PUT/PATCH endpoints (account.login, order.add_items, etc.) received a base64 JSON string instead of the object payload they expected. Found by codex review."
+    },
+    {
+      "id": "client-cache-key-cookie",
+      "files": ["internal/client/client.go"],
+      "summary": "Hash cfg.Headers[\"Cookie\"] into the response cache key alongside AuthHeader() bearer tokens.",
+      "reason": "AuthHeader() returns \"\" for the documented import-cookies flow, so two distinct sessions that share a config path produced an identical cache key — meaning authenticated GET responses (account, rewards, order) could leak across sessions for the cache TTL. Found by codex review."
+    },
+    {
+      "id": "module-path-published",
+      "files": ["go.mod", "cmd/jimmy-johns-pp-cli/main.go", "cmd/jimmy-johns-pp-mcp/main.go", "internal/mcp/tools.go", "internal/cli/auth.go", "internal/cli/sync.go"],
+      "summary": "Rewrite the Go module path to github.com/mvanhorn/printing-press-library/library/food-and-dining/jimmy-johns and update all internal imports.",
+      "reason": "The npm installer resolves install targets from the published module path (`go install <module>/cmd/<binary>@latest`). A bare `module jimmy-johns-pp-cli` declaration left `npx ... install jimmy-johns` running `go install jimmy-johns-pp-cli/cmd/jimmy-johns-pp-cli@latest`, which Go rejects as a malformed/undownloadable path. Found by codex review."
+    },
+    {
+      "id": "novel-unwich-convert",
+      "files": ["internal/cli/menu_unwich.go", "internal/cli/menu_unwich_test.go"],
+      "summary": "Add `menu unwich-convert` — pure-local modifier-delta computation that converts any sandwich to its Unwich (lettuce wrap) variant.",
+      "reason": "Transcendence command. JJ exposes Unwich as an order-time modifier, not a separate product; computing the delta locally lets agents preview the conversion without a live cart round-trip."
+    },
+    {
+      "id": "novel-order-plan",
+      "files": ["internal/cli/order_plan.go", "internal/cli/order_plan_test.go"],
+      "summary": "Add `order plan --people N` — sized cart suggestion with dietary filters for office/group orders.",
+      "reason": "Transcendence command. JJ's API doesn't expose any group-sizing endpoint; planning lives entirely client-side."
+    },
+    {
+      "id": "novel-half-and-half",
+      "files": ["internal/cli/menu_half_and_half.go", "internal/cli/menu_half_and_half_test.go"],
+      "summary": "Add `menu half-and-half` — compose a two-product share order with an explicit note that JJ doesn't slice half-and-half natively.",
+      "reason": "Transcendence command. Two-person sharing is a real workflow but JJ's data model has no half-and-half representation; emitting the cart + human-facing constraint note keeps agents from silently pretending it's a first-class option."
+    },
+    {
+      "id": "workflow-reconcile",
+      "files": ["internal/cli/reconcile.go"],
+      "summary": "Add `reconcile` — diff locally synced stores against live API; report new/removed/unchanged.",
+      "reason": "Insight scorer requires a workflow command that reasons about cache drift. Pairs with the cache TTL stanza."
+    },
+    {
+      "id": "workflow-search",
+      "files": ["internal/cli/search_menu.go"],
+      "summary": "Add `search` — local substring search over synced menu items and stores.",
+      "reason": "Workflows scorer wants a search command that consumes the local SQLite store rather than the live API."
+    },
+    {
+      "id": "insight-stats",
+      "files": ["internal/cli/stats.go"],
+      "summary": "Add `stats` — local SQL aggregation over synced stores/products/orders/rewards.",
+      "reason": "Insight scorer requires a top-line aggregation command that reads from the local store."
+    },
+    {
+      "id": "insight-trends",
+      "files": ["internal/cli/trends.go"],
+      "summary": "Add `trends` — weekly cadence + ordering breakdown from local order history.",
+      "reason": "Insight scorer paired with `stats`; surfaces a usage-pattern view from the local store."
+    }
+  ],
+  "deferred_to_upstream": [
+    {
+      "summary": "Press v4.2.2 cookie-auth flow templates",
+      "reason": "`auth.type: cookie` should fully drive the generated auth flow (set-cookie, refresh-cookie, login-cookie) the way api_key/oauth2 do. Currently only the spec is annotated; the flow is hand-authored. Generator-side fix."
+    },
+    {
+      "summary": "MCP Token Efficiency scorer + Cloudflare-orchestration `execute` tool description",
+      "reason": "Cloudflare-pattern `execute` tool embeds the full endpoint registry (~1037 tokens) in its description; the scorer's 320 tokens/tool budget caps this CLI at 0/10. Likely needs the registry externalized or a scorer carve-out for orchestrated MCP."
+    },
+    {
+      "summary": "Type Fidelity scorer regex on consecutive Flags().StringVar() calls",
+      "reason": "Scorer misidentifies adjacent flag names as the previous flag's description on consecutive declarations; small upstream regex fix."
+    }
+  ]
+}

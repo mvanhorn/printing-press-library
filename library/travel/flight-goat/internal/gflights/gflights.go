@@ -40,7 +40,11 @@ type Leg struct {
 	ArrivalTime      string  `json:"arrival_time"`
 	DurationMinutes  int     `json:"duration"`
 	Airline          Airline `json:"airline"`
-	FlightNumber     string  `json:"flight_number"`
+	// PATCH: aircraft type, seat type, and amenities fields
+	FlightNumber     string   `json:"flight_number"`
+	AircraftType     string   `json:"aircraft_type,omitempty"`
+	SeatType         string   `json:"seat_type,omitempty"`
+	Amenities        []string `json:"amenities,omitempty"`
 }
 
 // Flight is one itinerary (possibly multi-leg).
@@ -50,6 +54,10 @@ type Flight struct {
 	Legs            []Leg   `json:"legs"`
 	Price           float64 `json:"price"`
 	Currency        string  `json:"currency"`
+	// PATCH(library): one-click handoff to a real booking surface. Google is
+	// always populated; Airline is populated only when all legs are operated
+	// by a single carrier in the airlineTemplates table. See booking_urls.go.
+	BookingURLs BookingURLs `json:"booking_urls"`
 }
 
 // SearchResult is the normalized envelope returned by Search.
@@ -62,6 +70,10 @@ type SearchResult struct {
 	Query      SearchQuery `json:"query"`
 	Count      int         `json:"count"`
 	Flights    []Flight    `json:"flights"`
+	// PATCH(library): populated when one or both airport codes were remapped
+	// from a retired IATA code. The Query echo above keeps the user's
+	// original input; AirportRemapped is the only signal of substitution.
+	AirportRemapped *AirportRemapNote `json:"airport_remapped,omitempty"`
 }
 
 // SearchQuery echoes the user's query back in the response envelope.
@@ -92,6 +104,8 @@ type DatesResult struct {
 	Query      SearchQuery `json:"query"`
 	Count      int         `json:"count"`
 	Dates      []DatePrice `json:"dates"`
+	// PATCH(library): see SearchResult.AirportRemapped.
+	AirportRemapped *AirportRemapNote `json:"airport_remapped,omitempty"`
 }
 
 // SearchOptions are the knobs users can pass to a flight search.
@@ -134,7 +148,24 @@ func Search(ctx context.Context, opts SearchOptions) (*SearchResult, error) {
 		ctx, cancel = context.WithTimeout(ctx, 90*time.Second)
 		defer cancel()
 	}
-	return searchNativeDirect(ctx, opts)
+	// PATCH(library): normalize retired IATA codes before talking to Google.
+	// Google's GetShoppingResults silently returns empty for decommissioned
+	// codes; remap to the current code and surface the substitution in the
+	// result envelope so callers can see what happened. The user's original
+	// input is preserved in the echoed SearchQuery.
+	userOrigin, userDest := opts.Origin, opts.Destination
+	o, d, note := remapAirportPair(opts.Origin, opts.Destination)
+	opts.Origin, opts.Destination = o.To, d.To
+	result, err := searchNativeDirect(ctx, opts)
+	if err != nil {
+		return result, err
+	}
+	if result != nil {
+		result.Query.Origin = userOrigin
+		result.Query.Destination = userDest
+		result.AirportRemapped = note
+	}
+	return result, nil
 }
 
 // (The old krisukox-backed searchNative + tripTypeName helper were removed
@@ -166,7 +197,20 @@ func Dates(ctx context.Context, opts DatesOptions) (*DatesResult, error) {
 		ctx, cancel = context.WithTimeout(ctx, 90*time.Second)
 		defer cancel()
 	}
-	return datesNative(ctx, opts)
+	// PATCH(library): same remap-and-echo flow as Search(); see comment there.
+	userOrigin, userDest := opts.Origin, opts.Destination
+	o, d, note := remapAirportPair(opts.Origin, opts.Destination)
+	opts.Origin, opts.Destination = o.To, d.To
+	result, err := datesNative(ctx, opts)
+	if err != nil {
+		return result, err
+	}
+	if result != nil {
+		result.Query.Origin = userOrigin
+		result.Query.Destination = userDest
+		result.AirportRemapped = note
+	}
+	return result, nil
 }
 
 func normalizeCurrency(code string) (currency.Unit, string, error) {

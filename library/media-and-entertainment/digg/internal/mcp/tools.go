@@ -333,7 +333,8 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	ctx := map[string]any{
 		"api":         "digg",
-		"description": "Tail the Digg AI 1000's news cycle from the terminal — read-only, with the full pipeline event stream and...",
+		// PATCH(digg-rename-and-github-feeds): drop Digg AI 1000 branding; add github resource.
+		"description": "Tail Digg's news cycle, GitHub feeds, and pipeline events from the terminal — read-only, with rank-history nobody else surfaces.",
 		"archetype":   "generic",
 		"tool_count":  3,
 		// tool_surface tells agents which surface a capability lives on.
@@ -341,8 +342,14 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		"resources": []map[string]any{
 			{
 				"name":        "feed",
-				"description": "Top-level AI story feed (HTML page; CLI parses the embedded RSC stream)",
+				"description": "Top-level story feed (HTML page; CLI parses the embedded RSC stream)",
 				"endpoints":   []string{"raw", "story_raw"},
+				"searchable":  true,
+			},
+			{
+				"name":        "github",
+				"description": "GitHub feeds Digg surfaces alongside the X-account leaderboard (stars / new / activity / recent).",
+				"endpoints":   []string{"stars", "new", "activity", "recent"},
 				"searchable":  true,
 			},
 			{
@@ -366,7 +373,11 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			{"name": "Score component breakdown", "command": "evidence", "description": "Print the full ranking transparency record for one cluster — scoreComponents, evidence array, numeratorLabel,...", "rationale": "Digg ships gravity-score components and evidence in the page payload. The web UI shows only the final gravity score.", "via": "mcp-command-mirror"},
 			{"name": "Time-windowed sentiment", "command": "sentiment", "description": "Read per-time-window positivity ratios (pos6h, pos12h, pos24h, posLast) for a cluster.", "rationale": "Each cluster carries pos6h/12h/24h fields. No web UI surfaces them.", "via": "mcp-command-mirror"},
 			{"name": "Cross-aggregator references", "command": "crossref", "description": "Show this cluster's Hacker News and Techmeme mirrors when Digg has detected the story is being discussed there.", "rationale": "Each cluster carries hackerNews and techmeme cross-reference fields populated by Digg's own pipeline.", "via": "mcp-command-mirror"},
-			{"name": "Influence-ranked author leaderboard", "command": "authors top", "description": "Top accounts in the Digg AI 1000 ranked by Digg's influence score, story count, or reach.", "rationale": "Digg AI's product premise is a ranked 1,000-account leaderboard on X. The /ai/influencers page is currently 404; the...", "via": "mcp-command-mirror"},
+			{"name": "Influence-ranked author leaderboard", "command": "authors top", "description": "Top accounts Digg tracks, ranked by Digg's influence score, story count, or reach.", "rationale": "Digg's product premise is a ranked leaderboard of AI-news accounts on X. The /ai/influencers page is currently 404; the data is embedded in every feed response.", "via": "mcp-command-mirror"},
+			{"name": "GitHub: top starred AI repos", "command": "github stars", "description": "Top AI repos ranked by starring activity from Digg-tracked accounts: stargazers, recent starrers, breakout/novel/ai_related scores, language, one-sentence classification.", "rationale": "Digg's /ai/github/stars page embeds the full repo + scoring JSON in its RSC payload. CLI extracts and exposes as structured records.", "via": "mcp-command-mirror"},
+			{"name": "GitHub: newly first-seen repos", "command": "github new", "description": "Recently first-seen GitHub repos with the Digg-tracked creator/starrer who first put them on Digg's radar (event_id, event_created_at, repo_full_name, creator).", "rationale": "Digg's /ai/github/new page exposes per-event flat records; CLI parses them.", "via": "mcp-command-mirror"},
+			{"name": "GitHub: contributor leaderboard", "command": "github activity", "description": "Top GitHub contributor leaderboard: per-author rank, contribution count, and distinct repos count over Digg's tracking window.", "rationale": "Digg's /ai/github/activity page lists contributors with rank + contribution + repos counts; CLI scrapes the rendered table.", "via": "mcp-command-mirror"},
+			{"name": "GitHub: live activity feed", "command": "github recent", "description": "Live GitHub activity feed: per-event entries with the GitHub URL (issue/PR/commit/repo), the user who acted, and a short description of the target.", "rationale": "Digg's /ai/github/recent page is a real-time event stream; CLI extracts the github.com URL + actor user JSON per entry.", "via": "mcp-command-mirror"},
 			{"name": "Rank history per cluster", "command": "history", "description": "Full trajectory of one cluster's currentRank, peakRank, and delta over local snapshot history.", "rationale": "Local snapshots persist what the web UI overwrites every fetch.", "via": "mcp-command-mirror"},
 			{"name": "Author surfacing record", "command": "author", "description": "Every cluster a given X account contributed to, with post type (original, retweet, quote, reply).", "rationale": "Cluster payloads list all contributing X posts with username, xId, displayName, and postType. Local store joins them...", "via": "mcp-command-mirror"},
 			{"name": "Rank-movement watcher", "command": "watch", "description": "Poll /ai, diff against last snapshot, alert when any cluster moves N+ ranks.", "rationale": "Read-only polling combined with the local snapshot store and AdaptiveLimiter.", "via": "mcp-command-mirror"},
@@ -378,7 +389,8 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			{"topic": "Score component breakdown", "insight": "Digg ships gravity-score components and evidence in the page payload. The web UI shows only the final gravity score."},
 			{"topic": "Time-windowed sentiment", "insight": "Each cluster carries pos6h/12h/24h fields. No web UI surfaces them."},
 			{"topic": "Cross-aggregator references", "insight": "Each cluster carries hackerNews and techmeme cross-reference fields populated by Digg's own pipeline."},
-			{"topic": "Influence-ranked author leaderboard", "insight": "Digg AI's product premise is a ranked 1,000-account leaderboard on X. The /ai/influencers page is currently 404; the data is embedded in every feed response."},
+			{"topic": "Influence-ranked author leaderboard", "insight": "Digg's product premise is a ranked leaderboard of AI-news accounts on X. The /ai/influencers page is currently 404; the data is embedded in every feed response."},
+			{"topic": "GitHub feeds", "insight": "Digg surfaces four parallel GitHub views — /ai/github/{stars,new,activity,recent}. Stars and New embed rich JSON records (repo_full_name, stargazers_count, breakout_score, novel_score, ai_related_score, classification_tldr). Activity is a contributor leaderboard table. Recent is a live event stream with github.com URLs in href."},
 			{"topic": "Rank history per cluster", "insight": "Local snapshots persist what the web UI overwrites every fetch."},
 			{"topic": "Author surfacing record", "insight": "Cluster payloads list all contributing X posts with username, xId, displayName, and postType. Local store joins them per author."},
 			{"topic": "Rank-movement watcher", "insight": "Read-only polling combined with the local snapshot store and AdaptiveLimiter."},

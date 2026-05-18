@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Detect and warn when an older binary earlier in `PATH` shadows the one `go install` just wrote. Previously `install` reported the first PATH hit as success, so a stale `/opt/homebrew/bin/<cli>` (for example) would mask a newer `~/go/bin/<cli>`. The installer now reads `go env GOBIN GOPATH`, compares the actual install path to what `which`/`where` returns, and emits a clear shadow warning when they differ. JSON output adds `installedPath` and `shadowedBy` fields. Fixes #470.
+
 ## 0.1.4
 
 - Drop the `GOPRIVATE='github.com/mvanhorn/*' GOFLAGS=-mod=mod … @main` fallback from the `install` command. The library is fully public, so `go install …@latest` resolves through the public Go module proxy without any private-module configuration. The `@main` retry was only useful when paired with `GOPRIVATE` to bypass the proxy entirely; without it, `@main` issues an identical query subject to the same proxy cache and adds no value.

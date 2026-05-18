@@ -1,0 +1,133 @@
+{
+  "version": "1",
+  "summary": {
+    "target_url": "https://www.pointhound.com",
+    "captured_at": "2026-05-11T21:30:00Z",
+    "entry_count": 134,
+    "api_entry_count": 30,
+    "noise_entry_count": 104,
+    "host_distribution": {
+      "www.pointhound.com": 116,
+      "db.pointhound.com": 2,
+      "scout.pointhound.com": 1,
+      "cdn-dev.pointhound.com": 3,
+      "img.pointhound.com": 4,
+      "connect.facebook.net": 2,
+      "google-analytics.com": 6
+    }
+  },
+  "reachability": {
+    "mode": "standard_http",
+    "confidence": 0.9,
+    "reasons": [
+      "Read endpoints /api/offers and /api/offers/filter-options return 200 via plain stdlib HTTP (verified by curl).",
+      "scout.pointhound.com/places/search returns 200 via plain stdlib HTTP.",
+      "Only /flights (search-create endpoint, NOT in the printed CLI's API surface) is Cloudflare-gated; that surface is moved to a hand-written novel command and does not affect runtime for the spec endpoints."
+    ]
+  },
+  "protocols": [
+    {
+      "label": "rest_json",
+      "confidence": 0.95,
+      "details": {
+        "shape": "GET endpoints with query-string params; response top-level is {data:[], count:N} for collections.",
+        "id_prefix_convention": "Stable prefixes: pep_*, prp_*, pto_*, aln_*, apt_*, src_*, seg_*, off_*, ofs_*"
+      }
+    }
+  ],
+  "auth": {
+    "candidates": [
+      {
+        "type": "none",
+        "confidence": 0.95,
+        "domain_hints": ["www.pointhound.com/api/offers", "scout.pointhound.com/places/search"]
+      },
+      {
+        "type": "cookie",
+        "confidence": 0.7,
+        "cookie_names": ["cf_clearance", "ph_session"],
+        "domain_hints": [".pointhound.com"]
+      }
+    ]
+  },
+  "protections": [
+    {
+      "label": "cloudflare",
+      "confidence": 0.95,
+      "notes": [
+        "Cloudflare in front of pointhound.com. Blocks direct /flights POST with 403 + bot-protection HTML.",
+        "Read endpoints (/api/offers, /api/offers/filter-options) pass through Cloudflare cleanly via stdlib HTTP — no challenge.",
+        "/flights (search-create) requires cf_clearance cookie or live Chrome session; modeled as a hand-written novel command, not a generated spec endpoint."
+      ]
+    }
+  ],
+  "endpoint_clusters": [
+    {
+      "label": "offers",
+      "host": "www.pointhound.com",
+      "path_prefix": "/api/offers",
+      "method_distribution": {"GET": 27},
+      "confidence": 0.95
+    },
+    {
+      "label": "places",
+      "host": "scout.pointhound.com",
+      "path_prefix": "/places/search",
+      "method_distribution": {"GET": 1},
+      "confidence": 0.9
+    },
+    {
+      "label": "user_supabase",
+      "host": "db.pointhound.com",
+      "path_prefix": "/rest/v1/rpc",
+      "method_distribution": {"POST": 2},
+      "confidence": 0.7
+    }
+  ],
+  "candidate_commands": [
+    {
+      "command": "offers list",
+      "method": "GET",
+      "host": "www.pointhound.com",
+      "path": "/api/offers",
+      "rationale": "Primary read endpoint; verified replayable anonymously."
+    },
+    {
+      "command": "offers filter-options",
+      "method": "GET",
+      "host": "www.pointhound.com",
+      "path": "/api/offers/filter-options",
+      "rationale": "Filter facets for a given search session; verified replayable anonymously."
+    },
+    {
+      "command": "airports search",
+      "method": "GET",
+      "host": "scout.pointhound.com",
+      "path": "/places/search",
+      "rationale": "Airport/city autocomplete with deal-aware ranking (cross-domain — hand-written novel command)."
+    }
+  ],
+  "generation_hints": [
+    "primary_base_url=https://www.pointhound.com",
+    "auth_type=cookie",
+    "anonymous_read_endpoints",
+    "cross_domain_novel_commands=scout.pointhound.com,db.pointhound.com",
+    "search_create_blocked_by_cloudflare_requires_cookie_replay"
+  ],
+  "warnings": [
+    {
+      "label": "search_create_not_modeled_in_spec",
+      "confidence": 0.95,
+      "notes": [
+        "The Pointhound search-create endpoint (POST /flights?q=<base64-protobuf>) is Cloudflare-gated and intentionally omitted from the printed CLI's spec. It will be implemented as a hand-written novel command that reproduces the protobuf encoding and uses imported clearance cookies."
+      ]
+    },
+    {
+      "label": "supabase_user_endpoints_not_modeled",
+      "confidence": 0.85,
+      "notes": [
+        "Supabase RPCs at db.pointhound.com/rest/v1/rpc/* (e.g. get_user_with_subscription) are auth-gated by a per-session JWT. v1 of the CLI does not include these; they can be added as hand-written novel commands if user demand surfaces."
+      ]
+    }
+  ]
+}

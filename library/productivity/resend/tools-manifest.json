@@ -1,0 +1,2188 @@
+{
+  "api_name": "resend",
+  "base_url": "https://api.resend.com",
+  "description": "Resend is the email platform for developers.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "RESEND_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "RESEND_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "api-keys_create",
+      "description": "Create a new API key. Required: name. Optional: domain_id, permission. Returns the new CreateApiKeyResponse.",
+      "method": "POST",
+      "path": "/api-keys",
+      "params": [
+        {
+          "name": "domain_id",
+          "type": "string",
+          "location": "body",
+          "description": "Restrict an API key to send emails only from a specific domain. Only used when the permission is sending_access."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The API key name.",
+          "required": true
+        },
+        {
+          "name": "permission",
+          "type": "string",
+          "location": "body",
+          "description": "The API key can have full access to Resend’s API or be only restricted to send emails. * full_access - Can create, delete, get, and update any resource. * sending_access - Can only send emails."
+        }
+      ]
+    },
+    {
+      "name": "api-keys_delete",
+      "description": "Remove an existing API key. Required: api_key_id. Returns the DeleteApiKeyResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/api-keys/{api_key_id}",
+      "params": [
+        {
+          "name": "api_key_id",
+          "type": "string",
+          "location": "path",
+          "description": "The API key ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "api-keys_list",
+      "description": "Retrieve a list of API keys. Optional: limit, after, before. Returns array of ApiKey.",
+      "method": "GET",
+      "path": "/api-keys",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items to return."
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Return items after this cursor."
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Return items before this cursor."
+        }
+      ]
+    },
+    {
+      "name": "audiences_create",
+      "description": "Deprecated: Use Segments instead. These endpoints still work, but will be removed in the future. Required: name. Returns the new CreateAudienceResponseSuccess.",
+      "method": "POST",
+      "path": "/audiences",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the audience you want to create.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "audiences_delete",
+      "description": "Deprecated: Use Segments instead. These endpoints still work, but will be removed in the future. Required: id. Returns the RemoveAudienceResponseSuccess. Destructive.",
+      "method": "DELETE",
+      "path": "/audiences/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The Audience ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "audiences_get",
+      "description": "Deprecated: Use Segments instead. These endpoints still work, but will be removed in the future. Required: id. Returns the GetAudienceResponseSuccess.",
+      "method": "GET",
+      "path": "/audiences/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The Audience ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "audiences_list",
+      "description": "Deprecated: Use Segments instead. These endpoints still work, but will be removed in the future. Returns array of AudiencesListItem.",
+      "method": "GET",
+      "path": "/audiences",
+      "params": []
+    },
+    {
+      "name": "automations_create",
+      "description": "Create an automation. Required: connections, name, steps. Optional: status (default: disabled). Returns the new CreateAutomationResponse.",
+      "method": "POST",
+      "path": "/automations",
+      "params": [
+        {
+          "name": "connections",
+          "type": "array",
+          "location": "body",
+          "description": "The connections between steps in the automation graph.",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the automation.",
+          "required": true
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "The initial status of the automation. Defaults to `disabled`."
+        },
+        {
+          "name": "steps",
+          "type": "array",
+          "location": "body",
+          "description": "The steps that compose the automation workflow. Must include at least one `trigger` step.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "automations_delete",
+      "description": "Delete an automation. Required: automation_id. Returns the DeleteAutomationResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/automations/{automation_id}",
+      "params": [
+        {
+          "name": "automation_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the automation.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "automations_get",
+      "description": "Retrieve a single automation. Required: automation_id. Returns the Automation.",
+      "method": "GET",
+      "path": "/automations/{automation_id}",
+      "params": [
+        {
+          "name": "automation_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the automation.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "automations_list",
+      "description": "Retrieve a list of automations. Optional: status, limit, after (plus 1 more). Returns array of AutomationListItem.",
+      "method": "GET",
+      "path": "/automations",
+      "params": [
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Filter automations by status."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items to return."
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Return items after this cursor."
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Return items before this cursor."
+        }
+      ]
+    },
+    {
+      "name": "automations_update",
+      "description": "Update an automation. Required: automation_id. Optional: connections, name, status (plus 1 more). Returns the updated PatchAutomationResponse.",
+      "method": "PATCH",
+      "path": "/automations/{automation_id}",
+      "params": [
+        {
+          "name": "automation_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the automation.",
+          "required": true
+        },
+        {
+          "name": "connections",
+          "type": "array",
+          "location": "body",
+          "description": "The connections between steps in the automation graph. Must be provided together with `steps`."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the automation."
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "The status of the automation."
+        },
+        {
+          "name": "steps",
+          "type": "array",
+          "location": "body",
+          "description": "The steps that compose the automation workflow. Must be provided together with `connections`."
+        }
+      ]
+    },
+    {
+      "name": "automations_runs_get",
+      "description": "Retrieve a list of automation runs. Required: automation_id. Optional: status, limit, after (plus 1 more). Returns array of AutomationRunListItem.",
+      "method": "GET",
+      "path": "/automations/{automation_id}/runs",
+      "params": [
+        {
+          "name": "automation_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the automation.",
+          "required": true
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Filter runs by status. Comma-separated list of: running, completed, failed, cancelled."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items to return."
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Return items after this cursor."
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Return items before this cursor."
+        }
+      ]
+    },
+    {
+      "name": "automations_runs_get-automations",
+      "description": "Retrieve a single automation run. Required: automation_id, run_id. Returns the AutomationRun.",
+      "method": "GET",
+      "path": "/automations/{automation_id}/runs/{run_id}",
+      "params": [
+        {
+          "name": "automation_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the automation.",
+          "required": true
+        },
+        {
+          "name": "run_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the automation run.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "automations_stop_create",
+      "description": "Stop an automation. Required: automation_id. Returns the new StopAutomationResponse.",
+      "method": "POST",
+      "path": "/automations/{automation_id}/stop",
+      "params": [
+        {
+          "name": "automation_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the automation.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "broadcasts_create",
+      "description": "Create a broadcast. Required: from, segment_id, subject. Optional: audience_id, html, name (plus 6 more). Returns the new CreateBroadcastResponseSuccess.",
+      "method": "POST",
+      "path": "/broadcasts",
+      "params": [
+        {
+          "name": "audience_id",
+          "type": "string",
+          "location": "body",
+          "description": "Use `segment_id` instead. Unique identifier of the segment this broadcast will be sent to."
+        },
+        {
+          "name": "from",
+          "type": "string",
+          "location": "body",
+          "description": "The email address of the sender.",
+          "required": true
+        },
+        {
+          "name": "html",
+          "type": "string",
+          "location": "body",
+          "description": "The HTML version of the message."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the broadcast."
+        },
+        {
+          "name": "preview_text",
+          "type": "string",
+          "location": "body",
+          "description": "The preview text of the email."
+        },
+        {
+          "name": "reply_to",
+          "type": "array",
+          "location": "body",
+          "description": "The email addresses to which replies should be sent."
+        },
+        {
+          "name": "scheduled_at",
+          "type": "string",
+          "location": "body",
+          "description": "Schedule time to send the broadcast. Can only be used if `send` is true."
+        },
+        {
+          "name": "segment_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier of the segment this broadcast will be sent to.",
+          "required": true
+        },
+        {
+          "name": "send",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to send the broadcast immediately or keep it as a draft."
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "body",
+          "description": "The subject line of the email.",
+          "required": true
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "The plain text version of the message."
+        },
+        {
+          "name": "topic_id",
+          "type": "string",
+          "location": "body",
+          "description": "The topic ID that the broadcast will be scoped to."
+        }
+      ]
+    },
+    {
+      "name": "broadcasts_delete",
+      "description": "Remove an existing broadcast that is in the draft status. Required: id. Returns the RemoveBroadcastResponseSuccess. Destructive.",
+      "method": "DELETE",
+      "path": "/broadcasts/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The Broadcast ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "broadcasts_get",
+      "description": "Retrieve a single broadcast. Required: id. Returns the GetBroadcastResponseSuccess.",
+      "method": "GET",
+      "path": "/broadcasts/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The Broadcast ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "broadcasts_list",
+      "description": "Retrieve a list of broadcasts. Optional: limit, after, before. Returns array of BroadcastsListItem.",
+      "method": "GET",
+      "path": "/broadcasts",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items to return."
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Return items after this cursor."
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Return items before this cursor."
+        }
+      ]
+    },
+    {
+      "name": "broadcasts_update",
+      "description": "Update an existing broadcast. Required: id. Optional: audience_id, from, html (plus 7 more). Returns the updated UpdateBroadcastResponseSuccess.",
+      "method": "PATCH",
+      "path": "/broadcasts/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The Broadcast ID.",
+          "required": true
+        },
+        {
+          "name": "audience_id",
+          "type": "string",
+          "location": "body",
+          "description": "Use `segment_id` instead. Unique identifier of the audience this broadcast will be sent to."
+        },
+        {
+          "name": "from",
+          "type": "string",
+          "location": "body",
+          "description": "The email address of the sender."
+        },
+        {
+          "name": "html",
+          "type": "string",
+          "location": "body",
+          "description": "The HTML version of the message."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the broadcast."
+        },
+        {
+          "name": "preview_text",
+          "type": "string",
+          "location": "body",
+          "description": "The preview text of the email."
+        },
+        {
+          "name": "reply_to",
+          "type": "array",
+          "location": "body",
+          "description": "The email addresses to which replies should be sent."
+        },
+        {
+          "name": "segment_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier of the segment this broadcast will be sent to."
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "body",
+          "description": "The subject line of the email."
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "The plain text version of the message."
+        },
+        {
+          "name": "topic_id",
+          "type": "string",
+          "location": "body",
+          "description": "The topic ID that the broadcast will be scoped to."
+        }
+      ]
+    },
+    {
+      "name": "broadcasts_send_create",
+      "description": "Send or schedule a broadcast. Required: id. Optional: scheduled_at. Returns the new SendBroadcastResponseSuccess.",
+      "method": "POST",
+      "path": "/broadcasts/{id}/send",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The Broadcast ID.",
+          "required": true
+        },
+        {
+          "name": "scheduled_at",
+          "type": "string",
+          "location": "body",
+          "description": "Schedule email to be sent later. The date should be in ISO 8601 format."
+        }
+      ]
+    },
+    {
+      "name": "contact-properties_create",
+      "description": "Create a new contact property. Required: key, type. Optional: fallback_value. Returns the new CreateContactPropertyResponseSuccess.",
+      "method": "POST",
+      "path": "/contact-properties",
+      "params": [
+        {
+          "name": "fallback_value",
+          "type": "string",
+          "location": "body",
+          "description": "The default value to use when the property is not set for a contact. Must match the type specified in the type field."
+        },
+        {
+          "name": "key",
+          "type": "string",
+          "location": "body",
+          "description": "The property key. Max length is 50 characters. Only alphanumeric characters and underscores are allowed.",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "The property type.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contact-properties_delete",
+      "description": "Remove an existing contact property. Required: id. Returns the RemoveContactPropertyResponseSuccess. Destructive.",
+      "method": "DELETE",
+      "path": "/contact-properties/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The Contact Property ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contact-properties_get",
+      "description": "Retrieve a single contact property. Required: id. Returns the GetContactPropertyResponseSuccess.",
+      "method": "GET",
+      "path": "/contact-properties/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The Contact Property ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contact-properties_list",
+      "description": "Retrieve a list of contact properties. Optional: limit, after, before. Returns array of ContactPropertiesListItem.",
+      "method": "GET",
+      "path": "/contact-properties",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items to return."
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Return items after this cursor."
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Return items before this cursor."
+        }
+      ]
+    },
+    {
+      "name": "contact-properties_update",
+      "description": "Update an existing contact property. Required: id. Optional: fallback_value. Returns the updated UpdateContactPropertyResponseSuccess.",
+      "method": "PATCH",
+      "path": "/contact-properties/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The Contact Property ID.",
+          "required": true
+        },
+        {
+          "name": "fallback_value",
+          "type": "string",
+          "location": "body",
+          "description": "The default value to use when the property is not set for a contact. Must match the type of the property."
+        }
+      ]
+    },
+    {
+      "name": "contacts_create",
+      "description": "Create a new contact. Required: email. Optional: audience_id, first_name, last_name (plus 4 more). Returns the new CreateContactResponseSuccess.",
+      "method": "POST",
+      "path": "/contacts",
+      "params": [
+        {
+          "name": "audience_id",
+          "type": "string",
+          "location": "body",
+          "description": "Unique identifier of the audience to which the contact belongs."
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email address of the contact.",
+          "required": true
+        },
+        {
+          "name": "first_name",
+          "type": "string",
+          "location": "body",
+          "description": "First name of the contact."
+        },
+        {
+          "name": "last_name",
+          "type": "string",
+          "location": "body",
+          "description": "Last name of the contact."
+        },
+        {
+          "name": "properties",
+          "type": "object",
+          "location": "body",
+          "description": "A map of custom property keys and values to create."
+        },
+        {
+          "name": "segments",
+          "type": "array",
+          "location": "body",
+          "description": "Array of segment IDs to add the contact to."
+        },
+        {
+          "name": "topics",
+          "type": "array",
+          "location": "body",
+          "description": "Array of topic subscriptions for the contact."
+        },
+        {
+          "name": "unsubscribed",
+          "type": "bool",
+          "location": "body",
+          "description": "The Contact's global subscription status. If set to true, the contact will be unsubscribed from all Broadcasts."
+        }
+      ]
+    },
+    {
+      "name": "contacts_delete",
+      "description": "Remove an existing contact by ID or email. Required: id. Returns the RemoveContactResponseSuccess. Destructive.",
+      "method": "DELETE",
+      "path": "/contacts/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The Contact ID or email address.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contacts_get",
+      "description": "Retrieve a single contact by ID or email. Required: id. Returns the GetContactResponseSuccess.",
+      "method": "GET",
+      "path": "/contacts/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The Contact ID or email address.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contacts_list",
+      "description": "Retrieve a list of contacts. Optional: segment_id, limit, after (plus 1 more). Returns array of ContactsListItem.",
+      "method": "GET",
+      "path": "/contacts",
+      "params": [
+        {
+          "name": "segment_id",
+          "type": "string",
+          "location": "query",
+          "description": "Filter contacts by segment ID."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items to return."
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Return items after this cursor."
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Return items before this cursor."
+        }
+      ]
+    },
+    {
+      "name": "contacts_update",
+      "description": "Update a single contact by ID or email. Required: id. Optional: email, first_name, last_name (plus 2 more). Returns the updated UpdateContactResponseSuccess.",
+      "method": "PATCH",
+      "path": "/contacts/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The Contact ID or email address.",
+          "required": true
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email address of the contact."
+        },
+        {
+          "name": "first_name",
+          "type": "string",
+          "location": "body",
+          "description": "First name of the contact."
+        },
+        {
+          "name": "last_name",
+          "type": "string",
+          "location": "body",
+          "description": "Last name of the contact."
+        },
+        {
+          "name": "properties",
+          "type": "object",
+          "location": "body",
+          "description": "A map of custom property keys and values to update."
+        },
+        {
+          "name": "unsubscribed",
+          "type": "bool",
+          "location": "body",
+          "description": "The Contact's global subscription status. If set to true, the contact will be unsubscribed from all Broadcasts."
+        }
+      ]
+    },
+    {
+      "name": "contacts_segments_create",
+      "description": "Add a contact to a segment. Required: contact_id, segment_id. Returns the new AddContactToSegmentResponseSuccess.",
+      "method": "POST",
+      "path": "/contacts/{contact_id}/segments/{segment_id}",
+      "params": [
+        {
+          "name": "contact_id",
+          "type": "string",
+          "location": "path",
+          "description": "The Contact ID or email address.",
+          "required": true
+        },
+        {
+          "name": "segment_id",
+          "type": "string",
+          "location": "path",
+          "description": "The Segment ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contacts_segments_delete",
+      "description": "Remove a contact from a segment. Required: contact_id, segment_id. Returns the RemoveContactFromSegmentResponseSuccess. Destructive.",
+      "method": "DELETE",
+      "path": "/contacts/{contact_id}/segments/{segment_id}",
+      "params": [
+        {
+          "name": "contact_id",
+          "type": "string",
+          "location": "path",
+          "description": "The Contact ID or email address.",
+          "required": true
+        },
+        {
+          "name": "segment_id",
+          "type": "string",
+          "location": "path",
+          "description": "The Segment ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contacts_segments_get",
+      "description": "Retrieve a list of segments for a contact. Required: contact_id. Optional: limit, after, before. Returns array of SegmentsGetItem.",
+      "method": "GET",
+      "path": "/contacts/{contact_id}/segments",
+      "params": [
+        {
+          "name": "contact_id",
+          "type": "string",
+          "location": "path",
+          "description": "The Contact ID or email address.",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items to return."
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Return items after this cursor."
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Return items before this cursor."
+        }
+      ]
+    },
+    {
+      "name": "contacts_topics_get",
+      "description": "Retrieve topics for a contact. Required: contact_id. Optional: limit, after, before. Returns array of TopicsGetItem.",
+      "method": "GET",
+      "path": "/contacts/{contact_id}/topics",
+      "params": [
+        {
+          "name": "contact_id",
+          "type": "string",
+          "location": "path",
+          "description": "The Contact ID or email address.",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items to return."
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Return items after this cursor."
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Return items before this cursor."
+        }
+      ]
+    },
+    {
+      "name": "contacts_topics_update",
+      "description": "Update topics for a contact. Required: contact_id, topics. Returns the updated UpdateContactTopicsResponseSuccess.",
+      "method": "PATCH",
+      "path": "/contacts/{contact_id}/topics",
+      "params": [
+        {
+          "name": "contact_id",
+          "type": "string",
+          "location": "path",
+          "description": "The Contact ID or email address.",
+          "required": true
+        },
+        {
+          "name": "topics",
+          "type": "array",
+          "location": "body",
+          "description": "Topics",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains_create",
+      "description": "Create a new domain. Required: name. Optional: capabilities, click_tracking, custom_return_path (plus 4 more). Returns the new CreateDomainResponse.",
+      "method": "POST",
+      "path": "/domains",
+      "params": [
+        {
+          "name": "capabilities",
+          "type": "object",
+          "location": "body",
+          "description": "Configure the domain capabilities for sending and receiving emails. At least one capability must be enabled."
+        },
+        {
+          "name": "click_tracking",
+          "type": "bool",
+          "location": "body",
+          "description": "Track clicks within the body of each HTML email."
+        },
+        {
+          "name": "custom_return_path",
+          "type": "string",
+          "location": "body",
+          "description": "For advanced use cases, choose a subdomain for the Return-Path address. Defaults to 'send' (i.e., send.yourdomain.tld)."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the domain you want to create.",
+          "required": true
+        },
+        {
+          "name": "open_tracking",
+          "type": "bool",
+          "location": "body",
+          "description": "Track the open rate of each email."
+        },
+        {
+          "name": "region",
+          "type": "string",
+          "location": "body",
+          "description": "The region where emails will be sent from. Possible values are us-east-1 | eu-west-1 | sa-east-1 | ap-northeast-1"
+        },
+        {
+          "name": "tls",
+          "type": "string",
+          "location": "body",
+          "description": "TLS mode. Opportunistic attempts secure connection but falls back to unencrypted. Enforced requires TLS or email won't be sent."
+        },
+        {
+          "name": "tracking_subdomain",
+          "type": "string",
+          "location": "body",
+          "description": "The subdomain to use for click and open tracking."
+        }
+      ]
+    },
+    {
+      "name": "domains_delete",
+      "description": "Remove an existing domain. Required: domain_id. Returns the DeleteDomainResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/domains/{domain_id}",
+      "params": [
+        {
+          "name": "domain_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the domain.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains_get",
+      "description": "Retrieve a single domain. Required: domain_id. Returns the Domain.",
+      "method": "GET",
+      "path": "/domains/{domain_id}",
+      "params": [
+        {
+          "name": "domain_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the domain.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains_list",
+      "description": "Retrieve a list of domains. Optional: limit, after, before. Returns array of ListDomainsItem.",
+      "method": "GET",
+      "path": "/domains",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items to return."
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Return items after this cursor."
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Return items before this cursor."
+        }
+      ]
+    },
+    {
+      "name": "domains_update",
+      "description": "Update an existing domain. Required: domain_id. Optional: capabilities, click_tracking, open_tracking (plus 2 more). Returns the updated UpdateDomainResponseSuccess.",
+      "method": "PATCH",
+      "path": "/domains/{domain_id}",
+      "params": [
+        {
+          "name": "domain_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the domain.",
+          "required": true
+        },
+        {
+          "name": "capabilities",
+          "type": "object",
+          "location": "body",
+          "description": "Configure the domain capabilities for sending and receiving emails. At least one capability must be enabled."
+        },
+        {
+          "name": "click_tracking",
+          "type": "bool",
+          "location": "body",
+          "description": "Track clicks within the body of each HTML email."
+        },
+        {
+          "name": "open_tracking",
+          "type": "bool",
+          "location": "body",
+          "description": "Track the open rate of each email."
+        },
+        {
+          "name": "tls",
+          "type": "string",
+          "location": "body",
+          "description": "enforced | opportunistic."
+        },
+        {
+          "name": "tracking_subdomain",
+          "type": "string",
+          "location": "body",
+          "description": "The subdomain to use for click and open tracking."
+        }
+      ]
+    },
+    {
+      "name": "domains_verify_create",
+      "description": "Triggers verification of the domain's DNS records including DKIM, SPF, and the tracking CNAME (if a tracking subdomain is configured). Required: domain_id. Returns the new VerifyDomainResponse.",
+      "method": "POST",
+      "path": "/domains/{domain_id}/verify",
+      "params": [
+        {
+          "name": "domain_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the domain.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "emails_create",
+      "description": "Send an email. Required: from, subject, to. Optional: attachments, bcc, cc (plus 8 more). Returns the new SendEmailResponse.",
+      "method": "POST",
+      "path": "/emails",
+      "params": [
+        {
+          "name": "attachments",
+          "type": "array",
+          "location": "body",
+          "description": "Attachments"
+        },
+        {
+          "name": "bcc",
+          "type": "string",
+          "location": "body",
+          "description": "Bcc recipient email address. For multiple addresses, send as an array of strings."
+        },
+        {
+          "name": "cc",
+          "type": "string",
+          "location": "body",
+          "description": "Cc recipient email address. For multiple addresses, send as an array of strings."
+        },
+        {
+          "name": "from",
+          "type": "string",
+          "location": "body",
+          "description": "Sender email address. To include a friendly name, use the format 'Your Name \u003csender@domain.com\u003e'.",
+          "required": true
+        },
+        {
+          "name": "headers",
+          "type": "object",
+          "location": "body",
+          "description": "Custom headers to add to the email."
+        },
+        {
+          "name": "html",
+          "type": "string",
+          "location": "body",
+          "description": "The HTML version of the message."
+        },
+        {
+          "name": "reply_to",
+          "type": "string",
+          "location": "body",
+          "description": "Reply-to email address. For multiple addresses, send as an array of strings."
+        },
+        {
+          "name": "scheduled_at",
+          "type": "string",
+          "location": "body",
+          "description": "Schedule email to be sent later. The date should be in ISO 8601 format."
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "body",
+          "description": "Email subject.",
+          "required": true
+        },
+        {
+          "name": "tags",
+          "type": "array",
+          "location": "body",
+          "description": "Tags"
+        },
+        {
+          "name": "template",
+          "type": "object",
+          "location": "body",
+          "description": "Template"
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "The plain text version of the message."
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "body",
+          "description": "Recipient email address. For multiple addresses, send as an array of strings. Max 50.",
+          "required": true
+        },
+        {
+          "name": "topic_id",
+          "type": "string",
+          "location": "body",
+          "description": "The topic ID to scope the email to. If the recipient is a contact and opted-in to the topic, the email is sent. If opted-out, the email is not sent. If the recipient is not a contact, the email is sent if the topic's default subscription is opt_in."
+        }
+      ]
+    },
+    {
+      "name": "emails_create-batch",
+      "description": "Trigger up to 100 batch emails at once. Returns array of EmailsCreateBatchItem.",
+      "method": "POST",
+      "path": "/emails/batch",
+      "params": []
+    },
+    {
+      "name": "emails_get",
+      "description": "Retrieve a single email. Required: email_id. Returns the Email.",
+      "method": "GET",
+      "path": "/emails/{email_id}",
+      "params": [
+        {
+          "name": "email_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the email.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "emails_get-receiving",
+      "description": "Retrieve a single received email. Required: email_id. Returns the GetReceivedEmailResponse.",
+      "method": "GET",
+      "path": "/emails/receiving/{email_id}",
+      "params": [
+        {
+          "name": "email_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the received email.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "emails_get-receiving-2",
+      "description": "Retrieve a list of attachments for a received email. Required: email_id. Optional: limit, after, before. Returns array of EmailsGetReceiving2Item.",
+      "method": "GET",
+      "path": "/emails/receiving/{email_id}/attachments",
+      "params": [
+        {
+          "name": "email_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the received email.",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of attachments to return."
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor to fetch results after this attachment ID. Cannot be used with 'before'."
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor to fetch results before this attachment ID. Cannot be used with 'after'."
+        }
+      ]
+    },
+    {
+      "name": "emails_get-receiving-3",
+      "description": "Retrieve a single attachment for a received email. Required: email_id, attachment_id. Returns the RetrievedAttachment.",
+      "method": "GET",
+      "path": "/emails/receiving/{email_id}/attachments/{attachment_id}",
+      "params": [
+        {
+          "name": "email_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the received email.",
+          "required": true
+        },
+        {
+          "name": "attachment_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the attachment.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "emails_list",
+      "description": "Retrieve a list of emails. Optional: limit, after, before. Returns array of Email.",
+      "method": "GET",
+      "path": "/emails",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items to return."
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Return items after this cursor."
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Return items before this cursor."
+        }
+      ]
+    },
+    {
+      "name": "emails_list-receiving",
+      "description": "Retrieve a list of received emails. Optional: limit, after, before. Returns array of EmailsListReceivingItem.",
+      "method": "GET",
+      "path": "/emails/receiving",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of received emails to return."
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor to fetch results after this email ID. Cannot be used with 'before'."
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor to fetch results before this email ID. Cannot be used with 'after'."
+        }
+      ]
+    },
+    {
+      "name": "emails_update",
+      "description": "Update a single email. Required: email_id. Returns the updated UpdateEmailOptions.",
+      "method": "PATCH",
+      "path": "/emails/{email_id}",
+      "params": [
+        {
+          "name": "email_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the email.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "emails_attachments_get",
+      "description": "Retrieve a list of attachments for a sent email. Required: email_id. Optional: limit, after, before. Returns array of AttachmentsGetItem.",
+      "method": "GET",
+      "path": "/emails/{email_id}/attachments",
+      "params": [
+        {
+          "name": "email_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the email.",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of attachments to return."
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor to fetch results after this attachment ID. Cannot be used with 'before'."
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor to fetch results before this attachment ID. Cannot be used with 'after'."
+        }
+      ]
+    },
+    {
+      "name": "emails_attachments_get-emails",
+      "description": "Retrieve a single attachment for a sent email. Required: email_id, attachment_id. Returns the RetrievedAttachment.",
+      "method": "GET",
+      "path": "/emails/{email_id}/attachments/{attachment_id}",
+      "params": [
+        {
+          "name": "email_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the email.",
+          "required": true
+        },
+        {
+          "name": "attachment_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the attachment.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "emails_cancel_create",
+      "description": "Cancel the schedule of the e-mail. Required: email_id. Returns the new Email.",
+      "method": "POST",
+      "path": "/emails/{email_id}/cancel",
+      "params": [
+        {
+          "name": "email_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the email.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_create",
+      "description": "Create an event. Required: name. Optional: schema. Returns the new CreateEventResponse.",
+      "method": "POST",
+      "path": "/events",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the event. Cannot start with the reserved `resend:` prefix.",
+          "required": true
+        },
+        {
+          "name": "schema",
+          "type": "object",
+          "location": "body",
+          "description": "An optional flat key/type map defining the event payload schema. Supported types are `string`, `number`, `boolean`, and `date`."
+        }
+      ]
+    },
+    {
+      "name": "events_create-send",
+      "description": "Send an event. Required: event. Optional: contact_id, email, payload. Returns the new SendEventResponse.",
+      "method": "POST",
+      "path": "/events/send",
+      "params": [
+        {
+          "name": "contact_id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID of the contact to associate with this event. Exactly one of `contact_id` or `email` must be provided."
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "The email address to associate with this event. Exactly one of `contact_id` or `email` must be provided."
+        },
+        {
+          "name": "event",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the event to send.",
+          "required": true
+        },
+        {
+          "name": "payload",
+          "type": "object",
+          "location": "body",
+          "description": "An optional payload of key/value pairs to include with the event."
+        }
+      ]
+    },
+    {
+      "name": "events_delete",
+      "description": "Delete an event. Required: identifier. Returns the RemoveEventResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/events/{identifier}",
+      "params": [
+        {
+          "name": "identifier",
+          "type": "string",
+          "location": "path",
+          "description": "The event ID (UUID) or event name.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_get",
+      "description": "Retrieve a single event. Required: identifier. Returns the Event.",
+      "method": "GET",
+      "path": "/events/{identifier}",
+      "params": [
+        {
+          "name": "identifier",
+          "type": "string",
+          "location": "path",
+          "description": "The event ID (UUID) or event name.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_list",
+      "description": "Retrieve a list of events. Optional: limit, after, before. Returns array of EventSummary.",
+      "method": "GET",
+      "path": "/events",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items to return."
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Return items after this cursor."
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Return items before this cursor."
+        }
+      ]
+    },
+    {
+      "name": "events_update",
+      "description": "Update an event. Required: identifier, schema. Returns the updated UpdateEventResponse.",
+      "method": "PATCH",
+      "path": "/events/{identifier}",
+      "params": [
+        {
+          "name": "identifier",
+          "type": "string",
+          "location": "path",
+          "description": "The event ID (UUID) or event name.",
+          "required": true
+        },
+        {
+          "name": "schema",
+          "type": "object",
+          "location": "body",
+          "description": "A flat key/type map defining the event payload schema. Set to `null` to clear the schema. Supported types are `string`, `number`, `boolean`, and `date`.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "logs_get",
+      "description": "Retrieve a single log. Required: log_id. Returns the Log.",
+      "method": "GET",
+      "path": "/logs/{log_id}",
+      "params": [
+        {
+          "name": "log_id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the log.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "logs_list",
+      "description": "Retrieve a list of logs. Optional: limit, after, before. Returns array of LogSummary.",
+      "method": "GET",
+      "path": "/logs",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items to return."
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Return items after this cursor."
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Return items before this cursor."
+        }
+      ]
+    },
+    {
+      "name": "segments_create",
+      "description": "Create a new segment. Required: name. Optional: audience_id, filter. Returns the new CreateSegmentResponseSuccess.",
+      "method": "POST",
+      "path": "/segments",
+      "params": [
+        {
+          "name": "audience_id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID of the audience this segment belongs to."
+        },
+        {
+          "name": "filter",
+          "type": "object",
+          "location": "body",
+          "description": "Filter conditions for the segment."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the segment.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "segments_delete",
+      "description": "Remove an existing segment. Required: id. Returns the RemoveSegmentResponseSuccess. Destructive.",
+      "method": "DELETE",
+      "path": "/segments/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The Segment ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "segments_get",
+      "description": "Retrieve a single segment. Required: id. Returns the GetSegmentResponseSuccess.",
+      "method": "GET",
+      "path": "/segments/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The Segment ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "segments_list",
+      "description": "Retrieve a list of segments. Optional: limit, after, before. Returns array of SegmentsListItem.",
+      "method": "GET",
+      "path": "/segments",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items to return."
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Return items after this cursor."
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Return items before this cursor."
+        }
+      ]
+    },
+    {
+      "name": "templates_create",
+      "description": "Create a template. Required: html, name. Optional: alias, from, reply_to (plus 3 more). Returns the new CreateTemplateResponseSuccess.",
+      "method": "POST",
+      "path": "/templates",
+      "params": [
+        {
+          "name": "alias",
+          "type": "string",
+          "location": "body",
+          "description": "The alias of the template."
+        },
+        {
+          "name": "from",
+          "type": "string",
+          "location": "body",
+          "description": "Sender email address. To include a friendly name, use the format 'Your Name \u003csender@domain.com\u003e'."
+        },
+        {
+          "name": "html",
+          "type": "string",
+          "location": "body",
+          "description": "The HTML version of the template.",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the template.",
+          "required": true
+        },
+        {
+          "name": "reply_to",
+          "type": "array",
+          "location": "body",
+          "description": "Reply-to email addresses."
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "body",
+          "description": "Email subject."
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "The plain text version of the template."
+        },
+        {
+          "name": "variables",
+          "type": "array",
+          "location": "body",
+          "description": "Variables"
+        }
+      ]
+    },
+    {
+      "name": "templates_delete",
+      "description": "Remove an existing template. Required: id. Returns the RemoveTemplateResponseSuccess. Destructive.",
+      "method": "DELETE",
+      "path": "/templates/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The Template ID or alias.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "templates_get",
+      "description": "Retrieve a single template. Required: id. Returns the Template.",
+      "method": "GET",
+      "path": "/templates/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The Template ID or alias.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "templates_list",
+      "description": "Retrieve a list of templates. Optional: limit, after, before. Returns array of TemplateListItem.",
+      "method": "GET",
+      "path": "/templates",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items to return."
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Return items after this cursor."
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Return items before this cursor."
+        }
+      ]
+    },
+    {
+      "name": "templates_update",
+      "description": "Update an existing template. Required: id. Optional: alias, from, html (plus 5 more). Returns the updated UpdateTemplateResponseSuccess.",
+      "method": "PATCH",
+      "path": "/templates/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The Template ID or alias.",
+          "required": true
+        },
+        {
+          "name": "alias",
+          "type": "string",
+          "location": "body",
+          "description": "The alias of the template."
+        },
+        {
+          "name": "from",
+          "type": "string",
+          "location": "body",
+          "description": "Sender email address. To include a friendly name, use the format 'Your Name \u003csender@domain.com\u003e'."
+        },
+        {
+          "name": "html",
+          "type": "string",
+          "location": "body",
+          "description": "The HTML version of the template."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the template."
+        },
+        {
+          "name": "reply_to",
+          "type": "array",
+          "location": "body",
+          "description": "Reply-to email addresses."
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "body",
+          "description": "Email subject."
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "The plain text version of the template."
+        },
+        {
+          "name": "variables",
+          "type": "array",
+          "location": "body",
+          "description": "Variables"
+        }
+      ]
+    },
+    {
+      "name": "templates_duplicate_create",
+      "description": "Duplicate a template. Required: id. Returns the new DuplicateTemplateResponseSuccess.",
+      "method": "POST",
+      "path": "/templates/{id}/duplicate",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The Template ID or alias.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "templates_publish_create",
+      "description": "Publish a template. Required: id. Returns the new PublishTemplateResponseSuccess.",
+      "method": "POST",
+      "path": "/templates/{id}/publish",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The Template ID or alias.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "topics_create",
+      "description": "Create a new topic. Required: default_subscription, name. Optional: description, visibility (default: private). Returns the new CreateTopicResponseSuccess.",
+      "method": "POST",
+      "path": "/topics",
+      "params": [
+        {
+          "name": "default_subscription",
+          "type": "string",
+          "location": "body",
+          "description": "The default subscription status for the topic. Cannot be changed after creation.",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "A description of the topic. Max 200 characters."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the topic. Max 50 characters.",
+          "required": true
+        },
+        {
+          "name": "visibility",
+          "type": "string",
+          "location": "body",
+          "description": "The visibility of the topic. Public topics are visible to all contacts on the unsubscribe page. Private topics are only visible to opted-in contacts."
+        }
+      ]
+    },
+    {
+      "name": "topics_delete",
+      "description": "Remove an existing topic. Required: id. Returns the RemoveTopicResponseSuccess. Destructive.",
+      "method": "DELETE",
+      "path": "/topics/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The Topic ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "topics_get",
+      "description": "Retrieve a single topic. Required: id. Returns the GetTopicResponseSuccess.",
+      "method": "GET",
+      "path": "/topics/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The Topic ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "topics_list",
+      "description": "Retrieve a list of topics. Optional: limit, after, before. Returns array of TopicsListItem.",
+      "method": "GET",
+      "path": "/topics",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items to return."
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Return items after this cursor."
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Return items before this cursor."
+        }
+      ]
+    },
+    {
+      "name": "topics_update",
+      "description": "Update an existing topic. Required: id. Optional: description, name, visibility. Returns the updated UpdateTopicResponseSuccess.",
+      "method": "PATCH",
+      "path": "/topics/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The Topic ID.",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "A description of the topic. Max 200 characters."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the topic. Max 50 characters."
+        },
+        {
+          "name": "visibility",
+          "type": "string",
+          "location": "body",
+          "description": "The visibility of the topic."
+        }
+      ]
+    },
+    {
+      "name": "webhooks_create",
+      "description": "Create a new webhook. Required: endpoint, events. Returns the new CreateWebhookResponse.",
+      "method": "POST",
+      "path": "/webhooks",
+      "params": [
+        {
+          "name": "endpoint",
+          "type": "string",
+          "location": "body",
+          "description": "The URL where webhook events will be sent.",
+          "required": true
+        },
+        {
+          "name": "events",
+          "type": "array",
+          "location": "body",
+          "description": "Array of event types to subscribe to.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_delete",
+      "description": "Remove an existing webhook. Required: webhook_id. Returns the DeleteWebhookResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/webhooks/{webhook_id}",
+      "params": [
+        {
+          "name": "webhook_id",
+          "type": "string",
+          "location": "path",
+          "description": "The Webhook ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_get",
+      "description": "Retrieve a single webhook. Required: webhook_id. Returns the GetWebhookResponse.",
+      "method": "GET",
+      "path": "/webhooks/{webhook_id}",
+      "params": [
+        {
+          "name": "webhook_id",
+          "type": "string",
+          "location": "path",
+          "description": "The Webhook ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_list",
+      "description": "Retrieve a list of webhooks. Optional: limit, after, before. Returns array of WebhooksListItem.",
+      "method": "GET",
+      "path": "/webhooks",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of webhooks to return."
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor to fetch results after this webhook ID. Cannot be used with 'before'."
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor to fetch results before this webhook ID. Cannot be used with 'after'."
+        }
+      ]
+    },
+    {
+      "name": "webhooks_update",
+      "description": "Update an existing webhook. Required: webhook_id. Optional: endpoint, events, status. Returns the updated UpdateWebhookResponse.",
+      "method": "PATCH",
+      "path": "/webhooks/{webhook_id}",
+      "params": [
+        {
+          "name": "webhook_id",
+          "type": "string",
+          "location": "path",
+          "description": "The Webhook ID.",
+          "required": true
+        },
+        {
+          "name": "endpoint",
+          "type": "string",
+          "location": "body",
+          "description": "The URL where webhook events will be sent."
+        },
+        {
+          "name": "events",
+          "type": "array",
+          "location": "body",
+          "description": "Array of event types to subscribe to."
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "The status of the webhook."
+        }
+      ]
+    }
+  ]
+}

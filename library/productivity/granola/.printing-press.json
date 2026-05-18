@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-12T11:44:26.100053Z",
+  "printing_press_version": "4.4.0",
+  "api_name": "granola",
+  "display_name": "Granola",
+  "cli_name": "granola-pp-cli",
+  "owner": "dstevens",
+  "printer": "dstevens",
+  "printer_name": "Damien Stevens",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:36161dcacb09ce0d24cf874157ebfad5ac53f2c90170a5b61460e97097da96a7",
+  "run_id": "20260511-211333",
+  "mcp_binary": "granola-pp-mcp",
+  "mcp_tool_count": 3,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "GRANOLA_API_KEY"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "GRANOLA_API_KEY",
+      "kind": "per_call",
+      "required": false,
+      "sensitive": true,
+      "description": "Granola public API key (Personal or Enterprise). Optional — only required when using --remote against the public API. Cache and internal API use auto-discovered WorkOS tokens from the local Granola app data."
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "MEMO pipeline runner",
+      "command": "memo run",
+      "description": "Run the preflight → extract pipeline on one meeting or every new meeting since a timestamp, emitting the MEMO three-file artifact and an ndjson run-state ledger."
+    },
+    {
+      "name": "MEMO ready-queue",
+      "command": "memo queue",
+      "description": "List every meeting whose transcript is in the cache but whose MEMO triple is not yet on disk."
+    },
+    {
+      "name": "Attendee timeline",
+      "command": "attendee timeline",
+      "description": "Every meeting with a given attendee, ordered oldest→newest, with title, date, folder, and recipe-applied flag per row."
+    },
+    {
+      "name": "Attendee brief card",
+      "command": "attendee brief",
+      "description": "Pulls the last N meetings with an attendee and stitches together their real cached notes plus real AI panel summaries — no synthesis."
+    },
+    {
+      "name": "Folder stream with panels",
+      "command": "folder stream",
+      "description": "ndjson stream of every meeting in a Granola folder (resolved via documentLists + listRules) with notes and a named panel inlined."
+    },
+    {
+      "name": "Recipe coverage gap",
+      "command": "recipes coverage",
+      "description": "Surface meetings that did NOT have a named panel template/recipe applied within a date range."
+    },
+    {
+      "name": "Per-source talk-time",
+      "command": "talktime",
+      "description": "Per-segment-source talk-time for one meeting — microphone (you) vs system (everyone else) in minutes."
+    },
+    {
+      "name": "Cross-meeting talk-time",
+      "command": "talktime",
+      "description": "Lifts the per-source talk-time aggregation across N meetings since a date — who-talked-most over time."
+    },
+    {
+      "name": "AI chat threads",
+      "command": "chat list",
+      "description": "List and dump Granola’s AI chat threads anchored to a meeting (entities.chat_thread + entities.chat_message in the cache)."
+    },
+    {
+      "name": "Repo-wide duplicate scan",
+      "command": "duplicates scan",
+      "description": "Hash (title, date-bucket, attendee-email-set) across the cache and a meeting-transcripts repo to surface duplicates at scale."
+    },
+    {
+      "name": "TipTap-faithful extractor",
+      "command": "tiptap extract",
+      "description": "Render documents[id].notes (TipTap JSON: headings, bullet_list, list_item, bold marks, paragraph_break) to canonical markdown instead of falling back to notes_plain."
+    },
+    {
+      "name": "Calendar overlay",
+      "command": "calendar overlay",
+      "description": "Left-anti-join meetingsMetadata calendar events with documents.google_calendar_event to find calendared-but-not-recorded meetings."
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "api_name": "alaska-airlines",
+  "novelty_score": 5,
+  "alternatives": [
+    {"name": "flightplan", "url": "https://github.com/flightplan-tool/flightplan", "language": "JavaScript", "stars": 130, "command_count": 7},
+    {"name": "awardwiz", "url": "https://github.com/lg/awardwiz", "language": "TypeScript", "stars": 350, "command_count": 4},
+    {"name": "flight-award-scraper", "url": "https://github.com/igolaizola/flight-award-scraper", "language": "Go", "stars": 18, "command_count": 3}
+  ],
+  "novel_features": [
+    {
+      "name": "Field selection on deep JSON",
+      "command": "flights search --select",
+      "description": "Generic --select flag narrows the ~50KB search/results JSON to just the fields the agent needs.",
+      "rationale": "Reading 50KB into agent context per search is expensive; --select cuts to 1-2KB.",
+      "example": "alaska-airlines-pp-cli flights search --origin SFO --destination SEA --depart 2026-11-27 --json --select flights.flightNumber,flights.fares.saver.price,flights.duration",
+      "why_it_matters": "Lets the agent ask for exactly what it needs and skip the chrome.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "narrative": {
+    "display_name": "Alaska Airlines",
+    "headline": "Search Alaska Airlines flights and check Atmos Rewards balance from the terminal, with offline-cached airports and agent-native JSON output.",
+    "value_prop": "Single static binary that talks to alaskaair.com's SvelteKit endpoints over a Chrome-fingerprinted HTTP transport. Offline SQLite cache for the airport catalog. Cookie-import auth via your logged-in Chrome session for endpoints that need a guestsession JWT.",
+    "auth_narrative": "Run `auth login --chrome` once. It extracts Alaska's cookies from your logged-in Chrome profile (AS_ACNT, AS_NAME, guestsession, ASSession, etc.) via your macOS keychain. Future commands replay them via Surf transport with a Chrome TLS fingerprint. Run `doctor` to verify the session is valid.",
+    "quickstart": [
+      {"command": "alaska-airlines-pp-cli auth login --chrome", "comment": "import your Alaska cookies from Chrome - one-time setup"},
+      {"command": "alaska-airlines-pp-cli doctor", "comment": "verify auth and API reachability"},
+      {"command": "alaska-airlines-pp-cli airports sync", "comment": "populate the local airport store"},
+      {"command": "alaska-airlines-pp-cli flights search --origin SFO --destination SEA --depart 2026-11-27 --return 2026-11-30 --adults 2 --children 4 --json", "comment": "search for a family of 6, round trip"},
+      {"command": "alaska-airlines-pp-cli atmos-rewards balance --json", "comment": "check current Atmos Rewards points balance"}
+    ],
+    "troubleshoots": [
+      {"symptom": "auth login fails with keychain access denied", "fix": "macOS asked Chrome for 'Chrome Safe Storage' access; click Always Allow in the keychain prompt and retry"},
+      {"symptom": "search returns empty results but the website works", "fix": "your guestsession JWT may be expired - run `auth login --chrome` to re-import cookies"},
+      {"symptom": "atmos-rewards balance returns 401", "fix": "the Atmos Rewards token cookie expired; run `auth login --chrome` to re-import cookies"},
+      {"symptom": "Surf transport throws TLS errors", "fix": "rebuild the binary or set ALASKA_DISABLE_SURF=1 to fall back to stdlib http (lower-fidelity fingerprint, may be flagged)"}
+    ],
+    "when_to_use": "Pick this CLI when an agent needs to search Alaska flights or check Atmos Rewards data programmatically with cached airport lookup and trimmed JSON output. Don't pick it for booking automation; the final pay POST is not replayable from a static binary.",
+    "recipes": [
+      {"title": "Trim a flights search to just price and flight number", "command": "alaska-airlines-pp-cli flights search --origin SFO --destination SEA --depart 2026-11-27 --json --select flights.flightNumber,flights.duration,flights.fares.saver.price", "explanation": "Cuts the ~50KB results payload to just flight number, duration, and saver fare. Avoids dumping the full payload into agent context."},
+      {"title": "Family search round trip", "command": "alaska-airlines-pp-cli flights search --origin SFO --destination SEA --depart 2026-11-27 --return 2026-11-30 --adults 2 --children 4 --json", "explanation": "Round-trip fare matrix for two adults and four children across all cabin classes."},
+      {"title": "Flexible-date pricing matrix", "command": "alaska-airlines-pp-cli flights shoulder-dates --origin SFO --destination HNL --depart 2026-12-15 --json", "explanation": "Get fares for dates near your target departure so you can spot a cheaper shoulder date without N separate searches."},
+      {"title": "Atmos Rewards balance", "command": "alaska-airlines-pp-cli atmos-rewards balance --json", "explanation": "Current Atmos Rewards points balance for the cookie-session account."},
+      {"title": "Airport lookup", "command": "alaska-airlines-pp-cli airports get --code SEA --json", "explanation": "Pull airport details (city, region, lat/lon, codeshare carriers) for a single IATA code from the local store."}
+    ],
+    "trigger_phrases": [
+      "search alaska flights",
+      "atmos rewards balance",
+      "alaska shoulder dates",
+      "alaska airport lookup",
+      "use alaska-airlines"
+    ]
+  },
+  "gaps": [
+    "Final pay POST is not replayable from a static Go binary (CSRF + 3DS + likely CAPTCHA). This CLI does not attempt booking; it stays read-only against the search/results, shoulder-dates, airports, and atmos-rewards endpoints.",
+    "Seat-map view of a specific reservation not captured this run. Reservation lookup (existing PNR) also not captured.",
+    "Family-of-N seat-together filtering, fare-drop watcher, multi-city composer, award-vs-cash comparator, and pre-checkout deeplink builder were scoped in the manuscript but not implemented in this generation; the CLI ships without them."
+  ],
+  "patterns": ["SvelteKit __data.json", "Cookie-composed auth", "Surf Chrome TLS fingerprint"],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-12T16:48:00Z"
+}

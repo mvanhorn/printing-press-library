@@ -1,0 +1,265 @@
+{
+  "api_name": "skool",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "louiewoof2026/skool-mcp",
+      "url": "https://github.com/louiewoof2026/skool-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 14,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "cristiantala/skool-all-in-one-api",
+      "url": "https://apify.com/cristiantala/skool-all-in-one-api",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 25,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "FlowExtractAPI/skool-scraper-pro",
+      "url": "https://github.com/FlowExtractAPI/skool-scraper-pro",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "moon-home/scraper",
+      "url": "https://github.com/moon-home/scraper",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "aperswal/Skool_Active_Members_Chrome_Extension",
+      "url": "https://github.com/aperswal/Skool_Active_Members_Chrome_Extension",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-10T16:55:00Z",
+  "novel_features": [
+    {
+      "name": "Top posts",
+      "command": "posts top",
+      "description": "Rank recent posts by upvotes, comments, or engagement and return them with full content.",
+      "rationale": "The 'signal in the noise' query \u2014 Skool's UI shows newest-first; sorting by engagement inside a time window with full content is a per-call composition the live API can't do.",
+      "example": "skool-pp-cli posts top --community earlyaidopters --since 7d --top 5 --by engagement --json",
+      "why_it_matters": "Pick this for a daily/weekly cron that surfaces the 3-5 most-engaging posts from any community \u2014 perfect for catching up without scrolling.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Leaderboard",
+      "command": "leaderboard",
+      "description": "Top members by points for the community, with level and bio fields included.",
+      "rationale": "Skool's leaderboard is rendered into a single page response; we extract and project it into an agent-friendly shape with --select / --top.",
+      "example": "skool-pp-cli leaderboard --community bewarethedefault --top 25 --json",
+      "why_it_matters": "Pick this when an agent needs the current community leaderboard in one call without scraping the page.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Digest since",
+      "command": "digest since",
+      "description": "Aggregate everything new across posts, comments, members, and lessons since a timestamp.",
+      "rationale": "Time-windowed cross-entity aggregate; would otherwise require multiple API calls + glue.",
+      "example": "skool-pp-cli digest since 24h --json",
+      "why_it_matters": "Pick this when an agent needs a single brief of community activity for a daily/weekly cron.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cross-community SQL",
+      "command": "sql",
+      "description": "Run read-only SQL across every community in your local store.",
+      "rationale": "Owns multi-community sync; no incumbent supports cross-community joins.",
+      "example": "skool-pp-cli sql 'SELECT community, COUNT(*) FROM posts GROUP BY community'",
+      "why_it_matters": "Pick this when an agent needs to compose a query across multiple Skool communities you own or operate.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Calendar to ICS",
+      "command": "calendar export",
+      "description": "Export upcoming community events to an .ics file for Google Cal / Outlook.",
+      "rationale": "No OSS solution today. Requires synthesizing Skool's calendar data into the iCalendar format.",
+      "example": "skool-pp-cli calendar export --ics > community.ics",
+      "why_it_matters": "Pick this when a member wants community events on their personal calendar without manual entry.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Classroom export",
+      "command": "classroom export",
+      "description": "Export an entire course to a markdown bundle (modules, lessons, attachments, video URLs).",
+      "rationale": "Requires recursive walk + Mux URL extraction + filesystem write; no incumbent ships a one-shot bundler.",
+      "example": "skool-pp-cli classroom export <course-slug> --out ./course/",
+      "why_it_matters": "Pick this when an agent needs to ingest a course for offline reference, search, or LLM retrieval.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Top posts",
+      "command": "posts top",
+      "description": "Rank recent posts by upvotes, comments, or engagement and return them with full content.",
+      "rationale": "The 'signal in the noise' query \u2014 Skool's UI shows newest-first; sorting by engagement inside a time window with full content is a per-call composition the live API can't do.",
+      "example": "skool-pp-cli posts top --community earlyaidopters --since 7d --top 5 --by engagement --json",
+      "why_it_matters": "Pick this for a daily/weekly cron that surfaces the 3-5 most-engaging posts from any community \u2014 perfect for catching up without scrolling.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Leaderboard",
+      "command": "leaderboard",
+      "description": "Top members by points for the community, with level and bio fields included.",
+      "rationale": "Skool's leaderboard is rendered into a single page response; we extract and project it into an agent-friendly shape with --select / --top.",
+      "example": "skool-pp-cli leaderboard --community bewarethedefault --top 25 --json",
+      "why_it_matters": "Pick this when an agent needs the current community leaderboard in one call without scraping the page.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Digest since",
+      "command": "digest since",
+      "description": "Aggregate everything new across posts, comments, members, and lessons since a timestamp.",
+      "rationale": "Time-windowed cross-entity aggregate; would otherwise require multiple API calls + glue.",
+      "example": "skool-pp-cli digest since 24h --json",
+      "why_it_matters": "Pick this when an agent needs a single brief of community activity for a daily/weekly cron.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cross-community SQL",
+      "command": "sql",
+      "description": "Run read-only SQL across every community in your local store.",
+      "rationale": "Owns multi-community sync; no incumbent supports cross-community joins.",
+      "example": "skool-pp-cli sql 'SELECT community, COUNT(*) FROM posts GROUP BY community'",
+      "why_it_matters": "Pick this when an agent needs to compose a query across multiple Skool communities you own or operate.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Calendar to ICS",
+      "command": "calendar export",
+      "description": "Export upcoming community events to an .ics file for Google Cal / Outlook.",
+      "rationale": "No OSS solution today. Requires synthesizing Skool's calendar data into the iCalendar format.",
+      "example": "skool-pp-cli calendar export --ics > community.ics",
+      "why_it_matters": "Pick this when a member wants community events on their personal calendar without manual entry.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Classroom export",
+      "command": "classroom export",
+      "description": "Export an entire course to a markdown bundle (modules, lessons, attachments, video URLs).",
+      "rationale": "Requires recursive walk + Mux URL extraction + filesystem write; no incumbent ships a one-shot bundler.",
+      "example": "skool-pp-cli classroom export <course-slug> --out ./course/",
+      "why_it_matters": "Pick this when an agent needs to ingest a course for offline reference, search, or LLM retrieval.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "narrative": {
+    "display_name": "Skool",
+    "headline": "Every Skool community feature, plus a local SQLite mirror, FTS, and cross-community ops no other Skool tool ships.",
+    "value_prop": "Pulls every post, comment, member, course, lesson, and calendar event into a local SQLite store with FTS5 so you can query historical state, compute leaderboard deltas, and surface at-risk members the native UI cannot show. One auth_token cookie, two hosts (www.skool.com reads, api2.skool.com writes), zero CloudFront friction.",
+    "auth_narrative": "Skool has no public API. Authenticate with the auth_token JWT cookie from your logged-in browser session: `skool-pp-cli auth set-token` (writes ~/.config/skool-pp-cli/config.toml). Same cookie covers reads and writes; CloudFront requires a realistic User-Agent which the CLI sets automatically.",
+    "quickstart": [
+      {
+        "command": "skool-pp-cli auth login --chrome",
+        "comment": "Import auth_token cookie from Chrome (or write the token directly to ~/.config/skool-pp-cli/config.toml)"
+      },
+      {
+        "command": "skool-pp-cli doctor",
+        "comment": "Verify auth + API reachability"
+      },
+      {
+        "command": "skool-pp-cli leaderboard --community bewarethedefault --top 25 --json",
+        "comment": "Top 25 members by points"
+      },
+      {
+        "command": "skool-pp-cli digest since 24h --community bewarethedefault --json",
+        "comment": "What's new in the community in the last 24h"
+      },
+      {
+        "command": "skool-pp-cli calendar export --community bewarethedefault > btd.ics",
+        "comment": "Export community events to iCalendar"
+      },
+      {
+        "command": "skool-pp-cli classroom export ai-foundations --community bewarethedefault --out ./course/",
+        "comment": "Export a course to a markdown bundle"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "404 on read endpoints",
+        "fix": "Run `skool-pp-cli doctor`; the buildId likely rotated. The CLI auto-refetches but you can force `skool-pp-cli buildid refresh`."
+      },
+      {
+        "symptom": "403 from CloudFront",
+        "fix": "Your auth_token expired or User-Agent is missing. Run `skool-pp-cli auth status` then `auth set-token` with a fresh cookie."
+      },
+      {
+        "symptom": "Empty leaderboard delta",
+        "fix": "Need at least two snapshots. Run `skool-pp-cli sync` over multiple days, or `sync --snapshot-now` to seed two points."
+      }
+    ],
+    "when_to_use": "Use this CLI when you operate or moderate a Skool community and need analytics, exports, or automation that the native UI cannot do \u2014 at-risk member detection, leaderboard movement over time, classroom-to-markdown export, cross-community SQL, or scheduled digests for an agent.",
+    "recipes": [
+      {
+        "title": "Signal-in-noise: top 5 posts this week",
+        "command": "skool-pp-cli posts top --community earlyaidopters --since 7d --top 5 --by engagement --json",
+        "explanation": "Full content, sorted by engagement (upvotes + 3*comments). The headline command for noise-heavy communities you can't keep up with."
+      },
+      {
+        "title": "Daily community digest",
+        "command": "skool-pp-cli digest since 24h --community bewarethedefault --json --select since,new_post_count,active_members,new_posts",
+        "explanation": "Tight 24h roll-up. Field-selected so an agent can drop into a Slack/email digest with minimal context."
+      },
+      {
+        "title": "Top 10 members snapshot",
+        "command": "skool-pp-cli leaderboard --community bewarethedefault --top 10 --json --select rank,points,name,full_name,level",
+        "explanation": "Current 30d leaderboard. --select keeps the agent context small."
+      },
+      {
+        "title": "Export a course to markdown",
+        "command": "skool-pp-cli classroom export <course-slug> --community bewarethedefault --out ./course/",
+        "explanation": "Walks modules \u2192 lessons \u2192 attachments. One folder per course, ready for LLM ingestion."
+      },
+      {
+        "title": "Calendar to .ics",
+        "command": "skool-pp-cli calendar export --community bewarethedefault > btd.ics",
+        "explanation": "iCalendar 2.0. Drop into Google Calendar / Outlook / Apple Calendar."
+      },
+      {
+        "title": "Cross-entity SQL on synced data",
+        "command": "skool-pp-cli sql 'SELECT post_id, COUNT(*) c FROM comments GROUP BY post_id ORDER BY c DESC LIMIT 5'",
+        "explanation": "Read-only SELECT against the local SQLite. Run `skool-pp-cli sync` first to populate."
+      }
+    ],
+    "trigger_phrases": [
+      "what's new in <community> today",
+      "skool community digest",
+      "top members on skool",
+      "export this skool course to markdown",
+      "skool calendar to ics",
+      "use skool-pp-cli",
+      "run skool-pp-cli"
+    ]
+  }
+}

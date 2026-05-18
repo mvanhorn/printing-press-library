@@ -1,0 +1,87 @@
+{
+  "api_name": "techmeme",
+  "base_url": "https://www.techmeme.com",
+  "description": "Tech news aggregation and curation. No official API exists. This spec describes the RSS, OPML, search, and HTML surfaces available for programmatic access. No authentication required.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "feed-xml_get-main-feed",
+      "description": "Top 15 headlines currently on Techmeme. RSS 2.0 format. Each item has title, link (to Techmeme permalink), description (HTML with source attribution, image, and excerpt), pubDate, guid.",
+      "method": "GET",
+      "path": "/feed.xml",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "lb-opml_get-leaderboard-opml",
+      "description": "OPML file listing Techmeme's top 51 sources with source name, website URL, and RSS feed URL. Updated regularly based on headline prominence over the past 180 days.",
+      "method": "GET",
+      "path": "/lb.opml",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "river_get",
+      "description": "5-day rolling archive of all Techmeme headlines in reverse chronological order. 150+ headlines with timestamp, author, source publication, headline text, and article link. HTML page.",
+      "method": "GET",
+      "path": "/river",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "techmeme-search_headlines",
+      "description": "Search Techmeme headlines. Supports quoted phrases, wildcards, +/-, AND/OR/NOT, parentheses. Can filter by url, author, date, sourcename. Default searches title+summary; can extend to full text. Results available as HTML or RSS. Required: q. Optional: wm (default: false), start (default: 0).",
+      "method": "GET",
+      "path": "/search/query",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Search query (supports operators like AND, OR, NOT, sourcename:X)",
+          "required": true
+        },
+        {
+          "name": "wm",
+          "type": "string",
+          "location": "query",
+          "description": "Include web mentions (true/false)"
+        },
+        {
+          "name": "start",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset"
+        }
+      ]
+    },
+    {
+      "name": "techmeme-search_rss",
+      "description": "RSS feed of search results. Same query syntax as /search/query. Subscribe in any RSS reader for alerts on specific topics. Required: q. Optional: wm (default: false).",
+      "method": "GET",
+      "path": "/search/d3results.jsp",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Q",
+          "required": true
+        },
+        {
+          "name": "wm",
+          "type": "string",
+          "location": "query",
+          "description": "Wm"
+        }
+      ]
+    }
+  ]
+}

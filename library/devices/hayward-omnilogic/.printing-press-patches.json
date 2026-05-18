@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260510-160303",
+  "base_printing_press_version": "4.2.2",
+  "patches": [
+    {
+      "id": "fix-chemistry-drift-monotonicity-and-sentinels",
+      "summary": "Enforce 5-sample monotonicity before flagging drift, filter Hayward -1 telemetry sentinels at write- and read-time, and align forecast timestamps with the filtered sample slice.",
+      "reason": "Three related drift-detection P1s from Greptile review on #431. (1) buildDriftReport compared delta>threshold without verifying the trend was monotonic over the last 5 samples — a single tail outlier (ORP spikes to 760 mV after six days averaging 700 mV) tripped drifting=true with no sustained trend, generating false service dispatches. Fix: check strict monotonicity of the trailing min(5,len) samples before setting drifting=true. (2) Hayward's -1 'sensor not reading' sentinel reached AppendTelemetry and contaminated drift baselines toward -1. Fix: filter AirTemp/WaterTemp/PH/ORP/SaltPPM<=0 at write-time, with a defense-in-depth v<=0 filter at read-time in buildDriftReport. (3) After the sentinel filter, projectExit still received samples[0].SampledAt / samples[len-1].SampledAt, so a legacy -1 row at the chronological start stretched the time span into the sensor-offline period and produced 2-3x slower rates. Fix: build a parallel times[] slice in lockstep with values[]. Also closes a SQL read-only guard bypass where strings.Contains(lower, banned+\" \") missed banned keywords followed by newline/tab — replaced with precompiled \\bkeyword\\b regex via mustBeReadOnlySQL.",
+      "files": [
+        "internal/cli/transcendence.go",
+        "internal/cli/ready_by_test.go",
+        "internal/store/writes.go",
+        "internal/store/store_test.go"
+      ],
+      "validated_outcome": "TestBuildDriftReport_MonotonicityCheck, TestBuildDriftReport_TimestampAlignment, TestAppendTelemetry_FiltersSentinels, TestMustBeReadOnlySQL_WordBoundary all pass."
+    },
+    {
+      "id": "fix-ready-by-sentinel-rejection",
+      "summary": "ready-by rejects Hayward -1 / 0 / negative water-temp sentinels as real readings via the new pickWaterTempForReadyBy helper.",
+      "reason": "Greptile P1 #3216365845. The original water-temp guard only caught currentTemp==0; Hayward's standard 'sensor not reading' sentinel is -1 (normal pre-season state and the default state on installs whose temp sensor only reads while the pump runs, i.e. capabilities.temp_needs_flow=true). With water_temp=-1 the old code computed delta=targetTemp+1 -> hoursNeeded~56.7 -> startAt~2 days in the past, then fired the 'behind schedule' branch, enabled the heater, and wrote a 'successful setpoint operation' row to command_log — all from bogus sensor data. Fix: extract pickWaterTempForReadyBy(tele, caps), reject any non-positive reading explicitly, and produce a capability-aware error that names the -1 sentinel and tells temp_needs_flow=true operators to start the filter pump first.",
+      "files": [
+        "internal/cli/transcendence.go",
+        "internal/cli/ready_by_test.go"
+      ],
+      "validated_outcome": "TestPickWaterTempForReadyBy covers 6 scenarios (valid reading, -1 rejected, -1 with flow-needs hint, 0 rejected, no reading, nil telemetry). Live-verified against a real Hayward account with water_temp=-1 and pump idle: command exits non-zero with the actionable hint instead of silently firing the heater."
+    },
+    {
+      "id": "fix-command-log-replay",
+      "summary": "Wire the previously-advertised `command-log --replay <id>` flag with a full dispatcher that routes every persisted Set* op back through the live omnilogic.Client, and drop the mcp:read-only annotation because --replay writes.",
+      "reason": "Greptile P1 #3216047858 + P1 #3216424950. The command-log Long help and README promised `--replay <id> re-issues a prior command for quick undo or redo`, but the flag was never registered — running `command-log --replay 5` failed with 'unknown flag: --replay'. Fix part 1: register --replay <id> + --dry-run (preview which client method would fire and the resolved args without dispatching). Fix part 2: runReplay loads the stored row, parses params_json (numbers come back as float64; intFromAny/boolFromAny/stringFromAny coerce), resolves the dispatching MspSystemID, and dispatchReplay routes to the right omnilogic.Client method for every Set* op the CLI persists (SetHeaterEnable, SetUIHeaterCmd, SetUIEquipmentCmd, SetUISpilloverCmd, SetUISuperCHLORCmd, SetStandAloneLightShow/V2, SetCHLORParams). logResult/logDryRun now take siteMspSystemID and inject it into every persisted params_json via withSiteParam(), updated at all 17 call sites. The replay is itself logged as a new command_log row with replay_of: <orig-id>. Fix part 3: removed the mcp:read-only annotation from newCommandLogCmd — the list-history path is read-only, but --replay dispatches live equipment-control calls, and a false readOnlyHint would let MCP hosts skip permission prompts on a write path.",
+      "files": [
+        "internal/cli/omnilogic_commands.go",
+        "internal/cli/transcendence.go"
+      ],
+      "validated_outcome": "Live-verified against the printer's pool: pump set-speed (row 27) -> equipment off -> command-log --replay 27 round-trips back to speed 60 with status ok. TestCommandLogNotAnnotatedReadOnly locks the annotation absence."
+    },
+    {
+      "id": "fix-schedule-diff-coverage",
+      "summary": "schedule diff covers pumps, lights, relays (per-BoW and backyard-level), and chlorinator config changes; previously only heaters were compared.",
+      "reason": "Greptile P1 #3216324918. The original diffMspConfigs only compared heater counts + setpoints + enable-state. The command's Long help promises to 'catch silent edits made by service techs or by other app users', but pumps/lights/relays/chlorinator changes silently produced an empty changes:[] — a service tech reconfiguring a VSP's speed range, repurposing a relay, or swapping a salt cell is exactly the kind of edit users need flagged. Fix: new diffEquipmentSet generic walker (count, added/removed, renamed, type-changed, function-changed, speed-range-changed, v2-active-changed), pointer-aware diffChlorinator (presence + CellType + Name + Type), extracted diffHeaters that now also reports heater-added/removed, and backyard-level relays diffed via cfg.Relays.",
+      "files": [
+        "internal/cli/transcendence.go",
+        "internal/cli/schedule_diff_test.go"
+      ],
+      "validated_outcome": "TestDiffMspConfigs locks 10 scenarios: no-op, heater setpoint change, pump speed range change, pump renamed, pump removed, light V2 toggled, relay function repurposed, chlorinator cell-type swapped, chlorinator removed, backyard-level relay renamed."
+    },
+    {
+      "id": "fix-store-permissions-p1",
+      "summary": "SQLite store dir created with 0o700 and the .sqlite file (plus WAL/SHM sidecars) chmod'd to 0o600 so local non-owner users cannot dump telemetry, chemistry, equipment topology, command log, or alarm history.",
+      "reason": "Greptile P1 #3216091791. The SQLite store dir was created with 0o755 and the .sqlite file inherited umask (typically 0o644 on macOS/Linux), letting any local user `sqlite3 store.sqlite` and read the entire history. The cache.go fix from a previous review covered the response cache but missed the store — same sensitivity, same treatment. Fix: MkdirAll mode -> 0o700; after sql.Open succeeds, os.Chmod the SQLite file to 0o600 and conditionally chmod WAL/SHM sidecars (NotExist is non-fatal because sidecars only exist after the first write transaction).",
+      "files": [
+        "internal/store/store.go",
+        "internal/store/store_test.go"
+      ],
+      "validated_outcome": "TestOpenPermissions locks 0o700 dir / 0o600 file using a nested path that exercises the MkdirAll codepath. Verified live: drwx------ store dir, -rw------- store.sqlite after fresh open."
+    },
+    {
+      "id": "fix-vsp-pump-ison-type-overload",
+      "summary": "SetPumpSpeed drops the bogus Speed parameter and sends IsOn as dataType=int (0-100) matching Hayward's overloaded SetUIEquipmentCmd contract; `equipment on/off` routes VSP pumps through SetPumpSpeed with speed=100 (on) or 0 (off).",
+      "reason": "Root cause of every 'Input string was not in a correct format' (Hayward .NET status 6) on VSP pump operations. Side-by-side packet capture against the canonical Python wrapper (djtimca/omnilogic-api 0.6.1) showed Hayward overloads IsOn on SetUIEquipmentCmd: dataType=int with 0-100 sets a VSP speed; dataType=bool with True/False toggles non-VSP equipment. There is NO separate Speed param — the previous Go code sent BOTH IsOn=bool AND Speed=int, which Hayward's handler rejected. Even the Python wrapper's set_equipment(isOn=bool) fails against a VSP (Hayward quirk, not a Go bug). Fix: SetPumpSpeed drops Speed, sends IsOn=int; SetEquipment documented as non-VSP-only; IsVSPPump(cfg, equipmentID) detects VSPs by MSP-config type prefix (FMT_VARIABLE_SPEED / PMP_VARIABLE_SPEED); equipment on/off routes VSPs through SetPumpSpeed with DefaultVSPOnSpeed (100) for on and 0 for off.",
+      "files": [
+        "internal/omnilogic/operations.go",
+        "internal/omnilogic/resolve.go",
+        "internal/omnilogic/envelope_test.go",
+        "internal/cli/omnilogic_commands.go",
+        "SKILL.md"
+      ],
+      "validated_outcome": "Live-verified: pump set-speed 'Filter Pump' --bow Pool --speed 50 returns status:ok and telemetry confirms filterSpeed=50. equipment on/off rounds-trip to speed 100/0. TestIsVSPPump and TestSetPumpSpeed_IsOnAsInt lock the detection + envelope shape."
+    },
+    {
+      "id": "feat-per-site-sensor-capabilities",
+      "summary": "New `capabilities` subcommand (get/set/clear) backed by a site_capabilities table; chemistry/status/telemetry/sweep/ready-by all project telemetry through per-site capabilities so absent sensors do not false-positive verdicts.",
+      "reason": "Hayward returns -1/null for absent sensors, and without per-site configuration the CLI can't distinguish 'sensor missing entirely' from 'sensor offline right now'. Before this feature, status on a healthy pre-season pool with no chemistry probes reported verdict='caution' (false positive from null chemistry); sweep over multiple sites emitted chemistry_verdict='unknown' forever and bumped priority on otherwise-healthy installs. Schema bumped 1->2 to add site_capabilities (HasPH/HasORP/HasSalt/TempNeedsFlow). AssumeAllEquipped() preserves backward compatibility — when no row exists, every sensor is assumed present, matching the most common OmniLogic install. Verdict logic in buildChemistryForBow now omits unequipped sensors from output and verdict math; when all chemistry sensors are unequipped, drops to verdict='not_equipped' instead of misleading 'unknown'. Water-temp -1 with TempNeedsFlow=true and no pump running is labelled temp_state='n/a-pump-off' (expected silence-while-idle), and with pump running it stays 'offline' (real failure). chemistry get/status emit a setup_hint to stderr when no capability row is configured.",
+      "files": [
+        "internal/cli/capabilities.go",
+        "internal/store/capabilities.go",
+        "internal/store/capabilities_test.go",
+        "internal/omnilogic/types.go",
+        "internal/cli/omnilogic_commands.go",
+        "internal/cli/root.go",
+        "internal/cli/transcendence.go",
+        "internal/store/store.go",
+        "SKILL.md"
+      ],
+      "validated_outcome": "Live-verified against the printer's pool: capabilities set --has-ph false --has-orp false --has-salt false --temp-needs-flow true flips status verdict from caution to ok with temp_state='n/a-pump-off' while the pump is idle. Five regression tests in capabilities_test.go cover round-trip / update / clear / AssumeAllEquipped default."
+    },
+    {
+      "id": "fix-heater-bow-and-resolver",
+      "summary": "Heater commands gain --bow Pool|Spa via ResolveHeaterInBoW (parity with pump/equipment); ready-by surfaces SetHeaterTemp errors instead of silently reporting success; sweep honors per-site capabilities; deterministic XML param order across every Set* op; response cache chmod'd 0o700/0o600; ChemistryVerdict no longer drops mixed-direction findings.",
+      "reason": "Bundle of P1/P2 review fixes from PR #431. (1) Hayward's BOW_SHARED_EQUIPMENT pattern lets a single named heater appear under multiple BoWs ('Gas' is the name on both Pool and Spa on the printer's real install); ResolveHeater returned 'matched multiple' with no disambiguation, so heater enable/disable/set-temp were unusable on shared installs. Fix: ResolveHeaterInBoW with optional case-insensitive bow filter; ResolveHeader preserved as a thin wrapper. (2) In ready-by, the setpoint write was `_, _ = c.SetHeaterTemp(...)` — both result and error discarded — then heater_enabled=true was set unconditionally. Fix: propagate tempErr and tempResult.Status into the report with setpoint_set:true/false + setpoint_error detail, and log the actual status to command_log. (3) sweep called ChemistryVerdict(raw.PH, raw.ORP, raw.SaltPPM) directly so it ignored capabilities; fix routes through loadEffectiveCapabilities + buildChemistryForBow, and 'unknown'/'not_equipped' no longer bump priority. (4) buildRequest used a Go map (randomized iteration), and Hayward's .NET handler is order-sensitive; every Set* now uses buildOrderedRequest with the Python wrapper's insertion order, locked by TestBuildRequest_SortedOrder over 20 iterations. (5) internal/cache/cache.go writes 0o700 dir + 0o600 file matching the auth cache. (6) bumpVerdict kept the first non-ok verdict and dropped subsequent findings; fix folds same-direction findings to one word and mixed-direction findings to 'mixed' so verdict matches reasons. Also adds HAYWARD_DEBUG=1 opt-in payload dump in sendOpRequest, --bow on equipment on/off and pump set-speed (BOW_SHARED_EQUIPMENT dedupe by kind+systemId), ResolveEquipmentInBoW, and callOpOrdered/runSetOpOrdered shared infrastructure.",
+      "files": [
+        "internal/cli/omnilogic_commands.go",
+        "internal/cli/transcendence.go",
+        "internal/omnilogic/client.go",
+        "internal/omnilogic/envelope.go",
+        "internal/omnilogic/envelope_test.go",
+        "internal/omnilogic/operations.go",
+        "internal/omnilogic/resolve.go",
+        "internal/cache/cache.go"
+      ],
+      "validated_outcome": "Live-verified end-to-end on the printer's account: heater enable Gas --bow Pool fires heater 4; heater enable Gas --bow Spa fires heater 10 (separate physical heater). sweep --json reports chemistry_verdict:not_equipped/priority:0 instead of the bug-state unknown/1. TestBuildRequest_SortedOrder, TestChemistryVerdict_MixedDirections, TestChemistryVerdict_SameDirection all pass."
+    },
+    {
+      "id": "fix-ready-by-dry-run-dead-code",
+      "summary": "Drop the unreachable dryRunOK early-return in ready-by so the heat-curve calculation runs and the dry_run plan reaches the user.",
+      "reason": "Caught by greptile review on PR #431 (post-rebase): the dryRunOK guard at the top of ready-by short-circuited before the heat-curve math, making the inner if flags.dryRun report-dry_run branch (and the Long description s promise of a start time + projected heat curve preview) unreachable dead code. Removing the early return lets cloud reads (telemetry, mspconfig) + calculation always run; the writes (SetHeaterEnable, SetHeaterTemp) remain gated by the existing if flags.dryRun { ... } else { /* writes */ } block.",
+      "files": [
+        "internal/cli/transcendence.go"
+      ]
+    }
+  ]
+}

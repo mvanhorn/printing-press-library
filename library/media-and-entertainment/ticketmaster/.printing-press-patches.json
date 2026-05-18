@@ -1,0 +1,196 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-11",
+  "base_run_id": "20260511-051647",
+  "base_printing_press_version": "4.2.2",
+  "patches": [
+    {
+      "id": "novel-events-watchlist",
+      "summary": "Add 'events watchlist save|ls|run|rm' subcommand tree backed by a new `watchlists` SQLite table.",
+      "reason": "User vision called for persistent named watchlists as the generic primitive behind curated 'my venues' workflows. The Discovery API has no concept of named filter sets; this stays local.",
+      "files": [
+        "internal/cli/events_watchlist.go",
+        "internal/cli/events.go"
+      ],
+      "validated_outcome": "Build clean; `events watchlist save/ls/rm/run` all visible in --help; watchlists table auto-created via idempotent DDL on first run."
+    },
+    {
+      "id": "novel-events-upcoming",
+      "summary": "Add 'events upcoming' multi-venue fan-out that reads venue IDs from a file, CSV, or saved watchlist and queries the local events table.",
+      "reason": "Replaces 595 lines of hand-rolled bash (Lobster seattle-events) with one CLI command. The Discovery API has no multi-venue endpoint \u2014 without local store + fan-out, agents must loop per-venue and dedup themselves.",
+      "files": [
+        "internal/cli/events_upcoming.go",
+        "internal/cli/events.go"
+      ],
+      "validated_outcome": "--dry-run pass; --help pass; renders empty-store hint when no events synced."
+    },
+    {
+      "id": "novel-events-residency",
+      "summary": "Add 'events residency' GROUP BY name+venue collapse so a 16-night opera season shows as one row with first/last/count/id_list.",
+      "reason": "Brief Table-Stakes section lists residency collapse as a competitor gap. Mechanical SQL aggregation over the local events table; no API endpoint provides this.",
+      "files": [
+        "internal/cli/events_residency.go",
+        "internal/cli/events.go"
+      ],
+      "validated_outcome": "--dry-run pass; SQL parses (json_extract path queries verified against the events.data column schema)."
+    },
+    {
+      "id": "novel-events-tour",
+      "summary": "Add 'events tour <attraction>' view that filters local events by attractionId or name (case-insensitive substring), projects city/venue/status, and flags rows where on-sale is within --on-sale-window days.",
+      "reason": "Persona B workflow (tour-chasing fan). Joins local events \u00d7 attractions; parses dates.status.code + sales.public.startDateTime \u2014 fields documented in the brief's Codebase Intelligence section.",
+      "files": [
+        "internal/cli/events_tour.go",
+        "internal/cli/events.go"
+      ],
+      "validated_outcome": "--help pass; on-sale window math computed against time.Now()."
+    },
+    {
+      "id": "novel-events-on-sale-soon",
+      "summary": "Add 'events on-sale-soon --window N' scanner that filters local events by sales.public.startDateTime falling in the next N days.",
+      "reason": "Canonical 'presale watch' gap. No API endpoint orders events by upcoming on-sale date.",
+      "files": [
+        "internal/cli/events_on_sale_soon.go",
+        "internal/cli/events.go"
+      ],
+      "validated_outcome": "--help pass; classification + DMA filter wiring verified."
+    },
+    {
+      "id": "novel-events-by-classification",
+      "summary": "Add 'events by-classification' aggregation that groups local events by segment+genre with count + examples per bucket.",
+      "reason": "Brief Workflow #5 + Table-Stakes 'cross-classification aggregation in one call' gap. Mechanical GROUP BY over events \u00d7 classifications.",
+      "files": [
+        "internal/cli/events_by_classification.go",
+        "internal/cli/events.go"
+      ],
+      "validated_outcome": "--help pass; SAMPLE column uses ASCII unit separator (0x1F) as intra-cell delimiter to avoid GROUP_CONCAT comma collisions."
+    },
+    {
+      "id": "novel-events-dedup",
+      "summary": "Add 'events dedup --strategy id|name-venue-date|tour-leg' stream filter that reads a JSON array from stdin or local store and emits the deduped stream to stdout.",
+      "reason": "Composable agent-native filter for merging results from multiple queries or sources. The brief's Data Layer section calls out 'deduplicate across calls' as a primary persistence purpose.",
+      "files": [
+        "internal/cli/events_dedup.go",
+        "internal/cli/events.go"
+      ],
+      "validated_outcome": "--help pass; accepts both top-level array and Discovery `{_embedded.events: [...]}` envelope on stdin."
+    },
+    {
+      "id": "novel-events-brief",
+      "summary": "Add 'events brief --window N --dma <id>' markdown renderer that groups local events by date \u2192 venue \u2192 events with classification labels and (when available) price ranges.",
+      "reason": "Persona D (newsletter author) workflow + user-vision Obsidian/iMessage composition. Mechanical group-by + markdown formatting; no API endpoint produces formatted reports.",
+      "files": [
+        "internal/cli/events_brief.go",
+        "internal/cli/events.go"
+      ],
+      "validated_outcome": "--help pass; --watchlist flag composes with the watchlist table from the events-watchlist patch."
+    },
+    {
+      "id": "novel-events-price-bands",
+      "summary": "Add 'events price-bands --dma <id> --window N' SQL aggregation that buckets priceRanges.min into <$50 / $50-100 / $100-200 / $200+ bands grouped by classification.",
+      "reason": "Persona D pain (newsletter analytics). priceRanges.min is in the spec; mechanical bucketing \u2014 no API analog.",
+      "files": [
+        "internal/cli/events_price_bands.go",
+        "internal/cli/events.go"
+      ],
+      "validated_outcome": "--help pass; missing-price events bucketed as 'unknown' (Discovery omits priceRanges on resale/dynamic-priced events, documented in the brief's data-model quirks)."
+    },
+    {
+      "id": "greptile-pr444-ratelimit-toctou",
+      "summary": "Fix race in AdaptiveLimiter.Wait() by making lastRequest a monotone 'next available slot' pointer rather than a call-time snapshot. Each caller claims a distinct delay-spaced slot under the lock and targets that slot for its sleep.",
+      "reason": "Greptile P2 finding on PR #444 (ratelimit.go:43-57) + P1 follow-up (ratelimit.go:68). The first fix held the lock across the read-decide-update sequence but still set lastRequest=time.Now() *before* sleeping; two callers 1ms apart could compute the same wake-time and burst, defeating the rate limiter at exactly the same edge the original TOCTOU was meant to close. The monotone-slot shape is race-free because the slot is committed under the lock; later callers see the advanced lastRequest and compute a strictly later slot.",
+      "files": [
+        "internal/cliutil/ratelimit.go"
+      ],
+      "validated_outcome": "go test ./internal/cliutil/... PASS; build/vet clean. Manual trace: G1 at T=0 advances lastRequest to delay; G2 at T=1ms reads lastRequest=delay, computes next=2*delay, slots are now strictly disjoint.",
+      "upstream_issue": "see upstream_tracking.press-ratelimit-toctou"
+    },
+    {
+      "id": "greptile-pr444-ratelimit-unbounded-ramp",
+      "summary": "Add MaxRate=10.0 hard cap in AdaptiveLimiter.OnSuccess() so a long success streak before the first 429 cannot push the rate past a sane outbound ceiling.",
+      "reason": "Greptile P2 finding on PR #444 (ratelimit.go:59-74). Without a 429, OnSuccess multiplies by 1.25 indefinitely, reaching ~16 req/s after ~100 successes.",
+      "files": [
+        "internal/cliutil/ratelimit.go"
+      ],
+      "validated_outcome": "go test ./internal/cliutil/... PASS; build/vet clean.",
+      "upstream_issue": "see upstream_tracking.press-ratelimit-unbounded-ramp"
+    },
+    {
+      "id": "greptile-pr444-auth-header-dead-branch",
+      "summary": "Remove duplicate `if c.TicketmasterApiKey == \"\"` empty-token guard in Config.AuthHeader() \u2014 unreachable after the prior `if token == \"\"` check on the same field.",
+      "reason": "Greptile P2 finding on PR #444 (config.go:82-94). Dead code.",
+      "files": [
+        "internal/config/config.go"
+      ],
+      "validated_outcome": "build/vet clean.",
+      "upstream_issue": "see upstream_tracking.press-config-auth-header-dead-branch"
+    },
+    {
+      "id": "greptile-pr444-applyAuthFormat-dead-code",
+      "summary": "Remove unused applyAuthFormat() helper, its `var _ = strings.ReplaceAll` keep-import sentinel, and the now-unused `strings` import in internal/config/config.go.",
+      "reason": "Greptile P2 finding on PR #444 (config.go:96-107). Dead code emitted by generator template, never wired into call graph for query-param auth.",
+      "files": [
+        "internal/config/config.go"
+      ],
+      "validated_outcome": "build/vet clean; strings import removed.",
+      "upstream_issue": "see upstream_tracking.press-config-applyAuthFormat-dead-code"
+    },
+    {
+      "id": "greptile-pr444-upsert-images-bind-order",
+      "summary": "Reorder upsertImagesTx bind parameters to match the column order declared in the INSERT statement. Schema is (id, events_id, data, synced_at); generator emitted args as (id, data, now, events_id) so the JSON blob was being stored in events_id, a timestamp string in data, and the actual events_id in synced_at.",
+      "reason": "Greptile P0 finding on PR #444 (store.go:915-923). Every image upsert silently corrupted all three non-id columns; idx_images_events_id joins never matched real event IDs. The pre-existing test TestUpsertBatch_PopulatesImagesTable masked the bug because its fixture only set `id`, and the (NOT NULL) events_id column happened to receive the JSON blob — non-null but corrupt.",
+      "files": [
+        "internal/store/store.go",
+        "internal/store/upsert_batch_test.go"
+      ],
+      "validated_outcome": "go test ./internal/store/... PASS; fixture updated to provide events_id and added column-content assertions that would catch a future bind-order regression. Full module `go test ./...` PASS.",
+      "upstream_issue": "see upstream_tracking.press-upsert-images-bind-order"
+    },
+    {
+      "id": "greptile-pr444-brief-classification-segment-only",
+      "summary": "Fix `events brief --classification` so it matches segment OR genre. First attempt (dual-append into wl.Segments AND wl.Genres) was WRONG — queryFilteredEvents joins filter conditions with AND, so the dual-append produced `segment IN (?) AND genre IN (?)` which excluded events that match only one taxonomy level (a 'Rock' concert has segment='Music', genre='Rock' — segment IN ('Rock') fails and the row is dropped). Reverted to a post-filter via a new `filterEventsByClassification` helper that keeps events whose first classification's segment.name OR genre.name equals the label. Help text updated to 'segment OR genre name'. Both attempts catalogued in commit history so the failure mode is recorded.",
+      "reason": "Greptile P1 finding on PR #444 (events_brief.go:65) + P1 follow-up (events_brief.go:70). Hand-authored novel command — not a generator-template bug; entirely in my code. The first fix illustrated a common error pattern (pushing both halves of an OR into AND-joined filter slices) — the post-filter approach decouples the classification OR semantics from queryFilteredEvents' shared shape used by events upcoming and events watchlist run.",
+      "files": [
+        "internal/cli/events_brief.go"
+      ],
+      "validated_outcome": "go build/vet/test all PASS; help text reads 'segment OR genre name (Music, Arts & Theatre, Sports, Rock, Jazz, Comedy, etc.)'. Post-filter via filterEventsByClassification preserves the original watchlist filter dimensions in queryFilteredEvents.",
+      "upstream_issue": null
+    }
+  ],
+  "upstream_tracking": [
+    {
+      "id": "press-spec-server-url",
+      "summary": "apis.guru's Discovery v2 spec ships a protocol-relative server URL (//www.ticketmaster.com/discovery/v2) and no security scheme. This run patches both in-place (spec edit before generation). The generator could optionally accept overrides via --base-url / --auth-scheme flags instead of forcing a spec edit, or treat protocol-relative server URLs as a soft warning rather than rejecting them.",
+      "scope": "potential generator-side polish"
+    },
+    {
+      "id": "press-novel-command-stubs",
+      "summary": "When research.json declares novel_features, the generator emits a Highlights section in --help but does not stub the corresponding Cobra commands. A future generator could emit `// PATCH-stub:` placeholders that fall through to `cmd.Help()` so a clean build always exits 0 even before hand-authored implementations land.",
+      "scope": "generator-side ergonomics"
+    },
+    {
+      "id": "press-ratelimit-toctou",
+      "summary": "AdaptiveLimiter.Wait() in internal/cliutil/ratelimit.go has two stacked issues that the generator's template ships unconditionally: (1) the original code reads lastRequest under a lock, releases, sleeps, then re-acquires the lock to update — two critical sections instead of one. (2) Even with the lock held across read+update, setting lastRequest=time.Now() *before* sleeping lets two callers 1ms apart both compute a wake-time at the same wall-clock instant and burst simultaneously. Greptile flagged the first as P2 on PR #444 (ratelimit.go:43-57) and the second as a P1 follow-up (ratelimit.go:68). The correct shape is monotone next-slot: under the lock, advance lastRequest by `delay` (or to now+delay during a quiet period), then sleep until that committed slot. The template needs to ship the monotone shape, not the snapshot shape.",
+      "scope": "generator template fix (recurs in every printed CLI)"
+    },
+    {
+      "id": "press-ratelimit-unbounded-ramp",
+      "summary": "AdaptiveLimiter.OnSuccess() multiplies the rate by 1.25 every rampAfter successes with no hard upper bound until ceiling is set (which only happens on the first 429). On a long quiet run that never hits 429, the rate ramps to ~16 req/s in ~100 successes regardless of the upstream's documented budget. Greptile flagged on PR #444 (P2). Fixed locally with a `MaxRate = 10.0` constant clamp inside OnSuccess. Defense-in-depth against runaway ramp; the per-API ceiling discovery still drives normal adaptation. Generator template should ship the same constant or accept a per-spec override.",
+      "scope": "generator template fix (recurs in every printed CLI)"
+    },
+    {
+      "id": "press-config-auth-header-dead-branch",
+      "summary": "Config.AuthHeader() in internal/config/config.go has a duplicate empty-token guard — line 87 checks `if token == \"\"` (returning), and line 90 then re-checks the same field on the original Config. The second check is unreachable. Greptile flagged on PR #444 (P2). Fixed locally by removing the duplicate branch. The generator's auth-template emits this duplicate; should be removed upstream.",
+      "scope": "generator template fix (recurs in every printed CLI with api_key auth)"
+    },
+    {
+      "id": "press-config-applyAuthFormat-dead-code",
+      "summary": "applyAuthFormat() helper and its `var _ = strings.ReplaceAll` keep-import sentinel are emitted by the generator's auth-template but never wired into the call graph of the printed CLI for query-param auth modes. Greptile flagged on PR #444 (P2). Removed locally along with the now-unused `strings` import. The generator should emit this helper only when an api_key uses Authorization-header format substitution, not unconditionally.",
+      "scope": "generator template fix (recurs in every printed CLI)"
+    },
+    {
+      "id": "press-upsert-images-bind-order",
+      "summary": "CRITICAL: generator-emitted upsertImagesTx in store.go binds positional `?` arguments out of order with the INSERT column list. Schema is `(id, events_id, data, synced_at)`, args were `(id, string(data), time.Now(), lookupFieldValue(obj, \"events_id\"))`, so the JSON blob ends up in events_id, the timestamp string in data, and events_id in synced_at. Greptile flagged on PR #444 (P0). This bug ships in every printed CLI whose spec has an Image resource (or any resource with a foreign-key column whose generator templating put the FK extraction last). The fix is mechanical: emit bind args in the same order as the column list, then add a column-content assertion to the typed-table dispatch test so the regression is impossible to ship again. Look for any other resource-typed upserts where the generator templated a `lookupFieldValue` extraction call after `string(data)` and `time.Now()` — they're likely affected by the same template bug.",
+      "scope": "generator template fix (CRITICAL — every printed CLI with a typed-table resource that has at least one non-id column)"
+    }
+  ]
+}
