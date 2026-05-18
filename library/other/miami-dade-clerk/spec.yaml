@@ -1,0 +1,220 @@
+name: miami-dade-clerk
+description: "Pull the full lien chain on any Miami-Dade property in 30 seconds — every deed, mortgage, satisfaction, lis pendens, and federal tax lien ever recorded."
+version: "0.1.0"
+base_url: "https://onlineservices.miamidadeclerk.gov/officialrecords"
+
+cli_description: "Pull the full lien chain on any Miami-Dade property in 30 seconds — every deed, mortgage, satisfaction, lis pendens, and federal tax lien ever recorded."
+
+auth:
+  type: cookie
+  cookie_domain: onlineservices.miamidadeclerk.gov
+  cookies:
+    - NSC_JOeqtbnye4rqvqae52yysbdjdcwntcw
+  description: "NetScaler session cookie. Captured automatically by `auth login --chrome` (one-time browser visit). All search endpoints additionally require a per-request reCAPTCHA Enterprise v3 token, which the CLI obtains by spawning a headless Chromium against the portal homepage before each search call. The reCAPTCHA logic is implemented in the client, not the spec."
+
+http_transport: browser-chrome
+
+config:
+  format: toml
+  path: "~/.config/miami-dade-clerk-pp-cli/config.toml"
+
+resources:
+  environment:
+    description: "Portal environment metadata (status, maintenance windows, current server date)"
+    endpoints:
+      status:
+        method: GET
+        path: "/api/Environment/getStatus"
+        description: "Get portal status (open / maintenance / outage) and last recording-cutoff date"
+        no_auth: true
+        response:
+          type: object
+          item: EnvironmentStatus
+
+      date:
+        method: GET
+        path: "/api/home/GetDate"
+        description: "Get current server date"
+        no_auth: true
+        response:
+          type: object
+          item: ServerDate
+
+  doc-types:
+    description: "Enumerate the 80+ recordable document types (3-letter codes + display labels)"
+    endpoints:
+      list:
+        method: GET
+        path: "/api/home/documentTypes"
+        description: "List all document types: codes (DEE, MOR, LIS, FTL, etc.) and display labels"
+        no_auth: true
+        response:
+          type: array
+          item: DocType
+
+  search-name:
+    description: "Search by party name (last + first) + optional document type. Returns name-indexed records: mortgages, satisfactions, assignments, lis pendens, judgments, federal tax liens, liens, court papers."
+    endpoints:
+      submit:
+        method: POST
+        path: "/api/home/standardsearch"
+        description: "Submit a Name/Document search. Returns an encrypted qs token used to fetch the full result set."
+        params:
+          - name: partyName
+            type: string
+            required: true
+            description: "Party name (LAST FIRST or LAST FIRST MIDDLE, uppercased)"
+          - name: dateRangeFrom
+            type: string
+            description: "Inclusive start date (M/D/YYYY)"
+          - name: dateRangeTo
+            type: string
+            description: "Inclusive end date (M/D/YYYY)"
+          - name: documentType
+            type: string
+            description: "3-letter doc-type code (e.g. MOR, LIS, FTL). Omit for all types."
+          - name: searchT
+            type: string
+            description: "Reserved (always blank)"
+          - name: firstQuery
+            type: string
+            description: "Set to 'y' on first submission"
+          - name: searchtype
+            type: string
+            required: true
+            description: "Always 'Name/Document'"
+        response:
+          type: object
+          item: SearchResponse
+
+  search-property:
+    description: "Search by property address. Returns property-indexed records (deeds + quit claim deeds only — mortgages and other liens are name-indexed, use search-name)."
+    endpoints:
+      submit:
+        method: POST
+        path: "/api/home/propertysearch"
+        description: "Submit a Property/Condo search. Returns an encrypted qs token used to fetch the full result set."
+        params:
+          - name: addressNoUnit
+            type: string
+            required: true
+            description: "Property street address without unit, ordinals stripped (e.g. '5600 W 13 AVE', not '5600 W 13th Avenue')"
+          - name: addressUnit
+            type: string
+            description: "Condo/suite unit identifier from PA legal_description (e.g. 'B312'), not the address-line '#312' display form"
+          - name: dateRangeFrom
+            type: string
+            description: "Inclusive start date (M/D/YYYY)"
+          - name: dateRangeTo
+            type: string
+            description: "Inclusive end date (M/D/YYYY)"
+          - name: documentType
+            type: string
+            description: "3-letter doc-type code"
+          - name: searchType
+            type: string
+            required: true
+            description: "Always 'Property/Condo'"
+        response:
+          type: object
+          item: SearchResponse
+
+  search-results:
+    description: "Fetch the full record list for a previously-submitted search (using the qs token from search-name or search-property)."
+    endpoints:
+      get:
+        method: GET
+        path: "/api/SearchResults/getStandardRecords"
+        description: "Get up to 500 recording records for a search. No native pagination; narrow by doc_type or date range to exceed cap."
+        params:
+          - name: qs
+            type: string
+            required: true
+            description: "Encrypted search token returned by search-name or search-property"
+        response:
+          type: object
+          item: RecordingResultSet
+
+extra_commands:
+  - name: lien-chain
+    description: "Reconstruct the full lien chain for a Miami-Dade folio: every deed + mortgage + satisfaction + assignment + lis pendens + lien recorded against the property, in chronological order. Pivots Property search (deeds) → owner chain → bounded Name searches → filters back via subdivision+plat+block signature."
+    flags:
+      - name: folio
+        type: string
+        required: true
+        description: "Miami-Dade folio (13-digit APN, with or without dashes: 30-2232-066-1610 or 3022320661610)"
+      - name: since
+        type: string
+        description: "Filter to recordings since this date (ISO YYYY-MM-DD)"
+      - name: max-owners
+        type: int
+        default: 10
+        description: "Max number of owners in the chain of title to query name-search for (limits API calls)"
+
+  - name: surviving-liens
+    description: "Compute which liens on a folio will survive a foreclosure or tax-deed sale. Pairs each lien (MOR/LIE/FTL/JUD/LIS) against its release (SAT/REL); applies FL Statute 720/718 HOA safe-harbor caps; flags FTL (always survives TD). Returns totals in cents."
+    flags:
+      - name: folio
+        type: string
+        required: true
+        description: "Miami-Dade folio"
+      - name: assume-sale-type
+        type: string
+        default: foreclosure
+        description: "Sale type: 'foreclosure' (junior wiped) or 'taxdeed' (only government liens survive)"
+
+  - name: chain-of-title
+    description: "Return the ordered chain of title for a folio (every deed conveying the property, grantor → grantee → date → consideration). Detects gaps (grantee on one deed doesn't match grantor on the next)."
+    flags:
+      - name: folio
+        type: string
+        required: true
+        description: "Miami-Dade folio"
+      - name: since
+        type: string
+        description: "Earliest recording date to include (ISO YYYY-MM-DD)"
+
+  - name: owner-portfolio
+    description: "Scan one Name search for a person or LLC; group results into three buckets: properties owned, mortgages/liens taken, lis pendens/judgments against. Lead-gen + risk signal."
+    flags:
+      - name: last-name
+        type: string
+        required: true
+        description: "Last name (or entity name for LLC/Inc/Corp)"
+      - name: first-name
+        type: string
+        description: "First name (omit for entities)"
+      - name: middle-name
+        type: string
+        description: "Middle name (rarely useful)"
+
+  - name: case-arc
+    description: "Walk a single court case across all its recorded documents: lis pendens → final judgment → certificate of title → satisfactions. Classifies case status (open / judgment-entered / sale-complete / dismissed)."
+    flags:
+      - name: case
+        type: string
+        required: true
+        description: "Case number (e.g. 2024-020991-CA-01)"
+
+  - name: enrich
+    description: "Batch-enrich a list of folios: for each, compute lien-chain + surviving-liens + chain-of-title. Emits one JSON row per folio, Supabase-ingest-ready (cents, ISO-8601 dates, stable cfn_master_id)."
+    flags:
+      - name: folio-list
+        type: string
+        required: true
+        description: "Path to CSV file with one folio per line (or comma-separated string of folios)"
+      - name: out
+        type: string
+        default: lien-summary.json
+        description: "Output JSON file path"
+
+  - name: ftl-scan
+    description: "Find every Federal Tax Lien recorded after a given date, optionally filtered to a folio watchlist. FTLs survive tax-deed foreclosure — highest-signal red flag for TD investors."
+    flags:
+      - name: since
+        type: string
+        required: true
+        description: "Earliest recording date (ISO YYYY-MM-DD)"
+      - name: folio-list
+        type: string
+        description: "Optional path to CSV folio watchlist; restricts results"

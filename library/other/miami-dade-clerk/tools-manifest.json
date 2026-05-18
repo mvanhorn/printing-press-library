@@ -1,0 +1,38 @@
+{
+  "api_name": "miami-dade-clerk",
+  "base_url": "https://onlineservices.miamidadeclerk.gov/officialrecords",
+  "description": "Pull the full lien chain on any Miami-Dade property in 30 seconds — every deed, mortgage, satisfaction, lis pendens, and federal tax lien ever recorded.",
+  "mcp_ready": "partial",
+  "http_transport": "browser-chrome",
+  "auth": {
+    "type": "cookie",
+    "cookie_domain": "onlineservices.miamidadeclerk.gov"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "doc-types_list",
+      "description": "List every recordable document type Miami-Dade Clerk indexes (~80 entries): 3-letter codes (DEE, MOR, LIS, FTL, SAT, JUD, etc.) and human-readable display labels. No parameters, no authentication. Returns an array of DocType objects. Use this to validate `documentType` filters before submitting a search, or to translate raw codes from search results into human labels.",
+      "method": "GET",
+      "path": "/api/home/documentTypes",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "environment_date",
+      "description": "Return the Miami-Dade Clerk portal's current server date (the date the indexer treats as 'today'). No parameters, no authentication. Returns a ServerDate object with the date string. Use this before any date-range search to align local clocks with the portal — recordings filed today are typically not searchable until the portal's next index roll, and the server date tells you what 'today' the index sees.",
+      "method": "GET",
+      "path": "/api/home/GetDate",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "environment_status",
+      "description": "Return Miami-Dade Clerk portal availability and indexing freshness. No parameters, no authentication. Returns an EnvironmentStatus object with operational status (open / maintenance / outage) and the last recording-cutoff date — recordings filed after this date are not yet searchable. Call this before bulk searches to confirm the portal is up and to know how stale the index is.",
+      "method": "GET",
+      "path": "/api/Environment/getStatus",
+      "no_auth": true,
+      "params": []
+    }
+  ]
+}

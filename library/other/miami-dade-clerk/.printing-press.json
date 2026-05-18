@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-18T01:44:44.292153Z",
+  "printing_press_version": "4.8.0",
+  "api_name": "miami-dade-clerk",
+  "display_name": "Miami Dade Clerk",
+  "cli_name": "miami-dade-clerk-pp-cli",
+  "owner": "alex-kleis",
+  "printer": "alexkleis",
+  "printer_name": "Alex Kleis",
+  "spec_path": "/Users/alexandrekleis/printing-press/.runstate/emma-project-v2-ee77aeab/runs/20260517-201552/research/miami-dade-clerk-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:a87e1df01d2b40362921da1e2da95e199be20365acce442d7715394dce3ddad9",
+  "run_id": "20260517-201552",
+  "description": "Pull the full lien chain on any Miami-Dade property in 30 seconds — every deed, mortgage, satisfaction, lis pendens, and federal tax lien ever recorded.",
+  "mcp_binary": "miami-dade-clerk-pp-mcp",
+  "mcp_tool_count": 6,
+  "mcp_public_tool_count": 3,
+  "mcp_ready": "partial",
+  "api_version": "0.1.0",
+  "auth_type": "cookie",
+  "auth_description": "NetScaler session cookie. Captured automatically by `auth login --chrome` (one-time browser visit). All search endpoints additionally require a per-request reCAPTCHA Enterprise v3 token, which the CLI obtains by spawning a headless Chromium against the portal homepage before each search call. The reCAPTCHA logic is implemented in the client, not the spec.",
+  "novel_features": [
+    {
+      "name": "Lien-chain reconstruction",
+      "command": "lien-chain",
+      "description": "See every recording ever filed against a property in one chronological timeline — deeds, mortgages, satisfactions, lis pendens, federal tax liens, assignments — without manually deed-walking owner-by-owner."
+    },
+    {
+      "name": "Surviving-liens calculator",
+      "command": "surviving-liens",
+      "description": "Tells you which liens on a property will survive a foreclosure or tax-deed sale, with totals in cents — Federal Tax Liens always survive tax deed; junior mortgages get wiped on senior foreclosure; HOA liens cap at FL Statute 720/718 safe-harbor amounts."
+    },
+    {
+      "name": "Chain of title",
+      "command": "chain-of-title",
+      "description": "Returns the ordered list of every deed conveying a property, with grantor, grantee, consideration, and recording date — and detects gaps where a grantee doesn't match the next deed's grantor."
+    },
+    {
+      "name": "Owner portfolio scan",
+      "command": "owner-portfolio",
+      "description": "Give a person or LLC name and see everything Miami-Dade has on them: every folio they appear on, every active mortgage or lien they've taken, every lis pendens or judgment against them."
+    },
+    {
+      "name": "Litigation arc tracker",
+      "command": "case-arc",
+      "description": "Walks a single court case across all its recorded documents in chronological order: lis pendens → final judgment → certificate of title → satisfaction, with a status classifier (open / judgment-entered / sale-complete / dismissed)."
+    },
+    {
+      "name": "Folio-batch enrichment",
+      "command": "enrich",
+      "description": "For a list of folios, compute lien-chain + surviving-liens + chain-of-title for each, and emit a single JSON file with totals_cents, surviving_lien_count, oldest_deed_date, last_deed_date, current_owner, FTL_count — designed for downstream ingest pipelines."
+    },
+    {
+      "name": "Federal Tax Lien scanner",
+      "command": "ftl-scan",
+      "description": "Find every Federal Tax Lien recorded after a given date, optionally filtered to a folio watchlist. FTLs survive tax-deed foreclosure, so any FTL on a TD-bound property is a deal-breaker red flag."
+    }
+  ]
+}

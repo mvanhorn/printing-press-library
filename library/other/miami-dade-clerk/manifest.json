@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "miami-dade-clerk-pp-mcp",
+  "display_name": "Miami Dade Clerk",
+  "version": "4.8.0",
+  "description": "Pull the full lien chain on any Miami-Dade property in 30 seconds — every deed, mortgage, satisfaction, lis pendens, and federal tax lien ever recorded.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/miami-dade-clerk-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/miami-dade-clerk-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

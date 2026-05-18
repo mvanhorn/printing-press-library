@@ -1,0 +1,51 @@
+version: 2
+project_name: miami-dade-clerk-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: miami-dade-clerk-pp-cli
+    main: ./cmd/miami-dade-clerk-pp-cli
+    binary: miami-dade-clerk-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/other/miami-dade-clerk/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: miami-dade-clerk-pp-mcp
+    main: ./cmd/miami-dade-clerk-pp-mcp
+    binary: miami-dade-clerk-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: miami-dade-clerk-pp-cli
+    repository:
+      owner: alex-kleis
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Pull the full lien chain on any Miami-Dade property in 30 seconds — every deed, mortgage, satisfaction, lis..."
+    install: |
+      bin.install "miami-dade-clerk-pp-cli"
+      bin.install "miami-dade-clerk-pp-mcp"

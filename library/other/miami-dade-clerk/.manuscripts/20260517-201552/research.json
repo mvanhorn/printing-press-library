@@ -1,0 +1,217 @@
+{
+  "api_name": "miami-dade-clerk",
+  "novelty_score": 9,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-17T20:25:00Z",
+  "novel_features": [
+    {
+      "name": "Lien-chain reconstruction",
+      "command": "lien-chain",
+      "description": "See every recording ever filed against a property in one chronological timeline — deeds, mortgages, satisfactions, lis pendens, federal tax liens, assignments — without manually deed-walking owner-by-owner.",
+      "rationale": "Requires correlating Property-search deeds (returns DEE/QCD only) with per-grantee Name-search results (returns mortgages/liens/lis pendens by name), then filtering back to the target folio via the subdivision + plat_book + plat_page + block_no composite signature. No single portal endpoint produces this.",
+      "example": "miami-dade-clerk-pp-cli lien-chain --folio 30-2232-066-1610 --agent",
+      "why_it_matters": "When an agent is asked for the full encumbrance history on a Miami-Dade property (foreclosure underwriting, title research), this is the single command that produces it — bypassing the portal's split index.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Surviving-liens calculator",
+      "command": "surviving-liens",
+      "description": "Tells you which liens on a property will survive a foreclosure or tax-deed sale, with totals in cents — Federal Tax Liens always survive tax deed; junior mortgages get wiped on senior foreclosure; HOA liens cap at FL Statute 720/718 safe-harbor amounts.",
+      "rationale": "Requires pairing every lien-type record (MOR/LIE/FTL/JUD/LIS) against its corresponding release record (SAT/REL by linK_DOCTYPE backreference) using local SQLite, then applying the static Florida lien-survivability table.",
+      "example": "miami-dade-clerk-pp-cli surviving-liens --folio 30-2232-066-1610 --agent",
+      "why_it_matters": "Computes the real Max Safe Bid for a foreclosure or tax-deed auction property. Pre-CLI, this number required a $150-300 O\u0026E report from a title company.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Chain of title",
+      "command": "chain-of-title",
+      "description": "Returns the ordered list of every deed conveying a property, with grantor, grantee, consideration, and recording date — and detects gaps where a grantee doesn't match the next deed's grantor.",
+      "rationale": "Local SQLite query filtered to deed doc-type codes (DEE, QCD, DAM, DM, ODE) ordered by recording date, with a custom gap-detector pass.",
+      "example": "miami-dade-clerk-pp-cli chain-of-title --folio 30-2232-066-1610 --since 1990-01-01 --agent",
+      "why_it_matters": "The title-industry-standard 60-year chain-of-title deliverable, in one command. Agents can verify clean title before recommending a bid.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Owner portfolio scan",
+      "command": "owner-portfolio",
+      "description": "Give a person or LLC name and see everything Miami-Dade has on them: every folio they appear on, every active mortgage or lien they've taken, every lis pendens or judgment against them.",
+      "rationale": "Single Name search + post-processing groups results into three entity-centric buckets via local SQLite joins.",
+      "example": "miami-dade-clerk-pp-cli owner-portfolio --last-name 'DEOD INVESTMENT LLC' --agent",
+      "why_it_matters": "Lead-gen for off-market deals and risk signal for already-distressed owners. Answers 'has this LLC defaulted elsewhere?' in one call.",
+      "group": "Cross-entity insights"
+    },
+    {
+      "name": "Litigation arc tracker",
+      "command": "case-arc",
+      "description": "Walks a single court case across all its recorded documents in chronological order: lis pendens → final judgment → certificate of title → satisfaction, with a status classifier (open / judgment-entered / sale-complete / dismissed).",
+      "rationale": "Mechanical doc-type sequence walker over records with matching case_number; classifies arc status from the doc-type pattern.",
+      "example": "miami-dade-clerk-pp-cli case-arc --case 2024-020991-CA-01 --agent",
+      "why_it_matters": "Complements case-docket sources by adding the recording-layer view — when a judgment was actually recorded, when the certificate of title issued, whether subsequent satisfactions cleared the lien.",
+      "group": "Cross-entity insights"
+    },
+    {
+      "name": "Folio-batch enrichment",
+      "command": "enrich",
+      "description": "For a list of folios, compute lien-chain + surviving-liens + chain-of-title for each, and emit a single JSON file with totals_cents, surviving_lien_count, oldest_deed_date, last_deed_date, current_owner, FTL_count — designed for downstream ingest pipelines.",
+      "rationale": "Orchestrator of three transcendence features over a CSV input list; output shape optimized for Supabase ingest (cents, ISO-8601 dates, stable cfn_master_id).",
+      "example": "miami-dade-clerk-pp-cli enrich --folio-list folios.csv --out lien-summary.json",
+      "why_it_matters": "Lets a Tuesday-morning auction-prep workflow process 30+ properties in one invocation. The output JSON drops directly into a Supabase upsert.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Federal Tax Lien scanner",
+      "command": "ftl-scan",
+      "description": "Find every Federal Tax Lien recorded after a given date, optionally filtered to a folio watchlist. FTLs survive tax-deed foreclosure, so any FTL on a TD-bound property is a deal-breaker red flag.",
+      "rationale": "Local SQLite filter on doc_type_code='FTL' AND recording_date \u003e= since, optionally joined to a folio watchlist via the subdivision+plat+block signature.",
+      "example": "miami-dade-clerk-pp-cli ftl-scan --since 2024-01-01 --folio-list tuesday-auction.csv --agent",
+      "why_it_matters": "The single highest-signal alert for tax-deed investors. Today the v3 underwriter's `uw_td_govt_liens` column has no upstream feed.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Lien-chain reconstruction",
+      "command": "lien-chain",
+      "description": "See every recording ever filed against a property in one chronological timeline — deeds, mortgages, satisfactions, lis pendens, federal tax liens, assignments — without manually deed-walking owner-by-owner.",
+      "rationale": "Requires correlating Property-search deeds (returns DEE/QCD only) with per-grantee Name-search results (returns mortgages/liens/lis pendens by name), then filtering back to the target folio via the subdivision + plat_book + plat_page + block_no composite signature. No single portal endpoint produces this.",
+      "example": "miami-dade-clerk-pp-cli lien-chain --folio 30-2232-066-1610 --agent",
+      "why_it_matters": "When an agent is asked for the full encumbrance history on a Miami-Dade property (foreclosure underwriting, title research), this is the single command that produces it — bypassing the portal's split index.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Surviving-liens calculator",
+      "command": "surviving-liens",
+      "description": "Tells you which liens on a property will survive a foreclosure or tax-deed sale, with totals in cents — Federal Tax Liens always survive tax deed; junior mortgages get wiped on senior foreclosure; HOA liens cap at FL Statute 720/718 safe-harbor amounts.",
+      "rationale": "Requires pairing every lien-type record (MOR/LIE/FTL/JUD/LIS) against its corresponding release record (SAT/REL by linK_DOCTYPE backreference) using local SQLite, then applying the static Florida lien-survivability table.",
+      "example": "miami-dade-clerk-pp-cli surviving-liens --folio 30-2232-066-1610 --agent",
+      "why_it_matters": "Computes the real Max Safe Bid for a foreclosure or tax-deed auction property. Pre-CLI, this number required a $150-300 O\u0026E report from a title company.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Chain of title",
+      "command": "chain-of-title",
+      "description": "Returns the ordered list of every deed conveying a property, with grantor, grantee, consideration, and recording date — and detects gaps where a grantee doesn't match the next deed's grantor.",
+      "rationale": "Local SQLite query filtered to deed doc-type codes (DEE, QCD, DAM, DM, ODE) ordered by recording date, with a custom gap-detector pass.",
+      "example": "miami-dade-clerk-pp-cli chain-of-title --folio 30-2232-066-1610 --since 1990-01-01 --agent",
+      "why_it_matters": "The title-industry-standard 60-year chain-of-title deliverable, in one command. Agents can verify clean title before recommending a bid.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Owner portfolio scan",
+      "command": "owner-portfolio",
+      "description": "Give a person or LLC name and see everything Miami-Dade has on them: every folio they appear on, every active mortgage or lien they've taken, every lis pendens or judgment against them.",
+      "rationale": "Single Name search + post-processing groups results into three entity-centric buckets via local SQLite joins.",
+      "example": "miami-dade-clerk-pp-cli owner-portfolio --last-name 'DEOD INVESTMENT LLC' --agent",
+      "why_it_matters": "Lead-gen for off-market deals and risk signal for already-distressed owners. Answers 'has this LLC defaulted elsewhere?' in one call.",
+      "group": "Cross-entity insights"
+    },
+    {
+      "name": "Litigation arc tracker",
+      "command": "case-arc",
+      "description": "Walks a single court case across all its recorded documents in chronological order: lis pendens → final judgment → certificate of title → satisfaction, with a status classifier (open / judgment-entered / sale-complete / dismissed).",
+      "rationale": "Mechanical doc-type sequence walker over records with matching case_number; classifies arc status from the doc-type pattern.",
+      "example": "miami-dade-clerk-pp-cli case-arc --case 2024-020991-CA-01 --agent",
+      "why_it_matters": "Complements case-docket sources by adding the recording-layer view — when a judgment was actually recorded, when the certificate of title issued, whether subsequent satisfactions cleared the lien.",
+      "group": "Cross-entity insights"
+    },
+    {
+      "name": "Folio-batch enrichment",
+      "command": "enrich",
+      "description": "For a list of folios, compute lien-chain + surviving-liens + chain-of-title for each, and emit a single JSON file with totals_cents, surviving_lien_count, oldest_deed_date, last_deed_date, current_owner, FTL_count — designed for downstream ingest pipelines.",
+      "rationale": "Orchestrator of three transcendence features over a CSV input list; output shape optimized for Supabase ingest (cents, ISO-8601 dates, stable cfn_master_id).",
+      "example": "miami-dade-clerk-pp-cli enrich --folio-list folios.csv --out lien-summary.json",
+      "why_it_matters": "Lets a Tuesday-morning auction-prep workflow process 30+ properties in one invocation. The output JSON drops directly into a Supabase upsert.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Federal Tax Lien scanner",
+      "command": "ftl-scan",
+      "description": "Find every Federal Tax Lien recorded after a given date, optionally filtered to a folio watchlist. FTLs survive tax-deed foreclosure, so any FTL on a TD-bound property is a deal-breaker red flag.",
+      "rationale": "Local SQLite filter on doc_type_code='FTL' AND recording_date \u003e= since, optionally joined to a folio watchlist via the subdivision+plat+block signature.",
+      "example": "miami-dade-clerk-pp-cli ftl-scan --since 2024-01-01 --folio-list tuesday-auction.csv --agent",
+      "why_it_matters": "The single highest-signal alert for tax-deed investors. Today the v3 underwriter's `uw_td_govt_liens` column has no upstream feed.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "narrative": {
+    "display_name": "Miami-Dade Clerk Official Records",
+    "headline": "Pull the full lien chain on any Miami-Dade property in 30 seconds — every deed, mortgage, satisfaction, lis pendens, and federal tax lien ever recorded.",
+    "value_prop": "The Miami-Dade Clerk portal indexes deeds by property and everything else (mortgages, satisfactions, liens, lis pendens, judgments) by name. This CLI is the only tool that pivots property → owners → bounded name searches → filtered-back-to-property timeline, producing the chain-of-title and surviving-liens analysis that title companies charge $150-300 for.",
+    "auth_narrative": "Public records, no API key. The clerk portal uses a NetScaler session cookie plus reCAPTCHA Enterprise v3 (invisible). Run `miami-dade-clerk-pp-cli auth login --chrome` once to capture a browser session, then every subsequent command replays through Surf transport with fresh reCAPTCHA tokens.",
+    "quickstart": [
+      {
+        "command": "miami-dade-clerk-pp-cli auth login --chrome",
+        "comment": "One-time browser-cookie capture so reCAPTCHA-gated calls replay through Surf."
+      },
+      {
+        "command": "miami-dade-clerk-pp-cli doctor",
+        "comment": "Confirm session + portal reachability + recording-cutoff date."
+      },
+      {
+        "command": "miami-dade-clerk-pp-cli search-property --address-no-unit '5600 W 13 AVE' --json",
+        "comment": "Smoke test against a known Hialeah SFR (returns 14 deeds, 1995-2022)."
+      },
+      {
+        "command": "miami-dade-clerk-pp-cli lien-chain --folio 30-2232-066-1610 --agent",
+        "comment": "The killer feature — full encumbrance timeline for one property."
+      },
+      {
+        "command": "miami-dade-clerk-pp-cli enrich --folio-list auction-tuesday.csv --out tuesday-summary.json",
+        "comment": "Bulk auction-prep: 30+ folios in one pass, Supabase-ingest-ready."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "search returns `{isValidSearch:false,qs:null}`",
+        "fix": "The address is not in the clerk's property index (folio renumbering, recent subdivision). Use `lien-chain` instead — its 4-layer fallback recovers the chain via owner-name search."
+      },
+      {
+        "symptom": "reCAPTCHA token rejected (HTTP 403 on search)",
+        "fix": "Token expired. Re-run `auth login --chrome` to refresh the session cookie."
+      },
+      {
+        "symptom": "Search returns exactly 500 records",
+        "fix": "Hit the portal's 500-row cap. Narrow by `--doc-type \u003ccode\u003e` (use `doc-types` to list) or shorter `--since`/`--until` window. The CLI's auto-pagination handles this when `--auto-narrow` is set."
+      },
+      {
+        "symptom": "Condo unit search fails with unit number from address line",
+        "fix": "Use the unit from PA's legal_description (e.g. 'UNIT B312'), not the '#312' display form. The CLI does this automatically when given `--folio` instead of `--address`."
+      }
+    ],
+    "when_to_use": "Use this CLI when you need recorded-document data for Miami-Dade real estate: foreclosure auction underwriting (Max Safe Bid), title research (chain of title, open liens), owner due diligence (cross-property portfolio), or downstream ingest for an analytics pipeline. Best suited for property-by-property lookups (30-50 folios at a time); not a bulk-export tool.",
+    "recipes": [
+      {
+        "title": "Compute Max Safe Bid for a foreclosure auction property",
+        "command": "miami-dade-clerk-pp-cli surviving-liens --folio 30-2232-066-1610 --agent --select totals_cents,liens.amount_cents,liens.doc_type,liens.recorded_at",
+        "explanation": "Returns only the surviving-lien totals and per-lien details, suppressing the full record metadata. Pipe to the underwriter to compute auction Max Safe Bid."
+      },
+      {
+        "title": "60-year chain of title for a title commitment",
+        "command": "miami-dade-clerk-pp-cli chain-of-title --folio 30-2232-066-1610 --since 1965-01-01 --agent",
+        "explanation": "Walks every deed conveying the folio since 1965. Gap detector flags any chain breaks (grantee on one deed not matching grantor on the next)."
+      },
+      {
+        "title": "Has this LLC defaulted elsewhere in Miami-Dade?",
+        "command": "miami-dade-clerk-pp-cli owner-portfolio --last-name 'DEOD INVESTMENT LLC' --agent",
+        "explanation": "One Name search, post-processed into three buckets: properties owned, active mortgages/liens taken, lis pendens/judgments against. Lead-gen + risk signal."
+      },
+      {
+        "title": "Tuesday auction prep — bulk-enrich 30 folios",
+        "command": "miami-dade-clerk-pp-cli enrich --folio-list ./auction-tuesday.csv --out ./tuesday-summary.json",
+        "explanation": "Orchestrates lien-chain + surviving-liens + chain-of-title for every folio in the CSV. Output JSON has totals_cents, FTL_count, current_owner per folio — drops directly into a Supabase upsert."
+      }
+    ],
+    "trigger_phrases": [
+      "lien chain on this property",
+      "what liens survive this foreclosure",
+      "chain of title for this folio",
+      "what else does this owner control",
+      "federal tax liens on this folio",
+      "use miami-dade-clerk",
+      "run miami-dade-clerk"
+    ]
+  }
+}
