@@ -1,0 +1,284 @@
+name: pvgis
+description: "PVGIS (Photovoltaic Geographical Information System) CLI — the European Commission JRC's solar-radiation and PV-performance service from your terminal. Estimates monthly and hourly PV production, downloads Typical Meteorological Year (TMY) data, fetches horizon profiles, and finds optimal tilt for any point on Earth covered by PVGIS-SARAH3, PVGIS-NSRDB, or PVGIS-ERA5."
+cli_description: "The free, single-binary PVGIS CLI — fetch JRC solar-radiation and PV-yield estimates with offline cache, multi-site batch, and agent-native JSON."
+version: "0.1.0"
+base_url: "https://re.jrc.ec.europa.eu/api/v5_3"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/pvgis-pp-cli/config.toml"
+
+mcp:
+  transport: [stdio]
+
+resources:
+  radiation:
+    description: "Solar radiation queries — monthly irradiance on horizontal, tilted, or optimally-tilted surfaces, with optional terrain horizon."
+    endpoints:
+      monthly:
+        method: GET
+        path: "/MRcalc"
+        description: "Monthly solar radiation (MRcalc) for a site. Returns 12 monthly values on the horizontal plane, the requested tilt, and/or the locally optimal tilt, plus monthly average air temperature. Uses PVGIS-SARAH3 for Europe/Africa/Asia, PVGIS-NSRDB for the Americas, PVGIS-ERA5 elsewhere."
+        no_auth: true
+        params:
+          - name: lat
+            type: number
+            required: true
+            description: "Latitude in WGS84 decimal degrees (positive north). PVGIS covers roughly -65 to +65."
+          - name: lon
+            type: number
+            required: true
+            description: "Longitude in WGS84 decimal degrees (positive east). PVGIS covers -180 to +180."
+          - name: usehorizon
+            flag_name: use-horizon
+            aliases: [usehorizon]
+            type: integer
+            description: "Use the DEM-derived terrain horizon profile. 1 = yes (default), 0 = no."
+          - name: horirrad
+            flag_name: horizontal
+            aliases: [horirrad]
+            type: integer
+            description: "Include monthly global horizontal irradiation in the output. 1 = yes."
+          - name: selectrad
+            flag_name: tilted
+            aliases: [selectrad]
+            type: integer
+            description: "Include monthly irradiation on the user-selected tilt/azimuth plane. 1 = yes."
+          - name: angle
+            flag_name: tilt
+            aliases: [angle]
+            type: number
+            description: "Surface tilt in degrees from horizontal (0-90). Used when --tilted is set."
+          - name: aspect
+            flag_name: azimuth
+            aliases: [aspect]
+            type: number
+            description: "Surface azimuth (PVGIS convention: 0 = south, -90 = east, 90 = west)."
+          - name: optrad
+            flag_name: optimal
+            aliases: [optrad]
+            type: integer
+            description: "Include monthly irradiation on the locally optimal tilt. 1 = yes."
+          - name: avtemp
+            flag_name: avg-temp
+            aliases: [avtemp]
+            type: integer
+            description: "Include monthly average 2m air temperature. 1 = yes."
+          - name: raddatabase
+            type: string
+            description: "Force a radiation database: PVGIS-SARAH3, PVGIS-NSRDB, PVGIS-ERA5. Default lets PVGIS choose by region."
+          - name: startyear
+            type: integer
+            description: "First year of the averaging window. Default is the earliest available."
+          - name: endyear
+            type: integer
+            description: "Last year of the averaging window. Default is the latest available."
+          - name: outputformat
+            type: string
+            description: "Response format. Forced to 'json' by the CLI."
+        response:
+          type: object
+          item: PVGISResponse
+
+  production:
+    description: "PV system production estimates — monthly summaries and full hourly time series for fixed mountings."
+    endpoints:
+      monthly:
+        method: GET
+        path: "/PVcalc"
+        description: "Monthly and annual PV production (PVcalc) for a fixed-mount system. Returns monthly energy E_m, daily energy E_d, and in-plane irradiation H(i)_m, plus yearly totals E_y. Accounts for module technology, system losses, and optional terrain horizon."
+        no_auth: true
+        params:
+          - name: lat
+            type: number
+            required: true
+            description: "Latitude in WGS84 decimal degrees (positive north)."
+          - name: lon
+            type: number
+            required: true
+            description: "Longitude in WGS84 decimal degrees (positive east)."
+          - name: peakpower
+            flag_name: pnom
+            aliases: [peakpower]
+            type: number
+            required: true
+            description: "Nominal system peak power in kWp."
+          - name: loss
+            flag_name: system-loss
+            aliases: [loss]
+            type: number
+            required: true
+            description: "Total system losses in percent (cables, inverter, soiling, mismatch). Typical 10-15."
+          - name: angle
+            flag_name: tilt
+            aliases: [angle]
+            type: number
+            description: "Surface tilt in degrees (0-90). Default 0."
+          - name: aspect
+            flag_name: azimuth
+            aliases: [aspect]
+            type: number
+            description: "Surface azimuth (PVGIS convention: 0 = south, -90 = east, 90 = west)."
+          - name: pvtechchoice
+            flag_name: technology
+            aliases: [pvtechchoice]
+            type: string
+            description: "Module technology: crystSi (default), CIS, CdTe, Unknown."
+          - name: mountingplace
+            flag_name: mounting
+            aliases: [mountingplace]
+            type: string
+            description: "Mounting type: free (free-standing, default), building (BIPV)."
+          - name: usehorizon
+            flag_name: use-horizon
+            aliases: [usehorizon]
+            type: integer
+            description: "Use the DEM-derived terrain horizon profile. 1 = yes (default), 0 = no."
+          - name: raddatabase
+            type: string
+            description: "Force a radiation database: PVGIS-SARAH3, PVGIS-NSRDB, PVGIS-ERA5."
+          - name: outputformat
+            type: string
+            description: "Response format. Forced to 'json' by the CLI."
+        response:
+          type: object
+          item: PVGISResponse
+
+      hourly:
+        method: GET
+        path: "/seriescalc"
+        description: "Hourly PV production time series (seriescalc) for a fixed-mount system. Returns one row per hour over the requested year range with power P (W), in-plane irradiance G(i), sun height, air temperature, wind speed. Typical response is 8760 rows per year."
+        no_auth: true
+        params:
+          - name: lat
+            type: number
+            required: true
+            description: "Latitude in WGS84 decimal degrees."
+          - name: lon
+            type: number
+            required: true
+            description: "Longitude in WGS84 decimal degrees."
+          - name: pvcalculation
+            type: integer
+            description: "Compute PV production (1) or just radiation/weather (0). CLI defaults to 1."
+          - name: peakpower
+            flag_name: pnom
+            aliases: [peakpower]
+            type: number
+            description: "Nominal peak power in kWp. Required when --pvcalculation=1."
+          - name: loss
+            flag_name: system-loss
+            aliases: [loss]
+            type: number
+            description: "Total system losses in percent."
+          - name: angle
+            flag_name: tilt
+            aliases: [angle]
+            type: number
+            description: "Surface tilt in degrees."
+          - name: aspect
+            flag_name: azimuth
+            aliases: [aspect]
+            type: number
+            description: "Surface azimuth (PVGIS convention)."
+          - name: pvtechchoice
+            flag_name: technology
+            aliases: [pvtechchoice]
+            type: string
+            description: "Module technology: crystSi, CIS, CdTe, Unknown."
+          - name: mountingplace
+            flag_name: mounting
+            aliases: [mountingplace]
+            type: string
+            description: "Mounting type: free, building."
+          - name: usehorizon
+            flag_name: use-horizon
+            aliases: [usehorizon]
+            type: integer
+            description: "Use terrain horizon. 1 = yes, 0 = no."
+          - name: startyear
+            type: integer
+            description: "First year of the time series."
+          - name: endyear
+            type: integer
+            description: "Last year of the time series."
+          - name: raddatabase
+            type: string
+            description: "Force a radiation database."
+          - name: outputformat
+            type: string
+            description: "Response format. Forced to 'json'."
+        response:
+          type: object
+          item: PVGISResponse
+
+  weather:
+    description: "Typical Meteorological Year (TMY) weather data — 8760-hour synthetic year representative of long-term climate."
+    endpoints:
+      tmy:
+        method: GET
+        path: "/tmy"
+        description: "Typical Meteorological Year for a site. Returns 8760 hourly rows with air temperature T2m, relative humidity, global horizontal irradiance G(h), beam normal Gb(n), diffuse Gd(h), longwave IR(h), wind speed WS10m, wind direction WD10m, surface pressure SP. Constructed from the long-term record so it represents climate, not a specific year."
+        no_auth: true
+        params:
+          - name: lat
+            type: number
+            required: true
+            description: "Latitude in WGS84 decimal degrees."
+          - name: lon
+            type: number
+            required: true
+            description: "Longitude in WGS84 decimal degrees."
+          - name: startyear
+            type: integer
+            description: "First year of source data used to build the TMY (default: earliest available)."
+          - name: endyear
+            type: integer
+            description: "Last year of source data (default: latest available)."
+          - name: outputformat
+            type: string
+            description: "Response format. Forced to 'json'."
+        response:
+          type: object
+          item: PVGISResponse
+
+  horizon:
+    description: "DEM-derived terrain horizon profile — the angular height of distant terrain in 49 azimuth steps."
+    endpoints:
+      profile:
+        method: GET
+        path: "/printhorizon"
+        description: "Terrain horizon profile (printhorizon) for a site. Returns the horizon height in degrees at 49 azimuth points from -180 to 180 (step 7.5 degrees), derived from the SRTM DEM. Also returns the sun path at winter and summer solstices for solar-availability analysis."
+        no_auth: true
+        params:
+          - name: lat
+            type: number
+            required: true
+            description: "Latitude in WGS84 decimal degrees."
+          - name: lon
+            type: number
+            required: true
+            description: "Longitude in WGS84 decimal degrees."
+          - name: outputformat
+            type: string
+            description: "Response format. Forced to 'json'."
+        response:
+          type: object
+          item: PVGISResponse
+
+types:
+  PVGISResponse:
+    description: "Common envelope returned by all PVGIS endpoints. The 'inputs' block echoes the request (with resolved location, elevation, database choice); 'outputs' carries endpoint-specific payloads (monthly array or {fixed: array}, totals.fixed map, hourly array, tmy_hourly array, horizon_profile array)."
+    fields:
+      - name: inputs
+        type: object
+        description: "Echo of resolved inputs including location.latitude, location.longitude, location.elevation, meteo_data.radiation_db, meteo_data.use_horizon."
+      - name: outputs
+        type: object
+        description: "Endpoint-specific payload. For MRcalc/PVcalc: outputs.monthly (array or {fixed: array}) + outputs.totals.fixed map with H(h)_y, H(i)_y, H(opt)_y, E_y, E_d. For seriescalc: outputs.hourly array of {time, P, G(i), H_sun, T2m, WS10m, Int}. For tmy: outputs.tmy_hourly array with T2m, RH, G(h), Gb(n), Gd(h), IR(h), WS10m, WD10m, SP. For printhorizon: outputs.horizon_profile array of {A, H_hor} plus winter_solstice and summer_solstice sun-path arrays."
+      - name: meta
+        type: object
+        description: "Optional metadata about the response (database used, version)."

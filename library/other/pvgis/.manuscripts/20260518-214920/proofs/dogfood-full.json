@@ -1,0 +1,1093 @@
+{
+  "dir": "/Users/robertobissanti/printing-press/.runstate/pvgis-mcp-d8b6f8cc/runs/20260518-214920/working/pvgis-pp-cli",
+  "binary": "/Users/robertobissanti/printing-press/.runstate/pvgis-mcp-d8b6f8cc/runs/20260518-214920/working/pvgis-pp-cli/pvgis-pp-cli",
+  "level": "full",
+  "verdict": "FAIL",
+  "matrix_size": 63,
+  "passed": 62,
+  "failed": 1,
+  "skipped": 34,
+  "commands": [
+    "api",
+    "doctor",
+    "feedback list",
+    "horizon",
+    "import",
+    "production compare",
+    "production hourly",
+    "production monthly",
+    "production optimal-tilt",
+    "production sweep",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "radiation",
+    "search",
+    "sites diff",
+    "sites rank",
+    "sync",
+    "weather similar",
+    "which",
+    "workflow archive",
+    "workflow status"
+  ],
+  "tests": [
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api \u003cinterface\u003e' to see that interface's methods.\n\nUsage:\n  pvgis-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  pvgis-pp-cli api\n\n  # Show methods for a specific interface\n  pvgis-pp-cli api \u003cinterface-name\u003e\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pvgis-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'pvgis-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  pvgis-pp-cli doctor [flags]\n\nExamples:\n  pvgis-pp-cli doctor\n  pvgis-pp-cli doctor --json\n  pvgis-pp-cli doctor --fail-on warn\n\nFlags:\n      --fail-on string   Exit non-zero when a health level is reached: stale, error. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pvgis-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  OK Auth: not required\n  OK API: reachable (HTTP 404 at /)\n  config_path: /var/folders/ym/tqt17s3x0234wtcbq0m220b40000gn/T/printing-press-subprocess-1008614531/.config/pvgis-pp-cli/config.toml\n  base_url: https://re.jrc.ec.europa.eu/api/v5_3\n  version: 1.0.0\n  INFO Cache: unknown\n    db_path: /var/folders/ym/tqt17s3x0234wtcbq0m220b40000gn/T/printing-press-subprocess-1008614531/.local/share/pvgis-pp-cli/data.db\n    hint: Database not created yet; run 'pvgis-pp-cli sync' to hydrate.\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"api\": \"reachable (HTTP 404 at /)\",\n  \"auth\": \"not required\",\n  \"base_url\": \"https://re.jrc.ec.europa.eu/api/v5_3\",\n  \"cache\": {\n    \"db_path\": \"/var/folders/ym/tqt17s3x0234wtcbq0m220b40000gn/T/printing-press-subprocess-1008614531/.local/share/pvgis-pp-cli/data.db\",\n    \"hint\": \"Database not created yet; run 'pvgis-pp-cli sync' to hydrate.\",\n    \"status\": \"unknown\"\n  },\n  \"config\": \"ok\",\n  \"config_path\": \"/var/folders/ym/tqt17s3x0234wtcbq0m220b40000gn/T/printing-press-subprocess-1008614531/.config/pvgis-pp-cli/config.toml\",\n  \"version\": \"1.0.0\"\n}\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent feedback entries\n\nUsage:\n  pvgis-pp-cli feedback list [flags]\n\nExamples:\n  pvgis-pp-cli feedback list\n  pvgis-pp-cli feedback list --limit 5\n  pvgis-pp-cli feedback list --json\n\nFlags:\n  -h, --help        help for list\n      --limit int   Maximum number of recent entries to return (default 20)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pvgis-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "horizon",
+      "kind": "help",
+      "args": [
+        "horizon",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Shortcut for 'horizon profile'. Terrain horizon profile (printhorizon) for a site. Returns the horizon height in degrees at 49 azimuth points from...\n\nUsage:\n  pvgis-pp-cli horizon [flags]\n\nExamples:\n  pvgis-pp-cli horizon --lat 42 --lon 42\n\nFlags:\n  -h, --help                  help for horizon\n      --lat float             Latitude in WGS84 decimal degrees.\n      --lon float             Longitude in WGS84 decimal degrees.\n      --outputformat string   Response format. Forced to 'json'. (default \"json\")\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pvgis-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "horizon",
+      "kind": "happy_path",
+      "args": [
+        "horizon",
+        "--lat",
+        "42",
+        "--lon",
+        "42"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"inputs\": {\n      \"location\": {\n        \"latitude\": 42.0,\n        \"longitude\": 42.0,\n        \"elevation\": 56.0\n      },\n      \"horizon_db\": \"DEM-calculated\"\n    },\n    \"outputs\": {\n      \"horizon_profile\": [\n        {\n          \"A\": -180.0,\n          \"H_hor\": 6.1\n        },\n        {\n          \"A\": -172.5,\n          \"H_hor\": 5.7\n        },\n        {\n          \"A\": -165.0,\n          \"H_hor\": 7.3\n        },\n        {\n          \"A\": -157.5,\n          \"H_hor\": 8.0\n        },\n        {\n          \"A\": -150.0,\n          \"H_hor\": 7.6\n        },\n        {\n          \"A\": -142.5,\n          \"H_hor\": 5.7\n        },\n        {\n          \"A\": -135.0,\n          \"H_hor\": 5.7\n        },\n        {\n          \"A\": -127.5,\n          \"H_hor\": 6.1\n        },\n        {\n          \"A\": -120.0,\n          \"H_hor\": 5.3\n        },\n        {\n          \"A\": -112.5,\n          \"H_hor\": 5.3\n        },\n        {\n          \"A\": -105.0,\n          \"H_hor\": 5.3\n        },\n        {\n          \"A\": -97.5,\n          \"H_hor\": 5.3\n        },\n        {\n          \"A\": -90.0,\n          \"H_hor\": 4.6\n        },\n        {\n          \"A\": -82.5,\n          \"H_hor\": 4.2\n        },\n        {\n          \"A\": -75.0,\n          \"H_hor\": 3.1\n        },\n        {\n          \"A\": -67.5,\n          \"H_hor\": 3.1\n        },\n        {\n          \"A\": -60.0,\n          \"H_hor\": 3.8\n        },\n        {\n          \"A\": -52.5,\n          \"H_hor\": 4.2\n        },\n        {\n          \"A\": -45.0,\n          \"H_hor\": 4.2\n        },\n        {\n          \"A\": -37.5,\n          \"H_hor\": 5.0\n        },\n        {\n          \"A\": -30.0,\n          \"H_hor\": 4.2\n        },\n        {\n          \"A\": -22.5,\n          \"H_hor\": 4.6\n        },\n        {\n          \"A\": -15.0,\n          \"H_hor\": 4.6\n        },\n        {\n          \"A\": -7.5,\n          \"H_hor\": 3.8\n        },\n        {\n          \"A\": 0.0,\n          \"H_hor\": 3.1\n        },\n        {\n          \"A\": 7.5,\n          \"H_hor\": 2.7\n        },\n        {\n          \"A\": 15.0,\n          \"H_hor\": 3.8\n        },\n        {\n          \"A\": 22.5,\n          \"H_hor\": 6.5\n        },\n        {\n          \"A\": 30.0,\n          \"H_hor\": 6.5\n        },\n        {\n          \"A\": 37.5,\n          \"H_hor\": 8.4\n        },\n        {\n          \"A\": 45.0,\n          \"H_hor\": 8.4\n        },\n        {\n          \"A\": 52.5,\n          \"H_hor\": 8.4\n        },\n        {\n          \"A\": 60.0,\n          \"H_hor\": 8.4\n        },\n        {\n          \"A\": 67.5,\n          \"H_hor\": 8.4\n        },\n        {\n          \"A\": 75.0,\n          \"H_hor\": 8.4\n        },\n        {\n          \"A\": 82.5,\n          \"H_hor\": 8.4\n        },\n        {\n          \"A\": 90.0,\n          \"H_hor\": 8.4\n        },\n        {\n          \"A\": 97.5,\n          \"H_hor\": 8.4\n        },\n        {\n          \"A\": 105.0,\n          \"H_hor\": 8.4\n        },\n        {\n          \"A\": 112.5,\n          \"H_hor\": 8.4\n        },\n        {\n          \"A\": 120.0,\n          \"H_hor\": 8.4\n        },\n        {\n          \"A\": 127.5,\n          \"H_hor\": 8.4\n        },\n        {\n          \"A\": 135.0,\n          \"H_hor\": 8.4\n        },\n        {\n          \"A\": 142.5,\n          \"H_hor\": 8.4\n        },\n        {\n          \"A\": 150.0,\n          \"H_hor\": 6.5\n        },\n        {\n          \"A\": 157.5,\n          \"H_hor\": 6.5\n        },\n        {\n          \"A\": 165.0,\n          \"H_hor\": 6.1\n        },\n        {\n          \"A\": 172.5,\n          \"H_hor\": 5.7\n        },\n        {\n          \"A\": 180.0,\n          \"H_hor\": 6.1\n        }\n      ],\n      \"winter_solstice\": [\n        {\n          \"A_sun(w)\": -180.0,\n          \"H_sun(w)\": 0.0\n        },\n        {\n          \"A_sun(w)\": -159.1,\n          \"H_sun(w)\": 0.0\n        },\n        {\n          \"A_sun(w)\": -141.4,\n          \"H_sun(w)\": 0.0\n        },\n        {\n          \"A_sun(w)\": -127.7,\n          \"H_sun(w)\": 0.0\n        },\n        {\n          \"A_sun(w)\": -117.2,\n          \"H_sun(w)\": 0.0\n        },\n        {\n          \"A_sun(w)\": -108.9,\n          \"H_sun(w)\": 0.0\n        },\n        {\n          \"A_sun(w)\": -102.0,\n          \"H_sun(w)\": 0.0\n        },\n        {\n          \"A_sun(…[truncated]"
+    },
+    {
+      "command": "horizon",
+      "kind": "json_fidelity",
+      "args": [
+        "horizon",
+        "--lat",
+        "42",
+        "--lon",
+        "42",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"inputs\": {\n      \"location\": {\n        \"latitude\": 42.0,\n        \"longitude\": 42.0,\n        \"elevation\": 56.0\n      },\n      \"horizon_db\": \"DEM-calculated\"\n    },\n    \"outputs\": {\n      \"horizon_profile\": [\n        {\n          \"A\": -180.0,\n          \"H_hor\": 6.1\n        },\n        {\n          \"A\": -172.5,\n          \"H_hor\": 5.7\n        },\n        {\n          \"A\": -165.0,\n          \"H_hor\": 7.3\n        },\n        {\n          \"A\": -157.5,\n          \"H_hor\": 8.0\n        },\n        {\n          \"A\": -150.0,\n          \"H_hor\": 7.6\n        },\n        {\n          \"A\": -142.5,\n          \"H_hor\": 5.7\n        },\n        {\n          \"A\": -135.0,\n          \"H_hor\": 5.7\n        },\n        {\n          \"A\": -127.5,\n          \"H_hor\": 6.1\n        },\n        {\n          \"A\": -120.0,\n          \"H_hor\": 5.3\n        },\n        {\n          \"A\": -112.5,\n          \"H_hor\": 5.3\n        },\n        {\n          \"A\": -105.0,\n          \"H_hor\": 5.3\n        },\n        {\n          \"A\": -97.5,\n          \"H_hor\": 5.3\n        },\n        {\n          \"A\": -90.0,\n          \"H_hor\": 4.6\n        },\n        {\n          \"A\": -82.5,\n          \"H_hor\": 4.2\n        },\n        {\n          \"A\": -75.0,\n          \"H_hor\": 3.1\n        },\n        {\n          \"A\": -67.5,\n          \"H_hor\": 3.1\n        },\n        {\n          \"A\": -60.0,\n          \"H_hor\": 3.8\n        },\n        {\n          \"A\": -52.5,\n          \"H_hor\": 4.2\n        },\n        {\n          \"A\": -45.0,\n          \"H_hor\": 4.2\n        },\n        {\n          \"A\": -37.5,\n          \"H_hor\": 5.0\n        },\n        {\n          \"A\": -30.0,\n          \"H_hor\": 4.2\n        },\n        {\n          \"A\": -22.5,\n          \"H_hor\": 4.6\n        },\n        {\n          \"A\": -15.0,\n          \"H_hor\": 4.6\n        },\n        {\n          \"A\": -7.5,\n          \"H_hor\": 3.8\n        },\n        {\n          \"A\": 0.0,\n          \"H_hor\": 3.1\n        },\n        {\n          \"A\": 7.5,\n          \"H_hor\": 2.7\n        },\n        {\n          \"A\": 15.0,\n          \"H_hor\": 3.8\n        },\n        {\n          \"A\": 22.5,\n          \"H_hor\": 6.5\n        },\n        {\n          \"A\": 30.0,\n          \"H_hor\": 6.5\n        },\n        {\n          \"A\": 37.5,\n          \"H_hor\": 8.4\n        },\n        {\n          \"A\": 45.0,\n          \"H_hor\": 8.4\n        },\n        {\n          \"A\": 52.5,\n          \"H_hor\": 8.4\n        },\n        {\n          \"A\": 60.0,\n          \"H_hor\": 8.4\n        },\n        {\n          \"A\": 67.5,\n          \"H_hor\": 8.4\n        },\n        {\n          \"A\": 75.0,\n          \"H_hor\": 8.4\n        },\n        {\n          \"A\": 82.5,\n          \"H_hor\": 8.4\n        },\n        {\n          \"A\": 90.0,\n          \"H_hor\": 8.4\n        },\n        {\n          \"A\": 97.5,\n          \"H_hor\": 8.4\n        },\n        {\n          \"A\": 105.0,\n          \"H_hor\": 8.4\n        },\n        {\n          \"A\": 112.5,\n          \"H_hor\": 8.4\n        },\n        {\n          \"A\": 120.0,\n          \"H_hor\": 8.4\n        },\n        {\n          \"A\": 127.5,\n          \"H_hor\": 8.4\n        },\n        {\n          \"A\": 135.0,\n          \"H_hor\": 8.4\n        },\n        {\n          \"A\": 142.5,\n          \"H_hor\": 8.4\n        },\n        {\n          \"A\": 150.0,\n          \"H_hor\": 6.5\n        },\n        {\n          \"A\": 157.5,\n          \"H_hor\": 6.5\n        },\n        {\n          \"A\": 165.0,\n          \"H_hor\": 6.1\n        },\n        {\n          \"A\": 172.5,\n          \"H_hor\": 5.7\n        },\n        {\n          \"A\": 180.0,\n          \"H_hor\": 6.1\n        }\n      ],\n      \"winter_solstice\": [\n        {\n          \"A_sun(w)\": -180.0,\n          \"H_sun(w)\": 0.0\n        },\n        {\n          \"A_sun(w)\": -159.1,\n          \"H_sun(w)\": 0.0\n        },\n        {\n          \"A_sun(w)\": -141.4,\n          \"H_sun(w)\": 0.0\n        },\n        {\n          \"A_sun(w)\": -127.7,\n          \"H_sun(w)\": 0.0\n        },\n        {\n          \"A_sun(w)\": -117.2,\n          \"H_sun(w)\": 0.0\n        },\n        {\n          \"A_sun(w)\": -108.9,\n          \"H_sun(w)\": 0.0\n        },\n        {\n          \"A_sun(w)\": -102.0,\n          \"H_sun(w)\": 0.0\n        },\n        {\n          \"A_sun(…[truncated]"
+    },
+    {
+      "command": "horizon",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "import",
+      "kind": "help",
+      "args": [
+        "import",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Import data from a JSONL file by issuing POST requests for each record.\nEach line must be a valid JSON object. Failed records are logged to stderr\nbut do not stop the import.\n\nUsage:\n  pvgis-pp-cli import \u003cresource\u003e [flags]\n\nExamples:\n  # Import from a JSONL file\n  pvgis-pp-cli import \u003cresource\u003e --input data.jsonl\n\n  # Dry-run to preview without sending\n  pvgis-pp-cli import \u003cresource\u003e --input data.jsonl --dry-run\n\n  # Import from stdin\n  cat data.jsonl | pvgis-pp-cli import \u003cresource\u003e --input -\n\nFlags:\n      --batch-size int   Records per batch (future: batch API support) (default 1)\n      --dry-run          Preview import without sending requests\n  -h, --help             help for import\n  -i, --input string     Input JSONL file path (use - for stdin)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pvgis-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "import",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "error_path",
+      "args": [
+        "import",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: required flag(s) \"input\" not set\n"
+    },
+    {
+      "command": "production compare",
+      "kind": "help",
+      "args": [
+        "production",
+        "compare",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Issues parallel PVcalc requests forcing each radiation database in turn. Useful for sites near the SARAH3 coverage boundary or for sanity-checking which DB PVGIS would otherwise choose for you.\n\nUsage:\n  pvgis-pp-cli production compare [flags]\n\nExamples:\n  pvgis-pp-cli production compare --lat 40.7 --lon -74 --pnom 1 --system-loss 14 --tilt 30 --json\n\nFlags:\n      --azimuth float       Surface azimuth (PVGIS convention).\n  -h, --help                help for compare\n      --lat float           Latitude in WGS84 decimal degrees.\n      --lon float           Longitude in WGS84 decimal degrees.\n      --pnom float          Nominal system peak power in kWp. (default 1)\n      --system-loss float   Total system losses in percent. (default 14)\n      --tilt float          Surface tilt in degrees. (default 30)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pvgis-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "production compare",
+      "kind": "happy_path",
+      "args": [
+        "production",
+        "compare",
+        "--lat",
+        "40.7",
+        "--lon",
+        "-74",
+        "--pnom",
+        "1",
+        "--system-loss",
+        "14",
+        "--tilt",
+        "30",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"results\": [\n    {\n      \"database\": \"PVGIS-SARAH3\",\n      \"e_y_kwh\": 0,\n      \"error\": \"GET /PVcalc returned HTTP 400: {\\\"message\\\":\\\"Location out of the spatial coverage of the radiation database selected. Please, selectanother database (PVGIS-ERA5).\\\",\\\"status\\\":400}\\n\"\n    },\n    {\n      \"database\": \"PVGIS-NSRDB\",\n      \"e_y_kwh\": 0,\n      \"error\": \"GET /PVcalc returned HTTP 400: {\\\"message\\\":\\\"raddatabase: Incorrect value. Please, enter one of the following strings: ['PVGIS-ERA5', 'PVGIS-SARAH3']\\\",\\\"status\\\":400}\\n\"\n    },\n    {\n      \"database\": \"PVGIS-ERA5\",\n      \"e_y_kwh\": 1417.98\n    }\n  ],\n  \"site\": {\n    \"lat\": 40.7,\n    \"lon\": -74\n  },\n  \"summary\": {\n    \"best_db\": \"PVGIS-ERA5\",\n    \"databases_ok\": true,\n    \"spread_kwh\": 0,\n    \"spread_pct\": 0,\n    \"worst_db\": \"PVGIS-ERA5\"\n  },\n  \"system\": {\n    \"azimuth_deg\": 0,\n    \"pnom_kwp\": 1,\n    \"system_loss_pct\": 14,\n    \"tilt_deg\": 30\n  }\n}\n"
+    },
+    {
+      "command": "production compare",
+      "kind": "json_fidelity",
+      "args": [
+        "production",
+        "compare",
+        "--lat",
+        "40.7",
+        "--lon",
+        "-74",
+        "--pnom",
+        "1",
+        "--system-loss",
+        "14",
+        "--tilt",
+        "30",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"results\": [\n    {\n      \"database\": \"PVGIS-SARAH3\",\n      \"e_y_kwh\": 0,\n      \"error\": \"GET /PVcalc returned HTTP 400: {\\\"message\\\":\\\"Location out of the spatial coverage of the radiation database selected. Please, selectanother database (PVGIS-ERA5).\\\",\\\"status\\\":400}\\n\"\n    },\n    {\n      \"database\": \"PVGIS-NSRDB\",\n      \"e_y_kwh\": 0,\n      \"error\": \"GET /PVcalc returned HTTP 400: {\\\"message\\\":\\\"raddatabase: Incorrect value. Please, enter one of the following strings: ['PVGIS-ERA5', 'PVGIS-SARAH3']\\\",\\\"status\\\":400}\\n\"\n    },\n    {\n      \"database\": \"PVGIS-ERA5\",\n      \"e_y_kwh\": 1417.98\n    }\n  ],\n  \"site\": {\n    \"lat\": 40.7,\n    \"lon\": -74\n  },\n  \"summary\": {\n    \"best_db\": \"PVGIS-ERA5\",\n    \"databases_ok\": true,\n    \"spread_kwh\": 0,\n    \"spread_pct\": 0,\n    \"worst_db\": \"PVGIS-ERA5\"\n  },\n  \"system\": {\n    \"azimuth_deg\": 0,\n    \"pnom_kwp\": 1,\n    \"system_loss_pct\": 14,\n    \"tilt_deg\": 30\n  }\n}\n"
+    },
+    {
+      "command": "production compare",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "production hourly",
+      "kind": "help",
+      "args": [
+        "production",
+        "hourly",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Hourly PV production time series (seriescalc) for a fixed-mount system. Returns one row per hour over the requested...\n\nUsage:\n  pvgis-pp-cli production hourly [flags]\n\nExamples:\n  pvgis-pp-cli production hourly --lat 42 --lon 42\n\nFlags:\n      --azimuth float         Surface azimuth (PVGIS convention).\n      --endyear int           Last year of the time series.\n  -h, --help                  help for hourly\n      --lat float             Latitude in WGS84 decimal degrees.\n      --lon float             Longitude in WGS84 decimal degrees.\n      --mounting string       Mounting type: free, building.\n      --outputformat string   Response format. Forced to 'json'. (default \"json\")\n      --pnom float            Nominal peak power in kWp. Required when --pvcalculation=1.\n      --pvcalculation int     Compute PV production (1) or just radiation/weather (0). CLI defaults to 1.\n      --raddatabase string    Force a radiation database.\n      --startyear int         First year of the time series.\n      --system-loss float     Total system losses in percent.\n      --technology string     Module technology: crystSi, CIS, CdTe, Unknown.\n      --tilt float            Surface tilt in degrees.\n      --use-horizon int       Use terrain horizon. 1 = yes, 0 = no.\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pvgis-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "production hourly",
+      "kind": "happy_path",
+      "args": [
+        "production",
+        "hourly",
+        "--lat",
+        "42",
+        "--lon",
+        "42"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"inputs\": {\n      \"location\": {\n        \"latitude\": 42.0,\n        \"longitude\": 42.0,\n        \"elevation\": 56.0\n      },\n      \"meteo_data\": {\n        \"radiation_db\": \"PVGIS-SARAH3\",\n        \"meteo_db\": \"ERA5\",\n        \"year_min\": 2005,\n        \"year_max\": 2023,\n        \"use_horizon\": true,\n        \"horizon_db\": null,\n        \"horizon_data\": \"DEM-calculated\"\n      },\n      \"mounting_system\": {\n        \"fixed\": {\n          \"slope\": {\n            \"value\": 0,\n            \"optimal\": false\n          },\n          \"azimuth\": {\n            \"value\": 0,\n            \"optimal\": false\n          },\n          \"type\": \"free-standing\"\n        }\n      },\n      \"pv_module\": {\n        \"technology\": null,\n        \"peak_power\": null,\n        \"system_loss\": null\n      }\n    },\n    \"outputs\": {\n      \"hourly\": [\n        {\n          \"time\": \"20050101:0010\",\n          \"G(i)\": 0.0,\n          \"H_sun\": 0.0,\n          \"T2m\": -0.4,\n          \"WS10m\": 1.93,\n          \"Int\": 0.0\n        },\n        {\n          \"time\": \"20050101:0110\",\n          \"G(i)\": 0.0,\n          \"H_sun\": 0.0,\n          \"T2m\": -0.45,\n          \"WS10m\": 2.0,\n          \"Int\": 0.0\n        },\n        {\n          \"time\": \"20050101:0210\",\n          \"G(i)\": 0.0,\n          \"H_sun\": 0.0,\n          \"T2m\": -1.54,\n          \"WS10m\": 2.21,\n          \"Int\": 0.0\n        },\n        {\n          \"time\": \"20050101:0310\",\n          \"G(i)\": 0.0,\n          \"H_sun\": 0.0,\n          \"T2m\": -2.29,\n          \"WS10m\": 2.34,\n          \"Int\": 0.0\n        },\n        {\n          \"time\": \"20050101:0410\",\n          \"G(i)\": 0.0,\n          \"H_sun\": 0.0,\n          \"T2m\": -2.81,\n          \"WS10m\": 2.34,\n          \"Int\": 0.0\n        },\n        {\n          \"time\": \"20050101:0510\",\n          \"G(i)\": 0.0,\n          \"H_sun\": 0.0,\n          \"T2m\": -3.1,\n          \"WS10m\": 2.34,\n          \"Int\": 0.0\n        },\n        {\n          \"time\": \"20050101:0610\",\n          \"G(i)\": 137.01,\n          \"H_sun\": 12.18,\n          \"T2m\": -1.62,\n          \"WS10m\": 2.0,\n          \"Int\": 0.0\n        },\n        {\n          \"time\": \"20050101:0710\",\n          \"G(i)\": 268.01,\n          \"H_sun\": 18.84,\n          \"T2m\": 3.57,\n          \"WS10m\": 1.52,\n          \"Int\": 0.0\n        },\n        {\n          \"time\": \"20050101:0810\",\n          \"G(i)\": 365.01,\n          \"H_sun\": 23.26,\n          \"T2m\": 8.78,\n          \"WS10m\": 1.31,\n          \"Int\": 0.0\n        },\n        {\n          \"time\": \"20050101:0910\",\n          \"G(i)\": 420.01,\n          \"H_sun\": 24.98,\n          \"T2m\": 10.42,\n          \"WS10m\": 1.45,\n          \"Int\": 0.0\n        },\n        {\n          \"time\": \"20050101:1010\",\n          \"G(i)\": 415.01,\n          \"H_sun\": 23.77,\n          \"T2m\": 10.98,\n          \"WS10m\": 1.52,\n          \"Int\": 0.0\n        },\n        {\n          \"time\": \"20050101:1110\",\n          \"G(i)\": 352.01,\n          \"H_sun\": 19.78,\n          \"T2m\": 11.67,\n          \"WS10m\": 1.38,\n          \"Int\": 0.0\n        },\n        {\n          \"time\": \"20050101:1210\",\n          \"G(i)\": 189.01,\n          \"H_sun\": 13.47,\n          \"T2m\": 11.66,\n          \"WS10m\": 1.24,\n          \"Int\": 0.0\n        },\n        {\n          \"time\": \"20050101:1310\",\n          \"G(i)\": 53.0,\n          \"H_sun\": 5.38,\n          \"T2m\": 10.75,\n          \"WS10m\": 1.45,\n          \"Int\": 0.0\n        },\n        {\n          \"time\": \"20050101:1410\",\n          \"G(i)\": 0.0,\n          \"H_sun\": 0.0,\n          \"T2m\": 7.4,\n          \"WS10m\": 1.79,\n          \"Int\": 0.0\n        },\n        {\n          \"time\": \"20050101:1510\",\n          \"G(i)\": 0.0,\n          \"H_sun\": 0.0,\n          \"T2m\": 3.09,\n          \"WS10m\": 2.28,\n          \"Int\": 0.0\n        },\n        {\n          \"time\": \"20050101:1610\",\n          \"G(i)\": 0.0,\n          \"H_sun\": 0.0,\n          \"T2m\": -0.72,\n          \"WS10m\": 2.55,\n          \"Int\": 0.0\n        },\n        {\n          \"time\": \"20050101:1710\",\n          \"G(i)\": 0.0,\n          \"H_sun\": 0.0,\n          \"T2m\": -2.03,\n          \"WS10m\": 2.62,\n          \"Int\": 0.0\n        },\n        {\n          \"time\": \"20050101:1810\",\n          \"G(i)\": 0.0,\n          \"H_sun\": 0.0,\n    …[truncated]"
+    },
+    {
+      "command": "production hourly",
+      "kind": "json_fidelity",
+      "args": [
+        "production",
+        "hourly",
+        "--lat",
+        "42",
+        "--lon",
+        "42",
+        "--json"
+      ],
+      "status": "fail",
+      "reason": "invalid JSON",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"inputs\": {\n      \"location\": {\n        \"latitude\": 42.0,\n        \"longitude\": 42.0,\n        \"elevation\": 56.0\n      },\n      \"meteo_data\": {\n        \"radiation_db\": \"PVGIS-SARAH3\",\n        \"meteo_db\": \"ERA5\",\n        \"year_min\": 2005,\n        \"year_max\": 2023,\n        \"use_horizon\": true,\n        \"horizon_db\": null,\n        \"horizon_data\": \"DEM-calculated\"\n      },\n      \"mounting_system\": {\n        \"fixed\": {\n          \"slope\": {\n            \"value\": 0,\n            \"optimal\": false\n          },\n          \"azimuth\": {\n            \"value\": 0,\n            \"optimal\": false\n          },\n          \"type\": \"free-standing\"\n        }\n      },\n      \"pv_module\": {\n        \"technology\": null,\n        \"peak_power\": null,\n        \"system_loss\": null\n      }\n    },\n    \"outputs\": {\n      \"hourly\": [\n        {\n          \"time\": \"20050101:0010\",\n          \"G(i)\": 0.0,\n          \"H_sun\": 0.0,\n          \"T2m\": -0.4,\n          \"WS10m\": 1.93,\n          \"Int\": 0.0\n        },\n        {\n          \"time\": \"20050101:0110\",\n          \"G(i)\": 0.0,\n          \"H_sun\": 0.0,\n          \"T2m\": -0.45,\n          \"WS10m\": 2.0,\n          \"Int\": 0.0\n        },\n        {\n          \"time\": \"20050101:0210\",\n          \"G(i)\": 0.0,\n          \"H_sun\": 0.0,\n          \"T2m\": -1.54,\n          \"WS10m\": 2.21,\n          \"Int\": 0.0\n        },\n        {\n          \"time\": \"20050101:0310\",\n          \"G(i)\": 0.0,\n          \"H_sun\": 0.0,\n          \"T2m\": -2.29,\n          \"WS10m\": 2.34,\n          \"Int\": 0.0\n        },\n        {\n          \"time\": \"20050101:0410\",\n          \"G(i)\": 0.0,\n          \"H_sun\": 0.0,\n          \"T2m\": -2.81,\n          \"WS10m\": 2.34,\n          \"Int\": 0.0\n        },\n        {\n          \"time\": \"20050101:0510\",\n          \"G(i)\": 0.0,\n          \"H_sun\": 0.0,\n          \"T2m\": -3.1,\n          \"WS10m\": 2.34,\n          \"Int\": 0.0\n        },\n        {\n          \"time\": \"20050101:0610\",\n          \"G(i)\": 137.01,\n          \"H_sun\": 12.18,\n          \"T2m\": -1.62,\n          \"WS10m\": 2.0,\n          \"Int\": 0.0\n        },\n        {\n          \"time\": \"20050101:0710\",\n          \"G(i)\": 268.01,\n          \"H_sun\": 18.84,\n          \"T2m\": 3.57,\n          \"WS10m\": 1.52,\n          \"Int\": 0.0\n        },\n        {\n          \"time\": \"20050101:0810\",\n          \"G(i)\": 365.01,\n          \"H_sun\": 23.26,\n          \"T2m\": 8.78,\n          \"WS10m\": 1.31,\n          \"Int\": 0.0\n        },\n        {\n          \"time\": \"20050101:0910\",\n          \"G(i)\": 420.01,\n          \"H_sun\": 24.98,\n          \"T2m\": 10.42,\n          \"WS10m\": 1.45,\n          \"Int\": 0.0\n        },\n        {\n          \"time\": \"20050101:1010\",\n          \"G(i)\": 415.01,\n          \"H_sun\": 23.77,\n          \"T2m\": 10.98,\n          \"WS10m\": 1.52,\n          \"Int\": 0.0\n        },\n        {\n          \"time\": \"20050101:1110\",\n          \"G(i)\": 352.01,\n          \"H_sun\": 19.78,\n          \"T2m\": 11.67,\n          \"WS10m\": 1.38,\n          \"Int\": 0.0\n        },\n        {\n          \"time\": \"20050101:1210\",\n          \"G(i)\": 189.01,\n          \"H_sun\": 13.47,\n          \"T2m\": 11.66,\n          \"WS10m\": 1.24,\n          \"Int\": 0.0\n        },\n        {\n          \"time\": \"20050101:1310\",\n          \"G(i)\": 53.0,\n          \"H_sun\": 5.38,\n          \"T2m\": 10.75,\n          \"WS10m\": 1.45,\n          \"Int\": 0.0\n        },\n        {\n          \"time\": \"20050101:1410\",\n          \"G(i)\": 0.0,\n          \"H_sun\": 0.0,\n          \"T2m\": 7.4,\n          \"WS10m\": 1.79,\n          \"Int\": 0.0\n        },\n        {\n          \"time\": \"20050101:1510\",\n          \"G(i)\": 0.0,\n          \"H_sun\": 0.0,\n          \"T2m\": 3.09,\n          \"WS10m\": 2.28,\n          \"Int\": 0.0\n        },\n        {\n          \"time\": \"20050101:1610\",\n          \"G(i)\": 0.0,\n          \"H_sun\": 0.0,\n          \"T2m\": -0.72,\n          \"WS10m\": 2.55,\n          \"Int\": 0.0\n        },\n        {\n          \"time\": \"20050101:1710\",\n          \"G(i)\": 0.0,\n          \"H_sun\": 0.0,\n          \"T2m\": -2.03,\n          \"WS10m\": 2.62,\n          \"Int\": 0.0\n        },\n        {\n          \"time\": \"20050101:1810\",\n          \"G(i)\": 0.0,\n          \"H_sun\": 0.0,\n    …[truncated]"
+    },
+    {
+      "command": "production hourly",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "production monthly",
+      "kind": "help",
+      "args": [
+        "production",
+        "monthly",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Monthly and annual PV production (PVcalc) for a fixed-mount system. Returns monthly energy E_m, daily energy E_d,...\n\nUsage:\n  pvgis-pp-cli production monthly [flags]\n\nExamples:\n  pvgis-pp-cli production monthly --lat 42 --lon 42 --pnom 42 --system-loss 42\n\nFlags:\n      --azimuth float         Surface azimuth (PVGIS convention: 0 = south, -90 = east, 90 = west).\n  -h, --help                  help for monthly\n      --lat float             Latitude in WGS84 decimal degrees (positive north).\n      --lon float             Longitude in WGS84 decimal degrees (positive east).\n      --mounting string       Mounting type: free (free-standing, default), building (BIPV).\n      --outputformat string   Response format. Forced to 'json' by the CLI. (default \"json\")\n      --pnom float            Nominal system peak power in kWp.\n      --raddatabase string    Force a radiation database: PVGIS-SARAH3, PVGIS-NSRDB, PVGIS-ERA5.\n      --system-loss float     Total system losses in percent (cables, inverter, soiling, mismatch). Typical 10-15.\n      --technology string     Module technology: crystSi (default), CIS, CdTe, Unknown.\n      --tilt float            Surface tilt in degrees (0-90). Default 0.\n      --use-horizon int       Use the DEM-derived terrain horizon profile. 1 = yes (default), 0 = no.\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pvgis-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "production monthly",
+      "kind": "happy_path",
+      "args": [
+        "production",
+        "monthly",
+        "--lat",
+        "42",
+        "--lon",
+        "42",
+        "--pnom",
+        "42",
+        "--system-loss",
+        "42"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"inputs\": {\n      \"location\": {\n        \"latitude\": 42.0,\n        \"longitude\": 42.0,\n        \"elevation\": 56.0\n      },\n      \"meteo_data\": {\n        \"radiation_db\": \"PVGIS-SARAH3\",\n        \"meteo_db\": \"ERA5\",\n        \"year_min\": 2005,\n        \"year_max\": 2023,\n        \"use_horizon\": true,\n        \"horizon_db\": \"DEM-calculated\"\n      },\n      \"mounting_system\": {\n        \"fixed\": {\n          \"slope\": {\n            \"value\": 0,\n            \"optimal\": false\n          },\n          \"azimuth\": {\n            \"value\": 0,\n            \"optimal\": false\n          },\n          \"type\": \"free-standing\"\n        }\n      },\n      \"pv_module\": {\n        \"technology\": \"c-Si\",\n        \"peak_power\": 42.0,\n        \"system_loss\": 42.0\n      },\n      \"economic_data\": {\n        \"system_cost\": null,\n        \"interest\": null,\n        \"lifetime\": null\n      }\n    },\n    \"outputs\": {\n      \"monthly\": {\n        \"fixed\": [\n          {\n            \"month\": 1,\n            \"E_d\": 33.82,\n            \"E_m\": 1048.52,\n            \"H(i)_d\": 1.5,\n            \"H(i)_m\": 46.54,\n            \"SD_m\": 192.62\n          },\n          {\n            \"month\": 2,\n            \"E_d\": 50.77,\n            \"E_m\": 1421.65,\n            \"H(i)_d\": 2.21,\n            \"H(i)_m\": 61.95,\n            \"SD_m\": 194.48\n          },\n          {\n            \"month\": 3,\n            \"E_d\": 68.01,\n            \"E_m\": 2108.42,\n            \"H(i)_d\": 2.97,\n            \"H(i)_m\": 91.96,\n            \"SD_m\": 242.45\n          },\n          {\n            \"month\": 4,\n            \"E_d\": 94.01,\n            \"E_m\": 2820.16,\n            \"H(i)_d\": 4.22,\n            \"H(i)_m\": 126.52,\n            \"SD_m\": 399.57\n          },\n          {\n            \"month\": 5,\n            \"E_d\": 111.67,\n            \"E_m\": 3461.89,\n            \"H(i)_d\": 5.12,\n            \"H(i)_m\": 158.76,\n            \"SD_m\": 324.46\n          },\n          {\n            \"month\": 6,\n            \"E_d\": 114.69,\n            \"E_m\": 3440.62,\n            \"H(i)_d\": 5.34,\n            \"H(i)_m\": 160.12,\n            \"SD_m\": 442.09\n          },\n          {\n            \"month\": 7,\n            \"E_d\": 107.26,\n            \"E_m\": 3325.06,\n            \"H(i)_d\": 4.92,\n            \"H(i)_m\": 152.62,\n            \"SD_m\": 328.85\n          },\n          {\n            \"month\": 8,\n            \"E_d\": 105.65,\n            \"E_m\": 3275.29,\n            \"H(i)_d\": 4.88,\n            \"H(i)_m\": 151.4,\n            \"SD_m\": 269.39\n          },\n          {\n            \"month\": 9,\n            \"E_d\": 87.62,\n            \"E_m\": 2628.46,\n            \"H(i)_d\": 4.0,\n            \"H(i)_m\": 119.94,\n            \"SD_m\": 263.12\n          },\n          {\n            \"month\": 10,\n            \"E_d\": 62.35,\n            \"E_m\": 1932.8,\n            \"H(i)_d\": 2.83,\n            \"H(i)_m\": 87.79,\n            \"SD_m\": 295.91\n          },\n          {\n            \"month\": 11,\n            \"E_d\": 42.2,\n            \"E_m\": 1265.87,\n            \"H(i)_d\": 1.9,\n            \"H(i)_m\": 56.92,\n            \"SD_m\": 164.59\n          },\n          {\n            \"month\": 12,\n            \"E_d\": 31.62,\n            \"E_m\": 980.22,\n            \"H(i)_d\": 1.45,\n            \"H(i)_m\": 44.93,\n            \"SD_m\": 114.98\n          }\n        ]\n      },\n      \"totals\": {\n        \"fixed\": {\n          \"E_d\": 75.91,\n          \"E_m\": 2309.08,\n          \"E_y\": 27708.97,\n          \"H(i)_d\": 3.45,\n          \"H(i)_m\": 104.95,\n          \"H(i)_y\": 1259.45,\n          \"SD_m\": 103.56,\n          \"SD_y\": 1242.76,\n          \"l_aoi\": -3.73,\n          \"l_spec\": \"1.10\",\n          \"l_tg\": -7.21,\n          \"l_total\": -47.62\n        }\n      }\n    },\n    \"meta\": {\n      \"inputs\": {\n        \"location\": {\n          \"description\": \"Selected location\",\n          \"variables\": {\n            \"latitude\": {\n              \"description\": \"Latitude\",\n              \"units\": \"decimal degree\"\n            },\n            \"longitude\": {\n              \"description\": \"Longitude\",\n              \"units\": \"decimal degree\"\n            },\n            \"elevation\": {\n              \"description\": \"Elevation\",\n              \"units\": \"m\"\n            }\n …[truncated]"
+    },
+    {
+      "command": "production monthly",
+      "kind": "json_fidelity",
+      "args": [
+        "production",
+        "monthly",
+        "--lat",
+        "42",
+        "--lon",
+        "42",
+        "--pnom",
+        "42",
+        "--system-loss",
+        "42",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"inputs\": {\n      \"location\": {\n        \"latitude\": 42.0,\n        \"longitude\": 42.0,\n        \"elevation\": 56.0\n      },\n      \"meteo_data\": {\n        \"radiation_db\": \"PVGIS-SARAH3\",\n        \"meteo_db\": \"ERA5\",\n        \"year_min\": 2005,\n        \"year_max\": 2023,\n        \"use_horizon\": true,\n        \"horizon_db\": \"DEM-calculated\"\n      },\n      \"mounting_system\": {\n        \"fixed\": {\n          \"slope\": {\n            \"value\": 0,\n            \"optimal\": false\n          },\n          \"azimuth\": {\n            \"value\": 0,\n            \"optimal\": false\n          },\n          \"type\": \"free-standing\"\n        }\n      },\n      \"pv_module\": {\n        \"technology\": \"c-Si\",\n        \"peak_power\": 42.0,\n        \"system_loss\": 42.0\n      },\n      \"economic_data\": {\n        \"system_cost\": null,\n        \"interest\": null,\n        \"lifetime\": null\n      }\n    },\n    \"outputs\": {\n      \"monthly\": {\n        \"fixed\": [\n          {\n            \"month\": 1,\n            \"E_d\": 33.82,\n            \"E_m\": 1048.52,\n            \"H(i)_d\": 1.5,\n            \"H(i)_m\": 46.54,\n            \"SD_m\": 192.62\n          },\n          {\n            \"month\": 2,\n            \"E_d\": 50.77,\n            \"E_m\": 1421.65,\n            \"H(i)_d\": 2.21,\n            \"H(i)_m\": 61.95,\n            \"SD_m\": 194.48\n          },\n          {\n            \"month\": 3,\n            \"E_d\": 68.01,\n            \"E_m\": 2108.42,\n            \"H(i)_d\": 2.97,\n            \"H(i)_m\": 91.96,\n            \"SD_m\": 242.45\n          },\n          {\n            \"month\": 4,\n            \"E_d\": 94.01,\n            \"E_m\": 2820.16,\n            \"H(i)_d\": 4.22,\n            \"H(i)_m\": 126.52,\n            \"SD_m\": 399.57\n          },\n          {\n            \"month\": 5,\n            \"E_d\": 111.67,\n            \"E_m\": 3461.89,\n            \"H(i)_d\": 5.12,\n            \"H(i)_m\": 158.76,\n            \"SD_m\": 324.46\n          },\n          {\n            \"month\": 6,\n            \"E_d\": 114.69,\n            \"E_m\": 3440.62,\n            \"H(i)_d\": 5.34,\n            \"H(i)_m\": 160.12,\n            \"SD_m\": 442.09\n          },\n          {\n            \"month\": 7,\n            \"E_d\": 107.26,\n            \"E_m\": 3325.06,\n            \"H(i)_d\": 4.92,\n            \"H(i)_m\": 152.62,\n            \"SD_m\": 328.85\n          },\n          {\n            \"month\": 8,\n            \"E_d\": 105.65,\n            \"E_m\": 3275.29,\n            \"H(i)_d\": 4.88,\n            \"H(i)_m\": 151.4,\n            \"SD_m\": 269.39\n          },\n          {\n            \"month\": 9,\n            \"E_d\": 87.62,\n            \"E_m\": 2628.46,\n            \"H(i)_d\": 4.0,\n            \"H(i)_m\": 119.94,\n            \"SD_m\": 263.12\n          },\n          {\n            \"month\": 10,\n            \"E_d\": 62.35,\n            \"E_m\": 1932.8,\n            \"H(i)_d\": 2.83,\n            \"H(i)_m\": 87.79,\n            \"SD_m\": 295.91\n          },\n          {\n            \"month\": 11,\n            \"E_d\": 42.2,\n            \"E_m\": 1265.87,\n            \"H(i)_d\": 1.9,\n            \"H(i)_m\": 56.92,\n            \"SD_m\": 164.59\n          },\n          {\n            \"month\": 12,\n            \"E_d\": 31.62,\n            \"E_m\": 980.22,\n            \"H(i)_d\": 1.45,\n            \"H(i)_m\": 44.93,\n            \"SD_m\": 114.98\n          }\n        ]\n      },\n      \"totals\": {\n        \"fixed\": {\n          \"E_d\": 75.91,\n          \"E_m\": 2309.08,\n          \"E_y\": 27708.97,\n          \"H(i)_d\": 3.45,\n          \"H(i)_m\": 104.95,\n          \"H(i)_y\": 1259.45,\n          \"SD_m\": 103.56,\n          \"SD_y\": 1242.76,\n          \"l_aoi\": -3.73,\n          \"l_spec\": \"1.10\",\n          \"l_tg\": -7.21,\n          \"l_total\": -47.62\n        }\n      }\n    },\n    \"meta\": {\n      \"inputs\": {\n        \"location\": {\n          \"description\": \"Selected location\",\n          \"variables\": {\n            \"latitude\": {\n              \"description\": \"Latitude\",\n              \"units\": \"decimal degree\"\n            },\n            \"longitude\": {\n              \"description\": \"Longitude\",\n              \"units\": \"decimal degree\"\n            },\n            \"elevation\": {\n              \"description\": \"Elevation\",\n              \"units\": \"m\"\n            }\n …[truncated]"
+    },
+    {
+      "command": "production monthly",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "production optimal-tilt",
+      "kind": "help",
+      "args": [
+        "production",
+        "optimal-tilt",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Sweeps tilt angles from --tilt-min to --tilt-max in --tilt-step increments at the fixed --azimuth (PVGIS convention: 0=south). Returns the winning tilt and its annual energy E_y, plus the full sweep so you can see how flat the optimum is.\n\nUsage:\n  pvgis-pp-cli production optimal-tilt [flags]\n\nExamples:\n  pvgis-pp-cli production optimal-tilt --lat 45 --lon 9 --azimuth 0 --json --select best_tilt,best_e_y\n\nFlags:\n      --azimuth float       Fixed surface azimuth (PVGIS convention: 0=south, -90=east, 90=west).\n  -h, --help                help for optimal-tilt\n      --lat float           Latitude in WGS84 decimal degrees.\n      --lon float           Longitude in WGS84 decimal degrees.\n      --pnom float          Nominal system peak power in kWp. (default 1)\n      --system-loss float   Total system losses in percent. (default 14)\n      --tilt-max float      Maximum tilt in degrees. (default 60)\n      --tilt-min float      Minimum tilt in degrees.\n      --tilt-step float     Tilt step in degrees. (default 5)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pvgis-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "production optimal-tilt",
+      "kind": "happy_path",
+      "args": [
+        "production",
+        "optimal-tilt",
+        "--lat",
+        "45",
+        "--lon",
+        "9",
+        "--azimuth",
+        "0",
+        "--json",
+        "--select",
+        "best_tilt,best_e_y"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"best_e_y\": 1361.95,\n  \"best_tilt\": 40\n}\n"
+    },
+    {
+      "command": "production optimal-tilt",
+      "kind": "json_fidelity",
+      "args": [
+        "production",
+        "optimal-tilt",
+        "--lat",
+        "45",
+        "--lon",
+        "9",
+        "--azimuth",
+        "0",
+        "--json",
+        "--select",
+        "best_tilt,best_e_y"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"best_e_y\": 1361.95,\n  \"best_tilt\": 40\n}\n"
+    },
+    {
+      "command": "production optimal-tilt",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "production sweep",
+      "kind": "help",
+      "args": [
+        "production",
+        "sweep",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Issues one PVcalc request for every (tilt, azimuth) combination in the grid. Use the response (cached locally) to pick the best fixed orientation or to interpolate yields at non-grid points offline.\n\nUsage:\n  pvgis-pp-cli production sweep [flags]\n\nExamples:\n  pvgis-pp-cli production sweep --lat 45 --lon 9 --pnom 5 --system-loss 14 --tilt-min 0 --tilt-max 60 --json\n\nFlags:\n      --azimuth-max float    Maximum azimuth. (default 90)\n      --azimuth-min float    Minimum azimuth (PVGIS convention). (default -90)\n      --azimuth-step float   Azimuth grid step in degrees. (default 30)\n  -h, --help                 help for sweep\n      --lat float            Latitude in WGS84 decimal degrees.\n      --lon float            Longitude in WGS84 decimal degrees.\n      --pnom float           Nominal system peak power in kWp. (default 1)\n      --raddatabase string   Force radiation database.\n      --system-loss float    Total system losses in percent. (default 14)\n      --tilt-max float       Maximum tilt in degrees. (default 60)\n      --tilt-min float       Minimum tilt in degrees.\n      --tilt-step float      Tilt grid step in degrees. (default 10)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pvgis-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "production sweep",
+      "kind": "happy_path",
+      "args": [
+        "production",
+        "sweep",
+        "--lat",
+        "45",
+        "--lon",
+        "9",
+        "--pnom",
+        "5",
+        "--system-loss",
+        "14",
+        "--tilt-min",
+        "0",
+        "--tilt-max",
+        "60",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"best\": {\n    \"tilt\": 40,\n    \"azimuth\": 0,\n    \"e_y_kwh\": 6809.75\n  },\n  \"cells\": [\n    {\n      \"tilt\": 0,\n      \"azimuth\": -90,\n      \"e_y_kwh\": 5698.64\n    },\n    {\n      \"tilt\": 0,\n      \"azimuth\": -60,\n      \"e_y_kwh\": 5698.67\n    },\n    {\n      \"tilt\": 0,\n      \"azimuth\": -30,\n      \"e_y_kwh\": 5698.69\n    },\n    {\n      \"tilt\": 0,\n      \"azimuth\": 0,\n      \"e_y_kwh\": 5698.7\n    },\n    {\n      \"tilt\": 0,\n      \"azimuth\": 30,\n      \"e_y_kwh\": 5698.69\n    },\n    {\n      \"tilt\": 0,\n      \"azimuth\": 60,\n      \"e_y_kwh\": 5698.67\n    },\n    {\n      \"tilt\": 0,\n      \"azimuth\": 90,\n      \"e_y_kwh\": 5698.64\n    },\n    {\n      \"tilt\": 10,\n      \"azimuth\": -90,\n      \"e_y_kwh\": 5643.58\n    },\n    {\n      \"tilt\": 10,\n      \"azimuth\": -60,\n      \"e_y_kwh\": 5921.21\n    },\n    {\n      \"tilt\": 10,\n      \"azimuth\": -30,\n      \"e_y_kwh\": 6123.87\n    },\n    {\n      \"tilt\": 10,\n      \"azimuth\": 0,\n      \"e_y_kwh\": 6202.99\n    },\n    {\n      \"tilt\": 10,\n      \"azimuth\": 30,\n      \"e_y_kwh\": 6136.77\n    },\n    {\n      \"tilt\": 10,\n      \"azimuth\": 60,\n      \"e_y_kwh\": 5941.41\n    },\n    {\n      \"tilt\": 10,\n      \"azimuth\": 90,\n      \"e_y_kwh\": 5663.86\n    },\n    {\n      \"tilt\": 20,\n      \"azimuth\": -90,\n      \"e_y_kwh\": 5535.28\n    },\n    {\n      \"tilt\": 20,\n      \"azimuth\": -60,\n      \"e_y_kwh\": 6049.11\n    },\n    {\n      \"tilt\": 20,\n      \"azimuth\": -30,\n      \"e_y_kwh\": 6413.67\n    },\n    {\n      \"tilt\": 20,\n      \"azimuth\": 0,\n      \"e_y_kwh\": 6558.92\n    },\n    {\n      \"tilt\": 20,\n      \"azimuth\": 30,\n      \"e_y_kwh\": 6439.78\n    },\n    {\n      \"tilt\": 20,\n      \"azimuth\": 60,\n      \"e_y_kwh\": 6081.09\n    },\n    {\n      \"tilt\": 20,\n      \"azimuth\": 90,\n      \"e_y_kwh\": 5567.36\n    },\n    {\n      \"tilt\": 30,\n      \"azimuth\": -90,\n      \"e_y_kwh\": 5384.32\n    },\n    {\n      \"tilt\": 30,\n      \"azimuth\": -60,\n      \"e_y_kwh\": 6074.02\n    },\n    {\n      \"tilt\": 30,\n      \"azimuth\": -30,\n      \"e_y_kwh\": 6570.41\n    },\n    {\n      \"tilt\": 30,\n      \"azimuth\": 0,\n      \"e_y_kwh\": 6762.3\n    },\n    {\n      \"tilt\": 30,\n      \"azimuth\": 30,\n      \"e_y_kwh\": 6599.2\n    },\n    {\n      \"tilt\": 30,\n      \"azimuth\": 60,\n      \"e_y_kwh\": 6121.18\n    },\n    {\n      \"tilt\": 30,\n      \"azimuth\": 90,\n      \"e_y_kwh\": 5423.7\n    },\n    {\n      \"tilt\": 40,\n      \"azimuth\": -90,\n      \"e_y_kwh\": 5179.79\n    },\n    {\n      \"tilt\": 40,\n      \"azimuth\": -60,\n      \"e_y_kwh\": 5996.88\n    },\n    {\n      \"tilt\": 40,\n      \"azimuth\": -30,\n      \"e_y_kwh\": 6577.18\n    },\n    {\n      \"tilt\": 40,\n      \"azimuth\": 0,\n      \"e_y_kwh\": 6809.75\n    },\n    {\n      \"tilt\": 40,\n      \"azimuth\": 30,\n      \"e_y_kwh\": 6623.12\n    },\n    {\n      \"tilt\": 40,\n      \"azimuth\": 60,\n      \"e_y_kwh\": 6061.01\n    },\n    {\n      \"tilt\": 40,\n      \"azimuth\": 90,\n      \"e_y_kwh\": 5227.58\n    },\n    {\n      \"tilt\": 50,\n      \"azimuth\": -90,\n      \"e_y_kwh\": 4911.75\n    },\n    {\n      \"tilt\": 50,\n      \"azimuth\": -60,\n      \"e_y_kwh\": 5817.34\n    },\n    {\n      \"tilt\": 50,\n      \"azimuth\": -30,\n      \"e_y_kwh\": 6454.15\n    },\n    {\n      \"tilt\": 50,\n      \"azimuth\": 0,\n      \"e_y_kwh\": 6696.4\n    },\n    {\n      \"tilt\": 50,\n      \"azimuth\": 30,\n      \"e_y_kwh\": 6489.65\n    },\n    {\n      \"tilt\": 50,\n      \"azimuth\": 60,\n      \"e_y_kwh\": 5873.37\n    },\n    {\n      \"tilt\": 50,\n      \"azimuth\": 90,\n      \"e_y_kwh\": 4968.38\n    },\n    {\n      \"tilt\": 60,\n      \"azimuth\": -90,\n      \"e_y_kwh\": 4579.44\n    },\n    {\n      \"tilt\": 60,\n      \"azimuth\": -60,\n      \"e_y_kwh\": 5517.48\n    },\n    {\n      \"tilt\": 60,\n      \"azimuth\": -30,\n      \"e_y_kwh\": 6175.25\n    },\n    {\n      \"tilt\": 60,\n      \"azimuth\": 0,\n      \"e_y_kwh\": 6424.46\n    },\n    {\n      \"tilt\": 60,\n      \"azimuth\": 30,\n      \"e_y_kwh\": 6220.49\n    },\n    {\n      \"tilt\": 60,\n      \"azimuth\": 60,\n      \"e_y_kwh\": 5591.3\n    },\n    {\n      \"tilt\": 60,\n      \"azimuth\": 90,\n      \"e_y_kwh\": 4643.33\n    }\n  ],\n  \"count\": 49,\n  \"grid\": {\n    \"azimuth_max\": 90,\n    \"azimuth_min\": -90,\n    \"azimuth_step\": 30,\n    \"tilt_max\": 60,\n    \"tilt_min\": 0,\n    \"tilt_step\": 10\n  },\n  \"site\": {\n    \"lat\": 45,\n    \"lon\": 9\n  },\n  \"system\": {\n    \"pno…[truncated]"
+    },
+    {
+      "command": "production sweep",
+      "kind": "json_fidelity",
+      "args": [
+        "production",
+        "sweep",
+        "--lat",
+        "45",
+        "--lon",
+        "9",
+        "--pnom",
+        "5",
+        "--system-loss",
+        "14",
+        "--tilt-min",
+        "0",
+        "--tilt-max",
+        "60",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"best\": {\n    \"tilt\": 40,\n    \"azimuth\": 0,\n    \"e_y_kwh\": 6809.75\n  },\n  \"cells\": [\n    {\n      \"tilt\": 0,\n      \"azimuth\": -90,\n      \"e_y_kwh\": 5698.64\n    },\n    {\n      \"tilt\": 0,\n      \"azimuth\": -60,\n      \"e_y_kwh\": 5698.67\n    },\n    {\n      \"tilt\": 0,\n      \"azimuth\": -30,\n      \"e_y_kwh\": 5698.69\n    },\n    {\n      \"tilt\": 0,\n      \"azimuth\": 0,\n      \"e_y_kwh\": 5698.7\n    },\n    {\n      \"tilt\": 0,\n      \"azimuth\": 30,\n      \"e_y_kwh\": 5698.69\n    },\n    {\n      \"tilt\": 0,\n      \"azimuth\": 60,\n      \"e_y_kwh\": 5698.67\n    },\n    {\n      \"tilt\": 0,\n      \"azimuth\": 90,\n      \"e_y_kwh\": 5698.64\n    },\n    {\n      \"tilt\": 10,\n      \"azimuth\": -90,\n      \"e_y_kwh\": 5643.58\n    },\n    {\n      \"tilt\": 10,\n      \"azimuth\": -60,\n      \"e_y_kwh\": 5921.21\n    },\n    {\n      \"tilt\": 10,\n      \"azimuth\": -30,\n      \"e_y_kwh\": 6123.87\n    },\n    {\n      \"tilt\": 10,\n      \"azimuth\": 0,\n      \"e_y_kwh\": 6202.99\n    },\n    {\n      \"tilt\": 10,\n      \"azimuth\": 30,\n      \"e_y_kwh\": 6136.77\n    },\n    {\n      \"tilt\": 10,\n      \"azimuth\": 60,\n      \"e_y_kwh\": 5941.41\n    },\n    {\n      \"tilt\": 10,\n      \"azimuth\": 90,\n      \"e_y_kwh\": 5663.86\n    },\n    {\n      \"tilt\": 20,\n      \"azimuth\": -90,\n      \"e_y_kwh\": 5535.28\n    },\n    {\n      \"tilt\": 20,\n      \"azimuth\": -60,\n      \"e_y_kwh\": 6049.11\n    },\n    {\n      \"tilt\": 20,\n      \"azimuth\": -30,\n      \"e_y_kwh\": 6413.67\n    },\n    {\n      \"tilt\": 20,\n      \"azimuth\": 0,\n      \"e_y_kwh\": 6558.92\n    },\n    {\n      \"tilt\": 20,\n      \"azimuth\": 30,\n      \"e_y_kwh\": 6439.78\n    },\n    {\n      \"tilt\": 20,\n      \"azimuth\": 60,\n      \"e_y_kwh\": 6081.09\n    },\n    {\n      \"tilt\": 20,\n      \"azimuth\": 90,\n      \"e_y_kwh\": 5567.36\n    },\n    {\n      \"tilt\": 30,\n      \"azimuth\": -90,\n      \"e_y_kwh\": 5384.32\n    },\n    {\n      \"tilt\": 30,\n      \"azimuth\": -60,\n      \"e_y_kwh\": 6074.02\n    },\n    {\n      \"tilt\": 30,\n      \"azimuth\": -30,\n      \"e_y_kwh\": 6570.41\n    },\n    {\n      \"tilt\": 30,\n      \"azimuth\": 0,\n      \"e_y_kwh\": 6762.3\n    },\n    {\n      \"tilt\": 30,\n      \"azimuth\": 30,\n      \"e_y_kwh\": 6599.2\n    },\n    {\n      \"tilt\": 30,\n      \"azimuth\": 60,\n      \"e_y_kwh\": 6121.18\n    },\n    {\n      \"tilt\": 30,\n      \"azimuth\": 90,\n      \"e_y_kwh\": 5423.7\n    },\n    {\n      \"tilt\": 40,\n      \"azimuth\": -90,\n      \"e_y_kwh\": 5179.79\n    },\n    {\n      \"tilt\": 40,\n      \"azimuth\": -60,\n      \"e_y_kwh\": 5996.88\n    },\n    {\n      \"tilt\": 40,\n      \"azimuth\": -30,\n      \"e_y_kwh\": 6577.18\n    },\n    {\n      \"tilt\": 40,\n      \"azimuth\": 0,\n      \"e_y_kwh\": 6809.75\n    },\n    {\n      \"tilt\": 40,\n      \"azimuth\": 30,\n      \"e_y_kwh\": 6623.12\n    },\n    {\n      \"tilt\": 40,\n      \"azimuth\": 60,\n      \"e_y_kwh\": 6061.01\n    },\n    {\n      \"tilt\": 40,\n      \"azimuth\": 90,\n      \"e_y_kwh\": 5227.58\n    },\n    {\n      \"tilt\": 50,\n      \"azimuth\": -90,\n      \"e_y_kwh\": 4911.75\n    },\n    {\n      \"tilt\": 50,\n      \"azimuth\": -60,\n      \"e_y_kwh\": 5817.34\n    },\n    {\n      \"tilt\": 50,\n      \"azimuth\": -30,\n      \"e_y_kwh\": 6454.15\n    },\n    {\n      \"tilt\": 50,\n      \"azimuth\": 0,\n      \"e_y_kwh\": 6696.4\n    },\n    {\n      \"tilt\": 50,\n      \"azimuth\": 30,\n      \"e_y_kwh\": 6489.65\n    },\n    {\n      \"tilt\": 50,\n      \"azimuth\": 60,\n      \"e_y_kwh\": 5873.37\n    },\n    {\n      \"tilt\": 50,\n      \"azimuth\": 90,\n      \"e_y_kwh\": 4968.38\n    },\n    {\n      \"tilt\": 60,\n      \"azimuth\": -90,\n      \"e_y_kwh\": 4579.44\n    },\n    {\n      \"tilt\": 60,\n      \"azimuth\": -60,\n      \"e_y_kwh\": 5517.48\n    },\n    {\n      \"tilt\": 60,\n      \"azimuth\": -30,\n      \"e_y_kwh\": 6175.25\n    },\n    {\n      \"tilt\": 60,\n      \"azimuth\": 0,\n      \"e_y_kwh\": 6424.46\n    },\n    {\n      \"tilt\": 60,\n      \"azimuth\": 30,\n      \"e_y_kwh\": 6220.49\n    },\n    {\n      \"tilt\": 60,\n      \"azimuth\": 60,\n      \"e_y_kwh\": 5591.3\n    },\n    {\n      \"tilt\": 60,\n      \"azimuth\": 90,\n      \"e_y_kwh\": 4643.33\n    }\n  ],\n  \"count\": 49,\n  \"grid\": {\n    \"azimuth_max\": 90,\n    \"azimuth_min\": -90,\n    \"azimuth_step\": 30,\n    \"tilt_max\": 60,\n    \"tilt_min\": 0,\n    \"tilt_step\": 10\n  },\n  \"site\": {\n    \"lat\": 45,\n    \"lon\": 9\n  },\n  \"system\": {\n    \"pno…[truncated]"
+    },
+    {
+      "command": "production sweep",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a profile\n\nUsage:\n  pvgis-pp-cli profile delete \u003cname\u003e [flags]\n\nExamples:\n  pvgis-pp-cli profile delete my-defaults --yes\n  pvgis-pp-cli profile delete old-profile --yes --json\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pvgis-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved profiles\n\nUsage:\n  pvgis-pp-cli profile list [flags]\n\nExamples:\n  pvgis-pp-cli profile list\n  pvgis-pp-cli profile list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pvgis-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "NAME  FIELDS  DESCRIPTION\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Captures every flag explicitly set on the invocation and stores\nthem under \u003cname\u003e. To update an existing profile, run save again; the\nentry is replaced.\n\nTo avoid creating empty profiles, at least one non-default flag must be\npresent (other than --profile and --config).\n\nUsage:\n  pvgis-pp-cli profile save \u003cname\u003e [--\u003cflag\u003e \u003cvalue\u003e ...] [flags]\n\nExamples:\n  pvgis-pp-cli profile save my-defaults --json --compact\n  pvgis-pp-cli profile save tonight-defaults --region US\n\nFlags:\n      --description string   Short description shown in 'profile list'\n  -h, --help                 help for save\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pvgis-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "save",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: no non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a profile's values as JSON\n\nUsage:\n  pvgis-pp-cli profile show \u003cname\u003e [flags]\n\nExamples:\n  pvgis-pp-cli profile show my-defaults\n  pvgis-pp-cli profile show tonight-defaults --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pvgis-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the flag values a profile will apply (does not execute anything)\n\nUsage:\n  pvgis-pp-cli profile use \u003cname\u003e [flags]\n\nExamples:\n  pvgis-pp-cli profile use my-defaults\n  pvgis-pp-cli profile use tonight-defaults --json\n\nFlags:\n  -h, --help   help for use\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pvgis-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "use",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "radiation",
+      "kind": "help",
+      "args": [
+        "radiation",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Shortcut for 'radiation monthly'. Monthly solar radiation (MRcalc) for a site. Returns 12 monthly values on the horizontal plane, the requested tilt,...\n\nUsage:\n  pvgis-pp-cli radiation [flags]\n\nExamples:\n  pvgis-pp-cli radiation --lat 42 --lon 42\n\nFlags:\n      --avg-temp int          Include monthly average 2m air temperature. 1 = yes.\n      --azimuth float         Surface azimuth (PVGIS convention: 0 = south, -90 = east, 90 = west).\n      --endyear int           Last year of the averaging window. Default is the latest available.\n  -h, --help                  help for radiation\n      --horizontal int        Include monthly global horizontal irradiation in the output. 1 = yes.\n      --lat float             Latitude in WGS84 decimal degrees (positive north). PVGIS covers roughly -65 to +65.\n      --lon float             Longitude in WGS84 decimal degrees (positive east). PVGIS covers -180 to +180.\n      --optimal int           Include monthly irradiation on the locally optimal tilt. 1 = yes.\n      --outputformat string   Response format. Forced to 'json' by the CLI. (default \"json\")\n      --raddatabase string    Force a radiation database: PVGIS-SARAH3, PVGIS-NSRDB, PVGIS-ERA5. Default lets PVGIS choose by region.\n      --startyear int         First year of the averaging window. Default is the earliest available.\n      --tilt float            Surface tilt in degrees from horizontal (0-90). Used when --tilted is set.\n      --tilted int            Include monthly irradiation on the user-selected tilt/azimuth plane. 1 = yes.\n      --use-horizon int       Use the DEM-derived terrain horizon profile. 1 = yes (default), 0 = no.\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pvgis-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "radiation",
+      "kind": "happy_path",
+      "args": [
+        "radiation",
+        "--lat",
+        "42",
+        "--lon",
+        "42"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"inputs\": {\n      \"location\": {\n        \"latitude\": 42.0,\n        \"longitude\": 42.0,\n        \"elevation\": 56.0\n      },\n      \"meteo_data\": {\n        \"radiation_db\": \"PVGIS-SARAH3\",\n        \"meteo_db\": \"ERA5\",\n        \"year_min\": 2005,\n        \"year_max\": 2023,\n        \"use_horizon\": true,\n        \"horizon_db\": null,\n        \"horizon_data\": \"DEM-calculated\"\n      },\n      \"plane\": {}\n    },\n    \"outputs\": {\n      \"monthly\": [\n        {\n          \"year\": 2005,\n          \"month\": 1\n        },\n        {\n          \"year\": 2005,\n          \"month\": 2\n        },\n        {\n          \"year\": 2005,\n          \"month\": 3\n        },\n        {\n          \"year\": 2005,\n          \"month\": 4\n        },\n        {\n          \"year\": 2005,\n          \"month\": 5\n        },\n        {\n          \"year\": 2005,\n          \"month\": 6\n        },\n        {\n          \"year\": 2005,\n          \"month\": 7\n        },\n        {\n          \"year\": 2005,\n          \"month\": 8\n        },\n        {\n          \"year\": 2005,\n          \"month\": 9\n        },\n        {\n          \"year\": 2005,\n          \"month\": 10\n        },\n        {\n          \"year\": 2005,\n          \"month\": 11\n        },\n        {\n          \"year\": 2005,\n          \"month\": 12\n        },\n        {\n          \"year\": 2006,\n          \"month\": 1\n        },\n        {\n          \"year\": 2006,\n          \"month\": 2\n        },\n        {\n          \"year\": 2006,\n          \"month\": 3\n        },\n        {\n          \"year\": 2006,\n          \"month\": 4\n        },\n        {\n          \"year\": 2006,\n          \"month\": 5\n        },\n        {\n          \"year\": 2006,\n          \"month\": 6\n        },\n        {\n          \"year\": 2006,\n          \"month\": 7\n        },\n        {\n          \"year\": 2006,\n          \"month\": 8\n        },\n        {\n          \"year\": 2006,\n          \"month\": 9\n        },\n        {\n          \"year\": 2006,\n          \"month\": 10\n        },\n        {\n          \"year\": 2006,\n          \"month\": 11\n        },\n        {\n          \"year\": 2006,\n          \"month\": 12\n        },\n        {\n          \"year\": 2007,\n          \"month\": 1\n        },\n        {\n          \"year\": 2007,\n          \"month\": 2\n        },\n        {\n          \"year\": 2007,\n          \"month\": 3\n        },\n        {\n          \"year\": 2007,\n          \"month\": 4\n        },\n        {\n          \"year\": 2007,\n          \"month\": 5\n        },\n        {\n          \"year\": 2007,\n          \"month\": 6\n        },\n        {\n          \"year\": 2007,\n          \"month\": 7\n        },\n        {\n          \"year\": 2007,\n          \"month\": 8\n        },\n        {\n          \"year\": 2007,\n          \"month\": 9\n        },\n        {\n          \"year\": 2007,\n          \"month\": 10\n        },\n        {\n          \"year\": 2007,\n          \"month\": 11\n        },\n        {\n          \"year\": 2007,\n          \"month\": 12\n        },\n        {\n          \"year\": 2008,\n          \"month\": 1\n        },\n        {\n          \"year\": 2008,\n          \"month\": 2\n        },\n        {\n          \"year\": 2008,\n          \"month\": 3\n        },\n        {\n          \"year\": 2008,\n          \"month\": 4\n        },\n        {\n          \"year\": 2008,\n          \"month\": 5\n        },\n        {\n          \"year\": 2008,\n          \"month\": 6\n        },\n        {\n          \"year\": 2008,\n          \"month\": 7\n        },\n        {\n          \"year\": 2008,\n          \"month\": 8\n        },\n        {\n          \"year\": 2008,\n          \"month\": 9\n        },\n        {\n          \"year\": 2008,\n          \"month\": 10\n        },\n        {\n          \"year\": 2008,\n          \"month\": 11\n        },\n        {\n          \"year\": 2008,\n          \"month\": 12\n        },\n        {\n          \"year\": 2009,\n          \"month\": 1\n        },\n        {\n          \"year\": 2009,\n          \"month\": 2\n        },\n        {\n          \"year\": 2009,\n          \"month\": 3\n        },\n        {\n          \"year\": 2009,\n          \"month\": 4\n        },\n        {\n          \"year\": 2009,\n          \"month\": 5\n        },\n        {\n          \"year\": 2009,\n          \"month\": 6\n        },\n        {\n          \"year\": 200…[truncated]"
+    },
+    {
+      "command": "radiation",
+      "kind": "json_fidelity",
+      "args": [
+        "radiation",
+        "--lat",
+        "42",
+        "--lon",
+        "42",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"inputs\": {\n      \"location\": {\n        \"latitude\": 42.0,\n        \"longitude\": 42.0,\n        \"elevation\": 56.0\n      },\n      \"meteo_data\": {\n        \"radiation_db\": \"PVGIS-SARAH3\",\n        \"meteo_db\": \"ERA5\",\n        \"year_min\": 2005,\n        \"year_max\": 2023,\n        \"use_horizon\": true,\n        \"horizon_db\": null,\n        \"horizon_data\": \"DEM-calculated\"\n      },\n      \"plane\": {}\n    },\n    \"outputs\": {\n      \"monthly\": [\n        {\n          \"year\": 2005,\n          \"month\": 1\n        },\n        {\n          \"year\": 2005,\n          \"month\": 2\n        },\n        {\n          \"year\": 2005,\n          \"month\": 3\n        },\n        {\n          \"year\": 2005,\n          \"month\": 4\n        },\n        {\n          \"year\": 2005,\n          \"month\": 5\n        },\n        {\n          \"year\": 2005,\n          \"month\": 6\n        },\n        {\n          \"year\": 2005,\n          \"month\": 7\n        },\n        {\n          \"year\": 2005,\n          \"month\": 8\n        },\n        {\n          \"year\": 2005,\n          \"month\": 9\n        },\n        {\n          \"year\": 2005,\n          \"month\": 10\n        },\n        {\n          \"year\": 2005,\n          \"month\": 11\n        },\n        {\n          \"year\": 2005,\n          \"month\": 12\n        },\n        {\n          \"year\": 2006,\n          \"month\": 1\n        },\n        {\n          \"year\": 2006,\n          \"month\": 2\n        },\n        {\n          \"year\": 2006,\n          \"month\": 3\n        },\n        {\n          \"year\": 2006,\n          \"month\": 4\n        },\n        {\n          \"year\": 2006,\n          \"month\": 5\n        },\n        {\n          \"year\": 2006,\n          \"month\": 6\n        },\n        {\n          \"year\": 2006,\n          \"month\": 7\n        },\n        {\n          \"year\": 2006,\n          \"month\": 8\n        },\n        {\n          \"year\": 2006,\n          \"month\": 9\n        },\n        {\n          \"year\": 2006,\n          \"month\": 10\n        },\n        {\n          \"year\": 2006,\n          \"month\": 11\n        },\n        {\n          \"year\": 2006,\n          \"month\": 12\n        },\n        {\n          \"year\": 2007,\n          \"month\": 1\n        },\n        {\n          \"year\": 2007,\n          \"month\": 2\n        },\n        {\n          \"year\": 2007,\n          \"month\": 3\n        },\n        {\n          \"year\": 2007,\n          \"month\": 4\n        },\n        {\n          \"year\": 2007,\n          \"month\": 5\n        },\n        {\n          \"year\": 2007,\n          \"month\": 6\n        },\n        {\n          \"year\": 2007,\n          \"month\": 7\n        },\n        {\n          \"year\": 2007,\n          \"month\": 8\n        },\n        {\n          \"year\": 2007,\n          \"month\": 9\n        },\n        {\n          \"year\": 2007,\n          \"month\": 10\n        },\n        {\n          \"year\": 2007,\n          \"month\": 11\n        },\n        {\n          \"year\": 2007,\n          \"month\": 12\n        },\n        {\n          \"year\": 2008,\n          \"month\": 1\n        },\n        {\n          \"year\": 2008,\n          \"month\": 2\n        },\n        {\n          \"year\": 2008,\n          \"month\": 3\n        },\n        {\n          \"year\": 2008,\n          \"month\": 4\n        },\n        {\n          \"year\": 2008,\n          \"month\": 5\n        },\n        {\n          \"year\": 2008,\n          \"month\": 6\n        },\n        {\n          \"year\": 2008,\n          \"month\": 7\n        },\n        {\n          \"year\": 2008,\n          \"month\": 8\n        },\n        {\n          \"year\": 2008,\n          \"month\": 9\n        },\n        {\n          \"year\": 2008,\n          \"month\": 10\n        },\n        {\n          \"year\": 2008,\n          \"month\": 11\n        },\n        {\n          \"year\": 2008,\n          \"month\": 12\n        },\n        {\n          \"year\": 2009,\n          \"month\": 1\n        },\n        {\n          \"year\": 2009,\n          \"month\": 2\n        },\n        {\n          \"year\": 2009,\n          \"month\": 3\n        },\n        {\n          \"year\": 2009,\n          \"month\": 4\n        },\n        {\n          \"year\": 2009,\n          \"month\": 5\n        },\n        {\n          \"year\": 2009,\n          \"month\": 6\n        },\n        {\n          \"year\": 200…[truncated]"
+    },
+    {
+      "command": "radiation",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "search",
+      "kind": "help",
+      "args": [
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search data using FTS5 full-text search on locally synced data,\nor hit the API's search endpoint when available.\n\nIn auto mode (default): uses the API search endpoint if the API has one,\notherwise searches local data. Falls back to local on network failure.\nIn live mode: uses the API search endpoint only.\nIn local mode: searches locally synced data only.\n\nUsage:\n  pvgis-pp-cli search \u003cquery\u003e [flags]\n\nExamples:\n  # Search (uses API endpoint if available, local FTS otherwise)\n  pvgis-pp-cli search \"error timeout\"\n\n  # Force local search only\n  pvgis-pp-cli search \"payment failed\" --data-source local\n\n  # Search a specific resource type locally\n  pvgis-pp-cli search \"critical\" --type transactions --data-source local\n\n  # JSON output for piping\n  pvgis-pp-cli search \"critical\" --json --limit 20\n\nFlags:\n      --db string     Database path (default: ~/.local/share/pvgis-pp-cli/data.db)\n  -h, --help          help for search\n      --limit int     Maximum results to return (default 50)\n      --type string   Filter by resource type\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pvgis-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "search",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "error_path",
+      "args": [
+        "search",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"reason\": \"no_search_endpoint\",\n    \"resource_type\": \"search\",\n    \"source\": \"local\"\n  },\n  \"results\": []\n}\nThis API has no search endpoint. Searching local data.\n"
+    },
+    {
+      "command": "sites diff",
+      "kind": "help",
+      "args": [
+        "sites",
+        "diff",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Compare annual production at a baseline site vs a target site under identical system specs.\n\nUsage:\n  pvgis-pp-cli sites diff [flags]\n\nExamples:\n  pvgis-pp-cli sites diff --baseline 45.0,9.0 --target 41.9,12.5 --pnom 5 --system-loss 14 --json\n\nFlags:\n      --azimuth float        Surface azimuth (PVGIS convention).\n      --baseline string      Baseline site as lat,lon (e.g. 45.0,9.0).\n  -h, --help                 help for diff\n      --pnom float           Nominal system peak power in kWp. (default 1)\n      --raddatabase string   Force radiation database.\n      --system-loss float    Total system losses in percent. (default 14)\n      --target string        Target site as lat,lon.\n      --tilt float           Surface tilt in degrees. (default 30)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pvgis-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "sites diff",
+      "kind": "happy_path",
+      "args": [
+        "sites",
+        "diff",
+        "--baseline",
+        "45.0,9.0",
+        "--target",
+        "41.9,12.5",
+        "--pnom",
+        "5",
+        "--system-loss",
+        "14",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"baseline\": {\n    \"e_y_kwh\": 6762.3,\n    \"lat\": 45,\n    \"lon\": 9\n  },\n  \"delta\": {\n    \"kwh_year\": 658.25,\n    \"percent\": 9.734114132765479,\n    \"target_better\": true\n  },\n  \"system\": {\n    \"azimuth_deg\": 0,\n    \"pnom_kwp\": 5,\n    \"system_loss_pct\": 14,\n    \"tilt_deg\": 30\n  },\n  \"target\": {\n    \"e_y_kwh\": 7420.55,\n    \"lat\": 41.9,\n    \"lon\": 12.5\n  }\n}\n"
+    },
+    {
+      "command": "sites diff",
+      "kind": "json_fidelity",
+      "args": [
+        "sites",
+        "diff",
+        "--baseline",
+        "45.0,9.0",
+        "--target",
+        "41.9,12.5",
+        "--pnom",
+        "5",
+        "--system-loss",
+        "14",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"baseline\": {\n    \"e_y_kwh\": 6762.3,\n    \"lat\": 45,\n    \"lon\": 9\n  },\n  \"delta\": {\n    \"kwh_year\": 658.25,\n    \"percent\": 9.734114132765479,\n    \"target_better\": true\n  },\n  \"system\": {\n    \"azimuth_deg\": 0,\n    \"pnom_kwp\": 5,\n    \"system_loss_pct\": 14,\n    \"tilt_deg\": 30\n  },\n  \"target\": {\n    \"e_y_kwh\": 7420.55,\n    \"lat\": 41.9,\n    \"lon\": 12.5\n  }\n}\n"
+    },
+    {
+      "command": "sites diff",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "sites rank",
+      "kind": "help",
+      "args": [
+        "sites",
+        "rank",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Reads a CSV with columns lat,lon[,label] and ranks every site by its annual PVcalc production. The same system spec (pnom, system-loss, tilt, azimuth) is applied to every site so yields are directly comparable.\n\nUsage:\n  pvgis-pp-cli sites rank [flags]\n\nExamples:\n  pvgis-pp-cli sites rank --input sites.csv --tilt 30 --pnom 5 --system-loss 14 --json\n\nFlags:\n      --azimuth float        Surface azimuth (PVGIS convention: 0=south).\n  -h, --help                 help for rank\n      --input string         Path to a CSV with columns lat,lon[,label].\n      --pnom float           Nominal system peak power in kWp applied to every site. (default 1)\n      --raddatabase string   Force radiation database (PVGIS-SARAH3, PVGIS-NSRDB, PVGIS-ERA5).\n      --system-loss float    Total system losses in percent. (default 14)\n      --tilt float           Surface tilt in degrees. (default 30)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pvgis-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "sites rank",
+      "kind": "happy_path",
+      "args": [
+        "sites",
+        "rank",
+        "--input",
+        "sites.csv",
+        "--tilt",
+        "30",
+        "--pnom",
+        "5",
+        "--system-loss",
+        "14",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"count\": 3,\n  \"results\": [\n    {\n      \"rank\": 1,\n      \"label\": \"Napoli\",\n      \"lat\": 40.85,\n      \"lon\": 14.27,\n      \"e_y_kwh\": 7517.81,\n      \"e_y_per_kwp\": 1503.5620000000001,\n      \"database\": \"PVGIS-SARAH3\"\n    },\n    {\n      \"rank\": 2,\n      \"label\": \"Roma\",\n      \"lat\": 41.9,\n      \"lon\": 12.5,\n      \"e_y_kwh\": 7420.55,\n      \"e_y_per_kwp\": 1484.1100000000001,\n      \"database\": \"PVGIS-SARAH3\"\n    },\n    {\n      \"rank\": 3,\n      \"label\": \"Milano\",\n      \"lat\": 45,\n      \"lon\": 9,\n      \"e_y_kwh\": 6762.3,\n      \"e_y_per_kwp\": 1352.46,\n      \"database\": \"PVGIS-SARAH3\"\n    }\n  ],\n  \"system\": {\n    \"azimuth_deg\": 0,\n    \"pnom_kwp\": 5,\n    \"radiation_db_pref\": \"\",\n    \"system_loss_pct\": 14,\n    \"tilt_deg\": 30\n  }\n}\n"
+    },
+    {
+      "command": "sites rank",
+      "kind": "json_fidelity",
+      "args": [
+        "sites",
+        "rank",
+        "--input",
+        "sites.csv",
+        "--tilt",
+        "30",
+        "--pnom",
+        "5",
+        "--system-loss",
+        "14",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"count\": 3,\n  \"results\": [\n    {\n      \"rank\": 1,\n      \"label\": \"Napoli\",\n      \"lat\": 40.85,\n      \"lon\": 14.27,\n      \"e_y_kwh\": 7517.81,\n      \"e_y_per_kwp\": 1503.5620000000001,\n      \"database\": \"PVGIS-SARAH3\"\n    },\n    {\n      \"rank\": 2,\n      \"label\": \"Roma\",\n      \"lat\": 41.9,\n      \"lon\": 12.5,\n      \"e_y_kwh\": 7420.55,\n      \"e_y_per_kwp\": 1484.1100000000001,\n      \"database\": \"PVGIS-SARAH3\"\n    },\n    {\n      \"rank\": 3,\n      \"label\": \"Milano\",\n      \"lat\": 45,\n      \"lon\": 9,\n      \"e_y_kwh\": 6762.3,\n      \"e_y_per_kwp\": 1352.46,\n      \"database\": \"PVGIS-SARAH3\"\n    }\n  ],\n  \"system\": {\n    \"azimuth_deg\": 0,\n    \"pnom_kwp\": 5,\n    \"radiation_db_pref\": \"\",\n    \"system_loss_pct\": 14,\n    \"tilt_deg\": 30\n  }\n}\n"
+    },
+    {
+      "command": "sites rank",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "sync",
+      "kind": "help",
+      "args": [
+        "sync",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Sync data from the API into a local SQLite database. Supports resumable\nincremental sync (only fetches new data since last sync) and full resync.\nOnce synced, use the 'search' command for instant full-text search.\n\nExit codes \u0026 warnings:\n  Resources the API denies access to (HTTP 403, or HTTP 400 with an\n  access-policy body) are reported as warnings rather than failing the\n  run. In --json mode each is emitted as a {\"event\":\"sync_warning\",...}\n  line carrying status, reason, and message fields, and a final\n  {\"event\":\"sync_summary\",...} aggregates the run.\n\n  Exit 0 when at least one resource synced and no resource flagged in\n  the spec as critical (x-critical: true) failed; non-critical failures\n  emit {\"event\":\"sync_warning\",\"reason\":\"exit_policy_default_changed\",\n  ...} so callers can detect that a partial failure was tolerated. Pass\n  --strict to exit non-zero on any per-resource failure. Exit is always\n  non-zero when every selected resource failed, regardless of --strict.\n\nResource scoping:\n  --resources runs the named top-level resources, plus any parent-keyed\n  dependent whose own name is listed OR whose parent table is listed.\n  Naming a parent therefore cascades to its dependents (so \"sync this\n  parent and its children\" works without listing every nested resource\n  by hand). There is no flag today to suppress the cascade for a named\n  parent. To run a dependent without re-syncing its parent, list only\n  the dependent by name; the parent table must already be populated\n  from a prior sync.\n\nUsage:\n  pvgis-pp-cli sync [flags]\n\nExamples:\n  # Sync all resources\n  pvgis-pp-cli sync\n\n  # Sync specific resources only\n  pvgis-pp-cli sync --resources channels,messages\n\n  # Full resync (ignore previous checkpoint)\n  pvgis-pp-cli sync --full\n\n  # Incremental sync: only records from the last 7 days\n  pvgis-pp-cli sync --since 7d\n\n  # Parallel sync with 8 workers\n  pvgis-pp-cli sync --concurrency 8\n\n  # Latest-only: refresh head of each resource, no historical backfill\n  pvgis-pp-cli sync --latest-only\n\nFlags:\n      --concurrency int              Number of parallel sync workers (default 4)\n      --db string                    Database path (default: ~/.local/share/pvgis-pp-cli/data.db)\n      --full                         Full resync (ignore previous checkpoint)\n  -h, --help                         help for sync\n      --latest-only                  Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).\n      --max-pages int                Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event) (default 100)\n      --param stringArray            Extra query param to inject into every sync request (repeatable, key=value). Use for APIs whose spec marks a filter optional but the endpoint rejects calls without it (e.g. --param mine=true). Avoid pagination keys (limit/since/cursor) — overriding them corrupts resume state.\n      --resource-param stringArray   Per-resource extra query param (repeatable, resource:key=value). Wins over --param when both define the same key.\n      --resources strings            Comma-separated resource types to sync. Naming a parent also runs its parent-keyed dependents (see Long help for scoping).\n      --since string                 Incremental sync duration (e.g. 7d, 24h, 1w, 30m)\n      --strict                       Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:…[truncated]"
+    },
+    {
+      "command": "sync",
+      "kind": "happy_path",
+      "args": [
+        "sync"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_summary\",\"total_records\":0,\"resources\":0,\"success\":0,\"warned\":0,\"errored\":0,\"duration_ms\":0}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "json_fidelity",
+      "args": [
+        "sync",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_summary\",\"total_records\":0,\"resources\":0,\"success\":0,\"warned\":0,\"errored\":0,\"duration_ms\":0}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "weather similar",
+      "kind": "help",
+      "args": [
+        "weather",
+        "similar",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Pulls the TMY for the --to site and for every site in --within, aggregates both to a 12-month signature of average T2m and average G(h), then ranks the candidates by Euclidean distance in that 24-d space. Cheaper sites (already cached) cost nothing.\n\nUsage:\n  pvgis-pp-cli weather similar [flags]\n\nExamples:\n  pvgis-pp-cli weather similar --to 45.0,9.0 --within sites.csv --top 5 --json\n\nFlags:\n  -h, --help            help for similar\n      --to string       Target site as lat,lon.\n      --top int         Maximum number of nearest sites to return. (default 5)\n      --within string   Path to a CSV of candidate sites with columns lat,lon[,label].\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pvgis-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "weather similar",
+      "kind": "happy_path",
+      "args": [
+        "weather",
+        "similar",
+        "--to",
+        "45.0,9.0",
+        "--within",
+        "sites.csv",
+        "--top",
+        "5",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"count\": 2,\n  \"results\": [\n    {\n      \"rank\": 1,\n      \"label\": \"Roma\",\n      \"lat\": 41.9,\n      \"lon\": 12.5,\n      \"distance\": 13.194622003639818\n    },\n    {\n      \"rank\": 2,\n      \"label\": \"Napoli\",\n      \"lat\": 40.85,\n      \"lon\": 14.27,\n      \"distance\": 18.2486796202359\n    }\n  ],\n  \"target\": {\n    \"lat\": 45,\n    \"lon\": 9\n  }\n}\n"
+    },
+    {
+      "command": "weather similar",
+      "kind": "json_fidelity",
+      "args": [
+        "weather",
+        "similar",
+        "--to",
+        "45.0,9.0",
+        "--within",
+        "sites.csv",
+        "--top",
+        "5",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"count\": 2,\n  \"results\": [\n    {\n      \"rank\": 1,\n      \"label\": \"Roma\",\n      \"lat\": 41.9,\n      \"lon\": 12.5,\n      \"distance\": 13.194622003639818\n    },\n    {\n      \"rank\": 2,\n      \"label\": \"Napoli\",\n      \"lat\": 40.85,\n      \"lon\": 14.27,\n      \"distance\": 18.2486796202359\n    }\n  ],\n  \"target\": {\n    \"lat\": 45,\n    \"lon\": 9\n  }\n}\n"
+    },
+    {
+      "command": "weather similar",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "which resolves a natural-language capability query (for example, \"search messages\" or \"stale tickets\") to the best matching command from this CLI's curated feature index.\n\nExit codes:\n  0  at least one match found\n  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one\n\nUsage:\n  pvgis-pp-cli which [query] [flags]\n\nExamples:\n  pvgis-pp-cli which \"stale tickets\"\n  pvgis-pp-cli which \"bottleneck\"\n  pvgis-pp-cli which --limit 1 \"send message\"\n  pvgis-pp-cli which                                # list the full capability index\n\nFlags:\n  -h, --help        help for which\n      --limit int   Maximum number of matches to return (default 3)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pvgis-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"matches\": []\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "archive",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Archive fetches all syncable resources from the API and stores them in a\nlocal SQLite database. Supports incremental sync (only new data since last run)\nand full resync. After archiving, use 'search' for instant full-text search.\n\nUsage:\n  pvgis-pp-cli workflow archive [flags]\n\nExamples:\n  # Archive all resources\n  pvgis-pp-cli workflow archive\n\n  # Full re-archive (ignore previous sync state)\n  pvgis-pp-cli workflow archive --full\n\nFlags:\n      --db string   Database path (default: ~/.local/share/pvgis-pp-cli/data.db)\n      --full        Full re-archive (ignore previous sync state)\n  -h, --help        help for archive\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pvgis-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "archive"
+      ],
+      "status": "pass",
+      "output_sample": "Archived 0 items across 0 resources to /var/folders/ym/tqt17s3x0234wtcbq0m220b40000gn/T/printing-press-subprocess-1008614531/.local/share/pvgis-pp-cli/data.db\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "archive",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"resources_synced\": 0,\n  \"store_path\": \"/var/folders/ym/tqt17s3x0234wtcbq0m220b40000gn/T/printing-press-subprocess-1008614531/.local/share/pvgis-pp-cli/data.db\",\n  \"timestamp\": \"2026-05-18T20:55:08Z\",\n  \"total_items\": 0\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show local archive status and sync state for all resources\n\nUsage:\n  pvgis-pp-cli workflow status [flags]\n\nExamples:\n  # Show archive status\n  pvgis-pp-cli workflow status\n\n  # Show status as JSON\n  pvgis-pp-cli workflow status --json\n\nFlags:\n      --db string   Database path\n  -h, --help        help for status\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pvgis-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "status"
+      ],
+      "status": "pass",
+      "output_sample": "No archived data. Run 'workflow archive' to sync.\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "status",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-05-18T20:54:29.579306Z"
+}
+Error: live dogfood failed: 1/63 tests failed
+live dogfood failed: 1/63 tests failed
