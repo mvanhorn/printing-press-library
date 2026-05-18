@@ -110,6 +110,15 @@ Subcommands:
 				if !hasTemp && !hasHum && !hasPM {
 					continue
 				}
+				// PATCH(greptile/641): each device carries its own tempunit
+				// (0=°C, 1=°F). Normalize to °C so a household with mixed-
+				// unit devices doesn't display 22 next to 72 in the same
+				// column. Mirrors rooms.go. Missing tempunit defaults to °C.
+				if hasTemp {
+					if u, ok := asFloat(stateMap, "tempunit"); ok && u == 1 {
+						temp = (temp - 32) * 5.0 / 9.0
+					}
+				}
 				row := map[string]any{
 					"sn":    d.Sn,
 					"name":  d.Name,
@@ -117,7 +126,7 @@ Subcommands:
 					"model": d.Model,
 				}
 				if hasTemp {
-					row["temperature"] = temp
+					row["temperature_c"] = temp
 				}
 				if hasHum {
 					row["humidity"] = hum
@@ -135,8 +144,8 @@ Subcommands:
 				if pi != pj {
 					return pi > pj
 				}
-				ti, _ := rows[i]["temperature"].(float64)
-				tj, _ := rows[j]["temperature"].(float64)
+				ti, _ := rows[i]["temperature_c"].(float64)
+				tj, _ := rows[j]["temperature_c"].(float64)
 				return ti > tj
 			})
 
@@ -147,14 +156,14 @@ Subcommands:
 				fmt.Fprintln(cmd.OutOrStdout(), "No sensor data found. Run `dreo-pp-cli devices state --device-sn <sn>` to refresh.")
 				return nil
 			}
-			headers := []string{"NAME", "ROOM", "MODEL", "TEMP", "HUMIDITY", "PM2.5"}
+			headers := []string{"NAME", "ROOM", "MODEL", "TEMP_C", "HUMIDITY", "PM2.5"}
 			out := make([][]string, 0, len(rows))
 			for _, r := range rows {
 				out = append(out, []string{
 					stringOf(r["name"]),
 					stringOf(r["room"]),
 					stringOf(r["model"]),
-					floatOf(r["temperature"]),
+					floatOf(r["temperature_c"]),
 					floatOf(r["humidity"]),
 					floatOf(r["pm25"]),
 				})

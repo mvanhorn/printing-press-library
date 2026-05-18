@@ -140,7 +140,7 @@ func newAuthLoginCmd(flags *rootFlags) *cobra.Command {
 				}, flags)
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "Logged in as %s, region %s\n", username, resp.Region)
-			fmt.Fprintf(cmd.OutOrStdout(), "Token saved to %s\n", cfg.Path)
+			fmt.Fprintf(cmd.OutOrStdout(), "Credentials and bearer token saved to %s (mode 0600); Dreo issues no refresh token, so the user/pass pair is kept on disk to re-mint the bearer when it expires.\n", cfg.Path)
 			return nil
 		},
 	}

@@ -160,7 +160,7 @@ One line replaces ten taps in the Dreo app; cron-friendly.
 ### Whole-house sensor read (agent-friendly with --select)
 
 ```bash
-dreo-pp-cli sensors --json --select 'devices.name,devices.room,devices.temperature,devices.humidity,devices.pm25'
+dreo-pp-cli sensors --json --select 'devices.name,devices.room,devices.temperature_c,devices.humidity,devices.pm25'
 ```
 
 Returns only the sensor columns an agent needs, dropping the verbose device metadata.
