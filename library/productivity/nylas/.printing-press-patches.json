@@ -54,8 +54,8 @@
     },
     {
       "id": "send-confirm-checks-stdin-tty",
-      "summary": "Gate the send confirmation prompt on stdin being a TTY rather than stdout, so --stdin pipelines fail with the explicit 'pass --yes' error instead of silently cancelling.",
-      "reason": "Greptile P1 review finding on PR #676 (fifth pass): in `cat body.json | nylas-pp-cli grants messages send GRANT --stdin`, stdout is still a tty so the prompt printed, but io.ReadAll(os.Stdin) had already drained stdin to EOF and Fscanln returned empty, cancelling the send with a misleading 'send cancelled by user'. The right invariant is 'can I prompt the user' — that requires stdin to be a terminal, not stdout. Pipelines now exit cleanly with the documented --yes guidance.",
+      "summary": "Refuse send without --yes whenever stdin is non-TTY OR --stdin was passed (which drains stdin for the body), so the confirmation prompt can never silently EOF-cancel a send.",
+      "reason": "Greptile P1 findings on PR #676, fifth and sixth passes: (1) `cat body.json | … --stdin` — stdout was still a TTY but stdin was a pipe at EOF, so the old stdout-based check let Fscanln read empty and cancel silently. (2) Interactive TTY + `--stdin` — even with a terminal, io.ReadAll(os.Stdin) drains the body, leaving Fscanln nothing to read. The combined check (stdinBody || !stdinIsTTY → require --yes) covers both vectors with one actionable error.",
       "files": ["internal/cli/grants_messages_send.go"]
     },
     {
