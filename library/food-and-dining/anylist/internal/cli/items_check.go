@@ -70,6 +70,9 @@ func newItemsCheckCmd(flags *rootFlags) *cobra.Command {
 					}
 					count++
 				}
+				if err := syncStoreFromLive(ctx, cfg, st); err != nil {
+					return fmt.Errorf("refreshing data after checking items: %w", err)
+				}
 				if flags.asJSON {
 					return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
 						"checked": true,
@@ -88,6 +91,9 @@ func newItemsCheckCmd(flags *rootFlags) *cobra.Command {
 
 			if err := alClient.SetItemChecked(ctx, list.ID, item.ID, true); err != nil {
 				return fmt.Errorf("checking item: %w", err)
+			}
+			if err := syncStoreFromLive(ctx, cfg, st); err != nil {
+				return fmt.Errorf("refreshing data after checking item: %w", err)
 			}
 
 			if flags.asJSON {

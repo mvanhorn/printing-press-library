@@ -70,6 +70,9 @@ func newItemsUncheckCmd(flags *rootFlags) *cobra.Command {
 					}
 					count++
 				}
+				if err := syncStoreFromLive(ctx, cfg, st); err != nil {
+					return fmt.Errorf("refreshing data after unchecking items: %w", err)
+				}
 				if flags.asJSON {
 					return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
 						"unchecked": true,
@@ -88,6 +91,9 @@ func newItemsUncheckCmd(flags *rootFlags) *cobra.Command {
 
 			if err := alClient.SetItemChecked(ctx, list.ID, item.ID, false); err != nil {
 				return fmt.Errorf("unchecking item: %w", err)
+			}
+			if err := syncStoreFromLive(ctx, cfg, st); err != nil {
+				return fmt.Errorf("refreshing data after unchecking item: %w", err)
 			}
 
 			if flags.asJSON {

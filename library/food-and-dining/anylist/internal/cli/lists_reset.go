@@ -53,29 +53,35 @@ func newListsResetCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			checkedItems, err := st.GetCheckedItems(list.ID)
+			itemsToRemove, err := st.GetCheckedItems(list.ID)
 			if err != nil {
 				return fmt.Errorf("getting checked items: %w", err)
 			}
+			if !bodyKeepUnchecked {
+				itemsToRemove, err = st.GetItems(list.ID, nil)
+				if err != nil {
+					return fmt.Errorf("getting list items: %w", err)
+				}
+			}
 
 			if flags.dryRun {
-				fmt.Fprintf(cmd.OutOrStdout(), "Would uncheck %d items in %q:\n", len(checkedItems), list.Name)
-				for _, it := range checkedItems {
+				fmt.Fprintf(cmd.OutOrStdout(), "Would remove %d items from %q:\n", len(itemsToRemove), list.Name)
+				for _, it := range itemsToRemove {
 					fmt.Fprintf(cmd.OutOrStdout(), "  - %s\n", it.Name)
 				}
 				return nil
 			}
 
-			// --keep-unchecked is informational here: we only touch checked items anyway
-			_ = bodyKeepUnchecked
-
 			alClient := anylist.New(cfg)
 			count := 0
-			for _, it := range checkedItems {
-				if err := alClient.SetItemChecked(ctx, list.ID, it.ID, false); err != nil {
-					return fmt.Errorf("unchecking item %q: %w", it.Name, err)
+			for _, it := range itemsToRemove {
+				if err := alClient.RemoveItem(ctx, list.ID, itemRowToPB(&it, cfg.UserID)); err != nil {
+					return fmt.Errorf("removing item %q: %w", it.Name, err)
 				}
 				count++
+			}
+			if err := syncStoreFromLive(ctx, cfg, st); err != nil {
+				return fmt.Errorf("refreshing data after resetting list: %w", err)
 			}
 
 			if flags.asJSON {
@@ -91,7 +97,7 @@ func newListsResetCmd(flags *rootFlags) *cobra.Command {
 	}
 
 	cmd.Flags().StringVar(&bodyName, "name", "", "List name to reset")
-	cmd.Flags().BoolVar(&bodyKeepUnchecked, "keep-unchecked", false, "Keep unchecked items (default: remove checked, keep unchecked)")
+	cmd.Flags().BoolVar(&bodyKeepUnchecked, "keep-unchecked", true, "Keep unchecked items; set false to remove every item")
 
 	return cmd
 }

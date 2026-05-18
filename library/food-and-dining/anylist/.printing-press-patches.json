@@ -28,6 +28,9 @@
         "internal/cli/collections_remove.go",
         "internal/cli/folders_create.go",
         "internal/cli/folders_delete.go",
+        "internal/cli/items_check.go",
+        "internal/cli/items_uncheck.go",
+        "internal/cli/lists_reset.go",
         "internal/cli/meal_add-to-list.go",
         "internal/cli/local_anylist.go",
         "internal/cli/root.go",
@@ -37,7 +40,7 @@
         "internal/mcp/cobratree/shellout.go",
         "internal/store/store.go"
       ],
-      "validated_outcome": "Added regression coverage for meal event recipe-ID resolution, context cancellation, MCP rate-limit blocking, recipe lookup by ID, and concurrent limiter spacing."
+      "validated_outcome": "Added regression coverage for meal event recipe-ID resolution, context cancellation, MCP rate-limit blocking, recipe lookup by ID, and concurrent limiter spacing; local validation covers list reset and item check cache refresh paths."
     }
   ]
 }
