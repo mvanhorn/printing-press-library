@@ -53,6 +53,16 @@
         "internal/cli/sync.go"
       ],
       "validated_outcome": "Local validation rerun covers tests, vet, govulncheck, verify-skill, publish validate, publish-package verifier, attribution guard, generated-artifact guard, and diff hygiene."
+    },
+    {
+      "id": "review-meal-dry-run-json",
+      "summary": "Corrected meal add-to-list dry-run JSON so recipe rows report writes that would occur.",
+      "reason": "Greptile noted that dry-run previews inverted the per-recipe would_write field, causing agents to read every recipe row as not planned for writing.",
+      "files": [
+        "internal/cli/meal_add-to-list.go",
+        "internal/cli/root_test.go"
+      ],
+      "validated_outcome": "Targeted validation confirms the dry-run JSON reports would_write=true for planned recipe writes."
     }
   ]
 }

@@ -98,6 +98,7 @@ func newMealAddToListCmd(flags *rootFlags) *cobra.Command {
 					}
 				}
 				total += added
+				// PATCH: In dry-run JSON, mark recipe rows as writes that would occur.
 				addedByRecipe = append(addedByRecipe, map[string]any{
 					"date":        event.Date,
 					"event_id":    event.ID,
@@ -105,7 +106,7 @@ func newMealAddToListCmd(flags *rootFlags) *cobra.Command {
 					"recipe_id":   recipe.ID,
 					"scale":       factor,
 					"added":       added,
-					"would_write": !dryRun,
+					"would_write": dryRun,
 				})
 			}
 			if flags.asJSON {

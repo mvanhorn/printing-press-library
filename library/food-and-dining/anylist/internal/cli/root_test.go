@@ -5,6 +5,7 @@ package cli
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"path/filepath"
@@ -120,5 +121,18 @@ func TestMealAddToListDryRunResolvesRecipesByEventID(t *testing.T) {
 	}
 	if got := out.String(); !strings.Contains(got, `"recipe": "Pancakes"`) {
 		t.Fatalf("output = %s, want recipe resolved from meal event recipe_id", got)
+	}
+	// PATCH: Cover dry-run JSON would_write semantics from PR review.
+	var payload struct {
+		Recipes []map[string]any `json:"recipes"`
+	}
+	if err := json.Unmarshal(out.Bytes(), &payload); err != nil {
+		t.Fatalf("unmarshal output: %v\n%s", err, out.String())
+	}
+	if len(payload.Recipes) != 1 {
+		t.Fatalf("len(recipes) = %d, want 1: %#v", len(payload.Recipes), payload.Recipes)
+	}
+	if got, ok := payload.Recipes[0]["would_write"].(bool); !ok || !got {
+		t.Fatalf("would_write = %#v, want true during dry run", payload.Recipes[0]["would_write"])
 	}
 }
