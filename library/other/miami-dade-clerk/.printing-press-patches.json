@@ -124,6 +124,14 @@
       ]
     },
     {
+      "id": "recordings-coerce-helpers-strict",
+      "summary": "i64/f64 string branches use strconv.ParseInt/ParseFloat (strict) instead of fmt.Sscanf (partial-prefix tolerant); ConsiderationCents rounds instead of truncating.",
+      "reason": "Sscanf parses '123A' as 123 — the same silent-prefix bug fixed in NormalizeFolio. Consistency matters across every numeric ingest path. The dollars→cents conversion previously truncated; math.Round avoids a one-cent error on fractional consideration amounts that round-tripped through .NET-emitted floats.",
+      "files": [
+        "internal/store/recordings.go"
+      ]
+    },
+    {
       "id": "since-flag-validation",
       "summary": "ftl-scan, lien-chain, and chain-of-title validate --since as YYYY-MM-DD via validateSinceFlag before threading it into the SQLite filter.",
       "reason": "SinceDate is interpolated into a textual `recording_date >= ?` comparison. A common user mistake like '01/01/2025' would parse as a different ordering than '2025-01-01' and silently match no rows, defeating the filter without warning. ftl-scan in particular exists to surface deal-breaker FTLs — a malformed --since must be a loud error, not a quiet skip. Shared validateSinceFlag handles the parse + canonicalization and is covered by recordings_shared_test.go.",

@@ -12,7 +12,9 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"math"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -286,7 +288,13 @@ func ParseRecordingFromAPI(obj map[string]any) (*Recording, error) {
 	if c == 0 {
 		c = f64(obj["consideratioN_2"])
 	}
-	rec.ConsiderationCents = int64(c * 100)
+	// Round to the nearest cent rather than truncate — a recorded
+	// consideration of $1234.567 (rare; the clerk usually serializes
+	// integers, but the API has emitted floats with trailing decimals
+	// after JSON round-trips through .NET) should land at 123457¢, not
+	// 123456¢. math.Round handles negative values too (the API never
+	// emits them today, but the conversion stays correct if it does).
+	rec.ConsiderationCents = int64(math.Round(c * 100))
 	rec.LinkDocType = strings.TrimSpace(str(obj["linK_DOCTYPE"]))
 	rec.ViewerQS = strings.TrimSpace(str(obj["qs"]))
 
@@ -361,14 +369,23 @@ func i64(v any) int64 {
 	}
 	switch t := v.(type) {
 	case float64:
-		return int64(t)
+		return int64(math.Round(t))
 	case int:
 		return int64(t)
 	case int64:
 		return t
 	case string:
-		var n int64
-		fmt.Sscanf(t, "%d", &n)
+		// strconv.ParseInt rejects partial-digit inputs ("123A" → 0)
+		// so the same contract NormalizeFolio enforces applies here:
+		// a malformed numeric string yields 0, not a silent prefix.
+		s := strings.TrimSpace(t)
+		if s == "" {
+			return 0
+		}
+		n, err := strconv.ParseInt(s, 10, 64)
+		if err != nil {
+			return 0
+		}
 		return n
 	case json.Number:
 		n, _ := t.Int64()
@@ -389,8 +406,16 @@ func f64(v any) float64 {
 	case int64:
 		return float64(t)
 	case string:
-		var n float64
-		fmt.Sscanf(t, "%f", &n)
+		// strconv.ParseFloat is strict — "1.5x" returns an error,
+		// where fmt.Sscanf would have returned 1.5 silently.
+		s := strings.TrimSpace(t)
+		if s == "" {
+			return 0
+		}
+		n, err := strconv.ParseFloat(s, 64)
+		if err != nil {
+			return 0
+		}
 		return n
 	case json.Number:
 		n, _ := t.Float64()
