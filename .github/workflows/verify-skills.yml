@@ -33,16 +33,14 @@ jobs:
         with:
           python-version: '3.11'
 
-      # cli-skills/ drift handling lives in verify-library-conventions.yml's
-      # `cli-skills mirror parity` + `Commit generated convention fixes` steps,
-      # which soft-pass on PRs and auto-commit the regen as github-actions[bot].
-      # An additional strict drift gate here is redundant and was racy: this
-      # workflow defaults to actions/checkout's `refs/pull/<n>/merge` ref
-      # (a merge with main), while verify-library-conventions.yml checks out
-      # `head.ref` directly. The two trees disagree whenever main is stale
-      # relative to what the generator produces, which makes one workflow fail
-      # while the other passes on the same commit. Leave drift to the
-      # auto-fix path; this workflow's job is verify_skill.py.
+      # cli-skills/ drift is handled by post-merge regen
+      # (generate-skills.yml), not by this PR-time workflow.
+      # verify-library-conventions.yml's `Fail on changes to generated
+      # artifacts` step blocks any PR commit that touches
+      # cli-skills/pp-*/SKILL.md; the post-merge regen produces the
+      # mirror once library/<cat>/<slug>/SKILL.md lands on main.
+      # An additional strict drift gate here is redundant. This
+      # workflow's job is verify_skill.py.
 
       - name: Run verifier against affected CLI skills
         id: verify

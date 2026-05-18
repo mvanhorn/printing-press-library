@@ -1,0 +1,220 @@
+{
+  "api_name": "tenderned",
+  "base_url": "https://www.tenderned.nl/papi/tenderned-rs-tns/v2",
+  "description": "Every Dutch public tender, with the sub-threshold long tail that EU TED never sees, in a local-first CLI you can pipe.\n\nTenderNed is the Dutch national public procurement platform run by PIANOo / Ministerie van EZK. Every Dutch contracting authority must publish above- and below-threshold tender notices here. Above-threshold notices are forwarded to EU TED; the sub-threshold long tail (€40k–€220k) is TenderNed-only.\n\nThis CLI covers the unauthenticated TNS publication webservice (search/list/filter publications, document download, contracting-authority directory, RSS feed) and the Basic-auth eForms XML endpoint. Data is CC-0 public domain.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "buyers_get",
+      "description": "Fetch one contracting authority by ID. Required: aanbestedendedienstId. Returns the Buyer.",
+      "method": "GET",
+      "path": "/aanbestedendediensten/{aanbestedendedienstId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "aanbestedendedienstId",
+          "type": "string",
+          "location": "path",
+          "description": "Contracting authority UUID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "buyers_list",
+      "description": "List Dutch contracting authorities (paginated). Optional: page, size. Returns the BuyerPage.",
+      "method": "GET",
+      "path": "/aanbestedendediensten",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (0-based)"
+        },
+        {
+          "name": "size",
+          "type": "int",
+          "location": "query",
+          "description": "Page size (default 50, max 100)"
+        }
+      ]
+    },
+    {
+      "name": "docs_download",
+      "description": "Download all documents for one publication as a zip archive. Required: publicatieId. Returns the BinaryContent.",
+      "method": "GET",
+      "path": "/publicaties/{publicatieId}/documenten/zip",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "publicatieId",
+          "type": "int",
+          "location": "path",
+          "description": "Publication ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "docs_get",
+      "description": "Download a single document's binary content (PDF/Word/etc.). Required: publicatieId, documentId. Returns the BinaryContent.",
+      "method": "GET",
+      "path": "/publicaties/{publicatieId}/documenten/{documentId}/content",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "publicatieId",
+          "type": "int",
+          "location": "path",
+          "description": "Publication ID",
+          "required": true
+        },
+        {
+          "name": "documentId",
+          "type": "string",
+          "location": "path",
+          "description": "Document ID (from 'documents list')",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "docs_list",
+      "description": "List attached documents for one publication. Required: publicatieId. Returns the DocumentList.",
+      "method": "GET",
+      "path": "/publicaties/{publicatieId}/documenten",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "publicatieId",
+          "type": "int",
+          "location": "path",
+          "description": "Publication ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "notices_get",
+      "description": "Fetch full structured metadata for one publication. Required: publicatieId. Returns the Publication.",
+      "method": "GET",
+      "path": "/publicaties/{publicatieId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "publicatieId",
+          "type": "int",
+          "location": "path",
+          "description": "TenderNed publication ID (e.g. 425283)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "notices_list",
+      "description": "Search and list tender publications with rich filters (CPV, dates, buyer, procedure, scope). Optional: search, cpvCodes, publicatieType (plus 11 more). Returns the PublicationPage.",
+      "method": "GET",
+      "path": "/publicaties",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Full-text keyword search across title and description"
+        },
+        {
+          "name": "cpvCodes",
+          "type": "string",
+          "location": "query",
+          "description": "CPV code in 8-digit-plus-check-digit form (e.g. 45000000-7). Repeat for multi-CPV intersection."
+        },
+        {
+          "name": "publicatieType",
+          "type": "string",
+          "location": "query",
+          "description": "Publication type filter (AAO=open call, AGO=awarded, VOP=prior info, RVO=cancellation, WNO=ex-ante, MAC=market consultation, REC=rectification)"
+        },
+        {
+          "name": "typeOpdracht",
+          "type": "string",
+          "location": "query",
+          "description": "Contract type: D=services (Diensten), L=supplies (Leveringen), W=works (Werken)"
+        },
+        {
+          "name": "procedure",
+          "type": "string",
+          "location": "query",
+          "description": "Procedure code (Openbaar, Niet-openbaar, Onderhandeling, Concurrentiegerichte dialoog, etc.)"
+        },
+        {
+          "name": "nationaalOfEuropees",
+          "type": "string",
+          "location": "query",
+          "description": "Scope: NA=national-only (sub-threshold), EU=European (above-threshold). National-only notices never reach TED."
+        },
+        {
+          "name": "since",
+          "wire_name": "publicatieDatumVanaf",
+          "type": "string",
+          "location": "query",
+          "description": "Earliest publication date (YYYY-MM-DD)"
+        },
+        {
+          "name": "until",
+          "wire_name": "publicatieDatumTot",
+          "type": "string",
+          "location": "query",
+          "description": "Latest publication date (YYYY-MM-DD)"
+        },
+        {
+          "name": "closing-since",
+          "wire_name": "sluitingsDatumVanaf",
+          "type": "string",
+          "location": "query",
+          "description": "Earliest closing date (YYYY-MM-DD)"
+        },
+        {
+          "name": "closing-until",
+          "wire_name": "sluitingsDatumTot",
+          "type": "string",
+          "location": "query",
+          "description": "Latest closing date (YYYY-MM-DD)"
+        },
+        {
+          "name": "buyer-id",
+          "wire_name": "aanbestedendeDienstId",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by contracting-authority UUID (use 'buyers list' to find IDs)"
+        },
+        {
+          "name": "buyer-type",
+          "wire_name": "typeAanbestedendeDienst",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by contracting-authority type code"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (0-based)"
+        },
+        {
+          "name": "size",
+          "type": "int",
+          "location": "query",
+          "description": "Page size (default 50, max 100)"
+        }
+      ]
+    }
+  ]
+}

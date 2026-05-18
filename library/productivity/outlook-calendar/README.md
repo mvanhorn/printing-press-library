@@ -6,7 +6,7 @@ Drives your personal Microsoft 365 calendar from scripts and agents. OAuth 2.0 d
 
 ## Install
 
-The recommended path installs both the `outlook-calendar-pp-cli` binary and the `pp-outlook-calendar` agent skill in one shot:
+The recommended path installs both the `outlook-calendar-pp-cli` binary and the `pp-outlook-calendar` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
 npx -y @mvanhorn/printing-press install outlook-calendar
@@ -18,10 +18,28 @@ For CLI only (no skill):
 npx -y @mvanhorn/printing-press install outlook-calendar --cli-only
 ```
 
+For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
-### Without Node
+```bash
+npx -y @mvanhorn/printing-press install outlook-calendar --skill-only
+```
 
-The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
+To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
+
+```bash
+npx -y @mvanhorn/printing-press install outlook-calendar --agent claude-code
+npx -y @mvanhorn/printing-press install outlook-calendar --agent claude-code --agent codex
+```
+
+### Without Node (Go fallback)
+
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/productivity/outlook-calendar/cmd/outlook-calendar-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
 
 ### Pre-built binary
 
@@ -50,6 +68,43 @@ Tell your OpenClaw agent (copy this):
 Install the pp-outlook-calendar skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-outlook-calendar. The skill defines how its required CLI can be installed.
 ```
 
+## Use with Claude Desktop
+
+This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
+
+To install:
+
+1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/outlook-calendar-current).
+2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
+3. Fill in `OUTLOOK_CALENDAR_TOKEN` when Claude Desktop prompts you.
+
+Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
+
+<details>
+<summary>Manual JSON config (advanced)</summary>
+
+If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
+
+
+Install the MCP binary from this CLI's published public-library entry or pre-built release.
+
+Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "outlook-calendar": {
+      "command": "outlook-calendar-pp-mcp",
+      "env": {
+        "OUTLOOK_CALENDAR_TOKEN": "<your-key>"
+      }
+    }
+  }
+}
+```
+
+</details>
+
 ## Authentication
 
 Authentication uses OAuth 2.0 device-code flow against `https://login.microsoftonline.com/common`. Run `outlook-calendar-pp-cli auth login --device-code` once; visit the displayed URL on any device, enter the code, and you're done. Tokens (access + refresh) are cached at `~/.config/outlook-calendar-pp-cli/config.toml` (mode 0600). Personal Microsoft accounts (Outlook.com, Hotmail, Live, MSA) are first-class and tested.
@@ -64,22 +119,17 @@ Reachability check: `outlook-calendar-pp-cli doctor --json` confirms the access 
 # One-time interactive login; subsequent commands are non-interactive and refresh-token driven.
 outlook-calendar-pp-cli auth login --device-code
 
-
 # Pull events into the local SQLite store via /me/events/delta. Run periodically to keep transcendence features fresh.
 outlook-calendar-pp-cli delta events
-
 
 # Today's week as JSON, ready for an agent.
 outlook-calendar-pp-cli events range --from today --to +7d --json
 
-
 # Find any double-bookings across every calendar you own.
 outlook-calendar-pp-cli conflicts --from today --to +14d --json
 
-
 # Hour-long open slots in working hours over the next week.
 outlook-calendar-pp-cli freetime --duration 60m --within 'Mon-Fri 9-17' --next 7d --json
-
 
 # Agent-shaped dossier for the next four hours of meetings.
 outlook-calendar-pp-cli prep --next 4h --json --select subject,location,attendees,body_preview
@@ -217,7 +267,6 @@ Outlook calendar events on your default or named calendar
 - **`outlook-calendar-pp-cli events tentative`** - Tentatively accept a meeting invite
 - **`outlook-calendar-pp-cli events update`** - Update fields on an existing event (subject, body, time, location, attendees)
 
-
 ## Output Formats
 
 ```bash
@@ -252,69 +301,6 @@ This CLI is designed for AI agent consumption:
 - **Agent-safe by default** - no colors or formatting unless `--human-friendly` is set
 
 Exit codes: `0` success, `2` usage error, `3` not found, `4` auth error, `5` API error, `7` rate limited, `10` config error.
-
-## Use with Claude Code
-
-Install the focused skill — it auto-installs the CLI on first invocation:
-
-```bash
-npx skills add mvanhorn/printing-press-library/cli-skills/pp-outlook-calendar -g
-```
-
-Then invoke `/pp-outlook-calendar <query>` in Claude Code. The skill is the most efficient path — Claude Code drives the CLI directly without an MCP server in the middle.
-
-<details>
-<summary>Use as an MCP server in Claude Code (advanced)</summary>
-
-If you'd rather register this CLI as an MCP server in Claude Code, install the MCP binary first:
-
-
-Install the MCP binary from this CLI's published public-library entry or pre-built release.
-
-Then register it:
-
-```bash
-claude mcp add outlook-calendar outlook-calendar-pp-mcp -e OUTLOOK_CALENDAR_TOKEN=<your-token>
-```
-
-</details>
-
-## Use with Claude Desktop
-
-This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
-
-To install:
-
-1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/outlook-calendar-current).
-2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
-3. Fill in `OUTLOOK_CALENDAR_TOKEN` when Claude Desktop prompts you.
-
-Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
-
-<details>
-<summary>Manual JSON config (advanced)</summary>
-
-If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
-
-
-Install the MCP binary from this CLI's published public-library entry or pre-built release.
-
-Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "outlook-calendar": {
-      "command": "outlook-calendar-pp-mcp",
-      "env": {
-        "OUTLOOK_CALENDAR_TOKEN": "<your-key>"
-      }
-    }
-  }
-}
-```
-
-</details>
 
 ## Health Check
 
