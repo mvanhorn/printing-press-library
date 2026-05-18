@@ -57,6 +57,12 @@
       "summary": "Gate the send confirmation prompt on stdin being a TTY rather than stdout, so --stdin pipelines fail with the explicit 'pass --yes' error instead of silently cancelling.",
       "reason": "Greptile P1 review finding on PR #676 (fifth pass): in `cat body.json | nylas-pp-cli grants messages send GRANT --stdin`, stdout is still a tty so the prompt printed, but io.ReadAll(os.Stdin) had already drained stdin to EOF and Fscanln returned empty, cancelling the send with a misleading 'send cancelled by user'. The right invariant is 'can I prompt the user' — that requires stdin to be a terminal, not stdout. Pipelines now exit cleanly with the documented --yes guidance.",
       "files": ["internal/cli/grants_messages_send.go"]
+    },
+    {
+      "id": "client-retry-ctx-aware",
+      "summary": "Replace `time.Sleep(wait)` in 429 and 5xx retry paths with `select { case <-ctx.Done(): ...; case <-time.After(wait): }` so Ctrl+C is responsive during backoff waits.",
+      "reason": "Greptile P2 review finding on PR #676 (fifth pass summary): Retry-After backoffs can be tens of seconds; bare time.Sleep ignores cmd.Context() cancellation, so Ctrl+C would not interrupt a long rate-limit wait. The context plumbing from the third-pass patch is already wired into do(); this completes the chain by honouring it during backoff as well as during the in-flight request.",
+      "files": ["internal/client/client.go"]
     }
   ]
 }

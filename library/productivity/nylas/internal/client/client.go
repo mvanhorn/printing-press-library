@@ -376,21 +376,32 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 			Body:       truncateBody(respBody),
 		}
 
-		// Rate limited - adjust adaptive limiter and retry
+		// Rate limited - adjust adaptive limiter and retry. Honour
+		// ctx.Done() during the wait so Ctrl+C is responsive even
+		// when Retry-After lands on tens-of-seconds backoffs.
 		if resp.StatusCode == 429 && attempt < maxRetries {
 			c.limiter.OnRateLimit()
 			wait := cliutil.RetryAfter(resp)
 			fmt.Fprintf(os.Stderr, "rate limited, waiting %s (attempt %d/%d, rate adjusted to %.1f req/s)\n", wait, attempt+1, maxRetries, c.limiter.Rate())
-			time.Sleep(wait)
+			select {
+			case <-ctx.Done():
+				return nil, 0, ctx.Err()
+			case <-time.After(wait):
+			}
 			lastErr = apiErr
 			continue
 		}
 
-		// Server error - retry with backoff
+		// Server error - retry with backoff. Same ctx.Done() guard so
+		// the user can cancel a long exponential backoff.
 		if resp.StatusCode >= 500 && attempt < maxRetries {
 			wait := time.Duration(math.Pow(2, float64(attempt))) * time.Second
 			fmt.Fprintf(os.Stderr, "server error %d, retrying in %s (attempt %d/%d)\n", resp.StatusCode, wait, attempt+1, maxRetries)
-			time.Sleep(wait)
+			select {
+			case <-ctx.Done():
+				return nil, 0, ctx.Err()
+			case <-time.After(wait):
+			}
 			lastErr = apiErr
 			continue
 		}
