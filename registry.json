@@ -377,6 +377,30 @@
       }
     },
     {
+      "name": "conduyt-crm",
+      "category": "sales-and-crm",
+      "api": "conduyt-crm",
+      "description": "The Conduyt CRM API provides programmatic access to your CRM data including contacts, companies, deals, pipelines,...",
+      "path": "library/sales-and-crm/conduyt-crm",
+      "printer": "ptaramona",
+      "printer_name": "Conduyt",
+      "mcp": {
+        "binary": "conduyt-crm-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 0,
+        "public_tool_count": 0,
+        "auth_type": "bearer",
+        "env_vars": [
+          "CONDUYT_CRM_TOKEN"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
       "name": "contact-goat",
       "category": "sales-and-crm",
       "api": "contact-goat",
@@ -559,6 +583,31 @@
       }
     },
     {
+      "name": "dreo",
+      "category": "devices",
+      "api": "Dreo",
+      "description": "The only standalone CLI for Dreo smart-home devices — bulk control, live sensor streams, and a local history every...",
+      "path": "library/devices/dreo",
+      "printer": "tmchow",
+      "printer_name": "Trevin Chow",
+      "mcp": {
+        "binary": "dreo-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 5,
+        "public_tool_count": 0,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "DREO_USERNAME",
+          "DREO_PASSWORD"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "dub",
       "category": "marketing",
       "api": "Dub",
@@ -677,6 +726,49 @@
         "env_vars": [],
         "mcp_ready": "full",
         "spec_format": "internal"
+      }
+    },
+    {
+      "name": "etherpad",
+      "category": "productivity",
+      "api": "Etherpad",
+      "description": "Etherpad is a real-time collaborative editor scalable to thousands of simultaneous real time users. It provides full...",
+      "path": "library/productivity/etherpad",
+      "printer": "JohnMcLear",
+      "printer_name": "John McLear",
+      "mcp": {
+        "binary": "etherpad-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 50,
+        "public_tool_count": 0,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "ETHERPAD_OPENID"
+        ],
+        "mcp_ready": "full"
+      }
+    },
+    {
+      "name": "eu-tenders",
+      "category": "sales-and-crm",
+      "api": "EU Tenders",
+      "description": "The entire EU public procurement corpus — €815B/year — searchable offline, with B2B lead generation for...",
+      "path": "library/sales-and-crm/eu-tenders",
+      "printer": "m91michel",
+      "printer_name": "Mathias Michel",
+      "mcp": {
+        "binary": "eu-tenders-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 1,
+        "public_tool_count": 1,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
       }
     },
     {

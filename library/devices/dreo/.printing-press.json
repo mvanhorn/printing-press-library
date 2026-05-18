@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-17T10:06:17.134604Z",
+  "printing_press_version": "4.8.0",
+  "api_name": "dreo",
+  "display_name": "Dreo",
+  "cli_name": "dreo-pp-cli",
+  "owner": "trevin-chow",
+  "printer": "tmchow",
+  "printer_name": "Trevin Chow",
+  "spec_path": "/Users/tmchow/printing-press/.runstate/lexical-conjuring-kahan-622724c9/runs/20260517-015408/research/dreo-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:a857b5d4dcccd6655f0e1b0181aa4fffafabcdc82e6ecbc88dc3006342c33bb3",
+  "run_id": "20260517-015408",
+  "description": "Control Dreo smart fans, heaters, air purifiers, humidifiers, and ACs from the command line.",
+  "mcp_binary": "dreo-pp-mcp",
+  "mcp_tool_count": 5,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "DREO_USERNAME",
+    "DREO_PASSWORD"
+  ],
+  "novel_features": [
+    {
+      "name": "Bulk fan-out control",
+      "command": "bulk",
+      "description": "Power, mode, or speed across every device matching a type/room filter in one command."
+    },
+    {
+      "name": "Whole-house sensor snapshot",
+      "command": "sensors",
+      "description": "Aggregated temperature, humidity, and PM2.5 across every sensor-bearing device in one ranked table."
+    },
+    {
+      "name": "Live WebSocket state stream",
+      "command": "watch",
+      "description": "Tail-f for Dreo device state \u2014 every WebSocket update as a JSON line on stdout."
+    },
+    {
+      "name": "Sensor timeseries history",
+      "command": "sensors record",
+      "description": "Persist WebSocket state events to a local sensor_readings table and query temperature/humidity/PM2.5 over arbitrary time windows."
+    },
+    {
+      "name": "Threshold and offline alerts",
+      "command": "alerts",
+      "description": "Report devices with low filter life, empty water tank, offline heartbeat, or sensor readings past a threshold."
+    },
+    {
+      "name": "Scene save and apply",
+      "command": "scene save",
+      "description": "Capture the current state across selected devices as a named scene and replay it later as parallel WebSocket frames."
+    },
+    {
+      "name": "Per-room rollup",
+      "command": "rooms",
+      "description": "Group devices by room with on-count, average temperature, and average humidity per room."
+    },
+    {
+      "name": "Local device search",
+      "command": "devices search",
+      "description": "Full-text search over cached device name, room, model, and serial."
+    }
+  ],
+  "narrative": {
+    "auth_narrative": "Dreo has no public developer API. Authentication uses your Dreo account email and password against the same OAuth endpoint the Dreo iOS app calls; the password is MD5-hashed before the wire. Three ways to supply credentials in order of preference: (1) env vars DREO_USERNAME and DREO_PASSWORD (recommended, used by the MCPB and Claude Desktop integration); (2) --password-stdin for piping from a secret manager like 1Password or pass (Docker-style, no leak); (3) --password <value> flag, which works but prints a stderr warning because plaintext leaks into ps/proc/cmdline/audit/shell-history. Credentials and the bearer token are persisted to ~/.config/dreo-pp-cli/config.toml (mode 0600) because Dreo's OAuth flow has no refresh token \u2014 caching them is what lets 401-aware re-login transparently mint fresh bearers for cron jobs and long-running sessions. auth logout wipes both."
+  }
+}
