@@ -128,6 +128,18 @@ func defaultMealRange(from, to string) (string, string, error) {
 		}
 		to = fromTime.AddDate(0, 0, 6).Format("2006-01-02")
 	}
+	// PATCH: Validate explicit ranges even when both endpoints are supplied.
+	fromTime, err := time.Parse("2006-01-02", from)
+	if err != nil {
+		return "", "", fmt.Errorf("invalid --from date: %w", err)
+	}
+	toTime, err := time.Parse("2006-01-02", to)
+	if err != nil {
+		return "", "", fmt.Errorf("invalid --to date: %w", err)
+	}
+	if toTime.Before(fromTime) {
+		return "", "", fmt.Errorf("--to date must be on or after --from date")
+	}
 	return from, to, nil
 }
 

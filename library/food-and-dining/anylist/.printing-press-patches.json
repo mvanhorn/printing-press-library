@@ -127,6 +127,18 @@
         "internal/store/store_test.go"
       ],
       "validated_outcome": "Added regression coverage that a second full calendar sync removes stale meal events and labels."
+    },
+    {
+      "id": "review-mcp-bool-and-meal-date-validation",
+      "summary": "Preserved explicit false MCP boolean flags and validated meal date ranges shared by meal commands.",
+      "reason": "Greptile noted that MCP callers could not disable true-defaulting flags and that meal add/show accepted invalid explicit date ranges.",
+      "files": [
+        "internal/mcp/cobratree/shellout.go",
+        "internal/mcp/cobratree/shellout_test.go",
+        "internal/cli/local_anylist.go",
+        "internal/cli/root_test.go"
+      ],
+      "validated_outcome": "Added regressions for MCP false flag forwarding and invalid explicit date ranges in meal add-to-list and meal show."
     }
   ]
 }

@@ -240,6 +240,48 @@ func TestMealSummaryValidatesExplicitDateRange(t *testing.T) {
 	}
 }
 
+func TestMealAddToListValidatesExplicitDateRange(t *testing.T) {
+	t.Parallel()
+
+	configPath := filepath.Join(t.TempDir(), "config.toml")
+	st, err := store.Open(&config.Config{Path: configPath})
+	if err != nil {
+		t.Fatalf("Open returned error: %v", err)
+	}
+	defer st.Close()
+
+	cmd := newMealAddToListCmd(&rootFlags{configPath: configPath, dryRun: true})
+	cmd.SetArgs([]string{"--list", "Groceries", "--from", "not-a-date", "--to", "2026-05-18"})
+	err = cmd.Execute()
+	if err == nil {
+		t.Fatal("Execute returned nil error, want invalid from date error")
+	}
+	if !strings.Contains(err.Error(), "invalid --from date") {
+		t.Fatalf("error = %v, want invalid from date error", err)
+	}
+}
+
+func TestMealShowValidatesExplicitDateRange(t *testing.T) {
+	t.Parallel()
+
+	configPath := filepath.Join(t.TempDir(), "config.toml")
+	st, err := store.Open(&config.Config{Path: configPath})
+	if err != nil {
+		t.Fatalf("Open returned error: %v", err)
+	}
+	defer st.Close()
+
+	cmd := newMealShowCmd(&rootFlags{configPath: configPath})
+	cmd.SetArgs([]string{"--from", "not-a-date", "--to", "2026-05-18"})
+	err = cmd.Execute()
+	if err == nil {
+		t.Fatal("Execute returned nil error, want invalid from date error")
+	}
+	if !strings.Contains(err.Error(), "invalid --from date") {
+		t.Fatalf("error = %v, want invalid from date error", err)
+	}
+}
+
 func TestRecipesAddToListHasSingleDeduplicationFlag(t *testing.T) {
 	t.Parallel()
 

@@ -74,6 +74,10 @@ func cliArgsFromMCP(args map[string]any) []string {
 		case bool:
 			if tv {
 				out = append(out, "--"+k)
+			} else {
+				// PATCH: Preserve explicit false values so MCP callers can
+				// disable command flags whose Cobra defaults are true.
+				out = append(out, "--"+k+"=false")
 			}
 		case float64:
 			out = append(out, "--"+k, strconv.FormatFloat(tv, 'f', -1, 64))
