@@ -62,6 +62,19 @@
       ],
       "findings_addressed": ["F1", "F2"],
       "validated_outcome": "go build ./... PASS, go vet ./... PASS, go test ./... PASS (TestFuzzyFindCatalogues 9/9 sub-tests including pcgs_locks_to_id=1856_(exact_code)), printing-press publish validate PASS. Live smokes: 'numista-pp-cli catalogues find pcgs' returns id=1856 top hit (no API call); 'numista-pp-cli types search --catalogue 1856 --number 7130' returns N#1492."
+    },
+    {
+      "id": "issuer-discovery-and-types-search-help",
+      "summary": "Add 'issuers find' subcommand, suggest issuer slugs on HTTP 400, append slug-convention + filter-combo tip to 'types search --help', and a PCGS cert cookbook entry.",
+      "reason": "AGENTS.md Priority 1 + Priority 3 + Priority 4#3 — pp-numista session friction on PCGS-inventory enrichment showed agents waste quota guessing the underscore-vs-hyphen issuer slug, can't fuzzy-search a 127K-line issuer dump, and don't get help-text that nudges toward narrowing flags. All edits are hand-written and local-only; the error suggestion path never spends a quota call.",
+      "files": [
+        "internal/cli/issuers_amend.go",
+        "internal/cli/types_search_amend.go",
+        "internal/cli/root.go",
+        "SKILL.md"
+      ],
+      "findings_addressed": ["F1", "F2", "F3", "F4", "F5", "F6"],
+      "patch_count": 3
     }
   ]
 }
