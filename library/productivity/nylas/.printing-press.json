@@ -19,9 +19,9 @@
   "api_version": "v3",
   "auth_type": "bearer_token",
   "auth_env_vars": [
-    "NYLAS_ACCESS_TOKEN"
+    "NYLAS_API_KEY"
   ],
-  "auth_key_url": "https://en.wikipedia.org/wiki/Representational_State_Transfer",
+  "auth_key_url": "https://dashboard-v3.nylas.com",
   "novel_features": [
     {
       "name": "Local sync",
