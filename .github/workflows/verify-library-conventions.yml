@@ -41,6 +41,7 @@ on:
       - 'library/**'
       - 'cli-skills/**'
       - 'registry.json'
+      - 'tools/generate-registry/**'
       - 'tools/generate-skills/**'
       - 'tools/sweep-canonical/**'
       - '.github/scripts/verify-attribution/**'
@@ -196,3 +197,22 @@ jobs:
             exit 1
           fi
           echo "All library/*/*/go.mod module declarations match their directories."
+
+      # Go is needed only for the next step's `go run ./tools/generate-registry`.
+      # Pinned to the same version as the post-merge regen workflow
+      # (generate-registry.yml) so a CI pass here implies the same generator
+      # binary that will run after merge.
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.26.3'
+
+      - name: Validate registry source descriptions
+        # Reject PRs whose .printing-press.json + .goreleaser.yaml sources would
+        # produce an empty `description` (or other required field) in the
+        # post-merge regenerated registry.json. Catches the lawhub-shape
+        # regression at PR time so the npm installer never sees a malformed
+        # entry. See tools/generate-registry/main.go validateEntries() for the
+        # exact field set.
+        run: |
+          set -euo pipefail
+          go run ./tools/generate-registry --validate
