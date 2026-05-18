@@ -125,12 +125,11 @@ In local mode: searches locally synced data only.`,
 			}
 			autoRefreshIfStale(cmd.Context(), dbPath, cmd.ErrOrStderr())
 
-			db, err := store.OpenWithContext(cmd.Context(), dbPath)
+			db, err := store.OpenReadOnly(dbPath)
 			if err != nil {
 				return fmt.Errorf("opening local database: %w\nRun 'nylas-pp-cli sync' first to populate the local database.", err)
 			}
 			defer db.Close()
-
 			var results []json.RawMessage
 			switch resourceType {
 			case "lists":
