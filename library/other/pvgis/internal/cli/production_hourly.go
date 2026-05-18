@@ -51,7 +51,9 @@ func newProductionHourlyCmd(flags *rootFlags) *cobra.Command {
 			if flagPvcalculation != 0 {
 				params["pvcalculation"] = fmt.Sprintf("%v", flagPvcalculation)
 			}
-			if flagPeakpower != 0.0 {
+			// PATCH(p1-zero-value-optional-params-sent): peakpower follows
+			// the same Changed-vs-!=0 rule as loss/angle/aspect.
+			if cmd.Flags().Changed("pnom") || cmd.Flags().Changed("peakpower") {
 				params["peakpower"] = fmt.Sprintf("%v", flagPeakpower)
 			}
 			// PATCH(p1-zero-value-optional-params-sent): pass `Changed` to

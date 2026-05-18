@@ -51,7 +51,14 @@ func newProductionMonthlyCmd(flags *rootFlags) *cobra.Command {
 			params := map[string]string{}
 			params["lat"] = fmt.Sprintf("%v", flagLat)
 			params["lon"] = fmt.Sprintf("%v", flagLon)
-			if flagPeakpower != 0.0 {
+			// PATCH(p1-zero-value-optional-params-sent): peakpower follows
+			// the same Changed-vs-!=0 rule as loss/angle/aspect. Cobra's
+			// required-flag check passes for --pnom 0, so the value would
+			// be dropped here and PVGIS would reply with an opaque error
+			// instead of a clear CLI message. (A real 0 kWp PV system
+			// doesn't physically exist, but failing loudly is the right
+			// shape.)
+			if cmd.Flags().Changed("pnom") || cmd.Flags().Changed("peakpower") {
 				params["peakpower"] = fmt.Sprintf("%v", flagPeakpower)
 			}
 			// PATCH(p1-zero-value-optional-params-sent): pass `Changed` to
