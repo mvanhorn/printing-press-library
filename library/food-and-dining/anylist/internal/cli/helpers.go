@@ -288,31 +288,31 @@ func paginatedGet(c interface {
 		var items []json.RawMessage
 		if json.Unmarshal(data, &items) == nil {
 			allItems = append(allItems, items...)
-		} else {
-			var obj map[string]json.RawMessage
-			if json.Unmarshal(data, &obj) == nil {
-				if nested, ok := extractPaginatedItems(obj); ok {
-					allItems = append(allItems, nested...)
-				}
-				if nextCursorPath != "" {
-					if tokenRaw, ok := rawAtPath(obj, nextCursorPath); ok {
-						var token string
-						if json.Unmarshal(tokenRaw, &token) == nil && token != "" {
-							clean[cursorParam] = token
-							continue
-						}
-					}
-				}
-				if hasMoreField != "" {
-					if moreRaw, ok := rawAtPath(obj, hasMoreField); ok {
-						var more bool
-						if json.Unmarshal(moreRaw, &more) == nil && more {
-							continue
-						}
+			// PATCH: Flat-array responses carry no in-body cursor, so one page is authoritative.
+			break
+		}
+		var obj map[string]json.RawMessage
+		if json.Unmarshal(data, &obj) == nil {
+			if nested, ok := extractPaginatedItems(obj); ok {
+				allItems = append(allItems, nested...)
+			}
+			if nextCursorPath != "" {
+				if tokenRaw, ok := rawAtPath(obj, nextCursorPath); ok {
+					var token string
+					if json.Unmarshal(tokenRaw, &token) == nil && token != "" {
+						clean[cursorParam] = token
+						continue
 					}
 				}
 			}
-			break
+			if hasMoreField != "" {
+				if moreRaw, ok := rawAtPath(obj, hasMoreField); ok {
+					var more bool
+					if json.Unmarshal(moreRaw, &more) == nil && more {
+						continue
+					}
+				}
+			}
 		}
 		break
 	}

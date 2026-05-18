@@ -136,3 +136,80 @@ func TestMealAddToListDryRunResolvesRecipesByEventID(t *testing.T) {
 		t.Fatalf("would_write = %#v, want true during dry run", payload.Recipes[0]["would_write"])
 	}
 }
+
+func TestListsResetDryRunJSONUsesStructuredOutput(t *testing.T) {
+	t.Parallel()
+
+	configPath := filepath.Join(t.TempDir(), "config.toml")
+	cfg := &config.Config{Path: configPath}
+	if err := cfg.SaveAnyListCredentials("access-token", "refresh-token", "user-1"); err != nil {
+		t.Fatalf("SaveAnyListCredentials returned error: %v", err)
+	}
+	st, err := store.Open(cfg)
+	if err != nil {
+		t.Fatalf("Open returned error: %v", err)
+	}
+	defer st.Close()
+
+	if _, err := st.DB().Exec(`INSERT INTO lists (id, name) VALUES ('list-1', 'Groceries')`); err != nil {
+		t.Fatalf("insert list: %v", err)
+	}
+	if _, err := st.DB().Exec(`INSERT INTO items
+		(id, list_id, name, quantity, checked, manual_sort_index, store_ids)
+		VALUES ('item-1', 'list-1', 'Milk', '1 gal', 1, 1, '[]')`); err != nil {
+		t.Fatalf("insert item: %v", err)
+	}
+
+	flags := &rootFlags{asJSON: true, dryRun: true, configPath: configPath}
+	cmd := newListsResetCmd(flags)
+	var out bytes.Buffer
+	cmd.SetOut(&out)
+	cmd.SetArgs([]string{"--name", "Groceries"})
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("Execute returned error: %v", err)
+	}
+
+	// PATCH: Dry-run agent mode must remain parseable JSON.
+	var payload struct {
+		DryRun bool             `json:"dry_run"`
+		Count  int              `json:"count"`
+		Items  []map[string]any `json:"items"`
+	}
+	if err := json.Unmarshal(out.Bytes(), &payload); err != nil {
+		t.Fatalf("unmarshal output: %v\n%s", err, out.String())
+	}
+	if !payload.DryRun {
+		t.Fatalf("dry_run = false, want true: %s", out.String())
+	}
+	if payload.Count != 1 || len(payload.Items) != 1 {
+		t.Fatalf("payload = %#v, want one preview item", payload)
+	}
+	if payload.Items[0]["name"] != "Milk" {
+		t.Fatalf("item name = %#v, want Milk", payload.Items[0]["name"])
+	}
+}
+
+func TestPaginatedGetFlatArrayStopsAfterSinglePage(t *testing.T) {
+	t.Parallel()
+
+	client := &paginatedGetFlatArrayClient{}
+	got, err := paginatedGet(client, "/items", map[string]string{}, nil, true, "cursor", "meta.next", "has_more")
+	if err != nil {
+		t.Fatalf("paginatedGet returned error: %v", err)
+	}
+	if client.calls != 1 {
+		t.Fatalf("calls = %d, want 1 for flat-array response without cursor metadata", client.calls)
+	}
+	if !strings.Contains(string(got), `"Milk"`) {
+		t.Fatalf("result = %s, want first-page flat-array item", got)
+	}
+}
+
+type paginatedGetFlatArrayClient struct {
+	calls int
+}
+
+func (c *paginatedGetFlatArrayClient) GetWithHeaders(string, map[string]string, map[string]string) (json.RawMessage, error) {
+	c.calls++
+	return json.RawMessage(`[{"name":"Milk"}]`), nil
+}

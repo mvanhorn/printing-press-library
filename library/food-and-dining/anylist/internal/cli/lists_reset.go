@@ -65,6 +65,16 @@ func newListsResetCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			if flags.dryRun {
+				if flags.asJSON {
+					// PATCH: Preserve structured output for dry-run agent and JSON callers.
+					return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+						"reset":   false,
+						"dry_run": true,
+						"count":   len(itemsToRemove),
+						"list":    list.Name,
+						"items":   listResetPreviewItems(itemsToRemove),
+					}, flags)
+				}
 				fmt.Fprintf(cmd.OutOrStdout(), "Would remove %d items from %q:\n", len(itemsToRemove), list.Name)
 				for _, it := range itemsToRemove {
 					fmt.Fprintf(cmd.OutOrStdout(), "  - %s\n", it.Name)
@@ -86,9 +96,10 @@ func newListsResetCmd(flags *rootFlags) *cobra.Command {
 
 			if flags.asJSON {
 				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
-					"reset": true,
-					"count": count,
-					"list":  list.Name,
+					"reset":   true,
+					"dry_run": false,
+					"count":   count,
+					"list":    list.Name,
 				}, flags)
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "Reset %d items in %q\n", count, list.Name)
@@ -100,4 +111,17 @@ func newListsResetCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().BoolVar(&bodyKeepUnchecked, "keep-unchecked", true, "Keep unchecked items; set false to remove every item")
 
 	return cmd
+}
+
+func listResetPreviewItems(items []store.ItemRow) []map[string]any {
+	preview := make([]map[string]any, 0, len(items))
+	for _, item := range items {
+		preview = append(preview, map[string]any{
+			"id":       item.ID,
+			"name":     item.Name,
+			"checked":  item.Checked,
+			"quantity": item.Quantity,
+		})
+	}
+	return preview
 }
