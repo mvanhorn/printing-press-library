@@ -4,6 +4,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/anylist/internal/anylist/pb"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/anylist/internal/config"
 )
 
@@ -109,5 +110,79 @@ func TestFindRecipeByID(t *testing.T) {
 	}
 	if _, err := st.FindRecipeByID("missing"); err == nil {
 		t.Fatal("FindRecipeByID missing id returned nil error")
+	}
+}
+
+func TestSyncFromUserDataClearsStaleMealCalendarRows(t *testing.T) {
+	t.Parallel()
+
+	st, err := Open(&config.Config{Path: filepath.Join(t.TempDir(), "config.toml")})
+	if err != nil {
+		t.Fatalf("Open returned error: %v", err)
+	}
+	defer st.Close()
+
+	firstSync := &pb.PBUserDataResponse{
+		MealPlanningCalendarResponse: &pb.PBCalendarResponse{
+			Events: []*pb.PBCalendarEvent{
+				{
+					Identifier:          "event-1",
+					CalendarId:          "calendar-1",
+					Date:                "2026-05-18",
+					Title:               "Dinner",
+					LabelId:             "label-1",
+					OrderAddedSortIndex: 7,
+				},
+			},
+			Labels: []*pb.PBCalendarLabel{
+				{
+					Identifier: "label-1",
+					CalendarId: "calendar-1",
+					Name:       "Dinner",
+					HexColor:   "#ff0000",
+					SortIndex:  3,
+				},
+			},
+		},
+	}
+	if err := st.SyncFromUserData(firstSync); err != nil {
+		t.Fatalf("first SyncFromUserData returned error: %v", err)
+	}
+
+	events, err := st.GetMealEvents("2026-05-18", "2026-05-18")
+	if err != nil {
+		t.Fatalf("GetMealEvents after first sync returned error: %v", err)
+	}
+	if len(events) != 1 || events[0].ID != "event-1" {
+		t.Fatalf("events after first sync = %#v, want event-1", events)
+	}
+	labels, err := st.GetCalendarLabels()
+	if err != nil {
+		t.Fatalf("GetCalendarLabels after first sync returned error: %v", err)
+	}
+	if len(labels) != 1 || labels[0].ID != "label-1" {
+		t.Fatalf("labels after first sync = %#v, want label-1", labels)
+	}
+
+	// PATCH: A later full calendar payload with no events/labels must remove stale cache rows.
+	if err := st.SyncFromUserData(&pb.PBUserDataResponse{
+		MealPlanningCalendarResponse: &pb.PBCalendarResponse{},
+	}); err != nil {
+		t.Fatalf("second SyncFromUserData returned error: %v", err)
+	}
+
+	events, err = st.GetMealEvents("2026-05-18", "2026-05-18")
+	if err != nil {
+		t.Fatalf("GetMealEvents after second sync returned error: %v", err)
+	}
+	if len(events) != 0 {
+		t.Fatalf("events after second sync = %#v, want none", events)
+	}
+	labels, err = st.GetCalendarLabels()
+	if err != nil {
+		t.Fatalf("GetCalendarLabels after second sync returned error: %v", err)
+	}
+	if len(labels) != 0 {
+		t.Fatalf("labels after second sync = %#v, want none", labels)
 	}
 }

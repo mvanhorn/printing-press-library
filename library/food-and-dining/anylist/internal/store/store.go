@@ -470,6 +470,14 @@ func (s *Store) SyncFromUserData(userData *pb.PBUserDataResponse) error {
 
 	// Sync meal events and calendar labels
 	if cr := userData.GetMealPlanningCalendarResponse(); cr != nil {
+		// PATCH: User-data sync returns the current meal calendar, so replace
+		// cached rows before re-inserting to drop events and labels deleted upstream.
+		if _, err := tx.Exec(`DELETE FROM meal_events`); err != nil {
+			return fmt.Errorf("clearing meal events: %w", err)
+		}
+		if _, err := tx.Exec(`DELETE FROM calendar_labels`); err != nil {
+			return fmt.Errorf("clearing calendar labels: %w", err)
+		}
 		for _, event := range cr.GetEvents() {
 			if err := upsertMealEvent(tx, event); err != nil {
 				return fmt.Errorf("upserting meal event %s: %w", event.GetIdentifier(), err)

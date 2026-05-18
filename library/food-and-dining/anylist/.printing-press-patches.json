@@ -117,6 +117,16 @@
         "internal/cli/root_test.go"
       ],
       "validated_outcome": "Added regressions for invalid explicit meal-summary dates and for exposing only the documented recipe --merge flag."
+    },
+    {
+      "id": "review-meal-sync-staleness",
+      "summary": "Cleared meal events and calendar labels before full calendar re-sync.",
+      "reason": "Greptile noted that deleted AnyList meal events and labels persisted in the SQLite cache because sync only upserted current rows.",
+      "files": [
+        "internal/store/store.go",
+        "internal/store/store_test.go"
+      ],
+      "validated_outcome": "Added regression coverage that a second full calendar sync removes stale meal events and labels."
     }
   ]
 }
