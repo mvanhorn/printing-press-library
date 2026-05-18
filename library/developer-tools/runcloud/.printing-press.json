@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-18T17:35:24.073845Z",
+  "printing_press_version": "4.8.0",
+  "api_name": "runcloud",
+  "display_name": "Runcloud",
+  "cli_name": "runcloud-pp-cli",
+  "owner": "jacobprice",
+  "printer": "JacobPrice",
+  "printer_name": "jacobprice",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:6e4151cbcdd3cfab90b1256aed8f68e771922fc13a78508c26592537e2aae31f",
+  "run_id": "20260518-123711",
+  "mcp_binary": "runcloud-pp-mcp",
+  "mcp_tool_count": 149,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "RUNCLOUD_API_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Fleet SSL audit",
+      "command": "fleet ssl-audit",
+      "description": "Find every SSL certificate across every server that is missing, expiring soon, or already expired — one query, whole fleet."
+    },
+    {
+      "name": "Reverse domain lookup",
+      "command": "whois-fleet",
+      "description": "Given a domain (or pattern), return the server, webapp, system user, and SSL config that hosts it."
+    },
+    {
+      "name": "Fleet PHP version audit",
+      "command": "fleet php-audit",
+      "description": "Find every webapp running below a given PHP version, grouped by server."
+    },
+    {
+      "name": "Fleet health roll-up",
+      "command": "fleet health",
+      "description": "Show uptime, load, disk, and memory for every server in one comparable table, powered by v3's new /health/latest endpoint."
+    },
+    {
+      "name": "Fleet blocked-IPs dedupe",
+      "command": "fleet blocked-ips",
+      "description": "Show every fail2ban-blocked IP across the fleet, deduped, with server count, first seen, and last seen."
+    },
+    {
+      "name": "Fleet WordPress/CMS inventory",
+      "command": "fleet installers",
+      "description": "List every webapp that has a script-installer attached (WordPress, Joomla, Drupal, etc.) with version and site URL."
+    },
+    {
+      "name": "Agency client onboarding chain",
+      "command": "agency onboard",
+      "description": "Onboard a new agency client end-to-end: create client → assign server-package → spin up client-server → optional magic link. Emits a credentials summary."
+    },
+    {
+      "name": "Fleet SSH-key audit",
+      "command": "fleet ssh-keys",
+      "description": "Inventory every SSH key across every (server, system_user) pair, deduped by fingerprint."
+    },
+    {
+      "name": "Fleet stale services",
+      "command": "fleet services",
+      "description": "Filter every server's services list for non-running rows or a named service across the whole fleet."
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+{
+  "timestamp": "2026-05-18T17:46:13.123967Z",
+  "cli_dir": "/tmp/printing-press/publish/runcloud-lhc1Rz/package/library/developer-tools/runcloud",
+  "findings": [
+    {
+      "kind": "email",
+      "file": ".manuscripts/20260518-123711/research.json",
+      "line": 120,
+      "column": 65,
+      "matched_span": "new@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Archived research.json manuscript: agency onboard recipe example; reserved @example.com TLD (RFC 2606)."
+    },
+    {
+      "kind": "email",
+      "file": ".manuscripts/20260518-123711/research.json",
+      "line": 203,
+      "column": 65,
+      "matched_span": "new@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Archived research.json manuscript: agency onboard recipe example; reserved @example.com TLD (RFC 2606)."
+    },
+    {
+      "kind": "email",
+      "file": ".manuscripts/20260518-123711/research.json",
+      "line": 285,
+      "column": 188,
+      "matched_span": "admin@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Archived research.json manuscript: WordPress create-wordpress recipe demonstrating --admin-email flag; reserved @example.com TLD (RFC 2606)."
+    },
+    {
+      "kind": "email",
+      "file": ".manuscripts/20260518-123711/research.json",
+      "line": 290,
+      "column": 67,
+      "matched_span": "new@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Archived research.json manuscript: agency onboard recipe demonstrating --client-email flag; reserved @example.com TLD (RFC 2606)."
+    },
+    {
+      "kind": "email",
+      "file": "README.md",
+      "line": 200,
+      "column": 49,
+      "matched_span": "new@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Inside README's Workflow chains code block teaching the agency onboard recipe; reserved @example.com TLD (RFC 2606)."
+    },
+    {
+      "kind": "email",
+      "file": "SKILL.md",
+      "line": 106,
+      "column": 49,
+      "matched_span": "new@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Inside SKILL's Workflow chains code block teaching the agency onboard recipe; reserved @example.com TLD (RFC 2606)."
+    },
+    {
+      "kind": "email",
+      "file": "SKILL.md",
+      "line": 377,
+      "column": 168,
+      "matched_span": "admin@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Inside SKILL's webapps create-wordpress recipe demonstrating --admin-email flag; reserved @example.com TLD (RFC 2606)."
+    },
+    {
+      "kind": "email",
+      "file": "SKILL.md",
+      "line": 385,
+      "column": 47,
+      "matched_span": "new@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Inside SKILL's Onboard a new agency client recipe demonstrating --client-email flag; reserved @example.com TLD (RFC 2606)."
+    }
+  ],
+  "findings_count_before": 8
+}

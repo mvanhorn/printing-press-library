@@ -1,0 +1,3791 @@
+{
+  "api_name": "runcloud",
+  "base_url": "https://manage.runcloud.io/api/v3",
+  "description": "Fleet-wide visibility for RunCloud v3 — every SSL cert, PHP version, blocked IP, and SSH key across the whole workspace in one command.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "format": "Bearer {RUNCLOUD_API_TOKEN}",
+    "env_vars": [
+      "RUNCLOUD_API_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "RUNCLOUD_API_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "agency_account_get",
+      "description": "Get agency account details.",
+      "method": "GET",
+      "path": "/agency/account",
+      "params": []
+    },
+    {
+      "name": "agency_client_servers_add_ip",
+      "description": "Add an IP address to an agency client server. Required: clientServerId, ipAddress.",
+      "method": "POST",
+      "path": "/agency/client-servers/{clientServerId}/add-ipaddress",
+      "params": [
+        {
+          "name": "clientServerId",
+          "type": "int",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "ipAddress",
+          "type": "string",
+          "location": "body",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agency_client_servers_assign_server",
+      "description": "Assign a server to the client-server slot. Required: clientServerId, serverId.",
+      "method": "POST",
+      "path": "/agency/client-servers/{clientServerId}/assign-server",
+      "params": [
+        {
+          "name": "clientServerId",
+          "type": "int",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "body",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agency_client_servers_change_client",
+      "description": "Reassign an agency client server to a different client. Required: clientServerId, clientId.",
+      "method": "POST",
+      "path": "/agency/client-servers/{clientServerId}/change-client",
+      "params": [
+        {
+          "name": "clientServerId",
+          "type": "int",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "clientId",
+          "type": "int",
+          "location": "body",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agency_client_servers_create",
+      "description": "Create a new agency client server. Required: clientId, serverPackageId, name.",
+      "method": "POST",
+      "path": "/agency/client-servers",
+      "params": [
+        {
+          "name": "clientId",
+          "type": "int",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "serverPackageId",
+          "type": "int",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agency_client_servers_delete",
+      "description": "Delete an agency client server. Required: clientServerId. Destructive.",
+      "method": "DELETE",
+      "path": "/agency/client-servers/{clientServerId}",
+      "params": [
+        {
+          "name": "clientServerId",
+          "type": "int",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agency_client_servers_get",
+      "description": "Get an agency client server's details. Required: clientServerId.",
+      "method": "GET",
+      "path": "/agency/client-servers/{clientServerId}",
+      "params": [
+        {
+          "name": "clientServerId",
+          "type": "int",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agency_client_servers_list",
+      "description": "List all agency client servers.",
+      "method": "GET",
+      "path": "/agency/client-servers",
+      "params": []
+    },
+    {
+      "name": "agency_client_servers_rebuild",
+      "description": "Rebuild an agency client server. Required: clientServerId.",
+      "method": "POST",
+      "path": "/agency/client-servers/{clientServerId}/rebuild-server",
+      "params": [
+        {
+          "name": "clientServerId",
+          "type": "int",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agency_client_servers_resend_webhook",
+      "description": "Resend the webhook for an agency client server. Required: clientServerId.",
+      "method": "POST",
+      "path": "/agency/client-servers/{clientServerId}/resend-webhook",
+      "params": [
+        {
+          "name": "clientServerId",
+          "type": "int",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agency_client_servers_suspend",
+      "description": "Suspend an agency client server. Required: clientServerId.",
+      "method": "POST",
+      "path": "/agency/client-servers/{clientServerId}/suspend",
+      "params": [
+        {
+          "name": "clientServerId",
+          "type": "int",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agency_client_servers_unsuspend",
+      "description": "Unsuspend an agency client server. Required: clientServerId.",
+      "method": "POST",
+      "path": "/agency/client-servers/{clientServerId}/unsuspend",
+      "params": [
+        {
+          "name": "clientServerId",
+          "type": "int",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agency_client_servers_upgrade_package",
+      "description": "Upgrade the server package for an agency client server. Required: clientServerId, serverPackageId.",
+      "method": "POST",
+      "path": "/agency/client-servers/{clientServerId}/upgrade-server-package",
+      "params": [
+        {
+          "name": "clientServerId",
+          "type": "int",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "serverPackageId",
+          "type": "int",
+          "location": "body",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agency_clients_change_password",
+      "description": "Change an agency client's password. Required: clientId, password.",
+      "method": "PUT",
+      "path": "/agency/clients/{clientId}/changepassword",
+      "params": [
+        {
+          "name": "clientId",
+          "type": "int",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "password",
+          "type": "string",
+          "location": "body",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agency_clients_create",
+      "description": "Create a new agency client. Required: name, email. Optional: password.",
+      "method": "POST",
+      "path": "/agency/clients",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "password",
+          "type": "string",
+          "location": "body"
+        }
+      ]
+    },
+    {
+      "name": "agency_clients_delete",
+      "description": "Delete an agency client. Required: clientId. Destructive.",
+      "method": "DELETE",
+      "path": "/agency/clients/{clientId}",
+      "params": [
+        {
+          "name": "clientId",
+          "type": "int",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agency_clients_get",
+      "description": "Get an agency client's details. Required: clientId.",
+      "method": "GET",
+      "path": "/agency/clients/{clientId}",
+      "params": [
+        {
+          "name": "clientId",
+          "type": "int",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agency_clients_list",
+      "description": "List all agency clients. Optional: page, perPage.",
+      "method": "GET",
+      "path": "/agency/clients",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query"
+        },
+        {
+          "name": "perPage",
+          "type": "int",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "agency_clients_magic_link",
+      "description": "Create a magic-link for quick client dashboard access. Required: clientId.",
+      "method": "POST",
+      "path": "/agency/clients/{clientId}/magiclink",
+      "params": [
+        {
+          "name": "clientId",
+          "type": "int",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agency_clients_update",
+      "description": "Update an agency client. Required: clientId. Optional: name, email.",
+      "method": "PUT",
+      "path": "/agency/clients/{clientId}",
+      "params": [
+        {
+          "name": "clientId",
+          "type": "int",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body"
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body"
+        }
+      ]
+    },
+    {
+      "name": "agency_clients_update_tags",
+      "description": "Update agency client tags. Required: clientId. Optional: tags.",
+      "method": "PUT",
+      "path": "/agency/clients/{clientId}/tags",
+      "params": [
+        {
+          "name": "clientId",
+          "type": "int",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "tags",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated tag list"
+        }
+      ]
+    },
+    {
+      "name": "agency_packages_available_upgrades",
+      "description": "List current server package's available upgrade plans. Required: packageId.",
+      "method": "GET",
+      "path": "/agency/server-packages/{packageId}/available-upgrades",
+      "params": [
+        {
+          "name": "packageId",
+          "type": "int",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agency_packages_client_servers",
+      "description": "List client servers using this server package. Required: packageId.",
+      "method": "GET",
+      "path": "/agency/server-packages/{packageId}/client-servers",
+      "params": [
+        {
+          "name": "packageId",
+          "type": "int",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agency_packages_create",
+      "description": "Create an agency server package. Required: name.",
+      "method": "POST",
+      "path": "/agency/server-packages",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agency_packages_delete",
+      "description": "Delete an agency server package. Required: packageId. Destructive.",
+      "method": "DELETE",
+      "path": "/agency/server-packages/{packageId}",
+      "params": [
+        {
+          "name": "packageId",
+          "type": "int",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agency_packages_duplicate",
+      "description": "Duplicate an agency server package. Required: packageId.",
+      "method": "POST",
+      "path": "/agency/server-packages/{packageId}/duplicate",
+      "params": [
+        {
+          "name": "packageId",
+          "type": "int",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agency_packages_get",
+      "description": "Get an agency server package's details. Required: packageId.",
+      "method": "GET",
+      "path": "/agency/server-packages/{packageId}",
+      "params": [
+        {
+          "name": "packageId",
+          "type": "int",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agency_packages_list",
+      "description": "List agency server packages.",
+      "method": "GET",
+      "path": "/agency/server-packages",
+      "params": []
+    },
+    {
+      "name": "agency_packages_update",
+      "description": "Update an agency server package. Required: packageId. Optional: name.",
+      "method": "PUT",
+      "path": "/agency/server-packages/{packageId}",
+      "params": [
+        {
+          "name": "packageId",
+          "type": "int",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body"
+        }
+      ]
+    },
+    {
+      "name": "agency_packages_upgrades",
+      "description": "List available upgrade plans for agency server packages.",
+      "method": "GET",
+      "path": "/agency/server-packages/upgrades",
+      "params": []
+    },
+    {
+      "name": "agency_teams_add_package",
+      "description": "Import a server package into the agency team. Required: teamId, packageId.",
+      "method": "POST",
+      "path": "/agency/teams/{teamId}/server-packages",
+      "params": [
+        {
+          "name": "teamId",
+          "type": "int",
+          "location": "path",
+          "description": "Team ID",
+          "required": true
+        },
+        {
+          "name": "packageId",
+          "type": "int",
+          "location": "body",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agency_teams_add_server",
+      "description": "Add a server to the agency team. Required: teamId, serverId.",
+      "method": "POST",
+      "path": "/agency/teams/{teamId}/servers",
+      "params": [
+        {
+          "name": "teamId",
+          "type": "int",
+          "location": "path",
+          "description": "Team ID",
+          "required": true
+        },
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "body",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agency_teams_cancel_invitation",
+      "description": "Cancel a pending team member invitation. Required: teamId, invitationId. Destructive.",
+      "method": "DELETE",
+      "path": "/agency/teams/{teamId}/members/invitations/{invitationId}",
+      "params": [
+        {
+          "name": "teamId",
+          "type": "int",
+          "location": "path",
+          "description": "Team ID",
+          "required": true
+        },
+        {
+          "name": "invitationId",
+          "type": "int",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agency_teams_create",
+      "description": "Create an agency team. Required: name.",
+      "method": "POST",
+      "path": "/agency/teams",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agency_teams_delete",
+      "description": "Delete an agency team. Required: teamId. Destructive.",
+      "method": "DELETE",
+      "path": "/agency/teams/{teamId}",
+      "params": [
+        {
+          "name": "teamId",
+          "type": "int",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agency_teams_get",
+      "description": "Get an agency team's details. Required: teamId.",
+      "method": "GET",
+      "path": "/agency/teams/{teamId}",
+      "params": [
+        {
+          "name": "teamId",
+          "type": "int",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agency_teams_get_member",
+      "description": "Get an agency team member's details. Required: teamId, memberId.",
+      "method": "GET",
+      "path": "/agency/teams/{teamId}/members/{memberId}",
+      "params": [
+        {
+          "name": "teamId",
+          "type": "int",
+          "location": "path",
+          "description": "Team ID",
+          "required": true
+        },
+        {
+          "name": "memberId",
+          "type": "int",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agency_teams_invite_member",
+      "description": "Send an agency team member invitation. Required: teamId, email.",
+      "method": "POST",
+      "path": "/agency/teams/{teamId}/members/invitations",
+      "params": [
+        {
+          "name": "teamId",
+          "type": "int",
+          "location": "path",
+          "description": "Team ID",
+          "required": true
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agency_teams_list",
+      "description": "List all agency teams.",
+      "method": "GET",
+      "path": "/agency/teams",
+      "params": []
+    },
+    {
+      "name": "agency_teams_remove_member",
+      "description": "Remove an agency team member. Required: teamId, memberId. Destructive.",
+      "method": "DELETE",
+      "path": "/agency/teams/{teamId}/members/{memberId}",
+      "params": [
+        {
+          "name": "teamId",
+          "type": "int",
+          "location": "path",
+          "description": "Team ID",
+          "required": true
+        },
+        {
+          "name": "memberId",
+          "type": "int",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agency_teams_remove_package",
+      "description": "Remove a server package from the agency team. Required: teamId, packageId. Destructive.",
+      "method": "DELETE",
+      "path": "/agency/teams/{teamId}/server-packages/{packageId}",
+      "params": [
+        {
+          "name": "teamId",
+          "type": "int",
+          "location": "path",
+          "description": "Team ID",
+          "required": true
+        },
+        {
+          "name": "packageId",
+          "type": "int",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agency_teams_remove_server",
+      "description": "Remove a server from the agency team. Required: teamId, serverId. Destructive.",
+      "method": "DELETE",
+      "path": "/agency/teams/{teamId}/servers/{serverId}",
+      "params": [
+        {
+          "name": "teamId",
+          "type": "int",
+          "location": "path",
+          "description": "Team ID",
+          "required": true
+        },
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agency_teams_transfer_member",
+      "description": "Transfer team member to another agency team. Required: teamId, memberId, targetTeamId.",
+      "method": "PUT",
+      "path": "/agency/teams/{teamId}/members/{memberId}/transfer",
+      "params": [
+        {
+          "name": "teamId",
+          "type": "int",
+          "location": "path",
+          "description": "Team ID",
+          "required": true
+        },
+        {
+          "name": "memberId",
+          "type": "int",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "targetTeamId",
+          "type": "int",
+          "location": "body",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agency_teams_update",
+      "description": "Update an agency team. Required: teamId. Optional: name.",
+      "method": "PUT",
+      "path": "/agency/teams/{teamId}",
+      "params": [
+        {
+          "name": "teamId",
+          "type": "int",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body"
+        }
+      ]
+    },
+    {
+      "name": "agency_teams_update_member",
+      "description": "Update an agency team member. Required: teamId, memberId.",
+      "method": "PUT",
+      "path": "/agency/teams/{teamId}/members/{memberId}",
+      "params": [
+        {
+          "name": "teamId",
+          "type": "int",
+          "location": "path",
+          "description": "Team ID",
+          "required": true
+        },
+        {
+          "name": "memberId",
+          "type": "int",
+          "location": "path",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "backups_create_full_cloud",
+      "description": "Create a full webapp backup to RunCloud Storage. Required: serverId, webAppId. Optional: frequency, retention, successNotification (plus 1 more).",
+      "method": "POST",
+      "path": "/servers/{serverId}/webapps/{webAppId}/backups/full/runcloudstorage",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "webAppId",
+          "type": "int",
+          "location": "path",
+          "description": "Web app ID",
+          "required": true
+        },
+        {
+          "name": "frequency",
+          "type": "string",
+          "location": "body",
+          "description": "Backup frequency (hourly, daily, weekly, monthly)"
+        },
+        {
+          "name": "retention",
+          "type": "int",
+          "location": "body",
+          "description": "How many backups to retain"
+        },
+        {
+          "name": "successNotification",
+          "type": "bool",
+          "location": "body"
+        },
+        {
+          "name": "failNotification",
+          "type": "bool",
+          "location": "body"
+        }
+      ]
+    },
+    {
+      "name": "backups_create_full_local",
+      "description": "Create a full webapp backup to the local server. Required: serverId, webAppId. Optional: frequency, retention, successNotification (plus 1 more).",
+      "method": "POST",
+      "path": "/servers/{serverId}/webapps/{webAppId}/backups/full/local",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "webAppId",
+          "type": "int",
+          "location": "path",
+          "description": "Web app ID",
+          "required": true
+        },
+        {
+          "name": "frequency",
+          "type": "string",
+          "location": "body"
+        },
+        {
+          "name": "retention",
+          "type": "int",
+          "location": "body"
+        },
+        {
+          "name": "successNotification",
+          "type": "bool",
+          "location": "body"
+        },
+        {
+          "name": "failNotification",
+          "type": "bool",
+          "location": "body"
+        }
+      ]
+    },
+    {
+      "name": "cron_jobs_create",
+      "description": "Schedule a new cron job. Required: serverId, username, jobLabel, command, minute, hour, dayOfMonth, month, dayOfWeek.",
+      "method": "POST",
+      "path": "/servers/{serverId}/cronjobs",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "username",
+          "type": "string",
+          "location": "body",
+          "description": "System user under which the job runs",
+          "required": true
+        },
+        {
+          "name": "jobLabel",
+          "type": "string",
+          "location": "body",
+          "description": "Friendly label",
+          "required": true
+        },
+        {
+          "name": "command",
+          "type": "string",
+          "location": "body",
+          "description": "Command to execute",
+          "required": true
+        },
+        {
+          "name": "minute",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "hour",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "dayOfMonth",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "month",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "dayOfWeek",
+          "type": "string",
+          "location": "body",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "cron_jobs_delete",
+      "description": "Remove a cron job. Required: serverId, cronJobId. Destructive.",
+      "method": "DELETE",
+      "path": "/servers/{serverId}/cronjobs/{cronJobId}",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "cronJobId",
+          "type": "int",
+          "location": "path",
+          "description": "Cron job ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "cron_jobs_list",
+      "description": "List cron jobs on a server. Required: serverId. Optional: page, perPage, search.",
+      "method": "GET",
+      "path": "/servers/{serverId}/cronjobs",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query"
+        },
+        {
+          "name": "perPage",
+          "type": "int",
+          "location": "query"
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "database_users_create",
+      "description": "Create a database user. Required: serverId, username, password.",
+      "method": "POST",
+      "path": "/servers/{serverId}/databaseusers",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "username",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "password",
+          "type": "string",
+          "location": "body",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "database_users_delete",
+      "description": "Delete a database user. Required: serverId, databaseUserId. Destructive.",
+      "method": "DELETE",
+      "path": "/servers/{serverId}/databaseusers/{databaseUserId}",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "databaseUserId",
+          "type": "int",
+          "location": "path",
+          "description": "Database user ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "database_users_get",
+      "description": "Get a database user by ID. Required: serverId, databaseUserId.",
+      "method": "GET",
+      "path": "/servers/{serverId}/databaseusers/{databaseUserId}",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "databaseUserId",
+          "type": "int",
+          "location": "path",
+          "description": "Database user ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "database_users_list",
+      "description": "List database users. Required: serverId. Optional: page, perPage, search.",
+      "method": "GET",
+      "path": "/servers/{serverId}/databaseusers",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query"
+        },
+        {
+          "name": "perPage",
+          "type": "int",
+          "location": "query"
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "database_users_update_password",
+      "description": "Change a database user's password. Required: serverId, databaseUserId, password. Partial update.",
+      "method": "PATCH",
+      "path": "/servers/{serverId}/databaseusers/{databaseUserId}",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "databaseUserId",
+          "type": "int",
+          "location": "path",
+          "description": "Database user ID",
+          "required": true
+        },
+        {
+          "name": "password",
+          "type": "string",
+          "location": "body",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "databases_create",
+      "description": "Create a database. Required: serverId, databaseName. Optional: collation.",
+      "method": "POST",
+      "path": "/servers/{serverId}/databases",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "databaseName",
+          "type": "string",
+          "location": "body",
+          "description": "Database name",
+          "required": true
+        },
+        {
+          "name": "collation",
+          "type": "string",
+          "location": "body",
+          "description": "Optional collation (default utf8mb4_unicode_ci)"
+        }
+      ]
+    },
+    {
+      "name": "databases_delete",
+      "description": "Drop a database. Required: serverId, databaseId. Destructive.",
+      "method": "DELETE",
+      "path": "/servers/{serverId}/databases/{databaseId}",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "databaseId",
+          "type": "int",
+          "location": "path",
+          "description": "Database ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "databases_get",
+      "description": "Get a database by ID. Required: serverId, databaseId.",
+      "method": "GET",
+      "path": "/servers/{serverId}/databases/{databaseId}",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "databaseId",
+          "type": "int",
+          "location": "path",
+          "description": "Database ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "databases_grant",
+      "description": "Grant a database user access to a database. Required: serverId, databaseId, id.",
+      "method": "POST",
+      "path": "/servers/{serverId}/databases/{databaseId}/grant",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "databaseId",
+          "type": "int",
+          "location": "path",
+          "description": "Database ID",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "int",
+          "location": "body",
+          "description": "Database user ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "databases_list",
+      "description": "List databases on a server. Required: serverId. Optional: page, perPage, search. Returns array of Database.",
+      "method": "GET",
+      "path": "/servers/{serverId}/databases",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query"
+        },
+        {
+          "name": "perPage",
+          "type": "int",
+          "location": "query"
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "databases_list_grants",
+      "description": "List database users with access to a database. Required: serverId, databaseId.",
+      "method": "GET",
+      "path": "/servers/{serverId}/databases/{databaseId}/grant",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "databaseId",
+          "type": "int",
+          "location": "path",
+          "description": "Database ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "databases_revoke",
+      "description": "Revoke a database user's access to a database. Required: serverId, databaseId, id. Destructive.",
+      "method": "DELETE",
+      "path": "/servers/{serverId}/databases/{databaseId}/grant",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "databaseId",
+          "type": "int",
+          "location": "path",
+          "description": "Database ID",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "int",
+          "location": "body",
+          "description": "Database user ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains_add",
+      "description": "Attach a new domain to a web app. Required: serverId, webAppId, name. Returns the new Domain.",
+      "method": "POST",
+      "path": "/servers/{serverId}/webapps/{webAppId}/domains",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "webAppId",
+          "type": "int",
+          "location": "path",
+          "description": "Web app ID",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Domain name (e.g. example.com)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains_delete",
+      "description": "Remove a domain from a web app. Required: serverId, webAppId, domainId. Destructive.",
+      "method": "DELETE",
+      "path": "/servers/{serverId}/webapps/{webAppId}/domains/{domainId}",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "webAppId",
+          "type": "int",
+          "location": "path",
+          "description": "Web app ID",
+          "required": true
+        },
+        {
+          "name": "domainId",
+          "type": "int",
+          "location": "path",
+          "description": "Domain ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains_get",
+      "description": "Get a domain by ID. Required: serverId, webAppId, domainId.",
+      "method": "GET",
+      "path": "/servers/{serverId}/webapps/{webAppId}/domains/{domainId}",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "webAppId",
+          "type": "int",
+          "location": "path",
+          "description": "Web app ID",
+          "required": true
+        },
+        {
+          "name": "domainId",
+          "type": "int",
+          "location": "path",
+          "description": "Domain ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains_list",
+      "description": "List domains for a web app. Required: serverId, webAppId. Returns array of Domain.",
+      "method": "GET",
+      "path": "/servers/{serverId}/webapps/{webAppId}/domains",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "webAppId",
+          "type": "int",
+          "location": "path",
+          "description": "Web app ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "external_keys_create",
+      "description": "Store a 3rd-party API key. Required: label, service, secret. Optional: username.",
+      "method": "POST",
+      "path": "/settings/externalapi",
+      "params": [
+        {
+          "name": "label",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "service",
+          "type": "string",
+          "location": "body",
+          "description": "Service: cloudflare, linode, digitalocean",
+          "required": true
+        },
+        {
+          "name": "username",
+          "type": "string",
+          "location": "body",
+          "description": "Username (required for cloudflare)"
+        },
+        {
+          "name": "secret",
+          "type": "string",
+          "location": "body",
+          "description": "API secret/token",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "external_keys_delete",
+      "description": "Delete a stored 3rd-party API key. Required: apiId. Destructive.",
+      "method": "DELETE",
+      "path": "/settings/externalapi/{apiId}",
+      "params": [
+        {
+          "name": "apiId",
+          "type": "int",
+          "location": "path",
+          "description": "API key ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "external_keys_get",
+      "description": "Get a 3rd-party API key by ID. Required: apiId.",
+      "method": "GET",
+      "path": "/settings/externalapi/{apiId}",
+      "params": [
+        {
+          "name": "apiId",
+          "type": "int",
+          "location": "path",
+          "description": "API key ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "external_keys_list",
+      "description": "List 3rd-party API keys in the workspace. Optional: search.",
+      "method": "GET",
+      "path": "/settings/externalapi",
+      "params": [
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by label substring"
+        }
+      ]
+    },
+    {
+      "name": "external_keys_update",
+      "description": "Update a 3rd-party API key. Required: apiId. Optional: label, username, secret. Partial update.",
+      "method": "PATCH",
+      "path": "/settings/externalapi/{apiId}",
+      "params": [
+        {
+          "name": "apiId",
+          "type": "int",
+          "location": "path",
+          "description": "API key ID",
+          "required": true
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "location": "body"
+        },
+        {
+          "name": "username",
+          "type": "string",
+          "location": "body"
+        },
+        {
+          "name": "secret",
+          "type": "string",
+          "location": "body"
+        }
+      ]
+    },
+    {
+      "name": "fail2ban_list",
+      "description": "List Fail2Ban-blocked IP addresses. Required: serverId.",
+      "method": "GET",
+      "path": "/servers/{serverId}/security/fail2ban/blockedip",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "fail2ban_unblock",
+      "description": "Unblock an IP address from Fail2Ban. Required: serverId, ipAddress. Destructive.",
+      "method": "DELETE",
+      "path": "/servers/{serverId}/security/fail2ban/blockedip",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "ipAddress",
+          "type": "string",
+          "location": "body",
+          "description": "IP address to unblock",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "firewall_create",
+      "description": "Create a firewall rule (stage; call deploy to apply). Required: serverId, type, port. Optional: protocol, ipAddress.",
+      "method": "POST",
+      "path": "/servers/{serverId}/security/firewalls",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "allow or deny",
+          "required": true
+        },
+        {
+          "name": "port",
+          "type": "string",
+          "location": "body",
+          "description": "Port number or range",
+          "required": true
+        },
+        {
+          "name": "protocol",
+          "type": "string",
+          "location": "body",
+          "description": "tcp, udp, or both"
+        },
+        {
+          "name": "ipAddress",
+          "type": "string",
+          "location": "body",
+          "description": "Source IP or CIDR (optional)"
+        }
+      ]
+    },
+    {
+      "name": "firewall_delete",
+      "description": "Remove a firewall rule (call deploy to apply). Required: serverId, firewallId. Destructive.",
+      "method": "DELETE",
+      "path": "/servers/{serverId}/security/firewalls/{firewallId}",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "firewallId",
+          "type": "int",
+          "location": "path",
+          "description": "Firewall rule ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "firewall_deploy",
+      "description": "Apply staged firewall rules to the live ruleset. Required: serverId.",
+      "method": "PUT",
+      "path": "/servers/{serverId}/security/firewalls",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "firewall_get",
+      "description": "Get a firewall rule by ID. Required: serverId, firewallId.",
+      "method": "GET",
+      "path": "/servers/{serverId}/security/firewalls/{firewallId}",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "firewallId",
+          "type": "int",
+          "location": "path",
+          "description": "Firewall rule ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "firewall_list",
+      "description": "List firewall rules. Required: serverId.",
+      "method": "GET",
+      "path": "/servers/{serverId}/security/firewalls",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "git_change_branch",
+      "description": "Switch the active branch. Required: serverId, webAppId, gitId, branch. Partial update.",
+      "method": "PATCH",
+      "path": "/servers/{serverId}/webapps/{webAppId}/git/{gitId}/branch",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "webAppId",
+          "type": "int",
+          "location": "path",
+          "description": "Web app ID",
+          "required": true
+        },
+        {
+          "name": "gitId",
+          "type": "int",
+          "location": "path",
+          "description": "Git connection ID",
+          "required": true
+        },
+        {
+          "name": "branch",
+          "type": "string",
+          "location": "body",
+          "description": "Branch name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "git_clone",
+      "description": "Connect a git repository to a web app. Required: serverId, webAppId, provider, repository, branch.",
+      "method": "POST",
+      "path": "/servers/{serverId}/webapps/{webAppId}/git",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "webAppId",
+          "type": "int",
+          "location": "path",
+          "description": "Web app ID",
+          "required": true
+        },
+        {
+          "name": "provider",
+          "type": "string",
+          "location": "body",
+          "description": "github, gitlab, bitbucket, custom",
+          "required": true
+        },
+        {
+          "name": "repository",
+          "type": "string",
+          "location": "body",
+          "description": "Repository (owner/repo or full URL)",
+          "required": true
+        },
+        {
+          "name": "branch",
+          "type": "string",
+          "location": "body",
+          "description": "Branch name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "git_delete",
+      "description": "Disconnect the git repository. Required: serverId, webAppId, gitId. Destructive.",
+      "method": "DELETE",
+      "path": "/servers/{serverId}/webapps/{webAppId}/git/{gitId}",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "webAppId",
+          "type": "int",
+          "location": "path",
+          "description": "Web app ID",
+          "required": true
+        },
+        {
+          "name": "gitId",
+          "type": "int",
+          "location": "path",
+          "description": "Git connection ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "git_deploy",
+      "description": "Force a deploy via the configured deploy script. Required: serverId, webAppId, gitId.",
+      "method": "PUT",
+      "path": "/servers/{serverId}/webapps/{webAppId}/git/{gitId}/script",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "webAppId",
+          "type": "int",
+          "location": "path",
+          "description": "Web app ID",
+          "required": true
+        },
+        {
+          "name": "gitId",
+          "type": "int",
+          "location": "path",
+          "description": "Git connection ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "git_get",
+      "description": "Get the current git connection. Required: serverId, webAppId.",
+      "method": "GET",
+      "path": "/servers/{serverId}/webapps/{webAppId}/git",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "webAppId",
+          "type": "int",
+          "location": "path",
+          "description": "Web app ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "git_update_script",
+      "description": "Update the deploy script. Required: serverId, webAppId, gitId, deployScript. Partial update.",
+      "method": "PATCH",
+      "path": "/servers/{serverId}/webapps/{webAppId}/git/{gitId}/script",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "webAppId",
+          "type": "int",
+          "location": "path",
+          "description": "Web app ID",
+          "required": true
+        },
+        {
+          "name": "gitId",
+          "type": "int",
+          "location": "path",
+          "description": "Git connection ID",
+          "required": true
+        },
+        {
+          "name": "deployScript",
+          "type": "string",
+          "location": "body",
+          "description": "Deploy script body",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "installers_get",
+      "description": "Get the currently installed script (if any). Required: serverId, webAppId.",
+      "method": "GET",
+      "path": "/servers/{serverId}/webapps/{webAppId}/installer",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "webAppId",
+          "type": "int",
+          "location": "path",
+          "description": "Web app ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "installers_install",
+      "description": "Install a script (e.g. WordPress) on a web app. Required: serverId, webAppId, scriptName. Optional: siteName, siteUrl, adminEmail (plus 5 more).",
+      "method": "POST",
+      "path": "/servers/{serverId}/webapps/{webAppId}/installer",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "webAppId",
+          "type": "int",
+          "location": "path",
+          "description": "Web app ID",
+          "required": true
+        },
+        {
+          "name": "scriptName",
+          "type": "string",
+          "location": "body",
+          "description": "Script slug (e.g. wordpress, joomla, drupal)",
+          "required": true
+        },
+        {
+          "name": "siteName",
+          "type": "string",
+          "location": "body",
+          "description": "Site display name"
+        },
+        {
+          "name": "siteUrl",
+          "type": "string",
+          "location": "body",
+          "description": "Site URL"
+        },
+        {
+          "name": "adminEmail",
+          "type": "string",
+          "location": "body",
+          "description": "Admin email"
+        },
+        {
+          "name": "adminUsername",
+          "type": "string",
+          "location": "body",
+          "description": "Admin username"
+        },
+        {
+          "name": "adminPassword",
+          "type": "string",
+          "location": "body",
+          "description": "Admin password"
+        },
+        {
+          "name": "tablePrefix",
+          "type": "string",
+          "location": "body",
+          "description": "Database table prefix (e.g. wp_)"
+        },
+        {
+          "name": "databaseId",
+          "type": "int",
+          "location": "body",
+          "description": "RunCloud database ID to use"
+        },
+        {
+          "name": "databaseUserId",
+          "type": "int",
+          "location": "body",
+          "description": "RunCloud database user ID to use"
+        }
+      ]
+    },
+    {
+      "name": "installers_remove",
+      "description": "Remove an installed script. Required: serverId, webAppId, installerId. Destructive.",
+      "method": "DELETE",
+      "path": "/servers/{serverId}/webapps/{webAppId}/installer/{installerId}",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "webAppId",
+          "type": "int",
+          "location": "path",
+          "description": "Web app ID",
+          "required": true
+        },
+        {
+          "name": "installerId",
+          "type": "int",
+          "location": "path",
+          "description": "Installer ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "runcloudhub_install",
+      "description": "Install the RunCloudHub WordPress cache plugin. Required: serverId, webAppId, cacheType. Optional: redisObjectCache, cacheFolderSize, cacheValidMinute.",
+      "method": "POST",
+      "path": "/servers/{serverId}/webapps/{webAppId}/runcloudhub",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "webAppId",
+          "type": "int",
+          "location": "path",
+          "description": "Web app ID",
+          "required": true
+        },
+        {
+          "name": "cacheType",
+          "type": "string",
+          "location": "body",
+          "description": "Cache type: native or redis",
+          "required": true
+        },
+        {
+          "name": "redisObjectCache",
+          "type": "bool",
+          "location": "body",
+          "description": "Enable Redis object cache"
+        },
+        {
+          "name": "cacheFolderSize",
+          "type": "int",
+          "location": "body",
+          "description": "Cache size in MB (default 50)"
+        },
+        {
+          "name": "cacheValidMinute",
+          "type": "int",
+          "location": "body",
+          "description": "Cache TTL in minutes (default 480)"
+        }
+      ]
+    },
+    {
+      "name": "s3_storage_update",
+      "description": "Update S3-compatible object storage integration. Optional: endpoint, region, accessKey (plus 2 more). Partial update.",
+      "method": "PATCH",
+      "path": "/settings/s3-storage",
+      "params": [
+        {
+          "name": "endpoint",
+          "type": "string",
+          "location": "body",
+          "description": "S3 endpoint URL"
+        },
+        {
+          "name": "region",
+          "type": "string",
+          "location": "body"
+        },
+        {
+          "name": "accessKey",
+          "type": "string",
+          "location": "body"
+        },
+        {
+          "name": "secretKey",
+          "type": "string",
+          "location": "body"
+        },
+        {
+          "name": "bucket",
+          "type": "string",
+          "location": "body"
+        }
+      ]
+    },
+    {
+      "name": "server_logs_get",
+      "description": "Retrieve nginx/Apache/MySQL logs from the server. Required: serverId. Optional: name.",
+      "method": "GET",
+      "path": "/servers/{serverId}/logs",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "Log name (e.g. nginx_access, nginx_error, mysql_error)"
+        }
+      ]
+    },
+    {
+      "name": "servers_autoupdate",
+      "description": "Configure automatic security/software updates. Required: serverId. Optional: softwareUpdate, securityUpdate. Partial update.",
+      "method": "PATCH",
+      "path": "/servers/{serverId}/settings/autoupdate",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "softwareUpdate",
+          "type": "bool",
+          "location": "body",
+          "description": "Enable automatic software updates"
+        },
+        {
+          "name": "securityUpdate",
+          "type": "bool",
+          "location": "body",
+          "description": "Enable automatic security updates"
+        }
+      ]
+    },
+    {
+      "name": "servers_change_php_cli",
+      "description": "Change the server-wide PHP CLI version. Required: serverId, phpVersion. Partial update.",
+      "method": "PATCH",
+      "path": "/servers/{serverId}/php/cli",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "phpVersion",
+          "type": "string",
+          "location": "body",
+          "description": "Target PHP version (e.g. php82rc)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "servers_create",
+      "description": "Register a new server with RunCloud (v3 supports nginx/ols web server and native/containerized install). Required: name, ipAddress, webServerType, installationType. Optional: provider, databaseType. Returns the new Server.",
+      "method": "POST",
+      "path": "/servers",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Friendly server name",
+          "required": true
+        },
+        {
+          "name": "ipAddress",
+          "type": "string",
+          "location": "body",
+          "description": "Public IPv4 address of the target server",
+          "required": true
+        },
+        {
+          "name": "webServerType",
+          "type": "string",
+          "location": "body",
+          "description": "Web server stack: nginx or ols (OpenLiteSpeed)",
+          "required": true
+        },
+        {
+          "name": "installationType",
+          "type": "string",
+          "location": "body",
+          "description": "Installation type: native or containerized (v3-new)",
+          "required": true
+        },
+        {
+          "name": "provider",
+          "type": "string",
+          "location": "body",
+          "description": "Cloud provider: digitalocean, linode, upcloud, hetzner, vultr"
+        },
+        {
+          "name": "databaseType",
+          "type": "string",
+          "location": "body",
+          "description": "Database type: mysql or mariadb (default: mariadb)"
+        }
+      ]
+    },
+    {
+      "name": "servers_delete",
+      "description": "Remove a server from your RunCloud account. Required: serverId. Destructive.",
+      "method": "DELETE",
+      "path": "/servers/{serverId}",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "servers_disk_cleanup",
+      "description": "Trigger server disk cleanup (purges logs and cache to reclaim space). Required: serverId.",
+      "method": "POST",
+      "path": "/servers/{serverId}/health/diskcleaner",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "servers_get",
+      "description": "Get a server by ID. Required: serverId. Returns the Server.",
+      "method": "GET",
+      "path": "/servers/{serverId}",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "servers_hardware",
+      "description": "Get server hardware specifications (CPU, RAM, OS, kernel). Required: serverId. Returns the ServerHardware.",
+      "method": "GET",
+      "path": "/servers/{serverId}/hardwareinfo",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "servers_health",
+      "description": "Get latest server health snapshot (v3: uptime, load, disk, memory in a single payload). Required: serverId. Returns the ServerHealth.",
+      "method": "GET",
+      "path": "/servers/{serverId}/health/latest",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "servers_install_script",
+      "description": "Retrieve the bash installation script to run on the target server. Required: serverId.",
+      "method": "GET",
+      "path": "/servers/{serverId}/installationscript",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "servers_list",
+      "description": "List all servers in your account. Optional: page, perPage, search (plus 2 more). Returns array of Server.",
+      "method": "GET",
+      "path": "/servers",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "perPage",
+          "type": "int",
+          "location": "query",
+          "description": "Items per page (max 40)"
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Substring search across server names and IPs"
+        },
+        {
+          "name": "sortColumn",
+          "type": "string",
+          "location": "query",
+          "description": "Column to sort by (e.g. name, createdAt)"
+        },
+        {
+          "name": "sortDirection",
+          "type": "string",
+          "location": "query",
+          "description": "Sort direction (asc or desc)"
+        }
+      ]
+    },
+    {
+      "name": "servers_meta_update",
+      "description": "Update server name and provider. Required: serverId. Optional: name, provider. Partial update.",
+      "method": "PATCH",
+      "path": "/servers/{serverId}/settings/meta",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "New server name"
+        },
+        {
+          "name": "provider",
+          "type": "string",
+          "location": "body",
+          "description": "Provider tag"
+        }
+      ]
+    },
+    {
+      "name": "servers_php_versions",
+      "description": "List PHP versions available on this server. Required: serverId.",
+      "method": "GET",
+      "path": "/servers/{serverId}/php/version",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "servers_shared",
+      "description": "List servers shared with your account. Optional: search. Returns array of Server.",
+      "method": "GET",
+      "path": "/servers/shared",
+      "params": [
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Substring search"
+        }
+      ]
+    },
+    {
+      "name": "servers_ssh_settings",
+      "description": "Get SSH configuration for this server. Required: serverId.",
+      "method": "GET",
+      "path": "/servers/{serverId}/settings/ssh",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "servers_stats",
+      "description": "Get server performance metrics (legacy v2 endpoint; prefer 'servers health' on v3). Required: serverId. Returns the ServerStats.",
+      "method": "GET",
+      "path": "/servers/{serverId}/stats",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "servers_update_ssh_settings",
+      "description": "Update SSH configuration. Required: serverId. Optional: passwordlessLogin, useDns, preventRootLogin. Partial update.",
+      "method": "PATCH",
+      "path": "/servers/{serverId}/settings/ssh",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "passwordlessLogin",
+          "type": "bool",
+          "location": "body",
+          "description": "Disable password login"
+        },
+        {
+          "name": "useDns",
+          "type": "bool",
+          "location": "body",
+          "description": "Enable reverse DNS lookups"
+        },
+        {
+          "name": "preventRootLogin",
+          "type": "bool",
+          "location": "body",
+          "description": "Disallow root SSH login"
+        }
+      ]
+    },
+    {
+      "name": "services_control",
+      "description": "Start, stop, restart, or reload a service. Required: serverId, action, realName. Partial update.",
+      "method": "PATCH",
+      "path": "/servers/{serverId}/services",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "action",
+          "type": "string",
+          "location": "body",
+          "description": "start, stop, restart, or reload",
+          "required": true
+        },
+        {
+          "name": "realName",
+          "type": "string",
+          "location": "body",
+          "description": "Service real name (nginx-rc, apache2-rc, mysql, redis-server, supervisord, beanstalkd, memcached)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "services_list",
+      "description": "List services and their status. Required: serverId.",
+      "method": "GET",
+      "path": "/servers/{serverId}/services",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ssh_keys_add",
+      "description": "Upload an SSH public key for a system user. Required: serverId, userId, label, publicKey.",
+      "method": "POST",
+      "path": "/servers/{serverId}/users/{userId}/sshcredentials",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "System user ID",
+          "required": true
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "location": "body",
+          "description": "Human-friendly label",
+          "required": true
+        },
+        {
+          "name": "publicKey",
+          "type": "string",
+          "location": "body",
+          "description": "OpenSSH public key contents",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ssh_keys_delete",
+      "description": "Delete a stored SSH key. Required: serverId, userId, keyId. Destructive.",
+      "method": "DELETE",
+      "path": "/servers/{serverId}/users/{userId}/sshcredentials/{keyId}",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "System user ID",
+          "required": true
+        },
+        {
+          "name": "keyId",
+          "type": "int",
+          "location": "path",
+          "description": "SSH key ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ssh_keys_list",
+      "description": "List SSH keys for a system user. Required: serverId, userId.",
+      "method": "GET",
+      "path": "/servers/{serverId}/users/{userId}/sshcredentials",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "System user ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ssl_delete",
+      "description": "Delete the SSL certificate. Required: serverId, webAppId, sslId. Destructive.",
+      "method": "DELETE",
+      "path": "/servers/{serverId}/webapps/{webAppId}/ssl/{sslId}",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "webAppId",
+          "type": "int",
+          "location": "path",
+          "description": "Web app ID",
+          "required": true
+        },
+        {
+          "name": "sslId",
+          "type": "int",
+          "location": "path",
+          "description": "SSL ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ssl_get",
+      "description": "Get the current SSL configuration. Required: serverId, webAppId.",
+      "method": "GET",
+      "path": "/servers/{serverId}/webapps/{webAppId}/ssl",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "webAppId",
+          "type": "int",
+          "location": "path",
+          "description": "Web app ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ssl_install",
+      "description": "Install an SSL certificate (Let's Encrypt or custom). Required: serverId, webAppId, provider. Optional: enableHttp, enableHsts, privateKey (plus 3 more).",
+      "method": "POST",
+      "path": "/servers/{serverId}/webapps/{webAppId}/ssl",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "webAppId",
+          "type": "int",
+          "location": "path",
+          "description": "Web app ID",
+          "required": true
+        },
+        {
+          "name": "provider",
+          "type": "string",
+          "location": "body",
+          "description": "letsencrypt or custom",
+          "required": true
+        },
+        {
+          "name": "enableHttp",
+          "type": "bool",
+          "location": "body",
+          "description": "Allow HTTP traffic alongside HTTPS"
+        },
+        {
+          "name": "enableHsts",
+          "type": "bool",
+          "location": "body",
+          "description": "Enable HSTS"
+        },
+        {
+          "name": "privateKey",
+          "type": "string",
+          "location": "body",
+          "description": "Private key (custom mode)"
+        },
+        {
+          "name": "certificate",
+          "type": "string",
+          "location": "body",
+          "description": "Certificate (custom mode)"
+        },
+        {
+          "name": "ssl_protocol_id",
+          "type": "int",
+          "location": "body",
+          "description": "SSL protocol ID"
+        },
+        {
+          "name": "authorizationMethod",
+          "type": "string",
+          "location": "body",
+          "description": "http-01 or dns-01"
+        }
+      ]
+    },
+    {
+      "name": "ssl_redeploy",
+      "description": "Force a Let's Encrypt redeploy of the SSL certificate. Required: serverId, webAppId, sslId.",
+      "method": "PUT",
+      "path": "/servers/{serverId}/webapps/{webAppId}/ssl/{sslId}",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "webAppId",
+          "type": "int",
+          "location": "path",
+          "description": "Web app ID",
+          "required": true
+        },
+        {
+          "name": "sslId",
+          "type": "int",
+          "location": "path",
+          "description": "SSL ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ssl_update",
+      "description": "Update SSL configuration (HSTS, HTTP toggle, protocol). Required: serverId, webAppId, sslId. Optional: enableHttp, enableHsts, ssl_protocol_id. Partial update.",
+      "method": "PATCH",
+      "path": "/servers/{serverId}/webapps/{webAppId}/ssl/{sslId}",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "webAppId",
+          "type": "int",
+          "location": "path",
+          "description": "Web app ID",
+          "required": true
+        },
+        {
+          "name": "sslId",
+          "type": "int",
+          "location": "path",
+          "description": "SSL ID",
+          "required": true
+        },
+        {
+          "name": "enableHttp",
+          "type": "bool",
+          "location": "body"
+        },
+        {
+          "name": "enableHsts",
+          "type": "bool",
+          "location": "body"
+        },
+        {
+          "name": "ssl_protocol_id",
+          "type": "int",
+          "location": "body"
+        }
+      ]
+    },
+    {
+      "name": "ssl_advanced_delete_domain",
+      "description": "Delete a per-domain SSL certificate. Required: serverId, webAppId, domainId, sslId. Destructive.",
+      "method": "DELETE",
+      "path": "/servers/{serverId}/webapps/{webAppId}/domains/{domainId}/ssl/{sslId}",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "webAppId",
+          "type": "int",
+          "location": "path",
+          "description": "Web app ID",
+          "required": true
+        },
+        {
+          "name": "domainId",
+          "type": "int",
+          "location": "path",
+          "description": "Domain ID",
+          "required": true
+        },
+        {
+          "name": "sslId",
+          "type": "int",
+          "location": "path",
+          "description": "SSL ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ssl_advanced_get_domain",
+      "description": "Get SSL details for a specific domain. Required: serverId, webAppId, domainId.",
+      "method": "GET",
+      "path": "/servers/{serverId}/webapps/{webAppId}/domains/{domainId}/ssl",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "webAppId",
+          "type": "int",
+          "location": "path",
+          "description": "Web app ID",
+          "required": true
+        },
+        {
+          "name": "domainId",
+          "type": "int",
+          "location": "path",
+          "description": "Domain ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ssl_advanced_install_domain",
+      "description": "Install SSL for a specific domain (advanced mode only). Required: serverId, webAppId, domainId, provider.",
+      "method": "POST",
+      "path": "/servers/{serverId}/webapps/{webAppId}/domains/{domainId}/ssl",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "webAppId",
+          "type": "int",
+          "location": "path",
+          "description": "Web app ID",
+          "required": true
+        },
+        {
+          "name": "domainId",
+          "type": "int",
+          "location": "path",
+          "description": "Domain ID",
+          "required": true
+        },
+        {
+          "name": "provider",
+          "type": "string",
+          "location": "body",
+          "description": "letsencrypt or custom",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ssl_advanced_redeploy_domain",
+      "description": "Force a redeploy of a per-domain SSL certificate. Required: serverId, webAppId, domainId, sslId.",
+      "method": "PUT",
+      "path": "/servers/{serverId}/webapps/{webAppId}/domains/{domainId}/ssl/{sslId}",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "webAppId",
+          "type": "int",
+          "location": "path",
+          "description": "Web app ID",
+          "required": true
+        },
+        {
+          "name": "domainId",
+          "type": "int",
+          "location": "path",
+          "description": "Domain ID",
+          "required": true
+        },
+        {
+          "name": "sslId",
+          "type": "int",
+          "location": "path",
+          "description": "SSL ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ssl_advanced_status",
+      "description": "Check whether advanced per-domain SSL is enabled. Required: serverId, webAppId.",
+      "method": "GET",
+      "path": "/servers/{serverId}/webapps/{webAppId}/ssl/advanced",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "webAppId",
+          "type": "int",
+          "location": "path",
+          "description": "Web app ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ssl_advanced_switch",
+      "description": "Switch between basic and advanced SSL modes. Required: serverId, webAppId. Optional: mode.",
+      "method": "POST",
+      "path": "/servers/{serverId}/webapps/{webAppId}/ssl/advanced",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "webAppId",
+          "type": "int",
+          "location": "path",
+          "description": "Web app ID",
+          "required": true
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "location": "body",
+          "description": "basic or advanced"
+        }
+      ]
+    },
+    {
+      "name": "static_collations",
+      "description": "List supported database collations (v3 path).",
+      "method": "GET",
+      "path": "/static/databases/collations",
+      "params": []
+    },
+    {
+      "name": "static_installers",
+      "description": "List installable scripts (WordPress, Joomla, Drupal, Magento) — v3 path.",
+      "method": "GET",
+      "path": "/static/webapps/installers",
+      "params": []
+    },
+    {
+      "name": "static_ssl_protocols",
+      "description": "List supported SSL protocols (v3 path). Required: webServer.",
+      "method": "GET",
+      "path": "/static/ssl/protocols",
+      "params": [
+        {
+          "name": "webServer",
+          "type": "string",
+          "location": "query",
+          "description": "Web server: nginx or ols",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "static_timezones",
+      "description": "List supported timezones.",
+      "method": "GET",
+      "path": "/static/timezones",
+      "params": []
+    },
+    {
+      "name": "supervisor_control",
+      "description": "Start, stop, or restart a supervisor job. Required: serverId, supervisorId, action. Partial update.",
+      "method": "PATCH",
+      "path": "/servers/{serverId}/supervisors/{supervisorId}/action",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "supervisorId",
+          "type": "int",
+          "location": "path",
+          "description": "Supervisor job ID",
+          "required": true
+        },
+        {
+          "name": "action",
+          "type": "string",
+          "location": "body",
+          "description": "start, stop, or restart",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "supervisor_create",
+      "description": "Create a supervisor-managed process. Required: serverId, jobName, command, username. Optional: numprocs, autoStart, autoRestart.",
+      "method": "POST",
+      "path": "/servers/{serverId}/supervisors",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "jobName",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "command",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "username",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "numprocs",
+          "type": "int",
+          "location": "body"
+        },
+        {
+          "name": "autoStart",
+          "type": "bool",
+          "location": "body"
+        },
+        {
+          "name": "autoRestart",
+          "type": "bool",
+          "location": "body"
+        }
+      ]
+    },
+    {
+      "name": "supervisor_delete",
+      "description": "Delete a supervisor job. Required: serverId, supervisorId. Destructive.",
+      "method": "DELETE",
+      "path": "/servers/{serverId}/supervisors/{supervisorId}",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "supervisorId",
+          "type": "int",
+          "location": "path",
+          "description": "Supervisor job ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "supervisor_list",
+      "description": "List supervisor jobs. Required: serverId. Optional: page, perPage.",
+      "method": "GET",
+      "path": "/servers/{serverId}/supervisors",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query"
+        },
+        {
+          "name": "perPage",
+          "type": "int",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "system_users_create",
+      "description": "Create a system user. Required: serverId, username, password.",
+      "method": "POST",
+      "path": "/servers/{serverId}/users",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "username",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "password",
+          "type": "string",
+          "location": "body",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "system_users_delete",
+      "description": "Delete a system user. Required: serverId, userId. Destructive.",
+      "method": "DELETE",
+      "path": "/servers/{serverId}/users/{userId}",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "System user ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "system_users_get",
+      "description": "Get a system user by ID. Required: serverId, userId.",
+      "method": "GET",
+      "path": "/servers/{serverId}/users/{userId}",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "System user ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "system_users_list",
+      "description": "List system users on a server. Required: serverId. Optional: page, perPage, search.",
+      "method": "GET",
+      "path": "/servers/{serverId}/users",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query"
+        },
+        {
+          "name": "perPage",
+          "type": "int",
+          "location": "query"
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "system_users_update_password",
+      "description": "Change a system user's password. Required: serverId, userId, password. Partial update.",
+      "method": "PATCH",
+      "path": "/servers/{serverId}/users/{userId}",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "userId",
+          "type": "int",
+          "location": "path",
+          "description": "System user ID",
+          "required": true
+        },
+        {
+          "name": "password",
+          "type": "string",
+          "location": "body",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "waf_install",
+      "description": "Install WAF on a webapp. Required: serverId, webAppId. Optional: paranoia, anomaly.",
+      "method": "POST",
+      "path": "/servers/{serverId}/webapps/{webAppId}/waf",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "webAppId",
+          "type": "int",
+          "location": "path",
+          "description": "Web app ID",
+          "required": true
+        },
+        {
+          "name": "paranoia",
+          "type": "int",
+          "location": "body",
+          "description": "Paranoia level (1-4)"
+        },
+        {
+          "name": "anomaly",
+          "type": "int",
+          "location": "body",
+          "description": "Anomaly threshold (1-100)"
+        }
+      ]
+    },
+    {
+      "name": "webapps_alias",
+      "description": "Create an alias web application sharing this one's document root. Required: serverId, webAppId, webApplicationName, domainName.",
+      "method": "POST",
+      "path": "/servers/{serverId}/webapps/{webAppId}/alias",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "webAppId",
+          "type": "int",
+          "location": "path",
+          "description": "Web app ID",
+          "required": true
+        },
+        {
+          "name": "webApplicationName",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "domainName",
+          "type": "string",
+          "location": "body",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webapps_change_php",
+      "description": "Change the PHP version for this web application. Required: serverId, webAppId, phpVersion. Partial update.",
+      "method": "PATCH",
+      "path": "/servers/{serverId}/webapps/{webAppId}/settings/php",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "webAppId",
+          "type": "int",
+          "location": "path",
+          "description": "Web app ID",
+          "required": true
+        },
+        {
+          "name": "phpVersion",
+          "type": "string",
+          "location": "body",
+          "description": "Target PHP version",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webapps_create",
+      "description": "Create a custom web application. Required: serverId, webApplicationName, domainName, user. Optional: publicPath, phpVersion, stack (plus 12 more).",
+      "method": "POST",
+      "path": "/servers/{serverId}/webapps/custom",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "webApplicationName",
+          "type": "string",
+          "location": "body",
+          "description": "Web app name",
+          "required": true
+        },
+        {
+          "name": "domainName",
+          "type": "string",
+          "location": "body",
+          "description": "Primary domain",
+          "required": true
+        },
+        {
+          "name": "user",
+          "type": "string",
+          "location": "body",
+          "description": "System user that owns the web app",
+          "required": true
+        },
+        {
+          "name": "publicPath",
+          "type": "string",
+          "location": "body",
+          "description": "Public path under the document root"
+        },
+        {
+          "name": "phpVersion",
+          "type": "string",
+          "location": "body",
+          "description": "PHP version (e.g. php82rc)"
+        },
+        {
+          "name": "stack",
+          "type": "string",
+          "location": "body",
+          "description": "Stack mode (hybrid, nativenginx)"
+        },
+        {
+          "name": "stackMode",
+          "type": "string",
+          "location": "body",
+          "description": "Stack mode flavor (production, development)"
+        },
+        {
+          "name": "clickjackingProtection",
+          "type": "bool",
+          "location": "body"
+        },
+        {
+          "name": "xssProtection",
+          "type": "bool",
+          "location": "body"
+        },
+        {
+          "name": "mimeSniffingProtection",
+          "type": "bool",
+          "location": "body"
+        },
+        {
+          "name": "processManager",
+          "type": "string",
+          "location": "body",
+          "description": "PHP-FPM process manager (dynamic, ondemand, static)"
+        },
+        {
+          "name": "processManagerStartServers",
+          "type": "int",
+          "location": "body"
+        },
+        {
+          "name": "processManagerMinSpareServers",
+          "type": "int",
+          "location": "body"
+        },
+        {
+          "name": "processManagerMaxSpareServers",
+          "type": "int",
+          "location": "body"
+        },
+        {
+          "name": "processManagerMaxChildren",
+          "type": "int",
+          "location": "body"
+        },
+        {
+          "name": "processManagerMaxRequests",
+          "type": "int",
+          "location": "body"
+        },
+        {
+          "name": "openBasedir",
+          "type": "string",
+          "location": "body"
+        },
+        {
+          "name": "timezone",
+          "type": "string",
+          "location": "body"
+        }
+      ]
+    },
+    {
+      "name": "webapps_create_wordpress",
+      "description": "Provision a WordPress webapp in one call (v3 native): creates the webapp + database + db user + grant atomically. Required: serverId, name, domainName, siteTitle, adminUsername, password, adminEmail. Optional: dbUser, dbPassword, dbName (plus 9 more).",
+      "method": "POST",
+      "path": "/servers/{serverId}/webapps/wordpress",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Web app name",
+          "required": true
+        },
+        {
+          "name": "domainName",
+          "type": "string",
+          "location": "body",
+          "description": "Domain name for the WordPress site",
+          "required": true
+        },
+        {
+          "name": "siteTitle",
+          "type": "string",
+          "location": "body",
+          "description": "WordPress site title",
+          "required": true
+        },
+        {
+          "name": "adminUsername",
+          "type": "string",
+          "location": "body",
+          "description": "WordPress admin username",
+          "required": true
+        },
+        {
+          "name": "password",
+          "type": "string",
+          "location": "body",
+          "description": "WordPress admin password",
+          "required": true
+        },
+        {
+          "name": "adminEmail",
+          "type": "string",
+          "location": "body",
+          "description": "WordPress administrator email",
+          "required": true
+        },
+        {
+          "name": "dbUser",
+          "type": "string",
+          "location": "body",
+          "description": "Database user (autogenerated if empty)"
+        },
+        {
+          "name": "dbPassword",
+          "type": "string",
+          "location": "body",
+          "description": "Database password (autogenerated if empty)"
+        },
+        {
+          "name": "dbName",
+          "type": "string",
+          "location": "body",
+          "description": "Database name (autogenerated if empty)"
+        },
+        {
+          "name": "dbPrefix",
+          "type": "string",
+          "location": "body",
+          "description": "Database table prefix (autogenerated if empty)"
+        },
+        {
+          "name": "user",
+          "type": "int",
+          "location": "body",
+          "description": "System user ID (defaults to RunCloud user)"
+        },
+        {
+          "name": "publicPath",
+          "type": "string",
+          "location": "body",
+          "description": "Public path under the document root"
+        },
+        {
+          "name": "phpVersion",
+          "type": "string",
+          "location": "body",
+          "description": "PHP version (e.g. php82rc)"
+        },
+        {
+          "name": "stack",
+          "type": "string",
+          "location": "body",
+          "description": "Stack (hybrid, nativenginx)"
+        },
+        {
+          "name": "stackMode",
+          "type": "string",
+          "location": "body",
+          "description": "Stack mode (production, development)"
+        },
+        {
+          "name": "apiId",
+          "type": "int",
+          "location": "body",
+          "description": "Cloudflare integration ID (optional)"
+        },
+        {
+          "name": "canvas_id",
+          "type": "int",
+          "location": "body",
+          "description": "WordPress canvas ID (optional)"
+        },
+        {
+          "name": "proxy",
+          "type": "bool",
+          "location": "body",
+          "description": "Enable Cloudflare proxy"
+        }
+      ]
+    },
+    {
+      "name": "webapps_default_set",
+      "description": "Mark this web app as the server default. Required: serverId, webAppId.",
+      "method": "POST",
+      "path": "/servers/{serverId}/webapps/{webAppId}/default",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "webAppId",
+          "type": "int",
+          "location": "path",
+          "description": "Web app ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webapps_default_unset",
+      "description": "Remove default status from this web app. Required: serverId, webAppId. Destructive.",
+      "method": "DELETE",
+      "path": "/servers/{serverId}/webapps/{webAppId}/default",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "webAppId",
+          "type": "int",
+          "location": "path",
+          "description": "Web app ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webapps_delete",
+      "description": "Delete a web application. Required: serverId, webAppId. Destructive.",
+      "method": "DELETE",
+      "path": "/servers/{serverId}/webapps/{webAppId}",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "webAppId",
+          "type": "int",
+          "location": "path",
+          "description": "Web app ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webapps_get",
+      "description": "Get a web application by ID. Required: serverId, webAppId.",
+      "method": "GET",
+      "path": "/servers/{serverId}/webapps/{webAppId}",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "webAppId",
+          "type": "int",
+          "location": "path",
+          "description": "Web app ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webapps_list",
+      "description": "List web applications on a server. Required: serverId. Optional: page, perPage, search (plus 2 more). Returns array of WebApp.",
+      "method": "GET",
+      "path": "/servers/{serverId}/webapps",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "perPage",
+          "type": "int",
+          "location": "query",
+          "description": "Items per page"
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Substring search"
+        },
+        {
+          "name": "sortColumn",
+          "type": "string",
+          "location": "query"
+        },
+        {
+          "name": "sortDirection",
+          "type": "string",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "webapps_logs",
+      "description": "View the activity log for this web app. Required: serverId, webAppId.",
+      "method": "GET",
+      "path": "/servers/{serverId}/webapps/{webAppId}/log",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "webAppId",
+          "type": "int",
+          "location": "path",
+          "description": "Web app ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webapps_rebuild",
+      "description": "Rebuild the web application's nginx/PHP-FPM configuration. Required: serverId, webAppId. Partial update.",
+      "method": "PATCH",
+      "path": "/servers/{serverId}/webapps/{webAppId}/rebuild",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "webAppId",
+          "type": "int",
+          "location": "path",
+          "description": "Web app ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webapps_settings",
+      "description": "Retrieve all settings for a web application. Required: serverId, webAppId.",
+      "method": "GET",
+      "path": "/servers/{serverId}/webapps/{webAppId}/settings",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "webAppId",
+          "type": "int",
+          "location": "path",
+          "description": "Web app ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webapps_update_fpmnginx",
+      "description": "Update PHP-FPM and nginx settings. Required: serverId, webAppId. Partial update.",
+      "method": "PATCH",
+      "path": "/servers/{serverId}/webapps/{webAppId}/settings/fpmnginx",
+      "params": [
+        {
+          "name": "serverId",
+          "type": "int",
+          "location": "path",
+          "description": "Server ID",
+          "required": true
+        },
+        {
+          "name": "webAppId",
+          "type": "int",
+          "location": "path",
+          "description": "Web app ID",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

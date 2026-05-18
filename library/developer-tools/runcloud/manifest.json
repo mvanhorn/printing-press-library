@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "runcloud-pp-mcp",
+  "display_name": "Runcloud",
+  "version": "4.8.0",
+  "description": "Runcloud API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/runcloud-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/runcloud-pp-mcp",
+      "args": [],
+      "env": {
+        "RUNCLOUD_API_TOKEN": "${user_config.runcloud_api_token}"
+      }
+    }
+  },
+  "user_config": {
+    "runcloud_api_token": {
+      "type": "string",
+      "title": "RUNCLOUD_API_TOKEN",
+      "description": "Sets RUNCLOUD_API_TOKEN for the Runcloud MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

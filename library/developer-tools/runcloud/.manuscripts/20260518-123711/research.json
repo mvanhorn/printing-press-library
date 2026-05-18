@@ -1,0 +1,309 @@
+{
+  "api_name": "runcloud",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "RunCloudIO/runcloud-sdk-php",
+      "url": "https://github.com/RunCloudIO/runcloud-sdk-php",
+      "language": "PHP",
+      "install_method": "composer require runcloudio/php-api-sdk",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 130,
+      "has_json_output": false,
+      "has_auth_support": true
+    },
+    {
+      "name": "aleksanderem/runcloud-mcp",
+      "url": "https://github.com/aleksanderem/runcloud-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 85,
+      "has_json_output": false,
+      "has_auth_support": true
+    },
+    {
+      "name": "RunCloud-cdk/shell-api-wrapper",
+      "url": "https://github.com/RunCloud-cdk/shell-api-wrapper",
+      "language": "Shell",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 11,
+      "has_json_output": false,
+      "has_auth_support": true
+    },
+    {
+      "name": "develanet/runcloud",
+      "url": "https://github.com/develanet/runcloud",
+      "language": "JavaScript",
+      "install_method": "npm",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": true,
+      "has_auth_support": true
+    }
+  ],
+  "gaps": [
+    "Apidog project for RunCloud v3 lists 222 endpoints; this spec covers ~143 (PHP SDK action map plus 13 v3-newer endpoints confirmed during research: WAF install, RunCloudHub install, v3 Create Server, full backups to RunCloud/local storage, S3 storage integration, WordPress one-shot create). Residual gap ~80 endpoints expected to be: WAF CRUD verbs beyond install (~7-10), RunCloudHub status/update/uninstall (~3-5), Backups list/restore/delete/history/db-only/file-only (~15-20), agency-api workspace/billing/additional team ops (~20-30), notification/webhook subscriptions, container-stack operations. v0.2 reprint via /printing-press-amend or /printing-press --spec \u003capidog-export\u003e when Apidog export becomes possible.",
+    "Apidog project at https://app.apidog.com/project/600229 — user-confirmed but locked to login; not exportable from current UI."
+  ],
+  "patterns": [
+    "Two API surfaces (agency-api / core-api) share the same bearer token; agency-api lives under /agency.",
+    "Pagination: page + perPage (max 40). Auto-paginate via --all flag."
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-18T12:38:00Z",
+  "novel_features": [
+    {
+      "name": "Fleet SSL audit",
+      "command": "fleet ssl-audit",
+      "description": "Find every SSL certificate across every server that is missing, expiring soon, or already expired — one query, whole fleet.",
+      "rationale": "Joins synced webapps × domains × ssl_certs in local SQLite. The v3 API is server-keyed and cannot answer 'fleet-wide cert state' in one request.",
+      "example": "runcloud-pp-cli fleet ssl-audit --expiring-within 30d --agent --select webapp,domain,server,expires_at",
+      "why_it_matters": "Agents auditing certificate hygiene get a deterministic table instead of having to fan out N parallel /servers/{id}/webapps/{id}/ssl calls.",
+      "group": "Fleet-wide queries (impossible via API)"
+    },
+    {
+      "name": "Reverse domain lookup",
+      "command": "whois-fleet",
+      "description": "Given a domain (or pattern), return the server, webapp, system user, and SSL config that hosts it.",
+      "rationale": "FTS5 over local mirror of domains/webapps/servers. The dashboard requires you to already know which server hosts a domain — circular for new operators.",
+      "example": "runcloud-pp-cli whois-fleet example.com --agent",
+      "why_it_matters": "Maps a domain to its operational context in one call — essential before any cross-resource action.",
+      "group": "Fleet-wide queries (impossible via API)"
+    },
+    {
+      "name": "Fleet PHP version audit",
+      "command": "fleet php-audit",
+      "description": "Find every webapp running below a given PHP version, grouped by server.",
+      "rationale": "Joins servers.phpCliVersion + webapps.phpVersion from synced store with SemVer comparison.",
+      "example": "runcloud-pp-cli fleet php-audit --below 8.2 --agent",
+      "why_it_matters": "Pre-upgrade scoping; current alternative is opening every server's PHP tab.",
+      "group": "Fleet-wide queries (impossible via API)"
+    },
+    {
+      "name": "Fleet health roll-up",
+      "command": "fleet health",
+      "description": "Show uptime, load, disk, and memory for every server in one comparable table, powered by v3's new /health/latest endpoint.",
+      "rationale": "Fan-out + cache + bounded under IsDogfoodEnv. v3 ships /servers/{id}/health/latest as a snapshot-friendly source, replacing v2's /stats.",
+      "example": "runcloud-pp-cli fleet health --agent --select server,uptime,load,disk_used_pct,memory_used_pct",
+      "why_it_matters": "Monday-morning fleet glance — one read instead of N dashboard tabs.",
+      "group": "Fleet-wide queries (impossible via API)"
+    },
+    {
+      "name": "Fleet blocked-IPs dedupe",
+      "command": "fleet blocked-ips",
+      "description": "Show every fail2ban-blocked IP across the fleet, deduped, with server count, first seen, and last seen.",
+      "rationale": "The same attacker IP appearing on 5 servers is 5 separate dashboard clicks today; aggregates synced fail2ban rows into a keyed local view.",
+      "example": "runcloud-pp-cli fleet blocked-ips --since 7d --agent",
+      "why_it_matters": "Identify pattern attackers and shared-blocklist candidates in one query.",
+      "group": "Fleet-wide queries (impossible via API)"
+    },
+    {
+      "name": "Fleet WordPress/CMS inventory",
+      "command": "fleet installers",
+      "description": "List every webapp that has a script-installer attached (WordPress, Joomla, Drupal, etc.) with version and site URL.",
+      "rationale": "Joins per-webapp /installer results across the fleet. RunCloud's core identity is WordPress hosting — the dashboard refuses to assemble this view.",
+      "example": "runcloud-pp-cli fleet installers --type wordpress --agent",
+      "why_it_matters": "Find every WordPress site for compliance, version sweeps, or plugin auditing.",
+      "group": "Fleet-wide queries (impossible via API)"
+    },
+    {
+      "name": "Agency client onboarding chain",
+      "command": "agency onboard",
+      "description": "Onboard a new agency client end-to-end: create client → assign server-package → spin up client-server → optional magic link. Emits a credentials summary.",
+      "rationale": "v3 introduces the agency-api workspace surface that v2 did not have. This chains create-client + create-client-server + create-client-magic-link with credential summary.",
+      "example": "runcloud-pp-cli agency onboard --client-email new@example.com --package 12 --server-name client-prod --magic-link",
+      "why_it_matters": "Replaces a multi-modal dashboard flow with one scripted command — essential for agencies running v3's reseller features.",
+      "group": "Workflow chains"
+    },
+    {
+      "name": "Fleet SSH-key audit",
+      "command": "fleet ssh-keys",
+      "description": "Inventory every SSH key across every (server, system_user) pair, deduped by fingerprint.",
+      "rationale": "Quarterly key rotation requires this and the API gives only one-server-one-user lists today.",
+      "example": "runcloud-pp-cli fleet ssh-keys --fingerprint AAAA... --agent",
+      "why_it_matters": "Find stale keys, identify shared keys across users, prepare for rotation.",
+      "group": "Fleet-wide queries (impossible via API)"
+    },
+    {
+      "name": "Fleet stale services",
+      "command": "fleet services",
+      "description": "Filter every server's services list for non-running rows or a named service across the whole fleet.",
+      "rationale": "'Is nginx running everywhere?' should be one command, not 12.",
+      "example": "runcloud-pp-cli fleet services --not-running --agent",
+      "why_it_matters": "On-call ritual — instant verification that critical services are up across the fleet.",
+      "group": "Fleet-wide queries (impossible via API)"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Fleet SSL audit",
+      "command": "fleet ssl-audit",
+      "description": "Find every SSL certificate across every server that is missing, expiring soon, or already expired — one query, whole fleet.",
+      "rationale": "Joins synced webapps × domains × ssl_certs in local SQLite. The v3 API is server-keyed and cannot answer 'fleet-wide cert state' in one request.",
+      "example": "runcloud-pp-cli fleet ssl-audit --expiring-within 30d --agent --select webapp,domain,server,expires_at",
+      "why_it_matters": "Agents auditing certificate hygiene get a deterministic table instead of having to fan out N parallel /servers/{id}/webapps/{id}/ssl calls.",
+      "group": "Fleet-wide queries (impossible via API)"
+    },
+    {
+      "name": "Reverse domain lookup",
+      "command": "whois-fleet",
+      "description": "Given a domain (or pattern), return the server, webapp, system user, and SSL config that hosts it.",
+      "rationale": "FTS5 over local mirror of domains/webapps/servers. The dashboard requires you to already know which server hosts a domain — circular for new operators.",
+      "example": "runcloud-pp-cli whois-fleet example.com --agent",
+      "why_it_matters": "Maps a domain to its operational context in one call — essential before any cross-resource action.",
+      "group": "Fleet-wide queries (impossible via API)"
+    },
+    {
+      "name": "Fleet PHP version audit",
+      "command": "fleet php-audit",
+      "description": "Find every webapp running below a given PHP version, grouped by server.",
+      "rationale": "Joins servers.phpCliVersion + webapps.phpVersion from synced store with SemVer comparison.",
+      "example": "runcloud-pp-cli fleet php-audit --below 8.2 --agent",
+      "why_it_matters": "Pre-upgrade scoping; current alternative is opening every server's PHP tab.",
+      "group": "Fleet-wide queries (impossible via API)"
+    },
+    {
+      "name": "Fleet health roll-up",
+      "command": "fleet health",
+      "description": "Show uptime, load, disk, and memory for every server in one comparable table, powered by v3's new /health/latest endpoint.",
+      "rationale": "Fan-out + cache + bounded under IsDogfoodEnv. v3 ships /servers/{id}/health/latest as a snapshot-friendly source, replacing v2's /stats.",
+      "example": "runcloud-pp-cli fleet health --agent --select server,uptime,load,disk_used_pct,memory_used_pct",
+      "why_it_matters": "Monday-morning fleet glance — one read instead of N dashboard tabs.",
+      "group": "Fleet-wide queries (impossible via API)"
+    },
+    {
+      "name": "Fleet blocked-IPs dedupe",
+      "command": "fleet blocked-ips",
+      "description": "Show every fail2ban-blocked IP across the fleet, deduped, with server count, first seen, and last seen.",
+      "rationale": "The same attacker IP appearing on 5 servers is 5 separate dashboard clicks today; aggregates synced fail2ban rows into a keyed local view.",
+      "example": "runcloud-pp-cli fleet blocked-ips --since 7d --agent",
+      "why_it_matters": "Identify pattern attackers and shared-blocklist candidates in one query.",
+      "group": "Fleet-wide queries (impossible via API)"
+    },
+    {
+      "name": "Fleet WordPress/CMS inventory",
+      "command": "fleet installers",
+      "description": "List every webapp that has a script-installer attached (WordPress, Joomla, Drupal, etc.) with version and site URL.",
+      "rationale": "Joins per-webapp /installer results across the fleet. RunCloud's core identity is WordPress hosting — the dashboard refuses to assemble this view.",
+      "example": "runcloud-pp-cli fleet installers --type wordpress --agent",
+      "why_it_matters": "Find every WordPress site for compliance, version sweeps, or plugin auditing.",
+      "group": "Fleet-wide queries (impossible via API)"
+    },
+    {
+      "name": "Agency client onboarding chain",
+      "command": "agency onboard",
+      "description": "Onboard a new agency client end-to-end: create client → assign server-package → spin up client-server → optional magic link. Emits a credentials summary.",
+      "rationale": "v3 introduces the agency-api workspace surface that v2 did not have. This chains create-client + create-client-server + create-client-magic-link with credential summary.",
+      "example": "runcloud-pp-cli agency onboard --client-email new@example.com --package 12 --server-name client-prod --magic-link",
+      "why_it_matters": "Replaces a multi-modal dashboard flow with one scripted command — essential for agencies running v3's reseller features.",
+      "group": "Workflow chains"
+    },
+    {
+      "name": "Fleet SSH-key audit",
+      "command": "fleet ssh-keys",
+      "description": "Inventory every SSH key across every (server, system_user) pair, deduped by fingerprint.",
+      "rationale": "Quarterly key rotation requires this and the API gives only one-server-one-user lists today.",
+      "example": "runcloud-pp-cli fleet ssh-keys --fingerprint AAAA... --agent",
+      "why_it_matters": "Find stale keys, identify shared keys across users, prepare for rotation.",
+      "group": "Fleet-wide queries (impossible via API)"
+    },
+    {
+      "name": "Fleet stale services",
+      "command": "fleet services",
+      "description": "Filter every server's services list for non-running rows or a named service across the whole fleet.",
+      "rationale": "'Is nginx running everywhere?' should be one command, not 12.",
+      "example": "runcloud-pp-cli fleet services --not-running --agent",
+      "why_it_matters": "On-call ritual — instant verification that critical services are up across the fleet.",
+      "group": "Fleet-wide queries (impossible via API)"
+    }
+  ],
+  "narrative": {
+    "display_name": "RunCloud",
+    "headline": "Fleet-wide visibility for RunCloud v3 — every SSL cert, PHP version, blocked IP, and SSH key across the whole workspace in one command.",
+    "value_prop": "RunCloud's dashboard is per-server. This CLI mirrors the v3 API into a local SQLite store and gives you the cross-server queries the dashboard refuses to assemble: `fleet ssl-audit` for cert expiry across the fleet, `whois-fleet` for domain → server reverse lookup, `fleet health` powered by v3's new /health/latest endpoint, and `fleet blocked-ips` for fail2ban dedupe. v3's agency-api workspace surface is exposed under `runcloud-pp-cli agency` with a chained `agency onboard` command for new-client provisioning. WordPress one-shot provisioning rides v3's native `POST /webapps/wordpress` endpoint via `webapps create-wordpress`.",
+    "auth_narrative": "RunCloud v3 uses bearer-token auth. Generate a token from Workspace \u003e Settings \u003e API Management, then export `RUNCLOUD_API_TOKEN` (or pass `--api-key`). v2's key:secret pair is no longer accepted.",
+    "quickstart": [
+      {
+        "command": "runcloud-pp-cli doctor",
+        "comment": "Verify the bearer token resolves and /ping responds."
+      },
+      {
+        "command": "runcloud-pp-cli sync --full",
+        "comment": "Mirror every server, webapp, domain, database, and SSH key into local SQLite."
+      },
+      {
+        "command": "runcloud-pp-cli fleet ssl-audit --expiring-within 30d",
+        "comment": "First-week-of-the-month ritual: certs expiring in the next month."
+      },
+      {
+        "command": "runcloud-pp-cli whois-fleet example.com",
+        "comment": "Find which server hosts a domain — the dashboard makes you already know."
+      },
+      {
+        "command": "runcloud-pp-cli fleet health --agent",
+        "comment": "Monday glance — uptime/load/disk/memory across the fleet, one read."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthenticated",
+        "fix": "Bearer token missing or invalid. Generate a new one from Workspace \u003e Settings \u003e API Management and `export RUNCLOUD_API_TOKEN=...`. v2 key:secret pairs do not work in v3."
+      },
+      {
+        "symptom": "429 Too Many Requests",
+        "fix": "Check `X-RateLimit-Remaining`. Reduce `--per-page`, batch with `--all` more slowly, or use the local store via `runcloud-pp-cli search`/`sql` instead of live API."
+      },
+      {
+        "symptom": "fleet command returns empty",
+        "fix": "Run `runcloud-pp-cli sync --full` first — fleet queries read from the local store, not the live API."
+      },
+      {
+        "symptom": "Webapp not found by name",
+        "fix": "Names resolve through FTS over the synced store. Either run `sync` or use the numeric webapp ID."
+      }
+    ],
+    "when_to_use": "Use this CLI when you operate more than one RunCloud server and have to ask fleet-wide questions the dashboard cannot answer in one click — SSL expiry across servers, PHP version compliance, fail2ban dedupe, WordPress site inventory, domain reverse lookup. Also use it for one-shot WordPress provisioning and (on v3 agency plans) chained client onboarding. Pair it with `--json`/`--select` for agentic workflows that need to feed RunCloud state into downstream automation.",
+    "recipes": [
+      {
+        "title": "Monday SSL sweep",
+        "command": "runcloud-pp-cli fleet ssl-audit --expiring-within 30d --agent --select webapp,domain,server,expires_at",
+        "explanation": "Every webapp/domain whose cert expires in the next month, agent-shaped output for piping into a renewal script."
+      },
+      {
+        "title": "Domain-to-server reverse lookup",
+        "command": "runcloud-pp-cli whois-fleet example.com --agent",
+        "explanation": "Find which server + webapp + system user + SSL config hosts `example.com` — answer the question the dashboard makes you already know."
+      },
+      {
+        "title": "Spin up a WordPress site (v3 native)",
+        "command": "runcloud-pp-cli webapps create-wordpress --server-id 42 --name client-site --domain-name example.com --site-title 'Client Site' --admin-username wpadmin --admin-email admin@example.com --password ChangeMeStrongPwd123",
+        "explanation": "Single call to v3's POST /servers/{id}/webapps/wordpress — creates the webapp, database, db user, and grant atomically. Add `webapps ssl install` as a follow-up if you want HTTPS."
+      },
+      {
+        "title": "Onboard a new agency client",
+        "command": "runcloud-pp-cli agency onboard --client-email new@example.com --package 12 --server-name client-prod --magic-link",
+        "explanation": "v3 agency-api chain: create-client → create-client-server → optional magic-link; emits credentials summary."
+      },
+      {
+        "title": "Friday security sweep",
+        "command": "runcloud-pp-cli fleet blocked-ips --since 7d --agent --select ip,servers_count,first_seen,last_seen",
+        "explanation": "Every fail2ban-blocked IP across the fleet from the last week, deduped with `servers_count` to find pattern attackers."
+      }
+    ],
+    "trigger_phrases": [
+      "ssl cert expiring across my runcloud servers",
+      "which server hosts \u003cdomain\u003e",
+      "spin up a wordpress site on runcloud",
+      "runcloud fleet health",
+      "fail2ban blocked ips runcloud",
+      "use runcloud",
+      "run runcloud"
+    ]
+  }
+}

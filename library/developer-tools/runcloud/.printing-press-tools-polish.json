@@ -1,0 +1,24 @@
+{
+  "timestamp": "2026-05-18T17:34:43.303302Z",
+  "cli_dir": "\u003ccli-dir\u003e/runcloud-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "databases",
+      "file": "databases.go",
+      "line": 11,
+      "evidence": "Manage server databases",
+      "status": "accepted",
+      "note": "Hidden:true generated parent grouper (DO-NOT-EDIT); cobratree walker excludes hidden commands from MCP surface, so this Short surfaces only in --help, not in agent tool catalogs. Generator-template fix candidate for richer parent-grouper Shorts."
+    },
+    {
+      "kind": "thin-short",
+      "command": "servers",
+      "file": "servers.go",
+      "line": 11,
+      "evidence": "Manage RunCloud servers",
+      "status": "accepted",
+      "note": "Hidden:true generated parent grouper (DO-NOT-EDIT); cobratree walker excludes hidden commands from MCP surface, so this Short surfaces only in --help, not in agent tool catalogs. Generator-template fix candidate for richer parent-grouper Shorts."
+    }
+  ]
+}

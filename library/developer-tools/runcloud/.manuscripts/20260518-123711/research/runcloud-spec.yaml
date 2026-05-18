@@ -1,0 +1,2682 @@
+name: runcloud
+description: "Fleet-wide visibility for RunCloud v3 — every SSL cert, PHP version, blocked IP, and SSH key across the whole workspace in one command."
+version: "0.1.0"
+base_url: "https://manage.runcloud.io/api/v3"
+
+auth:
+  type: bearer_token
+  header: "Authorization"
+  format: "Bearer {api_key}"
+  env_vars:
+    - RUNCLOUD_API_TOKEN
+
+config:
+  format: toml
+  path: "~/.config/runcloud-cli/config.toml"
+
+mcp:
+  transport: [stdio, http]
+  orchestration: code
+  endpoint_tools: hidden
+
+resources:
+  servers:
+    description: "Manage RunCloud servers"
+    endpoints:
+      list:
+        method: GET
+        path: "/servers"
+        description: "List all servers in your account"
+        params:
+          - name: page
+            type: int
+            description: "Page number"
+          - name: perPage
+            type: int
+            description: "Items per page (max 40)"
+          - name: search
+            type: string
+            description: "Substring search across server names and IPs"
+          - name: sortColumn
+            type: string
+            description: "Column to sort by (e.g. name, createdAt)"
+          - name: sortDirection
+            type: string
+            description: "Sort direction (asc or desc)"
+        response:
+          type: array
+          item: Server
+        pagination:
+          type: page
+          page_field: "page"
+          per_page_field: "perPage"
+          total_field: "meta.pagination.total"
+
+      get:
+        method: GET
+        path: "/servers/{serverId}"
+        description: "Get a server by ID"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            positional: true
+            description: "Server ID"
+        response:
+          type: object
+          item: Server
+
+      create:
+        method: POST
+        path: "/servers"
+        description: "Register a new server with RunCloud (v3 supports nginx/ols web server and native/containerized install)"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "Friendly server name"
+          - name: ipAddress
+            type: string
+            required: true
+            description: "Public IPv4 address of the target server"
+          - name: webServerType
+            type: string
+            required: true
+            description: "Web server stack: nginx or ols (OpenLiteSpeed)"
+          - name: installationType
+            type: string
+            required: true
+            description: "Installation type: native or containerized (v3-new)"
+          - name: provider
+            type: string
+            description: "Cloud provider: digitalocean, linode, upcloud, hetzner, vultr"
+          - name: databaseType
+            type: string
+            description: "Database type: mysql or mariadb (default: mariadb)"
+        response:
+          type: object
+          item: Server
+
+      delete:
+        method: DELETE
+        path: "/servers/{serverId}"
+        description: "Remove a server from your RunCloud account"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            positional: true
+            description: "Server ID"
+
+      health:
+        method: GET
+        path: "/servers/{serverId}/health/latest"
+        description: "Get latest server health snapshot (v3: uptime, load, disk, memory in a single payload)"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            positional: true
+            description: "Server ID"
+        response:
+          type: object
+          item: ServerHealth
+
+      disk_cleanup:
+        method: POST
+        path: "/servers/{serverId}/health/diskcleaner"
+        description: "Trigger server disk cleanup (purges logs and cache to reclaim space)"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            positional: true
+            description: "Server ID"
+
+      stats:
+        method: GET
+        path: "/servers/{serverId}/stats"
+        description: "Get server performance metrics (legacy v2 endpoint; prefer 'servers health' on v3)"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            positional: true
+            description: "Server ID"
+        response:
+          type: object
+          item: ServerStats
+
+      hardware:
+        method: GET
+        path: "/servers/{serverId}/hardwareinfo"
+        description: "Get server hardware specifications (CPU, RAM, OS, kernel)"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            positional: true
+            description: "Server ID"
+        response:
+          type: object
+          item: ServerHardware
+
+      install_script:
+        method: GET
+        path: "/servers/{serverId}/installationscript"
+        description: "Retrieve the bash installation script to run on the target server"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            positional: true
+            description: "Server ID"
+
+      shared:
+        method: GET
+        path: "/servers/shared"
+        description: "List servers shared with your account"
+        params:
+          - name: search
+            type: string
+            description: "Substring search"
+        response:
+          type: array
+          item: Server
+
+      php_versions:
+        method: GET
+        path: "/servers/{serverId}/php/version"
+        description: "List PHP versions available on this server"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            positional: true
+            description: "Server ID"
+
+      change_php_cli:
+        method: PATCH
+        path: "/servers/{serverId}/php/cli"
+        description: "Change the server-wide PHP CLI version"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            positional: true
+            description: "Server ID"
+        body:
+          - name: phpVersion
+            type: string
+            required: true
+            description: "Target PHP version (e.g. php82rc)"
+
+      ssh_settings:
+        method: GET
+        path: "/servers/{serverId}/settings/ssh"
+        description: "Get SSH configuration for this server"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            positional: true
+            description: "Server ID"
+
+      update_ssh_settings:
+        method: PATCH
+        path: "/servers/{serverId}/settings/ssh"
+        description: "Update SSH configuration"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            positional: true
+            description: "Server ID"
+        body:
+          - name: passwordlessLogin
+            type: bool
+            description: "Disable password login"
+          - name: useDns
+            type: bool
+            description: "Enable reverse DNS lookups"
+          - name: preventRootLogin
+            type: bool
+            description: "Disallow root SSH login"
+
+      meta_update:
+        method: PATCH
+        path: "/servers/{serverId}/settings/meta"
+        description: "Update server name and provider"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            positional: true
+            description: "Server ID"
+        body:
+          - name: name
+            type: string
+            description: "New server name"
+          - name: provider
+            type: string
+            description: "Provider tag"
+
+      autoupdate:
+        method: PATCH
+        path: "/servers/{serverId}/settings/autoupdate"
+        description: "Configure automatic security/software updates"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            positional: true
+            description: "Server ID"
+        body:
+          - name: softwareUpdate
+            type: bool
+            description: "Enable automatic software updates"
+          - name: securityUpdate
+            type: bool
+            description: "Enable automatic security updates"
+
+  webapps:
+    description: "Manage web applications across servers"
+    endpoints:
+      list:
+        method: GET
+        path: "/servers/{serverId}/webapps"
+        description: "List web applications on a server"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: page
+            type: int
+            description: "Page number"
+          - name: perPage
+            type: int
+            description: "Items per page"
+          - name: search
+            type: string
+            description: "Substring search"
+          - name: sortColumn
+            type: string
+          - name: sortDirection
+            type: string
+        response:
+          type: array
+          item: WebApp
+        pagination:
+          type: page
+          page_field: "page"
+          per_page_field: "perPage"
+          total_field: "meta.pagination.total"
+
+      get:
+        method: GET
+        path: "/servers/{serverId}/webapps/{webAppId}"
+        description: "Get a web application by ID"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: webAppId
+            type: int
+            required: true
+            positional: true
+            description: "Web app ID"
+
+      create:
+        method: POST
+        path: "/servers/{serverId}/webapps/custom"
+        description: "Create a custom web application"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+        body:
+          - name: webApplicationName
+            type: string
+            required: true
+            description: "Web app name"
+          - name: domainName
+            type: string
+            required: true
+            description: "Primary domain"
+          - name: user
+            type: string
+            required: true
+            description: "System user that owns the web app"
+          - name: publicPath
+            type: string
+            description: "Public path under the document root"
+          - name: phpVersion
+            type: string
+            description: "PHP version (e.g. php82rc)"
+          - name: stack
+            type: string
+            description: "Stack mode (hybrid, nativenginx)"
+          - name: stackMode
+            type: string
+            description: "Stack mode flavor (production, development)"
+          - name: clickjackingProtection
+            type: bool
+          - name: xssProtection
+            type: bool
+          - name: mimeSniffingProtection
+            type: bool
+          - name: processManager
+            type: string
+            description: "PHP-FPM process manager (dynamic, ondemand, static)"
+          - name: processManagerStartServers
+            type: int
+          - name: processManagerMinSpareServers
+            type: int
+          - name: processManagerMaxSpareServers
+            type: int
+          - name: processManagerMaxChildren
+            type: int
+          - name: processManagerMaxRequests
+            type: int
+          - name: openBasedir
+            type: string
+          - name: timezone
+            type: string
+
+      create_wordpress:
+        method: POST
+        path: "/servers/{serverId}/webapps/wordpress"
+        description: "Provision a WordPress webapp in one call (v3 native): creates the webapp + database + db user + grant atomically"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "Web app name"
+          - name: domainName
+            type: string
+            required: true
+            description: "Domain name for the WordPress site"
+          - name: siteTitle
+            type: string
+            required: true
+            description: "WordPress site title"
+          - name: adminUsername
+            type: string
+            required: true
+            description: "WordPress admin username"
+          - name: password
+            type: string
+            required: true
+            description: "WordPress admin password"
+          - name: adminEmail
+            type: string
+            required: true
+            description: "WordPress administrator email"
+          - name: dbUser
+            type: string
+            description: "Database user (autogenerated if empty)"
+          - name: dbPassword
+            type: string
+            description: "Database password (autogenerated if empty)"
+          - name: dbName
+            type: string
+            description: "Database name (autogenerated if empty)"
+          - name: dbPrefix
+            type: string
+            description: "Database table prefix (autogenerated if empty)"
+          - name: user
+            type: int
+            description: "System user ID (defaults to RunCloud user)"
+          - name: publicPath
+            type: string
+            description: "Public path under the document root"
+          - name: phpVersion
+            type: string
+            description: "PHP version (e.g. php82rc)"
+          - name: stack
+            type: string
+            description: "Stack (hybrid, nativenginx)"
+          - name: stackMode
+            type: string
+            description: "Stack mode (production, development)"
+          - name: apiId
+            type: int
+            description: "Cloudflare integration ID (optional)"
+          - name: canvas_id
+            type: int
+            description: "WordPress canvas ID (optional)"
+          - name: proxy
+            type: bool
+            description: "Enable Cloudflare proxy"
+
+      delete:
+        method: DELETE
+        path: "/servers/{serverId}/webapps/{webAppId}"
+        description: "Delete a web application"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: webAppId
+            type: int
+            required: true
+            positional: true
+            description: "Web app ID"
+
+      default_set:
+        method: POST
+        path: "/servers/{serverId}/webapps/{webAppId}/default"
+        description: "Mark this web app as the server default"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: webAppId
+            type: int
+            required: true
+            positional: true
+            description: "Web app ID"
+
+      default_unset:
+        method: DELETE
+        path: "/servers/{serverId}/webapps/{webAppId}/default"
+        description: "Remove default status from this web app"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: webAppId
+            type: int
+            required: true
+            positional: true
+            description: "Web app ID"
+
+      rebuild:
+        method: PATCH
+        path: "/servers/{serverId}/webapps/{webAppId}/rebuild"
+        description: "Rebuild the web application's nginx/PHP-FPM configuration"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: webAppId
+            type: int
+            required: true
+            positional: true
+            description: "Web app ID"
+
+      settings:
+        method: GET
+        path: "/servers/{serverId}/webapps/{webAppId}/settings"
+        description: "Retrieve all settings for a web application"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: webAppId
+            type: int
+            required: true
+            positional: true
+            description: "Web app ID"
+
+      change_php:
+        method: PATCH
+        path: "/servers/{serverId}/webapps/{webAppId}/settings/php"
+        description: "Change the PHP version for this web application"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: webAppId
+            type: int
+            required: true
+            positional: true
+            description: "Web app ID"
+        body:
+          - name: phpVersion
+            type: string
+            required: true
+            description: "Target PHP version"
+
+      update_fpmnginx:
+        method: PATCH
+        path: "/servers/{serverId}/webapps/{webAppId}/settings/fpmnginx"
+        description: "Update PHP-FPM and nginx settings"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: webAppId
+            type: int
+            required: true
+            positional: true
+            description: "Web app ID"
+
+      logs:
+        method: GET
+        path: "/servers/{serverId}/webapps/{webAppId}/log"
+        description: "View the activity log for this web app"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: webAppId
+            type: int
+            required: true
+            positional: true
+            description: "Web app ID"
+
+      alias:
+        method: POST
+        path: "/servers/{serverId}/webapps/{webAppId}/alias"
+        description: "Create an alias web application sharing this one's document root"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: webAppId
+            type: int
+            required: true
+            positional: true
+            description: "Web app ID"
+        body:
+          - name: webApplicationName
+            type: string
+            required: true
+          - name: domainName
+            type: string
+            required: true
+
+  domains:
+    description: "Manage domain attachments for a web application"
+    endpoints:
+      list:
+        method: GET
+        path: "/servers/{serverId}/webapps/{webAppId}/domains"
+        description: "List domains for a web app"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: webAppId
+            type: int
+            required: true
+            description: "Web app ID"
+        response:
+          type: array
+          item: Domain
+
+      get:
+        method: GET
+        path: "/servers/{serverId}/webapps/{webAppId}/domains/{domainId}"
+        description: "Get a domain by ID"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: webAppId
+            type: int
+            required: true
+            description: "Web app ID"
+          - name: domainId
+            type: int
+            required: true
+            positional: true
+            description: "Domain ID"
+
+      add:
+        method: POST
+        path: "/servers/{serverId}/webapps/{webAppId}/domains"
+        description: "Attach a new domain to a web app"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: webAppId
+            type: int
+            required: true
+            description: "Web app ID"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "Domain name (e.g. example.com)"
+        response:
+          type: object
+          item: Domain
+
+      delete:
+        method: DELETE
+        path: "/servers/{serverId}/webapps/{webAppId}/domains/{domainId}"
+        description: "Remove a domain from a web app"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: webAppId
+            type: int
+            required: true
+            description: "Web app ID"
+          - name: domainId
+            type: int
+            required: true
+            positional: true
+            description: "Domain ID"
+
+  ssl:
+    description: "Manage SSL certificates for a web application (basic mode)"
+    endpoints:
+      get:
+        method: GET
+        path: "/servers/{serverId}/webapps/{webAppId}/ssl"
+        description: "Get the current SSL configuration"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: webAppId
+            type: int
+            required: true
+            description: "Web app ID"
+
+      install:
+        method: POST
+        path: "/servers/{serverId}/webapps/{webAppId}/ssl"
+        description: "Install an SSL certificate (Let's Encrypt or custom)"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: webAppId
+            type: int
+            required: true
+            description: "Web app ID"
+        body:
+          - name: provider
+            type: string
+            required: true
+            description: "letsencrypt or custom"
+          - name: enableHttp
+            type: bool
+            description: "Allow HTTP traffic alongside HTTPS"
+          - name: enableHsts
+            type: bool
+            description: "Enable HSTS"
+          - name: privateKey
+            type: string
+            description: "Private key (custom mode)"
+          - name: certificate
+            type: string
+            description: "Certificate (custom mode)"
+          - name: ssl_protocol_id
+            type: int
+            description: "SSL protocol ID"
+          - name: authorizationMethod
+            type: string
+            description: "http-01 or dns-01"
+
+      update:
+        method: PATCH
+        path: "/servers/{serverId}/webapps/{webAppId}/ssl/{sslId}"
+        description: "Update SSL configuration (HSTS, HTTP toggle, protocol)"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: webAppId
+            type: int
+            required: true
+            description: "Web app ID"
+          - name: sslId
+            type: int
+            required: true
+            positional: true
+            description: "SSL ID"
+        body:
+          - name: enableHttp
+            type: bool
+          - name: enableHsts
+            type: bool
+          - name: ssl_protocol_id
+            type: int
+
+      redeploy:
+        method: PUT
+        path: "/servers/{serverId}/webapps/{webAppId}/ssl/{sslId}"
+        description: "Force a Let's Encrypt redeploy of the SSL certificate"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: webAppId
+            type: int
+            required: true
+            description: "Web app ID"
+          - name: sslId
+            type: int
+            required: true
+            positional: true
+            description: "SSL ID"
+
+      delete:
+        method: DELETE
+        path: "/servers/{serverId}/webapps/{webAppId}/ssl/{sslId}"
+        description: "Delete the SSL certificate"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: webAppId
+            type: int
+            required: true
+            description: "Web app ID"
+          - name: sslId
+            type: int
+            required: true
+            positional: true
+            description: "SSL ID"
+
+  ssl_advanced:
+    description: "Advanced per-domain SSL mode (one cert per domain)"
+    endpoints:
+      status:
+        method: GET
+        path: "/servers/{serverId}/webapps/{webAppId}/ssl/advanced"
+        description: "Check whether advanced per-domain SSL is enabled"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: webAppId
+            type: int
+            required: true
+            description: "Web app ID"
+
+      switch:
+        method: POST
+        path: "/servers/{serverId}/webapps/{webAppId}/ssl/advanced"
+        description: "Switch between basic and advanced SSL modes"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: webAppId
+            type: int
+            required: true
+            description: "Web app ID"
+        body:
+          - name: mode
+            type: string
+            description: "basic or advanced"
+
+      install_domain:
+        method: POST
+        path: "/servers/{serverId}/webapps/{webAppId}/domains/{domainId}/ssl"
+        description: "Install SSL for a specific domain (advanced mode only)"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: webAppId
+            type: int
+            required: true
+            description: "Web app ID"
+          - name: domainId
+            type: int
+            required: true
+            positional: true
+            description: "Domain ID"
+        body:
+          - name: provider
+            type: string
+            required: true
+            description: "letsencrypt or custom"
+
+      get_domain:
+        method: GET
+        path: "/servers/{serverId}/webapps/{webAppId}/domains/{domainId}/ssl"
+        description: "Get SSL details for a specific domain"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: webAppId
+            type: int
+            required: true
+            description: "Web app ID"
+          - name: domainId
+            type: int
+            required: true
+            positional: true
+            description: "Domain ID"
+
+      redeploy_domain:
+        method: PUT
+        path: "/servers/{serverId}/webapps/{webAppId}/domains/{domainId}/ssl/{sslId}"
+        description: "Force a redeploy of a per-domain SSL certificate"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: webAppId
+            type: int
+            required: true
+            description: "Web app ID"
+          - name: domainId
+            type: int
+            required: true
+            description: "Domain ID"
+          - name: sslId
+            type: int
+            required: true
+            positional: true
+            description: "SSL ID"
+
+      delete_domain:
+        method: DELETE
+        path: "/servers/{serverId}/webapps/{webAppId}/domains/{domainId}/ssl/{sslId}"
+        description: "Delete a per-domain SSL certificate"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: webAppId
+            type: int
+            required: true
+            description: "Web app ID"
+          - name: domainId
+            type: int
+            required: true
+            description: "Domain ID"
+          - name: sslId
+            type: int
+            required: true
+            positional: true
+            description: "SSL ID"
+
+  git:
+    description: "Git integration for web applications"
+    endpoints:
+      clone:
+        method: POST
+        path: "/servers/{serverId}/webapps/{webAppId}/git"
+        description: "Connect a git repository to a web app"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: webAppId
+            type: int
+            required: true
+            description: "Web app ID"
+        body:
+          - name: provider
+            type: string
+            required: true
+            description: "github, gitlab, bitbucket, custom"
+          - name: repository
+            type: string
+            required: true
+            description: "Repository (owner/repo or full URL)"
+          - name: branch
+            type: string
+            required: true
+            description: "Branch name"
+
+      get:
+        method: GET
+        path: "/servers/{serverId}/webapps/{webAppId}/git"
+        description: "Get the current git connection"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: webAppId
+            type: int
+            required: true
+            description: "Web app ID"
+
+      change_branch:
+        method: PATCH
+        path: "/servers/{serverId}/webapps/{webAppId}/git/{gitId}/branch"
+        description: "Switch the active branch"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: webAppId
+            type: int
+            required: true
+            description: "Web app ID"
+          - name: gitId
+            type: int
+            required: true
+            positional: true
+            description: "Git connection ID"
+        body:
+          - name: branch
+            type: string
+            required: true
+            description: "Branch name"
+
+      update_script:
+        method: PATCH
+        path: "/servers/{serverId}/webapps/{webAppId}/git/{gitId}/script"
+        description: "Update the deploy script"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: webAppId
+            type: int
+            required: true
+            description: "Web app ID"
+          - name: gitId
+            type: int
+            required: true
+            positional: true
+            description: "Git connection ID"
+        body:
+          - name: deployScript
+            type: string
+            required: true
+            description: "Deploy script body"
+
+      deploy:
+        method: PUT
+        path: "/servers/{serverId}/webapps/{webAppId}/git/{gitId}/script"
+        description: "Force a deploy via the configured deploy script"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: webAppId
+            type: int
+            required: true
+            description: "Web app ID"
+          - name: gitId
+            type: int
+            required: true
+            positional: true
+            description: "Git connection ID"
+
+      delete:
+        method: DELETE
+        path: "/servers/{serverId}/webapps/{webAppId}/git/{gitId}"
+        description: "Disconnect the git repository"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: webAppId
+            type: int
+            required: true
+            description: "Web app ID"
+          - name: gitId
+            type: int
+            required: true
+            positional: true
+            description: "Git connection ID"
+
+  installers:
+    description: "Install third-party scripts (WordPress, Joomla, Drupal, Magento)"
+    endpoints:
+      install:
+        method: POST
+        path: "/servers/{serverId}/webapps/{webAppId}/installer"
+        description: "Install a script (e.g. WordPress) on a web app"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: webAppId
+            type: int
+            required: true
+            description: "Web app ID"
+        body:
+          - name: scriptName
+            type: string
+            required: true
+            description: "Script slug (e.g. wordpress, joomla, drupal)"
+          - name: siteName
+            type: string
+            description: "Site display name"
+          - name: siteUrl
+            type: string
+            description: "Site URL"
+          - name: adminEmail
+            type: string
+            description: "Admin email"
+          - name: adminUsername
+            type: string
+            description: "Admin username"
+          - name: adminPassword
+            type: string
+            description: "Admin password"
+          - name: tablePrefix
+            type: string
+            description: "Database table prefix (e.g. wp_)"
+          - name: databaseId
+            type: int
+            description: "RunCloud database ID to use"
+          - name: databaseUserId
+            type: int
+            description: "RunCloud database user ID to use"
+
+      get:
+        method: GET
+        path: "/servers/{serverId}/webapps/{webAppId}/installer"
+        description: "Get the currently installed script (if any)"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: webAppId
+            type: int
+            required: true
+            description: "Web app ID"
+
+      remove:
+        method: DELETE
+        path: "/servers/{serverId}/webapps/{webAppId}/installer/{installerId}"
+        description: "Remove an installed script"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: webAppId
+            type: int
+            required: true
+            description: "Web app ID"
+          - name: installerId
+            type: int
+            required: true
+            positional: true
+            description: "Installer ID"
+
+  databases:
+    description: "Manage server databases"
+    endpoints:
+      list:
+        method: GET
+        path: "/servers/{serverId}/databases"
+        description: "List databases on a server"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: page
+            type: int
+          - name: perPage
+            type: int
+          - name: search
+            type: string
+        response:
+          type: array
+          item: Database
+        pagination:
+          type: page
+          page_field: "page"
+          per_page_field: "perPage"
+          total_field: "meta.pagination.total"
+
+      get:
+        method: GET
+        path: "/servers/{serverId}/databases/{databaseId}"
+        description: "Get a database by ID"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: databaseId
+            type: int
+            required: true
+            positional: true
+            description: "Database ID"
+
+      create:
+        method: POST
+        path: "/servers/{serverId}/databases"
+        description: "Create a database"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+        body:
+          - name: databaseName
+            type: string
+            required: true
+            description: "Database name"
+          - name: collation
+            type: string
+            description: "Optional collation (default utf8mb4_unicode_ci)"
+
+      delete:
+        method: DELETE
+        path: "/servers/{serverId}/databases/{databaseId}"
+        description: "Drop a database"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: databaseId
+            type: int
+            required: true
+            positional: true
+            description: "Database ID"
+
+      grant:
+        method: POST
+        path: "/servers/{serverId}/databases/{databaseId}/grant"
+        description: "Grant a database user access to a database"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: databaseId
+            type: int
+            required: true
+            description: "Database ID"
+        body:
+          - name: id
+            type: int
+            required: true
+            description: "Database user ID"
+
+      revoke:
+        method: DELETE
+        path: "/servers/{serverId}/databases/{databaseId}/grant"
+        description: "Revoke a database user's access to a database"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: databaseId
+            type: int
+            required: true
+            description: "Database ID"
+        body:
+          - name: id
+            type: int
+            required: true
+            description: "Database user ID"
+
+      list_grants:
+        method: GET
+        path: "/servers/{serverId}/databases/{databaseId}/grant"
+        description: "List database users with access to a database"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: databaseId
+            type: int
+            required: true
+            description: "Database ID"
+
+  database_users:
+    description: "Manage MySQL/MariaDB database users"
+    endpoints:
+      list:
+        method: GET
+        path: "/servers/{serverId}/databaseusers"
+        description: "List database users"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: page
+            type: int
+          - name: perPage
+            type: int
+          - name: search
+            type: string
+        pagination:
+          type: page
+          page_field: "page"
+          per_page_field: "perPage"
+          total_field: "meta.pagination.total"
+
+      get:
+        method: GET
+        path: "/servers/{serverId}/databaseusers/{databaseUserId}"
+        description: "Get a database user by ID"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: databaseUserId
+            type: int
+            required: true
+            positional: true
+            description: "Database user ID"
+
+      create:
+        method: POST
+        path: "/servers/{serverId}/databaseusers"
+        description: "Create a database user"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+        body:
+          - name: username
+            type: string
+            required: true
+          - name: password
+            type: string
+            required: true
+
+      update_password:
+        method: PATCH
+        path: "/servers/{serverId}/databaseusers/{databaseUserId}"
+        description: "Change a database user's password"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: databaseUserId
+            type: int
+            required: true
+            positional: true
+            description: "Database user ID"
+        body:
+          - name: password
+            type: string
+            required: true
+
+      delete:
+        method: DELETE
+        path: "/servers/{serverId}/databaseusers/{databaseUserId}"
+        description: "Delete a database user"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: databaseUserId
+            type: int
+            required: true
+            positional: true
+            description: "Database user ID"
+
+  system_users:
+    description: "Manage Linux system users that own web applications"
+    endpoints:
+      list:
+        method: GET
+        path: "/servers/{serverId}/users"
+        description: "List system users on a server"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: page
+            type: int
+          - name: perPage
+            type: int
+          - name: search
+            type: string
+        pagination:
+          type: page
+          page_field: "page"
+          per_page_field: "perPage"
+          total_field: "meta.pagination.total"
+
+      get:
+        method: GET
+        path: "/servers/{serverId}/users/{userId}"
+        description: "Get a system user by ID"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: userId
+            type: int
+            required: true
+            positional: true
+            description: "System user ID"
+
+      create:
+        method: POST
+        path: "/servers/{serverId}/users"
+        description: "Create a system user"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+        body:
+          - name: username
+            type: string
+            required: true
+          - name: password
+            type: string
+            required: true
+
+      update_password:
+        method: PATCH
+        path: "/servers/{serverId}/users/{userId}"
+        description: "Change a system user's password"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: userId
+            type: int
+            required: true
+            positional: true
+            description: "System user ID"
+        body:
+          - name: password
+            type: string
+            required: true
+
+      delete:
+        method: DELETE
+        path: "/servers/{serverId}/users/{userId}"
+        description: "Delete a system user"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: userId
+            type: int
+            required: true
+            positional: true
+            description: "System user ID"
+
+  ssh_keys:
+    description: "Manage SSH public keys stored on system users"
+    endpoints:
+      list:
+        method: GET
+        path: "/servers/{serverId}/users/{userId}/sshcredentials"
+        description: "List SSH keys for a system user"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: userId
+            type: int
+            required: true
+            description: "System user ID"
+
+      add:
+        method: POST
+        path: "/servers/{serverId}/users/{userId}/sshcredentials"
+        description: "Upload an SSH public key for a system user"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: userId
+            type: int
+            required: true
+            description: "System user ID"
+        body:
+          - name: label
+            type: string
+            required: true
+            description: "Human-friendly label"
+          - name: publicKey
+            type: string
+            required: true
+            description: "OpenSSH public key contents"
+
+      delete:
+        method: DELETE
+        path: "/servers/{serverId}/users/{userId}/sshcredentials/{keyId}"
+        description: "Delete a stored SSH key"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: userId
+            type: int
+            required: true
+            description: "System user ID"
+          - name: keyId
+            type: int
+            required: true
+            positional: true
+            description: "SSH key ID"
+
+  cron_jobs:
+    description: "Manage scheduled cron jobs"
+    endpoints:
+      list:
+        method: GET
+        path: "/servers/{serverId}/cronjobs"
+        description: "List cron jobs on a server"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: page
+            type: int
+          - name: perPage
+            type: int
+          - name: search
+            type: string
+        pagination:
+          type: page
+          page_field: "page"
+          per_page_field: "perPage"
+          total_field: "meta.pagination.total"
+
+      create:
+        method: POST
+        path: "/servers/{serverId}/cronjobs"
+        description: "Schedule a new cron job"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+        body:
+          - name: username
+            type: string
+            required: true
+            description: "System user under which the job runs"
+          - name: jobLabel
+            type: string
+            required: true
+            description: "Friendly label"
+          - name: command
+            type: string
+            required: true
+            description: "Command to execute"
+          - name: minute
+            type: string
+            required: true
+          - name: hour
+            type: string
+            required: true
+          - name: dayOfMonth
+            type: string
+            required: true
+          - name: month
+            type: string
+            required: true
+          - name: dayOfWeek
+            type: string
+            required: true
+
+      delete:
+        method: DELETE
+        path: "/servers/{serverId}/cronjobs/{cronJobId}"
+        description: "Remove a cron job"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: cronJobId
+            type: int
+            required: true
+            positional: true
+            description: "Cron job ID"
+
+  supervisor:
+    description: "Manage long-running supervisor processes"
+    endpoints:
+      list:
+        method: GET
+        path: "/servers/{serverId}/supervisors"
+        description: "List supervisor jobs"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: page
+            type: int
+          - name: perPage
+            type: int
+        pagination:
+          type: page
+          page_field: "page"
+          per_page_field: "perPage"
+          total_field: "meta.pagination.total"
+
+      create:
+        method: POST
+        path: "/servers/{serverId}/supervisors"
+        description: "Create a supervisor-managed process"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+        body:
+          - name: jobName
+            type: string
+            required: true
+          - name: command
+            type: string
+            required: true
+          - name: username
+            type: string
+            required: true
+          - name: numprocs
+            type: int
+          - name: autoStart
+            type: bool
+          - name: autoRestart
+            type: bool
+
+      delete:
+        method: DELETE
+        path: "/servers/{serverId}/supervisors/{supervisorId}"
+        description: "Delete a supervisor job"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: supervisorId
+            type: int
+            required: true
+            positional: true
+            description: "Supervisor job ID"
+
+      control:
+        method: PATCH
+        path: "/servers/{serverId}/supervisors/{supervisorId}/action"
+        description: "Start, stop, or restart a supervisor job"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: supervisorId
+            type: int
+            required: true
+            positional: true
+            description: "Supervisor job ID"
+        body:
+          - name: action
+            type: string
+            required: true
+            description: "start, stop, or restart"
+
+  services:
+    description: "Control system services (nginx, apache, mysql, redis, supervisor)"
+    endpoints:
+      list:
+        method: GET
+        path: "/servers/{serverId}/services"
+        description: "List services and their status"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+
+      control:
+        method: PATCH
+        path: "/servers/{serverId}/services"
+        description: "Start, stop, restart, or reload a service"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+        body:
+          - name: action
+            type: string
+            required: true
+            description: "start, stop, restart, or reload"
+          - name: realName
+            type: string
+            required: true
+            description: "Service real name (nginx-rc, apache2-rc, mysql, redis-server, supervisord, beanstalkd, memcached)"
+
+  firewall:
+    description: "Manage server firewall rules"
+    endpoints:
+      list:
+        method: GET
+        path: "/servers/{serverId}/security/firewalls"
+        description: "List firewall rules"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+
+      get:
+        method: GET
+        path: "/servers/{serverId}/security/firewalls/{firewallId}"
+        description: "Get a firewall rule by ID"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: firewallId
+            type: int
+            required: true
+            positional: true
+            description: "Firewall rule ID"
+
+      create:
+        method: POST
+        path: "/servers/{serverId}/security/firewalls"
+        description: "Create a firewall rule (stage; call deploy to apply)"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+        body:
+          - name: type
+            type: string
+            required: true
+            description: "allow or deny"
+          - name: port
+            type: string
+            required: true
+            description: "Port number or range"
+          - name: protocol
+            type: string
+            description: "tcp, udp, or both"
+          - name: ipAddress
+            type: string
+            description: "Source IP or CIDR (optional)"
+
+      delete:
+        method: DELETE
+        path: "/servers/{serverId}/security/firewalls/{firewallId}"
+        description: "Remove a firewall rule (call deploy to apply)"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: firewallId
+            type: int
+            required: true
+            positional: true
+            description: "Firewall rule ID"
+
+      deploy:
+        method: PUT
+        path: "/servers/{serverId}/security/firewalls"
+        description: "Apply staged firewall rules to the live ruleset"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+
+  fail2ban:
+    description: "Fail2Ban blocked-IP visibility and unblock"
+    endpoints:
+      list:
+        method: GET
+        path: "/servers/{serverId}/security/fail2ban/blockedip"
+        description: "List Fail2Ban-blocked IP addresses"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+
+      unblock:
+        method: DELETE
+        path: "/servers/{serverId}/security/fail2ban/blockedip"
+        description: "Unblock an IP address from Fail2Ban"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+        body:
+          - name: ipAddress
+            type: string
+            required: true
+            description: "IP address to unblock"
+
+  server_logs:
+    description: "Retrieve server-level logs (nginx, Apache, MySQL)"
+    endpoints:
+      get:
+        method: GET
+        path: "/servers/{serverId}/logs"
+        description: "Retrieve nginx/Apache/MySQL logs from the server"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: name
+            type: string
+            description: "Log name (e.g. nginx_access, nginx_error, mysql_error)"
+
+  external_keys:
+    description: "Manage workspace-level third-party API keys (Cloudflare, Linode, DigitalOcean) — v3 moves these from per-server to workspace scope"
+    endpoints:
+      list:
+        method: GET
+        path: "/settings/externalapi"
+        description: "List 3rd-party API keys in the workspace"
+        params:
+          - name: search
+            type: string
+            description: "Filter by label substring"
+
+      get:
+        method: GET
+        path: "/settings/externalapi/{apiId}"
+        description: "Get a 3rd-party API key by ID"
+        params:
+          - name: apiId
+            type: int
+            required: true
+            positional: true
+            description: "API key ID"
+
+      create:
+        method: POST
+        path: "/settings/externalapi"
+        description: "Store a 3rd-party API key"
+        body:
+          - name: label
+            type: string
+            required: true
+          - name: service
+            type: string
+            required: true
+            description: "Service: cloudflare, linode, digitalocean"
+          - name: username
+            type: string
+            description: "Username (required for cloudflare)"
+          - name: secret
+            type: string
+            required: true
+            description: "API secret/token"
+
+      update:
+        method: PATCH
+        path: "/settings/externalapi/{apiId}"
+        description: "Update a 3rd-party API key"
+        params:
+          - name: apiId
+            type: int
+            required: true
+            positional: true
+            description: "API key ID"
+        body:
+          - name: label
+            type: string
+          - name: username
+            type: string
+          - name: secret
+            type: string
+
+      delete:
+        method: DELETE
+        path: "/settings/externalapi/{apiId}"
+        description: "Delete a stored 3rd-party API key"
+        params:
+          - name: apiId
+            type: int
+            required: true
+            positional: true
+            description: "API key ID"
+
+  s3_storage:
+    description: "Manage S3-compatible object storage integrations (v3)"
+    endpoints:
+      update:
+        method: PATCH
+        path: "/settings/s3-storage"
+        description: "Update S3-compatible object storage integration"
+        body:
+          - name: endpoint
+            type: string
+            description: "S3 endpoint URL"
+          - name: region
+            type: string
+          - name: accessKey
+            type: string
+          - name: secretKey
+            type: string
+          - name: bucket
+            type: string
+
+  static:
+    description: "Static reference data: timezones, collations, installers, SSL protocols (v3 paths)"
+    endpoints:
+      timezones:
+        method: GET
+        path: "/static/timezones"
+        description: "List supported timezones"
+
+      collations:
+        method: GET
+        path: "/static/databases/collations"
+        description: "List supported database collations (v3 path)"
+
+      installers:
+        method: GET
+        path: "/static/webapps/installers"
+        description: "List installable scripts (WordPress, Joomla, Drupal, Magento) — v3 path"
+
+      ssl_protocols:
+        method: GET
+        path: "/static/ssl/protocols"
+        description: "List supported SSL protocols (v3 path)"
+        params:
+          - name: webServer
+            type: string
+            required: true
+            description: "Web server: nginx or ols"
+
+  waf:
+    description: "Web Application Firewall management (v3 new)"
+    endpoints:
+      install:
+        method: POST
+        path: "/servers/{serverId}/webapps/{webAppId}/waf"
+        description: "Install WAF on a webapp"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: webAppId
+            type: int
+            required: true
+            description: "Web app ID"
+        body:
+          - name: paranoia
+            type: int
+            description: "Paranoia level (1-4)"
+          - name: anomaly
+            type: int
+            description: "Anomaly threshold (1-100)"
+
+  runcloudhub:
+    description: "RunCloudHub WordPress object-cache plugin (v3 new)"
+    endpoints:
+      install:
+        method: POST
+        path: "/servers/{serverId}/webapps/{webAppId}/runcloudhub"
+        description: "Install the RunCloudHub WordPress cache plugin"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: webAppId
+            type: int
+            required: true
+            description: "Web app ID"
+        body:
+          - name: cacheType
+            type: string
+            required: true
+            description: "Cache type: native or redis"
+          - name: redisObjectCache
+            type: bool
+            description: "Enable Redis object cache"
+          - name: cacheFolderSize
+            type: int
+            description: "Cache size in MB (default 50)"
+          - name: cacheValidMinute
+            type: int
+            description: "Cache TTL in minutes (default 480)"
+
+  backups:
+    description: "Webapp backups: full and database-only, to RunCloud Storage or local server (v3 new)"
+    endpoints:
+      create_full_cloud:
+        method: POST
+        path: "/servers/{serverId}/webapps/{webAppId}/backups/full/runcloudstorage"
+        description: "Create a full webapp backup to RunCloud Storage"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: webAppId
+            type: int
+            required: true
+            description: "Web app ID"
+        body:
+          - name: frequency
+            type: string
+            description: "Backup frequency (hourly, daily, weekly, monthly)"
+          - name: retention
+            type: int
+            description: "How many backups to retain"
+          - name: successNotification
+            type: bool
+          - name: failNotification
+            type: bool
+
+      create_full_local:
+        method: POST
+        path: "/servers/{serverId}/webapps/{webAppId}/backups/full/local"
+        description: "Create a full webapp backup to the local server"
+        params:
+          - name: serverId
+            type: int
+            required: true
+            description: "Server ID"
+          - name: webAppId
+            type: int
+            required: true
+            description: "Web app ID"
+        body:
+          - name: frequency
+            type: string
+          - name: retention
+            type: int
+          - name: successNotification
+            type: bool
+          - name: failNotification
+            type: bool
+
+  agency_account:
+    description: "Agency account details (v3 agency-api)"
+    endpoints:
+      get:
+        method: GET
+        path: "/agency/account"
+        description: "Get agency account details"
+
+  agency_clients:
+    description: "Agency clients (v3 agency-api)"
+    endpoints:
+      list:
+        method: GET
+        path: "/agency/clients"
+        description: "List all agency clients"
+        params:
+          - name: page
+            type: int
+          - name: perPage
+            type: int
+
+      get:
+        method: GET
+        path: "/agency/clients/{clientId}"
+        description: "Get an agency client's details"
+        params:
+          - name: clientId
+            type: int
+            required: true
+            positional: true
+
+      create:
+        method: POST
+        path: "/agency/clients"
+        description: "Create a new agency client"
+        body:
+          - name: name
+            type: string
+            required: true
+          - name: email
+            type: string
+            required: true
+          - name: password
+            type: string
+
+      update:
+        method: PUT
+        path: "/agency/clients/{clientId}"
+        description: "Update an agency client"
+        params:
+          - name: clientId
+            type: int
+            required: true
+            positional: true
+        body:
+          - name: name
+            type: string
+          - name: email
+            type: string
+
+      delete:
+        method: DELETE
+        path: "/agency/clients/{clientId}"
+        description: "Delete an agency client"
+        params:
+          - name: clientId
+            type: int
+            required: true
+            positional: true
+
+      change_password:
+        method: PUT
+        path: "/agency/clients/{clientId}/changepassword"
+        description: "Change an agency client's password"
+        params:
+          - name: clientId
+            type: int
+            required: true
+            positional: true
+        body:
+          - name: password
+            type: string
+            required: true
+
+      magic_link:
+        method: POST
+        path: "/agency/clients/{clientId}/magiclink"
+        description: "Create a magic-link for quick client dashboard access"
+        params:
+          - name: clientId
+            type: int
+            required: true
+            positional: true
+
+      update_tags:
+        method: PUT
+        path: "/agency/clients/{clientId}/tags"
+        description: "Update agency client tags"
+        params:
+          - name: clientId
+            type: int
+            required: true
+            positional: true
+        body:
+          - name: tags
+            type: string
+            description: "Comma-separated tag list"
+
+  agency_packages:
+    description: "Agency server packages (v3 agency-api)"
+    endpoints:
+      list:
+        method: GET
+        path: "/agency/server-packages"
+        description: "List agency server packages"
+
+      get:
+        method: GET
+        path: "/agency/server-packages/{packageId}"
+        description: "Get an agency server package's details"
+        params:
+          - name: packageId
+            type: int
+            required: true
+            positional: true
+
+      create:
+        method: POST
+        path: "/agency/server-packages"
+        description: "Create an agency server package"
+        body:
+          - name: name
+            type: string
+            required: true
+
+      update:
+        method: PUT
+        path: "/agency/server-packages/{packageId}"
+        description: "Update an agency server package"
+        params:
+          - name: packageId
+            type: int
+            required: true
+            positional: true
+        body:
+          - name: name
+            type: string
+
+      delete:
+        method: DELETE
+        path: "/agency/server-packages/{packageId}"
+        description: "Delete an agency server package"
+        params:
+          - name: packageId
+            type: int
+            required: true
+            positional: true
+
+      upgrades:
+        method: GET
+        path: "/agency/server-packages/upgrades"
+        description: "List available upgrade plans for agency server packages"
+
+      available_upgrades:
+        method: GET
+        path: "/agency/server-packages/{packageId}/available-upgrades"
+        description: "List current server package's available upgrade plans"
+        params:
+          - name: packageId
+            type: int
+            required: true
+            positional: true
+
+      client_servers:
+        method: GET
+        path: "/agency/server-packages/{packageId}/client-servers"
+        description: "List client servers using this server package"
+        params:
+          - name: packageId
+            type: int
+            required: true
+            positional: true
+
+      duplicate:
+        method: POST
+        path: "/agency/server-packages/{packageId}/duplicate"
+        description: "Duplicate an agency server package"
+        params:
+          - name: packageId
+            type: int
+            required: true
+            positional: true
+
+  agency_teams:
+    description: "Agency teams (v3 agency-api)"
+    endpoints:
+      list:
+        method: GET
+        path: "/agency/teams"
+        description: "List all agency teams"
+
+      get:
+        method: GET
+        path: "/agency/teams/{teamId}"
+        description: "Get an agency team's details"
+        params:
+          - name: teamId
+            type: int
+            required: true
+            positional: true
+
+      create:
+        method: POST
+        path: "/agency/teams"
+        description: "Create an agency team"
+        body:
+          - name: name
+            type: string
+            required: true
+
+      update:
+        method: PUT
+        path: "/agency/teams/{teamId}"
+        description: "Update an agency team"
+        params:
+          - name: teamId
+            type: int
+            required: true
+            positional: true
+        body:
+          - name: name
+            type: string
+
+      delete:
+        method: DELETE
+        path: "/agency/teams/{teamId}"
+        description: "Delete an agency team"
+        params:
+          - name: teamId
+            type: int
+            required: true
+            positional: true
+
+      invite_member:
+        method: POST
+        path: "/agency/teams/{teamId}/members/invitations"
+        description: "Send an agency team member invitation"
+        params:
+          - name: teamId
+            type: int
+            required: true
+            description: "Team ID"
+        body:
+          - name: email
+            type: string
+            required: true
+
+      cancel_invitation:
+        method: DELETE
+        path: "/agency/teams/{teamId}/members/invitations/{invitationId}"
+        description: "Cancel a pending team member invitation"
+        params:
+          - name: teamId
+            type: int
+            required: true
+            description: "Team ID"
+          - name: invitationId
+            type: int
+            required: true
+            positional: true
+
+      get_member:
+        method: GET
+        path: "/agency/teams/{teamId}/members/{memberId}"
+        description: "Get an agency team member's details"
+        params:
+          - name: teamId
+            type: int
+            required: true
+            description: "Team ID"
+          - name: memberId
+            type: int
+            required: true
+            positional: true
+
+      remove_member:
+        method: DELETE
+        path: "/agency/teams/{teamId}/members/{memberId}"
+        description: "Remove an agency team member"
+        params:
+          - name: teamId
+            type: int
+            required: true
+            description: "Team ID"
+          - name: memberId
+            type: int
+            required: true
+            positional: true
+
+      update_member:
+        method: PUT
+        path: "/agency/teams/{teamId}/members/{memberId}"
+        description: "Update an agency team member"
+        params:
+          - name: teamId
+            type: int
+            required: true
+            description: "Team ID"
+          - name: memberId
+            type: int
+            required: true
+            positional: true
+
+      transfer_member:
+        method: PUT
+        path: "/agency/teams/{teamId}/members/{memberId}/transfer"
+        description: "Transfer team member to another agency team"
+        params:
+          - name: teamId
+            type: int
+            required: true
+            description: "Team ID"
+          - name: memberId
+            type: int
+            required: true
+            positional: true
+        body:
+          - name: targetTeamId
+            type: int
+            required: true
+
+      add_package:
+        method: POST
+        path: "/agency/teams/{teamId}/server-packages"
+        description: "Import a server package into the agency team"
+        params:
+          - name: teamId
+            type: int
+            required: true
+            description: "Team ID"
+        body:
+          - name: packageId
+            type: int
+            required: true
+
+      remove_package:
+        method: DELETE
+        path: "/agency/teams/{teamId}/server-packages/{packageId}"
+        description: "Remove a server package from the agency team"
+        params:
+          - name: teamId
+            type: int
+            required: true
+            description: "Team ID"
+          - name: packageId
+            type: int
+            required: true
+            positional: true
+
+      add_server:
+        method: POST
+        path: "/agency/teams/{teamId}/servers"
+        description: "Add a server to the agency team"
+        params:
+          - name: teamId
+            type: int
+            required: true
+            description: "Team ID"
+        body:
+          - name: serverId
+            type: int
+            required: true
+
+      remove_server:
+        method: DELETE
+        path: "/agency/teams/{teamId}/servers/{serverId}"
+        description: "Remove a server from the agency team"
+        params:
+          - name: teamId
+            type: int
+            required: true
+            description: "Team ID"
+          - name: serverId
+            type: int
+            required: true
+            positional: true
+
+  agency_client_servers:
+    description: "Agency client servers — provisioned servers tied to an agency client (v3 agency-api)"
+    endpoints:
+      list:
+        method: GET
+        path: "/agency/client-servers"
+        description: "List all agency client servers"
+
+      get:
+        method: GET
+        path: "/agency/client-servers/{clientServerId}"
+        description: "Get an agency client server's details"
+        params:
+          - name: clientServerId
+            type: int
+            required: true
+            positional: true
+
+      create:
+        method: POST
+        path: "/agency/client-servers"
+        description: "Create a new agency client server"
+        body:
+          - name: clientId
+            type: int
+            required: true
+          - name: serverPackageId
+            type: int
+            required: true
+          - name: name
+            type: string
+            required: true
+
+      delete:
+        method: DELETE
+        path: "/agency/client-servers/{clientServerId}"
+        description: "Delete an agency client server"
+        params:
+          - name: clientServerId
+            type: int
+            required: true
+            positional: true
+
+      suspend:
+        method: POST
+        path: "/agency/client-servers/{clientServerId}/suspend"
+        description: "Suspend an agency client server"
+        params:
+          - name: clientServerId
+            type: int
+            required: true
+            positional: true
+
+      unsuspend:
+        method: POST
+        path: "/agency/client-servers/{clientServerId}/unsuspend"
+        description: "Unsuspend an agency client server"
+        params:
+          - name: clientServerId
+            type: int
+            required: true
+            positional: true
+
+      rebuild:
+        method: POST
+        path: "/agency/client-servers/{clientServerId}/rebuild-server"
+        description: "Rebuild an agency client server"
+        params:
+          - name: clientServerId
+            type: int
+            required: true
+            positional: true
+
+      change_client:
+        method: POST
+        path: "/agency/client-servers/{clientServerId}/change-client"
+        description: "Reassign an agency client server to a different client"
+        params:
+          - name: clientServerId
+            type: int
+            required: true
+            positional: true
+        body:
+          - name: clientId
+            type: int
+            required: true
+
+      assign_server:
+        method: POST
+        path: "/agency/client-servers/{clientServerId}/assign-server"
+        description: "Assign a server to the client-server slot"
+        params:
+          - name: clientServerId
+            type: int
+            required: true
+            positional: true
+        body:
+          - name: serverId
+            type: int
+            required: true
+
+      upgrade_package:
+        method: POST
+        path: "/agency/client-servers/{clientServerId}/upgrade-server-package"
+        description: "Upgrade the server package for an agency client server"
+        params:
+          - name: clientServerId
+            type: int
+            required: true
+            positional: true
+        body:
+          - name: serverPackageId
+            type: int
+            required: true
+
+      add_ip:
+        method: POST
+        path: "/agency/client-servers/{clientServerId}/add-ipaddress"
+        description: "Add an IP address to an agency client server"
+        params:
+          - name: clientServerId
+            type: int
+            required: true
+            positional: true
+        body:
+          - name: ipAddress
+            type: string
+            required: true
+
+      resend_webhook:
+        method: POST
+        path: "/agency/client-servers/{clientServerId}/resend-webhook"
+        description: "Resend the webhook for an agency client server"
+        params:
+          - name: clientServerId
+            type: int
+            required: true
+            positional: true
+
+types:
+  Server:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: ipAddress
+        type: string
+      - name: provider
+        type: string
+      - name: phpCliVersion
+        type: string
+      - name: agentVersion
+        type: string
+      - name: connected
+        type: bool
+      - name: online
+        type: bool
+      - name: createdAt
+        type: string
+
+  ServerStats:
+    fields:
+      - name: uptime
+        type: string
+      - name: load
+        type: string
+      - name: diskTotal
+        type: string
+      - name: diskUsed
+        type: string
+      - name: memoryTotal
+        type: string
+      - name: memoryUsed
+        type: string
+
+  ServerHealth:
+    fields:
+      - name: uptime
+        type: string
+      - name: loadAverage
+        type: string
+      - name: diskUsedPercent
+        type: float
+      - name: memoryUsedPercent
+        type: float
+      - name: collectedAt
+        type: string
+
+  ServerHardware:
+    fields:
+      - name: hardwareName
+        type: string
+      - name: cpuModel
+        type: string
+      - name: cpuCores
+        type: int
+      - name: totalMemory
+        type: string
+      - name: osVersion
+        type: string
+      - name: kernelVersion
+        type: string
+
+  WebApp:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: rootDomain
+        type: string
+      - name: user
+        type: string
+      - name: publicPath
+        type: string
+      - name: phpVersion
+        type: string
+      - name: stack
+        type: string
+      - name: stackMode
+        type: string
+      - name: type
+        type: string
+      - name: defaultApp
+        type: bool
+      - name: createdAt
+        type: string
+
+  Domain:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: type
+        type: string
+      - name: redirection
+        type: string
+      - name: status
+        type: string
+
+  Database:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: collation
+        type: string
+      - name: createdAt
+        type: string
