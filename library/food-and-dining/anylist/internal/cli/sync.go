@@ -30,10 +30,6 @@ func newSyncCmd(flags *rootFlags) *cobra.Command {
 			if err := anylist.EnsureClientIdentifier(cfg); err != nil {
 				return fmt.Errorf("ensuring client identifier: %w", err)
 			}
-			// Save client identifier if newly generated
-			if cfg.AccessToken != "" || cfg.ClientIdentifier != "" {
-				_ = cfg.SaveAnyListCredentials(cfg.AccessToken, cfg.RefreshToken, cfg.UserID)
-			}
 
 			if cfg.AccessToken == "" {
 				return authErr(fmt.Errorf("not authenticated — run 'anylist-pp-cli auth login' first"))
@@ -80,10 +76,10 @@ func newSyncCmd(flags *rootFlags) *cobra.Command {
 
 			if flags.asJSON {
 				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
-					"synced":   true,
-					"lists":    listCount,
-					"items":    itemCount,
-					"recipes":  recipeCount,
+					"synced":    true,
+					"lists":     listCount,
+					"items":     itemCount,
+					"recipes":   recipeCount,
 					"synced_at": time.Now().Format(time.RFC3339),
 				}, flags)
 			}
