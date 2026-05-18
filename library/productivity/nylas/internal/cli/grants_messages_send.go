@@ -196,7 +196,16 @@ func newGrantsMessagesSendCmd(flags *rootFlags) *cobra.Command {
 			// must exist here. --dry-run already short-circuits earlier; we
 			// only reach this point when the user genuinely intends to send.
 			if !flags.dryRun && !flags.yes && !flags.noInput {
-				if !isTerminal(cmd.OutOrStdout()) {
+				// Check stdin, not stdout: --stdin already drained stdin
+				// reading the body, and a pipeline like
+				// `cat body.json | send … --stdin` leaves stdout a tty
+				// but stdin at EOF, so Fscanln would silently cancel.
+				// Stdin-not-a-terminal IS the non-interactive signal.
+				stdinIsTTY := false
+				if fi, err := os.Stdin.Stat(); err == nil {
+					stdinIsTTY = (fi.Mode() & os.ModeCharDevice) != 0
+				}
+				if !stdinIsTTY {
 					return fmt.Errorf("refusing to send without confirmation in a non-interactive shell — pass --yes (or --agent) to bypass, or --dry-run to preview the wire payload")
 				}
 				to := bodyTo

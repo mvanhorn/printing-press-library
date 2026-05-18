@@ -51,6 +51,12 @@
       "summary": "Honour --follow=false in tail.go by returning after the initial fetch instead of dropping into the infinite ticker loop.",
       "reason": "Greptile P1 review finding on PR #676 (fourth pass): the follow flag was declared and bound but never read, so --follow=false silently behaved like the default and ran the poll loop until SIGTERM/SIGINT. Any script or agent relying on --follow=false for single-poll-then-exit would hang.",
       "files": ["internal/cli/tail.go"]
+    },
+    {
+      "id": "send-confirm-checks-stdin-tty",
+      "summary": "Gate the send confirmation prompt on stdin being a TTY rather than stdout, so --stdin pipelines fail with the explicit 'pass --yes' error instead of silently cancelling.",
+      "reason": "Greptile P1 review finding on PR #676 (fifth pass): in `cat body.json | nylas-pp-cli grants messages send GRANT --stdin`, stdout is still a tty so the prompt printed, but io.ReadAll(os.Stdin) had already drained stdin to EOF and Fscanln returned empty, cancelling the send with a misleading 'send cancelled by user'. The right invariant is 'can I prompt the user' — that requires stdin to be a terminal, not stdout. Pipelines now exit cleanly with the documented --yes guidance.",
+      "files": ["internal/cli/grants_messages_send.go"]
     }
   ]
 }
