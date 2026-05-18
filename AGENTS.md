@@ -134,6 +134,12 @@ If you (an agent) opened the PR, you own driving it to ready-to-merge:
 
 The same expectation applies to non-CLI PRs (CI fixes, bug fixes, doc edits, sweep-canonical runs): resolve every comment before merge. The strictness is uniform; the rule-set Greptile applies varies with what you touched.
 
+## Supply-chain hardening
+
+PRs touching `.github/workflows/**`, `library/**/go.mod`, or `npm/package.json` are gated by two layers: Greptile rules in [`greptile.json`](greptile.json) and a Python scan in [`.github/scripts/verify-supply-chain/`](.github/scripts/verify-supply-chain/) run by `verify-supply-chain.yml`. See those files for current signal coverage. Run the scan locally with `python3 .github/scripts/verify-supply-chain/scan.py --base-ref origin/main`; tests are `python3 -m unittest scan_test` from that directory.
+
+Runs informationally on landing — promote to a required branch-protection check only after a one-week green window. Mirror gate runs in [`mvanhorn/cli-printing-press`](https://github.com/mvanhorn/cli-printing-press) with scope adaptations. Incident background and primary sources: [docs/solutions/security/2026-05-supply-chain-hardening.md](docs/solutions/security/2026-05-supply-chain-hardening.md).
+
 ## Repository layout
 
 ```

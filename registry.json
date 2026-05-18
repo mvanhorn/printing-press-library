@@ -2442,6 +2442,27 @@
       }
     },
     {
+      "name": "tenderned",
+      "category": "sales-and-crm",
+      "api": "TenderNed",
+      "description": "Every Dutch public tender, with the sub-threshold long tail that EU TED never sees, in a local-first CLI you can pipe.",
+      "path": "library/sales-and-crm/tenderned",
+      "printer": "markvandeven",
+      "printer_name": "markvandeven",
+      "mcp": {
+        "binary": "tenderned-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 7,
+        "public_tool_count": 7,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "ticketmaster",
       "category": "media-and-entertainment",
       "api": "Ticketmaster",
