@@ -96,6 +96,10 @@ one call.`,
 					bumpGravity(counters, grantSet, strings.ToLower(ent.email), ent.name, grant, "sent")
 				}
 			}
+			if err := rows.Err(); err != nil {
+				rows.Close()
+				return fmt.Errorf("iterating grants_messages: %w", err)
+			}
 			rows.Close()
 
 			rows2, err := db.DB().QueryContext(cmd.Context(),
@@ -113,6 +117,10 @@ one call.`,
 				for _, ent := range parseEmailArray(parts) {
 					bumpGravity(counters, grantSet, strings.ToLower(ent.email), ent.name, grant, "meeting")
 				}
+			}
+			if err := rows2.Err(); err != nil {
+				rows2.Close()
+				return fmt.Errorf("iterating events: %w", err)
 			}
 			rows2.Close()
 

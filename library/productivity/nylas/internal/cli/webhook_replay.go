@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"net"
 	"net/http"
 	"net/url"
 	"strings"
@@ -33,6 +34,7 @@ func newWebhookReplayCmd(flags *rootFlags) *cobra.Command {
 	var dbPath string
 	var limit int
 	var verify bool
+	var allowRemote bool
 
 	cmd := &cobra.Command{
 		Use:   "webhook-replay",
@@ -66,8 +68,15 @@ pattern used by every other side-effecting command in this CLI.`,
 			if toURL == "" {
 				return fmt.Errorf("--to is required (e.g. http://localhost:3000/hook)")
 			}
-			if _, err := url.Parse(toURL); err != nil {
+			parsed, err := url.Parse(toURL)
+			if err != nil {
 				return fmt.Errorf("invalid --to URL: %w", err)
+			}
+			if parsed.Scheme != "http" && parsed.Scheme != "https" {
+				return fmt.Errorf("--to scheme must be http or https (got %q)", parsed.Scheme)
+			}
+			if !allowRemote && !isLoopbackHost(parsed.Hostname()) {
+				return fmt.Errorf("--to host %q is not a loopback address; webhook-replay refuses non-loopback targets by default. Pass --allow-remote to deliver to %q", parsed.Hostname(), parsed.Hostname())
 			}
 			if dbPath == "" {
 				dbPath = defaultDBPath("nylas-pp-cli")
@@ -162,5 +171,23 @@ pattern used by every other side-effecting command in this CLI.`,
 	cmd.Flags().StringVar(&dbPath, "db", "", "Path to the local SQLite database")
 	cmd.Flags().IntVar(&limit, "limit", 0, "Maximum deliveries to replay (0 = no cap)")
 	cmd.Flags().BoolVar(&verify, "confirm", false, "Actually POST. Without this flag, prints a preview and does nothing.")
+	cmd.Flags().BoolVar(&allowRemote, "allow-remote", false, "Permit --to to point at a non-loopback host. Default refuses anything but loopback to prevent SSRF.")
 	return cmd
+}
+
+// isLoopbackHost reports whether the given hostname resolves only to
+// loopback addresses, or is a bare loopback literal (127.0.0.0/8, ::1,
+// "localhost"). Empty hostnames are treated as non-loopback so a missing
+// host in the URL is rejected by the caller.
+func isLoopbackHost(host string) bool {
+	if host == "" {
+		return false
+	}
+	if strings.EqualFold(host, "localhost") {
+		return true
+	}
+	if ip := net.ParseIP(host); ip != nil {
+		return ip.IsLoopback()
+	}
+	return false
 }

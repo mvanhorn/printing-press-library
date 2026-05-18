@@ -124,6 +124,9 @@ restrict to recent threads only.`,
 				m.fromEmail = strings.ToLower(strings.TrimSpace(m.fromEmail))
 				byThread[m.thread] = append(byThread[m.thread], m)
 			}
+			if err := rows.Err(); err != nil {
+				return fmt.Errorf("iterating grants_messages: %w", err)
+			}
 
 			type interval struct {
 				delta  time.Duration
