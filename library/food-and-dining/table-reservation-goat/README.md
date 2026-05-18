@@ -6,7 +6,7 @@ OpenTable, Tock, and Resy split the US fine-dining world between them and share 
 
 ## Install
 
-The recommended path installs both the `table-reservation-goat-pp-cli` binary and the `pp-table-reservation-goat` agent skill in one shot:
+The recommended path installs both the `table-reservation-goat-pp-cli` binary and the `pp-table-reservation-goat` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
 npx -y @mvanhorn/printing-press install table-reservation-goat
@@ -18,10 +18,28 @@ For CLI only (no skill):
 npx -y @mvanhorn/printing-press install table-reservation-goat --cli-only
 ```
 
+For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
-### Without Node
+```bash
+npx -y @mvanhorn/printing-press install table-reservation-goat --skill-only
+```
 
-The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
+To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
+
+```bash
+npx -y @mvanhorn/printing-press install table-reservation-goat --agent claude-code
+npx -y @mvanhorn/printing-press install table-reservation-goat --agent claude-code --agent codex
+```
+
+### Without Node (Go fallback)
+
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/cmd/table-reservation-goat-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
 
 ### Pre-built binary
 
@@ -50,6 +68,39 @@ Tell your OpenClaw agent (copy this):
 Install the pp-table-reservation-goat skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-table-reservation-goat. The skill defines how its required CLI can be installed.
 ```
 
+## Use with Claude Desktop
+
+This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
+
+To install:
+
+1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/table-reservation-goat-current).
+2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
+
+Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
+
+<details>
+<summary>Manual JSON config (advanced)</summary>
+
+If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
+
+
+Install the MCP binary from this CLI's published public-library entry or pre-built release.
+
+Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "table-reservation-goat": {
+      "command": "table-reservation-goat-pp-mcp"
+    }
+  }
+}
+```
+
+</details>
+
 ## Authentication
 
 Two distinct credentials, both managed by `auth login`:
@@ -68,14 +119,11 @@ table-reservation-goat-pp-cli auth login --chrome
 # exchange email + password for a Resy API token (interactive password prompt)
 table-reservation-goat-pp-cli auth login --resy --email you@example.com
 
-
 # populate the local SQLite store from each network (restaurants, availability)
 table-reservation-goat-pp-cli sync --full
 
-
 # headline command — single ranked list across all three networks
 table-reservation-goat-pp-cli goat 'omakase manhattan' --party 2 --when 'fri 7-9pm' --agent
-
 
 # set up a cancellation watch and let the printer poll each network adaptively
 table-reservation-goat-pp-cli watch add 'alinea' --party 2 --window 'sat 7-9pm' --notify local
@@ -83,16 +131,13 @@ table-reservation-goat-pp-cli watch add 'alinea' --party 2 --window 'sat 7-9pm' 
 # Resy watch — addressed by numeric venue id from `goat <name> --network resy`
 table-reservation-goat-pp-cli watch add 'resy:1387' --party 2 --window 'fri 7-9pm' --notify local
 
-
 # soonest open slot per venue. Bare slugs auto-resolve on OpenTable + Tock;
 # Resy venues must be addressed explicitly by numeric id from `goat --network resy`
 # because Resy uses numeric venue IDs that don't share slug-space with OT/Tock names.
 table-reservation-goat-pp-cli earliest 'le-bernardin,atomix,smyth,alinea,resy:1387' --party 2 --within 14d --agent
 
-
 # book on Resy (numeric venue id from search)
 TRG_ALLOW_BOOK=1 table-reservation-goat-pp-cli book resy:1387 --date 2026-05-15 --time 19:30 --party 2 --agent
-
 
 # cancel a Resy reservation (resy_token from book output)
 table-reservation-goat-pp-cli cancel resy:<resy-token> --agent
@@ -182,7 +227,6 @@ Persistent local cancellation watcher across all three networks
 - **`table-reservation-goat-pp-cli watch cancel`** - Cancel a watch by id
 - **`table-reservation-goat-pp-cli watch tick`** - Run one polling tick across all active watches (for cron / agents)
 
-
 ## Output Formats
 
 ```bash
@@ -217,65 +261,6 @@ This CLI is designed for AI agent consumption:
 - **Agent-safe by default** - no colors or formatting unless `--human-friendly` is set
 
 Exit codes: `0` success, `2` usage error, `3` not found, `5` API error, `7` rate limited, `10` config error.
-
-## Use with Claude Code
-
-Install the focused skill — it auto-installs the CLI on first invocation:
-
-```bash
-npx skills add mvanhorn/printing-press-library/cli-skills/pp-table-reservation-goat -g
-```
-
-Then invoke `/pp-table-reservation-goat <query>` in Claude Code. The skill is the most efficient path — Claude Code drives the CLI directly without an MCP server in the middle.
-
-<details>
-<summary>Use as an MCP server in Claude Code (advanced)</summary>
-
-If you'd rather register this CLI as an MCP server in Claude Code, install the MCP binary first:
-
-
-Install the MCP binary from this CLI's published public-library entry or pre-built release.
-
-Then register it:
-
-```bash
-claude mcp add table-reservation-goat table-reservation-goat-pp-mcp
-```
-
-</details>
-
-## Use with Claude Desktop
-
-This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
-
-To install:
-
-1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/table-reservation-goat-current).
-2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
-
-Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
-
-<details>
-<summary>Manual JSON config (advanced)</summary>
-
-If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
-
-
-Install the MCP binary from this CLI's published public-library entry or pre-built release.
-
-Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "table-reservation-goat": {
-      "command": "table-reservation-goat-pp-mcp"
-    }
-  }
-}
-```
-
-</details>
 
 ## Health Check
 

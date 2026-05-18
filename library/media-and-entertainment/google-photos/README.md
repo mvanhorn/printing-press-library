@@ -6,7 +6,7 @@ Learn more at [Google Photos](https://developers.google.com/photos).
 
 ## Install
 
-The recommended path installs both the `google-photos-pp-cli` binary and the `pp-google-photos` agent skill in one shot:
+The recommended path installs both the `google-photos-pp-cli` binary and the `pp-google-photos` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
 npx -y @mvanhorn/printing-press install google-photos
@@ -16,6 +16,19 @@ For CLI only (no skill):
 
 ```bash
 npx -y @mvanhorn/printing-press install google-photos --cli-only
+```
+
+For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
+
+```bash
+npx -y @mvanhorn/printing-press install google-photos --skill-only
+```
+
+To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
+
+```bash
+npx -y @mvanhorn/printing-press install google-photos --agent claude-code
+npx -y @mvanhorn/printing-press install google-photos --agent claude-code --agent codex
 ```
 
 ### Without Node (Go fallback)
@@ -54,6 +67,50 @@ Tell your OpenClaw agent (copy this):
 ```
 Install the pp-google-photos skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-google-photos. The skill defines how its required CLI can be installed.
 ```
+
+## Use with Claude Desktop
+
+This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
+
+The bundle reuses your local OAuth tokens — authenticate first if you haven't:
+
+```bash
+google-photos-pp-cli auth login --client-id "$GOOGLE_PHOTOS_CLIENT_ID"
+```
+
+To install:
+
+1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/google-photos-current).
+2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
+3. Fill in `GOOGLE_PHOTOS_TOKEN` when Claude Desktop prompts you.
+
+Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
+
+<details>
+<summary>Manual JSON config (advanced)</summary>
+
+If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/google-photos/cmd/google-photos-pp-mcp@latest
+```
+
+Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "google-photos": {
+      "command": "google-photos-pp-mcp",
+      "env": {
+        "GOOGLE_PHOTOS_TOKEN": "<your-key>"
+      }
+    }
+  }
+}
+```
+
+</details>
 
 ## Quick Start
 
@@ -221,80 +278,6 @@ make build-mcp-agent-safe
 ```
 
 `safety_readonly` permits read/list/search/export/schema-style commands and blocks Google Photos mutations. `safety_agent_safe` permits reads and local archive/search workflows while blocking auth writes, uploads, creates, patches, deletes, and album/media mutations.
-
-## Use with Claude Code
-
-Install the focused skill — it auto-installs the CLI on first invocation:
-
-```bash
-npx skills add mvanhorn/printing-press-library/cli-skills/pp-google-photos -g
-```
-
-Then invoke `/pp-google-photos <query>` in Claude Code. The skill is the most efficient path — Claude Code drives the CLI directly without an MCP server in the middle.
-
-<details>
-<summary>Use as an MCP server in Claude Code (advanced)</summary>
-
-If you'd rather register this CLI as an MCP server in Claude Code, install the MCP binary first:
-
-```bash
-go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/google-photos/cmd/google-photos-pp-mcp@latest
-```
-
-Then register it:
-
-```bash
-# Set up auth first:
-google-photos-pp-cli auth login --client-id "$GOOGLE_PHOTOS_CLIENT_ID"
-
-claude mcp add google-photos google-photos-pp-mcp
-```
-
-</details>
-
-## Use with Claude Desktop
-
-This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
-
-The bundle reuses your local OAuth tokens — authenticate first if you haven't:
-
-```bash
-google-photos-pp-cli auth login --client-id "$GOOGLE_PHOTOS_CLIENT_ID"
-```
-
-To install:
-
-1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/google-photos-current).
-2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
-3. Fill in `GOOGLE_PHOTOS_TOKEN` when Claude Desktop prompts you.
-
-Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
-
-<details>
-<summary>Manual JSON config (advanced)</summary>
-
-If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
-
-```bash
-go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/google-photos/cmd/google-photos-pp-mcp@latest
-```
-
-Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "google-photos": {
-      "command": "google-photos-pp-mcp",
-      "env": {
-        "GOOGLE_PHOTOS_TOKEN": "<your-key>"
-      }
-    }
-  }
-}
-```
-
-</details>
 
 ## Health Check
 

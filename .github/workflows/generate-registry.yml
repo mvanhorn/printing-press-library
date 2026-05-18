@@ -56,6 +56,9 @@ jobs:
           # GITHUB_TOKEN's default ref is the merge commit; explicitly
           # check out main so the push at the end targets it.
           ref: main
+          # Admin-scoped PAT so the post-commit push bypasses the
+          # main-branch ruleset (default GITHUB_TOKEN cannot bypass).
+          token: ${{ secrets.ADMIN_PUSH_PAT }}
       - uses: actions/setup-go@v6
         with:
           go-version: '1.26.3'
@@ -78,4 +81,12 @@ jobs:
           # the sentinel region would normally re-trigger; this commit
           # itself is suppressed by [skip ci] so we don't loop.
           git commit -m "chore(registry): regenerate from library/ [skip ci]"
+          # Defense-in-depth against the cross-workflow race with
+          # generate-skills.yml — the concurrency group serializes most
+          # runs, but a rebase before push handles the moment when the
+          # sibling workflow lands between our checkout and our push.
+          # The two workflows touch disjoint paths (registry.json +
+          # README.md vs cli-skills/), so the rebase is conflict-free
+          # in practice.
+          git pull --rebase origin main
           git push
