@@ -1,0 +1,10 @@
+{
+  "descriptions": {
+    "campaigns_get": "Fetch a single SmartLead campaign by its numeric ID. Required: campaign_id (path). Returns the full campaign object — name, status (DRAFTED/ACTIVE/PAUSED/COMPLETED), schedule, and settings. Use this when you already have a campaign ID; use campaigns_list to discover IDs by name or status.",
+    "campaigns_delete": "Permanently delete a SmartLead campaign and its sequence by numeric ID. Required: campaign_id (path). Destructive and irreversible — the campaign, its steps, and its lead associations are removed. Prefer pausing the campaign over deleting if you only need to stop sends.",
+    "client_list": "List all whitelabel (sub-account) clients under the authenticated SmartLead account. No parameters. Returns each client's id, name, and email. Use this to resolve a client ID before scoping campaign or email-account operations to a specific whitelabel client.",
+    "email-accounts_list": "List every email sender account connected to the SmartLead workspace. No parameters. Returns each account's id, from-email, from-name, warmup status, and daily send limit. Use this to find the sender account ID to attach to a campaign or to audit warmup health across senders.",
+    "leads_list-categories": "List all lead categories defined for the SmartLead account (e.g. Interested, Not Interested, Meeting Booked). No parameters. Returns each category's id and name. Call this first to resolve a category ID before assigning a lead to a category within a campaign.",
+    "leads_update": "Update a lead's fields globally by numeric lead ID. Required: lead_id (path). Request body holds the fields to change — first_name, last_name, company_name, custom_fields, and similar lead attributes; only the supplied fields are modified. Returns the updated lead object. This edits the account-level lead record; use the campaign-scoped update endpoint to change a lead only within one campaign."
+  }
+}

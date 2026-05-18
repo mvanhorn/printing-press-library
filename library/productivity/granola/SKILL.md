@@ -278,6 +278,41 @@ Commands that read from the local store or the API wrap output in a provenance e
 
 Parse `.results` for data and `.meta.source` to know whether it's live or local. A human-readable `N results (live)` summary is printed to stderr only when stdout is a terminal — piped/agent consumers get pure JSON on stdout.
 
+## Auto-Refresh
+
+Every command auto-refreshes the local store as its first action. You do **not** need to run `granola-pp-cli sync` before `meetings list`, `panel get`, or any other read — the CLI handles that for you on every invocation.
+
+**Two auth surfaces refresh independently:**
+
+| Surface | What runs | When it fires |
+|---------|-----------|---------------|
+| Desktop encrypted cache | `sync` (cache → SQLite) | When `~/Library/Application Support/Granola/cache-v6.json.enc` (or pre-encryption `cache-v6.json`) is present |
+| Public REST API | `sync-api` (public-api.granola.ai → SQLite) | When `GRANOLA_API_KEY` is set or an access token is saved in the config file |
+
+When both are available, both refresh routines fire (cache first, then api). When neither is configured, auto-refresh is a silent no-op and your underlying command produces its own auth error.
+
+**Freshness ceiling.** Auto-refresh reads from Granola desktop's encrypted cache file; it does **not** poke the desktop app to refresh from Granola servers. The freshness ceiling is whatever Granola desktop has already pulled. If a meeting just ended and the desktop hasn't synced from servers yet, no CLI-side refresh will surface it. For latest-second-fresh data, open Granola desktop briefly before invoking the CLI.
+
+**Provenance line.** When stderr is a TTY and you are not in `--agent` / `--json` / `--compact` / `--quiet` mode, a one-liner like `auto-refresh: cache=ok (1.2s, 47 rows)  api=ok (820ms, 12 rows)` lands on stderr after the refresh. Agent and JSON consumers see no chatter on stdout.
+
+**Failures are non-fatal.** A refresh that fails prints `cache=failed: <short reason>` on stderr and the command proceeds against whatever data is already in the store. Run `granola-pp-cli doctor` to investigate persistent refresh failures.
+
+**Opt out** (precedence: flag wins over env):
+
+```bash
+# Single command:
+granola-pp-cli meetings list --no-refresh
+
+# For a shell session / CI job:
+export GRANOLA_NO_AUTO_REFRESH=1
+
+# Saved per-profile via the existing profile mechanism:
+granola-pp-cli profile save fast --no-refresh
+granola-pp-cli --profile fast meetings list
+```
+
+**Skipped commands.** Auto-refresh never fires for `sync`, `sync-api`, `auth*`, `doctor`, `help`, `version`, `completion`, `agent-context`, `profile*`, `feedback*`, or `which`. These either do not read data or cannot operate before auth is established. `agent-context --json` exposes the full skip list under `auto_refresh.skip_list` for introspecting agents.
+
 ## Agent Feedback
 
 When you (or the agent) notice something off about this CLI, record it:

@@ -85,6 +85,7 @@ func newSearchCmd(flags *rootFlags) *cobra.Command {
 	var limit int
 	var dbPath string
 	var live bool
+	var forum int
 
 	cmd := &cobra.Command{
 		Use:   "search <query>",
@@ -120,7 +121,9 @@ In local mode: searches locally synced data only.`,
 				if dryRunOK(flags) {
 					return nil
 				}
-				items, err := rss.LiveSearchRSS(cmd.Context(), nil, query, limit)
+				// v0.3: real server-side search via ?q=. Optional --forum scopes
+				// to a single Slickdeals forum (9=Hot Deals, 4=Freebies, etc).
+				items, err := rss.LiveSearch(cmd.Context(), nil, query, forum, limit)
 				if err != nil {
 					return apiErr(err)
 				}
@@ -183,6 +186,7 @@ In local mode: searches locally synced data only.`,
 	cmd.Flags().IntVar(&limit, "limit", 50, "Maximum results to return")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/slickdeals-pp-cli/data.db)")
 	cmd.Flags().BoolVar(&live, "live", false, "Hit Slickdeals' live RSS search endpoint instead of local FTS")
+	cmd.Flags().IntVar(&forum, "forum", 0, "Scope --live search to a Slickdeals forum ID (9=hot, 4=freebies, 10=coupons, 25=contests, 38=grocery). 0 = all forums.")
 
 	return cmd
 }

@@ -1,0 +1,546 @@
+{
+  "timestamp": "2026-05-17T09:37:15.418615Z",
+  "cli_dir": "\u003ccli-dir\u003e/mailchimp-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "account-exports",
+      "file": "account-exports.go",
+      "line": 11,
+      "evidence": "Manage account exports",
+      "status": "accepted",
+      "note": "Generator-emitted Hidden parent grouper for 'account-exports' in DO-NOT-EDIT file account-exports.go; carries parentNoSubcommandRunE stub so tools-audit classifies it as a shell-out tool, but cmd.Hidden=true means the cobratree walker skips MCP registration at runtime. Short 'Manage account exports' is fine for --help; no MCP tool surface exists. Systemic retro candidate: tools-audit should mirror the walker's Hidden skip."
+    },
+    {
+      "kind": "thin-short",
+      "command": "audiences",
+      "file": "audiences.go",
+      "line": 11,
+      "evidence": "Manage audiences",
+      "status": "accepted",
+      "note": "Generator-emitted Hidden parent grouper for 'audiences' in DO-NOT-EDIT file audiences.go; carries parentNoSubcommandRunE stub so tools-audit classifies it as a shell-out tool, but cmd.Hidden=true means the cobratree walker skips MCP registration at runtime. Short 'Manage audiences' is fine for --help; no MCP tool surface exists. Systemic retro candidate: tools-audit should mirror the walker's Hidden skip."
+    },
+    {
+      "kind": "thin-short",
+      "command": "contacts",
+      "file": "audiences_contacts.go",
+      "line": 11,
+      "evidence": "Manage contacts",
+      "status": "accepted",
+      "note": "Generator-emitted nested parent grouper 'audiences \u003e contacts' in DO-NOT-EDIT file audiences_contacts.go; parentNoSubcommandRunE stub returns help only and takes no parameters. Children handle the real operations. Rewriting Short 'Manage contacts' in source is wiped on regen. Systemic retro candidate: generator template should emit Hidden:true on nested parent groupers OR compose a richer Short from child surfaces."
+    },
+    {
+      "kind": "thin-short",
+      "command": "authorized-apps",
+      "file": "authorized-apps.go",
+      "line": 11,
+      "evidence": "Manage authorized apps",
+      "status": "accepted",
+      "note": "Generator-emitted Hidden parent grouper for 'authorized-apps' in DO-NOT-EDIT file authorized-apps.go; carries parentNoSubcommandRunE stub so tools-audit classifies it as a shell-out tool, but cmd.Hidden=true means the cobratree walker skips MCP registration at runtime. Short 'Manage authorized apps' is fine for --help; no MCP tool surface exists. Systemic retro candidate: tools-audit should mirror the walker's Hidden skip."
+    },
+    {
+      "kind": "thin-short",
+      "command": "automations",
+      "file": "automations.go",
+      "line": 11,
+      "evidence": "Manage automations",
+      "status": "accepted",
+      "note": "Generator-emitted Hidden parent grouper for 'automations' in DO-NOT-EDIT file automations.go; carries parentNoSubcommandRunE stub so tools-audit classifies it as a shell-out tool, but cmd.Hidden=true means the cobratree walker skips MCP registration at runtime. Short 'Manage automations' is fine for --help; no MCP tool surface exists. Systemic retro candidate: tools-audit should mirror the walker's Hidden skip."
+    },
+    {
+      "kind": "thin-short",
+      "command": "actions",
+      "file": "automations_actions.go",
+      "line": 11,
+      "evidence": "Manage actions",
+      "status": "accepted",
+      "note": "Generator-emitted nested parent grouper 'automations \u003e actions' in DO-NOT-EDIT file automations_actions.go; parentNoSubcommandRunE stub returns help only and takes no parameters. Children handle the real operations. Rewriting Short 'Manage actions' in source is wiped on regen. Systemic retro candidate: generator template should emit Hidden:true on nested parent groupers OR compose a richer Short from child surfaces."
+    },
+    {
+      "kind": "thin-short",
+      "command": "emails",
+      "file": "automations_emails.go",
+      "line": 11,
+      "evidence": "Manage emails",
+      "status": "accepted",
+      "note": "Generator-emitted nested parent grouper 'automations \u003e emails' in DO-NOT-EDIT file automations_emails.go; parentNoSubcommandRunE stub returns help only and takes no parameters. Children handle the real operations. Rewriting Short 'Manage emails' in source is wiped on regen. Systemic retro candidate: generator template should emit Hidden:true on nested parent groupers OR compose a richer Short from child surfaces."
+    },
+    {
+      "kind": "thin-short",
+      "command": "removed-subscribers",
+      "file": "automations_removed-subscribers.go",
+      "line": 11,
+      "evidence": "Manage removed subscribers",
+      "status": "accepted",
+      "note": "Generator-emitted nested parent grouper 'automations \u003e removed-subscribers' in DO-NOT-EDIT file automations_removed-subscribers.go; parentNoSubcommandRunE stub returns help only and takes no parameters. Children handle the real operations. Rewriting Short 'Manage removed subscribers' in source is wiped on regen. Systemic retro candidate: generator template should emit Hidden:true on nested parent groupers OR compose a richer Short from child surfaces."
+    },
+    {
+      "kind": "thin-short",
+      "command": "batch-webhooks",
+      "file": "batch-webhooks.go",
+      "line": 11,
+      "evidence": "Manage batch webhooks",
+      "status": "accepted",
+      "note": "Generator-emitted Hidden parent grouper for 'batch-webhooks' in DO-NOT-EDIT file batch-webhooks.go; carries parentNoSubcommandRunE stub so tools-audit classifies it as a shell-out tool, but cmd.Hidden=true means the cobratree walker skips MCP registration at runtime. Short 'Manage batch webhooks' is fine for --help; no MCP tool surface exists. Systemic retro candidate: tools-audit should mirror the walker's Hidden skip."
+    },
+    {
+      "kind": "thin-short",
+      "command": "batches",
+      "file": "batches.go",
+      "line": 11,
+      "evidence": "Manage batches",
+      "status": "accepted",
+      "note": "Generator-emitted Hidden parent grouper for 'batches' in DO-NOT-EDIT file batches.go; carries parentNoSubcommandRunE stub so tools-audit classifies it as a shell-out tool, but cmd.Hidden=true means the cobratree walker skips MCP registration at runtime. Short 'Manage batches' is fine for --help; no MCP tool surface exists. Systemic retro candidate: tools-audit should mirror the walker's Hidden skip."
+    },
+    {
+      "kind": "thin-short",
+      "command": "campaign-folders",
+      "file": "campaign-folders.go",
+      "line": 11,
+      "evidence": "Manage campaign folders",
+      "status": "accepted",
+      "note": "Generator-emitted Hidden parent grouper for 'campaign-folders' in DO-NOT-EDIT file campaign-folders.go; carries parentNoSubcommandRunE stub so tools-audit classifies it as a shell-out tool, but cmd.Hidden=true means the cobratree walker skips MCP registration at runtime. Short 'Manage campaign folders' is fine for --help; no MCP tool surface exists. Systemic retro candidate: tools-audit should mirror the walker's Hidden skip."
+    },
+    {
+      "kind": "thin-short",
+      "command": "campaigns",
+      "file": "campaigns.go",
+      "line": 11,
+      "evidence": "Manage campaigns",
+      "status": "accepted",
+      "note": "Generator-emitted Hidden parent grouper for 'campaigns' in DO-NOT-EDIT file campaigns.go; carries parentNoSubcommandRunE stub so tools-audit classifies it as a shell-out tool, but cmd.Hidden=true means the cobratree walker skips MCP registration at runtime. Short 'Manage campaigns' is fine for --help; no MCP tool surface exists. Systemic retro candidate: tools-audit should mirror the walker's Hidden skip."
+    },
+    {
+      "kind": "thin-short",
+      "command": "actions",
+      "file": "campaigns_actions.go",
+      "line": 11,
+      "evidence": "Manage actions",
+      "status": "accepted",
+      "note": "Generator-emitted nested parent grouper 'campaigns \u003e actions' in DO-NOT-EDIT file campaigns_actions.go; parentNoSubcommandRunE stub returns help only and takes no parameters. Children handle the real operations. Rewriting Short 'Manage actions' in source is wiped on regen. Systemic retro candidate: generator template should emit Hidden:true on nested parent groupers OR compose a richer Short from child surfaces."
+    },
+    {
+      "kind": "thin-short",
+      "command": "content",
+      "file": "campaigns_content.go",
+      "line": 11,
+      "evidence": "Manage content",
+      "status": "accepted",
+      "note": "Generator-emitted nested parent grouper 'campaigns \u003e content' in DO-NOT-EDIT file campaigns_content.go; parentNoSubcommandRunE stub returns help only and takes no parameters. Children handle the real operations. Rewriting Short 'Manage content' in source is wiped on regen. Systemic retro candidate: generator template should emit Hidden:true on nested parent groupers OR compose a richer Short from child surfaces."
+    },
+    {
+      "kind": "thin-short",
+      "command": "send-checklist",
+      "file": "campaigns_send-checklist.go",
+      "line": 11,
+      "evidence": "Manage send checklist",
+      "status": "accepted",
+      "note": "Generator-emitted nested parent grouper 'campaigns \u003e send-checklist' in DO-NOT-EDIT file campaigns_send-checklist.go; parentNoSubcommandRunE stub returns help only and takes no parameters. Children handle the real operations. Rewriting Short 'Manage send checklist' in source is wiped on regen. Systemic retro candidate: generator template should emit Hidden:true on nested parent groupers OR compose a richer Short from child surfaces."
+    },
+    {
+      "kind": "thin-short",
+      "command": "connected-sites",
+      "file": "connected-sites.go",
+      "line": 11,
+      "evidence": "Manage connected sites",
+      "status": "accepted",
+      "note": "Generator-emitted Hidden parent grouper for 'connected-sites' in DO-NOT-EDIT file connected-sites.go; carries parentNoSubcommandRunE stub so tools-audit classifies it as a shell-out tool, but cmd.Hidden=true means the cobratree walker skips MCP registration at runtime. Short 'Manage connected sites' is fine for --help; no MCP tool surface exists. Systemic retro candidate: tools-audit should mirror the walker's Hidden skip."
+    },
+    {
+      "kind": "thin-short",
+      "command": "actions",
+      "file": "connected-sites_actions.go",
+      "line": 11,
+      "evidence": "Manage actions",
+      "status": "accepted",
+      "note": "Generator-emitted nested parent grouper 'connected-sites \u003e actions' in DO-NOT-EDIT file connected-sites_actions.go; parentNoSubcommandRunE stub returns help only and takes no parameters. Children handle the real operations. Rewriting Short 'Manage actions' in source is wiped on regen. Systemic retro candidate: generator template should emit Hidden:true on nested parent groupers OR compose a richer Short from child surfaces."
+    },
+    {
+      "kind": "thin-short",
+      "command": "conversations",
+      "file": "conversations.go",
+      "line": 11,
+      "evidence": "Manage conversations",
+      "status": "accepted",
+      "note": "Generator-emitted Hidden parent grouper for 'conversations' in DO-NOT-EDIT file conversations.go; carries parentNoSubcommandRunE stub so tools-audit classifies it as a shell-out tool, but cmd.Hidden=true means the cobratree walker skips MCP registration at runtime. Short 'Manage conversations' is fine for --help; no MCP tool surface exists. Systemic retro candidate: tools-audit should mirror the walker's Hidden skip."
+    },
+    {
+      "kind": "thin-short",
+      "command": "messages",
+      "file": "conversations_messages.go",
+      "line": 11,
+      "evidence": "Manage messages",
+      "status": "accepted",
+      "note": "Generator-emitted nested parent grouper 'conversations \u003e messages' in DO-NOT-EDIT file conversations_messages.go; parentNoSubcommandRunE stub returns help only and takes no parameters. Children handle the real operations. Rewriting Short 'Manage messages' in source is wiped on regen. Systemic retro candidate: generator template should emit Hidden:true on nested parent groupers OR compose a richer Short from child surfaces."
+    },
+    {
+      "kind": "thin-short",
+      "command": "ecommerce",
+      "file": "ecommerce.go",
+      "line": 11,
+      "evidence": "Manage ecommerce",
+      "status": "accepted",
+      "note": "Generator-emitted Hidden parent grouper for 'ecommerce' in DO-NOT-EDIT file ecommerce.go; carries parentNoSubcommandRunE stub so tools-audit classifies it as a shell-out tool, but cmd.Hidden=true means the cobratree walker skips MCP registration at runtime. Short 'Manage ecommerce' is fine for --help; no MCP tool surface exists. Systemic retro candidate: tools-audit should mirror the walker's Hidden skip."
+    },
+    {
+      "kind": "thin-short",
+      "command": "facebook-ads",
+      "file": "facebook-ads.go",
+      "line": 11,
+      "evidence": "Manage facebook ads",
+      "status": "accepted",
+      "note": "Generator-emitted Hidden parent grouper for 'facebook-ads' in DO-NOT-EDIT file facebook-ads.go; carries parentNoSubcommandRunE stub so tools-audit classifies it as a shell-out tool, but cmd.Hidden=true means the cobratree walker skips MCP registration at runtime. Short 'Manage facebook ads' is fine for --help; no MCP tool surface exists. Systemic retro candidate: tools-audit should mirror the walker's Hidden skip."
+    },
+    {
+      "kind": "thin-short",
+      "command": "file-manager",
+      "file": "file-manager.go",
+      "line": 11,
+      "evidence": "Manage file manager",
+      "status": "accepted",
+      "note": "Generator-emitted Hidden parent grouper for 'file-manager' in DO-NOT-EDIT file file-manager.go; carries parentNoSubcommandRunE stub so tools-audit classifies it as a shell-out tool, but cmd.Hidden=true means the cobratree walker skips MCP registration at runtime. Short 'Manage file manager' is fine for --help; no MCP tool surface exists. Systemic retro candidate: tools-audit should mirror the walker's Hidden skip."
+    },
+    {
+      "kind": "thin-short",
+      "command": "landing-pages",
+      "file": "landing-pages.go",
+      "line": 11,
+      "evidence": "Manage landing pages",
+      "status": "accepted",
+      "note": "Generator-emitted Hidden parent grouper for 'landing-pages' in DO-NOT-EDIT file landing-pages.go; carries parentNoSubcommandRunE stub so tools-audit classifies it as a shell-out tool, but cmd.Hidden=true means the cobratree walker skips MCP registration at runtime. Short 'Manage landing pages' is fine for --help; no MCP tool surface exists. Systemic retro candidate: tools-audit should mirror the walker's Hidden skip."
+    },
+    {
+      "kind": "thin-short",
+      "command": "actions",
+      "file": "landing-pages_actions.go",
+      "line": 11,
+      "evidence": "Manage actions",
+      "status": "accepted",
+      "note": "Generator-emitted nested parent grouper 'landing-pages \u003e actions' in DO-NOT-EDIT file landing-pages_actions.go; parentNoSubcommandRunE stub returns help only and takes no parameters. Children handle the real operations. Rewriting Short 'Manage actions' in source is wiped on regen. Systemic retro candidate: generator template should emit Hidden:true on nested parent groupers OR compose a richer Short from child surfaces."
+    },
+    {
+      "kind": "thin-short",
+      "command": "content",
+      "file": "landing-pages_content.go",
+      "line": 11,
+      "evidence": "Manage content",
+      "status": "accepted",
+      "note": "Generator-emitted nested parent grouper 'landing-pages \u003e content' in DO-NOT-EDIT file landing-pages_content.go; parentNoSubcommandRunE stub returns help only and takes no parameters. Children handle the real operations. Rewriting Short 'Manage content' in source is wiped on regen. Systemic retro candidate: generator template should emit Hidden:true on nested parent groupers OR compose a richer Short from child surfaces."
+    },
+    {
+      "kind": "thin-short",
+      "command": "lists",
+      "file": "lists.go",
+      "line": 11,
+      "evidence": "Manage lists",
+      "status": "accepted",
+      "note": "Generator-emitted Hidden parent grouper for 'lists' in DO-NOT-EDIT file lists.go; carries parentNoSubcommandRunE stub so tools-audit classifies it as a shell-out tool, but cmd.Hidden=true means the cobratree walker skips MCP registration at runtime. Short 'Manage lists' is fine for --help; no MCP tool surface exists. Systemic retro candidate: tools-audit should mirror the walker's Hidden skip."
+    },
+    {
+      "kind": "thin-short",
+      "command": "abuse-reports",
+      "file": "lists_abuse-reports.go",
+      "line": 11,
+      "evidence": "Manage abuse reports",
+      "status": "accepted",
+      "note": "Generator-emitted nested parent grouper 'lists \u003e abuse-reports' in DO-NOT-EDIT file lists_abuse-reports.go; parentNoSubcommandRunE stub returns help only and takes no parameters. Children handle the real operations. Rewriting Short 'Manage abuse reports' in source is wiped on regen. Systemic retro candidate: generator template should emit Hidden:true on nested parent groupers OR compose a richer Short from child surfaces."
+    },
+    {
+      "kind": "thin-short",
+      "command": "activity",
+      "file": "lists_activity.go",
+      "line": 11,
+      "evidence": "Manage activity",
+      "status": "accepted",
+      "note": "Generator-emitted nested parent grouper 'lists \u003e activity' in DO-NOT-EDIT file lists_activity.go; parentNoSubcommandRunE stub returns help only and takes no parameters. Children handle the real operations. Rewriting Short 'Manage activity' in source is wiped on regen. Systemic retro candidate: generator template should emit Hidden:true on nested parent groupers OR compose a richer Short from child surfaces."
+    },
+    {
+      "kind": "thin-short",
+      "command": "clients",
+      "file": "lists_clients.go",
+      "line": 11,
+      "evidence": "Manage clients",
+      "status": "accepted",
+      "note": "Generator-emitted nested parent grouper 'lists \u003e clients' in DO-NOT-EDIT file lists_clients.go; parentNoSubcommandRunE stub returns help only and takes no parameters. Children handle the real operations. Rewriting Short 'Manage clients' in source is wiped on regen. Systemic retro candidate: generator template should emit Hidden:true on nested parent groupers OR compose a richer Short from child surfaces."
+    },
+    {
+      "kind": "thin-short",
+      "command": "growth-history",
+      "file": "lists_growth-history.go",
+      "line": 11,
+      "evidence": "Manage growth history",
+      "status": "accepted",
+      "note": "Generator-emitted nested parent grouper 'lists \u003e growth-history' in DO-NOT-EDIT file lists_growth-history.go; parentNoSubcommandRunE stub returns help only and takes no parameters. Children handle the real operations. Rewriting Short 'Manage growth history' in source is wiped on regen. Systemic retro candidate: generator template should emit Hidden:true on nested parent groupers OR compose a richer Short from child surfaces."
+    },
+    {
+      "kind": "thin-short",
+      "command": "interest-categories",
+      "file": "lists_interest-categories.go",
+      "line": 11,
+      "evidence": "Manage interest categories",
+      "status": "accepted",
+      "note": "Generator-emitted nested parent grouper 'lists \u003e interest-categories' in DO-NOT-EDIT file lists_interest-categories.go; parentNoSubcommandRunE stub returns help only and takes no parameters. Children handle the real operations. Rewriting Short 'Manage interest categories' in source is wiped on regen. Systemic retro candidate: generator template should emit Hidden:true on nested parent groupers OR compose a richer Short from child surfaces."
+    },
+    {
+      "kind": "thin-short",
+      "command": "locations",
+      "file": "lists_locations.go",
+      "line": 11,
+      "evidence": "Manage locations",
+      "status": "accepted",
+      "note": "Generator-emitted nested parent grouper 'lists \u003e locations' in DO-NOT-EDIT file lists_locations.go; parentNoSubcommandRunE stub returns help only and takes no parameters. Children handle the real operations. Rewriting Short 'Manage locations' in source is wiped on regen. Systemic retro candidate: generator template should emit Hidden:true on nested parent groupers OR compose a richer Short from child surfaces."
+    },
+    {
+      "kind": "thin-short",
+      "command": "members",
+      "file": "lists_members.go",
+      "line": 11,
+      "evidence": "Manage members",
+      "status": "accepted",
+      "note": "Generator-emitted nested parent grouper 'lists \u003e members' in DO-NOT-EDIT file lists_members.go; parentNoSubcommandRunE stub returns help only and takes no parameters. Children handle the real operations. Rewriting Short 'Manage members' in source is wiped on regen. Systemic retro candidate: generator template should emit Hidden:true on nested parent groupers OR compose a richer Short from child surfaces."
+    },
+    {
+      "kind": "thin-short",
+      "command": "merge-fields",
+      "file": "lists_merge-fields.go",
+      "line": 11,
+      "evidence": "Manage merge fields",
+      "status": "accepted",
+      "note": "Generator-emitted nested parent grouper 'lists \u003e merge-fields' in DO-NOT-EDIT file lists_merge-fields.go; parentNoSubcommandRunE stub returns help only and takes no parameters. Children handle the real operations. Rewriting Short 'Manage merge fields' in source is wiped on regen. Systemic retro candidate: generator template should emit Hidden:true on nested parent groupers OR compose a richer Short from child surfaces."
+    },
+    {
+      "kind": "thin-short",
+      "command": "segments",
+      "file": "lists_segments.go",
+      "line": 11,
+      "evidence": "Manage segments",
+      "status": "accepted",
+      "note": "Generator-emitted nested parent grouper 'lists \u003e segments' in DO-NOT-EDIT file lists_segments.go; parentNoSubcommandRunE stub returns help only and takes no parameters. Children handle the real operations. Rewriting Short 'Manage segments' in source is wiped on regen. Systemic retro candidate: generator template should emit Hidden:true on nested parent groupers OR compose a richer Short from child surfaces."
+    },
+    {
+      "kind": "thin-short",
+      "command": "signup-forms",
+      "file": "lists_signup-forms.go",
+      "line": 11,
+      "evidence": "Manage signup forms",
+      "status": "accepted",
+      "note": "Generator-emitted nested parent grouper 'lists \u003e signup-forms' in DO-NOT-EDIT file lists_signup-forms.go; parentNoSubcommandRunE stub returns help only and takes no parameters. Children handle the real operations. Rewriting Short 'Manage signup forms' in source is wiped on regen. Systemic retro candidate: generator template should emit Hidden:true on nested parent groupers OR compose a richer Short from child surfaces."
+    },
+    {
+      "kind": "thin-short",
+      "command": "surveys",
+      "file": "lists_surveys.go",
+      "line": 11,
+      "evidence": "Manage surveys",
+      "status": "accepted",
+      "note": "Generator-emitted nested parent grouper 'lists \u003e surveys' in DO-NOT-EDIT file lists_surveys.go; parentNoSubcommandRunE stub returns help only and takes no parameters. Children handle the real operations. Rewriting Short 'Manage surveys' in source is wiped on regen. Systemic retro candidate: generator template should emit Hidden:true on nested parent groupers OR compose a richer Short from child surfaces."
+    },
+    {
+      "kind": "thin-short",
+      "command": "tag-search",
+      "file": "lists_tag-search.go",
+      "line": 11,
+      "evidence": "Manage tag search",
+      "status": "accepted",
+      "note": "Generator-emitted nested parent grouper 'lists \u003e tag-search' in DO-NOT-EDIT file lists_tag-search.go; parentNoSubcommandRunE stub returns help only and takes no parameters. Children handle the real operations. Rewriting Short 'Manage tag search' in source is wiped on regen. Systemic retro candidate: generator template should emit Hidden:true on nested parent groupers OR compose a richer Short from child surfaces."
+    },
+    {
+      "kind": "thin-short",
+      "command": "webhooks",
+      "file": "lists_webhooks.go",
+      "line": 11,
+      "evidence": "Manage webhooks",
+      "status": "accepted",
+      "note": "Generator-emitted nested parent grouper 'lists \u003e webhooks' in DO-NOT-EDIT file lists_webhooks.go; parentNoSubcommandRunE stub returns help only and takes no parameters. Children handle the real operations. Rewriting Short 'Manage webhooks' in source is wiped on regen. Systemic retro candidate: generator template should emit Hidden:true on nested parent groupers OR compose a richer Short from child surfaces."
+    },
+    {
+      "kind": "thin-short",
+      "command": "reporting",
+      "file": "reporting.go",
+      "line": 11,
+      "evidence": "Manage reporting",
+      "status": "accepted",
+      "note": "Generator-emitted Hidden parent grouper for 'reporting' in DO-NOT-EDIT file reporting.go; carries parentNoSubcommandRunE stub so tools-audit classifies it as a shell-out tool, but cmd.Hidden=true means the cobratree walker skips MCP registration at runtime. Short 'Manage reporting' is fine for --help; no MCP tool surface exists. Systemic retro candidate: tools-audit should mirror the walker's Hidden skip."
+    },
+    {
+      "kind": "thin-short",
+      "command": "reports",
+      "file": "reports.go",
+      "line": 11,
+      "evidence": "Manage reports",
+      "status": "accepted",
+      "note": "Generator-emitted Hidden parent grouper for 'reports' in DO-NOT-EDIT file reports.go; carries parentNoSubcommandRunE stub so tools-audit classifies it as a shell-out tool, but cmd.Hidden=true means the cobratree walker skips MCP registration at runtime. Short 'Manage reports' is fine for --help; no MCP tool surface exists. Systemic retro candidate: tools-audit should mirror the walker's Hidden skip."
+    },
+    {
+      "kind": "thin-short",
+      "command": "abuse-reports",
+      "file": "reports_abuse-reports.go",
+      "line": 11,
+      "evidence": "Manage abuse reports",
+      "status": "accepted",
+      "note": "Generator-emitted nested parent grouper 'reports \u003e abuse-reports' in DO-NOT-EDIT file reports_abuse-reports.go; parentNoSubcommandRunE stub returns help only and takes no parameters. Children handle the real operations. Rewriting Short 'Manage abuse reports' in source is wiped on regen. Systemic retro candidate: generator template should emit Hidden:true on nested parent groupers OR compose a richer Short from child surfaces."
+    },
+    {
+      "kind": "thin-short",
+      "command": "advice",
+      "file": "reports_advice.go",
+      "line": 11,
+      "evidence": "Manage advice",
+      "status": "accepted",
+      "note": "Generator-emitted nested parent grouper 'reports \u003e advice' in DO-NOT-EDIT file reports_advice.go; parentNoSubcommandRunE stub returns help only and takes no parameters. Children handle the real operations. Rewriting Short 'Manage advice' in source is wiped on regen. Systemic retro candidate: generator template should emit Hidden:true on nested parent groupers OR compose a richer Short from child surfaces."
+    },
+    {
+      "kind": "thin-short",
+      "command": "click-details",
+      "file": "reports_click-details.go",
+      "line": 11,
+      "evidence": "Manage click details",
+      "status": "accepted",
+      "note": "Generator-emitted nested parent grouper 'reports \u003e click-details' in DO-NOT-EDIT file reports_click-details.go; parentNoSubcommandRunE stub returns help only and takes no parameters. Children handle the real operations. Rewriting Short 'Manage click details' in source is wiped on regen. Systemic retro candidate: generator template should emit Hidden:true on nested parent groupers OR compose a richer Short from child surfaces."
+    },
+    {
+      "kind": "thin-short",
+      "command": "domain-performance",
+      "file": "reports_domain-performance.go",
+      "line": 11,
+      "evidence": "Manage domain performance",
+      "status": "accepted",
+      "note": "Generator-emitted nested parent grouper 'reports \u003e domain-performance' in DO-NOT-EDIT file reports_domain-performance.go; parentNoSubcommandRunE stub returns help only and takes no parameters. Children handle the real operations. Rewriting Short 'Manage domain performance' in source is wiped on regen. Systemic retro candidate: generator template should emit Hidden:true on nested parent groupers OR compose a richer Short from child surfaces."
+    },
+    {
+      "kind": "thin-short",
+      "command": "eepurl",
+      "file": "reports_eepurl.go",
+      "line": 11,
+      "evidence": "Manage eepurl",
+      "status": "accepted",
+      "note": "Generator-emitted nested parent grouper 'reports \u003e eepurl' in DO-NOT-EDIT file reports_eepurl.go; parentNoSubcommandRunE stub returns help only and takes no parameters. Children handle the real operations. Rewriting Short 'Manage eepurl' in source is wiped on regen. Systemic retro candidate: generator template should emit Hidden:true on nested parent groupers OR compose a richer Short from child surfaces."
+    },
+    {
+      "kind": "thin-short",
+      "command": "email-activity",
+      "file": "reports_email-activity.go",
+      "line": 11,
+      "evidence": "Manage email activity",
+      "status": "accepted",
+      "note": "Generator-emitted nested parent grouper 'reports \u003e email-activity' in DO-NOT-EDIT file reports_email-activity.go; parentNoSubcommandRunE stub returns help only and takes no parameters. Children handle the real operations. Rewriting Short 'Manage email activity' in source is wiped on regen. Systemic retro candidate: generator template should emit Hidden:true on nested parent groupers OR compose a richer Short from child surfaces."
+    },
+    {
+      "kind": "thin-short",
+      "command": "locations",
+      "file": "reports_locations.go",
+      "line": 11,
+      "evidence": "Manage locations",
+      "status": "accepted",
+      "note": "Generator-emitted nested parent grouper 'reports \u003e locations' in DO-NOT-EDIT file reports_locations.go; parentNoSubcommandRunE stub returns help only and takes no parameters. Children handle the real operations. Rewriting Short 'Manage locations' in source is wiped on regen. Systemic retro candidate: generator template should emit Hidden:true on nested parent groupers OR compose a richer Short from child surfaces."
+    },
+    {
+      "kind": "thin-short",
+      "command": "open-details",
+      "file": "reports_open-details.go",
+      "line": 11,
+      "evidence": "Manage open details",
+      "status": "accepted",
+      "note": "Generator-emitted nested parent grouper 'reports \u003e open-details' in DO-NOT-EDIT file reports_open-details.go; parentNoSubcommandRunE stub returns help only and takes no parameters. Children handle the real operations. Rewriting Short 'Manage open details' in source is wiped on regen. Systemic retro candidate: generator template should emit Hidden:true on nested parent groupers OR compose a richer Short from child surfaces."
+    },
+    {
+      "kind": "thin-short",
+      "command": "sent-to",
+      "file": "reports_sent-to.go",
+      "line": 11,
+      "evidence": "Manage sent to",
+      "status": "accepted",
+      "note": "Generator-emitted nested parent grouper 'reports \u003e sent-to' in DO-NOT-EDIT file reports_sent-to.go; parentNoSubcommandRunE stub returns help only and takes no parameters. Children handle the real operations. Rewriting Short 'Manage sent to' in source is wiped on regen. Systemic retro candidate: generator template should emit Hidden:true on nested parent groupers OR compose a richer Short from child surfaces."
+    },
+    {
+      "kind": "thin-short",
+      "command": "sub-reports",
+      "file": "reports_sub-reports.go",
+      "line": 11,
+      "evidence": "Manage sub reports",
+      "status": "accepted",
+      "note": "Generator-emitted nested parent grouper 'reports \u003e sub-reports' in DO-NOT-EDIT file reports_sub-reports.go; parentNoSubcommandRunE stub returns help only and takes no parameters. Children handle the real operations. Rewriting Short 'Manage sub reports' in source is wiped on regen. Systemic retro candidate: generator template should emit Hidden:true on nested parent groupers OR compose a richer Short from child surfaces."
+    },
+    {
+      "kind": "thin-short",
+      "command": "unsubscribed",
+      "file": "reports_unsubscribed.go",
+      "line": 11,
+      "evidence": "Manage unsubscribed",
+      "status": "accepted",
+      "note": "Generator-emitted nested parent grouper 'reports \u003e unsubscribed' in DO-NOT-EDIT file reports_unsubscribed.go; parentNoSubcommandRunE stub returns help only and takes no parameters. Children handle the real operations. Rewriting Short 'Manage unsubscribed' in source is wiped on regen. Systemic retro candidate: generator template should emit Hidden:true on nested parent groupers OR compose a richer Short from child surfaces."
+    },
+    {
+      "kind": "thin-short",
+      "command": "sms-campaigns",
+      "file": "sms-campaigns.go",
+      "line": 11,
+      "evidence": "Manage sms campaigns",
+      "status": "accepted",
+      "note": "Generator-emitted Hidden parent grouper for 'sms-campaigns' in DO-NOT-EDIT file sms-campaigns.go; carries parentNoSubcommandRunE stub so tools-audit classifies it as a shell-out tool, but cmd.Hidden=true means the cobratree walker skips MCP registration at runtime. Short 'Manage sms campaigns' is fine for --help; no MCP tool surface exists. Systemic retro candidate: tools-audit should mirror the walker's Hidden skip."
+    },
+    {
+      "kind": "thin-short",
+      "command": "actions",
+      "file": "sms-campaigns_actions.go",
+      "line": 11,
+      "evidence": "Manage actions",
+      "status": "accepted",
+      "note": "Generator-emitted nested parent grouper 'sms-campaigns \u003e actions' in DO-NOT-EDIT file sms-campaigns_actions.go; parentNoSubcommandRunE stub returns help only and takes no parameters. Children handle the real operations. Rewriting Short 'Manage actions' in source is wiped on regen. Systemic retro candidate: generator template should emit Hidden:true on nested parent groupers OR compose a richer Short from child surfaces."
+    },
+    {
+      "kind": "thin-short",
+      "command": "content",
+      "file": "sms-campaigns_content.go",
+      "line": 11,
+      "evidence": "Manage content",
+      "status": "accepted",
+      "note": "Generator-emitted nested parent grouper 'sms-campaigns \u003e content' in DO-NOT-EDIT file sms-campaigns_content.go; parentNoSubcommandRunE stub returns help only and takes no parameters. Children handle the real operations. Rewriting Short 'Manage content' in source is wiped on regen. Systemic retro candidate: generator template should emit Hidden:true on nested parent groupers OR compose a richer Short from child surfaces."
+    },
+    {
+      "kind": "thin-short",
+      "command": "template-folders",
+      "file": "template-folders.go",
+      "line": 11,
+      "evidence": "Manage template folders",
+      "status": "accepted",
+      "note": "Generator-emitted Hidden parent grouper for 'template-folders' in DO-NOT-EDIT file template-folders.go; carries parentNoSubcommandRunE stub so tools-audit classifies it as a shell-out tool, but cmd.Hidden=true means the cobratree walker skips MCP registration at runtime. Short 'Manage template folders' is fine for --help; no MCP tool surface exists. Systemic retro candidate: tools-audit should mirror the walker's Hidden skip."
+    },
+    {
+      "kind": "thin-short",
+      "command": "templates",
+      "file": "templates.go",
+      "line": 11,
+      "evidence": "Manage templates",
+      "status": "accepted",
+      "note": "Generator-emitted Hidden parent grouper for 'templates' in DO-NOT-EDIT file templates.go; carries parentNoSubcommandRunE stub so tools-audit classifies it as a shell-out tool, but cmd.Hidden=true means the cobratree walker skips MCP registration at runtime. Short 'Manage templates' is fine for --help; no MCP tool surface exists. Systemic retro candidate: tools-audit should mirror the walker's Hidden skip."
+    },
+    {
+      "kind": "thin-short",
+      "command": "default-content",
+      "file": "templates_default-content.go",
+      "line": 11,
+      "evidence": "Manage default content",
+      "status": "accepted",
+      "note": "Generator-emitted nested parent grouper 'templates \u003e default-content' in DO-NOT-EDIT file templates_default-content.go; parentNoSubcommandRunE stub returns help only and takes no parameters. Children handle the real operations. Rewriting Short 'Manage default content' in source is wiped on regen. Systemic retro candidate: generator template should emit Hidden:true on nested parent groupers OR compose a richer Short from child surfaces."
+    },
+    {
+      "kind": "thin-short",
+      "command": "verified-domains",
+      "file": "verified-domains.go",
+      "line": 11,
+      "evidence": "Manage verified domains",
+      "status": "accepted",
+      "note": "Generator-emitted Hidden parent grouper for 'verified-domains' in DO-NOT-EDIT file verified-domains.go; carries parentNoSubcommandRunE stub so tools-audit classifies it as a shell-out tool, but cmd.Hidden=true means the cobratree walker skips MCP registration at runtime. Short 'Manage verified domains' is fine for --help; no MCP tool surface exists. Systemic retro candidate: tools-audit should mirror the walker's Hidden skip."
+    },
+    {
+      "kind": "thin-short",
+      "command": "actions",
+      "file": "verified-domains_actions.go",
+      "line": 11,
+      "evidence": "Manage actions",
+      "status": "accepted",
+      "note": "Generator-emitted nested parent grouper 'verified-domains \u003e actions' in DO-NOT-EDIT file verified-domains_actions.go; parentNoSubcommandRunE stub returns help only and takes no parameters. Children handle the real operations. Rewriting Short 'Manage actions' in source is wiped on regen. Systemic retro candidate: generator template should emit Hidden:true on nested parent groupers OR compose a richer Short from child surfaces."
+    }
+  ]
+}

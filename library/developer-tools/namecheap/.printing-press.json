@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-14T19:23:48.054692Z",
+  "printing_press_version": "4.6.0",
+  "api_name": "namecheap",
+  "display_name": "Namecheap",
+  "cli_name": "namecheap-pp-cli",
+  "owner": "cathryn-lavery",
+  "spec_url": "https://www.namecheap.com/support/api/intro/",
+  "spec_path": "library/developer-tools/namecheap/spec.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:bd58ab9ea9eb14f2d1448cea6fbe14b5103eb7792d71360b30003a481b0a6219",
+  "run_id": "20260514-namecheap",
+  "category": "developer-tools",
+  "description": "Manage Namecheap domains, DNS, account balances, pricing, contacts, TLDs, and SSL metadata from the terminal using Namecheap’s XML API.",
+  "mcp_binary": "namecheap-pp-mcp",
+  "mcp_tool_count": 22,
+  "mcp_ready": "full",
+  "api_version": "1.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "NAMECHEAP_USERNAME",
+    "NAMECHEAP_API_KEY",
+    "NAMECHEAP_CLIENT_IP",
+    "NAMECHEAP_SANDBOX"
+  ],
+  "novel_features": [
+    {
+      "name": "XML-to-JSON envelope conversion",
+      "command": "users get-balances",
+      "description": "Converts Namecheap XML envelopes into stable JSON so agents can filter, select, and compose responses without XML parsing."
+    },
+    {
+      "name": "Namecheap query-auth injector",
+      "command": "domains check",
+      "description": "Maps clean env vars to Namecheap’s required ApiUser/ApiKey/UserName/ClientIp query parameters and normalizes command-shaped paths to /xml.response."
+    },
+    {
+      "name": "Safety-first domain operations",
+      "command": "domains check --dry-run",
+      "description": "Supports dry-run previews and explicit destructive MCP annotations for paid and DNS-changing operations."
+    }
+  ],
+  "printer": "cathryn-lavery",
+  "printer_name": "Cathryn Lavery"
+}

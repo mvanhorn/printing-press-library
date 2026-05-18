@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-09",
+  "base_run_id": "20260509-135942",
+  "base_printing_press_version": "4.2.0",
+  "patches": [
+    {
+      "id": "getjson-plain-http",
+      "summary": "Use GetJSON (plain HTTP) instead of surf's browser-emulating client for API calls requiring Accept: application/json.",
+      "reason": "Surf's browser-emulating client overrides the Accept header, breaking TSDR API JSON responses. GetJSON uses a plain net/http client with explicit Accept: application/json.",
+      "files": [
+        "internal/client/client.go",
+        "internal/cli/trademark_batch.go",
+        "internal/cli/trademark_deadlines.go",
+        "internal/cli/trademark_timeline.go",
+        "internal/cli/trademark_status.go",
+        "internal/cli/trademark_watch.go"
+      ],
+      "validated_outcome": "API calls return valid JSON; previously returned HTML/XML when surf set Accept: text/html."
+    },
+    {
+      "id": "tsdr-response-parsing",
+      "summary": "Rewrite response parsers for TSDR API's actual envelope structure and field names.",
+      "reason": "TSDR API uses non-standard envelope structures ({trademarks:[{status:{}, parties:{}}]}) and short field names that don't match spec-derived code.",
+      "files": [
+        "internal/cli/trademark_status.go",
+        "internal/cli/trademark_batch.go",
+        "internal/cli/trademark_timeline.go"
+      ],
+      "validated_outcome": "Trademark status, batch, and timeline commands correctly parse TSDR API responses."
+    },
+    {
+      "id": "no-json-list-endpoints",
+      "summary": "Disable sync/archive for TSDR since the API has no JSON list endpoints.",
+      "reason": "TSDR API only returns individual record lookups, not paginated list endpoints. Sync and archive workflows require list capabilities.",
+      "files": [
+        "internal/cli/sync.go",
+        "internal/cli/channel_workflow.go"
+      ],
+      "validated_outcome": "Sync command informs user that TSDR doesn't support bulk sync; no silent failures."
+    },
+    {
+      "id": "watch-cache-serial-number",
+      "summary": "Add watch cache ID field using serialNumber as the key for trademark watch entries.",
+      "reason": "tmWatchEntry uses serialNumber as the unique identifier, not a generic 'id' field.",
+      "files": [
+        "internal/cli/sync.go",
+        "internal/store/store.go"
+      ],
+      "validated_outcome": "Trademark watch correctly caches and compares previous status using serial number keys."
+    },
+    {
+      "id": "casedocs-xml-only",
+      "summary": "Handle /casedocs/{caseid}/info endpoint returning XML only.",
+      "reason": "The casedocs info endpoint returns XML regardless of Accept header; CLI needs special handling.",
+      "files": [
+        "internal/cli/trademark_docs.go"
+      ],
+      "validated_outcome": "Document listing handles XML response from casedocs endpoint."
+    }
+  ]
+}

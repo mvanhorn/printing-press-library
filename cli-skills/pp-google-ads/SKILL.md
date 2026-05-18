@@ -24,6 +24,11 @@ metadata:
         bins: [google-ads-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/marketing/google-ads/cmd/google-ads-pp-cli
 ---
+<!-- GENERATED FILE — DO NOT EDIT.
+     This file is a verbatim mirror of library/marketing/google-ads/SKILL.md,
+     regenerated post-merge by tools/generate-skills/. Hand-edits here are
+     silently overwritten on the next regen. Edit the library/ source instead.
+     See AGENTS.md "Generated artifacts: registry.json, cli-skills/". -->
 
 # Google Ads — Printing Press CLI
 

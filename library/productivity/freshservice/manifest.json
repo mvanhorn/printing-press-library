@@ -1,0 +1,46 @@
+{
+  "manifest_version": "0.3",
+  "name": "freshservice-pp-mcp",
+  "display_name": "Freshservice",
+  "version": "4.5.0",
+  "description": "Freshservice API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/freshservice-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/freshservice-pp-mcp",
+      "args": [],
+      "env": {
+        "FRESHSERVICE_APIKEY": "${user_config.freshservice_apikey}",
+        "FRESHSERVICE_DOMAIN": "${user_config.freshservice_domain}"
+      }
+    }
+  },
+  "user_config": {
+    "freshservice_apikey": {
+      "type": "string",
+      "title": "FRESHSERVICE_APIKEY",
+      "description": "Personal Access Token from Freshservice Profile Settings → API Settings",
+      "sensitive": true,
+      "required": true
+    },
+    "freshservice_domain": {
+      "type": "string",
+      "title": "FRESHSERVICE_DOMAIN",
+      "description": "Your Freshservice subdomain, e.g. acme.freshservice.com",
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

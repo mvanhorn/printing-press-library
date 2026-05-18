@@ -1,0 +1,27 @@
+{
+  "api_name": "suno",
+  "base_url": "https://studio-api-prod.suno.com",
+  "description": "Suno AI music generation CLI - reverse-engineered from the suno.com web app",
+  "mcp_ready": "partial",
+  "http_transport": "browser-chrome",
+  "auth": {
+    "type": "composed",
+    "header": "Authorization",
+    "format": "Bearer {__session}",
+    "env_vars": [
+      "SUNO_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "SUNO_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "cookie_domain": "suno.com"
+  },
+  "required_headers": [],
+  "tools": []
+}

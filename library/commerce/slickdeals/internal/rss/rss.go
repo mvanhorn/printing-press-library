@@ -31,6 +31,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"regexp"
 	"sort"
 	"strconv"
@@ -42,15 +43,27 @@ import (
 
 // userAgent identifies us to Slickdeals so the feed owner can tell our
 // traffic apart from generic curl in the logs.
-const userAgent = "slickdeals-pp-cli/0.2 (+https://github.com/mvanhorn/printing-press-library)"
+const userAgent = "slickdeals-pp-cli/0.3 (+https://github.com/mvanhorn/printing-press-library)"
 
 // defaultTimeout applies when the caller passes a nil *http.Client to FetchURL.
 const defaultTimeout = 30 * time.Second
 
 // Feed URL constants. Live endpoints; tests inject httptest.NewServer URLs.
+//
+// Endpoint surface verified 2026-05-14 against Slickdeals' own /forums/forumdisplay.php?f=9
+// HTML which advertises these as the canonical RSS feed URLs:
+//
+//   - mode=frontpage&rss=1                                    -> editor-curated frontpage
+//   - mode=popdeals&searcharea=deals&searchin=first&rss=1     -> community-popular deals (different from frontpage)
+//   - forumchoice[]=N&searchin=first&rss=1                    -> forum-scoped feed
+//   - searchin=first&searcharea=deals&q=<query>&rss=1         -> server-side keyword search
+//
+// The v0.2 mistake was using ?search=q (silently ignored) instead of ?q=<query>
+// and never running mode=popdeals or forumchoice[]=N. See lesson
+// 2026-05-14-slickdeals-rss-q-parameter-and-popdeals-endpoint.
 const (
 	frontpageURL = "https://slickdeals.net/newsearch.php?mode=frontpage&rss=1"
-	searchURL    = "https://slickdeals.net/newsearch.php?mode=frontpage&rss=1&search=%s"
+	popdealsURL  = "https://slickdeals.net/newsearch.php?mode=popdeals&searcharea=deals&searchin=first&rss=1"
 )
 
 // Item is the normalized Slickdeals RSS row. Field set unions what both the
@@ -193,18 +206,65 @@ func LiveFrontpage(ctx context.Context, hc *http.Client) ([]Item, error) {
 	return FetchURL(ctx, frontpageURL, hc)
 }
 
-// LiveSearchRSS fetches the live Slickdeals frontpage feed and filters items
-// client-side by case-insensitive substring match against title and description.
-// Slickdeals' RSS does not honor a server-side `search=` parameter when
-// mode=frontpage is set (the parameter is silently ignored — verified 2026-05-11),
-// and the bare `?rss=1&search=q` form returns zero items. Client-side filtering
-// is the honest path until Slickdeals exposes a real RSS search endpoint.
+// LiveSearchRSS is a backward-compatible wrapper around LiveSearch that always
+// searches across all forums (forumID=0). Callers that need forum-scoped
+// search should use LiveSearch directly.
+//
+// Note: a v0.2 bug filtered the frontpage client-side because we used the
+// wrong parameter name. v0.3 fixes this by using Slickdeals' real search
+// endpoint, which returns up to ~25 matching items from across all forums.
 func LiveSearchRSS(ctx context.Context, hc *http.Client, query string, limit int) ([]Item, error) {
-	items, err := LiveFrontpage(ctx, hc)
+	return LiveSearch(ctx, hc, query, 0, limit)
+}
+
+// LiveSearch is the lower-level entry point: query is the keyword (may be
+// empty), forumID is an optional forum scope (0 = all deals), limit caps the
+// returned slice.
+func LiveSearch(ctx context.Context, hc *http.Client, query string, forumID, limit int) ([]Item, error) {
+	url := buildSearchURL(query, forumID)
+	items, err := FetchURL(ctx, url, hc)
 	if err != nil {
 		return nil, err
 	}
-	return FilterByQuery(items, query, limit), nil
+	if limit > 0 && len(items) > limit {
+		items = items[:limit]
+	}
+	return items, nil
+}
+
+// LivePopular fetches the "Popular Deals" RSS feed (community-voted) which is
+// distinct from the editor-curated frontpage. Slickdeals advertises this as
+// mode=popdeals on its own forumdisplay.php?f=9 HTML.
+func LivePopular(ctx context.Context, hc *http.Client, limit int) ([]Item, error) {
+	items, err := FetchURL(ctx, popdealsURL, hc)
+	if err != nil {
+		return nil, err
+	}
+	if limit > 0 && len(items) > limit {
+		items = items[:limit]
+	}
+	return items, nil
+}
+
+// buildSearchURL composes the canonical search URL for the Slickdeals RSS
+// endpoint. Internal helper; exposed only via LiveSearch.
+func buildSearchURL(query string, forumID int) string {
+	base := "https://slickdeals.net/newsearch.php?searchin=first&searcharea=deals&rss=1"
+	if forumID > 0 {
+		base += fmt.Sprintf("&forumchoice%%5B%%5D=%d", forumID)
+	}
+	if q := strings.TrimSpace(query); q != "" {
+		base += "&q=" + urlEscape(q)
+	}
+	return base
+}
+
+// urlEscape percent-encodes a query-string value for the q= parameter.
+// Uses url.QueryEscape so reserved characters like [ ] = " < > are encoded
+// correctly — queries such as `Xbox [Series X]` or `price >= 50` would
+// otherwise embed literals that some strict HTTP proxies reject or mis-parse.
+func urlEscape(s string) string {
+	return url.QueryEscape(s)
 }
 
 // FilterByQuery returns items whose title or description (case-insensitive)

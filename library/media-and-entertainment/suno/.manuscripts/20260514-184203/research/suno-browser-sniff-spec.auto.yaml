@@ -1,0 +1,848 @@
+name: suno
+description: Discovered API spec for studio-api-prod-suno
+version: 0.1.0
+base_url: https://studio-api-prod.suno.com
+spec_source: sniffed
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+config:
+    format: toml
+    path: ~/.config/suno-pp-cli/config.toml
+resources:
+    billing:
+        description: Operations on usage-plan-web-table-comparison
+        endpoints:
+            list_info:
+                method: GET
+                path: /api/billing/info/
+                description: GET /api/billing/info/
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: info
+                pagination: null
+            list_usage_plan_faq:
+                method: GET
+                path: /api/billing/usage-plan-faq/
+                description: GET /api/billing/usage-plan-faq/
+                params:
+                    - name: faq
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: answer
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: question
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                body: []
+                response:
+                    type: object
+                    item: usage_plan_faq
+                pagination: null
+            list_usage_plan_web_table_comparison:
+                method: GET
+                path: /api/billing/usage-plan-web-table-comparison/
+                description: GET /api/billing/usage-plan-web-table-comparison/
+                params:
+                    - name: usage_plan_web_table_comparison
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: table_sections
+                          type: array
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: features
+                              type: array
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: name
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                body: []
+                response:
+                    type: object
+                    item: usage_plan_web_table_comparison
+                pagination: null
+    c:
+        description: Operations on check
+        endpoints:
+            create_check:
+                method: POST
+                path: /api/c/check
+                description: POST /api/c/check
+                params:
+                    - name: captcha_version
+                      type: integer
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: required
+                      type: boolean
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: check
+                pagination: null
+    challenge:
+        description: Operations on progress
+        endpoints:
+            list_progress:
+                method: GET
+                path: /api/challenge/progress
+                description: GET /api/challenge/progress
+                params:
+                    - name: all_bonus
+                      type: integer
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: challenge_mode
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: challenge_set
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: challenges
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: current_level
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: description
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: level
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: name
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                    - name: earned_credits
+                      type: integer
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: has_next_refresh
+                      type: boolean
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: reward_method
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: total_credits
+                      type: integer
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: user_created_at
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                      format: date-time
+                body: []
+                response:
+                    type: object
+                    item: progress
+                pagination: null
+    clips:
+        description: Operations on parent
+        endpoints:
+            get_attribution:
+                method: GET
+                path: /api/clips/{uuid}/attribution
+                description: GET /api/clips/{uuid}/attribution
+                params:
+                    - name: uuid
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The uuid path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: attribution
+                pagination: null
+            list_direct_children_count:
+                method: GET
+                path: /api/clips/direct_children_count
+                description: GET /api/clips/direct_children_count
+                params:
+                    - name: clip_id
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: direct_children_count
+                pagination: null
+            list_get_similar:
+                method: GET
+                path: /api/clips/get_similar/
+                description: GET /api/clips/get_similar/
+                params:
+                    - name: id
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: get_similar
+                pagination: null
+            list_parent:
+                method: GET
+                path: /api/clips/parent
+                description: GET /api/clips/parent
+                params:
+                    - name: clip_id
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: parent
+                pagination: null
+    feed:
+        description: Operations on feed
+        endpoints:
+            create_feed:
+                method: POST
+                path: /api/feed/v3
+                description: POST /api/feed/v3
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: feed
+                pagination: null
+    gen:
+        description: Operations on comments
+        endpoints:
+            get_comments:
+                method: GET
+                path: /api/gen/{uuid}/comments
+                description: GET /api/gen/{uuid}/comments
+                params:
+                    - name: order
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: uuid
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The uuid path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: comments
+                pagination: null
+    generate:
+        description: Operations on v2-web
+        endpoints:
+            create_v2_web:
+                method: POST
+                path: /api/generate/v2-web/
+                description: POST /api/generate/v2-web/
+                params:
+                    - name: batch_size
+                      type: integer
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: clips
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: action_config
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: actions
+                              type: array
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: allow_comments
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: audio_url
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: avatar_image_url
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                          format: url
+                        - name: batch_index
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: created_at
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                          format: date-time
+                        - name: display_name
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: entity_type
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: flag_count
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: handle
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: has_hook
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: id
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                          format: uuid
+                        - name: is_contest_clip
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: is_handle_updated
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: is_hidden
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: is_liked
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: is_persona_root
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: is_public
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: is_trashed
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: is_verified
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: major_model_version
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: metadata
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: can_remix
+                              type: boolean
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: gpt_description_prompt
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: is_mumble
+                              type: boolean
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: is_remix
+                              type: boolean
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: make_instrumental
+                              type: boolean
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: priority
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: prompt
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: stream
+                              type: boolean
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: type
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: model_name
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: play_count
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: status
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: title
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: upvote_count
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: user_id
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                          format: uuid
+                        - name: video_url
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                    - name: created_at
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                      format: date-time
+                    - name: id
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                      format: uuid
+                    - name: major_model_version
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: metadata
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: can_remix
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: gpt_description_prompt
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: is_mumble
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: is_remix
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: make_instrumental
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: priority
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: prompt
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: stream
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: type
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                    - name: status
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: v2_web
+                pagination: null
+    notification:
+        description: Operations on notification
+        endpoints:
+            list_badge_count:
+                method: GET
+                path: /api/notification/v2/badge-count
+                description: GET /api/notification/v2/badge-count
+                params:
+                    - name: badge_count
+                      type: integer
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: badge_count
+                pagination: null
+            list_notification:
+                method: GET
+                path: /api/notification/v2
+                description: GET /api/notification/v2
+                params:
+                    - name: after_datetime_utc
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: notification
+                pagination: null
+    project:
+        description: Operations on pinned-clips
+        endpoints:
+            list_pinned_clips:
+                method: GET
+                path: /api/project/default/pinned-clips
+                description: GET /api/project/default/pinned-clips
+                params:
+                    - name: pinned_clips
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: pinned_clips
+                pagination: null
+    statsig:
+        description: Operations on forked-onboarding
+        endpoints:
+            list_forked_onboarding:
+                method: GET
+                path: /api/statsig/experiment/forked-onboarding
+                description: GET /api/statsig/experiment/forked-onboarding
+                params:
+                    - name: onboarding_group
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: reason
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: forked_onboarding
+                pagination: null
+    unified:
+        description: Operations on feed
+        endpoints:
+            create_feed:
+                method: POST
+                path: /api/unified/feed
+                description: POST /api/unified/feed
+                params:
+                    - name: detail
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: feed
+                pagination: null
+types: {}
