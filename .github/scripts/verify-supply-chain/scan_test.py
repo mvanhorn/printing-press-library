@@ -196,6 +196,43 @@ class WorkflowTrustSignalTest(unittest.TestCase):
         self.assertEqual(len(findings), 1)
         self.assertTrue(findings[0].is_block())
 
+    def test_block_scalar_folded_ref_blocks(self) -> None:
+        """Greptile-flagged bypass: YAML folded block-scalar `ref: >-` with
+        the dangerous expression on the next line evades single-line regex
+        but is semantically identical. Structural YAML parsing catches it."""
+        wf = (
+            "on:\n  pull_request_target:\n"
+            "jobs:\n  x:\n    steps:\n"
+            "      - uses: actions/checkout@v4\n"
+            "        with:\n"
+            "          ref: >-\n"
+            "            ${{ github.event.pull_request.head.sha }}\n"
+        )
+        findings = signals.signal_workflow_trust(_fc(".github/workflows/bad.yml", head=wf))
+        self.assertEqual(len(findings), 1)
+        self.assertTrue(findings[0].is_block())
+
+    def test_block_scalar_literal_ref_blocks(self) -> None:
+        """Literal block-scalar form `|-` same as folded — must also block."""
+        wf = (
+            "on:\n  pull_request_target:\n"
+            "jobs:\n  x:\n    steps:\n"
+            "      - uses: actions/checkout@v4\n"
+            "        with:\n"
+            "          ref: |-\n"
+            "            refs/pull/123/merge\n"
+        )
+        findings = signals.signal_workflow_trust(_fc(".github/workflows/bad.yml", head=wf))
+        self.assertEqual(len(findings), 1)
+
+    def test_write_all_permissions_blocks(self) -> None:
+        """Newly-covered case: `permissions: write-all` grants id-token implicitly."""
+        wf = "permissions: write-all\n"
+        findings = signals.signal_id_token_outside_allowlist(
+            _fc(".github/workflows/bad.yml", head=wf)
+        )
+        self.assertEqual(len(findings), 1)
+
 
 class IdTokenSignalTest(unittest.TestCase):
     def test_id_token_in_non_publish_workflow_blocks(self) -> None:
