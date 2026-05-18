@@ -136,17 +136,9 @@ The same expectation applies to non-CLI PRs (CI fixes, bug fixes, doc edits, swe
 
 ## Supply-chain hardening
 
-PRs are scanned for the attack shapes observed in four May 2026 incidents: Axios (compromised npm account + phantom dependency with `postinstall` RAT), TanStack mini-Shai-Hulud (`pull_request_target` + PR-head checkout → OIDC theft), node-ipc (expired-domain account takeover + obfuscated credential harvesting), and BufferZoneCorp (sleeper Go modules with `replace` redirection and `GOPROXY` tampering). See [docs/solutions/security/2026-05-supply-chain-hardening.md](docs/solutions/security/2026-05-supply-chain-hardening.md) for incident timeline and primary-source citations.
+PRs touching `.github/workflows/**`, `library/**/go.mod`, or `npm/package.json` are gated by two layers: Greptile rules in [`greptile.json`](greptile.json) and a Python scan in [`.github/scripts/verify-supply-chain/`](.github/scripts/verify-supply-chain/) run by `verify-supply-chain.yml`. See those files for current signal coverage. Run the scan locally with `python3 .github/scripts/verify-supply-chain/scan.py --base-ref origin/main`; tests are `python3 -m unittest scan_test` from that directory.
 
-Two layers run on every PR:
-
-1. **Greptile rules** in `greptile.json` — judgment-heavy review across `.github/workflows/**`, `library/**/go.mod`, `library/**/internal/**/*.go`, `library/**/cmd/**/*.go`, and `npm/package.json`. Rules cover workflow trust (`pull_request_target` + PR-head checkout, `id-token: write` outside the `npm-publish.yml` allowlist), Go-module supply chain (`replace` directive tiering, `GOPROXY`/`GOFLAGS`/`GONOSUMCHECK` overrides, `module` directive drift on existing CLIs), the npm wrapper (`postinstall`/`preinstall`/`prepare` script additions), and Go-source credential reads in CLIs whose purpose doesn't explain them. Greptile findings post as P0 / P1 comments with rationale.
-
-2. **`verify-supply-chain.yml`** — deterministic Python scan at [.github/scripts/verify-supply-chain/scan.py](.github/scripts/verify-supply-chain/scan.py) runs on every PR that touches the scoped paths. Hard-fails on mechanical block-tier signals (TanStack PR-head-checkout shape, BufferZoneCorp `replace`-to-remote shape, Axios npm lifecycle hook, etc.). Local-path `replace` directives are advisory only — `library/food-and-dining/ordertogo/go.mod` has three legitimate ones today. Run locally with `python3 .github/scripts/verify-supply-chain/scan.py --base-ref origin/main`; tests live next to the script (`python3 -m unittest scan_test`).
-
-This workflow runs informationally on landing. Promote to a required check via branch protection only after a one-week green window confirms no false-positive miscalibration on real PRs.
-
-The same shape mirrors into `mvanhorn/cli-printing-press` (the generator repo) with scope adaptations — no npm wrapper there, no published-CLI module paths, but the workflow-trust and Go-module rules apply identically.
+Runs informationally on landing — promote to a required branch-protection check only after a one-week green window. Mirror gate runs in [`mvanhorn/cli-printing-press`](https://github.com/mvanhorn/cli-printing-press) with scope adaptations. Incident background and primary sources: [docs/solutions/security/2026-05-supply-chain-hardening.md](docs/solutions/security/2026-05-supply-chain-hardening.md).
 
 ## Repository layout
 
