@@ -1,7 +1,8 @@
 # Changelog
 
-## Unreleased
+## 0.1.5
 
+- Survive malformed upstream registry entries instead of aborting the whole parse. `parseRegistry` now skips entries that fail per-entry validation, writes a one-line warning to stderr naming the offending slug + field, and returns the rest of the catalog intact. Registry-level shape failures (wrong `schema_version`, non-array `entries`) still throw. This is the defense-in-depth pair for the library-side `--validate` gate (see `tools/generate-registry --validate` and `verify-library-conventions.yml`) so a single broken upstream entry — lawhub-shape — can never wedge every `install` / `search` / `list` / `update` call again.
 - Detect and warn when an older binary earlier in `PATH` shadows the one `go install` just wrote. Previously `install` reported the first PATH hit as success, so a stale `/opt/homebrew/bin/<cli>` (for example) would mask a newer `~/go/bin/<cli>`. The installer now reads `go env GOBIN GOPATH`, compares the actual install path to what `which`/`where` returns, and emits a clear shadow warning when they differ. JSON output adds `installedPath` and `shadowedBy` fields. Fixes #470.
 
 ## 0.1.4

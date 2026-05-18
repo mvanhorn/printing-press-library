@@ -1238,7 +1238,7 @@
       "name": "lawhub",
       "category": "education",
       "api": "LawHub",
-      "description": "",
+      "description": "Local-first LSAT practice analytics from authenticated LawHub score metadata, with SQLite, weakness reports, question notes, and safe review links back to LawHub.",
       "path": "library/education/lawhub",
       "printer": "nolan",
       "printer_name": "Nolan McCafferty"

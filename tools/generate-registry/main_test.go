@@ -65,12 +65,226 @@ func TestFormatDescription(t *testing.T) {
 	}
 }
 
-func TestRegistryDescriptionReplacesBareMarkdownHeading(t *testing.T) {
-	if got := registryDescription("# Introduction", "Real catalog copy."); got != "Real catalog copy." {
-		t.Fatalf("registryDescription heading fallback = %q, want fallback", got)
+func TestRegistryDescription(t *testing.T) {
+	cases := []struct {
+		name           string
+		prior          string
+		goreleaser     string
+		ppDescription  string
+		want           string
+	}{
+		{
+			name:          "curated copy wins over both fallbacks",
+			prior:         "Curated catalog copy.",
+			goreleaser:    "Goreleaser brews copy.",
+			ppDescription: "Manifest copy.",
+			want:          "Curated catalog copy.",
+		},
+		{
+			name:          "bare-heading prior falls through to goreleaser",
+			prior:         "# Introduction",
+			goreleaser:    "Real catalog copy.",
+			ppDescription: "Manifest copy.",
+			want:          "Real catalog copy.",
+		},
+		{
+			name:          "empty prior falls through to goreleaser",
+			prior:         "",
+			goreleaser:    "Goreleaser copy.",
+			ppDescription: "Manifest copy.",
+			want:          "Goreleaser copy.",
+		},
+		{
+			name:          "empty prior and goreleaser fall through to pp manifest description (lawhub-shape repair)",
+			prior:         "",
+			goreleaser:    "",
+			ppDescription: "Local-first LSAT practice analytics.",
+			want:          "Local-first LSAT practice analytics.",
+		},
+		{
+			name:          "bare-heading prior with empty goreleaser falls through to pp",
+			prior:         "# Introduction",
+			goreleaser:    "",
+			ppDescription: "Manifest copy.",
+			want:          "Manifest copy.",
+		},
+		{
+			name:          "all empty returns empty (validation catches this separately)",
+			prior:         "",
+			goreleaser:    "",
+			ppDescription: "",
+			want:          "",
+		},
 	}
-	if got := registryDescription("Curated catalog copy.", "Fallback."); got != "Curated catalog copy." {
-		t.Fatalf("registryDescription curated copy = %q, want prior", got)
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := registryDescription(tc.prior, tc.goreleaser, tc.ppDescription); got != tc.want {
+				t.Errorf("registryDescription(%q, %q, %q) = %q, want %q",
+					tc.prior, tc.goreleaser, tc.ppDescription, got, tc.want)
+			}
+		})
+	}
+}
+
+// TestValidateEntries exercises the source-only validation that backs the
+// --validate flag. The required-field set must stay in lockstep with the
+// npm installer's parseRegistry contract — any new requiredString check
+// added there should grow a case here.
+func TestValidateEntries(t *testing.T) {
+	mcpOK := &MCPBlock{Binary: "x-pp-mcp", Transports: []string{"stdio"}, AuthType: "api_key"}
+
+	cases := []struct {
+		name    string
+		entries []RegistryEntry
+		// wantSubstrs is a set of substrings that must appear in the joined
+		// error report. Using substrings avoids brittle exact-match coupling
+		// to the error-message phrasing while still pinning slug + field.
+		wantSubstrs []string
+		wantOK      bool
+	}{
+		{
+			name: "valid entry passes",
+			entries: []RegistryEntry{
+				{Name: "ok", Category: "tools", API: "OK", Description: "Does things.", Path: "library/tools/ok"},
+			},
+			wantOK: true,
+		},
+		{
+			name: "empty description fails with sources-checked message in resolution order",
+			entries: []RegistryEntry{
+				{Name: "lawhub", Category: "education", API: "LawHub", Description: "", Path: "library/education/lawhub"},
+			},
+			wantSubstrs: []string{
+				"lawhub: description is empty",
+				// Sources appear in fallback-resolution order: goreleaser
+				// (second tier) is listed before .printing-press.json (third
+				// tier), matching what registryDescription consults.
+				".goreleaser.yaml brews description, .printing-press.json description",
+			},
+		},
+		{
+			name: "all-whitespace description fails (matches npm requiredString trim semantics)",
+			entries: []RegistryEntry{
+				{Name: "ws", Category: "tools", API: "WS", Description: "   \t\n  ", Path: "library/tools/ws"},
+			},
+			wantSubstrs: []string{"ws: description is empty"},
+		},
+		{
+			name: "all-whitespace name reports under (unnamed) prefix",
+			entries: []RegistryEntry{
+				{Name: "  ", Category: "tools", API: "X", Description: "Has desc.", Path: "library/tools/x"},
+			},
+			wantSubstrs: []string{"(unnamed): name is empty"},
+		},
+		{
+			name: "all-whitespace mcp.auth_type fails",
+			entries: []RegistryEntry{
+				{
+					Name: "x", Category: "tools", API: "X", Description: "Has desc.", Path: "library/tools/x",
+					MCP: &MCPBlock{Binary: "x-pp-mcp", Transports: []string{"stdio"}, AuthType: "   "},
+				},
+			},
+			wantSubstrs: []string{"x: mcp.auth_type is empty"},
+		},
+		{
+			name: "multiple entries each report independently",
+			entries: []RegistryEntry{
+				{Name: "a", Category: "tools", API: "A", Description: "", Path: "library/tools/a"},
+				{Name: "b", Category: "tools", API: "B", Description: "", Path: "library/tools/b"},
+				{Name: "c", Category: "tools", API: "C", Description: "Has desc.", Path: "library/tools/c"},
+			},
+			wantSubstrs: []string{
+				"a: description is empty",
+				"b: description is empty",
+			},
+		},
+		{
+			name: "missing mcp.binary fails when mcp block present",
+			entries: []RegistryEntry{
+				{
+					Name: "x", Category: "tools", API: "X", Description: "Has desc.", Path: "library/tools/x",
+					MCP: &MCPBlock{Binary: "", Transports: []string{"stdio"}, AuthType: "api_key"},
+				},
+			},
+			wantSubstrs: []string{"x: mcp.binary is empty"},
+		},
+		{
+			name: "missing mcp.transports fails when mcp block present",
+			entries: []RegistryEntry{
+				{
+					Name: "x", Category: "tools", API: "X", Description: "Has desc.", Path: "library/tools/x",
+					MCP: &MCPBlock{Binary: "x-pp-mcp", Transports: nil, AuthType: "api_key"},
+				},
+			},
+			wantSubstrs: []string{"x: mcp.transports is empty"},
+		},
+		{
+			name: "missing mcp.auth_type fails when mcp block present",
+			entries: []RegistryEntry{
+				{
+					Name: "x", Category: "tools", API: "X", Description: "Has desc.", Path: "library/tools/x",
+					MCP: &MCPBlock{Binary: "x-pp-mcp", Transports: []string{"stdio"}, AuthType: ""},
+				},
+			},
+			wantSubstrs: []string{"x: mcp.auth_type is empty"},
+		},
+		{
+			name: "non-mcp entry skips mcp checks",
+			entries: []RegistryEntry{
+				{Name: "x", Category: "tools", API: "X", Description: "Has desc.", Path: "library/tools/x"},
+			},
+			wantOK: true,
+		},
+		{
+			name: "valid mcp block passes",
+			entries: []RegistryEntry{
+				{Name: "x", Category: "tools", API: "X", Description: "Has desc.", Path: "library/tools/x", MCP: mcpOK},
+			},
+			wantOK: true,
+		},
+		{
+			name: "unnamed entry reports under (unnamed) prefix",
+			entries: []RegistryEntry{
+				{Name: "", Category: "tools", API: "X", Description: "Has desc.", Path: "library/tools/x"},
+			},
+			wantSubstrs: []string{"(unnamed): name is empty"},
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := validateEntries(tc.entries)
+			joined := strings.Join(got, "\n")
+			if tc.wantOK {
+				if len(got) != 0 {
+					t.Fatalf("validateEntries: want no errors, got:\n%s", joined)
+				}
+				return
+			}
+			for _, sub := range tc.wantSubstrs {
+				if !strings.Contains(joined, sub) {
+					t.Errorf("validateEntries: missing substring %q in output:\n%s", sub, joined)
+				}
+			}
+		})
+	}
+}
+
+// TestValidateEntries_IgnoresPriorCuratedValue is the regression test for
+// the lawhub-shape bug. The validator must NOT accept an entry whose only
+// non-empty description comes from a prior curated registry value — that
+// path is exactly what masked the original bug. This is enforced by the
+// caller (main passes an empty existing map), but we also assert
+// validateEntries' own contract: it judges only what's in the entry struct.
+func TestValidateEntries_IgnoresPriorCuratedValue(t *testing.T) {
+	// Entry with an empty description (post-source-only resolution) must
+	// fail validation regardless of any external curated value.
+	entries := []RegistryEntry{
+		{Name: "lawhub", Category: "education", API: "LawHub", Description: "", Path: "library/education/lawhub"},
+	}
+	got := validateEntries(entries)
+	if len(got) == 0 {
+		t.Fatal("validateEntries: expected failure for empty description, got none")
 	}
 }
 
