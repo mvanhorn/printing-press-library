@@ -106,6 +106,15 @@
       ]
     },
     {
+      "id": "case-arc-satisfied-uses-sju",
+      "summary": "classifyCaseStatus marks a JUD case as 'satisfied' on SJU (Satisfaction of Judgment), not SAT (Satisfaction of Mortgage).",
+      "reason": "SAT closes a mortgage instrument; SJU closes a judgment. Using SAT would never fire on cases actually resolved via the court clerk's Satisfaction of Judgment recording — the exact transition case-arc is built to surface. surviving_liens.releaseMap already pairs JUD→SJU; case-arc now matches. Covered by case_arc_test.go.",
+      "files": [
+        "internal/cli/case_arc.go",
+        "internal/cli/case_arc_test.go"
+      ]
+    },
+    {
       "id": "recording-filter-orderby-allowlist",
       "summary": "RecordingFilter.OrderBy is validated against allowedOrderByClauses; non-listed values fall back to the default order.",
       "reason": "The field is interpolated into the SQL string. Today every caller passes a hardcoded literal, but the safety contract was only documented in a comment. The allow-list makes the contract enforced — future callers can't accidentally thread user input through this field. The set covers every literal in use today; adding a new clause is a deliberate edit.",

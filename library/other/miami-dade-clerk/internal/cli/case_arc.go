@@ -69,10 +69,10 @@ func newCaseArcCmd(flags *rootFlags) *cobra.Command {
 
 // classifyCaseStatus walks the event list and emits the latest matching
 // state. CTI (certificate of title) takes precedence over JUD because a
-// post-judgment sale supersedes the judgment entry. SAT after JUD is
-// "satisfied"; DIS / "voluntary dismissal" closes a case without sale.
-// Returns the current owner inferred from the most recent CTI grantee
-// when a sale has occurred.
+// post-judgment sale supersedes the judgment entry. SJU (Satisfaction
+// of Judgment) after JUD is "satisfied"; DIS / "voluntary dismissal"
+// closes a case without sale. Returns the current owner inferred from
+// the most recent CTI grantee when a sale has occurred.
 func classifyCaseStatus(docs []*store.Recording) (string, string) {
 	status := "open"
 	var currentOwner string
@@ -96,7 +96,12 @@ func classifyCaseStatus(docs []*store.Recording) (string, string) {
 			if status != "sale-complete" {
 				status = "dismissed"
 			}
-		case "SAT":
+		case "SJU":
+			// Satisfaction of Judgment closes a JUD case without sale.
+			// (SAT is Satisfaction of *Mortgage* — a different
+			// instrument that closes a mortgage, not a court case;
+			// surviving_liens.releaseMap pairs JUD with SJU, this
+			// switch must use the same code.)
 			if hasJud && status != "sale-complete" {
 				status = "satisfied"
 			}
