@@ -35,7 +35,8 @@ Reads from the local SQLite store populated by 'sync'.`,
 				return nil
 			}
 			if len(args) == 0 {
-				return cmd.Help()
+				_ = cmd.Usage()
+				return usageErr(fmt.Errorf("domain pattern is required (e.g. 'example.com')"))
 			}
 
 			pattern := args[0]
