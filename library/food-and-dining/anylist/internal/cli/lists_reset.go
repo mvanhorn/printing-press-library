@@ -23,7 +23,8 @@ func newListsResetCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  anylist-pp-cli lists reset --name example-resource",
 		Annotations: map[string]string{"pp:endpoint": "lists.reset", "pp:method": "POST", "pp:path": "/data/shopping-lists/update"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if !cmd.Flags().Changed("name") && len(args) == 0 && !flags.dryRun {
+			// PATCH: Dry-run must validate the target list before previewing removals.
+			if !cmd.Flags().Changed("name") && len(args) == 0 {
 				return fmt.Errorf("required flag \"name\" not set")
 			}
 

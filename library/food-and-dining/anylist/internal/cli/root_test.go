@@ -92,6 +92,27 @@ func TestAuthLoginDoesNotExposePasswordFlag(t *testing.T) {
 	}
 }
 
+func TestAuthLoginTerminalPasswordReadFailureDoesNotFallbackToPlaintext(t *testing.T) {
+	oldStdinIsTerminal := stdinIsTerminal
+	oldReadTerminalPassword := readTerminalPassword
+	defer func() {
+		stdinIsTerminal = oldStdinIsTerminal
+		readTerminalPassword = oldReadTerminalPassword
+	}()
+	stdinIsTerminal = func(int) bool { return true }
+	readTerminalPassword = func(int) ([]byte, error) { return nil, errors.New("terminal read failed") }
+
+	cmd := newAuthLoginCmd(&rootFlags{})
+	cmd.SetArgs([]string{"--email", "user@example.com"})
+	err := cmd.Execute()
+	if err == nil {
+		t.Fatal("Execute returned nil error, want terminal password read error")
+	}
+	if !strings.Contains(err.Error(), "reading password") {
+		t.Fatalf("error = %v, want reading password failure", err)
+	}
+}
+
 func TestMealAddToListDryRunResolvesRecipesByEventID(t *testing.T) {
 	t.Parallel()
 
@@ -134,6 +155,19 @@ func TestMealAddToListDryRunResolvesRecipesByEventID(t *testing.T) {
 	}
 	if got, ok := payload.Recipes[0]["would_write"].(bool); !ok || !got {
 		t.Fatalf("would_write = %#v, want true during dry run", payload.Recipes[0]["would_write"])
+	}
+}
+
+func TestListsResetDryRunRequiresName(t *testing.T) {
+	t.Parallel()
+
+	cmd := newListsResetCmd(&rootFlags{dryRun: true})
+	err := cmd.Execute()
+	if err == nil {
+		t.Fatal("Execute returned nil error, want missing name error")
+	}
+	if !strings.Contains(err.Error(), `required flag "name" not set`) {
+		t.Fatalf("error = %v, want missing name error", err)
 	}
 }
 

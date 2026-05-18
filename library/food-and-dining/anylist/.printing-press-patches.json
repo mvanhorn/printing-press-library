@@ -74,6 +74,17 @@
         "internal/cli/root_test.go"
       ],
       "validated_outcome": "Added regression coverage for list reset dry-run JSON output and flat-array pagination termination."
+    },
+    {
+      "id": "review-reset-auth-safety",
+      "summary": "Required list reset targets during dry-runs and removed plaintext password fallback after terminal read failures.",
+      "reason": "Greptile noted that dry-run reset without a list could preview an arbitrary list and that auth login could echo passwords if terminal password capture failed.",
+      "files": [
+        "internal/cli/lists_reset.go",
+        "internal/cli/auth.go",
+        "internal/cli/root_test.go"
+      ],
+      "validated_outcome": "Added regressions for dry-run reset name validation and terminal password read failure handling."
     }
   ]
 }

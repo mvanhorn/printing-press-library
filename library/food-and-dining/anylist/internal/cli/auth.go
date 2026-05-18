@@ -17,6 +17,11 @@ import (
 	"golang.org/x/term"
 )
 
+var (
+	stdinIsTerminal      = term.IsTerminal
+	readTerminalPassword = term.ReadPassword
+)
+
 func newAuthCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "auth",
@@ -221,16 +226,19 @@ func newAuthLoginCmd(flags *rootFlags) *cobra.Command {
 					return usageErr(fmt.Errorf("password is required (--no-input mode)"))
 				}
 				fmt.Fprint(os.Stderr, "Password: ")
-				pwBytes, err := term.ReadPassword(int(syscall.Stdin))
-				fmt.Fprintln(os.Stderr)
-				if err != nil {
-					// Fall back to plain stdin read
+				if stdinIsTerminal(int(syscall.Stdin)) {
+					pwBytes, err := readTerminalPassword(int(syscall.Stdin))
+					fmt.Fprintln(os.Stderr)
+					if err != nil {
+						// PATCH: Do not degrade terminal password reads to echoed plaintext.
+						return fmt.Errorf("reading password: %w", err)
+					}
+					password = string(pwBytes)
+				} else {
 					scanner := bufio.NewScanner(os.Stdin)
 					if scanner.Scan() {
 						password = strings.TrimSpace(scanner.Text())
 					}
-				} else {
-					password = string(pwBytes)
 				}
 				if password == "" {
 					return usageErr(fmt.Errorf("password is required"))
