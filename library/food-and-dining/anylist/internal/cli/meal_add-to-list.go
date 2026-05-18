@@ -91,8 +91,15 @@ func newMealAddToListCmd(flags *rootFlags) *cobra.Command {
 					factor = 1.0
 				}
 				added := 0
+				wouldAdd := 0
 				if !dryRun {
 					added, err = addRecipeRowIngredientsToList(ctx, cfg, st, recipe, bodyListName, factor, true)
+					if err != nil {
+						return err
+					}
+				} else {
+					// PATCH: Keep dry-run JSON useful for agents without performing writes.
+					wouldAdd, err = countRecipeIngredients(st, recipe)
 					if err != nil {
 						return err
 					}
@@ -106,6 +113,7 @@ func newMealAddToListCmd(flags *rootFlags) *cobra.Command {
 					"recipe_id":   recipe.ID,
 					"scale":       factor,
 					"added":       added,
+					"would_add":   wouldAdd,
 					"would_write": dryRun,
 				})
 			}

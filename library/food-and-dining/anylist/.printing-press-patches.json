@@ -139,6 +139,19 @@
         "internal/cli/root_test.go"
       ],
       "validated_outcome": "Added regressions for MCP false flag forwarding and invalid explicit date ranges in meal add-to-list and meal show."
+    },
+    {
+      "id": "review-cache-permissions-and-meal-dry-run-counts",
+      "summary": "Made HTTP cache files private and reported dry-run meal ingredient counts.",
+      "reason": "Greptile noted that cached AnyList responses were world-readable and that meal add-to-list dry-run JSON hid per-recipe ingredient counts.",
+      "files": [
+        "internal/client/client.go",
+        "internal/client/client_test.go",
+        "internal/cli/meal_add-to-list.go",
+        "internal/cli/recipes_to_list.go",
+        "internal/cli/root_test.go"
+      ],
+      "validated_outcome": "Added regressions for cache directory/file permissions and dry-run would_add counts."
     }
   ]
 }

@@ -158,6 +158,13 @@ func TestMealAddToListDryRunResolvesRecipesByEventID(t *testing.T) {
 		VALUES ('event-1', 'calendar-1', '2026-05-18', 'Unrelated title', '', 'recipe-1', '', 1, 1.0)`); err != nil {
 		t.Fatalf("insert meal event: %v", err)
 	}
+	if _, err := st.DB().Exec(`INSERT INTO ingredients
+		(id, recipe_id, raw_ingredient, name, quantity, sort_index)
+		VALUES
+		('ingredient-1', 'recipe-1', '1 cup flour', 'Flour', '1 cup', 1),
+		('ingredient-2', 'recipe-1', '2 eggs', 'Eggs', '2', 2)`); err != nil {
+		t.Fatalf("insert ingredients: %v", err)
+	}
 
 	flags := &rootFlags{asJSON: true, configPath: configPath}
 	cmd := newMealAddToListCmd(flags)
@@ -182,6 +189,9 @@ func TestMealAddToListDryRunResolvesRecipesByEventID(t *testing.T) {
 	}
 	if got, ok := payload.Recipes[0]["would_write"].(bool); !ok || !got {
 		t.Fatalf("would_write = %#v, want true during dry run", payload.Recipes[0]["would_write"])
+	}
+	if got, ok := payload.Recipes[0]["would_add"].(float64); !ok || got != 2 {
+		t.Fatalf("would_add = %#v, want 2 during dry run", payload.Recipes[0]["would_add"])
 	}
 }
 

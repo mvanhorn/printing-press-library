@@ -82,3 +82,24 @@ func addRecipeRowIngredientsToList(ctx context.Context, cfg *config.Config, st *
 	}
 	return added, nil
 }
+
+func countRecipeIngredients(st *store.Store, recipe *store.RecipeRow) (int, error) {
+	if recipe == nil {
+		return 0, fmt.Errorf("recipe not found")
+	}
+	ingredients, err := st.GetIngredients(recipe.ID)
+	if err != nil {
+		return 0, fmt.Errorf("reading ingredients for %q: %w", recipe.Name, err)
+	}
+	count := 0
+	for _, ing := range ingredients {
+		name := ing.Name
+		if name == "" {
+			name = ing.RawIngredient
+		}
+		if name != "" {
+			count++
+		}
+	}
+	return count, nil
+}

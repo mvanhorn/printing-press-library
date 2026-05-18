@@ -6,9 +6,12 @@ package client
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -102,5 +105,32 @@ func TestClientDoUsesRequestContext(t *testing.T) {
 	case <-called:
 		t.Fatal("server was called despite canceled request context")
 	default:
+	}
+}
+
+func TestWriteCacheUsesPrivatePermissions(t *testing.T) {
+	t.Parallel()
+
+	cacheDir := filepath.Join(t.TempDir(), "http-cache")
+	c := New(&config.Config{BaseURL: "https://example.test"}, time.Second, 0)
+	c.cacheDir = cacheDir
+
+	c.writeCache("/lists", map[string]string{"q": "groceries"}, json.RawMessage(`{"ok":true}`))
+
+	dirInfo, err := os.Stat(cacheDir)
+	if err != nil {
+		t.Fatalf("stat cache dir: %v", err)
+	}
+	if got := dirInfo.Mode().Perm(); got != 0o700 {
+		t.Fatalf("cache dir mode = %o, want 700", got)
+	}
+
+	cacheFile := filepath.Join(cacheDir, c.cacheKey("/lists", map[string]string{"q": "groceries"})+".json")
+	fileInfo, err := os.Stat(cacheFile)
+	if err != nil {
+		t.Fatalf("stat cache file: %v", err)
+	}
+	if got := fileInfo.Mode().Perm(); got != 0o600 {
+		t.Fatalf("cache file mode = %o, want 600", got)
 	}
 }
