@@ -40,7 +40,11 @@ type Leg struct {
 	ArrivalTime      string  `json:"arrival_time"`
 	DurationMinutes  int     `json:"duration"`
 	Airline          Airline `json:"airline"`
-	FlightNumber     string  `json:"flight_number"`
+	// PATCH: aircraft type, seat type, and amenities fields
+	FlightNumber     string   `json:"flight_number"`
+	AircraftType     string   `json:"aircraft_type,omitempty"`
+	SeatType         string   `json:"seat_type,omitempty"`
+	Amenities        []string `json:"amenities,omitempty"`
 }
 
 // Flight is one itinerary (possibly multi-leg).

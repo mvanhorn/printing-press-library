@@ -1,0 +1,51 @@
+version: 2
+project_name: numista-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: numista-pp-cli
+    main: ./cmd/numista-pp-cli
+    binary: numista-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/other/numista/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: numista-pp-mcp
+    main: ./cmd/numista-pp-mcp
+    binary: numista-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: numista-pp-cli
+    repository:
+      owner: vinny-pasceri
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every Numista catalogue and collection feature, with offline FTS5 search and a monthly-quota tracker no Numista SDK has."
+    install: |
+      bin.install "numista-pp-cli"
+      bin.install "numista-pp-mcp"

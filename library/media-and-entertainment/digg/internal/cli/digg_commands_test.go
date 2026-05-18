@@ -383,3 +383,32 @@ func TestSearchSince_HelpMentionsFlag(t *testing.T) {
 		}
 	}
 }
+
+func TestSearchSelectFiltersResultsEnvelope(t *testing.T) {
+	srv := startMockSearchServer(t, cannedStories())
+	stdout, _, err := runSearchCmd(
+		t,
+		srv.URL,
+		"agents",
+		"--select",
+		"clusterUrlId,title,rank,postCount,uniqueAuthors,firstPostAge",
+	)
+	if err != nil {
+		t.Fatalf("search --select: %v", err)
+	}
+
+	var env searchEnvelopeForTest
+	if err := json.Unmarshal([]byte(stdout), &env); err != nil {
+		t.Fatalf("invalid JSON: %v\n%s", err, stdout)
+	}
+	if len(env.Results) == 0 {
+		t.Fatalf("expected selected results, got: %s", stdout)
+	}
+	first := env.Results[0]
+	if first.ClusterURLID == "" || first.Title == "" || first.Rank == 0 || first.PostCount == 0 || first.UniqueAuthors == 0 || first.FirstPostAge == "" {
+		t.Fatalf("selected result missing requested fields: %+v", first)
+	}
+	if first.ClusterID != "" {
+		t.Fatalf("unrequested clusterId should be omitted, got %q", first.ClusterID)
+	}
+}

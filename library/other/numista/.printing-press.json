@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-17T10:12:58.736386Z",
+  "printing_press_version": "4.8.0",
+  "api_name": "numista",
+  "display_name": "Numista Documentation",
+  "cli_name": "numista-pp-cli",
+  "owner": "vinny-pasceri",
+  "printer": "vinnyp",
+  "printer_name": "Vinny Pasceri",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:d094678e8b860e87fa4c5bbfe3c7d4ba691961b52dbe39d51197bee548d236f3",
+  "run_id": "20260517-033846",
+  "mcp_binary": "numista-pp-mcp",
+  "mcp_tool_count": 17,
+  "mcp_ready": "full",
+  "api_version": "3.31.1",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "NUMISTA_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Monthly quota tracker with short-circuit",
+      "command": "--quota",
+      "description": "Print the current month's used/remaining/reset Numista quota and exit, with zero API calls."
+    },
+    {
+      "name": "Lookup-log audit",
+      "command": "audit",
+      "description": "Query the local lookup_log directly to see every API call, its endpoint, duration, and cache-hit status — aggregated by day, endpoint, or type ID."
+    },
+    {
+      "name": "Quota-aware batch lookup",
+      "command": "types batch",
+      "description": "Parse a CSV / JSONL / text list of Numista type IDs (N# numbers) and look up each one against the API — with cache reuse, --dry-run cost forecast, and --resumable splitting across UTC months."
+    },
+    {
+      "name": "Series scan",
+      "command": "types series",
+      "description": "For one type (e.g., N#11013 — Australia 3 pence George VI), pull every year-of-issue, every issue's prices across all grades, and persist the full price/mintage curve to the local store — then print the scarcity and price-evolution table."
+    },
+    {
+      "name": "Collection valuation",
+      "command": "collection value",
+      "description": "Sum the current estimated value of every item in a user's Numista collection, fetching missing prices on demand, and emit a per-item breakdown sorted by value."
+    },
+    {
+      "name": "Stale-price refresh",
+      "command": "refresh",
+      "description": "Refresh cached types by re-fetching only fields that actually change (prices, mintage) while leaving cataloger-set identity fields untouched. --dry-run --older 30d lists what needs refresh without spending a call."
+    },
+    {
+      "name": "Issuer-scoped crawl",
+      "command": "crawl issuer",
+      "description": "Crawl every type from one issuer (e.g., 'australia') matching a year range, persist to local store, and print a summary table. Forecasts call cost as %-of-monthly-quota and requires confirmation before crawling."
+    },
+    {
+      "name": "Watchlist",
+      "command": "watchlist",
+      "description": "Track price changes for a set of types over time. `watchlist add N#` registers a type; `watchlist check` refreshes prices, snapshots them to the prices table with a timestamp, and prints the diff since the last snapshot."
+    },
+    {
+      "name": "Bulk collection import",
+      "command": "users collected-items add --from-file",
+      "description": "Import a list of new collected items from CSV / JSONL with --dry-run cost forecast. Idempotent on (user_id, type_id, issue_id, grade) so re-running the same file is safe."
+    },
+    {
+      "name": "Collection-folder hydrate",
+      "command": "users collections hydrate",
+      "description": "Given a collection-folder-id, fan out get-item for every item, optionally fan out get-prices, and persist everything to the local store. Refuses to start when remaining quota is less than the item count."
+    }
+  ]
+}
