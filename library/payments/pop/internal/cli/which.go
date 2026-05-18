@@ -31,10 +31,10 @@ var whichIndex = []whichEntry{
 	{Command: "create-ubl invoice", Description: "Generate a PEPPOL BIS / UBL invoice and optionally submit it through\nPOP's PEPPOL integration.", Group: "create-ubl"},
 	{Command: "create-xml invoice", Description: "Generate an Italian FatturaPA XML document and optionally submit it to\nSdI. The `data` object must follow POP's invoice structure.", Group: "create-xml"},
 	{Command: "peppol get-document", Description: "Retrieve a PEPPOL document from POP by UUID and optional zone.", Group: "peppol"},
-	{Command: "sdi-via-pop get-invoice-status", Description: "Read POP's recorded SdI notifications for a submitted invoice UUID.", Group: "sdi-via-pop"},
-	{Command: "sdi-via-pop get-sdi-document", Description: "Retrieve a stored SdI document by UUID.", Group: "sdi-via-pop"},
-	{Command: "sdi-via-pop preserve-sdi-document", Description: "Archive an accepted SdI document in POP's long-term storage.", Group: "sdi-via-pop"},
-	{Command: "sdi-via-pop verify-sdi-document", Description: "Validate a Base64-encoded SdI XML document before submission.", Group: "sdi-via-pop"},
+	{Command: "sdi get-invoice-status", Description: "Read POP's recorded SdI notifications for a submitted invoice UUID.", Group: "sdi"},
+	{Command: "sdi get-sdi-document", Description: "Retrieve a stored SdI document by UUID.", Group: "sdi"},
+	{Command: "sdi preserve-sdi-document", Description: "Archive an accepted SdI document in POP's long-term storage.", Group: "sdi"},
+	{Command: "sdi verify-sdi-document", Description: "Validate a Base64-encoded SdI XML document before submission.", Group: "sdi"},
 }
 
 // whichMatch pairs an index entry with its ranking score for a query.

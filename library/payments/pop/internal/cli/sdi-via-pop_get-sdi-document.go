@@ -20,8 +20,8 @@ func newSdiViaPopGetSdiDocumentCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "get-sdi-document",
 		Short:       "Retrieve a stored SdI document by UUID.",
-		Example:     "  pop-pp-cli sdi-via-pop get-sdi-document",
-		Annotations: map[string]string{"pp:endpoint": "sdi-via-pop.get-sdi-document", "pp:method": "POST", "pp:path": "/sdi-via-pop/document-get"},
+		Example:     "  pop-pp-cli sdi get-sdi-document",
+		Annotations: map[string]string{"pp:endpoint": "sdi.get-sdi-document", "pp:method": "POST", "pp:path": "/sdi-via-pop/document-get"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
 				if !cmd.Flags().Changed("integration-uuid") && !flags.dryRun {
@@ -77,7 +77,7 @@ func newSdiViaPopGetSdiDocumentCmd(flags *rootFlags) *cobra.Command {
 			if !flags.dryRun && statusCode >= 200 && statusCode < 300 {
 				partialFailure = detectPartialFailure(data)
 				if partialFailure != nil {
-					fmt.Fprintf(os.Stderr, "warning: partial failure detected in %s response: %s\n", "sdi-via-pop", partialFailure.Message)
+					fmt.Fprintf(os.Stderr, "warning: partial failure detected in %s response: %s\n", "sdi", partialFailure.Message)
 					if len(partialFailure.ResourceNames) > 0 {
 						fmt.Fprintf(os.Stderr, "         succeeded: %d operation(s)\n", len(partialFailure.ResourceNames))
 					}
@@ -91,7 +91,7 @@ func newSdiViaPopGetSdiDocumentCmd(flags *rootFlags) *cobra.Command {
 						fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)
 					} else {
 						if partialFailure != nil && !flags.allowPartialFailure {
-							return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "sdi-via-pop", partialFailure.Message))
+							return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "sdi", partialFailure.Message))
 						}
 						return nil
 					}
@@ -104,7 +104,7 @@ func newSdiViaPopGetSdiDocumentCmd(flags *rootFlags) *cobra.Command {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)
 						} else {
 							if partialFailure != nil && !flags.allowPartialFailure {
-								return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "sdi-via-pop", partialFailure.Message))
+								return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "sdi", partialFailure.Message))
 							}
 							return nil
 						}
@@ -114,7 +114,7 @@ func newSdiViaPopGetSdiDocumentCmd(flags *rootFlags) *cobra.Command {
 			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				if flags.quiet {
 					if partialFailure != nil && !flags.allowPartialFailure {
-						return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "sdi-via-pop", partialFailure.Message))
+						return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "sdi", partialFailure.Message))
 					}
 					return nil
 				}
@@ -130,7 +130,7 @@ func newSdiViaPopGetSdiDocumentCmd(flags *rootFlags) *cobra.Command {
 				}
 				envelope := map[string]any{
 					"action":   "post",
-					"resource": "sdi-via-pop",
+					"resource": "sdi",
 					"path":     path,
 					"status":   statusCode,
 					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
@@ -157,7 +157,7 @@ func newSdiViaPopGetSdiDocumentCmd(flags *rootFlags) *cobra.Command {
 					return perr
 				}
 				if partialFailure != nil && !flags.allowPartialFailure {
-					return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "sdi-via-pop", partialFailure.Message))
+					return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "sdi", partialFailure.Message))
 				}
 				return nil
 			}
@@ -172,7 +172,7 @@ func newSdiViaPopGetSdiDocumentCmd(flags *rootFlags) *cobra.Command {
 				return perr
 			}
 			if partialFailure != nil && !flags.allowPartialFailure {
-				return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "sdi-via-pop", partialFailure.Message))
+				return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "sdi", partialFailure.Message))
 			}
 			return nil
 		},

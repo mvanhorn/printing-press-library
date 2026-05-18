@@ -1,7 +1,7 @@
 {
   "api_name": "pop",
   "base_url": "https://popapi.io/wp-json/api/v2",
-  "description": "POP API for European electronic invoicing workflows.\n\nThis Printing Press blueprint intentionally exposes only the documented\n8-operation surface used by the POP MCP README:\n\n  - create-xml\n  - create-ubl\n  - create-pdf\n  - sdi-via-pop/document-notifications\n  - peppol/document-get\n  - sdi-via-pop/document-get\n  - sdi-via-pop/document-verify\n  - sdi-via-pop/document-preserve\n\nThe `data` payloads are intentionally modeled as free-form JSON objects so\nthe CLI can pass through the full POP invoice structure without freezing a\nbrittle nested schema in this catalog spec.",
+  "description": "POP API for European electronic invoicing workflows.\n\nThis Printing Press blueprint intentionally exposes only the documented\n8-operation surface used by the POP MCP README at\ngetpopapi/pop-mcp@07a4a19ad5e657fa94d16fe617b8288e5046c489:\n\n  - create-xml\n  - create-ubl\n  - create-pdf\n  - sdi-via-pop/document-notifications\n  - peppol/document-get\n  - sdi-via-pop/document-get\n  - sdi-via-pop/document-verify\n  - sdi-via-pop/document-preserve\n\nThe `data` payloads are intentionally modeled as free-form JSON objects so\nthe CLI can pass through the full POP invoice structure without freezing a\nbrittle nested schema in this catalog spec.\n\nUpstream POP MCP changes should be reviewed periodically and intentionally\nsynced into this print when the documented public surface evolves.",
   "mcp_ready": "full",
   "http_transport": "standard",
   "auth": {

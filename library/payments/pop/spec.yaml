@@ -6,7 +6,8 @@ info:
     POP API for European electronic invoicing workflows.
 
     This Printing Press blueprint intentionally exposes only the documented
-    8-operation surface used by the POP MCP README:
+    8-operation surface used by the POP MCP README at
+    getpopapi/pop-mcp@07a4a19ad5e657fa94d16fe617b8288e5046c489:
 
       - create-xml
       - create-ubl
@@ -20,6 +21,9 @@ info:
     The `data` payloads are intentionally modeled as free-form JSON objects so
     the CLI can pass through the full POP invoice structure without freezing a
     brittle nested schema in this catalog spec.
+    
+    Upstream POP MCP changes should be reviewed periodically and intentionally
+    synced into this print when the documented public surface evolves.
 servers:
   - url: https://popapi.io/wp-json/api/v2
     description: Production

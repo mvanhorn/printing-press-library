@@ -108,7 +108,7 @@ func tailKnownResources() []string {
 		"create-ubl",
 		"create-xml",
 		"peppol",
-		"sdi-via-pop",
+		"sdi",
 	}
 }
 

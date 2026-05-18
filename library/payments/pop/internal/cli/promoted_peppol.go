@@ -12,14 +12,26 @@ import (
 )
 
 func newPeppolPromotedCmd(flags *rootFlags) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "peppol",
+		Short: "Manage PEPPOL document workflows",
+		Long:  "Manage POP-backed PEPPOL document retrieval commands.",
+		RunE:  parentNoSubcommandRunE(flags),
+	}
+	cmd.AddCommand(newPeppolGetDocumentCmd(flags))
+	return cmd
+}
+
+func newPeppolGetDocumentCmd(flags *rootFlags) *cobra.Command {
 	var bodyIntegrationUuid string
 	var bodyIntegrationZone string
 
 	cmd := &cobra.Command{
-		Use:         "peppol",
+		Use:         "get-document",
+		Aliases:     []string{"document"},
 		Short:       "Retrieve a PEPPOL document from POP by UUID and optional zone.",
-		Long:        "Shortcut for 'peppol get-document'. Retrieve a PEPPOL document from POP by UUID and optional zone.",
-		Example:     "  pop-pp-cli peppol",
+		Long:        "Retrieve a PEPPOL document from POP by UUID and optional zone.",
+		Example:     "  pop-pp-cli peppol get-document",
 		Annotations: map[string]string{"pp:endpoint": "peppol.get-document", "pp:method": "POST", "pp:path": "/peppol/document-get"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("integration-uuid") && !flags.dryRun {
@@ -71,8 +83,6 @@ func newPeppolPromotedCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&bodyIntegrationUuid, "integration-uuid", "", "Uuid")
 	cmd.Flags().StringVar(&bodyIntegrationZone, "integration-zone", "", "Optional PEPPOL access-point country code.")
-
-	// Wire sibling endpoints and sub-resources as subcommands
 
 	return cmd
 }

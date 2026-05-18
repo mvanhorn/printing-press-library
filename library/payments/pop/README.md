@@ -3,7 +3,8 @@
 POP API for European electronic invoicing workflows.
 
 This Printing Press blueprint intentionally exposes only the documented
-8-operation surface used by the POP MCP README:
+8-operation surface used by the POP MCP README at
+`getpopapi/pop-mcp@07a4a19ad5e657fa94d16fe617b8288e5046c489`:
 
   - create-xml
   - create-ubl
@@ -17,6 +18,9 @@ This Printing Press blueprint intentionally exposes only the documented
 The `data` payloads are intentionally modeled as free-form JSON objects so
 the CLI can pass through the full POP invoice structure without freezing a
 brittle nested schema in this catalog spec.
+
+Upstream POP MCP changes should be reviewed periodically and intentionally
+synced into this print when the documented public surface evolves.
 
 Learn more at [Pop](https://popapi.io/en/).
 
@@ -184,18 +188,18 @@ SdI. The `data` object must follow POP's invoice structure.
 
 ### peppol
 
-Manage peppol
+Manage PEPPOL document workflows
 
-- **`pop-pp-cli peppol`** - Retrieve a PEPPOL document from POP by UUID and optional zone.
+- **`pop-pp-cli peppol get-document`** - Retrieve a PEPPOL document from POP by UUID and optional zone.
 
-### sdi-via-pop
+### sdi
 
-Manage sdi via pop
+Manage SdI document workflows
 
-- **`pop-pp-cli sdi-via-pop get-invoice-status`** - Read POP's recorded SdI notifications for a submitted invoice UUID.
-- **`pop-pp-cli sdi-via-pop get-sdi-document`** - Retrieve a stored SdI document by UUID.
-- **`pop-pp-cli sdi-via-pop preserve-sdi-document`** - Archive an accepted SdI document in POP's long-term storage.
-- **`pop-pp-cli sdi-via-pop verify-sdi-document`** - Validate a Base64-encoded SdI XML document before submission.
+- **`pop-pp-cli sdi get-invoice-status`** - Read POP's recorded SdI notifications for a submitted invoice UUID.
+- **`pop-pp-cli sdi get-sdi-document`** - Retrieve a stored SdI document by UUID.
+- **`pop-pp-cli sdi preserve-sdi-document`** - Archive an accepted SdI document in POP's long-term storage.
+- **`pop-pp-cli sdi verify-sdi-document`** - Validate a Base64-encoded SdI XML document before submission.
 
 
 ## Output Formats

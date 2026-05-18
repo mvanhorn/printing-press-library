@@ -9,10 +9,10 @@ import (
 
 func newSdiViaPopCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:    "sdi-via-pop",
-		Short:  "Manage sdi via pop",
-		Hidden: true,
-		RunE:   parentNoSubcommandRunE(flags),
+		Use:   "sdi",
+		Short: "Manage SdI document workflows",
+		Long:  "Manage POP-backed SdI document status, retrieval, validation, and preservation.",
+		RunE:  parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newSdiViaPopGetInvoiceStatusCmd(flags))

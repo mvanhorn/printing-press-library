@@ -397,13 +397,13 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			},
 			{
 				"name":        "peppol",
-				"description": "Manage peppol",
+				"description": "Manage PEPPOL document retrieval",
 				"endpoints":   []string{"get-document"},
 				"searchable":  true,
 			},
 			{
-				"name":        "sdi-via-pop",
-				"description": "Manage sdi via pop",
+				"name":        "sdi",
+				"description": "Manage SdI status, retrieval, validation, and preservation",
 				"endpoints":   []string{"get-invoice-status", "get-sdi-document", "preserve-sdi-document", "verify-sdi-document"},
 				"searchable":  true,
 			},
