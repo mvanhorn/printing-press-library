@@ -1,0 +1,1868 @@
+Live Dogfood Report: sendgrid-pp-cli
+================================
+
+Level:      full
+Verdict:    FAIL
+Commands:   413
+Tests:      832 passed, 42 failed, 984 skipped
+
+[PASS] access-settings add-ip-to-allow-list help
+[PASS] access-settings add-ip-to-allow-list happy_path
+[PASS] access-settings add-ip-to-allow-list json_fidelity
+[SKIP] access-settings add-ip-to-allow-list error_path: no positional argument
+[SKIP] access-settings add-ip-to-allow-list error_path_real: mutating command dry-run only
+[PASS] access-settings delete-allowed-ip help
+[SKIP] access-settings delete-allowed-ip happy_path: no list companion at depth 0 for "rule_id"
+[SKIP] access-settings delete-allowed-ip json_fidelity: no list companion at depth 0 for "rule_id"
+[SKIP] access-settings delete-allowed-ip error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] access-settings delete-allowed-ip error_path_real: no list companion at depth 0 for "rule_id"
+[PASS] access-settings delete-allowed-ips help
+[PASS] access-settings delete-allowed-ips happy_path
+[PASS] access-settings delete-allowed-ips json_fidelity
+[SKIP] access-settings delete-allowed-ips error_path: no positional argument
+[SKIP] access-settings delete-allowed-ips error_path_real: mutating command dry-run only
+[PASS] access-settings get-allowed-ip help
+[SKIP] access-settings get-allowed-ip happy_path: no list companion at depth 0 for "rule_id"
+[SKIP] access-settings get-allowed-ip json_fidelity: no list companion at depth 0 for "rule_id"
+[PASS] access-settings get-allowed-ip error_path
+[PASS] access-settings list-access-activity help
+[PASS] access-settings list-access-activity happy_path
+[PASS] access-settings list-access-activity json_fidelity
+[SKIP] access-settings list-access-activity error_path: no positional argument
+[PASS] access-settings list-allowed-ip help
+[PASS] access-settings list-allowed-ip happy_path
+[PASS] access-settings list-allowed-ip json_fidelity
+[SKIP] access-settings list-allowed-ip error_path: no positional argument
+[PASS] activity tail help
+[FAIL] activity tail happy_path: exit -1
+[FAIL] activity tail json_fidelity: exit -1
+[SKIP] activity tail error_path: no positional argument
+[PASS] alerts create help
+[PASS] alerts create happy_path
+[PASS] alerts create json_fidelity
+[SKIP] alerts create error_path: no positional argument
+[SKIP] alerts create error_path_real: mutating command dry-run only
+[PASS] alerts delete help
+[PASS] alerts delete happy_path
+[PASS] alerts delete json_fidelity
+[SKIP] alerts delete error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] alerts delete error_path_real: mutating command dry-run only
+[PASS] alerts get help
+[PASS] alerts get happy_path
+[PASS] alerts get json_fidelity
+[PASS] alerts get error_path
+[PASS] alerts list help
+[PASS] alerts list happy_path
+[PASS] alerts list json_fidelity
+[SKIP] alerts list error_path: no positional argument
+[PASS] alerts update help
+[PASS] alerts update happy_path
+[PASS] alerts update json_fidelity
+[SKIP] alerts update error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] alerts update error_path_real: mutating command dry-run only
+[PASS] analytics help
+[PASS] analytics happy_path
+[PASS] analytics json_fidelity
+[SKIP] analytics error_path: no positional argument
+[PASS] api help
+[SKIP] api happy_path: command path [api] has fewer segments than placeholders (1)
+[SKIP] api json_fidelity: command path [api] has fewer segments than placeholders (1)
+[PASS] api error_path
+[PASS] api-keys create help
+[PASS] api-keys create happy_path
+[PASS] api-keys create json_fidelity
+[SKIP] api-keys create error_path: no positional argument
+[SKIP] api-keys create error_path_real: mutating command dry-run only
+[SKIP] api-keys delete help: destructive-at-auth
+[SKIP] api-keys delete happy_path: destructive-at-auth
+[SKIP] api-keys delete json_fidelity: destructive-at-auth
+[SKIP] api-keys delete error_path: destructive-at-auth
+[PASS] api-keys get help
+[SKIP] api-keys get happy_path: no id parseable from companion at depth 0
+[SKIP] api-keys get json_fidelity: no id parseable from companion at depth 0
+[PASS] api-keys get error_path
+[PASS] api-keys list help
+[PASS] api-keys list happy_path
+[PASS] api-keys list json_fidelity
+[SKIP] api-keys list error_path: no positional argument
+[PASS] api-keys update help
+[SKIP] api-keys update happy_path: list companion previously failed at depth 0 for "api_key_id"
+[SKIP] api-keys update json_fidelity: list companion previously failed at depth 0 for "api_key_id"
+[SKIP] api-keys update error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] api-keys update error_path_real: list companion previously failed at depth 0 for "api_key_id"
+[PASS] api-keys update-name help
+[SKIP] api-keys update-name happy_path: list companion previously failed at depth 0 for "api_key_id"
+[SKIP] api-keys update-name json_fidelity: list companion previously failed at depth 0 for "api_key_id"
+[SKIP] api-keys update-name error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] api-keys update-name error_path_real: list companion previously failed at depth 0 for "api_key_id"
+[PASS] asm add-suppression-to-group help
+[SKIP] asm add-suppression-to-group happy_path: no list companion at depth 0 for "group_id"
+[SKIP] asm add-suppression-to-group json_fidelity: no list companion at depth 0 for "group_id"
+[SKIP] asm add-suppression-to-group error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] asm add-suppression-to-group error_path_real: no list companion at depth 0 for "group_id"
+[PASS] asm creat-group help
+[PASS] asm creat-group happy_path
+[PASS] asm creat-group json_fidelity
+[SKIP] asm creat-group error_path: no positional argument
+[SKIP] asm creat-group error_path_real: mutating command dry-run only
+[PASS] asm create-global-suppression help
+[PASS] asm create-global-suppression happy_path
+[PASS] asm create-global-suppression json_fidelity
+[SKIP] asm create-global-suppression error_path: no positional argument
+[SKIP] asm create-global-suppression error_path_real: mutating command dry-run only
+[PASS] asm delete-global-suppression help
+[SKIP] asm delete-global-suppression happy_path: non-id positional "email" at depth 0
+[SKIP] asm delete-global-suppression json_fidelity: non-id positional "email" at depth 0
+[SKIP] asm delete-global-suppression error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] asm delete-global-suppression error_path_real: non-id positional "email" at depth 0
+[PASS] asm delete-group help
+[SKIP] asm delete-group happy_path: no list companion at depth 0 for "group_id"
+[SKIP] asm delete-group json_fidelity: no list companion at depth 0 for "group_id"
+[SKIP] asm delete-group error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] asm delete-group error_path_real: no list companion at depth 0 for "group_id"
+[PASS] asm delete-suppression-from-group help
+[SKIP] asm delete-suppression-from-group happy_path: command path [asm delete-suppression-from-group] has fewer segments than placeholders (2)
+[SKIP] asm delete-suppression-from-group json_fidelity: command path [asm delete-suppression-from-group] has fewer segments than placeholders (2)
+[SKIP] asm delete-suppression-from-group error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] asm delete-suppression-from-group error_path_real: command path [asm delete-suppression-from-group] has fewer segments than placeholders (2)
+[PASS] asm get-global-suppression help
+[SKIP] asm get-global-suppression happy_path: non-id positional "email" at depth 0
+[SKIP] asm get-global-suppression json_fidelity: non-id positional "email" at depth 0
+[FAIL] asm get-global-suppression error_path: expected non-zero exit for invalid argument
+[PASS] asm get-group help
+[SKIP] asm get-group happy_path: no list companion at depth 0 for "group_id"
+[SKIP] asm get-group json_fidelity: no list companion at depth 0 for "group_id"
+[PASS] asm get-group error_path
+[PASS] asm get-suppression help
+[SKIP] asm get-suppression happy_path: non-id positional "email" at depth 0
+[SKIP] asm get-suppression json_fidelity: non-id positional "email" at depth 0
+[FAIL] asm get-suppression error_path: expected non-zero exit for invalid argument
+[PASS] asm list-group help
+[PASS] asm list-group happy_path
+[PASS] asm list-group json_fidelity
+[SKIP] asm list-group error_path: no positional argument
+[PASS] asm list-suppression help
+[PASS] asm list-suppression happy_path
+[PASS] asm list-suppression json_fidelity
+[SKIP] asm list-suppression error_path: no positional argument
+[PASS] asm list-suppression-from-group help
+[SKIP] asm list-suppression-from-group happy_path: no list companion at depth 0 for "group_id"
+[SKIP] asm list-suppression-from-group json_fidelity: no list companion at depth 0 for "group_id"
+[PASS] asm list-suppression-from-group error_path
+[PASS] asm search-suppression-from-group help
+[SKIP] asm search-suppression-from-group happy_path: no list companion at depth 0 for "group_id"
+[SKIP] asm search-suppression-from-group json_fidelity: no list companion at depth 0 for "group_id"
+[SKIP] asm search-suppression-from-group error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] asm search-suppression-from-group error_path_real: no list companion at depth 0 for "group_id"
+[PASS] asm update-group help
+[SKIP] asm update-group happy_path: no list companion at depth 0 for "group_id"
+[SKIP] asm update-group json_fidelity: no list companion at depth 0 for "group_id"
+[SKIP] asm update-group error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] asm update-group error_path_real: no list companion at depth 0 for "group_id"
+[PASS] bounce why help
+[SKIP] bounce why happy_path: non-id positional "email" at depth 0
+[SKIP] bounce why json_fidelity: non-id positional "email" at depth 0
+[FAIL] bounce why error_path: expected non-zero exit for invalid argument
+[PASS] browsers help
+[PASS] browsers happy_path
+[PASS] browsers json_fidelity
+[SKIP] browsers error_path: no positional argument
+[PASS] campaigns create help
+[PASS] campaigns create happy_path
+[PASS] campaigns create json_fidelity
+[SKIP] campaigns create error_path: no positional argument
+[SKIP] campaigns create error_path_real: mutating command dry-run only
+[PASS] campaigns delete help
+[SKIP] campaigns delete happy_path: list companion failed at depth 0: exit 4
+[SKIP] campaigns delete json_fidelity: list companion failed at depth 0: exit 4
+[SKIP] campaigns delete error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] campaigns delete error_path_real: list companion failed at depth 0: exit 4
+[PASS] campaigns get help
+[SKIP] campaigns get happy_path: list companion previously failed at depth 0 for "campaign_id"
+[SKIP] campaigns get json_fidelity: list companion previously failed at depth 0 for "campaign_id"
+[PASS] campaigns get error_path
+[PASS] campaigns list help
+[FAIL] campaigns list happy_path: exit 4
+[FAIL] campaigns list json_fidelity: exit 4
+[SKIP] campaigns list error_path: no positional argument
+[PASS] campaigns schedules campaign help
+[SKIP] campaigns schedules campaign happy_path: no list companion at depth 0 for "campaign_id"
+[SKIP] campaigns schedules campaign json_fidelity: no list companion at depth 0 for "campaign_id"
+[SKIP] campaigns schedules campaign error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] campaigns schedules campaign error_path_real: no list companion at depth 0 for "campaign_id"
+[PASS] campaigns schedules get-scheduled-campaign help
+[SKIP] campaigns schedules get-scheduled-campaign happy_path: no list companion at depth 0 for "campaign_id"
+[SKIP] campaigns schedules get-scheduled-campaign json_fidelity: no list companion at depth 0 for "campaign_id"
+[PASS] campaigns schedules get-scheduled-campaign error_path
+[PASS] campaigns schedules send-campaign help
+[SKIP] campaigns schedules send-campaign happy_path: no list companion at depth 0 for "campaign_id"
+[SKIP] campaigns schedules send-campaign json_fidelity: no list companion at depth 0 for "campaign_id"
+[SKIP] campaigns schedules send-campaign error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] campaigns schedules send-campaign error_path_real: no list companion at depth 0 for "campaign_id"
+[PASS] campaigns schedules send-test-campaign help
+[SKIP] campaigns schedules send-test-campaign happy_path: no list companion at depth 0 for "campaign_id"
+[SKIP] campaigns schedules send-test-campaign json_fidelity: no list companion at depth 0 for "campaign_id"
+[SKIP] campaigns schedules send-test-campaign error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] campaigns schedules send-test-campaign error_path_real: no list companion at depth 0 for "campaign_id"
+[PASS] campaigns schedules un-campaign help
+[SKIP] campaigns schedules un-campaign happy_path: no list companion at depth 0 for "campaign_id"
+[SKIP] campaigns schedules un-campaign json_fidelity: no list companion at depth 0 for "campaign_id"
+[SKIP] campaigns schedules un-campaign error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] campaigns schedules un-campaign error_path_real: no list companion at depth 0 for "campaign_id"
+[PASS] campaigns schedules update-scheduled-campaign help
+[SKIP] campaigns schedules update-scheduled-campaign happy_path: no list companion at depth 0 for "campaign_id"
+[SKIP] campaigns schedules update-scheduled-campaign json_fidelity: no list companion at depth 0 for "campaign_id"
+[SKIP] campaigns schedules update-scheduled-campaign error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] campaigns schedules update-scheduled-campaign error_path_real: no list companion at depth 0 for "campaign_id"
+[PASS] campaigns update help
+[SKIP] campaigns update happy_path: list companion previously failed at depth 0 for "campaign_id"
+[SKIP] campaigns update json_fidelity: list companion previously failed at depth 0 for "campaign_id"
+[SKIP] campaigns update error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] campaigns update error_path_real: list companion previously failed at depth 0 for "campaign_id"
+[PASS] categories list-category help
+[PASS] categories list-category happy_path
+[PASS] categories list-category json_fidelity
+[SKIP] categories list-category error_path: no positional argument
+[PASS] categories list-category-stat help
+[FAIL] categories list-category-stat happy_path: exit 3
+[FAIL] categories list-category-stat json_fidelity: exit 3
+[SKIP] categories list-category-stat error_path: no positional argument
+[PASS] categories list-category-stat-sum help
+[PASS] categories list-category-stat-sum happy_path
+[PASS] categories list-category-stat-sum json_fidelity
+[SKIP] categories list-category-stat-sum error_path: no positional argument
+[PASS] clients stats get-client help
+[PASS] clients stats get-client happy_path
+[PASS] clients stats get-client json_fidelity
+[SKIP] clients stats get-client error_path: no positional argument
+[PASS] contactdb add-recipient help
+[PASS] contactdb add-recipient happy_path
+[PASS] contactdb add-recipient json_fidelity
+[SKIP] contactdb add-recipient error_path: no positional argument
+[SKIP] contactdb add-recipient error_path_real: mutating command dry-run only
+[PASS] contactdb add-recipient-to-contact-db-list help
+[SKIP] contactdb add-recipient-to-contact-db-list happy_path: command path [contactdb add-recipient-to-contact-db-list] has fewer segments than placeholders (2)
+[SKIP] contactdb add-recipient-to-contact-db-list json_fidelity: command path [contactdb add-recipient-to-contact-db-list] has fewer segments than placeholders (2)
+[SKIP] contactdb add-recipient-to-contact-db-list error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] contactdb add-recipient-to-contact-db-list error_path_real: command path [contactdb add-recipient-to-contact-db-list] has fewer segments than placeholders (2)
+[PASS] contactdb add-recipients-to-contact-db-list help
+[SKIP] contactdb add-recipients-to-contact-db-list happy_path: no list companion at depth 0 for "list_id"
+[SKIP] contactdb add-recipients-to-contact-db-list json_fidelity: no list companion at depth 0 for "list_id"
+[SKIP] contactdb add-recipients-to-contact-db-list error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] contactdb add-recipients-to-contact-db-list error_path_real: no list companion at depth 0 for "list_id"
+[PASS] contactdb create-contact-db-list help
+[PASS] contactdb create-contact-db-list happy_path
+[PASS] contactdb create-contact-db-list json_fidelity
+[SKIP] contactdb create-contact-db-list error_path: no positional argument
+[SKIP] contactdb create-contact-db-list error_path_real: mutating command dry-run only
+[PASS] contactdb create-custom-field help
+[PASS] contactdb create-custom-field happy_path
+[PASS] contactdb create-custom-field json_fidelity
+[SKIP] contactdb create-custom-field error_path: no positional argument
+[SKIP] contactdb create-custom-field error_path_real: mutating command dry-run only
+[PASS] contactdb create-segment help
+[PASS] contactdb create-segment happy_path
+[PASS] contactdb create-segment json_fidelity
+[SKIP] contactdb create-segment error_path: no positional argument
+[SKIP] contactdb create-segment error_path_real: mutating command dry-run only
+[PASS] contactdb delete-contact-db-list help
+[SKIP] contactdb delete-contact-db-list happy_path: no list companion at depth 0 for "list_id"
+[SKIP] contactdb delete-contact-db-list json_fidelity: no list companion at depth 0 for "list_id"
+[SKIP] contactdb delete-contact-db-list error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] contactdb delete-contact-db-list error_path_real: no list companion at depth 0 for "list_id"
+[PASS] contactdb delete-contact-db-lists help
+[PASS] contactdb delete-contact-db-lists happy_path
+[PASS] contactdb delete-contact-db-lists json_fidelity
+[SKIP] contactdb delete-contact-db-lists error_path: no positional argument
+[SKIP] contactdb delete-contact-db-lists error_path_real: mutating command dry-run only
+[PASS] contactdb delete-custom-field help
+[SKIP] contactdb delete-custom-field happy_path: no list companion at depth 0 for "custom_field_id"
+[SKIP] contactdb delete-custom-field json_fidelity: no list companion at depth 0 for "custom_field_id"
+[SKIP] contactdb delete-custom-field error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] contactdb delete-custom-field error_path_real: no list companion at depth 0 for "custom_field_id"
+[PASS] contactdb delete-recipient help
+[SKIP] contactdb delete-recipient happy_path: no list companion at depth 0 for "recipient_id"
+[SKIP] contactdb delete-recipient json_fidelity: no list companion at depth 0 for "recipient_id"
+[SKIP] contactdb delete-recipient error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] contactdb delete-recipient error_path_real: no list companion at depth 0 for "recipient_id"
+[PASS] contactdb delete-recipient-from-contact-db-list help
+[SKIP] contactdb delete-recipient-from-contact-db-list happy_path: command path [contactdb delete-recipient-from-contact-db-list] has fewer segments than placeholders (2)
+[SKIP] contactdb delete-recipient-from-contact-db-list json_fidelity: command path [contactdb delete-recipient-from-contact-db-list] has fewer segments than placeholders (2)
+[SKIP] contactdb delete-recipient-from-contact-db-list error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] contactdb delete-recipient-from-contact-db-list error_path_real: command path [contactdb delete-recipient-from-contact-db-list] has fewer segments than placeholders (2)
+[PASS] contactdb delete-recipients help
+[PASS] contactdb delete-recipients happy_path
+[PASS] contactdb delete-recipients json_fidelity
+[SKIP] contactdb delete-recipients error_path: no positional argument
+[SKIP] contactdb delete-recipients error_path_real: mutating command dry-run only
+[PASS] contactdb delete-segment help
+[SKIP] contactdb delete-segment happy_path: no list companion at depth 0 for "segment_id"
+[SKIP] contactdb delete-segment json_fidelity: no list companion at depth 0 for "segment_id"
+[SKIP] contactdb delete-segment error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] contactdb delete-segment error_path_real: no list companion at depth 0 for "segment_id"
+[PASS] contactdb export-recipient help
+[PASS] contactdb export-recipient happy_path
+[PASS] contactdb export-recipient json_fidelity
+[SKIP] contactdb export-recipient error_path: no positional argument
+[SKIP] contactdb export-recipient error_path_real: mutating command dry-run only
+[PASS] contactdb get-billable help
+[PASS] contactdb get-billable happy_path
+[PASS] contactdb get-billable json_fidelity
+[SKIP] contactdb get-billable error_path: no positional argument
+[PASS] contactdb get-contact-db-list help
+[SKIP] contactdb get-contact-db-list happy_path: no list companion at depth 0 for "list_id"
+[SKIP] contactdb get-contact-db-list json_fidelity: no list companion at depth 0 for "list_id"
+[PASS] contactdb get-contact-db-list error_path
+[PASS] contactdb get-custom-field help
+[SKIP] contactdb get-custom-field happy_path: no list companion at depth 0 for "custom_field_id"
+[SKIP] contactdb get-custom-field json_fidelity: no list companion at depth 0 for "custom_field_id"
+[PASS] contactdb get-custom-field error_path
+[PASS] contactdb get-export-recipient help
+[SKIP] contactdb get-export-recipient happy_path: no list companion at depth 0 for "id"
+[SKIP] contactdb get-export-recipient json_fidelity: no list companion at depth 0 for "id"
+[PASS] contactdb get-export-recipient error_path
+[PASS] contactdb get-recipient help
+[SKIP] contactdb get-recipient happy_path: no list companion at depth 0 for "recipient_id"
+[SKIP] contactdb get-recipient json_fidelity: no list companion at depth 0 for "recipient_id"
+[PASS] contactdb get-recipient error_path
+[PASS] contactdb get-recipient-list help
+[SKIP] contactdb get-recipient-list happy_path: no list companion at depth 0 for "recipient_id"
+[SKIP] contactdb get-recipient-list json_fidelity: no list companion at depth 0 for "recipient_id"
+[PASS] contactdb get-recipient-list error_path
+[PASS] contactdb get-segment help
+[SKIP] contactdb get-segment happy_path: no list companion at depth 0 for "segment_id"
+[SKIP] contactdb get-segment json_fidelity: no list companion at depth 0 for "segment_id"
+[PASS] contactdb get-segment error_path
+[PASS] contactdb list-contact-db-list help
+[PASS] contactdb list-contact-db-list happy_path
+[PASS] contactdb list-contact-db-list json_fidelity
+[SKIP] contactdb list-contact-db-list error_path: no positional argument
+[PASS] contactdb list-custom-field help
+[PASS] contactdb list-custom-field happy_path
+[PASS] contactdb list-custom-field json_fidelity
+[SKIP] contactdb list-custom-field error_path: no positional argument
+[PASS] contactdb list-export-recipient help
+[FAIL] contactdb list-export-recipient happy_path: exit 3
+[FAIL] contactdb list-export-recipient json_fidelity: exit 3
+[SKIP] contactdb list-export-recipient error_path: no positional argument
+[PASS] contactdb list-recipient help
+[PASS] contactdb list-recipient happy_path
+[PASS] contactdb list-recipient json_fidelity
+[SKIP] contactdb list-recipient error_path: no positional argument
+[PASS] contactdb list-recipient-count help
+[PASS] contactdb list-recipient-count happy_path
+[PASS] contactdb list-recipient-count json_fidelity
+[SKIP] contactdb list-recipient-count error_path: no positional argument
+[PASS] contactdb list-recipient-for-segment help
+[SKIP] contactdb list-recipient-for-segment happy_path: no list companion at depth 0 for "segment_id"
+[SKIP] contactdb list-recipient-for-segment json_fidelity: no list companion at depth 0 for "segment_id"
+[PASS] contactdb list-recipient-for-segment error_path
+[PASS] contactdb list-recipients-from-contact-db-list help
+[SKIP] contactdb list-recipients-from-contact-db-list happy_path: no list companion at depth 0 for "list_id"
+[SKIP] contactdb list-recipients-from-contact-db-list json_fidelity: no list companion at depth 0 for "list_id"
+[PASS] contactdb list-recipients-from-contact-db-list error_path
+[PASS] contactdb list-reserved-field help
+[PASS] contactdb list-reserved-field happy_path
+[PASS] contactdb list-reserved-field json_fidelity
+[SKIP] contactdb list-reserved-field error_path: no positional argument
+[PASS] contactdb list-search-recipient help
+[FAIL] contactdb list-search-recipient happy_path: exit 5
+[FAIL] contactdb list-search-recipient json_fidelity: exit 5
+[SKIP] contactdb list-search-recipient error_path: no positional argument
+[PASS] contactdb list-segment help
+[PASS] contactdb list-segment happy_path
+[PASS] contactdb list-segment json_fidelity
+[SKIP] contactdb list-segment error_path: no positional argument
+[PASS] contactdb list-status help
+[PASS] contactdb list-status happy_path
+[PASS] contactdb list-status json_fidelity
+[SKIP] contactdb list-status error_path: no positional argument
+[PASS] contactdb search-recipient help
+[PASS] contactdb search-recipient happy_path
+[PASS] contactdb search-recipient json_fidelity
+[SKIP] contactdb search-recipient error_path: no positional argument
+[SKIP] contactdb search-recipient error_path_real: mutating command dry-run only
+[PASS] contactdb update-contact-db-list help
+[SKIP] contactdb update-contact-db-list happy_path: no list companion at depth 0 for "list_id"
+[SKIP] contactdb update-contact-db-list json_fidelity: no list companion at depth 0 for "list_id"
+[SKIP] contactdb update-contact-db-list error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] contactdb update-contact-db-list error_path_real: no list companion at depth 0 for "list_id"
+[PASS] contactdb update-recipient help
+[PASS] contactdb update-recipient happy_path
+[PASS] contactdb update-recipient json_fidelity
+[SKIP] contactdb update-recipient error_path: no positional argument
+[SKIP] contactdb update-recipient error_path_real: mutating command dry-run only
+[PASS] contactdb update-segment help
+[SKIP] contactdb update-segment happy_path: no list companion at depth 0 for "segment_id"
+[SKIP] contactdb update-segment json_fidelity: no list companion at depth 0 for "segment_id"
+[SKIP] contactdb update-segment error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] contactdb update-segment error_path_real: no list companion at depth 0 for "segment_id"
+[PASS] designs create help
+[PASS] designs create happy_path
+[PASS] designs create json_fidelity
+[SKIP] designs create error_path: no positional argument
+[SKIP] designs create error_path_real: mutating command dry-run only
+[PASS] designs delete help
+[SKIP] designs delete happy_path: no id parseable from companion at depth 0
+[SKIP] designs delete json_fidelity: no id parseable from companion at depth 0
+[SKIP] designs delete error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] designs delete error_path_real: no id parseable from companion at depth 0
+[PASS] designs duplicate help
+[SKIP] designs duplicate happy_path: list companion previously failed at depth 0 for "id"
+[SKIP] designs duplicate json_fidelity: list companion previously failed at depth 0 for "id"
+[SKIP] designs duplicate error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] designs duplicate error_path_real: list companion previously failed at depth 0 for "id"
+[PASS] designs duplicate-pre-built help
+[SKIP] designs duplicate-pre-built happy_path: list companion previously failed at depth 0 for "id"
+[SKIP] designs duplicate-pre-built json_fidelity: list companion previously failed at depth 0 for "id"
+[SKIP] designs duplicate-pre-built error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] designs duplicate-pre-built error_path_real: list companion previously failed at depth 0 for "id"
+[PASS] designs get help
+[SKIP] designs get happy_path: list companion previously failed at depth 0 for "id"
+[SKIP] designs get json_fidelity: list companion previously failed at depth 0 for "id"
+[PASS] designs get error_path
+[PASS] designs get-pre-built help
+[SKIP] designs get-pre-built happy_path: list companion previously failed at depth 0 for "id"
+[SKIP] designs get-pre-built json_fidelity: list companion previously failed at depth 0 for "id"
+[PASS] designs get-pre-built error_path
+[PASS] designs list help
+[PASS] designs list happy_path
+[PASS] designs list json_fidelity
+[SKIP] designs list error_path: no positional argument
+[PASS] designs list-pre-built help
+[PASS] designs list-pre-built happy_path
+[PASS] designs list-pre-built json_fidelity
+[SKIP] designs list-pre-built error_path: no positional argument
+[PASS] designs update help
+[SKIP] designs update happy_path: list companion previously failed at depth 0 for "id"
+[SKIP] designs update json_fidelity: list companion previously failed at depth 0 for "id"
+[SKIP] designs update error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] designs update error_path_real: list companion previously failed at depth 0 for "id"
+[PASS] devices help
+[PASS] devices happy_path
+[PASS] devices json_fidelity
+[SKIP] devices error_path: no positional argument
+[PASS] doctor help
+[PASS] doctor happy_path
+[PASS] doctor json_fidelity
+[SKIP] doctor error_path: no positional argument
+[PASS] engagementquality list-engagement-quality-score help
+[FAIL] engagementquality list-engagement-quality-score happy_path: exit 5
+[FAIL] engagementquality list-engagement-quality-score json_fidelity: exit 5
+[SKIP] engagementquality list-engagement-quality-score error_path: no positional argument
+[PASS] engagementquality list-subuser-engagement-quality-score help
+[FAIL] engagementquality list-subuser-engagement-quality-score happy_path: exit 5
+[FAIL] engagementquality list-subuser-engagement-quality-score json_fidelity: exit 5
+[SKIP] engagementquality list-subuser-engagement-quality-score error_path: no positional argument
+[PASS] feedback list help
+[PASS] feedback list happy_path
+[PASS] feedback list json_fidelity
+[SKIP] feedback list error_path: no positional argument
+[PASS] geo help
+[PASS] geo happy_path
+[PASS] geo json_fidelity
+[SKIP] geo error_path: no positional argument
+[PASS] import help
+[SKIP] import happy_path: command path [import] has fewer segments than placeholders (1)
+[SKIP] import json_fidelity: command path [import] has fewer segments than placeholders (1)
+[PASS] import error_path
+[PASS] ips add help
+[PASS] ips add happy_path
+[PASS] ips add json_fidelity
+[SKIP] ips add error_path: no positional argument
+[SKIP] ips add error_path_real: mutating command dry-run only
+[PASS] ips add-to-pool help
+[SKIP] ips add-to-pool happy_path: non-id positional "pool_name" at depth 0
+[SKIP] ips add-to-pool json_fidelity: non-id positional "pool_name" at depth 0
+[SKIP] ips add-to-pool error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] ips add-to-pool error_path_real: non-id positional "pool_name" at depth 0
+[PASS] ips create-pool help
+[PASS] ips create-pool happy_path
+[PASS] ips create-pool json_fidelity
+[SKIP] ips create-pool error_path: no positional argument
+[SKIP] ips create-pool error_path_real: mutating command dry-run only
+[PASS] ips delete-from-pool help
+[SKIP] ips delete-from-pool happy_path: command path [ips delete-from-pool] has fewer segments than placeholders (2)
+[SKIP] ips delete-from-pool json_fidelity: command path [ips delete-from-pool] has fewer segments than placeholders (2)
+[SKIP] ips delete-from-pool error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] ips delete-from-pool error_path_real: command path [ips delete-from-pool] has fewer segments than placeholders (2)
+[PASS] ips delete-pool help
+[SKIP] ips delete-pool happy_path: non-id positional "pool_name" at depth 0
+[SKIP] ips delete-pool json_fidelity: non-id positional "pool_name" at depth 0
+[SKIP] ips delete-pool error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] ips delete-pool error_path_real: non-id positional "pool_name" at depth 0
+[PASS] ips get help
+[SKIP] ips get happy_path: non-id positional "ip_address" at depth 0
+[SKIP] ips get json_fidelity: non-id positional "ip_address" at depth 0
+[PASS] ips get error_path
+[PASS] ips get-pool help
+[SKIP] ips get-pool happy_path: non-id positional "pool_name" at depth 0
+[SKIP] ips get-pool json_fidelity: non-id positional "pool_name" at depth 0
+[PASS] ips get-pool error_path
+[PASS] ips get-warm-up help
+[SKIP] ips get-warm-up happy_path: non-id positional "ip_address" at depth 0
+[SKIP] ips get-warm-up json_fidelity: non-id positional "ip_address" at depth 0
+[PASS] ips get-warm-up error_path
+[PASS] ips list help
+[PASS] ips list happy_path
+[PASS] ips list json_fidelity
+[SKIP] ips list error_path: no positional argument
+[PASS] ips list-assigned help
+[PASS] ips list-assigned happy_path
+[PASS] ips list-assigned json_fidelity
+[SKIP] ips list-assigned error_path: no positional argument
+[PASS] ips list-pool help
+[PASS] ips list-pool happy_path
+[PASS] ips list-pool json_fidelity
+[SKIP] ips list-pool error_path: no positional argument
+[PASS] ips list-remaining-count help
+[PASS] ips list-remaining-count happy_path
+[PASS] ips list-remaining-count json_fidelity
+[SKIP] ips list-remaining-count error_path: no positional argument
+[PASS] ips list-warm-up help
+[PASS] ips list-warm-up happy_path
+[PASS] ips list-warm-up json_fidelity
+[SKIP] ips list-warm-up error_path: no positional argument
+[PASS] ips stop-warm-up help
+[SKIP] ips stop-warm-up happy_path: non-id positional "ip_address" at depth 0
+[SKIP] ips stop-warm-up json_fidelity: non-id positional "ip_address" at depth 0
+[SKIP] ips stop-warm-up error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] ips stop-warm-up error_path_real: non-id positional "ip_address" at depth 0
+[PASS] ips update-pool help
+[SKIP] ips update-pool happy_path: non-id positional "pool_name" at depth 0
+[SKIP] ips update-pool json_fidelity: non-id positional "pool_name" at depth 0
+[SKIP] ips update-pool error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] ips update-pool error_path_real: non-id positional "pool_name" at depth 0
+[PASS] ips warm-up help
+[PASS] ips warm-up happy_path
+[PASS] ips warm-up json_fidelity
+[SKIP] ips warm-up error_path: no positional argument
+[SKIP] ips warm-up error_path_real: mutating command dry-run only
+[PASS] logs get-message-by-id help
+[SKIP] logs get-message-by-id happy_path: no list companion at depth 0 for "sg_message_id"
+[SKIP] logs get-message-by-id json_fidelity: no list companion at depth 0 for "sg_message_id"
+[PASS] logs get-message-by-id error_path
+[PASS] logs list-messages-by-filter help
+[PASS] logs list-messages-by-filter happy_path
+[PASS] logs list-messages-by-filter json_fidelity
+[SKIP] logs list-messages-by-filter error_path: no positional argument
+[SKIP] logs list-messages-by-filter error_path_real: mutating command dry-run only
+[PASS] mail create-batch help
+[PASS] mail create-batch happy_path
+[PASS] mail create-batch json_fidelity
+[SKIP] mail create-batch error_path: no positional argument
+[SKIP] mail create-batch error_path_real: mutating command dry-run only
+[PASS] mail get-batch help
+[SKIP] mail get-batch happy_path: no list companion at depth 0 for "batch_id"
+[SKIP] mail get-batch json_fidelity: no list companion at depth 0 for "batch_id"
+[PASS] mail get-batch error_path
+[PASS] mail send help
+[PASS] mail send happy_path
+[PASS] mail send json_fidelity
+[SKIP] mail send error_path: no positional argument
+[SKIP] mail send error_path_real: mutating command dry-run only
+[PASS] mail-settings list help
+[PASS] mail-settings list happy_path
+[PASS] mail-settings list json_fidelity
+[SKIP] mail-settings list error_path: no positional argument
+[PASS] mail-settings list-address-whitelist help
+[PASS] mail-settings list-address-whitelist happy_path
+[PASS] mail-settings list-address-whitelist json_fidelity
+[SKIP] mail-settings list-address-whitelist error_path: no positional argument
+[PASS] mail-settings list-bounce-purge help
+[PASS] mail-settings list-bounce-purge happy_path
+[PASS] mail-settings list-bounce-purge json_fidelity
+[SKIP] mail-settings list-bounce-purge error_path: no positional argument
+[PASS] mail-settings list-footer help
+[PASS] mail-settings list-footer happy_path
+[PASS] mail-settings list-footer json_fidelity
+[SKIP] mail-settings list-footer error_path: no positional argument
+[PASS] mail-settings list-forward-bounce help
+[PASS] mail-settings list-forward-bounce happy_path
+[PASS] mail-settings list-forward-bounce json_fidelity
+[SKIP] mail-settings list-forward-bounce error_path: no positional argument
+[PASS] mail-settings list-forward-spam help
+[PASS] mail-settings list-forward-spam happy_path
+[PASS] mail-settings list-forward-spam json_fidelity
+[SKIP] mail-settings list-forward-spam error_path: no positional argument
+[PASS] mail-settings list-template help
+[PASS] mail-settings list-template happy_path
+[PASS] mail-settings list-template json_fidelity
+[SKIP] mail-settings list-template error_path: no positional argument
+[PASS] mail-settings update-address-whitelist help
+[PASS] mail-settings update-address-whitelist happy_path
+[PASS] mail-settings update-address-whitelist json_fidelity
+[SKIP] mail-settings update-address-whitelist error_path: no positional argument
+[SKIP] mail-settings update-address-whitelist error_path_real: mutating command dry-run only
+[PASS] mail-settings update-bounce-purge help
+[PASS] mail-settings update-bounce-purge happy_path
+[PASS] mail-settings update-bounce-purge json_fidelity
+[SKIP] mail-settings update-bounce-purge error_path: no positional argument
+[SKIP] mail-settings update-bounce-purge error_path_real: mutating command dry-run only
+[PASS] mail-settings update-footer help
+[PASS] mail-settings update-footer happy_path
+[PASS] mail-settings update-footer json_fidelity
+[SKIP] mail-settings update-footer error_path: no positional argument
+[SKIP] mail-settings update-footer error_path_real: mutating command dry-run only
+[PASS] mail-settings update-forward-bounce help
+[PASS] mail-settings update-forward-bounce happy_path
+[PASS] mail-settings update-forward-bounce json_fidelity
+[SKIP] mail-settings update-forward-bounce error_path: no positional argument
+[SKIP] mail-settings update-forward-bounce error_path_real: mutating command dry-run only
+[PASS] mail-settings update-forward-spam help
+[PASS] mail-settings update-forward-spam happy_path
+[PASS] mail-settings update-forward-spam json_fidelity
+[SKIP] mail-settings update-forward-spam error_path: no positional argument
+[SKIP] mail-settings update-forward-spam error_path_real: mutating command dry-run only
+[PASS] mail-settings update-template help
+[PASS] mail-settings update-template happy_path
+[PASS] mail-settings update-template json_fidelity
+[SKIP] mail-settings update-template error_path: no positional argument
+[SKIP] mail-settings update-template error_path_real: mutating command dry-run only
+[PASS] mailbox-providers help
+[PASS] mailbox-providers happy_path
+[PASS] mailbox-providers json_fidelity
+[SKIP] mailbox-providers error_path: no positional argument
+[PASS] marketing add-integration help
+[PASS] marketing add-integration happy_path
+[PASS] marketing add-integration json_fidelity
+[SKIP] marketing add-integration error_path: no positional argument
+[SKIP] marketing add-integration error_path_real: mutating command dry-run only
+[PASS] marketing create-field-definition help
+[PASS] marketing create-field-definition happy_path
+[PASS] marketing create-field-definition json_fidelity
+[SKIP] marketing create-field-definition error_path: no positional argument
+[SKIP] marketing create-field-definition error_path_real: mutating command dry-run only
+[PASS] marketing create-list help
+[PASS] marketing create-list happy_path
+[PASS] marketing create-list json_fidelity
+[SKIP] marketing create-list error_path: no positional argument
+[SKIP] marketing create-list error_path_real: mutating command dry-run only
+[PASS] marketing create-segment help
+[PASS] marketing create-segment happy_path
+[PASS] marketing create-segment json_fidelity
+[SKIP] marketing create-segment error_path: no positional argument
+[SKIP] marketing create-segment error_path_real: mutating command dry-run only
+[PASS] marketing create-sender help
+[PASS] marketing create-sender happy_path
+[PASS] marketing create-sender json_fidelity
+[SKIP] marketing create-sender error_path: no positional argument
+[SKIP] marketing create-sender error_path_real: mutating command dry-run only
+[PASS] marketing create-single-send help
+[PASS] marketing create-single-send happy_path
+[PASS] marketing create-single-send json_fidelity
+[SKIP] marketing create-single-send error_path: no positional argument
+[SKIP] marketing create-single-send error_path_real: mutating command dry-run only
+[PASS] marketing delete-contact help
+[PASS] marketing delete-contact happy_path
+[PASS] marketing delete-contact json_fidelity
+[SKIP] marketing delete-contact error_path: no positional argument
+[SKIP] marketing delete-contact error_path_real: mutating command dry-run only
+[PASS] marketing delete-contact-identifier help
+[SKIP] marketing delete-contact-identifier happy_path: no list companion at depth 0 for "contact_id"
+[SKIP] marketing delete-contact-identifier json_fidelity: no list companion at depth 0 for "contact_id"
+[SKIP] marketing delete-contact-identifier error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] marketing delete-contact-identifier error_path_real: no list companion at depth 0 for "contact_id"
+[PASS] marketing delete-contact-lists help
+[SKIP] marketing delete-contact-lists happy_path: no list companion at depth 0 for "id"
+[SKIP] marketing delete-contact-lists json_fidelity: no list companion at depth 0 for "id"
+[SKIP] marketing delete-contact-lists error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] marketing delete-contact-lists error_path_real: no list companion at depth 0 for "id"
+[PASS] marketing delete-field-definition help
+[SKIP] marketing delete-field-definition happy_path: no list companion at depth 0 for "custom_field_id"
+[SKIP] marketing delete-field-definition json_fidelity: no list companion at depth 0 for "custom_field_id"
+[SKIP] marketing delete-field-definition error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] marketing delete-field-definition error_path_real: no list companion at depth 0 for "custom_field_id"
+[PASS] marketing delete-integration help
+[PASS] marketing delete-integration happy_path
+[PASS] marketing delete-integration json_fidelity
+[SKIP] marketing delete-integration error_path: no positional argument
+[SKIP] marketing delete-integration error_path_real: mutating command dry-run only
+[PASS] marketing delete-list help
+[SKIP] marketing delete-list happy_path: no list companion at depth 0 for "id"
+[SKIP] marketing delete-list json_fidelity: no list companion at depth 0 for "id"
+[SKIP] marketing delete-list error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] marketing delete-list error_path_real: no list companion at depth 0 for "id"
+[PASS] marketing delete-scheduled-single-send help
+[SKIP] marketing delete-scheduled-single-send happy_path: no list companion at depth 0 for "id"
+[SKIP] marketing delete-scheduled-single-send json_fidelity: no list companion at depth 0 for "id"
+[SKIP] marketing delete-scheduled-single-send error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] marketing delete-scheduled-single-send error_path_real: no list companion at depth 0 for "id"
+[PASS] marketing delete-segment help
+[SKIP] marketing delete-segment happy_path: no list companion at depth 0 for "segment_id"
+[SKIP] marketing delete-segment json_fidelity: no list companion at depth 0 for "segment_id"
+[SKIP] marketing delete-segment error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] marketing delete-segment error_path_real: no list companion at depth 0 for "segment_id"
+[PASS] marketing delete-segment-segments help
+[SKIP] marketing delete-segment-segments happy_path: no list companion at depth 0 for "segment_id"
+[SKIP] marketing delete-segment-segments json_fidelity: no list companion at depth 0 for "segment_id"
+[SKIP] marketing delete-segment-segments error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] marketing delete-segment-segments error_path_real: no list companion at depth 0 for "segment_id"
+[PASS] marketing delete-sender help
+[SKIP] marketing delete-sender happy_path: no list companion at depth 0 for "id"
+[SKIP] marketing delete-sender json_fidelity: no list companion at depth 0 for "id"
+[SKIP] marketing delete-sender error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] marketing delete-sender error_path_real: no list companion at depth 0 for "id"
+[PASS] marketing delete-single-send help
+[SKIP] marketing delete-single-send happy_path: no list companion at depth 0 for "id"
+[SKIP] marketing delete-single-send json_fidelity: no list companion at depth 0 for "id"
+[SKIP] marketing delete-single-send error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] marketing delete-single-send error_path_real: no list companion at depth 0 for "id"
+[PASS] marketing delete-single-sends help
+[PASS] marketing delete-single-sends happy_path
+[PASS] marketing delete-single-sends json_fidelity
+[SKIP] marketing delete-single-sends error_path: no positional argument
+[SKIP] marketing delete-single-sends error_path_real: mutating command dry-run only
+[PASS] marketing duplicate-single-send help
+[SKIP] marketing duplicate-single-send happy_path: no list companion at depth 0 for "id"
+[SKIP] marketing duplicate-single-send json_fidelity: no list companion at depth 0 for "id"
+[SKIP] marketing duplicate-single-send error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] marketing duplicate-single-send error_path_real: no list companion at depth 0 for "id"
+[PASS] marketing export-automation-stat help
+[SKIP] marketing export-automation-stat happy_path: unavailable for runner credentials
+[SKIP] marketing export-automation-stat json_fidelity: unavailable for runner credentials
+[SKIP] marketing export-automation-stat error_path: no positional argument
+[PASS] marketing export-contact help
+[PASS] marketing export-contact happy_path
+[PASS] marketing export-contact json_fidelity
+[SKIP] marketing export-contact error_path: no positional argument
+[SKIP] marketing export-contact error_path_real: mutating command dry-run only
+[PASS] marketing export-single-send-stat help
+[SKIP] marketing export-single-send-stat happy_path: unavailable for runner credentials
+[SKIP] marketing export-single-send-stat json_fidelity: unavailable for runner credentials
+[SKIP] marketing export-single-send-stat error_path: no positional argument
+[PASS] marketing find-integration-by-id help
+[SKIP] marketing find-integration-by-id happy_path: no list companion at depth 0 for "id"
+[SKIP] marketing find-integration-by-id json_fidelity: no list companion at depth 0 for "id"
+[PASS] marketing find-integration-by-id error_path
+[PASS] marketing get-automation-stat help
+[SKIP] marketing get-automation-stat happy_path: no list companion at depth 0 for "id"
+[SKIP] marketing get-automation-stat json_fidelity: no list companion at depth 0 for "id"
+[PASS] marketing get-automation-stat error_path
+[PASS] marketing get-contact help
+[SKIP] marketing get-contact happy_path: no list companion at depth 0 for "id"
+[SKIP] marketing get-contact json_fidelity: no list companion at depth 0 for "id"
+[PASS] marketing get-contact error_path
+[PASS] marketing get-contact-by-identifiers help
+[PASS] marketing get-contact-by-identifiers happy_path
+[PASS] marketing get-contact-by-identifiers json_fidelity
+[SKIP] marketing get-contact-by-identifiers error_path: no positional argument
+[SKIP] marketing get-contact-by-identifiers error_path_real: mutating command dry-run only
+[PASS] marketing get-export-contact help
+[SKIP] marketing get-export-contact happy_path: no list companion at depth 0 for "id"
+[SKIP] marketing get-export-contact json_fidelity: no list companion at depth 0 for "id"
+[PASS] marketing get-export-contact error_path
+[PASS] marketing get-import-contact help
+[SKIP] marketing get-import-contact happy_path: no list companion at depth 0 for "id"
+[SKIP] marketing get-import-contact json_fidelity: no list companion at depth 0 for "id"
+[PASS] marketing get-import-contact error_path
+[PASS] marketing get-integrations-by-user help
+[SKIP] marketing get-integrations-by-user happy_path: unavailable for runner credentials
+[SKIP] marketing get-integrations-by-user json_fidelity: unavailable for runner credentials
+[SKIP] marketing get-integrations-by-user error_path: no positional argument
+[PASS] marketing get-list help
+[SKIP] marketing get-list happy_path: no list companion at depth 0 for "id"
+[SKIP] marketing get-list json_fidelity: no list companion at depth 0 for "id"
+[PASS] marketing get-list error_path
+[PASS] marketing get-segment help
+[SKIP] marketing get-segment happy_path: no list companion at depth 0 for "segment_id"
+[SKIP] marketing get-segment json_fidelity: no list companion at depth 0 for "segment_id"
+[PASS] marketing get-segment error_path
+[PASS] marketing get-segment-segments help
+[SKIP] marketing get-segment-segments happy_path: no list companion at depth 0 for "segment_id"
+[SKIP] marketing get-segment-segments json_fidelity: no list companion at depth 0 for "segment_id"
+[PASS] marketing get-segment-segments error_path
+[PASS] marketing get-sender help
+[SKIP] marketing get-sender happy_path: no list companion at depth 0 for "id"
+[SKIP] marketing get-sender json_fidelity: no list companion at depth 0 for "id"
+[PASS] marketing get-sender error_path
+[PASS] marketing get-single-send help
+[SKIP] marketing get-single-send happy_path: no list companion at depth 0 for "id"
+[SKIP] marketing get-single-send json_fidelity: no list companion at depth 0 for "id"
+[PASS] marketing get-single-send error_path
+[PASS] marketing get-single-send-stat help
+[SKIP] marketing get-single-send-stat happy_path: no list companion at depth 0 for "id"
+[SKIP] marketing get-single-send-stat json_fidelity: no list companion at depth 0 for "id"
+[PASS] marketing get-single-send-stat error_path
+[PASS] marketing import-contact help
+[PASS] marketing import-contact happy_path
+[PASS] marketing import-contact json_fidelity
+[SKIP] marketing import-contact error_path: no positional argument
+[SKIP] marketing import-contact error_path_real: mutating command dry-run only
+[PASS] marketing list-automation-stat help
+[SKIP] marketing list-automation-stat happy_path: unavailable for runner credentials
+[SKIP] marketing list-automation-stat json_fidelity: unavailable for runner credentials
+[SKIP] marketing list-automation-stat error_path: no positional argument
+[PASS] marketing list-batched-contact help
+[PASS] marketing list-batched-contact happy_path
+[PASS] marketing list-batched-contact json_fidelity
+[SKIP] marketing list-batched-contact error_path: no positional argument
+[SKIP] marketing list-batched-contact error_path_real: mutating command dry-run only
+[PASS] marketing list-category help
+[SKIP] marketing list-category happy_path: unavailable for runner credentials
+[SKIP] marketing list-category json_fidelity: unavailable for runner credentials
+[SKIP] marketing list-category error_path: no positional argument
+[PASS] marketing list-click-tracking-stat help
+[SKIP] marketing list-click-tracking-stat happy_path: no list companion at depth 0 for "id"
+[SKIP] marketing list-click-tracking-stat json_fidelity: no list companion at depth 0 for "id"
+[PASS] marketing list-click-tracking-stat error_path
+[PASS] marketing list-contact help
+[SKIP] marketing list-contact happy_path: unavailable for runner credentials
+[SKIP] marketing list-contact json_fidelity: unavailable for runner credentials
+[SKIP] marketing list-contact error_path: no positional argument
+[PASS] marketing list-contact-by-email help
+[PASS] marketing list-contact-by-email happy_path
+[PASS] marketing list-contact-by-email json_fidelity
+[SKIP] marketing list-contact-by-email error_path: no positional argument
+[SKIP] marketing list-contact-by-email error_path_real: mutating command dry-run only
+[PASS] marketing list-contact-count help
+[SKIP] marketing list-contact-count happy_path: unavailable for runner credentials
+[SKIP] marketing list-contact-count json_fidelity: unavailable for runner credentials
+[SKIP] marketing list-contact-count error_path: no positional argument
+[PASS] marketing list-contact-count-lists help
+[SKIP] marketing list-contact-count-lists happy_path: no list companion at depth 0 for "id"
+[SKIP] marketing list-contact-count-lists json_fidelity: no list companion at depth 0 for "id"
+[PASS] marketing list-contact-count-lists error_path
+[PASS] marketing list-export-contact help
+[SKIP] marketing list-export-contact happy_path: unavailable for runner credentials
+[SKIP] marketing list-export-contact json_fidelity: unavailable for runner credentials
+[SKIP] marketing list-export-contact error_path: no positional argument
+[PASS] marketing list-field-definition help
+[SKIP] marketing list-field-definition happy_path: unavailable for runner credentials
+[SKIP] marketing list-field-definition json_fidelity: unavailable for runner credentials
+[SKIP] marketing list-field-definition error_path: no positional argument
+[PASS] marketing list-list help
+[SKIP] marketing list-list happy_path: unavailable for runner credentials
+[SKIP] marketing list-list json_fidelity: unavailable for runner credentials
+[SKIP] marketing list-list error_path: no positional argument
+[PASS] marketing list-segment help
+[SKIP] marketing list-segment happy_path: unavailable for runner credentials
+[SKIP] marketing list-segment json_fidelity: unavailable for runner credentials
+[SKIP] marketing list-segment error_path: no positional argument
+[PASS] marketing list-segment-segments help
+[SKIP] marketing list-segment-segments happy_path: unavailable for runner credentials
+[SKIP] marketing list-segment-segments json_fidelity: unavailable for runner credentials
+[SKIP] marketing list-segment-segments error_path: no positional argument
+[PASS] marketing list-sender help
+[SKIP] marketing list-sender happy_path: unavailable for runner credentials
+[SKIP] marketing list-sender json_fidelity: unavailable for runner credentials
+[SKIP] marketing list-sender error_path: no positional argument
+[PASS] marketing list-single-send help
+[SKIP] marketing list-single-send happy_path: unavailable for runner credentials
+[SKIP] marketing list-single-send json_fidelity: unavailable for runner credentials
+[SKIP] marketing list-single-send error_path: no positional argument
+[PASS] marketing list-single-send-stat help
+[SKIP] marketing list-single-send-stat happy_path: unavailable for runner credentials
+[SKIP] marketing list-single-send-stat json_fidelity: unavailable for runner credentials
+[SKIP] marketing list-single-send-stat error_path: no positional argument
+[PASS] marketing list-single-send-tracking-stat help
+[SKIP] marketing list-single-send-tracking-stat happy_path: no list companion at depth 0 for "id"
+[SKIP] marketing list-single-send-tracking-stat json_fidelity: no list companion at depth 0 for "id"
+[PASS] marketing list-single-send-tracking-stat error_path
+[SKIP] marketing refresh-segment help: destructive-at-auth
+[SKIP] marketing refresh-segment happy_path: destructive-at-auth
+[SKIP] marketing refresh-segment json_fidelity: destructive-at-auth
+[SKIP] marketing refresh-segment error_path: destructive-at-auth
+[SKIP] marketing reset-sender-verification help: destructive-at-auth
+[SKIP] marketing reset-sender-verification happy_path: destructive-at-auth
+[SKIP] marketing reset-sender-verification json_fidelity: destructive-at-auth
+[SKIP] marketing reset-sender-verification error_path: destructive-at-auth
+[PASS] marketing schedule-single-send help
+[SKIP] marketing schedule-single-send happy_path: no list companion at depth 0 for "id"
+[SKIP] marketing schedule-single-send json_fidelity: no list companion at depth 0 for "id"
+[SKIP] marketing schedule-single-send error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] marketing schedule-single-send error_path_real: no list companion at depth 0 for "id"
+[PASS] marketing search-contact help
+[SKIP] marketing search-contact happy_path: unavailable for runner credentials
+[SKIP] marketing search-contact json_fidelity: unavailable for runner credentials
+[SKIP] marketing search-contact error_path: no positional argument
+[PASS] marketing search-single-send help
+[PASS] marketing search-single-send happy_path
+[PASS] marketing search-single-send json_fidelity
+[SKIP] marketing search-single-send error_path: no positional argument
+[SKIP] marketing search-single-send error_path_real: mutating command dry-run only
+[PASS] marketing send-test-email help
+[PASS] marketing send-test-email happy_path
+[PASS] marketing send-test-email json_fidelity
+[SKIP] marketing send-test-email error_path: no positional argument
+[SKIP] marketing send-test-email error_path_real: mutating command dry-run only
+[PASS] marketing update-contact help
+[PASS] marketing update-contact happy_path
+[PASS] marketing update-contact json_fidelity
+[SKIP] marketing update-contact error_path: no positional argument
+[SKIP] marketing update-contact error_path_real: mutating command dry-run only
+[PASS] marketing update-field-definition help
+[SKIP] marketing update-field-definition happy_path: no list companion at depth 0 for "custom_field_id"
+[SKIP] marketing update-field-definition json_fidelity: no list companion at depth 0 for "custom_field_id"
+[SKIP] marketing update-field-definition error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] marketing update-field-definition error_path_real: no list companion at depth 0 for "custom_field_id"
+[PASS] marketing update-integration help
+[SKIP] marketing update-integration happy_path: no list companion at depth 0 for "id"
+[SKIP] marketing update-integration json_fidelity: no list companion at depth 0 for "id"
+[SKIP] marketing update-integration error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] marketing update-integration error_path_real: no list companion at depth 0 for "id"
+[PASS] marketing update-list help
+[SKIP] marketing update-list happy_path: no list companion at depth 0 for "id"
+[SKIP] marketing update-list json_fidelity: no list companion at depth 0 for "id"
+[SKIP] marketing update-list error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] marketing update-list error_path_real: no list companion at depth 0 for "id"
+[PASS] marketing update-segment help
+[SKIP] marketing update-segment happy_path: no list companion at depth 0 for "segment_id"
+[SKIP] marketing update-segment json_fidelity: no list companion at depth 0 for "segment_id"
+[SKIP] marketing update-segment error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] marketing update-segment error_path_real: no list companion at depth 0 for "segment_id"
+[PASS] marketing update-sender help
+[SKIP] marketing update-sender happy_path: no list companion at depth 0 for "id"
+[SKIP] marketing update-sender json_fidelity: no list companion at depth 0 for "id"
+[SKIP] marketing update-sender error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] marketing update-sender error_path_real: no list companion at depth 0 for "id"
+[PASS] marketing update-single-send help
+[SKIP] marketing update-single-send happy_path: no list companion at depth 0 for "id"
+[SKIP] marketing update-single-send json_fidelity: no list companion at depth 0 for "id"
+[SKIP] marketing update-single-send error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] marketing update-single-send error_path_real: no list companion at depth 0 for "id"
+[PASS] messages download-csv help
+[SKIP] messages download-csv happy_path: list companion failed at depth 0: exit 1
+[SKIP] messages download-csv json_fidelity: list companion failed at depth 0: exit 1
+[PASS] messages download-csv error_path
+[PASS] messages get help
+[SKIP] messages get happy_path: list companion previously failed at depth 0 for "msg_id"
+[SKIP] messages get json_fidelity: list companion previously failed at depth 0 for "msg_id"
+[PASS] messages get error_path
+[PASS] messages list help
+[FAIL] messages list happy_path: exit 5
+[FAIL] messages list json_fidelity: exit 5
+[SKIP] messages list error_path: no positional argument
+[PASS] messages request-csv help
+[PASS] messages request-csv happy_path
+[PASS] messages request-csv json_fidelity
+[SKIP] messages request-csv error_path: no positional argument
+[SKIP] messages request-csv error_path_real: mutating command dry-run only
+[PASS] partner-settings help
+[PASS] partner-settings happy_path
+[PASS] partner-settings json_fidelity
+[SKIP] partner-settings error_path: no positional argument
+[PASS] partners add-account-ips help
+[SKIP] partners add-account-ips happy_path: no list companion at depth 0 for "accountid"
+[SKIP] partners add-account-ips json_fidelity: no list companion at depth 0 for "accountid"
+[SKIP] partners add-account-ips error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] partners add-account-ips error_path_real: no list companion at depth 0 for "accountid"
+[PASS] partners authenticate-account help
+[SKIP] partners authenticate-account happy_path: no list companion at depth 0 for "accountid"
+[SKIP] partners authenticate-account json_fidelity: no list companion at depth 0 for "accountid"
+[SKIP] partners authenticate-account error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] partners authenticate-account error_path_real: no list companion at depth 0 for "accountid"
+[PASS] partners create-account help
+[PASS] partners create-account happy_path
+[PASS] partners create-account json_fidelity
+[SKIP] partners create-account error_path: no positional argument
+[SKIP] partners create-account error_path_real: mutating command dry-run only
+[PASS] partners delete-account help
+[SKIP] partners delete-account happy_path: no list companion at depth 0 for "accountid"
+[SKIP] partners delete-account json_fidelity: no list companion at depth 0 for "accountid"
+[SKIP] partners delete-account error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] partners delete-account error_path_real: no list companion at depth 0 for "accountid"
+[PASS] partners get-account-state help
+[SKIP] partners get-account-state happy_path: no list companion at depth 0 for "accountid"
+[SKIP] partners get-account-state json_fidelity: no list companion at depth 0 for "accountid"
+[PASS] partners get-account-state error_path
+[PASS] partners list-account help
+[SKIP] partners list-account happy_path: unavailable for runner credentials
+[SKIP] partners list-account json_fidelity: unavailable for runner credentials
+[SKIP] partners list-account error_path: no positional argument
+[PASS] partners list-account-ips help
+[SKIP] partners list-account-ips happy_path: no list companion at depth 0 for "accountid"
+[SKIP] partners list-account-ips json_fidelity: no list companion at depth 0 for "accountid"
+[PASS] partners list-account-ips error_path
+[PASS] partners list-account-offering help
+[SKIP] partners list-account-offering happy_path: no list companion at depth 0 for "accountid"
+[SKIP] partners list-account-offering json_fidelity: no list companion at depth 0 for "accountid"
+[PASS] partners list-account-offering error_path
+[PASS] partners list-offering help
+[SKIP] partners list-offering happy_path: unavailable for runner credentials
+[SKIP] partners list-offering json_fidelity: unavailable for runner credentials
+[SKIP] partners list-offering error_path: no positional argument
+[PASS] partners remove-account-ips help
+[SKIP] partners remove-account-ips happy_path: no list companion at depth 0 for "accountid"
+[SKIP] partners remove-account-ips json_fidelity: no list companion at depth 0 for "accountid"
+[SKIP] partners remove-account-ips error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] partners remove-account-ips error_path_real: no list companion at depth 0 for "accountid"
+[PASS] partners update-account-offering help
+[SKIP] partners update-account-offering happy_path: no list companion at depth 0 for "accountid"
+[SKIP] partners update-account-offering json_fidelity: no list companion at depth 0 for "accountid"
+[SKIP] partners update-account-offering error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] partners update-account-offering error_path_real: no list companion at depth 0 for "accountid"
+[PASS] partners update-account-state help
+[SKIP] partners update-account-state happy_path: no list companion at depth 0 for "accountid"
+[SKIP] partners update-account-state json_fidelity: no list companion at depth 0 for "accountid"
+[SKIP] partners update-account-state error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] partners update-account-state error_path_real: no list companion at depth 0 for "accountid"
+[PASS] profile delete help
+[SKIP] profile delete happy_path: non-id positional "name" at depth 0
+[SKIP] profile delete json_fidelity: non-id positional "name" at depth 0
+[SKIP] profile delete error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] profile delete error_path_real: non-id positional "name" at depth 0
+[PASS] profile list help
+[PASS] profile list happy_path
+[PASS] profile list json_fidelity
+[SKIP] profile list error_path: no positional argument
+[PASS] profile save help
+[SKIP] profile save happy_path: non-id positional "name" at depth 0
+[SKIP] profile save json_fidelity: non-id positional "name" at depth 0
+[PASS] profile save error_path
+[PASS] profile show help
+[SKIP] profile show happy_path: non-id positional "name" at depth 0
+[SKIP] profile show json_fidelity: non-id positional "name" at depth 0
+[PASS] profile show error_path
+[PASS] profile use help
+[SKIP] profile use happy_path: non-id positional "name" at depth 0
+[SKIP] profile use json_fidelity: non-id positional "name" at depth 0
+[PASS] profile use error_path
+[PASS] recipients help
+[PASS] recipients happy_path
+[PASS] recipients json_fidelity
+[SKIP] recipients error_path: no positional argument
+[SKIP] recipients error_path_real: mutating command dry-run only
+[PASS] scopes help
+[PASS] scopes happy_path
+[PASS] scopes json_fidelity
+[SKIP] scopes error_path: no positional argument
+[PASS] search help
+[SKIP] search happy_path: command path [search] has fewer segments than placeholders (1)
+[SKIP] search json_fidelity: command path [search] has fewer segments than placeholders (1)
+[PASS] search error_path
+[PASS] send-ips add-ip help
+[PASS] send-ips add-ip happy_path
+[PASS] send-ips add-ip json_fidelity
+[SKIP] send-ips add-ip error_path: no positional argument
+[SKIP] send-ips add-ip error_path_real: mutating command dry-run only
+[PASS] send-ips add-ips-to-ip-pool help
+[SKIP] send-ips add-ips-to-ip-pool happy_path: no list companion at depth 0 for "poolid"
+[SKIP] send-ips add-ips-to-ip-pool json_fidelity: no list companion at depth 0 for "poolid"
+[SKIP] send-ips add-ips-to-ip-pool error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] send-ips add-ips-to-ip-pool error_path_real: no list companion at depth 0 for "poolid"
+[PASS] send-ips add-sub-users-to-ip help
+[SKIP] send-ips add-sub-users-to-ip happy_path: non-id positional "ip" at depth 0
+[SKIP] send-ips add-sub-users-to-ip json_fidelity: non-id positional "ip" at depth 0
+[SKIP] send-ips add-sub-users-to-ip error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] send-ips add-sub-users-to-ip error_path_real: non-id positional "ip" at depth 0
+[PASS] send-ips create-ip-pool help
+[PASS] send-ips create-ip-pool happy_path
+[PASS] send-ips create-ip-pool json_fidelity
+[SKIP] send-ips create-ip-pool error_path: no positional argument
+[SKIP] send-ips create-ip-pool error_path_real: mutating command dry-run only
+[PASS] send-ips delete-ip-pool help
+[SKIP] send-ips delete-ip-pool happy_path: no list companion at depth 0 for "poolid"
+[SKIP] send-ips delete-ip-pool json_fidelity: no list companion at depth 0 for "poolid"
+[SKIP] send-ips delete-ip-pool error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] send-ips delete-ip-pool error_path_real: no list companion at depth 0 for "poolid"
+[PASS] send-ips delete-ips-from-ip-pool help
+[SKIP] send-ips delete-ips-from-ip-pool happy_path: no list companion at depth 0 for "poolid"
+[SKIP] send-ips delete-ips-from-ip-pool json_fidelity: no list companion at depth 0 for "poolid"
+[SKIP] send-ips delete-ips-from-ip-pool error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] send-ips delete-ips-from-ip-pool error_path_real: no list companion at depth 0 for "poolid"
+[PASS] send-ips delete-sub-users-from-ip help
+[SKIP] send-ips delete-sub-users-from-ip happy_path: non-id positional "ip" at depth 0
+[SKIP] send-ips delete-sub-users-from-ip json_fidelity: non-id positional "ip" at depth 0
+[SKIP] send-ips delete-sub-users-from-ip error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] send-ips delete-sub-users-from-ip error_path_real: non-id positional "ip" at depth 0
+[PASS] send-ips get-ip help
+[SKIP] send-ips get-ip happy_path: non-id positional "ip" at depth 0
+[SKIP] send-ips get-ip json_fidelity: non-id positional "ip" at depth 0
+[PASS] send-ips get-ip error_path
+[PASS] send-ips get-ip-pool help
+[SKIP] send-ips get-ip-pool happy_path: no list companion at depth 0 for "poolid"
+[SKIP] send-ips get-ip-pool json_fidelity: no list companion at depth 0 for "poolid"
+[PASS] send-ips get-ip-pool error_path
+[PASS] send-ips list-ip help
+[PASS] send-ips list-ip happy_path
+[PASS] send-ips list-ip json_fidelity
+[SKIP] send-ips list-ip error_path: no positional argument
+[PASS] send-ips list-ip-assigned-to-ip-pool help
+[SKIP] send-ips list-ip-assigned-to-ip-pool happy_path: no list companion at depth 0 for "poolid"
+[SKIP] send-ips list-ip-assigned-to-ip-pool json_fidelity: no list companion at depth 0 for "poolid"
+[PASS] send-ips list-ip-assigned-to-ip-pool error_path
+[PASS] send-ips list-ip-pool help
+[PASS] send-ips list-ip-pool happy_path
+[PASS] send-ips list-ip-pool json_fidelity
+[SKIP] send-ips list-ip-pool error_path: no positional argument
+[PASS] send-ips list-sub-user-assigned-to-ip help
+[SKIP] send-ips list-sub-user-assigned-to-ip happy_path: non-id positional "ip" at depth 0
+[SKIP] send-ips list-sub-user-assigned-to-ip json_fidelity: non-id positional "ip" at depth 0
+[PASS] send-ips list-sub-user-assigned-to-ip error_path
+[PASS] send-ips update-ip help
+[SKIP] send-ips update-ip happy_path: non-id positional "ip" at depth 0
+[SKIP] send-ips update-ip json_fidelity: non-id positional "ip" at depth 0
+[SKIP] send-ips update-ip error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] send-ips update-ip error_path_real: non-id positional "ip" at depth 0
+[PASS] send-ips update-ip-pool help
+[SKIP] send-ips update-ip-pool happy_path: no list companion at depth 0 for "poolid"
+[SKIP] send-ips update-ip-pool json_fidelity: no list companion at depth 0 for "poolid"
+[SKIP] send-ips update-ip-pool error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] send-ips update-ip-pool error_path_real: no list companion at depth 0 for "poolid"
+[PASS] senders create help
+[PASS] senders create happy_path
+[PASS] senders create json_fidelity
+[SKIP] senders create error_path: no positional argument
+[SKIP] senders create error_path_real: mutating command dry-run only
+[PASS] senders delete help
+[SKIP] senders delete happy_path: list companion failed at depth 0: exit 4
+[SKIP] senders delete json_fidelity: list companion failed at depth 0: exit 4
+[SKIP] senders delete error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] senders delete error_path_real: list companion failed at depth 0: exit 4
+[PASS] senders get help
+[SKIP] senders get happy_path: list companion previously failed at depth 0 for "sender_id"
+[SKIP] senders get json_fidelity: list companion previously failed at depth 0 for "sender_id"
+[PASS] senders get error_path
+[PASS] senders list help
+[SKIP] senders list happy_path: unavailable for runner credentials
+[SKIP] senders list json_fidelity: unavailable for runner credentials
+[SKIP] senders list error_path: no positional argument
+[SKIP] senders resend-verification reset-sender-verification help: destructive-at-auth
+[SKIP] senders resend-verification reset-sender-verification happy_path: destructive-at-auth
+[SKIP] senders resend-verification reset-sender-verification json_fidelity: destructive-at-auth
+[SKIP] senders resend-verification reset-sender-verification error_path: destructive-at-auth
+[PASS] senders update help
+[SKIP] senders update happy_path: list companion previously failed at depth 0 for "sender_id"
+[SKIP] senders update json_fidelity: list companion previously failed at depth 0 for "sender_id"
+[SKIP] senders update error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] senders update error_path_real: list companion previously failed at depth 0 for "sender_id"
+[PASS] sso create-certificate help
+[PASS] sso create-certificate happy_path
+[PASS] sso create-certificate json_fidelity
+[SKIP] sso create-certificate error_path: no positional argument
+[SKIP] sso create-certificate error_path_real: mutating command dry-run only
+[PASS] sso create-integration help
+[PASS] sso create-integration happy_path
+[PASS] sso create-integration json_fidelity
+[SKIP] sso create-integration error_path: no positional argument
+[SKIP] sso create-integration error_path_real: mutating command dry-run only
+[PASS] sso create-teammate help
+[PASS] sso create-teammate happy_path
+[PASS] sso create-teammate json_fidelity
+[SKIP] sso create-teammate error_path: no positional argument
+[SKIP] sso create-teammate error_path_real: mutating command dry-run only
+[PASS] sso delete-certificate help
+[SKIP] sso delete-certificate happy_path: no list companion at depth 0 for "cert_id"
+[SKIP] sso delete-certificate json_fidelity: no list companion at depth 0 for "cert_id"
+[SKIP] sso delete-certificate error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] sso delete-certificate error_path_real: no list companion at depth 0 for "cert_id"
+[PASS] sso delete-integration help
+[SKIP] sso delete-integration happy_path: no list companion at depth 0 for "id"
+[SKIP] sso delete-integration json_fidelity: no list companion at depth 0 for "id"
+[SKIP] sso delete-integration error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] sso delete-integration error_path_real: no list companion at depth 0 for "id"
+[PASS] sso get-certificate help
+[SKIP] sso get-certificate happy_path: no list companion at depth 0 for "cert_id"
+[SKIP] sso get-certificate json_fidelity: no list companion at depth 0 for "cert_id"
+[PASS] sso get-certificate error_path
+[PASS] sso get-integration help
+[SKIP] sso get-integration happy_path: no list companion at depth 0 for "id"
+[SKIP] sso get-integration json_fidelity: no list companion at depth 0 for "id"
+[PASS] sso get-integration error_path
+[PASS] sso list-integration help
+[PASS] sso list-integration happy_path
+[PASS] sso list-integration json_fidelity
+[SKIP] sso list-integration error_path: no positional argument
+[PASS] sso list-integration-certificate help
+[SKIP] sso list-integration-certificate happy_path: no list companion at depth 0 for "integration_id"
+[SKIP] sso list-integration-certificate json_fidelity: no list companion at depth 0 for "integration_id"
+[PASS] sso list-integration-certificate error_path
+[PASS] sso update-certificate help
+[SKIP] sso update-certificate happy_path: no list companion at depth 0 for "cert_id"
+[SKIP] sso update-certificate json_fidelity: no list companion at depth 0 for "cert_id"
+[SKIP] sso update-certificate error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] sso update-certificate error_path_real: no list companion at depth 0 for "cert_id"
+[PASS] sso update-integration help
+[SKIP] sso update-integration happy_path: no list companion at depth 0 for "id"
+[SKIP] sso update-integration json_fidelity: no list companion at depth 0 for "id"
+[SKIP] sso update-integration error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] sso update-integration error_path_real: no list companion at depth 0 for "id"
+[PASS] sso update-teammate help
+[SKIP] sso update-teammate happy_path: non-id positional "username" at depth 0
+[SKIP] sso update-teammate json_fidelity: non-id positional "username" at depth 0
+[SKIP] sso update-teammate error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] sso update-teammate error_path_real: non-id positional "username" at depth 0
+[PASS] stats rollup help
+[PASS] stats rollup happy_path
+[PASS] stats rollup json_fidelity
+[SKIP] stats rollup error_path: no positional argument
+[PASS] subusers create help
+[PASS] subusers create happy_path
+[PASS] subusers create json_fidelity
+[SKIP] subusers create error_path: no positional argument
+[SKIP] subusers create error_path_real: mutating command dry-run only
+[PASS] subusers credits get-subuser help
+[SKIP] subusers credits get-subuser happy_path: non-id positional "subuser_name" at depth 0
+[SKIP] subusers credits get-subuser json_fidelity: non-id positional "subuser_name" at depth 0
+[PASS] subusers credits get-subuser error_path
+[PASS] subusers credits update-subuser help
+[SKIP] subusers credits update-subuser happy_path: non-id positional "subuser_name" at depth 0
+[SKIP] subusers credits update-subuser json_fidelity: non-id positional "subuser_name" at depth 0
+[SKIP] subusers credits update-subuser error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] subusers credits update-subuser error_path_real: non-id positional "subuser_name" at depth 0
+[PASS] subusers credits update-subuser-remaining help
+[SKIP] subusers credits update-subuser-remaining happy_path: non-id positional "subuser_name" at depth 0
+[SKIP] subusers credits update-subuser-remaining json_fidelity: non-id positional "subuser_name" at depth 0
+[SKIP] subusers credits update-subuser-remaining error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] subusers credits update-subuser-remaining error_path_real: non-id positional "subuser_name" at depth 0
+[PASS] subusers delete help
+[SKIP] subusers delete happy_path: non-id positional "subuser_name" at depth 0
+[SKIP] subusers delete json_fidelity: non-id positional "subuser_name" at depth 0
+[SKIP] subusers delete error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] subusers delete error_path_real: non-id positional "subuser_name" at depth 0
+[PASS] subusers ips update-subuser help
+[SKIP] subusers ips update-subuser happy_path: non-id positional "subuser_name" at depth 0
+[SKIP] subusers ips update-subuser json_fidelity: non-id positional "subuser_name" at depth 0
+[SKIP] subusers ips update-subuser error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] subusers ips update-subuser error_path_real: non-id positional "subuser_name" at depth 0
+[PASS] subusers list help
+[PASS] subusers list happy_path
+[PASS] subusers list json_fidelity
+[SKIP] subusers list error_path: no positional argument
+[PASS] subusers list-monthly-stat help
+[PASS] subusers list-monthly-stat happy_path
+[PASS] subusers list-monthly-stat json_fidelity
+[SKIP] subusers list-monthly-stat error_path: no positional argument
+[PASS] subusers list-reputation help
+[FAIL] subusers list-reputation happy_path: exit 5
+[FAIL] subusers list-reputation json_fidelity: exit 5
+[SKIP] subusers list-reputation error_path: no positional argument
+[PASS] subusers list-stat help
+[FAIL] subusers list-stat happy_path: exit 5
+[FAIL] subusers list-stat json_fidelity: exit 5
+[SKIP] subusers list-stat error_path: no positional argument
+[PASS] subusers list-stat-sum help
+[PASS] subusers list-stat-sum happy_path
+[PASS] subusers list-stat-sum json_fidelity
+[SKIP] subusers list-stat-sum error_path: no positional argument
+[PASS] subusers rollup help
+[PASS] subusers rollup happy_path
+[FAIL] subusers rollup json_fidelity: invalid JSON
+[SKIP] subusers rollup error_path: no positional argument
+[PASS] subusers stats list-subuser-monthly help
+[SKIP] subusers stats list-subuser-monthly happy_path: non-id positional "subuser_name" at depth 0
+[SKIP] subusers stats list-subuser-monthly json_fidelity: non-id positional "subuser_name" at depth 0
+[PASS] subusers stats list-subuser-monthly error_path
+[PASS] subusers update help
+[SKIP] subusers update happy_path: non-id positional "subuser_name" at depth 0
+[SKIP] subusers update json_fidelity: non-id positional "subuser_name" at depth 0
+[SKIP] subusers update error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] subusers update error_path_real: non-id positional "subuser_name" at depth 0
+[PASS] subusers website-access update-subuser help
+[SKIP] subusers website-access update-subuser happy_path: non-id positional "subuser_name" at depth 0
+[SKIP] subusers website-access update-subuser json_fidelity: non-id positional "subuser_name" at depth 0
+[SKIP] subusers website-access update-subuser error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] subusers website-access update-subuser error_path_real: non-id positional "subuser_name" at depth 0
+[PASS] suppression delete-block help
+[SKIP] suppression delete-block happy_path: non-id positional "email" at depth 0
+[SKIP] suppression delete-block json_fidelity: non-id positional "email" at depth 0
+[SKIP] suppression delete-block error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] suppression delete-block error_path_real: non-id positional "email" at depth 0
+[PASS] suppression delete-blocks help
+[PASS] suppression delete-blocks happy_path
+[PASS] suppression delete-blocks json_fidelity
+[SKIP] suppression delete-blocks error_path: no positional argument
+[SKIP] suppression delete-blocks error_path_real: mutating command dry-run only
+[PASS] suppression delete-bounce help
+[SKIP] suppression delete-bounce happy_path: non-id positional "email" at depth 0
+[SKIP] suppression delete-bounce json_fidelity: non-id positional "email" at depth 0
+[SKIP] suppression delete-bounce error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] suppression delete-bounce error_path_real: non-id positional "email" at depth 0
+[PASS] suppression delete-bounces help
+[PASS] suppression delete-bounces happy_path
+[PASS] suppression delete-bounces json_fidelity
+[SKIP] suppression delete-bounces error_path: no positional argument
+[SKIP] suppression delete-bounces error_path_real: mutating command dry-run only
+[PASS] suppression delete-invalid-email help
+[SKIP] suppression delete-invalid-email happy_path: non-id positional "email" at depth 0
+[SKIP] suppression delete-invalid-email json_fidelity: non-id positional "email" at depth 0
+[SKIP] suppression delete-invalid-email error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] suppression delete-invalid-email error_path_real: non-id positional "email" at depth 0
+[PASS] suppression delete-invalid-emails help
+[PASS] suppression delete-invalid-emails happy_path
+[PASS] suppression delete-invalid-emails json_fidelity
+[SKIP] suppression delete-invalid-emails error_path: no positional argument
+[SKIP] suppression delete-invalid-emails error_path_real: mutating command dry-run only
+[PASS] suppression delete-spam-report help
+[SKIP] suppression delete-spam-report happy_path: non-id positional "email" at depth 0
+[SKIP] suppression delete-spam-report json_fidelity: non-id positional "email" at depth 0
+[SKIP] suppression delete-spam-report error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] suppression delete-spam-report error_path_real: non-id positional "email" at depth 0
+[PASS] suppression delete-spam-reports help
+[PASS] suppression delete-spam-reports happy_path
+[PASS] suppression delete-spam-reports json_fidelity
+[SKIP] suppression delete-spam-reports error_path: no positional argument
+[SKIP] suppression delete-spam-reports error_path_real: mutating command dry-run only
+[PASS] suppression diff help
+[SKIP] suppression diff happy_path: non-id positional "type" at depth 0
+[SKIP] suppression diff json_fidelity: non-id positional "type" at depth 0
+[PASS] suppression diff error_path
+[PASS] suppression get-block help
+[SKIP] suppression get-block happy_path: non-id positional "email" at depth 0
+[SKIP] suppression get-block json_fidelity: non-id positional "email" at depth 0
+[FAIL] suppression get-block error_path: expected non-zero exit for invalid argument
+[PASS] suppression get-bounces help
+[SKIP] suppression get-bounces happy_path: non-id positional "email" at depth 0
+[SKIP] suppression get-bounces json_fidelity: non-id positional "email" at depth 0
+[FAIL] suppression get-bounces error_path: expected non-zero exit for invalid argument
+[PASS] suppression get-bounces-classifications help
+[PASS] suppression get-bounces-classifications happy_path
+[PASS] suppression get-bounces-classifications json_fidelity
+[SKIP] suppression get-bounces-classifications error_path: no positional argument
+[PASS] suppression get-invalid-email help
+[SKIP] suppression get-invalid-email happy_path: non-id positional "email" at depth 0
+[SKIP] suppression get-invalid-email json_fidelity: non-id positional "email" at depth 0
+[FAIL] suppression get-invalid-email error_path: expected non-zero exit for invalid argument
+[PASS] suppression get-spam-report help
+[SKIP] suppression get-spam-report happy_path: non-id positional "email" at depth 0
+[SKIP] suppression get-spam-report json_fidelity: non-id positional "email" at depth 0
+[FAIL] suppression get-spam-report error_path: expected non-zero exit for invalid argument
+[PASS] suppression list-block help
+[PASS] suppression list-block happy_path
+[PASS] suppression list-block json_fidelity
+[SKIP] suppression list-block error_path: no positional argument
+[PASS] suppression list-bounces help
+[PASS] suppression list-bounces happy_path
+[PASS] suppression list-bounces json_fidelity
+[SKIP] suppression list-bounces error_path: no positional argument
+[PASS] suppression list-bounces-classifications help
+[PASS] suppression list-bounces-classifications happy_path
+[PASS] suppression list-bounces-classifications json_fidelity
+[SKIP] suppression list-bounces-classifications error_path: no positional argument
+[PASS] suppression list-global help
+[PASS] suppression list-global happy_path
+[PASS] suppression list-global json_fidelity
+[SKIP] suppression list-global error_path: no positional argument
+[PASS] suppression list-invalid-email help
+[PASS] suppression list-invalid-email happy_path
+[PASS] suppression list-invalid-email json_fidelity
+[SKIP] suppression list-invalid-email error_path: no positional argument
+[PASS] suppression list-spam-report help
+[PASS] suppression list-spam-report happy_path
+[PASS] suppression list-spam-report json_fidelity
+[SKIP] suppression list-spam-report error_path: no positional argument
+[PASS] suppression sync help
+[FAIL] suppression sync happy_path: exit 1
+[FAIL] suppression sync json_fidelity: exit 1
+[SKIP] suppression sync error_path: no positional argument
+[PASS] sync help
+[PASS] sync happy_path
+[FAIL] sync json_fidelity: invalid JSON
+[SKIP] sync error_path: no positional argument
+[PASS] tail help
+[SKIP] tail happy_path: command path [tail] has fewer segments than placeholders (1)
+[SKIP] tail json_fidelity: command path [tail] has fewer segments than placeholders (1)
+[PASS] tail error_path
+[PASS] teammates delete help
+[SKIP] teammates delete happy_path: non-id positional "username" at depth 0
+[SKIP] teammates delete json_fidelity: non-id positional "username" at depth 0
+[SKIP] teammates delete error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] teammates delete error_path_real: non-id positional "username" at depth 0
+[PASS] teammates delete-pending help
+[SKIP] teammates delete-pending happy_path: non-id positional "token" at depth 0
+[SKIP] teammates delete-pending json_fidelity: non-id positional "token" at depth 0
+[SKIP] teammates delete-pending error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] teammates delete-pending error_path_real: non-id positional "token" at depth 0
+[PASS] teammates get help
+[SKIP] teammates get happy_path: non-id positional "username" at depth 0
+[SKIP] teammates get json_fidelity: non-id positional "username" at depth 0
+[PASS] teammates get error_path
+[PASS] teammates invite help
+[PASS] teammates invite happy_path
+[PASS] teammates invite json_fidelity
+[SKIP] teammates invite error_path: no positional argument
+[SKIP] teammates invite error_path_real: mutating command dry-run only
+[PASS] teammates list help
+[PASS] teammates list happy_path
+[PASS] teammates list json_fidelity
+[SKIP] teammates list error_path: no positional argument
+[PASS] teammates list-pending help
+[PASS] teammates list-pending happy_path
+[PASS] teammates list-pending json_fidelity
+[SKIP] teammates list-pending error_path: no positional argument
+[PASS] teammates resend-invite help
+[SKIP] teammates resend-invite happy_path: non-id positional "token" at depth 0
+[SKIP] teammates resend-invite json_fidelity: non-id positional "token" at depth 0
+[SKIP] teammates resend-invite error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] teammates resend-invite error_path_real: non-id positional "token" at depth 0
+[PASS] teammates subuser-access list-subuser-by-template help
+[SKIP] teammates subuser-access list-subuser-by-template happy_path: non-id positional "teammate_name" at depth 0
+[SKIP] teammates subuser-access list-subuser-by-template json_fidelity: non-id positional "teammate_name" at depth 0
+[PASS] teammates subuser-access list-subuser-by-template error_path
+[PASS] teammates update help
+[SKIP] teammates update happy_path: non-id positional "username" at depth 0
+[SKIP] teammates update json_fidelity: non-id positional "username" at depth 0
+[SKIP] teammates update error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] teammates update error_path_real: non-id positional "username" at depth 0
+[PASS] templates create help
+[PASS] templates create happy_path
+[PASS] templates create json_fidelity
+[SKIP] templates create error_path: no positional argument
+[SKIP] templates create error_path_real: mutating command dry-run only
+[PASS] templates delete help
+[SKIP] templates delete happy_path: list companion failed at depth 0: exit 1
+[SKIP] templates delete json_fidelity: list companion failed at depth 0: exit 1
+[SKIP] templates delete error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] templates delete error_path_real: list companion failed at depth 0: exit 1
+[PASS] templates diff help
+[SKIP] templates diff happy_path: command path [templates diff] has fewer segments than placeholders (3)
+[SKIP] templates diff json_fidelity: command path [templates diff] has fewer segments than placeholders (3)
+[PASS] templates diff error_path
+[PASS] templates duplicate help
+[SKIP] templates duplicate happy_path: list companion previously failed at depth 0 for "template_id"
+[SKIP] templates duplicate json_fidelity: list companion previously failed at depth 0 for "template_id"
+[SKIP] templates duplicate error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] templates duplicate error_path_real: list companion previously failed at depth 0 for "template_id"
+[PASS] templates get help
+[SKIP] templates get happy_path: list companion previously failed at depth 0 for "template_id"
+[SKIP] templates get json_fidelity: list companion previously failed at depth 0 for "template_id"
+[PASS] templates get error_path
+[PASS] templates lint help
+[SKIP] templates lint happy_path: list companion previously failed at depth 0 for "template-id"
+[SKIP] templates lint json_fidelity: list companion previously failed at depth 0 for "template-id"
+[PASS] templates lint error_path
+[PASS] templates list help
+[PASS] templates list happy_path
+[PASS] templates list json_fidelity
+[SKIP] templates list error_path: no positional argument
+[PASS] templates update help
+[SKIP] templates update happy_path: list companion previously failed at depth 0 for "template_id"
+[SKIP] templates update json_fidelity: list companion previously failed at depth 0 for "template_id"
+[SKIP] templates update error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] templates update error_path_real: list companion previously failed at depth 0 for "template_id"
+[PASS] templates versions activate-template help
+[SKIP] templates versions activate-template happy_path: list companion previously failed at depth 0 for "template_id"
+[SKIP] templates versions activate-template json_fidelity: list companion previously failed at depth 0 for "template_id"
+[SKIP] templates versions activate-template error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] templates versions activate-template error_path_real: list companion previously failed at depth 0 for "template_id"
+[PASS] templates versions create-template help
+[SKIP] templates versions create-template happy_path: no list companion at depth 0 for "template_id"
+[SKIP] templates versions create-template json_fidelity: no list companion at depth 0 for "template_id"
+[SKIP] templates versions create-template error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] templates versions create-template error_path_real: no list companion at depth 0 for "template_id"
+[PASS] templates versions delete-template help
+[SKIP] templates versions delete-template happy_path: list companion previously failed at depth 0 for "template_id"
+[SKIP] templates versions delete-template json_fidelity: list companion previously failed at depth 0 for "template_id"
+[SKIP] templates versions delete-template error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] templates versions delete-template error_path_real: list companion previously failed at depth 0 for "template_id"
+[PASS] templates versions get-template help
+[SKIP] templates versions get-template happy_path: list companion previously failed at depth 0 for "template_id"
+[SKIP] templates versions get-template json_fidelity: list companion previously failed at depth 0 for "template_id"
+[PASS] templates versions get-template error_path
+[PASS] templates versions update-template help
+[SKIP] templates versions update-template happy_path: list companion previously failed at depth 0 for "template_id"
+[SKIP] templates versions update-template json_fidelity: list companion previously failed at depth 0 for "template_id"
+[SKIP] templates versions update-template error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] templates versions update-template error_path_real: list companion previously failed at depth 0 for "template_id"
+[PASS] tracking-settings list help
+[PASS] tracking-settings list happy_path
+[PASS] tracking-settings list json_fidelity
+[SKIP] tracking-settings list error_path: no positional argument
+[PASS] tracking-settings list-click help
+[PASS] tracking-settings list-click happy_path
+[PASS] tracking-settings list-click json_fidelity
+[SKIP] tracking-settings list-click error_path: no positional argument
+[PASS] tracking-settings list-google-analytics help
+[PASS] tracking-settings list-google-analytics happy_path
+[PASS] tracking-settings list-google-analytics json_fidelity
+[SKIP] tracking-settings list-google-analytics error_path: no positional argument
+[PASS] tracking-settings list-open help
+[PASS] tracking-settings list-open happy_path
+[PASS] tracking-settings list-open json_fidelity
+[SKIP] tracking-settings list-open error_path: no positional argument
+[PASS] tracking-settings list-subscription help
+[PASS] tracking-settings list-subscription happy_path
+[PASS] tracking-settings list-subscription json_fidelity
+[SKIP] tracking-settings list-subscription error_path: no positional argument
+[PASS] tracking-settings update-click help
+[PASS] tracking-settings update-click happy_path
+[PASS] tracking-settings update-click json_fidelity
+[SKIP] tracking-settings update-click error_path: no positional argument
+[SKIP] tracking-settings update-click error_path_real: mutating command dry-run only
+[PASS] tracking-settings update-google-analytics help
+[PASS] tracking-settings update-google-analytics happy_path
+[PASS] tracking-settings update-google-analytics json_fidelity
+[SKIP] tracking-settings update-google-analytics error_path: no positional argument
+[SKIP] tracking-settings update-google-analytics error_path_real: mutating command dry-run only
+[PASS] tracking-settings update-open help
+[PASS] tracking-settings update-open happy_path
+[PASS] tracking-settings update-open json_fidelity
+[SKIP] tracking-settings update-open error_path: no positional argument
+[SKIP] tracking-settings update-open error_path_real: mutating command dry-run only
+[PASS] tracking-settings update-subscription help
+[PASS] tracking-settings update-subscription happy_path
+[PASS] tracking-settings update-subscription json_fidelity
+[SKIP] tracking-settings update-subscription error_path: no positional argument
+[SKIP] tracking-settings update-subscription error_path_real: mutating command dry-run only
+[PASS] user create-event-webhook help
+[PASS] user create-event-webhook happy_path
+[PASS] user create-event-webhook json_fidelity
+[SKIP] user create-event-webhook error_path: no positional argument
+[SKIP] user create-event-webhook error_path_real: mutating command dry-run only
+[PASS] user create-parse-setting help
+[PASS] user create-parse-setting happy_path
+[PASS] user create-parse-setting json_fidelity
+[SKIP] user create-parse-setting error_path: no positional argument
+[SKIP] user create-parse-setting error_path_real: mutating command dry-run only
+[PASS] user create-scheduled-send help
+[PASS] user create-scheduled-send happy_path
+[PASS] user create-scheduled-send json_fidelity
+[SKIP] user create-scheduled-send error_path: no positional argument
+[SKIP] user create-scheduled-send error_path_real: mutating command dry-run only
+[PASS] user create-security-policy help
+[PASS] user create-security-policy happy_path
+[PASS] user create-security-policy json_fidelity
+[SKIP] user create-security-policy error_path: no positional argument
+[SKIP] user create-security-policy error_path_real: mutating command dry-run only
+[PASS] user delete-event-webhook help
+[SKIP] user delete-event-webhook happy_path: no list companion at depth 0 for "id"
+[SKIP] user delete-event-webhook json_fidelity: no list companion at depth 0 for "id"
+[SKIP] user delete-event-webhook error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] user delete-event-webhook error_path_real: no list companion at depth 0 for "id"
+[PASS] user delete-parse-setting help
+[SKIP] user delete-parse-setting happy_path: non-id positional "hostname" at depth 0
+[SKIP] user delete-parse-setting json_fidelity: non-id positional "hostname" at depth 0
+[SKIP] user delete-parse-setting error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] user delete-parse-setting error_path_real: non-id positional "hostname" at depth 0
+[PASS] user delete-scheduled-send help
+[SKIP] user delete-scheduled-send happy_path: no list companion at depth 0 for "batch_id"
+[SKIP] user delete-scheduled-send json_fidelity: no list companion at depth 0 for "batch_id"
+[SKIP] user delete-scheduled-send error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] user delete-scheduled-send error_path_real: no list companion at depth 0 for "batch_id"
+[PASS] user delete-security-policy help
+[SKIP] user delete-security-policy happy_path: no list companion at depth 0 for "id"
+[SKIP] user delete-security-policy json_fidelity: no list companion at depth 0 for "id"
+[SKIP] user delete-security-policy error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] user delete-security-policy error_path_real: no list companion at depth 0 for "id"
+[PASS] user get-event-webhook help
+[SKIP] user get-event-webhook happy_path: no list companion at depth 0 for "id"
+[SKIP] user get-event-webhook json_fidelity: no list companion at depth 0 for "id"
+[PASS] user get-event-webhook error_path
+[PASS] user get-parse-setting help
+[SKIP] user get-parse-setting happy_path: non-id positional "hostname" at depth 0
+[SKIP] user get-parse-setting json_fidelity: non-id positional "hostname" at depth 0
+[PASS] user get-parse-setting error_path
+[PASS] user get-scheduled-send help
+[SKIP] user get-scheduled-send happy_path: no list companion at depth 0 for "batch_id"
+[SKIP] user get-scheduled-send json_fidelity: no list companion at depth 0 for "batch_id"
+[FAIL] user get-scheduled-send error_path: expected non-zero exit for invalid argument
+[PASS] user get-security-policy help
+[SKIP] user get-security-policy happy_path: no list companion at depth 0 for "id"
+[SKIP] user get-security-policy json_fidelity: no list companion at depth 0 for "id"
+[PASS] user get-security-policy error_path
+[PASS] user get-signed-event-webhook help
+[SKIP] user get-signed-event-webhook happy_path: no list companion at depth 0 for "id"
+[SKIP] user get-signed-event-webhook json_fidelity: no list companion at depth 0 for "id"
+[PASS] user get-signed-event-webhook error_path
+[PASS] user list-account help
+[PASS] user list-account happy_path
+[PASS] user list-account json_fidelity
+[SKIP] user list-account error_path: no positional argument
+[PASS] user list-all-security-policies help
+[PASS] user list-all-security-policies happy_path
+[PASS] user list-all-security-policies json_fidelity
+[SKIP] user list-all-security-policies error_path: no positional argument
+[PASS] user list-credit help
+[PASS] user list-credit happy_path
+[PASS] user list-credit json_fidelity
+[SKIP] user list-credit error_path: no positional argument
+[PASS] user list-email help
+[PASS] user list-email happy_path
+[PASS] user list-email json_fidelity
+[SKIP] user list-email error_path: no positional argument
+[PASS] user list-enforced-tls-setting help
+[PASS] user list-enforced-tls-setting happy_path
+[PASS] user list-enforced-tls-setting json_fidelity
+[SKIP] user list-enforced-tls-setting error_path: no positional argument
+[PASS] user list-event-webhook help
+[PASS] user list-event-webhook happy_path
+[PASS] user list-event-webhook json_fidelity
+[SKIP] user list-event-webhook error_path: no positional argument
+[PASS] user list-parse-setting help
+[PASS] user list-parse-setting happy_path
+[PASS] user list-parse-setting json_fidelity
+[SKIP] user list-parse-setting error_path: no positional argument
+[PASS] user list-parse-static help
+[FAIL] user list-parse-static happy_path: exit 5
+[FAIL] user list-parse-static json_fidelity: exit 5
+[SKIP] user list-parse-static error_path: no positional argument
+[PASS] user list-profile help
+[PASS] user list-profile happy_path
+[PASS] user list-profile json_fidelity
+[SKIP] user list-profile error_path: no positional argument
+[PASS] user list-scheduled-send help
+[PASS] user list-scheduled-send happy_path
+[PASS] user list-scheduled-send json_fidelity
+[SKIP] user list-scheduled-send error_path: no positional argument
+[PASS] user list-username help
+[PASS] user list-username happy_path
+[PASS] user list-username json_fidelity
+[SKIP] user list-username error_path: no positional argument
+[PASS] user test-event-webhook help
+[PASS] user test-event-webhook happy_path
+[PASS] user test-event-webhook json_fidelity
+[SKIP] user test-event-webhook error_path: no positional argument
+[SKIP] user test-event-webhook error_path_real: mutating command dry-run only
+[PASS] user update-email help
+[PASS] user update-email happy_path
+[PASS] user update-email json_fidelity
+[SKIP] user update-email error_path: no positional argument
+[SKIP] user update-email error_path_real: mutating command dry-run only
+[PASS] user update-enforced-tls-setting help
+[PASS] user update-enforced-tls-setting happy_path
+[PASS] user update-enforced-tls-setting json_fidelity
+[SKIP] user update-enforced-tls-setting error_path: no positional argument
+[SKIP] user update-enforced-tls-setting error_path_real: mutating command dry-run only
+[PASS] user update-event-webhook help
+[SKIP] user update-event-webhook happy_path: no list companion at depth 0 for "id"
+[SKIP] user update-event-webhook json_fidelity: no list companion at depth 0 for "id"
+[SKIP] user update-event-webhook error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] user update-event-webhook error_path_real: no list companion at depth 0 for "id"
+[PASS] user update-parse-setting help
+[SKIP] user update-parse-setting happy_path: non-id positional "hostname" at depth 0
+[SKIP] user update-parse-setting json_fidelity: non-id positional "hostname" at depth 0
+[SKIP] user update-parse-setting error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] user update-parse-setting error_path_real: non-id positional "hostname" at depth 0
+[PASS] user update-password help
+[PASS] user update-password happy_path
+[PASS] user update-password json_fidelity
+[SKIP] user update-password error_path: no positional argument
+[SKIP] user update-password error_path_real: mutating command dry-run only
+[PASS] user update-profile help
+[PASS] user update-profile happy_path
+[PASS] user update-profile json_fidelity
+[SKIP] user update-profile error_path: no positional argument
+[SKIP] user update-profile error_path_real: mutating command dry-run only
+[PASS] user update-scheduled-send help
+[SKIP] user update-scheduled-send happy_path: no list companion at depth 0 for "batch_id"
+[SKIP] user update-scheduled-send json_fidelity: no list companion at depth 0 for "batch_id"
+[SKIP] user update-scheduled-send error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] user update-scheduled-send error_path_real: no list companion at depth 0 for "batch_id"
+[PASS] user update-security-policy help
+[SKIP] user update-security-policy happy_path: no list companion at depth 0 for "id"
+[SKIP] user update-security-policy json_fidelity: no list companion at depth 0 for "id"
+[SKIP] user update-security-policy error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] user update-security-policy error_path_real: no list companion at depth 0 for "id"
+[PASS] user update-signed-event-webhook help
+[SKIP] user update-signed-event-webhook happy_path: no list companion at depth 0 for "id"
+[SKIP] user update-signed-event-webhook json_fidelity: no list companion at depth 0 for "id"
+[SKIP] user update-signed-event-webhook error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] user update-signed-event-webhook error_path_real: no list companion at depth 0 for "id"
+[PASS] user update-username help
+[PASS] user update-username happy_path
+[PASS] user update-username json_fidelity
+[SKIP] user update-username error_path: no positional argument
+[SKIP] user update-username error_path_real: mutating command dry-run only
+[PASS] validations get-email-job-for-verification help
+[SKIP] validations get-email-job-for-verification happy_path: no list companion at depth 0 for "job_id"
+[SKIP] validations get-email-job-for-verification json_fidelity: no list companion at depth 0 for "job_id"
+[PASS] validations get-email-job-for-verification error_path
+[PASS] validations get-email-jobs help
+[SKIP] validations get-email-jobs happy_path: unavailable for runner credentials
+[SKIP] validations get-email-jobs json_fidelity: unavailable for runner credentials
+[SKIP] validations get-email-jobs error_path: no positional argument
+[PASS] validations list-email-job-for-verification help
+[PASS] validations list-email-job-for-verification happy_path
+[PASS] validations list-email-job-for-verification json_fidelity
+[SKIP] validations list-email-job-for-verification error_path: no positional argument
+[SKIP] validations list-email-job-for-verification error_path_real: mutating command dry-run only
+[PASS] validations validate-email help
+[PASS] validations validate-email happy_path
+[PASS] validations validate-email json_fidelity
+[SKIP] validations validate-email error_path: no positional argument
+[SKIP] validations validate-email error_path_real: mutating command dry-run only
+[PASS] verified-senders create help
+[PASS] verified-senders create happy_path
+[PASS] verified-senders create json_fidelity
+[SKIP] verified-senders create error_path: no positional argument
+[SKIP] verified-senders create error_path_real: mutating command dry-run only
+[PASS] verified-senders delete help
+[PASS] verified-senders delete happy_path
+[PASS] verified-senders delete json_fidelity
+[SKIP] verified-senders delete error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] verified-senders delete error_path_real: mutating command dry-run only
+[PASS] verified-senders list help
+[PASS] verified-senders list happy_path
+[PASS] verified-senders list json_fidelity
+[SKIP] verified-senders list error_path: no positional argument
+[PASS] verified-senders list-domain help
+[PASS] verified-senders list-domain happy_path
+[PASS] verified-senders list-domain json_fidelity
+[SKIP] verified-senders list-domain error_path: no positional argument
+[PASS] verified-senders list-steps-completed help
+[PASS] verified-senders list-steps-completed happy_path
+[PASS] verified-senders list-steps-completed json_fidelity
+[SKIP] verified-senders list-steps-completed error_path: no positional argument
+[PASS] verified-senders resend help
+[PASS] verified-senders resend happy_path
+[PASS] verified-senders resend json_fidelity
+[SKIP] verified-senders resend error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] verified-senders resend error_path_real: mutating command dry-run only
+[PASS] verified-senders update help
+[PASS] verified-senders update happy_path
+[PASS] verified-senders update json_fidelity
+[SKIP] verified-senders update error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] verified-senders update error_path_real: mutating command dry-run only
+[PASS] verified-senders verify-sender-token help
+[SKIP] verified-senders verify-sender-token happy_path: non-id positional "token" at depth 0
+[SKIP] verified-senders verify-sender-token json_fidelity: non-id positional "token" at depth 0
+[PASS] verified-senders verify-sender-token error_path
+[PASS] which help
+[SKIP] which happy_path: command path [which] has fewer segments than placeholders (1)
+[SKIP] which json_fidelity: command path [which] has fewer segments than placeholders (1)
+[PASS] which error_path
+[PASS] whitelabel add-ip-to-authenticated-domain help
+[SKIP] whitelabel add-ip-to-authenticated-domain happy_path: no list companion at depth 0 for "id"
+[SKIP] whitelabel add-ip-to-authenticated-domain json_fidelity: no list companion at depth 0 for "id"
+[SKIP] whitelabel add-ip-to-authenticated-domain error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] whitelabel add-ip-to-authenticated-domain error_path_real: no list companion at depth 0 for "id"
+[PASS] whitelabel associate-branded-link-with-subuser help
+[SKIP] whitelabel associate-branded-link-with-subuser happy_path: no list companion at depth 0 for "link_id"
+[SKIP] whitelabel associate-branded-link-with-subuser json_fidelity: no list companion at depth 0 for "link_id"
+[SKIP] whitelabel associate-branded-link-with-subuser error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] whitelabel associate-branded-link-with-subuser error_path_real: no list companion at depth 0 for "link_id"
+[PASS] whitelabel associate-subuser-with-domain help
+[SKIP] whitelabel associate-subuser-with-domain happy_path: no list companion at depth 0 for "domain_id"
+[SKIP] whitelabel associate-subuser-with-domain json_fidelity: no list companion at depth 0 for "domain_id"
+[SKIP] whitelabel associate-subuser-with-domain error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] whitelabel associate-subuser-with-domain error_path_real: no list companion at depth 0 for "domain_id"
+[PASS] whitelabel associate-subuser-with-domain-multiple help
+[SKIP] whitelabel associate-subuser-with-domain-multiple happy_path: no list companion at depth 0 for "domain_id"
+[SKIP] whitelabel associate-subuser-with-domain-multiple json_fidelity: no list companion at depth 0 for "domain_id"
+[SKIP] whitelabel associate-subuser-with-domain-multiple error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] whitelabel associate-subuser-with-domain-multiple error_path_real: no list companion at depth 0 for "domain_id"
+[PASS] whitelabel authenticate-domain help
+[PASS] whitelabel authenticate-domain happy_path
+[PASS] whitelabel authenticate-domain json_fidelity
+[SKIP] whitelabel authenticate-domain error_path: no positional argument
+[SKIP] whitelabel authenticate-domain error_path_real: mutating command dry-run only
+[PASS] whitelabel create-branded-link help
+[PASS] whitelabel create-branded-link happy_path
+[PASS] whitelabel create-branded-link json_fidelity
+[SKIP] whitelabel create-branded-link error_path: no positional argument
+[SKIP] whitelabel create-branded-link error_path_real: mutating command dry-run only
+[PASS] whitelabel delete-authenticated-domain help
+[SKIP] whitelabel delete-authenticated-domain happy_path: no list companion at depth 0 for "domain_id"
+[SKIP] whitelabel delete-authenticated-domain json_fidelity: no list companion at depth 0 for "domain_id"
+[SKIP] whitelabel delete-authenticated-domain error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] whitelabel delete-authenticated-domain error_path_real: no list companion at depth 0 for "domain_id"
+[PASS] whitelabel delete-branded-link help
+[SKIP] whitelabel delete-branded-link happy_path: no list companion at depth 0 for "id"
+[SKIP] whitelabel delete-branded-link json_fidelity: no list companion at depth 0 for "id"
+[SKIP] whitelabel delete-branded-link error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] whitelabel delete-branded-link error_path_real: no list companion at depth 0 for "id"
+[PASS] whitelabel delete-ip-from-authenticated-domain help
+[SKIP] whitelabel delete-ip-from-authenticated-domain happy_path: command path [whitelabel delete-ip-from-authenticated-domain] has fewer segments than placeholders (2)
+[SKIP] whitelabel delete-ip-from-authenticated-domain json_fidelity: command path [whitelabel delete-ip-from-authenticated-domain] has fewer segments than placeholders (2)
+[SKIP] whitelabel delete-ip-from-authenticated-domain error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] whitelabel delete-ip-from-authenticated-domain error_path_real: command path [whitelabel delete-ip-from-authenticated-domain] has fewer segments than placeholders (2)
+[PASS] whitelabel delete-reverse-dns help
+[SKIP] whitelabel delete-reverse-dns happy_path: no list companion at depth 0 for "id"
+[SKIP] whitelabel delete-reverse-dns json_fidelity: no list companion at depth 0 for "id"
+[SKIP] whitelabel delete-reverse-dns error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] whitelabel delete-reverse-dns error_path_real: no list companion at depth 0 for "id"
+[PASS] whitelabel disassociate-authenticated-domain-from-user help
+[PASS] whitelabel disassociate-authenticated-domain-from-user happy_path
+[PASS] whitelabel disassociate-authenticated-domain-from-user json_fidelity
+[SKIP] whitelabel disassociate-authenticated-domain-from-user error_path: no positional argument
+[SKIP] whitelabel disassociate-authenticated-domain-from-user error_path_real: mutating command dry-run only
+[PASS] whitelabel disassociate-branded-link-from-subuser help
+[PASS] whitelabel disassociate-branded-link-from-subuser happy_path
+[PASS] whitelabel disassociate-branded-link-from-subuser json_fidelity
+[SKIP] whitelabel disassociate-branded-link-from-subuser error_path: no positional argument
+[SKIP] whitelabel disassociate-branded-link-from-subuser error_path_real: mutating command dry-run only
+[PASS] whitelabel disassociate-subuser-from-domain help
+[SKIP] whitelabel disassociate-subuser-from-domain happy_path: no list companion at depth 0 for "domain_id"
+[SKIP] whitelabel disassociate-subuser-from-domain json_fidelity: no list companion at depth 0 for "domain_id"
+[SKIP] whitelabel disassociate-subuser-from-domain error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] whitelabel disassociate-subuser-from-domain error_path_real: no list companion at depth 0 for "domain_id"
+[PASS] whitelabel email-dns-record help
+[PASS] whitelabel email-dns-record happy_path
+[PASS] whitelabel email-dns-record json_fidelity
+[SKIP] whitelabel email-dns-record error_path: no positional argument
+[SKIP] whitelabel email-dns-record error_path_real: mutating command dry-run only
+[PASS] whitelabel get-authenticated-domain help
+[SKIP] whitelabel get-authenticated-domain happy_path: no list companion at depth 0 for "domain_id"
+[SKIP] whitelabel get-authenticated-domain json_fidelity: no list companion at depth 0 for "domain_id"
+[PASS] whitelabel get-authenticated-domain error_path
+[PASS] whitelabel get-branded-link help
+[SKIP] whitelabel get-branded-link happy_path: no list companion at depth 0 for "id"
+[SKIP] whitelabel get-branded-link json_fidelity: no list companion at depth 0 for "id"
+[PASS] whitelabel get-branded-link error_path
+[PASS] whitelabel get-reverse-dns help
+[SKIP] whitelabel get-reverse-dns happy_path: no list companion at depth 0 for "id"
+[SKIP] whitelabel get-reverse-dns json_fidelity: no list companion at depth 0 for "id"
+[PASS] whitelabel get-reverse-dns error_path
+[PASS] whitelabel list-all-authenticated-domain-with-user help
+[FAIL] whitelabel list-all-authenticated-domain-with-user happy_path: exit 3
+[FAIL] whitelabel list-all-authenticated-domain-with-user json_fidelity: exit 3
+[SKIP] whitelabel list-all-authenticated-domain-with-user error_path: no positional argument
+[PASS] whitelabel list-authenticated-domain help
+[PASS] whitelabel list-authenticated-domain happy_path
+[PASS] whitelabel list-authenticated-domain json_fidelity
+[SKIP] whitelabel list-authenticated-domain error_path: no positional argument
+[PASS] whitelabel list-authenticated-domain-with-user help
+[FAIL] whitelabel list-authenticated-domain-with-user happy_path: exit 3
+[FAIL] whitelabel list-authenticated-domain-with-user json_fidelity: exit 3
+[SKIP] whitelabel list-authenticated-domain-with-user error_path: no positional argument
+[PASS] whitelabel list-branded-link help
+[PASS] whitelabel list-branded-link happy_path
+[PASS] whitelabel list-branded-link json_fidelity
+[SKIP] whitelabel list-branded-link error_path: no positional argument
+[PASS] whitelabel list-default-authenticated-domain help
+[PASS] whitelabel list-default-authenticated-domain happy_path
+[PASS] whitelabel list-default-authenticated-domain json_fidelity
+[SKIP] whitelabel list-default-authenticated-domain error_path: no positional argument
+[PASS] whitelabel list-default-branded-link help
+[PASS] whitelabel list-default-branded-link happy_path
+[PASS] whitelabel list-default-branded-link json_fidelity
+[SKIP] whitelabel list-default-branded-link error_path: no positional argument
+[PASS] whitelabel list-reverse-dns help
+[PASS] whitelabel list-reverse-dns happy_path
+[PASS] whitelabel list-reverse-dns json_fidelity
+[SKIP] whitelabel list-reverse-dns error_path: no positional argument
+[PASS] whitelabel list-subuser-branded-link help
+[FAIL] whitelabel list-subuser-branded-link happy_path: exit 5
+[FAIL] whitelabel list-subuser-branded-link json_fidelity: exit 5
+[SKIP] whitelabel list-subuser-branded-link error_path: no positional argument
+[PASS] whitelabel set-up-reverse-dns help
+[PASS] whitelabel set-up-reverse-dns happy_path
+[PASS] whitelabel set-up-reverse-dns json_fidelity
+[SKIP] whitelabel set-up-reverse-dns error_path: no positional argument
+[SKIP] whitelabel set-up-reverse-dns error_path_real: mutating command dry-run only
+[PASS] whitelabel update-authenticated-domain help
+[SKIP] whitelabel update-authenticated-domain happy_path: no list companion at depth 0 for "domain_id"
+[SKIP] whitelabel update-authenticated-domain json_fidelity: no list companion at depth 0 for "domain_id"
+[SKIP] whitelabel update-authenticated-domain error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] whitelabel update-authenticated-domain error_path_real: no list companion at depth 0 for "domain_id"
+[PASS] whitelabel update-branded-link help
+[SKIP] whitelabel update-branded-link happy_path: no list companion at depth 0 for "id"
+[SKIP] whitelabel update-branded-link json_fidelity: no list companion at depth 0 for "id"
+[SKIP] whitelabel update-branded-link error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] whitelabel update-branded-link error_path_real: no list companion at depth 0 for "id"
+[PASS] whitelabel validate-authenticated-domain help
+[SKIP] whitelabel validate-authenticated-domain happy_path: no list companion at depth 0 for "id"
+[SKIP] whitelabel validate-authenticated-domain json_fidelity: no list companion at depth 0 for "id"
+[SKIP] whitelabel validate-authenticated-domain error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] whitelabel validate-authenticated-domain error_path_real: no list companion at depth 0 for "id"
+[PASS] whitelabel validate-branded-link help
+[SKIP] whitelabel validate-branded-link happy_path: no list companion at depth 0 for "id"
+[SKIP] whitelabel validate-branded-link json_fidelity: no list companion at depth 0 for "id"
+[SKIP] whitelabel validate-branded-link error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] whitelabel validate-branded-link error_path_real: no list companion at depth 0 for "id"
+[PASS] whitelabel validate-reverse-dns help
+[SKIP] whitelabel validate-reverse-dns happy_path: no list companion at depth 0 for "id"
+[SKIP] whitelabel validate-reverse-dns json_fidelity: no list companion at depth 0 for "id"
+[SKIP] whitelabel validate-reverse-dns error_path: mutating command; error_path would call live API without --dry-run
+[SKIP] whitelabel validate-reverse-dns error_path_real: no list companion at depth 0 for "id"
+[PASS] workflow archive help
+[FAIL] workflow archive happy_path: exit -1
+[FAIL] workflow archive json_fidelity: invalid JSON
+[SKIP] workflow archive error_path: no positional argument
+[PASS] workflow status help
+[PASS] workflow status happy_path
+[PASS] workflow status json_fidelity
+[SKIP] workflow status error_path: no positional argument
+Error: live dogfood failed: 42/874 tests failed
+live dogfood failed: 42/874 tests failed
