@@ -462,6 +462,15 @@ func newProductionSweepCmd(flags *rootFlags) *cobra.Command {
 			if azStep <= 0 {
 				return fmt.Errorf("--azimuth-step must be > 0")
 			}
+			// PATCH(p1-no-sentinel-leak-on-inverted-bounds): refuse inverted
+			// ranges up front. Without this, no iteration would run and the
+			// sentinel best{EY: -1} would leak into the JSON output.
+			if tiltMin > tiltMax {
+				return fmt.Errorf("--tilt-min (%v) must be <= --tilt-max (%v)", tiltMin, tiltMax)
+			}
+			if azMin > azMax {
+				return fmt.Errorf("--azimuth-min (%v) must be <= --azimuth-max (%v)", azMin, azMax)
+			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
@@ -546,6 +555,11 @@ func newProductionOptimalTiltCmd(flags *rootFlags) *cobra.Command {
 			}
 			if tiltStep <= 0 {
 				return fmt.Errorf("--tilt-step must be > 0")
+			}
+			// PATCH(p1-no-sentinel-leak-on-inverted-bounds): refuse inverted
+			// range up front so the sentinel best_e_y=-1 cannot leak into JSON.
+			if tiltMin > tiltMax {
+				return fmt.Errorf("--tilt-min (%v) must be <= --tilt-max (%v)", tiltMin, tiltMax)
 			}
 			c, err := flags.newClient()
 			if err != nil {
