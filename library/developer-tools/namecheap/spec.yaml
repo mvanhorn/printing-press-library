@@ -1,0 +1,285 @@
+openapi: 3.0.3
+info:
+  title: Namecheap API
+  version: "1.0"
+  description: |
+    Curated OpenAPI description for Namecheap's XML API. The real API uses a single
+    endpoint (`/xml.response`) with a `Command` query parameter plus Namecheap's
+    query-string authentication parameters (`ApiUser`, `ApiKey`, `UserName`, `ClientIp`).
+    Generation uses command-shaped pseudo paths that are normalized back to `/xml.response`
+    by the Namecheap printed CLI patch layer.
+servers:
+  - url: https://api.namecheap.com
+    description: Production
+  - url: https://api.sandbox.namecheap.com
+    description: Sandbox
+components:
+  securitySchemes:
+    ApiKeyQuery:
+      type: apiKey
+      in: query
+      name: ApiKey
+  parameters:
+    DomainName:
+      name: DomainName
+      in: query
+      description: Fully qualified domain name.
+      schema: { type: string }
+    DomainList:
+      name: DomainList
+      in: query
+      description: Comma-separated list of domains (maximum 50 for domains.check).
+      schema: { type: string }
+    SLD:
+      name: SLD
+      in: query
+      description: Second-level domain, without the TLD.
+      schema: { type: string }
+    TLD:
+      name: TLD
+      in: query
+      description: Top-level domain without the leading dot.
+      schema: { type: string }
+    Page:
+      name: Page
+      in: query
+      schema: { type: integer, minimum: 1 }
+    PageSize:
+      name: PageSize
+      in: query
+      schema: { type: integer, minimum: 1, maximum: 100 }
+    SortBy:
+      name: SortBy
+      in: query
+      schema: { type: string }
+  responses:
+    NamecheapXML:
+      description: Namecheap XML API envelope. The CLI converts this XML envelope to JSON for agent-native output.
+      content:
+        application/xml:
+          schema:
+            type: string
+        text/xml:
+          schema:
+            type: string
+security:
+  - ApiKeyQuery: []
+paths:
+  /xml.response/domains/check:
+    get:
+      operationId: domains_check
+      tags: [domains]
+      summary: Check domain availability for one or more domains.
+      description: Runs `namecheap.domains.check` with DomainList.
+      parameters:
+        - $ref: '#/components/parameters/DomainList'
+      responses: { '200': { $ref: '#/components/responses/NamecheapXML' } }
+  /xml.response/domains/get-list:
+    get:
+      operationId: domains_get_list
+      tags: [domains]
+      summary: List domains in the account.
+      description: Runs `namecheap.domains.getList` with paging and optional filters.
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/SortBy'
+        - { name: SearchTerm, in: query, description: Domain search term, schema: { type: string } }
+        - { name: ListType, in: query, description: ALL, EXPIRING, or EXPIRED, schema: { type: string, enum: [ALL, EXPIRING, EXPIRED] } }
+      responses: { '200': { $ref: '#/components/responses/NamecheapXML' } }
+  /xml.response/domains/get-info:
+    get:
+      operationId: domains_get_info
+      tags: [domains]
+      summary: Get detailed domain information.
+      description: Runs `namecheap.domains.getInfo` for a domain.
+      parameters:
+        - $ref: '#/components/parameters/DomainName'
+      responses: { '200': { $ref: '#/components/responses/NamecheapXML' } }
+  /xml.response/domains/get-contacts:
+    get:
+      operationId: domains_get_contacts
+      tags: [domains]
+      summary: Get Whois contacts for a domain.
+      description: Runs `namecheap.domains.getContacts`.
+      parameters:
+        - $ref: '#/components/parameters/DomainName'
+      responses: { '200': { $ref: '#/components/responses/NamecheapXML' } }
+  /xml.response/domains/get-registrar-lock:
+    get:
+      operationId: domains_get_registrar_lock
+      tags: [domains]
+      summary: Get registrar lock state.
+      description: Runs `namecheap.domains.getRegistrarLock`.
+      parameters:
+        - $ref: '#/components/parameters/DomainName'
+      responses: { '200': { $ref: '#/components/responses/NamecheapXML' } }
+  /xml.response/domains/get-tld-list:
+    get:
+      operationId: domains_get_tld_list
+      tags: [domains]
+      summary: List supported TLDs.
+      description: Runs `namecheap.domains.getTldList`.
+      responses: { '200': { $ref: '#/components/responses/NamecheapXML' } }
+  /xml.response/domains/create:
+    get:
+      operationId: domains_create
+      tags: [domains]
+      summary: Register a new domain.
+      description: Runs `namecheap.domains.create`. This is a mutating paid operation; use dry-run unless intentionally registering.
+      parameters:
+        - $ref: '#/components/parameters/DomainName'
+        - { name: Years, in: query, schema: { type: integer, minimum: 1, maximum: 10 } }
+        - { name: PromotionCode, in: query, schema: { type: string } }
+        - { name: AddFreeWhoisguard, in: query, schema: { type: string, enum: ['yes','no'] } }
+        - { name: WGEnabled, in: query, schema: { type: string, enum: ['yes','no'] } }
+        - { name: Nameservers, in: query, description: Comma-separated nameservers, schema: { type: string } }
+      responses: { '200': { $ref: '#/components/responses/NamecheapXML' } }
+  /xml.response/domains/renew:
+    get:
+      operationId: domains_renew
+      tags: [domains]
+      summary: Renew a domain.
+      description: Runs `namecheap.domains.renew`. Mutating paid operation.
+      parameters:
+        - $ref: '#/components/parameters/DomainName'
+        - { name: Years, in: query, schema: { type: integer, minimum: 1, maximum: 10 } }
+        - { name: PromotionCode, in: query, schema: { type: string } }
+      responses: { '200': { $ref: '#/components/responses/NamecheapXML' } }
+  /xml.response/domains/set-registrar-lock:
+    get:
+      operationId: domains_set_registrar_lock
+      tags: [domains]
+      summary: Enable or disable registrar lock.
+      description: Runs `namecheap.domains.setRegistrarLock`.
+      parameters:
+        - $ref: '#/components/parameters/DomainName'
+        - { name: LockAction, in: query, schema: { type: string, enum: [LOCK, UNLOCK] } }
+      responses: { '200': { $ref: '#/components/responses/NamecheapXML' } }
+  /xml.response/dns/get-list:
+    get:
+      operationId: dns_get_list
+      tags: [dns]
+      summary: Get DNS nameserver type and nameservers.
+      description: Runs `namecheap.domains.dns.getList`.
+      parameters:
+        - $ref: '#/components/parameters/SLD'
+        - $ref: '#/components/parameters/TLD'
+      responses: { '200': { $ref: '#/components/responses/NamecheapXML' } }
+  /xml.response/dns/get-hosts:
+    get:
+      operationId: dns_get_hosts
+      tags: [dns]
+      summary: Get host records for a domain.
+      description: Runs `namecheap.domains.dns.getHosts`.
+      parameters:
+        - $ref: '#/components/parameters/SLD'
+        - $ref: '#/components/parameters/TLD'
+      responses: { '200': { $ref: '#/components/responses/NamecheapXML' } }
+  /xml.response/dns/set-hosts:
+    get:
+      operationId: dns_set_hosts
+      tags: [dns]
+      summary: Replace host records for a domain.
+      description: Runs `namecheap.domains.dns.setHosts`; HostName1/RecordType1/Address1/TTL1 style parameters can be passed via --param-json in the patched CLI.
+      parameters:
+        - $ref: '#/components/parameters/SLD'
+        - $ref: '#/components/parameters/TLD'
+      responses: { '200': { $ref: '#/components/responses/NamecheapXML' } }
+  /xml.response/dns/set-default:
+    get:
+      operationId: dns_set_default
+      tags: [dns]
+      summary: Switch a domain to Namecheap default DNS.
+      description: Runs `namecheap.domains.dns.setDefault`.
+      parameters:
+        - $ref: '#/components/parameters/SLD'
+        - $ref: '#/components/parameters/TLD'
+      responses: { '200': { $ref: '#/components/responses/NamecheapXML' } }
+  /xml.response/dns/set-custom:
+    get:
+      operationId: dns_set_custom
+      tags: [dns]
+      summary: Set custom nameservers.
+      description: Runs `namecheap.domains.dns.setCustom`.
+      parameters:
+        - $ref: '#/components/parameters/SLD'
+        - $ref: '#/components/parameters/TLD'
+        - { name: Nameservers, in: query, schema: { type: string } }
+      responses: { '200': { $ref: '#/components/responses/NamecheapXML' } }
+  /xml.response/dns/get-email-forwarding:
+    get:
+      operationId: dns_get_email_forwarding
+      tags: [dns]
+      summary: Get email forwarding settings.
+      description: Runs `namecheap.domains.dns.getEmailForwarding`.
+      parameters:
+        - $ref: '#/components/parameters/DomainName'
+      responses: { '200': { $ref: '#/components/responses/NamecheapXML' } }
+  /xml.response/users/get-balances:
+    get:
+      operationId: users_get_balances
+      tags: [users]
+      summary: Get account balances.
+      description: Runs `namecheap.users.getBalances`.
+      responses: { '200': { $ref: '#/components/responses/NamecheapXML' } }
+  /xml.response/users/get-pricing:
+    get:
+      operationId: users_get_pricing
+      tags: [users]
+      summary: Get product pricing.
+      description: Runs `namecheap.users.getPricing`.
+      parameters:
+        - { name: ProductType, in: query, schema: { type: string, enum: [DOMAIN, SSL, WHOISGUARD] } }
+        - { name: ProductCategory, in: query, schema: { type: string } }
+        - { name: PromotionCode, in: query, schema: { type: string } }
+        - { name: ActionName, in: query, schema: { type: string, enum: [REGISTER, RENEW, TRANSFER, REACTIVATE, PURCHASE] } }
+      responses: { '200': { $ref: '#/components/responses/NamecheapXML' } }
+  /xml.response/users/address/get-list:
+    get:
+      operationId: users_address_get_list
+      tags: [address]
+      summary: List saved account addresses.
+      description: Runs `namecheap.users.address.getList`.
+      responses: { '200': { $ref: '#/components/responses/NamecheapXML' } }
+  /xml.response/users/address/get-info:
+    get:
+      operationId: users_address_get_info
+      tags: [address]
+      summary: Get a saved address by id.
+      description: Runs `namecheap.users.address.getInfo`.
+      parameters:
+        - { name: AddressId, in: query, schema: { type: integer } }
+      responses: { '200': { $ref: '#/components/responses/NamecheapXML' } }
+  /xml.response/ssl/get-list:
+    get:
+      operationId: ssl_get_list
+      tags: [ssl]
+      summary: List SSL certificates.
+      description: Runs `namecheap.ssl.getList`.
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+        - { name: ListType, in: query, schema: { type: string, enum: [ALL, Processing, EmailSent, TechnicalProblem, InProgress, Completed, Deactivated, Active, Cancelled, NewPurchase, NewRenewal] } }
+        - { name: SearchTerm, in: query, schema: { type: string } }
+      responses: { '200': { $ref: '#/components/responses/NamecheapXML' } }
+  /xml.response/ssl/get-info:
+    get:
+      operationId: ssl_get_info
+      tags: [ssl]
+      summary: Get SSL certificate information.
+      description: Runs `namecheap.ssl.getInfo`.
+      parameters:
+        - { name: CertificateID, in: query, schema: { type: integer } }
+        - { name: CertificateType, in: query, schema: { type: string } }
+      responses: { '200': { $ref: '#/components/responses/NamecheapXML' } }
+  /xml.response/ssl/parse-csr:
+    get:
+      operationId: ssl_parse_csr
+      tags: [ssl]
+      summary: Parse a certificate signing request.
+      description: Runs `namecheap.ssl.parseCSR`.
+      parameters:
+        - { name: csr, in: query, schema: { type: string } }
+        - { name: CertificateType, in: query, schema: { type: string } }
+      responses: { '200': { $ref: '#/components/responses/NamecheapXML' } }

@@ -1,0 +1,1213 @@
+openapi: "3.0.3"
+info:
+  title: Freshservice API
+  version: "2"
+  description: "Freshservice ITSM REST API v2 — tickets, changes, assets, users, and more."
+servers:
+  - url: "https://{domain}/api/v2"
+    variables:
+      domain:
+        default: "yourcompany.freshservice.com"
+        description: "Your Freshservice domain (e.g. acme.freshservice.com)"
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+      description: "API key as username, empty string as password. Set FRESHSERVICE_APIKEY and FRESHSERVICE_DOMAIN."
+      x-auth-vars:
+        - name: FRESHSERVICE_APIKEY
+          kind: per_call
+          required: true
+          sensitive: true
+          description: "Personal Access Token from Freshservice Profile Settings → API Settings"
+        - name: FRESHSERVICE_DOMAIN
+          kind: per_call
+          required: true
+          sensitive: false
+          description: "Your Freshservice subdomain, e.g. acme.freshservice.com"
+security:
+  - basicAuth: []
+paths:
+  /tickets:
+    get:
+      operationId: listTickets
+      summary: List tickets
+      tags: [tickets]
+      parameters:
+        - name: page
+          in: query
+          schema: {type: integer}
+        - name: per_page
+          in: query
+          schema: {type: integer}
+        - name: order_type
+          in: query
+          schema: {type: string, enum: [asc, desc]}
+      responses:
+        "200":
+          description: List of tickets
+    post:
+      operationId: createTicket
+      summary: Create a ticket
+      tags: [tickets]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [subject]
+              properties:
+                subject: {type: string}
+                description: {type: string}
+                email: {type: string}
+                requester_id: {type: integer}
+                status: {type: integer, description: "2=Open 3=Pending 4=Resolved 5=Closed"}
+                priority: {type: integer, description: "1=Low 2=Medium 3=High 4=Urgent"}
+                source: {type: integer, description: "1=Email 2=Portal 3=Phone 7=Chat 10=Slack 15=Teams"}
+                group_id: {type: integer}
+                responder_id: {type: integer}
+                type: {type: string}
+                due_by: {type: string, format: date-time}
+      responses:
+        "201":
+          description: Ticket created
+  /tickets/filter:
+    get:
+      operationId: filterTickets
+      summary: Filter tickets by query
+      tags: [tickets]
+      parameters:
+        - name: query
+          in: query
+          required: true
+          schema: {type: string}
+          description: 'Filter query string, must be double-quoted e.g. "status:2 AND priority:3"'
+        - name: page
+          in: query
+          schema: {type: integer}
+        - name: per_page
+          in: query
+          schema: {type: integer}
+      responses:
+        "200":
+          description: Filtered tickets
+  /tickets/{id}:
+    get:
+      operationId: getTicket
+      summary: Get ticket by ID
+      tags: [tickets]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+        - name: include
+          in: query
+          schema: {type: string}
+      responses:
+        "200":
+          description: Ticket details
+    put:
+      operationId: updateTicket
+      summary: Update a ticket
+      tags: [tickets]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                subject: {type: string}
+                description: {type: string}
+                status: {type: integer}
+                priority: {type: integer}
+                group_id: {type: integer}
+                responder_id: {type: integer}
+                due_by: {type: string, format: date-time}
+      responses:
+        "200":
+          description: Updated ticket
+    delete:
+      operationId: deleteTicket
+      summary: Delete a ticket
+      tags: [tickets]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+      responses:
+        "204":
+          description: Deleted
+  /tickets/{id}/restore:
+    put:
+      operationId: restoreTicket
+      summary: Restore deleted ticket
+      tags: [tickets]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+      responses:
+        "200":
+          description: Restored
+  /tickets/{id}/activities:
+    get:
+      operationId: listTicketActivities
+      summary: Get ticket activity log
+      tags: [tickets]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+      responses:
+        "200":
+          description: Activity log
+  /tickets/{id}/conversations:
+    get:
+      operationId: listTicketConversations
+      summary: List ticket conversations
+      tags: [tickets]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+      responses:
+        "200":
+          description: Conversations
+  /tickets/{id}/notes:
+    post:
+      operationId: createTicketNote
+      summary: Add a note to ticket
+      tags: [tickets]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [body]
+              properties:
+                body: {type: string}
+                private: {type: boolean}
+      responses:
+        "201":
+          description: Note created
+  /tickets/{id}/reply:
+    post:
+      operationId: replyToTicket
+      summary: Reply to ticket requester
+      tags: [tickets]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [body]
+              properties:
+                body: {type: string}
+                from_email: {type: string}
+                cc_emails:
+                  type: array
+                  items: {type: string}
+                bcc_emails:
+                  type: array
+                  items: {type: string}
+      responses:
+        "201":
+          description: Reply sent
+  /tickets/{id}/tasks:
+    get:
+      operationId: listTicketTasks
+      summary: List ticket tasks
+      tags: [tickets]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+      responses:
+        "200":
+          description: Tasks
+    post:
+      operationId: createTicketTask
+      summary: Create ticket task
+      tags: [tickets]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title]
+              properties:
+                title: {type: string}
+                description: {type: string}
+                due_date: {type: string, format: date-time}
+                agent_id: {type: integer}
+      responses:
+        "201":
+          description: Task created
+  /tickets/{id}/tasks/{task_id}:
+    get:
+      operationId: getTicketTask
+      summary: Get ticket task
+      tags: [tickets]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+        - name: task_id
+          in: path
+          required: true
+          schema: {type: integer}
+      responses:
+        "200":
+          description: Task
+    put:
+      operationId: updateTicketTask
+      summary: Update ticket task
+      tags: [tickets]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+        - name: task_id
+          in: path
+          required: true
+          schema: {type: integer}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: {type: string}
+                status: {type: integer, description: "1=Open 2=In Progress 3=Completed"}
+      responses:
+        "200":
+          description: Updated
+    delete:
+      operationId: deleteTicketTask
+      summary: Delete ticket task
+      tags: [tickets]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+        - name: task_id
+          in: path
+          required: true
+          schema: {type: integer}
+      responses:
+        "204":
+          description: Deleted
+  /tickets/{id}/time_entries:
+    get:
+      operationId: listTicketTimeEntries
+      summary: List ticket time entries
+      tags: [tickets]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+      responses:
+        "200":
+          description: Time entries
+    post:
+      operationId: createTicketTimeEntry
+      summary: Create ticket time entry
+      tags: [tickets]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [time_spent]
+              properties:
+                time_spent: {type: string, description: "Format hh:mm e.g. 01:30"}
+                note: {type: string}
+                agent_id: {type: integer}
+      responses:
+        "201":
+          description: Time entry created
+  /ticket_form_fields:
+    get:
+      operationId: listTicketFormFields
+      summary: List ticket form fields
+      tags: [tickets]
+      responses:
+        "200":
+          description: Form fields
+  /changes:
+    get:
+      operationId: listChanges
+      summary: List changes
+      tags: [changes]
+      parameters:
+        - name: page
+          in: query
+          schema: {type: integer}
+        - name: per_page
+          in: query
+          schema: {type: integer}
+      responses:
+        "200":
+          description: Changes
+    post:
+      operationId: createChange
+      summary: Create a change
+      tags: [changes]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [subject, requester_id]
+              properties:
+                subject: {type: string}
+                description: {type: string}
+                requester_id: {type: integer}
+                priority: {type: integer, description: "1=Low 2=Medium 3=High 4=Urgent"}
+                impact: {type: integer, description: "1=Low 2=Medium 3=High"}
+                status: {type: integer, description: "1=Open 2=Planning 3=Awaiting Approval 4=Pending Release 5=Pending Review 6=Closed"}
+                risk: {type: integer, description: "1=Low 2=Medium 3=High 4=Very High"}
+                change_type: {type: integer, description: "1=Minor 2=Standard 3=Major 4=Emergency"}
+                planned_start_date: {type: string, format: date-time}
+                planned_end_date: {type: string, format: date-time}
+      responses:
+        "201":
+          description: Change created
+  /changes/filter:
+    get:
+      operationId: filterChanges
+      summary: Filter changes by query
+      tags: [changes]
+      parameters:
+        - name: query
+          in: query
+          required: true
+          schema: {type: string}
+      responses:
+        "200":
+          description: Filtered changes
+  /changes/{id}:
+    get:
+      operationId: getChange
+      summary: Get change by ID
+      tags: [changes]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+      responses:
+        "200":
+          description: Change details
+    put:
+      operationId: updateChange
+      summary: Update a change
+      tags: [changes]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                subject: {type: string}
+                status: {type: integer}
+                priority: {type: integer}
+      responses:
+        "200":
+          description: Updated
+    delete:
+      operationId: deleteChange
+      summary: Delete a change
+      tags: [changes]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+      responses:
+        "204":
+          description: Deleted
+  /changes/{id}/tasks:
+    get:
+      operationId: listChangeTasks
+      summary: List change tasks
+      tags: [changes]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+      responses:
+        "200":
+          description: Tasks
+    post:
+      operationId: createChangeTask
+      summary: Create change task
+      tags: [changes]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title]
+              properties:
+                title: {type: string}
+                description: {type: string}
+      responses:
+        "201":
+          description: Created
+  /changes/{id}/tasks/{task_id}:
+    put:
+      operationId: updateChangeTask
+      summary: Update change task
+      tags: [changes]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+        - name: task_id
+          in: path
+          required: true
+          schema: {type: integer}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: {type: string}
+                status: {type: integer}
+      responses:
+        "200":
+          description: Updated
+    delete:
+      operationId: deleteChangeTask
+      summary: Delete change task
+      tags: [changes]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+        - name: task_id
+          in: path
+          required: true
+          schema: {type: integer}
+      responses:
+        "204":
+          description: Deleted
+  /changes/{id}/notes:
+    get:
+      operationId: listChangeNotes
+      summary: List change notes
+      tags: [changes]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+      responses:
+        "200":
+          description: Notes
+    post:
+      operationId: createChangeNote
+      summary: Create change note
+      tags: [changes]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [body]
+              properties:
+                body: {type: string}
+      responses:
+        "201":
+          description: Created
+  /changes/{id}/time_entries:
+    get:
+      operationId: listChangeTimeEntries
+      summary: List change time entries
+      tags: [changes]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+      responses:
+        "200":
+          description: Time entries
+    post:
+      operationId: createChangeTimeEntry
+      summary: Create change time entry
+      tags: [changes]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [time_spent]
+              properties:
+                time_spent: {type: string, description: "Format hh:mm"}
+                note: {type: string}
+                agent_id: {type: integer}
+      responses:
+        "201":
+          description: Created
+  /change_form_fields:
+    get:
+      operationId: listChangeFormFields
+      summary: List change form fields
+      tags: [changes]
+      responses:
+        "200":
+          description: Form fields
+  /assets:
+    get:
+      operationId: listAssets
+      summary: List or search assets
+      tags: [assets]
+      parameters:
+        - name: search
+          in: query
+          schema: {type: string}
+        - name: filter
+          in: query
+          schema: {type: string}
+        - name: page
+          in: query
+          schema: {type: integer}
+        - name: per_page
+          in: query
+          schema: {type: integer}
+      responses:
+        "200":
+          description: Assets
+    post:
+      operationId: createAsset
+      summary: Create an asset
+      tags: [assets]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, asset_type_id]
+              properties:
+                name: {type: string}
+                asset_type_id: {type: integer}
+                description: {type: string}
+                asset_tag: {type: string}
+                user_id: {type: integer}
+                department_id: {type: integer}
+                location_id: {type: integer}
+      responses:
+        "201":
+          description: Asset created
+  /assets/{display_id}:
+    get:
+      operationId: getAsset
+      summary: Get asset by display ID
+      tags: [assets]
+      parameters:
+        - name: display_id
+          in: path
+          required: true
+          schema: {type: integer}
+      responses:
+        "200":
+          description: Asset
+    put:
+      operationId: updateAsset
+      summary: Update an asset
+      tags: [assets]
+      parameters:
+        - name: display_id
+          in: path
+          required: true
+          schema: {type: integer}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: {type: string}
+                description: {type: string}
+                user_id: {type: integer}
+      responses:
+        "200":
+          description: Updated
+    delete:
+      operationId: deleteAsset
+      summary: Delete an asset
+      tags: [assets]
+      parameters:
+        - name: display_id
+          in: path
+          required: true
+          schema: {type: integer}
+      responses:
+        "204":
+          description: Deleted
+  /assets/{display_id}/restore:
+    put:
+      operationId: restoreAsset
+      summary: Restore deleted asset
+      tags: [assets]
+      parameters:
+        - name: display_id
+          in: path
+          required: true
+          schema: {type: integer}
+      responses:
+        "200":
+          description: Restored
+  /assets/{display_id}/components:
+    get:
+      operationId: listAssetComponents
+      summary: List asset components
+      tags: [assets]
+      parameters:
+        - name: display_id
+          in: path
+          required: true
+          schema: {type: integer}
+      responses:
+        "200":
+          description: Components
+  /assets/{display_id}/requests:
+    get:
+      operationId: listAssetRequests
+      summary: List requests linked to asset
+      tags: [assets]
+      parameters:
+        - name: display_id
+          in: path
+          required: true
+          schema: {type: integer}
+      responses:
+        "200":
+          description: Requests
+  /assets/{display_id}/contracts:
+    get:
+      operationId: listAssetContracts
+      summary: List contracts linked to asset
+      tags: [assets]
+      parameters:
+        - name: display_id
+          in: path
+          required: true
+          schema: {type: integer}
+      responses:
+        "200":
+          description: Contracts
+  /requesters:
+    get:
+      operationId: listRequesters
+      summary: List requesters
+      tags: [requesters]
+      parameters:
+        - name: query
+          in: query
+          schema: {type: string}
+        - name: page
+          in: query
+          schema: {type: integer}
+        - name: per_page
+          in: query
+          schema: {type: integer}
+      responses:
+        "200":
+          description: Requesters
+    post:
+      operationId: createRequester
+      summary: Create a requester
+      tags: [requesters]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [first_name, primary_email]
+              properties:
+                first_name: {type: string}
+                last_name: {type: string}
+                primary_email: {type: string}
+                job_title: {type: string}
+                phone: {type: string}
+                department_id: {type: integer}
+                location_id: {type: integer}
+      responses:
+        "201":
+          description: Requester created
+  /requesters/{id}:
+    get:
+      operationId: getRequester
+      summary: Get requester by ID
+      tags: [requesters]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+      responses:
+        "200":
+          description: Requester
+    put:
+      operationId: updateRequester
+      summary: Update requester
+      tags: [requesters]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                first_name: {type: string}
+                last_name: {type: string}
+                primary_email: {type: string}
+                job_title: {type: string}
+      responses:
+        "200":
+          description: Updated
+    delete:
+      operationId: deactivateRequester
+      summary: Deactivate requester
+      tags: [requesters]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+      responses:
+        "204":
+          description: Deactivated
+  /requesters/{id}/reactivate:
+    put:
+      operationId: reactivateRequester
+      summary: Reactivate requester
+      tags: [requesters]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+      responses:
+        "200":
+          description: Reactivated
+  /requesters/{id}/convert_to_agent:
+    put:
+      operationId: convertRequesterToAgent
+      summary: Convert requester to agent
+      tags: [requesters]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+      responses:
+        "200":
+          description: Converted
+  /requester_fields:
+    get:
+      operationId: listRequesterFields
+      summary: List requester form fields
+      tags: [requesters]
+      responses:
+        "200":
+          description: Fields
+  /agents:
+    get:
+      operationId: listAgents
+      summary: List agents
+      tags: [agents]
+      parameters:
+        - name: query
+          in: query
+          schema: {type: string}
+        - name: page
+          in: query
+          schema: {type: integer}
+        - name: per_page
+          in: query
+          schema: {type: integer}
+      responses:
+        "200":
+          description: Agents
+    post:
+      operationId: createAgent
+      summary: Create an agent
+      tags: [agents]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [first_name, email]
+              properties:
+                first_name: {type: string}
+                last_name: {type: string}
+                email: {type: string}
+                job_title: {type: string}
+                phone: {type: string}
+      responses:
+        "201":
+          description: Agent created
+  /agents/{id}:
+    get:
+      operationId: getAgent
+      summary: Get agent by ID
+      tags: [agents]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+      responses:
+        "200":
+          description: Agent
+    put:
+      operationId: updateAgent
+      summary: Update agent
+      tags: [agents]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                first_name: {type: string}
+                last_name: {type: string}
+                email: {type: string}
+      responses:
+        "200":
+          description: Updated
+    delete:
+      operationId: deleteAgent
+      summary: Delete agent
+      tags: [agents]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+      responses:
+        "204":
+          description: Deleted
+  /agent_fields:
+    get:
+      operationId: listAgentFields
+      summary: List agent form fields
+      tags: [agents]
+      responses:
+        "200":
+          description: Fields
+  /groups:
+    get:
+      operationId: listGroups
+      summary: List agent groups
+      tags: [groups]
+      responses:
+        "200":
+          description: Groups
+    post:
+      operationId: createGroup
+      summary: Create agent group
+      tags: [groups]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: {type: string}
+                description: {type: string}
+      responses:
+        "201":
+          description: Created
+  /groups/{id}:
+    get:
+      operationId: getGroup
+      summary: Get agent group
+      tags: [groups]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+      responses:
+        "200":
+          description: Group
+    put:
+      operationId: updateGroup
+      summary: Update agent group
+      tags: [groups]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: {type: string}
+                description: {type: string}
+      responses:
+        "200":
+          description: Updated
+  /service_catalog/items:
+    get:
+      operationId: listServiceCatalogItems
+      summary: List service catalog items
+      tags: [catalog]
+      parameters:
+        - name: page
+          in: query
+          schema: {type: integer}
+        - name: per_page
+          in: query
+          schema: {type: integer}
+      responses:
+        "200":
+          description: Catalog items
+  /service_catalog/items/{id}/place_request:
+    post:
+      operationId: placeServiceRequest
+      summary: Place a service catalog request
+      tags: [catalog]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity: {type: integer}
+                requested_for: {type: integer}
+      responses:
+        "201":
+          description: Request placed
+  /canned_responses:
+    get:
+      operationId: listCannedResponses
+      summary: List canned responses
+      tags: [canned_responses]
+      responses:
+        "200":
+          description: Canned responses
+  /canned_responses/{id}:
+    get:
+      operationId: getCannedResponse
+      summary: Get canned response
+      tags: [canned_responses]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+      responses:
+        "200":
+          description: Canned response
+  /workspaces:
+    get:
+      operationId: listWorkspaces
+      summary: List workspaces
+      tags: [workspaces]
+      responses:
+        "200":
+          description: Workspaces
+  /solutions/categories:
+    get:
+      operationId: listSolutionCategories
+      summary: List knowledge base categories
+      tags: [solutions]
+      responses:
+        "200":
+          description: Categories
+  /solutions/categories/{id}:
+    get:
+      operationId: getSolutionCategory
+      summary: Get knowledge base category
+      tags: [solutions]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+      responses:
+        "200":
+          description: Category
+  /departments:
+    get:
+      operationId: listDepartments
+      summary: List departments
+      tags: [departments]
+      responses:
+        "200":
+          description: Departments
+  /locations:
+    get:
+      operationId: listLocations
+      summary: List locations
+      tags: [locations]
+      responses:
+        "200":
+          description: Locations
+  /vendors:
+    get:
+      operationId: listVendors
+      summary: List vendors
+      tags: [vendors]
+      responses:
+        "200":
+          description: Vendors
+  /contracts:
+    get:
+      operationId: listContracts
+      summary: List contracts
+      tags: [contracts]
+      responses:
+        "200":
+          description: Contracts
+  /products:
+    get:
+      operationId: listProducts
+      summary: List products
+      tags: [products]
+      responses:
+        "200":
+          description: Products
+    post:
+      operationId: createProduct
+      summary: Create product
+      tags: [products]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: {type: string}
+                description: {type: string}
+      responses:
+        "201":
+          description: Created
+  /products/{id}:
+    get:
+      operationId: getProduct
+      summary: Get product
+      tags: [products]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+      responses:
+        "200":
+          description: Product
+    put:
+      operationId: updateProduct
+      summary: Update product
+      tags: [products]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: integer}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: {type: string}
+                description: {type: string}
+      responses:
+        "200":
+          description: Updated

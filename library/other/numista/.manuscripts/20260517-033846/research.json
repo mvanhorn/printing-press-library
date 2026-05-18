@@ -1,0 +1,330 @@
+{
+  "api_name": "numista",
+  "novelty_score": 10,
+  "alternatives": [
+    {
+      "name": "namachieli/numista-api-sdk",
+      "url": "https://github.com/namachieli/numista-api-sdk",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 17,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "@leopiccionia/numista-sdk",
+      "url": "https://github.com/leopiccionia/numista-sdk",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 15,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "numistalib",
+      "url": "https://numistalib.readthedocs.io/",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 10,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "MihajloNesic/Numista",
+      "url": "https://github.com/MihajloNesic/Numista",
+      "language": "Java",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-17T03:42:00Z",
+  "novel_features": [
+    {
+      "name": "Monthly quota tracker with short-circuit",
+      "command": "--quota",
+      "description": "Print the current month's used/remaining/reset Numista quota and exit, with zero API calls.",
+      "rationale": "Numista exposes no quota endpoint, but the 2000/month free-plan cap is enforced server-side via HTTP 429. Tracking it locally in lookup_log lets the CLI forecast batch cost vs current remaining quota before spending a call.",
+      "example": "numista-pp-cli --quota --json",
+      "why_it_matters": "Reach for this before any batch or crawl to know whether the operation fits today's budget — zero quota cost.",
+      "group": "Quota economics"
+    },
+    {
+      "name": "Lookup-log audit",
+      "command": "audit",
+      "description": "Query the local lookup_log directly to see every API call, its endpoint, duration, and cache-hit status — aggregated by day, endpoint, or type ID.",
+      "rationale": "Once a CLI talks to a rate-limited API persistently, the question 'what burned my quota?' becomes weekly. Direct SQL over the log answers it for free.",
+      "example": "numista-pp-cli audit --by-endpoint --json",
+      "why_it_matters": "Use this to diagnose unexpected quota consumption, find duplicate lookups worth caching, or audit which endpoints power which workflows.",
+      "group": "Quota economics"
+    },
+    {
+      "name": "Quota-aware batch lookup",
+      "command": "types batch",
+      "description": "Parse a CSV / JSONL / text list of Numista type IDs (N# numbers) and look up each one against the API — with cache reuse, --dry-run cost forecast, and --resumable splitting across UTC months.",
+      "rationale": "The free plan is 2000 calls/month. A batch list larger than the monthly budget would silently fail mid-run without this; --dry-run answers 'does this fit?' for free and --resumable + --checkpoint makes multi-month batches idempotent.",
+      "example": "numista-pp-cli types batch --file ./type-ids.csv --dry-run --json",
+      "why_it_matters": "Use any time you have more than one type ID to look up. Dry-run is always cheap; resumable is essential for \u003e2K-item lists.",
+      "group": "Quota economics"
+    },
+    {
+      "name": "Series scan",
+      "command": "types series",
+      "description": "For one type (e.g., N#11013 — Australia 3 pence George VI), pull every year-of-issue, every issue's prices across all grades, and persist the full price/mintage curve to the local store — then print the scarcity and price-evolution table.",
+      "rationale": "Requires correlating issues + prices across many calls; only useful when persisted into a queryable local store. The API gives one issue per call; the CLI aggregates without re-querying.",
+      "example": "numista-pp-cli types series 11013 --json --select issues.year,issues.mintage,prices.grade,prices.price",
+      "why_it_matters": "Reach for this when a user wants the full picture of one coin type — every year it was struck, every grade's current value — in one command instead of dozens of individual calls.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Collection valuation",
+      "command": "collection value",
+      "description": "Sum the current estimated value of every item in a user's Numista collection, fetching missing prices on demand, and emit a per-item breakdown sorted by value.",
+      "rationale": "Requires joining the user's collected_items with the prices table on (type_id, issue_id, grade) — only possible when both sides are cached locally.",
+      "example": "numista-pp-cli collection value 12345 --json",
+      "why_it_matters": "Use to answer 'what is my collection worth right now?' without scrolling through Numista's web UI. Refuses to start when remaining quota is less than the number of items needing fresh prices.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Stale-price refresh",
+      "command": "refresh",
+      "description": "Refresh cached types by re-fetching only fields that actually change (prices, mintage) while leaving cataloger-set identity fields untouched. --dry-run --older 30d lists what needs refresh without spending a call.",
+      "rationale": "Numista updates price data eventually but not on a schedule. A pure local query over the prices table answers 'what's stale?' for free; only the fields that change get re-fetched.",
+      "example": "numista-pp-cli refresh --all --older 30d --json",
+      "why_it_matters": "Use weekly or monthly to keep cached prices current without re-pulling the entire catalogue. --dry-run --older makes the cost predictable.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Issuer-scoped crawl",
+      "command": "crawl issuer",
+      "description": "Crawl every type from one issuer (e.g., 'australia') matching a year range, persist to local store, and print a summary table. Forecasts call cost as %-of-monthly-quota and requires confirmation before crawling.",
+      "rationale": "Issuer + year filtering returns hundreds of types; without local caching every cross-issuer query burns calls. One crawl, then offline FTS5 and SQL over the local store.",
+      "example": "numista-pp-cli crawl issuer australia_section --years 1900-1950 --dry-run",
+      "why_it_matters": "Reach for this when starting research on an issuer or period — pay the call cost once, then ask the local store any question for free.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Watchlist",
+      "command": "watchlist",
+      "description": "Track price changes for a set of types over time. `watchlist add N#` registers a type; `watchlist check` refreshes prices, snapshots them to the prices table with a timestamp, and prints the diff since the last snapshot.",
+      "rationale": "Numista has no price-alert feature; the only way to see price moves is to manually re-fetch. The CLI's local prices table makes diff-since-last-snapshot a single SQL query.",
+      "example": "numista-pp-cli watchlist check --json",
+      "why_it_matters": "Run on a cron after adding a few types; the CLI surfaces material price moves without polluting your inbox.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Bulk collection import",
+      "command": "users collected-items add --from-file",
+      "description": "Import a list of new collected items from CSV / JSONL with --dry-run cost forecast. Idempotent on (user_id, type_id, issue_id, grade) so re-running the same file is safe.",
+      "rationale": "Numista's web UI takes one item at a time. A CLI batch import with idempotence and dry-run is the only way to seed a large collection from another source.",
+      "example": "numista-pp-cli users collected-items add 12345 --from-file imports.csv --dry-run",
+      "why_it_matters": "Use to migrate a collection from another tracker, or to bulk-add a haul from a coin show without dozens of UI clicks.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Collection-folder hydrate",
+      "command": "users collections hydrate",
+      "description": "Given a collection-folder-id, fan out get-item for every item, optionally fan out get-prices, and persist everything to the local store. Refuses to start when remaining quota is less than the item count.",
+      "rationale": "Numista's collection-folder endpoint returns one folder at a time; reconstructing a hydrated folder for offline use requires fan-out and persistence the API itself cannot do.",
+      "example": "numista-pp-cli users collections hydrate 12345 --with-prices --json",
+      "why_it_matters": "Use once after `auth set-token` (with an OAuth bearer) to populate the local store with everything in your collection — then most subsequent reads are quota-free.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Monthly quota tracker with short-circuit",
+      "command": "--quota",
+      "description": "Print the current month's used/remaining/reset Numista quota and exit, with zero API calls.",
+      "rationale": "Numista exposes no quota endpoint, but the 2000/month free-plan cap is enforced server-side via HTTP 429. Tracking it locally in lookup_log lets the CLI forecast batch cost vs current remaining quota before spending a call.",
+      "example": "numista-pp-cli --quota --json",
+      "why_it_matters": "Reach for this before any batch or crawl to know whether the operation fits today's budget — zero quota cost.",
+      "group": "Quota economics"
+    },
+    {
+      "name": "Lookup-log audit",
+      "command": "audit",
+      "description": "Query the local lookup_log directly to see every API call, its endpoint, duration, and cache-hit status — aggregated by day, endpoint, or type ID.",
+      "rationale": "Once a CLI talks to a rate-limited API persistently, the question 'what burned my quota?' becomes weekly. Direct SQL over the log answers it for free.",
+      "example": "numista-pp-cli audit --by-endpoint --json",
+      "why_it_matters": "Use this to diagnose unexpected quota consumption, find duplicate lookups worth caching, or audit which endpoints power which workflows.",
+      "group": "Quota economics"
+    },
+    {
+      "name": "Quota-aware batch lookup",
+      "command": "types batch",
+      "description": "Parse a CSV / JSONL / text list of Numista type IDs (N# numbers) and look up each one against the API — with cache reuse, --dry-run cost forecast, and --resumable splitting across UTC months.",
+      "rationale": "The free plan is 2000 calls/month. A batch list larger than the monthly budget would silently fail mid-run without this; --dry-run answers 'does this fit?' for free and --resumable + --checkpoint makes multi-month batches idempotent.",
+      "example": "numista-pp-cli types batch --file ./type-ids.csv --dry-run --json",
+      "why_it_matters": "Use any time you have more than one type ID to look up. Dry-run is always cheap; resumable is essential for \u003e2K-item lists.",
+      "group": "Quota economics"
+    },
+    {
+      "name": "Series scan",
+      "command": "types series",
+      "description": "For one type (e.g., N#11013 — Australia 3 pence George VI), pull every year-of-issue, every issue's prices across all grades, and persist the full price/mintage curve to the local store — then print the scarcity and price-evolution table.",
+      "rationale": "Requires correlating issues + prices across many calls; only useful when persisted into a queryable local store. The API gives one issue per call; the CLI aggregates without re-querying.",
+      "example": "numista-pp-cli types series 11013 --json --select issues.year,issues.mintage,prices.grade,prices.price",
+      "why_it_matters": "Reach for this when a user wants the full picture of one coin type — every year it was struck, every grade's current value — in one command instead of dozens of individual calls.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Collection valuation",
+      "command": "collection value",
+      "description": "Sum the current estimated value of every item in a user's Numista collection, fetching missing prices on demand, and emit a per-item breakdown sorted by value.",
+      "rationale": "Requires joining the user's collected_items with the prices table on (type_id, issue_id, grade) — only possible when both sides are cached locally.",
+      "example": "numista-pp-cli collection value 12345 --json",
+      "why_it_matters": "Use to answer 'what is my collection worth right now?' without scrolling through Numista's web UI. Refuses to start when remaining quota is less than the number of items needing fresh prices.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Stale-price refresh",
+      "command": "refresh",
+      "description": "Refresh cached types by re-fetching only fields that actually change (prices, mintage) while leaving cataloger-set identity fields untouched. --dry-run --older 30d lists what needs refresh without spending a call.",
+      "rationale": "Numista updates price data eventually but not on a schedule. A pure local query over the prices table answers 'what's stale?' for free; only the fields that change get re-fetched.",
+      "example": "numista-pp-cli refresh --all --older 30d --json",
+      "why_it_matters": "Use weekly or monthly to keep cached prices current without re-pulling the entire catalogue. --dry-run --older makes the cost predictable.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Issuer-scoped crawl",
+      "command": "crawl issuer",
+      "description": "Crawl every type from one issuer (e.g., 'australia') matching a year range, persist to local store, and print a summary table. Forecasts call cost as %-of-monthly-quota and requires confirmation before crawling.",
+      "rationale": "Issuer + year filtering returns hundreds of types; without local caching every cross-issuer query burns calls. One crawl, then offline FTS5 and SQL over the local store.",
+      "example": "numista-pp-cli crawl issuer australia_section --years 1900-1950 --dry-run",
+      "why_it_matters": "Reach for this when starting research on an issuer or period — pay the call cost once, then ask the local store any question for free.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Watchlist",
+      "command": "watchlist",
+      "description": "Track price changes for a set of types over time. `watchlist add N#` registers a type; `watchlist check` refreshes prices, snapshots them to the prices table with a timestamp, and prints the diff since the last snapshot.",
+      "rationale": "Numista has no price-alert feature; the only way to see price moves is to manually re-fetch. The CLI's local prices table makes diff-since-last-snapshot a single SQL query.",
+      "example": "numista-pp-cli watchlist check --json",
+      "why_it_matters": "Run on a cron after adding a few types; the CLI surfaces material price moves without polluting your inbox.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Bulk collection import",
+      "command": "users collected-items add --from-file",
+      "description": "Import a list of new collected items from CSV / JSONL with --dry-run cost forecast. Idempotent on (user_id, type_id, issue_id, grade) so re-running the same file is safe.",
+      "rationale": "Numista's web UI takes one item at a time. A CLI batch import with idempotence and dry-run is the only way to seed a large collection from another source.",
+      "example": "numista-pp-cli users collected-items add 12345 --from-file imports.csv --dry-run",
+      "why_it_matters": "Use to migrate a collection from another tracker, or to bulk-add a haul from a coin show without dozens of UI clicks.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Collection-folder hydrate",
+      "command": "users collections hydrate",
+      "description": "Given a collection-folder-id, fan out get-item for every item, optionally fan out get-prices, and persist everything to the local store. Refuses to start when remaining quota is less than the item count.",
+      "rationale": "Numista's collection-folder endpoint returns one folder at a time; reconstructing a hydrated folder for offline use requires fan-out and persistence the API itself cannot do.",
+      "example": "numista-pp-cli users collections hydrate 12345 --with-prices --json",
+      "why_it_matters": "Use once after `auth set-token` (with an OAuth bearer) to populate the local store with everything in your collection — then most subsequent reads are quota-free.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "narrative": {
+    "display_name": "Numista",
+    "headline": "Every Numista catalogue and collection feature, with offline FTS5 search and a monthly-quota tracker no Numista SDK has.",
+    "value_prop": "numista-pp-cli wraps the Numista REST API in a Go single binary, persists every type, issuer, mint, catalogue, and collected item into a local SQLite store, and tracks the 2000-call monthly free-plan quota client-side so batches never run blind. Commands like `types series`, `collection value`, and `issuers crawl` only exist because the local cache lets the CLI compose dozens of calls into one quota-aware operation.",
+    "auth_narrative": "Set `NUMISTA_API_KEY` in your environment (request one at https://en.numista.com/api/index.php — the free plan is 2000 calls/month). Catalogue and reference endpoints work with the API key alone. User-collection commands (`users collected-items add`, `collection value`, `users collections hydrate`) need an OAuth bearer token — request one with `numista-pp-cli oauth-token --grant-type client_credentials --scope view_collection`, then store it via `numista-pp-cli auth set-token \u003ctoken\u003e`; tokens are persisted to your config file (mode 0600). Run `numista-pp-cli auth setup --launch` to open the API portal in your browser if you need to register an application first.",
+    "quickstart": [
+      {
+        "command": "numista-pp-cli doctor",
+        "comment": "Confirm the API key is set, the network is reachable, and the local store is initialized."
+      },
+      {
+        "command": "numista-pp-cli audit --by-endpoint --json",
+        "comment": "Local SQL view over the lookup_log table: every API call you have made this month, grouped by endpoint. Zero API cost. Pair with the root `--quota` flag (e.g. `numista-pp-cli --quota`) to see this month's used/remaining."
+      },
+      {
+        "command": "numista-pp-cli types search --q 'Australia 3 pence George VI' --json",
+        "comment": "Find a type by free-text search; one API call, result cached."
+      },
+      {
+        "command": "numista-pp-cli types get 11013 --json",
+        "comment": "Fetch full type details; cached on subsequent runs."
+      },
+      {
+        "command": "numista-pp-cli types series 11013 --json",
+        "comment": "Pull every year of issue + every grade's price for one type in one quota-aware fan-out."
+      },
+      {
+        "command": "numista-pp-cli auth setup --launch",
+        "comment": "Open the Numista API portal in your browser. Register your app to get the OAuth credentials you need for user-scoped commands; then `numista-pp-cli auth set-token \u003ctoken\u003e` to store the bearer."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "HTTP 401 'The Numista API key is missing or incorrect'",
+        "fix": "Set `export NUMISTA_API_KEY=your-key` (get one at https://en.numista.com/api/index.php) and re-run."
+      },
+      {
+        "symptom": "HTTP 429 'You sent too many simultaneous requests or you reached the limit of your monthly quota'",
+        "fix": "Run `numista-pp-cli --quota` to see used vs remaining. Wait until the first of next month UTC for reset; or use cached data with `--cached` on read commands."
+      },
+      {
+        "symptom": "HTTP 403 on a user-collection command",
+        "fix": "Request an OAuth bearer with `numista-pp-cli oauth-token --grant-type client_credentials --scope view_collection` (or `edit_collection` for write), then save it via `numista-pp-cli auth set-token \u003ctoken\u003e`."
+      },
+      {
+        "symptom": "`types search` returns nothing for a term that works on numista.com",
+        "fix": "The web search uses fuzzy matching the API does not. Try narrower keywords or filter by `--issuer \u003ccode\u003e` (run `numista-pp-cli issuers list` to find codes)."
+      },
+      {
+        "symptom": "Batch import / crawl seems to skip items mid-run",
+        "fix": "Check `numista-pp-cli --quota` — you may have hit the 2000/month cap. Resume next month with `--resumable --checkpoint ./numista.ckpt`."
+      }
+    ],
+    "when_to_use": "Reach for numista-pp-cli when you have a Numista API key and need quota-aware automation over the catalogue and your collection. Ideal for: bulk-importing a collection from another tracker, running scheduled price refreshes on watched coins, computing a current valuation of an entire collection, or pulling a full series (every year, every grade) for one type into a local store for analysis. Skip it when one ad-hoc lookup is all you need — the Numista web UI is fine for that.",
+    "recipes": [
+      {
+        "title": "Identify a coin from a fuzzy description",
+        "command": "numista-pp-cli types search --q 'Australia 3 pence George VI' --json --select types.id,types.title,types.min_year,types.max_year",
+        "explanation": "Narrow with `--select` to keep the payload tight; the dotted-path projection turns ~50 lines of JSON per result into 4."
+      },
+      {
+        "title": "See what a coin is worth in every grade",
+        "command": "numista-pp-cli types series 11013 --json",
+        "explanation": "One command pulls every year + every grade's price into the local store; subsequent reads are free."
+      },
+      {
+        "title": "Estimate this month's batch cost before running it",
+        "command": "numista-pp-cli types batch --file ./watchlist.csv --dry-run --json",
+        "explanation": "--dry-run forecasts live calls vs cache hits vs %-of-quota; never spends a call."
+      },
+      {
+        "title": "Refresh only stale prices in your cache",
+        "command": "numista-pp-cli refresh --all --older 30d --json",
+        "explanation": "Re-fetches only types whose prices are older than 30 days; never touches identity fields."
+      },
+      {
+        "title": "Total my collection's value right now",
+        "command": "numista-pp-cli collection value 12345 --json --select totals.estimated_value,totals.currency,items.id,items.grade,items.estimated_value",
+        "explanation": "Pass your numeric Numista user_id as the positional arg. The output joins your collection against the prices table and refuses to start if remaining quota would be exceeded."
+      }
+    ],
+    "trigger_phrases": [
+      "look up a coin on numista",
+      "what is my coin collection worth",
+      "track numista prices",
+      "check my numista quota",
+      "import my coins into numista",
+      "browse numista series",
+      "use numista-pp-cli",
+      "run numista-pp-cli"
+    ]
+  }
+}

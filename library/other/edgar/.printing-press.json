@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-13T21:38:29.8008086Z",
+  "printing_press_version": "4.3.0",
+  "api_name": "edgar",
+  "cli_name": "edgar-pp-cli",
+  "run_id": "20260513-115144",
+  "printer": "magoo242",
+  "printer_name": "magoo242",
+  "novel_features": [
+    {
+      "name": "Recheck delta cursor",
+      "command": "since",
+      "description": "Return only the filings filed since a given timestamp, using a per-CIK local cursor \u2014 the entire LODESTAR /$recheck loop in one call.",
+      "rationale": "Requires a local SQLite filings table with last_seen_accession; no SEC endpoint returns 'what's new since DATE.'",
+      "example": "edgar-pp-cli since AAPL --as-of 2026-05-08 --json",
+      "why_it_matters": "For quarterly thesis rechecks, reach for this before fetching the full submissions index \u2014 it eliminates re-paying token cost on filings already seen.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "8-K material-item enumeration",
+      "command": "eightk-items",
+      "description": "Enumerate 8-Ks with parsed Item numbers and a --material-only flag that excludes exhibits-only (Item 9.01 alone) refilings.",
+      "rationale": "Requires 8-K body parse for Item-number taxonomy; the SEC endpoint returns body HTML, not the structured Item list with material classification.",
+      "example": "edgar-pp-cli eightk-items AAPL --since 2026-05-08 --material-only --json",
+      "why_it_matters": "Use this instead of pulling 8-K bodies when you need 'has anything material happened?' \u2014 answers in one call without reading filing text.",
+      "group": "Service-specific content patterns"
+    },
+    {
+      "name": "Insider follow-through join",
+      "command": "insider-followthrough",
+      "description": "For every senior-officer code-S sale of \u2265$1M, scan the next 90 days of 8-Ks for material items and emit (sale, subsequent material 8-K, days-between) pairs.",
+      "rationale": "Requires a local join of insider_transactions \u00d7 filings by date proximity; no SEC endpoint returns this correlation.",
+      "example": "edgar-pp-cli insider-followthrough AAPL --json",
+      "why_it_matters": "Reach for this in LODESTAR Gate 2 execution-validation when an insider sale precedes material disclosures \u2014 surface management exits before bad news.",
+      "group": "Cross-entity joins"
+    },
+    {
+      "name": "Cross-sectional XBRL pivot",
+      "command": "xbrl-pivot",
+      "description": "Multi-ticker XBRL pivot that resolves concept aliases (Revenues \u2194 RevenueFromContractWithCustomerExcludingAssessedTax \u2194 SalesRevenueNet) into a flat ticker\u00d7quarter\u00d7concept table.",
+      "rationale": "companyfacts is single-ticker and exposes raw concept names; same economic quantity reports under 3-4 different US-GAAP tags depending on filer's accountant.",
+      "example": "edgar-pp-cli xbrl-pivot --tickers AAPL,MSFT,GOOGL --concepts Revenues,NetIncomeLoss --quarters 8 --csv",
+      "why_it_matters": "For cross-sectional quality screens \u2014 pivot before parsing 50 companyfacts JSON blobs by hand.",
+      "group": "Cross-entity joins"
+    },
+    {
+      "name": "Item-scoped section extraction",
+      "command": "sections",
+      "description": "Extract requested Items from a 10-K or 10-Q with byte-offset boundaries; emits ONLY the requested items in compact JSON instead of the full 100KB-10MB HTML body.",
+      "rationale": "SEC returns the full undifferentiated HTML body; agent consumers need item-scoped output to stay within context budget. Anchored on the Item NA regex with byte offsets.",
+      "example": "edgar-pp-cli sections AAPL --form 10-K --items 1A,7,7A --json",
+      "why_it_matters": "Use this instead of fetching the raw 10-K body \u2014 saves an order of magnitude in tokens when you only need Risk Factors and MD&A.",
+      "group": "Token-efficient extraction"
+    },
+    {
+      "name": "Ownership-cross enumeration",
+      "command": "ownership-crosses",
+      "description": "Enumerate 13D and 13G filings against an issuer (when someone else crosses 5% of the ticker), with filer name, percent owned, and filed-at.",
+      "rationale": "Service-specific 5%-cross taxonomy; submissions index filter to 13D/G/-A plus cover-page percent parse, which no community wrapper exposes structured.",
+      "example": "edgar-pp-cli ownership-crosses AAPL --json",
+      "why_it_matters": "Use in LODESTAR Gate 3 asymmetric-structure checks to spot activist or institutional concentration without scrolling submissions.",
+      "group": "Service-specific content patterns"
+    },
+    {
+      "name": "Governance red flags",
+      "command": "governance-flags",
+      "description": "Compose three independent service-specific signals into one call: 8-K Item 4.01 auditor changes, Item 4.02 non-reliance restatements, and NT-10-K late-filing notices (Form 12b-25).",
+      "rationale": "No wrapper bundles these three signals; they map directly onto LODESTAR Gate 2 immediate disqualifiers and need to be a one-call check during research and recheck.",
+      "example": "edgar-pp-cli governance-flags AAPL --since 2y --json",
+      "why_it_matters": "Use as an early disqualifier check \u2014 if any flag fires, surface to LODESTAR before spending tokens on the full thesis.",
+      "group": "Service-specific content patterns"
+    },
+    {
+      "name": "Offline FTS over cached bodies",
+      "command": "fts",
+      "description": "Full-text search over locally-cached filing bodies via FTS5 \u2014 ticker- and form-scoped \u2014 with snippet windows and byte offsets for precise re-read.",
+      "rationale": "Distinct from `search` (which hits efts.sec.gov): never re-hits the SEC endpoint for cached bodies; token-cheap for repeated queries during a single research session.",
+      "example": "edgar-pp-cli fts \"going concern\" --ticker AAPL --form 10-Q --json",
+      "why_it_matters": "Reach for fts during deep-dives where you re-query the same filing body multiple times; reach for the absorbed `efts` command for the first lookup or for cross-issuer queries.",
+      "group": "Local state that compounds"
+    }
+  ]
+}

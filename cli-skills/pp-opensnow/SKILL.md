@@ -15,6 +15,11 @@ metadata:
         bins: [opensnow-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/productivity/opensnow/cmd/opensnow-pp-cli
 ---
+<!-- GENERATED FILE — DO NOT EDIT.
+     This file is a verbatim mirror of library/productivity/opensnow/SKILL.md,
+     regenerated post-merge by tools/generate-skills/. Hand-edits here are
+     silently overwritten on the next regen. Edit the library/ source instead.
+     See AGENTS.md "Generated artifacts: registry.json, cli-skills/". -->
 
 # OpenSnow — Printing Press CLI
 

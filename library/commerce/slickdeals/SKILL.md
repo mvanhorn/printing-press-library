@@ -40,9 +40,10 @@ Use this CLI when you need agent-native access to Slickdeals data — hot deals,
 These capabilities aren't available in any other tool for this API.
 - **`hot`** — Top live frontpage deals filtered by min-thumbs, sorted thumbs DESC.
 - **`frontpage-fresh`** — Live unfiltered frontpage RSS feed (today's drops).
-- **`search --live`** — Keyword filter on the live frontpage RSS as a fallback for Slickdeals' broken server-side search.
-- **`category`** — Curated forum-id -> keyword map (tech, gaming, home, grocery, apparel, sports) for client-side filtering of the live frontpage.
-- **`coupons`** — Live featured coupon list with optional --store merchant filter.
+- **`popular`** — Slickdeals "Popular Deals" feed (community-voted, distinct from editor-curated frontpage). _New in v0.3_
+- **`search --live`** — Real server-side keyword search via the `q=` parameter, optionally scoped with `--forum N`. _Fixed in v0.3 — v0.2 used the wrong parameter name and silently fell back to client-side filtering._
+- **`category`** — Forum-scoped RSS feed via `forumchoice[]=N`. Five Slickdeals-advertised forum IDs: 4 (Freebies), 9 (Hot Deals), 10 (Coupons), 25 (Contests), 38 (Drugstore/Grocery). _Rewritten in v0.3 to use real server-side filtering instead of v0.2's client-side keyword map._
+- **`coupons`** — Live featured coupon list with optional --store merchant filter (Nuxt JSON endpoint).
 - **`watch`** — Fetch a single deal from the live frontpage RSS, optionally persisting a snapshot row for time-series analytics.
 - **`digest`** — Summarize the top-N captured snapshots over a window, optionally capped per merchant and grouped by merchant/category.
 - **`deals`** — Flagship SQL compound query over captured snapshots: --store costco --since 24h --min-thumbs 50.

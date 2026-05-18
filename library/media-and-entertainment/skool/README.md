@@ -6,7 +6,7 @@ Pulls every post, comment, member, course, lesson, and calendar event into a loc
 
 ## Install
 
-The recommended path installs both the `skool-pp-cli` binary and the `pp-skool` agent skill in one shot:
+The recommended path installs both the `skool-pp-cli` binary and the `pp-skool` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
 npx -y @mvanhorn/printing-press install skool
@@ -18,12 +18,25 @@ For CLI only (no skill):
 npx -y @mvanhorn/printing-press install skool --cli-only
 ```
 
+For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
+
+```bash
+npx -y @mvanhorn/printing-press install skool --skill-only
+```
+
+To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
+
+```bash
+npx -y @mvanhorn/printing-press install skool --agent claude-code
+npx -y @mvanhorn/printing-press install skool --agent claude-code --agent codex
+```
+
 ### Without Node (Go fallback)
 
 If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
 
 ```bash
-go install github.com/mvanhorn/printing-press-library/library/other/skool/cmd/skool-pp-cli@latest
+go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/skool/cmd/skool-pp-cli@latest
 ```
 
 This installs the CLI only — no skill.
@@ -55,6 +68,46 @@ Tell your OpenClaw agent (copy this):
 Install the pp-skool skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-skool. The skill defines how its required CLI can be installed.
 ```
 
+## Use with Claude Desktop
+
+This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
+
+The bundle reuses your local browser session — set it up first if you haven't:
+
+```bash
+skool-pp-cli auth login --chrome
+```
+
+To install:
+
+1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/skool-current).
+2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
+
+Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
+
+<details>
+<summary>Manual JSON config (advanced)</summary>
+
+If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/other/skool/cmd/skool-pp-mcp@latest
+```
+
+Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "skool": {
+      "command": "skool-pp-mcp"
+    }
+  }
+}
+```
+
+</details>
+
 ## Authentication
 
 Skool has no public API. Authenticate with the auth_token JWT cookie from your logged-in browser session: `skool-pp-cli auth set-token` (writes ~/.config/skool-pp-cli/config.toml). Same cookie covers reads and writes; CloudFront requires a realistic User-Agent which the CLI sets automatically.
@@ -65,22 +118,17 @@ Skool has no public API. Authenticate with the auth_token JWT cookie from your l
 # Paste your auth_token cookie value once; lives in TOML config
 skool-pp-cli auth set-token
 
-
 # First-time sync of the community into the local store
 skool-pp-cli sync bewarethedefault
-
 
 # List recent posts with field selection
 skool-pp-cli posts list --limit 10 --json --select id,name,user.name
 
-
 # Current 30-day leaderboard
 skool-pp-cli leaderboard --type 30d --top 25
 
-
 # Transcendence: members whose engagement velocity is dropping
 skool-pp-cli members at-risk --weeks 4 --json
-
 
 # What's new in the last day across the community
 skool-pp-cli digest since 24h
@@ -199,7 +247,6 @@ Posts (forum threads) inside a community
 - **`skool-pp-cli posts unlike`** - Unlike a post
 - **`skool-pp-cli posts update`** - Update an existing post
 
-
 ## Output Formats
 
 ```bash
@@ -257,76 +304,6 @@ Endpoint environment variables:
 - `SKOOL_BUILDID` resolves `{buildId}`
 
 Base URL: `https://www.skool.com`
-
-## Use with Claude Code
-
-Install the focused skill — it auto-installs the CLI on first invocation:
-
-```bash
-npx skills add mvanhorn/printing-press-library/cli-skills/pp-skool -g
-```
-
-Then invoke `/pp-skool <query>` in Claude Code. The skill is the most efficient path — Claude Code drives the CLI directly without an MCP server in the middle.
-
-<details>
-<summary>Use as an MCP server in Claude Code (advanced)</summary>
-
-If you'd rather register this CLI as an MCP server in Claude Code, install the MCP binary first:
-
-```bash
-go install github.com/mvanhorn/printing-press-library/library/other/skool/cmd/skool-pp-mcp@latest
-```
-
-Then register it:
-
-```bash
-# Some tools work without auth. For full access, set up auth first:
-skool-pp-cli auth login --chrome
-
-claude mcp add skool skool-pp-mcp
-```
-
-</details>
-
-## Use with Claude Desktop
-
-This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
-
-The bundle reuses your local browser session — set it up first if you haven't:
-
-```bash
-skool-pp-cli auth login --chrome
-```
-
-To install:
-
-1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/skool-current).
-2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
-
-Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
-
-<details>
-<summary>Manual JSON config (advanced)</summary>
-
-If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
-
-```bash
-go install github.com/mvanhorn/printing-press-library/library/other/skool/cmd/skool-pp-mcp@latest
-```
-
-Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "skool": {
-      "command": "skool-pp-mcp"
-    }
-  }
-}
-```
-
-</details>
 
 ## Health Check
 

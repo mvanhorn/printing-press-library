@@ -1,0 +1,51 @@
+version: 2
+project_name: nse-india-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: nse-india-pp-cli
+    main: ./cmd/nse-india-pp-cli
+    binary: nse-india-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/developer-tools/nse-india/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: nse-india-pp-mcp
+    main: ./cmd/nse-india-pp-mcp
+    binary: nse-india-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: nse-india-pp-cli
+    repository:
+      owner: mayank-lavania
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every NSE equity data point in a single Go binary — live quotes, order book, filings, and a local SQLite store no..."
+    install: |
+      bin.install "nse-india-pp-cli"
+      bin.install "nse-india-pp-mcp"

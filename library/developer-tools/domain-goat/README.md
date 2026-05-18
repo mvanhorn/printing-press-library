@@ -6,7 +6,7 @@ domain-goat absorbs everything dnstwist, openrdap, whois, and the abandoned doma
 
 ## Install
 
-The recommended path installs both the `domain-goat-pp-cli` binary and the `pp-domain-goat` agent skill in one shot:
+The recommended path installs both the `domain-goat-pp-cli` binary and the `pp-domain-goat` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
 npx -y @mvanhorn/printing-press install domain-goat
@@ -18,10 +18,28 @@ For CLI only (no skill):
 npx -y @mvanhorn/printing-press install domain-goat --cli-only
 ```
 
+For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
-### Without Node
+```bash
+npx -y @mvanhorn/printing-press install domain-goat --skill-only
+```
 
-The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
+To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
+
+```bash
+npx -y @mvanhorn/printing-press install domain-goat --agent claude-code
+npx -y @mvanhorn/printing-press install domain-goat --agent claude-code --agent codex
+```
+
+### Without Node (Go fallback)
+
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/developer-tools/domain-goat/cmd/domain-goat-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
 
 ### Pre-built binary
 
@@ -50,6 +68,39 @@ Tell your OpenClaw agent (copy this):
 Install the pp-domain-goat skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-domain-goat. The skill defines how its required CLI can be installed.
 ```
 
+## Use with Claude Desktop
+
+This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
+
+To install:
+
+1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/domain-goat-current).
+2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
+
+Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
+
+<details>
+<summary>Manual JSON config (advanced)</summary>
+
+If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
+
+
+Install the MCP binary from this CLI's published public-library entry or pre-built release.
+
+Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "domain-goat": {
+      "command": "domain-goat-pp-mcp"
+    }
+  }
+}
+```
+
+</details>
+
 ## Authentication
 
 No auth required for the headline path. RDAP, WHOIS port 43, and the Porkbun public pricing endpoint are all open.
@@ -68,22 +119,17 @@ Set `NAMECHEAP_SANDBOX=1` to hit the sandbox endpoint. Verify configuration with
 # Pull the IANA RDAP bootstrap and Porkbun pricing snapshot once — everything offline after this.
 domain-goat-pp-cli tlds sync
 
-
 # RDAP-native availability with WHOIS fallback for the three TLDs you're stuck on.
 domain-goat-pp-cli check kindred.io kindred.ai kindred.studio --json
-
 
 # Generate 50 brandable variants, filter to only available ones, all offline.
 domain-goat-pp-cli gen suggest --seeds kindred,studio --tlds com,io,ai,studio --available-only --count 50
 
-
 # Save survivors to a shortlist with optional notes and tags.
 domain-goat-pp-cli lists add ai-startup kindred.ai lumen.ai novella.ai
 
-
 # Rank by combined score/price/availability and promote the top 10 to a finalist sub-list.
 domain-goat-pp-cli shortlist promote --list ai-startup --top 10 --by combined
-
 
 # Side-by-side: scores, prices, RDAP status, drop flags.
 domain-goat-pp-cli compare kindred.ai lumen.ai novella.ai --json
@@ -212,7 +258,6 @@ Run `domain-goat-pp-cli --help` for the full command reference and flag list.
 - **`profile`** — Save and apply named sets of flags.
 - **`feedback`** — Record feedback about this CLI.
 
-
 ## Output Formats
 
 ```bash
@@ -303,65 +348,6 @@ This CLI is designed for AI agent consumption:
 - **Agent-safe by default** - no colors or formatting unless `--human-friendly` is set
 
 Exit codes: `0` success, `2` usage error, `3` not found, `5` API error, `7` rate limited, `10` config error.
-
-## Use with Claude Code
-
-Install the focused skill — it auto-installs the CLI on first invocation:
-
-```bash
-npx skills add mvanhorn/printing-press-library/cli-skills/pp-domain-goat -g
-```
-
-Then invoke `/pp-domain-goat <query>` in Claude Code. The skill is the most efficient path — Claude Code drives the CLI directly without an MCP server in the middle.
-
-<details>
-<summary>Use as an MCP server in Claude Code (advanced)</summary>
-
-If you'd rather register this CLI as an MCP server in Claude Code, install the MCP binary first:
-
-
-Install the MCP binary from this CLI's published public-library entry or pre-built release.
-
-Then register it:
-
-```bash
-claude mcp add domain-goat domain-goat-pp-mcp
-```
-
-</details>
-
-## Use with Claude Desktop
-
-This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
-
-To install:
-
-1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/domain-goat-current).
-2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
-
-Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
-
-<details>
-<summary>Manual JSON config (advanced)</summary>
-
-If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
-
-
-Install the MCP binary from this CLI's published public-library entry or pre-built release.
-
-Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "domain-goat": {
-      "command": "domain-goat-pp-mcp"
-    }
-  }
-}
-```
-
-</details>
 
 ## Health Check
 

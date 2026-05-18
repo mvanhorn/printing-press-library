@@ -1,0 +1,11 @@
+{
+  "version": 0,
+  "api_name": "alaska-airlines",
+  "run_id": "20260512-151223",
+  "scope": "cli-printing-press-db64fc73",
+  "output_dir": "/Users/mvanhorn/printing-press/.runstate/cli-printing-press-db64fc73/runs/20260512-151223/working/alaska-airlines-pp-cli",
+  "working_dir": "/Users/mvanhorn/printing-press/library/alaska-airlines",
+  "published_dir": "/Users/mvanhorn/printing-press/library/alaska-airlines",
+  "started_at": "0001-01-01T00:00:00Z",
+  "phases": {}
+}

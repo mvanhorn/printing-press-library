@@ -9,6 +9,7 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/ordertogo/internal/config"
 )
 
 func newRestaurantsListCmd(flags *rootFlags) *cobra.Command {
@@ -17,11 +18,17 @@ func newRestaurantsListCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "list",
 		Short: "List restaurants in a location code (e.g. sto for Seattle area)",
-		Example: "  ordertogo-pp-cli restaurants list --location-code example-value",
+		Example: `  ordertogo-pp-cli restaurants list --location-code sto
+  ordertogo-pp-cli config set default_location_code sto && ordertogo-pp-cli restaurants list`,
 		Annotations: map[string]string{"pp:endpoint": "restaurants.list", "pp:method": "GET", "pp:path": "/m/api/restaurants/filter/{location_code}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("location-code") && !flags.dryRun {
-				return fmt.Errorf("required flag \"%s\" not set", "location-code")
+				cfg, _ := config.Load(flags.configPath)
+				if cfg != nil && cfg.DefaultLocationCode != "" {
+					flagLocationCode = cfg.DefaultLocationCode
+				} else {
+					return fmt.Errorf("required flag \"location-code\" not set (hint: set a sticky default with `%s config set default_location_code sto`)", cmd.Root().Name())
+				}
 			}
 			c, err := flags.newClient()
 			if err != nil {
