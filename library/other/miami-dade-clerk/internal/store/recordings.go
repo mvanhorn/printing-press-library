@@ -12,6 +12,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"os"
 	"strings"
 )
 
@@ -97,7 +98,7 @@ func (s *Store) UpsertRecording(r *Recording) error {
 	); err != nil {
 		// FTS failures are non-fatal — the typed table is the source of
 		// truth, the index just improves search speed.
-		fmt.Printf("warning: FTS index update failed for cfn %d: %v\n", r.CFNMasterID, err)
+		fmt.Fprintf(os.Stderr, "warning: FTS index update failed for cfn %d: %v\n", r.CFNMasterID, err)
 	}
 
 	return tx.Commit()

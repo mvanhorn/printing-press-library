@@ -340,7 +340,13 @@ func countCookiesForDomain(cookiesDB, domainPattern string) int {
 	_ = copyFileIfExists(cookiesDB+"-wal", tmpPath+"-wal")
 	_ = copyFileIfExists(cookiesDB+"-shm", tmpPath+"-shm")
 
-	query := fmt.Sprintf("SELECT COUNT(*) FROM cookies WHERE host_key LIKE '%s'", domainPattern)
+	// Escape single quotes in the LIKE pattern. Although domainPattern is
+	// derived from our own code and a hardcoded domain today, treating
+	// every interpolation into a SQL fragment as untrusted keeps the
+	// invariant local — future refactors that thread user input into
+	// `domain` won't silently open an injection.
+	safePattern := strings.ReplaceAll(domainPattern, "'", "''")
+	query := fmt.Sprintf("SELECT COUNT(*) FROM cookies WHERE host_key LIKE '%s'", safePattern)
 	out, err := exec.Command("sqlite3", tmpPath, query).Output()
 	if err != nil {
 		return 0
@@ -546,18 +552,29 @@ func extractViaPycookiecheat(tool cookieTool, domain, profileDir string) (string
 		}
 	}
 
+	// JSON-encode every interpolated value to produce safe Python string
+	// literals (Python's string-escape syntax is a strict subset of JSON's).
+	// This neutralizes embedded quotes, backslashes, and newlines from
+	// Chrome profile directory names and the domain — neither of which the
+	// CLI controls in full.
+	domainLit, err := json.Marshal("https://" + cleanDomain)
+	if err != nil {
+		return "", fmt.Errorf("encoding domain: %w", err)
+	}
 	var script string
 	if cookiePath != "" {
-		// Use forward slashes so Python doesn't interpret backslashes as escapes on Windows
-		safePath := filepath.ToSlash(cookiePath)
+		pathLit, err := json.Marshal(filepath.ToSlash(cookiePath))
+		if err != nil {
+			return "", fmt.Errorf("encoding cookie path: %w", err)
+		}
 		script = fmt.Sprintf(
-			`import json; from pycookiecheat import chrome_cookies; print(json.dumps(chrome_cookies("https://%s", cookie_file="%s")))`,
-			cleanDomain, safePath,
+			`import json; from pycookiecheat import chrome_cookies; print(json.dumps(chrome_cookies(%s, cookie_file=%s)))`,
+			string(domainLit), string(pathLit),
 		)
 	} else {
 		script = fmt.Sprintf(
-			`import json; from pycookiecheat import chrome_cookies; print(json.dumps(chrome_cookies("https://%s")))`,
-			cleanDomain,
+			`import json; from pycookiecheat import chrome_cookies; print(json.dumps(chrome_cookies(%s)))`,
+			string(domainLit),
 		)
 	}
 

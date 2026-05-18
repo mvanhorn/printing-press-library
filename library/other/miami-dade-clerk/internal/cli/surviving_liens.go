@@ -4,6 +4,7 @@ package cli
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/other/miami-dade-clerk/internal/store"
@@ -97,12 +98,20 @@ func newSurvivingLiensCmd(flags *rootFlags) *cobra.Command {
 				releases[r.DocTypeCode] = append(releases[r.DocTypeCode], r)
 			}
 
+			// Each release record can satisfy at most one lien. Track
+			// already-consumed releases so two liens that share a party
+			// name don't both get marked as released by the same
+			// satisfaction. Bias is toward "still open in doubt" (FL
+			// Statute 197.522/45.0315 favors conservative bidder
+			// disclosure of unreleased encumbrances).
+			usedReleases := map[int64]bool{}
 			openLiens := make([]*store.Recording, 0, len(all))
 			for _, r := range all {
 				if _, ok := flSurvivability[r.DocTypeCode]; !ok {
 					continue
 				}
-				if hasMatchingRelease(r, releases) {
+				if matchedReleaseID := findMatchingRelease(r, releases, usedReleases); matchedReleaseID != 0 {
+					usedReleases[matchedReleaseID] = true
 					continue
 				}
 				openLiens = append(openLiens, r)
@@ -151,29 +160,43 @@ func newSurvivingLiensCmd(flags *rootFlags) *cobra.Command {
 	return cmd
 }
 
-// hasMatchingRelease pairs a lien against any release in the indexed
-// release map. The match heuristic is shared firsT_PARTY (the
-// mortgagor/defendant) plus release recording_date after the lien
-// recording_date. Without misC_REF extraction this is approximate; the
-// false-positive cost (calling a lien released when it isn't) is bounded
-// by the static-table conservatism (we mark things as still-open when in
-// doubt for survivability purposes).
-func hasMatchingRelease(lien *store.Recording, releases map[string][]*store.Recording) bool {
+// findMatchingRelease pairs a lien against an unconsumed release in the
+// indexed release map and returns the matching release's CFNMasterID
+// (or 0 when none matches). The match heuristic requires (a) the
+// release type to be a recognized counterpart for the lien type, (b)
+// the release recording_date to be on or after the lien recording_date,
+// (c) BOTH parties of the lien to appear on the release in either
+// position (mortgagor and lender — not just the mortgagor), and (d) the
+// release not yet consumed by an earlier lien. This is conservative:
+// without misC_REF extraction we'd rather mark a released lien as still
+// open than mark an open lien as released, because surviving-liens
+// drives bidder disclosure under FL Statute 197.522 / 45.0315.
+func findMatchingRelease(lien *store.Recording, releases map[string][]*store.Recording, used map[int64]bool) int64 {
 	candidates, ok := releaseMap[lien.DocTypeCode]
 	if !ok {
-		return false
+		return 0
+	}
+	lienFirst := strings.TrimSpace(lien.FirstParty)
+	lienSecond := strings.TrimSpace(lien.SecondParty)
+	if lienFirst == "" || lienSecond == "" {
+		return 0
 	}
 	for _, relType := range candidates {
 		for _, rel := range releases[relType] {
+			if rel == nil || used[rel.CFNMasterID] {
+				continue
+			}
 			if rel.RecordingDate < lien.RecordingDate {
 				continue
 			}
-			if lien.FirstParty != "" && rel.FirstParty != "" {
-				if lien.FirstParty == rel.FirstParty || lien.FirstParty == rel.SecondParty {
-					return true
-				}
+			relFirst := strings.TrimSpace(rel.FirstParty)
+			relSecond := strings.TrimSpace(rel.SecondParty)
+			firstMatches := lienFirst == relFirst || lienFirst == relSecond
+			secondMatches := lienSecond == relFirst || lienSecond == relSecond
+			if firstMatches && secondMatches {
+				return rel.CFNMasterID
 			}
 		}
 	}
-	return false
+	return 0
 }

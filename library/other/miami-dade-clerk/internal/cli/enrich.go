@@ -131,11 +131,27 @@ func enrichParallel(ctx context.Context, s *store.Store, folios []string, worker
 	var wg sync.WaitGroup
 	sem := make(chan struct{}, workers)
 	for i, folio := range folios {
+		// Honor cancellation between submissions so a SIGINT mid-batch
+		// stops queuing new work. Already-launched goroutines still
+		// drain to completion (one folio query is O(ms) — bounded).
+		if ctx.Err() != nil {
+			results[i] = map[string]any{"folio": folio, "error": ctx.Err().Error()}
+			continue
+		}
+		select {
+		case sem <- struct{}{}:
+		case <-ctx.Done():
+			results[i] = map[string]any{"folio": folio, "error": ctx.Err().Error()}
+			continue
+		}
 		wg.Add(1)
-		sem <- struct{}{}
 		go func(i int, folio string) {
 			defer wg.Done()
 			defer func() { <-sem }()
+			if ctx.Err() != nil {
+				results[i] = map[string]any{"folio": folio, "error": ctx.Err().Error()}
+				return
+			}
 			results[i] = enrichOneFolio(s, folio, saleType)
 		}(i, folio)
 	}
@@ -165,6 +181,7 @@ func enrichOneFolio(s *store.Store, folio, saleType string) map[string]any {
 		releases[r.DocTypeCode] = append(releases[r.DocTypeCode], r)
 	}
 
+	usedReleases := map[int64]bool{}
 	var surviving []*store.Recording
 	var totalCents int64
 	for _, r := range all {
@@ -172,7 +189,8 @@ func enrichOneFolio(s *store.Store, folio, saleType string) map[string]any {
 		if !ok {
 			continue
 		}
-		if hasMatchingRelease(r, releases) {
+		if matchedReleaseID := findMatchingRelease(r, releases, usedReleases); matchedReleaseID != 0 {
+			usedReleases[matchedReleaseID] = true
 			continue
 		}
 		survives := rule.SurvivesForeclosure
