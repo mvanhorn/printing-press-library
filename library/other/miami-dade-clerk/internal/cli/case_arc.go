@@ -80,9 +80,10 @@ func classifyCaseStatus(docs []*store.Recording) (string, string) {
 	for _, d := range docs {
 		switch d.DocTypeCode {
 		case "LIS":
-			if status == "open" {
-				status = "open"
-			}
+			// Lis pendens filed — the case is "open" by default and a
+			// LIS doesn't transition status. Listed explicitly so the
+			// switch documents the intentional no-op (rather than the
+			// reader wondering whether LIS was forgotten).
 		case "JUD":
 			status = "judgment-entered"
 			hasJud = true

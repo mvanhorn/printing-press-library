@@ -148,7 +148,13 @@ func (s *Store) QueryRecordings(filter RecordingFilter) ([]*Recording, error) {
 	if len(where) > 0 {
 		q += " WHERE " + strings.Join(where, " AND ")
 	}
-	if filter.OrderBy != "" {
+	// OrderBy is a raw SQL fragment, so validate against an allow-list of
+	// pre-vetted ordering clauses before interpolation. Refusing to thread
+	// unknown values into the query string preserves the safety contract
+	// even if a future caller threads user-controlled data through this
+	// field. Callers stay terse — they pass the canonical literal — and
+	// anything off the list silently falls back to the default order.
+	if filter.OrderBy != "" && allowedOrderByClauses[filter.OrderBy] {
 		q += " ORDER BY " + filter.OrderBy
 	} else {
 		q += " ORDER BY recording_date ASC, cfn_master_id ASC"
@@ -211,8 +217,28 @@ type RecordingFilter struct {
 	DocTypeCodes []string
 	SinceDate    string // YYYY-MM-DD inclusive lower bound
 	Signature    *SignatureKey
-	OrderBy      string // SQL fragment, defaults to recording_date ASC
-	Limit        int    // 0 = no limit
+	// OrderBy must be one of the literals in allowedOrderByClauses.
+	// Anything else falls back to the default order. NEVER thread
+	// user-controlled input through this field — QueryRecordings
+	// concatenates it into the SQL statement after the allow-list
+	// check; the check is the only thing keeping injection out.
+	OrderBy string
+	Limit   int // 0 = no limit
+}
+
+// allowedOrderByClauses is the closed set of OrderBy literals
+// QueryRecordings will honor. Adding to this list is a deliberate
+// decision (only column names + ASC/DESC, no expressions or
+// sub-selects); the check in QueryRecordings rejects anything else.
+var allowedOrderByClauses = map[string]bool{
+	"recording_date ASC":                       true,
+	"recording_date DESC":                      true,
+	"recording_date ASC, cfn_master_id ASC":    true,
+	"recording_date DESC, cfn_master_id DESC":  true,
+	"cfn_master_id ASC":                        true,
+	"cfn_master_id DESC":                       true,
+	"folio_number ASC, recording_date ASC":     true,
+	"consideration_cents DESC":                 true,
 }
 
 // SignatureKey is the no-folio fallback identity for a property:

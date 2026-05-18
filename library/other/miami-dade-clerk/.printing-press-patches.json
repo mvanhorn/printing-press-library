@@ -87,6 +87,31 @@
       "files": [
         "internal/store/recordings.go"
       ]
+    },
+    {
+      "id": "normalize-folio-strict",
+      "summary": "NormalizeFolio uses strconv.ParseInt instead of fmt.Sscanf so embedded non-digit characters return 0.",
+      "reason": "Sscanf accepts a partial digit prefix (e.g. '30-2232-066A-1610' → 302232066), defeating the `if folioN == 0` guard in every transcendence command. In ftl-scan a typo in a watchlist CSV would silently exclude a property — exactly the failure mode the tool is built to prevent. Covered by recordings_shared_test.go.",
+      "files": [
+        "internal/cli/recordings_shared.go",
+        "internal/cli/recordings_shared_test.go"
+      ]
+    },
+    {
+      "id": "case-arc-lis-no-op-documented",
+      "summary": "classifyCaseStatus' LIS branch is explicitly a documented no-op.",
+      "reason": "Greptile flagged the prior `if status == \"open\" { status = \"open\" }` as a dead self-assign. Removed the no-op but kept the case label so the switch documents that LIS doesn't transition status (avoids a future reviewer wondering whether LIS was forgotten).",
+      "files": [
+        "internal/cli/case_arc.go"
+      ]
+    },
+    {
+      "id": "recording-filter-orderby-allowlist",
+      "summary": "RecordingFilter.OrderBy is validated against allowedOrderByClauses; non-listed values fall back to the default order.",
+      "reason": "The field is interpolated into the SQL string. Today every caller passes a hardcoded literal, but the safety contract was only documented in a comment. The allow-list makes the contract enforced — future callers can't accidentally thread user input through this field. The set covers every literal in use today; adding a new clause is a deliberate edit.",
+      "files": [
+        "internal/store/recordings.go"
+      ]
     }
   ]
 }

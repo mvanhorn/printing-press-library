@@ -9,6 +9,7 @@ package cli
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/mvanhorn/printing-press-library/library/other/miami-dade-clerk/internal/store"
@@ -59,13 +60,17 @@ func docTypeLabel(code string) string {
 
 // NormalizeFolio strips dashes from a clerk-style folio
 // (30-2232-066-1610 → 3022320661610) and parses it to int64. Returns 0
-// on malformed input rather than an error so callers can decide whether
-// to fail loudly or treat the folio as absent.
+// on malformed input — including inputs with non-digit characters
+// anywhere in the cleaned string. The strconv.ParseInt path rejects
+// partial digit prefixes (fmt.Sscanf would accept "302232066A1610" as
+// 302232066 and silently mask CSV typos in `ftl-scan` watchlists).
 func NormalizeFolio(s string) int64 {
 	clean := strings.ReplaceAll(s, "-", "")
 	clean = strings.TrimSpace(clean)
-	var n int64
-	_, err := fmt.Sscanf(clean, "%d", &n)
+	if clean == "" {
+		return 0
+	}
+	n, err := strconv.ParseInt(clean, 10, 64)
 	if err != nil {
 		return 0
 	}
