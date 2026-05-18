@@ -849,12 +849,18 @@ func parseSinceDuration(s string) (time.Time, error) {
 }
 
 func defaultSyncResources() []string {
+	// PATCH (fix-sync-views-requires-scope-334): `views` is intentionally
+	// excluded. Notion's GET /v1/views rejects any unscoped call with HTTP 400
+	// "At least one of database_id or data_source_id must be provided." Notion
+	// also exposes no global GET /v1/databases or GET /v1/data_sources listing
+	// endpoint, so there is no parent-table enumeration path in the local
+	// store today. Populate views per data source via:
+	//   notion-pp-cli views list --data-source-id <id>
 	return []string{
 		"comments",
 		"custom-emojis",
 		"file-uploads",
 		"users",
-		"views",
 	}
 }
 
@@ -867,6 +873,10 @@ func syncResourcePath(resource string) (string, error) {
 		"custom-emojis": "/v1/custom_emojis",
 		"file-uploads": "/v1/file_uploads",
 		"users": "/v1/users",
+		// PATCH (fix-sync-views-requires-scope-334): retained in the lookup so
+		// `--resources views` still resolves to the canonical endpoint and
+		// surfaces the API's own scope-required error. Removed from
+		// defaultSyncResources() because /v1/views rejects every unscoped call.
 		"views": "/v1/views",
 	}
 	if p, ok := paths[resource]; ok {

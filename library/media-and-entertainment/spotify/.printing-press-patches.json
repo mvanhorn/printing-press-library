@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-12",
+  "base_run_id": "20260512-184940",
+  "base_printing_press_version": "4.5.2",
+  "patches": [
+    {
+      "id": "fix-auth-loopback-and-dry-run",
+      "summary": "RFC 8252 loopback redirect (127.0.0.1, not localhost), verify-env / --dry-run short-circuit before --client-id check, and SPOTIFY_SECRET env-var alias.",
+      "reason": "Spotify enforces RFC 8252 for new apps and rejects `localhost` redirect URIs with INVALID_CLIENT. The original handler also failed verify because `--client-id is required` fired before the dry-run gate. Adding the SPOTIFY_SECRET alias matches what most users have in their .env (the docs call it 'Client Secret', not 'Client Secret 2.0').",
+      "files": ["internal/cli/auth.go"],
+      "validated_outcome": "OAuth login completes end-to-end against a real Spotify Developer dashboard app; shipcheck passes."
+    },
+    {
+      "id": "fix-library-uris-as-query-param",
+      "summary": "Route `uris` parameter to URL query string per OpenAPI spec instead of JSON body on PUT/DELETE /me/library; loosen stdin guard on save-library-items.",
+      "reason": "Spotify's spec declares `uris` as `in: query` on both endpoints, but the generated PUT/DELETE handlers route ALL parameters to the JSON body. Result: `Missing required field: uris` HTTP 400 on every save or remove. The save-library-items handler also had an early-return that blocked --stdin invocations despite advertising the flag. Generator-side fix tracked in mvanhorn/cli-printing-press#1275.",
+      "files": [
+        "internal/cli/me_save-library-items.go",
+        "internal/cli/me_remove-library-items.go"
+      ],
+      "validated_outcome": "Full round-trip on a-ha 'Take On Me': check-before-save [false] -> save 200 -> check-after [true] -> remove 200 -> check-after [false]."
+    },
+    {
+      "id": "fix-discover-spotify-new-app-limit-caps",
+      "summary": "Cap limit=10 on /search, /playlists/{id}/tracks, and /artists/{id}/albums in transcendence discover commands; paginate via fetchAllPaged for T11.",
+      "reason": "Spotify's post-2024-11-27 new-app deprecation silently caps `limit` at ~10 on these endpoints despite the spec declaring max=50 — requests with higher limits return HTTP 400 'Invalid limit'. T11 (`discover artist-gaps`) was the headline casualty; T10 (`discover via-playlists`) also affected. Pagination compensates so the user-visible behavior stays full-discography for artists with >10 albums.",
+      "files": ["internal/cli/transcendence_discover.go"],
+      "validated_outcome": "discover artist-gaps 4Z8W4fKeB5YxbusRsdQVPb returns Radiohead's full chronological discography against the local saved-albums set."
+    },
+    {
+      "id": "fix-dedupe-snapshot-aware-delete",
+      "summary": "Add client.DeleteWithBody and use it in `playlists dedupe --apply` so snapshot_id + tracks reach the API.",
+      "reason": "The original `--apply` path built the {tracks, snapshot_id} body then immediately discarded it with `_ = body`; client.Delete takes no body parameter. Every --apply was a silent no-op. Greptile review caught this on the PR. Adding DeleteWithBody preserves the pattern for future endpoints (Spotify's snapshot-aware deletes, GitHub's bulk delete with body, etc.).",
+      "files": [
+        "internal/cli/transcendence_t2_dedupe.go",
+        "internal/client/client.go"
+      ]
+    },
+    {
+      "id": "fix-merge-replace-and-paginate",
+      "summary": "playlists merge: first chunk PUT (replaces destination) for idempotent re-runs; paginate sources via fetchFullPlaylist; corrected misleading 'dry-plan first' doc.",
+      "reason": "POST /playlists/{id}/tracks appends. The original merge POST'd every chunk, so re-running with the same sources silently doubled the destination playlist. PUT for the first chunk replaces, POST for subsequent chunks appends — re-runs produce the same destination state. The Long description also claimed a future --apply flag with dry-plan-by-default; the command actually mutates immediately unless --dry-run is passed.",
+      "files": ["internal/cli/transcendence_t3_merge.go"]
+    },
+    {
+      "id": "fix-playlist-track-pagination",
+      "summary": "fetchFullPlaylist helper paginates /playlists/{id}/tracks for T1 diff, T2 dedupe, and T3 merge so playlists over 100 tracks are not silently truncated.",
+      "reason": "GET /playlists/{id} embeds tracks as a PagingObject with a hard cap of 100. All three commands previously consumed `pl.Tracks.Items` from that single call, so any playlist over 100 tracks produced a wrong (not empty) snapshot/dedupe/merge. The new helper fetches metadata via ?fields=id,name,snapshot_id and tracks via paginated /playlists/{id}/tracks. Generator-side fix tracked in mvanhorn/cli-printing-press#1277.",
+      "files": [
+        "internal/cli/transcendence_helpers.go",
+        "internal/cli/transcendence_t1_diff.go",
+        "internal/cli/transcendence_t2_dedupe.go",
+        "internal/cli/transcendence_t3_merge.go"
+      ]
+    },
+    {
+      "id": "fix-tracks-where-distinct-sql",
+      "summary": "Replace `SELECT DISTINCT ... ORDER BY captured_at DESC` with correlated subquery selecting the latest snapshot per playlist.",
+      "reason": "SQLite applies ORDER BY before DISTINCT, so the captured_at ordering hint was silently dropped — a track in 10 historical snapshots of the same playlist generated 10 rows in undefined order, not 1 latest row. Greptile review caught this. The correlated subquery filters to MAX(captured_at) per playlist for the given track, matching the documented 'where is this track right now' semantic.",
+      "files": ["internal/cli/transcendence_t6_tracks_where.go"]
+    },
+    {
+      "id": "fix-queue-from-saved-remove-unimplemented-flags",
+      "summary": "Remove --artist and --playlist flags from `queue from-saved` until the saved_tracks schema is joined against a tracks-cache table.",
+      "reason": "Both flags were registered and shown in --help but never referenced in the SQL query. The 'not yet implemented' annotation in flag help text prevented complete surprise but still misled agents/scripts. Removing entirely is honest; the flags can come back when sync wires up a tracks-cache table with artist/playlist linkage.",
+      "files": ["internal/cli/transcendence_t8_queue_from_saved.go"]
+    },
+    {
+      "id": "fix-token-refresh-buffer",
+      "summary": "Refresh access token when fewer than 60s remain rather than waiting for expiry.",
+      "reason": "authHeader() previously refreshed only AFTER time.Now().After(c.Config.TokenExpiry). A token valid at authHeader() time could expire mid-flight on a slow request (large sync batch, paginated walk), and the client doesn't retry 401s. A 60s proactive buffer trades one extra refresh per session for elimination of mid-request 401s on long-running commands. Greptile review caught this.",
+      "files": ["internal/client/client.go"]
+    },
+    {
+      "id": "fix-mcp-shellout-blocked-flags",
+      "summary": "Restore the blockedRootFlags security filter in cliArgsFromMCP after `printing-press mcp-sync` regen dropped it.",
+      "reason": "TestCliArgsFromMCP_BlocksRootFlags asserts that root flags (--base-url, --config, --deliver, --profile, --token) cannot be smuggled into a CLI invocation via the structured MCP args channel — those control auth target, output sink, and config file. The current generator template emits a shellout.go that has no such filter, so the test (which IS still preserved through regen) fails, and a malicious MCP host could redirect/exfiltrate via structured args. Generator-side fix tracked in mvanhorn/cli-printing-press#1276.",
+      "files": ["internal/mcp/cobratree/shellout.go"],
+      "validated_outcome": "TestCliArgsFromMCP_BlocksRootFlags passes; the test's blocked-list (base-url, config, deliver, profile, token) is enforced again."
+    },
+    {
+      "id": "fix-releases-since-pagination",
+      "summary": "Paginate /artists/{id}/albums in `releases since` with newest-first early-stop instead of taking only the first page.",
+      "reason": "The original call used a hard-coded limit=20 with no pagination, so any followed artist with more than 20 releases (counting singles + EPs + compilations + appears_on) in the window silently lost the tail. Spotify returns albums newest-first by release_date, so the loop can short-circuit as soon as a page's items fall before `since` — no need to walk the full back-catalog. limit=10 matches the post-2024-11-27 new-app cap on this endpoint.",
+      "files": ["internal/cli/transcendence_t5_releases_since.go"]
+    },
+    {
+      "id": "add-play-on-device-by-name",
+      "summary": "New T13 transcendence command: play-on <device-name> resolves a friendly name against live /me/player/devices and the cached devices_seen table.",
+      "reason": "Spotify's playback API only takes opaque device IDs; users have to list devices and copy/paste. play-on closes the loop with name-based resolution backed by the local cache, so devices that aren't currently online (Echo speakers Alexa hasn't woken yet) still surface a typed wake-hint instead of a raw 404. 18 unit tests for the name-resolution precedence (exact > prefix > substring) and the device-type-branched wake hint. mcp:read-only annotation deliberately omitted (mutating); pp:typed-exit-codes='0,2' set so ambiguous/no-match (exit 2) counts as verify pass.",
+      "files": [
+        "internal/cli/transcendence_play_on.go",
+        "internal/cli/transcendence_play_on_test.go",
+        "internal/cli/root.go"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-13T01:33:23.888585Z",
+  "printing_press_version": "4.5.2",
+  "api_name": "bandsintown",
+  "display_name": "Bandsintown",
+  "cli_name": "bandsintown-pp-cli",
+  "owner": "user",
+  "printer": "4.5.2",
+  "printer_name": "printing-press",
+  "spec_path": "/Users/sonatsu/printing-press/.runstate/dd-649176d9/runs/20260513-075126/research/bandsintown-spec.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:02f9d167e4cb73d3ccf409cb3dc0a4efd1236181477ae308a237abbad48346c0",
+  "run_id": "20260513-075126",
+  "mcp_binary": "bandsintown-pp-mcp",
+  "mcp_tool_count": 2,
+  "mcp_public_tool_count": 2,
+  "mcp_ready": "full",
+  "api_version": "3.0.0",
+  "auth_type": "api_key",
+  "novel_features": [
+    {
+      "name": "Tour-routing feasibility",
+      "command": "route",
+      "description": "Find which tracked artists already have shows near a target city within a date window \u2014 feasibility-ranked routing candidates for booking."
+    },
+    {
+      "name": "Calendar-gap detection",
+      "command": "gaps",
+      "description": "Find empty windows in an artist's tour calendar that match an event slot length, optionally constrained to a region."
+    },
+    {
+      "name": "Lineup co-bill mining",
+      "command": "lineup co-bill",
+      "description": "Surface which artists frequently co-bill with a given artist by aggregating lineup arrays across many events."
+    },
+    {
+      "name": "Tracker trend",
+      "command": "trend",
+      "description": "Track tracker_count and upcoming_event_count over time per artist; surface rising and falling demand signals."
+    },
+    {
+      "name": "Idempotent pull with diff",
+      "command": "pull",
+      "description": "Re-fetch every tracked artist's events with a staleness window; emit a structured diff (added / removed / changed events) for downstream agents."
+    },
+    {
+      "name": "SEA routing radar",
+      "command": "sea-radar",
+      "description": "One-shot Southeast Asia briefing: all upcoming shows in a date range across tracked artists, grouped by city, tagged with tracker tier."
+    },
+    {
+      "name": "Watchlist primitive",
+      "command": "track",
+      "description": "Local watchlist of artists you care about. Drives sync, snapshot, route, and sea-radar."
+    }
+  ],
+  "category": "media-and-entertainment",
+  "catalog_entry": "bandsintown"
+}

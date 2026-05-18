@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-11T19:01:27.348729Z",
+  "printing_press_version": "4.3.0",
+  "api_name": "gumroad",
+  "display_name": "Gumroad",
+  "cli_name": "gumroad-pp-cli",
+  "owner": "bheemreddy181",
+  "printer": "bheemreddy181",
+  "printer_name": "Bheem Reddy",
+  "spec_url": "https://gumroad.com/api",
+  "spec_path": "spec.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:c256151355ebf68676d0db6d4133ece80899945740e561c8de93aa45ae26d698",
+  "run_id": "20260511-134339",
+  "mcp_binary": "gumroad-pp-mcp",
+  "mcp_tool_count": 52,
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "GUMROAD_ACCESS_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Seller Snapshot Sync",
+      "command": "sync --resources products,sales,subscribers,payouts --latest-only --json",
+      "description": "Refresh a local SQLite snapshot of the seller-facing Gumroad resources that agents inspect most often."
+    },
+    {
+      "name": "Cross-Resource Search",
+      "command": "search",
+      "description": "Search locally synced products, sales, subscribers, payouts, and tax records through one command."
+    },
+    {
+      "name": "Local Gumroad Analytics",
+      "command": "analytics",
+      "description": "Group and count synced Gumroad records locally for fast summaries without additional API traffic."
+    },
+    {
+      "name": "Polling Tail for Operational Events",
+      "command": "tail",
+      "description": "Poll selected Gumroad resources and emit NDJSON changes for scripts or agent monitors."
+    }
+  ]
+}

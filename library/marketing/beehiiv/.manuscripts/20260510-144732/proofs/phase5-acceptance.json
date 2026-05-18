@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "beehiiv",
+  "run_id": "20260510-144732",
+  "status": "pass",
+  "level": "quick",
+  "matrix_size": 5,
+  "tests_passed": 5,
+  "tests_skipped": 3,
+  "auth_context": {
+    "type": "bearer_token"
+  }
+}

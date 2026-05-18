@@ -1,0 +1,1639 @@
+{
+  "api_name": "multimail",
+  "base_url": "https://api.multimail.dev",
+  "description": "Email-as-a-Service for AI agents. Inbound email converted to markdown, outbound markdown converted to HTML. Built on Cloudflare Workers.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "MULTIMAIL_BEARER_AUTH"
+    ],
+    "env_var_specs": [
+      {
+        "name": "MULTIMAIL_BEARER_AUTH",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "account_create",
+      "description": "Requires a solved proof-of-work challenge. Creates a pending signup and sends a confirmation email. Response is always identical for privacy (anti-enumeration). Honors an optional Idempotency-Key request header (UUID) to safely retry without creating duplicate pending_signups rows. Required: accepted_anti_spam_policy, accepted_operator_agreement, accepted_tos, operator_name, oversight_email, pow_solution. Optional: attribution, cf_challenge_response, email_use_type (plus 8 more). Returns the new SignupResponse.",
+      "method": "POST",
+      "path": "/v1/account",
+      "params": [
+        {
+          "name": "accepted_anti_spam_policy",
+          "type": "bool",
+          "location": "body",
+          "description": "Must be true.",
+          "required": true
+        },
+        {
+          "name": "accepted_operator_agreement",
+          "type": "bool",
+          "location": "body",
+          "description": "Must be true.",
+          "required": true
+        },
+        {
+          "name": "accepted_tos",
+          "type": "bool",
+          "location": "body",
+          "description": "Must be true.",
+          "required": true
+        },
+        {
+          "name": "attribution",
+          "type": "object",
+          "location": "body",
+          "description": "Optional client-captured conversion attribution (Phase 2 of plan 2026-04-27-003). The browser persists this in localStorage.mm_attribution_v1 and forwards it on signup. Server-side validator at src/lib/attribution.ts is the source of truth — bad shapes are silently dropped, NEVER reject the signup. additionalProperties:false on this object AND its sub-objects keeps the API Shield body-size cap honest even if the per-operation mitigation pin in scripts/sync-api-shield.sh is ever undone: an attacker cannot pad the body with arbitrary unknown keys to bypass the per-field maxLengths (adversary review iter1 finding ATTR-1)."
+        },
+        {
+          "name": "cf_challenge_response",
+          "type": "string",
+          "location": "body",
+          "description": "Preferred browser Turnstile token field. Mirrors the hidden cf-turnstile-response input value. maxLength keeps API Shield's auto-learned body-size cap above the ~1.6KB Turnstile token (see lesson #18)."
+        },
+        {
+          "name": "email_use_type",
+          "type": "string",
+          "location": "body",
+          "description": "Only transactional is accepted today."
+        },
+        {
+          "name": "fingerprint",
+          "type": "string",
+          "location": "body",
+          "description": "Optional browser fingerprint used for signup throttling."
+        },
+        {
+          "name": "form_open_at",
+          "type": "int",
+          "location": "body",
+          "description": "Epoch milliseconds when the signup modal opened."
+        },
+        {
+          "name": "operator_name",
+          "type": "string",
+          "location": "body",
+          "description": "Company or individual name. Included in identity headers and signature block.",
+          "required": true
+        },
+        {
+          "name": "oversight_email",
+          "type": "string",
+          "location": "body",
+          "description": "Oversight email",
+          "required": true
+        },
+        {
+          "name": "oversight_mode",
+          "type": "string",
+          "location": "body",
+          "description": "Optional initial mailbox oversight mode. Unsafe modes are rejected."
+        },
+        {
+          "name": "payment_method",
+          "type": "string",
+          "location": "body",
+          "description": "Signup intent source. Pricing page starter flow sends stripe."
+        },
+        {
+          "name": "physical_address",
+          "type": "string",
+          "location": "body",
+          "description": "Physical address"
+        },
+        {
+          "name": "pow_solution",
+          "type": "object",
+          "location": "body",
+          "description": "Solved ALTCHA proof-of-work challenge from POST /v1/account/challenge.",
+          "required": true
+        },
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "body",
+          "description": "URL-safe slug. Auto-generated from operator_name if omitted."
+        },
+        {
+          "name": "turnstile_token",
+          "type": "string",
+          "location": "body",
+          "description": "Legacy Turnstile token field. Accepted for backward compatibility. maxLength matches cf_challenge_response — see lesson #18."
+        },
+        {
+          "name": "use_case",
+          "type": "string",
+          "location": "body",
+          "description": "Use case"
+        }
+      ]
+    },
+    {
+      "name": "account_create-challenge",
+      "description": "Returns an ALTCHA challenge. Solve it and include the solution as pow_solution in POST /v1/account. Challenge expires in 5 minutes. Optional: oversight_email.",
+      "method": "POST",
+      "path": "/v1/account/challenge",
+      "params": [
+        {
+          "name": "oversight_email",
+          "type": "string",
+          "location": "body",
+          "description": "Optional. Calibrates difficulty based on email domain."
+        }
+      ]
+    },
+    {
+      "name": "account_create-resendconfirmation",
+      "description": "Public endpoint (no auth required). Resends the activation email with a new code for unconfirmed accounts. Rate limited to 1 request per 10 minutes. Returns the new AccountCreateResendconfirmationResponse.",
+      "method": "POST",
+      "path": "/v1/account/resend-confirmation",
+      "params": []
+    },
+    {
+      "name": "account_delete",
+      "description": "Hard-deletes all tenant data (mailboxes, emails, API keys, usage, audit log). Frees the slug for re-registration. Requires admin scope. Optional: approval_code. Returns the AccountDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/account",
+      "params": [
+        {
+          "name": "approval_code",
+          "type": "string",
+          "location": "body",
+          "description": "Approval code"
+        }
+      ]
+    },
+    {
+      "name": "account_list",
+      "description": "Get current tenant info and usage. Returns the AccountInfo.",
+      "method": "GET",
+      "path": "/v1/account",
+      "params": []
+    },
+    {
+      "name": "account_update",
+      "description": "Update tenant settings. Optional: approval_code, name, oversight_email (plus 1 more). Partial update.",
+      "method": "PATCH",
+      "path": "/v1/account",
+      "params": [
+        {
+          "name": "approval_code",
+          "type": "string",
+          "location": "body",
+          "description": "Approval code"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "oversight_email",
+          "type": "string",
+          "location": "body",
+          "description": "Oversight email"
+        },
+        {
+          "name": "physical_address",
+          "type": "string",
+          "location": "body",
+          "description": "Physical address"
+        }
+      ]
+    },
+    {
+      "name": "admin_create",
+      "description": "Admin-only. Creates a new API key and emails it to the tenant's oversight email. Used when welcome email failed or KV expired before key retrieval. Required: reason, tenant_id. Returns the new AdminCreateResponse.",
+      "method": "POST",
+      "path": "/v1/admin/recover-key",
+      "params": [
+        {
+          "name": "reason",
+          "type": "string",
+          "location": "body",
+          "description": "Reason",
+          "required": true
+        },
+        {
+          "name": "tenant_id",
+          "type": "string",
+          "location": "body",
+          "description": "Tenant id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "api-keys_create",
+      "description": "Requires admin scope. The raw key is returned only once in the response. Required: name. Optional: scopes (default: [read]). Returns the new ApiKeysCreateResponse.",
+      "method": "POST",
+      "path": "/v1/api-keys",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "scopes",
+          "type": "array",
+          "location": "body",
+          "description": "Scopes"
+        }
+      ]
+    },
+    {
+      "name": "api-keys_delete",
+      "description": "Requires admin scope. Returns 202 with pending_approval on first call; resend with approval_code to complete. Required: keyId. Optional: approval_code. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/api-keys/{keyId}",
+      "params": [
+        {
+          "name": "keyId",
+          "type": "string",
+          "location": "path",
+          "description": "Key id",
+          "required": true
+        },
+        {
+          "name": "approval_code",
+          "type": "string",
+          "location": "body",
+          "description": "Operator approval code (from email). Omit on first call to request approval."
+        }
+      ]
+    },
+    {
+      "name": "api-keys_list",
+      "description": "Requires admin scope. Returns key prefix, scopes, and metadata.",
+      "method": "GET",
+      "path": "/v1/api-keys",
+      "params": []
+    },
+    {
+      "name": "api-keys_update",
+      "description": "Update API key name or scopes. Required: keyId. Optional: name, scopes. Returns the updated ApiKeysUpdateResponse.",
+      "method": "PATCH",
+      "path": "/v1/api-keys/{keyId}",
+      "params": [
+        {
+          "name": "keyId",
+          "type": "string",
+          "location": "path",
+          "description": "Key id",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "scopes",
+          "type": "array",
+          "location": "body",
+          "description": "Scopes"
+        }
+      ]
+    },
+    {
+      "name": "approve_create",
+      "description": "Process approval/rejection from hosted page. Required: token.",
+      "method": "POST",
+      "path": "/v1/approve/{token}",
+      "params": [
+        {
+          "name": "token",
+          "type": "string",
+          "location": "path",
+          "description": "Token",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "approve_get",
+      "description": "Render hosted approval page for oversight decisions. Required: token.",
+      "method": "GET",
+      "path": "/v1/approve/{token}",
+      "params": [
+        {
+          "name": "token",
+          "type": "string",
+          "location": "path",
+          "description": "Token",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "audit-log_list",
+      "description": "Returns audit log entries with cursor pagination. Requires admin scope. Optional: limit (default: 50), cursor.",
+      "method": "GET",
+      "path": "/v1/audit-log",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor"
+        }
+      ]
+    },
+    {
+      "name": "billing_create",
+      "description": "Requires admin scope. Sets cancel_at_period_end on the Stripe subscription so the tenant retains access until the current billing period ends. Returns the new BillingCreateResponse.",
+      "method": "POST",
+      "path": "/v1/billing/cancel",
+      "params": []
+    },
+    {
+      "name": "billing_create-checkout",
+      "description": "Create a Stripe checkout session for plan upgrade. Required: plan. Optional: cancel_url, interval (default: monthly), success_url. Returns the new BillingCreateCheckoutResponse.",
+      "method": "POST",
+      "path": "/v1/billing/checkout",
+      "params": [
+        {
+          "name": "cancel_url",
+          "type": "string",
+          "location": "body",
+          "description": "Cancel url"
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "body",
+          "description": "Interval"
+        },
+        {
+          "name": "plan",
+          "type": "string",
+          "location": "body",
+          "description": "Plan",
+          "required": true
+        },
+        {
+          "name": "success_url",
+          "type": "string",
+          "location": "body",
+          "description": "Success url"
+        }
+      ]
+    },
+    {
+      "name": "billing_create-coinbasewebhook",
+      "description": "Coinbase Commerce webhook handler (public, signature-verified).",
+      "method": "POST",
+      "path": "/v1/billing/coinbase-webhook",
+      "params": []
+    },
+    {
+      "name": "billing_create-cryptocheckout",
+      "description": "Create a Coinbase Commerce checkout (crypto payment). Required: plan. Returns the new BillingCreateCryptocheckoutResponse.",
+      "method": "POST",
+      "path": "/v1/billing/crypto-checkout",
+      "params": [
+        {
+          "name": "plan",
+          "type": "string",
+          "location": "body",
+          "description": "Plan",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "billing_create-portal",
+      "description": "Requires admin scope. Returns a URL to the Stripe-hosted billing portal for self-service invoice, payment method, and plan management. Optional: return_url.",
+      "method": "POST",
+      "path": "/v1/billing/portal",
+      "params": [
+        {
+          "name": "return_url",
+          "type": "string",
+          "location": "body",
+          "description": "Return url"
+        }
+      ]
+    },
+    {
+      "name": "billing_create-pricingcheckout",
+      "description": "Creates an inactive tenant, provisions a default mailbox, and returns a Stripe checkout URL. After payment, call GET /v1/billing/session-key to retrieve the API key. Honors an optional Idempotency-Key request header (UUID); the same key is forwarded to Stripe so duplicate Sessions are not created on retry. Required: accepted_anti_spam_policy, accepted_operator_agreement, accepted_tos, operator_name, oversight_email, plan. Optional: attribution, interval (default: monthly), oversight_mode (plus 2 more).",
+      "method": "POST",
+      "path": "/v1/billing/pricing-checkout",
+      "params": [
+        {
+          "name": "accepted_anti_spam_policy",
+          "type": "bool",
+          "location": "body",
+          "description": "Accepted anti spam policy",
+          "required": true
+        },
+        {
+          "name": "accepted_operator_agreement",
+          "type": "bool",
+          "location": "body",
+          "description": "Accepted operator agreement",
+          "required": true
+        },
+        {
+          "name": "accepted_tos",
+          "type": "bool",
+          "location": "body",
+          "description": "Accepted tos",
+          "required": true
+        },
+        {
+          "name": "attribution",
+          "type": "object",
+          "location": "body",
+          "description": "Optional client-captured conversion attribution (Phase 2 of plan 2026-04-27-003). The browser persists this in localStorage.mm_attribution_v1 and forwards it on signup. Server-side validator at src/lib/attribution.ts is the source of truth — bad shapes are silently dropped, NEVER reject the signup. additionalProperties:false on this object AND its sub-objects keeps the API Shield body-size cap honest even if the per-operation mitigation pin in scripts/sync-api-shield.sh is ever undone: an attacker cannot pad the body with arbitrary unknown keys to bypass the per-field maxLengths (adversary review iter1 finding ATTR-1)."
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "body",
+          "description": "Interval"
+        },
+        {
+          "name": "operator_name",
+          "type": "string",
+          "location": "body",
+          "description": "Operator name",
+          "required": true
+        },
+        {
+          "name": "oversight_email",
+          "type": "string",
+          "location": "body",
+          "description": "Oversight email",
+          "required": true
+        },
+        {
+          "name": "oversight_mode",
+          "type": "string",
+          "location": "body",
+          "description": "Oversight mode"
+        },
+        {
+          "name": "plan",
+          "type": "string",
+          "location": "body",
+          "description": "Plan",
+          "required": true
+        },
+        {
+          "name": "turnstile_token",
+          "type": "string",
+          "location": "body",
+          "description": "Turnstile token"
+        },
+        {
+          "name": "use_case",
+          "type": "string",
+          "location": "body",
+          "description": "Use case"
+        }
+      ]
+    },
+    {
+      "name": "billing_create-stripewebhook",
+      "description": "Stripe webhook handler (public, signature-verified).",
+      "method": "POST",
+      "path": "/v1/billing/stripe-webhook",
+      "params": []
+    },
+    {
+      "name": "billing_list",
+      "description": "Public endpoint. Returns the API key stored during pricing-checkout, then deletes it. Key expires after 1 hour if not retrieved. Required: session_id.",
+      "method": "GET",
+      "path": "/v1/billing/session-key",
+      "params": [
+        {
+          "name": "session_id",
+          "type": "string",
+          "location": "query",
+          "description": "Session id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "confirm_create",
+      "description": "JSON response includes: status, name, oversight_mode, api_key, mailbox_id, mailbox_address, oversight_email, use_case. Browser form submissions redirect to /welcome.",
+      "method": "POST",
+      "path": "/v1/confirm",
+      "params": []
+    },
+    {
+      "name": "confirm_get",
+      "description": "Redirect to frontend confirmation page with code prefilled. Required: code.",
+      "method": "GET",
+      "path": "/v1/confirm/{code}",
+      "params": [
+        {
+          "name": "code",
+          "type": "string",
+          "location": "path",
+          "description": "Code",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "confirm_list",
+      "description": "Redirect to frontend confirmation page at multimail.dev/confirm.",
+      "method": "GET",
+      "path": "/v1/confirm",
+      "params": []
+    },
+    {
+      "name": "contacts_create",
+      "description": "Add a contact to the address book. Requires send scope. Required: email, name. Optional: tags. Returns the new Contact.",
+      "method": "POST",
+      "path": "/v1/contacts",
+      "params": [
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "tags",
+          "type": "array",
+          "location": "body",
+          "description": "Tags"
+        }
+      ]
+    },
+    {
+      "name": "contacts_delete",
+      "description": "Requires admin scope. Required: contactId. Returns the ContactsDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/contacts/{contactId}",
+      "params": [
+        {
+          "name": "contactId",
+          "type": "string",
+          "location": "path",
+          "description": "Contact id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contacts_list",
+      "description": "Search address book by name or email. Omit query to list all. Requires read scope. Optional: q. Returns the ContactsListResponse.",
+      "method": "GET",
+      "path": "/v1/contacts",
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Search by name or email (partial match)"
+        }
+      ]
+    },
+    {
+      "name": "domains_create",
+      "description": "Add a custom domain (Pro/Scale only). Required: domain. Returns the new Domain.",
+      "method": "POST",
+      "path": "/v1/domains",
+      "params": [
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "body",
+          "description": "Domain",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains_delete",
+      "description": "Delete a custom domain. Required: id. Returns the DomainsDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/domains/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains_get",
+      "description": "Get custom domain detail. Required: id. Returns the Domain.",
+      "method": "GET",
+      "path": "/v1/domains/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "domains_list",
+      "description": "Requires admin scope. Returns the DomainsListResponse.",
+      "method": "GET",
+      "path": "/v1/domains",
+      "params": []
+    },
+    {
+      "name": "domains_verify_create",
+      "description": "Trigger DNS verification for a custom domain. Required: id. Returns the new DomainVerifyResult.",
+      "method": "POST",
+      "path": "/v1/domains/{id}/verify",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "emails_list",
+      "description": "Requires read scope. Without a status filter, returns spam_flagged and spam_quarantined emails across all tenant mailboxes. Optional: status, limit (default: 20), cursor.",
+      "method": "GET",
+      "path": "/v1/emails",
+      "params": [
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Status"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor (received_at epoch from previous page)"
+        }
+      ]
+    },
+    {
+      "name": "emails_not-spam_create",
+      "description": "Requires send scope. Restores the email to unread and records a user not_spam label. Required: id.",
+      "method": "POST",
+      "path": "/v1/emails/{id}/not-spam",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "emails_report-spam_create",
+      "description": "Requires send scope. Moves the email to spam_quarantined and records a user spam label. Required: id.",
+      "method": "POST",
+      "path": "/v1/emails/{id}/report-spam",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "funnel_create",
+      "description": "Pricing page beacon hit via navigator.sendBeacon to track open/submit/error events on the signup modal. Fire-and-forget; counters are best-effort (KV is non-atomic). IP-rate-limited to 30 req/min. Required: event. Returns the new FunnelCreateResponse.",
+      "method": "POST",
+      "path": "/v1/funnel/event",
+      "params": [
+        {
+          "name": "event",
+          "type": "string",
+          "location": "body",
+          "description": "Event",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "mailboxes_create",
+      "description": "Requires admin scope. Address can be a local part (appended to tenant subdomain) or full address on a verified custom domain. Required: address_local. Optional: display_name, oversight_mode (default: gated_send), webhook_url. Returns the new MailboxesCreateResponse.",
+      "method": "POST",
+      "path": "/v1/mailboxes",
+      "params": [
+        {
+          "name": "address_local",
+          "type": "string",
+          "location": "body",
+          "description": "Local part (e.g. 'inbox') or full address on custom domain (e.g. 'inbox@custom.com')",
+          "required": true
+        },
+        {
+          "name": "display_name",
+          "type": "string",
+          "location": "body",
+          "description": "Display name"
+        },
+        {
+          "name": "oversight_mode",
+          "type": "string",
+          "location": "body",
+          "description": "Ignored — new mailboxes always start at gated_send. Use the upgrade flow to change."
+        },
+        {
+          "name": "webhook_url",
+          "type": "string",
+          "location": "body",
+          "description": "Webhook url"
+        }
+      ]
+    },
+    {
+      "name": "mailboxes_delete",
+      "description": "Requires admin scope. Required: mailboxId. Returns the MailboxesDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/mailboxes/{mailboxId}",
+      "params": [
+        {
+          "name": "mailboxId",
+          "type": "string",
+          "location": "path",
+          "description": "Mailbox id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "mailboxes_list",
+      "description": "Requires read scope. Returns the MailboxesListResponse.",
+      "method": "GET",
+      "path": "/v1/mailboxes",
+      "params": []
+    },
+    {
+      "name": "mailboxes_update",
+      "description": "Requires admin scope. Oversight mode can only be downgraded here; upgrades require the upgrade flow. Required: mailboxId. Optional: auto_bcc, auto_cc, display_name (plus 5 more). Returns the updated MailboxesUpdateResponse.",
+      "method": "PATCH",
+      "path": "/v1/mailboxes/{mailboxId}",
+      "params": [
+        {
+          "name": "mailboxId",
+          "type": "string",
+          "location": "path",
+          "description": "Mailbox id",
+          "required": true
+        },
+        {
+          "name": "auto_bcc",
+          "type": "string",
+          "location": "body",
+          "description": "Auto bcc"
+        },
+        {
+          "name": "auto_cc",
+          "type": "string",
+          "location": "body",
+          "description": "Auto cc"
+        },
+        {
+          "name": "display_name",
+          "type": "string",
+          "location": "body",
+          "description": "Display name"
+        },
+        {
+          "name": "forward_inbound",
+          "type": "bool",
+          "location": "body",
+          "description": "Forward inbound"
+        },
+        {
+          "name": "oversight_mode",
+          "type": "string",
+          "location": "body",
+          "description": "Downgrade only. To upgrade, use POST /v1/mailboxes/{id}/request-upgrade."
+        },
+        {
+          "name": "oversight_webhook_url",
+          "type": "string",
+          "location": "body",
+          "description": "Oversight webhook url"
+        },
+        {
+          "name": "signature_block",
+          "type": "string",
+          "location": "body",
+          "description": "Signature block"
+        },
+        {
+          "name": "webhook_url",
+          "type": "string",
+          "location": "body",
+          "description": "Webhook url"
+        }
+      ]
+    },
+    {
+      "name": "mailboxes_emails_create",
+      "description": "Cancels an email in pending_send_approval or pending_inbound_approval status. Idempotent if already cancelled. Requires send scope. Required: mailboxId, emailId. Returns the new EmailsCreateResponse.",
+      "method": "POST",
+      "path": "/v1/mailboxes/{mailboxId}/emails/{emailId}/cancel",
+      "params": [
+        {
+          "name": "mailboxId",
+          "type": "string",
+          "location": "path",
+          "description": "Mailbox id",
+          "required": true
+        },
+        {
+          "name": "emailId",
+          "type": "string",
+          "location": "path",
+          "description": "Email id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "mailboxes_emails_delete",
+      "description": "Requires send scope. Required: mailboxId, emailId, key. Returns the EmailsDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/mailboxes/{mailboxId}/emails/{emailId}/tags/{key}",
+      "params": [
+        {
+          "name": "mailboxId",
+          "type": "string",
+          "location": "path",
+          "description": "Mailbox id",
+          "required": true
+        },
+        {
+          "name": "emailId",
+          "type": "string",
+          "location": "path",
+          "description": "Email id",
+          "required": true
+        },
+        {
+          "name": "key",
+          "type": "string",
+          "location": "path",
+          "description": "Key",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "mailboxes_emails_get",
+      "description": "Requires read scope. Returns paginated email summaries (no body content). Required: mailboxId. Optional: status, limit (default: 20), cursor (plus 7 more).",
+      "method": "GET",
+      "path": "/v1/mailboxes/{mailboxId}/emails",
+      "params": [
+        {
+          "name": "mailboxId",
+          "type": "string",
+          "location": "path",
+          "description": "Mailbox id",
+          "required": true
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Status"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor (received_at epoch from previous page)"
+        },
+        {
+          "name": "sender",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by sender address"
+        },
+        {
+          "name": "subject_contains",
+          "type": "string",
+          "location": "query",
+          "description": "Substring search on subject"
+        },
+        {
+          "name": "date_after",
+          "type": "string",
+          "location": "query",
+          "description": "Filter emails after this date"
+        },
+        {
+          "name": "date_before",
+          "type": "string",
+          "location": "query",
+          "description": "Filter emails before this date"
+        },
+        {
+          "name": "direction",
+          "type": "string",
+          "location": "query",
+          "description": "Direction"
+        },
+        {
+          "name": "has_attachments",
+          "type": "string",
+          "location": "query",
+          "description": "Has attachments"
+        },
+        {
+          "name": "since_id",
+          "type": "string",
+          "location": "query",
+          "description": "Return emails newer than this ID"
+        }
+      ]
+    },
+    {
+      "name": "mailboxes_emails_get-mailboxes",
+      "description": "Requires read scope. Automatically marks unread emails as read. Required: mailboxId, emailId. Returns the EmailResponse.",
+      "method": "GET",
+      "path": "/v1/mailboxes/{mailboxId}/emails/{emailId}",
+      "params": [
+        {
+          "name": "mailboxId",
+          "type": "string",
+          "location": "path",
+          "description": "Mailbox id",
+          "required": true
+        },
+        {
+          "name": "emailId",
+          "type": "string",
+          "location": "path",
+          "description": "Email id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "mailboxes_emails_get-mailboxes-2",
+      "description": "Requires read scope. Required: mailboxId, emailId. Returns the EmailsGetMailboxes2Response.",
+      "method": "GET",
+      "path": "/v1/mailboxes/{mailboxId}/emails/{emailId}/tags",
+      "params": [
+        {
+          "name": "mailboxId",
+          "type": "string",
+          "location": "path",
+          "description": "Mailbox id",
+          "required": true
+        },
+        {
+          "name": "emailId",
+          "type": "string",
+          "location": "path",
+          "description": "Email id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "mailboxes_emails_get-mailboxes-3",
+      "description": "Requires read scope. Returns base64 inline for small files (\u003c50KB) or a presigned URL for larger files. Required: mailboxId, emailId, filename.",
+      "method": "GET",
+      "path": "/v1/mailboxes/{mailboxId}/emails/{emailId}/attachments/{filename}",
+      "params": [
+        {
+          "name": "mailboxId",
+          "type": "string",
+          "location": "path",
+          "description": "Mailbox id",
+          "required": true
+        },
+        {
+          "name": "emailId",
+          "type": "string",
+          "location": "path",
+          "description": "Email id",
+          "required": true
+        },
+        {
+          "name": "filename",
+          "type": "string",
+          "location": "path",
+          "description": "Filename",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "mailboxes_emails_update",
+      "description": "Replaces all tags with the provided key-value pairs. Requires send scope. Required: mailboxId, emailId, tags. Returns the updated EmailsUpdateResponse.",
+      "method": "PUT",
+      "path": "/v1/mailboxes/{mailboxId}/emails/{emailId}/tags",
+      "params": [
+        {
+          "name": "mailboxId",
+          "type": "string",
+          "location": "path",
+          "description": "Mailbox id",
+          "required": true
+        },
+        {
+          "name": "emailId",
+          "type": "string",
+          "location": "path",
+          "description": "Email id",
+          "required": true
+        },
+        {
+          "name": "tags",
+          "type": "object",
+          "location": "body",
+          "description": "Tags",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "mailboxes_reply_create",
+      "description": "Requires send scope. Supports attachments and idempotency keys. Required: mailboxId, emailId, markdown. Optional: attachments, bcc, cc (plus 1 more). Returns the new ReplyCreateResponse.",
+      "method": "POST",
+      "path": "/v1/mailboxes/{mailboxId}/reply/{emailId}",
+      "params": [
+        {
+          "name": "mailboxId",
+          "type": "string",
+          "location": "path",
+          "description": "Mailbox id",
+          "required": true
+        },
+        {
+          "name": "emailId",
+          "type": "string",
+          "location": "path",
+          "description": "Email id",
+          "required": true
+        },
+        {
+          "name": "attachments",
+          "type": "array",
+          "location": "body",
+          "description": "Attachments"
+        },
+        {
+          "name": "bcc",
+          "type": "array",
+          "location": "body",
+          "description": "Bcc"
+        },
+        {
+          "name": "cc",
+          "type": "array",
+          "location": "body",
+          "description": "Cc"
+        },
+        {
+          "name": "idempotency_key",
+          "type": "string",
+          "location": "body",
+          "description": "Dedup key (24h TTL)"
+        },
+        {
+          "name": "markdown",
+          "type": "string",
+          "location": "body",
+          "description": "Markdown",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "mailboxes_request-upgrade_create",
+      "description": "Requires send scope. Emails a one-time upgrade code to the operator. Rate-limited to 3 requests per hour per mailbox. Required: mailboxId, target_mode.",
+      "method": "POST",
+      "path": "/v1/mailboxes/{mailboxId}/request-upgrade",
+      "params": [
+        {
+          "name": "mailboxId",
+          "type": "string",
+          "location": "path",
+          "description": "Mailbox id",
+          "required": true
+        },
+        {
+          "name": "target_mode",
+          "type": "string",
+          "location": "body",
+          "description": "Target mode",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "mailboxes_send_create",
+      "description": "Send email (provide markdown, we convert to HTML). Required: mailboxId, markdown, subject, to. Optional: attachments, bcc, cc (plus 3 more). Returns the new SendCreateResponse.",
+      "method": "POST",
+      "path": "/v1/mailboxes/{mailboxId}/send",
+      "params": [
+        {
+          "name": "mailboxId",
+          "type": "string",
+          "location": "path",
+          "description": "Mailbox id",
+          "required": true
+        },
+        {
+          "name": "attachments",
+          "type": "array",
+          "location": "body",
+          "description": "Attachments"
+        },
+        {
+          "name": "bcc",
+          "type": "array",
+          "location": "body",
+          "description": "Bcc"
+        },
+        {
+          "name": "cc",
+          "type": "array",
+          "location": "body",
+          "description": "Cc"
+        },
+        {
+          "name": "gate_timing",
+          "type": "string",
+          "location": "body",
+          "description": "Override mailbox default: gate_first approves before scheduling, schedule_first schedules then approves on delivery"
+        },
+        {
+          "name": "idempotency_key",
+          "type": "string",
+          "location": "body",
+          "description": "Dedup key (24h TTL). If resent within TTL, returns the original email ID."
+        },
+        {
+          "name": "markdown",
+          "type": "string",
+          "location": "body",
+          "description": "Email body in markdown. Converted to HTML.",
+          "required": true
+        },
+        {
+          "name": "send_at",
+          "type": "string",
+          "location": "body",
+          "description": "Schedule delivery for a future time. ISO 8601 UTC (must end with Z). Example: 2026-03-15T14:00:00Z"
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "body",
+          "description": "Subject",
+          "required": true
+        },
+        {
+          "name": "to",
+          "type": "array",
+          "location": "body",
+          "description": "To",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "mailboxes_threads_get",
+      "description": "Returns thread metadata and all emails in the thread (without body content). Requires read scope. Required: mailboxId, threadId.",
+      "method": "GET",
+      "path": "/v1/mailboxes/{mailboxId}/threads/{threadId}",
+      "params": [
+        {
+          "name": "mailboxId",
+          "type": "string",
+          "location": "path",
+          "description": "Mailbox id",
+          "required": true
+        },
+        {
+          "name": "threadId",
+          "type": "string",
+          "location": "path",
+          "description": "Thread id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "mailboxes_upgrade_create",
+      "description": "Requires send scope. Codes are single-use and expire after 24 hours. Required: mailboxId, code.",
+      "method": "POST",
+      "path": "/v1/mailboxes/{mailboxId}/upgrade",
+      "params": [
+        {
+          "name": "mailboxId",
+          "type": "string",
+          "location": "path",
+          "description": "Mailbox id",
+          "required": true
+        },
+        {
+          "name": "code",
+          "type": "string",
+          "location": "body",
+          "description": "Upgrade code from operator (e.g. A7X-29K)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "multimail-export_list",
+      "description": "Requires admin scope. Rate limited to 1 request per hour.",
+      "method": "GET",
+      "path": "/v1/export",
+      "params": []
+    },
+    {
+      "name": "multimail-health_list",
+      "description": "Verifies D1 and R2 connectivity. No auth required. Returns the MultimailHealthListResponse.",
+      "method": "GET",
+      "path": "/health",
+      "params": []
+    },
+    {
+      "name": "operator_create",
+      "description": "Requires admin scope. Clears the operator-session cookie.",
+      "method": "POST",
+      "path": "/v1/operator/end-session",
+      "params": []
+    },
+    {
+      "name": "operator_create-startsession",
+      "description": "Requires admin scope. Sends a one-time code to the oversight email and begins the operator-session OTP flow. Returns the new OperatorCreateStartsessionResponse.",
+      "method": "POST",
+      "path": "/v1/operator/start-session",
+      "params": []
+    },
+    {
+      "name": "operator_create-verifysession",
+      "description": "Requires admin scope. Exchanges a one-time code for a short-lived HttpOnly operator-session cookie. Required: code. Returns the new OperatorCreateVerifysessionResponse.",
+      "method": "POST",
+      "path": "/v1/operator/verify-session",
+      "params": [
+        {
+          "name": "code",
+          "type": "string",
+          "location": "body",
+          "description": "Code",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "operator_list",
+      "description": "Requires admin scope. Reports whether the current browser has an active operator-session cookie. Returns the OperatorListResponse.",
+      "method": "GET",
+      "path": "/v1/operator/session",
+      "params": []
+    },
+    {
+      "name": "oversight_create",
+      "description": "Requires oversight scope. Approved outbound emails are sent immediately. Required: action, email_id. Returns the new OversightCreateResponse.",
+      "method": "POST",
+      "path": "/v1/oversight/decide",
+      "params": [
+        {
+          "name": "action",
+          "type": "string",
+          "location": "body",
+          "description": "Action",
+          "required": true
+        },
+        {
+          "name": "email_id",
+          "type": "string",
+          "location": "body",
+          "description": "Email id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "oversight_list",
+      "description": "List emails pending oversight approval. Returns the OversightListResponse.",
+      "method": "GET",
+      "path": "/v1/oversight/pending",
+      "params": []
+    },
+    {
+      "name": "slug-check_get",
+      "description": "Check if a slug is available for registration. Returns suggestions if taken or reserved. No auth required. Required: slug.",
+      "method": "GET",
+      "path": "/v1/slug-check/{slug}",
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Slug",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "support_create",
+      "description": "Public endpoint. Requires a solved ALTCHA proof-of-work payload. Sends a message to support@multimail.dev. Required: email, message, name, pow_solution, subject. Returns the new SupportCreateResponse.",
+      "method": "POST",
+      "path": "/v1/support",
+      "params": [
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email",
+          "required": true
+        },
+        {
+          "name": "message",
+          "type": "string",
+          "location": "body",
+          "description": "Message",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "pow_solution",
+          "type": "object",
+          "location": "body",
+          "description": "Pow solution",
+          "required": true
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "body",
+          "description": "Subject",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "suppression_delete",
+      "description": "Allows future emails to be sent to this address again. Requires admin scope. Required: address. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/suppression/{address}",
+      "params": [
+        {
+          "name": "address",
+          "type": "string",
+          "location": "path",
+          "description": "Address",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "suppression_list",
+      "description": "Returns addresses suppressed due to bounces, spam complaints, or manual unsubscribes. Requires admin scope.",
+      "method": "GET",
+      "path": "/v1/suppression",
+      "params": []
+    },
+    {
+      "name": "unsubscribe_create",
+      "description": "Process unsubscribe request. Required: token.",
+      "method": "POST",
+      "path": "/v1/unsubscribe/{token}",
+      "params": [
+        {
+          "name": "token",
+          "type": "string",
+          "location": "path",
+          "description": "Token",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "unsubscribe_get",
+      "description": "Render unsubscribe page (CAN-SPAM). Required: token.",
+      "method": "GET",
+      "path": "/v1/unsubscribe/{token}",
+      "params": [
+        {
+          "name": "token",
+          "type": "string",
+          "location": "path",
+          "description": "Token",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "usage_list",
+      "description": "Requires read scope. Returns usage counts for the current billing period. Optional: from, to, breakdown.",
+      "method": "GET",
+      "path": "/v1/usage",
+      "params": [
+        {
+          "name": "from",
+          "type": "int",
+          "location": "query",
+          "description": "Start time (epoch ms)"
+        },
+        {
+          "name": "to",
+          "type": "int",
+          "location": "query",
+          "description": "End time (epoch ms)"
+        },
+        {
+          "name": "breakdown",
+          "type": "string",
+          "location": "query",
+          "description": "Breakdown"
+        }
+      ]
+    },
+    {
+      "name": "webhook-deliveries_list",
+      "description": "Returns recent webhook delivery attempts. Requires admin scope. Optional: limit (default: 50), cursor.",
+      "method": "GET",
+      "path": "/v1/webhook-deliveries",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor"
+        }
+      ]
+    },
+    {
+      "name": "webhooks_create",
+      "description": "Subscribe to email events. Returns the signing secret (shown only on creation). Requires admin scope. Required: events, url. Optional: mailbox_id.",
+      "method": "POST",
+      "path": "/v1/webhooks",
+      "params": [
+        {
+          "name": "events",
+          "type": "array",
+          "location": "body",
+          "description": "Event types to subscribe to",
+          "required": true
+        },
+        {
+          "name": "mailbox_id",
+          "type": "string",
+          "location": "body",
+          "description": "Optional: scope to a specific mailbox"
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "HTTPS URL to receive events",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_create-postmark",
+      "description": "Postmark bounce/complaint/delivery webhook handler.",
+      "method": "POST",
+      "path": "/v1/webhooks/postmark",
+      "params": []
+    },
+    {
+      "name": "webhooks_create-postmarkinbound",
+      "description": "Receives inbound emails from Postmark. Authenticated via HTTP Basic Auth with the Postmark webhook secret. Not a consumer API endpoint. Returns the new WebhooksCreatePostmarkinboundResponse.",
+      "method": "POST",
+      "path": "/v1/webhooks/postmark-inbound",
+      "params": []
+    },
+    {
+      "name": "webhooks_delete",
+      "description": "Delete a webhook subscription. Required: id. Returns the WebhooksDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/webhooks/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_get",
+      "description": "Includes signing secret. Requires admin scope. Required: id. Returns the WebhookSubscription.",
+      "method": "GET",
+      "path": "/v1/webhooks/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_list",
+      "description": "Requires admin scope. Signing secrets are not included in the list. Returns the WebhooksListResponse.",
+      "method": "GET",
+      "path": "/v1/webhooks",
+      "params": []
+    },
+    {
+      "name": "well-known_get",
+      "description": "Rate-limited to 10 lookups per IP per hour. Required: hash.",
+      "method": "GET",
+      "path": "/.well-known/reputation/{hash}",
+      "params": [
+        {
+          "name": "hash",
+          "type": "string",
+          "location": "path",
+          "description": "Hash",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "well-known_list",
+      "description": "Returns the ECDSA P-256 public key used to sign X-MultiMail-Identity headers.",
+      "method": "GET",
+      "path": "/.well-known/multimail-signing-key",
+      "params": []
+    }
+  ]
+}

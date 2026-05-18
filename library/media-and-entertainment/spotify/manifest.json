@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "spotify-pp-mcp",
+  "display_name": "Spotify Web",
+  "version": "4.5.2",
+  "description": "Spotify Web API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/spotify-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/spotify-pp-mcp",
+      "args": [],
+      "env": {
+        "SPOTIFY_OAUTH_2_0": "${user_config.spotify_oauth_2_0}"
+      }
+    }
+  },
+  "user_config": {
+    "spotify_oauth_2_0": {
+      "type": "string",
+      "title": "SPOTIFY_OAUTH_2_0",
+      "description": "Sets SPOTIFY_OAUTH_2_0 for the Spotify Web MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

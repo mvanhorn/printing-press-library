@@ -1,0 +1,253 @@
+name: NSE India
+slug: nse-india
+version: "0.1.0"
+description: "Real-time equity market data from the National Stock Exchange of India — quotes, F&O, corporate actions, insider trading, and market status."
+base_url: https://www.nseindia.com
+cli_description: "Live NSE equity quotes, F&O data, corporate filings, insider trading, and market status — offline-ready with local SQLite."
+
+auth:
+  type: none
+
+transport:
+  headers:
+    User-Agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    Referer: "https://www.nseindia.com/"
+    Accept: "application/json"
+
+rate_limit:
+  requests_per_second: 3
+  strategy: adaptive_backoff
+
+resources:
+  equity:
+    description: Comprehensive equity quote data for NSE-listed stocks
+    endpoints:
+      quote:
+        method: GET
+        path: /api/NextApi/apiClient/GetQuoteApi
+        description: "Full equity quote — last price, 52w H/L, sector PE, order book (5 bid/ask levels), delivery%, VaR margin, index memberships, pre-open IEP"
+        params:
+          - name: functionName
+            in: query
+            required: true
+            default: getSymbolData
+            hidden: true
+          - name: marketType
+            in: query
+            required: false
+            default: "N"
+            hidden: true
+          - name: series
+            in: query
+            required: false
+            default: "EQ"
+            hidden: true
+          - name: symbol
+            flag_name: symbol
+            in: query
+            required: true
+            description: "NSE stock symbol (e.g. INFY, ADANIPORTS, RELIANCE)"
+        response_format: json
+        no_auth: true
+      derivatives:
+        method: GET
+        path: /api/NextApi/apiClient/GetQuoteApi
+        description: "F&O data — futures (3 expiries with OI, volume, turnover) and options contracts (CE/PE by strike and expiry)"
+        params:
+          - name: functionName
+            in: query
+            required: true
+            default: getSymbolDerivativesData
+            hidden: true
+          - name: marketType
+            in: query
+            required: false
+            default: "N"
+            hidden: true
+          - name: series
+            in: query
+            required: false
+            default: "EQ"
+            hidden: true
+          - name: symbol
+            flag_name: symbol
+            in: query
+            required: true
+            description: "NSE stock symbol eligible for F&O (e.g. ADANIPORTS, RELIANCE, NIFTY)"
+        response_format: json
+        no_auth: true
+
+  symbol_lookup:
+    description: Symbol search and autocomplete
+    endpoints:
+      autocomplete:
+        method: GET
+        path: /api/search/autocomplete
+        description: "Search symbols by company name or ticker — returns equity, MF, index matches"
+        params:
+          - name: q
+            flag_name: query
+            in: query
+            required: true
+            description: "Stock name or partial symbol to search (e.g. 'ADANI', 'Infosys')"
+        response_format: json
+        no_auth: true
+
+  indices:
+    description: NSE index data and constituents
+    endpoints:
+      list:
+        method: GET
+        path: /api/index-names
+        description: "List all available NSE indices with short and long names"
+        response_format: json
+        no_auth: true
+      constituents:
+        method: GET
+        path: /api/equity-stockIndices
+        description: "Live prices for all constituent stocks in an index with 52w range, 1Y/30D% change"
+        params:
+          - name: index
+            flag_name: index
+            in: query
+            required: true
+            description: "Index name (e.g. 'NIFTY 50', 'NIFTY BANK', 'NIFTY MIDCAP 100', 'NIFTY IT')"
+        response_format: json
+        no_auth: true
+
+  market:
+    description: Market status and operational information
+    endpoints:
+      status:
+        method: GET
+        path: /api/marketStatus
+        description: "Real-time market status for all segments (Capital Market, Currency, F&O, WDM) with current NIFTY level"
+        response_format: json
+        no_auth: true
+
+  corporate:
+    description: Corporate actions, filings, and financial data
+    endpoints:
+      announcements:
+        method: GET
+        path: /api/corporate-announcements
+        description: "Exchange filings — board meetings, results, AGM, investor meets, disclosure intimations"
+        params:
+          - name: index
+            in: query
+            required: false
+            default: equities
+            hidden: true
+          - name: symbol
+            flag_name: symbol
+            in: query
+            required: true
+            description: "NSE stock symbol to fetch announcements for"
+        response_format: json
+        no_auth: true
+      annual_reports:
+        method: GET
+        path: /api/annual-reports
+        description: "Annual reports with direct PDF download URLs, going back multiple years"
+        params:
+          - name: index
+            in: query
+            required: false
+            default: equities
+            hidden: true
+          - name: symbol
+            flag_name: symbol
+            in: query
+            required: true
+            description: "NSE stock symbol to fetch annual reports for"
+        response_format: json
+        no_auth: true
+      financial_results:
+        method: GET
+        path: /api/corporates-financial-results
+        description: "Quarterly and annual financial result filings with XBRL links"
+        params:
+          - name: index
+            in: query
+            required: false
+            default: equities
+            hidden: true
+          - name: symbol
+            flag_name: symbol
+            in: query
+            required: true
+            description: "NSE stock symbol to fetch financial results for"
+          - name: period
+            flag_name: period
+            in: query
+            required: false
+            default: Quarterly
+            description: "Period type: 'Quarterly' or 'Annual'"
+        response_format: json
+        no_auth: true
+      actions:
+        method: GET
+        path: /api/corporates-corporateActions
+        description: "Corporate actions history — dividends, bonuses, splits, rights with ex-dates and record dates"
+        params:
+          - name: index
+            in: query
+            required: false
+            default: equities
+            hidden: true
+          - name: symbol
+            flag_name: symbol
+            in: query
+            required: true
+            description: "NSE stock symbol to fetch corporate actions for"
+        response_format: json
+        no_auth: true
+      insider_trading:
+        method: GET
+        path: /api/corporates-pit
+        description: "SEBI PIT (Prohibition of Insider Trading) disclosures — promoter/director buy/sell with quantities, values, pre/post holding %"
+        params:
+          - name: symbol
+            flag_name: symbol
+            in: query
+            required: true
+            description: "NSE stock symbol to fetch insider trading disclosures for"
+          - name: issuer
+            in: query
+            required: false
+            default: ""
+            hidden: true
+          - name: from
+            flag_name: from
+            in: query
+            required: false
+            description: "Start date (DD-MM-YYYY format)"
+          - name: to
+            flag_name: to
+            in: query
+            required: false
+            description: "End date (DD-MM-YYYY format)"
+        response_format: json
+        no_auth: true
+
+  movers:
+    description: Market activity rankings
+    endpoints:
+      active:
+        method: GET
+        path: /api/live-analysis-most-active-securities
+        description: "Most active intraday securities ranked by volume or traded value"
+        params:
+          - name: index
+            in: query
+            required: false
+            default: INTRADAY
+            hidden: true
+          - name: key
+            flag_name: by
+            in: query
+            required: false
+            default: volume
+            description: "Sort by 'volume' or 'value'"
+        response_format: json
+        no_auth: true

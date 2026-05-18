@@ -1,0 +1,147 @@
+{
+  "timestamp": "2026-05-12T16:22:33.087985Z",
+  "cli_dir": "/tmp/printing-press/publish/granola-AWP3LR/package/library/productivity/granola",
+  "findings": [
+    {
+      "kind": "email",
+      "file": ".manuscripts/20260511-211333/research/granola-openapi.json",
+      "line": 50,
+      "column": 25,
+      "matched_span": "oat-demo@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Vendor demo email from Granola.ai's public OpenAPI spec (docs.granola.ai/api-reference/openapi.json) — redacted to RFC 6761 reserved example.com TLD before publish. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": ".manuscripts/20260511-211333/research/granola-openapi.json",
+      "line": 151,
+      "column": 25,
+      "matched_span": "raisin-demo@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Vendor demo email from Granola.ai's public OpenAPI spec (docs.granola.ai/api-reference/openapi.json) — redacted to RFC 6761 reserved example.com TLD before publish. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": ".manuscripts/20260511-211333/research/granola-openapi.json",
+      "line": 182,
+      "column": 25,
+      "matched_span": "oat-demo@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Vendor demo email from Granola.ai's public OpenAPI spec (docs.granola.ai/api-reference/openapi.json) — redacted to RFC 6761 reserved example.com TLD before publish. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": ".manuscripts/20260511-211333/research/granola-openapi.json",
+      "line": 300,
+      "column": 27,
+      "matched_span": "oat-demo@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Vendor demo email from Granola.ai's public OpenAPI spec (docs.granola.ai/api-reference/openapi.json) — redacted to RFC 6761 reserved example.com TLD before publish. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": ".manuscripts/20260511-211333/research/granola-openapi.json",
+      "line": 304,
+      "column": 27,
+      "matched_span": "raisin-demo@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Vendor demo email from Granola.ai's public OpenAPI spec (docs.granola.ai/api-reference/openapi.json) — redacted to RFC 6761 reserved example.com TLD before publish. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": ".manuscripts/20260511-211333/research/granola-openapi.json",
+      "line": 442,
+      "column": 27,
+      "matched_span": "oat-demo@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Vendor demo email from Granola.ai's public OpenAPI spec (docs.granola.ai/api-reference/openapi.json) — redacted to RFC 6761 reserved example.com TLD before publish. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": ".manuscripts/20260511-211333/research/granola-openapi.json",
+      "line": 446,
+      "column": 27,
+      "matched_span": "raisin-demo@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Vendor demo email from Granola.ai's public OpenAPI spec (docs.granola.ai/api-reference/openapi.json) — redacted to RFC 6761 reserved example.com TLD before publish. Not real PII."
+    },
+    {
+      "kind": "email",
+      "file": "README.md",
+      "line": 79,
+      "column": 34,
+      "matched_span": "alice@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "README cookbook recipe demonstrating 'attendee timeline' with a synthetic example address; uses RFC 6761 reserved example.com TLD."
+    },
+    {
+      "kind": "email",
+      "file": "README.md",
+      "line": 113,
+      "column": 36,
+      "matched_span": "alice@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "README Unique Features block teaching 'attendee timeline' usage; RFC 6761 example.com TLD."
+    },
+    {
+      "kind": "email",
+      "file": "README.md",
+      "line": 120,
+      "column": 33,
+      "matched_span": "alice@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "README Unique Features block teaching 'attendee brief' usage; RFC 6761 example.com TLD."
+    },
+    {
+      "kind": "email",
+      "file": "SKILL.md",
+      "line": 72,
+      "column": 36,
+      "matched_span": "alice@example.com",
+      "status": "accepted",
+      "category": "documentation_example",
+      "evidence_context": "SKILL recipe block for attendee timeline — the SKILL teaches agents to substitute the user's real attendee email at runtime."
+    },
+    {
+      "kind": "email",
+      "file": "SKILL.md",
+      "line": 79,
+      "column": 33,
+      "matched_span": "alice@example.com",
+      "status": "accepted",
+      "category": "documentation_example",
+      "evidence_context": "SKILL recipe block for attendee brief — placeholder for the user's real attendee, swapped by the agent at runtime."
+    },
+    {
+      "kind": "email",
+      "file": "SKILL.md",
+      "line": 194,
+      "column": 31,
+      "matched_span": "alice@example.com",
+      "status": "accepted",
+      "category": "documentation_example",
+      "evidence_context": "SKILL recipe demonstrating cross-meeting attendee query format; swapped at runtime."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/attendee_test.go",
+      "line": 41,
+      "column": 57,
+      "matched_span": "alice@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Test fixture seeds an in-memory SQLite store with a synthetic attendee row; RFC 6761 example.com TLD reserved for documentation."
+    }
+  ],
+  "findings_count_before": 15
+}

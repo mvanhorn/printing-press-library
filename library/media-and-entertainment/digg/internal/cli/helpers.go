@@ -402,11 +402,42 @@ func filterFieldsRec(data json.RawMessage, paths [][]string) json.RawMessage {
 				filtered[k] = filterFieldsRec(v, subs)
 			}
 		}
+		if len(filtered) == 0 {
+			if arrayField, raw, ok := singleNestedArrayField(obj); ok {
+				filtered[arrayField] = filterFieldsRec(raw, paths)
+			}
+		}
 		result, _ := json.Marshal(filtered)
 		return result
 	}
 
 	return data
+}
+
+func singleNestedArrayField(obj map[string]json.RawMessage) (string, json.RawMessage, bool) {
+	for _, field := range []string{"data", "items", "results", "messages", "members", "values"} {
+		if raw, ok := obj[field]; ok {
+			var nested []json.RawMessage
+			if json.Unmarshal(raw, &nested) == nil {
+				return field, raw, true
+			}
+		}
+	}
+
+	var (
+		field string
+		raw   json.RawMessage
+		count int
+	)
+	for k, candidate := range obj {
+		var nested []json.RawMessage
+		if json.Unmarshal(candidate, &nested) == nil {
+			field = k
+			raw = candidate
+			count++
+		}
+	}
+	return field, raw, count == 1
 }
 
 // matchSelectSegment returns the matching lowercase segment, or "" if no match.

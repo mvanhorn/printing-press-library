@@ -572,18 +572,34 @@ func (c *Client) dryRun(method, targetURL, path string, params map[string]string
 	return c.dryRunWithCrumb(method, targetURL, path, params, body, headerOverrides, c.Crumb())
 }
 
-func (c *Client) dryRunWithCrumb(method, targetURL, path string, params map[string]string, body []byte, headerOverrides map[string]string, crumb string) (json.RawMessage, int, error) {
-	fmt.Fprintf(os.Stderr, "%s %s\n", method, targetURL)
-	if params != nil {
-		for k, v := range params {
-			if v != "" {
-				fmt.Fprintf(os.Stderr, "  ?%s=%s\n", k, v)
-			}
+// dryRunDisplayURL is the helper behind dryRunWithCrumb. It mirrors the
+// net/http q.Encode() path the real request takes, so the --dry-run preview
+// faithfully represents the URL that would be sent.
+//
+// PATCH (fix-fundamentals-dry-run-url-506): the old printer wrote each
+// parameter on its own line prefixed with `?`, which made the preview look
+// like the live URL was malformed (e.g. `...?type=...?period1=...?crumb=...`).
+// The live HTTP path always used q.Encode() and was fine; only the preview
+// was wrong.
+func dryRunDisplayURL(targetURL string, params map[string]string, crumb string) string {
+	q := url.Values{}
+	for k, v := range params {
+		if v != "" {
+			q.Set(k, v)
 		}
 	}
 	if crumb != "" {
-		fmt.Fprintf(os.Stderr, "  ?crumb=%s\n", crumb)
+		q.Set("crumb", crumb)
 	}
+	encoded := q.Encode()
+	if encoded == "" {
+		return targetURL
+	}
+	return targetURL + "?" + encoded
+}
+
+func (c *Client) dryRunWithCrumb(method, targetURL, path string, params map[string]string, body []byte, headerOverrides map[string]string, crumb string) (json.RawMessage, int, error) {
+	fmt.Fprintf(os.Stderr, "%s %s\n", method, dryRunDisplayURL(targetURL, params, crumb))
 	if body != nil {
 		var pretty json.RawMessage
 		if json.Unmarshal(body, &pretty) == nil {

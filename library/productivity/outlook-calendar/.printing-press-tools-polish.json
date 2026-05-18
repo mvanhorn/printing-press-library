@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-05-10T17:59:21.119298Z",
+  "cli_dir": "/Users/paul/printing-press/.runstate/cli-printing-press-d5831482/runs/20260510-094714/working/outlook-calendar-pp-cli",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 7,
+    "captured": "2026-05-10T17:55:12.746884Z"
+  }
+}
