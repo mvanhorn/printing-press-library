@@ -45,6 +45,12 @@
       "summary": "Check rows.Err() after the rows.Next() loop in since.go, export.go, and the second loop in webhook_replay.go so an interrupted query surfaces an error instead of silently returning a truncated result set.",
       "reason": "Greptile P1 review finding on PR #676 (third pass): the same rows.Err() gap previously fixed in gravity/response_time recurred in these three commands. since returns a partial JSON list, export writes a truncated NDJSON file with nil return, webhook-replay silently drops deliveries beyond the interruption point.",
       "files": ["internal/cli/since.go", "internal/cli/export.go", "internal/cli/webhook_replay.go"]
+    },
+    {
+      "id": "tail-follow-false-honoured",
+      "summary": "Honour --follow=false in tail.go by returning after the initial fetch instead of dropping into the infinite ticker loop.",
+      "reason": "Greptile P1 review finding on PR #676 (fourth pass): the follow flag was declared and bound but never read, so --follow=false silently behaved like the default and ran the poll loop until SIGTERM/SIGINT. Any script or agent relying on --follow=false for single-poll-then-exit would hang.",
+      "files": ["internal/cli/tail.go"]
     }
   ]
 }

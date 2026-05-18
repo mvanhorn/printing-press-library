@@ -78,6 +78,13 @@ native streaming instead of polling.`,
 				fmt.Fprintf(os.Stderr, "warning: initial fetch failed: %v\n", err)
 			}
 
+			// --follow=false: single poll then exit (the initial fetch
+			// above IS that poll). Default behaviour keeps polling until
+			// SIGTERM/SIGINT.
+			if !follow {
+				return nil
+			}
+
 			for {
 				select {
 				case <-sig:
