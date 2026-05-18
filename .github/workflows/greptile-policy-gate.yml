@@ -61,29 +61,7 @@ jobs:
           echo "number=$(jq -r '.number' <<<"${pr_json}")" >> "${GITHUB_OUTPUT}"
           echo "head_sha=$(jq -r '.head.sha' <<<"${pr_json}")" >> "${GITHUB_OUTPUT}"
 
-      - name: Detect Greptile-authored fix commit
-        id: bot-check
-        # "Fix in Codex/Claude/Cursor/Conductor" deeplinks in Greptile reviews
-        # produce a commit co-authored by greptile-apps[bot]. The gate would
-        # otherwise poll for a Greptile review of that commit specifically,
-        # but Greptile rarely re-reviews its own suggestions in time, so the
-        # gate times out on a commit Greptile already implicitly endorsed.
-        # Treat any head commit with the Greptile co-author trailer as
-        # already-reviewed and skip the polling loop.
-        env:
-          HEAD_SHA: ${{ steps.pr.outputs.head_sha }}
-        run: |
-          set -euo pipefail
-          commit_msg="$(gh api "repos/${GITHUB_REPOSITORY}/commits/${HEAD_SHA}" --jq '.commit.message')"
-          if printf '%s' "${commit_msg}" | grep -qiE '^[[:space:]]*Co-authored-by:[[:space:]]*greptile-apps\[bot\]'; then
-            echo "::notice::Head commit ${HEAD_SHA} is co-authored by greptile-apps[bot] — treating as Greptile-approved and skipping the polling gate."
-            echo "skip=true" >> "${GITHUB_OUTPUT}"
-          else
-            echo "skip=false" >> "${GITHUB_OUTPUT}"
-          fi
-
       - name: Require Greptile score
-        if: steps.bot-check.outputs.skip != 'true'
         env:
           PR_NUMBER: ${{ steps.pr.outputs.number }}
           HEAD_SHA: ${{ steps.pr.outputs.head_sha }}
