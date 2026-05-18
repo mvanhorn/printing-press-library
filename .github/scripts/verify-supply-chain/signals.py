@@ -204,10 +204,21 @@ def signal_id_token_outside_allowlist(change: FileChange) -> list[Finding]:
 # ---------------------------------------------------------------------------
 
 
-# Captures: `replace <module> => <target>` and `replace <module> <version> => <target> [<version>]`
+# Captures the single-line form: `replace <module> [<version>] => <target> [<version>]`
 _REPLACE_LINE = re.compile(
     r"^\s*replace\s+\S+(?:\s+v\S+)?\s*=>\s*(?P<target>\S+)"
 )
+
+# Captures the inner body of a block-form replace, which appears as
+# `<module> [<version>] => <target> [<version>]` *without* a leading `replace`
+# keyword. Only valid inside a `replace ( ... )` block — see _replace_block_ranges.
+_REPLACE_BLOCK_BODY = re.compile(
+    r"^\s*\S+(?:\s+v\S+)?\s*=>\s*(?P<target>\S+)"
+)
+
+# Opens a block-form replace: `replace (` possibly followed by whitespace/comment.
+_REPLACE_BLOCK_OPEN = re.compile(r"^\s*replace\s*\(\s*(?:\s*//.*)?$")
+_REPLACE_BLOCK_CLOSE = re.compile(r"^\s*\)\s*(?:\s*//.*)?$")
 
 
 def _classify_replace_target(target: str) -> str:
@@ -227,20 +238,60 @@ def _classify_replace_target(target: str) -> str:
     return "local"  # conservative
 
 
+def _replace_block_ranges(content: str | None) -> list[tuple[int, int]]:
+    """Return [(start_line, end_line)] (1-indexed, inclusive) for each
+    `replace ( ... )` block in go.mod content. start_line is the line AFTER
+    the opening `replace (`; end_line is the line BEFORE the closing `)`.
+    """
+    if not content:
+        return []
+    ranges: list[tuple[int, int]] = []
+    lines = content.splitlines()
+    i = 0
+    while i < len(lines):
+        if _REPLACE_BLOCK_OPEN.match(lines[i]):
+            start = i + 2  # first body line (1-indexed)
+            j = i + 1
+            while j < len(lines) and not _REPLACE_BLOCK_CLOSE.match(lines[j]):
+                j += 1
+            ranges.append((start, j))  # j is 1-indexed close-line-minus-1 (== j in 0-indexed)
+            i = j + 1
+        else:
+            i += 1
+    return ranges
+
+
+def _in_block(line_no: int, ranges: list[tuple[int, int]]) -> bool:
+    return any(start <= line_no <= end for start, end in ranges)
+
+
 def signal_gomod_replace(change: FileChange) -> list[Finding]:
     """R3. New `replace` directives in library/**/go.mod. Tiered:
       - remote target → block (BufferZoneCorp redirect-to-attacker-fork shape).
       - local target  → advise (legitimate vendoring, but still worth a look).
+
+    Catches BOTH go.mod replace syntaxes:
+      replace foo => bar v1.0.0                          (single-line form)
+      replace (                                          (block form — the
+          foo => bar v1.0.0                               inner lines have
+      )                                                   no `replace` prefix)
     """
     if not is_library_gomod(change.path):
         return []
 
+    block_ranges = _replace_block_ranges(change.head_content)
     findings: list[Finding] = []
     for line_no, line_content in change.added_lines:
-        match = _REPLACE_LINE.match(line_content)
-        if not match:
+        target: str | None = None
+        single_match = _REPLACE_LINE.match(line_content)
+        if single_match:
+            target = single_match.group("target")
+        elif _in_block(line_no, block_ranges):
+            body_match = _REPLACE_BLOCK_BODY.match(line_content)
+            if body_match:
+                target = body_match.group("target")
+        if target is None:
             continue
-        target = match.group("target")
         kind = _classify_replace_target(target)
         if kind == "remote":
             findings.append(

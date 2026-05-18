@@ -236,6 +236,94 @@ class GomodReplaceSignalTest(unittest.TestCase):
         findings = signals.signal_gomod_replace(change)
         self.assertEqual(findings, [])
 
+    def test_block_form_replace_to_github_blocks(self) -> None:
+        """Greptile-flagged evasion case: block-form `replace ( ... )` body lines
+        have no leading `replace` keyword. Must still trip the BufferZoneCorp gate."""
+        head = (
+            "module github.com/mvanhorn/printing-press-library/library/payments/kalshi\n"
+            "\n"
+            "go 1.22\n"
+            "\n"
+            "replace (\n"
+            "    example.com/foo => github.com/attacker/fork v0.0.1\n"
+            ")\n"
+        )
+        change = _fc(
+            "library/payments/kalshi/go.mod",
+            head=head,
+            added=[(6, "    example.com/foo => github.com/attacker/fork v0.0.1")],
+        )
+        findings = signals.signal_gomod_replace(change)
+        self.assertEqual(len(findings), 1)
+        self.assertTrue(findings[0].is_block())
+        self.assertEqual(findings[0].signal_id, "gomod_replace_remote_target")
+
+    def test_block_form_replace_to_local_advises(self) -> None:
+        head = (
+            "module github.com/mvanhorn/printing-press-library/library/food-and-dining/foo\n"
+            "\n"
+            "go 1.22\n"
+            "\n"
+            "replace (\n"
+            "    github.com/ledongthuc/pdf => ./third_party/stubs/pdf\n"
+            ")\n"
+        )
+        change = _fc(
+            "library/food-and-dining/foo/go.mod",
+            head=head,
+            added=[(6, "    github.com/ledongthuc/pdf => ./third_party/stubs/pdf")],
+        )
+        findings = signals.signal_gomod_replace(change)
+        self.assertEqual(len(findings), 1)
+        self.assertEqual(findings[0].severity, "advise")
+
+    def test_block_form_multiple_entries_all_flagged(self) -> None:
+        head = (
+            "module github.com/mvanhorn/printing-press-library/library/payments/kalshi\n"
+            "\n"
+            "go 1.22\n"
+            "\n"
+            "replace (\n"
+            "    example.com/foo => github.com/attacker/fork v0.0.1\n"
+            "    example.com/bar => github.com/other/fork v0.0.1\n"
+            "    example.com/baz => ./vendor/baz\n"
+            ")\n"
+        )
+        change = _fc(
+            "library/payments/kalshi/go.mod",
+            head=head,
+            added=[
+                (6, "    example.com/foo => github.com/attacker/fork v0.0.1"),
+                (7, "    example.com/bar => github.com/other/fork v0.0.1"),
+                (8, "    example.com/baz => ./vendor/baz"),
+            ],
+        )
+        findings = signals.signal_gomod_replace(change)
+        self.assertEqual(len(findings), 3)
+        # First two are remote-target → block.
+        self.assertTrue(findings[0].is_block())
+        self.assertTrue(findings[1].is_block())
+        # Third is local-path → advise.
+        self.assertEqual(findings[2].severity, "advise")
+
+    def test_arrow_outside_block_does_not_false_positive(self) -> None:
+        """A line containing `=>` that isn't inside a replace block (e.g., a
+        comment, a require directive's // indirect annotation, or a stray line)
+        must NOT trip the rule."""
+        head = (
+            "module github.com/mvanhorn/printing-press-library/library/x/y\n"
+            "\n"
+            "// some comment that mentions => arrow\n"
+            "require example.com/foo v1.0.0 // indirect\n"
+        )
+        change = _fc(
+            "library/x/y/go.mod",
+            head=head,
+            added=[(3, "// some comment that mentions => arrow")],
+        )
+        findings = signals.signal_gomod_replace(change)
+        self.assertEqual(findings, [])
+
 
 class GoEnvOverrideSignalTest(unittest.TestCase):
     def test_goproxy_in_workflow_blocks(self) -> None:
