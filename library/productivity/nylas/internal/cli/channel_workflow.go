@@ -39,7 +39,7 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
   # Full re-archive (ignore previous sync state)
   nylas-pp-cli workflow archive --full`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			c, err := flags.newClient()
+			c, err := flags.newClient(cmd.Context())
 			if err != nil {
 				return err
 			}

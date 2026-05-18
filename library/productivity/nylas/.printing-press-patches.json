@@ -33,6 +33,18 @@
       "summary": "Strip single-quoted string literals before the sqlMutationRE keyword check so legitimate read-only queries that mention mutation keywords inside LIKE patterns are not falsely rejected.",
       "reason": "Greptile P2 review finding on PR #676: queries like `SELECT body FROM grants_messages WHERE body LIKE '%insert%'` were rejected by the defence-in-depth regex even though OpenReadOnly's mode=ro is the real write barrier and the query is harmless. The strip handles SQL-standard '' escaping for embedded quotes.",
       "files": ["internal/cli/sql.go"]
+    },
+    {
+      "id": "http-client-context-propagation",
+      "summary": "Plumb cobra command context through the HTTP client: client.Client gains a Ctx field, client.do() switches from http.NewRequest to http.NewRequestWithContext, flags.newClient() takes a context argument, and all 218 call sites in internal/cli/*.go pass cmd.Context().",
+      "reason": "Greptile P1 review finding on PR #676: long-running operations (sync, bulk paginated GETs) were unresponsive to Ctrl+C because in-flight HTTP requests didn't honour the command context. The fix is broad but mechanical — each call site changes from flags.newClient() to flags.newClient(cmd.Context()).",
+      "files": ["internal/client/client.go", "internal/cli/root.go", "internal/cli/*.go"]
+    },
+    {
+      "id": "since-export-webhook-replay-rows-err",
+      "summary": "Check rows.Err() after the rows.Next() loop in since.go, export.go, and the second loop in webhook_replay.go so an interrupted query surfaces an error instead of silently returning a truncated result set.",
+      "reason": "Greptile P1 review finding on PR #676 (third pass): the same rows.Err() gap previously fixed in gravity/response_time recurred in these three commands. since returns a partial JSON list, export writes a truncated NDJSON file with nil return, webhook-replay silently drops deliveries beyond the interruption point.",
+      "files": ["internal/cli/since.go", "internal/cli/export.go", "internal/cli/webhook_replay.go"]
     }
   ]
 }

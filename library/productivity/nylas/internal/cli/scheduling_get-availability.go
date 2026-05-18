@@ -31,7 +31,7 @@ func newSchedulingGetAvailabilityCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  nylas-pp-cli scheduling get-availability --start-time 1738339200 --end-time 1738425600 --configuration-id 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "scheduling.get-availability", "pp:method": "GET", "pp:path": "/v3/scheduling/availability", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			c, err := flags.newClient()
+			c, err := flags.newClient(cmd.Context())
 			if err != nil {
 				return err
 			}

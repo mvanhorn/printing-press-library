@@ -20,7 +20,7 @@ func newWebhooksGetDestinationsApplicationCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  nylas-pp-cli webhooks get-destinations-application",
 		Annotations: map[string]string{"pp:endpoint": "webhooks.get-destinations-application", "pp:method": "GET", "pp:path": "/v3/webhooks", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			c, err := flags.newClient()
+			c, err := flags.newClient(cmd.Context())
 			if err != nil {
 				return err
 			}

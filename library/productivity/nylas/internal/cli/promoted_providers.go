@@ -22,7 +22,7 @@ func newProvidersPromotedCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  nylas-pp-cli providers --email user@example.com",
 		Annotations: map[string]string{"pp:endpoint": "providers.detect-by-email", "pp:method": "POST", "pp:path": "/v3/providers/detect"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			c, err := flags.newClient()
+			c, err := flags.newClient(cmd.Context())
 			if err != nil {
 				return err
 			}

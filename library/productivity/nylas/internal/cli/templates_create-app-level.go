@@ -37,7 +37,7 @@ func newTemplatesCreateAppLevelCmd(flags *rootFlags) *cobra.Command {
 					return fmt.Errorf("required flag \"%s\" not set", "subject")
 				}
 			}
-			c, err := flags.newClient()
+			c, err := flags.newClient(cmd.Context())
 			if err != nil {
 				return err
 			}

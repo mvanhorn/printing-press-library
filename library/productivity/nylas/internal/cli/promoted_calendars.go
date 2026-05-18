@@ -32,7 +32,7 @@ func newCalendarsPromotedCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  nylas-pp-cli calendars",
 		Annotations: map[string]string{"pp:endpoint": "calendars.post-availability", "pp:method": "POST", "pp:path": "/v3/calendars/availability"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			c, err := flags.newClient()
+			c, err := flags.newClient(cmd.Context())
 			if err != nil {
 				return err
 			}

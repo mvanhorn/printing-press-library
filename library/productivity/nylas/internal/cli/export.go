@@ -143,6 +143,10 @@ jq, pandas, or any line-oriented pipeline.`,
 					}
 					total++
 				}
+				if err := rows.Err(); err != nil {
+					rows.Close()
+					return fmt.Errorf("iterating %s: %w", table, err)
+				}
 				rows.Close()
 			}
 			if !flags.asJSON && (outFile != "" && outFile != "-") {

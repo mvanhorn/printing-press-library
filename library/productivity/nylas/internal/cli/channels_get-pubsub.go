@@ -20,7 +20,7 @@ func newChannelsGetPubsubCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  nylas-pp-cli channels get-pubsub",
 		Annotations: map[string]string{"pp:endpoint": "channels.get-pubsub", "pp:method": "GET", "pp:path": "/v3/channels/pubsub", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			c, err := flags.newClient()
+			c, err := flags.newClient(cmd.Context())
 			if err != nil {
 				return err
 			}

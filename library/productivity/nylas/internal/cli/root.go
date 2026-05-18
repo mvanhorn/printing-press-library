@@ -5,6 +5,7 @@ package cli
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io"
 	"os"
@@ -282,7 +283,7 @@ func ExitCode(err error) int {
 	return 1
 }
 
-func (f *rootFlags) newClient() (*client.Client, error) {
+func (f *rootFlags) newClient(ctx context.Context) (*client.Client, error) {
 	cfg, err := config.Load(f.configPath)
 	if err != nil {
 		return nil, configErr(err)
@@ -290,6 +291,7 @@ func (f *rootFlags) newClient() (*client.Client, error) {
 	c := client.New(cfg, f.timeout, f.rateLimit)
 	c.DryRun = f.dryRun
 	c.NoCache = f.noCache
+	c.Ctx = ctx
 	return c, nil
 }
 

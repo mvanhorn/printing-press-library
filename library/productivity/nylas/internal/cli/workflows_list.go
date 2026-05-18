@@ -22,7 +22,7 @@ func newWorkflowsListCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  nylas-pp-cli workflows list",
 		Annotations: map[string]string{"pp:endpoint": "workflows.list", "pp:method": "GET", "pp:path": "/v3/workflows", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			c, err := flags.newClient()
+			c, err := flags.newClient(cmd.Context())
 			if err != nil {
 				return err
 			}

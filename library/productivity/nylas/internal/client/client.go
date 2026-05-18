@@ -5,6 +5,7 @@ package client
 
 import (
 	"bytes"
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -31,6 +32,19 @@ type Client struct {
 	NoCache    bool
 	cacheDir   string
 	limiter    *cliutil.AdaptiveLimiter
+	// Ctx is the request-scoped context attached to outbound HTTP requests.
+	// When nil, do() falls back to context.Background(). Callers that want
+	// Ctrl+C / deadline cancellation to interrupt in-flight requests must
+	// set this to the cobra command context before issuing API calls.
+	Ctx context.Context
+}
+
+// WithContext returns the receiver after setting its request context.
+// Convenience setter so callers can write `flags.newClient(ctx)` and
+// have the client automatically honour command-level cancellation.
+func (c *Client) WithContext(ctx context.Context) *Client {
+	c.Ctx = ctx
+	return c
 }
 
 // APIError carries HTTP status information for structured exit codes.
@@ -271,7 +285,11 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 			bodyReader = strings.NewReader(string(bodyBytes))
 		}
 
-		req, err := http.NewRequest(method, targetURL, bodyReader)
+		ctx := c.Ctx
+		if ctx == nil {
+			ctx = context.Background()
+		}
+		req, err := http.NewRequestWithContext(ctx, method, targetURL, bodyReader)
 		if err != nil {
 			return nil, 0, fmt.Errorf("creating request: %w", err)
 		}

@@ -23,7 +23,7 @@ func newListsListListsCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  nylas-pp-cli lists list-lists",
 		Annotations: map[string]string{"pp:endpoint": "lists.list_lists", "pp:method": "GET", "pp:path": "/v3/lists", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			c, err := flags.newClient()
+			c, err := flags.newClient(cmd.Context())
 			if err != nil {
 				return err
 			}

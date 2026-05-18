@@ -22,7 +22,7 @@ func newRulesListCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  nylas-pp-cli rules list",
 		Annotations: map[string]string{"pp:endpoint": "rules.list", "pp:method": "GET", "pp:path": "/v3/rules", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			c, err := flags.newClient()
+			c, err := flags.newClient(cmd.Context())
 			if err != nil {
 				return err
 			}

@@ -159,6 +159,9 @@ pattern used by every other side-effecting command in this CLI.`,
 				}
 				results = append(results, r)
 			}
+			if err := rows.Err(); err != nil {
+				return fmt.Errorf("iterating webhooks: %w", err)
+			}
 			if !verify && !flags.asJSON {
 				fmt.Fprintf(cmd.ErrOrStderr(), "preview only: would replay %d deliveries; pass --confirm to actually POST.\n", len(results))
 			}

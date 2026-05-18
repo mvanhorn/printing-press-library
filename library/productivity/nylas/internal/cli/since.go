@@ -128,6 +128,10 @@ folders, notetakers, webhooks. Pass a comma-separated list with
 					}
 					out = append(out, it)
 				}
+				if err := rows.Err(); err != nil {
+					rows.Close()
+					return fmt.Errorf("iterating %s: %w", table, err)
+				}
 				rows.Close()
 			}
 			return flags.printJSON(cmd, out)

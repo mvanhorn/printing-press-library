@@ -55,7 +55,7 @@ native streaming instead of polling.`,
 				return fmt.Errorf("resource name required (e.g., 'tail messages')")
 			}
 
-			c, err := flags.newClient()
+			c, err := flags.newClient(cmd.Context())
 			if err != nil {
 				return err
 			}

@@ -27,7 +27,7 @@ func newNotetakersLeavePostStandaloneNotetakerCmd(flags *rootFlags) *cobra.Comma
 			}
 			if !stdinBody {
 			}
-			c, err := flags.newClient()
+			c, err := flags.newClient(cmd.Context())
 			if err != nil {
 				return err
 			}

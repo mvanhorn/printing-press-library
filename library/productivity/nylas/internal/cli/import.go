@@ -35,7 +35,7 @@ but do not stop the import.`,
   cat data.jsonl | nylas-pp-cli import <resource> --input -`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			c, err := flags.newClient()
+			c, err := flags.newClient(cmd.Context())
 			if err != nil {
 				return err
 			}

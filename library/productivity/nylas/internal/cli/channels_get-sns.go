@@ -19,7 +19,7 @@ func newChannelsGetSnsCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  nylas-pp-cli channels get-sns",
 		Annotations: map[string]string{"pp:endpoint": "channels.get-sns", "pp:method": "GET", "pp:path": "/v3/channels/sns", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			c, err := flags.newClient()
+			c, err := flags.newClient(cmd.Context())
 			if err != nil {
 				return err
 			}

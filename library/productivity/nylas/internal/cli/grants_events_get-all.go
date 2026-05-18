@@ -57,7 +57,7 @@ func newGrantsEventsGetAllCmd(flags *rootFlags) *cobra.Command {
 					fmt.Fprintf(os.Stderr, "warning: --%s %q not in allowed set %v\n", "event-type", flagEventType, allowedEventType)
 				}
 			}
-			c, err := flags.newClient()
+			c, err := flags.newClient(cmd.Context())
 			if err != nil {
 				return err
 			}

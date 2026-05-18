@@ -23,7 +23,7 @@ func newTemplatesListAppLevelCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  nylas-pp-cli templates list-app-level",
 		Annotations: map[string]string{"pp:endpoint": "templates.list-app-level", "pp:method": "GET", "pp:path": "/v3/templates", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			c, err := flags.newClient()
+			c, err := flags.newClient(cmd.Context())
 			if err != nil {
 				return err
 			}
