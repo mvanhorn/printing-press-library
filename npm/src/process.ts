@@ -8,6 +8,7 @@ export interface RunResult {
 
 export interface RunOptions {
   env?: NodeJS.ProcessEnv;
+  shell?: boolean;
 }
 
 export type Runner = (command: string, args: string[], options?: RunOptions) => Promise<RunResult>;
@@ -19,6 +20,7 @@ export const execFileRunner: Runner = (command, args, options = {}) => {
       args,
       {
         env: options.env ? { ...process.env, ...options.env } : process.env,
+        shell: options.shell ?? false,
       },
       (error, stdout, stderr) => {
         if (error && "code" in error && error.code === "ENOENT") {
