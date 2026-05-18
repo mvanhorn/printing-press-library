@@ -62,7 +62,16 @@ func newRoomsCmd(rflags *rootFlags) *cobra.Command {
 				if power, ok := state["poweron"].(bool); ok && power {
 					a.onCount++
 				}
+				// PATCH(greptile/641): each Dreo device carries its own
+				// tempunit (0=°C, 1=°F). Convert °F to °C before summing
+				// so households with mixed-unit devices get a meaningful
+				// average instead of a mash of raw 22-ish and 72-ish
+				// numbers. Missing tempunit defaults to °C (the Dreo
+				// REST default).
 				if t, ok := asFloat(state, "temperature"); ok {
+					if u, ok := asFloat(state, "tempunit"); ok && u == 1 {
+						t = (t - 32) * 5.0 / 9.0
+					}
 					a.tempSum += t
 					a.tempN++
 				}
@@ -76,7 +85,7 @@ func newRoomsCmd(rflags *rootFlags) *cobra.Command {
 				Room        string  `json:"room"`
 				DeviceCount int     `json:"device_count"`
 				OnCount     int     `json:"on_count"`
-				AvgTemp     float64 `json:"avg_temperature,omitempty"`
+				AvgTempC    float64 `json:"avg_temperature_c,omitempty"`
 				AvgHumidity float64 `json:"avg_humidity,omitempty"`
 			}
 			result := make([]roomRow, 0, len(rooms))
@@ -87,7 +96,7 @@ func newRoomsCmd(rflags *rootFlags) *cobra.Command {
 					OnCount:     a.onCount,
 				}
 				if a.tempN > 0 {
-					row.AvgTemp = a.tempSum / float64(a.tempN)
+					row.AvgTempC = a.tempSum / float64(a.tempN)
 				}
 				if a.humN > 0 {
 					row.AvgHumidity = a.humSum / float64(a.humN)
@@ -103,12 +112,12 @@ func newRoomsCmd(rflags *rootFlags) *cobra.Command {
 				fmt.Fprintln(cmd.OutOrStdout(), "No rooms found. Run `dreo-pp-cli devices list` first.")
 				return nil
 			}
-			headers := []string{"ROOM", "DEVICES", "ON", "AVG_TEMP", "AVG_HUMIDITY"}
+			headers := []string{"ROOM", "DEVICES", "ON", "AVG_TEMP_C", "AVG_HUMIDITY"}
 			rows := make([][]string, 0, len(result))
 			for _, r := range result {
 				tempStr, humStr := "", ""
-				if r.AvgTemp != 0 {
-					tempStr = fmt.Sprintf("%.1f", r.AvgTemp)
+				if r.AvgTempC != 0 {
+					tempStr = fmt.Sprintf("%.1f", r.AvgTempC)
 				}
 				if r.AvgHumidity != 0 {
 					humStr = fmt.Sprintf("%.1f", r.AvgHumidity)
