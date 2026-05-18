@@ -44,3 +44,45 @@ func TestGetListsByStoreMatchesStoreIDsExactly(t *testing.T) {
 		t.Fatalf("items = %#v, want only item-1", groups[0].Items)
 	}
 }
+
+func TestGetMissingIngredientsEscapesLikeWildcards(t *testing.T) {
+	t.Parallel()
+
+	st, err := Open(&config.Config{Path: filepath.Join(t.TempDir(), "config.toml")})
+	if err != nil {
+		t.Fatalf("Open returned error: %v", err)
+	}
+	defer st.Close()
+
+	if _, err := st.db.Exec(`INSERT INTO lists (id, name) VALUES ('list-1', 'Groceries')`); err != nil {
+		t.Fatalf("insert list: %v", err)
+	}
+	if _, err := st.db.Exec(`INSERT INTO recipes (id, name) VALUES ('recipe-1', 'Pancakes')`); err != nil {
+		t.Fatalf("insert recipe: %v", err)
+	}
+	if _, err := st.db.Exec(`INSERT INTO ingredients
+		(id, recipe_id, raw_ingredient, name, sort_index)
+		VALUES
+		('ingredient-1', 'recipe-1', '1% milk', '1% milk', 1),
+		('ingredient-2', 'recipe-1', 'a_b spice', 'a_b spice', 2)`); err != nil {
+		t.Fatalf("insert ingredients: %v", err)
+	}
+	if _, err := st.db.Exec(`INSERT INTO items
+		(id, list_id, name, checked, manual_sort_index, store_ids)
+		VALUES
+		('item-1', 'list-1', '1 gallon milk', 0, 1, '[]'),
+		('item-2', 'list-1', 'acb spice', 0, 2, '[]')`); err != nil {
+		t.Fatalf("insert items: %v", err)
+	}
+
+	missing, err := st.GetMissingIngredients("recipe-1", "list-1")
+	if err != nil {
+		t.Fatalf("GetMissingIngredients returned error: %v", err)
+	}
+	if len(missing) != 2 {
+		t.Fatalf("len(missing) = %d, want 2: %#v", len(missing), missing)
+	}
+	if missing[0].ID != "ingredient-1" || missing[1].ID != "ingredient-2" {
+		t.Fatalf("missing = %#v, want both wildcard ingredients", missing)
+	}
+}

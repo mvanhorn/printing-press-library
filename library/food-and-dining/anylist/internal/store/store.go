@@ -1194,7 +1194,7 @@ func (s *Store) GetMissingIngredients(recipeID, listID string) ([]IngredientRow,
 		  SELECT 1 FROM items it
 		  WHERE it.list_id = ?
 		  AND it.checked = 0
-		  AND LOWER(it.name) LIKE '%' || LOWER(ing.name) || '%'
+		  AND LOWER(it.name) LIKE '%' || REPLACE(REPLACE(REPLACE(LOWER(ing.name), '\', '\\'), '%', '\%'), '_', '\_') || '%' ESCAPE '\'
 		)
 		ORDER BY ing.sort_index`
 

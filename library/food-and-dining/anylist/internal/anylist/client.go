@@ -77,7 +77,6 @@ func (c *Client) Login(ctx context.Context, email, password string) error {
 	if err != nil {
 		return fmt.Errorf("login: %w", err)
 	}
-	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusNotFound || resp.StatusCode == http.StatusMethodNotAllowed {
 		// Fall back to older /data/validate-login endpoint
@@ -86,8 +85,8 @@ func (c *Client) Login(ctx context.Context, email, password string) error {
 		if err != nil {
 			return fmt.Errorf("login (fallback): %w", err)
 		}
-		defer resp.Body.Close()
 	}
+	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
