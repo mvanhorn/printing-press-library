@@ -202,7 +202,7 @@ func insertWatchMatch(db *sql.DB, watchID int64, listingID, reason, createdAt st
 }
 
 func scanWatches(rows *sql.Rows) ([]watchRow, error) {
-	var watches []watchRow
+	watches := []watchRow{}
 	for rows.Next() {
 		var w watchRow
 		var enabled int
