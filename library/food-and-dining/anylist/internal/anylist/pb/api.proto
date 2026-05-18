@@ -1,7 +1,7 @@
 // WARNING: This file is auto-generated from cmd/pbgen, DO NOT MANUALLY EDIT!
 syntax = "proto3";
 
-option go_package = "anylist-pp-cli/internal/anylist/pb";
+option go_package = "github.com/mvanhorn/printing-press-library/library/food-and-dining/anylist/internal/anylist/pb";
 
 
 message Tag {

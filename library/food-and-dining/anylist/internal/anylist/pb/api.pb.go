@@ -11487,7 +11487,7 @@ const file_internal_anylist_pb_api_proto_rawDesc = "" +
 	"identifier\x18\x01 \x01(\tR\n" +
 	"identifier\x12$\n" +
 	"\ranylistUserId\x18\x02 \x01(\tR\ranylistUserId\x12E\n" +
-	"\rlistOperation\x18\x03 \x01(\v2\x1f.PBGoogleAssistantListOperationR\rlistOperationB$Z\"github.com/mvanhorn/printing-press-library/library/food-and-dining/anylist/internal/anylist/pbb\x06proto3"
+	"\rlistOperation\x18\x03 \x01(\v2\x1f.PBGoogleAssistantListOperationR\rlistOperationB`Z^github.com/mvanhorn/printing-press-library/library/food-and-dining/anylist/internal/anylist/pbb\x06proto3"
 
 var (
 	file_internal_anylist_pb_api_proto_rawDescOnce sync.Once
