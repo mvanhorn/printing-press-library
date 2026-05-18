@@ -41,6 +41,10 @@ func newLienChainCmd(flags *rootFlags) *cobra.Command {
 			if folioN == 0 {
 				return fmt.Errorf("invalid --folio: %q (expected dashed or numeric form, e.g. 30-2232-066-1610)", folio)
 			}
+			sinceNorm, err := validateSinceFlag("since", since)
+			if err != nil {
+				return err
+			}
 
 			s, err := openStoreOrFail(cmd.Context())
 			if err != nil {
@@ -50,7 +54,7 @@ func newLienChainCmd(flags *rootFlags) *cobra.Command {
 			deeds, err := s.QueryRecordings(store.RecordingFilter{
 				FolioNumber:  folioN,
 				DocTypeCodes: deedDocTypes,
-				SinceDate:    since,
+				SinceDate:    sinceNorm,
 			})
 			if err != nil {
 				return fmt.Errorf("query deeds: %w", err)
@@ -64,7 +68,7 @@ func newLienChainCmd(flags *rootFlags) *cobra.Command {
 			// 70%+ of recordings the Clerk indexes by folio.
 			all, err := s.QueryRecordings(store.RecordingFilter{
 				FolioNumber: folioN,
-				SinceDate:   since,
+				SinceDate:   sinceNorm,
 			})
 			if err != nil {
 				return fmt.Errorf("query timeline: %w", err)

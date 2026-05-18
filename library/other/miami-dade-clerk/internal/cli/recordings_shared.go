@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/other/miami-dade-clerk/internal/store"
 )
@@ -75,6 +76,25 @@ func NormalizeFolio(s string) int64 {
 		return 0
 	}
 	return n
+}
+
+// validateSinceFlag normalizes the --since flag accepted by lien-chain,
+// chain-of-title, and ftl-scan. Returns the canonical YYYY-MM-DD string
+// (zero-padded month/day) for non-empty input or an error explaining the
+// expected format. Empty input is valid and returns "". Rejecting common
+// mistakes like MM/DD/YYYY here is important: SinceDate is interpolated
+// into a textual recording_date >= ? comparison in SQLite — a bad value
+// would parse as a partial string and silently match no rows, defeating
+// the filter without warning.
+func validateSinceFlag(flagName, raw string) (string, error) {
+	raw = strings.TrimSpace(raw)
+	if raw == "" {
+		return "", nil
+	}
+	if t, err := time.Parse("2006-01-02", raw); err == nil {
+		return t.Format("2006-01-02"), nil
+	}
+	return "", fmt.Errorf("invalid --%s value %q: expected YYYY-MM-DD (e.g. 2025-01-01)", flagName, raw)
 }
 
 // viewerURL builds the public viewer URL for a recording given its

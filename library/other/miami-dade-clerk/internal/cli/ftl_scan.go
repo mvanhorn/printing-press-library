@@ -31,6 +31,10 @@ func newFTLScanCmd(flags *rootFlags) *cobra.Command {
 				}
 				return fmt.Errorf("required flag \"%s\" not set", "since")
 			}
+			sinceNorm, err := validateSinceFlag("since", since)
+			if err != nil {
+				return err
+			}
 			if dryRunOK(flags) {
 				return nil
 			}
@@ -41,7 +45,7 @@ func newFTLScanCmd(flags *rootFlags) *cobra.Command {
 
 			hits, err := s.QueryRecordings(store.RecordingFilter{
 				DocTypeCodes: []string{"FTL"},
-				SinceDate:    since,
+				SinceDate:    sinceNorm,
 				OrderBy:      "recording_date DESC, cfn_master_id DESC",
 			})
 			if err != nil {

@@ -41,6 +41,10 @@ func newChainOfTitleCmd(flags *rootFlags) *cobra.Command {
 			if folioN == 0 {
 				return fmt.Errorf("invalid --folio: %q", folio)
 			}
+			sinceNorm, err := validateSinceFlag("since", since)
+			if err != nil {
+				return err
+			}
 			s, err := openStoreOrFail(cmd.Context())
 			if err != nil {
 				return err
@@ -49,7 +53,7 @@ func newChainOfTitleCmd(flags *rootFlags) *cobra.Command {
 			deeds, err := s.QueryRecordings(store.RecordingFilter{
 				FolioNumber:  folioN,
 				DocTypeCodes: deedDocTypes,
-				SinceDate:    since,
+				SinceDate:    sinceNorm,
 			})
 			if err != nil {
 				return fmt.Errorf("query deeds: %w", err)
@@ -72,7 +76,7 @@ func newChainOfTitleCmd(flags *rootFlags) *cobra.Command {
 
 			return flags.printJSON(cmd, map[string]any{
 				"folio": folioN,
-				"since": since,
+				"since": sinceNorm,
 				"deeds": deedList,
 				"gaps":  gaps,
 			})
