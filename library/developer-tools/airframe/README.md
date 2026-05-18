@@ -172,20 +172,67 @@ NTSB only publishes their accident database in Microsoft Access binary format. T
 
 ## Install
 
+The recommended path installs both the `airframe-pp-cli` binary and the `pp-airframe` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
+
+```bash
+npx -y @mvanhorn/printing-press install airframe
+```
+
+For CLI only (no skill):
+
+```bash
+npx -y @mvanhorn/printing-press install airframe --cli-only
+```
+
+For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
+
+```bash
+npx -y @mvanhorn/printing-press install airframe --skill-only
+```
+
+To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
+
+```bash
+npx -y @mvanhorn/printing-press install airframe --agent claude-code
+npx -y @mvanhorn/printing-press install airframe --agent claude-code --agent codex
+```
+
+### Without Node (Go fallback)
+
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/developer-tools/airframe/cmd/airframe-pp-cli@latest
 ```
 
-Verify:
+This installs the CLI only — no skill.
+
+### Pre-built binary
+
+Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/airframe-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
+
+<!-- pp-hermes-install-anchor -->
+## Install for Hermes
+
+From the Hermes CLI:
 
 ```bash
-airframe-pp-cli --version
-airframe-pp-cli doctor
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-airframe --force
 ```
 
-`doctor` shows you exactly what's wired up (Tier 1 data, Tier 2 data, mdbtools, flight-goat) and what's missing.
+Inside a Hermes chat session:
 
----
+```bash
+/skills install mvanhorn/printing-press-library/cli-skills/pp-airframe --force
+```
+
+## Install for OpenClaw
+
+Tell your OpenClaw agent (copy this):
+
+```
+Install the pp-airframe skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-airframe. The skill defines how its required CLI can be installed.
+```
 
 ## Sync flags reference
 

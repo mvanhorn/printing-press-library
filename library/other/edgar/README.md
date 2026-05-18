@@ -6,7 +6,7 @@ Built for a Claude Code agent doing conviction research on public-company filing
 
 ## Install
 
-The recommended path installs both the `edgar-pp-cli` binary and the `pp-edgar` agent skill in one shot:
+The recommended path installs both the `edgar-pp-cli` binary and the `pp-edgar` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
 npx -y @mvanhorn/printing-press install edgar
@@ -18,10 +18,28 @@ For CLI only (no skill):
 npx -y @mvanhorn/printing-press install edgar --cli-only
 ```
 
+For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
-### Without Node
+```bash
+npx -y @mvanhorn/printing-press install edgar --skill-only
+```
 
-The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
+To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
+
+```bash
+npx -y @mvanhorn/printing-press install edgar --agent claude-code
+npx -y @mvanhorn/printing-press install edgar --agent claude-code --agent codex
+```
+
+### Without Node (Go fallback)
+
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/other/edgar/cmd/edgar-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
 
 ### Pre-built binary
 
@@ -50,6 +68,43 @@ Tell your OpenClaw agent (copy this):
 Install the pp-edgar skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-edgar. The skill defines how its required CLI can be installed.
 ```
 
+## Use with Claude Desktop
+
+This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
+
+To install:
+
+1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/edgar-current).
+2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
+3. Fill in `COMPANY_PP_CONTACT_EMAIL` when Claude Desktop prompts you.
+
+Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
+
+<details>
+<summary>Manual JSON config (advanced)</summary>
+
+If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
+
+
+Install the MCP binary from this CLI's published public-library entry or pre-built release.
+
+Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "edgar": {
+      "command": "edgar-pp-mcp",
+      "env": {
+        "COMPANY_PP_CONTACT_EMAIL": "<your-key>"
+      }
+    }
+  }
+}
+```
+
+</details>
+
 ## Authentication
 
 No API key — SEC EDGAR is publicly accessible. Identity is the User-Agent: set COMPANY_PP_CONTACT_EMAIL once and every request goes out as `lodestar-edgar-pp-cli <email>`. The CLI refuses to run if the env var is unset, with a clear error pointing at setup. Rate-limited to ≤2 req/sec sustained (well under SEC's 10 req/sec ceiling) with adaptive backoff on 429.
@@ -60,18 +115,14 @@ No API key — SEC EDGAR is publicly accessible. Identity is the User-Agent: set
 # SEC fair-access requires a real contact email in the User-Agent. Set once.
 export COMPANY_PP_CONTACT_EMAIL=user@example.com
 
-
 # Verifies UA env var, runs a reachability probe against data.sec.gov, opens the SQLite store, confirms FTS5.
 edgar-pp-cli doctor
-
 
 # LODESTAR primary-source bundle: latest 10-K, four 10-Qs, 90-day 8-Ks, 12-month Form 4s with senior-officer flag, latest DEF 14A — all in one structured response.
 edgar-pp-cli primary-sources AAPL --json
 
-
 # Form 4 aggregator with code-S (discretionary) vs code-F (RSU tax) separated and senior officers flagged.
 edgar-pp-cli insider-summary AAPL --senior-only --since 12mo --json
-
 
 # Recheck delta — only filings filed after the supplied timestamp, using the local cursor.
 edgar-pp-cli since AAPL --as-of 2026-05-08 --json
@@ -180,7 +231,6 @@ Per-form-type filing retrieval and individual filing document fetch
 - **`edgar-pp-cli filings browse`** - EDGAR filing index for a CIK + form type. Returns HTML/Atom; the generator wraps it but parsing happens in the compound commands.
 - **`edgar-pp-cli filings get`** - Fetch raw filing index page or document for a specific accession. Accession must be the no-dashes form (e.g., 000032019322000049).
 
-
 ## Output Formats
 
 ```bash
@@ -213,69 +263,6 @@ This CLI is designed for AI agent consumption:
 - **Agent-safe by default** - no colors or formatting unless `--human-friendly` is set
 
 Exit codes: `0` success, `2` usage error, `3` not found, `4` auth error, `5` API error, `7` rate limited, `10` config error.
-
-## Use with Claude Code
-
-Install the focused skill — it auto-installs the CLI on first invocation:
-
-```bash
-npx skills add mvanhorn/printing-press-library/cli-skills/pp-edgar -g
-```
-
-Then invoke `/pp-edgar <query>` in Claude Code. The skill is the most efficient path — Claude Code drives the CLI directly without an MCP server in the middle.
-
-<details>
-<summary>Use as an MCP server in Claude Code (advanced)</summary>
-
-If you'd rather register this CLI as an MCP server in Claude Code, install the MCP binary first:
-
-
-Install the MCP binary from this CLI's published public-library entry or pre-built release.
-
-Then register it:
-
-```bash
-claude mcp add edgar edgar-pp-mcp -e COMPANY_PP_CONTACT_EMAIL=<your-key>
-```
-
-</details>
-
-## Use with Claude Desktop
-
-This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
-
-To install:
-
-1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/edgar-current).
-2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
-3. Fill in `COMPANY_PP_CONTACT_EMAIL` when Claude Desktop prompts you.
-
-Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
-
-<details>
-<summary>Manual JSON config (advanced)</summary>
-
-If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
-
-
-Install the MCP binary from this CLI's published public-library entry or pre-built release.
-
-Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "edgar": {
-      "command": "edgar-pp-mcp",
-      "env": {
-        "COMPANY_PP_CONTACT_EMAIL": "<your-key>"
-      }
-    }
-  }
-}
-```
-
-</details>
 
 ## Health Check
 

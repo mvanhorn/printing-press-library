@@ -1,0 +1,515 @@
+name: openipa
+description: "CLI per l'Indice delle Pubbliche Amministrazioni (IPA) — ricerca enti, AOO, UO, PEC, fatturazione elettronica e ordini elettronici"
+version: "0.1.0"
+base_url: "https://indicepa.gov.it/public-ws"
+
+# NOTE: The IPA API requires POST requests with application/x-www-form-urlencoded body.
+# The AUTH_ID must be in the form body, not as a header or query param.
+# Phase 3 must replace the generated HTTP client with a form-encoding client
+# that injects AUTH_ID from config into every request body.
+# auth.in: query is used here so the generator recognizes auth and env var;
+# Phase 3 fixes the wire format (query → form body).
+auth:
+  type: api_key
+  header: "AUTH_ID"
+  in: query
+  env_vars:
+    - IPA_auth_id
+
+config:
+  format: toml
+  path: "~/.config/openipa/config.toml"
+
+resources:
+  enti:
+    description: "Ricerca e dettagli degli enti (Pubbliche Amministrazioni)"
+    endpoints:
+      cerca:
+        method: POST
+        path: "/WS16_DES_AMM.php"
+        description: "Cerca enti per nome o descrizione"
+        body:
+          - name: DESCR
+            flag_name: nome
+            type: string
+            required: true
+            positional: true
+            description: "Parte del nome dell'ente da cercare (es. 'comune di Roma')"
+        response:
+          type: array
+          item: EnteRisultato
+      get:
+        method: POST
+        path: "/WS05_AMM.php"
+        description: "Dati anagrafici completi di un ente per codice IPA"
+        body:
+          - name: COD_AMM
+            flag_name: codice
+            type: string
+            required: true
+            positional: true
+            description: "Codice IPA dell'ente (es. 'agid', 'r_sicili', 'c_h501')"
+        response:
+          type: array
+          item: Ente
+
+  aoo:
+    description: "Aree Organizzative Omogenee degli enti"
+    endpoints:
+      list:
+        method: POST
+        path: "/WS02_AOO.php"
+        description: "Lista delle AOO di un ente"
+        body:
+          - name: COD_AMM
+            flag_name: codice
+            type: string
+            required: true
+            positional: true
+            description: "Codice IPA dell'ente"
+        response:
+          type: array
+          item: AOO
+      get:
+        method: POST
+        path: "/WS08_AOOC.php"
+        description: "AOO di un ente con filtro opzionale per codice AOO"
+        body:
+          - name: COD_AMM
+            flag_name: codice
+            type: string
+            required: true
+            positional: true
+            description: "Codice IPA dell'ente"
+          - name: COD_AOO
+            flag_name: aoo
+            type: string
+            required: false
+            description: "Codice AOO opzionale (filtra su una AOO specifica)"
+        response:
+          type: array
+          item: AOO
+
+  uo:
+    description: "Unità Organizzative degli enti"
+    endpoints:
+      list:
+        method: POST
+        path: "/WS03_OU.php"
+        description: "Lista delle UO di un ente"
+        body:
+          - name: COD_AMM
+            flag_name: codice
+            type: string
+            required: true
+            positional: true
+            description: "Codice IPA dell'ente"
+        response:
+          type: array
+          item: UO
+      get:
+        method: POST
+        path: "/WS06_OU_CODUNI.php"
+        description: "Dettagli di una singola UO per codice univoco"
+        body:
+          - name: COD_UNI_OU
+            flag_name: codice-uni
+            type: string
+            required: true
+            positional: true
+            description: "Codice univoco dell'Unità Organizzativa (es. '4D3J7X')"
+        response:
+          type: object
+          item: UODettaglio
+
+  fatturazione:
+    description: "Servizi di fatturazione elettronica (SFE) — ricerca uffici destinatari"
+    endpoints:
+      cf:
+        method: POST
+        path: "/WS01_SFE_CF.php"
+        description: "Uffici destinatari fattura elettronica per codice fiscale ente"
+        body:
+          - name: CF
+            flag_name: cf
+            type: string
+            required: true
+            positional: true
+            description: "Codice fiscale dell'ente destinatario (es. '97735020584')"
+        response:
+          type: array
+          item: SFE_CF
+      ente:
+        method: POST
+        path: "/WS04_SFE.php"
+        description: "Canali SFE attivi di un ente per codice IPA"
+        body:
+          - name: COD_AMM
+            flag_name: codice
+            type: string
+            required: true
+            positional: true
+            description: "Codice IPA dell'ente"
+        response:
+          type: array
+          item: CanaleSFE
+
+  nso:
+    description: "Nodi di Smistamento Ordini (NSO) per ordini elettronici"
+    endpoints:
+      cf:
+        method: POST
+        path: "/WS14_NSO_CF.php"
+        description: "Nodi NSO per codice fiscale ente"
+        body:
+          - name: CF
+            flag_name: cf
+            type: string
+            required: true
+            positional: true
+            description: "Codice fiscale dell'ente"
+        response:
+          type: array
+          item: NSO_CF
+      ente:
+        method: POST
+        path: "/WS15_NSO.php"
+        description: "Canali NSO attivi di un ente per codice IPA"
+        body:
+          - name: COD_AMM
+            flag_name: codice
+            type: string
+            required: true
+            positional: true
+            description: "Codice IPA dell'ente"
+        response:
+          type: array
+          item: CanaleNSO
+
+  domicilio:
+    description: "Domicili digitali (PEC e SERC) delle entità IPA"
+    endpoints:
+      aoo:
+        method: POST
+        path: "/WS09_DOM_DIG_AOO.php"
+        description: "Domicilio digitale attivo di una AOO"
+        body:
+          - name: COD_AOO
+            flag_name: codice-aoo
+            type: string
+            required: true
+            positional: true
+            description: "Codice AOO (es. 'agid_aoo')"
+        response:
+          type: array
+          item: DomicilioDigitale
+      uo:
+        method: POST
+        path: "/WS10_DOM_DIG_OU.php"
+        description: "Domicilio digitale attivo di una UO per codice univoco"
+        body:
+          - name: COD_UNI_OU
+            flag_name: codice-uni
+            type: string
+            required: true
+            positional: true
+            description: "Codice univoco UO"
+        response:
+          type: array
+          item: DomicilioDigitale
+      email:
+        method: POST
+        path: "/WS13_DOM_DIG.php"
+        description: "Cerca entità IPA tramite indirizzo domicilio digitale (PEC)"
+        body:
+          - name: DOMICILIO DIGITALE
+            flag_name: pec
+            type: string
+            required: true
+            positional: true
+            description: "Indirizzo PEC o domicilio digitale da cercare"
+        response:
+          type: array
+          item: DomicilioDigitale
+      cf:
+        method: POST
+        path: "/WS23_DOM_DIG_CF.php"
+        description: "Domicilio digitale di un ente per codice fiscale"
+        body:
+          - name: CF
+            flag_name: cf
+            type: string
+            required: true
+            positional: true
+            description: "Codice fiscale dell'ente"
+        response:
+          type: array
+          item: DomicilioDigitaleCF
+      storico-aoo:
+        method: POST
+        path: "/WS11_DOM_DIG_STOR_AOO.php"
+        description: "Storico domicili digitali di una AOO (inclusi cessati)"
+        body:
+          - name: COD_AOO
+            flag_name: codice-aoo
+            type: string
+            required: true
+            positional: true
+            description: "Codice AOO"
+        response:
+          type: array
+          item: DomicilioDigitaleStorico
+      storico-uo:
+        method: POST
+        path: "/WS12_DOM_DIG_STOR_OU.php"
+        description: "Storico domicili digitali di una UO (inclusi cessati)"
+        body:
+          - name: COD_UNI_OU
+            flag_name: codice-uni
+            type: string
+            required: true
+            positional: true
+            description: "Codice univoco UO"
+        response:
+          type: array
+          item: DomicilioDigitaleStorico
+
+  cerca:
+    description: "Ricerca trasversale — trova entità IPA per email"
+    endpoints:
+      email:
+        method: POST
+        path: "/WS07_EMAIL.php"
+        description: "Trova entità IPA (AMM/AOO/UO) associate a un indirizzo email"
+        body:
+          - name: EMAIL
+            flag_name: email
+            type: string
+            required: true
+            positional: true
+            description: "Indirizzo email da cercare nell'anagrafica IPA"
+        response:
+          type: array
+          item: EntitaEmail
+
+types:
+  EnteRisultato:
+    fields:
+      - name: cod_amm
+        type: string
+      - name: acronimo
+        type: string
+      - name: des_amm
+        type: string
+
+  Ente:
+    fields:
+      - name: cod_amm
+        type: string
+      - name: des_amm
+        type: string
+      - name: acronimo
+        type: string
+      - name: tipologia
+        type: string
+      - name: categoria
+        type: string
+      - name: cf
+        type: string
+      - name: comune
+        type: string
+      - name: provincia
+        type: string
+      - name: regione
+        type: string
+      - name: cap
+        type: string
+      - name: indirizzo
+        type: string
+      - name: sito_istituzionale
+        type: string
+      - name: mail1
+        type: string
+      - name: mail2
+        type: string
+      - name: mail3
+        type: string
+      - name: nome_resp
+        type: string
+      - name: cogn_resp
+        type: string
+      - name: data_accreditamento
+        type: string
+
+  AOO:
+    fields:
+      - name: cod_amm
+        type: string
+      - name: cod_aoo
+        type: string
+      - name: des_aoo
+        type: string
+      - name: comune
+        type: string
+      - name: provincia
+        type: string
+      - name: regione
+        type: string
+      - name: indirizzo
+        type: string
+      - name: mail1
+        type: string
+      - name: nome_resp
+        type: string
+      - name: cogn_resp
+        type: string
+
+  UO:
+    fields:
+      - name: cod_amm
+        type: string
+      - name: cod_uni_ou
+        type: string
+      - name: cod_aoo
+        type: string
+      - name: des_ou
+        type: string
+      - name: comune
+        type: string
+      - name: provincia
+        type: string
+      - name: regione
+        type: string
+      - name: indirizzo
+        type: string
+      - name: mail1
+        type: string
+      - name: nome_resp
+        type: string
+
+  UODettaglio:
+    fields:
+      - name: cod_amm
+        type: string
+      - name: cod_uni_ou
+        type: string
+      - name: cod_aoo
+        type: string
+      - name: des_ou
+        type: string
+      - name: comune
+        type: string
+      - name: provincia
+        type: string
+      - name: regione
+        type: string
+      - name: mail1
+        type: string
+      - name: stato_canale_nso
+        type: string
+      - name: cf_nso
+        type: string
+      - name: dat_val_canale_trasm_nso
+        type: string
+
+  SFE_CF:
+    fields:
+      - name: cod_amm
+        type: string
+      - name: des_amm
+        type: string
+
+  CanaleSFE:
+    fields:
+      - name: cod_amm
+        type: string
+      - name: stato_canale
+        type: string
+      - name: cod_uni_ou
+        type: string
+      - name: cod_aoo
+        type: string
+      - name: des_ou
+        type: string
+      - name: cf
+        type: string
+      - name: dt_verifica_cf
+        type: string
+      - name: dat_val_canale_trasm_sfe
+        type: string
+
+  NSO_CF:
+    fields:
+      - name: cod_amm
+        type: string
+      - name: des_amm
+        type: string
+
+  CanaleNSO:
+    fields:
+      - name: cod_amm
+        type: string
+      - name: stato_canale
+        type: string
+      - name: cod_uni_ou
+        type: string
+      - name: cod_aoo
+        type: string
+      - name: des_ou
+        type: string
+      - name: cf
+        type: string
+      - name: dat_val_canale_trasm_nso
+        type: string
+
+  DomicilioDigitale:
+    fields:
+      - name: domicilio_digitale
+        type: string
+      - name: tipo
+        type: string
+      - name: data_pubblicazione
+        type: string
+      - name: cod_amm
+        type: string
+      - name: des_amm
+        type: string
+
+  DomicilioDigitaleCF:
+    fields:
+      - name: domicilio_digitale
+        type: string
+      - name: tipo
+        type: string
+      - name: cod_amm
+        type: string
+      - name: des_amm
+        type: string
+
+  DomicilioDigitaleStorico:
+    fields:
+      - name: domicilio_digitale
+        type: string
+      - name: tipo
+        type: string
+      - name: data_pubblicazione
+        type: string
+      - name: data_cancellazione
+        type: string
+      - name: cod_amm
+        type: string
+      - name: des_amm
+        type: string
+
+  EntitaEmail:
+    fields:
+      - name: tipo_email
+        type: string
+      - name: tipo_entita
+        type: string
+      - name: cod_amm
+        type: string
+      - name: des_amm
+        type: string
+      - name: cod_entita
+        type: string

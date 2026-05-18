@@ -8,15 +8,79 @@ Learn more at [Trigger.dev](https://trigger.dev).
 
 ## Install
 
-### Binary
+The recommended path installs both the `trigger-dev-pp-cli` binary and the `pp-trigger-dev` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
+
+```bash
+npx -y @mvanhorn/printing-press install trigger-dev
+```
+
+For CLI only (no skill):
+
+```bash
+npx -y @mvanhorn/printing-press install trigger-dev --cli-only
+```
+
+For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
+
+```bash
+npx -y @mvanhorn/printing-press install trigger-dev --skill-only
+```
+
+To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
+
+```bash
+npx -y @mvanhorn/printing-press install trigger-dev --agent claude-code
+npx -y @mvanhorn/printing-press install trigger-dev --agent claude-code --agent codex
+```
+
+### Without Node (Go fallback)
+
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/developer-tools/trigger-dev/cmd/trigger-dev-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
+
+### Pre-built binary
 
 Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/trigger-dev-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
 
-### Go
+<!-- pp-hermes-install-anchor -->
+## Install for Hermes
+
+From the Hermes CLI:
+
+```bash
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-trigger-dev --force
+```
+
+Inside a Hermes chat session:
+
+```bash
+/skills install mvanhorn/printing-press-library/cli-skills/pp-trigger-dev --force
+```
+
+## Install for OpenClaw
+
+Tell your OpenClaw agent (copy this):
 
 ```
-go install github.com/mvanhorn/printing-press-library/library/developer-tools/trigger-dev/cmd/trigger-dev-pp-cli@latest
+Install the pp-trigger-dev skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-trigger-dev. The skill defines how its required CLI can be installed.
 ```
+
+## Use with Claude Desktop
+
+This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
+
+To install:
+
+1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/trigger-dev-current).
+2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
+3. Fill in `TRIGGER_SECRET_KEY` when Claude Desktop prompts you.
+
+Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
 
 ## Authentication
 
@@ -28,22 +92,17 @@ Authentication uses a Trigger.dev secret key in the `Authorization: Bearer` head
 # Validate TRIGGER_SECRET_KEY and confirm reachability.
 trigger-dev-pp-cli doctor
 
-
 # Cache last 7 days of runs locally so search/aggregations work offline.
 trigger-dev-pp-cli sync --resources runs --since 7d
-
 
 # See the recurring failure signatures across all tasks in one shell call.
 trigger-dev-pp-cli failures top --since 7d --top 20 --agent
 
-
 # Rank LLM cost by model+task — the report finance asks for.
 trigger-dev-pp-cli runs span-cost --since 7d --by model,task --top 20
 
-
 # Find zombie crons that stopped firing or whose runs all fail.
 trigger-dev-pp-cli schedules stale --days 14 --agent
-
 
 # Stay in your terminal — get pinged the second a failure lands.
 trigger-dev-pp-cli runs watch --task my-task --notify
@@ -135,7 +194,6 @@ Manage deployments
 
 Manage projects
 
-
 ### query
 
 Manage query
@@ -195,7 +253,6 @@ This endpoint accepts both secret API keys and short-lived JWTs (public access t
 - **`trigger-dev-pp-cli waitpoints create-token-v1`** - Creates a new waitpoint token that can be used to pause a run until an external event completes it. The token includes a `url` which can be called via HTTP POST to complete the waitpoint. Use the token ID with `wait.forToken()` inside a task to pause execution until the token is completed.
 - **`trigger-dev-pp-cli waitpoints list-tokens-v1`** - Returns a paginated list of waitpoint tokens for the current environment. Results are ordered by creation date, newest first. Use cursor-based pagination with `page[after]` and `page[before]` to navigate pages.
 - **`trigger-dev-pp-cli waitpoints retrieve-token-v1`** - Retrieves a waitpoint token by its ID, including its current status and output if it has been completed.
-
 
 ## Output Formats
 
@@ -320,94 +377,6 @@ trigger-dev-pp-cli analytics --json
 # Items missing assignee/project/priority/labels — surfaces unowned work
 trigger-dev-pp-cli orphans --json
 ```
-
-## Use with Claude Code
-
-Install the focused skill — it auto-installs the CLI on first invocation:
-
-```bash
-npx skills add mvanhorn/printing-press-library/cli-skills/pp-trigger-dev -g
-```
-
-Then invoke `/pp-trigger-dev <query>` in Claude Code. The skill is the most efficient path — Claude Code drives the CLI directly without an MCP server in the middle.
-
-<details>
-<summary>Use as an MCP server in Claude Code (advanced)</summary>
-
-If you'd rather register this CLI as an MCP server in Claude Code, install the MCP binary first:
-
-```bash
-go install github.com/mvanhorn/printing-press-library/library/developer-tools/trigger-dev/cmd/trigger-dev-pp-mcp@latest
-```
-
-Then register it:
-
-```bash
-claude mcp add trigger-dev trigger-dev-pp-mcp -e TRIGGER_SECRET_KEY=<your-token>
-```
-
-</details>
-
-## Use with Claude Desktop
-
-This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
-
-To install:
-
-1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/trigger-dev-current).
-2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
-3. Fill in `TRIGGER_SECRET_KEY` when Claude Desktop prompts you.
-
-Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
-
-<!-- pp-hermes-install-anchor -->
-## Install via Hermes
-
-From the Hermes CLI:
-
-```bash
-hermes skills install mvanhorn/printing-press-library/cli-skills/pp-trigger-dev --force
-```
-
-Inside a Hermes chat session:
-
-```bash
-/skills install mvanhorn/printing-press-library/cli-skills/pp-trigger-dev --force
-```
-
-## Install via OpenClaw
-
-Tell your OpenClaw agent (copy this):
-
-```
-Install the pp-trigger-dev skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-trigger-dev. The skill defines how its required CLI can be installed.
-```
-
-<details>
-<summary>Manual JSON config (advanced)</summary>
-
-If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
-
-```bash
-go install github.com/mvanhorn/printing-press-library/library/developer-tools/trigger-dev/cmd/trigger-dev-pp-mcp@latest
-```
-
-Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "trigger-dev": {
-      "command": "trigger-dev-pp-mcp",
-      "env": {
-        "TRIGGER_SECRET_KEY": "<your-key>"
-      }
-    }
-  }
-}
-```
-
-</details>
 
 ## Health Check
 
