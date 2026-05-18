@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-16",
+  "base_run_id": "20260516-065803",
+  "base_printing_press_version": "4.8.0",
+  "patches": [
+    {
+      "id": "idfield-overrides",
+      "files": [
+        "internal/cli/sync.go",
+        "internal/store/store.go"
+      ],
+      "summary": "Add statistics and campaigns_leads to resourceIDFieldOverrides with their real PKs (stats_id, campaign_lead_map_id).",
+      "reason": "The generator profiler did not emit ID-field overrides for these dependent resources; their PKs match none of the generic id fallbacks, so every row was dropped at upsert and both tables synced empty.",
+      "validated_outcome": "statistics and campaigns_leads tables populate during 'workflow archive'; novel-feature commands (health, drift) now have data to query.",
+      "upstream_issue": "Same class as cli-printing-press#689 (Kalshi resourceIDFieldOverrides); no smartlead-specific issue filed yet."
+    },
+    {
+      "id": "dependent-fk",
+      "files": [
+        "internal/cli/sync.go",
+        "internal/store/store.go"
+      ],
+      "summary": "Inject the parent FK into dependent items before upsert (sync.go) and coalesce to parent_id when the typed FK column is absent (store.go coalesceFKValue).",
+      "reason": "Dependent typed tables declare a NOT NULL '<parent>_id' column the API response does not carry, so typed inserts failed their constraint and rows fell back to the generic resources table only.",
+      "validated_outcome": "Dependent rows land in their typed tables instead of only the generic resources table."
+    },
+    {
+      "id": "id-float-format",
+      "files": [
+        "internal/store/store.go"
+      ],
+      "summary": "Add store.FormatIDValue to render integral float64 IDs as plain integers; applied at the UpsertBatch and sync.go extractID ID-extraction sites.",
+      "reason": "JSON-number IDs unmarshal to float64 and rendered in scientific notation (e.g. '3.093733e+06'), making campaign IDs unusable as input to other commands.",
+      "validated_outcome": "Campaign IDs in health/dupes output render as plain integers and feed cleanly into other commands."
+    },
+    {
+      "id": "archive-json-ndjson",
+      "files": [
+        "internal/cli/channel_workflow.go"
+      ],
+      "summary": "Emit 'workflow archive --json' as compact (one-line) JSON instead of indented.",
+      "reason": "syncResource streams NDJSON sync events to stdout; an indented multi-line final object broke line-delimited JSON parsing of the combined stream.",
+      "validated_outcome": "'workflow archive --json' output parses as valid line-delimited JSON."
+    }
+  ],
+  "deferred_to_upstream": [
+    {
+      "summary": "Profiler should emit resourceIDFieldOverrides for dependent resources and recognize NOT NULL parent FK columns on typed dependent tables.",
+      "reason": "Generator-shaped — same root cause as cli-printing-press#689. The idfield-overrides and dependent-fk patches are local repairs until the profiler descends into dependent path-items."
+    }
+  ]
+}

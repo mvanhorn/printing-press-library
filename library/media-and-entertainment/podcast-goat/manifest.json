@@ -1,0 +1,73 @@
+{
+  "manifest_version": "0.3",
+  "name": "podcast-goat-pp-mcp",
+  "display_name": "Podcast GOAT",
+  "version": "4.8.0",
+  "description": "Podcast GOAT API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/podcast-goat-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/podcast-goat-pp-mcp",
+      "args": [],
+      "env": {
+        "DEEPGRAM_API_KEY": "${user_config.deepgram_api_key}",
+        "ELEVENLABS_API_KEY": "${user_config.elevenlabs_api_key}",
+        "OPENAI_API_KEY": "${user_config.openai_api_key}",
+        "SPOKEN_API_KEY": "${user_config.spoken_api_key}",
+        "TADDY_API_KEY": "${user_config.taddy_api_key}",
+        "TADDY_USER_ID": "${user_config.taddy_user_id}"
+      }
+    }
+  },
+  "user_config": {
+    "deepgram_api_key": {
+      "type": "string",
+      "title": "DEEPGRAM_API_KEY",
+      "description": "Optional. Sets DEEPGRAM_API_KEY for the Podcast GOAT MCP server.",
+      "sensitive": true
+    },
+    "elevenlabs_api_key": {
+      "type": "string",
+      "title": "ELEVENLABS_API_KEY",
+      "description": "Optional. Sets ELEVENLABS_API_KEY for the Podcast GOAT MCP server.",
+      "sensitive": true
+    },
+    "openai_api_key": {
+      "type": "string",
+      "title": "OPENAI_API_KEY",
+      "description": "Optional. Sets OPENAI_API_KEY for the Podcast GOAT MCP server.",
+      "sensitive": true
+    },
+    "spoken_api_key": {
+      "type": "string",
+      "title": "SPOKEN_API_KEY",
+      "description": "Optional. Sets SPOKEN_API_KEY for the Podcast GOAT MCP server.",
+      "sensitive": true
+    },
+    "taddy_api_key": {
+      "type": "string",
+      "title": "TADDY_API_KEY",
+      "description": "Optional. Sets TADDY_API_KEY for the Podcast GOAT MCP server.",
+      "sensitive": true
+    },
+    "taddy_user_id": {
+      "type": "string",
+      "title": "TADDY_USER_ID",
+      "description": "Optional. Sets TADDY_USER_ID for the Podcast GOAT MCP server.",
+      "sensitive": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
