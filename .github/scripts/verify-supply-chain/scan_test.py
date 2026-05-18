@@ -147,6 +147,55 @@ class WorkflowTrustSignalTest(unittest.TestCase):
         findings = signals.signal_workflow_trust(_fc(".github/workflows/ci.yml", head=wf))
         self.assertEqual(findings, [])
 
+    def test_flow_sequence_trigger_with_head_sha_blocks(self) -> None:
+        """Greptile-flagged evasion: compact YAML flow-sequence trigger form
+        `on: [pull_request_target, push]` must still be detected."""
+        wf = textwrap.dedent(
+            """
+            on: [pull_request_target, push]
+            jobs:
+              x:
+                steps:
+                  - uses: actions/checkout@v4
+                    with:
+                      ref: ${{ github.event.pull_request.head.sha }}
+            """
+        )
+        findings = signals.signal_workflow_trust(_fc(".github/workflows/bad.yml", head=wf))
+        self.assertEqual(len(findings), 1)
+        self.assertTrue(findings[0].is_block())
+
+    def test_flow_sequence_trigger_other_order_blocks(self) -> None:
+        wf = "on: [push, pull_request_target]\njobs:\n  x:\n    steps:\n      - uses: actions/checkout@v4\n        with:\n          ref: ${{ github.event.pull_request.head.sha }}\n"
+        findings = signals.signal_workflow_trust(_fc(".github/workflows/bad.yml", head=wf))
+        self.assertEqual(len(findings), 1)
+
+    def test_preexisting_dangerous_ref_unchanged_does_not_fire(self) -> None:
+        """Diff-awareness: a dangerous ref that pre-existed on base and was
+        not modified by this PR must NOT trip R1. Forward-looking guard
+        against false positives if main ever drifts to contain a flagged
+        pattern."""
+        wf = "on:\n  pull_request_target:\njobs:\n  x:\n    steps:\n      - uses: actions/checkout@v4\n        with:\n          ref: ${{ github.event.pull_request.head.sha }}\n"
+        # base_content non-None (existing file) + no added_lines → no findings
+        change = _fc(".github/workflows/legacy.yml", base=wf, head=wf, added=[])
+        findings = signals.signal_workflow_trust(change)
+        self.assertEqual(findings, [])
+
+    def test_dangerous_ref_added_to_existing_workflow_blocks(self) -> None:
+        """Diff-aware fire: the dangerous ref appears in added_lines on an
+        already-existing workflow. Must still flag."""
+        base = "on:\n  pull_request_target:\njobs:\n  x:\n    steps:\n      - uses: actions/checkout@v4\n"
+        head = base + "        with:\n          ref: ${{ github.event.pull_request.head.sha }}\n"
+        change = _fc(
+            ".github/workflows/legacy.yml",
+            base=base,
+            head=head,
+            added=[(8, "        with:"), (9, "          ref: ${{ github.event.pull_request.head.sha }}")],
+        )
+        findings = signals.signal_workflow_trust(change)
+        self.assertEqual(len(findings), 1)
+        self.assertTrue(findings[0].is_block())
+
 
 class IdTokenSignalTest(unittest.TestCase):
     def test_id_token_in_non_publish_workflow_blocks(self) -> None:
@@ -170,6 +219,28 @@ class IdTokenSignalTest(unittest.TestCase):
             _fc(".github/workflows/anything.yml", head=wf)
         )
         self.assertEqual(findings, [])
+
+    def test_preexisting_id_token_unchanged_does_not_fire(self) -> None:
+        """Diff-awareness: existing id-token grant on base (e.g., if main ever
+        adds another publishing workflow) must not be re-flagged on unrelated PRs."""
+        wf = "permissions:\n  id-token: write\n  contents: read\n"
+        change = _fc(".github/workflows/some-publish.yml", base=wf, head=wf, added=[])
+        findings = signals.signal_id_token_outside_allowlist(change)
+        self.assertEqual(findings, [])
+
+    def test_id_token_added_to_existing_workflow_blocks(self) -> None:
+        """Diff-aware fire: id-token: write added to a workflow that didn't have it before."""
+        base = "permissions:\n  contents: read\n"
+        head = "permissions:\n  id-token: write\n  contents: read\n"
+        change = _fc(
+            ".github/workflows/build.yml",
+            base=base,
+            head=head,
+            added=[(2, "  id-token: write")],
+        )
+        findings = signals.signal_id_token_outside_allowlist(change)
+        self.assertEqual(len(findings), 1)
+        self.assertTrue(findings[0].is_block())
 
 
 class GomodReplaceSignalTest(unittest.TestCase):
@@ -346,6 +417,26 @@ class GoEnvOverrideSignalTest(unittest.TestCase):
         wf = "env:\n  GO_VERSION: 1.22\n  CGO_ENABLED: 0\n"
         findings = signals.signal_go_env_override(_fc(".github/workflows/ok.yml", head=wf))
         self.assertEqual(findings, [])
+
+    def test_preexisting_goproxy_unchanged_does_not_fire(self) -> None:
+        """Diff-awareness: pre-existing GOPROXY on base shouldn't re-fire if
+        the diff doesn't touch it."""
+        wf = "env:\n  GOPROXY: https://corp.example/\n"
+        change = _fc(".github/workflows/legacy.yml", base=wf, head=wf, added=[])
+        findings = signals.signal_go_env_override(change)
+        self.assertEqual(findings, [])
+
+    def test_goproxy_added_blocks(self) -> None:
+        base = "jobs:\n  x:\n    runs-on: ubuntu-latest\n"
+        head = "jobs:\n  x:\n    runs-on: ubuntu-latest\n    env:\n      GOPROXY: https://mirror.attacker.example\n"
+        change = _fc(
+            ".github/workflows/build.yml",
+            base=base,
+            head=head,
+            added=[(4, "    env:"), (5, "      GOPROXY: https://mirror.attacker.example")],
+        )
+        findings = signals.signal_go_env_override(change)
+        self.assertEqual(len(findings), 1)
 
 
 class NpmLifecycleSignalTest(unittest.TestCase):

@@ -98,20 +98,33 @@ CANONICAL_MODULE_PREFIX = "github.com/mvanhorn/printing-press-library/library/"
 # ---------------------------------------------------------------------------
 
 
-# Detects pull_request_target as a YAML trigger declaration:
+# Detects pull_request_target as a YAML trigger declaration in any of YAML's
+# valid forms:
 #   on:
-#     pull_request_target:        ← block form
-#     pull_request_target:        ← block form with types
+#     pull_request_target:                ← block form
+#     pull_request_target:                ← block form with types
 #       types: [...]
-#   on: pull_request_target       ← inline form
+#   on: pull_request_target               ← inline form
 #   on:
-#     - pull_request_target       ← list form
-# Anchored to line-start (after indent) so prose mentions inside comments
-# or string values don't false-positive.
-_PR_TARGET_TRIGGER = re.compile(
+#     - pull_request_target               ← list form
+#   on: [pull_request_target, push]       ← flow-sequence form
+# Anchored so prose mentions inside comments or string values don't false-fire.
+_PR_TARGET_TRIGGER_LINE = re.compile(
     r"^\s*(?:-\s+|on\s*:\s*)?pull_request_target(?:\s*:|\s*$)",
     re.MULTILINE,
 )
+_PR_TARGET_TRIGGER_FLOW = re.compile(
+    r"^\s*on\s*:\s*\[[^\]\n]*\bpull_request_target\b",
+    re.MULTILINE,
+)
+
+
+def _has_pr_target_trigger(content: str) -> bool:
+    return bool(
+        _PR_TARGET_TRIGGER_LINE.search(content) or _PR_TARGET_TRIGGER_FLOW.search(content)
+    )
+
+
 _CHECKOUT_USES = re.compile(r"^\s*-\s*uses\s*:\s*actions/checkout", re.MULTILINE)
 _DANGEROUS_REF = re.compile(
     r"ref\s*:\s*[^\n#]*"
@@ -119,35 +132,86 @@ _DANGEROUS_REF = re.compile(
 )
 
 
+def _lines_to_scan(change: FileChange) -> list[tuple[int, str]]:
+    """Return [(line_no, content)] for lines that should be scanned for new
+    additions. Diff-aware semantics:
+
+      - File didn't exist on base (new file)  → every head line is "new".
+      - File existed on base                 → only the added_lines diff.
+
+    Lets R1/R2/R4 fire only on newly-introduced patterns. An attacker can't
+    silently re-introduce a dangerous pattern that pre-existed on main, and
+    unrelated PRs don't get false-flagged because main happens to contain a
+    legitimate pattern in some allowlisted location.
+    """
+    if change.head_content is None:
+        return []
+    if change.base_content is None:
+        return list(enumerate(change.head_content.splitlines(), start=1))
+    return list(change.added_lines)
+
+
 def signal_workflow_trust(change: FileChange) -> list[Finding]:
     """R1. A workflow that combines pull_request_target with a checkout of
-    the PR head ref is the TanStack mini-Shai-Hulud attack shape: the head
+    the PR head ref is the TanStack mini-Shai-Hulud attack shape — head
     code runs with the elevated permissions of the base context, including
     secrets and OIDC.
+
+    Fires when:
+      - The file's HEAD contains both a pull_request_target trigger AND an
+        actions/checkout step (these are the prerequisites — they may exist
+        on base unchanged, and that's fine).
+      - At least one *newly-introduced* line carries a dangerous ref OR is
+        itself the trigger / checkout (so a freshly added attack shape is
+        caught regardless of which of the three components landed last).
     """
     if not is_workflow(change.path) or change.head_content is None:
         return []
 
     content = change.head_content
-    if not _PR_TARGET_TRIGGER.search(content):
+    if not _has_pr_target_trigger(content):
         return []
     if not _CHECKOUT_USES.search(content):
         return []
-    match = _DANGEROUS_REF.search(content)
-    if not match:
+
+    danger_match = _DANGEROUS_REF.search(content)
+    if not danger_match:
         return []
 
-    line = content.count("\n", 0, match.start()) + 1
+    # Diff-aware: fire only if any of the three attack ingredients was
+    # introduced by this PR. For a new file every line is "new" so the
+    # full-content match implicitly counts.
+    relevant_lines = _lines_to_scan(change)
+    introduced_here = False
+    danger_line: int | None = None
+    danger_text: str = danger_match.group(0).strip()
+    for line_no, line in relevant_lines:
+        if _DANGEROUS_REF.search(line):
+            introduced_here = True
+            danger_line = line_no
+            danger_text = _DANGEROUS_REF.search(line).group(0).strip()
+            break
+        if _has_pr_target_trigger(line) or _CHECKOUT_USES.search(line):
+            introduced_here = True
+
+    if not introduced_here:
+        return []
+
+    if danger_line is None:
+        # Trigger or checkout was newly added; dangerous ref was already on
+        # base. Report at the dangerous-ref position from head_content.
+        danger_line = content.count("\n", 0, danger_match.start()) + 1
+
     return [
         Finding(
             path=change.path,
-            line=line,
+            line=danger_line,
             severity="block",
             signal_id="workflow_trust_pr_head_checkout",
             message=(
                 "pull_request_target workflow checks out PR head code "
                 "(matched: %r). This is the TanStack mini-Shai-Hulud attack "
-                "shape — head code runs with base-context secrets and OIDC." % match.group(0).strip()
+                "shape — head code runs with base-context secrets and OIDC." % danger_text
             ),
             remediation=(
                 "Use `pull_request` instead, or omit the `ref:` override on "
@@ -163,13 +227,16 @@ def signal_workflow_trust(change: FileChange) -> list[Finding]:
 # ---------------------------------------------------------------------------
 
 
-_ID_TOKEN_WRITE = re.compile(r"^\s*id-token\s*:\s*write\s*$", re.MULTILINE)
+_ID_TOKEN_WRITE = re.compile(r"^\s*id-token\s*:\s*write\s*$")
 
 
 def signal_id_token_outside_allowlist(change: FileChange) -> list[Finding]:
     """R2. id-token: write mints OIDC tokens the publisher uses to push to
     npm, Sigstore, AWS, etc. It should exist only in the workflow(s) that
     actually publish. Anywhere else is a leak vector.
+
+    Diff-aware: fires only when the line is newly introduced (added in this
+    PR or part of a new file). Pre-existing grants on base aren't re-flagged.
     """
     if not is_workflow(change.path) or change.head_content is None:
         return []
@@ -177,12 +244,13 @@ def signal_id_token_outside_allowlist(change: FileChange) -> list[Finding]:
         return []
 
     findings: list[Finding] = []
-    for match in _ID_TOKEN_WRITE.finditer(change.head_content):
-        line = change.head_content.count("\n", 0, match.start()) + 1
+    for line_no, line_content in _lines_to_scan(change):
+        if not _ID_TOKEN_WRITE.match(line_content):
+            continue
         findings.append(
             Finding(
                 path=change.path,
-                line=line,
+                line=line_no,
                 severity="block",
                 signal_id="id_token_outside_allowlist",
                 message=(
@@ -338,8 +406,7 @@ def signal_gomod_replace(change: FileChange) -> list[Finding]:
 
 
 _GO_ENV_OVERRIDE = re.compile(
-    r"^\s*(GOPROXY|GOFLAGS|GONOSUMCHECK|GOSUMDB|GONOSUMDB)\s*:\s*\S",
-    re.MULTILINE,
+    r"^\s*(GOPROXY|GOFLAGS|GONOSUMCHECK|GOSUMDB|GONOSUMDB)\s*:\s*\S"
 )
 
 
@@ -347,18 +414,22 @@ def signal_go_env_override(change: FileChange) -> list[Finding]:
     """R4. Setting GOPROXY / GOFLAGS / GONOSUMCHECK / GOSUMDB inside a
     workflow env block lets an attacker redirect module resolution or
     suppress checksum verification (BufferZoneCorp).
+
+    Diff-aware: fires only on newly-introduced overrides.
     """
     if not is_workflow(change.path) or change.head_content is None:
         return []
 
     findings: list[Finding] = []
-    for match in _GO_ENV_OVERRIDE.finditer(change.head_content):
-        line = change.head_content.count("\n", 0, match.start()) + 1
+    for line_no, line_content in _lines_to_scan(change):
+        match = _GO_ENV_OVERRIDE.match(line_content)
+        if not match:
+            continue
         var = match.group(1)
         findings.append(
             Finding(
                 path=change.path,
-                line=line,
+                line=line_no,
                 severity="block",
                 signal_id="go_env_override_in_workflow",
                 message=(
