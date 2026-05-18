@@ -68,6 +68,16 @@
         "internal/cli/watch_test.go"
       ],
       "validated_outcome": "gofmt on touched Go files, go test ./..., go vet ./..., go build ./..., verify_manifest.py, and verify_publish_package.py passed."
+    },
+    {
+      "id": "greptile-empty-result-arrays",
+      "summary": "Emit empty JSON arrays for empty matches and stale listing result sets.",
+      "reason": "Greptile flagged that nil slices encode as JSON null, which breaks agent and script consumers that expect iterable arrays.",
+      "files": [
+        "internal/cli/matches.go",
+        "internal/cli/stale.go"
+      ],
+      "validated_outcome": "gofmt on touched Go files, go test ./..., go vet ./..., and go build ./... passed."
     }
   ]
 }

@@ -47,7 +47,7 @@ func newMatchesCmd(flags *rootFlags) *cobra.Command {
 }
 
 func scanMatches(rows *sql.Rows) ([]matchRow, error) {
-	var matches []matchRow
+	matches := []matchRow{}
 	for rows.Next() {
 		var m matchRow
 		var deterministicOK, llmRelevant, isNew int

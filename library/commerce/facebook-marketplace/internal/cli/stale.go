@@ -30,7 +30,7 @@ func newStaleCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			defer rows.Close()
-			var listings []listingRow
+			listings := []listingRow{}
 			for rows.Next() {
 				var l listingRow
 				if err := rows.Scan(&l.ID, &l.Title, &l.PriceCents, &l.DistanceMiles, &l.URL, &l.SellerName, &l.PublicLocation, &l.ListedAt, &l.UpdatedAt, &l.EngagementCount, &l.RawJSON); err != nil {
