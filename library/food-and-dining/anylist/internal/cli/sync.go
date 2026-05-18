@@ -13,7 +13,6 @@ import (
 )
 
 func newSyncCmd(flags *rootFlags) *cobra.Command {
-	var forceFlag bool
 	var quietFlag bool
 
 	cmd := &cobra.Command{
@@ -34,8 +33,6 @@ func newSyncCmd(flags *rootFlags) *cobra.Command {
 			if cfg.AccessToken == "" {
 				return authErr(fmt.Errorf("not authenticated — run 'anylist-pp-cli auth login' first"))
 			}
-
-			_ = forceFlag // force is accepted but sync always fetches fresh
 
 			alClient := anylist.New(cfg)
 			userData, err := alClient.GetUserData(ctx)
@@ -90,7 +87,6 @@ func newSyncCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().BoolVar(&forceFlag, "force", false, "Force re-sync even if cache is fresh")
 	cmd.Flags().BoolVar(&quietFlag, "quiet", false, "Suppress output")
 
 	cmd.AddCommand(newSyncStatusCmd(flags))

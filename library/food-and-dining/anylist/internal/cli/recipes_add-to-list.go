@@ -52,7 +52,7 @@ func newRecipesAddToListCmd(flags *rootFlags) *cobra.Command {
 			}
 			defer st.Close()
 
-			added, err := addRecipeIngredientsToList(ctx, cfg, st, bodyRecipe, bodyListName, bodyScale, bodyDedup || bodyMerge)
+			added, err := addRecipeIngredientsToList(ctx, cfg, st, bodyRecipe, bodyListName, bodyScale, bodyDedup && bodyMerge)
 			if err != nil {
 				return err
 			}

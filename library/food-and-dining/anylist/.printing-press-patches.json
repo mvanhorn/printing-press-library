@@ -41,6 +41,18 @@
         "internal/store/store.go"
       ],
       "validated_outcome": "Added regression coverage for meal event recipe-ID resolution, context cancellation, MCP rate-limit blocking, recipe lookup by ID, and concurrent limiter spacing; local validation covers list reset and item check cache refresh paths."
+    },
+    {
+      "id": "review-usability-polish",
+      "summary": "Addressed follow-up usability review findings in terminal detection, recipe dedup flags, and sync help.",
+      "reason": "Greptile noted that terminal detection failed open on stat errors, recipe add-to-list deduplication could not be disabled by either flag alone, and sync exposed a no-op --force flag.",
+      "files": [
+        "README.md",
+        "internal/cli/helpers.go",
+        "internal/cli/recipes_add-to-list.go",
+        "internal/cli/sync.go"
+      ],
+      "validated_outcome": "Local validation rerun covers tests, vet, govulncheck, verify-skill, publish validate, publish-package verifier, attribution guard, generated-artifact guard, and diff hygiene."
     }
   ]
 }

@@ -422,7 +422,7 @@ anylist-pp-cli doctor --json | jq .credentials
 ### API-specific
 
 - **401 Unauthorized on every request** — Run `anylist-pp-cli auth refresh` to force a token refresh, or `auth login` to re-authenticate
-- **Commands return stale data (old item names, missing lists)** — Run `anylist-pp-cli sync --force` to pull the latest state from the server
+- **Commands return stale data (old item names, missing lists)** — Run `anylist-pp-cli sync` to pull the latest state from the server
 - **recipes search --ingredient returns no results** — Run `anylist-pp-cli sync` first — ingredient search queries the local cache which must be populated
 - **X-AnyLeaf-Client-Identifier errors** — The client identifier in ~/.config/anylist-pp-cli/config.toml must be a stable 32-char hex string; delete the config and re-run `auth login` to regenerate
 

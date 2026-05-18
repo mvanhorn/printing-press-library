@@ -4,7 +4,6 @@
 package cli
 
 import (
-	"github.com/mvanhorn/printing-press-library/library/food-and-dining/anylist/internal/cliutil"
 	"context"
 	"encoding/json"
 	"errors"
@@ -15,6 +14,8 @@ import (
 	"strings"
 	"text/tabwriter"
 	"unicode"
+
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/anylist/internal/cliutil"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -49,7 +50,7 @@ func isTerminal(w io.Writer) bool {
 	if f, ok := w.(*os.File); ok {
 		fi, err := f.Stat()
 		if err != nil {
-			return true
+			return false
 		}
 		return (fi.Mode() & os.ModeCharDevice) != 0
 	}
