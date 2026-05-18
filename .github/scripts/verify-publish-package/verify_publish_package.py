@@ -10,12 +10,10 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import re
 import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
-from typing import Iterable
 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -163,7 +161,7 @@ def validate_required_artifacts(cli_dir: Path, manifest: dict | None) -> list[Pr
                 problems.append(
                     Problem(
                         path,
-                        "new library CLI is missing .printing-press-patches.json. Fresh prints should include the empty patch index; hand-authored customizations should be recorded there with matching PATCH comments.",
+                        "new library CLI is missing .printing-press-patches.json. Fresh prints should include the empty patch index; hand-authored customizations are recorded there per the shape documented in AGENTS.md.",
                     )
                 )
             else:
@@ -335,54 +333,32 @@ def validate_novel_features(cli_dir: Path, manifest: dict | None) -> list[Proble
     return problems
 
 
-def candidate_patch_marker_files(cli_dir: Path) -> Iterable[Path]:
-    skip_parts = {".git", ".manuscripts"}
-    skip_names = {".printing-press-patches.json"}
-    for path in cli_dir.rglob("*"):
-        if not path.is_file() or path.name in skip_names:
-            continue
-        if skip_parts.intersection(path.relative_to(cli_dir).parts):
-            continue
-        if path.suffix == ".go":
-            yield path
-
-
-# Matches the inline marker convention documented in each printed CLI's
-# AGENTS.md:
-#
-#     // PATCH: <one-line summary>
-#     // PATCH(upstream cli-printing-press#<n>): ...
-#     // PATCH <patch-id>: <one-line summary>
-#
-# Anchored on the `// PATCH` comment prefix followed by an optional patch id
-# (matching the same `id` shape used in .printing-press-patches.json) and then
-# `:` or `(`. Intentionally excludes bare HTTP method literals like "PATCH"
-# that appear in generated client/handler code (case "PATCH":,
-# makeAPIHandler("PATCH", ...), {"pp:method": "PATCH"}, etc.), which are not
-# hand-authored customizations and would otherwise false-positive on any
-# printed CLI for an API that exposes HTTP PATCH endpoints.
-_PATCH_MARKER_RE = re.compile(r"//\s*PATCH(?:\s+[A-Za-z0-9_\-]+)?\s*[:(]")
-
-
-def has_patch_marker(path: Path) -> bool:
-    try:
-        return bool(_PATCH_MARKER_RE.search(path.read_text(errors="ignore")))
-    except OSError:
-        return False
-
-
 def validate_patch_manifest(
     cli_dir: Path,
     changed_files: set[str] | None,
 ) -> list[Problem]:
-    """Validate `.printing-press-patches.json`.
+    """Validate `.printing-press-patches.json` minimally.
 
-    When `changed_files` is non-None (typical PR mode), the verifier only runs
-    if the patches manifest itself or a file it references is in the diff —
-    this stops unrelated PRs (e.g. a docs-only README sweep) from re-validating
-    months-old patch state. Pass `None` to force validation regardless of the
-    diff (used by the strict path for newly added CLIs).
+    CI's role for the patches manifest is to catch the structural class of
+    bugs that would silently break downstream readers (the file is unparseable
+    JSON, or `patches` is set to something other than an array). Everything
+    else about the manifest's shape — per-patch fields, referenced-file
+    existence, inline source-marker pairing — is the authoring contract
+    described in this repo's AGENTS.md and is enforced by agent diligence
+    and code review, not by CI.
+
+    Rationale: the bi-directional source-marker / patches-entry pairing
+    that this verifier previously enforced added two commits to every
+    in-session customization PR (add the entry, add the matching marker)
+    without catching a class of bug git history + the manifest doesn't
+    already surface. AGENTS.md remains the source of truth for what
+    belongs in a well-formed patches entry.
+
+    The `changed_files` parameter is kept for API stability with the
+    surrounding caller but is unused — the two remaining checks (parse +
+    array-shape) are cheap and don't need diff-scoping.
     """
+    del changed_files  # unused; kept for caller-API stability
     problems: list[Problem] = []
     patch_path = cli_dir / ".printing-press-patches.json"
     if not patch_path.exists():
@@ -397,80 +373,6 @@ def validate_patch_manifest(
         patches = []
     if not isinstance(patches, list):
         problems.append(Problem(patch_path, "patches must be an array"))
-        return problems
-
-    if changed_files is not None:
-        relevant_paths = {".printing-press-patches.json"}
-        for patch in patches:
-            if not isinstance(patch, dict):
-                continue
-            for file_name in patch.get("files") or []:
-                if isinstance(file_name, str) and file_name:
-                    relevant_paths.add(file_name)
-        # When patches[] is empty, relevant_paths covers only the manifest
-        # itself, so a PR that adds // PATCH: markers to source files
-        # without updating the manifest would be silently skipped here
-        # and never reach the markers-without-manifest check below.
-        # Expand to every candidate marker file under cli_dir for that
-        # case. When patches[] is populated, the manifest's own file list
-        # is the source of truth and we keep the tighter scope.
-        if not patches:
-            for candidate in candidate_patch_marker_files(cli_dir):
-                try:
-                    relevant_paths.add(
-                        PurePosixPath(*candidate.relative_to(cli_dir).parts).as_posix()
-                    )
-                except ValueError:
-                    continue
-        if not (changed_files & relevant_paths):
-            return problems
-
-    source_markers = [path for path in candidate_patch_marker_files(cli_dir) if has_patch_marker(path)]
-    if source_markers and not patches:
-        problems.append(
-            Problem(
-                patch_path,
-                "source files contain PATCH markers but patches[] is empty. Record the customization so regen reviewers can preserve it.",
-            )
-        )
-
-    for idx, patch in enumerate(patches, start=1):
-        if not isinstance(patch, dict):
-            problems.append(Problem(patch_path, f"patches[{idx}] must be an object"))
-            continue
-
-        files = patch.get("files")
-        if not isinstance(files, list) or not files:
-            problems.append(Problem(patch_path, f"patches[{idx}] must list one or more files"))
-            continue
-
-        referenced_files: list[Path] = []
-        for file_name in files:
-            if not isinstance(file_name, str) or not file_name:
-                problems.append(Problem(patch_path, f"patches[{idx}] has an invalid file entry {file_name!r}"))
-                continue
-            file_path = cli_dir / file_name
-            referenced_files.append(file_path)
-            if not file_path.exists():
-                problems.append(
-                    Problem(
-                        patch_path,
-                        f"patch entry references {file_name}, but that file does not exist in the published CLI package.",
-                    )
-                )
-
-        # Marker check applies only to .go files: JSON/YAML manifest tweaks
-        # (the `.printing-press.json` schema bump, a `spec.json` redaction)
-        # are real customizations recorded in patches[] but can't carry an
-        # inline `// PATCH:` comment. The manifest entry IS the marker.
-        go_files = [p for p in referenced_files if p.suffix == ".go"]
-        if go_files and not any(path.exists() and has_patch_marker(path) for path in go_files):
-            problems.append(
-                Problem(
-                    patch_path,
-                    f"patches[{idx}] does not point at a Go file containing a PATCH marker.",
-                )
-            )
 
     return problems
 
