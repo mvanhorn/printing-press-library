@@ -1,0 +1,391 @@
+{
+  "api_name": "pcgs",
+  "base_url": "https://api.pcgs.com/publicapi",
+  "description": "PCGS Public API CLI — verify PCGS-graded coin certs, extract full CoinFacts metadata, and stay under the 1,000-call-per-day budget.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "format": "bearer {PCGS_AUTH_TOKEN}",
+    "in": "header",
+    "env_vars": [
+      "PCGS_AUTH_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "PCGS_AUTH_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "banknote_facts-cert",
+      "description": "Full banknote metadata for one PCGS Banknote cert. Optional language code for translated text. Required: cert. Optional: lang (default: en).",
+      "method": "GET",
+      "path": "/banknotedetail/GetBanknoteByCertNo",
+      "params": [
+        {
+          "name": "cert",
+          "wire_name": "certNo",
+          "type": "string",
+          "location": "path",
+          "description": "PCGS Banknote cert number.",
+          "required": true
+        },
+        {
+          "name": "lang",
+          "wire_name": "languageCode",
+          "type": "string",
+          "location": "query",
+          "description": "ISO language code for translated CoinFactsNotes (e.g. en, fr, es, de, zh).",
+          "aliases": [
+            "language"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "banknote_facts-grade",
+      "description": "Banknote snapshot for a (PCGSNo, GradeNo) tuple. Required: pcgs-no, grade.",
+      "method": "GET",
+      "path": "/banknotedetail/GetBanknoteByGrade",
+      "params": [
+        {
+          "name": "pcgs-no",
+          "wire_name": "pcgsNo",
+          "type": "string",
+          "location": "query",
+          "description": "PCGS Banknote spec number.",
+          "required": true
+        },
+        {
+          "name": "grade",
+          "wire_name": "gradeNo",
+          "type": "int",
+          "location": "query",
+          "description": "Banknote grade (1-70 plus banknote-specific codes).",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "banknote_images",
+      "description": "Image URLs for one PCGS Banknote cert. Required: cert.",
+      "method": "GET",
+      "path": "/banknotedetail/GetBanknoteImagesByCertNo",
+      "params": [
+        {
+          "name": "cert",
+          "wire_name": "certNo",
+          "type": "string",
+          "location": "path",
+          "description": "PCGS Banknote cert number.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "coin_apr-barcode",
+      "description": "Auction Prices Realized by holder barcode with optional date window. Required: barcode, service (default: pcgs). Optional: start, end.",
+      "method": "GET",
+      "path": "/coindetail/GetAPRByBarcode",
+      "params": [
+        {
+          "name": "barcode",
+          "type": "string",
+          "location": "path",
+          "description": "Holder barcode.",
+          "required": true
+        },
+        {
+          "name": "service",
+          "wire_name": "gradingService",
+          "type": "string",
+          "location": "query",
+          "description": "Grading service that issued the holder.",
+          "required": true,
+          "aliases": [
+            "grading-service"
+          ]
+        },
+        {
+          "name": "start",
+          "wire_name": "StartDate",
+          "type": "string",
+          "location": "query",
+          "description": "Earliest auction date (YYYY-MM-DD)."
+        },
+        {
+          "name": "end",
+          "wire_name": "EndDate",
+          "type": "string",
+          "location": "query",
+          "description": "Latest auction date (YYYY-MM-DD)."
+        }
+      ]
+    },
+    {
+      "name": "coin_apr-cert",
+      "description": "Auction Prices Realized for one PCGS cert number. Required: cert.",
+      "method": "GET",
+      "path": "/coindetail/GetAPRByCertNo/{CertNo}",
+      "params": [
+        {
+          "name": "cert",
+          "wire_name": "CertNo",
+          "type": "string",
+          "location": "path",
+          "description": "PCGS cert number.",
+          "required": true,
+          "aliases": [
+            "cert-no"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "coin_apr-grade",
+      "description": "Auction Prices Realized for a (PCGSNo, GradeNo, PlusGrade) tuple with optional date window and result limit. Required: pcgs-no, grade, plus (default: false). Optional: start, end, limit (default: 50).",
+      "method": "GET",
+      "path": "/coindetail/GetAPRByGrade",
+      "params": [
+        {
+          "name": "pcgs-no",
+          "wire_name": "PCGSNo",
+          "type": "string",
+          "location": "query",
+          "description": "PCGS spec number.",
+          "required": true
+        },
+        {
+          "name": "grade",
+          "wire_name": "GradeNo",
+          "type": "int",
+          "location": "query",
+          "description": "Numeric PCGS grade.",
+          "required": true,
+          "aliases": [
+            "grade-no"
+          ]
+        },
+        {
+          "name": "plus",
+          "wire_name": "PlusGrade",
+          "type": "bool",
+          "location": "query",
+          "description": "Plus-grade flag.",
+          "required": true
+        },
+        {
+          "name": "start",
+          "wire_name": "StartDate",
+          "type": "string",
+          "location": "query",
+          "description": "Earliest auction date (YYYY-MM-DD).",
+          "aliases": [
+            "start-date"
+          ]
+        },
+        {
+          "name": "end",
+          "wire_name": "EndDate",
+          "type": "string",
+          "location": "query",
+          "description": "Latest auction date (YYYY-MM-DD).",
+          "aliases": [
+            "end-date"
+          ]
+        },
+        {
+          "name": "limit",
+          "wire_name": "NumberOfRecords",
+          "type": "int",
+          "location": "query",
+          "description": "Max number of auction records to return."
+        }
+      ]
+    },
+    {
+      "name": "coin_facts-barcode",
+      "description": "CoinFacts metadata by holder barcode. Supports PCGS and competitor-service barcodes (NGC, ANACS, ICG, SEGS). Required: barcode, service (default: pcgs).",
+      "method": "GET",
+      "path": "/coindetail/GetCoinFactsByBarcode",
+      "params": [
+        {
+          "name": "barcode",
+          "type": "string",
+          "location": "path",
+          "description": "Holder barcode as scanned.",
+          "required": true
+        },
+        {
+          "name": "service",
+          "wire_name": "gradingService",
+          "type": "string",
+          "location": "query",
+          "description": "Which grading service issued the holder.",
+          "required": true,
+          "aliases": [
+            "grading-service"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "coin_facts-cert",
+      "description": "Full CoinFacts metadata for one PCGS cert number. The IsValidRequest + ServerMessage envelope tells you if the cert is legitimate. Required: cert. Optional: retrieve-all-data (default: true).",
+      "method": "GET",
+      "path": "/coindetail/GetCoinFactsByCertNo/{certNo}",
+      "params": [
+        {
+          "name": "cert",
+          "wire_name": "certNo",
+          "type": "string",
+          "location": "path",
+          "description": "PCGS cert number (digits only, no slab-prefix).",
+          "required": true,
+          "aliases": [
+            "cert-no"
+          ]
+        },
+        {
+          "name": "retrieve-all-data",
+          "wire_name": "retrieveAllData",
+          "type": "bool",
+          "location": "query",
+          "description": "Ask PCGS to return the full CoinFacts payload (default: true)."
+        }
+      ]
+    },
+    {
+      "name": "coin_facts-grade",
+      "description": "CoinFacts snapshot for a (PCGSNo, GradeNo, PlusGrade) tuple. Used by pop-curve to fan grades 1-70 + Plus + Details (82-98). Required: pcgs-no, grade, plus (default: false).",
+      "method": "GET",
+      "path": "/coindetail/GetCoinFactsByGrade",
+      "params": [
+        {
+          "name": "pcgs-no",
+          "wire_name": "PCGSNo",
+          "type": "string",
+          "location": "query",
+          "description": "PCGS spec number (e.g. 7356 for 1921 Peace Dollar).",
+          "required": true
+        },
+        {
+          "name": "grade",
+          "wire_name": "GradeNo",
+          "type": "int",
+          "location": "query",
+          "description": "Numeric PCGS grade (1-70 standard, 82-98 Details).",
+          "required": true,
+          "aliases": [
+            "grade-no"
+          ]
+        },
+        {
+          "name": "plus",
+          "wire_name": "PlusGrade",
+          "type": "bool",
+          "location": "query",
+          "description": "Plus-grade flag (e.g. MS65+); pass false for standard grades.",
+          "required": true,
+          "aliases": [
+            "plus-grade"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "coin_images",
+      "description": "TrueView and stock images for one PCGS cert (URLs only; no binary download). Required: cert.",
+      "method": "GET",
+      "path": "/coindetail/GetImagesByCertNo",
+      "params": [
+        {
+          "name": "cert",
+          "wire_name": "certNo",
+          "type": "string",
+          "location": "path",
+          "description": "PCGS cert number.",
+          "required": true,
+          "aliases": [
+            "cert-no"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "order_range",
+      "description": "Orders within a date window (paginated). Required: start, end. Optional: page (default: 1), page-size (default: 100).",
+      "method": "GET",
+      "path": "/orderdetail/GetOrdersByDateRange",
+      "params": [
+        {
+          "name": "start",
+          "wire_name": "startDate",
+          "type": "string",
+          "location": "query",
+          "description": "Earliest order date (YYYY-MM-DD).",
+          "required": true,
+          "aliases": [
+            "start-date"
+          ]
+        },
+        {
+          "name": "end",
+          "wire_name": "endDate",
+          "type": "string",
+          "location": "query",
+          "description": "Latest order date (YYYY-MM-DD).",
+          "required": true,
+          "aliases": [
+            "end-date"
+          ]
+        },
+        {
+          "name": "page",
+          "wire_name": "pageNo",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-indexed)."
+        },
+        {
+          "name": "page-size",
+          "wire_name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Results per page.",
+          "aliases": [
+            "limit"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "order_submission",
+      "description": "Orders associated with one PCGS submission number. Required: submission-no.",
+      "method": "GET",
+      "path": "/orderdetail/GetOrdersBySubmissionNo",
+      "params": [
+        {
+          "name": "submission-no",
+          "wire_name": "submissionNo",
+          "type": "string",
+          "location": "path",
+          "description": "PCGS submission number.",
+          "required": true,
+          "aliases": [
+            "submission",
+            "sub"
+          ]
+        }
+      ]
+    }
+  ]
+}

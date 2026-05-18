@@ -8,7 +8,7 @@ Printed by [@dstevens](https://github.com/dstevens) (Damien Stevens).
 
 ## Install
 
-The recommended path installs both the `granola-pp-cli` binary and the `pp-granola` agent skill in one shot:
+The recommended path installs both the `granola-pp-cli` binary and the `pp-granola` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
 npx -y @mvanhorn/printing-press install granola
@@ -20,10 +20,28 @@ For CLI only (no skill):
 npx -y @mvanhorn/printing-press install granola --cli-only
 ```
 
+For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
-### Without Node
+```bash
+npx -y @mvanhorn/printing-press install granola --skill-only
+```
 
-The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
+To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
+
+```bash
+npx -y @mvanhorn/printing-press install granola --agent claude-code
+npx -y @mvanhorn/printing-press install granola --agent claude-code --agent codex
+```
+
+### Without Node (Go fallback)
+
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/productivity/granola/cmd/granola-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
 
 ### Pre-built binary
 
@@ -52,6 +70,43 @@ Tell your OpenClaw agent (copy this):
 Install the pp-granola skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-granola. The skill defines how its required CLI can be installed.
 ```
 
+## Use with Claude Desktop
+
+This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
+
+To install:
+
+1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/granola-current).
+2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
+3. Fill in `GRANOLA_API_KEY` when Claude Desktop prompts you.
+
+Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
+
+<details>
+<summary>Manual JSON config (advanced)</summary>
+
+If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
+
+
+Install the MCP binary from this CLI's published public-library entry or pre-built release.
+
+Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "granola": {
+      "command": "granola-pp-mcp",
+      "env": {
+        "GRANOLA_API_KEY": "<your-key>"
+      }
+    }
+  }
+}
+```
+
+</details>
+
 ## Authentication
 
 Three auth surfaces, ordered fastest to most permissioned. The local cache at ~/Library/Application Support/Granola/cache-v6.json needs no credentials. The internal API at api.granola.ai auto-discovers your WorkOS access_token from supabase.json / stored-accounts.json and rotates the refresh token through WorkOS on every call. The public API at public-api.granola.ai accepts a Bearer key in `GRANOLA_API_KEY` for workspace-scoped queries; it backs the typed `notes` and `folders` top-level commands and is the source when you pass `--data-source live`.
@@ -62,22 +117,17 @@ Three auth surfaces, ordered fastest to most permissioned. The local cache at ~/
 # Confirm cache + WorkOS token + (optional) public API key all resolve.
 granola-pp-cli doctor --json
 
-
 # Hydrate the local SQLite store from cache + any deltas via internal API.
 granola-pp-cli sync
-
 
 # What’s in cache but not yet MEMO’d this week.
 granola-pp-cli memo queue --since 7d --json
 
-
 # Run the full MEMO pipeline on every meeting since yesterday.
 granola-pp-cli memo run --since 24h --to ~/Documents/Dev/meeting-transcripts --json
 
-
 # Every meeting with Trevin in the last 60 days, oldest first, with the recipes applied per row.
 granola-pp-cli attendee timeline alice@example.com --since 60d --json --select id,title,started_at,recipes
-
 
 # Meetings missing the Discovery panel — the Friday retro gap.
 granola-pp-cli recipes coverage --since 14d --json
@@ -204,7 +254,6 @@ This CLI exposes 35+ commands. Use `granola-pp-cli --help` for the canonical tre
 | **Sync / system** | `sync`, `sync-api`, `doctor`, `auth login / status / set-token / logout`, `which`, `agent-context`, `version`, `import` |
 | **GUI bridge (macOS only)** | `warm <id> <query>` — prints by default; `--launch` activates the Granola desktop app |
 
-
 ## Output Formats
 
 ```bash
@@ -238,68 +287,17 @@ This CLI is designed for AI agent consumption:
 
 Exit codes: `0` success, `2` usage error, `3` not found, `4` auth error, `5` API error, `7` rate limited, `10` config error.
 
-## Use with Claude Code
+## Auto-Refresh
 
-Install the focused skill — it auto-installs the CLI on first invocation:
+Every command auto-refreshes the local store as its first action. You do not need to run `granola-pp-cli sync` before `meetings list`, `panel get`, or any other read.
 
-```bash
-npx skills add mvanhorn/printing-press-library/cli-skills/pp-granola -g
-```
+Both auth surfaces refresh independently: the desktop encrypted cache (`~/Library/Application Support/Granola/cache-v6.json.enc`) via the embedded `sync` path, and the public REST API (when `GRANOLA_API_KEY` is set or an access token is saved) via the embedded `sync-api` path. When both are available, both refresh routines fire. When neither is configured, auto-refresh is a silent no-op.
 
-Then invoke `/pp-granola <query>` in Claude Code. The skill is the most efficient path — Claude Code drives the CLI directly without an MCP server in the middle.
+A one-line provenance summary lands on stderr in interactive mode: `auto-refresh: cache=ok (1.2s, 47 rows)`. It is suppressed under `--agent`, `--json`, `--compact`, `--quiet`, and when stderr is piped — so agent and CI consumers see no chatter on stdout or stderr.
 
-<details>
-<summary>Use as an MCP server in Claude Code (advanced)</summary>
+Opt out with `--no-refresh` for a single command, `GRANOLA_NO_AUTO_REFRESH=1` for a shell session or CI job, or by saving a profile with `--no-refresh` (`granola-pp-cli profile save fast --no-refresh`). The skip list (commands that never auto-refresh) is `sync`, `sync-api`, `auth`, `doctor`, `help`, `version`, `completion`, `agent-context`, `profile`, `feedback`, `which`. Run `granola-pp-cli agent-context --json` to see the full contract as structured JSON.
 
-If you'd rather register this CLI as an MCP server in Claude Code, install the MCP binary first:
-
-
-Install the MCP binary from this CLI's published public-library entry or pre-built release.
-
-Then register it:
-
-```bash
-claude mcp add granola granola-pp-mcp -e GRANOLA_API_KEY=<your-token>
-```
-
-</details>
-
-## Use with Claude Desktop
-
-This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
-
-To install:
-
-1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/granola-current).
-2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
-3. Fill in `GRANOLA_API_KEY` when Claude Desktop prompts you.
-
-Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
-
-<details>
-<summary>Manual JSON config (advanced)</summary>
-
-If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
-
-
-Install the MCP binary from this CLI's published public-library entry or pre-built release.
-
-Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "granola": {
-      "command": "granola-pp-mcp",
-      "env": {
-        "GRANOLA_API_KEY": "<your-key>"
-      }
-    }
-  }
-}
-```
-
-</details>
+Auto-refresh reads from Granola desktop's encrypted cache file; it does not poke the desktop app to refresh from Granola servers. The freshness ceiling is whatever Granola desktop has already pulled.
 
 ## Health Check
 
@@ -335,7 +333,7 @@ Environment variables:
 - **WorkOS token expired warning** — Open the Granola desktop app once — it refreshes the token. Or pass a personal API key via GRANOLA_API_KEY to route through the public API instead.
 - **memo run --since reports duplicate_of** — A file with the same title-date-attendees fingerprint already exists in --to. Pick a different `--to` directory, remove the existing file, or `mv` it out of the way.
 - **Transcript missing for a recent meeting** — Granola hasn’t flushed it yet. Run warm <id> <q> --launch to bring it forward in the GUI, wait 30 s, then re-run preflight.
-- **stats / talktime returns empty rows** — Run `sync` first; the store needs to be populated before these local-store queries return data.
+- **stats / talktime returns empty rows** — Auto-refresh runs `sync` on every command, so this usually means there is nothing to sync. Confirm Granola desktop is signed in and has captured at least one meeting; run `granola-pp-cli doctor` to verify the cache is decryptable. If you bypassed auto-refresh with `--no-refresh` or `GRANOLA_NO_AUTO_REFRESH=1`, run `granola-pp-cli sync` manually.
 
 ---
 

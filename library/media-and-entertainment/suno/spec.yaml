@@ -1,0 +1,420 @@
+name: suno
+display_name: Suno
+description: Suno AI music generation CLI - reverse-engineered from the suno.com web app
+version: 0.1.0
+base_url: https://studio-api-prod.suno.com
+spec_source: sniffed
+
+cli_description: "Every Suno feature, plus a local SQLite library, offline FTS5 search, MCP-native agent surface, and a single-binary Go install."
+
+auth:
+  type: composed
+  header: Authorization
+  format: "Bearer {__session}"
+  cookie_domain: suno.com
+  cookies:
+    - __session
+  env_vars:
+    - SUNO_TOKEN
+  refresh:
+    type: clerk
+    endpoint: https://clerk.suno.com/v1/client/sessions/{session_id}/tokens
+    requires_cookie: __client
+    requires_cookie_domain: auth.suno.com
+    session_id_cookie: clerk_active_context
+
+http_transport: browser-chrome
+
+config:
+  format: toml
+  path: ~/.config/suno-pp-cli/config.toml
+
+extra_headers:
+  browser-token:
+    source: cookie
+    cookie: suno_device_id
+  device-id:
+    source: cookie
+    cookie: suno_device_id
+
+resources:
+  clips:
+    description: User's generated songs (clips). Each clip is one song variation.
+    endpoints:
+      list:
+        method: POST
+        path: /api/feed/v3
+        description: List clips in the user's library (paginated feed)
+        body:
+          - name: workspace_id
+            type: string
+            required: false
+            description: Workspace UUID, defaults to default workspace
+          - name: cursor
+            type: string
+            required: false
+            description: Cursor from previous page
+          - name: limit
+            type: integer
+            required: false
+            default: 20
+            description: Page size (max ~50)
+        response:
+          type: object
+          item: feed_page
+
+      get:
+        method: GET
+        path: /api/clip/{id}
+        description: Get a single clip by ID
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: Clip UUID
+
+      attribution:
+        method: GET
+        path: /api/clips/{id}/attribution
+        description: Get attribution info (who generated, when, lineage)
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: Clip UUID
+
+      parent:
+        method: GET
+        path: /api/clips/parent
+        description: Get the parent clip (for extends/covers/remixes)
+        params:
+          - name: clip_id
+            type: string
+            required: true
+            flag_name: id
+            aliases: [clip-id]
+            description: Clip UUID
+
+      direct_children_count:
+        method: GET
+        path: /api/clips/direct_children_count
+        description: Count of direct child clips (extends/covers)
+        params:
+          - name: clip_id
+            type: string
+            required: true
+            flag_name: id
+            aliases: [clip-id]
+            description: Clip UUID
+
+      similar:
+        method: GET
+        path: /api/clips/get_similar/
+        description: Get similar clips by ID
+        params:
+          - name: id
+            type: string
+            required: true
+            description: Clip UUID
+
+      aligned_lyrics:
+        method: GET
+        path: /api/gen/{id}/aligned_lyrics/v2/
+        description: Word-aligned lyrics with timestamps (LRC-compatible)
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: Clip UUID
+
+      comments:
+        method: GET
+        path: /api/gen/{id}/comments
+        description: Comments on a clip
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: Clip UUID
+          - name: order
+            type: string
+            required: false
+            default: most_liked
+            description: Sort order (most_liked, newest, oldest)
+
+      set_visibility:
+        method: POST
+        path: /api/gen/{id}/set_visibility
+        description: Set clip visibility (public/private/unlisted)
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: Clip UUID
+        body:
+          - name: is_public
+            type: boolean
+            required: true
+            description: Public flag
+
+      delete:
+        method: POST
+        path: /api/gen/trash/
+        description: Move clips to trash
+        body:
+          - name: clip_ids
+            type: array
+            required: true
+            description: Array of clip UUIDs to trash
+          - name: trash
+            type: boolean
+            required: false
+            default: true
+            description: True to trash, false to restore
+
+      edit:
+        method: POST
+        path: /api/gen/{id}/set_metadata
+        description: Edit clip metadata (title, tags, lyrics)
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: Clip UUID
+        body:
+          - name: title
+            type: string
+            required: false
+          - name: tags
+            type: string
+            required: false
+
+  generate:
+    description: Music generation (create new songs, extend, cover, remix)
+    endpoints:
+      create:
+        method: POST
+        path: /api/generate/v2-web/
+        description: Generate a new song from a description or custom lyrics
+        body:
+          - name: gpt_description_prompt
+            type: string
+            required: false
+            description: Description-mode prompt (e.g., "a synthwave anthem about debugging")
+          - name: prompt
+            type: string
+            required: false
+            description: Custom lyrics (for custom mode)
+          - name: tags
+            type: string
+            required: false
+            description: Style tags (comma-separated, e.g., "ambient, electronic")
+          - name: negative_tags
+            type: string
+            required: false
+            description: Style tags to exclude
+          - name: title
+            type: string
+            required: false
+            description: Song title (custom mode only)
+          - name: mv
+            type: string
+            required: false
+            default: chirp-v5
+            description: Model version (chirp-v5, chirp-v4-5, chirp-bluejay, chirp-fenix)
+          - name: make_instrumental
+            type: boolean
+            required: false
+            default: false
+            description: Generate without vocals
+          - name: continue_clip_id
+            type: string
+            required: false
+            description: Clip ID to extend (for extends)
+          - name: continue_at
+            type: number
+            required: false
+            description: Time in seconds to extend from
+          - name: persona_id
+            type: string
+            required: false
+            description: Voice persona UUID
+        response:
+          type: object
+          item: generation
+
+      concat:
+        method: POST
+        path: /api/generate/concat/v2/
+        description: Concatenate clip extensions into a single song
+        body:
+          - name: clip_id
+            type: string
+            required: true
+            description: Final clip ID in the extension chain
+
+      lyrics:
+        method: POST
+        path: /api/generate/lyrics/
+        description: Generate lyrics from a prompt (free, no credits)
+        body:
+          - name: prompt
+            type: string
+            required: true
+            description: Lyric prompt
+
+      lyrics_status:
+        method: GET
+        path: /api/generate/lyrics/{id}
+        description: Poll lyrics generation status
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: Lyrics generation UUID
+
+      video_status:
+        method: GET
+        path: /api/video/generate/{id}/status/
+        description: Poll video render status for a clip
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: Clip UUID
+
+  billing:
+    description: Credits, plans, billing info
+    endpoints:
+      info:
+        method: GET
+        path: /api/billing/info/
+        description: Account credits, plan tier, renewal date
+
+      eligible_discounts:
+        method: GET
+        path: /api/billing/eligible-discounts
+        description: List discounts the account is eligible for
+
+      usage_plan:
+        method: GET
+        path: /api/billing/usage-plan-web-table-comparison/
+        description: Plan comparison table
+
+      usage_plan_faq:
+        method: GET
+        path: /api/billing/usage-plan-faq/
+        description: Plan FAQ
+
+  persona:
+    description: Voice personas (saved voice characteristics)
+    endpoints:
+      get:
+        method: GET
+        path: /api/persona/get-persona-paginated/{id}/
+        description: Get persona by ID with linked clips
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: Persona UUID
+
+      list:
+        method: GET
+        path: /api/persona/me
+        description: List user's personas
+
+  project:
+    description: Workspaces (default workspace is auto-created)
+    endpoints:
+      me:
+        method: GET
+        path: /api/project/me
+        description: User's project memberships
+
+      default:
+        method: GET
+        path: /api/project/default
+        description: Default workspace details
+
+      pinned_clips:
+        method: GET
+        path: /api/project/default/pinned-clips
+        description: Pinned clips in default workspace
+
+  user:
+    description: User profile and settings
+    endpoints:
+      config:
+        method: GET
+        path: /api/user/user_config/
+        description: User config (feature flags, plan tier, preferences)
+
+      personalization:
+        method: GET
+        path: /api/personalization/settings
+        description: Personalization settings
+
+      personalization_memory:
+        method: GET
+        path: /api/personalization/memory
+        description: Personalization memory entries
+
+  notification:
+    description: User notifications
+    endpoints:
+      list:
+        method: GET
+        path: /api/notification/v2
+        description: List notifications
+        params:
+          - name: after_datetime_utc
+            type: string
+            required: false
+            description: Filter by datetime cursor (ISO8601)
+
+      badge_count:
+        method: GET
+        path: /api/notification/v2/badge-count
+        description: Unread notification count
+
+  custom_model:
+    description: Custom model training (Suno Pro feature)
+    endpoints:
+      pending:
+        method: GET
+        path: /api/custom-model/pending/
+        description: List pending custom-model training jobs
+
+storage:
+  primary_entity: clip
+  entities:
+    clip:
+      id_field: id
+      fts_fields: [title, lyrics, tags, prompt, gpt_description_prompt]
+      indexed_fields: [created_at, model_name, is_public, is_liked, status, user_id]
+      sync_cursor: created_at
+      time_window_field: created_at
+    persona:
+      id_field: id
+      fts_fields: [name, description]
+    generation:
+      id_field: id
+      indexed_fields: [created_at]
+    credits_snapshot:
+      id_field: id
+      indexed_fields: [snapshot_at]
+
+mcp:
+  transport: [stdio, http]
+  orchestration: code
+  endpoint_tools: hidden

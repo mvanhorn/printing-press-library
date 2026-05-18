@@ -12,6 +12,7 @@ import (
 
 	"github.com/mvanhorn/printing-press-library/library/commerce/instacart/internal/auth"
 	"github.com/mvanhorn/printing-press-library/library/commerce/instacart/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/commerce/instacart/internal/instacart"
 	"github.com/mvanhorn/printing-press-library/library/commerce/instacart/internal/store"
 )
 
@@ -147,16 +148,14 @@ func ensureInventoryToken(ctx context.Context, client *Client, st *store.Store, 
 		return cached, nil
 	}
 
-	vars := map[string]any{
-		"retailerSlug": slug,
-		"postalCode":   cfg.PostalCode,
-		"coordinates": map[string]any{
-			"latitude":  cfg.Latitude,
-			"longitude": cfg.Longitude,
-		},
-		"addressId":              cfg.AddressID,
-		"allowCanonicalFallback": false,
-	}
+	// PATCH (fix-shop-collection-coordinates):
+	// Use the typed constructor so coordinates is omitted entirely when
+	// neither latitude nor longitude is set (the common config path for
+	// users who only set postal_code). Previously this builder always
+	// sent {latitude: 0, longitude: 0}, which Instacart's UsersCoordinates
+	// input rejects, causing every search/add/cart-show bootstrap to fail
+	// with "no shops" — see mvanhorn/printing-press-library#501.
+	vars := instacart.NewShopCollectionScopedVars(slug, cfg.PostalCode, cfg.AddressID, cfg.Latitude, cfg.Longitude)
 	resp, err := client.Query(ctx, "ShopCollectionScoped", vars)
 	if err != nil {
 		return nil, fmt.Errorf("ShopCollectionScoped: %w", err)

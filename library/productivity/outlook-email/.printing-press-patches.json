@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260512-172123",
+  "base_printing_press_version": "4.2.2",
+  "patches": [
+    {
+      "id": "greptile-p1-listids-sql-injection",
+      "summary": "Validate resourceType via parameterized sqlite_master lookup before interpolating into SELECT in Store.ListIDs.",
+      "reason": "Greptile flagged the raw fmt.Sprintf table interpolation as a SQL injection sink (P1) — same finding the press already addressed for outlook-calendar via cli-printing-press#1000. Generated code still ships the pre-fix template here, so this patch closes it for this CLI until the template lands in the version of the press that prints this slug.",
+      "files": ["internal/store/store.go"],
+      "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/pull/1000"
+    },
+    {
+      "id": "greptile-p1-since-groups-before-truncation",
+      "summary": "Compute `groups` aggregation from the full rows slice before --top truncation so it agrees with total_count.",
+      "reason": "Greptile (P1) — since's `groups` map was computed from already-truncated rows, so `total_count: 150` could ship alongside a groups map that only summed the displayed 10 messages. The fix moves groupSince() above the slice truncation.",
+      "files": ["internal/cli/novel_inbox_views.go"]
+    },
+    {
+      "id": "greptile-orderby-allowlist",
+      "summary": "Validate loadMessages OrderBy against a closed allowlist before concatenating into the SQL string.",
+      "reason": "Greptile flagged the raw `\"ORDER BY \" + order` concatenation. Every current caller passes a hardcoded literal, but the allowlist closes the future risk of a user- or config-derived value reaching this position; unrecognized values fall back to the default ordering.",
+      "files": ["internal/cli/novel_messages.go"]
+    },
+    {
+      "id": "greptile-followup-redundant-draft-flags",
+      "summary": "Drop redundant ExcludeDrafts:true in followup and rename misnamed isTrue→isFalse so a single (more restrictive) draft filter remains.",
+      "reason": "Greptile observed that IsDraft=&false already emits `is_draft = 0`, which subsumes ExcludeDrafts's broader `(is_draft = 0 OR is_draft IS NULL)` clause. Dropping the redundant flag and renaming the misleading local var makes intent legible.",
+      "files": ["internal/cli/novel_followup.go"]
+    }
+  ]
+}

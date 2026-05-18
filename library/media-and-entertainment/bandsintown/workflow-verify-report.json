@@ -1,0 +1,8 @@
+{
+  "dir": "\u003ccli-dir\u003e/bandsintown-pp-cli",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

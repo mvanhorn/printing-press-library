@@ -7,6 +7,7 @@ package gflights
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"net/url"
 	"strings"
 	"testing"
@@ -25,9 +26,13 @@ func TestBuildGoogleFlightsURLOneWay(t *testing.T) {
 	if !strings.HasPrefix(got, "https://www.google.com/travel/flights/search?tfs=") {
 		t.Fatalf("unexpected prefix: %s", got)
 	}
-	tripType, slices, pax := decodeTfs(t, got)
-	if tripType != 1 {
-		t.Errorf("trip type = %d, want 1", tripType)
+	if !strings.Contains(got, "&curr=USD") || !strings.Contains(got, "&hl=en") {
+		t.Errorf("expected &curr=USD&hl=en suffix; got %s", got)
+	}
+	tripType, slices, pax, class := decodeTfs(t, got)
+	// In Google Flights' protobuf schema, ONE_WAY = 2 (ROUND_TRIP = 1).
+	if tripType != googleTripTypeOneWay {
+		t.Errorf("trip type = %d, want %d (one-way)", tripType, googleTripTypeOneWay)
 	}
 	if len(slices) != 1 {
 		t.Fatalf("slices = %d, want 1", len(slices))
@@ -36,7 +41,10 @@ func TestBuildGoogleFlightsURLOneWay(t *testing.T) {
 		t.Errorf("slice mismatch: %+v", slices[0])
 	}
 	if pax != 1 {
-		t.Errorf("pax = %d, want 1", pax)
+		t.Errorf("pax (Traveler enum count) = %d, want 1", pax)
+	}
+	if class != googleClassEconomy {
+		t.Errorf("class = %d, want %d (economy)", class, googleClassEconomy)
 	}
 }
 
@@ -49,9 +57,9 @@ func TestBuildGoogleFlightsURLRoundTripMultiPax(t *testing.T) {
 		Passengers:    4,
 	}
 	got := buildGoogleFlightsURL(opts)
-	tripType, slices, pax := decodeTfs(t, got)
-	if tripType != 2 {
-		t.Errorf("trip type = %d, want 2 (round-trip)", tripType)
+	tripType, slices, pax, _ := decodeTfs(t, got)
+	if tripType != googleTripTypeRoundTrip {
+		t.Errorf("trip type = %d, want %d (round-trip)", tripType, googleTripTypeRoundTrip)
 	}
 	if len(slices) != 2 {
 		t.Fatalf("slices = %d, want 2", len(slices))
@@ -64,7 +72,7 @@ func TestBuildGoogleFlightsURLRoundTripMultiPax(t *testing.T) {
 		t.Errorf("return slice mismatch: %+v", ret)
 	}
 	if pax != 4 {
-		t.Errorf("pax = %d, want 4", pax)
+		t.Errorf("pax (Traveler enum count) = %d, want 4", pax)
 	}
 }
 
@@ -78,13 +86,13 @@ func TestBuildGoogleFlightsURLEmptyOriginYieldsEmpty(t *testing.T) {
 func TestBuildGoogleFlightsURLZeroPaxDefaultsToOne(t *testing.T) {
 	opts := SearchOptions{Origin: "SEA", Destination: "LAX", DepartureDate: "2026-06-15", Passengers: 0}
 	got := buildGoogleFlightsURL(opts)
-	_, _, pax := decodeTfs(t, got)
+	_, _, pax, _ := decodeTfs(t, got)
 	if pax != 1 {
 		t.Errorf("pax = %d, want 1 (default)", pax)
 	}
 }
 
-func TestBuildAirlineURLSingleCarrierAlaska(t *testing.T) {
+func TestBuildAirlineURLSingleCarrierDeltaPrefill(t *testing.T) {
 	opts := SearchOptions{
 		Origin:        "SEA",
 		Destination:   "LAX",
@@ -93,30 +101,47 @@ func TestBuildAirlineURLSingleCarrierAlaska(t *testing.T) {
 		Passengers:    2,
 	}
 	flight := Flight{Legs: []Leg{
-		{Airline: Airline{Code: "AS"}},
-		{Airline: Airline{Code: "AS"}},
+		{Airline: Airline{Code: "DL"}},
+		{Airline: Airline{Code: "DL"}},
 	}}
-	got, ok := buildAirlineURL(opts, flight)
+	got, kind, ok := buildAirlineURL(opts, flight)
 	if !ok {
-		t.Fatal("expected single-carrier AS to qualify")
+		t.Fatal("expected single-carrier DL to qualify")
 	}
-	if !strings.Contains(got, "alaskaair.com") {
-		t.Errorf("URL not from alaskaair.com: %s", got)
+	if kind != airlineKindPrefill {
+		t.Errorf("DL kind = %q, want prefill", kind)
 	}
-	if !strings.Contains(got, "from=SEA") {
-		t.Errorf("origin not in URL: %s", got)
+	if !strings.Contains(got, "delta.com") {
+		t.Errorf("URL not from delta.com: %s", got)
 	}
-	if !strings.Contains(got, "to=LAX") {
-		t.Errorf("destination not in URL: %s", got)
+	if !strings.Contains(got, "originCity=SEA") || !strings.Contains(got, "destinationCity=LAX") {
+		t.Errorf("expected origin/destination params: %s", got)
 	}
-	if !strings.Contains(got, "departureDate=2026-06-15") {
-		t.Errorf("departure date not in URL: %s", got)
+	if !strings.Contains(got, "departureDate=2026-06-15") || !strings.Contains(got, "returnDate=2026-06-22") {
+		t.Errorf("expected dates: %s", got)
 	}
-	if !strings.Contains(got, "returnDate=2026-06-22") {
-		t.Errorf("return date not in URL: %s", got)
+	if !strings.Contains(got, "paxCount=2") {
+		t.Errorf("expected paxCount=2: %s", got)
 	}
-	if !strings.Contains(got, "adults=2") {
-		t.Errorf("pax count not in URL: %s", got)
+	if !strings.Contains(got, "tripType=ROUND_TRIP") {
+		t.Errorf("expected tripType=ROUND_TRIP: %s", got)
+	}
+}
+
+func TestBuildAirlineURLLandingKindCondor(t *testing.T) {
+	// DE (Condor) is the actual operator for SEA-PNH searches and is in
+	// the table as landing. Verify it returns a non-empty URL.
+	opts := SearchOptions{Origin: "SEA", Destination: "KTI", DepartureDate: "2026-12-24"}
+	flight := Flight{Legs: []Leg{{Airline: Airline{Code: "DE"}}}}
+	got, kind, ok := buildAirlineURL(opts, flight)
+	if !ok {
+		t.Fatal("expected DE to qualify")
+	}
+	if kind != airlineKindLanding {
+		t.Errorf("DE kind = %q, want landing", kind)
+	}
+	if !strings.Contains(got, "condor.com") {
+		t.Errorf("expected condor.com in URL: %s", got)
 	}
 }
 
@@ -126,7 +151,7 @@ func TestBuildAirlineURLCodeshareRejected(t *testing.T) {
 		{Airline: Airline{Code: "AS"}},
 		{Airline: Airline{Code: "TG"}},
 	}}
-	_, ok := buildAirlineURL(opts, flight)
+	_, _, ok := buildAirlineURL(opts, flight)
 	if ok {
 		t.Error("expected codeshare itinerary to omit airline URL")
 	}
@@ -134,24 +159,24 @@ func TestBuildAirlineURLCodeshareRejected(t *testing.T) {
 
 func TestBuildAirlineURLUnknownCarrier(t *testing.T) {
 	opts := SearchOptions{Origin: "SEA", Destination: "PEK", DepartureDate: "2026-09-01"}
-	flight := Flight{Legs: []Leg{{Airline: Airline{Code: "HU"}}}}
-	_, ok := buildAirlineURL(opts, flight)
+	flight := Flight{Legs: []Leg{{Airline: Airline{Code: "ZZ"}}}}
+	_, _, ok := buildAirlineURL(opts, flight)
 	if ok {
-		t.Error("expected unknown carrier (HU) to omit airline URL")
+		t.Error("expected unknown carrier (ZZ) to omit airline URL")
 	}
 }
 
 func TestBuildAirlineURLEmptyAirlineCode(t *testing.T) {
 	opts := SearchOptions{Origin: "SEA", Destination: "LAX", DepartureDate: "2026-06-15"}
 	flight := Flight{Legs: []Leg{{Airline: Airline{Code: ""}}}}
-	_, ok := buildAirlineURL(opts, flight)
+	_, _, ok := buildAirlineURL(opts, flight)
 	if ok {
 		t.Error("expected empty airline code to omit airline URL")
 	}
 }
 
 func TestBuildAirlineURLNoLegs(t *testing.T) {
-	_, ok := buildAirlineURL(SearchOptions{}, Flight{})
+	_, _, ok := buildAirlineURL(SearchOptions{}, Flight{})
 	if ok {
 		t.Error("expected flight with no legs to omit airline URL")
 	}
@@ -165,14 +190,13 @@ func TestBuildAirlineURLOneWayStripsEmptyReturnParam(t *testing.T) {
 		Passengers:    1,
 	}
 	flight := Flight{Legs: []Leg{{Airline: Airline{Code: "B6"}}}}
-	got, ok := buildAirlineURL(opts, flight)
+	got, _, ok := buildAirlineURL(opts, flight)
 	if !ok {
 		t.Fatal("expected B6 to qualify")
 	}
 	if strings.Contains(got, "return=&") || strings.HasSuffix(got, "return=") {
 		t.Errorf("URL should not contain empty return= param: %s", got)
 	}
-	// Other params should still be present and non-empty.
 	if !strings.Contains(got, "from=SEA") || !strings.Contains(got, "to=JFK") {
 		t.Errorf("expected origin/destination params in: %s", got)
 	}
@@ -186,7 +210,7 @@ func TestBuildAirlineURLOneWayStripsEmptyInboundDateBA(t *testing.T) {
 		Passengers:    1,
 	}
 	flight := Flight{Legs: []Leg{{Airline: Airline{Code: "BA"}}}}
-	got, ok := buildAirlineURL(opts, flight)
+	got, _, ok := buildAirlineURL(opts, flight)
 	if !ok {
 		t.Fatal("expected BA to qualify")
 	}
@@ -204,7 +228,7 @@ func TestBuildAirlineURLRoundTripKeepsReturnParam(t *testing.T) {
 		Passengers:    1,
 	}
 	flight := Flight{Legs: []Leg{{Airline: Airline{Code: "B6"}}}}
-	got, ok := buildAirlineURL(opts, flight)
+	got, _, ok := buildAirlineURL(opts, flight)
 	if !ok {
 		t.Fatal("expected B6 to qualify")
 	}
@@ -217,6 +241,7 @@ func TestBuildAirlineURLModeRoundTripOnlyRejectsOneWay(t *testing.T) {
 	saved := airlineTemplates["TESTRT"]
 	airlineTemplates["TESTRT"] = airlineTemplate{
 		urlTemplate: "https://example.com/?o={origin}&d={destination}&dep={depart}&ret={return}",
+		kind:        airlineKindPrefill,
 		mode:        "roundTripOnly",
 	}
 	defer func() {
@@ -229,11 +254,11 @@ func TestBuildAirlineURLModeRoundTripOnlyRejectsOneWay(t *testing.T) {
 
 	flight := Flight{Legs: []Leg{{Airline: Airline{Code: "TESTRT"}}}}
 
-	_, ok := buildAirlineURL(SearchOptions{Origin: "A", Destination: "B", DepartureDate: "2026-01-01"}, flight)
+	_, _, ok := buildAirlineURL(SearchOptions{Origin: "A", Destination: "B", DepartureDate: "2026-01-01"}, flight)
 	if ok {
 		t.Error("roundTripOnly template should reject one-way query")
 	}
-	_, ok = buildAirlineURL(SearchOptions{Origin: "A", Destination: "B", DepartureDate: "2026-01-01", ReturnDate: "2026-01-08"}, flight)
+	_, _, ok = buildAirlineURL(SearchOptions{Origin: "A", Destination: "B", DepartureDate: "2026-01-01", ReturnDate: "2026-01-08"}, flight)
 	if !ok {
 		t.Error("roundTripOnly template should accept round-trip query")
 	}
@@ -243,6 +268,7 @@ func TestBuildAirlineURLModeOneWayOnlyRejectsRoundTrip(t *testing.T) {
 	saved := airlineTemplates["TESTOW"]
 	airlineTemplates["TESTOW"] = airlineTemplate{
 		urlTemplate: "https://example.com/?o={origin}&d={destination}&dep={depart}",
+		kind:        airlineKindPrefill,
 		mode:        "oneWayOnly",
 	}
 	defer func() {
@@ -255,13 +281,31 @@ func TestBuildAirlineURLModeOneWayOnlyRejectsRoundTrip(t *testing.T) {
 
 	flight := Flight{Legs: []Leg{{Airline: Airline{Code: "TESTOW"}}}}
 
-	_, ok := buildAirlineURL(SearchOptions{Origin: "A", Destination: "B", DepartureDate: "2026-01-01", ReturnDate: "2026-01-08"}, flight)
+	_, _, ok := buildAirlineURL(SearchOptions{Origin: "A", Destination: "B", DepartureDate: "2026-01-01", ReturnDate: "2026-01-08"}, flight)
 	if ok {
 		t.Error("oneWayOnly template should reject round-trip query")
 	}
-	_, ok = buildAirlineURL(SearchOptions{Origin: "A", Destination: "B", DepartureDate: "2026-01-01"}, flight)
+	_, _, ok = buildAirlineURL(SearchOptions{Origin: "A", Destination: "B", DepartureDate: "2026-01-01"}, flight)
 	if !ok {
 		t.Error("oneWayOnly template should accept one-way query")
+	}
+}
+
+func TestBuildAirlineURLTableSize(t *testing.T) {
+	// Locks in the curated coverage target so accidental deletions get caught.
+	if len(airlineTemplates) < 30 {
+		t.Errorf("airlineTemplates has %d entries, want at least 30", len(airlineTemplates))
+	}
+}
+
+func TestBuildAirlineURLEveryEntryHasKind(t *testing.T) {
+	for code, tmpl := range airlineTemplates {
+		if tmpl.kind != airlineKindPrefill && tmpl.kind != airlineKindLanding {
+			t.Errorf("airline %q has invalid kind %q", code, tmpl.kind)
+		}
+		if tmpl.urlTemplate == "" {
+			t.Errorf("airline %q has empty urlTemplate", code)
+		}
 	}
 }
 
@@ -283,27 +327,75 @@ func TestStripEmptyQueryParams(t *testing.T) {
 	}
 }
 
-func TestBuildBookingURLsAlwaysPopulatesGoogle(t *testing.T) {
+func TestBuildBookingURLsUnknownCarrierFallsBackToGoogle(t *testing.T) {
 	opts := SearchOptions{Origin: "SEA", Destination: "LAX", DepartureDate: "2026-06-15", Passengers: 1}
-	flight := Flight{Legs: []Leg{{Airline: Airline{Code: "HU"}}}} // HU not in table
+	flight := Flight{Legs: []Leg{{Airline: Airline{Code: "ZZ"}}}} // ZZ not in table
 	out := buildBookingURLs(opts, flight)
-	if out.Google == "" {
-		t.Error("Google URL should always be populated")
+	if out.GoogleURL == "" {
+		t.Error("GoogleURL should always be populated")
 	}
-	if out.Airline != "" {
-		t.Errorf("Airline URL should be empty for unknown carrier; got %q", out.Airline)
+	if out.Primary != out.GoogleURL {
+		t.Errorf("Primary should equal GoogleURL for unknown carrier; got %q", out.Primary)
+	}
+	if out.PrimaryKind != primaryKindSearch {
+		t.Errorf("PrimaryKind = %q, want %q", out.PrimaryKind, primaryKindSearch)
+	}
+	if out.AirlineURL != "" || out.AirlineKind != "" {
+		t.Errorf("Airline fields should be empty for unknown carrier; got %q / %q", out.AirlineURL, out.AirlineKind)
 	}
 }
 
-func TestBuildBookingURLsPopulatesBothWhenQualifying(t *testing.T) {
+func TestBuildBookingURLsPrefillPicksAirlineAsPrimary(t *testing.T) {
 	opts := SearchOptions{Origin: "SEA", Destination: "LAX", DepartureDate: "2026-06-15", Passengers: 2}
-	flight := Flight{Legs: []Leg{{Airline: Airline{Code: "AS"}}}}
+	flight := Flight{Legs: []Leg{{Airline: Airline{Code: "DL"}}}}
 	out := buildBookingURLs(opts, flight)
-	if out.Google == "" {
-		t.Error("Google URL should be populated")
+	if out.AirlineURL == "" {
+		t.Error("AirlineURL should be populated for DL")
 	}
-	if out.Airline == "" {
-		t.Error("Airline URL should be populated for AS")
+	if out.AirlineKind != primaryKindPrefill {
+		t.Errorf("AirlineKind = %q, want %q", out.AirlineKind, primaryKindPrefill)
+	}
+	if out.Primary != out.AirlineURL {
+		t.Error("Primary should equal AirlineURL when prefill is available")
+	}
+	if out.PrimaryKind != primaryKindPrefill {
+		t.Errorf("PrimaryKind = %q, want %q", out.PrimaryKind, primaryKindPrefill)
+	}
+	if out.GoogleURL == "" {
+		t.Error("GoogleURL should still be populated as a secondary option")
+	}
+}
+
+func TestBuildBookingURLsLandingPicksAirlineAsPrimary(t *testing.T) {
+	// Condor (DE) is the actual operator for SEA-PNH queries — landing kind.
+	opts := SearchOptions{Origin: "SEA", Destination: "KTI", DepartureDate: "2026-12-24", ReturnDate: "2027-01-01", Passengers: 4}
+	flight := Flight{Legs: []Leg{{Airline: Airline{Code: "DE"}}}}
+	out := buildBookingURLs(opts, flight)
+	if out.AirlineURL == "" {
+		t.Error("AirlineURL should be populated for DE")
+	}
+	if out.Primary != out.AirlineURL {
+		t.Error("Primary should equal AirlineURL when landing is available")
+	}
+	if out.PrimaryKind != primaryKindLanding {
+		t.Errorf("PrimaryKind = %q, want %q", out.PrimaryKind, primaryKindLanding)
+	}
+}
+
+func TestBuildBookingURLsJSONOmitsAbsentAirlineFields(t *testing.T) {
+	opts := SearchOptions{Origin: "SEA", Destination: "LAX", DepartureDate: "2026-06-15", Passengers: 1}
+	flight := Flight{Legs: []Leg{{Airline: Airline{Code: "ZZ"}}}}
+	out := buildBookingURLs(opts, flight)
+	b, err := json.Marshal(out)
+	if err != nil {
+		t.Fatalf("marshal: %v", err)
+	}
+	got := string(b)
+	if strings.Contains(got, "airline_url") || strings.Contains(got, "airline_kind") {
+		t.Errorf("expected airline_url and airline_kind omitted; got %s", got)
+	}
+	if !strings.Contains(got, "primary") || !strings.Contains(got, "google_url") {
+		t.Errorf("expected primary and google_url present; got %s", got)
 	}
 }
 
@@ -313,7 +405,11 @@ type decodedSlice struct {
 	origin, dest, date string
 }
 
-func decodeTfs(t *testing.T, urlStr string) (tripType int, slices []decodedSlice, pax int) {
+// decodeTfs decodes the tfs= protobuf using the canonical schema from
+// krisukox/google-flights-api url.proto. Outer fields: 3 (Flight, repeated),
+// 8 (Traveler enum, repeated — count = passenger count), 9 (Class enum),
+// 19 (TripType enum).
+func decodeTfs(t *testing.T, urlStr string) (tripType int, slices []decodedSlice, pax int, class int) {
 	t.Helper()
 	u, err := url.Parse(urlStr)
 	if err != nil {
@@ -323,7 +419,7 @@ func decodeTfs(t *testing.T, urlStr string) (tripType int, slices []decodedSlice
 	if tfs == "" {
 		t.Fatal("tfs param missing")
 	}
-	pb, err := base64.URLEncoding.WithPadding(base64.NoPadding).DecodeString(tfs)
+	pb, err := base64.RawURLEncoding.DecodeString(tfs)
 	if err != nil {
 		t.Fatalf("decode base64: %v", err)
 	}
@@ -334,26 +430,29 @@ func decodeTfs(t *testing.T, urlStr string) (tripType int, slices []decodedSlice
 		}
 		pb = pb[tagLen:]
 		switch field {
-		case 2:
-			if wireType != protowire.VarintType {
-				t.Fatalf("field 2 wire type = %d, want varint", wireType)
-			}
-			v, n := protowire.ConsumeVarint(pb)
-			tripType = int(v)
-			pb = pb[n:]
 		case 3:
 			if wireType != protowire.BytesType {
 				t.Fatalf("field 3 wire type = %d, want bytes", wireType)
 			}
 			data, n := protowire.ConsumeBytes(pb)
 			pb = pb[n:]
-			slices = append(slices, decodeSliceBytes(t, data))
-		case 4:
+			slices = append(slices, decodeFlightSlice(t, data))
+		case 8:
+			if wireType != protowire.VarintType {
+				t.Fatalf("field 8 wire type = %d, want varint", wireType)
+			}
+			_, n := protowire.ConsumeVarint(pb)
+			pax++
+			pb = pb[n:]
+		case 9:
 			v, n := protowire.ConsumeVarint(pb)
-			pax = int(v)
+			class = int(v)
+			pb = pb[n:]
+		case 19:
+			v, n := protowire.ConsumeVarint(pb)
+			tripType = int(v)
 			pb = pb[n:]
 		default:
-			// Skip unknown fields.
 			n := protowire.ConsumeFieldValue(field, wireType, pb)
 			if n < 0 {
 				t.Fatalf("consume unknown field: %d", n)
@@ -361,29 +460,35 @@ func decodeTfs(t *testing.T, urlStr string) (tripType int, slices []decodedSlice
 			pb = pb[n:]
 		}
 	}
-	return tripType, slices, pax
+	return tripType, slices, pax, class
 }
 
-func decodeSliceBytes(t *testing.T, data []byte) decodedSlice {
+// decodeFlightSlice decodes a Flight message: field 2 (date string),
+// field 13 (origin Location, repeated — first only), field 14 (destination
+// Location, repeated — first only).
+func decodeFlightSlice(t *testing.T, data []byte) decodedSlice {
 	t.Helper()
 	var s decodedSlice
 	for len(data) > 0 {
 		field, wireType, tagLen := protowire.ConsumeTag(data)
 		data = data[tagLen:]
 		switch field {
-		case 2, 6:
-			inner, n := protowire.ConsumeBytes(data)
-			data = data[n:]
-			iata := decodeAirportObject(t, inner)
-			if field == 2 {
-				s.origin = iata
-			} else {
-				s.dest = iata
-			}
-		case 13:
+		case 2:
 			str, n := protowire.ConsumeBytes(data)
 			data = data[n:]
 			s.date = string(str)
+		case 13:
+			inner, n := protowire.ConsumeBytes(data)
+			data = data[n:]
+			if s.origin == "" {
+				s.origin = decodeLocation(t, inner)
+			}
+		case 14:
+			inner, n := protowire.ConsumeBytes(data)
+			data = data[n:]
+			if s.dest == "" {
+				s.dest = decodeLocation(t, inner)
+			}
 		default:
 			n := protowire.ConsumeFieldValue(field, wireType, data)
 			data = data[n:]
@@ -392,12 +497,14 @@ func decodeSliceBytes(t *testing.T, data []byte) decodedSlice {
 	return s
 }
 
-func decodeAirportObject(t *testing.T, data []byte) string {
+// decodeLocation reads the Location sub-message: field 1 (LocationType, skipped),
+// field 2 (IATA name string — what we return).
+func decodeLocation(t *testing.T, data []byte) string {
 	t.Helper()
 	for len(data) > 0 {
 		field, wireType, tagLen := protowire.ConsumeTag(data)
 		data = data[tagLen:]
-		if field == 2 {
+		if field == 2 && wireType == protowire.BytesType {
 			str, _ := protowire.ConsumeBytes(data)
 			return string(str)
 		}

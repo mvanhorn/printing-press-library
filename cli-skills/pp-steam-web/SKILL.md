@@ -1,6 +1,6 @@
 ---
 name: pp-steam-web
-description: "Every Steam Web API endpoint, plus a local SQLite store that turns friend playtimes, achievement progress, and... Trigger phrases: `what should I play next on steam`, `find friends who own this game`, `easiest steam achievement to unlock`, `who in my friends has the most hours in`, `audit my steam backlog`, `use steam-web`, `run steam-web`."
+description: "Every Steam Web API endpoint, plus a local SQLite store that turns friend playtimes, achievement progress, and library backlogs into single SQL queries no other tool can answer. Trigger phrases: `what should I play next on steam`, `find friends who own this game`, `easiest steam achievement to unlock`, `audit my steam backlog`, `use steam-web`."
 author: "Trevin Chow"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
@@ -15,6 +15,11 @@ metadata:
         bins: [steam-web-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/other/steam-web/cmd/steam-web-pp-cli
 ---
+<!-- GENERATED FILE — DO NOT EDIT.
+     This file is a verbatim mirror of library/media-and-entertainment/steam-web/SKILL.md,
+     regenerated post-merge by tools/generate-skills/. Hand-edits here are
+     silently overwritten on the next regen. Edit the library/ source instead.
+     See AGENTS.md "Generated artifacts: registry.json, cli-skills/". -->
 
 # Steam Web — Printing Press CLI
 

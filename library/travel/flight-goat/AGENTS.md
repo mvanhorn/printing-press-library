@@ -88,6 +88,24 @@ flight-goat-pp-cli flights SEA <retired-code> 2026-12-24 --return 2027-01-01 --a
 
 The response should populate `airport_remapped: {destination: {from: "<old>", to: "<new>"}}` and `query.destination` should still echo the user-supplied code unchanged.
 
+## Airline URL maintenance
+
+Each `Flight` result carries `booking_urls` with an optional airline-direct URL when the itinerary is operated end-to-end by a single carrier in the curated table at `internal/gflights/booking_urls.go` (`airlineTemplates` map). Source of truth for each entry is `internal/gflights/testdata/airline_url_captures.md`, which classifies each URL as:
+
+- `prefill` — the carrier's booking form pre-fills route + dates from URL params. Verified by visiting the URL in a browser. Today: DL, WN, LH, LX.
+- `landing` — the URL points at the carrier's booking entry; user may need to retype dates. All other carriers default to landing.
+
+To upgrade a landing entry to prefill: visit the carrier's booking page in a browser, submit a sample search, and observe whether the resulting URL contains the origin/destination/date as params. If yes, generalize the URL pattern with `{origin}`, `{destination}`, `{depart}`, `{return}`, `{pax}` placeholders (plus carrier-specific `{trip_type_*}` if needed) and update both the `airlineTemplates` map and the captures markdown with the new pattern, date, and source.
+
+Carrier-specific trip-type placeholder variants currently supported:
+
+- `{trip_type}` — `OneWay` / `RoundTrip` (AA, AS)
+- `{trip_type_int}` — `1` / `2` (UA)
+- `{trip_type_dl}` — `ONE_WAY` / `ROUND_TRIP` (DL)
+- `{trip_type_wn}` — `oneway` / `roundtrip` (WN)
+
+When the carrier discriminator is one of these forms, reuse the existing placeholder. When it's something new (rare), add it to the replacer in `buildAirlineURL`.
+
 ## Parser fixture refresh
 
 `internal/gflights/testdata/*.json` contains captured `GetShoppingResults` responses used as regression fixtures. Refresh them by re-running the build-tagged capture tests:

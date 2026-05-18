@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-05-12T23:39:12.660814Z",
+  "cli_dir": "\u003ccli-dir\u003e/pushover",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-05-12T23:35:31.573097Z"
+  }
+}

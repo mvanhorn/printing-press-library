@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-15",
+  "base_run_id": "20260514-184203",
+  "base_printing_press_version": "4.6.1",
+  "patches": [
+    {
+      "id": "suno-transcendence-commands",
+      "summary": "Adds local Suno workflow and analytics commands beyond the sniffed endpoint spec.",
+      "reason": "These commands compose reverse-engineered API calls with the generic local SQLite resource store for recipes, spend analysis, lineage, budget caps, sessions, variant picking, evolution, and export bundles.",
+      "files": [
+        "internal/cli/vibes.go",
+        "internal/cli/burn.go",
+        "internal/cli/persona_leaderboard.go",
+        "internal/cli/tree.go",
+        "internal/cli/budget.go",
+        "internal/cli/sessions.go",
+        "internal/cli/generate_evolve.go",
+        "internal/cli/ship.go",
+        "internal/cli/transcendence_helpers.go",
+        "internal/cli/root.go",
+        "internal/cli/persona.go",
+        "internal/cli/generate.go",
+        "internal/cli/doctor.go",
+        "internal/cli/generate_create.go"
+      ],
+      "validated_outcome": "go build ./..., go vet ./..., go test ./..., and help checks for new command paths pass."
+    },
+    {
+      "id": "greptile-577-fixes",
+      "summary": "Greptile PR #577 review fixes: bump --wait poll cap to 5min, parameterize cookie SQL query, add CDN download timeout, wire persisted budget cap into generate, push budget spend filter into SQL.",
+      "reason": "Greptile flagged 4 issues across two review rounds (2 P1 + 2 P2 round 1; 1 P1 + 1 P2 round 2 after fixes pushed). Round 1: waitForGenerateVariants capped polling at 60s but Suno generations routinely take 90-180s; countCookiesForDomain interpolated domainPattern into a sqlite3 subprocess query (latent SQL injection; no reachable callsite today); downloadOrPlaceholder used bare http.Get with no timeout. Round 2: budget set daily/monthly stored a cap but generate never read it; estimatedSpendSince did a full table scan + JSON parse on every check. cli-skills/pp-suno/SKILL.md was initially removed per AGENTS.md but restored after verify-skills.yml CI required the mirror to be present (filed as Printing Press AGENTS/CI alignment issue).",
+      "files": [
+        "internal/cli/generate_create.go",
+        "internal/cli/auth.go",
+        "internal/cli/ship.go",
+        "internal/cli/budget.go"
+      ],
+      "validated_outcome": "go build ./... and go vet ./... pass; PATCH markers anchor each change.",
+      "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/1418 covers the upstream browser-sniff body-shape inference class; the four local code fixes are CLI-specific defenses."
+    }
+  ]
+}

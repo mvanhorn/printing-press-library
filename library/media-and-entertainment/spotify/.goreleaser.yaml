@@ -1,0 +1,51 @@
+version: 2
+project_name: spotify-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: spotify-pp-cli
+    main: ./cmd/spotify-pp-cli
+    binary: spotify-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/media-and-entertainment/spotify/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: spotify-pp-mcp
+    main: ./cmd/spotify-pp-mcp
+    binary: spotify-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: spotify-pp-cli
+    repository:
+      owner: rob-coco
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "An agent-native Spotify CLI with a SQLite-backed local library that lets you ask listening-drift questions no other..."
+    install: |
+      bin.install "spotify-pp-cli"
+      bin.install "spotify-pp-mcp"

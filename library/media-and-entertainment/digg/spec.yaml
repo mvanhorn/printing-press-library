@@ -1,9 +1,9 @@
 name: digg
-display_name: Digg AI
-description: "Digg AI: tail the Digg AI 1000 leaderboard, ranking-change history, and live ingestion pipeline events from the terminal. Read-only."
-version: "0.1.0"
+display_name: Digg
+description: "Digg: tail the AI story leaderboard, GitHub feeds, ranking-change history, and live ingestion pipeline events from the terminal. Read-only."
+version: "0.2.0"
 base_url: "https://di.gg"
-cli_description: "Read-only CLI for Digg AI — the 1,000 AI accounts on X and the story clusters they surface."
+cli_description: "Read-only CLI for Digg — the AI story leaderboard, GitHub feeds, and ingestion pipeline events on digg.com."
 
 auth:
   type: none
@@ -26,7 +26,7 @@ resources:
           item: TrendingStatus
 
   feed:
-    description: "Top-level AI story feed (HTML page; CLI parses the embedded RSC stream)"
+    description: "Top-level story feed (HTML page; CLI parses the embedded RSC stream)"
     endpoints:
       raw:
         method: GET
@@ -47,6 +47,45 @@ resources:
             required: true
             positional: true
             description: "Short alphanumeric cluster URL ID (8 chars), e.g. iq7usf9e"
+        response:
+          type: object
+          item: RawHTML
+
+  github:
+    description: "GitHub feeds Digg surfaces alongside the X-account leaderboard (stars / new / activity / recent)."
+    endpoints:
+      stars:
+        method: GET
+        path: "/ai/github/stars"
+        description: "Top AI repos ranked by starring activity from Digg-tracked accounts. Returns repo_full_name, language, stargazers_count, recent starrer list, breakout/novel/ai_related scores, and the model's one-sentence classification."
+        params: []
+        response:
+          type: object
+          item: RawHTML
+
+      new:
+        method: GET
+        path: "/ai/github/new"
+        description: "Recently first-seen GitHub repos with the Digg-tracked creator/starrer who first put them on Digg's radar (event_id + event_created_at + creator)."
+        params: []
+        response:
+          type: object
+          item: RawHTML
+
+      activity:
+        method: GET
+        path: "/ai/github/activity"
+        description: "Top GitHub contributor leaderboard: per-author rank, contribution count, and distinct repos count over Digg's tracking window."
+        params: []
+        response:
+          type: object
+          item: RawHTML
+
+      recent:
+        method: GET
+        path: "/ai/github/recent"
+        description: "Live GitHub activity feed: per-event entries with the github.com URL (issue/PR/commit/repo), the user who acted, and a short description of the target."
+        params: []
         response:
           type: object
           item: RawHTML

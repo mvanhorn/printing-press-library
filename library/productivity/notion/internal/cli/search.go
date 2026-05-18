@@ -117,13 +117,15 @@ In local mode: searches locally synced data only.`,
 				if err != nil {
 					return err
 				}
-				data, _, getErr := c.Post("/v1/search", map[string]any{
-					"query": query,
-					"filter": map[string]any{},
-					"page_size": nil,
-					"sort": map[string]any{},
-					"start_cursor": "",
-				})
+				// PATCH (fix-search-omit-empty-sort-333): Notion rejects an empty
+				// `sort: {}` with HTTP 400 because, when sort is present, it
+				// requires both `direction` and `timestamp`. The same is true of
+				// `filter` (needs `value` + `property`) and `start_cursor` (must
+				// be a valid cursor). Send only `query`; let the API apply its
+				// own defaults for everything else until this CLI surfaces flags
+				// for sort/filter/pagination.
+				body := map[string]any{"query": query}
+				data, _, getErr := c.Post("/v1/search", body)
 				if getErr == nil {
 					// Live search succeeded
 					results := extractSearchResults(data)

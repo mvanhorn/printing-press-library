@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-09T22:10:04.452307Z",
+  "printing_press_version": "4.2.0",
+  "api_name": "openfda",
+  "display_name": "OpenFDA",
+  "cli_name": "openfda-pp-cli",
+  "owner": "h179922",
+  "printer": "H179922",
+  "printer_name": "H179922",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:af745d91e0112202ab87ad1ae1ab6cb6e406b02089cd7883c3063e22bd938cd7",
+  "run_id": "20260509-174725",
+  "mcp_binary": "openfda-pp-mcp",
+  "mcp_tool_count": 25,
+  "mcp_ready": "full",
+  "api_version": "1.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "FDA_API_KEY"
+  ],
+  "auth_description": "Optional. Without key: 40 req/min, 1K/day. With key: 240 req/min, 120K/day. Get a free key at https://open.fda.gov/apis/authentication/\n",
+  "novel_features": [
+    {
+      "name": "Drug Event Signal Tracking",
+      "command": "drug-events trend",
+      "description": "Track adverse event signal over time for a drug — spot emerging safety signals by charting report frequency across quarters or years"
+    },
+    {
+      "name": "Drug Reaction Comparison",
+      "command": "drug-events compare",
+      "description": "Compare adverse reaction profiles between two drugs side-by-side — see which reactions are unique to each and which overlap"
+    },
+    {
+      "name": "Reaction Co-occurrence",
+      "command": "drug-events cooccur",
+      "description": "Find reaction co-occurrence patterns for a drug — which side effects tend to appear together in the same report"
+    },
+    {
+      "name": "Polypharmacy Analysis",
+      "command": "drug-events polypharmacy",
+      "description": "Analyze adverse events for drug combinations — find safety signals that only appear when specific drugs are taken together"
+    },
+    {
+      "name": "Recall-Event Correlation",
+      "command": "drug-recalls correlate",
+      "description": "Correlate drug recall enforcement actions with adverse event report spikes — see if recalls follow signal escalation"
+    },
+    {
+      "name": "Device Inventory Risk Check",
+      "command": "device check",
+      "description": "Check a CSV inventory of medical devices against FDA recall and adverse event databases — flag devices with active safety concerns"
+    },
+    {
+      "name": "Manufacturer Dossier",
+      "command": "manufacturer dossier",
+      "description": "Build a cross-domain intelligence dossier for any manufacturer — recalls, adverse events, 510(k) clearances, and PMA approvals aggregated in one view"
+    }
+  ]
+}

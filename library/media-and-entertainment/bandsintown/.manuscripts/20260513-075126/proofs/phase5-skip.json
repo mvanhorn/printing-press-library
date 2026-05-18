@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "api_name": "bandsintown",
+  "run_id": "20260513-075126",
+  "status": "skip",
+  "level": "none",
+  "skip_reason": "auth_required_no_credential",
+  "auth_context": {
+    "type": "api_key",
+    "api_key_available": false,
+    "browser_session_available": false
+  },
+  "notes": "Bandsintown REST API is partner-gated since 2025 (HTTP 403 'explicit deny' without an approved app_id). User chose 'Generate anyway from spec' at Phase 0 reachability gate — matches docs/printing-press-queue.md plan. Live smoke testing skipped; CLI scaffold ships as Double Deer adapter foundation."
+}

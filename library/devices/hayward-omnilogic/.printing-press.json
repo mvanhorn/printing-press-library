@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-11T00:23:58.68835Z",
+  "printing_press_version": "4.2.2",
+  "api_name": "hayward-omnilogic",
+  "display_name": "Hayward OmniLogic",
+  "cli_name": "hayward-omnilogic-pp-cli",
+  "owner": "rzehner",
+  "printer": "rob-coco",
+  "printer_name": "Rob Zehner",
+  "spec_path": "/Users/zehner/printing-press/.runstate/cli-printing-press-4573f43b/runs/20260510-160303/research/hayward-omnilogic-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:9a77e9ca8d56082d00eac82d1d1fa1fdcfc88e8568718d6f07ab13206210f45f",
+  "run_id": "20260510-160303",
+  "mcp_binary": "hayward-omnilogic-pp-mcp",
+  "mcp_tool_count": 17,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "api_key",
+  "novel_features": [
+    {
+      "name": "Pool readiness composite",
+      "command": "status",
+      "description": "One-shot \"is the pool ready for guests?\" view: chemistry in range, temp at setpoint, no active alarms, pump running, with a traffic-light verdict."
+    },
+    {
+      "name": "Ready-by ETA",
+      "command": "ready-by",
+      "description": "Enables the heater and computes when to start it so the pool hits your target temperature by a specified arrival time, using the learned heat rate from telemetry history."
+    },
+    {
+      "name": "Historical chemistry export",
+      "command": "chemistry log",
+      "description": "Weekly/monthly pH, ORP, salt, and temperature history from the local store, exportable as CSV or JSON for HOA / service / insurance records."
+    },
+    {
+      "name": "Chemistry drift + forecast",
+      "command": "chemistry drift",
+      "description": "Detects pH/ORP/salt drift versus a rolling baseline before Hayward's static thresholds fire; --forecast projects when each metric will leave the safe range."
+    },
+    {
+      "name": "Equipment runtime totals",
+      "command": "runtime",
+      "description": "Pump hours, heater hours, salt-cell hours derived from telemetry deltas — for maintenance planning, warranty, and end-of-season service."
+    },
+    {
+      "name": "Command audit + replay",
+      "command": "command-log",
+      "description": "Every Set* command issued via this CLI is logged with who/when/what/result. --replay \u003cid\u003e re-issues a prior command for quick undo or redo."
+    },
+    {
+      "name": "Why isn't this running?",
+      "command": "why-not-running",
+      "description": "Diagnose why a pump, heater, or light isn't running: correlates active alarms, current relay state, scheduled run windows, heater demand, and superchlor lockouts into one explanation."
+    },
+    {
+      "name": "Schedule change detection",
+      "command": "schedule diff",
+      "description": "Diffs today's MSP-config schedule tree against prior versioned snapshots; catches silent edits made by service techs or by other app users."
+    },
+    {
+      "name": "Multi-site morning sweep",
+      "command": "sweep",
+      "description": "Across every site in the account, surface active alarms, out-of-range chemistry, and offline controllers in a single report — built for pool-service businesses doing route planning."
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-15T03:02:53.602482Z",
+  "printing_press_version": "4.6.1",
+  "api_name": "suno",
+  "display_name": "Suno",
+  "cli_name": "suno-pp-cli",
+  "owner": "mvanhorn",
+  "printer": "mvanhorn",
+  "printer_name": "Matt Van Horn",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:d65f088c66315352d0bb462a51ea4c33cb48beac21108ad946a572efaf593ea4",
+  "run_id": "20260514-184203",
+  "description": "Every Suno feature, plus a local SQLite library, offline FTS5 search, MCP-native agent surface, and a single-binary Go install.",
+  "mcp_binary": "suno-pp-mcp",
+  "mcp_tool_count": 31,
+  "mcp_ready": "partial",
+  "api_version": "0.1.0",
+  "auth_type": "composed",
+  "auth_env_vars": [
+    "SUNO_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Vibe recipes",
+      "command": "vibes",
+      "description": "Save prompt + tag + persona + model bundles as named recipes and replay them with one-line topic substitution."
+    },
+    {
+      "name": "A/B variant auto-picker",
+      "command": "generate create",
+      "description": "Suno returns two clip variants per generation; this auto-ranks them on duration match, lyrics-word-count, and bitrate, downloads only the winner."
+    },
+    {
+      "name": "Credit burn analytics",
+      "command": "burn",
+      "description": "Cross-table aggregation showing credits spent by tag, persona, model, or hour-of-day over a window."
+    },
+    {
+      "name": "Persona leaderboard",
+      "command": "persona leaderboard",
+      "description": "Ranks the user's voice personas by which produced the most-liked, most-played, or most-extended clips."
+    },
+    {
+      "name": "Lineage tree",
+      "command": "tree",
+      "description": "Walks parent_id and direct_children recursively to render the ASCII tree of an extend/concat/cover/remaster ancestry."
+    },
+    {
+      "name": "Reachability self-test",
+      "command": "doctor",
+      "description": "Beyond standard health checks: fires a zero-credit lyrics-only generation to confirm the live generate path is reachable and not intercepted by CAPTCHA."
+    },
+    {
+      "name": "Credit-budget guard",
+      "command": "budget",
+      "description": "Sets a daily or monthly credit cap; generate refuses to submit when the projected spend would exceed the cap."
+    },
+    {
+      "name": "Prompt evolution",
+      "command": "generate evolve",
+      "description": "Takes an existing clip's full parameter bundle and mutates one axis (tag, persona, model) for a focused re-roll."
+    },
+    {
+      "name": "Ship pack",
+      "command": "ship",
+      "description": "One-shot publishing bundle: MP3 with ID3+USLT+SYLT, MP4, cover PNG, LRC subtitle, JSON sidecar of metadata."
+    },
+    {
+      "name": "Reroll until match",
+      "command": "generate create",
+      "description": "Resubmits a prompt until a returned variant lands in the requested duration window or attempts run out."
+    },
+    {
+      "name": "Sessionized history",
+      "command": "sessions",
+      "description": "Groups recent generations into ~30-minute-gap sessions and reports per-session credit spend, persona usage, and tag drift."
+    }
+  ]
+}

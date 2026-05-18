@@ -69,6 +69,23 @@
       "files": ["SKILL.md"],
       "summary": "Rewrite the Auth Setup section for the encrypted-cache install flow. Drops the 'three auth surfaces' framing centered on GRANOLA_API_KEY. New flow: install Granola desktop + sign in; first sync prompts Keychain; CLI is read-only against the refresh token (D6); GRANOLA_WORKOS_TOKEN is the power-user opt-in. Adds a Troubleshooting subsection mapping each doctor verdict to a remediation.",
       "reason": "The old skill doc was actively misleading post-encryption: it told users to set GRANOLA_API_KEY (a dead path for most workflows) and described auto-discovery from plaintext supabase.json (broken on modern Granola)."
+    },
+    {
+      "id": "auto-refresh-every-invocation",
+      "files": [
+        "internal/cli/autorefresh.go",
+        "internal/cli/autorefresh_test.go",
+        "internal/cli/autorefresh_hook_test.go",
+        "internal/cli/sync_cache.go",
+        "internal/cli/sync_autorefresh.go",
+        "internal/cli/sync_autorefresh_test.go",
+        "internal/cli/root.go",
+        "internal/cli/agent_context.go",
+        "SKILL.md",
+        "README.md"
+      ],
+      "summary": "Auto-refresh the local store as the first action of every command. PersistentPreRunE invokes runAutoRefresh after agent-mode expansion; the dispatcher detects which auth surfaces are present (encrypted desktop cache and/or GRANOLA_API_KEY) and runs the corresponding sync routine for each. Both fire when both are configured. Refresh is best-effort: failures print a one-line stderr warning and the user's command proceeds. Opt-outs: --no-refresh flag, GRANOLA_NO_AUTO_REFRESH env, and per-profile no-refresh value (precedence: flag > env). Skip list: sync, sync-api, auth, doctor, help, version, completion, agent-context, profile, feedback, which. Provenance line suppressed under --json / --compact / --quiet / --agent / non-TTY stderr. agent-context exposes the auto_refresh contract for introspecting agents. SKILL.md and README.md document the contract; the stale 'Run sync first' advisory in the troubleshooting section is replaced with auto-refresh-aware guidance.",
+      "reason": "User-visible problem: `granola-pp-cli meetings list` returned stale data because the CLI's SQLite store had not been synced. The old contract required agents and humans to remember `sync` before every read. Agents are the dominant caller and the worst kind of caller to depend on for ceremonial pre-steps. Auto-refresh closes the gap by treating freshness as a CLI-level invariant. Plan: docs/plans/2026-05-14-001-feat-cli-auto-refresh-every-invocation-plan.md."
     }
   ],
   "deferred_to_upstream": [

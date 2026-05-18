@@ -1,0 +1,38 @@
+{
+  "manifest_version": "0.3",
+  "name": "suno-pp-mcp",
+  "display_name": "Suno",
+  "version": "4.6.1",
+  "description": "Every Suno feature, plus a local SQLite library, offline FTS5 search, MCP-native agent surface, and a single-binary Go install.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/suno-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/suno-pp-mcp",
+      "args": [],
+      "env": {
+        "SUNO_TOKEN": "${user_config.suno_token}"
+      }
+    }
+  },
+  "user_config": {
+    "suno_token": {
+      "type": "string",
+      "title": "SUNO_TOKEN",
+      "description": "Optional. Sets SUNO_TOKEN for the Suno MCP server.",
+      "sensitive": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

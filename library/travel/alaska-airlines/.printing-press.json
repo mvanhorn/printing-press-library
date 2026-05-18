@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-13T00:22:17.427686Z",
+  "printing_press_version": "4.5.1",
+  "api_name": "alaska-airlines",
+  "cli_name": "alaska-airlines-pp-cli",
+  "run_id": "20260512-151223",
+  "novel_features": [
+    {
+      "name": "Field selection on deep JSON",
+      "command": "flights search --select",
+      "description": "Generic --select flag narrows the ~50KB search/results JSON to just the fields the agent needs."
+    }
+  ],
+  "printer": "mvanhorn",
+  "printer_name": "Matt Van Horn"
+}

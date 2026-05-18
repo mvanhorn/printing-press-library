@@ -1,0 +1,318 @@
+name: greatclips
+cli_description: "First CLI for Great Clips Online Check-In: wait times, party check-in, and local wait history no other tool has."
+description: |
+  Customer-facing CLI for Great Clips salons. Joins the customer-facing
+  GreatClips webservices (salon metadata, profile, hours, geocoding) with
+  the third-party ICS Net Check-In service that powers wait times and
+  check-in submission (the "Powered by ICS" footer on the official site).
+
+  Both host families share one Auth0 Bearer token, captured once via
+  `auth login --chrome` from a logged-in browser session.
+version: "0.1.0"
+base_url: "https://webservices.greatclips.com"
+
+owner: greatclips
+owner_name: Great Clips
+printer: mvanhorn
+printer_name: Matt Van Horn
+
+auth:
+  type: bearer_token
+  header: "Authorization"
+  env_vars:
+    - GREATCLIPS_TOKEN
+  description: |
+    Auth0 Bearer JWT from cid.greatclips.com tenant. Recommended onboarding:
+    `auth login --chrome` to extract the token from a logged-in Chrome session.
+    Alternatively, `auth login --token <jwt>` to paste an existing token,
+    or set GREATCLIPS_TOKEN in the environment.
+
+config:
+  format: toml
+  path: "~/.config/greatclips-pp-cli/config.toml"
+
+mcp:
+  transport: [stdio]
+  orchestration: endpoint-mirror
+
+resources:
+  customer:
+    description: "Read your Great Clips customer profile (name, phone, favorites, recent visits)"
+    endpoints:
+      profile:
+        method: GET
+        path: "/cmp2/profile/get"
+        description: "Get the authenticated customer's profile"
+        response:
+          type: object
+          item: Profile
+
+  salons:
+    description: "Search and look up Great Clips salons"
+    endpoints:
+      search:
+        method: POST
+        path: "/customer/salon-search/term"
+        description: "Search salons by zip code, city, or coordinates within a radius"
+        body:
+          - name: term
+            type: string
+            required: true
+            description: "Zip code, city, or address term"
+          - name: radius
+            type: int
+            default: 25
+            description: "Search radius in miles"
+          - name: limit
+            type: string
+            default: "50"
+            description: "Max salons to return (as string)"
+          - name: lat
+            type: float
+            default: 0
+            description: "Latitude (0 to ignore)"
+          - name: lng
+            type: float
+            default: 0
+            description: "Longitude (0 to ignore)"
+        response:
+          type: array
+          item: Salon
+          envelope_field: salonData
+
+      get:
+        method: POST
+        path: "/customer/salon-search/salon"
+        description: "Get a single salon by its salon number"
+        body:
+          - name: num
+            type: string
+            required: true
+            description: "Salon number (e.g. 8991 for Island Square on Mercer Island)"
+          - name: limit
+            type: string
+            default: "1"
+            description: "Limit (typically 1)"
+        response:
+          type: object
+          item: Salon
+          envelope_field: salonData
+
+  hours:
+    description: "Read salon hours (today plus 14-day forecast with special hours)"
+    endpoints:
+      upcoming:
+        method: GET
+        path: "/customer/salon-hours/upcoming"
+        description: "Get 14-day hours forecast for one salon"
+        params:
+          - name: salonNumber
+            flag_name: salon
+            aliases: [salon-number]
+            type: string
+            required: true
+            description: "Salon number"
+        response:
+          type: array
+          item: SalonHours
+          envelope_field: salonHours
+
+  geo:
+    description: "Resolve a zip code or city term to latitude/longitude"
+    endpoints:
+      postal_code:
+        method: POST
+        path: "/customer/geo-names/postal-code"
+        description: "Resolve a zip/postal code to lat/lng/city/state"
+        body:
+          - name: query
+            type: string
+            required: true
+            description: "Postal code (e.g. 98040)"
+          - name: limit
+            type: string
+            default: "20"
+            description: "Max results"
+        response:
+          type: array
+          item: GeoResult
+          envelope_field: results
+
+  wait:
+    description: "Read estimated wait times from the ICS Net Check-In service"
+    base_url: "https://www.stylewaretouch.net"
+    endpoints:
+      one:
+        method: POST
+        path: "/api/store/waitTime"
+        description: "Get wait time for one salon (body is a single-element array of {storeNumber})"
+        body:
+          - name: storeNumber
+            type: string
+            required: true
+            description: "Salon number"
+        response:
+          type: array
+          item: WaitTime
+          envelope_field: stores
+
+  checkin:
+    description: "Submit a check-in for yourself plus a party (1-5 people)"
+    base_url: "https://www.stylewaretouch.net"
+    endpoints:
+      submit:
+        method: POST
+        path: "/api/customer/checkIn"
+        description: "Add yourself and optionally other party members to a salon waitlist"
+        body:
+          - name: firstName
+            type: string
+            required: true
+            description: "Your first name (will appear on the in-salon waitlist)"
+          - name: lastName
+            type: string
+            required: true
+            description: "Your last name"
+          - name: phoneNumber
+            type: string
+            required: true
+            description: "Phone number for ReadyNext text alerts"
+          - name: salonNumber
+            type: string
+            required: true
+            description: "Salon number to check into"
+          - name: guests
+            type: int
+            default: 1
+            description: "Total number of haircuts (1-5; you + any additional party members)"
+        response:
+          type: object
+          item: CheckInResult
+
+  status:
+    description: "Check your current position in line for an active check-in"
+    base_url: "https://www.stylewaretouch.net"
+    endpoints:
+      get:
+        method: GET
+        path: "/api/customer/status"
+        description: "Get your active check-in status (position in line, estimated wait)"
+        response:
+          type: object
+          item: CheckInStatus
+
+  cancel:
+    description: "Cancel your active check-in"
+    base_url: "https://www.stylewaretouch.net"
+    endpoints:
+      submit:
+        method: POST
+        path: "/api/customer/cancel"
+        description: "Cancel the active check-in for this account"
+        body: []
+        response:
+          type: object
+          item: CancelResult
+
+types:
+  Profile:
+    description: "Customer profile"
+    fields:
+      - {name: firstName, type: string}
+      - {name: lastName, type: string}
+      - {name: email, type: string}
+      - {name: phoneNumber, type: string}
+      - {name: favoriteSalons, type: array, item: int}
+      - {name: recentSalons, type: array, item: int}
+
+  Salon:
+    description: "Great Clips salon location with metadata"
+    fields:
+      - {name: salonName, type: string}
+      - {name: salonNumber, type: string}
+      - {name: marketingSalonName, type: string}
+      - {name: phoneNumber, type: string}
+      - {name: proximity, type: string, description: "Cross-street hint, e.g. 'Next to Einstein, across from QFC'"}
+      - {name: latitude, type: float}
+      - {name: longitude, type: float}
+      - {name: distance, type: float, description: "Miles from the search center (when applicable)"}
+      - {name: hoursDisplay, type: string, description: "Human-friendly hours string"}
+      - {name: hoursMondayToFridayOpen, type: string}
+      - {name: hoursMondayToFridayClose, type: string}
+      - {name: hoursSaturdayOpen, type: string}
+      - {name: hoursSaturdayClose, type: string}
+      - {name: hoursSundayOpen, type: string}
+      - {name: hoursSundayClose, type: string}
+      - {name: todayOpenStatus, type: bool}
+      - {name: todayOpenTime, type: string}
+      - {name: todayCloseTime, type: string}
+      - {name: status, type: int}
+      - {name: primaryAddress, type: object, item: Address}
+
+  Address:
+    description: "Salon address"
+    fields:
+      - {name: line1, type: string}
+      - {name: line2, type: string}
+      - {name: city, type: string}
+      - {name: stateOrProvince, type: string}
+      - {name: postalCode, type: string}
+      - {name: country, type: string}
+
+  SalonHours:
+    description: "Hours for one date at one salon"
+    fields:
+      - {name: salonHoursId, type: int}
+      - {name: salonHoursDate, type: string, description: "ISO date"}
+      - {name: dayOfWeek, type: string}
+      - {name: dayOfWeekCode, type: int}
+      - {name: salonOpenStatus, type: string, description: "Open or Closed"}
+      - {name: salonOpenStatusCode, type: int}
+      - {name: specialHoursReason, type: string, description: "Holiday or special reason if closed"}
+      - {name: specialHoursTitle, type: string}
+      - {name: salonOpenTime, type: string}
+      - {name: salonCloseTime, type: string}
+
+  GeoResult:
+    description: "Geocoding result for a zip or city term"
+    fields:
+      - {name: city, type: string}
+      - {name: state, type: string}
+      - {name: lat, type: float}
+      - {name: lng, type: float}
+      - {name: postalCode, type: string}
+      - {name: population, type: int}
+
+  WaitTime:
+    description: "Live wait time for one salon from the ICS Net Check-In service"
+    fields:
+      - {name: storeNumber, type: string}
+      - {name: storeName, type: string}
+      - {name: estimatedWaitMinutes, type: int}
+      - {name: stateFlags, type: int}
+      - {name: ociSalonStateCode, type: int}
+      - {name: ociSalonStateDescription, type: string, description: "e.g. ActiveOci, Closed, etc."}
+
+  CheckInResult:
+    description: "Result of a check-in submission"
+    fields:
+      - {name: success, type: bool}
+      - {name: checkInId, type: string}
+      - {name: estimatedWaitMinutes, type: int}
+      - {name: positionInLine, type: int}
+      - {name: message, type: string}
+
+  CheckInStatus:
+    description: "Status of an active check-in"
+    fields:
+      - {name: storeNumber, type: string}
+      - {name: storeName, type: string}
+      - {name: positionInLine, type: int}
+      - {name: estimatedWaitMinutes, type: int}
+      - {name: checkedInAt, type: string}
+
+  CancelResult:
+    description: "Result of cancelling a check-in"
+    fields:
+      - {name: success, type: bool}
+      - {name: message, type: string}

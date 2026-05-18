@@ -1,6 +1,6 @@
 ---
 name: pp-table-reservation-goat
-description: "One reservation CLI for OpenTable, Tock, and Resy — search each network at once, watch for cancellations, book, and... Trigger phrases: `book a table`, `find me a reservation`, `watch for a cancellation`, `tasting menu availability`, `earliest reservation across these restaurants`, `use table-reservation-goat`, `run table-reservation-goat`."
+description: "One reservation CLI for OpenTable, Tock, and Resy — search each network at once, watch for cancellations, book, and track changes from a local store agents can query. Trigger phrases: `book a table`, `find me a reservation`, `watch for a cancellation`, `use table-reservation-goat`."
 author: "Pejman Pour-Moezzi"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
@@ -11,6 +11,11 @@ metadata:
       bins:
         - table-reservation-goat-pp-cli
 ---
+<!-- GENERATED FILE — DO NOT EDIT.
+     This file is a verbatim mirror of library/food-and-dining/table-reservation-goat/SKILL.md,
+     regenerated post-merge by tools/generate-skills/. Hand-edits here are
+     silently overwritten on the next regen. Edit the library/ source instead.
+     See AGENTS.md "Generated artifacts: registry.json, cli-skills/". -->
 
 # Table Reservation GOAT — Printing Press CLI
 

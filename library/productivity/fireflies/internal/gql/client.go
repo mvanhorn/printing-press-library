@@ -1,5 +1,6 @@
 // Copyright 2026 nikica-jokic. Licensed under Apache-2.0. See LICENSE.
 
+// PATCH graphql-client: hand-authored GraphQL HTTP client replacing the generated REST client (Fireflies exposes only a GraphQL API).
 // Package gql provides a lightweight GraphQL client for the Fireflies.ai API.
 // All operations POST to https://api.fireflies.ai/graphql with a Bearer token.
 package gql

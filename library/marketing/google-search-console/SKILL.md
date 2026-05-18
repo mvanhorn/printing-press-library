@@ -204,9 +204,28 @@ Surfaces existing queries where multiple pages on the site already compete. Run 
 
 ## Auth Setup
 
-Google Search Console uses OAuth 2.0. The CLI reads a pre-fetched access token from the GSC_ACCESS_TOKEN environment variable. Generate one from the Google OAuth Playground (https://developers.google.com/oauthplayground/) using scope https://www.googleapis.com/auth/webmasters.readonly for read-only operations or https://www.googleapis.com/auth/webmasters for full read-write (sitemap submit/delete, sites add/delete). Tokens expire after one hour; refresh from the same Playground UI. There is no `auth login` flow in this CLI by design -- pre-fetched tokens keep the install path simple and match the google-ads house pattern.
+Two paths.
 
-Run `google-search-console-pp-cli doctor` to verify setup.
+**Recommended: `auth login`** -- one-time browser-based login, auto-refreshes thereafter.
+
+```bash
+google-search-console-pp-cli auth set-client <client_id> <client_secret>   # 5-min Google Cloud Console setup, then run once
+google-search-console-pp-cli auth login                                    # browser flow, persists refresh token
+google-search-console-pp-cli auth login --no-browser                       # WSL2/SSH/headless variant
+google-search-console-pp-cli auth login --scope write                      # opt into sitemap submit / site add+delete
+```
+
+After `auth login`, every command silently refreshes the 1-hour access token using the saved refresh token. The user never sees a token again. See README.md for the full Google Cloud Console walkthrough.
+
+**For CI / one-shot scripts: `GSC_ACCESS_TOKEN`** -- fetch from the OAuth Playground, export, run. Tokens last 1 hour, no auto-refresh.
+
+```bash
+export GSC_ACCESS_TOKEN="ya29..."   # https://developers.google.com/oauthplayground/
+```
+
+Both paths coexist. Env var takes precedence over the stored file token when both are present.
+
+Run `google-search-console-pp-cli doctor` to verify setup. `auth status` shows refresh-token presence and the expiry countdown.
 
 ## Agent Mode
 
