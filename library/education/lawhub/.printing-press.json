@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-15T01:47:00Z",
+  "printing_press_version": "manual-go-cobra",
+  "api_name": "lawhub",
+  "display_name": "LawHub",
+  "cli_name": "lawhub-pp-cli",
+  "description": "Local-first LSAT practice analytics from authenticated LawHub score metadata, with SQLite, weakness reports, question notes, and safe review links back to LawHub.",
+  "category": "education",
+  "spec_format": "internal",
+  "approach": "authenticated-browser-session-plus-score-report-metadata",
+  "auth_type": "browser-session",
+  "auth_env_vars": [
+    "LAWHUB_USER_ID"
+  ],
+  "mcp_ready": "none",
+  "mcp_tool_count": 0,
+  "printer": "nolan",
+  "printer_name": "Nolan McCafferty",
+  "killer_feature": "Turn LawHub practice-test history into local weakness analytics without storing copyrighted LSAT content.",
+  "novel_features": [
+    {
+      "name": "Safe LSAT analytics mirror",
+      "command": "sync report-metadata",
+      "description": "Stores user-owned performance metadata without persisting question text, passages, answer choices, or official explanations."
+    },
+    {
+      "name": "Weakness report",
+      "command": "weakness report",
+      "description": "Ranks question types and sections by accuracy from local SQLite."
+    },
+    {
+      "name": "Review links",
+      "command": "review open",
+      "description": "Jumps back into LawHub for official content review instead of copying official LSAT content locally."
+    },
+    {
+      "name": "Question notes",
+      "command": "questions note",
+      "description": "Adds user-authored wrong-answer review notes to local question metadata."
+    },
+    {
+      "name": "Agent-shaped output",
+      "command": "--agent --select",
+      "description": "Compact JSON and field selection for low-token agent workflows."
+    }
+  ],
+  "run_id": "20260515-014700"
+}

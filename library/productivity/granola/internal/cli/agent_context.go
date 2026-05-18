@@ -29,6 +29,22 @@ type agentContext struct {
 	Commands                   []agentContextCommand  `json:"commands"`
 	AvailableProfiles          []string               `json:"available_profiles"`
 	FeedbackEndpointConfigured bool                   `json:"feedback_endpoint_configured"`
+	// PATCH(auto-refresh): expose the auto-refresh contract so
+	// introspecting agents discover the opt-out surface at runtime
+	// without scraping --help.
+	AutoRefresh agentContextAutoRefresh `json:"auto_refresh"`
+}
+
+// agentContextAutoRefresh describes the per-command auto-refresh
+// behavior added by the auto-refresh hook. Stable JSON shape — bumping
+// any field is a SchemaVersion bump.
+type agentContextAutoRefresh struct {
+	Default      string   `json:"default"`        // "on"
+	Flag         string   `json:"flag"`           // "--no-refresh"
+	Env          string   `json:"env"`            // "GRANOLA_NO_AUTO_REFRESH"
+	ProfileField string   `json:"profile_field"`  // "no-refresh"
+	Surfaces     []string `json:"surfaces"`       // ["cache","api"]
+	SkipList     []string `json:"skip_list"`      // command names that bypass refresh
 }
 
 type agentContextCLI struct {
@@ -135,6 +151,27 @@ func buildAgentContext(rootCmd *cobra.Command) agentContext {
 		Commands:                   collectAgentCommands(rootCmd),
 		AvailableProfiles:          profiles,
 		FeedbackEndpointConfigured: FeedbackEndpointConfigured(),
+		AutoRefresh:                buildAutoRefreshContext(),
+	}
+}
+
+// buildAutoRefreshContext mirrors the auto-refresh constants and skip
+// list in autorefresh.go so the agent-context JSON stays in sync with
+// the live behavior. If the skip list grows there, this function must
+// be updated in the same change — autorefresh tests pin the list.
+func buildAutoRefreshContext() agentContextAutoRefresh {
+	skip := make([]string, 0, len(noRefreshCommands))
+	for name := range noRefreshCommands {
+		skip = append(skip, name)
+	}
+	sort.Strings(skip)
+	return agentContextAutoRefresh{
+		Default:      "on",
+		Flag:         "--no-refresh",
+		Env:          "GRANOLA_NO_AUTO_REFRESH",
+		ProfileField: "no-refresh",
+		Surfaces:     []string{refreshSurfaceCache, refreshSurfaceAPI},
+		SkipList:     skip,
 	}
 }
 

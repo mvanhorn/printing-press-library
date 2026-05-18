@@ -18,7 +18,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var version = "0.2.0"
+var version = "0.3.0"
 
 type rootFlags struct {
 	asJSON       bool
@@ -205,6 +205,7 @@ Run 'slickdeals-pp-cli doctor' to verify auth and connectivity.`,
 	// transcendence features (Bucket B): watch/digest/deals on the local snapshot store.
 	rootCmd.AddCommand(newHotCmd(flags))
 	rootCmd.AddCommand(newFrontpageFreshCmd(flags))
+	rootCmd.AddCommand(newPopularCmd(flags))
 	rootCmd.AddCommand(newCategoryCmd(flags))
 	rootCmd.AddCommand(newCouponsCmd(flags))
 	rootCmd.AddCommand(newWatchCmd(flags))

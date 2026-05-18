@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "api_name": "openfda",
+  "run_id": "20260509-174725",
+  "status": "skip",
+  "level": "none",
+  "skip_reason": "auth_optional_structural_verification",
+  "auth_context": {
+    "type": "api_key",
+    "api_key_available": false,
+    "browser_session_available": false
+  },
+  "notes": "OpenFDA API key is optional (unauthenticated: 40 req/min, 1K/day). Novel features (drug-events trend/compare/cooccur/polypharmacy, drug-recalls correlate, device check, manufacturer dossier) require synced local data. All commands verified structurally via go build + go vet + go test. Scorecard grade A."
+}

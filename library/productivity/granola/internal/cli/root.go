@@ -39,6 +39,10 @@ type rootFlags struct {
 	rateLimit     float64
 	dataSource    string
 	freshnessMeta any
+	// PATCH(auto-refresh): --no-refresh hard opt-out for the
+	// per-command sync that PersistentPreRunE fires. Bound in U3;
+	// referenced by autoRefreshOptedOut.
+	noRefresh bool
 
 	// deliverBuf captures command output when --deliver is set to a
 	// non-stdout sink. Flushed to the sink after Execute returns.
@@ -126,6 +130,10 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.PersistentFlags().StringVar(&flags.profileName, "profile", "", "Apply values from a saved profile (see 'granola-pp-cli profile list')")
 	rootCmd.PersistentFlags().StringVar(&flags.deliverSpec, "deliver", "", "Route output to a sink: stdout (default), file:<path>, webhook:<url>")
 	rootCmd.PersistentFlags().Float64Var(&flags.rateLimit, "rate-limit", 0, "Max requests per second (0 to disable)")
+	// PATCH(auto-refresh): hard opt-out for the per-command sync that
+	// PersistentPreRunE now fires. Honored after profile expansion so
+	// `profile save foo --no-refresh` works end-to-end.
+	rootCmd.PersistentFlags().BoolVar(&flags.noRefresh, "no-refresh", false, "Skip the auto-refresh that runs before every command")
 
 	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
 		if flags.deliverSpec != "" {
@@ -178,6 +186,12 @@ See README.md or the bundled SKILL.md for recipes.`,
 		default:
 			return fmt.Errorf("invalid --data-source value %q: must be auto, live, or local", flags.dataSource)
 		}
+		// PATCH(auto-refresh): fire the per-command refresh as the
+		// final pre-run action so flag/profile/agent expansion has
+		// already completed and --no-refresh resolves correctly.
+		// Errors never propagate — runAutoRefresh is best-effort and
+		// captures every failure on its provenance line.
+		runAutoRefresh(cmd, flags)
 		return nil
 	}
 	rootCmd.AddCommand(newNotesCmd(flags))

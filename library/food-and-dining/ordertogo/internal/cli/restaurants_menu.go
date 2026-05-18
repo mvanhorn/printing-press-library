@@ -7,17 +7,20 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
 
 func newRestaurantsMenuCmd(flags *rootFlags) *cobra.Command {
 	var flagSlug string
+	var flagSearch string
 
 	cmd := &cobra.Command{
 		Use:   "menu",
 		Short: "Full menu for a restaurant with categories, items, and modifier options",
-		Example: "  ordertogo-pp-cli restaurants menu --slug example-value",
+		Example: `  ordertogo-pp-cli restaurants menu --slug example-value
+  ordertogo-pp-cli restaurants menu --slug mixsushibarlin --search "salmon nigiri"`,
 		Annotations: map[string]string{"pp:endpoint": "restaurants.menu", "pp:method": "GET", "pp:path": "/m/api/restaurants/{slug}/menus/full", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("slug") && !flags.dryRun {
@@ -34,6 +37,9 @@ func newRestaurantsMenuCmd(flags *rootFlags) *cobra.Command {
 			data, prov, err := resolveRead(cmd.Context(), c, flags, "restaurants", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err, flags)
+			}
+			if flagSearch != "" {
+				data = filterMenuBySearch(data, flagSearch)
 			}
 			// Print provenance to stderr for human-facing output
 			{
@@ -74,6 +80,114 @@ func newRestaurantsMenuCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&flagSlug, "slug", "", "Restaurant short slug")
+	cmd.Flags().StringVar(&flagSearch, "search", "", "Case-insensitive AND-search across name/alt_name/itemsubtitle/item_id/upper_category; whitespace-tokenized so \"salmon nigiri\" keeps items matching both tokens in any field; drops non-matching items and empty child arrays")
 
 	return cmd
+}
+
+// filterMenuBySearch keeps only menu records that match the search query
+// (case-insensitive). The query is whitespace-tokenized; every token must
+// appear in at least one of the record's searchable text fields (name,
+// alt_name, itemsubtitle, item_id, upper_category) for a match. So
+// "salmon nigiri" hits both a record named "Salmon" with category
+// "Nigiri" and a record named "Salmon Nigiri" directly. Empty token list
+// after trimming returns the payload unchanged.
+//
+// The OrderToGo menu payload is a flat array of item-like records, some
+// of which carry nested child arrays (groupItems / subitems / items /
+// children). A parent record is kept if it matches directly OR if any of
+// its children match. Child arrays are pruned only for non-matching parents.
+// Modifier `options` objects are intentionally NOT recursed into - those
+// are universal add-ons and would inflate the match set with noise.
+func filterMenuBySearch(data json.RawMessage, search string) json.RawMessage {
+	tokens := tokenizeSearch(search)
+	if len(tokens) == 0 {
+		return data
+	}
+	var records []map[string]any
+	if err := json.Unmarshal(data, &records); err != nil {
+		return data
+	}
+	kept := make([]map[string]any, 0, len(records))
+	for _, rec := range records {
+		if keepRec, ok := pruneMenuRecord(rec, tokens); ok {
+			kept = append(kept, keepRec)
+		}
+	}
+	out, err := json.Marshal(kept)
+	if err != nil {
+		return data
+	}
+	return out
+}
+
+func tokenizeSearch(search string) []string {
+	fields := strings.Fields(strings.ToLower(search))
+	out := fields[:0]
+	for _, f := range fields {
+		if f != "" {
+			out = append(out, f)
+		}
+	}
+	return out
+}
+
+func pruneMenuRecord(rec map[string]any, tokens []string) (map[string]any, bool) {
+	if rec == nil {
+		return nil, false
+	}
+	nameHit := recordMatches(rec, tokens)
+	if nameHit {
+		// PATCH: Direct menu hits keep their full modifier/sub-item trees.
+		return rec, true
+	}
+	childHit := false
+	for _, childKey := range []string{"groupItems", "subitems", "items", "children"} {
+		raw, ok := rec[childKey]
+		if !ok {
+			continue
+		}
+		arr, ok := raw.([]any)
+		if !ok {
+			continue
+		}
+		pruned := make([]any, 0, len(arr))
+		for _, child := range arr {
+			obj, ok := child.(map[string]any)
+			if !ok {
+				continue
+			}
+			if kept, ok := pruneMenuRecord(obj, tokens); ok {
+				pruned = append(pruned, kept)
+			}
+		}
+		if len(pruned) > 0 {
+			rec[childKey] = pruned
+			childHit = true
+		} else {
+			delete(rec, childKey)
+		}
+	}
+	if childHit {
+		return rec, true
+	}
+	return nil, false
+}
+
+func recordMatches(rec map[string]any, tokens []string) bool {
+	haystack := ""
+	for _, key := range []string{"name", "alt_name", "itemsubtitle", "item_id", "upper_category"} {
+		if v, ok := rec[key].(string); ok && v != "" {
+			haystack += " " + strings.ToLower(v)
+		}
+	}
+	if haystack == "" {
+		return false
+	}
+	for _, tok := range tokens {
+		if !strings.Contains(haystack, tok) {
+			return false
+		}
+	}
+	return true
 }

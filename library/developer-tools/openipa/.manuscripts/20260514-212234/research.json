@@ -1,0 +1,256 @@
+{
+  "api_name": "openipa",
+  "novelty_score": 87,
+  "alternatives": [
+    {
+      "name": "FatturaElettronica.IndicePA",
+      "url": "https://github.com/FatturaElettronica/FatturaElettronica.IndicePA",
+      "language": "C#",
+      "install_method": "",
+      "stars": 45,
+      "last_updated": "",
+      "command_count": 7,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "nicogis/FatturazioneElettronica-IPA",
+      "url": "https://github.com/nicogis/FatturazioneElettronica-IPA",
+      "language": "C#",
+      "install_method": "",
+      "stars": 8,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "pbertera/rubripa.it",
+      "url": "https://github.com/pbertera/rubripa.it",
+      "language": "Python",
+      "install_method": "",
+      "stars": 5,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-14T21:45:00Z",
+  "novel_features": [
+    {
+      "name": "Doctor compliance PA",
+      "command": "doctor",
+      "description": "Dato un codice fiscale, verifica in un colpo se l'ente ha SFE attivo, NSO abilitato e domicilio digitale — checklist compliance PA completa.",
+      "rationale": "Richiede tre chiamate API in parallelo (WS01+WS14+WS23) che il portale web mostra su tre pagine separate. Nessun tool produce questa checklist.",
+      "example": "openipa-pp-cli doctor 97735020584 --json",
+      "why_it_matters": "Un agente che verifica la compliance PA deve sapere se un ente è pronto a ricevere fatture, ordini e notifiche digitali in un unico check.",
+      "group": "Workflow PA in un comando"
+    },
+    {
+      "name": "Batch CF → codici destinatario SDI",
+      "command": "fatturazione batch",
+      "description": "Legge CF da stdin, chiama WS01_SFE_CF in parallelo, restituisce NDJSON con CF + cod_uni_ou + stato_canale per pipeline di fatturazione.",
+      "rationale": "Batch mode con parallelismo su WS01 non esiste in nessun tool esistente. Marco fa 15-20 lookup/giorno in modo manuale.",
+      "example": "cat lista_cf.txt | openipa-pp-cli fatturazione batch --json",
+      "why_it_matters": "Un agente che emette fatture PA in batch deve trovare tutti i codici destinatario in un solo passaggio senza loop manuali.",
+      "group": "Workflow PA in un comando"
+    },
+    {
+      "name": "Stats aggregati per regione/categoria",
+      "command": "stats",
+      "description": "Conta enti, AOO, UO e percentuale con SFE/NSO attivo per regione o categoria — tutto da SQLite locale senza API call.",
+      "rationale": "Richiede join su quattro tabelle SQLite sincronizzate (enti+aoo+uo+sfe_channels). Il portale IPA non espone aggregati geografici.",
+      "example": "openipa-pp-cli stats --regione Lazio --json --agent",
+      "why_it_matters": "Un agente che analizza la digital transformation della PA per area geografica non ha altro modo di ottenere questa vista aggregata.",
+      "group": "Dati locali che si compoundano"
+    },
+    {
+      "name": "Enti senza canale SFE attivo",
+      "command": "report sfe-mancante",
+      "description": "Lista di tutti gli enti non abilitati alla fatturazione elettronica su SDI, filtrabile per regione e categoria — per audit compliance.",
+      "rationale": "Anti-join SQLite locale (enti LEFT JOIN sfe_channels WHERE sfe = NULL) che nessun tool espone. Chiara fa questo manualmente per 50 enti a settimana.",
+      "example": "openipa-pp-cli report sfe-mancante --regione Sicilia --json",
+      "why_it_matters": "Un agente che audita enti PA deve identificare rapidamente quali non sono ancora compliant con la fatturazione elettronica obbligatoria.",
+      "group": "Dati locali che si compoundano"
+    },
+    {
+      "name": "Struttura gerarchica ente",
+      "command": "enti tree",
+      "description": "Vista ad albero di un ente con tutte le sue AOO e UO associate — Ente → AOO[N] → UO[M] in output testuale o JSON annidato.",
+      "rationale": "Chain WS05_AMM + WS02_AOO + WS03_OU in parallelo, collassati in output gerarchico. Il portale richiede tre pagine separate.",
+      "example": "openipa-pp-cli enti tree agid --json",
+      "why_it_matters": "Un agente che deve capire la struttura organizzativa di un ente PA ottiene tutto in un comando invece di navigare tre endpoint separati.",
+      "group": "Workflow PA in un comando"
+    },
+    {
+      "name": "Verifica domicilio digitale attivo/storico",
+      "command": "domicilio verifica",
+      "description": "Controlla se una PEC è il domicilio digitale attivo di un ente, storico (cessato) o sconosciuta — produce stato classificato.",
+      "rationale": "Compound WS13_DOM_DIG + WS07_EMAIL in sequenza con logica di classificazione stato PEC. Nessun tool distingue PEC attiva da storica.",
+      "example": "openipa-pp-cli domicilio verifica <email-pec> --json",
+      "why_it_matters": "Un agente che invia notifiche PA deve sapere se una PEC è ancora valida prima di usarla — inviare a PEC cessata invalida la comunicazione.",
+      "group": "Workflow PA in un comando"
+    },
+    {
+      "name": "Ricerca AOO per nome",
+      "command": "aoo cerca",
+      "description": "Cerca Aree Organizzative Omogenee per descrizione parziale — endpoint WS18 che riempie il gap asimmetrico rispetto alla ricerca enti.",
+      "rationale": "WS18_AOO (DESCR_AOO) non era nell'absorb manifest. La ricerca per nome funziona per enti (WS16) ma non per AOO — gap confermato.",
+      "example": "openipa-pp-cli aoo cerca 'presidenza' --json",
+      "why_it_matters": "Un agente che deve trovare una AOO specifica per nome non può usare solo la ricerca enti — le AOO hanno denominazioni proprie distinte dall'ente padre.",
+      "group": "Workflow PA in un comando"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Doctor compliance PA",
+      "command": "doctor",
+      "description": "Dato un codice fiscale, verifica in un colpo se l'ente ha SFE attivo, NSO abilitato e domicilio digitale — checklist compliance PA completa.",
+      "rationale": "Richiede tre chiamate API in parallelo (WS01+WS14+WS23) che il portale web mostra su tre pagine separate. Nessun tool produce questa checklist.",
+      "example": "openipa-pp-cli doctor 97735020584 --json",
+      "why_it_matters": "Un agente che verifica la compliance PA deve sapere se un ente è pronto a ricevere fatture, ordini e notifiche digitali in un unico check.",
+      "group": "Workflow PA in un comando"
+    },
+    {
+      "name": "Batch CF → codici destinatario SDI",
+      "command": "fatturazione batch",
+      "description": "Legge CF da stdin, chiama WS01_SFE_CF in parallelo, restituisce NDJSON con CF + cod_uni_ou + stato_canale per pipeline di fatturazione.",
+      "rationale": "Batch mode con parallelismo su WS01 non esiste in nessun tool esistente. Marco fa 15-20 lookup/giorno in modo manuale.",
+      "example": "cat lista_cf.txt | openipa-pp-cli fatturazione batch --json",
+      "why_it_matters": "Un agente che emette fatture PA in batch deve trovare tutti i codici destinatario in un solo passaggio senza loop manuali.",
+      "group": "Workflow PA in un comando"
+    },
+    {
+      "name": "Stats aggregati per regione/categoria",
+      "command": "stats",
+      "description": "Conta enti, AOO, UO e percentuale con SFE/NSO attivo per regione o categoria — tutto da SQLite locale senza API call.",
+      "rationale": "Richiede join su quattro tabelle SQLite sincronizzate (enti+aoo+uo+sfe_channels). Il portale IPA non espone aggregati geografici.",
+      "example": "openipa-pp-cli stats --regione Lazio --json --agent",
+      "why_it_matters": "Un agente che analizza la digital transformation della PA per area geografica non ha altro modo di ottenere questa vista aggregata.",
+      "group": "Dati locali che si compoundano"
+    },
+    {
+      "name": "Enti senza canale SFE attivo",
+      "command": "report sfe-mancante",
+      "description": "Lista di tutti gli enti non abilitati alla fatturazione elettronica su SDI, filtrabile per regione e categoria — per audit compliance.",
+      "rationale": "Anti-join SQLite locale (enti LEFT JOIN sfe_channels WHERE sfe = NULL) che nessun tool espone. Chiara fa questo manualmente per 50 enti a settimana.",
+      "example": "openipa-pp-cli report sfe-mancante --regione Sicilia --json",
+      "why_it_matters": "Un agente che audita enti PA deve identificare rapidamente quali non sono ancora compliant con la fatturazione elettronica obbligatoria.",
+      "group": "Dati locali che si compoundano"
+    },
+    {
+      "name": "Struttura gerarchica ente",
+      "command": "enti tree",
+      "description": "Vista ad albero di un ente con tutte le sue AOO e UO associate — Ente → AOO[N] → UO[M] in output testuale o JSON annidato.",
+      "rationale": "Chain WS05_AMM + WS02_AOO + WS03_OU in parallelo, collassati in output gerarchico. Il portale richiede tre pagine separate.",
+      "example": "openipa-pp-cli enti tree agid --json",
+      "why_it_matters": "Un agente che deve capire la struttura organizzativa di un ente PA ottiene tutto in un comando invece di navigare tre endpoint separati.",
+      "group": "Workflow PA in un comando"
+    },
+    {
+      "name": "Verifica domicilio digitale attivo/storico",
+      "command": "domicilio verifica",
+      "description": "Controlla se una PEC è il domicilio digitale attivo di un ente, storico (cessato) o sconosciuta — produce stato classificato.",
+      "rationale": "Compound WS13_DOM_DIG + WS07_EMAIL in sequenza con logica di classificazione stato PEC. Nessun tool distingue PEC attiva da storica.",
+      "example": "openipa-pp-cli domicilio verifica <email-pec> --json",
+      "why_it_matters": "Un agente che invia notifiche PA deve sapere se una PEC è ancora valida prima di usarla — inviare a PEC cessata invalida la comunicazione.",
+      "group": "Workflow PA in un comando"
+    },
+    {
+      "name": "Ricerca AOO per nome",
+      "command": "aoo cerca",
+      "description": "Cerca Aree Organizzative Omogenee per descrizione parziale — endpoint WS18 che riempie il gap asimmetrico rispetto alla ricerca enti.",
+      "rationale": "WS18_AOO (DESCR_AOO) non era nell'absorb manifest. La ricerca per nome funziona per enti (WS16) ma non per AOO — gap confermato.",
+      "example": "openipa-pp-cli aoo cerca 'presidenza' --json",
+      "why_it_matters": "Un agente che deve trovare una AOO specifica per nome non può usare solo la ricerca enti — le AOO hanno denominazioni proprie distinte dall'ente padre.",
+      "group": "Workflow PA in un comando"
+    }
+  ],
+  "narrative": {
+    "display_name": "IndicePA",
+    "headline": "Il primo CLI per l'Indice delle Pubbliche Amministrazioni — lookup istantaneo di enti, PEC, codici IPA, fatturazione elettronica e ordini, con ricerca offline su 20.000 amministrazioni.",
+    "value_prop": "openipa porta sul terminale le 22 API web service di IPA che gli sviluppatori usano copia-incollando curl. Con un singolo comando `openipa cf \u003cCF\u003e` ottieni uffici FE, nodi NSO e domicilio digitale in parallelo. La modalità offline sincronizza tutti i dataset CKAN di IPA in SQLite locale per ricerche fulmine senza rate limit.",
+    "auth_narrative": "Richiede un AUTH_ID gratuito da registrare su indicepa.gov.it (rilasciato immediatamente). Salvalo come variabile d'ambiente IPA_auth_id o in ~/.config/openipa/config.toml.",
+    "quickstart": [
+      {
+        "command": "openipa-pp-cli enti cerca 'comune di Roma'",
+        "comment": "Trova il codice IPA di un ente per nome"
+      },
+      {
+        "command": "openipa-pp-cli enti get --codice c_h501 --json",
+        "comment": "Dati anagrafici completi di un ente per codice IPA"
+      },
+      {
+        "command": "openipa-pp-cli fatturazione cf --cf 80012000826 --json",
+        "comment": "Codice destinatario SDI (cod_uni_ou) per fatturazione elettronica"
+      },
+      {
+        "command": "openipa-pp-cli cf 97735020584 --json",
+        "comment": "Tutti i canali PA (FE + NSO + domicilio digitale) in un colpo solo"
+      },
+      {
+        "command": "openipa-pp-cli enti tree agid --json",
+        "comment": "Struttura gerarchica di un ente: Ente + AOO + UO in un unico output"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Errore 902: Parametro AUTH_ID errato",
+        "fix": "export IPA_auth_id=\u003ctuo_auth_id\u003e oppure registra un nuovo AUTH_ID su indicepa.gov.it"
+      },
+      {
+        "symptom": "Errore 900: Parametro AUTH_ID mancante",
+        "fix": "Imposta la variabile d'ambiente IPA_auth_id o aggiungi auth_id al file ~/.config/openipa/config.toml"
+      },
+      {
+        "symptom": "HTTP 500 su comandi pec",
+        "fix": "I web service WS20/WS21/WS22 di IPA hanno instabilità note; riprova più tardi o usa openipa sync per i dati bulk"
+      },
+      {
+        "symptom": "Nessun risultato da 'enti cerca'",
+        "fix": "Usa parole parziali (es. 'Roma' non 'Comune di Roma'); esegui 'openipa sync' per abilitare ricerca FTS offline"
+      }
+    ],
+    "when_to_use": "Usa openipa quando un agente deve trovare dati anagrafici, PEC, codici destinatario SDI o nodi NSO di enti della PA italiana. È il tool giusto per validare CF contro il registro IPA prima di emettere fatture, verificare se un'amministrazione è abilitata alla fatturazione elettronica, o trovare il domicilio digitale ufficiale a cui inviare notifiche.",
+    "recipes": [
+      {
+        "title": "CF → codice destinatario fattura",
+        "command": "openipa-pp-cli fatturazione cf --cf 80012000826 --json --select data.data",
+        "explanation": "Estrai il campo cod_uni_ou da usare nel campo 'Ufficio destinatario' della fattura XML SDI"
+      },
+      {
+        "title": "Compliance check PA completo",
+        "command": "openipa-pp-cli cf 97735020584 --json",
+        "explanation": "Verifica che l'ente abbia SFE attivo, NSO abilitato e domicilio digitale — unico tool che fa tutto in un colpo"
+      },
+      {
+        "title": "Struttura organizzativa ente",
+        "command": "openipa-pp-cli enti tree agid --json --select cod_amm,des_amm,aoo_count,uo_count",
+        "explanation": "Vista gerarchica di un ente con tutte le AOO e UO — nessun altro tool offre questa vista aggregata"
+      },
+      {
+        "title": "Verifica domicilio digitale",
+        "command": "openipa-pp-cli domicilio verifica <email-pec> --json",
+        "explanation": "Controlla se una PEC è ancora il domicilio digitale attivo di un ente IPA — utile prima di inviare comunicazioni ufficiali"
+      },
+      {
+        "title": "Trova ente per email",
+        "command": "openipa-pp-cli cerca <email-pec> --json --select tipo_entita,cod_amm,des_amm",
+        "explanation": "Identifica quale ente/AOO/UO usa una specifica email — utile per de-anonimizzare comunicazioni PA"
+      }
+    ],
+    "trigger_phrases": [
+      "trova la PEC di un comune",
+      "codice IPA per fattura elettronica",
+      "codice destinatario SDI di un ente pubblico",
+      "cerca amministrazione pubblica per nome",
+      "verifica CF ente PA",
+      "usa openipa",
+      "indicepa"
+    ]
+  }
+}

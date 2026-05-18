@@ -1,20 +1,21 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-05-11T16:00:00.000000Z",
+  "generated_at": "2026-05-14T00:00:00Z",
   "printing_press_version": "4.2.1",
   "api_name": "slickdeals",
   "display_name": "Slickdeals",
   "cli_name": "slickdeals-pp-cli",
   "owner": "beetz12",
+  "printer": "beetz12",
   "printer_name": "David He",
   "spec_format": "internal",
   "spec_checksum": "sha256:4940998b7f3b754517c505a20a8f410d415d26e7ab99d7401c31c7aa24a4fe6a",
   "run_id": "20260509-232351",
   "mcp_binary": "slickdeals-pp-mcp",
-  "mcp_tool_count": 17,
-  "mcp_public_tool_count": 17,
+  "mcp_tool_count": 18,
+  "mcp_public_tool_count": 18,
   "mcp_ready": "full",
-  "api_version": "0.2.0",
+  "api_version": "0.3.0",
   "auth_type": "none",
   "novel_features": [
     {
@@ -35,7 +36,7 @@
     {
       "name": "category browsing with keyword expansion",
       "command": "category",
-      "description": "Curated forum-id -> keyword map (tech, gaming, home, grocery, apparel, sports) for client-side filtering of the live frontpage."
+      "description": "Curated forum-id -\u003e keyword map (tech, gaming, home, grocery, apparel, sports) for client-side filtering of the live frontpage."
     },
     {
       "name": "live featured-coupons via Nuxt",
@@ -65,8 +66,7 @@
     {
       "name": "thumbs velocity time-series",
       "command": "analytics thumbs-velocity",
-      "description": "Chronological thumb-count observations for a deal with per-step delta \u2014 momentum signal for arbitrage and auto-snipe."
+      "description": "Chronological thumb-count observations for a deal with per-step delta — momentum signal for arbitrage and auto-snipe."
     }
-  ],
-  "printer": "beetz12"
+  ]
 }

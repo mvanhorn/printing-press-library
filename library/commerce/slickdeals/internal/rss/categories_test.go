@@ -93,18 +93,24 @@ func TestResolveCategory(t *testing.T) {
 		wantID  int
 		wantErr bool
 	}{
+		// v0.3 aliases — only the five forum IDs Slickdeals advertises on its
+		// own RSS landing page. v0.2's made-up aliases (tech/computers/home)
+		// pointed at unverified or wrong forum IDs and were removed.
 		{"9", 9, false},
 		{"25", 25, false},
 		{"hot", 9, false},
 		{"HOT", 9, false},   // case-insensitive
-		{"tech", 25, false},
-		{"computers", 25, false},
-		{"home", 17, false},
-		{"999", 999, false},  // arbitrary numeric ID passes through
+		{"freebies", 4, false},
+		{"coupons", 10, false},
+		{"contests", 25, false},
+		{"sweepstakes", 25, false},
+		{"grocery", 38, false},
+		{"999", 999, false},  // arbitrary numeric ID passes through unchanged
 		{"", -1, true},
 		{"0", -1, true},
 		{"-1", -1, true},     // strconv.Atoi succeeds but <=0 check triggers
 		{"unknown-category-xyz", -1, true},
+		{"tech", -1, true},   // v0.2 alias intentionally dropped — was wrong
 	}
 
 	for _, tt := range tests {
@@ -128,35 +134,37 @@ func TestResolveCategory(t *testing.T) {
 }
 
 func TestCategoryURL(t *testing.T) {
-	// CategoryURL no longer encodes the forum ID — Slickdeals' RSS silently
-	// ignores forumid=N when mode=frontpage is set, so the URL is constant
-	// and the filtering happens client-side in LiveCategory.
+	// v0.3 uses Slickdeals' real forumchoice[]= parameter — verified against
+	// Slickdeals' own /forums/forumdisplay.php?f=9 HTML which advertises this
+	// URL form for forum-scoped RSS feeds.
 	url := CategoryURL(9)
-	want := "https://slickdeals.net/newsearch.php?mode=frontpage&rss=1"
+	want := "https://slickdeals.net/newsearch.php?searchin=first&forumchoice%5B%5D=9&rss=1"
 	if url != want {
 		t.Errorf("CategoryURL(9) = %q, want %q", url, want)
 	}
 }
 
-func TestKeywordsForForum(t *testing.T) {
-	got := keywordsForForum(25)
-	if len(got) == 0 {
-		t.Fatal("expected forum 25 (tech) to have keywords")
+func TestResolveCategory_VerifiedForumIDs(t *testing.T) {
+	// All five aliases below resolve to forum IDs that Slickdeals' own RSS
+	// page advertises and that have been verified to return real items.
+	cases := map[string]int{
+		"hot":         9,
+		"freebies":    4,
+		"coupons":     10,
+		"contests":    25,
+		"grocery":     38,
+		"sweepstakes": 25,
+		"drugstore":   38,
 	}
-	var sawAlias, sawSemantic bool
-	for _, k := range got {
-		if k == "tech" || k == "computers" {
-			sawAlias = true
+	for name, want := range cases {
+		got, err := ResolveCategory(name)
+		if err != nil {
+			t.Errorf("ResolveCategory(%q) error: %v", name, err)
+			continue
 		}
-		if k == "usb-c" || k == "ssd" || k == "laptop" {
-			sawSemantic = true
+		if got != want {
+			t.Errorf("ResolveCategory(%q) = %d, want %d", name, got, want)
 		}
-	}
-	if !sawAlias {
-		t.Error("forum 25 keywords missing alias terms (tech/computers)")
-	}
-	if !sawSemantic {
-		t.Error("forum 25 keywords missing semantic terms (usb-c/ssd/laptop)")
 	}
 }
 

@@ -1,6 +1,6 @@
 ---
 name: pp-digg
-description: "Tail the Digg AI 1000's news cycle from the terminal — read-only, with the full pipeline event stream and... Trigger phrases: `what's trending on Digg AI`, `digg ai top stories`, `what climbed the AI news rankings`, `Digg AI 1000 leaderboard`, `what got replaced on Digg`, `tail the Digg pipeline`, `use digg`, `run digg-pp-cli`."
+description: "Tail Digg's news cycle, GitHub feeds, and pipeline events from the terminal — read-only, with rank-history nobody else surfaces. Trigger phrases: `what's trending on Digg`, `digg top stories`, `digg github stars`, `digg github recent`, `what climbed the AI news rankings`, `digg leaderboard`, `what got replaced on Digg`, `tail the Digg pipeline`, `use digg`, `run digg-pp-cli`."
 author: "Matt Van Horn"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
@@ -12,7 +12,7 @@ metadata:
         - digg-pp-cli
 ---
 
-# Digg AI — Printing Press CLI
+# Digg — Printing Press CLI
 
 ## Prerequisites: Install the CLI
 
@@ -29,11 +29,11 @@ If the `npx` install fails before this CLI has a public-library category, instal
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
-Digg AI is a curated leaderboard of 1,000 AI accounts on X and the story clusters they surface. The web UI shows you today's snapshot. This CLI tails the pipeline events, keeps a local rank-history that survives daily overwrites, and exposes Digg's own replacement rationale and gravity components so an agent can answer 'why this story?' and 'what got dropped overnight?' with structured data.
+Digg is a curated AI-news leaderboard powered by tracked accounts on X and a parallel GitHub feed (stars / new / activity / recent). The web UI shows you today's snapshot. This CLI tails the pipeline events, keeps a local rank-history that survives daily overwrites, exposes Digg's own replacement rationale and gravity components, and surfaces the four GitHub feeds — so an agent can answer 'why this story?', 'what got dropped overnight?', and 'what AI repos are Digg-tracked accounts starring right now?' with one binary.
 
 ## When to Use This CLI
 
-Use this CLI when an agent or power user needs structured access to Digg AI's rankings, ranking-change history, pipeline events, or per-cluster transparency record. It is the right tool for tracking AI-news cycle movement, building cross-aggregator research over HN+Techmeme+Digg, or exposing Digg AI signals into a larger automation. Do NOT use it for vote, comment, or post automation — those mutations are explicitly out of scope.
+Use this CLI when an agent or power user needs structured access to Digg's rankings, ranking-change history, pipeline events, per-cluster transparency record, or the GitHub feeds. It is the right tool for tracking AI-news cycle movement, building cross-aggregator research over HN+Techmeme+Digg, watching new AI repos the moment they're starred by tracked accounts, or exposing Digg signals into a larger automation. Do NOT use it for vote, comment, or post automation — those mutations are explicitly out of scope.
 
 ## When Not to Use This CLI
 
@@ -131,7 +131,7 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   digg-pp-cli crossref iq7usf9e
   ```
-- **`authors top`** — Top accounts in the Digg AI 1000 ranked by Digg's influence score, story count, or reach.
+- **`authors top`** — Top accounts Digg tracks, ranked by Digg's influence score, story count, or reach.
 
   _Investors and AI scouts care which accounts move the news cycle. Now queryable, sortable, scriptable._
 
@@ -180,14 +180,21 @@ This CLI uses Chrome-compatible HTTP transport for browser-facing endpoints. It 
 - `digg-pp-cli feed raw` — Fetch the raw /ai HTML page. The CLI's sync command parses this; most users should run `sync` then `top` instead of...
 - `digg-pp-cli feed story_raw` — Fetch the raw /ai/{clusterUrlId} story detail page (HTML). The CLI's `story` command parses this; users should not...
 
+**github** — GitHub feeds Digg surfaces alongside the X-account leaderboard
+
+- `digg-pp-cli github stars` — Top AI repos ranked by starring activity from Digg-tracked accounts. Returns repo_full_name, language, stargazers_count, recent starrers, breakout/novel/ai_related scores, and the model's one-sentence classification. Flag: `--limit`.
+- `digg-pp-cli github new` — Recently first-seen repos with the Digg-tracked creator/starrer who first put them on Digg's radar (event_id, event_created_at, repo_full_name, creator). Flag: `--limit`.
+- `digg-pp-cli github activity` — Top GitHub contributor leaderboard: per-author rank, contribution count, and distinct repos count over Digg's tracking window. Flag: `--limit`.
+- `digg-pp-cli github recent` — Live activity feed: per-event entries with the GitHub URL and the user who acted. Flag: `--limit`.
+
 **search** — Topic search across the full Digg window
 
 - `digg-pp-cli search "<query>"` — Live by default (`/api/search/stories`); FTS5 fallback to the local store. Flags: `--since Nh|Nd|Nw|Nm`, `--data-source live|local|auto`, `--limit`.
 
-**authors** — Inspect the Digg AI 1000 leaderboard
+**authors** — Inspect Digg's tracked AI-news accounts (the /ai/1000 roster)
 
 - `digg-pp-cli authors get <handle>` — Look up any X handle (1000 + off-1000); off-1000 records include `subject_peer_follow_count`, `nearest_in_1000` anchor, and `peer_follow_gap`. Flag: `--limit` (fuzzy fallback).
-- `digg-pp-cli authors list` — Full ranked AI 1000 from `/ai/1000`, persisted with rich fields. Flags: `--by rank|rankChange|category|followers`, `--category`, `--only-new`, `--only-fallers`, `--limit`.
+- `digg-pp-cli authors list` — Full ranked roster from `/ai/1000`, persisted with rich fields. Flags: `--by rank|rankChange|category|followers`, `--category`, `--only-new`, `--only-fallers`, `--limit`.
 - `digg-pp-cli authors top` — Top contributors by influence, post count, or reach. Flags: `--by`, `--limit`.
 
 **posts** — X posts attached to one cluster

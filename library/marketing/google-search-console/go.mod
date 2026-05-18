@@ -10,10 +10,12 @@ require (
 require (
 	github.com/mark3labs/mcp-go v0.47.0
 	github.com/spf13/pflag v1.0.6
+	golang.org/x/oauth2 v0.36.0
 	modernc.org/sqlite v1.50.0
 )
 
 require (
+	cloud.google.com/go/compute/metadata v0.3.0 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/google/jsonschema-go v0.4.2 // indirect
 	github.com/google/uuid v1.6.0 // indirect
