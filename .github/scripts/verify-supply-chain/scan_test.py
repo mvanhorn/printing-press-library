@@ -226,12 +226,16 @@ class WorkflowTrustSignalTest(unittest.TestCase):
         self.assertEqual(len(findings), 1)
 
     def test_write_all_permissions_blocks(self) -> None:
-        """Newly-covered case: `permissions: write-all` grants id-token implicitly."""
+        """Newly-covered case: `permissions: write-all` grants id-token implicitly.
+        Also assert the finding's line annotation points somewhere — the
+        original needle was the literal "id-token" string, which doesn't appear
+        in a write-all-only workflow, so line silently came out as None."""
         wf = "permissions: write-all\n"
         findings = signals.signal_id_token_outside_allowlist(
             _fc(".github/workflows/bad.yml", head=wf)
         )
         self.assertEqual(len(findings), 1)
+        self.assertIsNotNone(findings[0].line)
 
 
 class IdTokenSignalTest(unittest.TestCase):

@@ -353,7 +353,13 @@ def signal_id_token_outside_allowlist(change: FileChange) -> list[Finding]:
     if base is not None and _walk_id_token_grants(base):
         return []
 
-    line = _find_line_in(change.head_content, "id-token")
+    # Pick a needle the file actually contains: `permissions: write-all`
+    # workflows don't have the literal "id-token" anywhere, so searching for
+    # it leaves line=None. When the grant came via write-all, point the
+    # annotation at the write-all line instead.
+    head_perm = head.get("permissions") if isinstance(head, dict) else None
+    needle = "write-all" if isinstance(head_perm, str) and head_perm.strip() == "write-all" else "id-token"
+    line = _find_line_in(change.head_content, needle)
     return [
         Finding(
             path=change.path,
@@ -622,12 +628,9 @@ def _extract_module_path(content: str | None) -> str | None:
     return match.group(1) if match else None
 
 
-def _find_line(content: str, needle: str) -> int | None:
-    """Find the 1-indexed line where `needle` appears in content."""
-    for idx, line in enumerate(content.splitlines(), start=1):
-        if needle in line:
-            return idx
-    return None
+def _find_line(content: str | None, needle: str) -> int | None:
+    """Thin alias of _find_line_in kept so R6 callsites don't change."""
+    return _find_line_in(content, needle)
 
 
 def signal_module_path_drift(change: FileChange) -> list[Finding]:
