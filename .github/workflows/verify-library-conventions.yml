@@ -63,6 +63,30 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
+      - name: Overlay verifier scripts from base
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_REF: ${{ github.base_ref }}
+          BASE_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          # Run the latest verifier scripts (from base) against the PR's
+          # tree, not whatever stale version the PR was branched from.
+          # Without this overlay, a PR opened against an old main runs
+          # the verifier as it existed back then — surfacing checks that
+          # have since been relaxed and missing checks that have since
+          # been added. It's also the right security default: fork PRs
+          # shouldn't be able to ship their own modified verifier.
+          git remote add base "https://github.com/${BASE_REPO}.git" 2>/dev/null \
+            || git remote set-url base "https://github.com/${BASE_REPO}.git"
+          base_remote_ref="refs/remotes/base/${BASE_REF}"
+          if ! git show-ref --verify --quiet "${base_remote_ref}"; then
+            git fetch --no-tags base "${BASE_REF}:${base_remote_ref}"
+          fi
+          git checkout "${base_remote_ref}" -- \
+            .github/scripts/verify-attribution \
+            .github/scripts/verify-publish-package
+
       - name: Fail on changes to generated artifacts
         if: github.event_name == 'pull_request'
         env:
@@ -88,7 +112,14 @@ jobs:
           base_remote_ref="refs/remotes/base/${BASE_REF}"
           git fetch --no-tags base "${BASE_REF}:${base_remote_ref}"
 
-          violations=$(git diff --name-only "${base_remote_ref}...HEAD" \
+          # Use `..` (direct diff), not `...` (merge-base diff). `...`
+          # blocks any PR whose history touched the file even when its
+          # final content matches current base — e.g., a stale-base PR
+          # that was caught up via `git checkout base -- <file>` to
+          # restore main's current content. `..` correctly compares the
+          # PR's HEAD state to current base and only fires when content
+          # actually differs.
+          violations=$(git diff --name-only "${base_remote_ref}..HEAD" \
             -- 'registry.json' 'cli-skills/pp-*/SKILL.md')
 
           if [ -z "$violations" ]; then
