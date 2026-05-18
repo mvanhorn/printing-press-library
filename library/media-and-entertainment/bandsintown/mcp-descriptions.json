@@ -1,0 +1,5 @@
+{
+  "descriptions": {
+    "artists_artist": "Fetch artist profile info from Bandsintown by name (URL-encoded). Required: artistname (path), app_id (query — partner-issued key). Returns the artist's id, canonical name, Bandsintown page URL, image_url/thumb_url, facebook_page_url, mbid, tracker_count, and upcoming_event_count. Use this for one-shot lookups; for the watchlist-driven flow, prefer the `track` and `sync` commands which cache results locally."
+  }
+}

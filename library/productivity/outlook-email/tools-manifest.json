@@ -1,0 +1,921 @@
+{
+  "api_name": "outlook-email",
+  "base_url": "https://graph.microsoft.com/v1.0",
+  "description": "Outlook Email CLI for personal Microsoft 365 accounts via Microsoft Graph",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "format": "Bearer {OUTLOOK_EMAIL_TOKEN}",
+    "env_vars": [
+      "OUTLOOK_EMAIL_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "OUTLOOK_EMAIL_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "outlook-email-pp-cli/0.1"
+    }
+  ],
+  "tools": [
+    {
+      "name": "attachments_get",
+      "description": "Get a single attachment (metadata + base64 contentBytes for fileAttachment). Required: message_id, attachment_id. Returns the Attachment.",
+      "method": "GET",
+      "path": "/me/messages/{message_id}/attachments/{attachment_id}",
+      "params": [
+        {
+          "name": "message_id",
+          "type": "string",
+          "location": "path",
+          "description": "Message id",
+          "required": true
+        },
+        {
+          "name": "attachment_id",
+          "type": "string",
+          "location": "path",
+          "description": "Attachment id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "attachments_list",
+      "description": "List attachments on a message (metadata only by default). Required: message_id. Optional: select-fields. Returns array of Attachment.",
+      "method": "GET",
+      "path": "/me/messages/{message_id}/attachments",
+      "params": [
+        {
+          "name": "message_id",
+          "type": "string",
+          "location": "path",
+          "description": "Message id",
+          "required": true
+        },
+        {
+          "name": "select-fields",
+          "wire_name": "$select",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated OData fields"
+        }
+      ]
+    },
+    {
+      "name": "categories_create",
+      "description": "Create a new color category. Required: displayName. Optional: color. Returns the new Category.",
+      "method": "POST",
+      "path": "/me/outlook/masterCategories",
+      "params": [
+        {
+          "name": "displayName",
+          "type": "string",
+          "location": "body",
+          "description": "Category name",
+          "required": true
+        },
+        {
+          "name": "color",
+          "type": "string",
+          "location": "body",
+          "description": "Preset color name (preset0..preset24)"
+        }
+      ]
+    },
+    {
+      "name": "categories_delete",
+      "description": "Delete a color category. Required: category_id. Destructive.",
+      "method": "DELETE",
+      "path": "/me/outlook/masterCategories/{category_id}",
+      "params": [
+        {
+          "name": "category_id",
+          "type": "string",
+          "location": "path",
+          "description": "Category id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "categories_get",
+      "description": "Get a category by id. Required: category_id. Returns the Category.",
+      "method": "GET",
+      "path": "/me/outlook/masterCategories/{category_id}",
+      "params": [
+        {
+          "name": "category_id",
+          "type": "string",
+          "location": "path",
+          "description": "Category id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "categories_list",
+      "description": "List the master color categories. Returns array of Category.",
+      "method": "GET",
+      "path": "/me/outlook/masterCategories",
+      "params": []
+    },
+    {
+      "name": "folders_children",
+      "description": "List child folders under a parent folder. Required: folder_id. Optional: top (default: 100). Returns array of MailFolder.",
+      "method": "GET",
+      "path": "/me/mailFolders/{folder_id}/childFolders",
+      "params": [
+        {
+          "name": "folder_id",
+          "type": "string",
+          "location": "path",
+          "description": "Parent folder id",
+          "required": true
+        },
+        {
+          "name": "top",
+          "wire_name": "$top",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum child folders to return"
+        }
+      ]
+    },
+    {
+      "name": "folders_create",
+      "description": "Create a top-level mail folder. Required: displayName. Optional: isHidden. Returns the new MailFolder.",
+      "method": "POST",
+      "path": "/me/mailFolders",
+      "params": [
+        {
+          "name": "displayName",
+          "type": "string",
+          "location": "body",
+          "description": "Folder name",
+          "required": true
+        },
+        {
+          "name": "isHidden",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the folder is hidden in clients"
+        }
+      ]
+    },
+    {
+      "name": "folders_create_child",
+      "description": "Create a child folder under a parent. Required: folder_id, displayName. Returns the new MailFolder.",
+      "method": "POST",
+      "path": "/me/mailFolders/{folder_id}/childFolders",
+      "params": [
+        {
+          "name": "folder_id",
+          "type": "string",
+          "location": "path",
+          "description": "Parent folder id",
+          "required": true
+        },
+        {
+          "name": "displayName",
+          "type": "string",
+          "location": "body",
+          "description": "Child folder name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "folders_delete",
+      "description": "Delete a mail folder (moves contents to Deleted Items). Required: folder_id. Destructive.",
+      "method": "DELETE",
+      "path": "/me/mailFolders/{folder_id}",
+      "params": [
+        {
+          "name": "folder_id",
+          "type": "string",
+          "location": "path",
+          "description": "Folder id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "folders_delta",
+      "description": "Delta-sync of the mail folder hierarchy. Optional: delta-token, top (default: 200). Returns array of MailFolder.",
+      "method": "GET",
+      "path": "/me/mailFolders/delta",
+      "params": [
+        {
+          "name": "delta-token",
+          "wire_name": "$deltatoken",
+          "type": "string",
+          "location": "query",
+          "description": "Delta token from a previous sync"
+        },
+        {
+          "name": "top",
+          "wire_name": "$top",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        }
+      ]
+    },
+    {
+      "name": "folders_get",
+      "description": "Get a mail folder by id or well-known name. Required: folder_id. Returns the MailFolder.",
+      "method": "GET",
+      "path": "/me/mailFolders/{folder_id}",
+      "params": [
+        {
+          "name": "folder_id",
+          "type": "string",
+          "location": "path",
+          "description": "Folder id (or well-known: inbox, archive, drafts, sentitems, deleteditems, junkemail)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "folders_list",
+      "description": "List top-level mail folders. Optional: top (default: 100), include-hidden, select-fields. Returns array of MailFolder.",
+      "method": "GET",
+      "path": "/me/mailFolders",
+      "params": [
+        {
+          "name": "top",
+          "wire_name": "$top",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum folders to return"
+        },
+        {
+          "name": "include-hidden",
+          "wire_name": "includeHiddenFolders",
+          "type": "string",
+          "location": "query",
+          "description": "Include system/hidden folders (true|false)"
+        },
+        {
+          "name": "select-fields",
+          "wire_name": "$select",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated OData fields"
+        }
+      ]
+    },
+    {
+      "name": "folders_messages",
+      "description": "List messages in a specific folder. Required: folder_id. Optional: top (default: 25), filter, search (plus 2 more). Returns array of Message.",
+      "method": "GET",
+      "path": "/me/mailFolders/{folder_id}/messages",
+      "params": [
+        {
+          "name": "folder_id",
+          "type": "string",
+          "location": "path",
+          "description": "Folder id or well-known name (inbox, archive, sentitems...)",
+          "required": true
+        },
+        {
+          "name": "top",
+          "wire_name": "$top",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum messages to return"
+        },
+        {
+          "name": "filter",
+          "wire_name": "$filter",
+          "type": "string",
+          "location": "query",
+          "description": "OData filter"
+        },
+        {
+          "name": "search",
+          "wire_name": "$search",
+          "type": "string",
+          "location": "query",
+          "description": "Free-text search inside this folder"
+        },
+        {
+          "name": "orderby",
+          "wire_name": "$orderby",
+          "type": "string",
+          "location": "query",
+          "description": "OData order-by"
+        },
+        {
+          "name": "select-fields",
+          "wire_name": "$select",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated OData fields"
+        }
+      ]
+    },
+    {
+      "name": "folders_update",
+      "description": "Rename a mail folder. Required: folder_id. Optional: displayName. Returns the updated MailFolder.",
+      "method": "PATCH",
+      "path": "/me/mailFolders/{folder_id}",
+      "params": [
+        {
+          "name": "folder_id",
+          "type": "string",
+          "location": "path",
+          "description": "Folder id",
+          "required": true
+        },
+        {
+          "name": "displayName",
+          "type": "string",
+          "location": "body",
+          "description": "New folder name"
+        }
+      ]
+    },
+    {
+      "name": "inference_create_override",
+      "description": "Pin a sender to Focused or Other. Required: classifyAs, senderEmailAddress. Returns the new InferenceOverride.",
+      "method": "POST",
+      "path": "/me/inferenceClassification/overrides",
+      "params": [
+        {
+          "name": "classifyAs",
+          "type": "string",
+          "location": "body",
+          "description": "Target bucket",
+          "required": true
+        },
+        {
+          "name": "senderEmailAddress",
+          "type": "object",
+          "location": "body",
+          "description": "Sender to pin ({name, address})",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "inference_delete_override",
+      "description": "Remove a sender pin. Required: override_id. Destructive.",
+      "method": "DELETE",
+      "path": "/me/inferenceClassification/overrides/{override_id}",
+      "params": [
+        {
+          "name": "override_id",
+          "type": "string",
+          "location": "path",
+          "description": "Inference override id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "inference_list_overrides",
+      "description": "List sender pins to Focused or Other. Returns array of InferenceOverride.",
+      "method": "GET",
+      "path": "/me/inferenceClassification/overrides",
+      "params": []
+    },
+    {
+      "name": "mailbox_settings_get",
+      "description": "Get all mailbox settings. Returns the MailboxSettings.",
+      "method": "GET",
+      "path": "/me/mailboxSettings",
+      "params": []
+    },
+    {
+      "name": "mailbox_settings_update",
+      "description": "Update mailbox settings (automatic replies, timezone, working hours, language). Optional: automaticRepliesSetting, timeZone, language. Returns the updated MailboxSettings.",
+      "method": "PATCH",
+      "path": "/me/mailboxSettings",
+      "params": [
+        {
+          "name": "automaticRepliesSetting",
+          "type": "object",
+          "location": "body",
+          "description": "Auto-reply struct (status, internalReplyMessage, externalReplyMessage, scheduledStartDateTime, scheduledEndDateTime, externalAudience)"
+        },
+        {
+          "name": "timeZone",
+          "type": "string",
+          "location": "body",
+          "description": "Outlook time zone name (e.g. 'Pacific Standard Time')"
+        },
+        {
+          "name": "language",
+          "type": "object",
+          "location": "body",
+          "description": "Locale struct ({locale, displayName})"
+        }
+      ]
+    },
+    {
+      "name": "messages_copy",
+      "description": "Copy a message into another mail folder. Required: message_id, destinationId. Returns the new Message.",
+      "method": "POST",
+      "path": "/me/messages/{message_id}/copy",
+      "params": [
+        {
+          "name": "message_id",
+          "type": "string",
+          "location": "path",
+          "description": "Message id",
+          "required": true
+        },
+        {
+          "name": "destinationId",
+          "type": "string",
+          "location": "body",
+          "description": "Target folder id or well-known name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "messages_create_draft",
+      "description": "Create a draft message (save without sending). Optional: subject, body, toRecipients (plus 3 more). Returns the new Message.",
+      "method": "POST",
+      "path": "/me/messages",
+      "params": [
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "body",
+          "description": "Message subject"
+        },
+        {
+          "name": "body",
+          "type": "object",
+          "location": "body",
+          "description": "Message body ({contentType:'HTML'|'Text', content:'...'})"
+        },
+        {
+          "name": "toRecipients",
+          "type": "array",
+          "location": "body",
+          "description": "Primary recipients"
+        },
+        {
+          "name": "ccRecipients",
+          "type": "array",
+          "location": "body",
+          "description": "CC recipients"
+        },
+        {
+          "name": "bccRecipients",
+          "type": "array",
+          "location": "body",
+          "description": "BCC recipients"
+        },
+        {
+          "name": "importance",
+          "type": "string",
+          "location": "body",
+          "description": "Importance level"
+        }
+      ]
+    },
+    {
+      "name": "messages_delete",
+      "description": "Delete a message (moves to Deleted Items by default). Required: message_id. Destructive.",
+      "method": "DELETE",
+      "path": "/me/messages/{message_id}",
+      "params": [
+        {
+          "name": "message_id",
+          "type": "string",
+          "location": "path",
+          "description": "Message id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "messages_delta",
+      "description": "Pull incremental message changes since the last delta token. Optional: delta-token, top (default: 200). Returns array of Message.",
+      "method": "GET",
+      "path": "/me/messages/delta",
+      "params": [
+        {
+          "name": "delta-token",
+          "wire_name": "$deltatoken",
+          "type": "string",
+          "location": "query",
+          "description": "Delta token from a previous sync (optional; empty starts a fresh sync)"
+        },
+        {
+          "name": "top",
+          "wire_name": "$top",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        }
+      ]
+    },
+    {
+      "name": "messages_forward",
+      "description": "Forward a message to new recipients. Required: message_id, toRecipients. Optional: comment, message.",
+      "method": "POST",
+      "path": "/me/messages/{message_id}/forward",
+      "params": [
+        {
+          "name": "message_id",
+          "type": "string",
+          "location": "path",
+          "description": "Message id to forward",
+          "required": true
+        },
+        {
+          "name": "comment",
+          "type": "string",
+          "location": "body",
+          "description": "Inline comment prepended to the forwarded body"
+        },
+        {
+          "name": "toRecipients",
+          "type": "array",
+          "location": "body",
+          "description": "Forward recipients (array of {emailAddress:{address:'...'}})",
+          "required": true
+        },
+        {
+          "name": "message",
+          "type": "object",
+          "location": "body",
+          "description": "Optional message overrides"
+        }
+      ]
+    },
+    {
+      "name": "messages_get",
+      "description": "Get a message by id. Required: message_id. Optional: select-fields. Returns the Message.",
+      "method": "GET",
+      "path": "/me/messages/{message_id}",
+      "params": [
+        {
+          "name": "message_id",
+          "type": "string",
+          "location": "path",
+          "description": "Message id",
+          "required": true
+        },
+        {
+          "name": "select-fields",
+          "wire_name": "$select",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated OData fields to return on the wire"
+        }
+      ]
+    },
+    {
+      "name": "messages_list",
+      "description": "List messages across all folders. Optional: top (default: 25), skip, orderby (default: receivedDateTime desc) (plus 3 more). Returns array of Message.",
+      "method": "GET",
+      "path": "/me/messages",
+      "params": [
+        {
+          "name": "top",
+          "wire_name": "$top",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of messages to return (1-1000)"
+        },
+        {
+          "name": "skip",
+          "wire_name": "$skip",
+          "type": "int",
+          "location": "query",
+          "description": "Number of messages to skip (offset pagination)"
+        },
+        {
+          "name": "orderby",
+          "wire_name": "$orderby",
+          "type": "string",
+          "location": "query",
+          "description": "OData order-by expression (e.g. 'receivedDateTime desc', 'subject')"
+        },
+        {
+          "name": "filter",
+          "wire_name": "$filter",
+          "type": "string",
+          "location": "query",
+          "description": "OData filter expression (e.g. 'from/emailAddress/address eq 'a@b.com'')"
+        },
+        {
+          "name": "search",
+          "wire_name": "$search",
+          "type": "string",
+          "location": "query",
+          "description": "Free-text search (quoted phrases supported)"
+        },
+        {
+          "name": "select-fields",
+          "wire_name": "$select",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated OData fields to return on the wire"
+        }
+      ]
+    },
+    {
+      "name": "messages_move",
+      "description": "Move a message to another mail folder. Required: message_id, destinationId. Returns the new Message.",
+      "method": "POST",
+      "path": "/me/messages/{message_id}/move",
+      "params": [
+        {
+          "name": "message_id",
+          "type": "string",
+          "location": "path",
+          "description": "Message id",
+          "required": true
+        },
+        {
+          "name": "destinationId",
+          "type": "string",
+          "location": "body",
+          "description": "Target folder id (or well-known name: inbox, archive, deleteditems, junkemail, drafts, sentitems)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "messages_reply",
+      "description": "Send a reply to a message (uses the original sender). Required: message_id. Optional: comment, message.",
+      "method": "POST",
+      "path": "/me/messages/{message_id}/reply",
+      "params": [
+        {
+          "name": "message_id",
+          "type": "string",
+          "location": "path",
+          "description": "Message id to reply to",
+          "required": true
+        },
+        {
+          "name": "comment",
+          "type": "string",
+          "location": "body",
+          "description": "Inline comment prepended to the original message"
+        },
+        {
+          "name": "message",
+          "type": "object",
+          "location": "body",
+          "description": "Optional message override (body, toRecipients, etc.)"
+        }
+      ]
+    },
+    {
+      "name": "messages_reply_all",
+      "description": "Reply to all recipients of a message. Required: message_id. Optional: comment, message.",
+      "method": "POST",
+      "path": "/me/messages/{message_id}/replyAll",
+      "params": [
+        {
+          "name": "message_id",
+          "type": "string",
+          "location": "path",
+          "description": "Message id to reply-all to",
+          "required": true
+        },
+        {
+          "name": "comment",
+          "type": "string",
+          "location": "body",
+          "description": "Inline comment prepended to the original"
+        },
+        {
+          "name": "message",
+          "type": "object",
+          "location": "body",
+          "description": "Optional message override"
+        }
+      ]
+    },
+    {
+      "name": "messages_send_draft",
+      "description": "Send a previously-saved draft message. Required: message_id.",
+      "method": "POST",
+      "path": "/me/messages/{message_id}/send",
+      "params": [
+        {
+          "name": "message_id",
+          "type": "string",
+          "location": "path",
+          "description": "Draft message id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "messages_update",
+      "description": "Update message fields (isRead, categories, flag, importance, subject, body). Required: message_id. Optional: isRead, importance, categories (plus 2 more). Returns the updated Message.",
+      "method": "PATCH",
+      "path": "/me/messages/{message_id}",
+      "params": [
+        {
+          "name": "message_id",
+          "type": "string",
+          "location": "path",
+          "description": "Message id",
+          "required": true
+        },
+        {
+          "name": "isRead",
+          "type": "bool",
+          "location": "body",
+          "description": "Mark the message as read (true) or unread (false)"
+        },
+        {
+          "name": "importance",
+          "type": "string",
+          "location": "body",
+          "description": "Importance level"
+        },
+        {
+          "name": "categories",
+          "type": "array",
+          "location": "body",
+          "description": "Color category names to apply (replaces the current list)"
+        },
+        {
+          "name": "flag",
+          "type": "object",
+          "location": "body",
+          "description": "Follow-up flag struct (flagStatus + due/start/completedDateTime)"
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "body",
+          "description": "New subject (drafts only)"
+        }
+      ]
+    },
+    {
+      "name": "rules_create",
+      "description": "Create an inbox rule. Required: displayName. Optional: sequence, isEnabled, conditions (plus 2 more). Returns the new MessageRule.",
+      "method": "POST",
+      "path": "/me/mailFolders/inbox/messageRules",
+      "params": [
+        {
+          "name": "displayName",
+          "type": "string",
+          "location": "body",
+          "description": "Rule name",
+          "required": true
+        },
+        {
+          "name": "sequence",
+          "type": "int",
+          "location": "body",
+          "description": "Priority (lower runs first)"
+        },
+        {
+          "name": "isEnabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the rule is active"
+        },
+        {
+          "name": "conditions",
+          "type": "object",
+          "location": "body",
+          "description": "Predicate struct (senderContains, subjectContains, hasAttachments, ...)"
+        },
+        {
+          "name": "actions",
+          "type": "object",
+          "location": "body",
+          "description": "Action struct (moveToFolder, copyToFolder, markAsRead, ...)"
+        },
+        {
+          "name": "exceptions",
+          "type": "object",
+          "location": "body",
+          "description": "Predicate struct for exceptions"
+        }
+      ]
+    },
+    {
+      "name": "rules_delete",
+      "description": "Delete an inbox rule. Required: rule_id. Destructive.",
+      "method": "DELETE",
+      "path": "/me/mailFolders/inbox/messageRules/{rule_id}",
+      "params": [
+        {
+          "name": "rule_id",
+          "type": "string",
+          "location": "path",
+          "description": "Rule id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "rules_get",
+      "description": "Get a single inbox rule. Required: rule_id. Returns the MessageRule.",
+      "method": "GET",
+      "path": "/me/mailFolders/inbox/messageRules/{rule_id}",
+      "params": [
+        {
+          "name": "rule_id",
+          "type": "string",
+          "location": "path",
+          "description": "Rule id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "rules_list",
+      "description": "List inbox rules. Returns array of MessageRule.",
+      "method": "GET",
+      "path": "/me/mailFolders/inbox/messageRules",
+      "params": []
+    },
+    {
+      "name": "rules_update",
+      "description": "Update an inbox rule. Required: rule_id. Optional: displayName, sequence, isEnabled (plus 3 more). Returns the updated MessageRule.",
+      "method": "PATCH",
+      "path": "/me/mailFolders/inbox/messageRules/{rule_id}",
+      "params": [
+        {
+          "name": "rule_id",
+          "type": "string",
+          "location": "path",
+          "description": "Rule id",
+          "required": true
+        },
+        {
+          "name": "displayName",
+          "type": "string",
+          "location": "body"
+        },
+        {
+          "name": "sequence",
+          "type": "int",
+          "location": "body"
+        },
+        {
+          "name": "isEnabled",
+          "type": "bool",
+          "location": "body"
+        },
+        {
+          "name": "conditions",
+          "type": "object",
+          "location": "body"
+        },
+        {
+          "name": "actions",
+          "type": "object",
+          "location": "body"
+        },
+        {
+          "name": "exceptions",
+          "type": "object",
+          "location": "body"
+        }
+      ]
+    },
+    {
+      "name": "send_mail_send",
+      "description": "Compose and send a message without first saving to drafts. Required: message. Optional: saveToSentItems.",
+      "method": "POST",
+      "path": "/me/sendMail",
+      "params": [
+        {
+          "name": "message",
+          "type": "object",
+          "location": "body",
+          "description": "Message envelope ({subject, body, toRecipients, ccRecipients, bccRecipients, importance})",
+          "required": true
+        },
+        {
+          "name": "saveToSentItems",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to save a copy in Sent Items (default true)"
+        }
+      ]
+    }
+  ]
+}

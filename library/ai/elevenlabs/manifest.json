@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "elevenlabs-pp-mcp",
+  "display_name": "ElevenLabs",
+  "version": "4.5.2",
+  "description": "Generate, transform, transcribe, dub, and manage AI audio, voices, music, and conversational agents with ElevenLabs.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/elevenlabs-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/elevenlabs-pp-mcp",
+      "args": [],
+      "env": {
+        "ELEVENLABS_API_KEY": "${user_config.elevenlabs_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "elevenlabs_api_key": {
+      "type": "string",
+      "title": "ELEVENLABS_API_KEY",
+      "description": "Sets ELEVENLABS_API_KEY for the ElevenLabs MCP server. Get a credential from https://elevenlabs.io/app/settings/api-keys.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-17",
+  "base_run_id": "20260517-014518",
+  "base_printing_press_version": "4.8.0",
+  "patches": [
+    {
+      "id": "mailchimp-api-key-env-var",
+      "summary": "Added MAILCHIMP_API_KEY env var support with runtime datacenter parsing in internal/config/config.go, plus matching user-facing messaging in auth.go and doctor.go.",
+      "reason": "Mailchimp's API key format is '{32-hex}-{dc}' where the trailing token after the last dash is the datacenter code (us1-us21). The base URL is dynamic per key: 'https://{dc}.api.mailchimp.com/3.0/'. The generator-emitted basicAuth wiring assumed two separate env vars (MAILCHIMP_USERNAME, MAILCHIMP_PASSWORD) and a fixed base URL, which doesn't match how Mailchimp users provision keys. The patch (a) reads MAILCHIMP_API_KEY as the single canonical env var, (b) parses the trailing -dc suffix via a new ParseDatacenter helper, (c) sets username='anystring' and password=key (Mailchimp's HTTP Basic convention), and (d) rewrites BaseURL to the correct datacenter host. Legacy MAILCHIMP_USERNAME/MAILCHIMP_PASSWORD still work for explicit Basic-auth users. MAILCHIMP_DC overrides the suffix for OAuth tokens with no embedded dc.",
+      "files": [
+        "internal/config/config.go",
+        "internal/config/config_test.go",
+        "internal/cli/auth.go",
+        "internal/cli/doctor.go",
+        "internal/cli/helpers.go"
+      ],
+      "validated_outcome": "doctor --json reports auth_source=env:MAILCHIMP_API_KEY, base_url=https://us6.api.mailchimp.com/3.0, api=reachable. Live ping returned 200 'Everything's Chimpy!'. Subscribe + archive + permanent-delete round-trip verified end-to-end against a real us6 account. ParseDatacenter has 11 table-driven test cases covering valid (us6/us21/us1), missing suffix, empty dc, oversized dc, non-alphanumeric dc, uppercase rejection, and empty input."
+    },
+    {
+      "id": "mailchimp-novel-workflow-commands",
+      "summary": "Added 8 hand-coded workflow commands that compose Mailchimp's split data model: subscribe, bulk-subscribe, digest, compare, attribution, deliverability, segments audit, send-checked. Wired into root.go.",
+      "reason": "Mailchimp's 291-endpoint Marketing API has SDKs in every language, but no tool composes the workflows Mailchimp's data model forces you into. The generator-emitted endpoint mirror handles the raw API surface; these novel commands are the differentiator: subscribe auto-hashes the MD5 subscriber_hash and PUT-upserts (replacing the three-call dance); bulk-subscribe drives the /batches endpoint and decodes the tar.gz of JSONL within the 10-minute response URL window; digest joins four campaign report endpoints into one summary (single-campaign or rollup-of-N); compare diffs two campaigns side-by-side; attribution joins ecommerce-product-activity with synced orders; deliverability rolls up domain-performance across N campaigns; segments audit flags empty/stale segments; send-checked gates the send action on the official send-checklist endpoint, exiting 2 if any item has type=error. Total ~970 LoC across 9 new files. Each file is hand-authored (not generator-emitted) and uses `// pp:client-call` semantics by composing the spec-emitted client.",
+      "files": [
+        "internal/cli/novel_subscribe.go",
+        "internal/cli/novel_bulk_subscribe.go",
+        "internal/cli/novel_digest.go",
+        "internal/cli/novel_compare.go",
+        "internal/cli/novel_attribution.go",
+        "internal/cli/novel_deliverability.go",
+        "internal/cli/novel_segments_audit.go",
+        "internal/cli/novel_segments_parent.go",
+        "internal/cli/novel_send_checked.go",
+        "internal/cli/root.go"
+      ],
+      "validated_outcome": "All 8 novel commands compile, register in root.go, and respond to --help / --dry-run. Live verified against a real us6 Mailchimp account: doctor + ping returned 200; subscribe with MD5 hashing + tags worked end-to-end (member created → archived → permanent-deleted → 404); segments audit found 1 healthy segment in a real audience; digest --last 5 gracefully returned empty for an account with 0 sent campaigns; deliverability + attribution + compare correctly handle empty data sets. Shipcheck 6/6 PASS; polish scorecard 93/100 Grade A."
+    },
+    {
+      "id": "mailchimp-readme-env-var-update",
+      "summary": "Rewrote README.md and SKILL.md authentication sections to surface MAILCHIMP_API_KEY as the canonical env var, plus added a Known Limitations block documenting 3 upstream Mailchimp API quirks.",
+      "reason": "The generator emitted MAILCHIMP_USERNAME / MAILCHIMP_PASSWORD as separate env vars from the spec's basicAuth scheme. Mailchimp's real-world convention is one combined env var with the datacenter suffix. README + SKILL updates: (a) point at MAILCHIMP_API_KEY in install instructions, env var table, troubleshooting, and the Authentication section, (b) document MAILCHIMP_DC as the OAuth-token override, (c) add a 'Known Limitations' block surfacing 3 Mailchimp API quirks discovered during live dogfood (file-manager and sms-campaigns content return 200 with default content for invalid IDs; workflow archive --json emits NDJSON event stream).",
+      "files": [
+        "README.md",
+        "SKILL.md"
+      ]
+    }
+  ]
+}

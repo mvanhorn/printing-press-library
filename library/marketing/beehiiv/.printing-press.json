@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-10T19:47:57.849492Z",
+  "printing_press_version": "4.2.2",
+  "api_name": "beehiiv",
+  "display_name": "Beehiiv",
+  "cli_name": "beehiiv-pp-cli",
+  "owner": "kevin-magnan",
+  "printer": "kjmagnan1s",
+  "printer_name": "Kevin Magnan",
+  "spec_url": "https://files.buildwithfern.com/https://beehiiv.docs.buildwithfern.com/ce117ceb8170960e1daef3750597e88705645d547d7ee2fee49c5bebfd5c6b6d/assets/beehiiv-API-Specification.yaml",
+  "spec_path": "/Users/kevinmagnan/printing-press/.runstate/cli-printing-press-e4fb5925/runs/20260510-144732/research/beehiiv-openapi.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:ce117ceb8170960e1daef3750597e88705645d547d7ee2fee49c5bebfd5c6b6d",
+  "run_id": "20260510-144732",
+  "category": "marketing",
+  "mcp_binary": "beehiiv-pp-mcp",
+  "mcp_tool_count": 82,
+  "mcp_ready": "full",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "BEEHIIV_BEARER_AUTH"
+  ],
+  "novel_features": [
+    {
+      "name": "Growth Summary",
+      "command": "insights growth-summary",
+      "description": "Summarize publication, subscriber, post, referral, and custom-field health in one read-only response."
+    },
+    {
+      "name": "Subscriber Sources",
+      "command": "insights subscriber-sources",
+      "description": "Group subscribers by UTM, channel, and referring-site fields to see where audience growth is coming from."
+    },
+    {
+      "name": "Post Performance",
+      "command": "insights post-performance",
+      "description": "List recent posts with status, audience, publish timing, and any available expanded stats."
+    },
+    {
+      "name": "Field Coverage",
+      "command": "insights field-coverage",
+      "description": "Inspect custom-field definitions alongside subscriber sample size for enrichment planning."
+    },
+    {
+      "name": "Referral Health",
+      "command": "insights referral-health",
+      "description": "Summarize referral-program configuration and subscriber referral-code coverage."
+    },
+    {
+      "name": "Subscriber Lookup",
+      "command": "insights subscriber-lookup",
+      "description": "Find one subscriber by email or subscription ID and return a compact subscriber record."
+    }
+  ]
+}

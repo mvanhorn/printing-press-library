@@ -1,0 +1,1526 @@
+{
+  "version": "1",
+  "summary": {
+    "target_url": "https://studio-api-prod.suno.com/api/clips/parent?clip_id=7a1da7af-a499-4343-990e-e438c3b80fd2",
+    "entry_count": 27,
+    "api_entry_count": 27,
+    "noise_entry_count": 0,
+    "host_distribution": {
+      "studio-api-prod.suno.com": 27
+    },
+    "time_start": "2026-05-15T02:02:33.349456Z",
+    "time_end": "2026-05-15T02:02:33.349698Z"
+  },
+  "reachability": {
+    "mode": "browser_clearance_http",
+    "confidence": 0.95,
+    "reasons": [
+      "Defense-in-depth: ship browser-compatible HTTP runtime + Chrome cookie import",
+      "Direct curl probe of /api/billing/info/ returns 401 with JSON body (not Cloudflare HTML) - API responds at the transport layer, blocking is auth-based",
+      "The /api/c/check endpoint flagged as CAPTCHA marker by the analyzer is a false positive: it returned 200 with 40-byte JSON during browser-sniff, equivalent to \"no challenge required\""
+    ],
+    "evidence": [
+      {
+        "entry_index": 13,
+        "method": "POST",
+        "host": "studio-api-prod.suno.com",
+        "path": "/api/c/check",
+        "status": 200,
+        "content_type": "application/json",
+        "reason": "CAPTCHA marker"
+      }
+    ],
+    "override_reason": "Manual override based on Phase 1.9 reachability gate evidence (direct HTTP probe + 27 successful browser-sniff captures)"
+  },
+  "protocols": [
+    {
+      "label": "rest_json",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/clips/parent",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/clips/direct_children_count",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/clips/7a1da7af-a499-4343-990e-e438c3b80fd2/attribution",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 3,
+          "method": "GET",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/gen/7a1da7af-a499-4343-990e-e438c3b80fd2/comments",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 4,
+          "method": "GET",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/clips/get_similar/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 5,
+          "method": "POST",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/unified/feed",
+          "status": 404,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 6,
+          "method": "POST",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/feed/v3",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 7,
+          "method": "POST",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/feed/v3",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 8,
+          "method": "GET",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/project/default/pinned-clips",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 9,
+          "method": "GET",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/statsig/experiment/forked-onboarding",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 10,
+          "method": "GET",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/challenge/progress",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 11,
+          "method": "GET",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/notification/v2",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 12,
+          "method": "GET",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/notification/v2/badge-count",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 13,
+          "method": "POST",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/c/check",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 14,
+          "method": "POST",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/generate/v2-web/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 15,
+          "method": "GET",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/billing/usage-plan-web-table-comparison/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 16,
+          "method": "GET",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/billing/usage-plan-faq/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 17,
+          "method": "GET",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/billing/info/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 18,
+          "method": "POST",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/feed/v3",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 19,
+          "method": "POST",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/feed/v3",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 20,
+          "method": "POST",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/feed/v3",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 21,
+          "method": "POST",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/feed/v3",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 22,
+          "method": "POST",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/feed/v3",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 23,
+          "method": "POST",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/feed/v3",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 24,
+          "method": "POST",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/feed/v3",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 25,
+          "method": "POST",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/feed/v3",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 26,
+          "method": "POST",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/feed/v3",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        }
+      ]
+    }
+  ],
+  "auth": {},
+  "protections": [],
+  "endpoint_clusters": [
+    {
+      "host": "studio-api-prod.suno.com",
+      "method": "GET",
+      "path": "/api/billing/info/",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "medium",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "unknown"
+      },
+      "evidence": [
+        {
+          "entry_index": 17,
+          "method": "GET",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/billing/info/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "studio-api-prod.suno.com",
+      "method": "GET",
+      "path": "/api/billing/usage-plan-faq/",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "medium",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "faq",
+            "type": "array",
+            "required": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "entry_index": 16,
+          "method": "GET",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/billing/usage-plan-faq/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "studio-api-prod.suno.com",
+      "method": "GET",
+      "path": "/api/billing/usage-plan-web-table-comparison/",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "medium",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "usage_plan_web_table_comparison",
+            "type": "object",
+            "required": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "entry_index": 15,
+          "method": "GET",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/billing/usage-plan-web-table-comparison/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "studio-api-prod.suno.com",
+      "method": "POST",
+      "path": "/api/c/check",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "captcha_version",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "required",
+            "type": "boolean",
+            "required": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "entry_index": 13,
+          "method": "POST",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/c/check",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "studio-api-prod.suno.com",
+      "method": "GET",
+      "path": "/api/challenge/progress",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "all_bonus",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "challenge_mode",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "challenge_set",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "challenges",
+            "type": "array",
+            "required": true
+          },
+          {
+            "name": "current_level",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "earned_credits",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "has_next_refresh",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "name": "reward_method",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "total_credits",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "user_created_at",
+            "type": "string",
+            "required": true,
+            "format": "date-time"
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "entry_index": 10,
+          "method": "GET",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/challenge/progress",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "studio-api-prod.suno.com",
+      "method": "GET",
+      "path": "/api/clips/direct_children_count",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "count",
+            "type": "integer",
+            "required": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/clips/direct_children_count",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "studio-api-prod.suno.com",
+      "method": "GET",
+      "path": "/api/clips/get_similar/",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "medium",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "unknown"
+      },
+      "evidence": [
+        {
+          "entry_index": 4,
+          "method": "GET",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/clips/get_similar/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "studio-api-prod.suno.com",
+      "method": "GET",
+      "path": "/api/clips/parent",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "is_public",
+            "type": "boolean",
+            "required": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/clips/parent",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "studio-api-prod.suno.com",
+      "method": "GET",
+      "path": "/api/clips/{uuid}/attribution",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "source_clips",
+            "type": "array",
+            "required": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/clips/7a1da7af-a499-4343-990e-e438c3b80fd2/attribution",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "studio-api-prod.suno.com",
+      "method": "POST",
+      "path": "/api/feed/v3",
+      "count": 11,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "medium",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "unknown"
+      },
+      "evidence": [
+        {
+          "entry_index": 6,
+          "method": "POST",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/feed/v3",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 7,
+          "method": "POST",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/feed/v3",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 18,
+          "method": "POST",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/feed/v3",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 19,
+          "method": "POST",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/feed/v3",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 20,
+          "method": "POST",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/feed/v3",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 21,
+          "method": "POST",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/feed/v3",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 22,
+          "method": "POST",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/feed/v3",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 23,
+          "method": "POST",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/feed/v3",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 24,
+          "method": "POST",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/feed/v3",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 25,
+          "method": "POST",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/feed/v3",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 26,
+          "method": "POST",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/feed/v3",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "studio-api-prod.suno.com",
+      "method": "GET",
+      "path": "/api/gen/{uuid}/comments",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "allow_comment",
+            "type": "boolean",
+            "required": true
+          },
+          {
+            "name": "results",
+            "type": "array",
+            "required": true
+          },
+          {
+            "name": "total_count",
+            "type": "integer",
+            "required": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "entry_index": 3,
+          "method": "GET",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/gen/7a1da7af-a499-4343-990e-e438c3b80fd2/comments",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "studio-api-prod.suno.com",
+      "method": "POST",
+      "path": "/api/generate/v2-web/",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "medium",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "batch_size",
+            "type": "integer",
+            "required": true
+          },
+          {
+            "name": "clips",
+            "type": "array",
+            "required": true
+          },
+          {
+            "name": "created_at",
+            "type": "string",
+            "required": true,
+            "format": "date-time"
+          },
+          {
+            "name": "id",
+            "type": "string",
+            "required": true,
+            "format": "uuid"
+          },
+          {
+            "name": "major_model_version",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "metadata",
+            "type": "object",
+            "required": true
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "entry_index": 14,
+          "method": "POST",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/generate/v2-web/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "studio-api-prod.suno.com",
+      "method": "GET",
+      "path": "/api/notification/v2",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "notifications",
+            "type": "array",
+            "required": true
+          },
+          {
+            "name": "notified_at",
+            "type": "string",
+            "required": true,
+            "format": "date-time"
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "entry_index": 11,
+          "method": "GET",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/notification/v2",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "studio-api-prod.suno.com",
+      "method": "GET",
+      "path": "/api/notification/v2/badge-count",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "badge_count",
+            "type": "integer",
+            "required": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "entry_index": 12,
+          "method": "GET",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/notification/v2/badge-count",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "studio-api-prod.suno.com",
+      "method": "GET",
+      "path": "/api/project/default/pinned-clips",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "pinned_clips",
+            "type": "array",
+            "required": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "entry_index": 8,
+          "method": "GET",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/project/default/pinned-clips",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "studio-api-prod.suno.com",
+      "method": "GET",
+      "path": "/api/statsig/experiment/forked-onboarding",
+      "count": 1,
+      "statuses": [
+        200
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "onboarding_group",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "reason",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "entry_index": 9,
+          "method": "GET",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/statsig/experiment/forked-onboarding",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "host": "studio-api-prod.suno.com",
+      "method": "POST",
+      "path": "/api/unified/feed",
+      "count": 1,
+      "statuses": [
+        404
+      ],
+      "content_types": [
+        "application/json"
+      ],
+      "size_class": "small",
+      "request_shape": {},
+      "response_shape": {
+        "kind": "object",
+        "fields": [
+          {
+            "name": "detail",
+            "type": "string",
+            "required": true
+          }
+        ]
+      },
+      "evidence": [
+        {
+          "entry_index": 5,
+          "method": "POST",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/unified/feed",
+          "status": 404,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    }
+  ],
+  "request_sequences": [
+    {
+      "label": "observed_api_flow",
+      "confidence": 0.65,
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/clips/parent",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/clips/direct_children_count",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/clips/7a1da7af-a499-4343-990e-e438c3b80fd2/attribution",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 3,
+          "method": "GET",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/gen/7a1da7af-a499-4343-990e-e438c3b80fd2/comments",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 4,
+          "method": "GET",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/clips/get_similar/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 5,
+          "method": "POST",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/unified/feed",
+          "status": 404,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 6,
+          "method": "POST",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/feed/v3",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        },
+        {
+          "entry_index": 7,
+          "method": "POST",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/feed/v3",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "observed API request order"
+        }
+      ],
+      "notes": [
+        "HAR timing available for at least one request."
+      ]
+    }
+  ],
+  "candidate_commands": [
+    {
+      "name": "create_check",
+      "resource": "check",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /api/c/check traffic.",
+      "evidence": [
+        {
+          "entry_index": 13,
+          "method": "POST",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/c/check",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "create_feed",
+      "resource": "feed",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /api/feed/v3 traffic.",
+      "evidence": [
+        {
+          "entry_index": 6,
+          "method": "POST",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/feed/v3",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 7,
+          "method": "POST",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/feed/v3",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 18,
+          "method": "POST",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/feed/v3",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 19,
+          "method": "POST",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/feed/v3",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 20,
+          "method": "POST",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/feed/v3",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 21,
+          "method": "POST",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/feed/v3",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 22,
+          "method": "POST",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/feed/v3",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 23,
+          "method": "POST",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/feed/v3",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 24,
+          "method": "POST",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/feed/v3",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 25,
+          "method": "POST",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/feed/v3",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        },
+        {
+          "entry_index": 26,
+          "method": "POST",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/feed/v3",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "create_v2_web",
+      "resource": "v2_web",
+      "confidence": 0.55,
+      "rationale": "Derived from observed POST /api/generate/v2-web/ traffic.",
+      "evidence": [
+        {
+          "entry_index": 14,
+          "method": "POST",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/generate/v2-web/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "get_attribution",
+      "resource": "attribution",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/clips/{uuid}/attribution traffic.",
+      "evidence": [
+        {
+          "entry_index": 2,
+          "method": "GET",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/clips/7a1da7af-a499-4343-990e-e438c3b80fd2/attribution",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "get_comments",
+      "resource": "comments",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/gen/{uuid}/comments traffic.",
+      "evidence": [
+        {
+          "entry_index": 3,
+          "method": "GET",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/gen/7a1da7af-a499-4343-990e-e438c3b80fd2/comments",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_badge_count",
+      "resource": "badge_count",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/notification/v2/badge-count traffic.",
+      "evidence": [
+        {
+          "entry_index": 12,
+          "method": "GET",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/notification/v2/badge-count",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_direct_children_count",
+      "resource": "direct_children_count",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/clips/direct_children_count traffic.",
+      "evidence": [
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/clips/direct_children_count",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_forked_onboarding",
+      "resource": "forked_onboarding",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/statsig/experiment/forked-onboarding traffic.",
+      "evidence": [
+        {
+          "entry_index": 9,
+          "method": "GET",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/statsig/experiment/forked-onboarding",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_get_similar",
+      "resource": "get_similar",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/clips/get_similar/ traffic.",
+      "evidence": [
+        {
+          "entry_index": 4,
+          "method": "GET",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/clips/get_similar/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_info",
+      "resource": "info",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/billing/info/ traffic.",
+      "evidence": [
+        {
+          "entry_index": 17,
+          "method": "GET",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/billing/info/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_notification",
+      "resource": "notification",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/notification/v2 traffic.",
+      "evidence": [
+        {
+          "entry_index": 11,
+          "method": "GET",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/notification/v2",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_parent",
+      "resource": "parent",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/clips/parent traffic.",
+      "evidence": [
+        {
+          "entry_index": 0,
+          "method": "GET",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/clips/parent",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_pinned_clips",
+      "resource": "pinned_clips",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/project/default/pinned-clips traffic.",
+      "evidence": [
+        {
+          "entry_index": 8,
+          "method": "GET",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/project/default/pinned-clips",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_progress",
+      "resource": "progress",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/challenge/progress traffic.",
+      "evidence": [
+        {
+          "entry_index": 10,
+          "method": "GET",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/challenge/progress",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_usage_plan_faq",
+      "resource": "usage_plan_faq",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/billing/usage-plan-faq/ traffic.",
+      "evidence": [
+        {
+          "entry_index": 16,
+          "method": "GET",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/billing/usage-plan-faq/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    },
+    {
+      "name": "list_usage_plan_web_table_comparison",
+      "resource": "usage_plan_web_table_comparison",
+      "confidence": 0.55,
+      "rationale": "Derived from observed GET /api/billing/usage-plan-web-table-comparison/ traffic.",
+      "evidence": [
+        {
+          "entry_index": 15,
+          "method": "GET",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/billing/usage-plan-web-table-comparison/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    }
+  ],
+  "generation_hints": [
+    "requires_protected_client"
+  ],
+  "warnings": [
+    {
+      "type": "error_status_cluster",
+      "message": "Endpoint cluster only observed error HTTP statuses.",
+      "confidence": 0.7,
+      "evidence": [
+        {
+          "entry_index": 5,
+          "method": "POST",
+          "host": "studio-api-prod.suno.com",
+          "path": "/api/unified/feed",
+          "status": 404,
+          "content_type": "application/json",
+          "reason": "endpoint cluster member"
+        }
+      ]
+    }
+  ]
+}

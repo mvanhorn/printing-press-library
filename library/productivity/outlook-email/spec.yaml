@@ -1,0 +1,951 @@
+name: outlook-email
+description: "Outlook Email CLI for personal Microsoft 365 accounts via Microsoft Graph"
+version: "0.1.0"
+base_url: "https://graph.microsoft.com/v1.0"
+health_check_path: "/me"
+printer: brennaman
+printer_name: "Paul Brennaman"
+owner_name: "Paul Brennaman"
+
+auth:
+  type: bearer_token
+  header: "Authorization"
+  format: "Bearer {token}"
+  env_vars:
+    - OUTLOOK_EMAIL_TOKEN
+
+config:
+  format: toml
+  path: "~/.config/outlook-email-pp-cli/config.toml"
+
+required_headers:
+  - name: User-Agent
+    value: "outlook-email-pp-cli/0.1"
+
+cli_description: "Drive your personal Microsoft 365 inbox from agentic workflows: read, send, sync, and run offline triage analytics like followup, senders, waiting, and digest that no Graph endpoint exposes."
+
+mcp:
+  transport: [stdio]
+
+resources:
+
+  messages:
+    description: "Outlook mail messages on your default mailbox"
+    endpoints:
+      list:
+        method: GET
+        path: "/me/messages"
+        description: "List messages across all folders"
+        params:
+          - name: $top
+            flag_name: top
+            type: int
+            default: 25
+            description: "Maximum number of messages to return (1-1000)"
+          - name: $skip
+            flag_name: skip
+            type: int
+            description: "Number of messages to skip (offset pagination)"
+          - name: $orderby
+            flag_name: orderby
+            type: string
+            default: "receivedDateTime desc"
+            description: "OData order-by expression (e.g. 'receivedDateTime desc', 'subject')"
+          - name: $filter
+            flag_name: filter
+            type: string
+            description: "OData filter expression (e.g. \"from/emailAddress/address eq 'a@b.com'\")"
+          - name: $search
+            flag_name: search
+            type: string
+            description: "Free-text search (quoted phrases supported)"
+          - name: $select
+            flag_name: select-fields
+            type: string
+            description: "Comma-separated OData fields to return on the wire"
+        response:
+          type: array
+          item: Message
+        pagination:
+          type: cursor
+          cursor_field: "@odata.nextLink"
+
+      get:
+        method: GET
+        path: "/me/messages/{message_id}"
+        description: "Get a message by id"
+        params:
+          - name: message_id
+            type: string
+            required: true
+            positional: true
+            description: "Message id"
+          - name: $select
+            flag_name: select-fields
+            type: string
+            description: "Comma-separated OData fields to return on the wire"
+        response:
+          type: object
+          item: Message
+
+      delete:
+        method: DELETE
+        path: "/me/messages/{message_id}"
+        description: "Delete a message (moves to Deleted Items by default)"
+        params:
+          - name: message_id
+            type: string
+            required: true
+            positional: true
+            description: "Message id"
+        response:
+          type: object
+
+      update:
+        method: PATCH
+        path: "/me/messages/{message_id}"
+        description: "Update message fields (isRead, categories, flag, importance, subject, body)"
+        params:
+          - name: message_id
+            type: string
+            required: true
+            positional: true
+            description: "Message id"
+        body:
+          - name: isRead
+            type: bool
+            description: "Mark the message as read (true) or unread (false)"
+          - name: importance
+            type: string
+            description: "Importance level"
+            enum: [low, normal, high]
+          - name: categories
+            type: array
+            description: "Color category names to apply (replaces the current list)"
+          - name: flag
+            type: object
+            description: "Follow-up flag struct (flagStatus + due/start/completedDateTime)"
+          - name: subject
+            type: string
+            description: "New subject (drafts only)"
+        response:
+          type: object
+          item: Message
+
+      reply:
+        method: POST
+        path: "/me/messages/{message_id}/reply"
+        description: "Send a reply to a message (uses the original sender)"
+        params:
+          - name: message_id
+            type: string
+            required: true
+            positional: true
+            description: "Message id to reply to"
+        body:
+          - name: comment
+            type: string
+            description: "Inline comment prepended to the original message"
+          - name: message
+            type: object
+            description: "Optional message override (body, toRecipients, etc.)"
+        response:
+          type: object
+
+      reply_all:
+        method: POST
+        path: "/me/messages/{message_id}/replyAll"
+        description: "Reply to all recipients of a message"
+        params:
+          - name: message_id
+            type: string
+            required: true
+            positional: true
+            description: "Message id to reply-all to"
+        body:
+          - name: comment
+            type: string
+            description: "Inline comment prepended to the original"
+          - name: message
+            type: object
+            description: "Optional message override"
+        response:
+          type: object
+
+      forward:
+        method: POST
+        path: "/me/messages/{message_id}/forward"
+        description: "Forward a message to new recipients"
+        params:
+          - name: message_id
+            type: string
+            required: true
+            positional: true
+            description: "Message id to forward"
+        body:
+          - name: comment
+            type: string
+            description: "Inline comment prepended to the forwarded body"
+          - name: toRecipients
+            type: array
+            required: true
+            description: "Forward recipients (array of {emailAddress:{address:'...'}})"
+          - name: message
+            type: object
+            description: "Optional message overrides"
+        response:
+          type: object
+
+      move:
+        method: POST
+        path: "/me/messages/{message_id}/move"
+        description: "Move a message to another mail folder"
+        params:
+          - name: message_id
+            type: string
+            required: true
+            positional: true
+            description: "Message id"
+        body:
+          - name: destinationId
+            type: string
+            required: true
+            description: "Target folder id (or well-known name: inbox, archive, deleteditems, junkemail, drafts, sentitems)"
+        response:
+          type: object
+          item: Message
+
+      copy:
+        method: POST
+        path: "/me/messages/{message_id}/copy"
+        description: "Copy a message into another mail folder"
+        params:
+          - name: message_id
+            type: string
+            required: true
+            positional: true
+            description: "Message id"
+        body:
+          - name: destinationId
+            type: string
+            required: true
+            description: "Target folder id or well-known name"
+        response:
+          type: object
+          item: Message
+
+      send_draft:
+        method: POST
+        path: "/me/messages/{message_id}/send"
+        description: "Send a previously-saved draft message"
+        params:
+          - name: message_id
+            type: string
+            required: true
+            positional: true
+            description: "Draft message id"
+        response:
+          type: object
+
+      create_draft:
+        method: POST
+        path: "/me/messages"
+        description: "Create a draft message (save without sending)"
+        body:
+          - name: subject
+            type: string
+            description: "Message subject"
+          - name: body
+            type: object
+            description: "Message body ({contentType:'HTML'|'Text', content:'...'})"
+          - name: toRecipients
+            type: array
+            description: "Primary recipients"
+          - name: ccRecipients
+            type: array
+            description: "CC recipients"
+          - name: bccRecipients
+            type: array
+            description: "BCC recipients"
+          - name: importance
+            type: string
+            description: "Importance level"
+            enum: [low, normal, high]
+        response:
+          type: object
+          item: Message
+
+      delta:
+        method: GET
+        path: "/me/messages/delta"
+        description: "Pull incremental message changes since the last delta token"
+        params:
+          - name: $deltatoken
+            flag_name: delta-token
+            type: string
+            description: "Delta token from a previous sync (optional; empty starts a fresh sync)"
+          - name: $top
+            flag_name: top
+            type: int
+            default: 200
+            description: "Page size"
+        response:
+          type: array
+          item: Message
+        pagination:
+          type: cursor
+          cursor_field: "@odata.nextLink"
+
+  send_mail:
+    description: "Send a brand-new email in one shot (skips the drafts folder)"
+    endpoints:
+      send:
+        method: POST
+        path: "/me/sendMail"
+        description: "Compose and send a message without first saving to drafts"
+        body:
+          - name: message
+            type: object
+            required: true
+            description: "Message envelope ({subject, body, toRecipients, ccRecipients, bccRecipients, importance})"
+          - name: saveToSentItems
+            type: bool
+            description: "Whether to save a copy in Sent Items (default true)"
+        response:
+          type: object
+
+  folders:
+    description: "Mail folders and their hierarchy"
+    endpoints:
+      list:
+        method: GET
+        path: "/me/mailFolders"
+        description: "List top-level mail folders"
+        params:
+          - name: $top
+            flag_name: top
+            type: int
+            default: 100
+            description: "Maximum folders to return"
+          - name: includeHiddenFolders
+            flag_name: include-hidden
+            type: string
+            description: "Include system/hidden folders (true|false)"
+          - name: $select
+            flag_name: select-fields
+            type: string
+            description: "Comma-separated OData fields"
+        response:
+          type: array
+          item: MailFolder
+        pagination:
+          type: cursor
+          cursor_field: "@odata.nextLink"
+
+      get:
+        method: GET
+        path: "/me/mailFolders/{folder_id}"
+        description: "Get a mail folder by id or well-known name"
+        params:
+          - name: folder_id
+            type: string
+            required: true
+            positional: true
+            description: "Folder id (or well-known: inbox, archive, drafts, sentitems, deleteditems, junkemail)"
+        response:
+          type: object
+          item: MailFolder
+
+      children:
+        method: GET
+        path: "/me/mailFolders/{folder_id}/childFolders"
+        description: "List child folders under a parent folder"
+        params:
+          - name: folder_id
+            type: string
+            required: true
+            positional: true
+            description: "Parent folder id"
+          - name: $top
+            flag_name: top
+            type: int
+            default: 100
+            description: "Maximum child folders to return"
+        response:
+          type: array
+          item: MailFolder
+        pagination:
+          type: cursor
+          cursor_field: "@odata.nextLink"
+
+      messages:
+        method: GET
+        path: "/me/mailFolders/{folder_id}/messages"
+        description: "List messages in a specific folder"
+        params:
+          - name: folder_id
+            type: string
+            required: true
+            positional: true
+            description: "Folder id or well-known name (inbox, archive, sentitems...)"
+          - name: $top
+            flag_name: top
+            type: int
+            default: 25
+            description: "Maximum messages to return"
+          - name: $filter
+            flag_name: filter
+            type: string
+            description: "OData filter"
+          - name: $search
+            flag_name: search
+            type: string
+            description: "Free-text search inside this folder"
+          - name: $orderby
+            flag_name: orderby
+            type: string
+            default: "receivedDateTime desc"
+            description: "OData order-by"
+          - name: $select
+            flag_name: select-fields
+            type: string
+            description: "Comma-separated OData fields"
+        response:
+          type: array
+          item: Message
+        pagination:
+          type: cursor
+          cursor_field: "@odata.nextLink"
+
+      create:
+        method: POST
+        path: "/me/mailFolders"
+        description: "Create a top-level mail folder"
+        body:
+          - name: displayName
+            type: string
+            required: true
+            description: "Folder name"
+          - name: isHidden
+            type: bool
+            description: "Whether the folder is hidden in clients"
+        response:
+          type: object
+          item: MailFolder
+
+      create_child:
+        method: POST
+        path: "/me/mailFolders/{folder_id}/childFolders"
+        description: "Create a child folder under a parent"
+        params:
+          - name: folder_id
+            type: string
+            required: true
+            positional: true
+            description: "Parent folder id"
+        body:
+          - name: displayName
+            type: string
+            required: true
+            description: "Child folder name"
+        response:
+          type: object
+          item: MailFolder
+
+      update:
+        method: PATCH
+        path: "/me/mailFolders/{folder_id}"
+        description: "Rename a mail folder"
+        params:
+          - name: folder_id
+            type: string
+            required: true
+            positional: true
+            description: "Folder id"
+        body:
+          - name: displayName
+            type: string
+            description: "New folder name"
+        response:
+          type: object
+          item: MailFolder
+
+      delete:
+        method: DELETE
+        path: "/me/mailFolders/{folder_id}"
+        description: "Delete a mail folder (moves contents to Deleted Items)"
+        params:
+          - name: folder_id
+            type: string
+            required: true
+            positional: true
+            description: "Folder id"
+        response:
+          type: object
+
+      delta:
+        method: GET
+        path: "/me/mailFolders/delta"
+        description: "Delta-sync of the mail folder hierarchy"
+        params:
+          - name: $deltatoken
+            flag_name: delta-token
+            type: string
+            description: "Delta token from a previous sync"
+          - name: $top
+            flag_name: top
+            type: int
+            default: 200
+            description: "Page size"
+        response:
+          type: array
+          item: MailFolder
+        pagination:
+          type: cursor
+          cursor_field: "@odata.nextLink"
+
+  attachments:
+    description: "Attachments on a specific message"
+    endpoints:
+      list:
+        method: GET
+        path: "/me/messages/{message_id}/attachments"
+        description: "List attachments on a message (metadata only by default)"
+        params:
+          - name: message_id
+            type: string
+            required: true
+            positional: true
+            description: "Message id"
+          - name: $select
+            flag_name: select-fields
+            type: string
+            default: "id,name,contentType,size,isInline,lastModifiedDateTime"
+            description: "Comma-separated OData fields"
+        response:
+          type: array
+          item: Attachment
+        pagination:
+          type: cursor
+          cursor_field: "@odata.nextLink"
+
+      get:
+        method: GET
+        path: "/me/messages/{message_id}/attachments/{attachment_id}"
+        description: "Get a single attachment (metadata + base64 contentBytes for fileAttachment)"
+        params:
+          - name: message_id
+            type: string
+            required: true
+            positional: true
+            description: "Message id"
+          - name: attachment_id
+            type: string
+            required: true
+            positional: true
+            description: "Attachment id"
+        response:
+          type: object
+          item: Attachment
+
+  categories:
+    description: "Master list of color categories applied across mail and calendar"
+    endpoints:
+      list:
+        method: GET
+        path: "/me/outlook/masterCategories"
+        description: "List the master color categories"
+        response:
+          type: array
+          item: Category
+        pagination:
+          type: cursor
+          cursor_field: "@odata.nextLink"
+
+      get:
+        method: GET
+        path: "/me/outlook/masterCategories/{category_id}"
+        description: "Get a category by id"
+        params:
+          - name: category_id
+            type: string
+            required: true
+            positional: true
+            description: "Category id"
+        response:
+          type: object
+          item: Category
+
+      create:
+        method: POST
+        path: "/me/outlook/masterCategories"
+        description: "Create a new color category"
+        body:
+          - name: displayName
+            type: string
+            required: true
+            description: "Category name"
+          - name: color
+            type: string
+            description: "Preset color name (preset0..preset24)"
+            enum:
+              - preset0
+              - preset1
+              - preset2
+              - preset3
+              - preset4
+              - preset5
+              - preset6
+              - preset7
+              - preset8
+              - preset9
+              - preset10
+              - preset11
+              - preset12
+              - preset13
+              - preset14
+              - preset15
+              - preset16
+              - preset17
+              - preset18
+              - preset19
+              - preset20
+              - preset21
+              - preset22
+              - preset23
+              - preset24
+              - "none"
+        response:
+          type: object
+          item: Category
+
+      delete:
+        method: DELETE
+        path: "/me/outlook/masterCategories/{category_id}"
+        description: "Delete a color category"
+        params:
+          - name: category_id
+            type: string
+            required: true
+            positional: true
+            description: "Category id"
+        response:
+          type: object
+
+  inference:
+    description: "Focused/Other inbox classification overrides"
+    endpoints:
+      list_overrides:
+        method: GET
+        path: "/me/inferenceClassification/overrides"
+        description: "List sender pins to Focused or Other"
+        response:
+          type: array
+          item: InferenceOverride
+        pagination:
+          type: cursor
+          cursor_field: "@odata.nextLink"
+
+      create_override:
+        method: POST
+        path: "/me/inferenceClassification/overrides"
+        description: "Pin a sender to Focused or Other"
+        body:
+          - name: classifyAs
+            type: string
+            required: true
+            description: "Target bucket"
+            enum: [focused, other]
+          - name: senderEmailAddress
+            type: object
+            required: true
+            description: "Sender to pin ({name, address})"
+        response:
+          type: object
+          item: InferenceOverride
+
+      delete_override:
+        method: DELETE
+        path: "/me/inferenceClassification/overrides/{override_id}"
+        description: "Remove a sender pin"
+        params:
+          - name: override_id
+            type: string
+            required: true
+            positional: true
+            description: "Inference override id"
+        response:
+          type: object
+
+  mailbox_settings:
+    description: "Mailbox-level settings: timezone, language, signature, automatic replies"
+    endpoints:
+      get:
+        method: GET
+        path: "/me/mailboxSettings"
+        description: "Get all mailbox settings"
+        response:
+          type: object
+          item: MailboxSettings
+
+      update:
+        method: PATCH
+        path: "/me/mailboxSettings"
+        description: "Update mailbox settings (automatic replies, timezone, working hours, language)"
+        body:
+          - name: automaticRepliesSetting
+            type: object
+            description: "Auto-reply struct (status, internalReplyMessage, externalReplyMessage, scheduledStartDateTime, scheduledEndDateTime, externalAudience)"
+          - name: timeZone
+            type: string
+            description: "Outlook time zone name (e.g. 'Pacific Standard Time')"
+          - name: language
+            type: object
+            description: "Locale struct ({locale, displayName})"
+        response:
+          type: object
+          item: MailboxSettings
+
+  rules:
+    description: "Inbox rules that automatically process incoming messages"
+    endpoints:
+      list:
+        method: GET
+        path: "/me/mailFolders/inbox/messageRules"
+        description: "List inbox rules"
+        response:
+          type: array
+          item: MessageRule
+        pagination:
+          type: cursor
+          cursor_field: "@odata.nextLink"
+
+      get:
+        method: GET
+        path: "/me/mailFolders/inbox/messageRules/{rule_id}"
+        description: "Get a single inbox rule"
+        params:
+          - name: rule_id
+            type: string
+            required: true
+            positional: true
+            description: "Rule id"
+        response:
+          type: object
+          item: MessageRule
+
+      create:
+        method: POST
+        path: "/me/mailFolders/inbox/messageRules"
+        description: "Create an inbox rule"
+        body:
+          - name: displayName
+            type: string
+            required: true
+            description: "Rule name"
+          - name: sequence
+            type: int
+            description: "Priority (lower runs first)"
+          - name: isEnabled
+            type: bool
+            description: "Whether the rule is active"
+          - name: conditions
+            type: object
+            description: "Predicate struct (senderContains, subjectContains, hasAttachments, ...)"
+          - name: actions
+            type: object
+            description: "Action struct (moveToFolder, copyToFolder, markAsRead, ...)"
+          - name: exceptions
+            type: object
+            description: "Predicate struct for exceptions"
+        response:
+          type: object
+          item: MessageRule
+
+      update:
+        method: PATCH
+        path: "/me/mailFolders/inbox/messageRules/{rule_id}"
+        description: "Update an inbox rule"
+        params:
+          - name: rule_id
+            type: string
+            required: true
+            positional: true
+            description: "Rule id"
+        body:
+          - name: displayName
+            type: string
+          - name: sequence
+            type: int
+          - name: isEnabled
+            type: bool
+          - name: conditions
+            type: object
+          - name: actions
+            type: object
+          - name: exceptions
+            type: object
+        response:
+          type: object
+          item: MessageRule
+
+      delete:
+        method: DELETE
+        path: "/me/mailFolders/inbox/messageRules/{rule_id}"
+        description: "Delete an inbox rule"
+        params:
+          - name: rule_id
+            type: string
+            required: true
+            positional: true
+            description: "Rule id"
+        response:
+          type: object
+
+types:
+  Message:
+    fields:
+      - name: id
+        type: string
+      - name: conversationId
+        type: string
+      - name: internetMessageId
+        type: string
+      - name: changeKey
+        type: string
+      - name: parentFolderId
+        type: string
+      - name: subject
+        type: string
+      - name: bodyPreview
+        type: string
+      - name: importance
+        type: string
+      - name: inferenceClassification
+        type: string
+      - name: isRead
+        type: bool
+      - name: isDraft
+        type: bool
+      - name: hasAttachments
+        type: bool
+      - name: receivedDateTime
+        type: string
+      - name: sentDateTime
+        type: string
+      - name: createdDateTime
+        type: string
+      - name: lastModifiedDateTime
+        type: string
+      - name: from
+        type: object
+      - name: sender
+        type: object
+      - name: toRecipients
+        type: array
+      - name: ccRecipients
+        type: array
+      - name: bccRecipients
+        type: array
+      - name: replyTo
+        type: array
+      - name: categories
+        type: array
+      - name: flag
+        type: object
+      - name: body
+        type: object
+      - name: webLink
+        type: string
+
+  MailFolder:
+    fields:
+      - name: id
+        type: string
+      - name: displayName
+        type: string
+      - name: parentFolderId
+        type: string
+      - name: childFolderCount
+        type: int
+      - name: totalItemCount
+        type: int
+      - name: unreadItemCount
+        type: int
+      - name: isHidden
+        type: bool
+      - name: wellKnownName
+        type: string
+
+  Attachment:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: contentType
+        type: string
+      - name: size
+        type: int
+      - name: isInline
+        type: bool
+      - name: lastModifiedDateTime
+        type: string
+      - name: contentBytes
+        type: string
+
+  Category:
+    fields:
+      - name: id
+        type: string
+      - name: displayName
+        type: string
+      - name: color
+        type: string
+
+  InferenceOverride:
+    fields:
+      - name: id
+        type: string
+      - name: classifyAs
+        type: string
+      - name: senderEmailAddress
+        type: object
+
+  MailboxSettings:
+    fields:
+      - name: timeZone
+        type: string
+      - name: language
+        type: object
+      - name: workingHours
+        type: object
+      - name: automaticRepliesSetting
+        type: object
+      - name: dateFormat
+        type: string
+      - name: timeFormat
+        type: string
+      - name: delegateMeetingMessageDeliveryOptions
+        type: string
+
+  MessageRule:
+    fields:
+      - name: id
+        type: string
+      - name: displayName
+        type: string
+      - name: sequence
+        type: int
+      - name: isEnabled
+        type: bool
+      - name: isReadOnly
+        type: bool
+      - name: hasError
+        type: bool
+      - name: conditions
+        type: object
+      - name: actions
+        type: object
+      - name: exceptions
+        type: object

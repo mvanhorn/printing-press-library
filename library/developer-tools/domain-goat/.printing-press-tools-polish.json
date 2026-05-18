@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-05-12T03:35:57.450514Z",
+  "cli_dir": "/Users/mitchnick/printing-press/library/domain-goat",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-05-12T03:12:42.019211Z"
+  }
+}

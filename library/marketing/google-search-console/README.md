@@ -6,7 +6,7 @@ A single binary covering search analytics, URL inspection, sitemaps, and site ma
 
 ## Install
 
-The recommended path installs both the `google-search-console-pp-cli` binary and the `pp-google-search-console` agent skill in one shot:
+The recommended path installs both the `google-search-console-pp-cli` binary and the `pp-google-search-console` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
 npx -y @mvanhorn/printing-press install google-search-console
@@ -18,10 +18,28 @@ For CLI only (no skill):
 npx -y @mvanhorn/printing-press install google-search-console --cli-only
 ```
 
+For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
-### Without Node
+```bash
+npx -y @mvanhorn/printing-press install google-search-console --skill-only
+```
 
-The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
+To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
+
+```bash
+npx -y @mvanhorn/printing-press install google-search-console --agent claude-code
+npx -y @mvanhorn/printing-press install google-search-console --agent claude-code --agent codex
+```
+
+### Without Node (Go fallback)
+
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/marketing/google-search-console/cmd/google-search-console-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
 
 ### Pre-built binary
 
@@ -50,9 +68,103 @@ Tell your OpenClaw agent (copy this):
 Install the pp-google-search-console skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-google-search-console. The skill defines how its required CLI can be installed.
 ```
 
+## Use with Claude Desktop
+
+This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
+
+To install:
+
+1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/google-search-console-current).
+2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
+3. Fill in `GSC_ACCESS_TOKEN` when Claude Desktop prompts you.
+
+Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
+
+<details>
+<summary>Manual JSON config (advanced)</summary>
+
+If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
+
+
+Install the MCP binary from this CLI's published public-library entry or pre-built release.
+
+Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "google-search-console": {
+      "command": "google-search-console-pp-mcp",
+      "env": {
+        "GSC_ACCESS_TOKEN": "<your-key>"
+      }
+    }
+  }
+}
+```
+
+</details>
+
 ## Authentication
 
-Google Search Console uses OAuth 2.0. The CLI reads a pre-fetched access token from the GSC_ACCESS_TOKEN environment variable. Generate one from the Google OAuth Playground (https://developers.google.com/oauthplayground/) using scope https://www.googleapis.com/auth/webmasters.readonly for read-only operations or https://www.googleapis.com/auth/webmasters for full read-write (sitemap submit/delete, sites add/delete). Tokens expire after one hour; refresh from the same Playground UI. There is no `auth login` flow in this CLI by design -- pre-fetched tokens keep the install path simple and match the google-ads house pattern.
+Two paths. Pick one.
+
+### Path A: `auth login` (recommended -- auto-refreshes, never see a token)
+
+One-time setup in Google Cloud Console (about 5 minutes):
+
+1. Open [console.cloud.google.com](https://console.cloud.google.com), create or pick a project.
+2. **APIs & Services -> Library** -> enable **Google Search Console API**.
+3. **APIs & Services -> OAuth consent screen** -> External -> fill in App name, your email -> Save. Add yourself as a Test user under the **Audience** tab.
+4. **APIs & Services -> Credentials** -> **Create Credentials** -> **OAuth client ID** -> Application type: **Desktop app** -> name it -> Create.
+5. Copy the **Client ID** and **Client secret** from the resulting dialog.
+
+Then, from your terminal:
+
+```bash
+google-search-console-pp-cli auth set-client <client_id> <client_secret>
+google-search-console-pp-cli auth login
+```
+
+`auth login` opens your default browser, you click Allow, the CLI captures the result on a loopback port, and saves an access + refresh token to `~/.config/google-search-console-pp-cli/config.toml` (mode 0600). Every command from then on silently refreshes the access token when it expires.
+
+First-time consent will show Google's "Google hasn't verified this app" interstitial because your OAuth client is in Testing mode. Click **Advanced -> Go to [your app] (unsafe)** to continue. This is expected for personal-use Desktop clients and does not indicate a problem with the CLI.
+
+WSL2 / headless / SSH:
+
+```bash
+google-search-console-pp-cli auth login --no-browser
+```
+
+Prints the URL for you to paste into any browser, then waits for the callback. Use this when `xdg-open` is unreliable or there is no display.
+
+Write scope (sitemap submit, site add/delete) is opt-in:
+
+```bash
+google-search-console-pp-cli auth login --scope write
+```
+
+### Path B: `GSC_ACCESS_TOKEN` (CI / one-shot scripts)
+
+For non-interactive contexts where running `auth login` is impractical:
+
+```bash
+export GSC_ACCESS_TOKEN="ya29..."   # fetch from https://developers.google.com/oauthplayground/
+```
+
+Tokens last one hour. No auto-refresh. Pre-existing scripts continue to work unchanged.
+
+### Auth command surface
+
+```bash
+google-search-console-pp-cli auth status                   # show account, expiry, refresh-token presence
+google-search-console-pp-cli auth login                    # browser login (loopback OAuth, PKCE S256)
+google-search-console-pp-cli auth logout                   # clear tokens, keep OAuth client
+google-search-console-pp-cli auth logout --revoke          # also revoke at Google
+google-search-console-pp-cli auth forget                   # nuke everything (tokens + client)
+google-search-console-pp-cli auth set-client <id> <secret> # one-time OAuth client setup
+google-search-console-pp-cli auth set-token <token>        # save a static access token (no auto-refresh)
+```
 
 ## Quick Start
 
@@ -60,18 +172,14 @@ Google Search Console uses OAuth 2.0. The CLI reads a pre-fetched access token f
 # Verify your token, check API reachability, and confirm scopes.
 google-search-console-pp-cli doctor
 
-
 # List every verified property the token has access to. The fastest sanity check before sync.
 google-search-console-pp-cli webmasters list-sites --json
-
 
 # Pull 90 days of search analytics into the local SQLite cache. Idempotent and incremental on subsequent runs.
 google-search-console-pp-cli sync --site sc-domain:example.com --last 90d
 
-
 # Surface page-2 queries with the highest upside -- the highest-leverage SEO recommendation an agent can make.
 google-search-console-pp-cli quick-wins sc-domain:example.com --position 8-20 --min-imps 100 --json
-
 
 # Period-over-period delta -- what changed week-over-week, month-over-month, or any window you set.
 google-search-console-pp-cli compare sc-domain:example.com --period 28d --vs prev-period --dim query --top 50
@@ -317,7 +425,6 @@ Date range maximum is 16 months back from today. Data lag is typically
 - **`google-search-console-pp-cli webmasters submit-sitemap`** - Submits a sitemap for a site. The sitemap URL must be an absolute URL on
 the same site as `siteUrl`. Submission is idempotent.
 
-
 ## Output Formats
 
 ```bash
@@ -351,69 +458,6 @@ This CLI is designed for AI agent consumption:
 - **Agent-safe by default** - no colors or formatting unless `--human-friendly` is set
 
 Exit codes: `0` success, `2` usage error, `3` not found, `4` auth error, `5` API error, `7` rate limited, `10` config error.
-
-## Use with Claude Code
-
-Install the focused skill — it auto-installs the CLI on first invocation:
-
-```bash
-npx skills add mvanhorn/printing-press-library/cli-skills/pp-google-search-console -g
-```
-
-Then invoke `/pp-google-search-console <query>` in Claude Code. The skill is the most efficient path — Claude Code drives the CLI directly without an MCP server in the middle.
-
-<details>
-<summary>Use as an MCP server in Claude Code (advanced)</summary>
-
-If you'd rather register this CLI as an MCP server in Claude Code, install the MCP binary first:
-
-
-Install the MCP binary from this CLI's published public-library entry or pre-built release.
-
-Then register it:
-
-```bash
-claude mcp add google-search-console google-search-console-pp-mcp -e GSC_ACCESS_TOKEN=<your-token>
-```
-
-</details>
-
-## Use with Claude Desktop
-
-This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
-
-To install:
-
-1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/google-search-console-current).
-2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
-3. Fill in `GSC_ACCESS_TOKEN` when Claude Desktop prompts you.
-
-Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
-
-<details>
-<summary>Manual JSON config (advanced)</summary>
-
-If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
-
-
-Install the MCP binary from this CLI's published public-library entry or pre-built release.
-
-Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "google-search-console": {
-      "command": "google-search-console-pp-mcp",
-      "env": {
-        "GSC_ACCESS_TOKEN": "<your-key>"
-      }
-    }
-  }
-}
-```
-
-</details>
 
 ## Health Check
 

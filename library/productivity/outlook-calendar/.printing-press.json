@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-10T18:00:42.561021Z",
+  "printing_press_version": "4.2.2",
+  "api_name": "outlook-calendar",
+  "display_name": "Outlook Calendar",
+  "cli_name": "outlook-calendar-pp-cli",
+  "owner": "paul-brennaman",
+  "printer": "brennaman",
+  "printer_name": "Paul Brennaman",
+  "spec_path": "/Users/paul/printing-press/.runstate/cli-printing-press-d5831482/runs/20260510-094714/research/outlook-calendar-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:b6de512a73649437716f00ba7916e58efbfd8c0133d79361999ad5dfb78e9cd0",
+  "run_id": "20260510-094714",
+  "description": "Drive your personal Microsoft 365 calendar from agentic workflows: read, write, sync, and run offline analytics like conflicts, freetime, and recurring-drift that no Graph endpoint exposes.",
+  "mcp_binary": "outlook-calendar-pp-mcp",
+  "mcp_tool_count": 31,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "OUTLOOK_CALENDAR_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Cross-calendar conflicts",
+      "command": "conflicts",
+      "description": "Find overlapping events across all your Outlook calendars in one pass — the double-bookings Outlook's own UI never shows."
+    },
+    {
+      "name": "Free-time finder with working hours",
+      "command": "freetime",
+      "description": "Compute N-minute gaps in your working hours over the next K days, honoring all calendars and optional OOF/tentative exclusion."
+    },
+    {
+      "name": "Weekly review (change set)",
+      "command": "review",
+      "description": "Diff against the last delta-sync snapshot: what was added, rescheduled, cancelled, or had its RSVP change."
+    },
+    {
+      "name": "Pending invites",
+      "command": "pending",
+      "description": "List events whose RSVP is still pending and whose start time is in the future, ordered by start."
+    },
+    {
+      "name": "Recurring drift",
+      "command": "recurring-drift",
+      "description": "For each recurring-series master, list instances whose start/end/subject/location diverged from the master pattern."
+    },
+    {
+      "name": "Meeting prep dossier",
+      "command": "prep",
+      "description": "For upcoming events in the next N hours, return a dossier: subject, location, attendee emails, organizer, body excerpt, attachments list, recurrence/online-meeting flags."
+    },
+    {
+      "name": "Attendee co-occurrence",
+      "command": "with",
+      "description": "How often have I met with this person, and when did I see them last? Counts and recent N events from local store."
+    },
+    {
+      "name": "Time-zone audit",
+      "command": "tz-audit",
+      "description": "Surface events whose start time-zone differs from the calendar's default or from their own end-time TZ — likely-broken displays on other devices."
+    }
+  ]
+}

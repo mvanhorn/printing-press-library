@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-17T03:16:08.654762Z",
+  "printing_press_version": "4.8.0",
+  "api_name": "pcgs",
+  "display_name": "Pcgs",
+  "cli_name": "pcgs-pp-cli",
+  "owner": "vinny-pasceri",
+  "printer": "vinnyp",
+  "printer_name": "Vinny Pasceri",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:9e870850c8de1042795ca0171d441a6127be667ed78f9f45cff2f1549cf6da47",
+  "run_id": "20260516-193948",
+  "description": "PCGS Public API CLI \u2014 verify PCGS-graded coin certs, extract full CoinFacts metadata, and stay under the 1,000-call-per-day budget.",
+  "mcp_binary": "pcgs-pp-mcp",
+  "mcp_tool_count": 12,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "PCGS_AUTH_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Quota-aware batch with dry-run + resumable checkpointing + column passthrough",
+      "command": "coin batch",
+      "description": "Parse a CSV / JSON wrapper / JSONL / plain-text cert list and look up every cert against PCGS. --dry-run forecasts cost (live calls, cache hits, %-of-quota) without spending a single call. --resumable + --checkpoint split a list larger than the 1,000/day cap across UTC days. --list-certs emits the parsed cert list to stdout without calling. Non-cert input columns round-trip to output as `_keep.<col>` for downstream re-keying."
+    },
+    {
+      "name": "Mutable-only refresh (with --dry-run for stale-watching)",
+      "command": "refresh",
+      "description": "Refresh cached coins by updating only the fields PCGS can actually change \u2014 Population, PopHigher, PriceGuideValue, AuctionList, Images, CoinFactsNotes \u2014 while leaving cert identity fields untouched. Emits a per-field diff. --dry-run --older 30d --field price-guide lists which cached coins need refresh without calling the API."
+    },
+    {
+      "name": "Spec-number population sweep",
+      "command": "coin pop-curve",
+      "description": "Pull every grade 1\u201370 (and PlusGrade variants, plus the 82\u201398 Details codes when --include-details) for one PCGSNo in one command, persist the full population curve to local store, and print the scarcity table."
+    },
+    {
+      "name": "Lookup-log audit",
+      "command": "audit",
+      "description": "Query the lookup_log table directly: every API call, its endpoint, IsValidRequest, ServerMessage, and request hash. Aggregate by day, by endpoint, or by cert; filter to failed calls only."
+    },
+    {
+      "name": "Submission fan-out",
+      "command": "order hydrate",
+      "description": "Take a PCGS submission number, fetch the order, then fan out CoinFacts (and optionally images) for every cert in the order. Respects cache and refuses to start when remaining quota is less than the cert count."
+    },
+    {
+      "name": "Local search across cached coins (with --top-pct rarity)",
+      "command": "search",
+      "description": "FTS5 + numeric filters over your local cache: search by Name, Country, SeriesName, Category, Designer, MintLocation, or variety fields, plus range filters on Year, Grade, PriceGuideValue, Population, PopHigher, Mintage, Weight, Diameter. --max-pop and --top-pct flags expose continuous rarity slicing (e.g. --top-pct 5 = top 5% rarest in the scoped cohort) \u2014 no API call."
+    }
+  ],
+  "category": "other"
+}

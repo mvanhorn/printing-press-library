@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-12T03:10:10.529011Z",
+  "printing_press_version": "4.4.0",
+  "api_name": "marianatek",
+  "cli_name": "marianatek-pp-cli",
+  "run_id": "20260511-194406",
+  "novel_features": [
+    {
+      "name": "Watch for cancellation",
+      "command": "watch",
+      "description": "Poll a sold-out class (or a filter) and emit a structured event the moment a spot opens \u2014 optionally auto-book in the same tick."
+    },
+    {
+      "name": "Multi-tenant unified schedule",
+      "command": "schedule",
+      "description": "Query the merged class catalog across every tenant you have logged into, with structured filters that the per-tenant iframe widget cannot offer."
+    },
+    {
+      "name": "Regulars / personal affinity",
+      "command": "regulars",
+      "description": "Group your local reservation history by instructor, class type, time-of-day, day-of-week, or location and rank the dimensions you actually use."
+    },
+    {
+      "name": "Expiring credits + memberships",
+      "command": "expiring",
+      "description": "Surface credit packs and memberships about to lapse, with remaining balance and the classes that would consume them best."
+    },
+    {
+      "name": "Cross-tenant calendar conflicts",
+      "command": "conflicts",
+      "description": "Read reservations across all logged-in tenants, optionally pull an exported ICS calendar, and flag overlapping intervals or insufficient buffer."
+    },
+    {
+      "name": "FTS5 catalog search",
+      "command": "search",
+      "description": "Full-text search across cached class sessions, instructors, locations, and class types \u2014 ranks by BM25 and respects --any-tenant."
+    },
+    {
+      "name": "Book-regular compound",
+      "command": "book-regular",
+      "description": "Resolve a natural slot key ('tue-7am-vinyasa') against the regulars table, find the next matching upcoming class, and book it."
+    },
+    {
+      "name": "Multi-tenant doctor",
+      "command": "doctor",
+      "description": "Per-tenant token expiry, last-sync timestamp, row counts, and a live class-probe for reachability."
+    }
+  ],
+  "printer": "salmonumbrella",
+  "printer_name": "salmonumbrella",
+  "category": "productivity",
+  "description": "Every Mariana Tek booking feature, plus multi-tenant search, cancellation watching, and an offline class catalog no other tool has. Mariana Tek powers hundreds of boutique-fitness, yoga, sauna, and wellness studios via per-brand subdomains; this CLI works against any of them."
+}

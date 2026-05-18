@@ -1,0 +1,334 @@
+{
+  "api_name": "mailchimp",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "mailchimp-marketing-node",
+      "url": "https://github.com/mailchimp/mailchimp-marketing-node",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 166,
+      "last_updated": "",
+      "command_count": 291,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "mailchimp-marketing-python",
+      "url": "https://github.com/mailchimp/mailchimp-marketing-python",
+      "language": "Python",
+      "install_method": "",
+      "stars": 120,
+      "last_updated": "",
+      "command_count": 291,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "damientilman/mailchimp-mcp-server",
+      "url": "https://github.com/damientilman/mailchimp-mcp-server",
+      "language": "Python",
+      "install_method": "",
+      "stars": 9,
+      "last_updated": "",
+      "command_count": 112,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "AgentX-ai/mailchimp-mcp",
+      "url": "https://github.com/AgentX-ai/mailchimp-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 11,
+      "last_updated": "",
+      "command_count": 50,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "cyanheads/mailchimp-mcp-server",
+      "url": "https://github.com/cyanheads/mailchimp-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 1,
+      "last_updated": "",
+      "command_count": 40,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "richardpowellus/mailchimp-mcp-server",
+      "url": "https://github.com/richardpowellus/mailchimp-mcp-server",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 280,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "robinsloan/mailchimp-cli",
+      "url": "https://github.com/robinsloan/mailchimp-cli",
+      "language": "Ruby",
+      "install_method": "",
+      "stars": 10,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-17T08:56:00Z",
+  "novel_features": [
+    {
+      "name": "Subscribe and tag in one call",
+      "command": "subscribe",
+      "description": "Upsert a member by email and apply tags in a single command. Auto-computes the MD5 subscriber hash so you never see it.",
+      "rationale": "Mailchimp's single most-used workflow is split across three API concerns: MD5 hashing the email, PUT-not-POST for upsert, then a separate POST for tags. Every wrapper exposes the raw endpoints; none composes the workflow.",
+      "example": "mailchimp-pp-cli subscribe <your-email> --list a1b2c3d4e5 --tags vip,onboarding --merge FNAME=Alice",
+      "why_it_matters": "When an agent needs to add a contact with tags, this is one call instead of three with MD5 hashing in the middle.",
+      "group": "Workflow composition"
+    },
+    {
+      "name": "CSV bulk subscribe with batch decode",
+      "command": "bulk-subscribe",
+      "description": "Read a CSV, fan out through Mailchimp's /batches endpoint (the official 10-concurrent-connection escape hatch), poll until done, decode the tar.gz of JSONL results within the 10-minute response URL window, and print per-row outcomes.",
+      "rationale": "Mailchimp's /batches endpoint exists because the API rate-limits at 10 concurrent connections per key. But the result format (tar.gz of JSONL with a 10-minute expiring URL) is documented but rarely surfaced cleanly by any tool.",
+      "example": "mailchimp-pp-cli bulk-subscribe --csv contacts.csv --list a1b2c3d4e5 --tags newsletter --watch",
+      "why_it_matters": "When an agent needs to subscribe more than ~50 contacts at once, this is the only safe path that respects rate limits and gives back actionable per-row results.",
+      "group": "Workflow composition"
+    },
+    {
+      "name": "Campaign performance digest (single + rollup)",
+      "command": "digest",
+      "description": "Single-campaign mode (digest \u003cid\u003e) joins report + email-activity + ecommerce-product-activity into one summary with opens/clicks/bounces/revenue + top-clicked links + top-converted products. Rollup mode (digest --last N or --week) renders a multi-campaign summary table with aggregate stats. --md renders either as paste-ready markdown.",
+      "rationale": "Mailchimp splits campaign performance across four endpoints; the dashboard groups them poorly. A founder wants 'how did last week's sends do' (rollup) for a Monday review; an agency wants per-campaign deep dives (single) for client reports. Both shapes paste into Notion or Slack as markdown.",
+      "example": "mailchimp-pp-cli digest --last 5 --md",
+      "why_it_matters": "Use digest \u003cid\u003e for per-campaign analysis; use digest --last N for a weekly rollup. --md is the paste-into-doc shape both personas need.",
+      "group": "Local joins that compound"
+    },
+    {
+      "name": "Segment health audit",
+      "command": "segments audit",
+      "description": "Find empty segments, segments that haven't grown in 90 days, and segments not referenced by any recent campaign. Reads the segments endpoint and joins with member counts from the local SQLite store.",
+      "rationale": "Segments accumulate as audiences age. The Mailchimp dashboard surfaces individual segment counts but not 'which ones are dead.'",
+      "example": "mailchimp-pp-cli segments audit --list a1b2c3d4e5 --json",
+      "why_it_matters": "When cleaning up an audience or auditing segmentation hygiene, this surfaces what's dead in one call.",
+      "group": "Local joins that compound"
+    },
+    {
+      "name": "Send-checklist CI gate",
+      "command": "send-checked",
+      "description": "Run the official send-checklist before sending. Exits 2 with the failing items if any have type=error or is_ready=false; otherwise sends.",
+      "rationale": "Mailchimp's send-checklist endpoint exists but is human-readable, not enforceable. Agencies and engineers need a non-zero exit to gate CI/CD.",
+      "example": "mailchimp-pp-cli send-checked 7f8a9b0c1d",
+      "why_it_matters": "When sending campaigns from a pipeline, this is the safe default — broken campaigns don't ship silently.",
+      "group": "Operational safety"
+    },
+    {
+      "name": "E-commerce attribution per campaign",
+      "command": "attribution",
+      "description": "Join a campaign's e-commerce product activity report with synced store orders to compute attributed revenue, top products by attributed revenue, and conversion rate (orders divided by opens).",
+      "rationale": "The campaigns-to-orders join is currently locked behind the Mailchimp dashboard's e-commerce reporting view. The data is available via two endpoints; nobody wires them together.",
+      "example": "mailchimp-pp-cli attribution 7f8a9b0c1d --store mystore --json",
+      "why_it_matters": "When measuring whether a campaign drove revenue, this is the single command.",
+      "group": "Local joins that compound"
+    },
+    {
+      "name": "Per-domain deliverability rollup",
+      "command": "deliverability",
+      "description": "Roll up domain-performance reports across the last N campaigns. Surfaces per-domain (gmail.com, yahoo.com, outlook.com) bounce, spam, open, and click rates. Highlights domains performing below the account average.",
+      "rationale": "Domain-performance is a per-campaign endpoint; the rollup across recent campaigns is where deliverability triage actually happens. Agencies running 5+ accounts need this most.",
+      "example": "mailchimp-pp-cli deliverability --last 10 --json",
+      "why_it_matters": "When investigating a deliverability dip, this shows you which inbox providers are degrading without clicking through 10 separate report pages.",
+      "group": "Local joins that compound"
+    },
+    {
+      "name": "Head-to-head campaign comparison",
+      "command": "compare",
+      "description": "Side-by-side metric diff for two campaigns. Fetches both campaigns' report + email-activity in parallel, renders open rate / CTR / click-to-open / bounces / unsubscribes / revenue with a winner per metric, computes delta, and surfaces top differences (subject line, send time, audience size). --md renders as paste-ready markdown.",
+      "rationale": "Lifecycle marketers want to know 'did the new subject line work?' — a head-to-head of two campaigns answers it in one call. Currently this requires loading two reports in two browser tabs and eyeballing the deltas. No incumbent tool composes the diff.",
+      "example": "mailchimp-pp-cli compare 7f8a9b0c1d 8c9d0e1f2a --md",
+      "why_it_matters": "When you ask 'which campaign won?' or 'did the change work?', this is the single command. The --md mode pastes into a weekly review doc.",
+      "group": "Local joins that compound"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Subscribe and tag in one call",
+      "command": "subscribe",
+      "description": "Upsert a member by email and apply tags in a single command. Auto-computes the MD5 subscriber hash so you never see it.",
+      "rationale": "Mailchimp's single most-used workflow is split across three API concerns: MD5 hashing the email, PUT-not-POST for upsert, then a separate POST for tags. Every wrapper exposes the raw endpoints; none composes the workflow.",
+      "example": "mailchimp-pp-cli subscribe <your-email> --list a1b2c3d4e5 --tags vip,onboarding --merge FNAME=Alice",
+      "why_it_matters": "When an agent needs to add a contact with tags, this is one call instead of three with MD5 hashing in the middle.",
+      "group": "Workflow composition"
+    },
+    {
+      "name": "CSV bulk subscribe with batch decode",
+      "command": "bulk-subscribe",
+      "description": "Read a CSV, fan out through Mailchimp's /batches endpoint (the official 10-concurrent-connection escape hatch), poll until done, decode the tar.gz of JSONL results within the 10-minute response URL window, and print per-row outcomes.",
+      "rationale": "Mailchimp's /batches endpoint exists because the API rate-limits at 10 concurrent connections per key. But the result format (tar.gz of JSONL with a 10-minute expiring URL) is documented but rarely surfaced cleanly by any tool.",
+      "example": "mailchimp-pp-cli bulk-subscribe --csv contacts.csv --list a1b2c3d4e5 --tags newsletter --watch",
+      "why_it_matters": "When an agent needs to subscribe more than ~50 contacts at once, this is the only safe path that respects rate limits and gives back actionable per-row results.",
+      "group": "Workflow composition"
+    },
+    {
+      "name": "Campaign performance digest (single + rollup)",
+      "command": "digest",
+      "description": "Single-campaign mode (digest \u003cid\u003e) joins report + email-activity + ecommerce-product-activity into one summary with opens/clicks/bounces/revenue + top-clicked links + top-converted products. Rollup mode (digest --last N or --week) renders a multi-campaign summary table with aggregate stats. --md renders either as paste-ready markdown.",
+      "rationale": "Mailchimp splits campaign performance across four endpoints; the dashboard groups them poorly. A founder wants 'how did last week's sends do' (rollup) for a Monday review; an agency wants per-campaign deep dives (single) for client reports. Both shapes paste into Notion or Slack as markdown.",
+      "example": "mailchimp-pp-cli digest --last 5 --md",
+      "why_it_matters": "Use digest \u003cid\u003e for per-campaign analysis; use digest --last N for a weekly rollup. --md is the paste-into-doc shape both personas need.",
+      "group": "Local joins that compound"
+    },
+    {
+      "name": "Segment health audit",
+      "command": "segments audit",
+      "description": "Find empty segments, segments that haven't grown in 90 days, and segments not referenced by any recent campaign. Reads the segments endpoint and joins with member counts from the local SQLite store.",
+      "rationale": "Segments accumulate as audiences age. The Mailchimp dashboard surfaces individual segment counts but not 'which ones are dead.'",
+      "example": "mailchimp-pp-cli segments audit --list a1b2c3d4e5 --json",
+      "why_it_matters": "When cleaning up an audience or auditing segmentation hygiene, this surfaces what's dead in one call.",
+      "group": "Local joins that compound"
+    },
+    {
+      "name": "Send-checklist CI gate",
+      "command": "send-checked",
+      "description": "Run the official send-checklist before sending. Exits 2 with the failing items if any have type=error or is_ready=false; otherwise sends.",
+      "rationale": "Mailchimp's send-checklist endpoint exists but is human-readable, not enforceable. Agencies and engineers need a non-zero exit to gate CI/CD.",
+      "example": "mailchimp-pp-cli send-checked 7f8a9b0c1d",
+      "why_it_matters": "When sending campaigns from a pipeline, this is the safe default — broken campaigns don't ship silently.",
+      "group": "Operational safety"
+    },
+    {
+      "name": "E-commerce attribution per campaign",
+      "command": "attribution",
+      "description": "Join a campaign's e-commerce product activity report with synced store orders to compute attributed revenue, top products by attributed revenue, and conversion rate (orders divided by opens).",
+      "rationale": "The campaigns-to-orders join is currently locked behind the Mailchimp dashboard's e-commerce reporting view. The data is available via two endpoints; nobody wires them together.",
+      "example": "mailchimp-pp-cli attribution 7f8a9b0c1d --store mystore --json",
+      "why_it_matters": "When measuring whether a campaign drove revenue, this is the single command.",
+      "group": "Local joins that compound"
+    },
+    {
+      "name": "Per-domain deliverability rollup",
+      "command": "deliverability",
+      "description": "Roll up domain-performance reports across the last N campaigns. Surfaces per-domain (gmail.com, yahoo.com, outlook.com) bounce, spam, open, and click rates. Highlights domains performing below the account average.",
+      "rationale": "Domain-performance is a per-campaign endpoint; the rollup across recent campaigns is where deliverability triage actually happens. Agencies running 5+ accounts need this most.",
+      "example": "mailchimp-pp-cli deliverability --last 10 --json",
+      "why_it_matters": "When investigating a deliverability dip, this shows you which inbox providers are degrading without clicking through 10 separate report pages.",
+      "group": "Local joins that compound"
+    },
+    {
+      "name": "Head-to-head campaign comparison",
+      "command": "compare",
+      "description": "Side-by-side metric diff for two campaigns. Fetches both campaigns' report + email-activity in parallel, renders open rate / CTR / click-to-open / bounces / unsubscribes / revenue with a winner per metric, computes delta, and surfaces top differences (subject line, send time, audience size). --md renders as paste-ready markdown.",
+      "rationale": "Lifecycle marketers want to know 'did the new subject line work?' — a head-to-head of two campaigns answers it in one call. Currently this requires loading two reports in two browser tabs and eyeballing the deltas. No incumbent tool composes the diff.",
+      "example": "mailchimp-pp-cli compare 7f8a9b0c1d 8c9d0e1f2a --md",
+      "why_it_matters": "When you ask 'which campaign won?' or 'did the change work?', this is the single command. The --md mode pastes into a weekly review doc.",
+      "group": "Local joins that compound"
+    }
+  ],
+  "narrative": {
+    "display_name": "Mailchimp",
+    "headline": "Every Mailchimp endpoint plus the workflow commands the API forces you to compose yourself.",
+    "value_prop": "Mailchimp's REST API has 291 endpoints and an SDK in every language, but composes nothing — subscribing a contact with tags takes three calls and an MD5 hash; checking whether a campaign worked takes four endpoints joined by hand; bulk imports require decoding tar.gz JSONL from a 10-minute expiring URL. This CLI ships every endpoint as a typed command plus eight novel workflow commands that compose the API the way humans and agents actually use it: subscribe-with-tags in one call, CSV bulk subscribe with batch decode, single and multi-campaign digests with --md for pasting into weekly review docs, head-to-head campaign comparison, segment health audit, send-checklist CI gate, e-commerce attribution, and per-domain deliverability rollup. A local SQLite cache makes every audience SQL-queryable, and the MCP surface uses code orchestration so an agent loads the whole API in ~1K tokens.",
+    "auth_narrative": "Mailchimp encodes the datacenter in the API key suffix. The key 'abc...xyz-us6' tells the CLI to route requests to 'us6.api.mailchimp.com.' Set MAILCHIMP_API_KEY and the CLI parses the suffix at startup. For OAuth tokens (no embedded suffix), set MAILCHIMP_DC=us1 explicitly or let 'mailchimp auth dc-lookup' resolve it from the metadata endpoint.",
+    "quickstart": [
+      {
+        "command": "mailchimp-pp-cli doctor",
+        "comment": "after exporting MAILCHIMP_API_KEY=your-key-us6: verify auth, dc routing, and API reach"
+      },
+      {
+        "command": "mailchimp-pp-cli sync --resources lists,members,campaigns,reports",
+        "comment": "pull a local copy so search and sql work offline"
+      },
+      {
+        "command": "mailchimp-pp-cli subscribe <your-email> --list LIST_ID --tags vip,newsletter",
+        "comment": "one-shot upsert with tags, no MD5 dance"
+      },
+      {
+        "command": "mailchimp-pp-cli digest CAMPAIGN_ID --json --select campaign_id,open_rate,click_rate,top_links",
+        "comment": "the four-endpoint join the dashboard buries"
+      },
+      {
+        "command": "mailchimp-pp-cli search 'newsletter' --json",
+        "comment": "offline FTS over synced audiences, members, campaigns"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "doctor reports 'no datacenter suffix in API key'",
+        "fix": "Mailchimp keys must end with '-us1' through '-us21'. Re-copy the key from https://us1.admin.mailchimp.com/account/api/; the dashboard truncates it visually."
+      },
+      {
+        "symptom": "429 'rate limit' on bulk operations",
+        "fix": "Mailchimp caps at 10 concurrent connections per key. For more than ~50 mutations, use 'mailchimp-pp-cli bulk-subscribe' which posts to /batches."
+      },
+      {
+        "symptom": "'Member Exists' error on creating a subscriber",
+        "fix": "Mailchimp uses PUT for upsert, not POST. The 'mailchimp-pp-cli subscribe' command handles this automatically; for raw API calls use the 'lists members upsert' subcommand (PUT) instead of 'create' (POST)."
+      },
+      {
+        "symptom": "Batch finished but result URL returns 404",
+        "fix": "Mailchimp's response_body_url is valid only 10 minutes after batch completion. 'mailchimp-pp-cli bulk-subscribe --watch' polls and downloads within the window."
+      },
+      {
+        "symptom": "doctor passes but every API call returns 401",
+        "fix": "Mailchimp's HTTP Basic auth uses 'anystring:{KEY}'. If you exported MAILCHIMP_API_KEY with a leading space or quoted wrapper, strip them. The key starts immediately after '='."
+      }
+    ],
+    "when_to_use": "Reach for this CLI when you need to drive Mailchimp from a terminal or agent and the workflow spans more than one endpoint: subscribing a contact with tags, importing a CSV through the batch endpoint, measuring whether a campaign worked, or auditing segment hygiene. The local SQLite cache makes the audience SQL-queryable, which is impossible through the dashboard or the SDK. The MCP surface uses code orchestration over 291 endpoints in ~1K tokens, so an agent can reach any Mailchimp endpoint without bloating its tool list.",
+    "recipes": [
+      {
+        "title": "Add a subscriber with tags in one call",
+        "command": "mailchimp-pp-cli subscribe <your-email> --list LIST_ID --tags vip,onboarding --merge FNAME=Alice --merge LNAME=Smith",
+        "explanation": "Composes PUT /lists/{id}/members/{md5} + POST /lists/{id}/members/{md5}/tags with the MD5 hash computed for you."
+      },
+      {
+        "title": "Import 5,000 contacts from CSV via the batch endpoint",
+        "command": "mailchimp-pp-cli bulk-subscribe --csv /path/to/contacts.csv --list LIST_ID --tags newsletter --watch",
+        "explanation": "Posts to /batches, polls until done, decompresses the tar.gz JSONL within the 10-minute expiring URL window, returns per-row outcomes."
+      },
+      {
+        "title": "Check whether a campaign succeeded",
+        "command": "mailchimp-pp-cli digest CAMPAIGN_ID --json --select campaign_id,open_rate,click_rate,top_links,top_products",
+        "explanation": "Joins four report endpoints and lets --select dotted paths narrow the response to the fields an agent actually needs (Mailchimp's reports run \u003e10KB each)."
+      },
+      {
+        "title": "Find stale segments to clean up",
+        "command": "mailchimp-pp-cli segments audit --list LIST_ID --json",
+        "explanation": "Surfaces empty segments, segments with no member growth in 90 days, and segments not used by any recent campaign."
+      },
+      {
+        "title": "Gate a campaign send on the official checklist",
+        "command": "mailchimp-pp-cli send-checked CAMPAIGN_ID",
+        "explanation": "Runs /send-checklist first; if any item is type=error, exits 2 with the failing items printed and does not send. Use in CI to prevent broken campaigns shipping silently."
+      },
+      {
+        "title": "Compare two campaigns head-to-head for a Monday review doc",
+        "command": "mailchimp-pp-cli compare CAMPAIGN_A CAMPAIGN_B --md",
+        "explanation": "Renders a side-by-side diff of open rate, CTR, revenue, and unsubscribes with the winner per metric. The --md output pastes into Notion or Slack."
+      },
+      {
+        "title": "Weekly campaign rollup for a founder review",
+        "command": "mailchimp-pp-cli digest --last 5 --md",
+        "explanation": "Renders a multi-campaign summary table with aggregate stats. Marcus's Monday founder doc shape."
+      }
+    ],
+    "trigger_phrases": [
+      "subscribe to mailchimp",
+      "add a contact to mailchimp",
+      "send a mailchimp campaign",
+      "mailchimp campaign performance",
+      "import contacts to mailchimp",
+      "audit mailchimp segments",
+      "mailchimp deliverability",
+      "use mailchimp",
+      "run mailchimp"
+    ]
+  }
+}

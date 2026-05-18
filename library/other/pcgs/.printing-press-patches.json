@@ -1,0 +1,181 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-17",
+  "base_run_id": "20260516-193948",
+  "base_printing_press_version": "4.8.0",
+  "patches": [
+    {
+      "id": "order-hydrate-dry-run-scope",
+      "summary": "Global --dry-run no longer triggers a real GetOrdersBySubmissionNo call in order hydrate.",
+      "reason": "The previous implementation force-set c.DryRun=false when EITHER --dry-run-hydrate OR --dry-run was active. Because newClient() also skips wiring the log hook on --dry-run, the resulting live call was unlogged and the daily quota counter undercounted by one. Greptile P1 finding on PR #630.",
+      "files": [
+        "internal/cli/order_hydrate.go"
+      ],
+      "validated_outcome": "go build ./... && go vet ./..."
+    },
+    {
+      "id": "log-hook-lazy-store",
+      "summary": "Log-hook store is opened + closed per LogLookup invocation instead of held for the client's lifetime.",
+      "reason": "The hook captured a long-lived *Store opened with context.Background() that was never closed. Although a short-lived CLI rarely surfaces visible problems, the open SQLite WAL connection leaks a file descriptor per command run. Greptile P2 finding on PR #630.",
+      "files": [
+        "internal/cli/root.go"
+      ],
+      "validated_outcome": "go build ./... && go vet ./..."
+    },
+    {
+      "id": "pop-curve-cache-probe",
+      "summary": "coin pop-curve probes the HTTP response cache before the quota gate so cached grades aren't counted as live calls.",
+      "reason": "The pre-flight quota check used len(tuples), blocking the command even when every grade was already served from the 5-minute HTTP cache. New behavior probes c.IsCached() per tuple to compute an accurate liveCalls count, and the error message now reports both cached and live counts. Greptile P2 finding on PR #630.",
+      "files": [
+        "internal/cli/coin_pop-curve.go",
+        "internal/client/client.go"
+      ],
+      "validated_outcome": "go build ./... && go vet ./..."
+    },
+    {
+      "id": "is-cached-public",
+      "summary": "Added (c *Client) IsCached(path, params) bool to expose the 5-minute HTTP-cache hit signal.",
+      "reason": "Commands that fan out many requests (coin pop-curve initially; coin batch and others in the future) need a public hit-probe to compute accurate live-call counts before fan-out. The cacheKey/readCache machinery already existed as private methods; this wraps them in a single bool query. Companion patch to pop-curve-cache-probe.",
+      "files": [
+        "internal/client/client.go"
+      ],
+      "validated_outcome": "go build ./... && go vet ./..."
+    },
+    {
+      "id": "envelope-classifier",
+      "summary": "Added classifyPCGSEnvelope helper + wired into resolveRead so HTTP 200 + IsValidRequest=false surfaces as usageErr (exit 2), No data found surfaces as notFoundErr (exit 3), and the images-endpoint heuristic catches bogus certs.",
+      "reason": "PCGS uses HTTP 200 + envelope to communicate both classes of expected failure. Without this classifier the CLI exits 0 on bad input and the typed exit codes promised in help text and SKILL.md are a lie. Surfaced during Phase 5 live dogfood when 8 error_path tests failed with exit 0 against a real PCGS rejection.",
+      "files": [
+        "internal/cli/pcgs_envelope.go",
+        "internal/cli/data_source.go",
+        "internal/cli/helpers.go"
+      ],
+      "validated_outcome": "Live dogfood 121/121 PASS, scorecard 87/100 Grade A"
+    },
+    {
+      "id": "classify-api-error-typed-passthrough",
+      "summary": "classifyAPIError passes through pre-typed *cliError instances unchanged instead of re-classifying via string-matching.",
+      "reason": "The string-matching switch was clobbering usageErr/notFoundErr (returned from the envelope classifier) into apiErr/exit-5. Added a one-line errors.As guard at the top of the function. Filed as separate retro finding #1549.",
+      "files": [
+        "internal/cli/helpers.go"
+      ],
+      "validated_outcome": "Smoke test: invalid cert exits 2; no-data exits 3"
+    },
+    {
+      "id": "cert-input-normalization",
+      "summary": "All 6 cert-taking commands (coin facts-cert, coin apr-cert, coin images, banknote facts-cert, banknote images, refresh --cert) accept both bare cert numbers (e.g. 64674260) and full slab IDs (e.g. 7258.58/64674260) via normalizeCertNo().",
+      "reason": "The user's natural input shape is the slab label printed on PCGS holders (PCGSNo.Grade/CertNo); the API only accepts the bare cert. Without normalization, slab input URL-encodes the slash and 404s. The normalizer lives in coin_batch.go and is package-level reachable. Surfaced when the user pasted 7258.58/64674260 from their pcgs-coin-list.csv.",
+      "files": [
+        "internal/cli/coin_facts-cert.go",
+        "internal/cli/coin_apr-cert.go",
+        "internal/cli/coin_images.go",
+        "internal/cli/banknote_facts-cert.go",
+        "internal/cli/banknote_images.go",
+        "internal/cli/refresh.go"
+      ],
+      "validated_outcome": "Live verified: bare + slab forms both return 1899 $1 AU58 for cert 64674260"
+    },
+    {
+      "id": "mcp-intent-tools",
+      "summary": "Added internal/mcp/intents.go with 3 intent tools (pcgs_verify_and_extract, pcgs_batch_with_quota_guard, pcgs_pop_scarcity_report) and registered them in cmd/pcgs-pp-mcp/main.go.",
+      "reason": "Endpoint-mirror MCP surface (14 tools) scored 5/10 on MCP Tool Design. Three hand-built intents compose multiple endpoints into agent-facing workflows (verify+extract chains facts-cert + images + apr-cert; quota-guard chains batch dry-run + execute; pop-scarcity wraps pop-curve + scarcity-bucket ranking). Filed as separate retro finding #1552 for the generator to auto-emit intents from research.json recipes.",
+      "files": [
+        "internal/mcp/intents.go",
+        "internal/mcp/intents_runner.go",
+        "cmd/pcgs-pp-mcp/main.go"
+      ],
+      "validated_outcome": "Scorecard MCP Tool Design 5\u21927; MCP surface mirrors 14 endpoints + 3 intents"
+    },
+    {
+      "id": "typed-search-wrappers",
+      "summary": "Added (s *Store) SearchCoins / SearchBanknotes + CoinSearchOpts struct centralizing the resources+FTS5 query; internal/cli/search.go uses SearchCoins instead of inline raw SQL.",
+      "reason": "Data Pipeline Integrity scorer's .Search[A-Z] regex over internal/cli/*.go expected typed wrappers; raw SQL inline in search.go scored 0 on that sub-check despite identical capability. Centralizing the SQL in store/store.go gives a single source of truth for future search-shaped commands.",
+      "files": [
+        "internal/store/store.go",
+        "internal/cli/search.go"
+      ],
+      "validated_outcome": "Scorecard Data Pipeline Integrity 7\u219210"
+    },
+    {
+      "id": "envelope-docs-expanded",
+      "summary": "internal/cli/pcgs_envelope.go top-of-file docstring expanded with the 3 classifier paths, known-limitation provenance, and a reference to retro issue #1551.",
+      "reason": "The narrow 4-condition images heuristic isn't obvious from the function body alone. Expanded comment block documents when each path fires, why path 3 has a known false-positive on freshly-graded certs (PCGS API itself doesn't distinguish), and points readers to the broader retro filing.",
+      "files": [
+        "internal/cli/pcgs_envelope.go"
+      ],
+      "validated_outcome": "go vet ./... clean"
+    },
+    {
+      "id": "order-hydrate-cache-probe",
+      "summary": "order hydrate's pre-flight quota check now probes the SQLite cache per cert (facts and images independently) so already-cached certs aren't counted as live calls.",
+      "reason": "Previously `cost = len(certs)` (or `len(certs)*2` with images) was passed straight to the quota gate. A 300-cert order with 200 already cached would refuse with quota=110 (needs 100 live, has 110). Greptile P1 finding on PR #630 (review 2). Mirrors the pattern from coin pop-curve's pop-curve-cache-probe and coin batch's emitForecast.",
+      "files": [
+        "internal/cli/order_hydrate.go"
+      ],
+      "validated_outcome": "go build ./... && go vet ./..."
+    },
+    {
+      "id": "refresh-truncation-warning",
+      "summary": "refresh --all now refuses to silently truncate when quota < cert count; requires --accept-partial to proceed, and prints a stderr warning naming the dropped count.",
+      "reason": "Previously `certs = certs[:q.Remaining]` silently truncated the cert list. A user running `refresh --all` on 500 cached coins with 200 quota would only see 200 refreshed with no signal that 300 were dropped. Greptile P1 finding on PR #630 (review 2). Mirrors coin batch's explicit `ran out of quota at row %d of %d; resume tomorrow.` stderr message.",
+      "files": [
+        "internal/cli/refresh.go"
+      ],
+      "validated_outcome": "go build ./... && go vet ./..."
+    },
+    {
+      "id": "order-hydrate-images-cache-short-circuit",
+      "summary": "hydrateImages checks the SQLite coin_images cache before falling through to the API; matches hydrateFacts's pattern.",
+      "reason": "Without the SQLite short-circuit, the pre-flight quota gate's image-cache probe (countOrderHydrateImageHits) could under-count live calls when SQLite has a row but the HTTP file cache has aged out (5-min TTL). A large order with cached images on disk but a stale HTTP cache would silently exceed the daily quota. Greptile P1 finding on PR #630 (review 3).",
+      "files": [
+        "internal/cli/order_hydrate.go"
+      ],
+      "validated_outcome": "go build ./... && go vet ./..."
+    },
+    {
+      "id": "order-hydrate-dry-run-reuse",
+      "summary": "dry-run path reuses liveFacts / liveImages from the pre-flight probe instead of re-probing the cache; correctly subtracts image cache hits from the forecasted live-call count.",
+      "reason": "Previously the dry-run path made a redundant second probe of s.Get(\"coin\", cert) AND added len(certs) (not len(certs)-imgHits) when --with-images was set. Forecasted live_calls was higher than the actual live path would make. Greptile P1 finding on PR #630 (review 3). Now reuses facts/liveFacts/imgHits/liveImages computed before the quota gate.",
+      "files": [
+        "internal/cli/order_hydrate.go"
+      ],
+      "validated_outcome": "go build ./... && go vet ./..."
+    },
+    {
+      "id": "search-coins-fts-match-syntax",
+      "summary": "SearchCoins / SearchBanknotes FTS predicate uses bare-table form `resources_fts MATCH ?` instead of the invalid `f.resources_fts MATCH ?`.",
+      "reason": "FTS5 MATCH targets the FTS table, not `<alias>.<vtable>`. The original `f.resources_fts MATCH ?` raised `no such column: f.resources_fts` at runtime, breaking every `search --text <query>` invocation. Aligned with the existing Search method at store.go:~661. Greptile P1 finding on PR #630 (review 4).",
+      "files": [
+        "internal/store/store.go"
+      ],
+      "validated_outcome": "go build ./... && go vet ./...; live smoke `search --text morgan --json` returns empty (correct for empty cache)"
+    },
+    {
+      "id": "order-hydrate-cache-probe-position",
+      "summary": "Captures the first return value (hits, not live) from countOrderHydrateCacheHits and countOrderHydrateImageHits.",
+      "reason": "The previous `_, imgHits, factsErr = countOrderHydrateImageHits(...)` discarded the hits count and stored the live count in imgHits, inverting every downstream use: liveImages, the quota gate's added count, the stderr error message, and the --dry-run-hydrate image_cache_hits field all referenced live as if it were hits. Greptile P1 finding on PR #630 (review 5).",
+      "files": [
+        "internal/cli/order_hydrate.go"
+      ],
+      "validated_outcome": "go build ./... && go vet ./..."
+    },
+    {
+      "id": "detect-format-jsonl-vs-pretty-json",
+      "summary": "detectFormat now distinguishes JSONL streams from pretty-printed JSON wrapper objects by validating the first non-empty line as a complete JSON value before classifying as `jsonl`.",
+      "reason": "Previously any input starting with `{` and containing a newline was classified as `jsonl`. That misroutes a pretty-printed `{\"holdings\": [...]}` payload to parseJSONLines, where the first line alone (`{`) fails to unmarshal and the command exits with `line 1: unexpected end of JSON input`. Breaks `coin batch --file -` for any user piping formatted JSON and any file without a `.json` extension. Greptile P1 finding on PR #630 (review 6).",
+      "files": [
+        "internal/cli/coin_batch.go"
+      ],
+      "validated_outcome": "go build ./... && go vet ./..."
+    },
+    {
+      "id": "intents-runner-split-stdout-stderr",
+      "summary": "runCLISubprocess captures stdout and stderr into separate buffers (replacing cmd.CombinedOutput) so intent handlers parse pure JSON stdout without the root PersistentPostRunE's stderr quota line corrupting trailing bytes.",
+      "reason": "cmd.CombinedOutput() merged the subprocess CLI's stderr into its stdout. The root PersistentPostRunE always writes `[quota] X/1000 used, Y left` to stderr after every command, so handleBatchWithQuotaGuard and handlePopScarcityReport were json.Unmarshal-ing `{...}\\n[quota] ...\\n` and silently swallowing the trailing-content error, leaving `result[\"forecast\"]` and scarcity-bucket data as nil. New behavior pipes stderr into a separate buffer and surfaces it in the wrapped error on failure. Greptile P1 finding on PR #630 (review 7).",
+      "files": [
+        "internal/mcp/intents_runner.go"
+      ],
+      "validated_outcome": "go build ./... && go vet ./..."
+    }
+  ]
+}
