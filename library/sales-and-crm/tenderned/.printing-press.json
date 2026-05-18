@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-17T20:02:29.005283228Z",
+  "printing_press_version": "4.8.0",
+  "api_name": "tenderned",
+  "display_name": "TenderNed",
+  "cli_name": "tenderned-pp-cli",
+  "owner": "markvandeven",
+  "printer": "markvandeven",
+  "printer_name": "markvandeven",
+  "spec_path": "/home/mark/printing-press/.runstate/eu-tenders-bdfccbb8/runs/20260517-211252/research/tenderned-internal-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:4cfb655b67c2ff78604cfb28ecb14aa9279c0430aa886499bf7f29fc5e2f16e4",
+  "run_id": "20260517-211252",
+  "description": "Dutch public-tender CLI with offline search, document corpus, and the sub-threshold long tail TED never sees.",
+  "mcp_binary": "tenderned-pp-mcp",
+  "mcp_tool_count": 7,
+  "mcp_public_tool_count": 7,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Buyer dossier",
+      "command": "buyer dossier",
+      "description": "Full profile for one contracting authority: spending cadence, top CPVs, top procedures, active vs awarded vs cancelled counts over a window."
+    },
+    {
+      "name": "Sub-threshold lead finder",
+      "command": "leads",
+      "description": "Filter notices to national-only AND below an estimated-value cap AND inside CPV stripes — the long-tail tenders that EU TED never sees."
+    },
+    {
+      "name": "Closing-deadline view",
+      "command": "deadline",
+      "description": "Lists notices closing within N days, grouped by day, with countdown plus buyer plus procedure filters."
+    },
+    {
+      "name": "Watch saved query",
+      "command": "watch",
+      "description": "Persist a filter set; watch run returns only NEW notices since the cursor's last advance."
+    },
+    {
+      "name": "CPV-drift over time",
+      "command": "cpv-drift",
+      "description": "Year-by-year top-CPV table for one buyer or NUTS region; shows whether a buyer's purchasing mix is shifting."
+    },
+    {
+      "name": "TED cross-reference",
+      "command": "ted-link",
+      "description": "Extracts the canonical TED publication number from the eForms XML, prints it plus the TED URL."
+    },
+    {
+      "name": "Tender-thread reconcile",
+      "command": "thread reconcile",
+      "description": "Walks PIN to CN to CAN to Modification chains for one buyer; flags orphan PINs, orphan CNs, and unresolved modifications."
+    },
+    {
+      "name": "Buyer top-N aggregation",
+      "command": "buyers top",
+      "description": "Top contracting authorities by tender count for a CPV plus NUTS plus date slice."
+    },
+    {
+      "name": "Document grep",
+      "command": "docs grep",
+      "description": "Streams documents from matching notices, runs a regex against PDF and Word text, prints pub_id, doc_id, line hits."
+    },
+    {
+      "name": "Weekly notice velocity",
+      "command": "velocity",
+      "description": "Weekly publication-count trend over the local snapshot; spot heating or cooling markets per CPV or buyer."
+    },
+    {
+      "name": "Buyer concentration (HHI)",
+      "command": "concentration",
+      "description": "Herfindahl-Hirschman index of award concentration for a CPV plus NUTS slice; tells you whether a market is dominated by one buyer or fragmented."
+    },
+    {
+      "name": "Deadline-heat calendar",
+      "command": "deadline-heat",
+      "description": "Ranked calendar of expiring notices weighted by urgency times estimated value; daily prioritized view of what needs attention."
+    }
+  ]
+}

@@ -1,0 +1,2429 @@
+name: harris-teeter
+description: Discovered API spec for harristeeter
+version: 0.1.0
+base_url: https://www.harristeeter.com
+spec_source: sniffed
+http_transport: browser-chrome
+auth:
+    type: api_key
+    header: key
+    format: ""
+    env_vars:
+        - HARRISTEETER_API_KEY
+    env_var_specs:
+        - name: HARRISTEETER_API_KEY
+          kind: per_call
+          required: true
+          sensitive: true
+          inferred: true
+    in: query
+config:
+    format: toml
+    path: ~/.config/harris-teeter-pp-cli/config.toml
+resources:
+    atlas:
+        description: Operations on customer-preferences
+        endpoints:
+            create_dont_forget_usual_products:
+                method: POST
+                path: /atlas/v1/recommendations/v1/dont-forget-usual-products
+                description: POST /atlas/v1/recommendations/v1/dont-forget-usual-products
+                params:
+                    - name: option.plaTarget
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body:
+                    - name: carts
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: id
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                          format: uuid
+                        - name: upcs
+                          type: array
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                response:
+                    type: object
+                    item: dont_forget_usual_products
+                pagination: null
+            create_preferences:
+                method: POST
+                path: /atlas/v1/modality/preferences
+                description: POST /atlas/v1/modality/preferences
+                params:
+                    - name: filter.restrictLafToFc
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: preferences
+                pagination: null
+            create_prioritized_carousels:
+                method: POST
+                path: /atlas/v1/search/v1/prioritized-carousels
+                description: POST /atlas/v1/search/v1/prioritized-carousels
+                params: []
+                body:
+                    - name: filter
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: query
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                    - name: target
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: upcs
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: upc
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                response:
+                    type: object
+                    item: prioritized_carousels
+                pagination: null
+            get_products:
+                method: GET
+                path: /atlas/v1/offers/v2/offers/{uuid}/products/{id}
+                description: GET /atlas/v1/offers/v2/offers/{uuid}/products/{id}
+                params:
+                    - name: id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The id path segment
+                      fields: []
+                    - name: page.offset
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: page.size
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: uuid
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The uuid path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: products
+                pagination: null
+            get_shopping_lists:
+                method: GET
+                path: /atlas/v1/shopping-list/v1/shopping-lists/{uuid}
+                description: GET /atlas/v1/shopping-list/v1/shopping-lists/{uuid}
+                params:
+                    - name: uuid
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The uuid path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: shopping_lists
+                pagination: null
+            list_ad_placements:
+                method: GET
+                path: /atlas/v1/monetization/v2/ad-placements
+                description: GET /atlas/v1/monetization/v2/ad-placements
+                params:
+                    - name: filter.gtin13
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.query
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.signalSource
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.target
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: ad_placements
+                pagination: null
+            list_carts:
+                method: GET
+                path: /atlas/v1/carts
+                description: GET /atlas/v1/carts
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: carts
+                pagination: null
+            list_coupons:
+                method: GET
+                path: /atlas/v1/savings-coupons/v1/coupons
+                description: GET /atlas/v1/savings-coupons/v1/coupons
+                params:
+                    - name: filter.onlyNewCoupons
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.status
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.type
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.upc
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: page.size
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: projections
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: coupons
+                pagination: null
+            list_customer_preferences:
+                method: GET
+                path: /atlas/v1/enterprise-customer/v1/customer-preferences/
+                description: GET /atlas/v1/enterprise-customer/v1/customer-preferences/
+                params:
+                    - name: filter.chain
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.name
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: projections
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: customer_preferences
+                pagination: null
+            list_enrollments:
+                method: GET
+                path: /atlas/v1/membership/v1/enrollments
+                description: GET /atlas/v1/membership/v1/enrollments
+                params:
+                    - name: option.withEnrollmentsOnly
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: projections
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: enrollments
+                pagination: null
+            list_locator:
+                method: GET
+                path: /atlas/v1/stores/v2/locator
+                description: GET /atlas/v1/stores/v2/locator
+                params:
+                    - name: filter.query
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: projections
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: locator
+                pagination: null
+            list_products:
+                method: GET
+                path: /atlas/v1/product/v2/products
+                description: GET /atlas/v1/product/v2/products
+                params:
+                    - name: filter.gtin13s
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.verified
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: projections
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: products
+                pagination: null
+            list_products_search:
+                method: GET
+                path: /atlas/v1/search/v1/products-search
+                description: GET /atlas/v1/search/v1/products-search
+                params:
+                    - name: filter.fulfillmentMethods
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.locationId
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.query
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: option.groupBy
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: option.monetization
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: option.personalization
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: option.quickFacets
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: page.offset
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: page.size
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: projections
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: products_search
+                pagination: null
+            list_purchase_history_homepage:
+                method: GET
+                path: /atlas/v1/post-order/v1/purchase-history-homepage
+                description: GET /atlas/v1/post-order/v1/purchase-history-homepage
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: purchase_history_homepage
+                pagination: null
+            list_related_tags:
+                method: GET
+                path: /atlas/v1/search/v1/related-tags
+                description: GET /atlas/v1/search/v1/related-tags
+                params:
+                    - name: filter.locationId
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.query
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: related_tags
+                pagination: null
+            list_shopping_lists:
+                method: GET
+                path: /atlas/v1/shopping-list/v1/shopping-lists
+                description: GET /atlas/v1/shopping-list/v1/shopping-lists
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: shopping_lists
+                pagination: null
+            list_start_my_cart:
+                method: GET
+                path: /atlas/v1/recommendations/v1/start-my-cart
+                description: GET /atlas/v1/recommendations/v1/start-my-cart
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: start_my_cart
+                pagination: null
+            list_start_my_cart_2:
+                method: GET
+                path: /atlas/v1/recommendations/v1/better-for-you/start-my-cart
+                description: GET /atlas/v1/recommendations/v1/better-for-you/start-my-cart
+                params:
+                    - name: filter.minHealthScore
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: start_my_cart
+                pagination: null
+            list_suggestions:
+                method: GET
+                path: /atlas/v1/search/v1/suggestions
+                description: GET /atlas/v1/search/v1/suggestions
+                params:
+                    - name: filter.locationId
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.query
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: suggestions
+                pagination: null
+            list_visual_navigations:
+                method: GET
+                path: /atlas/v1/search/v1/visual-navigations
+                description: GET /atlas/v1/search/v1/visual-navigations
+                params:
+                    - name: filter.locationId
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.query
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: visual_navigations
+                pagination: null
+    clickstream:
+        description: Operations on echoData
+        endpoints:
+            create_echoData:
+                method: POST
+                path: /clickstream/v1/echoData
+                description: POST /clickstream/v1/echoData
+                params: []
+                body:
+                    - name: messages
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: data
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: additionalProps
+                              type: object
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: appId
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: error
+                              type: object
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: errorDomain
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: executionThread
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: logLevel
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: loggedAt
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: pid
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: message
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: routingKey
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                    - name: signs
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                response:
+                    type: object
+                    item: echoData
+                pagination: null
+            create_events:
+                method: POST
+                path: /clickstream/v1/events
+                description: POST /clickstream/v1/events
+                params: []
+                body:
+                    - name: events
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: additionalProps
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: diagnostics
+                              type: object
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: metaData
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: abTest
+                              type: array
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: adobeAudienceManagerBlob
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: adobeAudienceManagerLocationHint
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: adobeTrackingIdentifier
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: allowLocation
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: analyticsSdkVersion
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: appID
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: appLightDarkModeAppearance
+                              type: boolean
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: appVersion
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: articleData
+                              type: object
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: bannerName
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: browserHeight
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: browserType
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: browserVersion
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: browserWidth
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: channel
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: colorDepth
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: connectionType
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: contentMktFlag
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: destinationDivisionNumber
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: destinationStoreNumber
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: deviceLightDarkModeAppearance
+                              type: boolean
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: deviceModel
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: deviceOS
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: devicePlatform
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: deviceType
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: environment
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: eventNumber
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: guid
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                              format: uuid
+                            - name: integrations
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: isTrustedSource
+                              type: boolean
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: lafHeader
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: locationId
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: loginState
+                              type: boolean
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: marketingCloudVisitorID
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: membership
+                              type: boolean
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: metarouterCookie
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: modalityType
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: optedOutSaleOfData
+                              type: boolean
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: optedOutTargetedAds
+                              type: boolean
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: orderModifyMode
+                              type: boolean
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: pid
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: referrer
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: schemaVersion
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: screenResolution
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: sessionID
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                              format: uuid
+                            - name: source
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: stratTargetExists
+                              type: boolean
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: timeSinceLastVisit
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: timeSinceLaunch
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: timestamp
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: timestampISO8601
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                              format: date-time
+                            - name: timezone
+                              type: integer
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: url
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                              format: url
+                            - name: userAgent
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: userRole
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: validToken
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: visitorID
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: scenarioData
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: dataClassification
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: pageName
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: scenarioName
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: schemaVersion
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                    - name: signs
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                response:
+                    type: object
+                    item: events
+                pagination: null
+    config.json:
+        description: Operations on config.json
+        endpoints:
+            list_config.json:
+                method: GET
+                path: /api/config.json
+                description: GET /api/config.json
+                params:
+                    - name: acao
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: ak.ai
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: d
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: plugins
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: si
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: sl
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: t
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: v
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: config.json
+                pagination: null
+    content:
+        description: Operations on site-menu-v2.json
+        endpoints:
+            list_0ee7bc.json:
+                method: GET
+                path: /content/v2/objects/abtest/1.0.0/0ee7bc.json
+                description: GET /content/v2/objects/abtest/1.0.0/0ee7bc.json
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: 0ee7bc.json
+                pagination: null
+            list_28dcd5.json:
+                method: GET
+                path: /content/v2/objects/abtest/1.0.0/28dcd5.json
+                description: GET /content/v2/objects/abtest/1.0.0/28dcd5.json
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: 28dcd5.json
+                pagination: null
+            list_757e6a.json:
+                method: GET
+                path: /content/v2/objects/abtest/1.0.0/757e6a.json
+                description: GET /content/v2/objects/abtest/1.0.0/757e6a.json
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: 757e6a.json
+                pagination: null
+            list_877ab4.json:
+                method: GET
+                path: /content/v2/objects/abtest/1.0.0/877ab4.json
+                description: GET /content/v2/objects/abtest/1.0.0/877ab4.json
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: 877ab4.json
+                pagination: null
+            list_alerts.json:
+                method: GET
+                path: /content/v2/objects/alert/1.0.0/alerts.json
+                description: GET /content/v2/objects/alert/1.0.0/alerts.json
+                params:
+                    - name: filter.contentMarketName
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.division
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.store
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: alerts.json
+                pagination: null
+            list_config.json:
+                method: GET
+                path: /content/v2/objects/search_facets_config/1.0.1/config.json
+                description: GET /content/v2/objects/search_facets_config/1.0.1/config.json
+                params:
+                    - name: filter.contentMarketName
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.division
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.geoMarket
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.store
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: config.json
+                pagination: null
+            list_config.json_2:
+                method: GET
+                path: /content/v2/objects/excluded_facets/1.0.0/config.json
+                description: GET /content/v2/objects/excluded_facets/1.0.0/config.json
+                params:
+                    - name: filter.contentMarketName
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.division
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.geoMarket
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.store
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: config.json
+                pagination: null
+            list_config.json_3:
+                method: GET
+                path: /content/v2/objects/store_within_store/1.0.0/config.json
+                description: GET /content/v2/objects/store_within_store/1.0.0/config.json
+                params:
+                    - name: filter.contentMarketName
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.division
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.geoMarket
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.store
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: config.json
+                pagination: null
+            list_config.json_4:
+                method: GET
+                path: /content/v2/objects/ourbrandstop/1.0.0/config.json
+                description: GET /content/v2/objects/ourbrandstop/1.0.0/config.json
+                params:
+                    - name: filter.contentMarketName
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.division
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.geoMarket
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.store
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: config.json
+                pagination: null
+            list_config.json_5:
+                method: GET
+                path: /content/v2/objects/inspired_prompts/1.0.0/config.json
+                description: GET /content/v2/objects/inspired_prompts/1.0.0/config.json
+                params:
+                    - name: filter.contentMarketName
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.division
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.geoMarket
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.store
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: config.json
+                pagination: null
+            list_e0ff3282_b05f_4a7b_a2d8_a09cf6221358_3185.json:
+                method: GET
+                path: /content/v2/objects/flexible-creative-assets/1.0.0/flexible-v1/e0ff3282-b05f-4a7b-a2d8-a09cf6221358-3185.json
+                description: GET /content/v2/objects/flexible-creative-assets/1.0.0/flexible-v1/e0ff3282-b05f-4a7b-a2d8-a09cf6221358-3185.json
+                params:
+                    - name: filter.contentMarketName
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.division
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.store
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: e0ff3282_b05f_4a7b_a2d8_a09cf6221358_3185.json
+                pagination: null
+            list_ee3bb0.json:
+                method: GET
+                path: /content/v2/objects/abtest/1.0.0/ee3bb0.json
+                description: GET /content/v2/objects/abtest/1.0.0/ee3bb0.json
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: ee3bb0.json
+                pagination: null
+            list_esperanto.json:
+                method: GET
+                path: /content/v2/objects/sitemodalcontainer/1.0.0/esperanto.json
+                description: GET /content/v2/objects/sitemodalcontainer/1.0.0/esperanto.json
+                params:
+                    - name: filter.contentMarketName
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.division
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.store
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: esperanto.json
+                pagination: null
+            list_esperanto.json_2:
+                method: GET
+                path: /content/v2/objects/popupmodal_list/1.0.0/esperanto.json
+                description: GET /content/v2/objects/popupmodal_list/1.0.0/esperanto.json
+                params:
+                    - name: filter.contentMarketName
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.division
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.store
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: esperanto.json
+                pagination: null
+            list_footer_menu.json:
+                method: GET
+                path: /content/v2/objects/navigation/1.0.0/footer-menu.json
+                description: GET /content/v2/objects/navigation/1.0.0/footer-menu.json
+                params:
+                    - name: filter.contentMarketName
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.division
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.store
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: footer_menu.json
+                pagination: null
+            list_homepage.json:
+                method: GET
+                path: /content/v2/objects/page/1.0.0/homepage.json
+                description: GET /content/v2/objects/page/1.0.0/homepage.json
+                params:
+                    - name: filter.contentMarketName
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.division
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.store
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: homepage.json
+                pagination: null
+            list_key_messages.json:
+                method: GET
+                path: /content/v2/objects/keymessage_list/1.0.0/key-messages.json
+                description: GET /content/v2/objects/keymessage_list/1.0.0/key-messages.json
+                params:
+                    - name: filter.contentMarketName
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.division
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.store
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: key_messages.json
+                pagination: null
+            list_leave_site_modals.json:
+                method: GET
+                path: /content/v2/objects/leave-site-modal-collection/1.0.0/leave-site-modals.json
+                description: GET /content/v2/objects/leave-site-modal-collection/1.0.0/leave-site-modals.json
+                params:
+                    - name: filter.contentMarketName
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.division
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.store
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: leave_site_modals.json
+                pagination: null
+            list_logo.json:
+                method: GET
+                path: /content/v2/objects/imagenav/1.0.0/banner/logo.json
+                description: GET /content/v2/objects/imagenav/1.0.0/banner/logo.json
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: logo.json
+                pagination: null
+            list_marquee_bar.json:
+                method: GET
+                path: /content/v2/objects/navigation/1.0.0/marquee-bar.json
+                description: GET /content/v2/objects/navigation/1.0.0/marquee-bar.json
+                params:
+                    - name: filter.contentMarketName
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.division
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.store
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: marquee_bar.json
+                pagination: null
+            list_redirects.json:
+                method: GET
+                path: /content/v2/objects/searchredirect/1.0.0/redirects.json
+                description: GET /content/v2/objects/searchredirect/1.0.0/redirects.json
+                params:
+                    - name: filter.contentMarketName
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.division
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.geoMarket
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.store
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: redirects.json
+                pagination: null
+            list_search_page_top_harristeeter.json:
+                method: GET
+                path: /content/v2/objects/toacontainer/1.0.0/monetization/search-page-top-harristeeter.json
+                description: GET /content/v2/objects/toacontainer/1.0.0/monetization/search-page-top-harristeeter.json
+                params:
+                    - name: filter.contentMarketName
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.division
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.store
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: search_page_top_harristeeter.json
+                pagination: null
+            list_search_skyscraper_top_harristeeter.json:
+                method: GET
+                path: /content/v2/objects/toacontainer/1.0.0/monetization/search-skyscraper-top-harristeeter.json
+                description: GET /content/v2/objects/toacontainer/1.0.0/monetization/search-skyscraper-top-harristeeter.json
+                params:
+                    - name: filter.contentMarketName
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.division
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.store
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: search_skyscraper_top_harristeeter.json
+                pagination: null
+            list_site_menu_v2.json:
+                method: GET
+                path: /content/v2/objects/navigation/1.0.0/site-menu-v2.json
+                description: GET /content/v2/objects/navigation/1.0.0/site-menu-v2.json
+                params:
+                    - name: filter.contentMarketName
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.division
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.store
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: site_menu_v2.json
+                pagination: null
+            list_store_filters.json:
+                method: GET
+                path: /content/v2/objects/storefilters/1.0.0/store-filters.json
+                description: GET /content/v2/objects/storefilters/1.0.0/store-filters.json
+                params:
+                    - name: filter.contentMarketName
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.division
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.geoMarket
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.store
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: store_filters.json
+                pagination: null
+            list_text.json:
+                method: GET
+                path: /content/v2/objects/stringtable/1.0.0/modality/fulfillment/text.json
+                description: GET /content/v2/objects/stringtable/1.0.0/modality/fulfillment/text.json
+                params:
+                    - name: filter.contentMarketName
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.division
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.geoMarket
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.store
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: text.json
+                pagination: null
+            list_undefined.json:
+                method: GET
+                path: /content/v2/objects/undefined/undefined/undefined.json
+                description: GET /content/v2/objects/undefined/undefined/undefined.json
+                params:
+                    - name: filter.contentMarketName
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.division
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.geoMarket
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.store
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: undefined.json
+                pagination: null
+            list_urls.json:
+                method: GET
+                path: /content/v2/objects/searchrichcontent/1.0.0/urls.json
+                description: GET /content/v2/objects/searchrichcontent/1.0.0/urls.json
+                params:
+                    - name: filter.contentMarketName
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.division
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.geoMarket
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.store
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: urls.json
+                pagination: null
+            list_welcome_menu.json:
+                method: GET
+                path: /content/v2/objects/navigation/1.0.0/welcome-menu.json
+                description: GET /content/v2/objects/navigation/1.0.0/welcome-menu.json
+                params:
+                    - name: filter.contentMarketName
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.division
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: filter.store
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: welcome_menu.json
+                pagination: null
+    conversions:
+        description: Operations on settings
+        endpoints:
+            list_settings:
+                method: GET
+                path: /v2/api/conversions/settings
+                description: GET /v2/api/conversions/settings
+                params:
+                    - name: id
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: settings
+                pagination: null
+    customer-data-token:
+        description: Operations on token
+        endpoints:
+            list_token:
+                method: GET
+                path: /customer-data-token/v4/token
+                description: GET /customer-data-token/v4/token
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: token
+                pagination: null
+    eciamp.onmicrosoft.com:
+        description: Operations on token
+        endpoints:
+            create_token:
+                method: POST
+                path: /eciamp.onmicrosoft.com/b2c_1a__ciam_signin_signup/oauth2/v2.0/token
+                description: POST /eciamp.onmicrosoft.com/b2c_1a__ciam_signin_signup/oauth2/v2.0/token
+                params:
+                    - name: client-request-id
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body:
+                    - name: X-AnchorMailbox
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: client_id
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: client_info
+                      type: integer
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: grant_type
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: refresh_token
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: scope
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: x-client-SKU
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: x-client-VER
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: x-client-current-telemetry
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: x-client-last-telemetry
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: x-ms-lib-capability
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                response:
+                    type: object
+                    item: token
+                pagination: null
+    qB1py7FxiRxje:
+        description: Operations on EdClXAWAB
+        endpoints:
+            create_EdClXAWAB:
+                method: POST
+                path: /qB1py7FxiRxje/xBaRro/nGmSVUVg/N3irhr9NJ5N5cQ/dW1ccAkbBg/G3J/EdClXAWAB
+                description: POST /qB1py7FxiRxje/xBaRro/nGmSVUVg/N3irhr9NJ5N5cQ/dW1ccAkbBg/G3J/EdClXAWAB
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: EdClXAWAB
+                pagination: null
+            create_qESoJeGYu:
+                method: POST
+                path: /qB1py7FxiRxje/xBaRro/nGmSVUVg/p8irhr9N/Ph5ncAkbBg/V3l/qESoJeGYu
+                description: POST /qB1py7FxiRxje/xBaRro/nGmSVUVg/p8irhr9N/Ph5ncAkbBg/V3l/qESoJeGYu
+                params: []
+                body:
+                    - name: body
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                response:
+                    type: object
+                    item: qESoJeGYu
+                pagination: null
+    sync:
+        description: Operations on sync
+        endpoints:
+            list_sync:
+                method: GET
+                path: /api/sync
+                description: GET /api/sync
+                params:
+                    - name: _
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: it
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: iv
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: pid
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: sync
+                pagination: null
+    tfp:
+        description: Operations on openid-configuration
+        endpoints:
+            list_openid_configuration:
+                method: GET
+                path: /tfp/eciamp.onmicrosoft.com/b2c_1a__ciam_signin_signup/v2.0/.well-known/openid-configuration
+                description: GET /tfp/eciamp.onmicrosoft.com/b2c_1a__ciam_signin_signup/v2.0/.well-known/openid-configuration
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: openid_configuration
+                pagination: null
+    track:
+        description: Operations on realtimeconversion
+        endpoints:
+            create_realtimeconversion:
+                method: POST
+                path: /track/realtimeconversion
+                description: POST /track/realtimeconversion
+                params: []
+                body:
+                    - name: data
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: adv
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: pixel_ids
+                          type: array
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: privacy_settings
+                          type: array
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: referrer_url
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                          format: url
+                response:
+                    type: object
+                    item: realtimeconversion
+                pagination: null
+            options_realtimeconversion:
+                method: OPTIONS
+                path: /track/realtimeconversion
+                description: OPTIONS /track/realtimeconversion
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: realtimeconversion
+                pagination: null
+    user:
+        description: Operations on user
+        endpoints:
+            list_user:
+                method: GET
+                path: /user/
+                description: GET /user/
+                params:
+                    - name: cb
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: dep
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: ed
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: event
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: pd
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: tid
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: user
+                pagination: null
+types: {}
