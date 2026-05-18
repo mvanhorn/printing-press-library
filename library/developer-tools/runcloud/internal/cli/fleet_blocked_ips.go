@@ -96,7 +96,7 @@ func newFleetBlockedIPsCmd(flags *rootFlags) *cobra.Command {
 				createdStr := jsonStringField(data.String, "createdAt", "created_at", "blockedAt", "blocked_at")
 				created, _ := parseLooseTime(createdStr)
 
-				if sinceCut != nil && !created.IsZero() && created.Before(*sinceCut) {
+				if sinceCut != nil && (created.IsZero() || created.Before(*sinceCut)) {
 					continue
 				}
 

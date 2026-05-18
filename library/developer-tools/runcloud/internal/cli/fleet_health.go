@@ -4,7 +4,6 @@ package cli
 
 import (
 	"context"
-	"database/sql"
 	"encoding/json"
 	"fmt"
 
@@ -134,6 +133,3 @@ func floatField(obj map[string]any, keys ...string) float64 {
 	}
 	return 0
 }
-
-// Silence unused-import warning for sql when the file evolves.
-var _ = sql.ErrNoRows

@@ -70,9 +70,10 @@ func newFleetSSLAuditCmd(flags *rootFlags) *cobra.Command {
 					return fmt.Errorf("computing missing SSL: %w", err)
 				}
 				rows = missingRows
-			}
-
-			if threshold != nil {
+				if threshold != nil {
+					fmt.Fprintln(cmd.ErrOrStderr(), "note: --expiring-within is ignored when --missing is set (rows have no expiry)")
+				}
+			} else if threshold != nil {
 				rows = filterSSLByExpiry(rows, *threshold)
 			}
 
