@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "hayward-omnilogic-pp-mcp",
+  "display_name": "Hayward OmniLogic",
+  "version": "4.2.2",
+  "description": "Hayward OmniLogic API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/hayward-omnilogic-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/hayward-omnilogic-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

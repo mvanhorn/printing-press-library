@@ -1,0 +1,8 @@
+{
+  "dir": "/Users/mitchnick/printing-press/library/domain-goat",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

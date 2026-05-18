@@ -1,0 +1,11 @@
+{
+  "run_id": "20260511-095555",
+  "sources": [
+    {
+      "source_name": "greatclips",
+      "decision": "approved",
+      "reason": "User authorized Claude-in-Chrome browser-sniff with logged-in session; live capture completed",
+      "asked_at": "2026-05-11T17:04:14Z"
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 ---
 name: pp-sec-edgar
-description: "Every SEC filing, every XBRL fact, every insider trade — synced into a local SQLite store you can pivot, search,... Trigger phrases: `look up an SEC filing`, `check insider trading on`, `compare quarterly financials for`, `find restatements in the last quarter`, `watch SEC filings for`, `use sec-edgar`, `run sec-edgar`."
+description: "Every SEC filing, every XBRL fact, every insider trade — synced into a local SQLite store you can pivot, search, and watch offline. Trigger phrases: `look up an SEC filing`, `check insider trading on`, `compare quarterly financials for`, `watch SEC filings for`, `use sec-edgar`."
 author: "Chris Drit"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
