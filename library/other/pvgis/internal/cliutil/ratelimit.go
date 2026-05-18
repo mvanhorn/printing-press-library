@@ -41,19 +41,24 @@ func NewAdaptiveLimiter(ratePerSec float64) *AdaptiveLimiter {
 }
 
 func (l *AdaptiveLimiter) Wait() {
+	// PATCH(p2-toctou-window): hold the lock for the full read-decide-write
+	// region so concurrent sync workers (sync.go passes the same *Client to
+	// all `concurrency` goroutines) cannot observe the same `elapsed`, take
+	// the same sleep decision, and then both fire requests simultaneously.
+	// Sleeping while holding the mutex is the correct shape here: outbound
+	// pacing IS the limiter's job, and the sleep duration is always bounded
+	// by 1/rate seconds.
 	if l == nil {
 		return
 	}
 	l.mu.Lock()
+	defer l.mu.Unlock()
 	delay := time.Duration(float64(time.Second) / l.rate)
 	elapsed := time.Since(l.lastRequest)
-	l.mu.Unlock()
 	if elapsed < delay {
 		time.Sleep(delay - elapsed)
 	}
-	l.mu.Lock()
 	l.lastRequest = time.Now()
-	l.mu.Unlock()
 }
 
 func (l *AdaptiveLimiter) OnSuccess() {
@@ -74,6 +79,12 @@ func (l *AdaptiveLimiter) OnSuccess() {
 }
 
 func (l *AdaptiveLimiter) OnRateLimit() {
+	// PATCH(p1-onratelimit-floor): clamp the post-429 halved rate to l.floor
+	// (the user-configured starting rate) rather than the hard-coded 0.5.
+	// With the previous form, --rate-limit 0.1 → 429 → rate=0.05 → clamped
+	// UP to 0.5, which is 5× the user's intended ceiling. Using l.floor
+	// preserves the user's intent: a 429 can never push the rate above
+	// where it started.
 	if l == nil {
 		return
 	}
@@ -81,8 +92,8 @@ func (l *AdaptiveLimiter) OnRateLimit() {
 	defer l.mu.Unlock()
 	l.ceiling = l.rate
 	l.rate = l.rate / 2
-	if l.rate < 0.5 {
-		l.rate = 0.5
+	if l.rate < l.floor {
+		l.rate = l.floor
 	}
 	l.successes = 0
 }

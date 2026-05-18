@@ -69,6 +69,27 @@
       "files": [
         "internal/cli/novel.go"
       ]
+    },
+    {
+      "id": "p2-toctou-window",
+      "summary": "Hold `AdaptiveLimiter.mu` for the full read-decide-write region in `Wait()` so concurrent sync workers cannot bypass pacing.",
+      "reason": "Greptile review (P2) flagged that the original `Wait()` released the lock between reading `elapsed` and writing `lastRequest`. With sync's worker pool sharing one `*Client` (and therefore one `AdaptiveLimiter`) across `concurrency` goroutines, two callers could observe the same `elapsed`, take the same sleep decision, and fire requests at the same instant. Holding the lock through the sleep matches the limiter's contract (outbound pacing is its whole purpose) and the sleep is always bounded by 1/rate. Originally deferred to upstream as a multi-CLI template bug; applying the fix locally now so the published pvgis CLI is correct without waiting for the generator regeneration cycle.",
+      "files": [
+        "internal/cliutil/ratelimit.go"
+      ],
+      "validated_outcome": "Local `go test ./internal/cliutil/` passes after the change.",
+      "upstream_issue": "TBD — will be filed against cli-printing-press; the same shape ships in every printed CLI in the library."
+    },
+    {
+      "id": "p1-onratelimit-floor",
+      "summary": "Clamp the post-429 halved rate to `l.floor` (the user-configured starting rate) instead of the hard-coded 0.5.",
+      "reason": "Greptile review (P1) flagged that for `--rate-limit < 0.5`, `OnRateLimit` divided the rate by 2 and then clamped UP to 0.5 — making a 429 *increase* the rate above the user's intended ceiling. Using `l.floor` preserves user intent: a 429 can never push the rate above where it started. Required updating two unit tests in `cliutil_test.go` that encoded the old buggy semantics (`TestAdaptiveLimiter_HalvesOnRateLimit` and renamed `TestAdaptiveLimiter_FloorsAtUserConfiguredFloor`). Originally deferred to upstream; applied locally for the same reason as the TOCTOU fix above.",
+      "files": [
+        "internal/cliutil/ratelimit.go",
+        "internal/cliutil/cliutil_test.go"
+      ],
+      "validated_outcome": "Updated tests pass; `go test ./...` clean across all packages.",
+      "upstream_issue": "TBD — same generator-template fix as p2-toctou-window."
     }
   ]
 }

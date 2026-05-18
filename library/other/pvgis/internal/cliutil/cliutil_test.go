@@ -643,22 +643,37 @@ func TestAdaptiveLimiter_RampsUpAfterSuccesses(t *testing.T) {
 }
 
 func TestAdaptiveLimiter_HalvesOnRateLimit(t *testing.T) {
-	l := NewAdaptiveLimiter(8.0)
+	// PATCH(p1-onratelimit-floor) updated this test: OnRateLimit now clamps
+	// at l.floor (the user-configured starting rate), not the old hard-coded
+	// 0.5. Ramp the rate above floor first so the halving lands above floor
+	// and the divide-by-two semantics are observable. Floor=8.0; after
+	// `rampAfter` successes the rate is 8 * 1.25 = 10; one OnRateLimit then
+	// halves to 5, which is above floor=8 — wait no, 5 < 8 so it clamps to
+	// floor. Ramp TWICE so rate = 8 * 1.25 * 1.25 = 12.5; halve to 6.25 →
+	// still < floor → still clamps. Two ramps isn't enough either: we need
+	// to ramp until 2× floor before halving observes a sub-floor result.
+	// Simpler: pin the floor at a small value, start at a larger rate.
+	l := &AdaptiveLimiter{rate: 8.0, floor: 1.0, rampAfter: 10}
 	startRate := l.Rate()
 	l.OnRateLimit()
 	got := l.Rate()
-	if got != startRate/2 {
-		t.Errorf("Rate() after OnRateLimit = %v, want %v", got, startRate/2)
+	want := startRate / 2
+	if got != want {
+		t.Errorf("Rate() after OnRateLimit = %v, want %v", got, want)
 	}
 }
 
-func TestAdaptiveLimiter_FloorsAtHalfRPS(t *testing.T) {
-	l := NewAdaptiveLimiter(2.0)
+func TestAdaptiveLimiter_FloorsAtUserConfiguredFloor(t *testing.T) {
+	// PATCH(p1-onratelimit-floor): floor is now the user-configured starting
+	// rate, not the hard-coded 0.5. Repeated 429s must not push the rate
+	// below the floor the user asked for.
+	startRate := 2.0
+	l := NewAdaptiveLimiter(startRate)
 	for i := 0; i < 10; i++ {
 		l.OnRateLimit()
 	}
-	if got := l.Rate(); got < 0.5 {
-		t.Errorf("Rate() after many OnRateLimit = %v, want >= 0.5", got)
+	if got := l.Rate(); got < startRate {
+		t.Errorf("Rate() after many OnRateLimit = %v, want >= floor=%v", got, startRate)
 	}
 }
 
