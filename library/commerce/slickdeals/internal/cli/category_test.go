@@ -88,10 +88,10 @@ func TestCategoryCmd_List(t *testing.T) {
 		t.Fatalf("category --list error: %v", err)
 	}
 	out := buf.String()
-	// Either the JSON entries array OR (if a future change adds a header
-	// path) the FORUM ID heading must surface a recognizable category name.
-	if !strings.Contains(out, "tech") && !strings.Contains(out, "\"tech\"") {
-		t.Errorf("--list output missing tech category alias, got: %s", out)
+	// v0.3 uses the five Slickdeals-advertised forum IDs only. Check for at
+	// least one verified alias rather than the dropped v0.2 "tech" alias.
+	if !strings.Contains(out, "hot") || !strings.Contains(out, "freebies") {
+		t.Errorf("--list output missing verified category aliases (hot/freebies), got: %s", out)
 	}
 }
 
@@ -179,10 +179,13 @@ func TestCategoryCmd_WithMockServer(t *testing.T) {
 	var buf bytes.Buffer
 	cmd := newCategoryCmd(&flags)
 	cmd.SetOut(&buf)
-	cmd.SetArgs([]string{"tech", "--limit", "2"})
+	// v0.3: "hot" is the canonical alias for forum 9 (Slickdeals Hot Deals
+	// Forum). v0.2's "tech" alias was dropped because it pointed at the wrong
+	// forum ID (25 = Contests, not Computers).
+	cmd.SetArgs([]string{"hot", "--limit", "2"})
 
 	if err := cmd.Execute(); err != nil {
-		t.Fatalf("category tech error: %v", err)
+		t.Fatalf("category hot error: %v", err)
 	}
 
 	// Output should be valid JSON with a "results" key.

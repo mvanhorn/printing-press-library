@@ -1,8 +1,9 @@
-// Copyright 2026 dstevens. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 dstevens. Licensed under Apache-2.0.
 
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -12,6 +13,35 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/productivity/granola/internal/granola"
 	"github.com/mvanhorn/printing-press-library/library/productivity/granola/internal/granola/safestorage"
 )
+
+// CacheSyncResult captures everything a cache sync produces, in a form that
+// either the user-facing `sync` command or the auto-refresh hook can consume.
+// HydrateErr is non-fatal: hydration of /v2/get-documents may fail while the
+// cache decrypt itself succeeded, so callers surface it as a warning rather
+// than aborting.
+type CacheSyncResult struct {
+	Version          int
+	Meetings         int
+	Attendees        int
+	Segments         int
+	Folders          int
+	Memberships      int
+	Panels           int
+	Recipes          int
+	Workspaces       int
+	ChatThreads      int
+	ChatMessages     int
+	DocumentsFetched int
+	HydrateErr       error
+	StateWriteErr    error
+	Duration         time.Duration
+}
+
+// TotalRows is the headline count used by the auto-refresh provenance line.
+func (r CacheSyncResult) TotalRows() int {
+	return r.Meetings + r.Attendees + r.Segments + r.Folders + r.Memberships +
+		r.Panels + r.Recipes + r.Workspaces + r.ChatThreads + r.ChatMessages
+}
 
 // newSyncCacheCmd is registered as the top-level 'sync' replacement.
 // Granola's public API only covers ~3 endpoints; the cache file is the
@@ -38,31 +68,14 @@ The hydration is idempotent: re-running replaces every row.`,
 			if dryRunOK(flags) {
 				return nil
 			}
-			c, err := openGranolaCache()
-			if err != nil {
-				// PATCH(encrypted-cache): record the decrypt failure so doctor
-				// can report it without itself prompting the Keychain.
-				recordSyncDecryptStatus(err)
-				return err
-			}
-			// PATCH(encrypted-cache): Granola desktop moved documents
-			// out of cache-v6.json into the API around May 2026. Hydrate
-			// from /v2/get-documents so SyncFromCache's meeting upsert
-			// loop has something to iterate.
-			docsFetched, hydrateErr := granola.HydrateDocumentsFromAPI(c, nil)
-			s, err := openGranolaStore(cmd.Context())
-			if err != nil {
-				return err
-			}
-			defer s.Close()
-			res, err := granola.SyncFromCache(cmd.Context(), s.DB(), c)
+			res, err := runCacheSync(cmd.Context())
 			if err != nil {
 				return err
 			}
 			summary := map[string]any{
 				"event":               "sync_summary",
 				"source":              "granola_cache",
-				"version":             c.Version,
+				"version":             res.Version,
 				"meetings":            res.Meetings,
 				"attendees":           res.Attendees,
 				"transcript_segments": res.Segments,
@@ -73,10 +86,10 @@ The hydration is idempotent: re-running replaces every row.`,
 				"workspaces":          res.Workspaces,
 				"chat_threads":        res.ChatThreads,
 				"chat_messages":       res.ChatMessages,
-				"documents_fetched":   docsFetched,
+				"documents_fetched":   res.DocumentsFetched,
 			}
-			if hydrateErr != nil {
-				summary["documents_fetch_error"] = hydrateErr.Error()
+			if res.HydrateErr != nil {
+				summary["documents_fetch_error"] = res.HydrateErr.Error()
 			}
 			b, _ := json.Marshal(summary)
 			fmt.Fprintln(cmd.OutOrStdout(), string(b))
@@ -84,27 +97,87 @@ The hydration is idempotent: re-running replaces every row.`,
 			// so the user sees it but the sync still reports what it
 			// successfully synced from the cache (transcripts, folders,
 			// recipes, panels, chats).
-			if hydrateErr != nil {
-				fmt.Fprintf(cmd.ErrOrStderr(), "warning: documents API hydrate failed: %v\n", hydrateErr)
+			if res.HydrateErr != nil {
+				fmt.Fprintf(cmd.ErrOrStderr(), "warning: documents API hydrate failed: %v\n", res.HydrateErr)
 			}
-			// PATCH(encrypted-cache): record success so doctor can report
-			// "ok (last decrypted: <time>)" without itself decrypting.
-			state := granola.SyncState{
-				LastSyncAt:           time.Now().UTC(),
-				LastDecryptStatus:    granola.DecryptStatusOK,
-				LastTokenSource:      tokenSourceLabel(granola.CurrentTokenSource()),
-				LastDocumentsFetched: docsFetched,
-			}
-			if hydrateErr != nil {
-				state.LastHydrateErrorMsg = hydrateErr.Error()
-			}
-			if writeErr := granola.WriteSyncState(state); writeErr != nil {
-				fmt.Fprintf(cmd.ErrOrStderr(), "warning: failed to write sync state: %v\n", writeErr)
+			if res.StateWriteErr != nil {
+				fmt.Fprintf(cmd.ErrOrStderr(), "warning: failed to write sync state: %v\n", res.StateWriteErr)
 			}
 			return nil
 		},
 	}
 	return cmd
+}
+
+// PATCH(auto-refresh): Factored out of newSyncCacheCmd.RunE so the auto-refresh
+// hook in PersistentPreRunE can drive the same cache→SQLite hydration without
+// going through Cobra's command dispatch. The user-visible sync command becomes
+// a thin wrapper that adds JSON output formatting; auto-refresh consumes the
+// returned struct and emits a one-line provenance summary instead.
+//
+// runCacheSync decrypts the encrypted desktop cache, hydrates documents from
+// /v2/get-documents, upserts every row into the local SQLite store, and writes
+// the SyncState record doctor reads. It is best-effort with respect to document
+// hydration (returned in result.HydrateErr) but returns an error when the cache
+// itself cannot be opened — the caller decides whether that is fatal.
+func runCacheSync(ctx context.Context) (CacheSyncResult, error) {
+	started := time.Now()
+	c, err := openGranolaCache()
+	if err != nil {
+		// PATCH(encrypted-cache): record the decrypt failure so doctor
+		// can report it without itself prompting the Keychain.
+		recordSyncDecryptStatus(err)
+		return CacheSyncResult{Duration: time.Since(started)}, err
+	}
+	// PATCH(encrypted-cache): Granola desktop moved documents
+	// out of cache-v6.json into the API around May 2026. Hydrate
+	// from /v2/get-documents so SyncFromCache's meeting upsert
+	// loop has something to iterate.
+	docsFetched, hydrateErr := granola.HydrateDocumentsFromAPI(c, nil)
+	s, err := openGranolaStore(ctx)
+	if err != nil {
+		return CacheSyncResult{Duration: time.Since(started)}, err
+	}
+	defer s.Close()
+	sres, err := granola.SyncFromCache(ctx, s.DB(), c)
+	if err != nil {
+		return CacheSyncResult{Duration: time.Since(started)}, err
+	}
+	res := CacheSyncResult{
+		Version:          c.Version,
+		Meetings:         sres.Meetings,
+		Attendees:        sres.Attendees,
+		Segments:         sres.Segments,
+		Folders:          sres.Folders,
+		Memberships:      sres.Memberships,
+		Panels:           sres.Panels,
+		Recipes:          sres.Recipes,
+		Workspaces:       sres.Workspaces,
+		ChatThreads:      sres.ChatThreads,
+		ChatMessages:     sres.ChatMessages,
+		DocumentsFetched: docsFetched,
+		HydrateErr:       hydrateErr,
+		Duration:         time.Since(started),
+	}
+	// PATCH(encrypted-cache): record success so doctor can report
+	// "ok (last decrypted: <time>)" without itself decrypting.
+	state := granola.SyncState{
+		LastSyncAt:           time.Now().UTC(),
+		LastDecryptStatus:    granola.DecryptStatusOK,
+		LastTokenSource:      tokenSourceLabel(granola.CurrentTokenSource()),
+		LastDocumentsFetched: docsFetched,
+	}
+	if hydrateErr != nil {
+		state.LastHydrateErrorMsg = hydrateErr.Error()
+	}
+	if writeErr := granola.WriteSyncState(state); writeErr != nil {
+		// Surface state-write failure on the result so the wrapper can
+		// route it to stderr the same way the original RunE did. Kept
+		// separate from HydrateErr because the manual sync command
+		// prints each with its own stderr label.
+		res.StateWriteErr = writeErr
+	}
+	return res, nil
 }
 
 // PATCH(encrypted-cache): translate the load-error error chain into a

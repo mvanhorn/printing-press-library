@@ -26,10 +26,11 @@ type Config struct {
 	TokenExpiry       time.Time         `toml:"token_expiry"`
 	ClientID          string            `toml:"client_id"`
 	ClientSecret      string            `toml:"client_secret"`
-	DefaultRestaurant string            `toml:"default_restaurant"`
-	DefaultMax        float64           `toml:"default_max"`
-	DefaultTipPct     float64           `toml:"default_tip_pct"`
-	Path              string            `toml:"-"`
+	DefaultRestaurant   string            `toml:"default_restaurant"`
+	DefaultLocationCode string            `toml:"default_location_code"`
+	DefaultMax          float64           `toml:"default_max"`
+	DefaultTipPct       float64           `toml:"default_tip_pct"`
+	Path                string            `toml:"-"`
 }
 
 func Load(configPath string) (*Config, error) {
@@ -179,6 +180,8 @@ func (c *Config) SetKey(key, value string) error {
 		c.BaseURL = value
 	case "default_restaurant":
 		c.DefaultRestaurant = value
+	case "default_location_code":
+		c.DefaultLocationCode = value
 	case "default_max":
 		v, err := parseConfigFloat(key, value)
 		if err != nil {

@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-17T10:02:58.5207Z",
+  "printing_press_version": "4.8.0",
+  "api_name": "emailoctopus",
+  "display_name": "Emailoctopus",
+  "cli_name": "emailoctopus-pp-cli",
+  "owner": "trevin-chow",
+  "printer": "tmchow",
+  "printer_name": "Trevin Chow",
+  "spec_path": "openapi.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:6c6f51d6014fe6fa01ca73b5c4fa73fbb15ea70b68134013aadaadf47b600691",
+  "run_id": "20260517-015019",
+  "mcp_binary": "emailoctopus-pp-mcp",
+  "mcp_tool_count": 25,
+  "mcp_ready": "full",
+  "api_version": "2.0.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "EMAILOCTOPUS_API_KEY"
+  ],
+  "auth_key_url": "https://api.emailoctopus.com/developer/api-keys/create",
+  "novel_features": [
+    {
+      "name": "Per-contact engagement scorecard",
+      "command": "contacts engagement",
+      "description": "Score every contact by opens, clicks, and inactive-since across all campaigns. The API has no engagement-history endpoint; we synthesize it locally."
+    },
+    {
+      "name": "Cross-list duplicate finder",
+      "command": "contacts dedupe",
+      "description": "Find contacts that appear on multiple lists in the account, optionally consolidating them onto one canonical list."
+    },
+    {
+      "name": "Campaign performance digest",
+      "command": "campaigns digest",
+      "description": "One-shot campaign report combining summary, top-N links, contact-level breakdown, and per-domain opens — rendered for terminal or Markdown paste."
+    },
+    {
+      "name": "List churn diff",
+      "command": "lists diff",
+      "description": "Show contacts touched in this list since a relative time. Surfaces the change-set the API can't return — useful for incremental syncs, audit logs, or alerting on recent activity."
+    },
+    {
+      "name": "Tag set-algebra query",
+      "command": "tags intersect",
+      "description": "Find contacts matching boolean combinations of tags: --has trial-started --not activated returns the trial cohort that hasn't converted."
+    },
+    {
+      "name": "CSV upsert with mapping",
+      "command": "contacts sync-csv",
+      "description": "Push a CSV into EmailOctopus with mapped fields and tags. Dry-runs the diff against the local store first, then chunks into batch-upsert calls paced under the rate limit."
+    },
+    {
+      "name": "Rate-budgeted bulk delete",
+      "command": "contacts bulk-delete",
+      "description": "Delete many contacts matching a local predicate, paced under the 10/sec API limit with a resumable progress file."
+    },
+    {
+      "name": "Bulk automation trigger",
+      "command": "automations trigger-batch",
+      "description": "Queue an automation for many contacts from stdin or CSV, paced under the rate limit with retry on 429."
+    }
+  ]
+}

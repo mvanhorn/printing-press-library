@@ -69,7 +69,7 @@
         "internal/gflights/gflights.go",
         "internal/gflights/flights_native.go"
       ],
-      "summary": "Each Flight result now carries `booking_urls: {google, airline?}` — a Google Flights tfs= protobuf deeplink plus an airline-direct booking URL when the itinerary is operated end-to-end by one of AS/AA/UA/B6/AC/BA.",
+      "summary": "Each Flight result now carries `booking_urls: {google, airline?}` \u2014 a Google Flights tfs= protobuf deeplink plus an airline-direct booking URL when the itinerary is operated end-to-end by one of AS/AA/UA/B6/AC/BA.",
       "reason": "Search results previously left users to re-enter their query on a booking surface. The Google URL encodes the trip type, origin/destination IATA codes, dates, and passenger count into Google's tfs= protobuf parameter so clicking lands on a pre-executed Google Flights search. Codeshare itineraries and carriers outside the curated table omit the airline URL and rely on the Google fallback.",
       "validated_outcome": "go test ./internal/gflights/... -run TestBuild -count=1 (38 tests); live `flights SEA JFK 2026-07-15 --airlines AS,AA,UA --agent` populates both URLs on every AA-single-carrier result; live `flights SEA LAX --passengers 2` populates only the Google URL for Frontier (F9 not in table)."
     },
@@ -81,7 +81,7 @@
         "internal/gflights/flights_native_test.go"
       ],
       "summary": "Divide multi-passenger `flights` results' price by N so JSON `price` is per-seat.",
-      "reason": "Google Flights' shopping endpoint returns the group total when the request carries `--passengers N`; the parser was copying that straight into Flight.Price without dividing, so any multi-pax query silently reported the group total as per-seat. SEA->DCA 2026-10-09 DL786 first: 1 pax = $869, 3 pax was $2,606 (= 3 * $869) — now $868.67 per seat. Aligns with dates_native.go (hardcoded 1 adult) and the documented per-person contract in the agent SKILL.",
+      "reason": "Google Flights' shopping endpoint returns the group total when the request carries `--passengers N`; the parser was copying that straight into Flight.Price without dividing, so any multi-pax query silently reported the group total as per-seat. SEA->DCA 2026-10-09 DL786 first: 1 pax = $869, 3 pax was $2,606 (= 3 * $869) \u2014 now $868.67 per seat. Aligns with dates_native.go (hardcoded 1 adult) and the documented per-person contract in the agent SKILL.",
       "validated_outcome": "go test ./internal/gflights/... -run TestApplyPerPassengerPrice -count=1; live cli run for SEA->DCA 2026-10-09 first nonstop, DL: pax=1 -> 869, pax=3 -> 868.67."
     },
     {
@@ -121,6 +121,17 @@
       "summary": "Replace krisukox/google-flights-api with a native f.req protobuf-shaped client matching fli's Python implementation; remove the upstream dependency.",
       "reason": "krisukox/google-flights-api only exposed Stops, Class, TripType in its Options struct and silently dropped airlines, bags, emissions, layover, carry-on, exclude-basic-economy, show-all-results, and the expanded sort options (top_flights, best, emissions). Users passing --airlines BA,KL got results that ignored the filter. Ports fli/models/google_flights/flights.py format() to Go in internal/gflights/flights_native.go, reaches feature parity with fli, and drops github.com/krisukox/google-flights-api from go.mod entirely.",
       "validated_outcome": "go build ./...; go test ./internal/gflights/...; go test ./...; go vet ./...; flights --help renders new --emissions, --bags, --carry-on, --layover, --max-layover, --limited flags; --sort accepts all 7 of fli's values. Search() now has the same 90s defensive ctx-timeout fallback as Dates(). Airport.Name and Airline.Name now populated from response slots leg[4]/leg[5]/leg[22][3]; verified live (SEA \u2192 'Seattle-Tacoma International Airport', VS \u2192 'Virgin Atlantic')."
+    },
+    {
+      "id": "aircraft-seat-type-amenities",
+      "upstream_issue": "",
+      "files": [
+        "internal/gflights/flights_native.go",
+        "internal/gflights/gflights.go"
+      ],
+      "summary": "Extract aircraft type (leg[17]), seat type (leg[13]), and amenities (leg[12]) from Google Flights GetShoppingResults response. Adds AircraftType, SeatType, and Amenities fields to the Leg struct.",
+      "reason": "Google Flights returns aircraft type, seat configuration (lie-flat, individual-suite, recliner, standard), and cabin amenities (wifi, power, entertainment, legroom) in the leg array but the parser did not extract them. These fields are critical for business/first class searches where seat type varies by aircraft on the same route.",
+      "validated_outcome": "go build ./...; live flight-goat-pp-cli flights BOS SFO 2026-06-10 --class business --agent returns aircraft_type, seat_type, and amenities on each leg. JetBlue Mint A320 individual-suite and United 777 lie-flat both correctly identified."
     }
   ]
 }

@@ -6,7 +6,7 @@ An agent-native CLI for the entire SEC EDGAR surface — data.sec.gov XBRL, efts
 
 ## Install
 
-The recommended path installs both the `sec-edgar-pp-cli` binary and the `pp-sec-edgar` agent skill in one shot:
+The recommended path installs both the `sec-edgar-pp-cli` binary and the `pp-sec-edgar` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
 npx -y @mvanhorn/printing-press install sec-edgar
@@ -18,6 +18,18 @@ For CLI only (no skill):
 npx -y @mvanhorn/printing-press install sec-edgar --cli-only
 ```
 
+For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
+
+```bash
+npx -y @mvanhorn/printing-press install sec-edgar --skill-only
+```
+
+To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
+
+```bash
+npx -y @mvanhorn/printing-press install sec-edgar --agent claude-code
+npx -y @mvanhorn/printing-press install sec-edgar --agent claude-code --agent codex
+```
 
 ### Without Node (Go fallback)
 
@@ -56,6 +68,45 @@ Tell your OpenClaw agent (copy this):
 Install the pp-sec-edgar skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-sec-edgar. The skill defines how its required CLI can be installed.
 ```
 
+## Use with Claude Desktop
+
+This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
+
+To install:
+
+1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/sec-edgar-current).
+2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
+3. Fill in `SEC_EDGAR_USER_AGENT` when Claude Desktop prompts you.
+
+Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
+
+<details>
+<summary>Manual JSON config (advanced)</summary>
+
+If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
+
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/developer-tools/sec-edgar/cmd/sec-edgar-pp-mcp@latest
+```
+
+Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "sec-edgar": {
+      "command": "sec-edgar-pp-mcp",
+      "env": {
+        "SEC_EDGAR_USER_AGENT": "<your-key>"
+      }
+    }
+  }
+}
+```
+
+</details>
+
 ## Authentication
 
 SEC EDGAR requires no API key. Every request must include a User-Agent header naming a human and contact email (e.g. 'Alex Researcher alex@example.com'). Set SEC_EDGAR_USER_AGENT in your environment; the CLI refuses to run without it. The SEC enforces a 10-req/sec rate cap per host; this CLI caps itself at 8 req/sec with jitter.
@@ -66,22 +117,17 @@ SEC EDGAR requires no API key. Every request must include a User-Agent header na
 # Confirm the User-Agent is set and SEC hosts are reachable.
 sec-edgar-pp-cli doctor
 
-
 # Resolve a ticker to its CIK from the local company-ticker map.
 sec-edgar-pp-cli companies lookup AAPL --json
-
 
 # Apple's last five 10-Ks from the synced submissions store.
 sec-edgar-pp-cli filings list --cik 0000320193 --form 10-K --limit 5 --json
 
-
 # Apple's last four quarters of income-statement XBRL facts.
 sec-edgar-pp-cli facts statement --cik 0000320193 --kind income --periods last4 --json
 
-
 # Flag issuers with 3+ insiders selling in any 5-day window over the last 30 days.
 sec-edgar-pp-cli insider-cluster --within 5d --min-insiders 3 --code S --since 30d --json
-
 
 # Stream live filings matching multi-dim filters as NDJSON.
 sec-edgar-pp-cli watch --form 8-K --item 2.05 --keyword 'going concern' --json
@@ -182,7 +228,6 @@ Filer (company) filing history
 
 - **`sec-edgar-pp-cli submissions get`** - Get full submissions history for a filer by 10-digit zero-padded CIK
 
-
 ## Output Formats
 
 ```bash
@@ -215,73 +260,6 @@ This CLI is designed for AI agent consumption:
 - **Agent-safe by default** - no colors or formatting unless `--human-friendly` is set
 
 Exit codes: `0` success, `2` usage error, `3` not found, `4` auth error, `5` API error, `7` rate limited, `10` config error.
-
-## Use with Claude Code
-
-Install the focused skill — it auto-installs the CLI on first invocation:
-
-```bash
-npx skills add mvanhorn/printing-press-library/cli-skills/pp-sec-edgar -g
-```
-
-Then invoke `/pp-sec-edgar <query>` in Claude Code. The skill is the most efficient path — Claude Code drives the CLI directly without an MCP server in the middle.
-
-<details>
-<summary>Use as an MCP server in Claude Code (advanced)</summary>
-
-If you'd rather register this CLI as an MCP server in Claude Code, install the MCP binary first:
-
-
-```bash
-go install github.com/mvanhorn/printing-press-library/library/developer-tools/sec-edgar/cmd/sec-edgar-pp-mcp@latest
-```
-
-Then register it:
-
-```bash
-claude mcp add sec-edgar sec-edgar-pp-mcp -e SEC_EDGAR_USER_AGENT=<your-key>
-```
-
-</details>
-
-## Use with Claude Desktop
-
-This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
-
-To install:
-
-1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/sec-edgar-current).
-2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
-3. Fill in `SEC_EDGAR_USER_AGENT` when Claude Desktop prompts you.
-
-Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
-
-<details>
-<summary>Manual JSON config (advanced)</summary>
-
-If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
-
-
-```bash
-go install github.com/mvanhorn/printing-press-library/library/developer-tools/sec-edgar/cmd/sec-edgar-pp-mcp@latest
-```
-
-Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "sec-edgar": {
-      "command": "sec-edgar-pp-mcp",
-      "env": {
-        "SEC_EDGAR_USER_AGENT": "<your-key>"
-      }
-    }
-  }
-}
-```
-
-</details>
 
 ## Health Check
 

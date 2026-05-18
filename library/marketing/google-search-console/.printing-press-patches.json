@@ -15,6 +15,37 @@
         "internal/cli/which.go"
       ],
       "validated_outcome": "go test ./..., go vet ./..., and go build ./... pass from the Google Search Console CLI directory."
+    },
+    {
+      "id": "oauth-login",
+      "summary": "Add real OAuth login flow (loopback + PKCE S256) replacing the pasted-token UX. Wires the token endpoint that the Press left empty and adds auth login/set-client/forget commands.",
+      "reason": "The Printing Press emitted half a refresh-token flow (config fields, refreshAccessToken function, SaveTokens/ClearTokens helpers) but left tokenURL hardcoded empty, so refresh was a silent no-op. Users had to re-paste a 1-hour token from the OAuth Playground every hour. Filed upstream as cli-printing-press#1200 so future OAuth CLIs ship with a working login flow by default.",
+      "files": [
+        "internal/cli/auth.go",
+        "internal/cli/auth_login.go",
+        "internal/cli/auth_browser.go",
+        "internal/cli/auth_login_test.go",
+        "internal/cli/doctor.go",
+        "internal/client/client.go",
+        "internal/config/config.go",
+        "internal/config/config_atomic_test.go",
+        "internal/mcp/tools.go",
+        "README.md",
+        "SKILL.md",
+        "go.mod",
+        "go.sum"
+      ],
+      "validated_outcome": "go build, go vet, go test ./... all clean. Live: auth login flow completes end-to-end, tokens persist, auto-refresh works on natural and forced expiry, webmasters list-sites returns real data.",
+      "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/1200"
+    },
+    {
+      "id": "sync-store-collision",
+      "summary": "Fix silent data loss: every non-GET API request was calling os.RemoveAll on the shared cache directory, which deleted store.db right after sync wrote to it. Moved HTTP response cache into a `responses/` subdirectory so the analytics store is untouched.",
+      "reason": "The Printing Press generated a Client that puts its HTTP response cache at the same path as the Store package's SQLite DB. invalidateCache() runs after every POST/PUT/DELETE/PATCH and does `os.RemoveAll(cacheDir)`. Sync POSTs to /searchAnalytics/query so every sync silently deleted store.db immediately after writing it. Generalizable Printing Press bug: any printed CLI that combines Client (with response cache) + Store (with SQLite) at the same canonical cache path has the same trap.",
+      "files": [
+        "internal/client/client.go"
+      ],
+      "validated_outcome": "After fix: 21-day sync persists 23,250 rows, quick-wins/cliff/compare/historical all return real data. Response cache .json files now live in `~/.cache/<cli>/responses/` while store.db lives at `~/.cache/<cli>/store.db`. POST requests safely invalidate only response JSON."
     }
   ]
 }
