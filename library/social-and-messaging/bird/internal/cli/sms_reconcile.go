@@ -143,6 +143,16 @@ campaign.`,
 						if err := sendOneRow(flags, batch.ChannelID, &retry); err != nil {
 							retry.Status = "retry-failed"
 							retry.Error = err.Error()
+						} else {
+							// PATCH: clear the original error string on success.
+							// `retry := row` copies the original failed row's Error
+							// field; sendOneRow only writes MessageID + Status on
+							// success, leaving Error intact. Without this clear,
+							// persistBatch writes back a "retried but Error != ""
+							// state, and the next --retry-failed pass re-attempts
+							// an already-delivered row. Surfaced by Greptile P1 in
+							// the PR #417 eighth review pass.
+							retry.Error = ""
 						}
 						retries = append(retries, retry)
 					}
