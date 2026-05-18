@@ -72,6 +72,9 @@ func newCreatePdfPromotedCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
+			if flags.dryRun {
+				return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			}
 			if flags.quiet {
 				return nil
 			}
