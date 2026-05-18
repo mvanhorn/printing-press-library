@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "slickdeals-pp-mcp",
+  "display_name": "Slickdeals",
+  "version": "0.2.0",
+  "description": "Live Slickdeals deal surface (hot/frontpage/search/category/coupons) and local-snapshot transcendence features (watch/digest/deals/analytics) as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/slickdeals-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/slickdeals-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

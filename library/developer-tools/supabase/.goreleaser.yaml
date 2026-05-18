@@ -1,0 +1,51 @@
+version: 2
+project_name: supabase-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: supabase-pp-cli
+    main: ./cmd/supabase-pp-cli
+    binary: supabase-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/developer-tools/supabase/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: supabase-pp-mcp
+    main: ./cmd/supabase-pp-mcp
+    binary: supabase-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: supabase-pp-cli
+    repository:
+      owner: giacaglia
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every Supabase runtime endpoint — PostgREST CRUD, Auth Admin, Storage objects, Edge Function invoke — plus the..."
+    install: |
+      bin.install "supabase-pp-cli"
+      bin.install "supabase-pp-mcp"

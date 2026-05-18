@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "applied_at": "2026-05-08",
+  "applied_at": "2026-05-12",
   "base_run_id": "2026-05-02T22:09:06.820184Z",
   "base_printing_press_version": "3.6.0",
   "upstream_tracking": [
@@ -8,6 +8,82 @@
     "https://github.com/mvanhorn/cli-printing-press/issues/804"
   ],
   "patches": [
+    {
+      "id": "google-flights-tfs-schema-fix",
+      "upstream_issue": "",
+      "files": [
+        "internal/gflights/booking_urls.go",
+        "internal/gflights/booking_urls_test.go"
+      ],
+      "summary": "Replace the broken hand-rolled tfs= protobuf encoding with the canonical schema from krisukox/google-flights-api url.proto (tripType=19, Location nested at 13/14, Travelers repeated enum at 8, base64.RawURLEncoding, curr+hl URL params).",
+      "reason": "The previous encoding used invented field numbers and produced URLs that landed on the Google Flights homepage instead of executing the search. Schema confirmed by fetching url.proto directly. Browser-verified two emitted URLs (SEA-LHR one-way and SEA-PNH round-trip 4-pax with PNH->KTI remap) both load the search results page.",
+      "validated_outcome": "go test ./internal/gflights/... -run TestBuildGoogleFlightsURL -count=1; live `flights SEA LHR 2026-06-15 --agent` and `flights SEA PNH 2026-12-24 --return 2027-01-01 --passengers 4 --agent` emit Google URLs that open to the search results page."
+    },
+    {
+      "id": "airline-booking-urls-expanded",
+      "upstream_issue": "",
+      "files": [
+        "internal/gflights/booking_urls.go",
+        "internal/gflights/booking_urls_test.go",
+        "internal/gflights/gflights.go",
+        "internal/gflights/testdata/airline_url_captures.md",
+        "SKILL.md"
+      ],
+      "summary": "Expand airlineTemplates from 6 to 35 carriers, add kind field (prefill vs landing) classifying each per testdata/airline_url_captures.md, restructure BookingURLs as {primary, primary_kind, airline_url, airline_kind, google_url} so consumers know what UI text to render.",
+      "reason": "PR #512 shipped a 6-entry airline table with only US-major carriers, leaving international searches (the Cambodia query was the proximate trigger) with no airline-direct link. Research found that only ~4 carriers (DL, LH, LX, WN) have documented prefill patterns; the rest run SPAs that hold search state client-side. The new kind field captures this honestly so agents can render Book on Delta vs Open Condor booking vs View on Google Flights based on what the URL actually does. BREAKING CHANGE for any PR #512 consumer: field names changed from {google, airline} to {google_url, airline_url, ...}.",
+      "validated_outcome": "go test ./internal/gflights/... -count=1 (49 tests); live `flights SEA LAX 2026-07-15 --airlines DL --agent` returns flights with primary pointing at delta.com prefill URL; live `flights SEA PNH 2026-12-24 --return 2027-01-01 --passengers 4 --agent` returns flights with primary pointing at a working Google Flights search (codeshare itinerary)."
+    },
+    {
+      "id": "airport-alias-table",
+      "upstream_issue": "",
+      "files": [
+        "internal/gflights/airport_alias.go",
+        "internal/gflights/airport_alias_test.go",
+        "internal/gflights/gflights.go",
+        "internal/kayak/kayak.go",
+        "internal/kayak/kayak_test.go"
+      ],
+      "summary": "Remap retired IATA codes (PNH->KTI, REP->SAI) at the request edge of Search/Dates/Kayak Direct; surface the substitution as `airport_remapped` in the response envelope.",
+      "reason": "Phnom Penh's PNH closed September 2025 and was replaced by Techo International (KTI); Siem Reap's REP was replaced by SAI in 2024. Google's GetShoppingResults silently returns an empty payload for retired codes, so `flights SEA PNH ...` returned zero results with no signal that anything was wrong. The remap happens at the public-function boundary; the echoed Query keeps the user's original input, and AirportRemapped is the only signal of the substitution.",
+      "validated_outcome": "go test ./internal/gflights/... ./internal/kayak/... -count=1 (38 tests); live `flights SEA PNH 2026-12-24 --return 2027-01-01 --passengers 4 --agent` returns flights with `airport_remapped: {destination: {from: PNH, to: KTI}}` and `query.destination: PNH`."
+    },
+    {
+      "id": "google-flights-parser-audit",
+      "upstream_issue": "",
+      "files": [
+        "internal/gflights/flights_native_test.go",
+        "internal/gflights/capture_test.go",
+        "internal/gflights/testdata/sea_kti_2026-12-24_response.json",
+        "internal/gflights/testdata/sea_bkk_2026-12-24_response.json"
+      ],
+      "summary": "Capture two GetShoppingResults fixtures (thin route SEA-KTI, dense route SEA-BKK) and lock in parseOffersResponse behavior with regression tests.",
+      "reason": "An audit triggered by an apparent under-reporting bug for SEA-KTI (returns 2 itineraries when web search suggested many carriers fly the route) confirmed the parser is correct: a recursive deep walk of the SEA-KTI response finds the same 2 rows the parser surfaces, and the dense SEA-BKK response parses all 100 itineraries. The original bug premise was Google-side sparsity for the new KTI airport code (Asian carriers have not yet fully published codeshare data under it), not a parser shortfall.",
+      "validated_outcome": "go test ./internal/gflights/... -run TestParseOffersResponse -count=1; fixtures refresh via `go test -tags capture ./internal/gflights/...`."
+    },
+    {
+      "id": "booking-urls-google-and-airline",
+      "upstream_issue": "",
+      "files": [
+        "internal/gflights/booking_urls.go",
+        "internal/gflights/booking_urls_test.go",
+        "internal/gflights/gflights.go",
+        "internal/gflights/flights_native.go"
+      ],
+      "summary": "Each Flight result now carries `booking_urls: {google, airline?}` \u2014 a Google Flights tfs= protobuf deeplink plus an airline-direct booking URL when the itinerary is operated end-to-end by one of AS/AA/UA/B6/AC/BA.",
+      "reason": "Search results previously left users to re-enter their query on a booking surface. The Google URL encodes the trip type, origin/destination IATA codes, dates, and passenger count into Google's tfs= protobuf parameter so clicking lands on a pre-executed Google Flights search. Codeshare itineraries and carriers outside the curated table omit the airline URL and rely on the Google fallback.",
+      "validated_outcome": "go test ./internal/gflights/... -run TestBuild -count=1 (38 tests); live `flights SEA JFK 2026-07-15 --airlines AS,AA,UA --agent` populates both URLs on every AA-single-carrier result; live `flights SEA LAX --passengers 2` populates only the Google URL for Frontier (F9 not in table)."
+    },
+    {
+      "id": "flights-passengers-per-seat-price",
+      "upstream_issue": "",
+      "files": [
+        "internal/gflights/flights_native.go",
+        "internal/gflights/flights_native_test.go"
+      ],
+      "summary": "Divide multi-passenger `flights` results' price by N so JSON `price` is per-seat.",
+      "reason": "Google Flights' shopping endpoint returns the group total when the request carries `--passengers N`; the parser was copying that straight into Flight.Price without dividing, so any multi-pax query silently reported the group total as per-seat. SEA->DCA 2026-10-09 DL786 first: 1 pax = $869, 3 pax was $2,606 (= 3 * $869) \u2014 now $868.67 per seat. Aligns with dates_native.go (hardcoded 1 adult) and the documented per-person contract in the agent SKILL.",
+      "validated_outcome": "go test ./internal/gflights/... -run TestApplyPerPassengerPrice -count=1; live cli run for SEA->DCA 2026-10-09 first nonstop, DL: pax=1 -> 869, pax=3 -> 868.67."
+    },
     {
       "id": "293-schedules-date-path-params",
       "upstream_issue": "https://github.com/mvanhorn/printing-press-library/issues/293",
@@ -45,6 +121,17 @@
       "summary": "Replace krisukox/google-flights-api with a native f.req protobuf-shaped client matching fli's Python implementation; remove the upstream dependency.",
       "reason": "krisukox/google-flights-api only exposed Stops, Class, TripType in its Options struct and silently dropped airlines, bags, emissions, layover, carry-on, exclude-basic-economy, show-all-results, and the expanded sort options (top_flights, best, emissions). Users passing --airlines BA,KL got results that ignored the filter. Ports fli/models/google_flights/flights.py format() to Go in internal/gflights/flights_native.go, reaches feature parity with fli, and drops github.com/krisukox/google-flights-api from go.mod entirely.",
       "validated_outcome": "go build ./...; go test ./internal/gflights/...; go test ./...; go vet ./...; flights --help renders new --emissions, --bags, --carry-on, --layover, --max-layover, --limited flags; --sort accepts all 7 of fli's values. Search() now has the same 90s defensive ctx-timeout fallback as Dates(). Airport.Name and Airline.Name now populated from response slots leg[4]/leg[5]/leg[22][3]; verified live (SEA \u2192 'Seattle-Tacoma International Airport', VS \u2192 'Virgin Atlantic')."
+    },
+    {
+      "id": "aircraft-seat-type-amenities",
+      "upstream_issue": "",
+      "files": [
+        "internal/gflights/flights_native.go",
+        "internal/gflights/gflights.go"
+      ],
+      "summary": "Extract aircraft type (leg[17]), seat type (leg[13]), and amenities (leg[12]) from Google Flights GetShoppingResults response. Adds AircraftType, SeatType, and Amenities fields to the Leg struct.",
+      "reason": "Google Flights returns aircraft type, seat configuration (lie-flat, individual-suite, recliner, standard), and cabin amenities (wifi, power, entertainment, legroom) in the leg array but the parser did not extract them. These fields are critical for business/first class searches where seat type varies by aircraft on the same route.",
+      "validated_outcome": "go build ./...; live flight-goat-pp-cli flights BOS SFO 2026-06-10 --class business --agent returns aircraft_type, seat_type, and amenities on each leg. JetBlue Mint A320 individual-suite and United 777 lie-flat both correctly identified."
     }
   ]
 }

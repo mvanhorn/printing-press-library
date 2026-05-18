@@ -1,0 +1,114 @@
+{
+  "api_name": "pointhound",
+  "base_url": "https://www.pointhound.com",
+  "description": "Search award flights and explore credit-card points redemptions on Pointhound.",
+  "mcp_ready": "partial",
+  "http_transport": "standard",
+  "auth": {
+    "type": "cookie",
+    "header": "Cookie",
+    "in": "header",
+    "cookie_domain": ".pointhound.com"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "offers_filter_options",
+      "description": "Get the filterable facets (card programs, airline programs, airlines) available for a given search session. Required: search-id. Returns the FilterOptions.",
+      "method": "GET",
+      "path": "/api/offers/filter-options",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "search-id",
+          "wire_name": "searchId",
+          "type": "string",
+          "location": "query",
+          "description": "Pointhound search session id (ofs_*).",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "offers_list",
+      "description": "List flight offers for an existing search session, with optional filters and sort. Required: search-id. Optional: take, offset, sort-by (plus 7 more). Returns the OfferListResponse.",
+      "method": "GET",
+      "path": "/api/offers",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "search-id",
+          "wire_name": "searchId",
+          "type": "string",
+          "location": "query",
+          "description": "Pointhound search session id (ofs_*). Obtain by visiting a Pointhound search results URL and copying the searchId from the network log, or by running `pointhound-pp-cli search` once cookies are imported.",
+          "required": true
+        },
+        {
+          "name": "take",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of offers to return (page size)."
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset."
+        },
+        {
+          "name": "sort-by",
+          "wire_name": "sortBy",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field: points, duration, or departsAt."
+        },
+        {
+          "name": "sort-order",
+          "wire_name": "sortOrder",
+          "type": "string",
+          "location": "query",
+          "description": "Sort direction: asc or desc."
+        },
+        {
+          "name": "cabins",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated cabin classes to include: economy, premium_economy, business, first."
+        },
+        {
+          "name": "passengers",
+          "type": "int",
+          "location": "query",
+          "description": "Passenger count (1-9)."
+        },
+        {
+          "name": "airlines",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated airline IDs (aln_* values from filter-options)."
+        },
+        {
+          "name": "airline-programs",
+          "wire_name": "airlinePrograms",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated airline frequent flyer program IDs (prp_* values)."
+        },
+        {
+          "name": "card-programs",
+          "wire_name": "cardPrograms",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated transferable points program IDs (pep_* values)."
+        },
+        {
+          "name": "stops",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated stop counts to include (0 for nonstop, 1, 2, etc.)."
+        }
+      ]
+    }
+  ]
+}

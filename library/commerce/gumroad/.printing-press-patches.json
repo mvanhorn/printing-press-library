@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-14",
+  "base_run_id": "20260511-134339",
+  "base_printing_press_version": "4.3.0",
+  "patches": [
+    {
+      "id": "nullable-nested-parent-ids",
+      "summary": "Allow Gumroad nested-resource store rows when responses omit parent IDs.",
+      "reason": "Gumroad nested endpoints are scoped by URL path, but their response bodies do not consistently echo product or sale parent IDs. Nullable indexed parent columns keep sync/search usable without rejecting otherwise valid rows.",
+      "files": [
+        "internal/store/store.go"
+      ],
+      "validated_outcome": "go test ./... passes for the generated Gumroad CLI."
+    },
+    {
+      "id": "tail-follow-false-single-poll",
+      "summary": "Honor tail --follow=false by returning after the initial poll and route tail output through Cobra streams.",
+      "reason": "The generated tail command declared a single-poll flag but ignored it, causing scripts and agents to hang until interrupted. It also wrote directly to os.Stdout/os.Stderr, bypassing command output writers used by MCP transports and tests.",
+      "files": [
+        "internal/cli/tail.go"
+      ],
+      "validated_outcome": "go test ./... passes for the generated Gumroad CLI."
+    },
+    {
+      "id": "auth-header-source-preservation",
+      "summary": "Preserve the credential source label when constructing Authorization headers.",
+      "reason": "AuthHeader previously rewrote config-file tokens as env-derived tokens and left a duplicate unreachable access-token branch.",
+      "files": [
+        "internal/config/config.go"
+      ],
+      "validated_outcome": "go test ./... passes for the generated Gumroad CLI."
+    },
+    {
+      "id": "expired-token-fails-loudly",
+      "summary": "Return a clear error for expired Gumroad tokens instead of using stale credentials.",
+      "reason": "The generated refresh hook was a no-op, so expired-token configs would continue sending invalid credentials without surfacing the real remediation.",
+      "files": [
+        "internal/client/client.go"
+      ],
+      "validated_outcome": "go test ./... passes for the generated Gumroad CLI."
+    },
+    {
+      "id": "search-no-type-uses-fts",
+      "summary": "Use the generic local FTS index when search runs without a type filter and resource-scoped FTS when --type is provided.",
+      "reason": "The generated no-type search branch initialized dedupe state but never queried the local database, and the first fallback fix made typed searches unscoped.",
+      "files": [
+        "internal/cli/search.go",
+        "internal/store/store.go"
+      ],
+      "validated_outcome": "go test ./... passes for the generated Gumroad CLI."
+    }
+  ]
+}

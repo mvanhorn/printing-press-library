@@ -1,7 +1,16 @@
 {
   "schema_version": 1,
-  "applied_at": "2026-05-08",
+  "applied_at": "2026-05-13",
   "base_run_id": "20260411-153728",
   "base_printing_press_version": "1.3.3-0.20260411222622-065697576de1+dirty",
-  "patches": []
+  "patches": [
+    {
+      "id": "fix-geocoding-wrong-host-502",
+      "summary": "Route the geocoding subcommand to geocoding-api.open-meteo.com instead of api.open-meteo.com to fix HTTP 404.",
+      "reason": "Reported in mvanhorn/printing-press-library#502. Open-Meteo splits its API across two hosts: api.open-meteo.com for forecast/air-quality and geocoding-api.open-meteo.com for geocoding search. The spec uses the forecast host as base_url, and the generated geocoding promoted command routed /search through that host, returning HTTP 404. The working internal helper geocodeLookup in location.go already calls the correct host directly; this patch mirrors that approach in promoted_geocoding.go, bypassing the spec-derived client for this one endpoint. Verified live: geocoding Chandigarh returns lat=30.73629, lon=76.7884 matching the issue reporter is curl evidence.",
+      "files": [
+        "internal/cli/promoted_geocoding.go"
+      ]
+    }
+  ]
 }

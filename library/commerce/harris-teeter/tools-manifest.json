@@ -1,0 +1,15 @@
+{
+  "api_name": "harris-teeter",
+  "base_url": "https://www.harristeeter.com",
+  "description": "Harris Teeter grocery shopping API discovered from the logged-in web app",
+  "mcp_ready": "partial",
+  "http_transport": "browser-chrome",
+  "auth": {
+    "type": "cookie",
+    "header": "Cookie",
+    "in": "cookie",
+    "cookie_domain": ".harristeeter.com"
+  },
+  "required_headers": [],
+  "tools": []
+}
