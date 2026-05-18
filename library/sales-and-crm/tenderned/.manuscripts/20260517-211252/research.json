@@ -1,0 +1,331 @@
+{
+  "api_name": "tenderned",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "tenderned-analyse/code-example-tn-xml-api",
+      "url": "https://github.com/tenderned-analyse/code-example-tn-xml-api",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "TheGabeMan/tenderned",
+      "url": "https://github.com/TheGabeMan/tenderned",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-17T19:18:00Z",
+  "novel_features": [
+    {
+      "name": "Buyer dossier",
+      "command": "buyer dossier",
+      "description": "Full profile for one contracting authority: spending cadence, top CPVs, top procedures, active vs awarded vs cancelled counts over a window.",
+      "rationale": "TenderNed exposes no aggregation endpoint — this is a pure SQLite GROUP BY join across notices cached locally.",
+      "example": "tenderned-pp-cli buyer dossier Rotterdam --since 2025-01-01 --agent",
+      "why_it_matters": "Reach for this when a user wants the full procurement picture of one buyer in one call instead of paginating through their notice list.",
+      "group": "Local aggregations that beat the API"
+    },
+    {
+      "name": "Sub-threshold lead finder",
+      "command": "leads",
+      "description": "Filter notices to national-only AND below an estimated-value cap AND inside CPV stripes — the long-tail tenders that EU TED never sees.",
+      "rationale": "Sub-EU-threshold notices are TenderNed-only. The local store plus multi-CPV intersection turns a manual page-walk into one query.",
+      "example": "tenderned-pp-cli leads --national --max-value 200000 --cpv 45000000-7,71000000-8 --since 2026-04-01 --agent",
+      "why_it_matters": "Reach for this when serving a Dutch SME or municipality-focused supplier whose target contracts are below EU thresholds.",
+      "group": "Local aggregations that beat the API"
+    },
+    {
+      "name": "Closing-deadline view",
+      "command": "deadline",
+      "description": "Lists notices closing within N days, grouped by day, with countdown plus buyer plus procedure filters.",
+      "rationale": "Local indexed query on sluitingsDatum joined with arbitrary filters — no API surface composes deadline plus CPV plus buyer plus value cap in one call.",
+      "example": "tenderned-pp-cli deadline --within 14 --cpv 45000000-7 --agent",
+      "why_it_matters": "Reach for this when triaging which open tenders need a response this week. Mirrors eu-tenders deadline.",
+      "group": "Local aggregations that beat the API"
+    },
+    {
+      "name": "Watch saved query",
+      "command": "watch",
+      "description": "Persist a filter set; watch run returns only NEW notices since the cursor's last advance.",
+      "rationale": "SQLite stores both the filter JSON and the last-seen publicatieDatum; the cursor makes incremental delivery cheap.",
+      "example": "tenderned-pp-cli watch run civils-watch --agent",
+      "why_it_matters": "Reach for this when a user wants a recurring filter without an external alerting system.",
+      "group": "Workflow primitives"
+    },
+    {
+      "name": "CPV-drift over time",
+      "command": "cpv-drift",
+      "description": "Year-by-year top-CPV table for one buyer or NUTS region; shows whether a buyer's purchasing mix is shifting.",
+      "rationale": "Historical aggregation across multiple years requires a local snapshot; the live API has no historical aggregation.",
+      "example": "tenderned-pp-cli cpv-drift --buyer Amsterdam --years 3 --agent",
+      "why_it_matters": "Reach for this when answering 'is this buyer's spending mix changing?' for a market-trend analysis. Mirrors eu-tenders cpv-drift.",
+      "group": "Time-series intelligence"
+    },
+    {
+      "name": "TED cross-reference",
+      "command": "ted-link",
+      "description": "Extracts the canonical TED publication number from the eForms XML, prints it plus the TED URL.",
+      "rationale": "The TED number is buried in the eForms XML, not in the JSON list response; only this CLI surfaces it on demand.",
+      "example": "tenderned-pp-cli ted-link 425283 --agent",
+      "why_it_matters": "Reach for this when the user wants to pivot from a TenderNed notice to the EU-wide TED record (e.g., for use with the sibling eu-tenders CLI).",
+      "group": "Cross-system bridges"
+    },
+    {
+      "name": "Tender-thread reconcile",
+      "command": "thread reconcile",
+      "description": "Walks PIN to CN to CAN to Modification chains for one buyer; flags orphan PINs, orphan CNs, and unresolved modifications.",
+      "rationale": "eForms predecessor links are TenderNed-specific data not exposed in the JSON list response; lifecycle reconciliation is impossible without parsing every XML.",
+      "example": "tenderned-pp-cli thread reconcile --buyer Eindhoven --since 2024-01-01 --agent",
+      "why_it_matters": "Reach for this when a compliance officer is auditing whether announced tenders were actually awarded or cancelled.",
+      "group": "Cross-system bridges"
+    },
+    {
+      "name": "Buyer top-N aggregation",
+      "command": "buyers top",
+      "description": "Top contracting authorities by tender count for a CPV plus NUTS plus date slice.",
+      "rationale": "Pure SQLite GROUP BY aggregation; TenderNed exposes no aggregation endpoint and the API limits per-call results.",
+      "example": "tenderned-pp-cli buyers top --cpv 72000000-5 --nuts NL33 --since 2025-01-01 --agent",
+      "why_it_matters": "Reach for this when the user asks 'which buyers are most active in this slice?'",
+      "group": "Local aggregations that beat the API"
+    },
+    {
+      "name": "Document grep",
+      "command": "docs grep",
+      "description": "Streams documents from matching notices, runs a regex against PDF and Word text, prints pub_id, doc_id, line hits.",
+      "rationale": "Bulk grep across bestek and PvE document bodies is unique to a local CLI; the web UI lets you download one at a time.",
+      "example": "tenderned-pp-cli docs grep \"clausule.*aansprakelijkheid\" --cpv 45000000-7 --limit 50 --agent",
+      "why_it_matters": "Reach for this when the user wants to find every notice mentioning a clause, vendor, or technical requirement across many bestek documents.",
+      "group": "Document corpus tools"
+    },
+    {
+      "name": "Weekly notice velocity",
+      "command": "velocity",
+      "description": "Weekly publication-count trend over the local snapshot; spot heating or cooling markets per CPV or buyer.",
+      "rationale": "Time-series rollup over the local notices table; impossible without a snapshot.",
+      "example": "tenderned-pp-cli velocity --cpv 72000000-5 --weeks 12 --agent",
+      "why_it_matters": "Reach for this when sizing market momentum for one CPV or buyer. Mirrors eu-tenders velocity.",
+      "group": "Time-series intelligence"
+    },
+    {
+      "name": "Buyer concentration (HHI)",
+      "command": "concentration",
+      "description": "Herfindahl-Hirschman index of award concentration for a CPV plus NUTS slice; tells you whether a market is dominated by one buyer or fragmented.",
+      "rationale": "Local SQLite aggregation; the API has no aggregation surface.",
+      "example": "tenderned-pp-cli concentration --cpv 72000000-5 --nuts NL --since 2024-01-01 --agent",
+      "why_it_matters": "Reach for this when assessing whether to bid in a market dominated by a few incumbents. Mirrors eu-tenders concentration.",
+      "group": "Local aggregations that beat the API"
+    },
+    {
+      "name": "Deadline-heat calendar",
+      "command": "deadline-heat",
+      "description": "Ranked calendar of expiring notices weighted by urgency times estimated value; daily prioritized view of what needs attention.",
+      "rationale": "Combines local sluitingsDatum index with value-band weighting; no API endpoint produces this ranking.",
+      "example": "tenderned-pp-cli deadline-heat --days 14 --cpv 45000000-7 --agent",
+      "why_it_matters": "Reach for this when sequencing bid effort across many open deadlines. Mirrors eu-tenders deadline-heat.",
+      "group": "Local aggregations that beat the API"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Buyer dossier",
+      "command": "buyer dossier",
+      "description": "Full profile for one contracting authority: spending cadence, top CPVs, top procedures, active vs awarded vs cancelled counts over a window.",
+      "rationale": "TenderNed exposes no aggregation endpoint — this is a pure SQLite GROUP BY join across notices cached locally.",
+      "example": "tenderned-pp-cli buyer dossier Rotterdam --since 2025-01-01 --agent",
+      "why_it_matters": "Reach for this when a user wants the full procurement picture of one buyer in one call instead of paginating through their notice list.",
+      "group": "Local aggregations that beat the API"
+    },
+    {
+      "name": "Sub-threshold lead finder",
+      "command": "leads",
+      "description": "Filter notices to national-only AND below an estimated-value cap AND inside CPV stripes — the long-tail tenders that EU TED never sees.",
+      "rationale": "Sub-EU-threshold notices are TenderNed-only. The local store plus multi-CPV intersection turns a manual page-walk into one query.",
+      "example": "tenderned-pp-cli leads --national --max-value 200000 --cpv 45000000-7,71000000-8 --since 2026-04-01 --agent",
+      "why_it_matters": "Reach for this when serving a Dutch SME or municipality-focused supplier whose target contracts are below EU thresholds.",
+      "group": "Local aggregations that beat the API"
+    },
+    {
+      "name": "Closing-deadline view",
+      "command": "deadline",
+      "description": "Lists notices closing within N days, grouped by day, with countdown plus buyer plus procedure filters.",
+      "rationale": "Local indexed query on sluitingsDatum joined with arbitrary filters — no API surface composes deadline plus CPV plus buyer plus value cap in one call.",
+      "example": "tenderned-pp-cli deadline --within 14 --cpv 45000000-7 --agent",
+      "why_it_matters": "Reach for this when triaging which open tenders need a response this week. Mirrors eu-tenders deadline.",
+      "group": "Local aggregations that beat the API"
+    },
+    {
+      "name": "Watch saved query",
+      "command": "watch",
+      "description": "Persist a filter set; watch run returns only NEW notices since the cursor's last advance.",
+      "rationale": "SQLite stores both the filter JSON and the last-seen publicatieDatum; the cursor makes incremental delivery cheap.",
+      "example": "tenderned-pp-cli watch run civils-watch --agent",
+      "why_it_matters": "Reach for this when a user wants a recurring filter without an external alerting system.",
+      "group": "Workflow primitives"
+    },
+    {
+      "name": "CPV-drift over time",
+      "command": "cpv-drift",
+      "description": "Year-by-year top-CPV table for one buyer or NUTS region; shows whether a buyer's purchasing mix is shifting.",
+      "rationale": "Historical aggregation across multiple years requires a local snapshot; the live API has no historical aggregation.",
+      "example": "tenderned-pp-cli cpv-drift --buyer Amsterdam --years 3 --agent",
+      "why_it_matters": "Reach for this when answering 'is this buyer's spending mix changing?' for a market-trend analysis. Mirrors eu-tenders cpv-drift.",
+      "group": "Time-series intelligence"
+    },
+    {
+      "name": "TED cross-reference",
+      "command": "ted-link",
+      "description": "Extracts the canonical TED publication number from the eForms XML, prints it plus the TED URL.",
+      "rationale": "The TED number is buried in the eForms XML, not in the JSON list response; only this CLI surfaces it on demand.",
+      "example": "tenderned-pp-cli ted-link 425283 --agent",
+      "why_it_matters": "Reach for this when the user wants to pivot from a TenderNed notice to the EU-wide TED record (e.g., for use with the sibling eu-tenders CLI).",
+      "group": "Cross-system bridges"
+    },
+    {
+      "name": "Tender-thread reconcile",
+      "command": "thread reconcile",
+      "description": "Walks PIN to CN to CAN to Modification chains for one buyer; flags orphan PINs, orphan CNs, and unresolved modifications.",
+      "rationale": "eForms predecessor links are TenderNed-specific data not exposed in the JSON list response; lifecycle reconciliation is impossible without parsing every XML.",
+      "example": "tenderned-pp-cli thread reconcile --buyer Eindhoven --since 2024-01-01 --agent",
+      "why_it_matters": "Reach for this when a compliance officer is auditing whether announced tenders were actually awarded or cancelled.",
+      "group": "Cross-system bridges"
+    },
+    {
+      "name": "Buyer top-N aggregation",
+      "command": "buyers top",
+      "description": "Top contracting authorities by tender count for a CPV plus NUTS plus date slice.",
+      "rationale": "Pure SQLite GROUP BY aggregation; TenderNed exposes no aggregation endpoint and the API limits per-call results.",
+      "example": "tenderned-pp-cli buyers top --cpv 72000000-5 --nuts NL33 --since 2025-01-01 --agent",
+      "why_it_matters": "Reach for this when the user asks 'which buyers are most active in this slice?'",
+      "group": "Local aggregations that beat the API"
+    },
+    {
+      "name": "Document grep",
+      "command": "docs grep",
+      "description": "Streams documents from matching notices, runs a regex against PDF and Word text, prints pub_id, doc_id, line hits.",
+      "rationale": "Bulk grep across bestek and PvE document bodies is unique to a local CLI; the web UI lets you download one at a time.",
+      "example": "tenderned-pp-cli docs grep \"clausule.*aansprakelijkheid\" --cpv 45000000-7 --limit 50 --agent",
+      "why_it_matters": "Reach for this when the user wants to find every notice mentioning a clause, vendor, or technical requirement across many bestek documents.",
+      "group": "Document corpus tools"
+    },
+    {
+      "name": "Weekly notice velocity",
+      "command": "velocity",
+      "description": "Weekly publication-count trend over the local snapshot; spot heating or cooling markets per CPV or buyer.",
+      "rationale": "Time-series rollup over the local notices table; impossible without a snapshot.",
+      "example": "tenderned-pp-cli velocity --cpv 72000000-5 --weeks 12 --agent",
+      "why_it_matters": "Reach for this when sizing market momentum for one CPV or buyer. Mirrors eu-tenders velocity.",
+      "group": "Time-series intelligence"
+    },
+    {
+      "name": "Buyer concentration (HHI)",
+      "command": "concentration",
+      "description": "Herfindahl-Hirschman index of award concentration for a CPV plus NUTS slice; tells you whether a market is dominated by one buyer or fragmented.",
+      "rationale": "Local SQLite aggregation; the API has no aggregation surface.",
+      "example": "tenderned-pp-cli concentration --cpv 72000000-5 --nuts NL --since 2024-01-01 --agent",
+      "why_it_matters": "Reach for this when assessing whether to bid in a market dominated by a few incumbents. Mirrors eu-tenders concentration.",
+      "group": "Local aggregations that beat the API"
+    },
+    {
+      "name": "Deadline-heat calendar",
+      "command": "deadline-heat",
+      "description": "Ranked calendar of expiring notices weighted by urgency times estimated value; daily prioritized view of what needs attention.",
+      "rationale": "Combines local sluitingsDatum index with value-band weighting; no API endpoint produces this ranking.",
+      "example": "tenderned-pp-cli deadline-heat --days 14 --cpv 45000000-7 --agent",
+      "why_it_matters": "Reach for this when sequencing bid effort across many open deadlines. Mirrors eu-tenders deadline-heat.",
+      "group": "Local aggregations that beat the API"
+    }
+  ],
+  "narrative": {
+    "display_name": "TenderNed",
+    "headline": "Every Dutch public tender, with the sub-threshold long tail that EU TED never sees, in a local-first CLI you can pipe.",
+    "value_prop": "TenderNed is the central Dutch national procurement platform; all 143,000+ live notices are CC-0 licensed and freely accessible. This CLI puts every publication, every contracting authority, and every attached bestek into a local SQLite store you can grep, join, and aggregate offline. The novel commands — buyer dossier, sub-threshold leads, closing-deadline view, CPV drift over time, tender-thread reconcile — are workflows the official web UI cannot do.",
+    "auth_narrative": "Most of TenderNed (search, list, document download, RSS) is unauthenticated and works out of the box. Only the full eForms XML endpoint requires a free username and password — request via functioneelbeheer@tenderned.nl, then export TENDERNED_USERNAME and TENDERNED_PASSWORD.",
+    "quickstart": [
+      {
+        "command": "tenderned-pp-cli notices list --agent",
+        "comment": "List the latest tender notices as JSON"
+      },
+      {
+        "command": "tenderned-pp-cli sync",
+        "comment": "Populate the local SQLite store so offline queries and novel commands work"
+      },
+      {
+        "command": "tenderned-pp-cli buyer dossier \"Gemeente Rotterdam\" --since 2025-01-01 --agent",
+        "comment": "Compute a full procurement profile for one contracting authority"
+      },
+      {
+        "command": "tenderned-pp-cli leads --national --cpv 45000000-7 --since 2026-04-01 --agent",
+        "comment": "Find sub-threshold construction tenders that never reach EU TED"
+      },
+      {
+        "command": "tenderned-pp-cli deadline --within 14 --agent",
+        "comment": "Triage what's closing in the next two weeks"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on `xml fetch`",
+        "fix": "The eForms XML endpoint needs Basic auth. Set TENDERNED_USERNAME and TENDERNED_PASSWORD; request credentials from functioneelbeheer@tenderned.nl if you don't have them."
+      },
+      {
+        "symptom": "Empty results for valid-looking CPV filter",
+        "fix": "TenderNed expects the full 8-digit-plus-check-digit CPV form (e.g. `45000000-7`, not `45000000`). Pass it with the dash and check digit."
+      },
+      {
+        "symptom": "Novel commands (dossier, leads, drift) return no data",
+        "fix": "Run `tenderned-pp-cli sync --since \u003cdate\u003e` first — these commands query the local SQLite store, not the live API."
+      }
+    ],
+    "when_to_use": "Pick this CLI when the user is working in the Dutch procurement market and needs sub-threshold coverage, document-corpus search, per-buyer analytics, or anything that requires holding more than one publication in working memory at once. For above-threshold EU-wide queries (TED publication numbers, cross-country buyer dossiers), pair it with the eu-tenders CLI.",
+    "recipes": [
+      {
+        "title": "Daily new-opportunity sweep",
+        "command": "tenderned-pp-cli notices list --agent --select content.publicatieId,content.aanbestedingNaam,content.opdrachtgeverNaam,content.sluitingsDatum",
+        "explanation": "Narrow the fat notice payload to just the fields a triage agent needs."
+      },
+      {
+        "title": "Cross-reference a notice to EU TED",
+        "command": "tenderned-pp-cli ted-link 425283 --agent",
+        "explanation": "Extract the canonical TED publication number so you can pivot to the eu-tenders CLI for EU-wide analysis."
+      },
+      {
+        "title": "Find every bestek mentioning a clause",
+        "command": "tenderned-pp-cli docs grep aansprakelijkheidsclausule --limit 25 --agent",
+        "explanation": "Bulk regex across attached tender documents; unique to a local CLI."
+      },
+      {
+        "title": "Save a query and return only new hits",
+        "command": "tenderned-pp-cli watch run civils --agent",
+        "explanation": "Watch returns only NEW notices since the cursor's last advance. Create the watch first with 'watch add civils \u003cfilter-json\u003e'."
+      },
+      {
+        "title": "Buyer purchasing-mix drift",
+        "command": "tenderned-pp-cli cpv-drift --buyer Amsterdam --years 3 --agent",
+        "explanation": "Year-bucket CPV-2-digit distribution for one buyer — answers 'is their spending mix shifting?'"
+      }
+    ],
+    "trigger_phrases": [
+      "find dutch tenders",
+      "nederlandse aanbestedingen",
+      "search tenderned",
+      "dutch procurement",
+      "sub-threshold tenders nederland",
+      "use tenderned",
+      "run tenderned"
+    ]
+  }
+}

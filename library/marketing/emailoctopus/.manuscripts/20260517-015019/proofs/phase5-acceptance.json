@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "emailoctopus",
+  "run_id": "20260517-015019",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 96,
+  "tests_passed": 96,
+  "tests_skipped": 117,
+  "auth_context": {
+    "type": "bearer_token"
+  }
+}

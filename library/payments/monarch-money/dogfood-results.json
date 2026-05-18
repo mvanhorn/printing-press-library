@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "run_id": "manual-plan-20260509",
+  "generated_at": "2026-05-16T22:45:00-04:00",
+  "passed": true,
+  "notes": [
+    "Local build and unit test gates passed.",
+    "Live Monarch checks require a user-provided Monarch account session or token and are not embedded in the public artifact."
+  ],
+  "commands": [
+    {
+      "command": "go test ./...",
+      "passed": true
+    },
+    {
+      "command": "go build -o /tmp/monarch-money-pp-cli ./cmd/monarch-money-pp-cli",
+      "passed": true
+    },
+    {
+      "command": "/tmp/monarch-money-pp-cli --version",
+      "passed": true
+    }
+  ]
+}
