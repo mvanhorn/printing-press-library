@@ -1,6 +1,6 @@
 ---
 name: pp-sec-edgar
-description: "Every SEC filing, every XBRL fact, every insider trade — synced into a local SQLite store you can pivot, search,... Trigger phrases: `look up an SEC filing`, `check insider trading on`, `compare quarterly financials for`, `find restatements in the last quarter`, `watch SEC filings for`, `use sec-edgar`, `run sec-edgar`."
+description: "Every SEC filing, every XBRL fact, every insider trade — synced into a local SQLite store you can pivot, search, and watch offline. Trigger phrases: `look up an SEC filing`, `check insider trading on`, `compare quarterly financials for`, `watch SEC filings for`, `use sec-edgar`."
 author: "Chris Drit"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
@@ -15,6 +15,11 @@ metadata:
         bins: [sec-edgar-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/developer-tools/sec-edgar/cmd/sec-edgar-pp-cli
 ---
+<!-- GENERATED FILE — DO NOT EDIT.
+     This file is a verbatim mirror of library/developer-tools/sec-edgar/SKILL.md,
+     regenerated post-merge by tools/generate-skills/. Hand-edits here are
+     silently overwritten on the next regen. Edit the library/ source instead.
+     See AGENTS.md "Generated artifacts: registry.json, cli-skills/". -->
 
 # SEC EDGAR — Printing Press CLI
 

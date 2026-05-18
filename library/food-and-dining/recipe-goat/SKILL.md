@@ -1,6 +1,6 @@
 ---
 name: pp-recipe-goat
-description: "Printing Press CLI for Recipe Goat. Recipe GOAT — find the best version of any recipe across 37 trusted sites, with offline cookbook, pantry match,..."
+description: "Find the best version of any recipe across 37 trusted sites — with offline cookbook, pantry match, substitution lookup, meal planning, and USDA-backed nutrition. Trigger phrases: `find the best recipe for`, `what can I make with`, `substitute for <ingredient>`, `nutrition for <recipe>`, `use recipe-goat`."
 author: "Trevin Chow"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"

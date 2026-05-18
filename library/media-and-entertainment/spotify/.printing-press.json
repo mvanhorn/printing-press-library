@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-13T02:06:48.727904Z",
+  "printing_press_version": "4.5.2",
+  "api_name": "spotify",
+  "display_name": "Spotify Web",
+  "cli_name": "spotify-pp-cli",
+  "owner": "sonallux",
+  "printer": "rob-coco",
+  "printer_name": "Rob Zehner",
+  "spec_path": "/Users/zehner/printing-press/.runstate/cli-printing-press-4573f43b/runs/20260512-184940/research/spotify-openapi.yml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:0e5c0c13bb6a41a971618e09760c1314fee288fd9e3009ae94b9b35c995eb921",
+  "run_id": "20260512-184940",
+  "mcp_binary": "spotify-pp-mcp",
+  "mcp_tool_count": 97,
+  "mcp_ready": "full",
+  "api_version": "2025.5.18",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "SPOTIFY_OAUTH_2_0"
+  ],
+  "novel_features": [
+    {
+      "name": "Snapshot-aware playlist diff",
+      "command": "playlists diff",
+      "description": "Compare a playlist's current state against any prior snapshot to see exactly which tracks were added, removed, or reordered."
+    },
+    {
+      "name": "ISRC-aware playlist dedupe",
+      "command": "playlists dedupe",
+      "description": "Find duplicate tracks in a playlist by ISRC (catches the album/single/EP/deluxe-reissue dupe class), report by default, --apply to remove."
+    },
+    {
+      "name": "Cross-playlist merge with dedupe",
+      "command": "playlists merge",
+      "description": "Combine multiple playlists into one with built-in dedupe and ordering controls."
+    },
+    {
+      "name": "Top-tracks rotation drift",
+      "command": "top drift",
+      "description": "Compare two top-tracks snapshots and show who rose, fell, or stayed stable across a time window."
+    },
+    {
+      "name": "Release-Radar replacement",
+      "command": "releases since",
+      "description": "List new albums and singles released since a date by artists you follow, sorted newest first."
+    },
+    {
+      "name": "Cross-entity track lookup",
+      "command": "tracks where",
+      "description": "For a given track, find every place it appears in your data: which playlists, whether saved, last played, and on which devices."
+    },
+    {
+      "name": "Play-history by listening context",
+      "command": "play history",
+      "description": "Bucket your recent play history by the playlist or album that drove each play, ranked by play count and total duration."
+    },
+    {
+      "name": "Agent-friendly queue-from-saved",
+      "command": "queue from-saved",
+      "description": "Pick N tracks from your saved library (optionally filtered by artist or playlist origin) and queue them in one command."
+    },
+    {
+      "name": "Genre-walked artist discovery",
+      "command": "discover artists",
+      "description": "Find artists you don't follow yet who match the genres of your top, saved, or followed artists, ranked by popularity within each genre."
+    },
+    {
+      "name": "Co-occurrence discovery via public playlists",
+      "command": "discover via-playlists",
+      "description": "Find artists frequently co-curated with a seed artist by searching public playlists that contain them and ranking other artists by co-occurrence count."
+    },
+    {
+      "name": "Artist deep-dive gap finder",
+      "command": "discover artist-gaps",
+      "description": "For an artist, show their full discography chronologically with each album marked as saved or unsaved against your library."
+    },
+    {
+      "name": "New releases in your genres",
+      "command": "discover new-releases",
+      "description": "Filter Spotify's global new-releases feed down to releases whose artists share a genre with your top or followed artists; optionally exclude artists you already follow."
+    },
+    {
+      "name": "Play to device by friendly name",
+      "command": "play-on",
+      "description": "Resolve a device by friendly name against the live /me/player/devices list and the locally cached devices_seen table, then start playback. Cached entries let you reference devices that aren't currently online with a typed wake hint instead of a raw 404."
+    }
+  ]
+}

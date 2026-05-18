@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "gumroad",
+  "run_id": "20260511-134339",
+  "status": "skip",
+  "level": "none",
+  "skip_reason": "auth_required_no_credential",
+  "auth_context": {
+    "type": "bearer_token",
+    "api_key_available": false,
+    "browser_session_available": false
+  }
+}

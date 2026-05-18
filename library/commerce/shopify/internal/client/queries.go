@@ -5,7 +5,7 @@ package client
 
 // GraphQL query constants generated from the API spec.
 
-const CustomersGetQuery = `query($id: String!) {
+const CustomersGetQuery = `query($id: ID!) {
   customer(id: $id) {
     id
     email
@@ -34,7 +34,7 @@ const CustomersListQuery = `query($first: Int!, $after: String) {
   }
 }`
 
-const FulfillmentOrdersGetQuery = `query($id: String!) {
+const FulfillmentOrdersGetQuery = `query($id: ID!) {
   fulfillmentOrder(id: $id) {
     id
     status
@@ -63,7 +63,7 @@ const FulfillmentOrdersListQuery = `query($first: Int!, $after: String) {
   }
 }`
 
-const InventoryItemsGetQuery = `query($id: String!) {
+const InventoryItemsGetQuery = `query($id: ID!) {
   inventoryItem(id: $id) {
     id
     sku
@@ -86,7 +86,7 @@ const InventoryItemsListQuery = `query($first: Int!, $after: String) {
   }
 }`
 
-const OrdersGetQuery = `query($id: String!) {
+const OrdersGetQuery = `query($id: ID!) {
   order(id: $id) {
     id
     name
@@ -119,7 +119,7 @@ const OrdersListQuery = `query($first: Int!, $after: String, $query: String, $so
   }
 }`
 
-const ProductsGetQuery = `query($id: String!) {
+const ProductsGetQuery = `query($id: ID!) {
   product(id: $id) {
     id
     title

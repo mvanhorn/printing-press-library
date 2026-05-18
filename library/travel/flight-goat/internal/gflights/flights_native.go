@@ -442,7 +442,10 @@ func parseOfferRow(row any, currency string) (Flight, bool) {
 
 func parseOfferLeg(legRaw any) (Leg, bool) {
 	leg, ok := legRaw.([]any)
-	if !ok || len(leg) < 23 {
+	if !ok {
+		return Leg{}, false
+	}
+	if len(leg) < 23 {
 		return Leg{}, false
 	}
 	// PATCH(greptile P1): the airline + airport NAME fields fli's parser
@@ -473,6 +476,22 @@ func parseOfferLeg(legRaw any) (Leg, bool) {
 	arrAirportName, _ := leg[5].(string)
 	depTime := formatLegDateTime(indexAny(leg, 20), indexAny(leg, 8))
 	arrTime := formatLegDateTime(indexAny(leg, 21), indexAny(leg, 10))
+
+	// leg[17]: aircraft type string e.g. "Airbus A321neo", "Boeing 737MAX 9 Passenger"
+	aircraftType, _ := leg[17].(string)
+
+	// leg[13]: seat type code observed in live data:
+	// PATCH: extract aircraft type, seat type, and amenities from Google Flights response
+	//   1 = standard, 4 = recliner, 5 = lie-flat, 6 = individual-suite (herringbone lie-flat suite, e.g. JetBlue Mint), 8 = standard-recline
+	seatType := parseSeatType(numericInt(leg, 13))
+
+	// leg[12]: amenity flag array [null, wifi, null, usb-power, null×4,
+	//   entertainment, in-seat-power, in-seat-usb, legroom-int]
+	var amenities []string
+	if amenArr, ok := leg[12].([]any); ok {
+		amenities = parseAmenityFlags(amenArr)
+	}
+
 	return Leg{
 		DepartureAirport: Airport{Code: strings.ToUpper(depAirport), Name: depAirportName},
 		ArrivalAirport:   Airport{Code: strings.ToUpper(arrAirport), Name: arrAirportName},
@@ -481,7 +500,81 @@ func parseOfferLeg(legRaw any) (Leg, bool) {
 		DurationMinutes:  numericInt(leg, 11),
 		Airline:          Airline{Code: airlineCode, Name: airlineName},
 		FlightNumber:     flightNumber,
+		AircraftType:     aircraftType,
+		SeatType:         seatType,
+		Amenities:        amenities,
 	}, true
+}
+
+
+// PATCH: new helper functions for aircraft/seat/amenity extraction
+// parseSeatType maps Google Flights' leg[13] seat-type code to a human-readable
+// label. Values confirmed against live BOS-SFO business-class data:
+//
+//	1 = standard (economy/basic)
+//	4 = recliner (Alaska domestic first)
+//	5 = lie-flat (JetBlue Mint transcon)
+//	6 = individual-suite (JetBlue Mint herringbone suite, lie-flat)
+//	8 = standard-recline (AA/UA domestic first, wider seat with recline)
+func parseSeatType(code int) string {
+	switch code {
+	case 1:
+		return "standard"
+	case 4:
+		return "recliner"
+	case 5:
+		return "lie-flat"
+	case 6:
+		return "individual-suite"
+	case 8:
+		return "standard-recline"
+	default:
+		return ""
+	}
+}
+
+// parseAmenityFlags converts the leg[12] boolean array into a string slice.
+// Index mapping confirmed against live data (BOS-SFO business class):
+//
+//	[1]  = Wi-Fi
+//	[3]  = Wi-Fi (alternate slot, seen on older aircraft configs; emits "wifi" if [1] is absent)
+//	[8]  = in-seat entertainment
+//	[9]  = in-seat power (AC outlet)
+//	[10] = in-seat USB charging
+//	[11] = 3 → extra legroom (2 = standard, omitted)
+func parseAmenityFlags(a []any) []string {
+	var out []string
+	boolAt := func(i int) bool {
+		if i >= len(a) {
+			return false
+		}
+		b, _ := a[i].(bool)
+		return b
+	}
+	if boolAt(1) {
+		out = append(out, "wifi")
+	}
+	// Index 3 is an alternate Wi-Fi slot on older aircraft. If primary wifi (index 1)
+	// was not set, treat index 3 as wifi rather than a separate amenity.
+	if boolAt(3) {
+		if !boolAt(1) {
+			out = append(out, "wifi")
+		}
+		// If index 1 was already set, index 3 is redundant — skip it.
+	}
+	if boolAt(8) {
+		out = append(out, "in-seat-entertainment")
+	}
+	if boolAt(9) {
+		out = append(out, "in-seat-power")
+	}
+	if boolAt(10) {
+		out = append(out, "in-seat-usb")
+	}
+	if int(numericFloat(indexAny(a, 11))) >= 3 {
+		out = append(out, "extra-legroom")
+	}
+	return out
 }
 
 // applyPerPassengerPrice rewrites each flight's Price from the group total

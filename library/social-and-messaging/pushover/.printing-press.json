@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-12T21:41:46.402647Z",
+  "printing_press_version": "4.5.1",
+  "api_name": "pushover",
+  "display_name": "Pushover",
+  "cli_name": "pushover-pp-cli",
+  "owner": "twidtwid",
+  "printer": "twidtwid",
+  "printer_name": "Todd Dailey",
+  "spec_path": "/Users/todd_1/printing-press/.runstate/cli-printing-press-ecceef83/runs/20260512-140827/pushover.internal.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:87d70540a278d46cff9cc1cf1b265fba859707ccf55ea01878c91bbb25de2432",
+  "run_id": "20260512-140827",
+  "mcp_binary": "pushover-pp-mcp",
+  "mcp_tool_count": 26,
+  "mcp_public_tool_count": 26,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Agent send wrapper",
+      "command": "notify",
+      "description": "Send a notification from an argument or stdin with env/config defaults, named priorities, and emergency validation."
+    },
+    {
+      "name": "Emergency lifecycle",
+      "command": "emergency watch",
+      "description": "Send or monitor an emergency notification receipt, polling acknowledgement status and supporting cancellation."
+    },
+    {
+      "name": "Quota cockpit",
+      "command": "quota",
+      "description": "Show monthly send limit, remaining sends, and reset time from the app limits endpoint."
+    },
+    {
+      "name": "Local notification ledger",
+      "command": "history",
+      "description": "Search and export a local redacted ledger of notifications sent by this CLI and receipt outcomes."
+    },
+    {
+      "name": "Inbox sync/search",
+      "command": "inbox sync",
+      "description": "Download Open Client messages into local SQLite before optional server-side delete-through."
+    }
+  ]
+}

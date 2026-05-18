@@ -1,0 +1,63 @@
+{
+  "manifest_version": "0.3",
+  "name": "namecheap-pp-mcp",
+  "display_name": "Namecheap",
+  "version": "4.6.0",
+  "description": "Manage Namecheap domains, DNS, account balances, pricing, contacts, TLDs, and SSL metadata from the terminal using Namecheap\u2019s XML API.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/namecheap-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/namecheap-pp-mcp",
+      "args": [],
+      "env": {
+        "NAMECHEAP_USERNAME": "${user_config.namecheap_username}",
+        "NAMECHEAP_API_KEY": "${user_config.namecheap_api_key}",
+        "NAMECHEAP_CLIENT_IP": "${user_config.namecheap_client_ip}"
+      }
+    },
+    "env": {
+      "NAMECHEAP_SANDBOX": "${user_config.namecheap_sandbox}"
+    }
+  },
+  "user_config": {
+    "namecheap_username": {
+      "type": "string",
+      "title": "NAMECHEAP_USERNAME",
+      "description": "Namecheap API username (also used as UserName).",
+      "sensitive": false,
+      "required": true
+    },
+    "namecheap_api_key": {
+      "type": "string",
+      "title": "NAMECHEAP_API_KEY",
+      "description": "Namecheap API key. Namecheap requires it as a query parameter.",
+      "sensitive": true,
+      "required": true
+    },
+    "namecheap_client_ip": {
+      "type": "string",
+      "title": "NAMECHEAP_CLIENT_IP",
+      "description": "Whitelisted public client IP. Optional; the CLI can auto-detect it when omitted, but explicit is safer in CI.",
+      "sensitive": false,
+      "required": false
+    },
+    "namecheap_sandbox": {
+      "type": "string",
+      "title": "NAMECHEAP_SANDBOX",
+      "description": "Optional: set to true/1 to use the Namecheap sandbox endpoint."
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

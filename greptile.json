@@ -1,4 +1,6 @@
 {
+  "statusCheck": true,
+  "triggerOnUpdates": true,
   "customContext": {
     "files": [
       {
@@ -20,12 +22,44 @@
         "rule": "These files are auto-regenerated post-merge by tools/generate-skills/ and tools/generate-registry/. A PR that hand-edits them in the same change as adding library/<cat>/<slug>/.printing-press.json indicates the author is bypassing the printing-press publish flow. Flag and recommend re-running /printing-press."
       },
       {
+        "scope": ["cli-skills/pp-*/SKILL.md"],
+        "rule": "P0. cli-skills/pp-*/SKILL.md is a verbatim bot-regenerated mirror of library/<category>/<slug>/SKILL.md. Any commit authored by a human or coding-agent that modifies a file under cli-skills/pp-*/SKILL.md is silently overwritten on the next regen (post-merge by generate-skills.yml, on-PR by the parity step in verify-library-conventions.yml) and produces needless merge conflicts in the meantime — exactly what burned PR #454. Flag every non-bot commit that touches cli-skills/pp-*/SKILL.md, regardless of whether the content happens to match what regeneration would produce: the auto-fix step covers correctness, not author behavior. The fix is to drop the cli-skills/ changes from the diff entirely and edit library/<category>/<slug>/SKILL.md instead; the post-merge regen will update the mirror after the library change lands. The repo also enforces this via the Guard against hand-edits to cli-skills mirror step in verify-library-conventions.yml and the cli-skills/AGENTS.md file."
+      },
+      {
         "scope": ["library/**/.printing-press.json"],
         "rule": "For PRs adding this manifest, the branch name must be exactly feat/<slug> and the PR title must be exactly feat(<slug>): add <slug>. Flag titles like feat(library): add <slug>, feat(<slug>): add <slug> — <description>, branches like add-<slug>, and Co-Authored-By or 🤖 Generated with Claude Code trailers."
       },
       {
         "scope": ["library/**/.printing-press.json"],
         "rule": "For PRs adding this manifest, the PR body must follow the publish-skill template: ## <slug> heading, **API:** … | **Category:** … | **Press version:** … line, **Spec:** line, ### CLI Shape with --help output, ### What This CLI Does, ### Manuscripts, ### Validation Results table, optionally ### Publication Path / ### Novel Commands / ### Gaps. Flag bodies that use generic ## Summary / ## Why This Matters / ## What It Does / ## Endpoints / ## Test plan templates instead."
+      },
+      {
+        "scope": [".github/workflows/**"],
+        "rule": "P0. A workflow that combines a pull_request_target trigger with a checkout step whose ref points at PR-head code (github.event.pull_request.head.sha, github.event.pull_request.head.ref, or refs/pull/<n>/merge) is the TanStack mini-Shai-Hulud attack shape — head code runs with base-context secrets and OIDC tokens, which attackers exfiltrate from runner memory. The repo's existing pull_request_target workflows (greptile-policy-gate.yml) make API calls only and do not check out PR head; new workflows must follow that posture. Flag any new pull_request_target workflow that overrides the checkout ref. Recommend switching to pull_request, or removing the ref override so checkout defaults to the base commit."
+      },
+      {
+        "scope": [".github/workflows/**"],
+        "rule": "P0. id-token: write mints OIDC tokens consumers use to publish to npm, AWS, Sigstore, etc. It must appear only in workflows that actually publish. In this repo the sole allowlist entry is .github/workflows/npm-publish.yml (OIDC Trusted Publishing for @mvanhorn/printing-press). Any new workflow granting id-token: write outside that allowlist is the TanStack OIDC-theft attack shape. Flag and recommend either removing the permission or consolidating publishing logic into the allowlisted workflow."
+      },
+      {
+        "scope": ["library/**/go.mod"],
+        "rule": "P0 for remote targets; P1 for local. A new `replace` directive in a library CLI's go.mod can silently redirect every `go install` consumer (BufferZoneCorp attack shape). Two tiers: targets pointing at a URL or remote module path (github.com/..., gitlab.com/..., https://..., any host segment with a dot) are P0 — block until reverted or explicitly justified. Targets pointing at a local path (./..., ../...) are P1 advisory — legitimate vendoring exists in this repo (library/food-and-dining/ordertogo/go.mod has three local-vendoring replaces) but every new local replace deserves a sanity check that the local target is also checked into the PR and recorded in .printing-press-patches.json."
+      },
+      {
+        "scope": [".github/workflows/**"],
+        "rule": "P0. Setting GOPROXY, GOFLAGS, GONOSUMCHECK, GOSUMDB, or GONOSUMDB inside a workflow env block (workflow, job, or step level) lets PR authors redirect Go module resolution to an attacker proxy or suppress checksum verification (BufferZoneCorp attack shape). The repo does not use any of these overrides on origin/main as of 2026-05-17; new ones are forward-looking attack vectors. Flag any addition and recommend configuring private proxies at the org/runner level under operator review instead."
+      },
+      {
+        "scope": ["npm/package.json"],
+        "rule": "P0. Adding preinstall, postinstall, or prepare scripts to npm/package.json is the Axios and TanStack attack shape — lifecycle hooks fire on every `npm install` and `npx -y @mvanhorn/printing-press install ...` invocation, running attacker code in user shells. The npm wrapper's existing scripts (build, clean, test, prepublishOnly) are all CI-only and unaffected. Flag any new lifecycle script and recommend moving build logic to CI, not user-machine install hooks."
+      },
+      {
+        "scope": ["library/**/go.mod"],
+        "rule": "P0. The `module` directive in library/<cat>/<slug>/go.mod is the canonical module path used by `go install` and the registry generator. ANY change to an existing CLI's module directive should block, whether it drifts outside the canonical prefix github.com/mvanhorn/printing-press-library/library/ (the original BufferZoneCorp redirect-to-attacker-fork shape) OR stays within the canonical prefix as a rename (e.g., kalshi → kalshi-evil — still redirects `go install` for users pinned to the old slug). Renaming or moving a published CLI is a generator-pipeline operation, not a manual go.mod edit. Flag any module-directive change on an existing CLI. New CLIs must still use the canonical prefix."
+      },
+      {
+        "scope": ["library/**/internal/**/*.go", "library/**/cmd/**/*.go"],
+        "rule": "Judge whether the CLI's purpose plausibly explains any credential-path read. Patterns to weigh: literal strings or os.Getenv calls for ~/.aws, ~/.ssh, ~/.kube, ~/.claude, ~/.vscode (the node-ipc and TanStack persistence/exfil paths), or env vars AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN, ACTIONS_ID_TOKEN_REQUEST_URL, GITHUB_TOKEN, NPM_TOKEN. A CLI named aws-* reading .aws/credentials is fine; a weather or trade-tracker CLI doing the same is the node-ipc credential-harvesting shape. Flag P0 when the read is incongruous with the CLI's documented purpose (read SKILL.md, README.md, and .printing-press.json display_name to judge). No CLI in this catalog should write to ~/.claude/ or ~/.vscode/ — those were the TanStack persistence sinks; flag any write there regardless of CLI purpose."
       }
     ],
     "other": [

@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260512-171718",
+  "base_printing_press_version": "4.5.0",
+  "patches": [
+    {
+      "id": "greptile-1-refresh-token-wire",
+      "summary": "Wire refreshAccessToken() to oauth.Refresh + persist the new tokens via Config.SaveTokens.",
+      "reason": "Generator emitted an empty stub returning nil, so an expired access token silently fell through to authHeader() and every subsequent request returned 401 with no diagnostic. oauth.Refresh() existed but was never called.",
+      "files": ["internal/client/client.go"]
+    },
+    {
+      "id": "greptile-2-cred-dir-0o700",
+      "summary": "Tighten auth_login.saveConfigTOML to create the credentials directory at 0o700 instead of 0o755.",
+      "reason": "0o755 made directory existence enumerable by every local user; config.toml is 0o600 but the parent directory disclosed that a credentials file exists. Once created world-executable, MkdirAll cannot retroactively tighten the mode.",
+      "files": ["internal/cli/auth_login.go"]
+    },
+    {
+      "id": "greptile-3-stop-token-duplication",
+      "summary": "Stop duplicating the OAuth access token into Config.SurgegraphToken on login, and stop AuthHeader() overwriting Config.AuthSource on read.",
+      "reason": "Two related defects: (a) auth login wrote the access token to both AccessToken and SurgegraphToken; AuthHeader prefers SurgegraphToken, so a future refresh that updates only AccessToken would have left the stale SurgegraphToken winning. (b) AuthHeader unconditionally relabeled AuthSource as 'env:SURGEGRAPH_TOKEN' whenever SurgegraphToken was non-empty, regardless of whether it came from the env var or a config-file value, breaking doctor's auth-source report.",
+      "files": ["internal/cli/auth_login.go", "internal/config/config.go"]
+    },
+    {
+      "id": "greptile-4-syncdiff-since-honored",
+      "summary": "SyncDiff actually executes the per-resource since-aware queries instead of replacing them with a hardcoded RowsSince=0 query.",
+      "reason": "The function built the right SQL map (with `... WHERE created_at >= ?` subqueries) and then discarded it via `_ = q` and `_ = since`, running `SELECT '' AS project_id, COUNT(*), 0 FROM <table>` instead. Every caller of `sync diff --since X` got RowsSince=0 regardless of X, making the freshness signal meaningless.",
+      "files": ["internal/store/store.go"]
+    },
+    {
+      "id": "greptile-5-visibility-window-honored",
+      "summary": "Respect --window in visibility delta and visibility portfolio by suppressing older snapshots that fall outside the requested window.",
+      "reason": "Both commands parsed and validated windowDur then discarded it with `_ = windowDur`. A user asking for `--window 1d` would silently receive a months-old comparison. The fix post-filters the older snapshot from LatestSnapshotPair: if its SnapshotDate is older than windowDur, the pair is reported as single-snapshot with an explanatory note rather than a misleading 'delta'. A future store-side change can replace this with a proper LatestSnapshotPairWithin(since) query, but the user-facing semantics now match the flag's documentation.",
+      "files": ["internal/cli/visibility_novel.go"]
+    },
+    {
+      "id": "greptile-6-clear-static-token-on-oauth-login",
+      "summary": "Clear cfg.SurgegraphToken (and re-stamp AuthSource) before saveConfigTOML in auth login.",
+      "reason": "config.Load() preserves any token = \"…\" entry written by a prior `auth set-token`, and AuthHeader() checks SurgegraphToken before AccessToken. Without clearing it on the OAuth-login transition the stale static credential would silently win on the next CLI invocation and the OAuth login would be a no-op from the caller's perspective.",
+      "files": ["internal/cli/auth_login.go"]
+    },
+    {
+      "id": "greptile-7-research-drift-fetch-optimized-docs",
+      "summary": "research drift also fetches /v1/get_optimized_documents and unions the titles with the writer-doc titles before classifying gaps.",
+      "reason": "The command's short/long descriptions promise coverage against both writer and optimized documents, but the implementation only called get_writer_documents. Any topic covered exclusively by a Content Optimizer article was misclassified as a gap, inflating the gap list for any user who relies on the optimizer for content. The optimizer fetch is lenient: a project without the optimizer add-on still produces a valid result via writer docs alone.",
+      "files": ["internal/cli/research_novel.go"]
+    },
+    {
+      "id": "greptile-8-serialize-token-refresh",
+      "summary": "Guard authHeader's read-and-maybe-refresh sequence with a Client-level sync.Mutex so concurrent fan-out workers can't double-refresh.",
+      "reason": "cliutil.FanoutRun runs worker goroutines that share one *client.Client. When the access token is expired at fan-out start, multiple goroutines would simultaneously enter refreshAccessToken and race on cfg.AccessToken / cfg.RefreshToken writes (a Go data race). Worse, most OAuth servers issue single-use refresh tokens: the second concurrent call arrives after rotation and returns 400 invalid_grant, failing every subsequent worker until the user re-runs `auth login`.",
+      "files": ["internal/client/client.go"]
+    },
+    {
+      "id": "greptile-9-citation-join-exact-url-match",
+      "summary": "visibility traffic-citations parses citation_snapshots.raw_json and exact-matches URL fields instead of substring-matching the whole blob.",
+      "reason": "strings.Contains(string(c.RawJSON), p.URL) attributed citations to the wrong page whenever a short page URL like example.com/blog appeared as a prefix of a longer citation URL (example.com/blog/post-a) or as a substring inside an image src, canonical tag, or author link embedded in the raw JSON. The walker recurses through the parsed JSON and exact-matches normalized URLs, eliminating prefix-and-substring false positives.",
+      "files": ["internal/cli/visibility_novel.go"]
+    },
+    {
+      "id": "greptile-10-knowledge-impact-exact-url-match",
+      "summary": "knowledge impact moves the citation-join out of SQL (instr(cs.raw_json, kld.url)) into Go using parsed-JSON URL extraction and exact match.",
+      "reason": "The original SQL used the same raw-blob substring search that PATCH(greptile-9) replaced in visibility traffic-citations. A doc URL like https://example.com/blog would prefix-match unrelated citation URLs (.../blog/post-extended) and also match its own string appearing inside an image src / canonical href / author link embedded in the snapshot blob — both paths inflated cited_doc_count and total_cites, making the 'is this library worth maintaining?' answer unreliable. Fix: pull libraries, library documents, and citation snapshots in three cheap queries; parse each snapshot once into a normalized URL set; exact-match per-library doc URLs against the snapshot's URL set in Go. Same public method signature; identical KnowledgeImpactRow shape.",
+      "files": ["internal/store/store.go"]
+    }
+  ]
+}
