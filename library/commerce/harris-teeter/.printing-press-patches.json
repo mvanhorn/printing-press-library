@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-17",
+  "base_run_id": "20260517-190052-harris-teeter",
+  "base_printing_press_version": "4.0.2",
+  "patches": [
+    {
+      "id": "harris-teeter-laf-headers",
+      "summary": "Add Harris Teeter LAF and modality headers to Atlas API requests.",
+      "reason": "Live product, coupon, and product-detail endpoints returned LAF_OBJECTS_REQUIRED unless requests included the browser-observed location/availability/fulfillment header set.",
+      "files": [
+        "internal/client/client.go",
+        "README.md",
+        "SKILL.md"
+      ],
+      "validated_outcome": "Live smoke tests passed for stores, products search, products get, and coupons."
+    },
+    {
+      "id": "harris-teeter-live-chrome-auth-fallback",
+      "summary": "Let auth login fall back to a live Chrome session via agent-browser/browser-use when standalone cookie tools are missing.",
+      "reason": "The requested workflow uses the already logged-in Chrome session, but the generated login command exited before the existing live-browser extractor could run.",
+      "files": [
+        "internal/cli/auth.go",
+        "README.md",
+        "SKILL.md"
+      ],
+      "validated_outcome": "auth login --chrome succeeded on this machine without a standalone cookie tool by reading 50 cookies from the live Chrome session."
+    }
+  ]
+}

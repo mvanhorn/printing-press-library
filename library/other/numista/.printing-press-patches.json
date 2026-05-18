@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-17",
+  "base_run_id": "20260517-033846",
+  "base_printing_press_version": "4.8.0",
+  "patches": [
+    {
+      "id": "monthly-quota-lookup-log",
+      "summary": "Add client-side monthly quota tracking and audit logging for Numista API calls.",
+      "reason": "Numista free plans cap API usage at 2000 calls per month and do not expose a quota endpoint, so the generated CLI needs a local lookup ledger.",
+      "files": [
+        "internal/cliutil/quota.go",
+        "internal/store/store.go",
+        "internal/client/client.go",
+        "internal/cli/root.go",
+        "internal/cli/audit.go"
+      ]
+    },
+    {
+      "id": "quota-transcendence-commands",
+      "summary": "Add quota-aware batch, series, refresh, and issuer crawl commands.",
+      "reason": "The README Highlights promise higher-level Numista workflows that forecast or account for monthly quota while reusing the generated client and cache.",
+      "files": [
+        "internal/cli/types_batch.go",
+        "internal/cli/types_series.go",
+        "internal/cli/refresh.go",
+        "internal/cli/crawl.go",
+        "internal/cli/crawl_issuer.go",
+        "internal/cli/types.go",
+        "internal/cli/root.go"
+      ]
+    },
+    {
+      "id": "user-collection-commands",
+      "summary": "Add user-collection valuation, hydration, watchlist, and bulk collected-item import commands.",
+      "reason": "The generated CLI did not expose the higher-level OAuth collection workflows promised by the user-collection feature surface.",
+      "files": [
+        "internal/cli/collection.go",
+        "internal/cli/collection_value.go",
+        "internal/cli/watchlist.go",
+        "internal/cli/watchlist_add.go",
+        "internal/cli/watchlist_list.go",
+        "internal/cli/watchlist_remove.go",
+        "internal/cli/watchlist_check.go",
+        "internal/cli/users_collections_hydrate.go",
+        "internal/cli/users_collected-items_add.go",
+        "internal/cli/users_collections.go",
+        "internal/cli/root.go",
+        "internal/store/store.go"
+      ],
+      "validated_outcome": "go build ./... and go vet ./... pass; requested command help probes exit 0."
+    }
+  ]
+}

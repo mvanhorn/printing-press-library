@@ -148,6 +148,24 @@ func main() {
 		libraryRoot = v
 	}
 
+	// -readme-only / SWEEP_README_ONLY: skip SKILL.md patching entirely.
+	// Use this when running the sweep from a workspace whose
+	// `git config user.name` differs from the canonical maintainer
+	// identity, or when iterating on a README-only template change and
+	// you don't want skill churn in the diff. The SKILL.md path is also
+	// defended in-place (existing author values are preserved unless
+	// they're the placeholder "user"), but this flag is the belt-and-
+	// suspenders option when you don't want SKILL.md touched at all.
+	readmeOnly := false
+	for _, a := range os.Args[1:] {
+		if a == "-readme-only" || a == "--readme-only" {
+			readmeOnly = true
+		}
+	}
+	if !readmeOnly && strings.EqualFold(os.Getenv("SWEEP_README_ONLY"), "1") {
+		readmeOnly = true
+	}
+
 	ownerName := strings.TrimSpace(os.Getenv("SWEEP_OWNER_NAME"))
 	if ownerName == "" {
 		out, err := exec.Command("git", "config", "user.name").Output()
@@ -155,9 +173,11 @@ func main() {
 			ownerName = strings.TrimSpace(string(out))
 		}
 	}
-	if ownerName == "" {
+	if !readmeOnly && ownerName == "" {
 		log.Fatalf("could not resolve owner display name: set SWEEP_OWNER_NAME, or `git config user.name`. " +
-			"the value lands as `author:` in the published library/<cat>/<api>/SKILL.md frontmatter.")
+			"the value lands as `author:` in the published library/<cat>/<api>/SKILL.md frontmatter " +
+			"only when the existing author is missing or is the placeholder \"user\". " +
+			"pass -readme-only if you don't want SKILL.md touched at all.")
 	}
 
 	cliDirs, err := findCLIDirs(libraryRoot)
@@ -168,9 +188,13 @@ func main() {
 		log.Fatalf("no per-CLI directories found under %s", libraryRoot)
 	}
 
+	if readmeOnly {
+		fmt.Println("Running in -readme-only mode: SKILL.md files will not be touched.")
+	}
+
 	var processed, skipped, errored int
 	for _, dir := range cliDirs {
-		status, err := sweepCLI(dir, ownerName)
+		status, err := sweepCLI(dir, ownerName, readmeOnly)
 		switch {
 		case err != nil:
 			fmt.Printf("  ERROR %s: %v\n", dir, err)
@@ -231,7 +255,10 @@ const minimumGoVersion = "Go 1.26.3 or newer"
 // snapshot-restore guarantees: on any error from patchSkill or patchReadme,
 // every file we wrote so far for this CLI is restored from its snapshot
 // before the function returns. Unchanged files are not touched.
-func sweepCLI(cliDir, ownerName string) (sweepStatus, error) {
+//
+// readmeOnly skips SKILL.md patching entirely. See main() for when
+// callers set this.
+func sweepCLI(cliDir, ownerName string, readmeOnly bool) (sweepStatus, error) {
 	skillPath := filepath.Join(cliDir, "SKILL.md")
 	readmePath := filepath.Join(cliDir, "README.md")
 	manifestPath := filepath.Join(cliDir, ".printing-press.json")
@@ -256,7 +283,11 @@ func sweepCLI(cliDir, ownerName string) (sweepStatus, error) {
 		category = "other"
 	}
 
-	// Authorship resolution:
+	// Authorship resolution — produces the value used ONLY when the
+	// existing SKILL.md author is missing or the placeholder "user"
+	// (see ensureFrontmatterTopLevelFields). Real existing authors are
+	// preserved unconditionally.
+	//
 	//  1. cliAuthorByAPIName — the curated per-CLI mapping; the source
 	//     of truth for the existing 49 published CLIs. Honors actual
 	//     authorship rather than guessing from git history.
@@ -273,23 +304,29 @@ func sweepCLI(cliDir, ownerName string) (sweepStatus, error) {
 		authorName = ownerName
 	}
 
-	skillBefore, err := os.ReadFile(skillPath)
-	if err != nil {
-		return statusUnchanged, fmt.Errorf("read SKILL.md: %w", err)
-	}
 	readmeBefore, err := os.ReadFile(readmePath)
 	if err != nil {
 		return statusUnchanged, fmt.Errorf("read README.md: %w", err)
 	}
 
-	skillAfter, err := patchSkill(string(skillBefore), patchSkillCtx{
-		CLIName:    mf.CLIName,
-		APIName:    mf.APIName,
-		Category:   category,
-		AuthorName: authorName,
-	})
-	if err != nil {
-		return statusUnchanged, fmt.Errorf("patch SKILL.md: %w", err)
+	var skillBefore []byte
+	var skillAfter string
+	var skillChanged bool
+	if !readmeOnly {
+		skillBefore, err = os.ReadFile(skillPath)
+		if err != nil {
+			return statusUnchanged, fmt.Errorf("read SKILL.md: %w", err)
+		}
+		skillAfter, err = patchSkill(string(skillBefore), patchSkillCtx{
+			CLIName:    mf.CLIName,
+			APIName:    mf.APIName,
+			Category:   category,
+			AuthorName: authorName,
+		})
+		if err != nil {
+			return statusUnchanged, fmt.Errorf("patch SKILL.md: %w", err)
+		}
+		skillChanged = skillAfter != string(skillBefore)
 	}
 
 	readmeAfter, err := patchReadme(string(readmeBefore), patchReadmeCtx{
@@ -301,7 +338,6 @@ func sweepCLI(cliDir, ownerName string) (sweepStatus, error) {
 		return statusUnchanged, fmt.Errorf("patch README.md: %w", err)
 	}
 
-	skillChanged := skillAfter != string(skillBefore)
 	readmeChanged := readmeAfter != string(readmeBefore)
 	if !skillChanged && !readmeChanged {
 		return statusUnchanged, nil
@@ -468,9 +504,13 @@ func leadingSpaces(s string) int {
 // the canonical "after description" position. Both are stripped first
 // and re-inserted as a contiguous block, so:
 //
-//   - Author always reflects the per-CLI authorship mapping
-//     (cliAuthorByAPIName) — overrides any stale value from a
-//     previous sweep run with a wrong default.
+//   - Author preserves any existing non-placeholder value already in
+//     the frontmatter. Only when the existing author is missing or the
+//     known generator-fallback placeholder "user" does the sweep fill
+//     in `ctx.AuthorName` (resolved upstream through cliAuthorByAPIName
+//     → manifest owner_name → operator git config). This makes the
+//     sweep safe to run from any workspace — it never silently flips a
+//     real author to the operator's `git config user.name`.
 //   - License is always "Apache-2.0" — the constant for every printed
 //     CLI per LICENSE.tmpl.
 //
@@ -481,12 +521,19 @@ func leadingSpaces(s string) int {
 // Idempotent in the second-run-zero-diff sense — running with the
 // same ctx produces the same output.
 func ensureFrontmatterTopLevelFields(fm string, ctx patchSkillCtx) string {
+	existingAuthor := extractTopLevelFieldValue(fm, "author")
+
 	fm = stripTopLevelField(fm, "version")
 	fm = stripTopLevelField(fm, "author")
 	fm = stripTopLevelField(fm, "license")
 
+	author := ctx.AuthorName
+	if existingAuthor != "" && existingAuthor != "user" {
+		author = existingAuthor
+	}
+
 	block := fmt.Sprintf("author: %q\nlicense: %q\n",
-		ctx.AuthorName, "Apache-2.0")
+		author, "Apache-2.0")
 
 	descRe := regexp.MustCompile(`(?m)^description: ".*"\n`)
 	return descRe.ReplaceAllStringFunc(fm, func(match string) string {
@@ -744,7 +791,7 @@ func buildReadmeInstallSection(ctx patchReadmeCtx) string {
 	)
 	return fmt.Sprintf(`## Install
 
-The recommended path installs both the `+"`%s`"+` binary and the `+"`pp-%s`"+` agent skill in one shot:
+The recommended path installs both the `+"`%s`"+` binary and the `+"`pp-%s`"+` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`+"`skills`"+`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 `+"```bash"+`
 npx -y @mvanhorn/printing-press install %s
@@ -754,6 +801,19 @@ For CLI only (no skill):
 
 `+"```bash"+`
 npx -y @mvanhorn/printing-press install %s --cli-only
+`+"```"+`
+
+For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
+
+`+"```bash"+`
+npx -y @mvanhorn/printing-press install %s --skill-only
+`+"```"+`
+
+To constrain the skill install to one or more specific agents (repeatable — agent names match the [`+"`skills`"+`](https://github.com/vercel-labs/skills) CLI):
+
+`+"```bash"+`
+npx -y @mvanhorn/printing-press install %s --agent claude-code
+npx -y @mvanhorn/printing-press install %s --agent claude-code --agent codex
 `+"```"+`
 
 ### Without Node (Go fallback)
@@ -770,35 +830,60 @@ This installs the CLI only — no skill.
 
 Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/%s-current). On macOS, clear the Gatekeeper quarantine: `+"`xattr -d com.apple.quarantine <binary>`"+`. On Unix, mark it executable: `+"`chmod +x <binary>`"+`.
 
-`, ctx.CLIName, ctx.APIName, ctx.APIName, ctx.APIName, minimumGoVersion, module, ctx.APIName)
+`,
+		ctx.CLIName,  // binary name in headline
+		ctx.APIName,  // skill name in headline
+		ctx.APIName,  // bundled install slug
+		ctx.APIName,  // --cli-only slug
+		ctx.APIName,  // --skill-only slug
+		ctx.APIName,  // --agent single slug
+		ctx.APIName,  // --agent multi slug
+		minimumGoVersion,
+		module,       // Go fallback module
+		ctx.APIName,  // pre-built release tag
+	)
 }
 
 // patchReadmeHermesOpenClaw enforces the canonical position and
-// naming for the Hermes and OpenClaw install sections:
+// naming for the alternate install paths grouped at the top of the
+// README:
 //
 //  1. Strips any existing Hermes/OpenClaw sections and the
 //     pp-hermes-install-anchor comment from wherever they currently
 //     are. Handles both legacy "Install via X" naming and current
 //     "Install for X" naming, so the function is forward- and
 //     backward-compatible across template versions.
-//  2. Re-inserts the canonical "Install for X" blocks (preceded by
-//     the anchor comment) immediately after the `## Install` section
-//     ends, so all install paths sit grouped at the top of the
-//     README.
+//  2. Strips the legacy `## Use with Claude Code` section entirely —
+//     its skill-install command is now redundant with the
+//     `--skill-only` and `--agent` options documented in the canonical
+//     `## Install` block, and its MCP `<details>` subsection drifted
+//     in placement across CLIs without adding value.
+//  3. Extracts the `## Use with Claude Desktop` section (when present —
+//     not every CLI ships an MCPB bundle) so it can be re-inserted at
+//     the canonical position alongside Hermes/OpenClaw. Claude Desktop
+//     is a separate install path because the MCPB bundle is its own
+//     thing — parallel to Hermes and OpenClaw, not duplicative of
+//     `## Install`.
+//  4. Re-inserts the canonical install paths (preceded by the anchor
+//     comment) immediately after the `## Install` section ends:
+//     Hermes → OpenClaw → Claude Desktop (when present). All install
+//     paths now sit grouped at the top of the README.
 //
 // Idempotent: running with body that already has the canonical shape
-// strips and re-inserts identical content, producing zero diff.
+// strips and re-inserts identical content, producing zero diff. The
+// Claude Desktop section is moved verbatim — the sweep does not
+// reformat its content, only its position.
 //
 // READMEs without a `## Install` heading (only agent-capture in the
 // live library) are left unchanged — their hand-shaped install
-// guidance doesn't fit the template, and dropping the Hermes/OpenClaw
+// guidance doesn't fit the template, and dropping the alternate-install
 // blocks at an arbitrary position would be worse than leaving them
 // off entirely.
 func patchReadmeHermesOpenClaw(body string, ctx patchReadmeCtx) string {
 	// If there's no ## Install heading to anchor on, don't touch the
-	// README — stripping existing Hermes/OpenClaw blocks without being
-	// able to re-insert them would silently delete install
-	// instructions. Only agent-capture among 49 live CLIs falls in
+	// README — stripping existing alternate-install blocks without
+	// being able to re-insert them would silently delete install
+	// instructions. Only agent-capture among the live CLIs falls in
 	// this branch; its README has hand-shaped install guidance that
 	// doesn't fit the template.
 	const installHeading = "## Install\n"
@@ -806,13 +891,39 @@ func patchReadmeHermesOpenClaw(body string, ctx patchReadmeCtx) string {
 		return body
 	}
 
-	// Strip stale Hermes/OpenClaw sections. List both naming variants
-	// so we can migrate "via" to "for" without a separate code path.
+	// Extract the Claude Desktop section verbatim (heading + body up to
+	// the next H2) so we can re-insert it at the canonical position. If
+	// the CLI doesn't ship an MCPB bundle, there's no section to move
+	// and this stays empty — the canonical block omits the Claude
+	// Desktop line entirely.
+	claudeDesktopSection := extractH2Section(body, "## Use with Claude Desktop")
+	// Strip any anchor comment that fell inside the extracted section
+	// (e.g., trigger-dev's pre-PR layout had the anchor sitting between
+	// the Claude Desktop body and the next H2). Without this, the
+	// stale anchor rides along to the canonical position and produces
+	// a duplicate alongside the canonical anchor we re-insert below.
+	// Both are stripped from the rest of `body` later, but the
+	// extracted section needs its own pass.
+	claudeDesktopSection = strings.ReplaceAll(claudeDesktopSection, "<!-- pp-hermes-install-anchor -->\n", "")
+	claudeDesktopSection = strings.ReplaceAll(claudeDesktopSection, "<!-- pp-hermes-install-anchor -->", "")
+
+	// Strip the redundant ## Use with Claude Code section entirely.
+	// Its content is now covered by the canonical `## Install` block
+	// (which documents `--skill-only` and `--agent` flags), and the MCP
+	// `<details>` subsection that lived inside it was unstructured and
+	// inconsistent across CLIs.
+	body = stripH2Section(body, "## Use with Claude Code")
+
+	// Strip stale alternate-install sections from wherever they are.
+	// List both Hermes/OpenClaw naming variants so we can migrate "via"
+	// to "for" without a separate code path; strip Claude Desktop so
+	// the re-insert below can place it at the canonical position.
 	for _, h := range []string{
 		"## Install via Hermes",
 		"## Install via OpenClaw",
 		"## Install for Hermes",
 		"## Install for OpenClaw",
+		"## Use with Claude Desktop",
 	} {
 		body = stripH2Section(body, h)
 	}
@@ -825,9 +936,17 @@ func patchReadmeHermesOpenClaw(body string, ctx patchReadmeCtx) string {
 		body = strings.ReplaceAll(body, "\n\n\n", "\n\n")
 	}
 
-	// Re-insert canonical anchor + "for"-named blocks immediately after
-	// the `## Install` section ends.
+	// Build the canonical block: anchor + Hermes + OpenClaw + Claude
+	// Desktop (when the CLI has one). The Claude Desktop section is
+	// passed through verbatim.
 	canonical := "<!-- pp-hermes-install-anchor -->\n" + buildReadmeInstallSections(ctx)
+	if claudeDesktopSection != "" {
+		// Ensure exactly one blank line separates the OpenClaw block
+		// (which ends with "\n\n") from the moved Claude Desktop
+		// section. extractH2Section preserves the section's own
+		// trailing blank line; no extra separator needed.
+		canonical += claudeDesktopSection
+	}
 
 	installIdx := strings.Index(body, installHeading)
 	if installIdx < 0 {
@@ -850,6 +969,26 @@ func patchReadmeHermesOpenClaw(body string, ctx patchReadmeCtx) string {
 	}
 	insertPos := installIdx + len(installHeading) + nextH2Idx + 1
 	return body[:insertPos] + canonical + body[insertPos:]
+}
+
+// extractH2Section returns the full `## <heading>` section verbatim
+// (heading line + body up to the next `## ` heading or EOF). Returns
+// "" if the heading is not present. The returned content includes the
+// section's trailing blank line so it can be concatenated directly
+// without needing a separator.
+func extractH2Section(body, heading string) string {
+	needle := heading + "\n"
+	idx := strings.Index(body, needle)
+	if idx < 0 {
+		return ""
+	}
+	rest := body[idx+len(needle):]
+	nextIdx := strings.Index(rest, "\n## ")
+	if nextIdx < 0 {
+		// Section runs to EOF.
+		return body[idx:]
+	}
+	return body[idx : idx+len(needle)+nextIdx+1]
 }
 
 // stripH2Section removes a `## <heading>` section (heading line + body

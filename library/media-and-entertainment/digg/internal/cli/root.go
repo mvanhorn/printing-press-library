@@ -82,8 +82,9 @@ func Execute() error {
 func newRootCmd(flags *rootFlags) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:   "digg-pp-cli",
-		Short: `Read-only CLI for Digg AI — the 1,000 AI accounts on X and the story clusters they surface.`,
-		Long: `Read-only CLI for Digg AI — the 1,000 AI accounts on X and the story clusters they surface.
+		// PATCH(digg-rename-and-github-feeds): drop "Digg AI" / "1000" branding; add github feeds to highlights.
+		Short: `Read-only CLI for Digg — the AI story leaderboard, GitHub feeds, and ingestion pipeline events on digg.com.`,
+		Long: `Read-only CLI for Digg — the AI story leaderboard, GitHub feeds, and ingestion pipeline events on digg.com.
 
 Highlights (not in the official API docs):
   • events   Tail Digg's ingestion pipeline in real time — see clusters as they're detected, stories fast-climbing the leaderboard with explicit rank deltas, X posts being processed, batch breakdowns.
@@ -91,7 +92,8 @@ Highlights (not in the official API docs):
   • evidence   Print the full ranking transparency record for one cluster — scoreComponents, evidence array, numeratorLabel, percentAboveAverage.
   • sentiment   Read per-time-window positivity ratios (pos6h, pos12h, pos24h, posLast) for a cluster.
   • crossref   Show this cluster's Hacker News and Techmeme mirrors when Digg has detected the story is being discussed there.
-  • authors top   Top accounts in the Digg AI 1000 ranked by Digg's influence score, story count, or reach.
+  • github stars|new|activity|recent   Four GitHub feeds: top starred AI repos, freshly first-seen repos, contributor leaderboard, live activity stream.
+  • authors top   Top accounts Digg tracks, ranked by Digg's influence score, story count, or reach.
   • history   Full trajectory of one cluster's currentRank, peakRank, and delta over local snapshot history.
   • author   Every cluster a given X account contributed to, with post type (original, retweet, quote, reply).
   • watch   Poll /ai, diff against last snapshot, alert when any cluster moves N+ ranks.
@@ -180,6 +182,8 @@ See README.md or the bundled SKILL.md for recipes.`,
 		return nil
 	}
 	rootCmd.AddCommand(newFeedCmd(flags))
+	// PATCH(digg-rename-and-github-feeds): wire up the four /ai/github/* feed commands.
+	rootCmd.AddCommand(newGithubCmd(flags))
 	rootCmd.AddCommand(newDoctorCmd(flags))
 	rootCmd.AddCommand(newAgentContextCmd(rootCmd))
 	rootCmd.AddCommand(newProfileCmd(flags))

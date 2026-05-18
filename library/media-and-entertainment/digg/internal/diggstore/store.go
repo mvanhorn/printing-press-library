@@ -77,7 +77,7 @@ func EnsureSchema(db *sql.DB) error {
 		)`,
 		`CREATE INDEX IF NOT EXISTS idx_digg_snapshots_at ON digg_snapshots(fetched_at)`,
 
-		// Authors (the Digg AI 1000).
+		// Authors (Digg's tracked AI-news accounts; upstream calls this the /ai/1000 roster).
 		`CREATE TABLE IF NOT EXISTS digg_authors (
 			username TEXT PRIMARY KEY,
 			display_name TEXT,

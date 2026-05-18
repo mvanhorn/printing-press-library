@@ -42,6 +42,8 @@ If you don't know your coordinates, the easiest path is:
 		newConfigShowCmd(),
 		newConfigSetCoordsCmd(),
 		newConfigSetAddressCmd(),
+		// PATCH (instacart-address-profiles): named multi-address store.
+		newConfigProfilesCmd(),
 	)
 	return cmd
 }
