@@ -134,9 +134,15 @@ jobs:
           # The intersection is the only signal that means "this PR
           # introduced a divergent change to a generated file."
 
+          # `awk 'NF'` keeps non-blank lines; unlike `grep -v '^$'`, it exits
+          # 0 even when no lines pass through. With `set -o pipefail`, the
+          # previous `grep -v '^$'` form failed the assignment whenever
+          # `git log` produced empty output (the common no-touch case),
+          # making the whole step exit 1 with no stdout. awk's exit code
+          # reflects script errors only, not match counts.
           touched=$(git log "${BASE_REMOTE_REF}..HEAD" --name-only --format= \
             -- 'registry.json' 'cli-skills/pp-*/SKILL.md' \
-            | grep -v '^$' | sort -u)
+            | awk 'NF' | sort -u)
           differs=$(git diff --name-only "${BASE_REMOTE_REF}" HEAD \
             -- 'registry.json' 'cli-skills/pp-*/SKILL.md' \
             | sort -u)
