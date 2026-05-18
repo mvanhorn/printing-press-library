@@ -1,0 +1,238 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260512-170855",
+  "base_printing_press_version": "4.5.0",
+  "patches": [
+    {
+      "id": "freshservice-domain-and-auth",
+      "summary": "Substitute FRESHSERVICE_DOMAIN into BaseURL and switch HTTP Basic to `apikey:` (empty password). Added normalizeFreshserviceDomain helper to accept the lenient pasted forms users actually have (bare slug, https://, /api/v2/, etc.).",
+      "reason": "Generator defaulted BaseURL to the placeholder `https://yourcompany.freshservice.com/api/v2` with no env-var substitution, so every API call DNS-failed. The generated AuthHeader() also assembled Basic credentials as `apikey:domain`; Freshservice's Basic scheme is `apikey:` (empty password) and rejects the alternative form. Discovered live, fixed in printed CLI, then filed against the generator.",
+      "files": [
+        "internal/config/config.go"
+      ],
+      "validated_outcome": "Live read smoke (tickets get/list, agents list, assets list, sync) succeeded against the real tenant after this fix; previously every request returned a transport-level DNS error or HTTP 401."
+    },
+    {
+      "id": "freshservice-filter-query-quoting",
+      "summary": "Wrap the value of `query=` in literal double quotes before sending /tickets/filter and /changes/filter requests, and route both filter commands through the wrapFreshserviceFilterQuery helper.",
+      "reason": "Freshservice's filter endpoint requires the entire query value to arrive as a double-quoted string before URL encoding; the generator emitted the raw user string and the API responded HTTP 500. Same quirk applies to /assets?filter=, so the resolver in assets_get.go calls the same helper.",
+      "files": [
+        "internal/cli/freshservice_novel.go",
+        "internal/cli/tickets_filter.go",
+        "internal/cli/changes_filter.go"
+      ],
+      "validated_outcome": "tickets filter --query \"status:2 AND priority:4\" now returns the expected page; previously returned `{\"description\":\"Validation failed\",\"errors\":[{\"field\":\"query\",\"message\":\"There was an unexpected error\"}]}` with HTTP 500."
+    },
+    {
+      "id": "freshservice-page-pagination",
+      "summary": "Change sync's cursorParam default from `after` to `page`, and synthesize the next integer page number whenever a full page came back without a body cursor.",
+      "reason": "Freshservice paginates exclusively by integer `?page=N` and exposes the next-page URL only in the HTTP Link response header. extractPageItems' body-cursor scan therefore never finds a cursor, and the sync loop stops after page 1. The generator's pagination-style detection picked `after` from the spec without checking that Freshservice declares no body cursor.",
+      "files": [
+        "internal/cli/sync.go"
+      ],
+      "validated_outcome": "`freshservice-pp-cli sync --resource tickets` paginates through all pages until items < per_page returns; previously stopped at 100 tickets even when the tenant had thousands."
+    },
+    {
+      "id": "freshservice-doctor-tenant-shape-and-probe",
+      "summary": "Doctor now (a) flags a .myfreshworks.com BaseURL as the Freshworks unified-org dashboard, not the Freshservice API tenant, and (b) issues an authenticated GET /agents/me probe with explicit branches for 401/403/404 and for the dashboard's HTML-200 response.",
+      "reason": "Users routinely paste their org dashboard subdomain (e.g. `<org>.myfreshworks.com`) when prompted for FRESHSERVICE_DOMAIN. That host returns the dashboard SPA's HTML with HTTP 200 for every API path, which the generator's reachability-only doctor treated as a successful API call — every downstream command then failed with confusing JSON-parse errors instead of an obvious 'wrong host' verdict.",
+      "files": [
+        "internal/cli/doctor.go"
+      ],
+      "validated_outcome": "doctor now prints `domain_hint: FAIL: ... looks like the Freshworks unified-org dashboard` and `credentials: FAIL: /agents/me returned HTML, not JSON` when the wrong subdomain is configured; previously printed `api: reachable` and `credentials: OK`."
+    },
+    {
+      "id": "freshservice-assets-display-id-resolver",
+      "summary": "Accept asset name or asset_tag as the GET /assets/{display_id} argument by issuing a one-shot /assets?filter=name:'…' (or asset_tag:'…') resolver before the canonical GET fires.",
+      "reason": "The OpenAPI path parameter is the numeric display_id, but the identifiers humans and agents actually have are name and asset_tag. The generator emitted a path-only command that returned 404 on every human-readable input.",
+      "files": [
+        "internal/cli/assets_get.go"
+      ],
+      "validated_outcome": "`assets get LAPTOP-001` resolves the asset_tag to its display_id and returns the asset record; previously returned HTTP 404."
+    },
+    {
+      "id": "freshservice-notes-create-private-default",
+      "summary": "Always send `body[\"private\"]` in tickets notes create, even when the flag is the zero value (false), and clarify the flag description.",
+      "reason": "The generator's 'omit optional bool when its zero-value matches the spec default' idiom interacts badly with Freshservice's server-side default of `private: true` on this endpoint. The CLI default of --private=false matches what a human typing `tickets note <id>` virtually always intends (public reply to the requester), but omitting the field shipped the note as private. Heads-up was caught during live write testing.",
+      "files": [
+        "internal/cli/tickets_notes_create-ticket.go"
+      ],
+      "validated_outcome": "`tickets notes create-ticket <id> --body \"…\"` (no --private flag) posts a public reply visible to the requester; previously posted as agent-only private."
+    },
+    {
+      "id": "freshservice-novel-commands",
+      "summary": "Hand-authored novel command set under freshservice_novel.go (breach-risk, my-queue, workload, change-collisions, recurrence, kb-gaps, orphan-assets, dept-sla, oncall-gap) and a tenant-specific code→label resolver in freshservice_meta.go backed by the synced ticket-form-fields choices.",
+      "reason": "These transcendence commands aggregate across resources (tickets + agents + groups + assets + changes + KB articles) and rely on FTS scoring against the synced local store; the OpenAPI spec describes the underlying endpoints but not the aggregation. Per-tenant integer codes for status/priority/type/source/urgency/impact mean a static enum-to-label map (what the generator emits) is wrong on every Freshservice tenant — the resolver synthesizes the map from synced choices at query time, with built-in fallbacks for the canonical 2/3/4/5 codes when the local store has not been hydrated yet.",
+      "files": [
+        "internal/cli/freshservice_novel.go",
+        "internal/cli/freshservice_meta.go"
+      ],
+      "validated_outcome": "All 9 novel commands return non-empty results against the live tenant; `tickets get` and `tickets list` decorate status/priority codes with the tenant's actual labels (e.g. custom status code 9 → 'Awaiting Customer Response') rather than blank or built-in defaults."
+    },
+    {
+      "id": "freshservice-notes-delete",
+      "summary": "New `tickets notes delete <conversation-id>` command wired into the notes subcommand tree. Hand-authored DELETE /conversations/{id} request with --dry-run / --yes consent gating and a JSON success envelope.",
+      "reason": "Freshservice documents DELETE /conversations/{id} but does not declare it in the OpenAPI spec we generated from, so the generator never emitted a delete-note command. Notes are stored as conversations and the conversation id alone identifies the note (no /tickets/{ticket_id}/ segment).",
+      "files": [
+        "internal/cli/tickets_notes_delete.go",
+        "internal/cli/tickets_notes.go"
+      ],
+      "validated_outcome": "`tickets notes delete <id> --yes` returns HTTP 204 and the note disappears from `tickets conversations list-ticket <ticket-id>`; previously there was no CLI surface for note deletion."
+    },
+    {
+      "id": "freshservice-logout-clears-apikey",
+      "summary": "Extend ClearTokens to also zero FreshserviceApikey and AuthHeaderVal so `auth logout` actually drops the credential under Freshservice's API-key/Basic auth model.",
+      "reason": "Greptile P1 on PR #533. Generator's ClearTokens is OAuth-shaped — it clears AccessToken/RefreshToken/TokenExpiry but leaves the API-key fields intact. Because AuthHeader() rebuilds the Basic credential from FreshserviceApikey, every command run after `auth logout` continued to authenticate successfully.",
+      "files": [
+        "internal/config/config.go"
+      ],
+      "validated_outcome": "`auth logout` followed by any authenticated command now fails with 'no credentials configured' as expected; previously the command succeeded as if logout had never happened."
+    },
+    {
+      "id": "freshservice-resolvebyname-field-guard",
+      "summary": "Add the same validIdentifierRE.MatchString(field) guard ListField uses, so ResolveByName cannot fmt.Sprintf an unvalidated field name into the json_extract SQL path.",
+      "reason": "Greptile P1 (security) on PR #533. ListField and ResolveByName were intended to mirror each other (the in-file comment at store.go:1966 states this), but the generator emitted the validIdentifierRE guard only on ListField. Today's callers all pass literal identifiers like \"name\"/\"email\", so blast radius is bounded — but the asymmetry is the real smell and the guard belongs there as defense in depth.",
+      "files": [
+        "internal/store/store.go"
+      ],
+      "validated_outcome": "ResolveByName now silently skips any matchFields value that does not look like a SQL identifier; legitimate callers (passing \"name\"/\"key\"/\"email\") behave identically."
+    },
+    {
+      "id": "freshservice-analytics-cmd-outorstdout",
+      "summary": "Route analytics JSON and text output through cmd.OutOrStdout() instead of os.Stdout in both the summary path and runGroupBy. Threaded *cobra.Command into runGroupBy so it has the writer available.",
+      "reason": "Greptile P2 on PR #533. Direct os.Stdout writes bypass both test redirection (`cmd.SetOut(buf)` in unit tests) and the MCP shell-out layer that captures CLI output. Every other command in the package routes through cmd.OutOrStdout(); analytics was the lone exception.",
+      "files": [
+        "internal/cli/analytics.go"
+      ],
+      "validated_outcome": "`analytics --json` output is now capturable via `cmd.SetOut(buf)` in tests and is correctly proxied through MCP; previously the writer-redirection was silently ignored."
+    },
+    {
+      "id": "freshservice-auth-hint-domain-placeholder",
+      "summary": "Show a real Freshservice subdomain example for FRESHSERVICE_DOMAIN (acme.freshservice.com) instead of the generator's token-shaped placeholder, in both `auth status` and `auth setup`. Clarify that the value is the tenant subdomain, not the Freshworks org dashboard.",
+      "reason": "Greptile P2 on PR #533. The generator emits the same token placeholder for every required env var, but FRESHSERVICE_DOMAIN is a subdomain. A user copying the hint verbatim ends up either with a literal placeholder host (DNS-fails) or guesses at <org>.myfreshworks.com (the Freshworks unified-org dashboard) — exactly the trap that the doctor command was built to diagnose. The hint should not be the on-ramp to the trap. Greptile's second-pass review flagged that `auth setup` was the companion site to the originally-patched `auth status`; both now corrected.",
+      "files": [
+        "internal/cli/auth.go"
+      ],
+      "validated_outcome": "Both `auth status` (unconfigured) and `auth setup` now print `export FRESHSERVICE_DOMAIN=\"acme.freshservice.com\"` with an inline note about the tenant-vs-dashboard distinction; previously printed the misleading token-shaped placeholder."
+    },
+    {
+      "id": "freshservice-authsource-tenant-vs-credential",
+      "summary": "Do not overwrite `cfg.AuthSource` from the FRESHSERVICE_DOMAIN env-var block. The domain env var is tenant routing, not a credential — labeling AuthSource as `env:FRESHSERVICE_DOMAIN` misreports where the credential came from when both env vars are set.",
+      "reason": "Greptile residual finding on PR #533. The generator's env-var override block sets `cfg.AuthSource` after every assignment, including non-credential env vars like `FRESHSERVICE_DOMAIN`. When both APIKEY and DOMAIN are set via env (the common case), the second assignment overwrites the first, and `doctor` reports the wrong env var as the credential source. Matches the existing generator finding in printing-press issue #1158 (\"Generated config.go AuthHeader() unconditionally overwrites AuthSource\").",
+      "files": [
+        "internal/config/config.go"
+      ],
+      "validated_outcome": "`doctor` now reports `auth_source: env:FRESHSERVICE_APIKEY` when both env vars are set; previously reported `env:FRESHSERVICE_DOMAIN`. No behavior change when only one env var is set."
+    },
+    {
+      "id": "freshservice-cache-owner-only-perms",
+      "summary": "Tighten cache writes to 0o600 files in a 0o700 directory across BOTH `internal/client/client.go:writeCache` (Greptile-flagged) and the secondary `internal/cache/cache.go:Set` (found in same-class audit Greptile didn't reach). Matches the config file's permissions.",
+      "reason": "Greptile blocking (security) finding on PR #533 (round 3) named client.go specifically; an own-audit found the same 0o644/0o755 pattern in the secondary cache store. API response cache contains real ITSM data — tickets, users, assets — which on shared/multi-user hosts becomes readable by every local user. The config file template correctly uses 0o600; both cache templates were inconsistent.",
+      "files": [
+        "internal/client/client.go",
+        "internal/cache/cache.go"
+      ],
+      "validated_outcome": "Both `~/.cache/freshservice-pp-cli/` (primary) and the secondary cache directory now owner-only (0o600/0o700). Existing caches written with the old permissions are not retroactively tightened; users on shared hosts should `chmod -R go-rwx ~/.cache/freshservice-pp-cli` once after upgrade."
+    },
+    {
+      "id": "freshservice-store-owner-only-perms",
+      "summary": "Tighten the SQLite DB directory to 0o700 and chmod the DB file to 0o600 after the driver creates it.",
+      "reason": "Own-audit follow-up to the Greptile cache-perms finding. The SQLite database under `~/.local/share/freshservice-pp-cli/` (or platform equivalent) contains the *primary* synced data corpus — tickets, requesters, assets, KB articles, group/department metadata — strictly more sensitive than the response cache Greptile flagged. Generator's 0o755 directory left the DB file's effective permissions to the user's umask (typically 0o644 = world-readable). Tightening dir to 0o700 and explicit chmod on the DB file closes the same exposure class.",
+      "files": [
+        "internal/store/store.go"
+      ],
+      "validated_outcome": "The DB directory is owner-only; the DB file itself is 0o600 after the first open. New installs are tight from creation; existing installs should `chmod -R go-rwx ~/.local/share/freshservice-pp-cli` once after upgrade."
+    },
+    {
+      "id": "freshservice-store-list-no-limit-sentinel",
+      "summary": "`Store.List(resourceType, 0)` now means no-limit (SQL LIMIT -1) rather than silently capping at 200. Fixes group-by analytics dropping rows beyond the cap and matches the `0 = no limit` semantics the existing callers already documented in their inline comments.",
+      "reason": "Greptile round-4 P1 on PR #533 (analytics group-by silently caps at 200). Root cause is in the store template: `Store.List` remaps `limit <= 0` to 200, contradicting the documented intent of `0` in `data_source.go:227` and `analytics.go:101`. Fixed at the source so both call sites are correct without changing their semantics.",
+      "files": [
+        "internal/store/store.go"
+      ],
+      "validated_outcome": "`analytics --group-by` on a synced tenant with N tickets aggregates over all N tickets, not the 200 most-recently-updated. `data_source list` similarly returns the full corpus. No call sites pass a positive limit today so the behavior change is observable only on the unbounded paths."
+    },
+    {
+      "id": "freshservice-oncall-gap-frt-fallback-removed",
+      "summary": "Remove the `frt_escalated_at` fallback from on-call gap detection. SLA-escalation time is when the breach timer fired, not when an agent responded; using it as a fallback excluded tickets that escalated without ever being responded to from the gap report.",
+      "reason": "Greptile round-4 P1 on PR #533. Hand-authored novel-command logic in `oncall-gap`: tickets with no `first_responded_at` should fall into the `time.Since(created)` branch (which correctly measures elapsed-since-creation against `--ack-minutes`). The earlier code instead read `frt_escalated_at` as a response timestamp, producing false negatives whenever the SLA escalation fell inside the ack window.",
+      "files": [
+        "internal/cli/freshservice_novel.go"
+      ],
+      "validated_outcome": "Tickets that were never responded to now appear in the gap report when their elapsed-since-creation exceeds `--ack-minutes`, regardless of whether the FRT SLA escalation fired in the meantime."
+    },
+    {
+      "id": "freshservice-myqueue-no-due-sort",
+      "summary": "In the hand-authored my-queue command, tickets without a `due_by` value now sort to the bottom and render their MINUTES column as `—` instead of `0`. Sort is now stable secondary on minutes-remaining.",
+      "reason": "Greptile noted in PR #533 round-2 review (not elevated to an inline finding, but mentioned in the Important Files Changed remark): tickets with no due_by kept MinutesTo at its float64 zero, so they floated to the top of my-queue as if due-right-now. This is hand-authored code in freshservice_novel.go, not generator output — fix lives only in the printed CLI.",
+      "files": [
+        "internal/cli/freshservice_novel.go"
+      ],
+      "validated_outcome": "`my-queue` now lists SLA-tracked tickets first (sorted by minutes-to-breach) and no-SLA tickets after, with the MINUTES column showing `—` rather than `0` for the latter."
+    },
+    {
+      "id": "freshservice-ratelimit-toctou",
+      "summary": "Replace `Wait()`'s lock/unlock/sleep/lock pattern with atomic next-slot reservation. Each caller now claims a specific wall-clock slot under the lock; the post-lock sleep waits until that slot, so concurrent callers cannot all wake at the same instant.",
+      "reason": "Greptile blocking (concurrency) finding on PR #533 (round 3). The generator's rate-limiter template read `lastRequest` under the lock, released the lock, then slept. Concurrent sync goroutines (default 4) all read the same `lastRequest`, slept the same duration, and fired together — defeating the rate-limit guarantee entirely and risking 429 bursts on every sync. The fix is the standard token-bucket-style reservation: under the lock, compute the next available slot from `lastRequest`, update `lastRequest` to that slot, release the lock, then sleep until the assigned slot.",
+      "files": [
+        "internal/cliutil/ratelimit.go"
+      ],
+      "validated_outcome": "Concurrent callers of `Wait()` now serialize to distinct wall-clock slots spaced by `1/rate` seconds. Verified via mental execution: 4 goroutines entering simultaneously now get slots `now`, `now+delay`, `now+2*delay`, `now+3*delay` rather than all firing at `now+delay`."
+    }
+  ],
+  "deferred_to_upstream": [
+    {
+      "summary": "Generator should detect Freshservice-style HTTP-Link-only pagination (no body cursor) and synthesize integer page advancement automatically",
+      "reason": "Filed as a printing-press generator issue. Same shape applies to any vendor that paginates via integer ?page=N with the next-page URL exclusively in the Link header."
+    },
+    {
+      "summary": "Generator should learn Basic-auth `<credential>:` (empty password) as a first-class auth shape",
+      "reason": "Filed as a printing-press generator issue. Freshservice, Zendesk, and similar vendors use this form; the generator currently emits `<username>:<password>` even when the spec or vendor docs describe an empty-password Basic flow."
+    },
+    {
+      "summary": "Generator should accept lenient subdomain inputs (bare slug, https://, trailing path) for tenant-scoped APIs",
+      "reason": "Filed as a printing-press generator issue. normalizeFreshserviceDomain is generic — every tenant-subdomain vendor benefits from the same normalization."
+    },
+    {
+      "summary": "Generator should preserve `private` (and similarly server-default-true) optional bools on the wire instead of omitting on zero value",
+      "reason": "Filed as a printing-press generator issue. The omit-zero idiom is correct for most optional bools but inverts intent when the server-side default differs from Go's zero value."
+    },
+    {
+      "summary": "Generator's ClearTokens template should clear API-key fields, not just OAuth fields",
+      "reason": "Greptile P1 on PR #533 (Freshservice). The OAuth-shaped ClearTokens applies to every API-key-auth CLI the generator prints — same bug class across the library."
+    },
+    {
+      "summary": "Generator should emit validIdentifierRE guards symmetrically across mirrored store helpers",
+      "reason": "Greptile P1 (security) on PR #533. ListField has the guard; ResolveByName, emitted from the same store template, does not. Any CLI generated from this template inherits the asymmetry."
+    },
+    {
+      "summary": "Generator-emitted analytics commands should route writes through cmd.OutOrStdout()",
+      "reason": "Greptile P2 on PR #533. The analytics template wires JSON and text output to os.Stdout directly, breaking test redirection and MCP shell-out. Applies to every printed CLI that includes the analytics command."
+    },
+    {
+      "summary": "Generator's auth-status hint should produce env-var-shape-specific placeholders, not a uniform token placeholder",
+      "reason": "Greptile P2 on PR #533. The 'your-token-here' placeholder is correct for token env vars but wrong for hosts/domains/region IDs/etc. Every API with a non-token required env var inherits the trap."
+    },
+    {
+      "summary": "Generator's auth-setup template should mirror auth-status's env-var shape-specific placeholders",
+      "reason": "Greptile residual finding on PR #533. `newAuthSetupCmd` emits the same generator template as `newAuthStatusCmd`. The two should share a single rendering function — fixing one but not the other (as happened in this round) leaves the same trap in the other site."
+    },
+    {
+      "summary": "Generator's env-var override block should label AuthSource only from credential env vars, not from tenant/routing env vars",
+      "reason": "Greptile residual finding on PR #533. The template currently overwrites `cfg.AuthSource` after every env-var assignment, regardless of whether the env var represents a credential or tenant routing. Adjacent to printing-press issue #1158 (\"Generated config.go AuthHeader() unconditionally overwrites AuthSource\"). Fix: emit `AuthSource = \"env:\" + name` only when the assigned field is the credential, not when it's a routing/identity tag."
+    },
+    {
+      "summary": "Generator's cache + store templates should ALL use 0o600/0o700, not 0o644/0o755 — applies to client.go:writeCache, cache.go:Set, AND store.go SQLite DB directory + file",
+      "reason": "Greptile flagged client.go:writeCache; own-audit found two more sites with the same bug class. The SQLite DB site is the most sensitive (full synced data) and the easiest for generator audit to miss because the file's effective permissions come from the OS umask after sql.Open. Generator should emit 0o700 dirs + explicit os.Chmod(file, 0o600) after every DB/cache open across all data-at-rest templates."
+    },
+    {
+      "summary": "Generator's AdaptiveLimiter.Wait template should reserve next-slot atomically, not lock/unlock/sleep/lock",
+      "reason": "Greptile blocking finding on PR #533 round 3. The current template's race window admits concurrent callers reading the same lastRequest and firing simultaneously, defeating rate-limiting under any concurrent sync (the default sync worker pool is 4 goroutines). Standard token-bucket-style reservation under the lock fixes it without changing the API surface or the rate semantics."
+    },
+    {
+      "summary": "Generator's Store.List template should honor `limit <= 0` as 'no limit' (SQL LIMIT -1), not silently cap at 200",
+      "reason": "Greptile round-4 P1 on PR #533. Existing callers in multiple templates (analytics, data_source) document `0 = no limit` in their inline comments — the implementation contradicts that, producing silent row drops in analytics aggregations on any store with more than 200 records of a resource type. Affects every printed CLI that ships the store + analytics templates."
+    }
+  ]
+}

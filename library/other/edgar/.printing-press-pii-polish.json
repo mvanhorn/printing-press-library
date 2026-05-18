@@ -1,0 +1,104 @@
+{
+  "timestamp": "2026-05-13T21:54:44.620298Z",
+  "cli_dir": "C:\\Users\\derek\\AppData\\Local\\Temp\\printing-press\\publish\\edgar-dNBJyS\\package\\library\\other\\edgar",
+  "findings": [
+    {
+      "kind": "email",
+      "file": "README.md",
+      "line": 61,
+      "column": 33,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Quick Start: `export COMPANY_PP_CONTACT_EMAIL=user@example.com` — standards-reserved @example.com TLD (RFC 2606) used as a documentation placeholder telling users to substitute their real SEC contact email."
+    },
+    {
+      "kind": "email",
+      "file": "README.md",
+      "line": 308,
+      "column": 95,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Troubleshooting (`### API-specific`): example `export COMPANY_PP_CONTACT_EMAIL=user@example.com` shown in the fix for exit code 4. RFC 2606 reserved domain used as documentation placeholder."
+    },
+    {
+      "kind": "phone-us",
+      "file": "internal/cli/edgar_helpers_test.go",
+      "line": 16,
+      "column": 15,
+      "matched_span": "0000320193",
+      "status": "accepted",
+      "note": "SEC public CIK used as canonical normalization test fixture (TestNormalizeCIK)",
+      "category": "api_provider_data",
+      "evidence_context": "TestNormalizeCIK case `{\"320193\", \"0000320193\", false}` — Apple Inc's SEC EDGAR CIK (Central Index Key), a publicly published 10-digit issuer identifier (https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany\u0026CIK=0000320193). Not a phone number; the phone-us detector pattern matches any 10-digit run."
+    },
+    {
+      "kind": "phone-us",
+      "file": "internal/cli/edgar_helpers_test.go",
+      "line": 17,
+      "column": 5,
+      "matched_span": "0000320193",
+      "status": "accepted",
+      "note": "SEC public CIK used as canonical normalization test fixture (TestNormalizeCIK)",
+      "category": "api_provider_data",
+      "evidence_context": "TestNormalizeCIK case `{\"0000320193\", \"0000320193\", false}` — Apple Inc's SEC CIK (the `want` column). Public issuer identifier; phone-us detector false-positive on 10-digit run."
+    },
+    {
+      "kind": "phone-us",
+      "file": "internal/cli/edgar_helpers_test.go",
+      "line": 17,
+      "column": 19,
+      "matched_span": "0000320193",
+      "status": "accepted",
+      "note": "SEC public CIK used as canonical normalization test fixture (TestNormalizeCIK)",
+      "category": "api_provider_data",
+      "evidence_context": "TestNormalizeCIK case `{\"0000320193\", \"0000320193\", false}` — Apple Inc's SEC CIK (the `want` column). Public issuer identifier; phone-us detector false-positive on 10-digit run."
+    },
+    {
+      "kind": "phone-us",
+      "file": "internal/cli/edgar_helpers_test.go",
+      "line": 18,
+      "column": 22,
+      "matched_span": "0000320193",
+      "status": "accepted",
+      "note": "SEC public CIK used as canonical normalization test fixture (TestNormalizeCIK)",
+      "category": "api_provider_data",
+      "evidence_context": "TestNormalizeCIK case `{\"CIK0000320193\", \"0000320193\", false}` — Apple Inc's SEC CIK with CIK prefix tested for stripping. Public issuer identifier."
+    },
+    {
+      "kind": "phone-us",
+      "file": "internal/cli/edgar_helpers_test.go",
+      "line": 19,
+      "column": 18,
+      "matched_span": "0000320193",
+      "status": "accepted",
+      "note": "SEC public CIK used as canonical normalization test fixture (TestNormalizeCIK)",
+      "category": "api_provider_data",
+      "evidence_context": "TestNormalizeCIK case `{\"cik320193\", \"0000320193\", false}` — Apple Inc's SEC CIK (the normalized `want`). Public issuer identifier."
+    },
+    {
+      "kind": "phone-us",
+      "file": "internal/cli/edgar_helpers_test.go",
+      "line": 41,
+      "column": 37,
+      "matched_span": "0000320193",
+      "status": "accepted",
+      "note": "SEC public CIK embedded in accession-number test fixture (TestNormalizeAccession)",
+      "category": "api_provider_data",
+      "evidence_context": "TestNormalizeAccession: input accession `\"0000320193-22-000049\"` — embedded CIK is Apple's public SEC identifier within a real-shaped EDGAR accession number used to test round-trip normalization."
+    },
+    {
+      "kind": "phone-us",
+      "file": "internal/cli/edgar_helpers_test.go",
+      "line": 45,
+      "column": 12,
+      "matched_span": "0000320193",
+      "status": "accepted",
+      "note": "SEC public CIK embedded in accession-number test fixture (TestNormalizeAccession)",
+      "category": "api_provider_data",
+      "evidence_context": "TestNormalizeAccession: round-trip input `\"000032019322000049\"` (no-dashes form) — embedded Apple CIK as part of a canonical EDGAR accession-number normalization test fixture."
+    }
+  ],
+  "findings_count_before": 9
+}

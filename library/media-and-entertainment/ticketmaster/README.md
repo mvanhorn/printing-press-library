@@ -10,7 +10,7 @@ Printed by [@omarshahine](https://github.com/omarshahine) (Omar Shahine).
 
 ## Install
 
-The recommended path installs both the `ticketmaster-pp-cli` binary and the `pp-ticketmaster` agent skill in one shot:
+The recommended path installs both the `ticketmaster-pp-cli` binary and the `pp-ticketmaster` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
 npx -y @mvanhorn/printing-press install ticketmaster
@@ -22,10 +22,28 @@ For CLI only (no skill):
 npx -y @mvanhorn/printing-press install ticketmaster --cli-only
 ```
 
+For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
-### Without Node
+```bash
+npx -y @mvanhorn/printing-press install ticketmaster --skill-only
+```
 
-The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
+To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
+
+```bash
+npx -y @mvanhorn/printing-press install ticketmaster --agent claude-code
+npx -y @mvanhorn/printing-press install ticketmaster --agent claude-code --agent codex
+```
+
+### Without Node (Go fallback)
+
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/ticketmaster/cmd/ticketmaster-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
 
 ### Pre-built binary
 
@@ -54,6 +72,43 @@ Tell your OpenClaw agent (copy this):
 Install the pp-ticketmaster skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-ticketmaster. The skill defines how its required CLI can be installed.
 ```
 
+## Use with Claude Desktop
+
+This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
+
+To install:
+
+1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/ticketmaster-current).
+2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
+3. Fill in `TICKETMASTER_API_KEY` when Claude Desktop prompts you.
+
+Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
+
+<details>
+<summary>Manual JSON config (advanced)</summary>
+
+If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
+
+
+Install the MCP binary from this CLI's published public-library entry or pre-built release.
+
+Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "ticketmaster": {
+      "command": "ticketmaster-pp-mcp",
+      "env": {
+        "TICKETMASTER_API_KEY": "<your-key>"
+      }
+    }
+  }
+}
+```
+
+</details>
+
 ## Authentication
 
 Authentication is a single Ticketmaster Discovery API consumer key, passed as the `apikey` query parameter on every request. Register at https://developer-acct.ticketmaster.com and copy the Consumer Key from your My Apps dashboard. Set TICKETMASTER_API_KEY in your shell environment. The free tier allows 5000 requests/day at 5/second.
@@ -64,18 +119,14 @@ Authentication is a single Ticketmaster Discovery API consumer key, passed as th
 # Verifies the API key is set, the Discovery API is reachable, and the local store is initialized.
 ticketmaster-pp-cli doctor
 
-
 # Sync events for a metro (here Seattle-Tacoma DMA 383) into the local SQLite store.
 ticketmaster-pp-cli sync --resource events --dma 383 --days 60
-
 
 # Fan out across multiple venues and return one merged event list.
 ticketmaster-pp-cli events upcoming --venues KovZ917Ahkk,KovZpZAFkvEA --days 60 --json
 
-
 # Collapse Broadway/opera residencies into single rows with first/last date and night count.
 ticketmaster-pp-cli events residency --window 28 --json
-
 
 # Render this week's events as a paste-ready markdown brief.
 ticketmaster-pp-cli events brief --dma 383 --window 7
@@ -198,7 +249,6 @@ Manage venues
 - **`ticketmaster-pp-cli venues get`** - Get details for a specific venue using the unique identifier for the venue.
 - **`ticketmaster-pp-cli venues list`** - Find venues and filter your search by name, and much more.
 
-
 ## Output Formats
 
 ```bash
@@ -231,69 +281,6 @@ This CLI is designed for AI agent consumption:
 - **Agent-safe by default** - no colors or formatting unless `--human-friendly` is set
 
 Exit codes: `0` success, `2` usage error, `3` not found, `4` auth error, `5` API error, `7` rate limited, `10` config error.
-
-## Use with Claude Code
-
-Install the focused skill — it auto-installs the CLI on first invocation:
-
-```bash
-npx skills add mvanhorn/printing-press-library/cli-skills/pp-ticketmaster -g
-```
-
-Then invoke `/pp-ticketmaster <query>` in Claude Code. The skill is the most efficient path — Claude Code drives the CLI directly without an MCP server in the middle.
-
-<details>
-<summary>Use as an MCP server in Claude Code (advanced)</summary>
-
-If you'd rather register this CLI as an MCP server in Claude Code, install the MCP binary first:
-
-
-Install the MCP binary from this CLI's published public-library entry or pre-built release.
-
-Then register it:
-
-```bash
-claude mcp add ticketmaster ticketmaster-pp-mcp -e TICKETMASTER_API_KEY=<your-key>
-```
-
-</details>
-
-## Use with Claude Desktop
-
-This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
-
-To install:
-
-1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/ticketmaster-current).
-2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
-3. Fill in `TICKETMASTER_API_KEY` when Claude Desktop prompts you.
-
-Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
-
-<details>
-<summary>Manual JSON config (advanced)</summary>
-
-If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
-
-
-Install the MCP binary from this CLI's published public-library entry or pre-built release.
-
-Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "ticketmaster": {
-      "command": "ticketmaster-pp-mcp",
-      "env": {
-        "TICKETMASTER_API_KEY": "<your-key>"
-      }
-    }
-  }
-}
-```
-
-</details>
 
 ## Health Check
 

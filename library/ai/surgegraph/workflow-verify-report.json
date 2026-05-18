@@ -1,0 +1,8 @@
+{
+  "dir": "~/printing-press/.runstate/cli-printing-press-b0232eee/runs/20260512-171718/working/surgegraph-pp-cli",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

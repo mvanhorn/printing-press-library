@@ -1,0 +1,51 @@
+version: 2
+project_name: domain-goat-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: domain-goat-pp-cli
+    main: ./cmd/domain-goat-pp-cli
+    binary: domain-goat-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/developer-tools/domain-goat/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: domain-goat-pp-mcp
+    main: ./cmd/domain-goat-pp-mcp
+    binary: domain-goat-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: domain-goat-pp-cli
+    repository:
+      owner: mitch-nick
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Identify domains worth buying — across RDAP, WHOIS, and Porkbun pricing — without ever leaving the terminal."
+    install: |
+      bin.install "domain-goat-pp-cli"
+      bin.install "domain-goat-pp-mcp"

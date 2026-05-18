@@ -1,6 +1,6 @@
 ---
 name: pp-steam-web
-description: "Every Steam Web API endpoint, plus a local SQLite store that turns friend playtimes, achievement progress, and... Trigger phrases: `what should I play next on steam`, `find friends who own this game`, `easiest steam achievement to unlock`, `who in my friends has the most hours in`, `audit my steam backlog`, `use steam-web`, `run steam-web`."
+description: "Every Steam Web API endpoint, plus a local SQLite store that turns friend playtimes, achievement progress, and library backlogs into single SQL queries no other tool can answer. Trigger phrases: `what should I play next on steam`, `find friends who own this game`, `easiest steam achievement to unlock`, `audit my steam backlog`, `use steam-web`."
 author: "Trevin Chow"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"

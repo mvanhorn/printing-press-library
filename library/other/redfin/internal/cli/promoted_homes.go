@@ -84,6 +84,76 @@ type homesFlags struct {
 	limit      int
 	all        bool
 	sort       string
+	// PATCH(upstream printing-press-library#482): --sold-window + --sf for Stingray sf-param control
+	soldWindow string
+	sf         string
+}
+
+// PATCH(upstream printing-press-library#482): new helper — Stingray's "Invalid
+// arguments (code 101)" rejection of the prior hard-coded sf=1,3,5,7,9 default
+// is fixed by mapping --sold-window through this function.
+//
+// validSoldWindows is the closed set of --sold-window values accepted.
+// optsFromFlags validates against this before calling soldFlagsFor so
+// typos like "1yr" surface as usage errors instead of silently
+// resolving to the 3y default. Keep this set in sync with the cases
+// in soldFlagsFor below — both must update together when a new window
+// is added.
+var validSoldWindows = map[string]bool{
+	"1mo": true,
+	"3mo": true,
+	"6mo": true,
+	"1y":  true,
+	"2y":  true,
+	"3y":  true,
+}
+
+// soldFlagsFor maps a CLI-facing --sold-window value to a Stingray
+// "sf" parameter string. Stingray rejects ad-hoc multi-code unions
+// with `Invalid arguments` (resultCode 101) — see issue #482 — so each
+// returned value here is either a single bucket code (known-accepted)
+// or the website's observed "include sold past 3 years" union
+// (1,2,3,5,6,7). When users need a different window, --sf passes a raw
+// value through; the default empty window resolves to the 3-year combo,
+// which mirrors what redfin.com fires when you toggle "Sold" on the map.
+//
+// Callers should validate `window` against validSoldWindows before
+// invoking this; the unknown-window fall-through here returns the 3y
+// default defensively so the function is total (no panics on bad
+// input), but optsFromFlags will refuse such input upstream so the
+// fall-through never actually fires in production.
+//
+// Stingray sf bucket codes (from internal/cli/apt_comps.go:soldFlagsForMonths):
+//
+//	1=1mo  3=3mo  5=6mo  7=1y  9=2y
+//
+// Codes 2, 4, 6, 8 are observed in the website's 3y combo (1,2,3,5,6,7)
+// but Stingray's docs don't expose their semantic meaning — likely
+// "1mo–3mo span", "3mo–6mo span", etc. interstitial buckets the web UI
+// includes when the user picks a multi-period window. Adding a new
+// --sold-window value built from these requires capturing the matching
+// combo from web traffic (network panel under the date filter) rather
+// than guessing — Stingray rejects guessed unions.
+func soldFlagsFor(window string) string {
+	switch window {
+	case "1mo":
+		return "1"
+	case "3mo":
+		return "3"
+	case "6mo":
+		return "5"
+	case "1y":
+		return "7"
+	case "2y":
+		return "9"
+	case "3y", "":
+		// Website default for the "include sold past 3 years" filter
+		// button — verified accepted against Stingray on 2026-05-12.
+		return "1,2,3,5,6,7"
+	}
+	// Unknown explicit value — fall through to the verified 3y combo
+	// rather than re-introducing the rejected 1,3,5,7,9 default.
+	return "1,2,3,5,6,7"
 }
 
 // optsFromFlags builds a SearchOptions from the parsed flag struct, applying
@@ -96,6 +166,14 @@ func optsFromFlags(hf *homesFlags) (redfin.SearchOptions, error) {
 	uipt, err := uiPropertyTypesFor(hf.pType)
 	if err != nil {
 		return redfin.SearchOptions{}, err
+	}
+	// PATCH(upstream printing-press-library#482): validate --sold-window
+	// BEFORE region resolution so a typo surfaces even when the user
+	// omits --region-slug/--region-id (which would otherwise short-
+	// circuit with "region required"). --sf is a raw escape hatch and
+	// bypasses this validation by design.
+	if hf.sf == "" && hf.soldWindow != "" && !validSoldWindows[hf.soldWindow] {
+		return redfin.SearchOptions{}, fmt.Errorf("invalid --sold-window %q (one of: 1mo|3mo|6mo|1y|2y|3y)", hf.soldWindow)
 	}
 	regionID := hf.regionID
 	regionType := hf.regionType
@@ -126,10 +204,18 @@ func optsFromFlags(hf *homesFlags) (redfin.SearchOptions, error) {
 	}
 	soldFlags := ""
 	if statusCode == 7 {
-		// Default sold-time filter window covering 1y/3y/5y so the gis call
-		// doesn't return zero results when the user passes --status sold without
-		// an explicit --sf.
-		soldFlags = "1,3,5,7,9"
+		// PATCH(upstream printing-press-library#482): replaced hard-coded
+		// "1,3,5,7,9" (Stingray-rejected) with --sf-or-window resolution.
+		// --sf <raw> wins (escape hatch for power users); else
+		// --sold-window <name> maps to a known-valid code (validated at
+		// the top of this function so typos surface even without a
+		// region); else default to the website's 3y combo (1,2,3,5,6,7).
+		switch {
+		case hf.sf != "":
+			soldFlags = hf.sf
+		default:
+			soldFlags = soldFlagsFor(hf.soldWindow)
+		}
 	}
 	return redfin.SearchOptions{
 		RegionID:        regionID,
@@ -286,5 +372,8 @@ stripped automatically before parsing.`,
 	cmd.Flags().IntVar(&hf.limit, "limit", 50, "Listings per page (max 350)")
 	cmd.Flags().BoolVar(&hf.all, "all", false, "Auto-paginate up to 5 pages")
 	cmd.Flags().StringVar(&hf.sort, "sort", "", "Sort: score-desc, price-asc, price-desc, days-on-redfin-asc")
+	// PATCH(upstream printing-press-library#482): expose Stingray sf-param control.
+	cmd.Flags().StringVar(&hf.soldWindow, "sold-window", "", "Sold-status time window: 1mo|3mo|6mo|1y|2y|3y (default: 3y). Ignored unless --status=sold.")
+	cmd.Flags().StringVar(&hf.sf, "sf", "", "Raw Stingray 'sf' parameter (escape hatch; overrides --sold-window). Ignored unless --status=sold.")
 	return cmd
 }

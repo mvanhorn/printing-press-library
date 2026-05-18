@@ -1,0 +1,8 @@
+{
+  "dir": "C:\\Users\\derek\\printing-press\\.runstate\\busy-wing-8fb1b1-326d959f\\runs\\20260513-115144\\working\\edgar-pp-cli",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

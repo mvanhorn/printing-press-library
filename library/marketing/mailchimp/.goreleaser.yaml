@@ -1,0 +1,51 @@
+version: 2
+project_name: mailchimp-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: mailchimp-pp-cli
+    main: ./cmd/mailchimp-pp-cli
+    binary: mailchimp-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/marketing/mailchimp/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: mailchimp-pp-mcp
+    main: ./cmd/mailchimp-pp-mcp
+    binary: mailchimp-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: mailchimp-pp-cli
+    repository:
+      owner: trevin-chow
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every Mailchimp endpoint plus the workflow commands the API forces you to compose yourself."
+    install: |
+      bin.install "mailchimp-pp-cli"
+      bin.install "mailchimp-pp-mcp"

@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260513-023951",
+  "base_printing_press_version": "4.5.2",
+  "patches": [
+    {
+      "id": "model-dedup-events",
+      "summary": "Dedupe model events via MIN(aircraft_idx) subquery so multi-aircraft events surface once.",
+      "reason": "The original join over event_aircraft produced one row per matching aircraft, double-counting events like a mid-air between two Cessna 172s in both ModelCounts and the returned Events slice. Follow-up note: the first version of this patch built args as [match, filters, pick, limit] which mismatched the SQL's placeholder order (pick subquery is in the JOIN, before the WHERE) — any --since/--until/--state filter then silently bound to the wrong placeholder. Corrected order is [pick, match, filters, limit].",
+      "files": ["internal/cli/model.go"]
+    },
+    {
+      "id": "model-true-totals",
+      "summary": "Compute ModelCounts via a separate COUNT(DISTINCT) pass without LIMIT.",
+      "reason": "Totals were accumulated by iterating the LIMIT window, so users saw 'NTSB events: 200 total' for popular models with thousands of matches.",
+      "files": ["internal/cli/model.go"]
+    },
+    {
+      "id": "ingest-http-timeout",
+      "summary": "Use a 30-minute Timeout client for FAA/NTSB downloads instead of http.DefaultClient.",
+      "reason": "http.DefaultClient has Timeout=0; a stalled FAA/NTSB origin could hang the sync indefinitely while pulling ~80–90 MB bodies.",
+      "files": ["internal/ingest/http.go"]
+    },
+    {
+      "id": "store-migrate-early-return",
+      "summary": "Skip the migration write transaction when PRAGMA user_version already equals StoreSchemaVersion.",
+      "reason": "Every Open was acquiring the SQLite write lock and re-executing all schemaV1 DDL plus a user_version stamp, blocking concurrent readers for no schema change.",
+      "files": ["internal/store/store.go"]
+    },
+    {
+      "id": "sync-validate-source",
+      "summary": "Reject unknown --source values with a clear error before opening the store.",
+      "reason": "A typo like `--source both` previously fell through both switch blocks, ran VACUUM, and emitted sync_done — leaving the user believing the store was fresh when nothing was ingested.",
+      "files": ["internal/cli/sync.go"]
+    },
+    {
+      "id": "fts-build-tx",
+      "summary": "Run all DROP/CREATE/INSERT statements in BuildFTS inside a single transaction.",
+      "reason": "A mid-step failure (OOM, disk full, ctx cancel) used to leave one FTS table created-but-empty and the other absent, with HasFTS() returning true and `airframe search` yielding zero hits. The transactional rebuild is atomic.",
+      "files": ["internal/store/fts.go"]
+    },
+    {
+      "id": "shellout-single-quote",
+      "summary": "Extend splitShellArgs to recognize single-quoted tokens symmetrically with double-quoted ones.",
+      "reason": "MCP callers commonly pass multi-word arguments via single quoting (e.g. `--make 'Cessna 172'`); the original tokenizer split on the inner space and produced malformed CLI invocations.",
+      "files": ["internal/mcp/cobratree/shellout.go"]
+    },
+    {
+      "id": "ntsb-pre1982-idempotent",
+      "summary": "DELETE pre-1982 events before re-ingesting the ntsb_pre1982 source.",
+      "reason": "The PRE1982 branch previously skipped the wipe entirely. Re-running `sync --source ntsb --include-pre1982` after the upstream PRE1982.zip changed left removed rows in place and either silently skipped or PK-collided on modified ones. The targeted DELETE keeps re-ingest idempotent without touching the 1982-present rows owned by the avall source.",
+      "files": ["internal/ingest/ntsb.go"]
+    },
+    {
+      "id": "flightgoat-envelope-unwrap",
+      "summary": "Unwrap the standard Printing Press envelope after json.Unmarshal succeeds instead of trying it in an unreachable fallback.",
+      "reason": "json.Unmarshal into map[string]any succeeds for both flat objects and envelope objects, so the original `if err != nil` fallback was unreachable. An envelope response left raw holding {results:...,meta:...} and pickRegistration scanned the wrong layer, always returning ErrNoRegistration.",
+      "files": ["internal/flightgoat/flightgoat.go"]
+    },
+    {
+      "id": "store-readonly-version-guard",
+      "summary": "OpenReadOnly checks PRAGMA user_version and returns the upgrade-CLI error when the stored schema exceeds StoreSchemaVersion.",
+      "reason": "OpenWithContext routed through migrate() which surfaces a friendly 'database schema version N is newer than supported version M; upgrade the CLI binary' error, but OpenReadOnly skipped the check entirely. All six read commands (tail, owner, model, event, search, flight) flow through OpenReadOnly, so a user running `sync` with a newer binary and then a read with an older binary would hit raw SQLite column-binding errors instead of the actionable upgrade message. The patch mirrors migrate()'s version-mismatch error in OpenReadOnly without a write transaction; the StoreSchemaVersion code comment that promises 'checked on every open' is now actually true.",
+      "files": ["internal/store/store.go", "internal/store/store_test.go"]
+    }
+  ]
+}

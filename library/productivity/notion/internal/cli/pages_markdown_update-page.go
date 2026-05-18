@@ -120,6 +120,8 @@ func newPagesMarkdownUpdatePageCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin (advanced: full discriminated union body)")
+	// PATCH(markdown-import-flag): hand-added user-facing flag that wraps content
+	// in Notion's required {type: replace_content, replace_content: {...}} body.
 	cmd.Flags().StringVar(&markdownContent, "markdown", "", "Replace page content with this markdown string")
 
 	return cmd

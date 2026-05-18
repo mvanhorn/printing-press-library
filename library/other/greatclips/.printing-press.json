@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-11T17:28:31.353973Z",
+  "printing_press_version": "4.2.2",
+  "api_name": "greatclips",
+  "display_name": "Greatclips",
+  "cli_name": "greatclips-pp-cli",
+  "owner": "greatclips",
+  "printer": "mvanhorn",
+  "printer_name": "Matt Van Horn",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:ec4295ff26e8a9f486c96b953ead268ab0555c47a1572902881242cd5da29ea1",
+  "run_id": "20260511-095555",
+  "description": "First CLI for Great Clips Online Check-In: wait times, party check-in, and local wait history no other tool has.",
+  "mcp_binary": "greatclips-pp-mcp",
+  "mcp_tool_count": 9,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "GREATCLIPS_TOKEN"
+  ],
+  "auth_description": "Auth0 Bearer JWT from cid.greatclips.com tenant. Recommended onboarding:\n`auth login --chrome` to extract the token from a logged-in Chrome session.\nAlternatively, `auth login --token <jwt>` to paste an existing token,\nor set GREATCLIPS_TOKEN in the environment.\n",
+  "category": "other",
+  "novel_features": [
+    {
+      "name": "Live wait time at any salon",
+      "command": "wait",
+      "description": "Fetch real-time estimated wait minutes for a specific salon, signed with the ICS Net Check-In HMAC.",
+      "rationale": "Stylewaretouch.net rejects unsigned requests with HTTP 500 NPE; this CLI ports the SPA HMAC-SHA-256 signing scheme (verified byte-identical via golden vector test) so wait queries work outside the browser.",
+      "example": "greatclips-pp-cli wait --store-number 8991 --json",
+      "why_it_matters": "Lets an agent check whether to leave the house for a haircut without parking a human at the SPA.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Party check-in via CLI",
+      "command": "checkin",
+      "description": "Add yourself plus up to 4 additional party members to a salon waitlist with one command.",
+      "rationale": "The SPA submit flow requires HMAC signing plus a customer-audience HS512 JWT plus a non-obvious request body shape; this CLI ships the full pipeline.",
+      "example": "greatclips-pp-cli checkin --first-name Matt --last-name VanHorn --phone-number 5209076052 --salon-number 8991 --guests 4",
+      "why_it_matters": "Turns the click-through into one keystroke, agent-actionable.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Active check-in status lookup",
+      "command": "status",
+      "description": "Query the live position-in-line and estimated wait for the current accounts active check-in.",
+      "rationale": "Server-side state lookup using the HMAC + customer-aud Bearer pipeline.",
+      "example": "greatclips-pp-cli status --json",
+      "why_it_matters": "Watch the queue without refreshing a browser tab.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Cancel active check-in",
+      "command": "cancel",
+      "description": "Remove yourself from the salon waitlist without opening the SPA.",
+      "rationale": "Closes the lifecycle. Body shape and signing are non-trivial to reproduce; the CLI ships them.",
+      "example": "greatclips-pp-cli cancel",
+      "why_it_matters": "Plans change. The CLI handles the undo path too.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Customer profile lookup",
+      "command": "customer profile",
+      "description": "Fetch the authenticated customer profile (name, email, phone, favorite salons) via the Auth0 customer-audience token.",
+      "rationale": "Verifies the Auth0 silent-mint pipeline end-to-end and yields the profileId checkin needs.",
+      "example": "greatclips-pp-cli customer profile --json",
+      "why_it_matters": "Confirms auth is working and gives the profileId checkin needs.",
+      "group": "Auth foundation"
+    }
+  ]
+}

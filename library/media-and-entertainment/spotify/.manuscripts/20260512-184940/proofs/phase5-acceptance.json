@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "api_name": "spotify",
+  "run_id": "20260512-184940",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 13,
+  "tests_passed": 13,
+  "tests_failed": 0,
+  "auth_context": {
+    "type": "oauth2_authorization_code",
+    "api_key_available": true,
+    "browser_session_available": true
+  },
+  "notes": "Full live dogfood against a real Spotify account incl. playlist mutation lifecycle. PASS: auth login (RFC 8252 loopback redirect via 127.0.0.1), me get-current-users-profile, me get-users-top-tracks, me get-a-list-of-current-users-playlists, me get-the-users-currently-playing-track, artists albums get-an-artists (limit<=10), me create-playlist, playlists add-tracks (via --stdin), playlists dedupe, playlists diff, me unfollow-playlist, sync-extras (saved_tracks/saved_albums/followed_artists/top_*_snapshot/play_history/devices_seen), me save-library-items + check-library-contains + remove-library-items round-trip on a test track, me start-a-users-playback against a live speaker, play-on by friendly name (live speaker + cached-offline smartphone). T11 discover artist-gaps PASS after limit=10 pagination fix. T9/T10/T12 STRUCTURALLY BLOCKED by undocumented Spotify new-app deprecation (genres/popularity null on all artists, /browse/new-releases 403, /artists/{id}/albums limit cap, /playlists/{id}/tracks track:null for editorial playlists) — surfaces typed errors with hints rather than 500s. Discovered + fixed two query-vs-body bugs in generated me_save-library-items.go and me_remove-library-items.go (uris is in:query per spec, generator routed to body). Built and shipped T13 play-on with 18 unit tests, retro candidate filed for the generator-side fix at proofs/2026-05-12-retro-candidate-query-vs-body.md.",
+  "proof_files": [
+    "2026-05-12-phase5-acceptance.md",
+    "2026-05-12-retro-candidate-query-vs-body.md",
+    "SKILL.md"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "api_name": "cf-domain",
+  "run_id": "cf-domain-registrar-20260511-local-hardening",
+  "status": "pass",
+  "level": "quick",
+  "matrix_size": 4,
+  "tests_passed": 4,
+  "tests_skipped": 0,
+  "tests_failed": 0,
+  "auth_context": {
+    "type": "bearer_token",
+    "api_key_available": true
+  }
+}

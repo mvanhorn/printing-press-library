@@ -1,0 +1,77 @@
+{
+  "timestamp": "2026-05-17T22:29:49.576518231Z",
+  "cli_dir": "/tmp/printing-press/publish/tenderned-B0xA2r/package/library/sales-and-crm/tenderned",
+  "findings": [
+    {
+      "kind": "email",
+      "file": ".manuscripts/20260517-211252/research.json",
+      "line": 256,
+      "column": 214,
+      "matched_span": "functioneelbeheer@tenderned.nl",
+      "status": "accepted",
+      "category": "api_provider_data",
+      "evidence_context": "research.json narrative.auth_narrative: 'Only the full eForms XML endpoint requires a free username and password — request via functioneelbeheer@tenderned.nl, then export TENDERNED_USERNAME and TENDERNED_PASSWORD.' Vendor-published support contact from upstream OpenAPI info.contact.email; identical address already accepted at README.md, SKILL.md, brief, and spec locations."
+    },
+    {
+      "kind": "email",
+      "file": ".manuscripts/20260517-211252/research.json",
+      "line": 282,
+      "column": 131,
+      "matched_span": "functioneelbeheer@tenderned.nl",
+      "status": "accepted",
+      "category": "api_provider_data",
+      "evidence_context": "research.json narrative.troubleshoots[0].fix: '... request credentials from functioneelbeheer@tenderned.nl if you don't have them.' Same vendor-published support contact; documentation metadata, not customer PII."
+    },
+    {
+      "kind": "email",
+      "file": ".manuscripts/20260517-211252/research/2026-05-17-211252-feat-tenderned-pp-cli-brief.md",
+      "line": 26,
+      "column": 109,
+      "matched_span": "functioneelbeheer@tenderned.nl",
+      "status": "accepted",
+      "category": "api_provider_data",
+      "evidence_context": "Research brief inventorying endpoints: 'Base URL: https://www.tenderned.nl/papi/tenderned-rs-tns/v2. Auth required: HTTP Basic, request creds via functioneelbeheer@tenderned.nl.' Same vendor functional-management contact propagated from the upstream OpenAPI spec's info.contact.email."
+    },
+    {
+      "kind": "email",
+      "file": ".manuscripts/20260517-211252/research/tenderned-spec.yaml",
+      "line": 12,
+      "column": 28,
+      "matched_span": "functioneelbeheer@tenderned.nl",
+      "status": "accepted",
+      "category": "api_provider_data",
+      "evidence_context": "OpenAPI info.description body quoting the vendor's own auth instructions: 'Deze API is beveiligd via basic authentication (username/wachtwoord). Vraag deze aan via functioneelbeheer@tenderned.nl.' Verbatim from the published TenderNed spec at data.overheid.nl/dataset/26e6440b-1d39-4e28-8d18-57d987042622."
+    },
+    {
+      "kind": "email",
+      "file": ".manuscripts/20260517-211252/research/tenderned-spec.yaml",
+      "line": 22,
+      "column": 12,
+      "matched_span": "functioneelbeheer@tenderned.nl",
+      "status": "accepted",
+      "category": "api_provider_data",
+      "evidence_context": "OpenAPI info.contact.email field — the canonical vendor-published support address. Identical email per OpenAPI 3 spec convention; documentation metadata, not customer PII."
+    },
+    {
+      "kind": "email",
+      "file": "README.md",
+      "line": 102,
+      "column": 191,
+      "matched_span": "functioneelbeheer@tenderned.nl",
+      "status": "accepted",
+      "category": "api_provider_data",
+      "evidence_context": "Authentication section: 'Only the full eForms XML endpoint requires a free username and password — request via functioneelbeheer@tenderned.nl, then export TENDERNED_USERNAME...'. Official TenderNed functional-management contact taken from the spec.yaml info.contact.email and the upstream OpenAPI description (https://data.overheid.nl/dataset/26e6440b-1d39-4e28-8d18-57d987042622); vendor's published support address for requesting API credentials, not customer PII."
+    },
+    {
+      "kind": "email",
+      "file": "README.md",
+      "line": 375,
+      "column": 157,
+      "matched_span": "functioneelbeheer@tenderned.nl",
+      "status": "accepted",
+      "category": "api_provider_data",
+      "evidence_context": "Troubleshooting section: '401 Unauthorized on xml fetch — The eForms XML endpoint needs Basic auth. Set TENDERNED_USERNAME and TENDERNED_PASSWORD; request credentials from functioneelbeheer@tenderned.nl if you don't have them.' Same vendor-published support contact as the Authentication section finding above (README.md:102); originates from the upstream OpenAPI info.contact.email field at data.overheid.nl/dataset/26e6440b-1d39-4e28-8d18-57d987042622. Vendor's official support address for requesting API credentials, not customer PII. Line shifted from 309 to 375 after polish added a Cookbook section."
+    }
+  ],
+  "findings_count_before": 5
+}

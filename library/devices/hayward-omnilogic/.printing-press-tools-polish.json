@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-05-11T00:20:06.260366Z",
+  "cli_dir": "/Users/zehner/printing-press/.runstate/cli-printing-press-4573f43b/runs/20260510-160303/working/hayward-omnilogic-pp-cli",
+  "findings": [
+    {
+      "kind": "missing-read-only",
+      "command": "show",
+      "file": "omnilogic_commands.go",
+      "line": 789,
+      "evidence": "name matches read heuristic; no mcp:read-only annotation",
+      "status": "accepted",
+      "note": "'light show' activates a ColorLogic show (POSTs SetStandAloneLightShow). Despite the name 'show' matching the read heuristic, this is a write that mutates equipment state and requires no read-only annotation."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 7,
+    "captured": "2026-05-11T00:12:08.391981Z"
+  }
+}
