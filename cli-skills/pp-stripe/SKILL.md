@@ -952,5 +952,3 @@ Parse `$ARGUMENTS`:
    stripe-pp-cli <command> [subcommand] [args] --agent
    ```
 4. If ambiguous, drill into subcommand help: `stripe-pp-cli <command> --help`.
-
-<!-- workflow-touch -->
