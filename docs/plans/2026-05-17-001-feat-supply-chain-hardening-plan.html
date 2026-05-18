@@ -559,7 +559,7 @@ cli-printing-press/
       <li>Permissions: <code>contents: read</code> only. No <code>id-token</code>, no write permissions.</li>
       <li>Job runs Python 3.12, checks out the PR branch (default ref — safe under <code>pull_request</code>), runs <code>scan.py</code> with <code>--base-ref origin/${{ github.base_ref }}</code> and <code>--head-ref HEAD</code>.</li>
       <li>Concurrency: cancel-in-progress on the same PR.</li>
-      <li>Does <em>not</em> become a required check on day one. After a one-week green window, separately add it to branch protection via <code>matt-github-pat</code> per repo policy.</li>
+      <li>Does <em>not</em> become a required check on day one. After a one-week green window, separately add it to branch protection.</li>
     </ul>
   </div>
   <div class="field"><b>Patterns to follow:</b>
