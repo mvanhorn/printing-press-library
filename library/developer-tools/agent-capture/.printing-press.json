@@ -3,6 +3,7 @@
   "printer": "mvanhorn",
   "printer_name": "Matt Van Horn",
   "api_name": "agent-capture",
+  "description": "Record, screenshot, and convert macOS windows and screens for AI agent evidence",
   "printing_press_version": "0.4.0",
   "generated_at": "2026-04-05T19:25:10Z",
   "run_id": "20260405-115134",
