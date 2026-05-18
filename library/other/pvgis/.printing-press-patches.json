@@ -92,6 +92,17 @@
       "upstream_issue": "TBD — same generator-template fix as p2-toctou-window."
     },
     {
+      "id": "p1-zero-value-optional-params-sent",
+      "summary": "Gate the `loss`, `angle` (tilt), and `aspect` (azimuth) PVGIS params on `cmd.Flags().Changed(...)` instead of `!= 0.0` so an explicit zero is forwarded to the API instead of silently dropped.",
+      "reason": "Greptile review (P1) flagged that `--system-loss 0`, `--tilt 0` (horizontal panel), and `--azimuth 0` (south-facing) all became indistinguishable from 'flag not set' under the `!= 0.0` gate. PVGIS then substitutes its own defaults: `loss` defaults to 14% (so a user requesting 0% losses received +16% lower E_y), `angle` defaults to 0 (coincidence — no symptom), `aspect` defaults to 0 (also coincidence). The lat/lon fix already established that the right pattern is to check whether the user set the flag, not whether the value happens to be the type's zero. Applied to both production_monthly.go and production_hourly.go (`loss`, `angle`, `aspect`) plus promoted_radiation.go (`angle`, `aspect`). Each `Changed(...)` call checks both the primary flag name (`tilt`, `azimuth`, `system-loss`) and the hidden alias the generator emits (`angle`, `aspect`, `loss`).",
+      "files": [
+        "internal/cli/production_monthly.go",
+        "internal/cli/production_hourly.go",
+        "internal/cli/promoted_radiation.go"
+      ],
+      "validated_outcome": "Verified with --dry-run: `--system-loss 0` now emits `loss=0`; `--tilt 0 --azimuth 0` emits `angle=0&aspect=0`; not setting any of them omits all three (PVGIS server-side defaults still apply, as intended)."
+    },
+    {
       "id": "p1-no-sentinel-leak-on-inverted-bounds",
       "summary": "Reject inverted bounds (`--tilt-min > --tilt-max`, `--azimuth-min > --azimuth-max`) in `production sweep` and `production optimal-tilt` so the sentinel `e_y_kwh: -1` cannot leak into JSON output.",
       "reason": "Greptile review (P1) flagged that `best` was initialized with `EY: -1` (sweep) / `bestEY: -1.0` (optimal-tilt). With inverted bounds the loop body never executes, leaving the sentinel in place; the JSON output then carried `\"e_y_kwh\": -1` / `\"best_e_y\": -1` with `count: 0`. A machine consumer would have to cross-check `count` to know the value is bogus. Added an explicit pre-check that returns a clear `--tilt-min (X) must be <= --tilt-max (Y)` error before any API call.",

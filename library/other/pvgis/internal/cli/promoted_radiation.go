@@ -57,10 +57,13 @@ func newRadiationPromotedCmd(flags *rootFlags) *cobra.Command {
 			if flagSelectrad != 0 {
 				params["selectrad"] = fmt.Sprintf("%v", flagSelectrad)
 			}
-			if flagAngle != 0.0 {
+			// PATCH(p1-zero-value-optional-params-sent): same fix as in
+			// production_*.go — gate on Changed so --tilt 0 / --azimuth 0
+			// are sent to PVGIS instead of silently dropped.
+			if cmd.Flags().Changed("tilt") || cmd.Flags().Changed("angle") {
 				params["angle"] = fmt.Sprintf("%v", flagAngle)
 			}
-			if flagAspect != 0.0 {
+			if cmd.Flags().Changed("azimuth") || cmd.Flags().Changed("aspect") {
 				params["aspect"] = fmt.Sprintf("%v", flagAspect)
 			}
 			if flagOptrad != 0 {

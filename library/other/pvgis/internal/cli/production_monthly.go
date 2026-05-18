@@ -54,13 +54,18 @@ func newProductionMonthlyCmd(flags *rootFlags) *cobra.Command {
 			if flagPeakpower != 0.0 {
 				params["peakpower"] = fmt.Sprintf("%v", flagPeakpower)
 			}
-			if flagLoss != 0.0 {
+			// PATCH(p1-zero-value-optional-params-sent): pass `Changed` to
+			// distinguish "user didn't set" from "user explicitly set 0".
+			// 0% loss, 0° tilt (horizontal), 0° azimuth (south-facing) are
+			// all valid user inputs that the generator's `!=0.0` gate would
+			// silently swallow and replace with PVGIS's defaults (14%, 0, 0).
+			if cmd.Flags().Changed("system-loss") || cmd.Flags().Changed("loss") {
 				params["loss"] = fmt.Sprintf("%v", flagLoss)
 			}
-			if flagAngle != 0.0 {
+			if cmd.Flags().Changed("tilt") || cmd.Flags().Changed("angle") {
 				params["angle"] = fmt.Sprintf("%v", flagAngle)
 			}
-			if flagAspect != 0.0 {
+			if cmd.Flags().Changed("azimuth") || cmd.Flags().Changed("aspect") {
 				params["aspect"] = fmt.Sprintf("%v", flagAspect)
 			}
 			if flagPvtechchoice != "" {
