@@ -247,7 +247,7 @@ func scanAssets(db *sql.DB, q string, args ...any) ([]Asset, error) {
 		var a Asset
 		var created float64
 		if err := rows.Scan(&a.UUID, &a.Filename, &a.SizeBytes, &a.Kind, &created); err != nil {
-			continue
+			return nil, fmt.Errorf("scan asset row: %w", err)
 		}
 		a.Date = time.Unix(int64(created)+coreDataEpoch, 0)
 		out = append(out, a)
@@ -266,7 +266,7 @@ func scanStorageRows(db *sql.DB, q string, args ...any) ([]StorageRow, error) {
 	for rows.Next() {
 		var r StorageRow
 		if err := rows.Scan(&r.Label, &r.Count, &r.SizeBytes); err != nil {
-			continue
+			return nil, fmt.Errorf("scan storage row: %w", err)
 		}
 		out = append(out, r)
 	}
