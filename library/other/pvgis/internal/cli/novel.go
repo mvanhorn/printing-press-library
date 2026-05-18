@@ -7,6 +7,7 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
+	"io"
 	"math"
 	"os"
 	"sort"
@@ -186,8 +187,11 @@ func readSitesCSV(path string) ([]siteRow, error) {
 	var sites []siteRow
 	for {
 		rec, err := r.Read()
-		if err != nil {
+		if err == io.EOF {
 			break
+		}
+		if err != nil {
+			return nil, fmt.Errorf("reading CSV: %w", err)
 		}
 		if len(rec) <= colLat || len(rec) <= colLon {
 			continue
@@ -476,10 +480,10 @@ func newProductionSweepCmd(flags *rootFlags) *cobra.Command {
 						return fmt.Errorf("PVcalc tilt=%.1f az=%.1f: %w", t, a, err)
 					}
 					ey, _ := extractEY(resp)
-					c := cell{Tilt: t, Azimuth: a, EY: ey}
-					cells = append(cells, c)
+					pt := cell{Tilt: t, Azimuth: a, EY: ey}
+					cells = append(cells, pt)
 					if ey > best.EY {
-						best = c
+						best = pt
 					}
 				}
 			}

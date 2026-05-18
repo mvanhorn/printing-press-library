@@ -53,6 +53,22 @@
       "files": [
         "internal/cli/novel.go"
       ]
+    },
+    {
+      "id": "readsitescsv-no-silent-truncation",
+      "summary": "Surface `csv.Reader.Read()` parse errors from `readSitesCSV` instead of treating them as EOF.",
+      "reason": "Greptile review on the publish PR (P1) flagged that the original loop broke on any non-nil error, silently truncating the site list on a malformed CSV row. The new loop matches on `io.EOF` and returns wrapped errors for everything else, so `sites rank` and `weather similar` surface the failure instead of returning partial results.",
+      "files": [
+        "internal/cli/novel.go"
+      ]
+    },
+    {
+      "id": "production-sweep-no-cell-shadow",
+      "summary": "Rename the `cell` value in `production sweep`'s inner loop from `c` to `pt` so it no longer shadows the API client.",
+      "reason": "Greptile review (P2) flagged variable shadowing — the inner-loop `c := cell{...}` shadowed the outer API client `c`. No current runtime bug (the `pvgisPVcalc(c, ...)` call happens before the shadow), but any future edit that moves the call below the shadow would silently fail. Renamed to remove the trap.",
+      "files": [
+        "internal/cli/novel.go"
+      ]
     }
   ]
 }
