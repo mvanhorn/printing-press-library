@@ -71,7 +71,17 @@ and webhooks that no single Nylas API call returns.`,
 			defer db.Close()
 
 			if limit > 0 && !strings.Contains(strings.ToLower(query), " limit ") {
-				query = fmt.Sprintf("%s LIMIT %d", query, limit)
+				// Wrap SELECT/WITH queries in a subquery so the appended
+				// LIMIT can't be commented out by a trailing `--` line
+				// comment or `/* */` block comment at the end of the
+				// user's query. EXPLAIN/PRAGMA don't compose under
+				// SELECT-FROM, so leave those alone — --limit doesn't
+				// meaningfully bound them anyway.
+				lower := strings.ToLower(strings.TrimSpace(query))
+				if strings.HasPrefix(lower, "select") || strings.HasPrefix(lower, "with") {
+					inner := strings.TrimRight(strings.TrimSpace(query), ";")
+					query = fmt.Sprintf("SELECT * FROM (%s) LIMIT %d", inner, limit)
+				}
 			}
 
 			rows, err := db.DB().QueryContext(cmd.Context(), query)
@@ -110,30 +120,75 @@ and webhooks that no single Nylas API call returns.`,
 	return cmd
 }
 
-// stripSQLStringLiterals removes the contents of single-quoted string
-// literals from a SQL query so a keyword scan can't be tripped by harmless
-// text inside a LIKE pattern or WHERE-clause comparison. Handles doubled
-// single-quotes ('') as the standard SQL escape for an embedded quote.
+// stripSQLStringLiterals removes the contents of constructs in a SQL
+// query that can legitimately contain mutation keywords without those
+// keywords being executable: single-quoted string literals, double-
+// quoted identifiers, line comments (`-- …` to end-of-line), and
+// block comments (`/* … */`). Handles SQL's doubled-quote escape for
+// both `''` inside strings and `""` inside identifiers.
+//
 // This is a conservative approximation, not a real SQL parser — the
-// driver-level mode=ro flag is what actually prevents writes; this helper
-// only exists so the defence-in-depth regex doesn't produce false positives.
+// driver-level mode=ro flag in OpenReadOnly is what actually prevents
+// writes; this helper only exists so the defence-in-depth regex
+// doesn't produce false positives on legitimate read-only queries
+// like `SELECT "create" FROM t` or `SELECT /* update later */ id FROM t`.
 func stripSQLStringLiterals(q string) string {
 	var b strings.Builder
 	b.Grow(len(q))
-	inStr := false
-	for i := 0; i < len(q); i++ {
+	n := len(q)
+	for i := 0; i < n; i++ {
 		c := q[i]
+		// Single-quoted string literal: scan to closing quote, honour '' escape.
 		if c == '\'' {
-			if inStr && i+1 < len(q) && q[i+1] == '\'' {
+			i++
+			for i < n {
+				if q[i] == '\'' {
+					if i+1 < n && q[i+1] == '\'' {
+						i += 2
+						continue
+					}
+					break
+				}
 				i++
-				continue
 			}
-			inStr = !inStr
 			continue
 		}
-		if !inStr {
-			b.WriteByte(c)
+		// Double-quoted identifier: scan to closing quote, honour "" escape.
+		if c == '"' {
+			i++
+			for i < n {
+				if q[i] == '"' {
+					if i+1 < n && q[i+1] == '"' {
+						i += 2
+						continue
+					}
+					break
+				}
+				i++
+			}
+			continue
 		}
+		// Line comment `--`: skip to end of line.
+		if c == '-' && i+1 < n && q[i+1] == '-' {
+			i += 2
+			for i < n && q[i] != '\n' {
+				i++
+			}
+			continue
+		}
+		// Block comment `/* ... */`: skip to closing `*/`.
+		if c == '/' && i+1 < n && q[i+1] == '*' {
+			i += 2
+			for i+1 < n {
+				if q[i] == '*' && q[i+1] == '/' {
+					i++
+					break
+				}
+				i++
+			}
+			continue
+		}
+		b.WriteByte(c)
 	}
 	return b.String()
 }

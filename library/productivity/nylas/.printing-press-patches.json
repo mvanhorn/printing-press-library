@@ -63,6 +63,12 @@
       "summary": "Replace `time.Sleep(wait)` in 429 and 5xx retry paths with `select { case <-ctx.Done(): ...; case <-time.After(wait): }` so Ctrl+C is responsive during backoff waits.",
       "reason": "Greptile P2 review finding on PR #676 (fifth pass summary): Retry-After backoffs can be tens of seconds; bare time.Sleep ignores cmd.Context() cancellation, so Ctrl+C would not interrupt a long rate-limit wait. The context plumbing from the third-pass patch is already wired into do(); this completes the chain by honouring it during backoff as well as during the in-flight request.",
       "files": ["internal/client/client.go"]
+    },
+    {
+      "id": "sql-limit-subquery-wrap-and-strip-comments-idents",
+      "summary": "Wrap SELECT/WITH queries in `SELECT * FROM (<query>) LIMIT N` when --limit is appended so trailing line/block comments can't comment out the LIMIT; extend stripSQLStringLiterals to also skip `\"…\"` identifiers, `--` line comments, and `/* … */` block comments before the mutation-keyword check.",
+      "reason": "Greptile P2 review findings on PR #676 (sixth pass summary, 5/5 confidence): (1) `--limit N` appended via Sprintf was silently swallowed when the user's query ended with a trailing comment, yielding unbounded rows with no error; subquery-wrap makes the LIMIT non-bypassable. (2) The mutation-keyword regex still false-positived on `SELECT \"create\" FROM messages` (double-quoted identifier) and `SELECT /* update later */ id FROM messages` (block comment) because stripSQLStringLiterals only handled single-quoted strings. Both are now stripped before the keyword scan. Driver-level mode=ro remains the real write barrier; these are usability fixes to the defence-in-depth layer.",
+      "files": ["internal/cli/sql.go"]
     }
   ]
 }
