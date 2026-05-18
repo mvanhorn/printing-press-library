@@ -32,7 +32,7 @@ Sizes reflect the original file — useful for deciding what to delete from iClo
 			}
 			db, err := openPhotosDB(f.libraryPath)
 			if err != nil {
-				return configErr(err)
+				return err
 			}
 			defer db.Close()
 

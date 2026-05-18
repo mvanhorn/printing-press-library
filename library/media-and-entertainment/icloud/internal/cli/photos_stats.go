@@ -17,7 +17,7 @@ func newStatsCmd(f *rootFlags) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			db, err := openPhotosDB(f.libraryPath)
 			if err != nil {
-				return configErr(err)
+				return err
 			}
 			defer db.Close()
 

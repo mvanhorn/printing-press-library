@@ -49,7 +49,7 @@ Get UUIDs from:  icloud-pp-cli photos top --json | jq '.[].uuid'`,
 			// Preview what will be deleted
 			db, err := openPhotosDB(f.libraryPath)
 			if err != nil {
-				return configErr(err)
+				return err
 			}
 			assets, err := queryByUUIDs(db, uuids)
 			db.Close()

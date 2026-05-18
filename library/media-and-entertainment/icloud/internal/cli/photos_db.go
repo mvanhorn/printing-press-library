@@ -71,7 +71,7 @@ func openPhotosDB(libraryPath string) (*sql.DB, error) {
 	u := &url.URL{
 		Scheme:   "file",
 		Path:     libraryPath,
-		RawQuery: "mode=ro&_busy_timeout=5000",
+		RawQuery: "mode=ro&_busy_timeout=5000&_query_only=1",
 	}
 	db, err := sql.Open("sqlite", u.String())
 	if err != nil {
@@ -102,11 +102,11 @@ func queryLargestVideos(db *sql.DB, limit int, year, month int) ([]Asset, error)
 	`
 	args := []any{}
 	if year > 0 {
-		q += " AND CAST(strftime('%Y', datetime(a.ZDATECREATED + 978307200, 'unixepoch')) AS INTEGER) = ?"
+		q += fmt.Sprintf(" AND CAST(strftime('%%Y', datetime(a.ZDATECREATED + %d, 'unixepoch')) AS INTEGER) = ?", coreDataEpoch)
 		args = append(args, year)
 	}
 	if month > 0 {
-		q += " AND CAST(strftime('%m', datetime(a.ZDATECREATED + 978307200, 'unixepoch')) AS INTEGER) = ?"
+		q += fmt.Sprintf(" AND CAST(strftime('%%m', datetime(a.ZDATECREATED + %d, 'unixepoch')) AS INTEGER) = ?", coreDataEpoch)
 		args = append(args, month)
 	}
 	q += " ORDER BY aa.ZORIGINALFILESIZE DESC"
@@ -135,9 +135,9 @@ func queryStorageByType(db *sql.DB) ([]StorageRow, error) {
 
 // queryStorageByYear returns totals grouped by year.
 func queryStorageByYear(db *sql.DB) ([]StorageRow, error) {
-	q := `
+	q := fmt.Sprintf(`
 		SELECT
-			strftime('%Y', datetime(a.ZDATECREATED + 978307200, 'unixepoch')),
+			strftime('%%Y', datetime(a.ZDATECREATED + %d, 'unixepoch')),`, coreDataEpoch) + `
 			COUNT(*),
 			SUM(COALESCE(aa.ZORIGINALFILESIZE, 0))
 		FROM ZASSET a

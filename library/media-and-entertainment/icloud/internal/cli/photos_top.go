@@ -34,7 +34,7 @@ Use --type to narrow to a specific kind.`,
 
 			db, err := openPhotosDB(f.libraryPath)
 			if err != nil {
-				return configErr(err)
+				return err
 			}
 			defer db.Close()
 
