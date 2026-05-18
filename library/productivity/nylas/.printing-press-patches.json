@@ -21,6 +21,18 @@
       "summary": "Require http/https scheme and loopback host on --to by default; add --allow-remote escape hatch.",
       "reason": "Greptile P2 security finding on PR #676: url.Parse only validates syntax, so agent-loop driven --to values could replay payloads to arbitrary external or internal-metadata endpoints (SSRF). Loopback-only default matches the documented 'local handler URL' intent.",
       "files": ["internal/cli/webhook_replay.go"]
+    },
+    {
+      "id": "send-interactive-confirm",
+      "summary": "Add interactive confirmation in grants_messages_send.go before the outbound POST; --yes / --agent / --no-input / --dry-run all bypass.",
+      "reason": "Greptile P1 review finding on PR #676: the PR description promises an interactive confirmation that --yes (or --agent) bypasses, but the generated send command dispatched the API call immediately with no guard. Non-interactive shells without --yes now fail explicitly instead of either prompting blindly or sending silently.",
+      "files": ["internal/cli/grants_messages_send.go"]
+    },
+    {
+      "id": "sql-mutation-string-literal-strip",
+      "summary": "Strip single-quoted string literals before the sqlMutationRE keyword check so legitimate read-only queries that mention mutation keywords inside LIKE patterns are not falsely rejected.",
+      "reason": "Greptile P2 review finding on PR #676: queries like `SELECT body FROM grants_messages WHERE body LIKE '%insert%'` were rejected by the defence-in-depth regex even though OpenReadOnly's mode=ro is the real write barrier and the query is harmless. The strip handles SQL-standard '' escaping for embedded quotes.",
+      "files": ["internal/cli/sql.go"]
     }
   ]
 }

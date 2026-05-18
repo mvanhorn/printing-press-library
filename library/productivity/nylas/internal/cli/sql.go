@@ -52,8 +52,13 @@ and webhooks that no single Nylas API call returns.`,
 			if !sqlReadOnlyRE.MatchString(query) {
 				return fmt.Errorf("only SELECT/WITH/EXPLAIN/PRAGMA queries are allowed (got: %q)", firstWord(query))
 			}
-			if sqlMutationRE.MatchString(query) {
-				return fmt.Errorf("query contains a mutation keyword; sql is read-only")
+			// Strip single-quoted string literals before the mutation-keyword
+			// check so harmless reads that mention those keywords inside LIKE
+			// patterns (e.g. `WHERE body LIKE '%insert%'`) are not rejected.
+			// The driver-level mode=ro flag in OpenReadOnly is the actual write
+			// barrier; this regex is defence-in-depth on top of that.
+			if sqlMutationRE.MatchString(stripSQLStringLiterals(query)) {
+				return fmt.Errorf("query contains a mutation keyword outside string literals; sql is read-only")
 			}
 			if dbPath == "" {
 				dbPath = defaultDBPath("nylas-pp-cli")
@@ -103,6 +108,34 @@ and webhooks that no single Nylas API call returns.`,
 	cmd.Flags().StringVar(&dbPath, "db", "", "Path to the local SQLite database (default: $HOME/.nylas-pp-cli.db)")
 	cmd.Flags().IntVar(&limit, "limit", 0, "Append LIMIT N if the query has no explicit LIMIT (0 = no cap)")
 	return cmd
+}
+
+// stripSQLStringLiterals removes the contents of single-quoted string
+// literals from a SQL query so a keyword scan can't be tripped by harmless
+// text inside a LIKE pattern or WHERE-clause comparison. Handles doubled
+// single-quotes ('') as the standard SQL escape for an embedded quote.
+// This is a conservative approximation, not a real SQL parser — the
+// driver-level mode=ro flag is what actually prevents writes; this helper
+// only exists so the defence-in-depth regex doesn't produce false positives.
+func stripSQLStringLiterals(q string) string {
+	var b strings.Builder
+	b.Grow(len(q))
+	inStr := false
+	for i := 0; i < len(q); i++ {
+		c := q[i]
+		if c == '\'' {
+			if inStr && i+1 < len(q) && q[i+1] == '\'' {
+				i++
+				continue
+			}
+			inStr = !inStr
+			continue
+		}
+		if !inStr {
+			b.WriteByte(c)
+		}
+	}
+	return b.String()
 }
 
 func firstWord(s string) string {

@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -187,6 +188,32 @@ func newGrantsMessagesSendCmd(flags *rootFlags) *cobra.Command {
 				}
 				if bodyUseDraft != false {
 					body["use_draft"] = bodyUseDraft
+				}
+			}
+			// PATCH(send-confirm): interactive confirmation before dispatching the
+			// outbound message. The PR description explicitly promises that
+			// --yes / --agent bypasses an interactive prompt, so the prompt
+			// must exist here. --dry-run already short-circuits earlier; we
+			// only reach this point when the user genuinely intends to send.
+			if !flags.dryRun && !flags.yes && !flags.noInput {
+				if !isTerminal(cmd.OutOrStdout()) {
+					return fmt.Errorf("refusing to send without confirmation in a non-interactive shell — pass --yes (or --agent) to bypass, or --dry-run to preview the wire payload")
+				}
+				to := bodyTo
+				if to == "" {
+					if v, ok := body["to"]; ok {
+						if b, e := json.Marshal(v); e == nil {
+							to = string(b)
+						}
+					}
+				}
+				subject := bodySubject
+				fmt.Fprintf(cmd.ErrOrStderr(), "About to POST %s\n  to:      %s\n  subject: %s\nProceed? [y/N]: ", path, to, subject)
+				var resp string
+				_, _ = fmt.Fscanln(cmd.InOrStdin(), &resp)
+				resp = strings.TrimSpace(strings.ToLower(resp))
+				if resp != "y" && resp != "yes" {
+					return fmt.Errorf("send cancelled by user")
 				}
 			}
 			data, statusCode, err := c.PostWithParams(path, params, body)
