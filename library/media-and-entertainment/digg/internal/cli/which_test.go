@@ -83,6 +83,16 @@ func TestRankWhich_NoMatchReturnsEmpty(t *testing.T) {
 	}
 }
 
+func TestWhichIndex_ResolvesTopicSearch(t *testing.T) {
+	got := rankWhich(whichIndex, "topic search", 3)
+	if len(got) == 0 {
+		t.Fatalf("expected topic search to resolve to search, got zero matches")
+	}
+	if got[0].Entry.Command != "search" {
+		t.Fatalf("top match: want search, got %s (%+v)", got[0].Entry.Command, got)
+	}
+}
+
 // Sanity: whichIndex compiles and is well-formed. Generated CLIs with
 // zero NovelFeatures ship an empty index, and that is still a valid
 // state (which returns the "no curated index" error at runtime).

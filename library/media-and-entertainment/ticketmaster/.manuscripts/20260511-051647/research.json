@@ -1,0 +1,320 @@
+{
+  "api_name": "ticketmaster",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "delorenj/mcp-server-ticketmaster",
+      "url": "https://github.com/delorenj/mcp-server-ticketmaster",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 7,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "mochow13/ticketmaster-mcp-server",
+      "url": "https://github.com/mochow13/ticketmaster-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 7,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "arcward/ticketpy",
+      "url": "https://github.com/arcward/ticketpy",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 9,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "arcward/picketer",
+      "url": "https://github.com/arcward/picketer",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 9,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "npm:ticketmaster",
+      "url": "https://www.npmjs.com/package/ticketmaster",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 13,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "konfig-sdks/ticketmaster-python-sdk",
+      "url": "https://github.com/konfig-sdks/ticketmaster-python-sdk",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 13,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-11T05:25:00Z",
+  "novel_features": [
+    {
+      "name": "Multi-venue watchlist sweep",
+      "command": "events upcoming",
+      "description": "Fan out across a venue ID file or list and return one merged, deduplicated, date-sorted event list — the watchlist primitive behind any curated 'what's on at my venues' workflow.",
+      "rationale": "Discovery API has no multi-venue endpoint; pulling per-venue and merging requires a local store and dedup logic.",
+      "example": "ticketmaster-pp-cli events upcoming --venue-ids KovZ917Ahkk,KovZpZAFkvEA --days 60 --json",
+      "why_it_matters": "When the user has a curated list of venues they care about and wants one merged feed; replaces hand-rolled per-venue fan-out scripts.",
+      "group": "Local-store aggregations"
+    },
+    {
+      "name": "Residency collapse",
+      "command": "events residency",
+      "description": "Collapse runs of same-name + same-venue events into one row per residency with first_date, last_date, night_count, and id_list — so a 16-night opera season shows as one entry, not 16.",
+      "rationale": "Requires cross-row GROUP BY over the local events table; the API returns every performance independently with no dedup signal.",
+      "example": "ticketmaster-pp-cli events residency --window 28 --json",
+      "why_it_matters": "When listing upcoming events would otherwise show many near-duplicate rows for Broadway tours, opera seasons, or comedy residencies.",
+      "group": "Local-store aggregations"
+    },
+    {
+      "name": "Attraction tour view with on-sale flag",
+      "command": "events tour",
+      "description": "For a given attraction (artist/team/touring show), return every upcoming event sorted by date, with city, venue, on-sale status, and a flag for events going on-sale within 7 days.",
+      "rationale": "Joins local events × attractions and parses dates.status.code + sales.public.startDateTime per event; no single API call returns this view.",
+      "example": "ticketmaster-pp-cli events tour KovZ917Ahkk --on-sale-window 7 --json",
+      "why_it_matters": "When tracking an artist across cities or watching for presale windows.",
+      "group": "Tour \u0026 on-sale tracking"
+    },
+    {
+      "name": "On-sale-soon scanner",
+      "command": "events on-sale-soon",
+      "description": "Local query for events whose public on-sale falls in the next N days, sorted ascending — the canonical 'presale watch' view that no API endpoint provides.",
+      "rationale": "Requires filtering on sales.public.startDateTime against the current time, which is only feasible after the events are in the local store.",
+      "example": "ticketmaster-pp-cli events on-sale-soon --window 7 --classification rock --json",
+      "why_it_matters": "When the user wants to be alerted to upcoming on-sale dates without polling each artist manually.",
+      "group": "Tour \u0026 on-sale tracking"
+    },
+    {
+      "name": "Classification bucketing",
+      "command": "events by-classification",
+      "description": "Local join of events × classifications, grouped by segment and genre, with event count and three example events per leaf — the bucketed view newsletter authors and local-scene trackers reach for.",
+      "rationale": "Requires GROUP BY across local events and classifications tables; the API returns one classification per event but offers no aggregation.",
+      "example": "ticketmaster-pp-cli events by-classification --dma 383 --window 60 --json",
+      "why_it_matters": "When summarizing 'what's on this month' broken down by music vs theatre vs comedy vs sports.",
+      "group": "Local-store aggregations"
+    },
+    {
+      "name": "Named persistent watchlists",
+      "command": "events watchlist",
+      "description": "Save, list, run, and remove named filter sets (venue IDs, attraction IDs, segments, DMA IDs) that persist across runs in the local SQLite store — the generic primitive any curated 'my venues' workflow composes from.",
+      "rationale": "Watchlists are stored locally in a new SQLite table; the API has no concept of named filter sets.",
+      "example": "ticketmaster-pp-cli events watchlist save seattle --venue-ids KovZ917Ahkk,KovZpZAFkvEA,KovZpZA1klkA",
+      "why_it_matters": "When the same curated venue/artist/genre filter recurs across many queries.",
+      "group": "Local-store aggregations"
+    },
+    {
+      "name": "Stream-shaped dedup",
+      "command": "events dedup",
+      "description": "Read an event JSON array from stdin or the local store, apply a deduplication strategy (name+venue+date, or tour-leg), and write the deduped stream to stdout — composes with any upstream command.",
+      "rationale": "Mechanical filter that works on any event JSON; agent-friendly because it's stateless and pipeable.",
+      "example": "ticketmaster-pp-cli events list --keyword phish --json | ticketmaster-pp-cli events dedup --strategy tour-leg",
+      "why_it_matters": "When merging results from multiple queries or sources and the duplicates need to be removed before agent processing.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Markdown what's-on brief",
+      "command": "events brief",
+      "description": "Render a markdown 'what's on' report grouped by night → venue → events with classification labels and price bands, suitable for newsletter, Obsidian, iMessage, or agent context.",
+      "rationale": "Local query plus mechanical group-by + markdown formatting; no API endpoint produces formatted reports.",
+      "example": "ticketmaster-pp-cli events brief --dma 383 --window 7",
+      "why_it_matters": "When the user needs a paste-ready event summary for a chat thread, newsletter, or LLM context.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Price-band distribution",
+      "command": "events price-bands",
+      "description": "Bucket events by priceRanges.min into \u003c$50 / $50-100 / $100-200 / $200+ bands and report count + sample events per band, grouped by classification.",
+      "rationale": "Pure local SQL aggregation over priceRanges; the API does not aggregate price data.",
+      "example": "ticketmaster-pp-cli events price-bands --dma 383 --window 30 --json",
+      "why_it_matters": "When the user wants to know where the affordable shows are this month, or how a venue's pricing skews.",
+      "group": "Local-store aggregations"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Multi-venue watchlist sweep",
+      "command": "events upcoming",
+      "description": "Fan out across a venue ID file or list and return one merged, deduplicated, date-sorted event list — the watchlist primitive behind any curated 'what's on at my venues' workflow.",
+      "rationale": "Discovery API has no multi-venue endpoint; pulling per-venue and merging requires a local store and dedup logic.",
+      "example": "ticketmaster-pp-cli events upcoming --venue-ids KovZ917Ahkk,KovZpZAFkvEA --days 60 --json",
+      "why_it_matters": "When the user has a curated list of venues they care about and wants one merged feed; replaces hand-rolled per-venue fan-out scripts.",
+      "group": "Local-store aggregations"
+    },
+    {
+      "name": "Residency collapse",
+      "command": "events residency",
+      "description": "Collapse runs of same-name + same-venue events into one row per residency with first_date, last_date, night_count, and id_list — so a 16-night opera season shows as one entry, not 16.",
+      "rationale": "Requires cross-row GROUP BY over the local events table; the API returns every performance independently with no dedup signal.",
+      "example": "ticketmaster-pp-cli events residency --window 28 --json",
+      "why_it_matters": "When listing upcoming events would otherwise show many near-duplicate rows for Broadway tours, opera seasons, or comedy residencies.",
+      "group": "Local-store aggregations"
+    },
+    {
+      "name": "Attraction tour view with on-sale flag",
+      "command": "events tour",
+      "description": "For a given attraction (artist/team/touring show), return every upcoming event sorted by date, with city, venue, on-sale status, and a flag for events going on-sale within 7 days.",
+      "rationale": "Joins local events × attractions and parses dates.status.code + sales.public.startDateTime per event; no single API call returns this view.",
+      "example": "ticketmaster-pp-cli events tour KovZ917Ahkk --on-sale-window 7 --json",
+      "why_it_matters": "When tracking an artist across cities or watching for presale windows.",
+      "group": "Tour \u0026 on-sale tracking"
+    },
+    {
+      "name": "On-sale-soon scanner",
+      "command": "events on-sale-soon",
+      "description": "Local query for events whose public on-sale falls in the next N days, sorted ascending — the canonical 'presale watch' view that no API endpoint provides.",
+      "rationale": "Requires filtering on sales.public.startDateTime against the current time, which is only feasible after the events are in the local store.",
+      "example": "ticketmaster-pp-cli events on-sale-soon --window 7 --classification rock --json",
+      "why_it_matters": "When the user wants to be alerted to upcoming on-sale dates without polling each artist manually.",
+      "group": "Tour \u0026 on-sale tracking"
+    },
+    {
+      "name": "Classification bucketing",
+      "command": "events by-classification",
+      "description": "Local join of events × classifications, grouped by segment and genre, with event count and three example events per leaf — the bucketed view newsletter authors and local-scene trackers reach for.",
+      "rationale": "Requires GROUP BY across local events and classifications tables; the API returns one classification per event but offers no aggregation.",
+      "example": "ticketmaster-pp-cli events by-classification --dma 383 --window 60 --json",
+      "why_it_matters": "When summarizing 'what's on this month' broken down by music vs theatre vs comedy vs sports.",
+      "group": "Local-store aggregations"
+    },
+    {
+      "name": "Named persistent watchlists",
+      "command": "events watchlist",
+      "description": "Save, list, run, and remove named filter sets (venue IDs, attraction IDs, segments, DMA IDs) that persist across runs in the local SQLite store — the generic primitive any curated 'my venues' workflow composes from.",
+      "rationale": "Watchlists are stored locally in a new SQLite table; the API has no concept of named filter sets.",
+      "example": "ticketmaster-pp-cli events watchlist save seattle --venue-ids KovZ917Ahkk,KovZpZAFkvEA,KovZpZA1klkA",
+      "why_it_matters": "When the same curated venue/artist/genre filter recurs across many queries.",
+      "group": "Local-store aggregations"
+    },
+    {
+      "name": "Stream-shaped dedup",
+      "command": "events dedup",
+      "description": "Read an event JSON array from stdin or the local store, apply a deduplication strategy (name+venue+date, or tour-leg), and write the deduped stream to stdout — composes with any upstream command.",
+      "rationale": "Mechanical filter that works on any event JSON; agent-friendly because it's stateless and pipeable.",
+      "example": "ticketmaster-pp-cli events list --keyword phish --json | ticketmaster-pp-cli events dedup --strategy tour-leg",
+      "why_it_matters": "When merging results from multiple queries or sources and the duplicates need to be removed before agent processing.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Markdown what's-on brief",
+      "command": "events brief",
+      "description": "Render a markdown 'what's on' report grouped by night → venue → events with classification labels and price bands, suitable for newsletter, Obsidian, iMessage, or agent context.",
+      "rationale": "Local query plus mechanical group-by + markdown formatting; no API endpoint produces formatted reports.",
+      "example": "ticketmaster-pp-cli events brief --dma 383 --window 7",
+      "why_it_matters": "When the user needs a paste-ready event summary for a chat thread, newsletter, or LLM context.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Price-band distribution",
+      "command": "events price-bands",
+      "description": "Bucket events by priceRanges.min into \u003c$50 / $50-100 / $100-200 / $200+ bands and report count + sample events per band, grouped by classification.",
+      "rationale": "Pure local SQL aggregation over priceRanges; the API does not aggregate price data.",
+      "example": "ticketmaster-pp-cli events price-bands --dma 383 --window 30 --json",
+      "why_it_matters": "When the user wants to know where the affordable shows are this month, or how a venue's pricing skews.",
+      "group": "Local-store aggregations"
+    }
+  ],
+  "narrative": {
+    "display_name": "Ticketmaster",
+    "headline": "Every Discovery v2 endpoint plus offline search, multi-venue watchlists, residency dedup, and on-sale tracking no API call exposes.",
+    "value_prop": "ticketmaster-pp-cli is the first single-binary CLI for the Ticketmaster Discovery API. It absorbs the full read-only surface (events, venues, attractions, classifications, suggest) and adds a local SQLite store with FTS search, named watchlists, residency collapse, tour-view with on-sale flags, and markdown briefs — the workflows real users built scripts to handle.",
+    "auth_narrative": "Authentication is a single Ticketmaster Discovery API consumer key, passed as the `apikey` query parameter on every request. Register at https://developer-acct.ticketmaster.com and copy the Consumer Key from your My Apps dashboard. Set TICKETMASTER_API_KEY in your shell environment. The free tier allows 5000 requests/day at 5/second.",
+    "quickstart": [
+      {
+        "command": "ticketmaster-pp-cli doctor",
+        "comment": "Verifies the API key is set, the Discovery API is reachable, and the local store is initialized."
+      },
+      {
+        "command": "ticketmaster-pp-cli sync",
+        "comment": "Sync the API surface into the local SQLite store for offline search and aggregation."
+      },
+      {
+        "command": "ticketmaster-pp-cli events upcoming --venue-ids KovZ917Ahkk,KovZpZAFkvEA --days 60 --json",
+        "comment": "Fan out across multiple venues and return one merged event list."
+      },
+      {
+        "command": "ticketmaster-pp-cli events residency --window 28 --json",
+        "comment": "Collapse Broadway/opera residencies into single rows with first/last date and night count."
+      },
+      {
+        "command": "ticketmaster-pp-cli events brief --dma 383 --window 7",
+        "comment": "Render this week's events as a paste-ready markdown brief."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "HTTP 401 / 'Invalid API Key'",
+        "fix": "Confirm TICKETMASTER_API_KEY matches the Consumer Key (not Consumer Secret) at developer-acct.ticketmaster.com/products-and-docs/user/me. Re-source your shell."
+      },
+      {
+        "symptom": "HTTP 429 'Quota exceeded'",
+        "fix": "Free tier is 5000 req/day, 5/sec. Run `ticketmaster-pp-cli doctor` to see today's call count, or upgrade the plan."
+      },
+      {
+        "symptom": "Empty results for a venue you know exists",
+        "fix": "Venue may not be Ticketmaster-primary; try a DMA query with classification filter instead. Use `suggest \u003cvenue-name\u003e` to discover the canonical venue ID."
+      },
+      {
+        "symptom": "priceRanges missing on event get",
+        "fix": "Resale and dynamic-priced events often omit priceRanges; this is upstream behavior, not a CLI bug."
+      }
+    ],
+    "when_to_use": "Reach for this CLI when a user asks 'what's on at \u003cvenue/metro\u003e', 'where is \u003cartist\u003e playing', or 'what concerts this weekend'. Best for repeat queries against curated venue/artist watchlists (offline FTS shines here), residency-heavy venues (opera, Broadway, comedy), and agent contexts where compact JSON output keeps token usage low. Skip when checkout/purchase is needed — that requires the Commerce API, which this CLI does not cover.",
+    "recipes": [
+      {
+        "title": "Seattle watchlist composition (no Seattle-specific code in the CLI)",
+        "command": "ticketmaster-pp-cli events watchlist save seattle --venue-ids KovZ917Ahkk,KovZpZAFkvEA,KovZpZA1klkA,KovZpZAFEdeA,KovZpZAFkv1A",
+        "explanation": "Save a named watchlist of Seattle venue IDs. Then run \"events watchlist run seattle --days 60 --json\" to apply the filter across upcoming events; pipe through \"events dedup --strategy name-venue-date\" for the final cleaned feed. Replaces a 595-line bash script."
+      },
+      {
+        "title": "Track an artist across all upcoming dates with on-sale flags",
+        "command": "ticketmaster-pp-cli events tour KovZ917Ahkk --on-sale-window 7 --json --select 'name,dates.start.localDate,_embedded.venues[0].name,_embedded.venues[0].city.name,sales.public.startDateTime'",
+        "explanation": "Returns every upcoming tour stop with city, venue, and a flag for stops going on-sale within a week. The --select narrows the deeply-nested Discovery payload to just what an agent needs."
+      },
+      {
+        "title": "Weekend brief for a metro",
+        "command": "ticketmaster-pp-cli events brief --dma 383 --window 3 --classification music",
+        "explanation": "Render a markdown brief of the next 3 days of music events in Seattle-Tacoma (DMA 383) - paste-ready for Obsidian or an iMessage thread."
+      },
+      {
+        "title": "On-sale watch for rock shows",
+        "command": "ticketmaster-pp-cli events on-sale-soon --window 14 --classification rock --json",
+        "explanation": "Two-week-out scan for rock events going on public sale; pipe to an alerting script."
+      }
+    ],
+    "trigger_phrases": [
+      "what concerts in \u003ccity\u003e this weekend",
+      "what's playing at \u003cvenue\u003e",
+      "where is \u003cartist\u003e playing",
+      "presale watch",
+      "ticketmaster events",
+      "use ticketmaster",
+      "run ticketmaster"
+    ]
+  }
+}

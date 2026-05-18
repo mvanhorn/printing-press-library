@@ -1,0 +1,8 @@
+{
+  "dir": "/Users/omarshahine/printing-press/.runstate/printing-press-library-23ffc216/runs/20260511-051647/working/ticketmaster-pp-cli",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

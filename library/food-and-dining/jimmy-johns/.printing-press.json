@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-11T03:46:11Z",
+  "printing_press_version": "4.2.2",
+  "api_name": "jimmy-johns",
+  "category": "food-and-dining",
+  "display_name": "Jimmy John's",
+  "cli_name": "jimmy-johns-pp-cli",
+  "owner": "omar-shahine",
+  "printer": "omarshahine",
+  "printer_name": "Omar Shahine",
+  "description": "Order Jimmy John's from the terminal — Freaky Fast Rewards stacking, half-order builder, and one-shot reorder.",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:a6cbc38fc56e4c289ed23a09ef88da8a678be7eec2a5e441a64c38231cf06b0e",
+  "spec_source": "browser-sniff",
+  "run_id": "20260511-034611",
+  "mcp_binary": "jimmy-johns-pp-mcp",
+  "mcp_tool_count": 16,
+  "mcp_public_tool_count": 8,
+  "mcp_ready": "partial",
+  "auth_type": "cookie",
+  "novel_features": [
+    {
+      "name": "Unwich Converter",
+      "command": "menu unwich-convert",
+      "description": "Convert a sandwich's modifier set to an Unwich (lettuce wrap) variant — pure-local computation, no live API call."
+    },
+    {
+      "name": "Office Lunch Planner",
+      "command": "order plan",
+      "description": "Suggest a sized cart for a group order — sandwiches + sides + cookies + drinks scaled to N people with dietary filters."
+    },
+    {
+      "name": "Half-and-Half Composer",
+      "command": "menu half-and-half",
+      "description": "Compose a two-product share order with the agent-facing note that JJ doesn't natively support half-and-half slicing."
+    }
+  ]
+}

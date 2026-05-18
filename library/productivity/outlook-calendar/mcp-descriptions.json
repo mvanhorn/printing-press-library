@@ -1,0 +1,6 @@
+{
+  "descriptions": {
+    "calendars_delete": "Permanently delete one of the user's Outlook calendars by id (DELETE /me/calendars/{calendar_id}). All events on the calendar are removed alongside it; this cannot be undone. The default calendar cannot be deleted — use 'calendars list' to find a non-default calendar id, or set a different default first via 'calendars default'. Required: calendar_id.",
+    "categories_list": "List the user's master Outlook categories — the colored labels users assign to events (Red, Blue, 'Travel', etc.) — by calling GET /me/outlook/masterCategories. Returns an array of Category objects with displayName and color (preset0..preset24, or 'none'). Use the displayName values when filtering events with --category-name on event-level commands."
+  }
+}

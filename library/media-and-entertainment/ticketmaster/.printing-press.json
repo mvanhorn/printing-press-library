@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-11T05:42:51.222372Z",
+  "printing_press_version": "4.2.2",
+  "api_name": "ticketmaster",
+  "display_name": "Ticketmaster",
+  "cli_name": "ticketmaster-pp-cli",
+  "owner": "omarshahine",
+  "printer": "omarshahine",
+  "printer_name": "Omar Shahine",
+  "spec_path": "/Users/omarshahine/printing-press/.runstate/printing-press-library-23ffc216/runs/20260511-051647/research/ticketmaster-discovery-v2.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:ae299cd72db1a728c90ad6fa659073ccbe11e8557c1fc439227ec9f3380b51b3",
+  "run_id": "20260511-051647",
+  "mcp_binary": "ticketmaster-pp-mcp",
+  "mcp_tool_count": 13,
+  "mcp_ready": "full",
+  "api_version": "v2",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "TICKETMASTER_API_KEY"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "TICKETMASTER_API_KEY",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": true,
+      "description": "Ticketmaster Discovery API consumer key (32-char alphanumeric)."
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Multi-venue watchlist sweep",
+      "command": "events upcoming",
+      "description": "Fan out across a venue ID file or list and return one merged, deduplicated, date-sorted event list \u2014 the watchlist primitive behind any curated 'what's on at my venues' workflow."
+    },
+    {
+      "name": "Residency collapse",
+      "command": "events residency",
+      "description": "Collapse runs of same-name + same-venue events into one row per residency with first_date, last_date, night_count, and id_list \u2014 so a 16-night opera season shows as one entry, not 16."
+    },
+    {
+      "name": "Attraction tour view with on-sale flag",
+      "command": "events tour",
+      "description": "For a given attraction (artist/team/touring show), return every upcoming event sorted by date, with city, venue, on-sale status, and a flag for events going on-sale within 7 days."
+    },
+    {
+      "name": "On-sale-soon scanner",
+      "command": "events on-sale-soon",
+      "description": "Local query for events whose public on-sale falls in the next N days, sorted ascending \u2014 the canonical 'presale watch' view that no API endpoint provides."
+    },
+    {
+      "name": "Classification bucketing",
+      "command": "events by-classification",
+      "description": "Local join of events \u00d7 classifications, grouped by segment and genre, with event count and three example events per leaf \u2014 the bucketed view newsletter authors and local-scene trackers reach for."
+    },
+    {
+      "name": "Named persistent watchlists",
+      "command": "events watchlist",
+      "description": "Save, list, run, and remove named filter sets (venue IDs, attraction IDs, segments, DMA IDs) that persist across runs in the local SQLite store \u2014 the generic primitive any curated 'my venues' workflow composes from."
+    },
+    {
+      "name": "Stream-shaped dedup",
+      "command": "events dedup",
+      "description": "Read an event JSON array from stdin or the local store, apply a deduplication strategy (name+venue+date, or tour-leg), and write the deduped stream to stdout \u2014 composes with any upstream command."
+    },
+    {
+      "name": "Markdown what's-on brief",
+      "command": "events brief",
+      "description": "Render a markdown 'what's on' report grouped by night \u2192 venue \u2192 events with classification labels and price bands, suitable for newsletter, Obsidian, iMessage, or agent context."
+    },
+    {
+      "name": "Price-band distribution",
+      "command": "events price-bands",
+      "description": "Bucket events by priceRanges.min into <$50 / $50-100 / $100-200 / $200+ bands and report count + sample events per band, grouped by classification."
+    }
+  ],
+  "category": "media-and-entertainment"
+}

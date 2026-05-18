@@ -1,0 +1,376 @@
+{
+  "api_name": "spotify",
+  "novelty_score": 60,
+  "alternatives": [
+    {
+      "name": "spotipy",
+      "url": "https://github.com/spotipy-dev/spotipy",
+      "language": "Python",
+      "install_method": "",
+      "stars": 7000,
+      "last_updated": "",
+      "command_count": 300,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "spotify-tui",
+      "url": "https://github.com/Rigellute/spotify-tui",
+      "language": "Rust",
+      "install_method": "",
+      "stars": 17000,
+      "last_updated": "",
+      "command_count": 50,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "marcelmarais/spotify-mcp-server",
+      "url": "https://github.com/marcelmarais/spotify-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 10,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ncspot",
+      "url": "https://github.com/hrkfdn/ncspot",
+      "language": "Rust",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "spotify-web-api-node",
+      "url": "https://github.com/thelinmichael/spotify-web-api-node",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 2700,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-12T18:49:40Z",
+  "novel_features": [
+    {
+      "name": "Snapshot-aware playlist diff",
+      "command": "playlists diff",
+      "description": "Compare a playlist's current state against any prior snapshot to see exactly which tracks were added, removed, or reordered.",
+      "rationale": "Spotify versions playlists with a snapshot_id but the UI exposes nothing — competitors don't snapshot, so they can't diff. The local store keeps every snapshot.",
+      "example": "spotify-pp-cli playlists diff 37i9dQZF1DXcBWIGoYBM5M --against-snapshot abc123 --agent",
+      "why_it_matters": "Reach for this when a user asks 'what changed in this playlist?' or wants to undo an algorithmic refresh on a collab playlist.",
+      "group": "Playlist maintenance"
+    },
+    {
+      "name": "ISRC-aware playlist dedupe",
+      "command": "playlists dedupe",
+      "description": "Find duplicate tracks in a playlist by ISRC (catches the album/single/EP/deluxe-reissue dupe class), report by default, --apply to remove.",
+      "rationale": "Track-ID dedupe misses reissue duplicates; ISRC is the recording-level identifier that catches them. The local store joins playlist_tracks to tracks.isrc.",
+      "example": "spotify-pp-cli playlists dedupe 37i9dQZF1DXcBWIGoYBM5M --by isrc --agent",
+      "why_it_matters": "Use this when a curator's playlist has the same recording on three different albums; Spotify's app treats them as distinct.",
+      "group": "Playlist maintenance"
+    },
+    {
+      "name": "Cross-playlist merge with dedupe",
+      "command": "playlists merge",
+      "description": "Combine multiple playlists into one with built-in dedupe and ordering controls.",
+      "rationale": "Spotify ships no merge primitive — users currently script this against spotipy. Local dedupe happens before the POST so the destination is clean from the first write.",
+      "example": "spotify-pp-cli playlists merge 37i9dQZF1DXcBWIGoYBM5M 37i9dQZF1DX0XUsuxWHRQd 6rqhFgbbKwnb9MLmUQDhG6 --into \u003cnew-playlist-id\u003e --dedupe-by isrc --order by-date",
+      "why_it_matters": "Reach for this when a DJ wants to consolidate retired set playlists into a deep-archive without manually de-duplicating.",
+      "group": "Playlist maintenance"
+    },
+    {
+      "name": "Top-tracks rotation drift",
+      "command": "top drift",
+      "description": "Compare two top-tracks snapshots and show who rose, fell, or stayed stable across a time window.",
+      "rationale": "Spotify's top-tracks endpoint returns current only — without local snapshotting there is no drift answer. spotify-pp-cli records every top-tracks pull so this query becomes possible.",
+      "example": "spotify-pp-cli top drift --range medium --since 2026-01-01 --agent --select risen,fallen,stable",
+      "why_it_matters": "Use this when a user asks 'which artists fell off my top-50 between Q1 and Q4?' or wants to track their own listening identity over time.",
+      "group": "Listening drift"
+    },
+    {
+      "name": "Release-Radar replacement",
+      "command": "releases since",
+      "description": "List new albums and singles released since a date by artists you follow, sorted newest first.",
+      "rationale": "Spotify deprecated the algorithmic Release Radar surface for new apps on 2024-11-27. This rebuilds the same answer deterministically by iterating followed_artists locally.",
+      "example": "spotify-pp-cli releases since 2026-05-01 --from followed --agent --select name,artists.0.name,release_date",
+      "why_it_matters": "Reach for this when a user asks 'what's new from artists I follow' and the deprecated Release Radar is no longer reachable.",
+      "group": "Listening drift"
+    },
+    {
+      "name": "Cross-entity track lookup",
+      "command": "tracks where",
+      "description": "For a given track, find every place it appears in your data: which playlists, whether saved, last played, and on which devices.",
+      "rationale": "Cross-entity join across playlist_tracks, saved_tracks, play_history, and top_tracks_snapshot — pure local SQL. Spotify's app has no equivalent view.",
+      "example": "spotify-pp-cli tracks where 4uLU6hMCjMI75M1A2tKUQC --agent",
+      "why_it_matters": "Use this before adding a track to a playlist to avoid duping it, or to answer 'have I played this before' questions.",
+      "group": "Cross-collection lookup"
+    },
+    {
+      "name": "Play-history by listening context",
+      "command": "play history",
+      "description": "Bucket your recent play history by the playlist or album that drove each play, ranked by play count and total duration.",
+      "rationale": "Spotify's API exposes context_uri per play but no UI aggregates it. The local play_history table (extended past the API's 50-item cap by frequent syncs) makes the aggregation possible.",
+      "example": "spotify-pp-cli play history --by context --since 7d --agent --select context_name,play_count,total_duration_min",
+      "why_it_matters": "Reach for this when a DJ asks 'which of my set lists is actually getting played this week' or when a journalist wants column data on listening patterns.",
+      "group": "Listening drift"
+    },
+    {
+      "name": "Agent-friendly queue-from-saved",
+      "command": "queue from-saved",
+      "description": "Pick N tracks from your saved library (optionally filtered by artist or playlist origin) and queue them in one command.",
+      "rationale": "Spotify Premium's /me/player/queue is one-track-per-call. Reading from local saved_tracks lets the agent batch the loop and filter without hammering the search endpoint.",
+      "example": "spotify-pp-cli queue from-saved --limit 10 --artist 0OdUWJ0sBjDrqHygGUXeCF",
+      "why_it_matters": "Use this when an agent should 'queue something from my chillout saved tracks' or 'queue 10 more from this artist' without resorting to URI manipulation.",
+      "group": "Agent-native playback"
+    },
+    {
+      "name": "Genre-walked artist discovery",
+      "command": "discover artists",
+      "description": "Find artists you don't follow yet who match the genres of your top, saved, or followed artists, ranked by popularity within each genre.",
+      "rationale": "Spotify deprecated /recommendations for new apps on 2024-11-27. This rebuilds the 'artists you might like' question using /search?type=artist\u0026q=genre:\"...\" which still works, seeded from the genres your existing favorites already wear.",
+      "example": "spotify-pp-cli discover artists --seed top --exclude-followed --limit 25 --agent --select name,genres,popularity,top_track.name",
+      "why_it_matters": "Reach for this when the user asks 'find me new artists like the ones I already listen to' and the deprecated recommendations endpoint isn't an option.",
+      "group": "Music discovery"
+    },
+    {
+      "name": "Co-occurrence discovery via public playlists",
+      "command": "discover via-playlists",
+      "description": "Find artists frequently co-curated with a seed artist by searching public playlists that contain them and ranking other artists by co-occurrence count.",
+      "rationale": "Spotify's /artists/{id}/related-artists is deprecated for new apps. Public playlists become the graph substrate — if hundreds of curators put artist A alongside artist B, B is a recommendation.",
+      "example": "spotify-pp-cli discover via-playlists 0OdUWJ0sBjDrqHygGUXeCF --min-cooccurrence 5 --limit 20 --agent",
+      "why_it_matters": "Use this for the 'who sounds like X' question Spotify used to answer with related-artists; curator-driven co-occurrence is often a better signal anyway.",
+      "group": "Music discovery"
+    },
+    {
+      "name": "Artist deep-dive gap finder",
+      "command": "discover artist-gaps",
+      "description": "For an artist, show their full discography chronologically with each album marked as saved or unsaved against your library.",
+      "rationale": "Cross-entity join between /artists/{id}/albums and local saved_albums + playlist_tracks. Spotify's app shows discography but never marks your coverage of it.",
+      "example": "spotify-pp-cli discover artist-gaps 0OdUWJ0sBjDrqHygGUXeCF --show unsaved --include-groups album,single",
+      "why_it_matters": "Reach for this when a user says 'I love this artist, what have I missed?' — surfaces the gap in their own collection.",
+      "group": "Music discovery"
+    },
+    {
+      "name": "New releases in your genres",
+      "command": "discover new-releases",
+      "description": "Filter Spotify's global new-releases feed down to releases whose artists share a genre with your top or followed artists; optionally exclude artists you already follow.",
+      "rationale": "Spotify deprecated their algorithmic Release Radar surface for new apps. The /browse/new-releases endpoint still works; cross-referencing it against your genre profile rebuilds the answer deterministically.",
+      "example": "spotify-pp-cli discover new-releases --seed-from top --days 14 --exclude-followed --agent --select name,artists.0.name,release_date,genres",
+      "why_it_matters": "Use this for 'what new music came out this week in genres I actually listen to' — broader than just-from-followed-artists (T5) since it surfaces adjacent artists too.",
+      "group": "Music discovery"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Snapshot-aware playlist diff",
+      "command": "playlists diff",
+      "description": "Compare a playlist's current state against any prior snapshot to see exactly which tracks were added, removed, or reordered.",
+      "rationale": "Spotify versions playlists with a snapshot_id but the UI exposes nothing — competitors don't snapshot, so they can't diff. The local store keeps every snapshot.",
+      "example": "spotify-pp-cli playlists diff 37i9dQZF1DXcBWIGoYBM5M --against-snapshot abc123 --agent",
+      "why_it_matters": "Reach for this when a user asks 'what changed in this playlist?' or wants to undo an algorithmic refresh on a collab playlist.",
+      "group": "Playlist maintenance"
+    },
+    {
+      "name": "ISRC-aware playlist dedupe",
+      "command": "playlists dedupe",
+      "description": "Find duplicate tracks in a playlist by ISRC (catches the album/single/EP/deluxe-reissue dupe class), report by default, --apply to remove.",
+      "rationale": "Track-ID dedupe misses reissue duplicates; ISRC is the recording-level identifier that catches them. The local store joins playlist_tracks to tracks.isrc.",
+      "example": "spotify-pp-cli playlists dedupe 37i9dQZF1DXcBWIGoYBM5M --by isrc --agent",
+      "why_it_matters": "Use this when a curator's playlist has the same recording on three different albums; Spotify's app treats them as distinct.",
+      "group": "Playlist maintenance"
+    },
+    {
+      "name": "Cross-playlist merge with dedupe",
+      "command": "playlists merge",
+      "description": "Combine multiple playlists into one with built-in dedupe and ordering controls.",
+      "rationale": "Spotify ships no merge primitive — users currently script this against spotipy. Local dedupe happens before the POST so the destination is clean from the first write.",
+      "example": "spotify-pp-cli playlists merge 37i9dQZF1DXcBWIGoYBM5M 37i9dQZF1DX0XUsuxWHRQd 6rqhFgbbKwnb9MLmUQDhG6 --into \u003cnew-playlist-id\u003e --dedupe-by isrc --order by-date",
+      "why_it_matters": "Reach for this when a DJ wants to consolidate retired set playlists into a deep-archive without manually de-duplicating.",
+      "group": "Playlist maintenance"
+    },
+    {
+      "name": "Top-tracks rotation drift",
+      "command": "top drift",
+      "description": "Compare two top-tracks snapshots and show who rose, fell, or stayed stable across a time window.",
+      "rationale": "Spotify's top-tracks endpoint returns current only — without local snapshotting there is no drift answer. spotify-pp-cli records every top-tracks pull so this query becomes possible.",
+      "example": "spotify-pp-cli top drift --range medium --since 2026-01-01 --agent --select risen,fallen,stable",
+      "why_it_matters": "Use this when a user asks 'which artists fell off my top-50 between Q1 and Q4?' or wants to track their own listening identity over time.",
+      "group": "Listening drift"
+    },
+    {
+      "name": "Release-Radar replacement",
+      "command": "releases since",
+      "description": "List new albums and singles released since a date by artists you follow, sorted newest first.",
+      "rationale": "Spotify deprecated the algorithmic Release Radar surface for new apps on 2024-11-27. This rebuilds the same answer deterministically by iterating followed_artists locally.",
+      "example": "spotify-pp-cli releases since 2026-05-01 --from followed --agent --select name,artists.0.name,release_date",
+      "why_it_matters": "Reach for this when a user asks 'what's new from artists I follow' and the deprecated Release Radar is no longer reachable.",
+      "group": "Listening drift"
+    },
+    {
+      "name": "Cross-entity track lookup",
+      "command": "tracks where",
+      "description": "For a given track, find every place it appears in your data: which playlists, whether saved, last played, and on which devices.",
+      "rationale": "Cross-entity join across playlist_tracks, saved_tracks, play_history, and top_tracks_snapshot — pure local SQL. Spotify's app has no equivalent view.",
+      "example": "spotify-pp-cli tracks where 4uLU6hMCjMI75M1A2tKUQC --agent",
+      "why_it_matters": "Use this before adding a track to a playlist to avoid duping it, or to answer 'have I played this before' questions.",
+      "group": "Cross-collection lookup"
+    },
+    {
+      "name": "Play-history by listening context",
+      "command": "play history",
+      "description": "Bucket your recent play history by the playlist or album that drove each play, ranked by play count and total duration.",
+      "rationale": "Spotify's API exposes context_uri per play but no UI aggregates it. The local play_history table (extended past the API's 50-item cap by frequent syncs) makes the aggregation possible.",
+      "example": "spotify-pp-cli play history --by context --since 7d --agent --select context_name,play_count,total_duration_min",
+      "why_it_matters": "Reach for this when a DJ asks 'which of my set lists is actually getting played this week' or when a journalist wants column data on listening patterns.",
+      "group": "Listening drift"
+    },
+    {
+      "name": "Agent-friendly queue-from-saved",
+      "command": "queue from-saved",
+      "description": "Pick N tracks from your saved library (optionally filtered by artist or playlist origin) and queue them in one command.",
+      "rationale": "Spotify Premium's /me/player/queue is one-track-per-call. Reading from local saved_tracks lets the agent batch the loop and filter without hammering the search endpoint.",
+      "example": "spotify-pp-cli queue from-saved --limit 10 --artist 0OdUWJ0sBjDrqHygGUXeCF",
+      "why_it_matters": "Use this when an agent should 'queue something from my chillout saved tracks' or 'queue 10 more from this artist' without resorting to URI manipulation.",
+      "group": "Agent-native playback"
+    },
+    {
+      "name": "Genre-walked artist discovery",
+      "command": "discover artists",
+      "description": "Find artists you don't follow yet who match the genres of your top, saved, or followed artists, ranked by popularity within each genre.",
+      "rationale": "Spotify deprecated /recommendations for new apps on 2024-11-27. This rebuilds the 'artists you might like' question using /search?type=artist\u0026q=genre:\"...\" which still works, seeded from the genres your existing favorites already wear.",
+      "example": "spotify-pp-cli discover artists --seed top --exclude-followed --limit 25 --agent --select name,genres,popularity,top_track.name",
+      "why_it_matters": "Reach for this when the user asks 'find me new artists like the ones I already listen to' and the deprecated recommendations endpoint isn't an option.",
+      "group": "Music discovery"
+    },
+    {
+      "name": "Co-occurrence discovery via public playlists",
+      "command": "discover via-playlists",
+      "description": "Find artists frequently co-curated with a seed artist by searching public playlists that contain them and ranking other artists by co-occurrence count.",
+      "rationale": "Spotify's /artists/{id}/related-artists is deprecated for new apps. Public playlists become the graph substrate — if hundreds of curators put artist A alongside artist B, B is a recommendation.",
+      "example": "spotify-pp-cli discover via-playlists 0OdUWJ0sBjDrqHygGUXeCF --min-cooccurrence 5 --limit 20 --agent",
+      "why_it_matters": "Use this for the 'who sounds like X' question Spotify used to answer with related-artists; curator-driven co-occurrence is often a better signal anyway.",
+      "group": "Music discovery"
+    },
+    {
+      "name": "Artist deep-dive gap finder",
+      "command": "discover artist-gaps",
+      "description": "For an artist, show their full discography chronologically with each album marked as saved or unsaved against your library.",
+      "rationale": "Cross-entity join between /artists/{id}/albums and local saved_albums + playlist_tracks. Spotify's app shows discography but never marks your coverage of it.",
+      "example": "spotify-pp-cli discover artist-gaps 0OdUWJ0sBjDrqHygGUXeCF --show unsaved --include-groups album,single",
+      "why_it_matters": "Reach for this when a user says 'I love this artist, what have I missed?' — surfaces the gap in their own collection.",
+      "group": "Music discovery"
+    },
+    {
+      "name": "New releases in your genres",
+      "command": "discover new-releases",
+      "description": "Filter Spotify's global new-releases feed down to releases whose artists share a genre with your top or followed artists; optionally exclude artists you already follow.",
+      "rationale": "Spotify deprecated their algorithmic Release Radar surface for new apps. The /browse/new-releases endpoint still works; cross-referencing it against your genre profile rebuilds the answer deterministically.",
+      "example": "spotify-pp-cli discover new-releases --seed-from top --days 14 --exclude-followed --agent --select name,artists.0.name,release_date,genres",
+      "why_it_matters": "Use this for 'what new music came out this week in genres I actually listen to' — broader than just-from-followed-artists (T5) since it surfaces adjacent artists too.",
+      "group": "Music discovery"
+    }
+  ],
+  "narrative": {
+    "display_name": "Spotify",
+    "headline": "An agent-native Spotify CLI with a SQLite-backed local library that lets you ask listening-drift questions no other Spotify tool can answer.",
+    "value_prop": "Every Spotify Web API endpoint is reachable from one static binary with --json and --select everywhere and a built-in MCP server, so an agent can drive playback, search, and library curation with the same surface a human uses. A local SQLite store captures top-tracks/top-artists snapshots, snapshot-keyed playlist tracks, and extended play history beyond Spotify's 50-event cap, enabling one-shot queries like 'which tracks dropped out of medium-term but stayed in long-term' that no existing CLI can answer. Endpoints Spotify removed for new apps on 2024-11-27 ship as honest deprecation-aware stubs with a --legacy-app opt-in.",
+    "auth_narrative": "OAuth flows are auto-detected: PKCE is the default when only SPOTIFY_CLIENT_ID is set, and Authorization Code with secret is used when SPOTIFY_SECRET is also present; access tokens refresh transparently and rotating refresh tokens are persisted to ~/.config/spotify-pp-cli/token.json.",
+    "quickstart": [
+      {
+        "command": "spotify-pp-cli auth login --client-id $SPOTIFY_CLIENT_ID --client-secret $SPOTIFY_SECRET",
+        "comment": "One-time OAuth flow. Both env vars are auto-read from SPOTIFY_CLIENT_ID + SPOTIFY_SECRET (or SPOTIFY_CLIENT_SECRET)."
+      },
+      {
+        "command": "spotify-pp-cli sync-extras",
+        "comment": "Pull saved tracks, top tracks, recently played, and devices into the local SQLite store. Snapshots top items so drift queries become possible."
+      },
+      {
+        "command": "spotify-pp-cli me get-the-users-currently-playing-track --agent --select item.name,item.artists.0.name,is_playing",
+        "comment": "What's playing right now (Spotify's operationId names this — long but Cobra-derived from the OpenAPI spec)."
+      },
+      {
+        "command": "spotify-pp-cli search query=\"radiohead in rainbows\" type=track --limit 5 --agent",
+        "comment": "Full-text search across Spotify's catalog."
+      },
+      {
+        "command": "spotify-pp-cli top drift --range medium --since 2026-01-01 --agent",
+        "comment": "Show who rose/fell in your medium-term top-tracks since January (uses local top_tracks_snapshot)."
+      },
+      {
+        "command": "spotify-pp-cli discover artists --seed top --exclude-followed --limit 10 --agent",
+        "comment": "Find artists in your top-artists' genres you don't follow yet."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on any read command",
+        "fix": "Run `spotify-pp-cli auth login --client-id $SPOTIFY_CLIENT_ID --client-secret $SPOTIFY_SECRET` — your token expired or was never persisted."
+      },
+      {
+        "symptom": "403 PREMIUM_REQUIRED on play/pause/skip/seek/volume/queue commands",
+        "fix": "Spotify's playback-write API requires an active Premium subscription. Read commands (search, playlists, library, top, recently-played) work without Premium."
+      },
+      {
+        "symptom": "403 or stub_deprecated response from audio-features, audio-analysis, recommendations, related-artists, featured-playlists, or browse categories playlists",
+        "fix": "Spotify removed those endpoints for new apps on 2024-11-27. See https://developer.spotify.com/blog/2024-11-27-changes-to-the-web-api. Use `discover artists`/`discover via-playlists` as deterministic replacements."
+      },
+      {
+        "symptom": "429 rate-limited",
+        "fix": "Spotify uses a rolling 30-second window. The CLI auto-backs off using the Retry-After header; just re-run."
+      },
+      {
+        "symptom": "NO_ACTIVE_DEVICE on play/queue commands",
+        "fix": "Open Spotify on a phone or desktop first to register an active device. Use `spotify-pp-cli me get-a-users-available-devices --agent` to see what's available."
+      }
+    ],
+    "when_to_use": "Reach for spotify-pp-cli when an agent needs to read or steer a user's Spotify session, curate playlists, or answer questions about their listening history. It is the right choice over generic HTTP calls when the task benefits from the local SQLite store (drift queries, snapshot-aware playlist diffs, extended play history past the 50-event cap) or from the deprecation-aware stubs that route around endpoints Spotify removed for new apps. Prefer it over spotify-tui when the workflow is one-shot rather than interactive, and over spotipy when the host is an agent rather than a Python script.",
+    "recipes": [
+      {
+        "title": "Listening drift since New Year's",
+        "command": "spotify-pp-cli top drift --range medium --since 2026-01-01 --agent --select risen,fallen,stable",
+        "explanation": "Diff your medium-term top-tracks snapshots and surface who climbed, fell, and held steady — Spotify's API gives you 'current' only; the local snapshot table is the diff substrate."
+      },
+      {
+        "title": "Co-occurrence discovery via public playlists",
+        "command": "spotify-pp-cli discover via-playlists 0OdUWJ0sBjDrqHygGUXeCF --min-cooccurrence 3 --limit 20 --agent --select artist.name,cooccurrence_count",
+        "explanation": "For a seed artist (Beyoncé), find artists that show up alongside her in public playlists. Replaces Spotify's deprecated /related-artists with curator-driven graph walking."
+      },
+      {
+        "title": "New releases in your genres",
+        "command": "spotify-pp-cli discover new-releases --seed-from top --days 14 --exclude-followed --agent --select name,artists.0.name,release_date",
+        "explanation": "Filter Spotify's global new-releases feed down to releases whose artists share a genre with your top artists. Adjacent-discovery — broader than just-followed-artists."
+      },
+      {
+        "title": "Snapshot-aware playlist diff",
+        "command": "spotify-pp-cli playlists diff 37i9dQZF1DXcBWIGoYBM5M --agent --select added,removed,reordered",
+        "explanation": "Diff a playlist against its prior local snapshot. Catches algorithmic refreshes on collab playlists and lets you undo accidental adds."
+      },
+      {
+        "title": "Where is this track in my data",
+        "command": "spotify-pp-cli tracks where 4uLU6hMCjMI75M1A2tKUQC --agent",
+        "explanation": "Find every place a track appears — which playlists, saved or not, last played, on which devices. Pure local SQL join across playlist_tracks + saved_tracks + play_history."
+      }
+    ],
+    "trigger_phrases": [
+      "play the next track",
+      "what am I listening to",
+      "show my saved tracks",
+      "create a spotify playlist",
+      "what are my top artists this month",
+      "use spotify-pp-cli",
+      "spotify"
+    ]
+  }
+}

@@ -1,0 +1,101 @@
+name: trustpilot
+display_name: Trustpilot
+description: "Pull Trustpilot reviews into a local store, with a balanced good-and-bad agent bundle for last30days-style enrichment"
+version: "0.1.0"
+base_url: "https://www.trustpilot.com"
+http_transport: browser-chrome
+health_check_path: "/review/trustpilot.com"
+cli_description: "Every Trustpilot review surface, plus the local SQLite database and balanced good-and-bad agent bundle no other Trustpilot tool ships."
+
+required_headers:
+  - name: User-Agent
+    value: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+  - name: Accept
+    value: "text/html,application/json"
+  - name: x-nextjs-data
+    value: "1"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/trustpilot-pp-cli/config.toml"
+
+resources:
+  reviews:
+    description: "Fetch Trustpilot reviews for a company"
+    endpoints:
+      list:
+        method: GET
+        path: "/_next/data/{review_build_id}/review/{domain}.json"
+        description: "Fetch a page of reviews for a company by domain (use 'reviews fetch <domain>' from the CLI). Authenticated via aws-waf-token cookie harvested with auth login."
+        params:
+          - name: review_build_id
+            type: string
+            required: true
+            positional: true
+            description: "Next.js review-pages build id (harvested at session start)"
+          - name: domain
+            type: string
+            required: true
+            positional: true
+            description: "Trustpilot company domain (e.g. www.thriftbooks.com)"
+          - name: businessUnit
+            type: string
+            required: true
+            description: "Same as domain; Trustpilot wire param"
+          - name: page
+            type: int
+            default: 1
+            description: "Page number (20 reviews per page)"
+          - name: stars
+            type: int
+            description: "Filter to a specific star rating (1-5)"
+          - name: languages
+            type: string
+            description: "ISO 639-1 language code (e.g. en)"
+          - name: sort
+            type: string
+            description: "Sort order: recency or relevance"
+            enum: ["recency", "relevance"]
+          - name: date
+            type: string
+            description: "Date window: last30days, last3months, last6months, last12months"
+          - name: verified
+            type: bool
+            description: "Filter to verified reviews only"
+        response:
+          type: object
+          item: ReviewPage
+
+  companies:
+    description: "Search Trustpilot for companies by name and resolve to their canonical domain"
+    endpoints:
+      search:
+        method: GET
+        path: "/_next/data/{search_build_id}/search.json"
+        description: "Search for companies matching a name; returns identifyingName domains usable with reviews fetch"
+        params:
+          - name: search_build_id
+            type: string
+            required: true
+            positional: true
+            description: "Next.js search-pages build id"
+          - name: query
+            type: string
+            required: true
+            description: "Company name or fragment"
+        response:
+          type: object
+          item: SearchResults
+
+types:
+  ReviewPage:
+    fields:
+      - name: pageProps
+        type: object
+  SearchResults:
+    fields:
+      - name: pageProps
+        type: object

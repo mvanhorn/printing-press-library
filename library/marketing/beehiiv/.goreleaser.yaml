@@ -1,0 +1,51 @@
+version: 2
+project_name: beehiiv-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: beehiiv-pp-cli
+    main: ./cmd/beehiiv-pp-cli
+    binary: beehiiv-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/marketing/beehiiv/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: beehiiv-pp-mcp
+    main: ./cmd/beehiiv-pp-mcp
+    binary: beehiiv-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: beehiiv-pp-cli
+    repository:
+      owner: kevin-magnan
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Printing Press CLI for Beehiiv."
+    install: |
+      bin.install "beehiiv-pp-cli"
+      bin.install "beehiiv-pp-mcp"

@@ -1,0 +1,51 @@
+version: 2
+project_name: resend-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: resend-pp-cli
+    main: ./cmd/resend-pp-cli
+    binary: resend-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/productivity/resend/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: resend-pp-mcp
+    main: ./cmd/resend-pp-mcp
+    binary: resend-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: resend-pp-cli
+    repository:
+      owner: giacaglia
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "The full Resend API (100 endpoints across emails, broadcasts, audiences, contacts, domains, templates, webhooks)..."
+    install: |
+      bin.install "resend-pp-cli"
+      bin.install "resend-pp-mcp"

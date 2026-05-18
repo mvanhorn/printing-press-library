@@ -1,0 +1,143 @@
+{
+  "api_name": "jimmy-johns",
+  "base_url": "https://www.jimmyjohns.com/api",
+  "description": "CLI for the Jimmy John's ordering API. Browse stores, menus, and product\nmodifiers; manage your cart; place orders; view rewards and saved payments.\nBacked by Jimmy John's proprietary API at www.jimmyjohns.com/api and\nauthenticated via cookies imported from a logged-in Chrome session\n(PerimeterX clearance + JJ session cookies).",
+  "mcp_ready": "partial",
+  "http_transport": "browser-chrome",
+  "auth": {
+    "type": "cookie",
+    "cookie_domain": "jimmyjohns.com"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    },
+    {
+      "name": "Accept",
+      "value": "application/json, text/plain, */*"
+    }
+  ],
+  "tools": [
+    {
+      "name": "account_login",
+      "description": "Authenticate with email + password. Sets JJ session cookies. Required: email, password.",
+      "method": "POST",
+      "path": "/login",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Account email",
+          "required": true
+        },
+        {
+          "name": "password",
+          "type": "string",
+          "location": "body",
+          "description": "Account password",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "account_web_token",
+      "description": "Refresh the web session token (called internally by the SPA).",
+      "method": "POST",
+      "path": "/webToken",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "menu_product_filters",
+      "description": "List available menu filter dimensions (categories, dietary tags, allergens).",
+      "method": "GET",
+      "path": "/products/filters",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "menu_product_modifiers",
+      "description": "List modifier groups (bread, toppings, add-ons) for a specific product. Required: productId.",
+      "method": "GET",
+      "path": "/products/{productId}/modifiers",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "productId",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric product ID from `menu products`.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "menu_products",
+      "description": "List menu products for the current store (subs, sides, drinks, cookies, catering). Returns array of Product.",
+      "method": "GET",
+      "path": "/products",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "stores_get_disclaimers",
+      "description": "Get store-specific disclaimers (delivery zone caveats, hours warnings). Required: storeId.",
+      "method": "GET",
+      "path": "/stores/{storeId}/disclaimers",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "storeId",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric store ID from `stores list`.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "stores_list",
+      "description": "List stores. Accepts an address search or filter; returns stores with hours, distance, pickup/delivery flags. Optional: address, filter.",
+      "method": "GET",
+      "path": "/stores",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "address",
+          "wire_name": "addressSearch",
+          "type": "string",
+          "location": "query",
+          "description": "Free-form address, city/state, or ZIP code (e.g. '98112', 'Seattle, WA').",
+          "aliases": [
+            "address-search"
+          ]
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter mode (delivery|pickup; empty = both)"
+        }
+      ]
+    },
+    {
+      "name": "system_sign_map_url",
+      "description": "Sign a Google Maps URL for client-side use (used internally by store finder). Required: url.",
+      "method": "GET",
+      "path": "/maps/signUrl",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Map URL to sign",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

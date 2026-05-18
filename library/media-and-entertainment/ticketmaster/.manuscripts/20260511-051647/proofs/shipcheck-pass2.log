@@ -1,0 +1,138 @@
+
+=== dogfood ===
+warning: filtered global query param "includeLicensedContent" from generated commands: present on 13/13 endpoints
+warning: filtered global query param "locale" from generated commands: present on 13/13 endpoints
+dogfood: synced README.md (Unique Features) from novel_features_built
+dogfood: synced SKILL.md (Unique Capabilities) from novel_features_built
+Dogfood Report: ticketmaster-pp-cli
+================================
+
+Path Validity:     4/4 valid (PASS)
+
+Auth Protocol:     MATCH
+  Generated: Uses "unknown" prefix
+  Detail: spec not provided or no bot/bearer/basic scheme detected
+
+Dead Flags:        0 dead (PASS)
+
+Dead Functions:    0 dead (PASS)
+
+Data Pipeline:     GOOD
+  Sync: calls domain-specific Upsert methods (GOOD)
+  Search: calls domain-specific Search methods (GOOD)
+  Domain tables: 3
+
+Examples:          10/10 commands have examples (PASS)
+
+Novel Features:    9/9 survived (PASS)
+
+MCP Surface:       PASS (MCP surface mirrors the Cobra tree at runtime)
+
+Verdict: FAIL
+  - 1 naming violations: verb ls→list in internal/cli/events_watchlist.go
+
+=== verify ===
+warning: filtered global query param "includeLicensedContent" from generated commands: present on 13/13 endpoints
+warning: filtered global query param "locale" from generated commands: present on 13/13 endpoints
+Runtime Verification: /Users/omarshahine/printing-press/.runstate/printing-press-library-23ffc216/runs/20260511-051647/working/ticketmaster-pp-cli/ticketmaster-pp-cli
+Mode: mock
+
+COMMAND                        KIND         HELP   DRY-RUN  EXEC     SCORE
+agent-context                  read         PASS   PASS     PASS     3/3
+analytics                      data-layer   PASS   PASS     PASS     3/3
+api                            local        PASS   PASS     PASS     3/3
+attractions                    read         PASS   PASS     PASS     3/3
+auth                           local        PASS   PASS     PASS     3/3
+classifications                read         PASS   PASS     PASS     3/3
+doctor                         local        PASS   PASS     PASS     3/3
+events                         read         PASS   PASS     PASS     3/3
+export                         data-layer   PASS   PASS     PASS     3/3
+feedback                       read         PASS   PASS     PASS     3/3
+import                         data-layer   PASS   PASS     PASS     3/3
+profile                        read         PASS   PASS     PASS     3/3
+search                         data-layer   PASS   PASS     PASS     3/3
+suggest                        read         PASS   PASS     PASS     3/3
+sync                           data-layer   PASS   PASS     PASS     3/3
+tail                           data-layer   PASS   PASS     PASS     3/3
+venues                         read         PASS   PASS     PASS     3/3
+which                          read         PASS   PASS     PASS     3/3
+workflow                       read         PASS   PASS     PASS     3/3
+
+Data Pipeline: PASS: sync completed (table validation skipped — sql command unavailable)
+Pass Rate: 100% (19/19 passed, 0 critical)
+Verdict: PASS
+
+=== workflow-verify ===
+Workflow Verification: ticketmaster-pp-cli
+================================
+
+Overall Verdict: workflow-pass
+  - no workflow manifest found, skipping
+
+=== verify-skill ===
+=== ticketmaster-pp-cli ===
+  ✓ All checks passed (flag-names, flag-commands, positional-args, unknown-command)
+  ✓ canonical-sections passed
+
+=== validate-narrative ===
+OK: 9 narrative commands resolved and full examples passed
+
+=== scorecard ===
+Quality Scorecard: ticketmaster
+
+  Output Modes         10/10
+  Auth                 10/10
+  Error Handling       10/10
+  Terminal UX          9/10
+  README               8/10
+  Doctor               10/10
+  Agent Native         10/10
+  MCP Quality          10/10
+  MCP Desc Quality     N/A
+  MCP Token Efficiency 7/10
+  MCP Remote Transport 5/10
+  MCP Tool Design      5/10
+  MCP Surface Strategy N/A
+  Local Cache          10/10
+  Cache Freshness      5/10
+  Breadth              7/10
+  Vision               9/10
+  Workflows            8/10
+  Insight              4/10
+  Agent Workflow       9/10
+
+  Domain Correctness
+  Path Validity           10/10
+  Auth Protocol           2/10
+  Data Pipeline Integrity 10/10
+  Sync Correctness        10/10
+  Live API Verification   N/A
+  Type Fidelity           4/5
+  Dead Code               5/5
+
+  Total: 81/100 - Grade A
+  Note: omitted from denominator: mcp_description_quality, mcp_surface_strategy, live_api_verification
+
+Sample Output Probe (live command sample)
+  Passed: 7/9  (78% pass rate)
+  Failures:
+    - Attraction tour view with on-sale flag: output does not contain any token from query "KovZ917Ahkk"
+    - Stream-shaped dedup: exit 1: Error: unknown flag: --strategy
+unknown flag: --strategy
+
+Gaps:
+  - insight scored 4/10 - needs improvement
+  - auth_protocol scored 2/10 - needs improvement
+  - MCP: 13 tools (0 public, 13 auth-required) — readiness: full
+
+Shipcheck Summary
+=================
+  LEG               RESULT  EXIT      ELAPSED
+  dogfood           PASS    0         1.366s
+  verify            PASS    0         1.738s
+  workflow-verify   PASS    0         10ms
+  verify-skill      PASS    0         97ms
+  validate-narrative  PASS    0         157ms
+  scorecard         PASS    0         101ms
+
+Verdict: PASS (6/6 legs passed)

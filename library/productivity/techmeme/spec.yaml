@@ -1,0 +1,114 @@
+openapi: "3.0.3"
+info:
+  title: Techmeme
+  version: "1"
+  description: >
+    Tech news aggregation and curation. No official API exists.
+    This spec describes the RSS, OPML, search, and HTML surfaces
+    available for programmatic access. No authentication required.
+servers:
+  - url: https://www.techmeme.com
+    description: Techmeme website
+
+paths:
+  /feed.xml:
+    get:
+      operationId: getMainFeed
+      summary: Main RSS Feed
+      description: >
+        Top 15 headlines currently on Techmeme. RSS 2.0 format.
+        Each item has title, link (to Techmeme permalink), description
+        (HTML with source attribution, image, and excerpt), pubDate, guid.
+      responses:
+        '200':
+          description: RSS 2.0 feed with top 15 headlines
+
+  /river:
+    get:
+      operationId: getRiver
+      summary: River of News
+      description: >
+        5-day rolling archive of all Techmeme headlines in reverse
+        chronological order. 150+ headlines with timestamp, author,
+        source publication, headline text, and article link. HTML page.
+      responses:
+        '200':
+          description: HTML page with 5 days of headlines
+
+  /lb.opml:
+    get:
+      operationId: getLeaderboardOPML
+      summary: Leaderboard OPML
+      description: >
+        OPML file listing Techmeme's top 51 sources with source name,
+        website URL, and RSS feed URL. Updated regularly based on
+        headline prominence over the past 180 days.
+      responses:
+        '200':
+          description: OPML file with leaderboard sources
+
+  /search/query:
+    get:
+      operationId: searchHeadlines
+      summary: Search Headlines
+      description: >
+        Search Techmeme headlines. Supports quoted phrases, wildcards,
+        +/-, AND/OR/NOT, parentheses. Can filter by url, author, date,
+        sourcename. Default searches title+summary; can extend to full text.
+        Results available as HTML or RSS.
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: Search query (supports operators like AND, OR, NOT, sourcename:X)
+          schema:
+            type: string
+        - name: wm
+          in: query
+          description: Include web mentions (true/false)
+          schema:
+            type: string
+            default: "false"
+        - name: start
+          in: query
+          description: Pagination offset
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: HTML search results page
+
+  /search/d3results.jsp:
+    get:
+      operationId: searchRSS
+      summary: Search Results RSS
+      description: >
+        RSS feed of search results. Same query syntax as /search/query.
+        Subscribe in any RSS reader for alerts on specific topics.
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: wm
+          in: query
+          schema:
+            type: string
+            default: "false"
+      responses:
+        '200':
+          description: RSS feed of matching headlines
+
+  /:
+    get:
+      operationId: getHomepage
+      summary: Homepage
+      description: >
+        Full Techmeme homepage with top stories, discussion links,
+        social media reactions (X, Bluesky, Mastodon), Hacker News
+        and Reddit threads, images, and source attributions. HTML page.
+      responses:
+        '200':
+          description: HTML homepage with all current stories

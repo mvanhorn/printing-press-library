@@ -15,6 +15,11 @@ metadata:
         bins: [dominos-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/food-and-dining/dominos/cmd/dominos-pp-cli
 ---
+<!-- GENERATED FILE — DO NOT EDIT.
+     This file is a verbatim mirror of library/food-and-dining/dominos/SKILL.md,
+     regenerated post-merge by tools/generate-skills/. Hand-edits here are
+     silently overwritten on the next regen. Edit the library/ source instead.
+     See AGENTS.md "Generated artifacts: registry.json, cli-skills/". -->
 
 # Domino's — Printing Press CLI
 

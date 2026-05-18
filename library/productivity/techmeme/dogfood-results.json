@@ -1,0 +1,85 @@
+{
+  "dir": "/Users/davemorin/printing-press/.runstate/github-ff0ad441/runs/20260509-193944/working/techmeme-pp-cli",
+  "spec_path": "/Users/davemorin/printing-press/.runstate/github-ff0ad441/runs/20260509-193944/research/techmeme-spec.yaml",
+  "verdict": "PASS",
+  "path_check": {
+    "tested": 0,
+    "valid": 0,
+    "valid_pct": 0
+  },
+  "auth_check": {
+    "spec_scheme": "",
+    "generated_format": "unknown",
+    "match": true,
+    "detail": "spec not provided or no bot/bearer scheme detected"
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "dead_flags": {
+    "total": 18,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 49,
+    "dead": 0
+  },
+  "pipeline_check": {
+    "sync_calls_domain": true,
+    "search_calls_domain": false,
+    "domain_tables": 1,
+    "detail": "sync uses domain-specific Upsert methods; search methods not found; 1 domain tables found"
+  },
+  "example_check": {
+    "tested": 10,
+    "with_examples": 10,
+    "valid_examples": 10,
+    "detail": "10/10 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 35,
+      "registered": 35
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 0,
+    "found": 0,
+    "skipped": true
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 0,
+    "exempted_via_store": 0,
+    "skipped": true
+  },
+  "source_client_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "print_json_filtered_check": {
+    "checked": 30
+  },
+  "test_presence": {
+    "checked": 0
+  },
+  "naming_check": {
+    "checked": 30
+  },
+  "issues": null
+}

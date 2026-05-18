@@ -56,6 +56,8 @@ provide a pre-extracted session file.`,
 				return err
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "imported %d cookies from %s\n", len(sess.Cookies), args[0])
+			// PATCH (fix-instacart-location-config-546): see auth login.
+			tryAutoPopulateLocation(cmd, sess)
 			return nil
 		},
 	}
@@ -85,6 +87,10 @@ If the command fails with "database is locked", quit Chrome completely
 				masked := maskCookieValue(c.Value)
 				fmt.Fprintf(cmd.OutOrStdout(), "  %s = %s\n", c.Name, masked)
 			}
+			// PATCH (fix-instacart-location-config-546): best-effort location
+			// auto-populate so cold-install users don't have to discover the
+			// postal_code/address_id/latitude/longitude keys themselves.
+			tryAutoPopulateLocation(cmd, sess)
 			fmt.Fprintln(cmd.OutOrStdout(), "\nrun `instacart doctor` to verify")
 			fmt.Fprintln(cmd.OutOrStdout(), "tip: `instacart history sync` will pull your past orders into the local store")
 			fmt.Fprintln(cmd.OutOrStdout(), "     so future `add` commands can resolve items you have bought before.")
@@ -177,6 +183,8 @@ it here (ending with a blank line or Ctrl-D).`,
 				return err
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "imported %d cookies from pasted header\n", len(sess.Cookies))
+			// PATCH (fix-instacart-location-config-546): see auth login.
+			tryAutoPopulateLocation(cmd, sess)
 			return nil
 		},
 	}

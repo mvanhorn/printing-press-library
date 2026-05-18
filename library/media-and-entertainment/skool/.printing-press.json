@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-10T20:13:42.323113Z",
+  "printing_press_version": "4.0.6",
+  "api_name": "skool",
+  "display_name": "Skool",
+  "cli_name": "skool-pp-cli",
+  "printer": "quoxientzero",
+  "printer_name": "Zain Haseeb",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:e9447a3baa35778dc36adced2ed7c71d982d1501db1720f582b0ad6452a3bcea",
+  "run_id": "20260510-114931",
+  "description": "Every Skool community feature, plus a local SQLite mirror, FTS, and cross-community ops no other Skool tool ships.",
+  "mcp_binary": "skool-pp-mcp",
+  "mcp_tool_count": 21,
+  "mcp_ready": "partial",
+  "auth_type": "cookie",
+  "endpoint_template_vars": [
+    "community",
+    "buildId"
+  ],
+  "auth_key_url": "https://www.skool.com/login",
+  "novel_features": [
+    {
+      "name": "Top posts",
+      "command": "posts top",
+      "description": "Rank recent posts by upvotes, comments, or engagement and return them with full content."
+    },
+    {
+      "name": "Leaderboard",
+      "command": "leaderboard",
+      "description": "Top members by points for the community, with level and bio fields included."
+    },
+    {
+      "name": "Digest since",
+      "command": "digest since",
+      "description": "Aggregate everything new across posts, comments, members, and lessons since a timestamp."
+    },
+    {
+      "name": "Cross-community SQL",
+      "command": "sql",
+      "description": "Run read-only SQL across every community in your local store."
+    },
+    {
+      "name": "Calendar to ICS",
+      "command": "calendar export",
+      "description": "Export upcoming community events to an .ics file for Google Cal / Outlook."
+    },
+    {
+      "name": "Classroom export",
+      "command": "classroom export",
+      "description": "Export an entire course to a markdown bundle (modules, lessons, attachments, video URLs)."
+    }
+  ]
+}
