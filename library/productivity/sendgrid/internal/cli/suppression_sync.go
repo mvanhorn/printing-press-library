@@ -192,20 +192,41 @@ func syncOneSuppressionType(
 	csvEntries map[string]suppressionEntry,
 	apply bool,
 ) ([]suppressionSyncRow, error) {
-	// Fetch current API state
-	data, err := c.Get(apiPath, map[string]string{"limit": "500"})
-	if err != nil {
-		return nil, fmt.Errorf("fetching %s: %w", typeName, err)
+	// Fetch current API state across all pages. SendGrid's suppression
+	// endpoints support offset/limit pagination; stopping at a single
+	// 500-record window silently truncates large accounts and produces
+	// spurious "remove" rows for entries that exist beyond page 1.
+	const pageSize = 500
+	const maxPages = 200 // safety cap: 100k entries per type
+	var apiList []map[string]any
+	var lastPage json.RawMessage
+	for page := 0; page < maxPages; page++ {
+		offset := page * pageSize
+		params := map[string]string{
+			"limit":  fmt.Sprintf("%d", pageSize),
+			"offset": fmt.Sprintf("%d", offset),
+		}
+		data, err := c.Get(apiPath, params)
+		if err != nil {
+			return nil, fmt.Errorf("fetching %s page %d: %w", typeName, page, err)
+		}
+		lastPage = data
+		var batch []map[string]any
+		if err := json.Unmarshal(data, &batch); err != nil {
+			return nil, fmt.Errorf("parsing %s page %d: %w", typeName, page, err)
+		}
+		apiList = append(apiList, batch...)
+		if len(batch) < pageSize {
+			break
+		}
 	}
 
-	// Mirror into store
-	_ = db.Upsert(resourceType, typeName, data)
+	// Mirror last fetched page raw into store as a coarse mirror checkpoint.
+	// (Full pagination is preserved in apiList; the local mirror is a hint
+	// for offline diffs, not the source of truth.)
+	_ = db.Upsert(resourceType, typeName, lastPage)
 
-	// Parse API entries
-	var apiList []map[string]any
-	_ = json.Unmarshal(data, &apiList)
-
-	apiEntries := make(map[string]suppressionEntry)
+	apiEntries := make(map[string]suppressionEntry, len(apiList))
 	for _, item := range apiList {
 		email, _ := item["email"].(string)
 		reason, _ := item["reason"].(string)

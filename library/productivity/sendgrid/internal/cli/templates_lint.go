@@ -106,7 +106,10 @@ Exits with code 2 when any tokens are missing so CI pipelines can gate sends.`,
 			}
 
 			if anyMissing {
-				os.Exit(2)
+				// Return a code-2 exit so CI pipelines can gate sends, while still
+				// allowing the Cobra command + deferred cleanups (db handles, etc.)
+				// to unwind cleanly. main.go maps cliError.code to os.Exit.
+				return &cliError{code: 2, err: fmt.Errorf("template %s: missing tokens", templateID)}
 			}
 			return nil
 		},

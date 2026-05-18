@@ -3,12 +3,14 @@
 package cli
 
 import (
+	"context"
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/productivity/sendgrid/internal/store"
 	"github.com/spf13/cobra"
@@ -46,7 +48,7 @@ only_in_external, and cases where the reason field differs (mismatched_reason).`
 			var extErr error
 			if flagAgainst != "" {
 				if strings.HasPrefix(flagAgainst, "http://") || strings.HasPrefix(flagAgainst, "https://") {
-					external, extErr = fetchURLCSV(flagAgainst)
+					external, extErr = fetchURLCSV(cmd.Context(), flagAgainst)
 				} else {
 					external, extErr = loadSuppressionCSV(flagAgainst)
 				}
@@ -77,71 +79,70 @@ only_in_external, and cases where the reason field differs (mismatched_reason).`
 				localEntries = map[string]suppressionEntry{}
 			}
 
-			// Three-way diff
+			// Three-way diff. Each email gets exactly one category based on
+			// presence in (API, local, external). When --against isn't supplied,
+			// external is empty and we only emit only_in_api / only_in_local.
 			type diffResult struct {
 				Category string `json:"category"`
 				Email    string `json:"email"`
 				Reason   string `json:"reason,omitempty"`
 			}
 
+			hasExternal := flagAgainst != ""
+
+			// Union of all email keys we know about.
+			allEmails := map[string]struct{}{}
+			for e := range apiEntries {
+				allEmails[e] = struct{}{}
+			}
+			for e := range localEntries {
+				allEmails[e] = struct{}{}
+			}
+			for e := range external {
+				allEmails[e] = struct{}{}
+			}
+
 			var results []diffResult
-
-			// Only in API
-			for email, entry := range apiEntries {
-				_, inLocal := localEntries[email]
-				_, inExt := external[email]
-				if !inLocal || !inExt {
-					cat := "only_in_api"
-					if inLocal && !inExt && len(external) > 0 {
-						cat = "only_in_api"
-					}
-					if !inLocal && inExt {
-						cat = "only_in_api"
-					}
-					if !inLocal && !inExt {
-						cat = "only_in_api"
-					}
-					_ = cat
-					if !inLocal {
-						results = append(results, diffResult{Category: "only_in_api", Email: email, Reason: entry.Reason})
-						continue
-					}
-					if len(external) > 0 && !inExt {
-						results = append(results, diffResult{Category: "only_in_api", Email: email, Reason: entry.Reason})
-					}
-				}
-			}
-
-			// Only in local
-			for email, entry := range localEntries {
-				_, inAPI := apiEntries[email]
-				_, inExt := external[email]
-				if !inAPI {
-					results = append(results, diffResult{Category: "only_in_local", Email: email, Reason: entry.Reason})
-				} else if len(external) > 0 && !inExt {
-					results = append(results, diffResult{Category: "only_in_local", Email: email, Reason: entry.Reason})
-				}
-			}
-
-			// Only in external
-			for email, entry := range external {
-				_, inAPI := apiEntries[email]
-				_, inLocal := localEntries[email]
-				if !inAPI && !inLocal {
-					results = append(results, diffResult{Category: "only_in_external", Email: email, Reason: entry.Reason})
-				}
-			}
-
-			// Mismatched reason (present in all three but reason differs)
-			for email, apiE := range apiEntries {
+			for email := range allEmails {
+				apiE, inAPI := apiEntries[email]
 				localE, inLocal := localEntries[email]
 				extE, inExt := external[email]
-				if inLocal && inExt {
-					if apiE.Reason != localE.Reason || apiE.Reason != extE.Reason {
+
+				if hasExternal {
+					switch {
+					case inAPI && !inLocal && !inExt:
+						results = append(results, diffResult{Category: "only_in_api", Email: email, Reason: apiE.Reason})
+					case !inAPI && inLocal && !inExt:
+						results = append(results, diffResult{Category: "only_in_local", Email: email, Reason: localE.Reason})
+					case !inAPI && !inLocal && inExt:
+						results = append(results, diffResult{Category: "only_in_external", Email: email, Reason: extE.Reason})
+					case inAPI && inLocal && !inExt:
+						results = append(results, diffResult{Category: "missing_from_external", Email: email, Reason: apiE.Reason})
+					case inAPI && !inLocal && inExt:
+						results = append(results, diffResult{Category: "missing_from_local", Email: email, Reason: apiE.Reason})
+					case !inAPI && inLocal && inExt:
+						results = append(results, diffResult{Category: "missing_from_api", Email: email, Reason: localE.Reason})
+					case inAPI && inLocal && inExt:
+						if apiE.Reason != localE.Reason || apiE.Reason != extE.Reason {
+							results = append(results, diffResult{
+								Category: "mismatched_reason",
+								Email:    email,
+								Reason:   fmt.Sprintf("api=%q local=%q external=%q", apiE.Reason, localE.Reason, extE.Reason),
+							})
+						}
+					}
+				} else {
+					// Two-way diff against the local store.
+					switch {
+					case inAPI && !inLocal:
+						results = append(results, diffResult{Category: "only_in_api", Email: email, Reason: apiE.Reason})
+					case !inAPI && inLocal:
+						results = append(results, diffResult{Category: "only_in_local", Email: email, Reason: localE.Reason})
+					case inAPI && inLocal && apiE.Reason != localE.Reason:
 						results = append(results, diffResult{
 							Category: "mismatched_reason",
 							Email:    email,
-							Reason:   fmt.Sprintf("api=%q local=%q external=%q", apiE.Reason, localE.Reason, extE.Reason),
+							Reason:   fmt.Sprintf("api=%q local=%q", apiE.Reason, localE.Reason),
 						})
 					}
 				}
@@ -210,8 +211,16 @@ func loadLocalSuppressions(db *store.Store, resourceType string) map[string]supp
 	return entries
 }
 
-func fetchURLCSV(url string) (map[string]suppressionEntry, error) {
-	resp, err := http.Get(url) //nolint:noctx
+func fetchURLCSV(ctx context.Context, url string) (map[string]suppressionEntry, error) {
+	// Bound the wait: a slow/unresponsive host shouldn't pin a CLI invocation
+	// forever. 30s covers reasonable corporate CSV exports without being
+	// generous enough to hide a real outage.
+	httpClient := &http.Client{Timeout: 30 * time.Second}
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("building request for %q: %w", url, err)
+	}
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("fetching %q: %w", url, err)
 	}

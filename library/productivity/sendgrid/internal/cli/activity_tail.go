@@ -56,17 +56,13 @@ Without --follow, does one pass and exits.`,
 
 			seen := map[string]bool{}
 			filters := parseActivityFilters(flagFilters)
-			// firstPoll skips the timestamp filter so the initial call returns latest events
-			// (SendGrid's TIMESTAMP DSL is strict; an unfilterable first call avoids edge cases).
-			// Subsequent polls in --follow mode filter by msg_id dedup via the `seen` map.
-			firstPoll := true
 
 			for {
+				// Filter by msg_id dedup only; SendGrid's last_event_time DSL is
+				// unreliable across regions, so we lean on the seen-map for
+				// incremental polling — both first and subsequent polls issue the
+				// same request shape and dedup via `seen`.
 				params := map[string]string{"limit": "100"}
-				// Filter by msg_id dedup only; SendGrid's last_event_time DSL is unreliable
-				// across regions, so we lean on the seen-map for incremental polling.
-				_ = firstPoll
-				firstPoll = false
 				data, err := c.Get("/v3/messages", params)
 				if err != nil {
 					_, _ = fmt.Fprintf(cmd.ErrOrStderr(), "warn: poll error: %v\n", err)

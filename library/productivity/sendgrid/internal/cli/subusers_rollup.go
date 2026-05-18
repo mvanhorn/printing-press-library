@@ -13,14 +13,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-type subuserRollupRow struct {
-	Subuser    string  `json:"subuser"`
-	Reputation float64 `json:"reputation"`
-	Bounces    float64 `json:"bounces"`
-	Opens      float64 `json:"opens"`
-	Clicks     float64 `json:"clicks"`
-}
-
 func newSubusersRollupCmd(flags *rootFlags) *cobra.Command {
 	var flagMetrics string
 	var flagWindow string
@@ -173,53 +165,79 @@ monitoring tenant health across a subuser hierarchy.`,
 
 			cliutil.FanoutReportErrors(cmd.ErrOrStderr(), errs)
 
-			// Build output
-			var rows []subuserRollupRow
-			for _, r := range results {
-				s := r.Value
-				row := subuserRollupRow{
-					Subuser:    s.username,
-					Reputation: s.reputation,
-					Bounces:    s.bounces,
-					Opens:      s.opens,
-					Clicks:     s.clicks,
-				}
+			// Filter-set from --metric: empty means show all four columns.
+			metricSet := map[string]bool{}
+			for _, m := range metrics {
+				metricSet[strings.ToLower(strings.TrimSpace(m))] = true
+			}
 
-				// Filter to requested metrics
-				_ = metrics
-				rows = append(rows, row)
+			// Build output rows. JSON marshal goes through a per-row map so
+			// unselected metrics are omitted (not just zeroed); subuserStats
+			// is reused as the in-memory carrier.
+			rows := make([]subuserStats, 0, len(results))
+			for _, r := range results {
+				rows = append(rows, r.Value)
 			}
 
 			// Sort by subuser name for stable output
-			sortedRows := make([]subuserRollupRow, len(rows))
-			copy(sortedRows, rows)
-			for i := 0; i < len(sortedRows)-1; i++ {
-				for j := i + 1; j < len(sortedRows); j++ {
-					if strings.Compare(sortedRows[i].Subuser, sortedRows[j].Subuser) > 0 {
-						sortedRows[i], sortedRows[j] = sortedRows[j], sortedRows[i]
+			for i := 0; i < len(rows)-1; i++ {
+				for j := i + 1; j < len(rows); j++ {
+					if strings.Compare(rows[i].username, rows[j].username) > 0 {
+						rows[i], rows[j] = rows[j], rows[i]
 					}
 				}
 			}
 
+			buildRow := func(r subuserStats, jsonShape bool) map[string]any {
+				row := map[string]any{"subuser": r.username}
+				if metricSet["reputation"] {
+					if jsonShape {
+						row["reputation"] = r.reputation
+					} else {
+						row["reputation"] = fmt.Sprintf("%.1f", r.reputation)
+					}
+				}
+				if metricSet["bounces"] {
+					if jsonShape {
+						row["bounces"] = r.bounces
+					} else {
+						row["bounces"] = fmt.Sprintf("%.0f", r.bounces)
+					}
+				}
+				if metricSet["opens"] {
+					if jsonShape {
+						row["opens"] = r.opens
+					} else {
+						row["opens"] = fmt.Sprintf("%.0f", r.opens)
+					}
+				}
+				if metricSet["clicks"] {
+					if jsonShape {
+						row["clicks"] = r.clicks
+					} else {
+						row["clicks"] = fmt.Sprintf("%.0f", r.clicks)
+					}
+				}
+				return row
+			}
+
 			if flags.asJSON {
-				raw, _ := json.Marshal(sortedRows)
+				jsonRows := make([]map[string]any, len(rows))
+				for i, r := range rows {
+					jsonRows[i] = buildRow(r, true)
+				}
+				raw, _ := json.Marshal(jsonRows)
 				return printOutput(cmd.OutOrStdout(), raw, true)
 			}
 
-			if len(sortedRows) == 0 {
+			if len(rows) == 0 {
 				_, _ = fmt.Fprintln(cmd.OutOrStdout(), "No subuser stats available.")
 				return nil
 			}
 
-			items := make([]map[string]any, len(sortedRows))
-			for i, r := range sortedRows {
-				items[i] = map[string]any{
-					"subuser":    r.Subuser,
-					"reputation": fmt.Sprintf("%.1f", r.Reputation),
-					"bounces":    fmt.Sprintf("%.0f", r.Bounces),
-					"opens":      fmt.Sprintf("%.0f", r.Opens),
-					"clicks":     fmt.Sprintf("%.0f", r.Clicks),
-				}
+			items := make([]map[string]any, len(rows))
+			for i, r := range rows {
+				items[i] = buildRow(r, false)
 			}
 			return printAutoTable(cmd.OutOrStdout(), items)
 		},
