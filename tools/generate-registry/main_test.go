@@ -150,15 +150,41 @@ func TestValidateEntries(t *testing.T) {
 			wantOK: true,
 		},
 		{
-			name: "empty description fails with sources-checked message",
+			name: "empty description fails with sources-checked message in resolution order",
 			entries: []RegistryEntry{
 				{Name: "lawhub", Category: "education", API: "LawHub", Description: "", Path: "library/education/lawhub"},
 			},
 			wantSubstrs: []string{
 				"lawhub: description is empty",
-				".printing-press.json description",
-				".goreleaser.yaml brews description",
+				// Sources appear in fallback-resolution order: goreleaser
+				// (second tier) is listed before .printing-press.json (third
+				// tier), matching what registryDescription consults.
+				".goreleaser.yaml brews description, .printing-press.json description",
 			},
+		},
+		{
+			name: "all-whitespace description fails (matches npm requiredString trim semantics)",
+			entries: []RegistryEntry{
+				{Name: "ws", Category: "tools", API: "WS", Description: "   \t\n  ", Path: "library/tools/ws"},
+			},
+			wantSubstrs: []string{"ws: description is empty"},
+		},
+		{
+			name: "all-whitespace name reports under (unnamed) prefix",
+			entries: []RegistryEntry{
+				{Name: "  ", Category: "tools", API: "X", Description: "Has desc.", Path: "library/tools/x"},
+			},
+			wantSubstrs: []string{"(unnamed): name is empty"},
+		},
+		{
+			name: "all-whitespace mcp.auth_type fails",
+			entries: []RegistryEntry{
+				{
+					Name: "x", Category: "tools", API: "X", Description: "Has desc.", Path: "library/tools/x",
+					MCP: &MCPBlock{Binary: "x-pp-mcp", Transports: []string{"stdio"}, AuthType: "   "},
+				},
+			},
+			wantSubstrs: []string{"x: mcp.auth_type is empty"},
 		},
 		{
 			name: "multiple entries each report independently",

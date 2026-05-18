@@ -407,35 +407,49 @@ func registryDescription(prior, goreleaser, ppDescription string) string {
 // Returns an empty slice when every entry validates. Caller decides how to
 // surface the result (the --validate flag prints them and exits 2).
 func validateEntries(entries []RegistryEntry) []string {
+	// isBlank matches the npm installer's requiredString semantics
+	// (`.trim() === ""`). Using == "" here would let an all-whitespace
+	// value pass validation but still throw inside parseRegistryEntry,
+	// defeating the gate. Centralizing the check keeps the Go and TS
+	// acceptance criteria byte-for-byte aligned.
+	isBlank := func(s string) bool {
+		return strings.TrimSpace(s) == ""
+	}
+
 	var errs []string
 	for _, e := range entries {
-		slug := e.Name
+		slug := strings.TrimSpace(e.Name)
 		if slug == "" {
 			slug = "(unnamed)"
 		}
-		if e.Name == "" {
+		if isBlank(e.Name) {
 			errs = append(errs, fmt.Sprintf("%s: name is empty", slug))
 		}
-		if e.Category == "" {
+		if isBlank(e.Category) {
 			errs = append(errs, fmt.Sprintf("%s: category is empty", slug))
 		}
-		if e.API == "" {
+		if isBlank(e.API) {
 			errs = append(errs, fmt.Sprintf("%s: api is empty", slug))
 		}
-		if e.Path == "" {
+		if isBlank(e.Path) {
 			errs = append(errs, fmt.Sprintf("%s: path is empty", slug))
 		}
-		if e.Description == "" {
-			errs = append(errs, fmt.Sprintf("%s: description is empty (sources checked: .printing-press.json description, .goreleaser.yaml brews description)", slug))
+		if isBlank(e.Description) {
+			// Source order mirrors the resolution chain in registryDescription:
+			// goreleaser brews is the second tier, .printing-press.json description
+			// is the third. Listing them in resolution order helps a contributor
+			// reading this error understand which file would take precedence if
+			// they populated both.
+			errs = append(errs, fmt.Sprintf("%s: description is empty (sources checked: .goreleaser.yaml brews description, .printing-press.json description)", slug))
 		}
 		if e.MCP != nil {
-			if e.MCP.Binary == "" {
+			if isBlank(e.MCP.Binary) {
 				errs = append(errs, fmt.Sprintf("%s: mcp.binary is empty", slug))
 			}
 			if len(e.MCP.Transports) == 0 {
 				errs = append(errs, fmt.Sprintf("%s: mcp.transports is empty", slug))
 			}
-			if e.MCP.AuthType == "" {
+			if isBlank(e.MCP.AuthType) {
 				errs = append(errs, fmt.Sprintf("%s: mcp.auth_type is empty", slug))
 			}
 		}
