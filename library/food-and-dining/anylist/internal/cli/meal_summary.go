@@ -75,6 +75,18 @@ func newMealSummaryCmd(flags *rootFlags) *cobra.Command {
 				}
 				to = fromTime.AddDate(0, 0, 6).Format("2006-01-02")
 			}
+			// PATCH: Validate caller-supplied date ranges before querying or rendering.
+			fromTime, err := time.Parse("2006-01-02", from)
+			if err != nil {
+				return fmt.Errorf("invalid --from date: %w", err)
+			}
+			toTime, err := time.Parse("2006-01-02", to)
+			if err != nil {
+				return fmt.Errorf("invalid --to date: %w", err)
+			}
+			if toTime.Before(fromTime) {
+				return fmt.Errorf("--to date must be on or after --from date")
+			}
 
 			events, err := st.GetMealEvents(from, to)
 			if err != nil {
@@ -106,10 +118,6 @@ func newMealSummaryCmd(flags *rootFlags) *cobra.Command {
 			for _, e := range events {
 				eventsByDate[e.Date] = append(eventsByDate[e.Date], e)
 			}
-
-			// Generate date range
-			fromTime, _ := time.Parse("2006-01-02", from)
-			toTime, _ := time.Parse("2006-01-02", to)
 
 			w := cmd.OutOrStdout()
 			fmt.Fprintf(w, "\nMeal Plan: %s to %s\n\n", from, to)

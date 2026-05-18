@@ -14,7 +14,6 @@ func newRecipesAddToListCmd(flags *rootFlags) *cobra.Command {
 	var bodyListName string
 	var bodyScale int
 	var bodyMerge bool
-	var bodyDedup bool
 	var stdinBody bool
 
 	cmd := &cobra.Command{
@@ -52,7 +51,8 @@ func newRecipesAddToListCmd(flags *rootFlags) *cobra.Command {
 			}
 			defer st.Close()
 
-			added, err := addRecipeIngredientsToList(ctx, cfg, st, bodyRecipe, bodyListName, bodyScale, bodyDedup && bodyMerge)
+			// PATCH: Keep one clear dedup/merge switch instead of duplicate equivalent flags.
+			added, err := addRecipeIngredientsToList(ctx, cfg, st, bodyRecipe, bodyListName, bodyScale, bodyMerge)
 			if err != nil {
 				return err
 			}
@@ -71,7 +71,6 @@ func newRecipesAddToListCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyListName, "list", "", "Target shopping list name")
 	cmd.Flags().IntVar(&bodyScale, "scale", 0, "Scale to this many servings before adding (0 = use recipe default)")
 	cmd.Flags().BoolVar(&bodyMerge, "merge", true, "Avoid duplicate unchecked items already on the list")
-	cmd.Flags().BoolVar(&bodyDedup, "dedup", true, "Skip ingredients already on the list")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd

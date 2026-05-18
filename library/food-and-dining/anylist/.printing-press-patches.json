@@ -106,6 +106,17 @@
         "internal/cli/root_test.go"
       ],
       "validated_outcome": "Added regression coverage for --week=false requiring --month or an explicit date range."
+    },
+    {
+      "id": "review-meal-summary-date-and-recipe-flags",
+      "summary": "Validated explicit meal-summary date ranges and removed the duplicate recipe dedup flag.",
+      "reason": "Greptile noted that invalid explicit meal summary dates could produce enormous output and that recipes add-to-list exposed two flags for the same deduplication behavior.",
+      "files": [
+        "internal/cli/meal_summary.go",
+        "internal/cli/recipes_add-to-list.go",
+        "internal/cli/root_test.go"
+      ],
+      "validated_outcome": "Added regressions for invalid explicit meal-summary dates and for exposing only the documented recipe --merge flag."
     }
   ]
 }

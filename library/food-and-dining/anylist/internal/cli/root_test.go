@@ -219,6 +219,39 @@ func TestMealSummaryWeekFalseRequiresAlternateRange(t *testing.T) {
 	}
 }
 
+func TestMealSummaryValidatesExplicitDateRange(t *testing.T) {
+	t.Parallel()
+
+	configPath := filepath.Join(t.TempDir(), "config.toml")
+	st, err := store.Open(&config.Config{Path: configPath})
+	if err != nil {
+		t.Fatalf("Open returned error: %v", err)
+	}
+	defer st.Close()
+
+	cmd := newMealSummaryCmd(&rootFlags{configPath: configPath})
+	cmd.SetArgs([]string{"--from", "not-a-date", "--to", "2026-05-18"})
+	err = cmd.Execute()
+	if err == nil {
+		t.Fatal("Execute returned nil error, want invalid from date error")
+	}
+	if !strings.Contains(err.Error(), "invalid --from date") {
+		t.Fatalf("error = %v, want invalid from date error", err)
+	}
+}
+
+func TestRecipesAddToListHasSingleDeduplicationFlag(t *testing.T) {
+	t.Parallel()
+
+	cmd := newRecipesAddToListCmd(&rootFlags{})
+	if flag := cmd.Flags().Lookup("dedup"); flag != nil {
+		t.Fatalf("recipes add-to-list must not expose duplicate --dedup flag; got %q", flag.Name)
+	}
+	if flag := cmd.Flags().Lookup("merge"); flag == nil {
+		t.Fatal("recipes add-to-list must keep documented --merge flag")
+	}
+}
+
 func TestListsResetDryRunJSONUsesStructuredOutput(t *testing.T) {
 	t.Parallel()
 
