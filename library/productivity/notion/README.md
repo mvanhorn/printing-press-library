@@ -6,7 +6,7 @@ notion-pp-cli syncs your Notion workspace into a local SQLite store and exposes 
 
 ## Install
 
-The recommended path installs both the `notion-pp-cli` binary and the `pp-notion` agent skill in one shot:
+The recommended path installs both the `notion-pp-cli` binary and the `pp-notion` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
 npx -y @mvanhorn/printing-press install notion
@@ -16,6 +16,19 @@ For CLI only (no skill):
 
 ```bash
 npx -y @mvanhorn/printing-press install notion --cli-only
+```
+
+For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
+
+```bash
+npx -y @mvanhorn/printing-press install notion --skill-only
+```
+
+To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
+
+```bash
+npx -y @mvanhorn/printing-press install notion --agent claude-code
+npx -y @mvanhorn/printing-press install notion --agent claude-code --agent codex
 ```
 
 ### Without Node (Go fallback)
@@ -55,6 +68,44 @@ Tell your OpenClaw agent (copy this):
 Install the pp-notion skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-notion. The skill defines how its required CLI can be installed.
 ```
 
+## Use with Claude Desktop
+
+This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
+
+To install:
+
+1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/notion-current).
+2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
+3. Fill in `NOTION_BEARER_AUTH` when Claude Desktop prompts you.
+
+Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
+
+<details>
+<summary>Manual JSON config (advanced)</summary>
+
+If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/productivity/notion/cmd/notion-pp-mcp@latest
+```
+
+Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "notion": {
+      "command": "notion-pp-mcp",
+      "env": {
+        "NOTION_BEARER_AUTH": "<your-key>"
+      }
+    }
+  }
+}
+```
+
+</details>
+
 ## Authentication
 
 Requires a Notion Internal Integration token. Create one at notion.so/my-integrations, then share your databases with it. Set NOTION_TOKEN in your environment. Run `notion-pp-cli sync` once to populate the local store.
@@ -65,18 +116,14 @@ Requires a Notion Internal Integration token. Create one at notion.so/my-integra
 # Paste your NOTION_TOKEN from notion.so/my-integrations
 notion-pp-cli auth set-token
 
-
 # Mirror your entire workspace to local SQLite — takes 30-120 seconds depending on workspace size
 notion-pp-cli sync --full
-
 
 # Find everything untouched for 30+ days
 notion-pp-cli stale --days 30 --json
 
-
 # Get a hygiene scorecard for the whole workspace
 notion-pp-cli workspace-health
-
 
 # Raw SQL against the local store for custom queries
 notion-pp-cli sql "SELECT title, last_edited_time FROM pages ORDER BY last_edited_time DESC LIMIT 20" --agent
@@ -200,7 +247,6 @@ View endpoints
 - **`notion-pp-cli views retrieve-a`** - Retrieve a view
 - **`notion-pp-cli views update-a`** - Update a view
 
-
 ## Output Formats
 
 ```bash
@@ -235,71 +281,6 @@ This CLI is designed for AI agent consumption:
 - **Agent-safe by default** - no colors or formatting unless `--human-friendly` is set
 
 Exit codes: `0` success, `2` usage error, `3` not found, `4` auth error, `5` API error, `7` rate limited, `10` config error.
-
-## Use with Claude Code
-
-Install the focused skill — it auto-installs the CLI on first invocation:
-
-```bash
-npx skills add mvanhorn/printing-press-library/cli-skills/pp-notion -g
-```
-
-Then invoke `/pp-notion <query>` in Claude Code. The skill is the most efficient path — Claude Code drives the CLI directly without an MCP server in the middle.
-
-<details>
-<summary>Use as an MCP server in Claude Code (advanced)</summary>
-
-If you'd rather register this CLI as an MCP server in Claude Code, install the MCP binary first:
-
-```bash
-go install github.com/mvanhorn/printing-press-library/library/productivity/notion/cmd/notion-pp-mcp@latest
-```
-
-Then register it:
-
-```bash
-claude mcp add notion notion-pp-mcp -e NOTION_BEARER_AUTH=<your-token>
-```
-
-</details>
-
-## Use with Claude Desktop
-
-This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
-
-To install:
-
-1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/notion-current).
-2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
-3. Fill in `NOTION_BEARER_AUTH` when Claude Desktop prompts you.
-
-Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
-
-<details>
-<summary>Manual JSON config (advanced)</summary>
-
-If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
-
-```bash
-go install github.com/mvanhorn/printing-press-library/library/productivity/notion/cmd/notion-pp-mcp@latest
-```
-
-Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "notion": {
-      "command": "notion-pp-mcp",
-      "env": {
-        "NOTION_BEARER_AUTH": "<your-key>"
-      }
-    }
-  }
-}
-```
-
-</details>
 
 ## Health Check
 

@@ -56,6 +56,36 @@
       }
     },
     {
+      "name": "airframe",
+      "category": "developer-tools",
+      "api": "airframe",
+      "description": "Aircraft forensics from open public records — tail-number dossiers, fleet research, model-level safety, and NTSB event archaeology.",
+      "path": "library/developer-tools/airframe",
+      "printer": "ChrisDrit",
+      "printer_name": "Chris Drit",
+      "mcp": {
+        "binary": "airframe-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 9,
+        "public_tool_count": 0,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "plan"
+      }
+    },
+    {
+      "name": "alaska-airlines",
+      "category": "travel",
+      "api": "alaska-airlines",
+      "description": "Search Alaska Airlines flights, manage Atmos Rewards, and pre-build cart deeplinks for one-click checkout - all from...",
+      "path": "library/travel/alaska-airlines",
+      "printer": "mvanhorn",
+      "printer_name": "Matt Van Horn"
+    },
+    {
       "name": "allrecipes",
       "category": "food-and-dining",
       "api": "Allrecipes",
@@ -168,6 +198,27 @@
       }
     },
     {
+      "name": "bandsintown",
+      "category": "media-and-entertainment",
+      "api": "Bandsintown",
+      "description": "Turn Bandsintown's two read-only endpoints into a tour-routing brain: local cache, calendar-gap detection, lineup...",
+      "path": "library/media-and-entertainment/bandsintown",
+      "printer": "4.5.2",
+      "printer_name": "printing-press",
+      "mcp": {
+        "binary": "bandsintown-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 2,
+        "public_tool_count": 2,
+        "auth_type": "api_key",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
       "name": "beehiiv",
       "category": "marketing",
       "api": "Beehiiv",
@@ -208,6 +259,32 @@
         "auth_type": "bearer_token",
         "env_vars": [
           "CAL_COM_TOKEN"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "cf-domain",
+      "category": "cloud",
+      "api": "Cloudflare Registrar Domains",
+      "description": "Agent-native CLI for Cloudflare Registrar domain search, check, and registration.",
+      "path": "library/cloud/cf-domain",
+      "printer": "danny-shmueli",
+      "printer_name": "Danny Shmueli",
+      "mcp": {
+        "binary": "cf-domain-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 3,
+        "public_tool_count": 5,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "CLOUDFLARE_API_TOKEN",
+          "CLOUDFLARE_REGISTRAR_DOMAINS_BEARER_AUTH",
+          "ACCOUNT_ID",
+          "CLOUDFLARE_ACCOUNT_ID"
         ],
         "mcp_ready": "full",
         "spec_format": "openapi3"
@@ -435,6 +512,27 @@
       }
     },
     {
+      "name": "domain-goat",
+      "category": "developer-tools",
+      "api": "Domain Goat",
+      "description": "Identify domains worth buying — across RDAP, WHOIS, and Porkbun pricing — without ever leaving the terminal.",
+      "path": "library/developer-tools/domain-goat",
+      "printer": "mitch-nick",
+      "printer_name": "Mitch Nick",
+      "mcp": {
+        "binary": "domain-goat-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 2,
+        "public_tool_count": 2,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "dominos",
       "category": "food-and-dining",
       "api": "Domino's",
@@ -503,6 +601,61 @@
         "env_vars": [],
         "mcp_ready": "partial",
         "spec_format": "internal"
+      }
+    },
+    {
+      "name": "edgar",
+      "category": "other",
+      "api": "edgar",
+      "description": "An agent-native CLI for SEC EDGAR — six sanctioned endpoints, SQLite-cached filings with FTS5, and LODESTAR-shaped...",
+      "path": "library/other/edgar",
+      "printer": "magoo242",
+      "printer_name": "magoo242"
+    },
+    {
+      "name": "elevenlabs",
+      "category": "ai",
+      "api": "ElevenLabs",
+      "description": "This is the documentation for the ElevenLabs API. You can use this API to use our service programmatically, this is...",
+      "path": "library/ai/elevenlabs",
+      "printer": "cathrynlavery",
+      "printer_name": "Cathryn Lavery",
+      "mcp": {
+        "binary": "elevenlabs-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 302,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "ELEVENLABS_API_KEY"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "emailoctopus",
+      "category": "marketing",
+      "api": "Emailoctopus",
+      "description": "Every EmailOctopus v2 endpoint, plus the cross-list joins, churn diffs, and rate-budgeted bulk operations the API...",
+      "path": "library/marketing/emailoctopus",
+      "printer": "tmchow",
+      "printer_name": "Trevin Chow",
+      "mcp": {
+        "binary": "emailoctopus-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 25,
+        "public_tool_count": 0,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "EMAILOCTOPUS_API_KEY"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
       }
     },
     {
@@ -689,6 +842,30 @@
       }
     },
     {
+      "name": "freshservice",
+      "category": "productivity",
+      "api": "Freshservice",
+      "description": "Every Freshservice operation in one Go binary — with offline search, SLA intelligence, and agent-native JSON that...",
+      "path": "library/productivity/freshservice",
+      "printer": "mark-van-de-ven",
+      "printer_name": "Mark van de Ven",
+      "mcp": {
+        "binary": "freshservice-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 76,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "FRESHSERVICE_APIKEY",
+          "FRESHSERVICE_DOMAIN"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
       "name": "google-ads",
       "category": "marketing",
       "api": "Google Ads",
@@ -770,6 +947,52 @@
       }
     },
     {
+      "name": "greatclips",
+      "category": "other",
+      "api": "Greatclips",
+      "description": "First CLI for Great Clips Online Check-In: every endpoint shape and host route, ready for real calls once cookies...",
+      "path": "library/other/greatclips",
+      "printer": "mvanhorn",
+      "printer_name": "Matt Van Horn",
+      "mcp": {
+        "binary": "greatclips-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 9,
+        "public_tool_count": 0,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "GREATCLIPS_TOKEN"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
+      "name": "gumroad",
+      "category": "commerce",
+      "api": "Gumroad",
+      "description": "Gumroad's seller API as an agent-ready CLI and MCP server.",
+      "path": "library/commerce/gumroad",
+      "printer": "bheemreddy181",
+      "printer_name": "Bheem Reddy",
+      "mcp": {
+        "binary": "gumroad-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 52,
+        "public_tool_count": 1,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "GUMROAD_ACCESS_TOKEN"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
       "name": "hackernews",
       "category": "media-and-entertainment",
       "api": "Hacker News",
@@ -786,6 +1009,48 @@
         "tool_count": 10,
         "public_tool_count": 10,
         "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
+      "name": "harris-teeter",
+      "category": "commerce",
+      "api": "Harris Teeter",
+      "description": "Harris Teeter grocery shopping API discovered from the logged-in web app",
+      "path": "library/commerce/harris-teeter",
+      "printer": "jwmoss",
+      "printer_name": "Jonathan Moss",
+      "mcp": {
+        "binary": "harris-teeter-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 15,
+        "public_tool_count": 0,
+        "auth_type": "cookie",
+        "env_vars": [],
+        "mcp_ready": "partial",
+        "spec_format": "internal"
+      }
+    },
+    {
+      "name": "hayward-omnilogic",
+      "category": "devices",
+      "api": "Hayward OmniLogic",
+      "description": "Take control of every Hayward OmniLogic feature, plus a local store, schedule diffs, chemistry trends, and a morning...",
+      "path": "library/devices/hayward-omnilogic",
+      "printer": "rob-coco",
+      "printer_name": "Rob Zehner",
+      "mcp": {
+        "binary": "hayward-omnilogic-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 17,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
         "env_vars": [],
         "mcp_ready": "full",
         "spec_format": "internal"
@@ -878,6 +1143,15 @@
       }
     },
     {
+      "name": "lawhub",
+      "category": "education",
+      "api": "LawHub",
+      "description": "",
+      "path": "library/education/lawhub",
+      "printer": "nolan",
+      "printer_name": "Nolan McCafferty"
+    },
+    {
       "name": "linear",
       "category": "project-management",
       "api": "Linear",
@@ -898,6 +1172,31 @@
         ],
         "mcp_ready": "full",
         "spec_format": "graphql"
+      }
+    },
+    {
+      "name": "mailchimp",
+      "category": "marketing",
+      "api": "Mailchimp Marketing",
+      "description": "Every Mailchimp endpoint plus the workflow commands the API forces you to compose yourself.",
+      "path": "library/marketing/mailchimp",
+      "printer": "tmchow",
+      "printer_name": "Trevin Chow",
+      "mcp": {
+        "binary": "mailchimp-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 291,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "MAILCHIMP_USERNAME",
+          "MAILCHIMP_PASSWORD"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
       }
     },
     {
@@ -922,6 +1221,15 @@
       }
     },
     {
+      "name": "marianatek",
+      "category": "productivity",
+      "api": "marianatek",
+      "description": "Every Mariana Tek booking feature, plus multi-tenant search, cancellation watching, and an offline class catalog no...",
+      "path": "library/productivity/marianatek",
+      "printer": "salmonumbrella",
+      "printer_name": "salmonumbrella"
+    },
+    {
       "name": "mercury",
       "category": "payments",
       "api": "Mercury",
@@ -943,6 +1251,15 @@
         "mcp_ready": "full",
         "spec_format": "openapi3"
       }
+    },
+    {
+      "name": "monarch-money",
+      "category": "payments",
+      "api": "Monarch Money",
+      "description": "Read Monarch Money account balances, tags, transactions, and cashflow summaries from the terminal.",
+      "path": "library/payments/monarch-money",
+      "printer": "count",
+      "printer_name": "Count"
     },
     {
       "name": "movie-goat",
@@ -1014,6 +1331,32 @@
       }
     },
     {
+      "name": "namecheap",
+      "category": "developer-tools",
+      "api": "Namecheap",
+      "description": "Curated OpenAPI description for Namecheap's XML API. The real API uses a single",
+      "path": "library/developer-tools/namecheap",
+      "printer": "cathryn-lavery",
+      "printer_name": "Cathryn Lavery",
+      "mcp": {
+        "binary": "namecheap-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 22,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "NAMECHEAP_USERNAME",
+          "NAMECHEAP_API_KEY",
+          "NAMECHEAP_CLIENT_IP",
+          "NAMECHEAP_SANDBOX"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
       "name": "notion",
       "category": "productivity",
       "api": "Notion",
@@ -1031,6 +1374,38 @@
         "auth_type": "bearer_token",
         "env_vars": [
           "NOTION_BEARER_AUTH"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "nse-india",
+      "category": "developer-tools",
+      "api": "nse-india",
+      "description": "Every NSE equity data point in a single Go binary — live quotes, order book, filings, and a local SQLite store no...",
+      "path": "library/developer-tools/nse-india",
+      "printer": "lavs9",
+      "printer_name": "Mayank Lavania"
+    },
+    {
+      "name": "numista",
+      "category": "other",
+      "api": "Numista Documentation",
+      "description": "Every Numista catalogue and collection feature, with offline FTS5 search and a monthly-quota tracker no Numista SDK has.",
+      "path": "library/other/numista",
+      "printer": "vinnyp",
+      "printer_name": "Vinny Pasceri",
+      "mcp": {
+        "binary": "numista-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 17,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "NUMISTA_API_KEY"
         ],
         "mcp_ready": "full",
         "spec_format": "openapi3"
@@ -1099,6 +1474,38 @@
         ],
         "mcp_ready": "full"
       }
+    },
+    {
+      "name": "openfda",
+      "category": "developer-tools",
+      "api": "OpenFDA",
+      "description": "The FDA safety data terminal. Every drug adverse event, device recall, food contamination, and product label the FDA...",
+      "path": "library/developer-tools/openfda",
+      "printer": "H179922",
+      "printer_name": "H179922",
+      "mcp": {
+        "binary": "openfda-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 25,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "FDA_API_KEY"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
+      "name": "openipa",
+      "category": "developer-tools",
+      "api": "openipa",
+      "description": "Il primo CLI per l'Indice delle Pubbliche Amministrazioni — lookup istantaneo di enti, PEC, codici IPA,...",
+      "path": "library/developer-tools/openipa",
+      "printer": "aborruso",
+      "printer_name": "aborruso"
     },
     {
       "name": "openrouter",
@@ -1177,6 +1584,29 @@
       }
     },
     {
+      "name": "outlook-email",
+      "category": "productivity",
+      "api": "Outlook Email",
+      "description": "Drive your personal Microsoft 365 inbox from agents — read, send, sync, and run offline triage analytics that...",
+      "path": "library/productivity/outlook-email",
+      "printer": "brennaman",
+      "printer_name": "Paul Brennaman",
+      "mcp": {
+        "binary": "outlook-email-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 38,
+        "public_tool_count": 0,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "OUTLOOK_EMAIL_TOKEN"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "pagliacci",
       "category": "food-and-dining",
       "api": "Pagliacci Pizza",
@@ -1194,6 +1624,58 @@
         "public_tool_count": 26,
         "auth_type": "composed",
         "env_vars": [],
+        "mcp_ready": "partial",
+        "spec_format": "internal"
+      }
+    },
+    {
+      "name": "pcgs",
+      "category": "other",
+      "api": "Pcgs",
+      "description": "The first CLI for the PCGS Public API — cert lookup, full CoinFacts extraction, and the 1,000-call-per-day budget...",
+      "path": "library/other/pcgs",
+      "printer": "vinnyp",
+      "printer_name": "Vinny Pasceri",
+      "mcp": {
+        "binary": "pcgs-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 12,
+        "public_tool_count": 0,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "PCGS_AUTH_TOKEN"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
+      "name": "podcast-goat",
+      "category": "media-and-entertainment",
+      "api": "Podcast GOAT",
+      "description": "Pull long-form podcast transcripts as speaker-labeled markdown — cookie-first across the four major paid...",
+      "path": "library/media-and-entertainment/podcast-goat",
+      "printer": "mvanhorn",
+      "printer_name": "Matt Van Horn",
+      "mcp": {
+        "binary": "podcast-goat-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 2,
+        "public_tool_count": 2,
+        "auth_type": "composed",
+        "env_vars": [
+          "SPOKEN_API_KEY",
+          "TADDY_API_KEY",
+          "TADDY_USER_ID",
+          "OPENAI_API_KEY",
+          "DEEPGRAM_API_KEY",
+          "ELEVENLABS_API_KEY"
+        ],
         "mcp_ready": "partial",
         "spec_format": "internal"
       }
@@ -1219,6 +1701,27 @@
         ],
         "mcp_ready": "full",
         "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "pointhound",
+      "category": "travel",
+      "api": "Pointhound",
+      "description": "Every Pointhound flight search, plus a local SQLite of every deal you've ever seen, balance-aware reachability, and...",
+      "path": "library/travel/pointhound",
+      "printer": "salmonumbrella",
+      "printer_name": "salmonumbrella",
+      "mcp": {
+        "binary": "pointhound-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 2,
+        "public_tool_count": 2,
+        "auth_type": "cookie",
+        "env_vars": [],
+        "mcp_ready": "partial",
+        "spec_format": "internal"
       }
     },
     {
@@ -1283,6 +1786,27 @@
         "env_vars": [
           "PRODUCT_HUNT_TOKEN"
         ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
+      "name": "pushover",
+      "category": "social-and-messaging",
+      "api": "Pushover",
+      "description": "Pushover from the terminal: send alerts, watch emergency receipts, inspect quota, and keep a redacted local...",
+      "path": "library/social-and-messaging/pushover",
+      "printer": "twidtwid",
+      "printer_name": "Todd Dailey",
+      "mcp": {
+        "binary": "pushover-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 26,
+        "public_tool_count": 26,
+        "auth_type": "none",
+        "env_vars": [],
         "mcp_ready": "full",
         "spec_format": "internal"
       }
@@ -1371,6 +1895,30 @@
         "auth_type": "bearer_token",
         "env_vars": [
           "RENDER_API_KEY"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "resend",
+      "category": "productivity",
+      "api": "Resend",
+      "description": "The full Resend API (100 endpoints across emails, broadcasts, audiences, contacts, domains, templates, webhooks)...",
+      "path": "library/productivity/resend",
+      "printer": "giacaglia",
+      "printer_name": "Giuliano Giacaglia",
+      "mcp": {
+        "binary": "resend-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 83,
+        "public_tool_count": 0,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "RESEND_API_KEY"
         ],
         "mcp_ready": "full",
         "spec_format": "openapi3"
@@ -1491,6 +2039,31 @@
       }
     },
     {
+      "name": "servicetitan-pricebook",
+      "category": "sales-and-crm",
+      "api": "Pricebook",
+      "description": "A focused per-module ServiceTitan CLI for the Pricebook — sync once, then audit markup, costs, vendor parts, and...",
+      "path": "library/sales-and-crm/servicetitan-pricebook",
+      "printer": "pierc",
+      "printer_name": "Pierce",
+      "mcp": {
+        "binary": "servicetitan-pricebook-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 40,
+        "public_tool_count": 0,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "ST_CLIENT_ID",
+          "ST_CLIENT_SECRET"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
       "name": "shopify",
       "category": "commerce",
       "api": "Shopify",
@@ -1514,6 +2087,28 @@
       }
     },
     {
+      "name": "skool",
+      "category": "media-and-entertainment",
+      "api": "Skool",
+      "description": "Every Skool community feature, plus a local SQLite mirror, FTS, and cross-community ops no other Skool tool ships.",
+      "path": "library/media-and-entertainment/skool",
+      "printer": "quoxientzero",
+      "printer_name": "Zain Haseeb",
+      "mcp": {
+        "binary": "skool-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 21,
+        "public_tool_count": 0,
+        "auth_type": "cookie",
+        "env_vars": [],
+        "mcp_ready": "partial",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "slack",
       "category": "productivity",
       "api": "Slack",
@@ -1533,6 +2128,100 @@
           "SLACK_BOT_TOKEN"
         ],
         "mcp_ready": "full"
+      }
+    },
+    {
+      "name": "slickdeals",
+      "category": "commerce",
+      "api": "Slickdeals",
+      "description": "Slickdeals frontpage, coupons, and recommendations from your terminal — agent-native, MCP-compatible, locally...",
+      "path": "library/commerce/slickdeals",
+      "printer": "beetz12",
+      "printer_name": "David He",
+      "mcp": {
+        "binary": "slickdeals-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 18,
+        "public_tool_count": 18,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
+      "name": "smartlead",
+      "category": "sales-and-crm",
+      "api": "Smartlead",
+      "description": "Every SmartLead API feature, plus a local mirror that answers campaign-health, silent-lead, and cross-campaign...",
+      "path": "library/sales-and-crm/smartlead",
+      "printer": "bossriceshark",
+      "printer_name": "bossriceshark",
+      "mcp": {
+        "binary": "smartlead-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 44,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "SMARTLEAD_API_KEY"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "spotify",
+      "category": "media-and-entertainment",
+      "api": "Spotify Web",
+      "description": "An agent-native Spotify CLI with a SQLite-backed local library that lets you ask listening-drift questions no other...",
+      "path": "library/media-and-entertainment/spotify",
+      "printer": "rob-coco",
+      "printer_name": "Rob Zehner",
+      "mcp": {
+        "binary": "spotify-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 97,
+        "public_tool_count": 0,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "SPOTIFY_OAUTH_2_0"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "squarespace",
+      "category": "commerce",
+      "api": "Squarespace",
+      "description": "Squarespace Commerce plus browser-backed account domains, DNS, email forwarding, and billing reads.",
+      "path": "library/commerce/squarespace",
+      "printer": "zayd",
+      "printer_name": "Zayd",
+      "mcp": {
+        "binary": "squarespace-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 0,
+        "public_tool_count": 0,
+        "auth_type": "bearer",
+        "env_vars": [
+          "COMMERCE_AUTHORIZATION",
+          "SQUARESPACE_ACCOUNT_COOKIE",
+          "SQUARESPACE_ACCOUNT_COOKIE_FILE"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi"
       }
     },
     {
@@ -1606,6 +2295,87 @@
       }
     },
     {
+      "name": "substack-creator",
+      "category": "media-and-entertainment",
+      "api": "substack-creator",
+      "description": "Every Substack feature, plus a local SQLite database, full-text search across years of writing, and the only...",
+      "path": "library/media-and-entertainment/substack-creator",
+      "printer": "JPresting",
+      "printer_name": "JimPresting"
+    },
+    {
+      "name": "suno",
+      "category": "media-and-entertainment",
+      "api": "Suno",
+      "description": "Every Suno feature, plus a local SQLite library, offline FTS5 search, MCP-native agent surface, and a single-binary...",
+      "path": "library/media-and-entertainment/suno",
+      "printer": "mvanhorn",
+      "printer_name": "Matt Van Horn",
+      "mcp": {
+        "binary": "suno-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 31,
+        "public_tool_count": 0,
+        "auth_type": "composed",
+        "env_vars": [
+          "SUNO_TOKEN"
+        ],
+        "mcp_ready": "partial",
+        "spec_format": "internal"
+      }
+    },
+    {
+      "name": "supabase",
+      "category": "developer-tools",
+      "api": "Supabase",
+      "description": "Every Supabase runtime endpoint — PostgREST CRUD, Auth Admin, Storage objects, Edge Function invoke — plus the...",
+      "path": "library/developer-tools/supabase",
+      "printer": "giacaglia",
+      "printer_name": "Giuliano Giacaglia",
+      "mcp": {
+        "binary": "supabase-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 162,
+        "public_tool_count": 0,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "SUPABASE_ACCESS_TOKEN"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "surgegraph",
+      "category": "ai",
+      "api": "Surgegraph Facade",
+      "description": "Every SurgeGraph workflow — research, write, publish, monitor — from the terminal or any agent, with a local...",
+      "path": "library/ai/surgegraph",
+      "printer": "ng-plentisoft",
+      "printer_name": "SurgeGraph Team",
+      "mcp": {
+        "binary": "surgegraph-facade-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 68,
+        "public_tool_count": 0,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "SURGEGRAPH_TOKEN"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
       "name": "table-reservation-goat",
       "category": "food-and-dining",
       "api": "Table Reservation GOAT",
@@ -1645,6 +2415,51 @@
         "env_vars": [],
         "mcp_ready": "full",
         "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "tella",
+      "category": "media-and-entertainment",
+      "api": "Tella Public",
+      "description": "Every Tella API operation behind one CLI, with a local SQLite store, FTS5 transcript search, and webhook tooling...",
+      "path": "library/media-and-entertainment/tella",
+      "printer": "gregce",
+      "printer_name": "Greg Ceccarelli",
+      "mcp": {
+        "binary": "tella-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 51,
+        "public_tool_count": 0,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "TELLA_API_KEY"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "tenderned",
+      "category": "sales-and-crm",
+      "api": "TenderNed",
+      "description": "Every Dutch public tender, with the sub-threshold long tail that EU TED never sees, in a local-first CLI you can pipe.",
+      "path": "library/sales-and-crm/tenderned",
+      "printer": "markvandeven",
+      "printer_name": "markvandeven",
+      "mcp": {
+        "binary": "tenderned-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 7,
+        "public_tool_count": 7,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "internal"
       }
     },
     {
@@ -1722,6 +2537,27 @@
       }
     },
     {
+      "name": "trustpilot",
+      "category": "marketing",
+      "api": "Trustpilot",
+      "description": "Every Trustpilot review surface, plus the local SQLite database and balanced good-and-bad agent bundle no other...",
+      "path": "library/marketing/trustpilot",
+      "printer": "mvanhorn",
+      "printer_name": "Matt Van Horn",
+      "mcp": {
+        "binary": "trustpilot-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 2,
+        "public_tool_count": 2,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "twilio",
       "category": "social-and-messaging",
       "api": "Twilio",
@@ -1764,6 +2600,29 @@
         "env_vars": [],
         "mcp_ready": "full",
         "spec_format": "internal"
+      }
+    },
+    {
+      "name": "uspto-tsdr",
+      "category": "developer-tools",
+      "api": "Tsdr",
+      "description": "Beginning on October 2, 2020, you will need an API key to access the TSDR REST API See...",
+      "path": "library/developer-tools/uspto-tsdr",
+      "printer": "H179922",
+      "printer_name": "H179922",
+      "mcp": {
+        "binary": "uspto-tsdr-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 24,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "TSDR_APIKEY_HEADER"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
       }
     },
     {
@@ -1894,6 +2753,29 @@
         "env_vars": [],
         "mcp_ready": "full",
         "spec_format": "internal"
+      }
+    },
+    {
+      "name": "youtube",
+      "category": "media-and-entertainment",
+      "api": "Youtube Data",
+      "description": "Search YouTube in bulk, grab transcripts, get embed snippets — for the photo-keywords-to-blog-post workflow.",
+      "path": "library/media-and-entertainment/youtube",
+      "printer": "justinwfu",
+      "printer_name": "Justin",
+      "mcp": {
+        "binary": "youtube-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 5,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "YOUTUBE_API_KEY"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
       }
     }
   ]

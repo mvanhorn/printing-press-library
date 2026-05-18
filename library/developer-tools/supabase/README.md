@@ -11,7 +11,7 @@ Printed by [@giacaglia](https://github.com/giacaglia) (Giuliano Giacaglia).
 
 ## Install
 
-The recommended path installs both the `supabase-pp-cli` binary and the `pp-supabase` agent skill in one shot:
+The recommended path installs both the `supabase-pp-cli` binary and the `pp-supabase` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
 npx -y @mvanhorn/printing-press install supabase
@@ -23,10 +23,28 @@ For CLI only (no skill):
 npx -y @mvanhorn/printing-press install supabase --cli-only
 ```
 
+For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
-### Without Node
+```bash
+npx -y @mvanhorn/printing-press install supabase --skill-only
+```
 
-The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
+To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
+
+```bash
+npx -y @mvanhorn/printing-press install supabase --agent claude-code
+npx -y @mvanhorn/printing-press install supabase --agent claude-code --agent codex
+```
+
+### Without Node (Go fallback)
+
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/developer-tools/supabase/cmd/supabase-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
 
 ### Pre-built binary
 
@@ -55,6 +73,43 @@ Tell your OpenClaw agent (copy this):
 Install the pp-supabase skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-supabase. The skill defines how its required CLI can be installed.
 ```
 
+## Use with Claude Desktop
+
+This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
+
+To install:
+
+1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/supabase-current).
+2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
+3. Fill in `SUPABASE_ACCESS_TOKEN` when Claude Desktop prompts you.
+
+Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
+
+<details>
+<summary>Manual JSON config (advanced)</summary>
+
+If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
+
+
+Install the MCP binary from this CLI's published public-library entry or pre-built release.
+
+Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "supabase": {
+      "command": "supabase-pp-mcp",
+      "env": {
+        "SUPABASE_ACCESS_TOKEN": "<your-key>"
+      }
+    }
+  }
+}
+```
+
+</details>
+
 ## Authentication
 
 Supabase has three credential types across two API hosts. The Management API at api.supabase.com uses a Personal Access Token (`SUPABASE_ACCESS_TOKEN`, header `Authorization: Bearer <PAT>`). Project APIs at `<ref>.supabase.co` use the `apikey:` header — set `SUPABASE_PUBLISHABLE_KEY` (or legacy `SUPABASE_ANON_KEY`) for RLS-respecting calls, or `SUPABASE_SERVICE_ROLE_KEY` (or new `SUPABASE_SECRET_KEY`) for server-side calls that bypass RLS and unlock Auth Admin endpoints. Also set `SUPABASE_URL=https://<ref>.supabase.co`. Edge Functions gotcha: keys go in `apikey:`, never `Authorization: Bearer`.
@@ -65,18 +120,14 @@ Supabase has three credential types across two API hosts. The Management API at 
 # Verify both Management and project credentials are wired and reachable.
 supabase-pp-cli doctor
 
-
 # List your organizations via the Management API (requires SUPABASE_ACCESS_TOKEN).
 supabase-pp-cli organizations list-all --json
-
 
 # Populate the local SQLite store with orgs/projects/functions/branches/secrets.
 supabase-pp-cli sync --json
 
-
 # Cross-project audit: every project holding the named secret (local SQL).
 supabase-pp-cli secrets where-name STRIPE_KEY --json
-
 
 # Fetch the per-project PostgREST schema via Management API (replacement for the anon-key path being removed April 2026).
 supabase-pp-cli pgrst schema --table profiles --json
@@ -214,7 +265,6 @@ Manage supabase profile
 
 - **`supabase-pp-cli supabase-profile get`** - Gets the user's profile
 
-
 ## Output Formats
 
 ```bash
@@ -249,69 +299,6 @@ This CLI is designed for AI agent consumption:
 - **Agent-safe by default** - no colors or formatting unless `--human-friendly` is set
 
 Exit codes: `0` success, `2` usage error, `3` not found, `4` auth error, `5` API error, `7` rate limited, `10` config error.
-
-## Use with Claude Code
-
-Install the focused skill — it auto-installs the CLI on first invocation:
-
-```bash
-npx skills add mvanhorn/printing-press-library/cli-skills/pp-supabase -g
-```
-
-Then invoke `/pp-supabase <query>` in Claude Code. The skill is the most efficient path — Claude Code drives the CLI directly without an MCP server in the middle.
-
-<details>
-<summary>Use as an MCP server in Claude Code (advanced)</summary>
-
-If you'd rather register this CLI as an MCP server in Claude Code, install the MCP binary first:
-
-
-Install the MCP binary from this CLI's published public-library entry or pre-built release.
-
-Then register it:
-
-```bash
-claude mcp add supabase supabase-pp-mcp -e SUPABASE_ACCESS_TOKEN=<your-token>
-```
-
-</details>
-
-## Use with Claude Desktop
-
-This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
-
-To install:
-
-1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/supabase-current).
-2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
-3. Fill in `SUPABASE_ACCESS_TOKEN` when Claude Desktop prompts you.
-
-Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
-
-<details>
-<summary>Manual JSON config (advanced)</summary>
-
-If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
-
-
-Install the MCP binary from this CLI's published public-library entry or pre-built release.
-
-Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "supabase": {
-      "command": "supabase-pp-mcp",
-      "env": {
-        "SUPABASE_ACCESS_TOKEN": "<your-key>"
-      }
-    }
-  }
-}
-```
-
-</details>
 
 ## Health Check
 

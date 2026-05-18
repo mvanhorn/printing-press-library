@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "pcgs-pp-mcp",
+  "display_name": "Pcgs",
+  "version": "4.8.0",
+  "description": "PCGS Public API CLI — verify PCGS-graded coin certs, extract full CoinFacts metadata, and stay under the 1,000-call-per-day budget.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/pcgs-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/pcgs-pp-mcp",
+      "args": [],
+      "env": {
+        "PCGS_AUTH_TOKEN": "${user_config.pcgs_auth_token}"
+      }
+    }
+  },
+  "user_config": {
+    "pcgs_auth_token": {
+      "type": "string",
+      "title": "PCGS_AUTH_TOKEN",
+      "description": "Sets PCGS_AUTH_TOKEN for the Pcgs MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

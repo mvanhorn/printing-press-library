@@ -6,21 +6,34 @@ nse-india-pp-cli fetches real-time NSE equity quotes, index constituents, corpor
 
 ## Install
 
-The recommended path installs both the `nse-india-pp-cli` binary and the `pp-NSE India` agent skill in one shot:
+The recommended path installs both the `nse-india-pp-cli` binary and the `pp-nse-india` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install NSE India
+npx -y @mvanhorn/printing-press install nse-india
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install NSE India --cli-only
+npx -y @mvanhorn/printing-press install nse-india --cli-only
+```
+
+For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
+
+```bash
+npx -y @mvanhorn/printing-press install nse-india --skill-only
+```
+
+To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
+
+```bash
+npx -y @mvanhorn/printing-press install nse-india --agent claude-code
+npx -y @mvanhorn/printing-press install nse-india --agent claude-code --agent codex
 ```
 
 ### Without Node (Go fallback)
 
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.23+):
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/developer-tools/nse-india/cmd/nse-india-pp-cli@latest
@@ -30,7 +43,7 @@ This installs the CLI only — no skill.
 
 ### Pre-built binary
 
-Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/NSE India-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
+Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/nse-india-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
 
 <!-- pp-hermes-install-anchor -->
 ## Install for Hermes
@@ -38,13 +51,13 @@ Download a pre-built binary for your platform from the [latest release](https://
 From the Hermes CLI:
 
 ```bash
-hermes skills install mvanhorn/printing-press-library/cli-skills/pp-NSE India --force
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-nse-india --force
 ```
 
 Inside a Hermes chat session:
 
 ```bash
-/skills install mvanhorn/printing-press-library/cli-skills/pp-NSE India --force
+/skills install mvanhorn/printing-press-library/cli-skills/pp-nse-india --force
 ```
 
 ## Install for OpenClaw
@@ -52,8 +65,42 @@ Inside a Hermes chat session:
 Tell your OpenClaw agent (copy this):
 
 ```
-Install the pp-NSE India skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-NSE India. The skill defines how its required CLI can be installed.
+Install the pp-nse-india skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-nse-india. The skill defines how its required CLI can be installed.
 ```
+
+## Use with Claude Desktop
+
+This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
+
+To install:
+
+1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/NSE India-current).
+2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
+
+Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
+
+<details>
+<summary>Manual JSON config (advanced)</summary>
+
+If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/developer-tools/nse-india/cmd/nse-india-pp-mcp@latest
+```
+
+Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "NSE India": {
+      "command": "nse-india-pp-mcp"
+    }
+  }
+}
+```
+
+</details>
 
 ## Authentication
 
@@ -65,22 +112,17 @@ No authentication required. The CLI sends browser-compatible headers (User-Agent
 # Check if NSE is open before fetching data
 nse-india-pp-cli market
 
-
 # Live price, 52w H/L, sector PE, pre-market IEP
 nse-india-pp-cli quote ADANIPORTS
-
 
 # Order book, delivery%, VaR margin
 nse-india-pp-cli depth RELIANCE
 
-
 # Find today's biggest Nifty losers
 nse-india-pp-cli index "NIFTY 50" --json | jq '.data[] | select(.pChange < -3)'
 
-
 # Cache IT sector for offline analysis
 nse-india-pp-cli sync --symbols INFY,TCS,WIPRO,HCLTECH
-
 
 # Detect institutional accumulation signals
 nse-india-pp-cli delivery-spike --threshold 2.0 --agent
@@ -199,7 +241,6 @@ Symbol search and autocomplete
 
 - **`nse-india-pp-cli symbol_lookup autocomplete`** - Search symbols by company name or ticker — returns equity, MF, index matches
 
-
 ## Output Formats
 
 ```bash
@@ -232,67 +273,6 @@ This CLI is designed for AI agent consumption:
 - **Agent-safe by default** - no colors or formatting unless `--human-friendly` is set
 
 Exit codes: `0` success, `2` usage error, `3` not found, `5` API error, `7` rate limited, `10` config error.
-
-## Use with Claude Code
-
-Install the focused skill — it auto-installs the CLI on first invocation:
-
-```bash
-npx skills add mvanhorn/printing-press-library/cli-skills/pp-NSE India -g
-```
-
-Then invoke `/pp-NSE India <query>` in Claude Code. The skill is the most efficient path — Claude Code drives the CLI directly without an MCP server in the middle.
-
-<details>
-<summary>Use as an MCP server in Claude Code (advanced)</summary>
-
-If you'd rather register this CLI as an MCP server in Claude Code, install the MCP binary first:
-
-```bash
-go install github.com/mvanhorn/printing-press-library/library/developer-tools/nse-india/cmd/nse-india-pp-mcp@latest
-```
-
-Then register it:
-
-```bash
-claude mcp add NSE India nse-india-pp-mcp
-```
-
-</details>
-
-## Use with Claude Desktop
-
-This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
-
-To install:
-
-1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/NSE India-current).
-2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
-
-Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
-
-<details>
-<summary>Manual JSON config (advanced)</summary>
-
-If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
-
-```bash
-go install github.com/mvanhorn/printing-press-library/library/developer-tools/nse-india/cmd/nse-india-pp-mcp@latest
-```
-
-Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "NSE India": {
-      "command": "nse-india-pp-mcp"
-    }
-  }
-}
-```
-
-</details>
 
 ## Health Check
 
