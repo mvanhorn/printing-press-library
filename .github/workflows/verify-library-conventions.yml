@@ -1,22 +1,19 @@
 name: Verify library conventions
 
-# PR-time guards for five invariants that local builds and the existing
+# PR-time guards for four invariants that local builds and the existing
 # verify-skills.yml / verify-manifests.yml workflows do not catch:
 #
-# 1. cli-skills/<slug>/SKILL.md must equal what
-#    tools/generate-skills/main.go would produce from the current
-#    library/<cat>/<slug>/SKILL.md. Hand-edits to either side without
-#    re-running the generator produce drift that ships to users
-#    immediately via `npx skills add`. The post-merge auto-regen
-#    workflow fixes drift after the fact, but a PR can ship visibly
-#    drifted mirrors that real users consume in the meantime.
+# 1. registry.json and cli-skills/pp-*/SKILL.md are generated artifacts
+#    regenerated post-merge by generate-registry.yml and
+#    generate-skills.yml and committed back to main with [skip ci]. PR
+#    commits that touch these files cause silent overwrite on the next
+#    regen and produce gnarly merge conflicts in the interim. The single
+#    rule is: don't commit them in PRs. The fix is identical for fork
+#    and same-repo PRs (drop the files from the diff and let post-merge
+#    regen produce them), so the workflow no longer auto-fixes drift or
+#    distinguishes between fork and same-repo origin.
 #
-# 2. registry.json is generated from library metadata on main. Older
-#    PR flows sometimes committed it directly; same-repo PRs should have
-#    that generated diff removed automatically, and fork PRs should get
-#    a direct failure explaining the source-of-truth boundary.
-#
-# 3. library/<cat>/<slug>/go.mod's declared `module` path must match
+# 2. library/<cat>/<slug>/go.mod's declared `module` path must match
 #    its directory location (github.com/mvanhorn/printing-press-library/<dirpath>).
 #    A mismatch compiles fine locally because the package is internally
 #    self-consistent, but every public install via `go install …@latest`
@@ -25,13 +22,13 @@ name: Verify library conventions
 #    The hubspot CLI shipped with this exact bug for some time before
 #    being caught.
 #
-# 4. Every published CLI manifest must carry printer attribution, and
+# 3. Every published CLI manifest must carry printer attribution, and
 #    existing CLI attribution must not change in the same PR as CLI
 #    behavior or docs. The printer / author fields are reviewable when
 #    corrected in an attribution-only PR, but a normal CLI improvement
 #    PR should never accidentally claim ownership of someone else's CLI.
 #
-# 5. Newly added library CLI packages must include the publish-package
+# 4. Newly added library CLI packages must include the publish-package
 #    artifacts and provenance that reviewers need to audit the print:
 #    per-CLI AGENTS.md, patch manifest, manuscripts tied to run_id,
 #    novel feature metadata, and MCP manifests when advertised. The
@@ -52,7 +49,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   verify:
@@ -66,8 +63,7 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Check generated registry diff
-        id: registry-diff
+      - name: Fail on changes to generated artifacts
         if: github.event_name == 'pull_request'
         env:
           BASE_REF: ${{ github.base_ref }}
@@ -75,31 +71,40 @@ jobs:
         run: |
           set -euo pipefail
 
-          git remote add base "https://github.com/${BASE_REPO}.git" 2>/dev/null || git remote set-url base "https://github.com/${BASE_REPO}.git"
+          # registry.json and cli-skills/pp-*/SKILL.md are regenerated
+          # post-merge by generate-registry.yml and generate-skills.yml
+          # and committed back to main with [skip ci]. Any PR commit
+          # that changes them is silently overwritten on the next regen
+          # and produces gnarly merge conflicts in the interim. The fix
+          # is identical for fork and same-repo PRs (drop the files
+          # from the diff), so this single check replaces the older
+          # Guard + auto-fix + fork-only drift trio.
+          #
+          # cli-skills/AGENTS.md and other meta files under cli-skills/
+          # are hand-maintained; only pp-*/SKILL.md is generated.
+
+          git remote add base "https://github.com/${BASE_REPO}.git" 2>/dev/null \
+            || git remote set-url base "https://github.com/${BASE_REPO}.git"
           base_remote_ref="refs/remotes/base/${BASE_REF}"
           git fetch --no-tags base "${BASE_REF}:${base_remote_ref}"
 
-          if git diff --quiet "${base_remote_ref}...HEAD" -- registry.json; then
-            echo "registry.json is not changed by this PR."
-            echo "changed=false" >> "${GITHUB_OUTPUT}"
+          violations=$(git diff --name-only "${base_remote_ref}...HEAD" \
+            -- 'registry.json' 'cli-skills/pp-*/SKILL.md')
+
+          if [ -z "$violations" ]; then
+            echo "No changes to generated artifacts. OK."
             exit 0
           fi
 
-          echo "changed=true" >> "${GITHUB_OUTPUT}"
-
-      - name: Reset generated registry diff
-        if: steps.registry-diff.outputs.changed == 'true' && github.event.pull_request.head.repo.full_name == github.repository
-        env:
-          BASE_REF: ${{ github.base_ref }}
-        run: |
-          set -euo pipefail
-          base_remote_ref="refs/remotes/base/${BASE_REF}"
-          git checkout "${base_remote_ref}" -- registry.json
-
-      - name: Fail on generated registry diff from fork
-        if: steps.registry-diff.outputs.changed == 'true' && github.event.pull_request.head.repo.full_name != github.repository
-        run: |
-          echo "::error file=registry.json::registry.json is generated on main from library metadata. Remove it from this fork PR and let generate-registry.yml update it after merge."
+          echo "::error::This PR modifies generated artifacts that are regenerated post-merge:"
+          while IFS= read -r file; do
+            [ -z "$file" ] && continue
+            echo "::error file=${file}::Remove this file from the PR. It is regenerated post-merge by generate-registry.yml or generate-skills.yml."
+          done <<< "$violations"
+          echo
+          echo "::error::Edit the source instead:"
+          echo "::error::  - registry.json source: library/<cat>/<slug>/.printing-press.json + manifest.json"
+          echo "::error::  - cli-skills/pp-<slug>/SKILL.md source: library/<cat>/<slug>/SKILL.md"
           exit 1
 
       - name: Guard CLI attribution
@@ -126,159 +131,6 @@ jobs:
           fi
 
           python3 .github/scripts/verify-publish-package/verify_publish_package.py --base-ref "${base_remote_ref}"
-
-      - uses: actions/setup-go@v6
-        with:
-          go-version: '1.26.3'
-
-      - name: Guard against hand-edits to cli-skills mirror
-        if: github.event_name == 'pull_request'
-        env:
-          BASE_REF: ${{ github.base_ref }}
-          BASE_REPO: ${{ github.repository }}
-        run: |
-          set -euo pipefail
-          # cli-skills/pp-*/SKILL.md files are bot-regenerated mirrors of
-          # library/<cat>/<slug>/SKILL.md. A hand-edit in a PR is silently overwritten on the
-          # next post-merge regen by generate-skills.yml and creates needless
-          # merge conflicts in the meantime (see #454). The legitimate flow
-          # is: edit library/<cat>/<slug>/SKILL.md and let the bot mirror it.
-          #
-          # The auto-fix step further down can recover from drift on
-          # same-repo PRs, but it does so silently, so the contributing
-          # agent never learns the rule. This step makes the rule visible.
-          #
-          # Bot-authored commits (the parity auto-fix step itself, and the
-          # post-merge generate-skills regen) are exempt so the workflow
-          # doesn't fail on its own output.
-
-          git remote add base "https://github.com/${BASE_REPO}.git" 2>/dev/null || git remote set-url base "https://github.com/${BASE_REPO}.git"
-          base_remote_ref="refs/remotes/base/${BASE_REF}"
-          if ! git show-ref --verify --quiet "${base_remote_ref}"; then
-            git fetch --no-tags base "${BASE_REF}:${base_remote_ref}"
-          fi
-
-          # Collect commits on this PR branch that touch the generated
-          # mirrors (cli-skills/pp-*/SKILL.md) and were NOT authored by
-          # github-actions[bot]. The author email is the durable signal;
-          # committer can be set to the bot by a rebase even when authorship
-          # is human. Pathspec is scoped to pp-*/SKILL.md so meta files in
-          # cli-skills/ (e.g., AGENTS.md) are not flagged.
-          #
-          # Format is `%H|%ae` (no subject) so a `|` in a commit message
-          # can't confuse the downstream parser. grep -F treats the bot
-          # email literally, so [bot] is not interpreted as a regex class.
-          non_bot_shas=$(
-            git log "${base_remote_ref}..HEAD" \
-              --format='%H|%ae' \
-              -- 'cli-skills/pp-*/SKILL.md' \
-              | { grep -vF '|github-actions[bot]@users.noreply.github.com' || true; } \
-              | cut -d'|' -f1
-          )
-
-          if [ -z "$non_bot_shas" ]; then
-            echo "No human commits touch cli-skills/pp-*/SKILL.md."
-            exit 0
-          fi
-
-          echo "::error::cli-skills/pp-*/SKILL.md is a bot-regenerated mirror of library/<cat>/<slug>/SKILL.md. Hand-edits are silently overwritten on the next regen. Drop the cli-skills/ changes from this PR and edit the library/ source instead. See AGENTS.md \"Generated artifacts: registry.json, cli-skills/\" and cli-skills/AGENTS.md for the full rule."
-          echo
-          echo "Offending commits:"
-          while read -r sha; do
-            [ -z "$sha" ] && continue
-            author=$(git show -s --format='%ae' "$sha")
-            subject=$(git show -s --format='%s' "$sha")
-            echo "  ${sha:0:12} by ${author}: ${subject}"
-            files=$(git show --name-only --format= "$sha" -- 'cli-skills/pp-*/SKILL.md')
-            while IFS= read -r file; do
-              [ -z "$file" ] && continue
-              echo "::error file=${file}::Hand-edit to generated mirror in commit ${sha:0:12}. Edit library/<cat>/<slug>/SKILL.md instead."
-            done <<< "$files"
-          done <<< "$non_bot_shas"
-
-          exit 1
-
-      - name: cli-skills mirror parity
-        id: skill-diff
-        env:
-          EVENT_NAME: ${{ github.event_name }}
-        run: |
-          set -euo pipefail
-          go run ./tools/generate-skills/main.go > /dev/null
-          # `git status --porcelain` catches both modifications to
-          # tracked mirrors and brand-new mirrors the generator would
-          # create (e.g., when a PR adds a new CLI without committing
-          # its cli-skills/pp-<slug>/SKILL.md alongside).
-          drift=$(git status --porcelain -- cli-skills/)
-          if [ -n "$drift" ]; then
-            echo
-            echo "Out-of-sync entries:"
-            echo "$drift"
-            echo "changed=true" >> "${GITHUB_OUTPUT}"
-
-            if [ "${EVENT_NAME}" = "pull_request" ]; then
-              exit 0
-            fi
-
-            echo "::error::cli-skills/ is out of sync with what tools/generate-skills produces from library/<cat>/<slug>/SKILL.md."
-            echo "::error::Run \`go run ./tools/generate-skills/main.go\` locally and commit the result."
-            exit 1
-          fi
-          echo "changed=false" >> "${GITHUB_OUTPUT}"
-          echo "cli-skills/ matches generator output."
-
-      - name: Commit generated convention fixes
-        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && (steps.registry-diff.outputs.changed == 'true' || steps.skill-diff.outputs.changed == 'true')
-        env:
-          BASE_REPO: ${{ github.repository }}
-          # PAT (not GITHUB_TOKEN) so the resulting push triggers
-          # pull_request_target workflows like greptile-policy-gate;
-          # GITHUB_TOKEN-authored pushes are suppressed by GitHub's
-          # anti-recursion rule and leave required checks missing on
-          # the new head SHA.
-          PUSH_TOKEN: ${{ secrets.MIRROR_AUTOPUSH_TOKEN }}
-          HEAD_REF: ${{ github.event.pull_request.head.ref }}
-          REGISTRY_CHANGED: ${{ steps.registry-diff.outputs.changed }}
-          SKILL_CHANGED: ${{ steps.skill-diff.outputs.changed }}
-        run: |
-          set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add registry.json
-          git add -A cli-skills/
-
-          if git diff --staged --quiet; then
-            echo "No generated convention fixes to commit."
-            exit 0
-          fi
-
-          if [ "${REGISTRY_CHANGED}" = "true" ] && [ "${SKILL_CHANGED}" = "true" ]; then
-            message="chore: refresh generated library artifacts"
-          elif [ "${REGISTRY_CHANGED}" = "true" ]; then
-            message="chore(registry): drop generated registry changes"
-          else
-            message="chore(skills): regenerate per-app skills"
-          fi
-
-          git commit -m "${message}"
-
-          # set -u doesn't catch this: GitHub Actions expands a missing
-          # secret to an empty string, not an unset variable. Without
-          # this check the push fails with an opaque auth error.
-          if [ -z "${PUSH_TOKEN}" ]; then
-            echo "::error::MIRROR_AUTOPUSH_TOKEN repo secret is missing or empty. Create a fine-grained PAT with contents:write + workflows:write on this repo and store it as MIRROR_AUTOPUSH_TOKEN (Settings -> Secrets and variables -> Actions)."
-            exit 1
-          fi
-
-          git push "https://x-access-token:${PUSH_TOKEN}@github.com/${BASE_REPO}.git" "HEAD:${HEAD_REF}"
-          echo "Committed generated convention fixes to the PR branch."
-
-      - name: Fail on cli-skills drift from fork
-        if: steps.skill-diff.outputs.changed == 'true' && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository
-        run: |
-          echo "::error::cli-skills/ is out of sync with what tools/generate-skills produces from library/<cat>/<slug>/SKILL.md."
-          echo "::error::Run \`go run ./tools/generate-skills/main.go\` locally and commit the result."
-          exit 1
 
       - name: go.mod module path matches directory
         run: |

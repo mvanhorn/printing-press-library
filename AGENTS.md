@@ -97,8 +97,7 @@ If you are constructing a new-CLI PR by any path, it must match this shape:
 - **Title:** `feat(<slug>): add <slug>` exactly. No trailing dash-suffix description (`— Korean startup database`), no `feat(library)` scope, no Co-Authored-By or "Claude Code" trailers.
 - **Directory:** `library/<category>/<slug>/`. Slug only — never `library/<category>/<slug>-pp-cli/`. The `-pp-cli` infix lives in binary names, not directory names.
 - **Files present at minimum:** `.printing-press.json` (full manifest with `api_name`, `cli_name`, `spec_format`, `spec_checksum`, `spec_source`, `printing_press_version`, plus MCP fields if applicable), `cmd/<slug>-pp-cli/main.go`, `internal/cli/root.go` and the per-resource files, `internal/client/client.go`, `SKILL.md`, `README.md`, `AGENTS.md`, `LICENSE`, `NOTICE`, `Makefile`, `.goreleaser.yaml`, `.golangci.yml`, `go.mod`, `go.sum`, `dogfood-results.json`, and a populated `.manuscripts/<run-id>/research/` plus `.manuscripts/<run-id>/proofs/`. A reprint that drops the manuscripts is not a publishable reprint.
-- **Files NOT in the PR:** `cli-skills/pp-<slug>/SKILL.md` (auto-regenerated post-merge from `library/<cat>/<slug>/SKILL.md` by `tools/generate-skills/`); committed binaries; `.env`, `session-state.json`, or other files with real credentials.
-- **Registry update:** `registry.json` gets the new entry inserted in alphabetical order by `name`, with the full MCP block populated when the manifest declares one.
+- **Files NOT in the PR:** `cli-skills/pp-<slug>/SKILL.md` and `registry.json` (both regenerated post-merge by `generate-skills.yml` and `generate-registry.yml` — `verify-library-conventions.yml` hard-fails if either is present in the PR diff); committed binaries; `.env`, `session-state.json`, or other files with real credentials.
 - **PR body:** matches the publish-skill template — `## <slug>` heading, description paragraph, `**API:** … | **Category:** … | **Press version:** …` line, `**Spec:** …` line, then `### CLI Shape` (with the verbatim `--help` output in a fenced code block), `### What This CLI Does`, `### Manuscripts` (links to the in-PR `.manuscripts/<run-id>/research/` and `.manuscripts/<run-id>/proofs/` paths), `### Validation Results` (a table with PASS/FAIL for Manifest, Phase 5, `go mod tidy`, `go vet`, `go build`, `--help`, `--version`, `verify-skill`, `govulncheck`, Manuscripts), and an optional `### Gaps` section. **No** `## Summary` / `## Why This Matters` / `## What It Does` / `## Endpoints` / `## Test plan` / generic-template prose; that shape signals a hand-built submission and a likely missing-files PR.
 
 ### Signs you've drifted off the canonical path
@@ -110,7 +109,7 @@ If you're constructing a new-CLI PR and you notice any of these, stop and route 
 - Your validation evidence is a `## Testing` code block with `go build ./...` and a smoke command, instead of the structured `### Validation Results` table.
 - You can't link to manuscripts because there are no `.manuscripts/<run-id>/research/` or `.manuscripts/<run-id>/proofs/` files in the diff.
 - You're hand-editing `cli-skills/pp-<slug>/SKILL.md` or `registry.json`. Both are bot-regenerated; hand-edits get overwritten and create merge conflicts.
-- The PR diff has fewer than ~30 files for a new CLI — the canonical layout always lands dozens of files (`internal/cli/*.go` per endpoint plus `internal/cliutil/`, `internal/client/`, optional `internal/mcp/`, `cmd/<slug>-pp-cli/`, plus the docs/build files). A new-CLI PR with a single `main.go` and a registry edit is missing nearly all of it.
+- The PR diff has fewer than ~30 files for a new CLI — the canonical layout always lands dozens of files (`internal/cli/*.go` per endpoint plus `internal/cliutil/`, `internal/client/`, optional `internal/mcp/`, `cmd/<slug>-pp-cli/`, plus the docs/build files). A new-CLI PR with only a single `main.go` is missing nearly all of it.
 
 When any of these fire, **the right move is not to fix the PR by adding more sections**. The right move is to drop the hand-built branch, re-enter `/printing-press <api>` (or `/printing-press-publish <slug>` if the CLI is already generated and only the publish step remains), and let the skill open the PR.
 
@@ -297,19 +296,16 @@ Two files in this repo are **generated outputs**, regenerated post-merge by CI w
 | `registry.json` | `library/**/.printing-press.json` + `manifest.json` + `.goreleaser.yaml` | `tools/generate-registry/main.go` | `library/**` or generator changes on main |
 | `cli-skills/pp-<slug>/SKILL.md` | `library/<category>/<slug>/SKILL.md` | `tools/generate-skills/main.go` | `library/**/SKILL.md`, `library/**/README.md`, `library/**/.printing-press.json`, `registry.json`, or generator changes on main |
 
-**When you change `library/<cat>/<slug>/SKILL.md`:**
+**The single rule:** never commit changes to `registry.json` or `cli-skills/pp-*/SKILL.md` in a PR — fork or same-repo, agent or human. Both files are regenerated post-merge by `generate-registry.yml` and `generate-skills.yml` (committed back to `main` as a `[skip ci]` bot commit). PR commits that touch them are silently overwritten on the next regen and produce merge conflicts in the interim.
 
-**Edit `library/<cat>/<slug>/SKILL.md`, never `cli-skills/pp-<slug>/SKILL.md` directly.** The mirror is verbatim-regenerated from the library copy — any direct edit to `cli-skills/` will be silently overwritten on the next regen.
+The `Fail on changes to generated artifacts` step in `verify-library-conventions.yml` **hard-fails** any PR whose diff against base touches `registry.json` or `cli-skills/pp-*/SKILL.md`. The fix is the same regardless of how the change got there: drop the file from the diff (`git restore --staged <file> && git checkout -- <file>`, or `git reset` the offending commit). Source-of-truth edits go in:
 
-**Don't commit `cli-skills/pp-*` changes in your PR at all** — drop them from the diff. The post-merge regen (`generate-skills.yml`, triggered on `library/**/SKILL.md` and `library/**/README.md` changes) updates the mirror after your PR lands. On the PR itself, the `cli-skills mirror parity` step in `verify-library-conventions.yml` runs the generator and auto-commits any drift back to the branch as `github-actions[bot]`, so the mirror is current before merge without you committing anything.
+- **`registry.json`** → edit `library/<cat>/<slug>/.printing-press.json` + `manifest.json` + `.goreleaser.yaml`. The post-merge regen produces the registry entry.
+- **`cli-skills/pp-<slug>/SKILL.md`** → edit `library/<cat>/<slug>/SKILL.md`. The mirror is verbatim-regenerated from it.
 
-The `Guard against hand-edits to cli-skills mirror` step in the same workflow **hard-fails** the PR if a non-bot commit touches `cli-skills/pp-*/SKILL.md` — this catches `go run ./tools/generate-skills/main.go && git add cli-skills/` workflows that bypass the bot path. If you see that failure, drop the `cli-skills/` changes from your branch (`git restore --staged cli-skills/ && git checkout -- cli-skills/`, or `git reset` the offending commit) and let the bot mirror the library change instead. See [cli-skills/AGENTS.md](cli-skills/AGENTS.md) for the directory-local version of this rule.
+`cli-skills/AGENTS.md` and other non-`pp-*/SKILL.md` files under `cli-skills/` are hand-maintained docs; the rule applies only to the generated mirrors. See [cli-skills/AGENTS.md](cli-skills/AGENTS.md) for the directory-local version of this rule.
 
-**When you change `library/**/.printing-press.json`, `manifest.json`, or `.goreleaser.yaml`:**
-
-Don't touch `registry.json`. The post-merge regen handles it. Your PR's diff stays focused on the actual library change. After your PR merges, `generate-registry.yml` runs, regenerates `registry.json`, and commits with `[skip ci]`. The regen-generated commit shows up on main within a minute or two.
-
-**When does this fail?** If the generator itself is broken (compile error, panic) or the source files have invalid JSON, the post-merge run will fail and `registry.json` will go stale. Watch for `generate-registry.yml` failures in the Actions tab after merging library/** changes.
+**When does post-merge regen fail?** If the generator itself is broken (compile error, panic) or the source files have invalid JSON, `generate-registry.yml` or `generate-skills.yml` will fail and `main` will go stale. Watch the Actions tab after merging `library/**` changes; both workflows expose `workflow_dispatch` so a maintainer can re-run them once the underlying issue is fixed.
 
 ## Bulk SKILL.md/README.md retrofits: `tools/sweep-canonical/`
 
@@ -325,7 +321,7 @@ When a SKILL.md or README.md shape change must propagate across **all library CL
 cd tools/sweep-canonical && GO111MODULE=off go test .
 ```
 
-The tool runs in GOPATH mode (no `go.mod`) so it stays decoupled from the rest of the repo's module graph. Don't commit `cli-skills/` changes alongside the sweep — the PR-time parity step in `verify-library-conventions.yml` auto-commits any mirror drift as `github-actions[bot]`, and `generate-skills.yml` re-mirrors post-merge. Hand-committing the regen trips the `Guard against hand-edits to cli-skills mirror` step (see the section above).
+The tool runs in GOPATH mode (no `go.mod`) so it stays decoupled from the rest of the repo's module graph. Don't commit `cli-skills/` changes alongside the sweep — `generate-skills.yml` re-mirrors post-merge from `library/<cat>/<slug>/SKILL.md`. Committing the regen trips the `Fail on changes to generated artifacts` step (see the section above).
 
 ## Commit style
 
