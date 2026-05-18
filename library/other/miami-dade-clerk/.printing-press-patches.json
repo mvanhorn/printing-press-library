@@ -49,10 +49,11 @@
     },
     {
       "id": "surviving-liens-conservative-release-pairing",
-      "summary": "findMatchingRelease requires both first AND second party identity and consumes each release at most once.",
-      "reason": "Two liens sharing only a first-party name (common for repeat borrowers) could both be marked released by a single satisfaction. FL Statute 197.522 / 45.0315 bidder-disclosure rules favor 'still open in doubt'.",
+      "summary": "findMatchingRelease requires both first AND second party identity (case-insensitive) and consumes each release at most once.",
+      "reason": "Two liens sharing only a first-party name (common for repeat borrowers) could both be marked released by a single satisfaction. FL Statute 197.522 / 45.0315 bidder-disclosure rules favor 'still open in doubt'. Comparisons are case-insensitive (strings.EqualFold) because clerk recordings alternate between 'JOHN DOE' and 'John Doe' for the same party across instruments — case-sensitive matching would keep a satisfied lien in the surviving output and inflate totals_cents. Covered by surviving_liens_test.go.",
       "files": [
         "internal/cli/surviving_liens.go",
+        "internal/cli/surviving_liens_test.go",
         "internal/cli/enrich.go"
       ]
     },

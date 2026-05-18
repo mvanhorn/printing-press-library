@@ -181,6 +181,13 @@ func findMatchingRelease(lien *store.Recording, releases map[string][]*store.Rec
 	if lienFirst == "" || lienSecond == "" {
 		return 0
 	}
+	// Clerk recordings have inconsistent casing across instruments
+	// (the same party can appear as "JOHN DOE" on one filing and
+	// "John Doe" on another). Case-sensitive comparison would keep a
+	// satisfied lien in the surviving-liens output and inflate
+	// totals_cents — drift we deliberately don't want here, especially
+	// for bidder disclosure. EqualFold is ASCII-locale-safe; party
+	// names from the clerk are uppercase ASCII in practice.
 	for _, relType := range candidates {
 		for _, rel := range releases[relType] {
 			if rel == nil || used[rel.CFNMasterID] {
@@ -191,8 +198,8 @@ func findMatchingRelease(lien *store.Recording, releases map[string][]*store.Rec
 			}
 			relFirst := strings.TrimSpace(rel.FirstParty)
 			relSecond := strings.TrimSpace(rel.SecondParty)
-			firstMatches := lienFirst == relFirst || lienFirst == relSecond
-			secondMatches := lienSecond == relFirst || lienSecond == relSecond
+			firstMatches := strings.EqualFold(lienFirst, relFirst) || strings.EqualFold(lienFirst, relSecond)
+			secondMatches := strings.EqualFold(lienSecond, relFirst) || strings.EqualFold(lienSecond, relSecond)
 			if firstMatches && secondMatches {
 				return rel.CFNMasterID
 			}
