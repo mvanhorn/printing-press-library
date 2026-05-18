@@ -219,6 +219,12 @@ jobs:
         # regression at PR time so the npm installer never sees a malformed
         # entry. See tools/generate-registry/main.go validateEntries() for the
         # exact field set.
+        #
+        # The file-path form (./tools/generate-registry/main.go) is required
+        # because the repo root has no go.mod — Go locates the tool's go.mod
+        # by walking up from the source file. The package-path form
+        # (./tools/generate-registry) fails with "go.mod not found" from the
+        # repo root. Matches the invocation in generate-registry.yml.
         run: |
           set -euo pipefail
-          go run ./tools/generate-registry --validate
+          go run ./tools/generate-registry/main.go --validate
