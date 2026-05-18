@@ -63,11 +63,43 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Fail on changes to generated artifacts
+      - name: Fetch base ref
+        id: base
         if: github.event_name == 'pull_request'
         env:
           BASE_REF: ${{ github.base_ref }}
           BASE_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          # Single authoritative fetch of base. Downstream steps reuse
+          # `refs/remotes/base/${BASE_REF}` so they all see the same
+          # base commit even if `main` advances mid-job.
+          git remote add base "https://github.com/${BASE_REPO}.git" 2>/dev/null \
+            || git remote set-url base "https://github.com/${BASE_REPO}.git"
+          git fetch --no-tags base "${BASE_REF}:refs/remotes/base/${BASE_REF}"
+          echo "ref=refs/remotes/base/${BASE_REF}" >> "${GITHUB_OUTPUT}"
+
+      - name: Overlay verifier scripts from base
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_REMOTE_REF: ${{ steps.base.outputs.ref }}
+        run: |
+          set -euo pipefail
+          # Run the latest verifier scripts (from base) against the PR's
+          # tree, not whatever stale version the PR was branched from.
+          # Without this overlay, a PR opened against an old main runs
+          # the verifier as it existed back then — surfacing checks that
+          # have since been relaxed and missing checks that have since
+          # been added. It's also the right security default: fork PRs
+          # shouldn't be able to ship their own modified verifier.
+          git checkout "${BASE_REMOTE_REF}" -- \
+            .github/scripts/verify-attribution \
+            .github/scripts/verify-publish-package
+
+      - name: Fail on changes to generated artifacts
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_REMOTE_REF: ${{ steps.base.outputs.ref }}
         run: |
           set -euo pipefail
 
@@ -83,13 +115,37 @@ jobs:
           # cli-skills/AGENTS.md and other meta files under cli-skills/
           # are hand-maintained; only pp-*/SKILL.md is generated.
 
-          git remote add base "https://github.com/${BASE_REPO}.git" 2>/dev/null \
-            || git remote set-url base "https://github.com/${BASE_REPO}.git"
-          base_remote_ref="refs/remotes/base/${BASE_REF}"
-          git fetch --no-tags base "${BASE_REF}:${base_remote_ref}"
+          # Flag a file only when BOTH conditions hold:
+          #   (a) the PR's commits touched it (merge-base aware: not
+          #       just "tree differs from base"), AND
+          #   (b) HEAD's content differs from current base
+          #
+          # (a) alone (the old `...` form) over-fires when a stale-base
+          # PR was caught up by checking out base's version of the file
+          # — the final tree matches base, but merge-base diff still
+          # sees a commit touching it.
+          #
+          # (b) alone (the previous `..` form) over-fires when the PR's
+          # commits never touched the file but its HEAD tree carries
+          # an older snapshot (every post-merge [skip ci] regen on main
+          # advances those paths; any unrebased PR will lag and trip).
+          #
+          # The intersection is the only signal that means "this PR
+          # introduced a divergent change to a generated file."
 
-          violations=$(git diff --name-only "${base_remote_ref}...HEAD" \
-            -- 'registry.json' 'cli-skills/pp-*/SKILL.md')
+          touched=$(git log "${BASE_REMOTE_REF}..HEAD" --name-only --format= \
+            -- 'registry.json' 'cli-skills/pp-*/SKILL.md' \
+            | grep -v '^$' | sort -u)
+          differs=$(git diff --name-only "${BASE_REMOTE_REF}" HEAD \
+            -- 'registry.json' 'cli-skills/pp-*/SKILL.md' \
+            | sort -u)
+
+          if [ -z "$touched" ] || [ -z "$differs" ]; then
+            echo "No PR commits introduce divergent changes to generated artifacts. OK."
+            exit 0
+          fi
+
+          violations=$(comm -12 <(echo "$touched") <(echo "$differs"))
 
           if [ -z "$violations" ]; then
             echo "No changes to generated artifacts. OK."
@@ -110,27 +166,18 @@ jobs:
       - name: Guard CLI attribution
         if: github.event_name == 'pull_request'
         env:
-          BASE_REF: ${{ github.base_ref }}
+          BASE_REMOTE_REF: ${{ steps.base.outputs.ref }}
         run: |
           set -euo pipefail
-          base_remote_ref="refs/remotes/base/${BASE_REF}"
-          python3 .github/scripts/verify-attribution/verify_attribution.py --base "${base_remote_ref}"
+          python3 .github/scripts/verify-attribution/verify_attribution.py --base "${BASE_REMOTE_REF}"
 
       - name: Publish package completeness
         if: github.event_name == 'pull_request'
         env:
-          BASE_REF: ${{ github.base_ref }}
-          BASE_REPO: ${{ github.repository }}
+          BASE_REMOTE_REF: ${{ steps.base.outputs.ref }}
         run: |
           set -euo pipefail
-
-          git remote add base "https://github.com/${BASE_REPO}.git" 2>/dev/null || git remote set-url base "https://github.com/${BASE_REPO}.git"
-          base_remote_ref="refs/remotes/base/${BASE_REF}"
-          if ! git show-ref --verify --quiet "${base_remote_ref}"; then
-            git fetch --no-tags base "${BASE_REF}:${base_remote_ref}"
-          fi
-
-          python3 .github/scripts/verify-publish-package/verify_publish_package.py --base-ref "${base_remote_ref}"
+          python3 .github/scripts/verify-publish-package/verify_publish_package.py --base-ref "${BASE_REMOTE_REF}"
 
       - name: go.mod module path matches directory
         run: |
