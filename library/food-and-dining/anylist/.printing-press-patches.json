@@ -85,6 +85,17 @@
         "internal/cli/root_test.go"
       ],
       "validated_outcome": "Added regressions for dry-run reset name validation and terminal password read failure handling."
+    },
+    {
+      "id": "review-webhook-context-timeout",
+      "summary": "Passed command cancellation and timeout through webhook delivery.",
+      "reason": "Greptile noted that webhook delivery used a hardcoded HTTP timeout and ignored the command context after command execution completed.",
+      "files": [
+        "internal/cli/deliver.go",
+        "internal/cli/root.go",
+        "internal/cli/root_test.go"
+      ],
+      "validated_outcome": "Added regression coverage proving canceled contexts abort webhook delivery before the POST is sent."
     }
   ]
 }

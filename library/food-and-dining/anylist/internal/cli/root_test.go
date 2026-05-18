@@ -5,12 +5,16 @@ package cli
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/anylist/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/anylist/internal/store"
@@ -110,6 +114,29 @@ func TestAuthLoginTerminalPasswordReadFailureDoesNotFallbackToPlaintext(t *testi
 	}
 	if !strings.Contains(err.Error(), "reading password") {
 		t.Fatalf("error = %v, want reading password failure", err)
+	}
+}
+
+func TestDeliverWebhookHonorsCanceledContext(t *testing.T) {
+	t.Parallel()
+
+	called := make(chan struct{}, 1)
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		called <- struct{}{}
+		w.WriteHeader(http.StatusNoContent)
+	}))
+	defer server.Close()
+
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	err := deliverWebhook(ctx, server.URL, []byte(`{"ok":true}`), false, time.Second)
+	if err == nil {
+		t.Fatal("deliverWebhook returned nil error, want canceled context error")
+	}
+	select {
+	case <-called:
+		t.Fatal("webhook server was called despite canceled context")
+	default:
 	}
 }
 
