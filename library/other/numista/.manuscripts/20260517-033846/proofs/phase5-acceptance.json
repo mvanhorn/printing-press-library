@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "numista",
+  "run_id": "20260517-033846",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 106,
+  "tests_passed": 106,
+  "tests_skipped": 88,
+  "auth_context": {
+    "type": "api_key"
+  }
+}
