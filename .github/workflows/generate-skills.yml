@@ -9,6 +9,7 @@ on:
       - 'library/**/SKILL.md'
       - 'library/**/README.md'
       - 'tools/generate-skills/main.go'
+  workflow_dispatch:
 
 jobs:
   generate:
