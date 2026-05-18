@@ -16,7 +16,7 @@ on:
 permissions:
   checks: read
   contents: read
-  issues: read
+  issues: write
   pull-requests: write
 
 jobs:
@@ -24,7 +24,11 @@ jobs:
     name: Greptile policy gate
     if: github.event_name != 'pull_request_target' || github.event.pull_request.draft == false
     runs-on: ubuntu-latest
-    timeout-minutes: 17
+    # 27min = 25min inner polling deadline + 2min buffer for checkout/setup.
+    # Bumped from 17 → 27 because Greptile re-reviews queue behind rate
+    # limits when a PR rapidly accumulates pushes; the prior 15-min inner
+    # deadline left zero headroom on busy days.
+    timeout-minutes: 27
     concurrency:
       group: greptile-policy-gate-${{ github.event.pull_request.number || inputs.pr || github.run_id }}
       cancel-in-progress: true
@@ -66,7 +70,7 @@ jobs:
 
           echo "Evaluating PR #${PR_NUMBER} at ${HEAD_SHA}"
 
-          deadline=$((SECONDS + 900))
+          deadline=$((SECONDS + 1500))
           nudge_after=180
           start="${SECONDS}"
           nudged=0
@@ -86,10 +90,14 @@ jobs:
                   nudged=1
                 else
                   echo "Greptile Review still missing after $((SECONDS - start))s; posting @greptileai review nudge."
+                  # shellcheck disable=SC2016
                   nudge_body="$(printf '@greptileai review\n\n<sub>Auto-nudge from `greptile-policy-gate.yml` because no Greptile Review check appeared for `%s` after %ss. This usually means the PR is over Greptile auto-review size cap; manual triggers bypass it.</sub>\n\n%s\n' "${HEAD_SHA}" "$((SECONDS - start))" "${nudge_marker}")"
-                  gh api "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" \
-                    -f "body=${nudge_body}" >/dev/null
-                  nudged=1
+                  if gh api "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" \
+                    -f "body=${nudge_body}" >/dev/null; then
+                    nudged=1
+                  else
+                    echo "::warning::Could not post @greptileai review nudge; continuing to wait for Greptile Review."
+                  fi
                 fi
               fi
               echo "Greptile Review check not found yet; waiting..."

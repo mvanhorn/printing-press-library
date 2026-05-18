@@ -1,0 +1,91 @@
+{
+  "api_name": "cf-domain",
+  "base_url": "https://api.cloudflare.com/client/v4",
+  "description": "Agent-native CLI for Cloudflare Registrar domain search, live check/pricing, and guarded registration.",
+  "mcp_ready": "full",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "format": "Bearer {token}",
+    "env_vars": [
+      "CLOUDFLARE_API_TOKEN",
+      "CLOUDFLARE_REGISTRAR_DOMAINS_BEARER_AUTH"
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "registrar_domain-search",
+      "description": "Search Cloudflare Registrar suggestions. Uses q query param. Run domain-check for final price before registration.",
+      "method": "GET",
+      "path": "/accounts/{account_id}/registrar/domain-search",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "query",
+          "wire_name": "q",
+          "type": "string",
+          "location": "query",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "registrar_domain-check",
+      "description": "Real-time domain availability and pricing check. Sends {domains:[domain_name]}.",
+      "method": "POST",
+      "path": "/accounts/{account_id}/registrar/domain-check",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "domain_name",
+          "wire_name": "domains",
+          "type": "array",
+          "location": "body",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "registrar_domain-register",
+      "description": "Register a domain. Destructive; requires confirm_domain exactly equal to domain_name after price review.",
+      "method": "POST",
+      "path": "/accounts/{account_id}/registrar/registrations",
+      "params": [
+        {
+          "name": "account_id",
+          "type": "string",
+          "location": "path",
+          "required": true
+        },
+        {
+          "name": "domain_name",
+          "type": "string",
+          "location": "body",
+          "required": true
+        },
+        {
+          "name": "confirm_domain",
+          "type": "string",
+          "location": "body",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

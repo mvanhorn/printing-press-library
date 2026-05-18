@@ -1,0 +1,177 @@
+{
+  "timestamp": "2026-05-12T23:49:07.837531Z",
+  "cli_dir": "/tmp/printing-press/publish/pushover-0CqpPR/package/library/social-and-messaging/pushover",
+  "findings": [
+    {
+      "kind": "phone-us",
+      "file": ".manuscripts/20260512-140827/proofs/20260512-1439-dogfood-results.json",
+      "line": 156,
+      "column": 157,
+      "matched_span": "1780290000",
+      "status": "accepted",
+      "category": "api_provider_data",
+      "evidence_context": "Pushover quota response field 'reset' (Unix timestamp = 2026-06-01); file:line=.manuscripts/20260512-140827/proofs/20260512-1439-dogfood-results.json:156; line text: \"output_sample\": \"{\\n  \\\"meta\\\": {\\n    \\\"source\\\": \\\"live\\\"\\n  },\\n  \\\"results\\\": {\\n    \\\"limit\\\": 10000,\\n    \\\"remai"
+    },
+    {
+      "kind": "phone-us",
+      "file": ".manuscripts/20260512-140827/proofs/20260512-1439-dogfood-results.json",
+      "line": 168,
+      "column": 157,
+      "matched_span": "1780290000",
+      "status": "accepted",
+      "category": "api_provider_data",
+      "evidence_context": "Pushover quota response field 'reset' (Unix timestamp = 2026-06-01); file:line=.manuscripts/20260512-140827/proofs/20260512-1439-dogfood-results.json:168; line text: \"output_sample\": \"{\\n  \\\"meta\\\": {\\n    \\\"source\\\": \\\"live\\\"\\n  },\\n  \\\"results\\\": {\\n    \\\"limit\\\": 10000,\\n    \\\"remai"
+    },
+    {
+      "kind": "phone-us",
+      "file": ".manuscripts/20260512-140827/proofs/20260512-1439-dogfood-results.json",
+      "line": 1418,
+      "column": 86,
+      "matched_span": "1780290000",
+      "status": "accepted",
+      "category": "api_provider_data",
+      "evidence_context": "Pushover quota response field 'reset' (Unix timestamp = 2026-06-01); file:line=.manuscripts/20260512-140827/proofs/20260512-1439-dogfood-results.json:1418; line text: \"output_sample\": \"{\\n  \\\"limit\\\": 10000,\\n  \\\"remaining\\\": 9633,\\n  \\\"reset\\\": 1780290000,\\n  \\\"status\\\": 1,\\n  \\\"reques"
+    },
+    {
+      "kind": "phone-us",
+      "file": ".manuscripts/20260512-140827/proofs/20260512-1439-dogfood-results.json",
+      "line": 1428,
+      "column": 86,
+      "matched_span": "1780290000",
+      "status": "accepted",
+      "category": "api_provider_data",
+      "evidence_context": "Pushover quota response field 'reset' (Unix timestamp = 2026-06-01); file:line=.manuscripts/20260512-140827/proofs/20260512-1439-dogfood-results.json:1428; line text: \"output_sample\": \"{\\n  \\\"limit\\\": 10000,\\n  \\\"remaining\\\": 9633,\\n  \\\"reset\\\": 1780290000,\\n  \\\"status\\\": 1,\\n  \\\"reques"
+    },
+    {
+      "kind": "phone-us",
+      "file": ".manuscripts/20260512-140827/proofs/20260512-1440-dogfood-results.json",
+      "line": 156,
+      "column": 157,
+      "matched_span": "1780290000",
+      "status": "accepted",
+      "category": "api_provider_data",
+      "evidence_context": "Pushover quota response field 'reset' (Unix timestamp = 2026-06-01); file:line=.manuscripts/20260512-140827/proofs/20260512-1440-dogfood-results.json:156; line text: \"output_sample\": \"{\\n  \\\"meta\\\": {\\n    \\\"source\\\": \\\"live\\\"\\n  },\\n  \\\"results\\\": {\\n    \\\"limit\\\": 10000,\\n    \\\"remai"
+    },
+    {
+      "kind": "phone-us",
+      "file": ".manuscripts/20260512-140827/proofs/20260512-1440-dogfood-results.json",
+      "line": 168,
+      "column": 157,
+      "matched_span": "1780290000",
+      "status": "accepted",
+      "category": "api_provider_data",
+      "evidence_context": "Pushover quota response field 'reset' (Unix timestamp = 2026-06-01); file:line=.manuscripts/20260512-140827/proofs/20260512-1440-dogfood-results.json:168; line text: \"output_sample\": \"{\\n  \\\"meta\\\": {\\n    \\\"source\\\": \\\"live\\\"\\n  },\\n  \\\"results\\\": {\\n    \\\"limit\\\": 10000,\\n    \\\"remai"
+    },
+    {
+      "kind": "phone-us",
+      "file": ".manuscripts/20260512-140827/proofs/20260512-1440-dogfood-results.json",
+      "line": 1416,
+      "column": 86,
+      "matched_span": "1780290000",
+      "status": "accepted",
+      "category": "api_provider_data",
+      "evidence_context": "Pushover quota response field 'reset' (Unix timestamp = 2026-06-01); file:line=.manuscripts/20260512-140827/proofs/20260512-1440-dogfood-results.json:1416; line text: \"output_sample\": \"{\\n  \\\"limit\\\": 10000,\\n  \\\"remaining\\\": 9633,\\n  \\\"reset\\\": 1780290000,\\n  \\\"status\\\": 1,\\n  \\\"reques"
+    },
+    {
+      "kind": "phone-us",
+      "file": ".manuscripts/20260512-140827/proofs/20260512-1440-dogfood-results.json",
+      "line": 1426,
+      "column": 86,
+      "matched_span": "1780290000",
+      "status": "accepted",
+      "category": "api_provider_data",
+      "evidence_context": "Pushover quota response field 'reset' (Unix timestamp = 2026-06-01); file:line=.manuscripts/20260512-140827/proofs/20260512-1440-dogfood-results.json:1426; line text: \"output_sample\": \"{\\n  \\\"limit\\\": 10000,\\n  \\\"remaining\\\": 9633,\\n  \\\"reset\\\": 1780290000,\\n  \\\"status\\\": 1,\\n  \\\"reques"
+    },
+    {
+      "kind": "phone-us",
+      "file": ".manuscripts/20260512-140827/proofs/20260512-1600-dogfood-post-watch-fix.json",
+      "line": 156,
+      "column": 157,
+      "matched_span": "1780290000",
+      "status": "accepted",
+      "category": "api_provider_data",
+      "evidence_context": "Pushover quota response field 'reset' (Unix timestamp = 2026-06-01); file:line=.manuscripts/20260512-140827/proofs/20260512-1600-dogfood-post-watch-fix.json:156; line text: \"output_sample\": \"{\\n  \\\"meta\\\": {\\n    \\\"source\\\": \\\"live\\\"\\n  },\\n  \\\"results\\\": {\\n    \\\"limit\\\": 10000,\\n    \\\"remai"
+    },
+    {
+      "kind": "phone-us",
+      "file": ".manuscripts/20260512-140827/proofs/20260512-1600-dogfood-post-watch-fix.json",
+      "line": 168,
+      "column": 157,
+      "matched_span": "1780290000",
+      "status": "accepted",
+      "category": "api_provider_data",
+      "evidence_context": "Pushover quota response field 'reset' (Unix timestamp = 2026-06-01); file:line=.manuscripts/20260512-140827/proofs/20260512-1600-dogfood-post-watch-fix.json:168; line text: \"output_sample\": \"{\\n  \\\"meta\\\": {\\n    \\\"source\\\": \\\"live\\\"\\n  },\\n  \\\"results\\\": {\\n    \\\"limit\\\": 10000,\\n    \\\"remai"
+    },
+    {
+      "kind": "phone-us",
+      "file": ".manuscripts/20260512-140827/proofs/20260512-1600-dogfood-post-watch-fix.json",
+      "line": 1426,
+      "column": 86,
+      "matched_span": "1780290000",
+      "status": "accepted",
+      "category": "api_provider_data",
+      "evidence_context": "Pushover quota response field 'reset' (Unix timestamp = 2026-06-01); file:line=.manuscripts/20260512-140827/proofs/20260512-1600-dogfood-post-watch-fix.json:1426; line text: \"output_sample\": \"{\\n  \\\"limit\\\": 10000,\\n  \\\"remaining\\\": 9597,\\n  \\\"reset\\\": 1780290000,\\n  \\\"status\\\": 1,\\n  \\\"reques"
+    },
+    {
+      "kind": "phone-us",
+      "file": ".manuscripts/20260512-140827/proofs/20260512-1600-dogfood-post-watch-fix.json",
+      "line": 1436,
+      "column": 86,
+      "matched_span": "1780290000",
+      "status": "accepted",
+      "category": "api_provider_data",
+      "evidence_context": "Pushover quota response field 'reset' (Unix timestamp = 2026-06-01); file:line=.manuscripts/20260512-140827/proofs/20260512-1600-dogfood-post-watch-fix.json:1436; line text: \"output_sample\": \"{\\n  \\\"limit\\\": 10000,\\n  \\\"remaining\\\": 9597,\\n  \\\"reset\\\": 1780290000,\\n  \\\"status\\\": 1,\\n  \\\"reques"
+    },
+    {
+      "kind": "phone-us",
+      "file": ".manuscripts/20260512-140827/proofs/20260512-160349-dogfood-post-watch-fix-final.json",
+      "line": 156,
+      "column": 157,
+      "matched_span": "1780290000",
+      "status": "accepted",
+      "category": "api_provider_data",
+      "evidence_context": "Pushover quota response field 'reset' (Unix timestamp = 2026-06-01); file:line=.manuscripts/20260512-140827/proofs/20260512-160349-dogfood-post-watch-fix-final.json:156; line text: \"output_sample\": \"{\\n  \\\"meta\\\": {\\n    \\\"source\\\": \\\"live\\\"\\n  },\\n  \\\"results\\\": {\\n    \\\"limit\\\": 10000,\\n    \\\"remai"
+    },
+    {
+      "kind": "phone-us",
+      "file": ".manuscripts/20260512-140827/proofs/20260512-160349-dogfood-post-watch-fix-final.json",
+      "line": 168,
+      "column": 157,
+      "matched_span": "1780290000",
+      "status": "accepted",
+      "category": "api_provider_data",
+      "evidence_context": "Pushover quota response field 'reset' (Unix timestamp = 2026-06-01); file:line=.manuscripts/20260512-140827/proofs/20260512-160349-dogfood-post-watch-fix-final.json:168; line text: \"output_sample\": \"{\\n  \\\"meta\\\": {\\n    \\\"source\\\": \\\"live\\\"\\n  },\\n  \\\"results\\\": {\\n    \\\"limit\\\": 10000,\\n    \\\"remai"
+    },
+    {
+      "kind": "phone-us",
+      "file": ".manuscripts/20260512-140827/proofs/20260512-160349-dogfood-post-watch-fix-final.json",
+      "line": 1426,
+      "column": 86,
+      "matched_span": "1780290000",
+      "status": "accepted",
+      "category": "api_provider_data",
+      "evidence_context": "Pushover quota response field 'reset' (Unix timestamp = 2026-06-01); file:line=.manuscripts/20260512-140827/proofs/20260512-160349-dogfood-post-watch-fix-final.json:1426; line text: \"output_sample\": \"{\\n  \\\"limit\\\": 10000,\\n  \\\"remaining\\\": 9597,\\n  \\\"reset\\\": 1780290000,\\n  \\\"status\\\": 1,\\n  \\\"reques"
+    },
+    {
+      "kind": "phone-us",
+      "file": ".manuscripts/20260512-140827/proofs/20260512-160349-dogfood-post-watch-fix-final.json",
+      "line": 1436,
+      "column": 86,
+      "matched_span": "1780290000",
+      "status": "accepted",
+      "category": "api_provider_data",
+      "evidence_context": "Pushover quota response field 'reset' (Unix timestamp = 2026-06-01); file:line=.manuscripts/20260512-140827/proofs/20260512-160349-dogfood-post-watch-fix-final.json:1436; line text: \"output_sample\": \"{\\n  \\\"limit\\\": 10000,\\n  \\\"remaining\\\": 9597,\\n  \\\"reset\\\": 1780290000,\\n  \\\"status\\\": 1,\\n  \\\"reques"
+    },
+    {
+      "kind": "phone-us",
+      "file": ".manuscripts/20260512-140827/proofs/live-quota.json",
+      "line": 4,
+      "column": 12,
+      "matched_span": "1780290000",
+      "status": "accepted",
+      "category": "api_provider_data",
+      "evidence_context": "Pushover quota response field 'reset' (Unix timestamp = 2026-06-01); file:line=.manuscripts/20260512-140827/proofs/live-quota.json:4; line text: \"reset\": 1780290000,"
+    }
+  ],
+  "findings_count_before": 35
+}

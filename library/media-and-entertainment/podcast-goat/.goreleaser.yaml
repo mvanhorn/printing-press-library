@@ -1,0 +1,51 @@
+version: 2
+project_name: podcast-goat-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: podcast-goat-pp-cli
+    main: ./cmd/podcast-goat-pp-cli
+    binary: podcast-goat-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/media-and-entertainment/podcast-goat/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: podcast-goat-pp-mcp
+    main: ./cmd/podcast-goat-pp-mcp
+    binary: podcast-goat-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: podcast-goat-pp-cli
+    repository:
+      owner: mvanhorn
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Pull long-form podcast transcripts as speaker-labeled markdown — cookie-first across the four major paid..."
+    install: |
+      bin.install "podcast-goat-pp-cli"
+      bin.install "podcast-goat-pp-mcp"

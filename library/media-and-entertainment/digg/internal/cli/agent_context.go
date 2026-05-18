@@ -134,8 +134,9 @@ func buildAgentContext(rootCmd *cobra.Command) agentContext {
 	return agentContext{
 		SchemaVersion: agentContextSchemaVersion,
 		CLI: agentContextCLI{
-			Name:        "digg-pp-cli",
-			Description: "Tail the Digg AI 1000's news cycle from the terminal — read-only, with the full pipeline event stream and...",
+			Name: "digg-pp-cli",
+			// PATCH(digg-rename-and-github-feeds): drop Digg AI 1000 branding.
+			Description: "Tail Digg's news cycle, GitHub feeds, and pipeline events from the terminal — read-only, with rank-history nobody else surfaces.",
 			Version:     rootCmd.Version,
 		},
 		Auth: agentContextAuth{

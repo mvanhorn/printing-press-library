@@ -1,0 +1,388 @@
+{
+  "api_name": "trustpilot",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "irfanalidv/trustpilot_scraper",
+      "url": "https://github.com/irfanalidv/trustpilot_scraper",
+      "language": "Python",
+      "install_method": "",
+      "stars": 12,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "AndreaBilliar/trustpilot-scraper",
+      "url": "https://github.com/AndreaBilliar/trustpilot-scraper",
+      "language": "Python",
+      "install_method": "",
+      "stars": 2,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "hakimkhalafi/trustpilot-scraper",
+      "url": "https://github.com/hakimkhalafi/trustpilot-scraper",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "trustpilot-scraper (PyPI)",
+      "url": "https://pypi.org/project/trustpilot-scraper/",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "trustpilot (official Python client)",
+      "url": "https://pypi.org/project/trustpilot/",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "trustpilot (official npm client)",
+      "url": "https://www.npmjs.com/package/trustpilot",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [
+    "cookie-auth-via-browser-clearance",
+    "next-js-build-id-harvest",
+    "local-sqlite-fts5-store",
+    "agent-bundle-single-call"
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-15T15:30:00Z",
+  "novel_features": [
+    {
+      "name": "Balanced recent slice",
+      "command": "top-recent",
+      "description": "Pulls N freshest 4-5 star reviews and N freshest 1-2 star reviews for a company in one call, so agents can quote a balanced view without two separate scrapes.",
+      "rationale": "Trustpilot has no single endpoint that returns a good+bad mix; one HTTP path biases the sample. Two filtered pulls merged locally are the only path.",
+      "example": "trustpilot-pp-cli top-recent thriftbooks.com --window 30d --good 5 --bad 5 --json",
+      "why_it_matters": "When an agent is summarizing what consumers say about a company in the last 30 days, this is the one command that returns a balanced citable sample.",
+      "group": "last30days agent bridge"
+    },
+    {
+      "name": "One-shot agent bundle",
+      "command": "agent-bundle",
+      "description": "Returns a single JSON payload with company metadata, TrustScore, Trustpilot's own AI summary, top recent good and bad reviews, and the 5-bin rating histogram — everything an external agent needs in one call.",
+      "rationale": "Composes three Trustpilot endpoints plus one local aggregation; designed as the single MCP tool external research agents invoke.",
+      "example": "trustpilot-pp-cli agent-bundle thriftbooks.com --json --select company.trustScore,company.numberOfReviews,topRecent.good,topRecent.bad,histogram",
+      "why_it_matters": "If you only call one Trustpilot command from another agent, call this one. It is purpose-built for last30days-style story enrichment.",
+      "group": "last30days agent bridge"
+    },
+    {
+      "name": "TrustScore + sentiment drift",
+      "command": "drift",
+      "description": "Week-over-week TrustScore, 1-star %, 5-star %, and review volume reconstructed from locally synced reviews. Trustpilot exposes only the current TrustScore; this surfaces history.",
+      "rationale": "Local SQLite aggregation over synced reviews bucketed by ISO week. The API offers no historical-trustscore endpoint.",
+      "example": "trustpilot-pp-cli drift thriftbooks.com --weeks 12 --json",
+      "why_it_matters": "Use before claiming a company's reputation is improving or declining; one query gives you the weekly trend with star-mix breakdown.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Multi-company comparison",
+      "command": "compare",
+      "description": "Side-by-side TrustScore, review velocity, and 1/5-star mix across N companies over a chosen window, all read from the local synced store.",
+      "rationale": "Cross-domain join over synced reviews; no existing scraper supports multi-company queries.",
+      "example": "trustpilot-pp-cli compare thriftbooks.com bookshop.org powells.com --window 90d --json",
+      "why_it_matters": "Best command for landscape analysis before recommending a vendor or writing a comparison piece.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Review-velocity surge",
+      "command": "surge",
+      "description": "Detects statistically significant spikes in total review volume or 1-star volume against a rolling baseline using Z-scores over locally synced rows.",
+      "rationale": "Mechanical statistical test on synced rows; review pile-ons usually precede news cycles, and no scraper surfaces them.",
+      "example": "trustpilot-pp-cli surge thriftbooks.com --baseline 90d --window 7d --stars 1 --json",
+      "why_it_matters": "Run this before publishing on a company; a fresh 1-star surge is the headline you would otherwise miss.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Offline review FTS",
+      "command": "search-reviews",
+      "description": "Full-text search over synced review titles, bodies, and business replies with star, language, and date filters. FTS5-backed, works offline.",
+      "rationale": "Trustpilot's UI has no per-company review-text search; FTS5 over the local store is the only way to grep N years of reviews.",
+      "example": "trustpilot-pp-cli search-reviews thriftbooks.com 'refund' --stars 1 --window 90d --lang en --json",
+      "why_it_matters": "When the question is 'what did 1-star reviewers say about refunds in the last 90 days', this is the only command that answers it.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Business-reply gap",
+      "command": "replies",
+      "description": "Reply rate by star bucket over synced reviews, plus a listing of unreplied 1-stars when --unreplied is set.",
+      "rationale": "Every existing scraper carries the reply field; none aggregates reply rate by star bucket.",
+      "example": "trustpilot-pp-cli replies thriftbooks.com --unreplied --stars 1 --json",
+      "why_it_matters": "Companies that ignore 1-stars predict customer-support failure; this is the one-line audit for it.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Country-of-reviewer mix",
+      "command": "geo",
+      "description": "Reviewer-country distribution over a window with per-country count, average rating, and 1-star rate.",
+      "rationale": "consumerCountry is in every review payload but never aggregated by existing tools.",
+      "example": "trustpilot-pp-cli geo thriftbooks.com --window 90d --json",
+      "why_it_matters": "Use when sentiment differs by region; the country breakdown is the first signal of a localized incident.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Trustpilot topic-AI passthrough",
+      "command": "topics",
+      "description": "Surfaces Trustpilot's own pre-computed topic AI summaries (e.g., 'shipping', 'price', 'condition') as JSON.",
+      "rationale": "Pure passthrough of an existing pageProps field; the absorb manifest already covers the top-level AI summary but not these per-topic clusters.",
+      "example": "trustpilot-pp-cli topics thriftbooks.com --json",
+      "why_it_matters": "When you need labeled clusters of what reviewers actually talk about, Trustpilot already did the clustering — this surfaces it.",
+      "group": "Trustpilot-native enrichment"
+    },
+    {
+      "name": "Similar-companies sweep",
+      "command": "similar-sweep",
+      "description": "Takes the 8 'similar businesses' Trustpilot returns for a company, fetches each one's info in parallel, and ranks them by TrustScore and total reviews.",
+      "rationale": "Builds on absorbed info --similar; the Trustpilot site requires 9 manual page loads to assemble this table.",
+      "example": "trustpilot-pp-cli similar-sweep thriftbooks.com --json",
+      "why_it_matters": "Auto-discovered competitor set with metrics — perfect for prospecting or a competitor list you didn't curate.",
+      "group": "Trustpilot-native enrichment"
+    },
+    {
+      "name": "Sync delta",
+      "command": "whats-new",
+      "description": "Lists reviews that arrived since the last sync, bucketed by star rating, so an agent can poll for fresh customer feedback without re-fetching everything.",
+      "rationale": "Compares reviews.publishedAt against sync_cursors.lastSyncedAt; agent polling pattern with no equivalent on the Trustpilot site.",
+      "example": "trustpilot-pp-cli whats-new thriftbooks.com --since 2026-05-01 --json",
+      "why_it_matters": "Best for scheduled agents that want the delta, not the full archive.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Category leaderboard",
+      "command": "category-top",
+      "description": "Ranks the companies in a Trustpilot category by TrustScore (with an optional minimum-review floor).",
+      "rationale": "The absorbed categories command returns the navigation list unranked; ranking by TrustScore + review-volume floor turns navigation into a query.",
+      "example": "trustpilot-pp-cli category-top online-bookstore --limit 25 --min-reviews 100 --json",
+      "why_it_matters": "When you want 'best online bookstore on Trustpilot with at least 100 reviews', this is the one query.",
+      "group": "Trustpilot-native enrichment"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Balanced recent slice",
+      "command": "top-recent",
+      "description": "Pulls N freshest 4-5 star reviews and N freshest 1-2 star reviews for a company in one call, so agents can quote a balanced view without two separate scrapes.",
+      "rationale": "Trustpilot has no single endpoint that returns a good+bad mix; one HTTP path biases the sample. Two filtered pulls merged locally are the only path.",
+      "example": "trustpilot-pp-cli top-recent thriftbooks.com --window 30d --good 5 --bad 5 --json",
+      "why_it_matters": "When an agent is summarizing what consumers say about a company in the last 30 days, this is the one command that returns a balanced citable sample.",
+      "group": "last30days agent bridge"
+    },
+    {
+      "name": "One-shot agent bundle",
+      "command": "agent-bundle",
+      "description": "Returns a single JSON payload with company metadata, TrustScore, Trustpilot's own AI summary, top recent good and bad reviews, and the 5-bin rating histogram — everything an external agent needs in one call.",
+      "rationale": "Composes three Trustpilot endpoints plus one local aggregation; designed as the single MCP tool external research agents invoke.",
+      "example": "trustpilot-pp-cli agent-bundle thriftbooks.com --json --select company.trustScore,company.numberOfReviews,topRecent.good,topRecent.bad,histogram",
+      "why_it_matters": "If you only call one Trustpilot command from another agent, call this one. It is purpose-built for last30days-style story enrichment.",
+      "group": "last30days agent bridge"
+    },
+    {
+      "name": "TrustScore + sentiment drift",
+      "command": "drift",
+      "description": "Week-over-week TrustScore, 1-star %, 5-star %, and review volume reconstructed from locally synced reviews. Trustpilot exposes only the current TrustScore; this surfaces history.",
+      "rationale": "Local SQLite aggregation over synced reviews bucketed by ISO week. The API offers no historical-trustscore endpoint.",
+      "example": "trustpilot-pp-cli drift thriftbooks.com --weeks 12 --json",
+      "why_it_matters": "Use before claiming a company's reputation is improving or declining; one query gives you the weekly trend with star-mix breakdown.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Multi-company comparison",
+      "command": "compare",
+      "description": "Side-by-side TrustScore, review velocity, and 1/5-star mix across N companies over a chosen window, all read from the local synced store.",
+      "rationale": "Cross-domain join over synced reviews; no existing scraper supports multi-company queries.",
+      "example": "trustpilot-pp-cli compare thriftbooks.com bookshop.org powells.com --window 90d --json",
+      "why_it_matters": "Best command for landscape analysis before recommending a vendor or writing a comparison piece.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Review-velocity surge",
+      "command": "surge",
+      "description": "Detects statistically significant spikes in total review volume or 1-star volume against a rolling baseline using Z-scores over locally synced rows.",
+      "rationale": "Mechanical statistical test on synced rows; review pile-ons usually precede news cycles, and no scraper surfaces them.",
+      "example": "trustpilot-pp-cli surge thriftbooks.com --baseline 90d --window 7d --stars 1 --json",
+      "why_it_matters": "Run this before publishing on a company; a fresh 1-star surge is the headline you would otherwise miss.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Offline review FTS",
+      "command": "search-reviews",
+      "description": "Full-text search over synced review titles, bodies, and business replies with star, language, and date filters. FTS5-backed, works offline.",
+      "rationale": "Trustpilot's UI has no per-company review-text search; FTS5 over the local store is the only way to grep N years of reviews.",
+      "example": "trustpilot-pp-cli search-reviews thriftbooks.com 'refund' --stars 1 --window 90d --lang en --json",
+      "why_it_matters": "When the question is 'what did 1-star reviewers say about refunds in the last 90 days', this is the only command that answers it.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Business-reply gap",
+      "command": "replies",
+      "description": "Reply rate by star bucket over synced reviews, plus a listing of unreplied 1-stars when --unreplied is set.",
+      "rationale": "Every existing scraper carries the reply field; none aggregates reply rate by star bucket.",
+      "example": "trustpilot-pp-cli replies thriftbooks.com --unreplied --stars 1 --json",
+      "why_it_matters": "Companies that ignore 1-stars predict customer-support failure; this is the one-line audit for it.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Country-of-reviewer mix",
+      "command": "geo",
+      "description": "Reviewer-country distribution over a window with per-country count, average rating, and 1-star rate.",
+      "rationale": "consumerCountry is in every review payload but never aggregated by existing tools.",
+      "example": "trustpilot-pp-cli geo thriftbooks.com --window 90d --json",
+      "why_it_matters": "Use when sentiment differs by region; the country breakdown is the first signal of a localized incident.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Trustpilot topic-AI passthrough",
+      "command": "topics",
+      "description": "Surfaces Trustpilot's own pre-computed topic AI summaries (e.g., 'shipping', 'price', 'condition') as JSON.",
+      "rationale": "Pure passthrough of an existing pageProps field; the absorb manifest already covers the top-level AI summary but not these per-topic clusters.",
+      "example": "trustpilot-pp-cli topics thriftbooks.com --json",
+      "why_it_matters": "When you need labeled clusters of what reviewers actually talk about, Trustpilot already did the clustering — this surfaces it.",
+      "group": "Trustpilot-native enrichment"
+    },
+    {
+      "name": "Similar-companies sweep",
+      "command": "similar-sweep",
+      "description": "Takes the 8 'similar businesses' Trustpilot returns for a company, fetches each one's info in parallel, and ranks them by TrustScore and total reviews.",
+      "rationale": "Builds on absorbed info --similar; the Trustpilot site requires 9 manual page loads to assemble this table.",
+      "example": "trustpilot-pp-cli similar-sweep thriftbooks.com --json",
+      "why_it_matters": "Auto-discovered competitor set with metrics — perfect for prospecting or a competitor list you didn't curate.",
+      "group": "Trustpilot-native enrichment"
+    },
+    {
+      "name": "Sync delta",
+      "command": "whats-new",
+      "description": "Lists reviews that arrived since the last sync, bucketed by star rating, so an agent can poll for fresh customer feedback without re-fetching everything.",
+      "rationale": "Compares reviews.publishedAt against sync_cursors.lastSyncedAt; agent polling pattern with no equivalent on the Trustpilot site.",
+      "example": "trustpilot-pp-cli whats-new thriftbooks.com --since 2026-05-01 --json",
+      "why_it_matters": "Best for scheduled agents that want the delta, not the full archive.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Category leaderboard",
+      "command": "category-top",
+      "description": "Ranks the companies in a Trustpilot category by TrustScore (with an optional minimum-review floor).",
+      "rationale": "The absorbed categories command returns the navigation list unranked; ranking by TrustScore + review-volume floor turns navigation into a query.",
+      "example": "trustpilot-pp-cli category-top online-bookstore --limit 25 --min-reviews 100 --json",
+      "why_it_matters": "When you want 'best online bookstore on Trustpilot with at least 100 reviews', this is the one query.",
+      "group": "Trustpilot-native enrichment"
+    }
+  ],
+  "narrative": {
+    "display_name": "Trustpilot",
+    "headline": "Every Trustpilot review surface, plus the local SQLite database and balanced good-and-bad agent bundle no other Trustpilot tool ships.",
+    "value_prop": "Pulls public Trustpilot reviews into a local SQLite store with FTS5 over titles, bodies, and business replies. Designed to pair with research agents like last30days: one call returns a balanced good-and-bad sample for an entity along with TrustScore, Trustpilot's own AI summary, and the rating histogram.",
+    "auth_narrative": "Trustpilot is fronted by AWS WAF, so plain HTTP is blocked. Run `trustpilot-pp-cli auth login --chrome` once to harvest the `aws-waf-token` cookie via a one-shot headless Chrome; the CLI persists it locally and refreshes automatically when it expires (every 5-15 minutes). No paid API subscription required.",
+    "quickstart": [
+      {
+        "command": "trustpilot-pp-cli auth login --chrome",
+        "comment": "One-time cookie harvest via headless Chrome; clears the AWS WAF challenge."
+      },
+      {
+        "command": "trustpilot-pp-cli search 'thriftbooks'",
+        "comment": "Resolve a company name to its canonical Trustpilot domain (e.g. www.thriftbooks.com)."
+      },
+      {
+        "command": "trustpilot-pp-cli info www.thriftbooks.com --json",
+        "comment": "TrustScore, total reviews, rating histogram, and Trustpilot's own AI summary."
+      },
+      {
+        "command": "trustpilot-pp-cli top-recent www.thriftbooks.com --window 30d --good 5 --bad 5 --json",
+        "comment": "Balanced recent slice — the headline command for agent integrations."
+      },
+      {
+        "command": "trustpilot-pp-cli sync www.thriftbooks.com --max-pages 25",
+        "comment": "Pull up to 500 recent reviews into the local SQLite store for offline analysis."
+      },
+      {
+        "command": "trustpilot-pp-cli search-reviews www.thriftbooks.com 'refund' --stars 1 --window 90d",
+        "comment": "FTS5 grep on synced reviews — no remote call once sync is current."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Every request returns 403 with HTML body",
+        "fix": "Run `trustpilot-pp-cli auth login --chrome` to refresh the WAF cookie. Tokens expire after 5-15 minutes; the CLI auto-refreshes on 403 but only if a Chrome is available locally."
+      },
+      {
+        "symptom": "JSON-API returns 308 redirect to HTML",
+        "fix": "The `x-nextjs-data: 1` header was dropped. Re-run with `--debug` and confirm the request headers include it; if missing, rebuild the binary."
+      },
+      {
+        "symptom": "Pagination stops after ~200 pages on a company with millions of reviews",
+        "fix": "Pass `--bust-cutoff` (default on for sync), which iterates `stars=1..5` × `languages` to multiply the effective depth."
+      },
+      {
+        "symptom": "`drift` or `surge` returns 'no data — run sync first'",
+        "fix": "Run `trustpilot-pp-cli sync \u003cdomain\u003e --max-pages 25` first; these commands read from the local SQLite store, not the API."
+      }
+    ],
+    "when_to_use": "Reach for Trustpilot CLI when an agent or researcher needs consumer reviews for a company by domain or name. Best fit: enriching a research narrative with a balanced recent good+bad sample, tracking TrustScore drift over time, comparing several companies in one call, or grepping synced reviews for a term (`refund`, `chargeback`) with star and date filters. Pairs cleanly with last30days for story enrichment.",
+    "recipes": [
+      {
+        "title": "Balanced last-30-day sample for last30days",
+        "command": "trustpilot-pp-cli top-recent www.thriftbooks.com --window 30d --good 5 --bad 5 --json",
+        "explanation": "One call returns 5 fresh good and 5 fresh bad reviews — the canonical citable sample for a story."
+      },
+      {
+        "title": "One-call agent bundle (most efficient)",
+        "command": "trustpilot-pp-cli agent-bundle www.thriftbooks.com --json --select company.trustScore,company.numberOfReviews,topRecent.good,topRecent.bad,histogram,aiSummary",
+        "explanation": "Composes info + top-recent + AI summary + histogram into a single payload; `--select` keeps the response under a few KB for deeply-nested fields."
+      },
+      {
+        "title": "12-week trust score and 1-star drift",
+        "command": "trustpilot-pp-cli drift www.thriftbooks.com --weeks 12 --json",
+        "explanation": "Reconstruct weekly TrustScore from synced reviews; spot inflection points the Trustpilot site never shows."
+      },
+      {
+        "title": "Compare three competitors for a Monday landscape sweep",
+        "command": "trustpilot-pp-cli compare www.thriftbooks.com bookshop.org powells.com --window 90d",
+        "explanation": "Side-by-side TrustScore + review velocity + 1/5-star mix across the cohort, read from local store."
+      },
+      {
+        "title": "Grep synced 1-star reviews for refund complaints",
+        "command": "trustpilot-pp-cli search-reviews www.thriftbooks.com 'refund' --stars 1 --window 90d --lang en --json",
+        "explanation": "FTS5 query — works offline once sync is current; combine with `--select rating,title,publishedAt,text` for narrow output."
+      }
+    ],
+    "trigger_phrases": [
+      "trustpilot reviews for \u003ccompany\u003e",
+      "what do customers say about \u003ccompany\u003e",
+      "good and bad reviews for \u003ccompany\u003e",
+      "trustscore for \u003ccompany\u003e",
+      "is \u003ccompany\u003e trustworthy",
+      "use trustpilot",
+      "run trustpilot"
+    ]
+  }
+}

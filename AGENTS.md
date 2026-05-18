@@ -26,6 +26,40 @@ The normal flow is:
 
 Use this distinction in your own language: **generator repo** or **Printing Press** for `cli-printing-press`; **published library** or **catalog repo** for this repo; **local library** for the generated working-copy library, commonly `~/printing-press/library`.
 
+## Claim an issue before you start working on it
+
+Multiple agents and humans work this repo simultaneously. Before touching code for an issue, **claim it visibly** and **check whether someone else already has** — otherwise two agents land overlapping PRs and one of you wasted a session.
+
+**Before starting, check both signals for an existing claim:**
+
+```bash
+# 1. Is the issue assigned to someone?
+gh issue view <num> --json assignees,state,title
+
+# 2. Has anyone commented claiming it (look for phrases like "I'll take this",
+#    "claiming this", "working on this", or another agent's claim comment)?
+gh issue view <num> --comments
+```
+
+If `assignees` is non-empty OR a recent comment claims the issue, **don't start work**. Pick a different issue. If the existing claim looks stale (no follow-up activity for more than a few days and no linked PR), leave a polite comment asking the original claimer if they're still working on it before you proceed — don't just take it.
+
+**To claim an issue yourself, do both:**
+
+```bash
+# 1. Try to self-assign. This may fail silently or with a permissions error
+#    on forks or for accounts without write access — that's expected.
+gh issue edit <num> --add-assignee @me 2>/dev/null || true
+
+# 2. Always leave a claim comment. This is the durable signal that works
+#    regardless of repo permissions and is visible to humans skimming the
+#    issue thread.
+gh issue comment <num> --body "Claiming this — starting work now. Will open a PR within <reasonable timeframe>."
+```
+
+The comment is mandatory, the self-assign is best-effort. Self-assign needs write access on the repo (which agents running from forks, lower-trust accounts, or unauthenticated CI contexts often don't have), and even when it succeeds it isn't surfaced in `gh issue list` output the same way comments are. The comment is the convention; the assignee is a courtesy when permissions allow.
+
+**If you abandon a claim** (the task turned out larger than expected, you got blocked, etc.), leave a follow-up comment saying so and `gh issue edit <num> --remove-assignee @me` if you self-assigned successfully. Don't silently disappear — the next agent looking at the issue uses your claim comment to decide whether the issue is still in flight.
+
 ## Adding a new CLI or reprinting an existing one — use the Printing Press, not a hand-built PR
 
 **New CLI additions and reprints do not start in this repo.** They are produced by `cli-printing-press` and shipped here through the publish phase of `/printing-press` (which invokes the `/printing-press-publish` skill at the end of a run). Hand-constructed PRs that try to assemble the canonical CLI shape from scratch in this repo systematically miss things: wrong directory layout (`<slug>-pp-cli/` instead of `<slug>/`), missing `.manuscripts/<run-id>/{research,proofs}/`, missing `dogfood-results.json`, hand-authored `cli-skills/pp-<slug>/SKILL.md` (which is a generated mirror), wrong PR title scope (`feat(library)` instead of `feat(<slug>)`), wrong branch name (`add-<slug>` instead of `feat/<slug>`), and PR descriptions that are free-form prose instead of the validation-table-bearing template the publish skill produces. We get those PRs every week and they are not mergeable as-is.
@@ -63,8 +97,7 @@ If you are constructing a new-CLI PR by any path, it must match this shape:
 - **Title:** `feat(<slug>): add <slug>` exactly. No trailing dash-suffix description (`— Korean startup database`), no `feat(library)` scope, no Co-Authored-By or "Claude Code" trailers.
 - **Directory:** `library/<category>/<slug>/`. Slug only — never `library/<category>/<slug>-pp-cli/`. The `-pp-cli` infix lives in binary names, not directory names.
 - **Files present at minimum:** `.printing-press.json` (full manifest with `api_name`, `cli_name`, `spec_format`, `spec_checksum`, `spec_source`, `printing_press_version`, plus MCP fields if applicable), `cmd/<slug>-pp-cli/main.go`, `internal/cli/root.go` and the per-resource files, `internal/client/client.go`, `SKILL.md`, `README.md`, `AGENTS.md`, `LICENSE`, `NOTICE`, `Makefile`, `.goreleaser.yaml`, `.golangci.yml`, `go.mod`, `go.sum`, `dogfood-results.json`, and a populated `.manuscripts/<run-id>/research/` plus `.manuscripts/<run-id>/proofs/`. A reprint that drops the manuscripts is not a publishable reprint.
-- **Files NOT in the PR:** `cli-skills/pp-<slug>/SKILL.md` (auto-regenerated post-merge from `library/<cat>/<slug>/SKILL.md` by `tools/generate-skills/`); committed binaries; `.env`, `session-state.json`, or other files with real credentials.
-- **Registry update:** `registry.json` gets the new entry inserted in alphabetical order by `name`, with the full MCP block populated when the manifest declares one.
+- **Files NOT in the PR:** `cli-skills/pp-<slug>/SKILL.md` and `registry.json` (both regenerated post-merge by `generate-skills.yml` and `generate-registry.yml` — `verify-library-conventions.yml` hard-fails if either is present in the PR diff); committed binaries; `.env`, `session-state.json`, or other files with real credentials.
 - **PR body:** matches the publish-skill template — `## <slug>` heading, description paragraph, `**API:** … | **Category:** … | **Press version:** …` line, `**Spec:** …` line, then `### CLI Shape` (with the verbatim `--help` output in a fenced code block), `### What This CLI Does`, `### Manuscripts` (links to the in-PR `.manuscripts/<run-id>/research/` and `.manuscripts/<run-id>/proofs/` paths), `### Validation Results` (a table with PASS/FAIL for Manifest, Phase 5, `go mod tidy`, `go vet`, `go build`, `--help`, `--version`, `verify-skill`, `govulncheck`, Manuscripts), and an optional `### Gaps` section. **No** `## Summary` / `## Why This Matters` / `## What It Does` / `## Endpoints` / `## Test plan` / generic-template prose; that shape signals a hand-built submission and a likely missing-files PR.
 
 ### Signs you've drifted off the canonical path
@@ -76,7 +109,7 @@ If you're constructing a new-CLI PR and you notice any of these, stop and route 
 - Your validation evidence is a `## Testing` code block with `go build ./...` and a smoke command, instead of the structured `### Validation Results` table.
 - You can't link to manuscripts because there are no `.manuscripts/<run-id>/research/` or `.manuscripts/<run-id>/proofs/` files in the diff.
 - You're hand-editing `cli-skills/pp-<slug>/SKILL.md` or `registry.json`. Both are bot-regenerated; hand-edits get overwritten and create merge conflicts.
-- The PR diff has fewer than ~30 files for a new CLI — the canonical layout always lands dozens of files (`internal/cli/*.go` per endpoint plus `internal/cliutil/`, `internal/client/`, optional `internal/mcp/`, `cmd/<slug>-pp-cli/`, plus the docs/build files). A new-CLI PR with a single `main.go` and a registry edit is missing nearly all of it.
+- The PR diff has fewer than ~30 files for a new CLI — the canonical layout always lands dozens of files (`internal/cli/*.go` per endpoint plus `internal/cliutil/`, `internal/client/`, optional `internal/mcp/`, `cmd/<slug>-pp-cli/`, plus the docs/build files). A new-CLI PR with only a single `main.go` is missing nearly all of it.
 
 When any of these fire, **the right move is not to fix the PR by adding more sections**. The right move is to drop the hand-built branch, re-enter `/printing-press <api>` (or `/printing-press-publish <slug>` if the CLI is already generated and only the publish step remains), and let the skill open the PR.
 
@@ -100,6 +133,12 @@ If you (an agent) opened the PR, you own driving it to ready-to-merge:
 6. **Greptile is configured by `greptile.json` at the repo root.** That config encodes repo-specific rules — manuscript-content judgment for new CLIs, reprint classification, PR title / branch / body shape. Don't disable rules to silence a finding; the rule exists because something burned us. If you believe a rule is mis-firing across the board, file a separate PR amending `greptile.json` with reasoning.
 
 The same expectation applies to non-CLI PRs (CI fixes, bug fixes, doc edits, sweep-canonical runs): resolve every comment before merge. The strictness is uniform; the rule-set Greptile applies varies with what you touched.
+
+## Supply-chain hardening
+
+PRs touching `.github/workflows/**`, `library/**/go.mod`, or `npm/package.json` are gated by two layers: Greptile rules in [`greptile.json`](greptile.json) and a Python scan in [`.github/scripts/verify-supply-chain/`](.github/scripts/verify-supply-chain/) run by `verify-supply-chain.yml`. See those files for current signal coverage. Run the scan locally with `python3 .github/scripts/verify-supply-chain/scan.py --base-ref origin/main`; tests are `python3 -m unittest scan_test` from that directory.
+
+Runs informationally on landing — promote to a required branch-protection check only after a one-week green window. Mirror gate runs in [`mvanhorn/cli-printing-press`](https://github.com/mvanhorn/cli-printing-press) with scope adaptations. Incident background and primary sources: [docs/solutions/security/2026-05-supply-chain-hardening.md](docs/solutions/security/2026-05-supply-chain-hardening.md).
 
 ## Repository layout
 
@@ -150,40 +189,36 @@ Some CLIs have no archived spec on disk (docs-driven, sniff-driven, plan-driven)
 
 ## `.printing-press-patches.json` records library-side customizations
 
-If you modify a published CLI under `library/<cat>/<slug>/` beyond what the generator produced, record each customization so it isn't lost on the next regen and is visible to the next reader. SKILL.md / README.md edits are owned by `tools/sweep-canonical/` or direct edit and don't need a patch manifest; this convention is for code-level customizations.
+If you modify a published CLI under `library/<cat>/<slug>/` beyond what the generator produced, **catalog the change in `.printing-press-patches.json`** at the CLI's root (parallel to `.printing-press.json`). SKILL.md / README.md edits are owned by `tools/sweep-canonical/` or direct edit and don't need a patch manifest; this convention is for code-level customizations.
 
-1. **Mark every changed site** in source with a comment summarizing the deviation:
+Minimum shape:
 
-    ```
-    // PATCH: <one-line summary>
-    ```
-
-    Include an upstream reference inline when there is one (e.g. `// PATCH(upstream cli-printing-press#689): …`). `grep -rn 'PATCH' library/` then surfaces every customization.
-
-2. **Catalog the change** in a `.printing-press-patches.json` at the CLI's root (parallel to `.printing-press.json`). Minimum shape:
-
-    ```json
+```json
+{
+  "schema_version": 1,
+  "applied_at": "YYYY-MM-DD",
+  "base_run_id": "<copy from .printing-press.json>",
+  "base_printing_press_version": "<copy from .printing-press.json>",
+  "patches": [
     {
-      "schema_version": 1,
-      "applied_at": "YYYY-MM-DD",
-      "base_run_id": "<copy from .printing-press.json>",
-      "base_printing_press_version": "<copy from .printing-press.json>",
-      "patches": [
-        {
-          "id": "short-identifier",
-          "summary": "What changed (one sentence).",
-          "reason": "Why this customization was needed (one or two sentences).",
-          "files": ["internal/cli/foo.go"],
-          "validated_outcome": "Optional: non-obvious test result that confirms the fix.",
-          "upstream_issue": "Optional: https://github.com/mvanhorn/cli-printing-press/issues/<n>"
-        }
-      ]
+      "id": "short-identifier",
+      "summary": "What changed (one sentence).",
+      "reason": "Why this customization was needed (one or two sentences).",
+      "files": ["internal/cli/foo.go"],
+      "validated_outcome": "Optional: non-obvious test result that confirms the fix.",
+      "upstream_issue": "Optional: https://github.com/mvanhorn/cli-printing-press/issues/<n>"
     }
-    ```
+  ]
+}
+```
 
-    Optional top-level fields the kalshi example uses when relevant: `upstream_tracking[]`, `deferred_to_upstream[]`.
+Optional top-level fields the kalshi example uses when relevant: `upstream_tracking[]`, `deferred_to_upstream[]`.
 
-This file is an **index of customizations**, not a second copy of the diff. Diffs live in `git`; code lives in the source files; the inline `// PATCH:` comment carries the local semantics. Keep `summary` and `reason` short — if you find yourself writing tables of field renames or SQL transformations, that detail belongs in the source comment or commit message, not here. A fresh print from the generator overwrites this tree, and the manifest is what tells the next agent (or regeneration tooling) what was customized and why.
+This file is an **index of customizations**, not a second copy of the diff. Diffs live in `git`; the manifest is what tells the next agent (or regeneration tooling) what was customized and why. Keep `summary` and `reason` short — if you find yourself writing tables of field renames or SQL transformations, that detail belongs in the commit message, not here. A fresh print from the generator overwrites this tree, and the manifest is what survives that overwrite.
+
+**Inline `// PATCH:` source comments are optional, not required.** Earlier guidance asked agents to mark each changed site in source alongside the manifest entry; `verify_publish_package.py` enforced a bidirectional pairing that doubled the commit count on every in-session customization without surfacing a class of bug git history and the manifest didn't already cover. The pairing requirement is gone; if you find a marker helpful as a navigation aid for yourself, fine, but the CI no longer cares whether you add one.
+
+**Delete stale workaround entries.** A `reason` field that describes a verifier or pipeline bug (e.g. *"the package verifier currently treats X as Y; this entry exists to silence the false positive"*) is a placeholder, not a real customization. When the underlying bug is fixed, delete the entry — leaving it behind makes future contributors think there's a hand-edit to preserve when there isn't.
 
 A worked example lives at `library/payments/kalshi/.printing-press-patches.json`.
 
@@ -265,31 +300,26 @@ Two files in this repo are **generated outputs**, regenerated post-merge by CI w
 | File | Source of truth | Generator | Workflow trigger |
 |---|---|---|---|
 | `registry.json` | `library/**/.printing-press.json` + `manifest.json` + `.goreleaser.yaml` | `tools/generate-registry/main.go` | `library/**` or generator changes on main |
-| `cli-skills/pp-<slug>/SKILL.md` | `library/<category>/<slug>/SKILL.md` | `tools/generate-skills/main.go` | `registry.json`, `library/**/.printing-press.json`, or generator changes on main |
+| `cli-skills/pp-<slug>/SKILL.md` | `library/<category>/<slug>/SKILL.md` | `tools/generate-skills/main.go` | `library/**/SKILL.md`, `library/**/README.md`, `library/**/.printing-press.json`, `registry.json`, or generator changes on main |
 
-**When you change `library/**/SKILL.md` or `library/**/internal/cli/**`:**
+**The single rule:** never commit changes to `registry.json` or `cli-skills/pp-*/SKILL.md` in a PR — fork or same-repo, agent or human. Both files are regenerated post-merge by `generate-registry.yml` and `generate-skills.yml` (committed back to `main` as a `[skip ci]` bot commit). PR commits that touch them are silently overwritten on the next regen and produce merge conflicts in the interim.
 
-**Edit `library/<cat>/<slug>/SKILL.md`, never `cli-skills/pp-<slug>/SKILL.md` directly.** The mirror is verbatim-regenerated from the library copy — any direct edit to `cli-skills/` will be silently overwritten on the next regen. Same rule for README.md.
+The `Fail on changes to generated artifacts` step in `verify-library-conventions.yml` **hard-fails** any PR whose diff against base touches `registry.json` or `cli-skills/pp-*/SKILL.md`. The fix is the same regardless of how the change got there: drop the file from the diff (`git restore --staged <file> && git checkout -- <file>`, or `git reset` the offending commit). Source-of-truth edits go in:
 
-The workflow's trigger paths don't include SKILL.md or `internal/cli/**`. Until those triggers expand, run the generator locally and commit the result alongside your library change:
+- **`registry.json`** → edit `library/<cat>/<slug>/.printing-press.json` + `manifest.json` + `.goreleaser.yaml`. The post-merge regen produces the registry entry.
+- **`cli-skills/pp-<slug>/SKILL.md`** → edit `library/<cat>/<slug>/SKILL.md`. The mirror is verbatim-regenerated from it.
 
-```bash
-go run ./tools/generate-skills/main.go
-```
+`cli-skills/AGENTS.md` and other non-`pp-*/SKILL.md` files under `cli-skills/` are hand-maintained docs; the rule applies only to the generated mirrors. See [cli-skills/AGENTS.md](cli-skills/AGENTS.md) for the directory-local version of this rule.
 
-Then commit the regenerated `cli-skills/pp-*/SKILL.md` files alongside your library change.
-
-**When you change `library/**/.printing-press.json`, `manifest.json`, or `.goreleaser.yaml`:**
-
-Don't touch `registry.json`. The post-merge regen handles it. Your PR's diff stays focused on the actual library change. After your PR merges, `generate-registry.yml` runs, regenerates `registry.json`, and commits with `[skip ci]`. The regen-generated commit shows up on main within a minute or two.
-
-**When does this fail?** If the generator itself is broken (compile error, panic) or the source files have invalid JSON, the post-merge run will fail and `registry.json` will go stale. Watch for `generate-registry.yml` failures in the Actions tab after merging library/** changes.
+**When does post-merge regen fail?** If the generator itself is broken (compile error, panic) or the source files have invalid JSON, `generate-registry.yml` or `generate-skills.yml` will fail and `main` will go stale. Watch the Actions tab after merging `library/**` changes; both workflows expose `workflow_dispatch` so a maintainer can re-run them once the underlying issue is fixed.
 
 ## Bulk SKILL.md/README.md retrofits: `tools/sweep-canonical/`
 
 When a SKILL.md or README.md shape change must propagate across **all library CLIs at once** — Hermes/OpenClaw shape alignment, stripping a deprecated field, normalizing an install command, rewriting the README `## Install` section — edit and run this tool rather than hand-touching every entry. The tool's job is "apply canonical published-library shape to every entry"; it covers frontmatter, SKILL.md Prerequisites, README `## Install`, and README Hermes/OpenClaw blocks. Don't use it for one-CLI-specific changes (edit `library/<cat>/<slug>/SKILL.md` or `README.md` directly), and don't use it for shape changes that belong upstream in `cli-printing-press/internal/generator/templates/skill.md.tmpl` or `readme.md.tmpl` — fix the template first so future fresh prints get it right, then run the sweep here to retrofit existing entries.
 
-**The `cliAuthorByAPIName` map is curated.** Don't replace it with a git-history lookup or operator-config fallback — that silently flips attribution on the published CLIs. Add a new entry when adding a new library CLI; correct one only when the actual author was misrecorded.
+**The `cliAuthorByAPIName` map is curated.** Don't replace it with a git-history lookup or operator-config fallback — that silently flips attribution on the published CLIs. Add a new entry when adding a new library CLI; correct one only when the actual author was misrecorded. As a defense in depth, the sweep tool now preserves any existing non-placeholder `author:` value already in `library/<cat>/<slug>/SKILL.md` and only fills in a ctx-resolved author when the existing value is missing or the generator-fallback placeholder `"user"`. This makes the sweep safe to run from any workspace — it won't silently flip a real author to the operator's `git config user.name`.
+
+**`-readme-only` skips SKILL.md patching entirely.** Pass `-readme-only` (or set `SWEEP_README_ONLY=1`) when you're iterating on a README-only template change and don't want skill-side churn in the diff, or when running from a workspace whose `git config user.name` isn't the canonical maintainer identity. Example: `SWEEP_LIBRARY_ROOT=library GO111MODULE=off go run ./tools/sweep-canonical -readme-only` from the repo root.
 
 **Idempotency is a hard requirement** — running the tool twice with the same inputs must produce zero diff. Tests at `tools/sweep-canonical/main_test.go` enforce this; run them before opening a sweep PR:
 
@@ -297,7 +327,7 @@ When a SKILL.md or README.md shape change must propagate across **all library CL
 cd tools/sweep-canonical && GO111MODULE=off go test .
 ```
 
-The tool runs in GOPATH mode (no `go.mod`) so it stays decoupled from the rest of the repo's module graph. After running the sweep, regenerate `cli-skills/` so the mirror reflects the updated library content (see the section above).
+The tool runs in GOPATH mode (no `go.mod`) so it stays decoupled from the rest of the repo's module graph. Don't commit `cli-skills/` changes alongside the sweep — `generate-skills.yml` re-mirrors post-merge from `library/<cat>/<slug>/SKILL.md`. Committing the regen trips the `Fail on changes to generated artifacts` step (see the section above).
 
 ## Commit style
 

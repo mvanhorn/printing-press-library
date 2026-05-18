@@ -3,7 +3,7 @@
   "generated_at": "2026-05-09T14:06:05.284014Z",
   "printing_press_version": "4.0.6",
   "api_name": "digg",
-  "display_name": "Digg AI",
+  "display_name": "Digg",
   "cli_name": "digg-pp-cli",
   "owner": "matt-van-horn",
   "printer": "mvanhorn",
@@ -11,7 +11,7 @@
   "spec_format": "internal",
   "spec_checksum": "sha256:4605cfe7f157352a4d158f94d022baf20bea43963ad32c9e629c4301b1c4a7d0",
   "run_id": "20260508-234057",
-  "description": "Read-only CLI for Digg AI — the 1,000 AI accounts on X and the story clusters they surface.",
+  "description": "Read-only CLI for Digg — the AI story leaderboard, GitHub feeds, and ingestion pipeline events on digg.com.",
   "mcp_binary": "digg-pp-mcp",
   "mcp_tool_count": 3,
   "mcp_public_tool_count": 3,
@@ -47,7 +47,27 @@
     {
       "name": "Influence-ranked author leaderboard",
       "command": "authors top",
-      "description": "Top accounts in the Digg AI 1000 ranked by Digg's influence score, story count, or reach."
+      "description": "Top accounts Digg tracks, ranked by Digg's influence score, story count, or reach."
+    },
+    {
+      "name": "GitHub: top starred AI repos",
+      "command": "github stars",
+      "description": "Top AI repos ranked by starring activity from Digg-tracked accounts: stargazers, recent starrers, breakout/novel/ai_related scores, language, one-sentence classification."
+    },
+    {
+      "name": "GitHub: newly first-seen repos",
+      "command": "github new",
+      "description": "Recently first-seen GitHub repos with the Digg-tracked creator/starrer who first put them on Digg's radar (event_id, event_created_at, repo_full_name, creator)."
+    },
+    {
+      "name": "GitHub: contributor leaderboard",
+      "command": "github activity",
+      "description": "Top GitHub contributor leaderboard: per-author rank, contribution count, and distinct repos count over Digg's tracking window."
+    },
+    {
+      "name": "GitHub: live activity feed",
+      "command": "github recent",
+      "description": "Live GitHub activity feed: per-event entries with the GitHub URL (issue/PR/commit/repo), the user who acted, and a short description of the target."
     },
     {
       "name": "Rank history per cluster",

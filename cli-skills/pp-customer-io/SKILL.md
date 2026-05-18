@@ -15,6 +15,11 @@ metadata:
         bins: [customer-io-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/other/customer-io/cmd/customer-io-pp-cli
 ---
+<!-- GENERATED FILE — DO NOT EDIT.
+     This file is a verbatim mirror of library/marketing/customer-io/SKILL.md,
+     regenerated post-merge by tools/generate-skills/. Hand-edits here are
+     silently overwritten on the next regen. Edit the library/ source instead.
+     See AGENTS.md "Generated artifacts: registry.json, cli-skills/". -->
 
 # Customer.io — Printing Press CLI
 
