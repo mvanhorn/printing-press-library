@@ -430,7 +430,14 @@ func uploadThumbnail(flags *rootFlags, videoID, thumbPath string) error {
 	if err != nil {
 		return fmt.Errorf("building client: %w", err)
 	}
-	if _, gerr := c.Get("/youtube/v3/i18nLanguages", map[string]string{
+	// GetNoCache (not Get) is intentional: c.Get returns a disk-cached
+	// response without calling do() — which means authHeader()'s expiry
+	// check and refreshAccessToken() never run if the same probe URL was
+	// hit within the last cache TTL. The CLI then proceeds to construct a
+	// manual upload request below with c.Config.AccessToken still set to
+	// the expired token, and YouTube replies 401. GetNoCache forces the
+	// HTTP round-trip every time so the refresh path always fires.
+	if _, gerr := c.GetNoCache("/youtube/v3/i18nLanguages", map[string]string{
 		"part":       "snippet",
 		"hl":         "en",
 		"maxResults": "1",

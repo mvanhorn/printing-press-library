@@ -6,6 +6,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 
@@ -34,8 +35,22 @@ const analyticsBaseURL = "https://youtubeanalytics.googleapis.com"
 
 func analyticsQuery(c clientLike, params map[string]string) (json.RawMessage, error) {
 	// Build absolute URL since Analytics API has a different host.
-	q := []string{}
-	for k, v := range params {
+	//
+	// Sort keys before serialising. Go map iteration is randomised per
+	// process start, so two successive invocations of the same digest
+	// would otherwise produce differently-ordered query strings and
+	// generate different cache keys in the client's URL-keyed cache —
+	// every cross-run call would miss cache and re-hit the Analytics
+	// API v2 quota. A daily digest run via cron/n8n with 6+ queries
+	// per invocation makes this expensive fast.
+	keys := make([]string, 0, len(params))
+	for k := range params {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	q := make([]string, 0, len(keys))
+	for _, k := range keys {
+		v := params[k]
 		if v == "" {
 			continue
 		}

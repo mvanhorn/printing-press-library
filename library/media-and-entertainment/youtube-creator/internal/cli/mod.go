@@ -456,28 +456,52 @@ Example rules.yaml:
 				"allThreadsRelatedToChannelId": myChannelID,
 				"maxResults":                   "100",
 			}
-			quotaLogCost("comment-threads-list", 1)
-			data, err := c.Get("/youtube/v3/commentThreads", params)
-			if err != nil {
-				return classifyAPIError(err, flags)
+
+			// Paginate exactly like newModQueueCmd so backlogs >100 are
+			// covered. A single-page fetch silently dropped every comment
+			// past item 100 and made queue_size/applied_count understate
+			// the work that should have been done.
+			type queueItem struct {
+				ID      string `json:"id"`
+				Snippet struct {
+					TopLevelComment struct {
+						ID      string `json:"id"`
+						Snippet struct {
+							TextOriginal      string    `json:"textOriginal"`
+							AuthorDisplayName string    `json:"authorDisplayName"`
+							PublishedAt       time.Time `json:"publishedAt"`
+						} `json:"snippet"`
+					} `json:"topLevelComment"`
+				} `json:"snippet"`
 			}
-			var page struct {
-				Items []struct {
-					ID      string `json:"id"`
-					Snippet struct {
-						TopLevelComment struct {
-							ID      string `json:"id"`
-							Snippet struct {
-								TextOriginal      string    `json:"textOriginal"`
-								AuthorDisplayName string    `json:"authorDisplayName"`
-								PublishedAt       time.Time `json:"publishedAt"`
-							} `json:"snippet"`
-						} `json:"topLevelComment"`
-					} `json:"snippet"`
-				} `json:"items"`
-			}
-			if err := json.Unmarshal(data, &page); err != nil {
-				return fmt.Errorf("decoding: %w", err)
+			var allItems []queueItem
+			pageToken := ""
+			pages := 0
+			for {
+				if pageToken != "" {
+					params["pageToken"] = pageToken
+				}
+				quotaLogCost("comment-threads-list", 1)
+				data, err := c.Get("/youtube/v3/commentThreads", params)
+				if err != nil {
+					return classifyAPIError(err, flags)
+				}
+				var page struct {
+					Items         []queueItem `json:"items"`
+					NextPageToken string      `json:"nextPageToken"`
+				}
+				if err := json.Unmarshal(data, &page); err != nil {
+					return fmt.Errorf("decoding page: %w", err)
+				}
+				allItems = append(allItems, page.Items...)
+				pages++
+				if page.NextPageToken == "" {
+					break
+				}
+				pageToken = page.NextPageToken
+				if pages > 50 {
+					break // safety cap, mirrors mod queue
+				}
 			}
 
 			// Match rules
@@ -497,7 +521,7 @@ Example rules.yaml:
 				}
 			}
 
-			for _, it := range page.Items {
+			for _, it := range allItems {
 				snip := it.Snippet.TopLevelComment.Snippet
 				if !cutoff.IsZero() && snip.PublishedAt.Before(cutoff) {
 					continue
@@ -520,7 +544,7 @@ Example rules.yaml:
 			}
 
 			result := map[string]any{
-				"queue_size": len(page.Items),
+				"queue_size": len(allItems),
 				"decisions":  decisions,
 				"applied":    apply,
 			}
