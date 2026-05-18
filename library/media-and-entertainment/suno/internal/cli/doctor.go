@@ -304,6 +304,12 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			if hint, ok := report["auth_hint"]; ok {
 				fmt.Fprintf(w, "  hint: %v\n", hint)
 			}
+			// PATCH(suno-jwt-staleness-check): mirror auth_hint rendering for
+			// the JWT-expiry hint so users running plain `doctor` see the
+			// recovery instruction, not just `FAIL Auth Token: expired Xs ago`.
+			if hint, ok := report["auth_token_hint"]; ok {
+				fmt.Fprintf(w, "  hint: %v\n", hint)
+			}
 			// Cache section: render after the primary health block so it
 			// sits next to version info, mirroring the JSON report layout.
 			if cacheAny, ok := report["cache"]; ok {

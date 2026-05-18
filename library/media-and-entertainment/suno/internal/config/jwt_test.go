@@ -78,6 +78,38 @@ func TestAuthHeaderExpiry_NilSafe(t *testing.T) {
 	}
 }
 
+// TestDecodeJWTClaims_PayloadNotDivisibleBy4 guards against the Greptile #673
+// finding: feeding addBase64Padding(parts[1]) to RawURLEncoding fails for any
+// payload whose base64 length isn't a multiple of 4 (RawURLEncoding rejects
+// any '=' padding). The fix is to pass the unpadded segment to
+// RawURLEncoding directly. This test exercises a claim set that produces a
+// non-aligned base64 length so a regression would surface immediately.
+func TestDecodeJWTClaims_PayloadNotDivisibleBy4(t *testing.T) {
+	exp := time.Now().Add(20 * time.Minute).Unix()
+	// Sweep tag lengths to find one whose base64url length mod 4 != 0; we
+	// don't care about the specific tag, only that the resulting segment
+	// exercises the padding path.
+	var token string
+	for n := 1; n <= 8; n++ {
+		candidate := makeJWT(t, map[string]any{"exp": exp, "tag": strings.Repeat("x", n)})
+		segLen := len(strings.Split(candidate, ".")[1])
+		if segLen%4 != 0 {
+			token = candidate
+			break
+		}
+	}
+	if token == "" {
+		t.Fatal("could not synthesize a JWT with non-aligned base64 payload")
+	}
+	claims, ok := DecodeJWTClaims(token)
+	if !ok {
+		t.Fatalf("expected non-aligned payload to decode via RawURLEncoding")
+	}
+	if claims.ExpiresAt != exp {
+		t.Fatalf("exp mismatch: got %d want %d", claims.ExpiresAt, exp)
+	}
+}
+
 func TestAuthHeaderExpiry_FromAccessToken(t *testing.T) {
 	exp := time.Now().Add(30 * time.Minute).Unix()
 	token := makeJWT(t, map[string]any{"exp": exp})

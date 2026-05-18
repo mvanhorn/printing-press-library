@@ -29,7 +29,10 @@ func DecodeJWTClaims(token string) (JWTClaims, bool) {
 	if len(parts) != 3 {
 		return JWTClaims{}, false
 	}
-	payload, err := base64.RawURLEncoding.DecodeString(addBase64Padding(parts[1]))
+	// JWT segments are unpadded base64url per RFC 7519, so RawURLEncoding is
+	// the correct decoder. Fall back to padded URLEncoding only for tokens
+	// from non-conforming issuers that happen to include `=` padding.
+	payload, err := base64.RawURLEncoding.DecodeString(parts[1])
 	if err != nil {
 		payload, err = base64.URLEncoding.DecodeString(addBase64Padding(parts[1]))
 		if err != nil {
