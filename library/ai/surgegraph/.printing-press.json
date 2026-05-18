@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-12T11:58:06.067409Z",
+  "printing_press_version": "4.5.0",
+  "api_name": "surgegraph",
+  "display_name": "Surgegraph Facade",
+  "cli_name": "surgegraph-pp-cli",
+  "owner": "surgegraph",
+  "printer": "ng-plentisoft",
+  "printer_name": "SurgeGraph Team",
+  "spec_path": "spec.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:7404117f6fe1c310e7c89b640be94157783ba4e1ccd1c1ac0467ca211abd02ff",
+  "run_id": "20260512-171718",
+  "mcp_binary": "surgegraph-facade-pp-mcp",
+  "mcp_tool_count": 68,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "SURGEGRAPH_TOKEN"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "SURGEGRAPH_TOKEN",
+      "kind": "harvested",
+      "required": true,
+      "sensitive": true,
+      "description": "OAuth 2.1 bearer token issued by https://mcp.surgegraph.io/token. Populated by 'surgegraph-pp-cli auth login --browser' (Authorization Code + PKCE + Dynamic Client Registration). Refresh token rotation honored."
+    }
+  ],
+  "auth_key_url": "https://mcp.surgegraph.io/token",
+  "novel_features": [
+    {
+      "name": "Visibility weekly delta",
+      "command": "visibility delta",
+      "description": "See exactly what moved in AI Visibility week over week \u2014 overview, trend, sentiment, or traffic \u2014 without screenshotting two dashboard tabs and diffing them by hand."
+    },
+    {
+      "name": "Prompts that lost AI mentions",
+      "command": "visibility prompts losers",
+      "description": "Surface tracked prompts whose citation count or first-position rank dropped vs the prior window \u2014 the report a CMO asks for every Monday and the dashboard can't produce."
+    },
+    {
+      "name": "Citation-domain rank shift",
+      "command": "visibility citation-domains rank-shift",
+      "description": "Watch which domains gained or lost citation share for your project's AI-tracked prompts over a 30-day window \u2014 useful when a competitor starts crowding the answer set."
+    },
+    {
+      "name": "Knowledge-library impact",
+      "command": "knowledge impact",
+      "description": "Rank a project's knowledge libraries by how often their grounded URLs actually appear in tracked AI citations \u2014 answers \"is this library worth maintaining?\"."
+    },
+    {
+      "name": "Topic-coverage drift",
+      "command": "research drift",
+      "description": "Diff a topic_research's hierarchical map against the writer_documents you've already shipped \u2014 covered vs gap, ranked for action."
+    },
+    {
+      "name": "Gap to publish pipeline",
+      "command": "research gaps publish",
+      "description": "Take topic-gap output, bulk-create documents in 50-doc batches, and queue them into a WordPress integration \u2014 one idempotent command for the content-ops ritual."
+    },
+    {
+      "name": "Stale-doc projection",
+      "command": "docs stale",
+      "description": "List writer and optimized docs not updated in the last N days, ranked by recent AI-source traffic \u2014 the refresh queue in one query."
+    },
+    {
+      "name": "Competitor topic diff",
+      "command": "research domain diff",
+      "description": "Set-diff a competitor's domain_research topic tree against your own topic_research \u2014 instant view of what they cover and you don't."
+    },
+    {
+      "name": "Cross-project visibility roll-up",
+      "command": "visibility portfolio",
+      "description": "Roll up AI Visibility deltas across every project in the organization \u2014 the agency-portfolio view the single-project UI doesn't produce."
+    },
+    {
+      "name": "Quota burn-down forecast",
+      "command": "account burn",
+      "description": "Project credit exhaustion from your last 30 days of usage snapshots \u2014 a pre-flight check before queueing a large bulk-publish run."
+    },
+    {
+      "name": "Traffic-page to citation join",
+      "command": "visibility traffic-citations",
+      "description": "For each top-traffic page, list the tracked prompts whose AI citations resolved to it \u2014 answers \"why is this page getting AI traffic?\"."
+    },
+    {
+      "name": "Agent context bundle",
+      "command": "context bundle",
+      "description": "Emit a JSON blob shaped for an agent's context window covering prompts, citations, docs, and topic-maps for one project \u2014 the handoff payload an agent's loop needs."
+    },
+    {
+      "name": "Local search",
+      "command": "search",
+      "description": "Full-text search across local cache: AI Visibility prompts, citations, writer documents, optimized documents, and topic-map nodes \u2014 one query, multi-entity hits."
+    },
+    {
+      "name": "Sync diff",
+      "command": "sync diff",
+      "description": "Emit per-resource sync cursors and total row counts from the local store \u2014 the inspection primitive for agent loops that need to know whether a re-sync is due."
+    }
+  ]
+}

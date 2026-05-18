@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-14T21:12:31.55633Z",
+  "printing_press_version": "4.5.1",
+  "api_name": "resend",
+  "display_name": "Resend",
+  "cli_name": "resend-pp-cli",
+  "owner": "giacaglia",
+  "printer": "giacaglia",
+  "printer_name": "Giuliano Giacaglia",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:b9b45e7fdfb7943dfe013cda9ec71f759c100443e9422d56cac4f26f8521601c",
+  "run_id": "20260514-152759",
+  "mcp_binary": "resend-pp-mcp",
+  "mcp_tool_count": 83,
+  "mcp_ready": "full",
+  "api_version": "1.5.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "RESEND_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Recipient email timeline",
+      "command": "emails to",
+      "description": "Every email sent to a single recipient address, with delivery status and timestamps, ordered newest-first."
+    },
+    {
+      "name": "Cross-event delivery trace",
+      "command": "emails timeline",
+      "description": "Collapsed event chain for a single email: sent \u2192 delivered \u2192 opened \u2192 clicked \u2192 bounced, in one ordered table."
+    },
+    {
+      "name": "Audience inventory rollup",
+      "command": "audiences inventory",
+      "description": "Per-audience rollup: contact count, unsubscribed count, last-broadcast timestamp, recent open-rate."
+    },
+    {
+      "name": "Cross-audience contact lookup",
+      "command": "contacts where",
+      "description": "Find every audience, segment, and topic a contact (by email or name) belongs to in one query."
+    },
+    {
+      "name": "Broadcast performance dashboard",
+      "command": "broadcasts performance",
+      "description": "Open / click / bounce rate across all broadcasts, sortable; not limited to a single broadcast or 30-day window."
+    },
+    {
+      "name": "Domain health summary",
+      "command": "domains health",
+      "description": "Verification + DKIM/SPF/DMARC status across every domain in one table, flags missing or unverified records."
+    },
+    {
+      "name": "Deliverability summary",
+      "command": "deliverability summary",
+      "description": "Bounce rate, complaint rate, and suppression count over a rolling window (default 7d) computed from local event data."
+    },
+    {
+      "name": "API-key rotation audit",
+      "command": "api-keys rotation",
+      "description": "API keys sorted by age + last-used timestamp (joined from logs); flags stale keys older than N days."
+    }
+  ],
+  "category": "productivity"
+}

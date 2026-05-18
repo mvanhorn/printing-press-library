@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-13T15:35:39.207696Z",
+  "printing_press_version": "4.5.2",
+  "api_name": "elevenlabs",
+  "display_name": "ElevenLabs",
+  "cli_name": "elevenlabs-pp-cli",
+  "owner": "cathrynlavery",
+  "printer": "cathrynlavery",
+  "printer_name": "Cathryn Lavery",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:166481b5e157d6c1ab278b6ab64c4045023ce2cd34a75b48a7e585ea510b5ed1",
+  "run_id": "20260513T152516Z-e836a3fe",
+  "catalog_entry": "elevenlabs",
+  "category": "ai",
+  "description": "Generate, transform, transcribe, dub, and manage AI audio, voices, music, and conversational agents with ElevenLabs.",
+  "mcp_binary": "elevenlabs-pp-mcp",
+  "mcp_tool_count": 302,
+  "mcp_ready": "full",
+  "api_version": "1.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "ELEVENLABS_API_KEY"
+  ],
+  "auth_key_url": "https://elevenlabs.io/app/settings/api-keys",
+  "novel_features": [
+    {
+      "name": "Voice Discovery",
+      "command": "voice discover",
+      "description": "Search owned and shared ElevenLabs voices through one compact, JSON-first command."
+    },
+    {
+      "name": "TTS Resolution",
+      "command": "tts resolve",
+      "description": "Resolve a voice, model, output format, default settings, and subscription context before rendering."
+    },
+    {
+      "name": "TTS Render Manifest",
+      "command": "tts render",
+      "description": "Render text to an audio file and print a structured manifest with file path, byte count, model, and voice."
+    },
+    {
+      "name": "Dialogue Cast",
+      "command": "dialogue cast",
+      "description": "Render speaker-labelled dialogue lines by resolving speaker-to-voice assignments and saving audio."
+    }
+  ]
+}

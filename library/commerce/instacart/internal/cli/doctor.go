@@ -52,6 +52,28 @@ Exit codes:
 				results = append(results, checkResult{Name: "config", Status: "warn", Detail: err.Error()})
 			}
 
+			// 1a. Location config (PATCH fix-instacart-location-config-546).
+			// Without coordinates or an address_id, ShopCollectionScoped fails
+			// with a schema error on every retailer lookup. Surface this
+			// before users hit the failure in a real command. See #546.
+			if locationReady(app.Cfg) {
+				detail := "configured"
+				if app.Cfg.AddressID != "" && (app.Cfg.Latitude != 0 || app.Cfg.Longitude != 0) {
+					detail = fmt.Sprintf("address_id + coords (postal_code=%q, lat=%v, lon=%v)", app.Cfg.PostalCode, app.Cfg.Latitude, app.Cfg.Longitude)
+				} else if app.Cfg.AddressID != "" {
+					detail = fmt.Sprintf("address_id=%q (coords not derived yet; run `instacart config set-address --id %s` to auto-fill)", app.Cfg.AddressID, app.Cfg.AddressID)
+				} else {
+					detail = fmt.Sprintf("coords only (lat=%v, lon=%v)", app.Cfg.Latitude, app.Cfg.Longitude)
+				}
+				results = append(results, checkResult{Name: "location", Status: "ok", Detail: detail})
+			} else {
+				results = append(results, checkResult{
+					Name:   "location",
+					Status: "fail",
+					Detail: "no latitude/longitude or address_id in config — `search`, `add`, and `cart show` will fail until this is set. Fix: `instacart auth login` (tries to auto-populate), `instacart config set-address --id <id>`, or `instacart config set-coords --lat <N> --lon <N>`.",
+				})
+			}
+
 			// 2. SQLite store
 			results = append(results, checkResult{Name: "store", Status: "ok", Detail: app.Store.Path()})
 

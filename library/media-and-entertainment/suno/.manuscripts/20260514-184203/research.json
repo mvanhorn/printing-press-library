@@ -1,0 +1,392 @@
+{
+  "api_name": "suno",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "paperfoot/suno-cli",
+      "url": "https://github.com/paperfoot/suno-cli",
+      "language": "Python",
+      "install_method": "",
+      "stars": 50,
+      "last_updated": "",
+      "command_count": 24,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "gcui-art/suno-api",
+      "url": "https://github.com/gcui-art/suno-api",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 1200,
+      "last_updated": "",
+      "command_count": 11,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "slauger/suno-cli",
+      "url": "https://github.com/slauger/suno-cli",
+      "language": "Python",
+      "install_method": "",
+      "stars": 30,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Malith-Rukshan/Suno-API",
+      "url": "https://github.com/Malith-Rukshan/Suno-API",
+      "language": "Python",
+      "install_method": "",
+      "stars": 500,
+      "last_updated": "",
+      "command_count": 7,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "imyizhang/Suno-API",
+      "url": "https://github.com/imyizhang/Suno-API",
+      "language": "Python",
+      "install_method": "",
+      "stars": 250,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "CodeKeanu/suno-mcp",
+      "url": "https://github.com/CodeKeanu/suno-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 20,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "AceDataCloud/SunoMCP",
+      "url": "https://github.com/AceDataCloud/SunoMCP",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 30,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "sunsetsacoustic/Suno_DownloadEverything",
+      "url": "https://github.com/sunsetsacoustic/Suno_DownloadEverything",
+      "language": "Python",
+      "install_method": "",
+      "stars": 15,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-14T18:42:03Z",
+  "novel_features": [
+    {
+      "name": "Vibe recipes",
+      "command": "vibes",
+      "description": "Save prompt + tag + persona + model bundles as named recipes and replay them with one-line topic substitution.",
+      "rationale": "Local SQLite recipe store; no existing Suno tool persists tag recipes - paperfoot, slauger, and gcui-art all ship stateless generate.",
+      "example": "suno vibes use synthwave-banger debugging-at-3am --json",
+      "why_it_matters": "When an agent needs the same vibe applied to many topics, this beats re-pasting tags every call.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "A/B variant auto-picker",
+      "command": "generate create",
+      "description": "Suno returns two clip variants per generation; this auto-ranks them on duration match, lyrics-word-count, and bitrate, downloads only the winner.",
+      "rationale": "The dual-variant pattern is unique to Suno's API; no absorbed tool exposes mechanical winner-picking.",
+      "example": "suno generate create --gpt-description-prompt \"30 second piano interlude\" --pick best --target-duration 30 --json",
+      "why_it_matters": "Half of Suno's credit spend goes to the variant you ignore; agents that pick mechanically reclaim it.",
+      "group": "Suno-specific dual-variant pattern"
+    },
+    {
+      "name": "Credit burn analytics",
+      "command": "burn",
+      "description": "Cross-table aggregation showing credits spent by tag, persona, model, or hour-of-day over a window.",
+      "rationale": "Joins local credits_snapshots against generations table; no API endpoint returns this and paperfoot's credits only reports point-in-time balance.",
+      "example": "suno burn --by tag --since 30d --json --select tag,credits,count",
+      "why_it_matters": "Agents asking \"how much did we spend on test runs today?\" need this; existing wrappers cannot answer.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Persona leaderboard",
+      "command": "persona leaderboard",
+      "description": "Ranks the user's voice personas by which produced the most-liked, most-played, or most-extended clips.",
+      "rationale": "Joins clips.persona_id against personas + aggregates like_count, play_count, child-clip count; no wrapper exposes persona-level analytics.",
+      "example": "suno persona leaderboard --by likes --since 90d --json",
+      "why_it_matters": "Tells the user which voice has been working for them so they invest credits in winners, not duds.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Lineage tree",
+      "command": "tree",
+      "description": "Walks parent_id and direct_children recursively to render the ASCII tree of an extend/concat/cover/remaster ancestry.",
+      "rationale": "Recursive CTE over local clips.parent_id; Suno web shows lineage one hop at a time.",
+      "example": "suno tree \u003cclip-id\u003e",
+      "why_it_matters": "Find the head of a remix chain, see every variant of a song concept in one view.",
+      "group": "Suno-specific dual-variant pattern"
+    },
+    {
+      "name": "Reachability self-test",
+      "command": "doctor",
+      "description": "Beyond standard health checks: fires a zero-credit lyrics-only generation to confirm the live generate path is reachable and not intercepted by CAPTCHA.",
+      "rationale": "Brief Reachability Risk section cites 5+ open issues on gcui-art about CAPTCHA / auth expiration; this proactively detects them.",
+      "example": "suno doctor --probe-generate --json",
+      "why_it_matters": "Agents running scheduled music tasks must distinguish 'auth expired' from 'Suno offline'; this is the only tool that does it.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "Credit-budget guard",
+      "command": "budget",
+      "description": "Sets a daily or monthly credit cap; generate refuses to submit when the projected spend would exceed the cap.",
+      "rationale": "Reads /api/billing/usage-plan and joins local generations.created_at for month-to-date spend; no absorbed feature gates spend.",
+      "example": "suno budget set monthly 1500 \u0026\u0026 suno generate \"...\" --max-spend 50",
+      "why_it_matters": "Prevents an agent in a runaway loop from burning the user's whole quota.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "Prompt evolution",
+      "command": "generate evolve",
+      "description": "Takes an existing clip's full parameter bundle and mutates one axis (tag, persona, model) for a focused re-roll.",
+      "rationale": "Brief Top Workflows #1 + #3; user vision; absorbed extend/remaster/cover each mutate one axis but require remembering the right verb.",
+      "example": "suno generate evolve 6b055eee-3b1c-4a74-9aa9-1f16c0818fba --mutate tags+1 --tags-add reverb",
+      "why_it_matters": "Casey's tweak-and-reroll ritual becomes one command instead of three clicks.",
+      "group": "Suno-specific dual-variant pattern"
+    },
+    {
+      "name": "Ship pack",
+      "command": "ship",
+      "description": "One-shot publishing bundle: MP3 with ID3+USLT+SYLT, MP4, cover PNG, LRC subtitle, JSON sidecar of metadata.",
+      "rationale": "Brief Top Workflow #5 emphasizes embedded metadata; community wrappers do bulk download but not the editor-ready pack.",
+      "example": "suno ship 9baa5d3c-02fb-466d-80f9-a4edfc9f0a65 --to ./vid-2026-05-14/",
+      "why_it_matters": "Content creator prepping a CapCut import needs every artifact at once; one command versus a download chain.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Reroll until match",
+      "command": "generate create",
+      "description": "Resubmits a prompt until a returned variant lands in the requested duration window or attempts run out.",
+      "rationale": "Empirical 429s on \u003e3 simultaneous generations + TikTok's 30-45s slot is a real content-creator constraint.",
+      "example": "suno generate create --gpt-description-prompt \"upbeat 30s\" --until-duration 30-45 --max-attempts 5 --max-spend 50",
+      "why_it_matters": "Mechanically achieves what manual re-clicking does in the web app, with budget enforcement.",
+      "group": "Suno-specific dual-variant pattern"
+    },
+    {
+      "name": "Sessionized history",
+      "command": "sessions",
+      "description": "Groups recent generations into ~30-minute-gap sessions and reports per-session credit spend, persona usage, and tag drift.",
+      "rationale": "Window function over local generations.created_at; Suno web has no session view.",
+      "example": "suno sessions --today --json",
+      "why_it_matters": "Agents and humans alike can ask \"what did I work on last Tuesday afternoon?\" against their library.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Vibe recipes",
+      "command": "vibes",
+      "description": "Save prompt + tag + persona + model bundles as named recipes and replay them with one-line topic substitution.",
+      "rationale": "Local SQLite recipe store; no existing Suno tool persists tag recipes - paperfoot, slauger, and gcui-art all ship stateless generate.",
+      "example": "suno vibes use synthwave-banger debugging-at-3am --json",
+      "why_it_matters": "When an agent needs the same vibe applied to many topics, this beats re-pasting tags every call.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "A/B variant auto-picker",
+      "command": "generate create",
+      "description": "Suno returns two clip variants per generation; this auto-ranks them on duration match, lyrics-word-count, and bitrate, downloads only the winner.",
+      "rationale": "The dual-variant pattern is unique to Suno's API; no absorbed tool exposes mechanical winner-picking.",
+      "example": "suno generate create --gpt-description-prompt \"30 second piano interlude\" --pick best --target-duration 30 --json",
+      "why_it_matters": "Half of Suno's credit spend goes to the variant you ignore; agents that pick mechanically reclaim it.",
+      "group": "Suno-specific dual-variant pattern"
+    },
+    {
+      "name": "Credit burn analytics",
+      "command": "burn",
+      "description": "Cross-table aggregation showing credits spent by tag, persona, model, or hour-of-day over a window.",
+      "rationale": "Joins local credits_snapshots against generations table; no API endpoint returns this and paperfoot's credits only reports point-in-time balance.",
+      "example": "suno burn --by tag --since 30d --json --select tag,credits,count",
+      "why_it_matters": "Agents asking \"how much did we spend on test runs today?\" need this; existing wrappers cannot answer.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Persona leaderboard",
+      "command": "persona leaderboard",
+      "description": "Ranks the user's voice personas by which produced the most-liked, most-played, or most-extended clips.",
+      "rationale": "Joins clips.persona_id against personas + aggregates like_count, play_count, child-clip count; no wrapper exposes persona-level analytics.",
+      "example": "suno persona leaderboard --by likes --since 90d --json",
+      "why_it_matters": "Tells the user which voice has been working for them so they invest credits in winners, not duds.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Lineage tree",
+      "command": "tree",
+      "description": "Walks parent_id and direct_children recursively to render the ASCII tree of an extend/concat/cover/remaster ancestry.",
+      "rationale": "Recursive CTE over local clips.parent_id; Suno web shows lineage one hop at a time.",
+      "example": "suno tree \u003cclip-id\u003e",
+      "why_it_matters": "Find the head of a remix chain, see every variant of a song concept in one view.",
+      "group": "Suno-specific dual-variant pattern"
+    },
+    {
+      "name": "Reachability self-test",
+      "command": "doctor",
+      "description": "Beyond standard health checks: fires a zero-credit lyrics-only generation to confirm the live generate path is reachable and not intercepted by CAPTCHA.",
+      "rationale": "Brief Reachability Risk section cites 5+ open issues on gcui-art about CAPTCHA / auth expiration; this proactively detects them.",
+      "example": "suno doctor --probe-generate --json",
+      "why_it_matters": "Agents running scheduled music tasks must distinguish 'auth expired' from 'Suno offline'; this is the only tool that does it.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "Credit-budget guard",
+      "command": "budget",
+      "description": "Sets a daily or monthly credit cap; generate refuses to submit when the projected spend would exceed the cap.",
+      "rationale": "Reads /api/billing/usage-plan and joins local generations.created_at for month-to-date spend; no absorbed feature gates spend.",
+      "example": "suno budget set monthly 1500 \u0026\u0026 suno generate \"...\" --max-spend 50",
+      "why_it_matters": "Prevents an agent in a runaway loop from burning the user's whole quota.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "Prompt evolution",
+      "command": "generate evolve",
+      "description": "Takes an existing clip's full parameter bundle and mutates one axis (tag, persona, model) for a focused re-roll.",
+      "rationale": "Brief Top Workflows #1 + #3; user vision; absorbed extend/remaster/cover each mutate one axis but require remembering the right verb.",
+      "example": "suno generate evolve 6b055eee-3b1c-4a74-9aa9-1f16c0818fba --mutate tags+1 --tags-add reverb",
+      "why_it_matters": "Casey's tweak-and-reroll ritual becomes one command instead of three clicks.",
+      "group": "Suno-specific dual-variant pattern"
+    },
+    {
+      "name": "Ship pack",
+      "command": "ship",
+      "description": "One-shot publishing bundle: MP3 with ID3+USLT+SYLT, MP4, cover PNG, LRC subtitle, JSON sidecar of metadata.",
+      "rationale": "Brief Top Workflow #5 emphasizes embedded metadata; community wrappers do bulk download but not the editor-ready pack.",
+      "example": "suno ship 9baa5d3c-02fb-466d-80f9-a4edfc9f0a65 --to ./vid-2026-05-14/",
+      "why_it_matters": "Content creator prepping a CapCut import needs every artifact at once; one command versus a download chain.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Reroll until match",
+      "command": "generate create",
+      "description": "Resubmits a prompt until a returned variant lands in the requested duration window or attempts run out.",
+      "rationale": "Empirical 429s on \u003e3 simultaneous generations + TikTok's 30-45s slot is a real content-creator constraint.",
+      "example": "suno generate create --gpt-description-prompt \"upbeat 30s\" --until-duration 30-45 --max-attempts 5 --max-spend 50",
+      "why_it_matters": "Mechanically achieves what manual re-clicking does in the web app, with budget enforcement.",
+      "group": "Suno-specific dual-variant pattern"
+    },
+    {
+      "name": "Sessionized history",
+      "command": "sessions",
+      "description": "Groups recent generations into ~30-minute-gap sessions and reports per-session credit spend, persona usage, and tag drift.",
+      "rationale": "Window function over local generations.created_at; Suno web has no session view.",
+      "example": "suno sessions --today --json",
+      "why_it_matters": "Agents and humans alike can ask \"what did I work on last Tuesday afternoon?\" against their library.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "Suno",
+    "headline": "Every Suno feature, plus a local SQLite library, offline FTS5 search, MCP-native agent surface, and a single-binary Go install.",
+    "value_prop": "Every Suno workflow lands in a single Go binary: generate from a prompt, extend, concat, remaster, download with embedded lyrics and cover art. On top of that, every clip you generate syncs to a local SQLite store so you can list your library offline, run cross-table SQL queries, build vibe recipes that compound across sessions, and watch your credit burn by tag or persona. The built-in MCP server exposes the whole surface over stdio and HTTP so agents reach Suno through one orchestration pair instead of 30 raw tools.",
+    "auth_narrative": "Suno has no official API. Auth is Clerk: import your `__session` cookie from Chrome with `suno auth login --chrome` and the CLI sends `Authorization: Bearer \u003c__session\u003e` on every request. The CLI refreshes the JWT in the background by exchanging the longer-lived `__client` cookie against `clerk.suno.com`. If your browser session is signed in, the CLI is signed in.",
+    "quickstart": [
+      {
+        "command": "suno auth login --chrome",
+        "comment": "Import your logged-in Suno session from Chrome (no API key needed)."
+      },
+      {
+        "command": "suno doctor --probe-generate",
+        "comment": "Confirm auth works and the live generate path is reachable (zero-credit probe)."
+      },
+      {
+        "command": "suno sync",
+        "comment": "Pull your existing clip library into the local SQLite store."
+      },
+      {
+        "command": "suno generate create --gpt-description-prompt \"a synthwave anthem about debugging at 3am\" --pick best --json",
+        "comment": "Generate a new song; auto-rank the two returned variants; emit JSON for downstream agents."
+      },
+      {
+        "command": "suno clips list --json --select id,title,tags,audio_url",
+        "comment": "List your library from the local SQLite store with narrow fields for agent context."
+      },
+      {
+        "command": "suno burn --by tag --since 30d --json",
+        "comment": "Show credit spend by tag for the last 30 days from the local store."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized after working for an hour",
+        "fix": "JWT expired. Run `suno auth refresh` (or `suno auth refresh --watch` to auto-refresh in the background)."
+      },
+      {
+        "symptom": "403 with Cloudflare HTML body",
+        "fix": "Suno's anti-bot intercepted the request. The CLI auto-retries via Surf Chrome fingerprint; if it persists, run `suno doctor --probe-generate` to confirm reachability."
+      },
+      {
+        "symptom": "Generate hangs in \"submitted\" status",
+        "fix": "Poll with `suno status \u003cclip-id\u003e --wait` (default timeout 5min). Suno's queue can take 60-180 seconds."
+      },
+      {
+        "symptom": "\"No \\b__session\\b cookie found\" on `auth login --chrome`",
+        "fix": "Ensure you're signed in to suno.com in Chrome. If using a different browser, set `SUNO_TOKEN` env var with your `__session` cookie value."
+      },
+      {
+        "symptom": "Credits remaining drops faster than expected",
+        "fix": "Each generation = 10 credits and returns 2 variants. Use `--pick best` to mechanically download only the winner, or `--target-duration` to skip rerolls."
+      }
+    ],
+    "when_to_use": "Reach for suno-pp-cli when you need agent-controlled music generation against your real Suno account: producing background music for video, building music-aware workflows, exploring prompt evolutions, analyzing your credit burn by tag, or running an MCP-served music tool that any LLM-driven host can call. Skip it when you only need one-off song generation - the suno.com web UI is faster for single tracks. Skip it when you need to access someone else's Suno library; the CLI authenticates as the logged-in user only.",
+    "recipes": [
+      {
+        "title": "Generate a song and ship it ready for CapCut",
+        "command": "suno generate create --gpt-description-prompt \"upbeat lo-fi for product demo\" --pick best --wait --target-duration 60 --json",
+        "explanation": "Generates, waits for completion, ranks the two returned variants by duration distance to 60s, and prints the winner. Pipe the returned id into 'suno ship \u003cid\u003e --to ./demo-bgm/' to bundle MP3 + MP4 + cover + LRC + JSON sidecar."
+      },
+      {
+        "title": "Save and reuse a vibe recipe",
+        "command": "suno vibes save synthwave-banger --tags \"synthwave, female vocal, melancholic\" --mv chirp-v5 --persona-id \u003cid\u003e \u0026\u0026 suno vibes use synthwave-banger \"another rainy night\" --json",
+        "explanation": "Persists the recipe to local SQLite; future invocations swap in any topic without remembering the tag list."
+      },
+      {
+        "title": "Audit credit spend by tag for the last month",
+        "command": "suno burn --by tag --since 30d --json --select tag,credits,count,first_at,last_at",
+        "explanation": "Joins local credits_snapshots against generations; uses dotted-path select to keep the agent's context small."
+      },
+      {
+        "title": "Find the lineage of a remix",
+        "command": "suno tree \u003cclip-id\u003e --json",
+        "explanation": "Walks parent_id and direct_children to render the extend/concat/cover ancestry. Replace \u003cclip-id\u003e with one of your synced clips from 'suno clips list'."
+      },
+      {
+        "title": "Reroll until a clip fits a TikTok slot",
+        "command": "suno generate create --gpt-description-prompt \"hyperpop bedroom-producer\" --until-duration 30-45 --max-attempts 5 --max-spend 50 --pick best --json",
+        "explanation": "Loops generation until a variant lands in the duration window, capped at 50 credits, picking the winner each time."
+      }
+    ],
+    "trigger_phrases": [
+      "generate a song",
+      "make me a track",
+      "suno that",
+      "extend this song",
+      "find my synthwave clips",
+      "how many credits have I burned",
+      "use suno",
+      "run suno"
+    ]
+  }
+}

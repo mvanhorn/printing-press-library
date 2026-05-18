@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-10",
+  "base_run_id": "20260510-094714",
+  "base_printing_press_version": "4.2.2",
+  "patches": [
+    {
+      "id": "greptile-p1-listids-sql-injection",
+      "summary": "Validate resourceType via parameterized sqlite_master lookup before interpolating into SELECT in Store.ListIDs.",
+      "reason": "Greptile flagged the raw fmt.Sprintf table interpolation as a SQL injection sink (P1). The same fix landed in the generator's store.go.tmpl so it won't regress on regen.",
+      "files": ["internal/store/store.go"],
+      "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/pull/1000"
+    },
+    {
+      "id": "greptile-p1-review-since-last-sync",
+      "summary": "--since last-sync reads store.GetLastSyncedAt(\"events\") instead of hardcoding now-24h.",
+      "reason": "Greptile (P1) — the advertised semantics of `last-sync` is 'since the last delta-sync ran', not 'last day'. Without this the window silently lies whenever sync ran more or less than 24h ago.",
+      "files": ["internal/cli/review.go"]
+    },
+    {
+      "id": "greptile-p1-recurring-drift-end-time",
+      "summary": "Add end-time divergence check parallel to the existing start-time check in recurring-drift.",
+      "reason": "Greptile (P1) — recurring-drift advertised catching shortened/extended occurrences but only inspected start times, so durations could drift silently.",
+      "files": ["internal/cli/recurring_drift.go"]
+    },
+    {
+      "id": "greptile-p2-novel-events-sql-window",
+      "summary": "Push start/end window into the SQL WHERE clause via json_extract in loadEvents.",
+      "reason": "Greptile (P2) — conflicts/freetime/prep previously pulled the entire events table into memory and filtered in Go; on accounts with multi-year history this is unnecessary. SQL bounds are coarse (UTC-shaped strings) and the Go-side overlap filter remains the precise gate.",
+      "files": ["internal/cli/novel_events.go"]
+    },
+    {
+      "id": "greptile-p1-with-count-truncation",
+      "summary": "Snapshot len(matches) into totalCount before --recent truncation so `with` reports the full shared-event count, not the displayed slice.",
+      "reason": "Greptile (P1) — Count was assigned after matches[:recent], so the headline 'how often have I met with this person' stat silently capped at --recent (default 10). A user with 100 shared meetings saw `count: 10`.",
+      "files": ["internal/cli/with.go"]
+    }
+  ]
+}

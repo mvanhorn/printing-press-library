@@ -1,0 +1,349 @@
+{
+  "api_name": "freshservice",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "effytech/freshservice_mcp",
+      "url": "https://github.com/effytech/freshservice_mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 31,
+      "last_updated": "",
+      "command_count": 65,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "flycastpartnersinc/FreshservicePS",
+      "url": "https://github.com/flycastpartnersinc/FreshservicePS",
+      "language": "PowerShell",
+      "install_method": "",
+      "stars": 36,
+      "last_updated": "",
+      "command_count": 40,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "theapsgroup/steampipe-plugin-freshservice",
+      "url": "https://github.com/theapsgroup/steampipe-plugin-freshservice",
+      "language": "Go",
+      "install_method": "",
+      "stars": 7,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "matthewoestreich/psFreshservice",
+      "url": "https://github.com/matthewoestreich/psFreshservice",
+      "language": "PowerShell",
+      "install_method": "",
+      "stars": 14,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "theapsgroup/go-freshservice",
+      "url": "https://github.com/theapsgroup/go-freshservice",
+      "language": "Go",
+      "install_method": "",
+      "stars": 4,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ankitpokhrel/jira-cli",
+      "url": "https://github.com/ankitpokhrel/jira-cli",
+      "language": "Go",
+      "install_method": "",
+      "stars": 5600,
+      "last_updated": "",
+      "command_count": 50,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-12T22:20:00Z",
+  "novel_features": [
+    {
+      "name": "SLA Breach Countdown",
+      "command": "breach-risk",
+      "description": "Shows every open ticket projected to breach SLA within the next N hours, sorted by minutes remaining — act before the clock runs out, not after.",
+      "rationale": "Requires computing due_by minus now across the entire open-ticket corpus and joining to group/agent tables; paginating the API in real time burns rate-limit budget and takes too long.",
+      "example": "freshservice-pp-cli breach-risk --hours 4 --group Infrastructure --agent",
+      "why_it_matters": "Use this when an SRE or IT admin needs to know which tickets will breach SLA before the next check-in — prevents reactive firefighting.",
+      "group": "SLA Management"
+    },
+    {
+      "name": "My Queue",
+      "command": "my-queue",
+      "description": "Combines all tickets assigned to you with SLA countdown plus any change records awaiting your approval — the first command an agent runs each morning.",
+      "rationale": "Cross-entity join across open tickets and pending change approvals for a single agent identity in one offline query; the API requires three separate calls with manual correlation.",
+      "example": "freshservice-pp-cli my-queue user_at_example.com --agent",
+      "why_it_matters": "Use this to get an AI agent's complete pending workload in one structured call before deciding which task to action next.",
+      "group": "Daily Workflow"
+    },
+    {
+      "name": "Cross-Entity Full-Text Search",
+      "command": "search",
+      "description": "Runs a single ranked full-text search across tickets, assets, change records, and KB articles simultaneously — find everything related to an incident keyword in one shot.",
+      "rationale": "SQLite FTS5 virtual tables across all synced entity corpora with unified relevance ranking; the Freshservice API has per-entity search endpoints with no cross-entity ranking.",
+      "example": "freshservice-pp-cli search \"database crash\" --in tickets,assets,changes --agent",
+      "why_it_matters": "Use this when an AI agent needs to gather context about a symptom across all ITSM entities before proposing a resolution.",
+      "group": "Daily Workflow"
+    },
+    {
+      "name": "Agent Workload Heatmap",
+      "command": "workload",
+      "description": "Table of agents with open ticket count, average ticket age, P1/P2 count, and normalized load score — see who is drowning and who has capacity in five seconds.",
+      "rationale": "Groups the full open-ticket corpus by assignee and joins to group membership; the Freshservice UI shows per-agent queues only one agent at a time with no comparative load score.",
+      "example": "freshservice-pp-cli workload --group \"Network Support\" --agent",
+      "why_it_matters": "Use this when an AI agent needs to decide which human agent to assign a new ticket to based on current capacity.",
+      "group": "Team Operations"
+    },
+    {
+      "name": "Change Collision Detector",
+      "command": "change-collisions",
+      "description": "Flags change records whose planned maintenance windows overlap, optionally filtered by CI — prevents two teams from scheduling conflicting downtime on the same system.",
+      "rationale": "Requires a self-join on the changes table over time ranges optionally crossed with affected CI lists; no Freshservice UI view surfaces overlapping windows across different groups.",
+      "example": "freshservice-pp-cli change-collisions --window 48h --ci prod-db-01 --agent",
+      "why_it_matters": "Use this before approving a change to verify no other group has a conflicting maintenance window on the same infrastructure.",
+      "group": "Change Management"
+    },
+    {
+      "name": "Incident Recurrence Fingerprinter",
+      "command": "recurrence",
+      "description": "Uses FTS similarity on ticket subjects and descriptions to surface repeated symptom patterns grouped by asset, requester, or keyword — shows which problems keep coming back.",
+      "rationale": "Requires FTS across the full historical ticket corpus plus asset and requester joins; API approach exhausts rate limits after a few hundred tickets and provides no text-similarity ranking.",
+      "example": "freshservice-pp-cli recurrence --asset FS-1042 --days 90 --agent",
+      "why_it_matters": "Use this to identify root-cause candidates when an AI agent is investigating a chronic incident pattern.",
+      "group": "Problem Management"
+    },
+    {
+      "name": "Knowledge Gap Finder",
+      "command": "kb-gaps",
+      "description": "Matches recent ticket subjects against the KB article corpus using FTS and ranks topic clusters with no matching article by ticket volume — tells you exactly what to document first.",
+      "rationale": "Requires simultaneous FTS across two corpora (tickets and KB articles) with gap-detection logic; the Freshservice portal has no view correlating ticket volume to KB coverage.",
+      "example": "freshservice-pp-cli kb-gaps --group \"Desktop Support\" --days 30 --min-tickets 3 --agent",
+      "why_it_matters": "Use this when an AI agent is drafting a knowledge base improvement plan and needs to prioritize which gaps to fill.",
+      "group": "Knowledge Management"
+    },
+    {
+      "name": "Asset Orphan Detector",
+      "command": "orphan-assets",
+      "description": "Finds assets with no associated open ticket, no active contract, and no assigned user activity in the last N days — surfaces hardware you are paying maintenance on that nobody uses.",
+      "rationale": "Requires a left-join across assets, tickets, contracts, and users in SQLite; no Freshservice UI combines all four entity types into a single orphan view.",
+      "example": "freshservice-pp-cli orphan-assets --type laptop --days 60 --agent",
+      "why_it_matters": "Use this during IT asset audits to identify candidates for decommission or reallocation without manual cross-referencing.",
+      "group": "Asset Management"
+    },
+    {
+      "name": "Department SLA Leaderboard",
+      "command": "dept-sla",
+      "description": "Aggregates SLA compliance percentage, breach count, and mean time to resolve by requester department for a rolling period — exec-ready ranking without exporting to Excel.",
+      "rationale": "Requires grouping the full resolved-ticket history by department field across a multi-week window; the Freshservice Analytics module is a separate paid add-on.",
+      "example": "freshservice-pp-cli dept-sla --period 30d --sort breach-rate --agent",
+      "why_it_matters": "Use this when an AI agent is generating an executive SLA compliance report or identifying departments that need service level attention.",
+      "group": "SLA Management"
+    },
+    {
+      "name": "On-Call Coverage Gap Finder",
+      "command": "oncall-gap",
+      "description": "Identifies time windows where high-severity tickets arrived but no agent in the group acknowledged within SLA — surfaces staffing gaps in on-call rotations.",
+      "rationale": "Requires correlating ticket created_at and first-response timestamps against group membership across a multi-week history; no Freshservice endpoint provides this temporal view.",
+      "example": "freshservice-pp-cli oncall-gap --group Infrastructure --period 4w --severity P1,P2 --agent",
+      "why_it_matters": "Use this to identify on-call schedule gaps before the next incident strikes the same window.",
+      "group": "Team Operations"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "SLA Breach Countdown",
+      "command": "breach-risk",
+      "description": "Shows every open ticket projected to breach SLA within the next N hours, sorted by minutes remaining — act before the clock runs out, not after.",
+      "rationale": "Requires computing due_by minus now across the entire open-ticket corpus and joining to group/agent tables; paginating the API in real time burns rate-limit budget and takes too long.",
+      "example": "freshservice-pp-cli breach-risk --hours 4 --group Infrastructure --agent",
+      "why_it_matters": "Use this when an SRE or IT admin needs to know which tickets will breach SLA before the next check-in — prevents reactive firefighting.",
+      "group": "SLA Management"
+    },
+    {
+      "name": "My Queue",
+      "command": "my-queue",
+      "description": "Combines all tickets assigned to you with SLA countdown plus any change records awaiting your approval — the first command an agent runs each morning.",
+      "rationale": "Cross-entity join across open tickets and pending change approvals for a single agent identity in one offline query; the API requires three separate calls with manual correlation.",
+      "example": "freshservice-pp-cli my-queue user_at_example.com --agent",
+      "why_it_matters": "Use this to get an AI agent's complete pending workload in one structured call before deciding which task to action next.",
+      "group": "Daily Workflow"
+    },
+    {
+      "name": "Cross-Entity Full-Text Search",
+      "command": "search",
+      "description": "Runs a single ranked full-text search across tickets, assets, change records, and KB articles simultaneously — find everything related to an incident keyword in one shot.",
+      "rationale": "SQLite FTS5 virtual tables across all synced entity corpora with unified relevance ranking; the Freshservice API has per-entity search endpoints with no cross-entity ranking.",
+      "example": "freshservice-pp-cli search \"database crash\" --in tickets,assets,changes --agent",
+      "why_it_matters": "Use this when an AI agent needs to gather context about a symptom across all ITSM entities before proposing a resolution.",
+      "group": "Daily Workflow"
+    },
+    {
+      "name": "Agent Workload Heatmap",
+      "command": "workload",
+      "description": "Table of agents with open ticket count, average ticket age, P1/P2 count, and normalized load score — see who is drowning and who has capacity in five seconds.",
+      "rationale": "Groups the full open-ticket corpus by assignee and joins to group membership; the Freshservice UI shows per-agent queues only one agent at a time with no comparative load score.",
+      "example": "freshservice-pp-cli workload --group \"Network Support\" --agent",
+      "why_it_matters": "Use this when an AI agent needs to decide which human agent to assign a new ticket to based on current capacity.",
+      "group": "Team Operations"
+    },
+    {
+      "name": "Change Collision Detector",
+      "command": "change-collisions",
+      "description": "Flags change records whose planned maintenance windows overlap, optionally filtered by CI — prevents two teams from scheduling conflicting downtime on the same system.",
+      "rationale": "Requires a self-join on the changes table over time ranges optionally crossed with affected CI lists; no Freshservice UI view surfaces overlapping windows across different groups.",
+      "example": "freshservice-pp-cli change-collisions --window 48h --ci prod-db-01 --agent",
+      "why_it_matters": "Use this before approving a change to verify no other group has a conflicting maintenance window on the same infrastructure.",
+      "group": "Change Management"
+    },
+    {
+      "name": "Incident Recurrence Fingerprinter",
+      "command": "recurrence",
+      "description": "Uses FTS similarity on ticket subjects and descriptions to surface repeated symptom patterns grouped by asset, requester, or keyword — shows which problems keep coming back.",
+      "rationale": "Requires FTS across the full historical ticket corpus plus asset and requester joins; API approach exhausts rate limits after a few hundred tickets and provides no text-similarity ranking.",
+      "example": "freshservice-pp-cli recurrence --asset FS-1042 --days 90 --agent",
+      "why_it_matters": "Use this to identify root-cause candidates when an AI agent is investigating a chronic incident pattern.",
+      "group": "Problem Management"
+    },
+    {
+      "name": "Knowledge Gap Finder",
+      "command": "kb-gaps",
+      "description": "Matches recent ticket subjects against the KB article corpus using FTS and ranks topic clusters with no matching article by ticket volume — tells you exactly what to document first.",
+      "rationale": "Requires simultaneous FTS across two corpora (tickets and KB articles) with gap-detection logic; the Freshservice portal has no view correlating ticket volume to KB coverage.",
+      "example": "freshservice-pp-cli kb-gaps --group \"Desktop Support\" --days 30 --min-tickets 3 --agent",
+      "why_it_matters": "Use this when an AI agent is drafting a knowledge base improvement plan and needs to prioritize which gaps to fill.",
+      "group": "Knowledge Management"
+    },
+    {
+      "name": "Asset Orphan Detector",
+      "command": "orphan-assets",
+      "description": "Finds assets with no associated open ticket, no active contract, and no assigned user activity in the last N days — surfaces hardware you are paying maintenance on that nobody uses.",
+      "rationale": "Requires a left-join across assets, tickets, contracts, and users in SQLite; no Freshservice UI combines all four entity types into a single orphan view.",
+      "example": "freshservice-pp-cli orphan-assets --type laptop --days 60 --agent",
+      "why_it_matters": "Use this during IT asset audits to identify candidates for decommission or reallocation without manual cross-referencing.",
+      "group": "Asset Management"
+    },
+    {
+      "name": "Department SLA Leaderboard",
+      "command": "dept-sla",
+      "description": "Aggregates SLA compliance percentage, breach count, and mean time to resolve by requester department for a rolling period — exec-ready ranking without exporting to Excel.",
+      "rationale": "Requires grouping the full resolved-ticket history by department field across a multi-week window; the Freshservice Analytics module is a separate paid add-on.",
+      "example": "freshservice-pp-cli dept-sla --period 30d --sort breach-rate --agent",
+      "why_it_matters": "Use this when an AI agent is generating an executive SLA compliance report or identifying departments that need service level attention.",
+      "group": "SLA Management"
+    },
+    {
+      "name": "On-Call Coverage Gap Finder",
+      "command": "oncall-gap",
+      "description": "Identifies time windows where high-severity tickets arrived but no agent in the group acknowledged within SLA — surfaces staffing gaps in on-call rotations.",
+      "rationale": "Requires correlating ticket created_at and first-response timestamps against group membership across a multi-week history; no Freshservice endpoint provides this temporal view.",
+      "example": "freshservice-pp-cli oncall-gap --group Infrastructure --period 4w --severity P1,P2 --agent",
+      "why_it_matters": "Use this to identify on-call schedule gaps before the next incident strikes the same window.",
+      "group": "Team Operations"
+    }
+  ],
+  "narrative": {
+    "display_name": "Freshservice",
+    "headline": "Every Freshservice operation in one Go binary — with offline search, SLA intelligence, and agent-native JSON that no other Freshservice tool has.",
+    "value_prop": "freshservice-pp-cli is the first general-purpose terminal CLI for Freshservice — the jira-cli equivalent for ITSM. It covers tickets, changes, assets, users, and knowledge base with full CRUD, local SQLite sync, FTS across all entity types, and novel analytics commands that would require three dashboards and a spreadsheet to replicate manually.",
+    "auth_narrative": "Authenticate with a Personal Access Token (PAT) from your Freshservice account. Set FRESHSERVICE_APIKEY=\u003cyour-pat\u003e and FRESHSERVICE_DOMAIN=\u003cyourcompany.freshservice.com\u003e, then run `freshservice-pp-cli doctor` to verify connectivity.",
+    "quickstart": [
+      {
+        "command": "freshservice-pp-cli doctor",
+        "comment": "verify your PAT and domain are configured correctly"
+      },
+      {
+        "command": "freshservice-pp-cli sync --full",
+        "comment": "pull all tickets, assets, changes, and users into the local store"
+      },
+      {
+        "command": "freshservice-pp-cli my-queue user_at_example.com --agent",
+        "comment": "see your assigned tickets and pending approvals in one view"
+      },
+      {
+        "command": "freshservice-pp-cli breach-risk --hours 4 --agent",
+        "comment": "which tickets will breach SLA in the next 4 hours"
+      },
+      {
+        "command": "freshservice-pp-cli search \"VPN issue\" --in tickets,kb --agent",
+        "comment": "find related tickets and KB articles before creating a duplicate"
+      },
+      {
+        "command": "freshservice-pp-cli workload --group \"IT Support\" --agent",
+        "comment": "see which agents are overloaded before assigning a ticket"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on every request",
+        "fix": "verify FRESHSERVICE_APIKEY is your PAT (not username/password) and FRESHSERVICE_DOMAIN is yourcompany.freshservice.com without https://"
+      },
+      {
+        "symptom": "500 error on filter queries",
+        "fix": "wrap filter query in quotes: --query '\"status:2 AND priority:3\"' — Freshservice requires double-quoted filter strings"
+      },
+      {
+        "symptom": "429 Too Many Requests",
+        "fix": "your plan rate limit is being hit; reduce --per-page or add --delay between bulk operations"
+      },
+      {
+        "symptom": "sync returns no results",
+        "fix": "check FRESHSERVICE_DOMAIN matches your actual subdomain; run doctor --verbose for connection details"
+      }
+    ],
+    "when_to_use": "Use freshservice-pp-cli when an AI agent needs to query, create, or update ITSM records in Freshservice — ticket triage, change approval workflows, asset inventory checks, or SLA compliance reporting. It is especially powerful for cross-entity correlation tasks (finding all open tickets linked to an asset, checking change window collisions, or surfacing knowledge gaps) that would require multiple API calls and manual data joining if done via raw HTTP.",
+    "recipes": [
+      {
+        "title": "Triage the morning ticket queue",
+        "command": "freshservice-pp-cli tickets filter --query \"status:2 AND priority:3\" --json --select tickets.id,tickets.subject,tickets.due_by,tickets.responder_id",
+        "explanation": "pull high-priority open tickets via Freshservice's filter syntax with only the fields needed for triage routing"
+      },
+      {
+        "title": "Check SLA risk before standup",
+        "command": "freshservice-pp-cli breach-risk --hours 4 --agent",
+        "explanation": "surface every ticket that will breach its SLA in the next 4 hours so the team can act proactively"
+      },
+      {
+        "title": "Find recurring issues on a server",
+        "command": "freshservice-pp-cli recurrence --asset FS-2301 --days 90 --agent",
+        "explanation": "fingerprint repeated incident patterns linked to a specific asset over 90 days"
+      },
+      {
+        "title": "Check for change window conflicts",
+        "command": "freshservice-pp-cli change-collisions --window 48h --agent",
+        "explanation": "detect overlapping maintenance windows before approving a new change"
+      },
+      {
+        "title": "Get full context before creating a ticket",
+        "command": "freshservice-pp-cli search \"printer offline\" --in tickets,assets,kb --agent --select results.type,results.id,results.subject,results.status",
+        "explanation": "cross-entity search to find existing tickets, related assets, and KB articles before opening a duplicate"
+      }
+    ],
+    "trigger_phrases": [
+      "list open tickets in freshservice",
+      "create a ticket in freshservice",
+      "check SLA breach risk",
+      "who has the most open tickets",
+      "find related freshservice tickets",
+      "approve a change in freshservice",
+      "search freshservice knowledge base",
+      "use freshservice",
+      "freshservice ticket status"
+    ]
+  }
+}

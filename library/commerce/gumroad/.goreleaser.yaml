@@ -1,0 +1,51 @@
+version: 2
+project_name: gumroad-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: gumroad-pp-cli
+    main: ./cmd/gumroad-pp-cli
+    binary: gumroad-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/commerce/gumroad/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: gumroad-pp-mcp
+    main: ./cmd/gumroad-pp-mcp
+    binary: gumroad-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: gumroad-pp-cli
+    repository:
+      owner: bheemreddy181
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Gumroad's seller API as an agent-ready CLI and MCP server."
+    install: |
+      bin.install "gumroad-pp-cli"
+      bin.install "gumroad-pp-mcp"

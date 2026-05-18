@@ -1,0 +1,8 @@
+{
+  "dir": "<press-home>/library/marianatek",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

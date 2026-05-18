@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-12T04:56:36.674067Z",
+  "printing_press_version": "4.4.0",
+  "api_name": "pointhound",
+  "display_name": "Pointhound",
+  "cli_name": "pointhound-pp-cli",
+  "owner": "salmonumbrella",
+  "printer": "salmonumbrella",
+  "printer_name": "salmonumbrella",
+  "spec_path": ".manuscripts/20260511-212436/research/pointhound-browser-sniff-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:f9c91e64b75d7f26b49fc34027201842b2846ea318c683729d3f9d0335777342",
+  "run_id": "20260511-212436",
+  "mcp_binary": "pointhound-pp-mcp",
+  "mcp_tool_count": 2,
+  "mcp_public_tool_count": 2,
+  "mcp_ready": "partial",
+  "api_version": "0.1.0",
+  "auth_type": "cookie",
+  "novel_features": [
+    {
+      "name": "Reachability from points balance",
+      "command": "from-home",
+      "description": "Tell me where I can fly with the points I actually hold — feed in your Chase UR, Amex MR, Bilt, Capital One, and Citi TY balances and get back every destination reachable in the requested cabin within those balances, ranked by lowest effective spend."
+    },
+    {
+      "name": "Effective-cost ranking via transfer ratios",
+      "command": "compare-transfer",
+      "description": "Given a transferable points program (Chase UR, Amex MR, etc.) and a route, list every redemption ranked by source-program points spent — multiplying each offer's price by the real transfer ratio (1:1 instant for UR→United vs 0.333:1 up_to_72 for Marriott→United)."
+    },
+    {
+      "name": "Saved-route polling with delta exit code",
+      "command": "watch",
+      "description": "Register a route as a saved watch; subsequent runs poll Pointhound and exit with code 2 only when a new or cheaper deal appears since the last snapshot. Perfect for cron."
+    },
+    {
+      "name": "Fan-out search and store",
+      "command": "batch",
+      "description": "Issue N route+date searches in parallel from a CSV file (or repeated --route flags); all results are snapshotted to the local SQLite store with throttling."
+    },
+    {
+      "name": "Top Deals matrix with persistence",
+      "command": "top-deals-matrix",
+      "description": "Submit a multi-origin × multi-destination × month-range matrix search (e.g. SFO,LAX → LIS,FCO,LHR across Oct-Dec) and snapshot every result. Mirrors Pointhound's Premium Top Deals product but with offline access and cabin filtering."
+    },
+    {
+      "name": "Cross-snapshot drift report",
+      "command": "drift",
+      "description": "For a watched route, diff the latest snapshot against the previous and show per-offer status: new, cheaper, disappeared, unchanged. Includes the points delta and timestamp gap."
+    },
+    {
+      "name": "Deal-rating explore via Scout",
+      "command": "explore-deal-rating",
+      "description": "Use Pointhound's `scout.pointhound.com/places/search` `dealRating` and `isTracked` fields to discover airports near a metro that historically have high-frequency deals, optionally chaining into `batch` to fetch live offers for them."
+    },
+    {
+      "name": "Best-month heatmap",
+      "command": "calendar",
+      "description": "For a route + cabin, batch-search every month over a 12-month window and produce a month-grid showing min points cost per month (and the offer that achieved it)."
+    },
+    {
+      "name": "Transfer-source lookup",
+      "command": "transferable-sources",
+      "description": "Given an airline redeem program (e.g. United MileagePlus), list every transferable earn program that feeds it with the ratio and transfer time (instant vs up_to_72)."
+    }
+  ]
+}

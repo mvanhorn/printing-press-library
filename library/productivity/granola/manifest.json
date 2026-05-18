@@ -1,0 +1,38 @@
+{
+  "manifest_version": "0.3",
+  "name": "granola-pp-mcp",
+  "display_name": "Granola",
+  "version": "4.4.0",
+  "description": "Granola API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/granola-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/granola-pp-mcp",
+      "args": [],
+      "env": {
+        "GRANOLA_API_KEY": "${user_config.granola_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "granola_api_key": {
+      "type": "string",
+      "title": "GRANOLA_API_KEY",
+      "description": "Optional. Granola public API key (Personal or Enterprise). Optional — only required when using --remote against the public API. Cache and internal API use auto-discovered WorkOS tokens from the local Granola app data.",
+      "sensitive": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

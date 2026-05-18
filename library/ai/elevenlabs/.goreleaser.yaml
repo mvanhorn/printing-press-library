@@ -1,0 +1,51 @@
+version: 2
+project_name: elevenlabs-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: elevenlabs-pp-cli
+    main: ./cmd/elevenlabs-pp-cli
+    binary: elevenlabs-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/ai/elevenlabs/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: elevenlabs-pp-mcp
+    main: ./cmd/elevenlabs-pp-mcp
+    binary: elevenlabs-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: elevenlabs-pp-cli
+    repository:
+      owner: cathrynlavery
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "This is the documentation for the ElevenLabs API. You can use this API to use our service programmatically, this is..."
+    install: |
+      bin.install "elevenlabs-pp-cli"
+      bin.install "elevenlabs-pp-mcp"

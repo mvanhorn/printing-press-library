@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-15",
+  "base_run_id": "20260511-095555",
+  "base_printing_press_version": "4.2.2",
+  "patches": [
+    {
+      "id": "cookies-host-allowlist",
+      "summary": "Restrict readCookieRows host arg to the CIDHost constant to remove the SQL-injection surface on the sqlite3 CLI invocation.",
+      "reason": "sqlite3 CLI doesn't expose ? parameter binding via -separator, so the previous fmt.Sprintf interpolation was a real SQLi surface for any future caller passing user input. Limiting the host argument to the single constant the package uses removes the risk while keeping the code shape (greptile P1).",
+      "files": [
+        "internal/auth0silent/cookies_darwin.go"
+      ]
+    },
+    {
+      "id": "host-key-binding-detection",
+      "summary": "Strip the 32-byte SHA-256(host_key) prefix only when it actually matches the expected hash, so older Chrome cookies (no prefix) are not silently truncated.",
+      "reason": "The 32-byte plaintext prefix is added by Chrome's M120+ cookie host-binding feature. Older Chrome versions write cookies without it, so the unconditional strip discarded the first 32 chars of every JWT-sized Auth0 cookie on older Chrome and produced opaque auth failures. We now verify the prefix matches SHA-256(host_key) before stripping (greptile P2).",
+      "files": [
+        "internal/auth0silent/cookies_darwin.go"
+      ]
+    },
+    {
+      "id": "oauth-state-roundtrip",
+      "summary": "Validate the Auth0-echoed state value against the one sent on the authorize request before accepting the access token.",
+      "reason": "The OAuth2 state round-trip is the standard CSRF check for implicit/silent flows. Validating state catches a tampered or replayed Location header from a network intermediary before we accept a token for a different session (greptile P2).",
+      "files": [
+        "internal/auth0silent/silent.go"
+      ]
+    },
+    {
+      "id": "remove-debug-sign-dump",
+      "summary": "Delete the GREATCLIPS_DEBUG_SIGN=1 stderr dump of request body and outgoing HMAC signature.",
+      "reason": "The block was already annotated with 'Removed before publish; left in for v0.2 development only.' Shipping it would let shell history or CI log collectors capture signing inputs whenever the env var is set (greptile P2).",
+      "files": [
+        "internal/cli/icssign_hook.go"
+      ]
+    },
+    {
+      "id": "refresh-token-flow-not-wired",
+      "summary": "Return a clear error from refreshAccessToken instead of silently no-oping when the token is expired.",
+      "reason": "greatclips mints tokens via the auth0silent /authorize flow, not OAuth2 refresh_token exchange, so tokenURL was hardcoded to '' and the function returned nil. Callers got a silent no-op and the next API call produced an opaque 401. The function now returns an explicit error telling the user to re-run `greatclips auth login` (greptile P1).",
+      "files": [
+        "internal/client/client.go"
+      ]
+    },
+    {
+      "id": "profile-id-strict-int",
+      "summary": "Surface an explicit usage error when GREATCLIPS_PROFILE_ID is set but does not parse as an integer.",
+      "reason": "The prior code dropped any unparseable value silently and shipped the request body without profileId, producing an opaque server-side rejection with no local indication that the env var was ignored (greptile P1).",
+      "files": [
+        "internal/cli/promoted_checkin.go"
+      ]
+    }
+  ]
+}

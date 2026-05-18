@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-14T21:55:53.182927145Z",
+  "printing_press_version": "4.6.1",
+  "api_name": "openipa",
+  "cli_name": "openipa-pp-cli",
+  "run_id": "20260514-212234",
+  "printer": "aborruso",
+  "printer_name": "aborruso",
+  "category": "developer-tools",
+  "novel_features": [
+    {
+      "name": "Doctor compliance PA",
+      "command": "doctor",
+      "description": "Dato un codice fiscale, verifica in un colpo se l'ente ha SFE attivo, NSO abilitato e domicilio digitale — checklist compliance PA completa."
+    },
+    {
+      "name": "Batch CF → codici destinatario SDI",
+      "command": "fatturazione batch",
+      "description": "Legge CF da stdin, chiama WS01_SFE_CF in parallelo, restituisce NDJSON con CF + cod_uni_ou + stato_canale per pipeline di fatturazione."
+    },
+    {
+      "name": "Stats aggregati per regione/categoria",
+      "command": "stats",
+      "description": "Conta enti, AOO, UO e percentuale con SFE/NSO attivo per regione o categoria — tutto da SQLite locale senza API call."
+    },
+    {
+      "name": "Enti senza canale SFE attivo",
+      "command": "report sfe-mancante",
+      "description": "Lista di tutti gli enti non abilitati alla fatturazione elettronica su SDI, filtrabile per regione e categoria — per audit compliance."
+    },
+    {
+      "name": "Struttura gerarchica ente",
+      "command": "enti tree",
+      "description": "Vista ad albero di un ente con tutte le sue AOO e UO associate — Ente → AOO[N] → UO[M] in output testuale o JSON annidato."
+    },
+    {
+      "name": "Verifica domicilio digitale attivo/storico",
+      "command": "domicilio verifica",
+      "description": "Controlla se una PEC è il domicilio digitale attivo di un ente, storico (cessato) o sconosciuta — produce stato classificato."
+    },
+    {
+      "name": "Ricerca AOO per nome",
+      "command": "aoo cerca",
+      "description": "Cerca Aree Organizzative Omogenee per descrizione parziale — endpoint WS18 che riempie il gap asimmetrico rispetto alla ricerca enti."
+    },
+    {
+      "name": "Ricerca per indirizzo sede",
+      "command": "sede enti",
+      "description": "Cerca enti IPA per indirizzo sede, comune e categoria — non disponibile nei web service ufficiali IPA (WS01-WS23), accede al portale PortaleServices."
+    },
+    {
+      "name": "Ricerca AOO per sede",
+      "command": "sede aoo",
+      "description": "Cerca AOO per sede geografica e denominazione, con auto-paginazione --tutti — non disponibile nei web service ufficiali IPA."
+    },
+    {
+      "name": "Responsabile Transizione Digitale",
+      "command": "rtd cerca",
+      "description": "Cerca il RTD di un ente per nominativo, ente o area geografica — dato non esposto dai web service ufficiali IPA (WS01-WS23)."
+    },
+    {
+      "name": "RTD con email",
+      "command": "rtd email",
+      "description": "Cerca il RTD e recupera automaticamente email e PEC dalla UO — due chiamate API in un solo comando (PortaleServices + WS06)."
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-12",
+  "base_run_id": "20260512-165514",
+  "base_printing_press_version": "4.5.1",
+  "patches": [
+    {
+      "id": "novel-cross-project-commands",
+      "summary": "8 hand-authored cross-project novel commands: secrets where-name/rotation, functions inventory, branches drift, projects estate, auth-admin lookup/recent, pgrst schema, storage usage.",
+      "reason": "Supabase's Management API is project-scoped; cross-project rollups are the highest-leverage value-add this CLI offers over supabase-js and the dashboard. These read from the local SQLite store (populated by sync) for offline cross-project queries, with auth-admin / pgrst / storage hitting live project APIs through a shared project_surface.go helper that resolves the three-credential model (PAT, publishable, service_role). Spec-level patches (server URL, x-mcp orchestration, x-auth-env-vars, stub security schemes for upstream-undefined fga_permissions/oauth2 refs) were applied to spec.json pre-generation; they don't show up as source patches because the generator consumed them upstream.",
+      "files": [
+        "internal/cli/secrets_top.go",
+        "internal/cli/functions_top.go",
+        "internal/cli/branches_drift.go",
+        "internal/cli/projects_estate.go",
+        "internal/cli/auth_admin.go",
+        "internal/cli/pgrst_top.go",
+        "internal/cli/storage_top.go",
+        "internal/cli/project_surface.go"
+      ]
+    },
+    {
+      "id": "root-help-text",
+      "summary": "Calibrated root.go Short/Long help text to match README headline (108 endpoints + local SQLite cache, known gaps explicitly listed).",
+      "reason": "Generated default headline overclaimed (\"Every Supabase runtime endpoint — PostgREST CRUD, Auth Admin, Storage objects, Edge Function invoke\") since this CLI does not wrap Auth Admin user CRUD, Storage object lifecycle, PostgREST row CRUD, or Edge Function runtime invoke. Aligned to README's calibrated headline and added a 'Known gaps' line so --help and README agree.",
+      "files": ["internal/cli/root.go"]
+    },
+    {
+      "id": "unhide-runtime-commands",
+      "summary": "Removed Hidden: true from branches, projects, and organizations command groups so they appear in --help and complete in shells.",
+      "reason": "Generator defaults marked these as Hidden — they are the primary user-facing commands and need to surface in --help. Recurrence of the issue tracked in the v4.5.x cli-printing-press retro list.",
+      "files": [
+        "internal/cli/branches.go",
+        "internal/cli/projects.go",
+        "internal/cli/organizations.go"
+      ]
+    },
+    {
+      "id": "readme-skill-calibrated-tagline",
+      "summary": "Hand-edited README and SKILL with calibrated headline, explicit Known Gaps section, and trigger phrases narrowed to built capabilities.",
+      "reason": "Generated README/SKILL inherited the overclaim from the default headline and included triggers (`supabase start`, `supabase db push`) that this CLI cannot satisfy (those are local-dev/migration tooling owned by the official Supabase CLI). Narrowing triggers prevents misrouting from agents that load this skill.",
+      "files": ["README.md", "SKILL.md"]
+    }
+  ]
+}

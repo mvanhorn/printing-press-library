@@ -1,0 +1,190 @@
+{
+  "timestamp": "2026-05-17T13:45:27.897580061Z",
+  "cli_dir": "\u003ccli-dir\u003e/smartlead",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "campaigns",
+      "file": "campaigns.go",
+      "line": 11,
+      "evidence": "Manage campaigns",
+      "status": "accepted",
+      "note": "generator-emitted parent grouper 'campaigns' (RunE=parentNoSubcommandRunE, only dispatches to subcommands); Short is in a DO-NOT-EDIT generated file. Audit does not exempt groupers that carry the no-subcommand RunE helper. Retro candidate: generator template or audit should skip parentNoSubcommandRunE groupers."
+    },
+    {
+      "kind": "missing-read-only",
+      "command": "analytics-by-date",
+      "file": "campaigns_analytics-by-date.go",
+      "line": 11,
+      "evidence": "name matches read heuristic; no mcp:read-only annotation",
+      "status": "accepted",
+      "note": "'analytics-by-date' is a parent grouper whose RunE only prints help (parentNoSubcommandRunE); it performs no read, so mcp:read-only is not meaningful. File is DO-NOT-EDIT generated. Retro candidate: audit read-heuristic should skip parentNoSubcommandRunE groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "analytics",
+      "file": "campaigns_analytics.go",
+      "line": 11,
+      "evidence": "Manage analytics",
+      "status": "accepted",
+      "note": "generator-emitted parent grouper 'analytics' (RunE=parentNoSubcommandRunE, only dispatches to subcommands); Short is in a DO-NOT-EDIT generated file. Audit does not exempt groupers that carry the no-subcommand RunE helper. Retro candidate: generator template or audit should skip parentNoSubcommandRunE groupers."
+    },
+    {
+      "kind": "missing-read-only",
+      "command": "analytics",
+      "file": "campaigns_analytics.go",
+      "line": 11,
+      "evidence": "name matches read heuristic; no mcp:read-only annotation",
+      "status": "accepted",
+      "note": "'analytics' is a parent grouper whose RunE only prints help (parentNoSubcommandRunE); it performs no read, so mcp:read-only is not meaningful. File is DO-NOT-EDIT generated. Retro candidate: audit read-heuristic should skip parentNoSubcommandRunE groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "email-accounts",
+      "file": "campaigns_email-accounts.go",
+      "line": 11,
+      "evidence": "Manage email accounts",
+      "status": "accepted",
+      "note": "generator-emitted parent grouper 'email-accounts' (RunE=parentNoSubcommandRunE, only dispatches to subcommands); Short is in a DO-NOT-EDIT generated file. Audit does not exempt groupers that carry the no-subcommand RunE helper. Retro candidate: generator template or audit should skip parentNoSubcommandRunE groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "leads-export",
+      "file": "campaigns_leads-export.go",
+      "line": 11,
+      "evidence": "Manage leads export",
+      "status": "accepted",
+      "note": "generator-emitted parent grouper 'leads-export' (RunE=parentNoSubcommandRunE, only dispatches to subcommands); Short is in a DO-NOT-EDIT generated file. Audit does not exempt groupers that carry the no-subcommand RunE helper. Retro candidate: generator template or audit should skip parentNoSubcommandRunE groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "leads",
+      "file": "campaigns_leads.go",
+      "line": 11,
+      "evidence": "Manage leads",
+      "status": "accepted",
+      "note": "generator-emitted parent grouper 'leads' (RunE=parentNoSubcommandRunE, only dispatches to subcommands); Short is in a DO-NOT-EDIT generated file. Audit does not exempt groupers that carry the no-subcommand RunE helper. Retro candidate: generator template or audit should skip parentNoSubcommandRunE groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "schedule",
+      "file": "campaigns_schedule.go",
+      "line": 11,
+      "evidence": "Manage schedule",
+      "status": "accepted",
+      "note": "generator-emitted parent grouper 'schedule' (RunE=parentNoSubcommandRunE, only dispatches to subcommands); Short is in a DO-NOT-EDIT generated file. Audit does not exempt groupers that carry the no-subcommand RunE helper. Retro candidate: generator template or audit should skip parentNoSubcommandRunE groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "sequences",
+      "file": "campaigns_sequences.go",
+      "line": 11,
+      "evidence": "Manage sequences",
+      "status": "accepted",
+      "note": "generator-emitted parent grouper 'sequences' (RunE=parentNoSubcommandRunE, only dispatches to subcommands); Short is in a DO-NOT-EDIT generated file. Audit does not exempt groupers that carry the no-subcommand RunE helper. Retro candidate: generator template or audit should skip parentNoSubcommandRunE groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "settings",
+      "file": "campaigns_settings.go",
+      "line": 11,
+      "evidence": "Manage settings",
+      "status": "accepted",
+      "note": "generator-emitted parent grouper 'settings' (RunE=parentNoSubcommandRunE, only dispatches to subcommands); Short is in a DO-NOT-EDIT generated file. Audit does not exempt groupers that carry the no-subcommand RunE helper. Retro candidate: generator template or audit should skip parentNoSubcommandRunE groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "statistics",
+      "file": "campaigns_statistics.go",
+      "line": 11,
+      "evidence": "Manage statistics",
+      "status": "accepted",
+      "note": "generator-emitted parent grouper 'statistics' (RunE=parentNoSubcommandRunE, only dispatches to subcommands); Short is in a DO-NOT-EDIT generated file. Audit does not exempt groupers that carry the no-subcommand RunE helper. Retro candidate: generator template or audit should skip parentNoSubcommandRunE groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "status",
+      "file": "campaigns_status.go",
+      "line": 11,
+      "evidence": "Manage status",
+      "status": "accepted",
+      "note": "generator-emitted parent grouper 'status' (RunE=parentNoSubcommandRunE, only dispatches to subcommands); Short is in a DO-NOT-EDIT generated file. Audit does not exempt groupers that carry the no-subcommand RunE helper. Retro candidate: generator template or audit should skip parentNoSubcommandRunE groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "webhooks",
+      "file": "campaigns_webhooks.go",
+      "line": 11,
+      "evidence": "Manage webhooks",
+      "status": "accepted",
+      "note": "generator-emitted parent grouper 'webhooks' (RunE=parentNoSubcommandRunE, only dispatches to subcommands); Short is in a DO-NOT-EDIT generated file. Audit does not exempt groupers that carry the no-subcommand RunE helper. Retro candidate: generator template or audit should skip parentNoSubcommandRunE groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "client",
+      "file": "client.go",
+      "line": 11,
+      "evidence": "Manage client",
+      "status": "accepted",
+      "note": "generator-emitted parent grouper 'client' (RunE=parentNoSubcommandRunE, only dispatches to subcommands); Short is in a DO-NOT-EDIT generated file. Audit does not exempt groupers that carry the no-subcommand RunE helper. Retro candidate: generator template or audit should skip parentNoSubcommandRunE groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "email-accounts",
+      "file": "email-accounts.go",
+      "line": 11,
+      "evidence": "Manage email accounts",
+      "status": "accepted",
+      "note": "generator-emitted parent grouper 'email-accounts' (RunE=parentNoSubcommandRunE, only dispatches to subcommands); Short is in a DO-NOT-EDIT generated file. Audit does not exempt groupers that carry the no-subcommand RunE helper. Retro candidate: generator template or audit should skip parentNoSubcommandRunE groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "warmup-stats",
+      "file": "email-accounts_warmup-stats.go",
+      "line": 11,
+      "evidence": "Manage warmup stats",
+      "status": "accepted",
+      "note": "generator-emitted parent grouper 'warmup-stats' (RunE=parentNoSubcommandRunE, only dispatches to subcommands); Short is in a DO-NOT-EDIT generated file. Audit does not exempt groupers that carry the no-subcommand RunE helper. Retro candidate: generator template or audit should skip parentNoSubcommandRunE groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "warmup",
+      "file": "email-accounts_warmup.go",
+      "line": 11,
+      "evidence": "Manage warmup",
+      "status": "accepted",
+      "note": "generator-emitted parent grouper 'warmup' (RunE=parentNoSubcommandRunE, only dispatches to subcommands); Short is in a DO-NOT-EDIT generated file. Audit does not exempt groupers that carry the no-subcommand RunE helper. Retro candidate: generator template or audit should skip parentNoSubcommandRunE groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "leads",
+      "file": "leads.go",
+      "line": 11,
+      "evidence": "Manage leads",
+      "status": "accepted",
+      "note": "generator-emitted parent grouper 'leads' (RunE=parentNoSubcommandRunE, only dispatches to subcommands); Short is in a DO-NOT-EDIT generated file. Audit does not exempt groupers that carry the no-subcommand RunE helper. Retro candidate: generator template or audit should skip parentNoSubcommandRunE groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "campaigns",
+      "file": "leads_campaigns.go",
+      "line": 11,
+      "evidence": "Manage campaigns",
+      "status": "accepted",
+      "note": "generator-emitted parent grouper 'campaigns' (RunE=parentNoSubcommandRunE, only dispatches to subcommands); Short is in a DO-NOT-EDIT generated file. Audit does not exempt groupers that carry the no-subcommand RunE helper. Retro candidate: generator template or audit should skip parentNoSubcommandRunE groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "unsubscribe",
+      "file": "leads_unsubscribe.go",
+      "line": 11,
+      "evidence": "Manage unsubscribe",
+      "status": "accepted",
+      "note": "generator-emitted parent grouper 'unsubscribe' (RunE=parentNoSubcommandRunE, only dispatches to subcommands); Short is in a DO-NOT-EDIT generated file. Audit does not exempt groupers that carry the no-subcommand RunE helper. Retro candidate: generator template or audit should skip parentNoSubcommandRunE groupers."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 5,
+    "captured": "2026-05-17T13:41:16.06405928Z"
+  }
+}

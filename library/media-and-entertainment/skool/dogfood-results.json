@@ -1,0 +1,106 @@
+{
+  "dir": "\u003ccli-dir\u003e/skool",
+  "spec_path": "\u003crunstate\u003e/spec.yaml",
+  "verdict": "FAIL",
+  "path_check": {
+    "tested": 0,
+    "valid": 0,
+    "valid_pct": 0,
+    "skipped": true,
+    "detail": "internal-yaml spec: paths validated at parse time"
+  },
+  "auth_check": {
+    "spec_scheme": "",
+    "generated_format": "unknown",
+    "match": true,
+    "detail": "spec not provided or no bot/bearer/basic scheme detected"
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "dead_flags": {
+    "total": 19,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 55,
+    "dead": 0
+  },
+  "pipeline_check": {
+    "sync_calls_domain": true,
+    "search_calls_domain": false,
+    "domain_tables": 1,
+    "detail": "sync uses domain-specific Upsert methods; search uses generic Search only; 1 domain tables found"
+  },
+  "example_check": {
+    "tested": 10,
+    "with_examples": 10,
+    "valid_examples": 10,
+    "detail": "10/10 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 58,
+      "registered": 58
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 6,
+    "found": 6
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 6,
+    "exempted_via_store": 1
+  },
+  "source_client_check": {
+    "checked": 1,
+    "findings": [
+      {
+        "package": "skoolclient",
+        "file": "internal/skoolclient/buildid.go",
+        "reason": "outbound HTTP without rate limiter or typed 429 handling"
+      }
+    ]
+  },
+  "print_json_filtered_check": {
+    "checked": 50
+  },
+  "test_presence": {
+    "checked": 1,
+    "missing_tests": [
+      "skoolclient"
+    ]
+  },
+  "naming_check": {
+    "checked": 50,
+    "violations": [
+      {
+        "file": "internal/cli/community_info.go",
+        "banned": "info",
+        "preferred": "get",
+        "category": "verb"
+      }
+    ]
+  },
+  "issues": [
+    "1 source client file(s) without rate-limit handling: internal/skoolclient/buildid.go — outbound HTTP without rate limiter or typed 429 handling",
+    "pure-logic packages with no tests: skoolclient",
+    "1 naming violations: verb info→get in internal/cli/community_info.go"
+  ]
+}

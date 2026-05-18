@@ -1,0 +1,20 @@
+{
+  "action": "post",
+  "data": {
+    "devices": [
+      "iphone16",
+      "Macstudio"
+    ],
+    "group": 0,
+    "licenses": [
+      "iOS",
+      "Desktop"
+    ],
+    "request": "173a694a-44d5-4278-bc00-f672219bee41",
+    "status": 1
+  },
+  "path": "/1/users/validate.json",
+  "resource": "users",
+  "status": 200,
+  "success": true
+}

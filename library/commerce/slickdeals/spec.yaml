@@ -1,0 +1,287 @@
+name: slickdeals
+description: Discovered API spec for slickdeals
+version: 0.1.0
+base_url: https://slickdeals.net
+spec_source: sniffed
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+config:
+    format: toml
+    path: ~/.config/slickdeals-pp-cli/config.toml
+resources:
+    ad-stats:
+        description: Operations on ad-events
+        endpoints:
+            create_ad_events:
+                method: POST
+                path: /ad-stats/{id}/ad-events
+                description: POST /ad-stats/{id}/ad-events
+                params:
+                    - name: id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The id path segment
+                      fields: []
+                body:
+                    - name: breakpoint
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: event
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: eventRuntime
+                      type: number
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: pageName
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: platform
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: timestamp
+                      type: integer
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                response:
+                    type: object
+                    item: ad_events
+                pagination: null
+    ajax:
+        description: Operations on bSubNavPlacement.php
+        endpoints:
+            create_threadrate.php:
+                method: POST
+                path: /ajax/threadrate.php
+                description: POST /ajax/threadrate.php
+                params: []
+                body:
+                    - name: securitytoken
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: ti[]
+                      type: integer
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                response:
+                    type: array
+                    item: threadrate.php
+                pagination: null
+            list_bSubNavPlacement.php:
+                method: GET
+                path: /ajax/bSubNavPlacement.php
+                description: GET /ajax/bSubNavPlacement.php
+                params:
+                    - name: nuxt
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: section
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: url
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: bSubNavPlacement.php
+                pagination: null
+    frontpage:
+        description: Operations on recommendations
+        endpoints:
+            list_json:
+                method: GET
+                path: /frontpage/promoted-content/json
+                description: GET /frontpage/promoted-content/json
+                params:
+                    - name: nuxt
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: json
+                pagination: null
+            list_recommendations:
+                method: GET
+                path: /frontpage/recommendation-carousel/recommendations
+                description: GET /frontpage/recommendation-carousel/recommendations
+                params:
+                    - name: count
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: nuxt
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: useCategoryBadge
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: useForYouBadge
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: useFrontpageBadge
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: recommendations
+                pagination: null
+    web-api:
+        description: Operations on missed-deals
+        endpoints:
+            list_featured_coupons:
+                method: GET
+                path: /web-api/frontpage/featured-coupons/
+                description: GET /web-api/frontpage/featured-coupons/
+                params:
+                    - name: code
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: discount
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: id
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: outclickUrl
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                      format: url
+                    - name: storeLogoUrl
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: title
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: views
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: featured_coupons
+                pagination: null
+            list_missed_deals:
+                method: GET
+                path: /web-api/frontpage/missed-deals/
+                description: GET /web-api/frontpage/missed-deals/
+                params:
+                    - name: isReturningVisitor
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: showExpired
+                      type: boolean
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: missed_deals
+                pagination: null
+types: {}

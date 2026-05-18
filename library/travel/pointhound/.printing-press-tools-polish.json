@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-05-12T15:11:03.742924Z",
+  "cli_dir": ".",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-05-12T15:11:03.742924Z"
+  }
+}

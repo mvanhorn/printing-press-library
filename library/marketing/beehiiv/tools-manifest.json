@@ -1,0 +1,2972 @@
+{
+  "api_name": "beehiiv",
+  "base_url": "https://api.beehiiv.com/v2",
+  "description": "",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "BEEHIIV_BEARER_AUTH"
+    ],
+    "env_var_specs": [
+      {
+        "name": "BEEHIIV_BEARER_AUTH",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "advertisement-opportunities_index",
+      "description": "Get advertisement opportunities \u003cBadge intent='info' minimal outlined\u003eOAuth Scope: posts:read\u003c/Badge\u003e. Required: publicationId. Returns array of AdvertisementOpportunity.",
+      "method": "GET",
+      "path": "/publications/{publicationId}/advertisement_opportunities",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "authors_index",
+      "description": "Retrieve a list of authors available for the publication. Required: publicationId. Optional: limit, page, name. Returns array of Author.",
+      "method": "GET",
+      "path": "/publications/{publicationId}/authors",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "A limit on the number of objects to be returned."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination returns the results in pages."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "Optionally filter authors by full name or first name (case-insensitive)."
+        }
+      ]
+    },
+    {
+      "name": "authors_show",
+      "description": "Retrieve a single author from a publication. Required: publicationId, authorId. Returns the AuthorsGetResponse.",
+      "method": "GET",
+      "path": "/publications/{publicationId}/authors/{authorId}",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "authorId",
+          "type": "string",
+          "location": "path",
+          "description": "The author identifier. This accepts author UUID, full name, or first name.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "automations_index",
+      "description": "List automations \u003cBadge intent='info' minimal outlined\u003eOAuth Scope: automations:read\u003c/Badge\u003e. Required: publicationId. Optional: expand[], limit, page. Returns array of Automation.",
+      "method": "GET",
+      "path": "/publications/{publicationId}/automations",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "expand[]",
+          "type": "array",
+          "location": "query",
+          "description": "Optional list of expandable objects."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "A limit on the number of objects to be returned."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination returns the results in pages."
+        }
+      ]
+    },
+    {
+      "name": "automations_show",
+      "description": "Get automation \u003cBadge intent='info' minimal outlined\u003eOAuth Scope: automations:read\u003c/Badge\u003e. Required: publicationId, automationId. Optional: expand[]. Returns the AutomationsGetResponse.",
+      "method": "GET",
+      "path": "/publications/{publicationId}/automations/{automationId}",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "automationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the automation object",
+          "required": true
+        },
+        {
+          "name": "expand[]",
+          "type": "array",
+          "location": "query",
+          "description": "Optional list of expandable objects."
+        }
+      ]
+    },
+    {
+      "name": "automations_emails_automations-list",
+      "description": "Retrieve all emails belonging to a specific automation, including engagement statistics for each email. Required: publicationId, automationId. Optional: limit, cursor, page. Returns array of AutomationEmail.",
+      "method": "GET",
+      "path": "/publications/{publicationId}/automations/{automationId}/emails",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "automationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the automation object",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "A limit on the number of objects to be returned."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "**Cursor-based pagination (recommended)**: Use this opaque cursor token to fetch the next page of results. Obtain it from the `next_cursor` field of a previous response."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "**Deprecated**: Use `cursor` instead. Pagination returns the results in pages. Limited to 100 pages maximum."
+        }
+      ]
+    },
+    {
+      "name": "automations_journeys_automation-create",
+      "description": "Add an existing subscription to an automation flow. Requires the automation to have an active *Add by API* trigger. The specified `email` or `subscription_id` will be matched against your existing subscribers. If an existing subscriber is found, they will be enrolled immediately. Looking to enroll new subscribers? Use the **[Create Subscription](/api-reference/subscriptions/create)** endpoint instead and specify the `automation_ids` param. Required: publicationId, automationId. Optional: double_opt_override, email, subscription_id. Returns the new AutomationJourneysResponse.",
+      "method": "POST",
+      "path": "/publications/{publicationId}/automations/{automationId}/journeys",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "automationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the automation object",
+          "required": true
+        },
+        {
+          "name": "double_opt_override",
+          "type": "string",
+          "location": "body",
+          "description": "Override publication double-opt settings for this subscription."
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "The email address associated with the subscription."
+        },
+        {
+          "name": "subscription_id",
+          "type": "string",
+          "location": "body",
+          "description": "The prefixed ID of the subscription."
+        }
+      ]
+    },
+    {
+      "name": "automations_journeys_automation-index",
+      "description": "List automation journeys \u003cBadge intent='info' minimal outlined\u003eOAuth Scope: automations:read\u003c/Badge\u003e. Required: publicationId, automationId. Optional: status, limit, page. Returns array of AutomationJourney.",
+      "method": "GET",
+      "path": "/publications/{publicationId}/automations/{automationId}/journeys",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "automationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the automation object",
+          "required": true
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Optionally filter the results by the automation journey's status."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "A limit on the number of objects to be returned."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination returns the results in pages. Each page contains the number of results specified by the `limit` (default: 10)."
+        }
+      ]
+    },
+    {
+      "name": "automations_journeys_automation-show",
+      "description": "Get automation journey \u003cBadge intent='info' minimal outlined\u003eOAuth Scope: automations:read\u003c/Badge\u003e. Required: publicationId, automationId, automationJourneyId. Returns the AutomationJourneysResponse.",
+      "method": "GET",
+      "path": "/publications/{publicationId}/automations/{automationId}/journeys/{automationJourneyId}",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "automationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the automation object",
+          "required": true
+        },
+        {
+          "name": "automationJourneyId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed automation journey id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "bulk-subscription-updates_index",
+      "description": "List subscription updates \u003cBadge intent='info' minimal outlined\u003eOAuth Scope: subscriptions:read\u003c/Badge\u003e. Required: publicationId. Returns array of BulkSubscriptionUpdatesListResponseDataItem.",
+      "method": "GET",
+      "path": "/publications/{publicationId}/bulk_subscription_updates",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "bulk-subscription-updates_show",
+      "description": "Get subscription update \u003cBadge intent='info' minimal outlined\u003eOAuth Scope: subscriptions:read\u003c/Badge\u003e. Required: publicationId, id. Returns the BulkSubscriptionUpdatesGetResponse.",
+      "method": "GET",
+      "path": "/publications/{publicationId}/bulk_subscription_updates/{id}",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the Subscription Update object",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "bulk-subscriptions_create",
+      "description": "Bulk create subscription \u003cBadge intent='info' minimal outlined\u003eOAuth Scope: subscriptions:write\u003c/Badge\u003e. Required: publicationId, subscriptions. Returns the new BulkSubscriptionCreateResponse.",
+      "method": "POST",
+      "path": "/publications/{publicationId}/bulk_subscriptions",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "subscriptions",
+          "type": "array",
+          "location": "body",
+          "description": "Subscriptions",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "condition-sets_index",
+      "description": "Retrieve all active condition sets for a publication. Condition sets define reusable audience segments for targeting content to specific subscribers. Use the `purpose` parameter to filter by a specific use case. Required: publicationId. Optional: limit, cursor, page (plus 1 more). Returns array of ConditionSetListItem.",
+      "method": "GET",
+      "path": "/publications/{publicationId}/condition_sets",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "A limit on the number of objects to be returned."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "**Cursor-based pagination (recommended)**: Use this opaque cursor token to fetch the next..."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "**Offset-based pagination (deprecated)**: Page number for offset-based pagination."
+        },
+        {
+          "name": "purpose",
+          "type": "string",
+          "location": "query",
+          "description": "Filter condition sets by purpose. When not specified, all active condition sets are returned."
+        }
+      ]
+    },
+    {
+      "name": "condition-sets_show",
+      "description": "Retrieve a single active dynamic content condition set for a publication. Use `expand[]=stats` to calculate and return the active subscriber count synchronously. Required: publicationId, conditionSetId. Optional: expand[]. Returns the ConditionSetShowResponse.",
+      "method": "GET",
+      "path": "/publications/{publicationId}/condition_sets/{conditionSetId}",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "conditionSetId",
+          "type": "string",
+          "location": "path",
+          "description": "The UUID of the condition set object",
+          "required": true
+        },
+        {
+          "name": "expand[]",
+          "type": "array",
+          "location": "query",
+          "description": "Optionally expand the response to include additional data.\u003cbr\u003e `stats` - Calculates and returns the active subscriber count for this condition set synchronously."
+        }
+      ]
+    },
+    {
+      "name": "custom-fields_create",
+      "description": "Create custom field \u003cBadge intent='info' minimal outlined\u003eOAuth Scope: custom_fields:write\u003c/Badge\u003e. Required: publicationId, display, kind. Returns the new CustomFieldResponse.",
+      "method": "POST",
+      "path": "/publications/{publicationId}/custom_fields",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "display",
+          "type": "string",
+          "location": "body",
+          "description": "Display",
+          "required": true
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "The type of value being stored in the custom field.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "custom-fields_delete",
+      "description": "Delete custom field \u003cBadge intent='info' minimal outlined\u003eOAuth Scope: custom_fields:write\u003c/Badge\u003e. Required: publicationId, id. Returns the CustomFieldsDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/publications/{publicationId}/custom_fields/{id}",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the Custom Fields object",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "custom-fields_index",
+      "description": "List custom fields \u003cBadge intent='info' minimal outlined\u003eOAuth Scope: custom_fields:read\u003c/Badge\u003e. Required: publicationId. Returns array of CustomFieldInfo.",
+      "method": "GET",
+      "path": "/publications/{publicationId}/custom_fields",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "custom-fields_patch",
+      "description": "Update custom field \u003cBadge intent='info' minimal outlined\u003eOAuth Scope: custom_fields:write\u003c/Badge\u003e. Required: publicationId, id. Optional: display. Returns the updated CustomFieldsPatchResponse.",
+      "method": "PATCH",
+      "path": "/publications/{publicationId}/custom_fields/{id}",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the Custom Fields object",
+          "required": true
+        },
+        {
+          "name": "display",
+          "type": "string",
+          "location": "body",
+          "description": "Display"
+        }
+      ]
+    },
+    {
+      "name": "custom-fields_put",
+      "description": "Update custom field \u003cBadge intent='info' minimal outlined\u003eOAuth Scope: custom_fields:write\u003c/Badge\u003e. Required: publicationId, id. Optional: display. Returns the updated CustomFieldResponse.",
+      "method": "PUT",
+      "path": "/publications/{publicationId}/custom_fields/{id}",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the Custom Fields object",
+          "required": true
+        },
+        {
+          "name": "display",
+          "type": "string",
+          "location": "body",
+          "description": "Display"
+        }
+      ]
+    },
+    {
+      "name": "custom-fields_show",
+      "description": "Get custom field \u003cBadge intent='info' minimal outlined\u003eOAuth Scope: custom_fields:read\u003c/Badge\u003e. Required: publicationId, id. Returns the CustomFieldResponse.",
+      "method": "GET",
+      "path": "/publications/{publicationId}/custom_fields/{id}",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the Custom Fields object",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "data-privacy_data-deletion-create",
+      "description": "\u003cWarning\u003eThis is a gated feature that requires enablement. Contact support to enable Data Deletion API access for your organization.\u003c/Warning\u003e Creates a data deletion request for a subscriber within your organization. The subscriber's data will be redacted from all publications in the organization after a 14-day safety delay. This action cannot be undone once processing begins. Required: publicationId, email. Returns the new DataDeletionRequestResponse.",
+      "method": "POST",
+      "path": "/publications/{publicationId}/data_privacy/deletion_requests",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "The email address of the subscriber to delete.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "data-privacy_data-deletion-index",
+      "description": "\u003cWarning\u003eThis is a gated feature that requires enablement. Contact support to enable Data Deletion API access for your organization.\u003c/Warning\u003e List all data deletion requests for your organization. Required: publicationId. Returns array of DataDeletionRequestInfo.",
+      "method": "GET",
+      "path": "/publications/{publicationId}/data_privacy/deletion_requests",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "data-privacy_data-deletion-show",
+      "description": "\u003cWarning\u003eThis is a gated feature that requires enablement. Contact support to enable Data Deletion API access for your organization.\u003c/Warning\u003e Retrieve the details and current status of a specific data deletion request. Required: publicationId, id. Returns the DataDeletionRequestResponse.",
+      "method": "GET",
+      "path": "/publications/{publicationId}/data_privacy/deletion_requests/{id}",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the data deletion request",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "email-blasts_index",
+      "description": "List email blasts \u003cBadge intent='info' minimal outlined\u003eOAuth Scope: posts:read\u003c/Badge\u003e. Required: publicationId. Optional: expand[], status, limit (plus 3 more). Returns array of EmailBlast.",
+      "method": "GET",
+      "path": "/publications/{publicationId}/email_blasts",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "expand[]",
+          "type": "array",
+          "location": "query",
+          "description": "Optional list of expandable objects."
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Optionally filter the results by the status of the email blast. Defaults to active."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "A limit on the number of objects to be returned."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination returns the results in pages. Each page contains the number of results specified by the `limit` (default: 10). If not specified, results 1-10 from page 1 will be returned."
+        },
+        {
+          "name": "order_by",
+          "type": "string",
+          "location": "query",
+          "description": "The field that the results are sorted by. Defaults to created."
+        },
+        {
+          "name": "direction",
+          "type": "string",
+          "location": "query",
+          "description": "The direction that the results are sorted in. Defaults to desc."
+        }
+      ]
+    },
+    {
+      "name": "email-blasts_show",
+      "description": "Get email blast \u003cBadge intent='info' minimal outlined\u003eOAuth Scope: posts:read\u003c/Badge\u003e. Required: publicationId, emailBlastId. Optional: expand[]. Returns the EmailBlastsGetResponse.",
+      "method": "GET",
+      "path": "/publications/{publicationId}/email_blasts/{emailBlastId}",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "emailBlastId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the email blast object",
+          "required": true
+        },
+        {
+          "name": "expand[]",
+          "type": "array",
+          "location": "query",
+          "description": "Optional list of expandable objects."
+        }
+      ]
+    },
+    {
+      "name": "engagements_index",
+      "description": "Retrieve email engagement metrics for a specific publication over a defined date range and granularity.\u003cbr\u003e\u003cbr\u003e By default, the endpoint returns metrics for the past day, aggregated daily. The max number of days allowed is 31. All dates and times are in UTC. Required: publicationId. Optional: start_date, number_of_days, granularity (plus 2 more).",
+      "method": "GET",
+      "path": "/publications/{publicationId}/engagements",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "Publication id",
+          "required": true
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "The starting date for the engagement metrics in `YYYY-MM-DD` format. Defaults to 1 day ago if not provided."
+        },
+        {
+          "name": "number_of_days",
+          "type": "int",
+          "location": "query",
+          "description": "The number of days to return engagement metrics for, starting from `start_date`. Must be between 1 and 31. Defaults to `1` if not provided."
+        },
+        {
+          "name": "granularity",
+          "type": "string",
+          "location": "query",
+          "description": "The granularity at which to report the engagement metrics. Defaults to `day` if not provided."
+        },
+        {
+          "name": "email_type",
+          "type": "string",
+          "location": "query",
+          "description": "Filter engagement metrics by email type. If omitted, all email engagement is included.\u003cbr\u003e `post`: Only post emails.\u003cbr\u003e `message`: Only automated and system-generated emails."
+        },
+        {
+          "name": "direction",
+          "type": "string",
+          "location": "query",
+          "description": "The direction that the results are sorted in. Defaults to `asc`.\u003cbr\u003e `asc`: Oldest to newest\u003cbr\u003e `desc`: Newest to oldest"
+        }
+      ]
+    },
+    {
+      "name": "newsletter-lists_index",
+      "description": "\u003cNote title='Currently in beta' icon='b'\u003e Newsletter Lists is currently in beta, the API is subject to change. \u003c/Note\u003e List all newsletter lists for a publication. Required: publicationId. Optional: limit, page, direction. Returns array of NewsletterListInfo.",
+      "method": "GET",
+      "path": "/publications/{publicationId}/newsletter_lists",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "A limit on the number of objects to be returned."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination returns the results in pages."
+        },
+        {
+          "name": "direction",
+          "type": "string",
+          "location": "query",
+          "description": "The direction that the results are sorted in."
+        }
+      ]
+    },
+    {
+      "name": "newsletter-lists_show",
+      "description": "\u003cNote title='Currently in beta' icon='b'\u003e Newsletter Lists is currently in beta, the API is subject to change. \u003c/Note\u003e Retrieve a single newsletter list belonging to a specific publication. Required: publicationId, newsletterListId. Returns the NewsletterListResponse.",
+      "method": "GET",
+      "path": "/publications/{publicationId}/newsletter_lists/{newsletterListId}",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "newsletterListId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the newsletter list object",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "newsletter-lists_subscriptions_newsletter-list-create",
+      "description": "\u003cNote title='Currently in beta' icon='b'\u003e Newsletter Lists is currently in beta, the API is subject to change. \u003c/Note\u003e Subscribe a subscription to a newsletter list. Accepts either a subscription_id or email to identify the subscription. Required: publicationId, newsletterListId. Optional: email, subscription_id. Returns the new NewsletterListSubscriptionResponse.",
+      "method": "POST",
+      "path": "/publications/{publicationId}/newsletter_lists/{newsletterListId}/subscriptions",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "newsletterListId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the newsletter list object",
+          "required": true
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "The email address of the subscription to subscribe. Either subscription_id or email must be provided."
+        },
+        {
+          "name": "subscription_id",
+          "type": "string",
+          "location": "body",
+          "description": "The prefixed ID of the subscription."
+        }
+      ]
+    },
+    {
+      "name": "newsletter-lists_subscriptions_newsletter-list-index",
+      "description": "List newsletter list subscriptions \u003cBadge intent='warning' minimal outlined\u003eBeta\u003c/Badge\u003e \u003cBadge intent='info' minimal outlined\u003eOAuth Scope: newsletter_lists:read\u003c/Badge\u003e. Required: publicationId, newsletterListId. Optional: limit, cursor, page (plus 1 more). Returns array of NewsletterListSubscriptionInfo.",
+      "method": "GET",
+      "path": "/publications/{publicationId}/newsletter_lists/{newsletterListId}/subscriptions",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "newsletterListId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the newsletter list object",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "A limit on the number of objects to be returned."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "**Cursor-based pagination (recommended)**: Use this opaque cursor token to fetch the next..."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "**Offset-based pagination (deprecated)**: Page number for offset-based pagination."
+        },
+        {
+          "name": "direction",
+          "type": "string",
+          "location": "query",
+          "description": "The direction that the results are sorted in."
+        }
+      ]
+    },
+    {
+      "name": "newsletter-lists_subscriptions_newsletter-list-show",
+      "description": "\u003cNote title='Currently in beta' icon='b'\u003e Newsletter Lists is currently in beta, the API is subject to change. \u003c/Note\u003e Retrieve a single newsletter list subscription. Required: publicationId, newsletterListId, newsletterListSubscriptionId. Returns the NewsletterListSubscriptionResponse.",
+      "method": "GET",
+      "path": "/publications/{publicationId}/newsletter_lists/{newsletterListId}/subscriptions/{newsletterListSubscriptionId}",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "newsletterListId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the newsletter list object",
+          "required": true
+        },
+        {
+          "name": "newsletterListSubscriptionId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the newsletter list subscription object",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "newsletter-lists_subscriptions_newsletter-list-update",
+      "description": "\u003cNote title='Currently in beta' icon='b'\u003e Newsletter Lists is currently in beta, the API is subject to change. \u003c/Note\u003e Update a newsletter list subscription. Currently supports unsubscribing a subscription from a newsletter list. Required: publicationId, newsletterListId, newsletterListSubscriptionId. Optional: unsubscribe. Returns the updated NewsletterListSubscriptionResponse.",
+      "method": "PATCH",
+      "path": "/publications/{publicationId}/newsletter_lists/{newsletterListId}/subscriptions/{newsletterListSubscriptionId}",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "newsletterListId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the newsletter list object",
+          "required": true
+        },
+        {
+          "name": "newsletterListSubscriptionId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the newsletter list subscription object",
+          "required": true
+        },
+        {
+          "name": "unsubscribe",
+          "type": "bool",
+          "location": "body",
+          "description": "Set to true to unsubscribe the subscription from this newsletter list."
+        }
+      ]
+    },
+    {
+      "name": "newsletter-lists_subscriptions_newsletter-list-update-by-id",
+      "description": "\u003cNote title='Currently in beta' icon='b'\u003e Newsletter Lists is currently in beta, the API is subject to change. \u003c/Note\u003e Update a newsletter list subscription by subscription ID. An alternative to the update endpoint when you don't have the newsletter list subscription ID. Accepts either a subscription_id or email to identify the subscription. Currently supports unsubscribing a subscription from a newsletter list. Required: publicationId, newsletterListId, subscriptionId. Optional: unsubscribe. Returns the updated NewsletterListSubscriptionResponse.",
+      "method": "PATCH",
+      "path": "/publications/{publicationId}/newsletter_lists/{newsletterListId}/subscriptions/by_subscription_id/{subscriptionId}",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "newsletterListId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the newsletter list object",
+          "required": true
+        },
+        {
+          "name": "subscriptionId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the subscription",
+          "required": true
+        },
+        {
+          "name": "unsubscribe",
+          "type": "bool",
+          "location": "body",
+          "description": "Set to true to unsubscribe the subscription from this newsletter list."
+        }
+      ]
+    },
+    {
+      "name": "polls_index",
+      "description": "Retrieve all polls belonging to a specific publication. Poll choices are always included. Use `expand[]=stats` to include aggregate vote counts per choice. Required: publicationId. Optional: limit, cursor, page (plus 4 more). Returns array of Poll.",
+      "method": "GET",
+      "path": "/publications/{publicationId}/polls",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "A limit on the number of objects to be returned."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "**Cursor-based pagination (recommended)**: Use this opaque cursor token to fetch the next..."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "**Offset-based pagination (deprecated)**: Page number for offset-based pagination."
+        },
+        {
+          "name": "order_by",
+          "type": "string",
+          "location": "query",
+          "description": "The field that the results are sorted by. Defaults to created.\u003cbr\u003e `created` - The time the poll was created.\u003cbr\u003e `name` - The name of the poll."
+        },
+        {
+          "name": "direction",
+          "type": "string",
+          "location": "query",
+          "description": "The direction that the results are sorted in. Defaults to asc.\u003cbr\u003e `asc` - Ascending, sorts from smallest to largest.\u003cbr\u003e `desc` - Descending, sorts from largest to smallest."
+        },
+        {
+          "name": "expand[]",
+          "type": "array",
+          "location": "query",
+          "description": "Optionally expand the response to include additional data.\u003cbr\u003e `stats` - Returns aggregate vote counts per choice and total completions.\u003cbr\u003e `poll_responses` - Returns up to 10 most recent subscriber responses. Use /polls/{pollId}/responses for paginated access to all responses.\u003cbr\u003e `trivia_answer` - Returns the correct answer for trivia-type polls."
+        },
+        {
+          "name": "post_id",
+          "type": "string",
+          "location": "query",
+          "description": "Filter to only return polls that were embedded in the specified post. Accepts a prefixed post ID (e.g. `post_abc123`)."
+        }
+      ]
+    },
+    {
+      "name": "polls_show",
+      "description": "Retrieve detailed information about a specific poll belonging to a publication. Use `expand[]=stats` for aggregate vote counts, or `expand[]=poll_responses` for individual subscriber responses. Required: publicationId, pollId. Optional: expand[]. Returns the PollShowResponse.",
+      "method": "GET",
+      "path": "/publications/{publicationId}/polls/{pollId}",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "pollId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the poll object",
+          "required": true
+        },
+        {
+          "name": "expand[]",
+          "type": "array",
+          "location": "query",
+          "description": "Optionally expand the response to include additional data.\u003cbr\u003e `stats` - Returns aggregate vote counts per choice and total completions.\u003cbr\u003e `poll_responses` - Returns up to 10 most recent subscriber responses. Use /polls/{pollId}/responses for paginated access to all responses.\u003cbr\u003e `trivia_answer` - Returns the correct answer for trivia-type polls."
+        }
+      ]
+    },
+    {
+      "name": "polls_responses_polls-list",
+      "description": "Retrieve all individual subscriber responses for a specific poll with cursor-based pagination. Use this endpoint for large datasets instead of the `expand[]=poll_responses` parameter on the poll show endpoint. Required: publicationId, pollId. Optional: limit, cursor, page (plus 4 more). Returns array of PollResponseItem.",
+      "method": "GET",
+      "path": "/publications/{publicationId}/polls/{pollId}/responses",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "pollId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the poll object",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "A limit on the number of objects to be returned."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "**Cursor-based pagination (recommended)**: Use this opaque cursor token to fetch the next page of results."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "**Offset-based pagination (deprecated)**: Page number for offset-based pagination."
+        },
+        {
+          "name": "order_by",
+          "type": "string",
+          "location": "query",
+          "description": "The field that the results are sorted by. Defaults to created."
+        },
+        {
+          "name": "direction",
+          "type": "string",
+          "location": "query",
+          "description": "The direction that the results are sorted in. Defaults to asc.\u003cbr\u003e `asc` - Ascending, sorts from smallest to largest.\u003cbr\u003e `desc` - Descending, sorts from largest to smallest."
+        },
+        {
+          "name": "expand[]",
+          "type": "array",
+          "location": "query",
+          "description": "Optionally expand the response to include additional data.\u003cbr\u003e `post` - Returns the post title and publication date for the post where each response was collected."
+        },
+        {
+          "name": "post_id",
+          "type": "string",
+          "location": "query",
+          "description": "Filter to only return responses collected via the specified post. Accepts a prefixed post ID (e.g. `post_abc123`)."
+        }
+      ]
+    },
+    {
+      "name": "post-templates_index",
+      "description": "Retrieve a list of post templates available for the publication. Required: publicationId. Optional: limit, page, order (plus 1 more). Returns array of PostTemplate.",
+      "method": "GET",
+      "path": "/publications/{publicationId}/post_templates",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "A limit on the number of objects to be returned."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination returns the results in pages."
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "The direction of the request. Defaults to `asc`."
+        },
+        {
+          "name": "order_by",
+          "type": "string",
+          "location": "query",
+          "description": "The field to order by. Defaults to `created`."
+        }
+      ]
+    },
+    {
+      "name": "posts_aggregate-stats",
+      "description": "Get aggregate stats \u003cBadge intent='info' minimal outlined\u003eOAuth Scope: posts:read\u003c/Badge\u003e. Required: publicationId. Optional: audience, platform, status (plus 3 more). Returns the PostsAggregateStatsResponse.",
+      "method": "GET",
+      "path": "/publications/{publicationId}/posts/aggregate_stats",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "audience",
+          "type": "string",
+          "location": "query",
+          "description": "Optionally filter the results by audience"
+        },
+        {
+          "name": "platform",
+          "type": "string",
+          "location": "query",
+          "description": "Optionally filter the results by platform.\u003cbr\u003e`web` - Posts only published to web.\u003cbr\u003e`email` - Posts only published to email.\u003cbr\u003e`both` - Posts published to email and web.\u003cbr\u003e`all` - Does not restrict results by platform."
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Optionally filter the results by the status of the post.\u003cbr\u003e`draft` - not been scheduled.\u003cbr\u003e`confirmed` - The post will be active after the `scheduled_at`.\u003cbr\u003e`archived` - The post is no longer active.\u003cbr\u003e`all` - Does not restrict results by status."
+        },
+        {
+          "name": "content_tags[]",
+          "type": "array",
+          "location": "query",
+          "description": "Optionally filter posts by content_tags. Adding a content tag will return any post with that content tag associated to it.\u003cbr\u003eExample: Filtering for `content_tags: ['sales','closing']` will return results of posts that have *either* sales or closing content_tags."
+        },
+        {
+          "name": "authors[]",
+          "type": "array",
+          "location": "query",
+          "description": "Optionally filter posts by their authors. Adding an author name will return any post with that author associated to it (case-insensitive).\u003cbr\u003e\u003cbr\u003e\u003cb\u003eExample:\u003c/b\u003e Filtering for `authors: ['John Doe','Jane Smith']` will return results of posts that have *either* John Doe or Jane Smith as authors."
+        },
+        {
+          "name": "hidden_from_feed",
+          "type": "string",
+          "location": "query",
+          "description": "Optionally filter the results by the `hidden_from_feed` attribute of the post.\u003cbr\u003e`all` - Does not restrict results by `hidden_from_feed`.\u003cbr\u003e`true` - Only return posts hidden from the feed.\u003cbr\u003e`false` - Only return posts that are visible on the feed."
+        }
+      ]
+    },
+    {
+      "name": "posts_create",
+      "description": "\u003cNote title='Currently in beta' icon='b'\u003e This feature is currently in beta, the API is subject to change, and available only to Enterprise users.\u003cbr/\u003e\u003cbr/\u003eTo inquire about Enterprise pricing, please visit our \u003ca href='https://www.beehiiv.com/enterprise'\u003eEnterprise page\u003c/a\u003e. \u003c/Note\u003e Create a post for a specific publication. For a detailed walkthrough including setup, testing workflows, and working with custom HTML and templates, see the \u003ca href='https://www.beehiiv.com/support/article/36759164012439-using-the-send-api-and-create-post-endpoint'\u003eUsing the Send API and Create Post Endpoint\u003c/a\u003e guide. ## Content methods There are three ways to provide content for a post. You must provide either `blocks` or `body_content`, but not both. ### 1. Blocks Use the `blocks` field to build your post with structured content blocks such as paragraphs, images, headings, buttons, tables, and more. Each block has a `type` and its own set of properties. This method gives you fine-grained control over individual content elements and supports features like visual settings, visibility settings, and dynamic content targeting. ### 2. Raw HTML (`body_content`) Use the `body_content` field to provide a single string of raw HTML. The HTML is wrapped in an `htmlSnippet` block internally. This is useful when you have pre-built HTML content or are migrating from another platform. ### 3. HTML blocks within blocks Use `type: html` blocks inside the `blocks` array to embed raw HTML snippets alongside other structured blocks. This lets you mix structured content (paragraphs, images, etc.) with custom HTML where needed. ## CSS and styling guardrails beehiiv processes all HTML content through a sanitization pipeline. When using `body_content` or `html` blocks, be aware of the following: - **`\u003cstyle\u003e` tags are removed.** All `\u003cstyle\u003e` block elements are stripped during sanitization. Do not rely on embedded stylesheets. - **`\u003clink\u003e` tags are removed.** External stylesheet references are not allowed. - **Inline styles are preserved.** Styles applied directly to elements via the `style` attribute (e.g., `\u003cdiv style='color: red;'\u003e`) are kept intact. - **CSS classes have no effect.** While class attributes are not stripped, no corresponding stylesheets are loaded to apply them. - **beehiiv's email template wraps your content.** Your HTML is rendered inside beehiiv's email table structure, which applies its own layout and spacing. This may affect the appearance of your content. - **Use inline styles for all visual styling.** Since `\u003cstyle\u003e` and `\u003clink\u003e` tags are removed, inline styles on individual elements are the only reliable way to control appearance. Required: publicationId, title. Optional: blocks, body_content, content_tags (plus 16 more). Returns the new PostsCreateResponse.",
+      "method": "POST",
+      "path": "/publications/{publicationId}/posts",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "blocks",
+          "type": "array",
+          "location": "body",
+          "description": "The structured content blocks that make up the post. Supports block types such as paragraph, image, heading, button, html, table, list, columns, and more. You can embed raw HTML snippets within blocks using the `html` block type. Either this field OR the `body_content` field must be provided."
+        },
+        {
+          "name": "body_content",
+          "type": "string",
+          "location": "body",
+          "description": "The content of the post as a single raw HTML string. The HTML is wrapped in an `htmlSnippet` block internally. Note that `\u003cstyle\u003e` and `\u003clink\u003e` tags are removed during sanitization — use inline styles for all visual styling. Either this field OR the `blocks` field must be provided."
+        },
+        {
+          "name": "content_tags",
+          "type": "array",
+          "location": "body",
+          "description": "The content tags to use for this post. If not provided, the default value will be used."
+        },
+        {
+          "name": "custom_fields",
+          "type": "object",
+          "location": "body",
+          "description": "The custom fields to use for this post. If not provided, the default value will be used."
+        },
+        {
+          "name": "custom_link_tracking_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "If true, custom link tracking will be enabled for this post. If not provided, the default value will be used."
+        },
+        {
+          "name": "email_capture_type_override",
+          "type": "string",
+          "location": "body",
+          "description": "Email capture type override"
+        },
+        {
+          "name": "email_settings",
+          "type": "object",
+          "location": "body",
+          "description": "Email settings"
+        },
+        {
+          "name": "headers",
+          "type": "object",
+          "location": "body",
+          "description": "The headers to use for this post. If not provided, the default value will be used."
+        },
+        {
+          "name": "newsletter_list_id",
+          "type": "string",
+          "location": "body",
+          "description": "The prefixed ID of the newsletter list to associate with this post. When provided, the post will only be sent to subscribers of this list. \u003cBadge intent='warning' minimal outlined\u003eBeta\u003c/Badge\u003e"
+        },
+        {
+          "name": "override_scheduled_at",
+          "type": "string",
+          "location": "body",
+          "description": "If you wish to display a date other than the scheduled_at date in the email, you can provide a date here. This will not affect the actual publish date of the post."
+        },
+        {
+          "name": "post_template_id",
+          "type": "string",
+          "location": "body",
+          "description": "The prefixed ID of the post template."
+        },
+        {
+          "name": "recipients",
+          "type": "object",
+          "location": "body",
+          "description": "Controls who receives the post. If omitted entirely, defaults to free tier only on both web and email. If a channel key (web or email) is provided but empty, no targets are created for that channel — omit the key to skip a channel."
+        },
+        {
+          "name": "scheduled_at",
+          "type": "string",
+          "location": "body",
+          "description": "The time in which the post will be published. If not provided, the post will be published immediately unless `status` is set to `draft`. A draft post cannot be scheduled."
+        },
+        {
+          "name": "seo_settings",
+          "type": "object",
+          "location": "body",
+          "description": "Seo settings"
+        },
+        {
+          "name": "social_share",
+          "type": "string",
+          "location": "body",
+          "description": "Social share"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Status"
+        },
+        {
+          "name": "subtitle",
+          "type": "string",
+          "location": "body",
+          "description": "The subtitle of the post."
+        },
+        {
+          "name": "thumbnail_image_url",
+          "type": "string",
+          "location": "body",
+          "description": "The URL of the thumbnail image to use for the post. If not provided, the default value will be used."
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "The title of the post.",
+          "required": true
+        },
+        {
+          "name": "web_settings",
+          "type": "object",
+          "location": "body",
+          "description": "Web settings"
+        }
+      ]
+    },
+    {
+      "name": "posts_delete",
+      "description": "Delete or Archive a post. Any post that has been confirmed will have it's status changed to `archived`. Posts in the `draft` status will be permanently deleted. Required: publicationId, postId. Returns the PostsDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/publications/{publicationId}/posts/{postId}",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "postId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the post object",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "posts_index",
+      "description": "List posts \u003cBadge intent='info' minimal outlined\u003eOAuth Scope: posts:read\u003c/Badge\u003e. Required: publicationId. Optional: expand, audience, platform (plus 10 more). Returns array of Post.",
+      "method": "GET",
+      "path": "/publications/{publicationId}/posts",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "expand",
+          "type": "array",
+          "location": "query",
+          "description": "Optionally expand the results by adding additional information. \u003cbr\u003e`stats` - Adds statistics about the post(s). \u003cbr\u003e`free_web_content` - Adds the web HTML rendered to a free reader. \u003cbr\u003e`free_email_content` - Adds the email HTML rendered to a free reader. \u003cbr\u003e`free_rss_content` - Adds the RSS feed HTML. \u003cbr\u003e`premium_web_content` - Adds the web HTML rendered to a premium reader. \u003cbr\u003e`premium_email_content` - Adds the email HTML rendered to a premium reader."
+        },
+        {
+          "name": "audience",
+          "type": "string",
+          "location": "query",
+          "description": "Optionally filter the results by audience"
+        },
+        {
+          "name": "platform",
+          "type": "string",
+          "location": "query",
+          "description": "Optionally filter the results by platform.\u003cbr\u003e`web` - Posts only published to web.\u003cbr\u003e`email` - Posts only published to email.\u003cbr\u003e`both` - Posts published to email and web.\u003cbr\u003e`all` - Does not restrict results by platform."
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Optionally filter the results by the status of the post.\u003cbr\u003e`draft` - not been scheduled.\u003cbr\u003e`confirmed` - The post will be active after the `scheduled_at`.\u003cbr\u003e`archived` - The post is no longer active.\u003cbr\u003e`all` - Does not restrict results by status."
+        },
+        {
+          "name": "content_tags[]",
+          "type": "array",
+          "location": "query",
+          "description": "Optionally filter posts by content_tags. Adding a content tag will return any post with that content tag associated to it.\u003cbr\u003e\u003cbr\u003e\u003cb\u003eExample\u003c/b\u003e: Filtering for `content_tags: ['sales','closing']` will return results of posts that have *either* `sales` or `closing` content_tags."
+        },
+        {
+          "name": "slugs[]",
+          "type": "array",
+          "location": "query",
+          "description": "Optionally filter posts by their slugs. Adding a slug will return any post with that exact slug associated to it.\u003cbr\u003e\u003cbr\u003e\u003cb\u003eExample:\u003c/b\u003e Filtering for `slugs: ['my-first-post','another-post']` will return results of posts that have *either* `my-first-post` or `another-post` as their slug."
+        },
+        {
+          "name": "authors[]",
+          "type": "array",
+          "location": "query",
+          "description": "Optionally filter posts by their authors. Adding an author name will return any post with that author associated to it (case-insensitive).\u003cbr\u003e\u003cbr\u003e\u003cb\u003eExample:\u003c/b\u003e Filtering for `authors: ['John Doe','Jane Smith']` will return results of posts that have *either* John Doe or Jane Smith as authors."
+        },
+        {
+          "name": "premium_tiers",
+          "type": "array",
+          "location": "query",
+          "description": "Optionally filter posts by audience based on premium tiers.\u003cbr\u003e This takes in an array of Display Names of the premium tiers.\u003cbr\u003e It will also scope any expanded content output to the specified premium tiers.\u003cbr\u003e Note: This is case insensitive."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "A limit on the number of objects to be returned."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination returns the results in pages."
+        },
+        {
+          "name": "order_by",
+          "type": "string",
+          "location": "query",
+          "description": "The field that the results are sorted by. Defaults to created\u003cbr\u003e `created` - The time in which the post was first created.\u003cbr\u003e `publish_date` - The time the post was set to be published.\u003cbr\u003e `displayed_date` - The time displayed in place of the `publish_date`. If no `displayed_date` was set, it will default to the `publish_date`"
+        },
+        {
+          "name": "direction",
+          "type": "string",
+          "location": "query",
+          "description": "The direction that the results are sorted in."
+        },
+        {
+          "name": "hidden_from_feed",
+          "type": "string",
+          "location": "query",
+          "description": "Optionally filter the results by the `hidden_from_feed` attribute of the post.\u003cbr\u003e`all` - Does not restrict results by `hidden_from_feed`.\u003cbr\u003e`true` - Only return posts hidden from the feed.\u003cbr\u003e`false` - Only return posts that are visible on the feed."
+        }
+      ]
+    },
+    {
+      "name": "posts_show",
+      "description": "Get post \u003cBadge intent='info' minimal outlined\u003eOAuth Scope: posts:read\u003c/Badge\u003e. Required: publicationId, postId. Optional: expand, premium_tiers. Returns the PostsGetResponse.",
+      "method": "GET",
+      "path": "/publications/{publicationId}/posts/{postId}",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "postId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the post object",
+          "required": true
+        },
+        {
+          "name": "expand",
+          "type": "array",
+          "location": "query",
+          "description": "Optionally expand the results by adding additional information. \u003cbr\u003e`stats` - Adds statistics about the post(s). \u003cbr\u003e`free_web_content` - Adds the web HTML rendered to a free reader. \u003cbr\u003e`free_email_content` - Adds the email HTML rendered to a free reader. \u003cbr\u003e`free_rss_content` - Adds the RSS feed HTML. \u003cbr\u003e`premium_web_content` - Adds the web HTML rendered to a premium reader. \u003cbr\u003e`premium_email_content` - Adds the email HTML rendered to a premium reader."
+        },
+        {
+          "name": "premium_tiers",
+          "type": "array",
+          "location": "query",
+          "description": "Scope any expanded content output to the specified premium tiers.\u003cbr\u003e This takes in an array of Display Names of the premium tiers.\u003cbr\u003e Note: This is case insensitive."
+        }
+      ]
+    },
+    {
+      "name": "posts_update",
+      "description": "\u003cNote title='Currently in beta' icon='b'\u003e This feature is currently in beta, the API is subject to change, and available only to Enterprise users.\u003cbr/\u003e\u003cbr/\u003eTo inquire about Enterprise pricing, please visit our \u003ca href='https://www.beehiiv.com/enterprise'\u003eEnterprise page\u003c/a\u003e. \u003c/Note\u003e Update an existing post for a specific publication. Only the fields provided in the request body will be updated — all other fields remain unchanged. For a detailed walkthrough of content methods and working with custom HTML, see the \u003ca href='https://www.beehiiv.com/support/article/36759164012439-using-the-send-api-and-create-post-endpoint'\u003eUsing the Send API and Create Post Endpoint\u003c/a\u003e guide. To update post content, provide either `blocks` or `body_content` (not both). If neither is provided, the existing content is preserved. The same content methods and CSS guardrails described in the create endpoint apply here. Required: publicationId, postId. Optional: blocks, body_content, content_tags (plus 11 more). Returns the updated PostsGetResponse.",
+      "method": "PATCH",
+      "path": "/publications/{publicationId}/posts/{postId}",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "postId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the post to update",
+          "required": true
+        },
+        {
+          "name": "blocks",
+          "type": "array",
+          "location": "body",
+          "description": "The structured content blocks to replace the post's current content. Supports block types such as paragraph, image, heading, button, html, table, list, columns, and more. Cannot be provided together with `body_content`."
+        },
+        {
+          "name": "body_content",
+          "type": "string",
+          "location": "body",
+          "description": "Raw HTML to replace the post's current content. The HTML is wrapped in an `htmlSnippet` block internally. Note that `\u003cstyle\u003e` and `\u003clink\u003e` tags are removed during sanitization — use inline styles for all visual styling. Cannot be provided together with `blocks`."
+        },
+        {
+          "name": "content_tags",
+          "type": "array",
+          "location": "body",
+          "description": "The content tags for this post. When provided, this replaces all existing content tags on the post."
+        },
+        {
+          "name": "custom_link_tracking_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "If true, custom link tracking will be enabled for this post."
+        },
+        {
+          "name": "email_capture_type_override",
+          "type": "string",
+          "location": "body",
+          "description": "Email capture type override"
+        },
+        {
+          "name": "email_settings",
+          "type": "object",
+          "location": "body",
+          "description": "Email settings"
+        },
+        {
+          "name": "override_scheduled_at",
+          "type": "string",
+          "location": "body",
+          "description": "A display date that overrides the scheduled_at date shown in the email. Does not affect the actual publish date."
+        },
+        {
+          "name": "scheduled_at",
+          "type": "string",
+          "location": "body",
+          "description": "The time at which the post will be published. Cannot be updated after the post has already been sent."
+        },
+        {
+          "name": "seo_settings",
+          "type": "object",
+          "location": "body",
+          "description": "Seo settings"
+        },
+        {
+          "name": "social_share",
+          "type": "string",
+          "location": "body",
+          "description": "Social share"
+        },
+        {
+          "name": "subtitle",
+          "type": "string",
+          "location": "body",
+          "description": "The subtitle of the post."
+        },
+        {
+          "name": "thumbnail_image_url",
+          "type": "string",
+          "location": "body",
+          "description": "The URL of the thumbnail image to use for the post."
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "The title of the post."
+        },
+        {
+          "name": "web_settings",
+          "type": "object",
+          "location": "body",
+          "description": "Web settings"
+        }
+      ]
+    },
+    {
+      "name": "publications_index",
+      "description": "List publications \u003cBadge intent='info' minimal outlined\u003eOAuth Scope: publications:read\u003c/Badge\u003e. Optional: expand, limit, page (plus 2 more). Returns array of Publication.",
+      "method": "GET",
+      "path": "/publications",
+      "params": [
+        {
+          "name": "expand",
+          "type": "array",
+          "location": "query",
+          "description": "Optionally expand the results by adding additional information like subscription counts and engagement stats."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "A limit on the number of objects to be returned."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination returns the results in pages."
+        },
+        {
+          "name": "direction",
+          "type": "string",
+          "location": "query",
+          "description": "The direction that the results are sorted in."
+        },
+        {
+          "name": "order_by",
+          "type": "string",
+          "location": "query",
+          "description": "The field that the results are sorted by. Defaults to created\u003cbr\u003e `created` - The time in which the publication was first created.\u003cbr\u003e `name` - The name of the publication."
+        }
+      ]
+    },
+    {
+      "name": "publications_show",
+      "description": "Get publication \u003cBadge intent='info' minimal outlined\u003eOAuth Scope: publications:read\u003c/Badge\u003e. Required: publicationId. Optional: expand. Returns the PublicationsGetResponse.",
+      "method": "GET",
+      "path": "/publications/{publicationId}",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "expand",
+          "type": "array",
+          "location": "query",
+          "description": "Optionally expand the results by adding additional information like subscription counts and engagement stats."
+        }
+      ]
+    },
+    {
+      "name": "referral-program_show",
+      "description": "Get referral program \u003cBadge intent='info' minimal outlined\u003eOAuth Scope: referral_program:read\u003c/Badge\u003e. Required: publicationId. Optional: limit, page. Returns array of Milestone.",
+      "method": "GET",
+      "path": "/publications/{publicationId}/referral_program",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "A limit on the number of objects to be returned."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination returns the results in pages."
+        }
+      ]
+    },
+    {
+      "name": "segments_create",
+      "description": "Create a new segment.\u003cbr\u003e\u003cbr\u003e **Manual segments** — Use `subscriptions` or `emails` input to create a segment from an explicit list of subscription IDs or email addresses. The segment is processed synchronously and returns with `status: completed`. Net new email addresses will be ignored; create subscriptions using the `Create Subscription` endpoint.\u003cbr\u003e\u003cbr\u003e **Dynamic segments** — Use `custom_fields` input to create a segment that filters subscribers by custom field values. The segment is processed asynchronously and returns with `status: pending`. Results will be available in the `List Segment Subscribers` endpoint after processing is complete. Required: publicationId, input, name.",
+      "method": "POST",
+      "path": "/publications/{publicationId}/segments",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "input",
+          "type": "string",
+          "location": "body",
+          "description": "Input for segment creation. Use `subscriptions` or `emails` to create a manual segment from explicit lists, or `custom_fields` to create a dynamic segment filtered by custom field values.",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "A unique name for the segment that does not already exist in the publication.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "segments_delete",
+      "description": "Delete a segment. Deleting the segment does not effect the subscriptions in the segment. Required: publicationId, segmentId. Returns the SegmentDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/publications/{publicationId}/segments/{segmentId}",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "segmentId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the segment object",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "segments_index",
+      "description": "List segments \u003cBadge intent='info' minimal outlined\u003eOAuth Scope: segments:read\u003c/Badge\u003e. Required: publicationId. Optional: type, status, limit (plus 4 more). Returns array of Segment.",
+      "method": "GET",
+      "path": "/publications/{publicationId}/segments",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Optionally filter the results by the segment's type."
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Optionally filter the results by the segment's status."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "A limit on the number of objects to be returned."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination returns the results in pages."
+        },
+        {
+          "name": "order_by",
+          "type": "string",
+          "location": "query",
+          "description": "The field that the results are sorted by. Defaults to created\u003cbr\u003e `created` - The time in which the segment was first created.\u003cbr\u003e `last_calculated` - The time that the segment last completed calculation. Measured in seconds since the Unix epoch."
+        },
+        {
+          "name": "direction",
+          "type": "string",
+          "location": "query",
+          "description": "The direction that the results are sorted in."
+        },
+        {
+          "name": "expand[]",
+          "type": "array",
+          "location": "query",
+          "description": "Optionally expand the response to include additional data. \u003cbr\u003e `stats` - Requests the most recently calculated statistics for a segment. \u003cbr\u003e Segment stats are recalculated once daily around 7 a.m. UTC for dynamic segments, but can be manually recalculated at any time in the dashboard. Manual and static segments only calculate once upon upload or creation."
+        }
+      ]
+    },
+    {
+      "name": "segments_show",
+      "description": "Get segment \u003cBadge intent='info' minimal outlined\u003eOAuth Scope: segments:read\u003c/Badge\u003e. Required: publicationId, segmentId. Optional: expand[]. Returns the SegmentShowResponse.",
+      "method": "GET",
+      "path": "/publications/{publicationId}/segments/{segmentId}",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "segmentId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the segment object",
+          "required": true
+        },
+        {
+          "name": "expand[]",
+          "type": "array",
+          "location": "query",
+          "description": "Optionally expand the response to include additional data. \u003cbr\u003e `stats` - Requests the most recently calculated statistics for a segment. \u003cbr\u003e Segment stats are recalculated once daily around 7 a.m. UTC for dynamic segments, but can be manually recalculated at any time in the dashboard. Manual and static segments only calculate once upon upload or creation."
+        }
+      ]
+    },
+    {
+      "name": "segments_members_segments-list",
+      "description": "List all members in a segment with full subscription data. Each member is returned as a subscription object containing complete subscriber information and their subscription details. Supports optional expansions for stats, custom fields, tags, referrals, and premium tiers. **Use this endpoint when you need detailed subscriber information.** If you only need subscriber IDs, use `/segments/{segmentId}/results` for a lighter-weight response. Required: publicationId, segmentId. Optional: limit, page, expand[]. Returns array of Subscription.",
+      "method": "GET",
+      "path": "/publications/{publicationId}/segments/{segmentId}/members",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "segmentId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the segment object",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "A limit on the number of objects to be returned."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination returns the results in pages."
+        },
+        {
+          "name": "expand[]",
+          "type": "array",
+          "location": "query",
+          "description": "Optionally expand the response to include additional data. \u003cbr\u003e `stats` - Returns statistics about the subscription(s). \u003cbr\u003e `custom_fields` - Returns custom field values set on the subscription. \u003cbr\u003e `referrals` - Returns referrals made by the subscription. \u003cbr\u003e `tags` - Returns tags associated with the subscription. \u003cbr\u003e `subscription_premium_tiers` - Returns premium tier(s) the subscription is subscribed to."
+        }
+      ]
+    },
+    {
+      "name": "segments_recalculate_segments",
+      "description": "Recalculate segment \u003cBadge intent='info' minimal outlined\u003eOAuth Scope: segments:write\u003c/Badge\u003e. Required: publicationId, segmentId. Returns the updated SegmentRecalculateResponse.",
+      "method": "PUT",
+      "path": "/publications/{publicationId}/segments/{segmentId}/recalculate",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "segmentId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the segment object",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "segments_results_segments-expand",
+      "description": "List subscriber IDs for a segment. Returns a lightweight array of subscription IDs only, without additional subscriber details. **Use this endpoint when you only need subscriber IDs** (e.g., for counting, ID-based lookups, or integrations with external systems). If you need full subscriber details (email, status, custom fields, etc.), use `/segments/{segmentId}/members` instead. Required: publicationId, segmentId. Optional: limit, page.",
+      "method": "GET",
+      "path": "/publications/{publicationId}/segments/{segmentId}/results",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "segmentId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the segment object",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "A limit on the number of objects to be returned."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination returns the results in pages."
+        }
+      ]
+    },
+    {
+      "name": "subscriptions_bulk-updates-patch",
+      "description": "Update subscriptions \u003cBadge intent='info' minimal outlined\u003eOAuth Scope: subscriptions:write\u003c/Badge\u003e. Required: publicationId. Optional: subscriptions. Returns the updated SubscriptionsPatchResponse.",
+      "method": "PATCH",
+      "path": "/publications/{publicationId}/subscriptions/bulk_actions",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "subscriptions",
+          "type": "array",
+          "location": "body",
+          "description": "An array of objects representing the subscriptions to be updated (max 1000)."
+        }
+      ]
+    },
+    {
+      "name": "subscriptions_bulk-updates-patch-status",
+      "description": "Update subscriptions' status \u003cBadge intent='info' minimal outlined\u003eOAuth Scope: subscriptions:write\u003c/Badge\u003e. Required: publicationId, new_status, subscription_ids. Partial update.",
+      "method": "PATCH",
+      "path": "/publications/{publicationId}/subscriptions",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "new_status",
+          "type": "string",
+          "location": "body",
+          "description": "The new status to set for the subscriptions",
+          "required": true
+        },
+        {
+          "name": "subscription_ids",
+          "type": "array",
+          "location": "body",
+          "description": "An array of subscription IDs to be updated",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "subscriptions_bulk-updates-put",
+      "description": "Update subscriptions \u003cBadge intent='info' minimal outlined\u003eOAuth Scope: subscriptions:write\u003c/Badge\u003e. Required: publicationId. Optional: subscriptions. Returns the updated SubscriptionsPatchResponse.",
+      "method": "PUT",
+      "path": "/publications/{publicationId}/subscriptions/bulk_actions",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "subscriptions",
+          "type": "array",
+          "location": "body",
+          "description": "An array of objects representing the subscriptions to be updated (max 1000)."
+        }
+      ]
+    },
+    {
+      "name": "subscriptions_bulk-updates-put-status",
+      "description": "Update subscriptions' status \u003cBadge intent='info' minimal outlined\u003eOAuth Scope: subscriptions:write\u003c/Badge\u003e. Required: publicationId, new_status, subscription_ids.",
+      "method": "PUT",
+      "path": "/publications/{publicationId}/subscriptions",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "new_status",
+          "type": "string",
+          "location": "body",
+          "description": "The new status to set for the subscriptions",
+          "required": true
+        },
+        {
+          "name": "subscription_ids",
+          "type": "array",
+          "location": "body",
+          "description": "An array of subscription IDs to be updated",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "subscriptions_create",
+      "description": "Create subscription \u003cBadge intent='info' minimal outlined\u003eOAuth Scope: subscriptions:write\u003c/Badge\u003e. Required: publicationId, email. Optional: automation_ids, custom_fields, double_opt_override (plus 15 more). Returns the new SubscriptionResponse.",
+      "method": "POST",
+      "path": "/publications/{publicationId}/subscriptions",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "automation_ids",
+          "type": "array",
+          "location": "body",
+          "description": "Enroll the subscriber into automations after their subscription has been created. Requires the automations to have an active *Add by API* trigger."
+        },
+        {
+          "name": "custom_fields",
+          "type": "array",
+          "location": "body",
+          "description": "The custom fields must already exist for the publication. Any new custom fields here will be discarded."
+        },
+        {
+          "name": "double_opt_override",
+          "type": "string",
+          "location": "body",
+          "description": "Override publication double-opt settings for this subscription."
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "The email address of the subscription.",
+          "required": true
+        },
+        {
+          "name": "newsletter_list_ids",
+          "type": "array",
+          "location": "body",
+          "description": "An array of newsletter list prefixed IDs to subscribe the new subscription to. The newsletter lists must belong to the same publication. \u003cBadge intent='warning' minimal outlined\u003eBeta\u003c/Badge\u003e"
+        },
+        {
+          "name": "premium_tier_ids",
+          "type": "array",
+          "location": "body",
+          "description": "An array of premium tier IDs to assign to this subscription."
+        },
+        {
+          "name": "premium_tiers",
+          "type": "array",
+          "location": "body",
+          "description": "An array of premium tier names to assign to this subscription."
+        },
+        {
+          "name": "reactivate_existing",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether or not to reactivate the subscription if they have already unsubscribed. This option should be used only if the subscriber is knowingly resubscribing."
+        },
+        {
+          "name": "referral_code",
+          "type": "string",
+          "location": "body",
+          "description": "This should be a subscribers referral_code. This gives referral credit for the new subscription."
+        },
+        {
+          "name": "referring_site",
+          "type": "string",
+          "location": "body",
+          "description": "The website that the subscriber was referred from"
+        },
+        {
+          "name": "send_welcome_email",
+          "type": "bool",
+          "location": "body",
+          "description": "Send welcome email"
+        },
+        {
+          "name": "skip_newsletter_list_auto_subscribe",
+          "type": "bool",
+          "location": "body",
+          "description": "When true, the subscriber will not be auto-subscribed to newsletter lists configured with auto-subscribe. Defaults to false. \u003cBadge intent='warning' minimal outlined\u003eBeta\u003c/Badge\u003e"
+        },
+        {
+          "name": "stripe_customer_id",
+          "type": "string",
+          "location": "body",
+          "description": "The prefixed ID of the Stripe customer."
+        },
+        {
+          "name": "tier",
+          "type": "string",
+          "location": "body",
+          "description": "The tier for this subscription."
+        },
+        {
+          "name": "utm_campaign",
+          "type": "string",
+          "location": "body",
+          "description": "The acquisition campaign of the subscription"
+        },
+        {
+          "name": "utm_content",
+          "type": "string",
+          "location": "body",
+          "description": "The acquisition content; typically used for A/B testing or ad variations"
+        },
+        {
+          "name": "utm_medium",
+          "type": "string",
+          "location": "body",
+          "description": "The medium of the subscription"
+        },
+        {
+          "name": "utm_source",
+          "type": "string",
+          "location": "body",
+          "description": "The source of the subscription."
+        },
+        {
+          "name": "utm_term",
+          "type": "string",
+          "location": "body",
+          "description": "The acquisition term; typically the keyword or search term"
+        }
+      ]
+    },
+    {
+      "name": "subscriptions_delete",
+      "description": "\u003cWarning\u003eThis cannot be undone. All data associated with the subscription will also be deleted. We recommend unsubscribing when possible instead of deleting. If a premium subscription is deleted they will no longer be billed.\u003c/Warning\u003e Deletes a subscription. Required: publicationId, subscriptionId. Returns the SubscriptionDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/publications/{publicationId}/subscriptions/{subscriptionId}",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "subscriptionId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the subscription object",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "subscriptions_get-by-email",
+      "description": "\u003cInfo\u003ePlease note that this endpoint requires the email to be URL encoded. Please reference your language's documentation for the correct method of encoding.\u003c/Info\u003e Retrieve a single subscription belonging to a specific email address in a specific publication. Required: publicationId, email. Optional: expand[]. Returns the SubscriptionResponse.",
+      "method": "GET",
+      "path": "/publications/{publicationId}/subscriptions/by_email/{email}",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the subscriber object",
+          "required": true
+        },
+        {
+          "name": "expand[]",
+          "type": "array",
+          "location": "query",
+          "description": "Optional list of expandable objects.\u003cbr\u003e`subscription_premium_tiers ` - Returns an array of tiers the subscription is associated with.\u003cbr\u003e`referrals` - Returns an array of subscriptions with limited data - `id`, `email`, and `status`. These are the subscriptions that were referred by this subscription.\u003cbr\u003e`stats` - Returns statistics about the subscription(s).\u003cbr\u003e`custom_fields` - Returns an array of custom field values that have been set on the subscription. \u003cbr\u003e`tags` - Returns an array of tags that have been set on the subscription.\u003cbr\u003e`newsletter_lists` - Returns an array of newsletter list prefixed IDs the subscription is actively subscribed to."
+        }
+      ]
+    },
+    {
+      "name": "subscriptions_get-by-id",
+      "description": "\u003cInfo\u003eIn previous versions of the API, another endpoint existed to retrieve a subscription by the subscriber ID. This endpoint is now deprecated and will be removed in a future version of the API. Please use this endpoint instead. The subscription ID can be found by exporting a list of subscriptions either via the `Settings \u003e Publications \u003e Export Data` or by exporting a CSV in a segment.\u003c/Info\u003e Retrieve a single subscription belonging to a specific publication. Required: publicationId, subscriptionId. Optional: expand[]. Returns the SubscriptionResponse.",
+      "method": "GET",
+      "path": "/publications/{publicationId}/subscriptions/{subscriptionId}",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "subscriptionId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the subscription object",
+          "required": true
+        },
+        {
+          "name": "expand[]",
+          "type": "array",
+          "location": "query",
+          "description": "Optional list of expandable objects.\u003cbr\u003e`subscription_premium_tiers` - Returns an array of tiers the subscription is associated with.\u003cbr\u003e`referrals` - Returns an array of subscriptions with limited data - `id`, `email`, and `status`. These are the subscriptions that were referred by this subscription.\u003cbr\u003e`stats` - Returns statistics about the subscription(s).\u003cbr\u003e`custom_fields` - Returns an array of custom field values that have been set on the subscription. \u003cbr\u003e`tags` - Returns an array of tags that have been set on the subscription.\u003cbr\u003e`newsletter_lists` - Returns an array of newsletter list prefixed IDs the subscription is actively subscribed to."
+        }
+      ]
+    },
+    {
+      "name": "subscriptions_get-by-subscriber-id",
+      "description": "Get subscription by subscriber ID \u003cBadge intent='info' minimal outlined\u003eOAuth Scope: subscriptions:read\u003c/Badge\u003e. Required: publicationId, subscriberId. Optional: expand[]. Returns the SubscriptionResponse.",
+      "method": "GET",
+      "path": "/publications/{publicationId}/subscriptions/by_subscriber_id/{subscriberId}",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "subscriberId",
+          "type": "string",
+          "location": "path",
+          "description": "The ID of the subscriber object",
+          "required": true
+        },
+        {
+          "name": "expand[]",
+          "type": "array",
+          "location": "query",
+          "description": "Optional list of expandable objects.\u003cbr\u003e`subscription_premium_tiers` - Returns an array of tiers the subscription is associated with.\u003cbr\u003e`referrals` - Returns an array of subscriptions with limited data - `id`, `email`, and `status`. These are the subscriptions that were referred by this subscription.\u003cbr\u003e`stats` - Returns statistics about the subscription(s).\u003cbr\u003e`custom_fields` - Returns an array of custom field values that have been set on the subscription."
+        }
+      ]
+    },
+    {
+      "name": "subscriptions_index",
+      "description": "Retrieve all subscriptions belonging to a specific publication. \u003cInfo\u003e **New**: This endpoint now supports cursor-based pagination for better performance and consistency. Use the `cursor` parameter instead of `page` for new integrations. \u003c/Info\u003e \u003cWarning\u003e **Deprecation Notice**: Offset-based pagination (using `page` parameter) is deprecated and limited to 100 pages maximum. Please migrate to cursor-based pagination. See our [Pagination Guide](/welcome/pagination) for details. \u003c/Warning\u003e. Required: publicationId. Optional: expand[], status, tier (plus 9 more). Returns array of Subscription.",
+      "method": "GET",
+      "path": "/publications/{publicationId}/subscriptions",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "expand[]",
+          "type": "array",
+          "location": "query",
+          "description": "Optional list of expandable objects.\u003cbr\u003e`subscription_premium_tiers ` - Returns an array of tiers the subscription is associated with.\u003cbr\u003e`referrals` - Returns an array of subscriptions with limited data - `id`, `email`, and `status`. These are the subscriptions that were referred by this subscription.\u003cbr\u003e`stats` - Returns statistics about the subscription(s).\u003cbr\u003e`custom_fields` - Returns an array of custom field values that have been set on the subscription. \u003cbr\u003e`newsletter_lists` - Returns an array of newsletter list prefixed IDs the subscription is actively subscribed to."
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Optionally filter the results by a status"
+        },
+        {
+          "name": "tier",
+          "type": "string",
+          "location": "query",
+          "description": "Optionally filter the results by a their tier"
+        },
+        {
+          "name": "premium_tiers[]",
+          "type": "array",
+          "location": "query",
+          "description": "Optionally filter the results by one or multiple premium tiers"
+        },
+        {
+          "name": "premium_tier_ids[]",
+          "type": "array",
+          "location": "query",
+          "description": "Optionally filter the results by one or multiple premium tier ids"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "A limit on the number of objects to be returned."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "**Cursor-based pagination (recommended)**: Use this opaque cursor token to fetch the next page of results. When provided, pagination will use cursor-based method which is more efficient and consistent than offset-based pagination. See the [Pagination Guide](/welcome/pagination) for more details."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "**Offset-based pagination (deprecated)**: Page number for offset-based pagination. This method is deprecated and limited to 100 pages maximum. Please migrate to cursor-based pagination using the `cursor` parameter. If not specified, results 1-10 from page 1 will be returned. See the [Pagination Guide](/welcome/pagination) for migration guidance."
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "query",
+          "description": "Optional email address to find a subscription.\u003cbr\u003eThis param must be an exact match and is case insensitive."
+        },
+        {
+          "name": "order_by",
+          "type": "string",
+          "location": "query",
+          "description": "The field that the results are sorted by. Defaults to created\u003cbr\u003e `created` - The time in which the subscription was first created.\u003cbr\u003e"
+        },
+        {
+          "name": "direction",
+          "type": "string",
+          "location": "query",
+          "description": "The direction that the results are sorted in."
+        },
+        {
+          "name": "creation_date",
+          "type": "string",
+          "location": "query",
+          "description": "Optional date entry (in the format YYYY/MM/DD) that filters returned subscriptions by their creation date."
+        }
+      ]
+    },
+    {
+      "name": "subscriptions_patch",
+      "description": "Update subscription by ID \u003cBadge intent='info' minimal outlined\u003eOAuth Scope: subscriptions:write\u003c/Badge\u003e. Required: publicationId, subscriptionId. Optional: custom_fields, email, premium_tier_ids (plus 4 more). Returns the updated SubscriptionResponse.",
+      "method": "PATCH",
+      "path": "/publications/{publicationId}/subscriptions/{subscriptionId}",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "subscriptionId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the subscription object",
+          "required": true
+        },
+        {
+          "name": "custom_fields",
+          "type": "array",
+          "location": "body",
+          "description": "An array of custom field objects to update"
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "The new email address for the subscription"
+        },
+        {
+          "name": "premium_tier_ids",
+          "type": "array",
+          "location": "body",
+          "description": "An array of premium tier IDs to assign to this subscription."
+        },
+        {
+          "name": "premium_tiers",
+          "type": "array",
+          "location": "body",
+          "description": "An array of premium tier names to assign to this subscription."
+        },
+        {
+          "name": "stripe_customer_id",
+          "type": "string",
+          "location": "body",
+          "description": "The prefixed ID of the Stripe customer."
+        },
+        {
+          "name": "tier",
+          "type": "string",
+          "location": "body",
+          "description": "The Tier of the Subscription (not required)"
+        },
+        {
+          "name": "unsubscribe",
+          "type": "bool",
+          "location": "body",
+          "description": "A boolean value specifying whether to unsubscribe this subscription from the publication..."
+        }
+      ]
+    },
+    {
+      "name": "subscriptions_put",
+      "description": "Update subscription by ID \u003cBadge intent='info' minimal outlined\u003eOAuth Scope: subscriptions:write\u003c/Badge\u003e. Required: publicationId, subscriptionId. Optional: custom_fields, email, premium_tier_ids (plus 4 more). Returns the updated SubscriptionResponse.",
+      "method": "PUT",
+      "path": "/publications/{publicationId}/subscriptions/{subscriptionId}",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "subscriptionId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the subscription object",
+          "required": true
+        },
+        {
+          "name": "custom_fields",
+          "type": "array",
+          "location": "body",
+          "description": "An array of custom field objects to update"
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "The new email address for the subscription"
+        },
+        {
+          "name": "premium_tier_ids",
+          "type": "array",
+          "location": "body",
+          "description": "An array of premium tier IDs to assign to this subscription."
+        },
+        {
+          "name": "premium_tiers",
+          "type": "array",
+          "location": "body",
+          "description": "An array of premium tier names to assign to this subscription."
+        },
+        {
+          "name": "stripe_customer_id",
+          "type": "string",
+          "location": "body",
+          "description": "The prefixed ID of the Stripe customer."
+        },
+        {
+          "name": "tier",
+          "type": "string",
+          "location": "body",
+          "description": "The Tier of the Subscription (not required)"
+        },
+        {
+          "name": "unsubscribe",
+          "type": "bool",
+          "location": "body",
+          "description": "A boolean value specifying whether to unsubscribe this subscription from the publication..."
+        }
+      ]
+    },
+    {
+      "name": "subscriptions_update-by-email",
+      "description": "Update subscription by email \u003cBadge intent='info' minimal outlined\u003eOAuth Scope: subscriptions:write\u003c/Badge\u003e. Required: publicationId, email. Optional: custom_fields, premium_tier_ids, premium_tiers (plus 3 more). Returns the updated SubscriptionResponse.",
+      "method": "PUT",
+      "path": "/publications/{publicationId}/subscriptions/by_email/{email}",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "path",
+          "description": "The email of the subscription object",
+          "required": true
+        },
+        {
+          "name": "custom_fields",
+          "type": "array",
+          "location": "body",
+          "description": "An array of custom field objects to update"
+        },
+        {
+          "name": "premium_tier_ids",
+          "type": "array",
+          "location": "body",
+          "description": "An array of premium tier IDs to assign to this subscription."
+        },
+        {
+          "name": "premium_tiers",
+          "type": "array",
+          "location": "body",
+          "description": "An array of premium tier names to assign to this subscription."
+        },
+        {
+          "name": "stripe_customer_id",
+          "type": "string",
+          "location": "body",
+          "description": "The prefixed ID of the Stripe customer."
+        },
+        {
+          "name": "tier",
+          "type": "string",
+          "location": "body",
+          "description": "The Tier of the Subscription (not required)"
+        },
+        {
+          "name": "unsubscribe",
+          "type": "bool",
+          "location": "body",
+          "description": "A boolean value specifying whether to unsubscribe this subscription from the publication..."
+        }
+      ]
+    },
+    {
+      "name": "subscriptions_jwt-token_subscriptions-get",
+      "description": "Generate a JWT token that can be used to automatically log in subscribers via URL. This token is short lived and should be used immediately. Required: publicationId, subscriptionId. Returns the SubscriptionJwtTokenResponse.",
+      "method": "GET",
+      "path": "/publications/{publicationId}/subscriptions/{subscriptionId}/jwt_token",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "subscriptionId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the subscription object",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "subscriptions_tags_subscription-create",
+      "description": "Adds tags to a subscription. If the tag does not exist on the publication, it will be created automatically. Required: publicationId, subscriptionId. Optional: tags. Returns the new SubscriptionTagsCreateResponse.",
+      "method": "POST",
+      "path": "/publications/{publicationId}/subscriptions/{subscriptionId}/tags",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "Publication id",
+          "required": true
+        },
+        {
+          "name": "subscriptionId",
+          "type": "string",
+          "location": "path",
+          "description": "Subscription id",
+          "required": true
+        },
+        {
+          "name": "tags",
+          "type": "array",
+          "location": "body",
+          "description": "Tags that can be used to group subscribers"
+        }
+      ]
+    },
+    {
+      "name": "tiers_create",
+      "description": "Create a tier \u003cBadge intent='info' minimal outlined\u003eOAuth Scope: tiers:write\u003c/Badge\u003e. Required: publicationId, name. Optional: description, prices_attributes. Returns the new TierResponse.",
+      "method": "POST",
+      "path": "/publications/{publicationId}/tiers",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "prices_attributes",
+          "type": "array",
+          "location": "body",
+          "description": "Prices attributes"
+        }
+      ]
+    },
+    {
+      "name": "tiers_index",
+      "description": "List tiers \u003cBadge intent='info' minimal outlined\u003eOAuth Scope: tiers:read\u003c/Badge\u003e. Required: publicationId. Optional: expand[], limit, page (plus 1 more). Returns array of Tier.",
+      "method": "GET",
+      "path": "/publications/{publicationId}/tiers",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "expand[]",
+          "type": "array",
+          "location": "query",
+          "description": "Optional list of expandable objects.\u003cbr\u003e`stats` - Returns statistics about the tier(s).\u003cbr\u003e`prices` - Returns prices for the tier(s)."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "A limit on the number of objects to be returned."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination returns the results in pages."
+        },
+        {
+          "name": "direction",
+          "type": "string",
+          "location": "query",
+          "description": "The direction that the results are sorted in."
+        }
+      ]
+    },
+    {
+      "name": "tiers_patch",
+      "description": "Update a tier \u003cBadge intent='info' minimal outlined\u003eOAuth Scope: tiers:write\u003c/Badge\u003e. Required: publicationId, tierId. Optional: description, name, prices_attributes. Returns the updated TierResponse.",
+      "method": "PATCH",
+      "path": "/publications/{publicationId}/tiers/{tierId}",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "tierId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the tier object",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "prices_attributes",
+          "type": "array",
+          "location": "body",
+          "description": "Prices attributes"
+        }
+      ]
+    },
+    {
+      "name": "tiers_put",
+      "description": "Update a tier \u003cBadge intent='info' minimal outlined\u003eOAuth Scope: tiers:write\u003c/Badge\u003e. Required: publicationId, tierId. Optional: description, name, prices_attributes. Returns the updated TierResponse.",
+      "method": "PUT",
+      "path": "/publications/{publicationId}/tiers/{tierId}",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "tierId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the tier object",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "prices_attributes",
+          "type": "array",
+          "location": "body",
+          "description": "Prices attributes"
+        }
+      ]
+    },
+    {
+      "name": "tiers_show",
+      "description": "Get tier \u003cBadge intent='info' minimal outlined\u003eOAuth Scope: tiers:read\u003c/Badge\u003e. Required: publicationId, tierId. Optional: expand[]. Returns the TierResponse.",
+      "method": "GET",
+      "path": "/publications/{publicationId}/tiers/{tierId}",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "tierId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the tier object",
+          "required": true
+        },
+        {
+          "name": "expand[]",
+          "type": "array",
+          "location": "query",
+          "description": "Optional list of expandable objects.\u003cbr\u003e`stats` - Returns statistics about the tier(s).\u003cbr\u003e`prices` - Returns prices for the tier(s)."
+        }
+      ]
+    },
+    {
+      "name": "users_oauth-identify",
+      "description": "Identify user \u003cBadge intent='info' minimal outlined\u003eOAuth Scope: identify:read\u003c/Badge\u003e. Returns the UserIdentifyResponse.",
+      "method": "GET",
+      "path": "/users/identify",
+      "params": []
+    },
+    {
+      "name": "webhooks_create",
+      "description": "Create a webhook \u003cBadge intent='info' minimal outlined\u003eOAuth Scope: webhooks:write\u003c/Badge\u003e. Required: publicationId, event_types, url. Optional: description. Returns the new WebhookResponse.",
+      "method": "POST",
+      "path": "/publications/{publicationId}/webhooks",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "A description of the webhook."
+        },
+        {
+          "name": "event_types",
+          "type": "array",
+          "location": "body",
+          "description": "The types of events the webhook will receive.",
+          "required": true
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "The webhook URL to send events to.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_delete",
+      "description": "Delete a webhook \u003cBadge intent='info' minimal outlined\u003eOAuth Scope: webhooks:write\u003c/Badge\u003e. Required: publicationId, endpointId. Returns the WebhooksDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/publications/{publicationId}/webhooks/{endpointId}",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "endpointId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the webhook object",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_index",
+      "description": "List webhooks \u003cBadge intent='info' minimal outlined\u003eOAuth Scope: webhooks:read\u003c/Badge\u003e. Required: publicationId. Optional: limit. Returns array of Webhook.",
+      "method": "GET",
+      "path": "/publications/{publicationId}/webhooks",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "A limit on the number of objects to be returned."
+        }
+      ]
+    },
+    {
+      "name": "webhooks_show",
+      "description": "Get webhook \u003cBadge intent='info' minimal outlined\u003eOAuth Scope: webhooks:read\u003c/Badge\u003e. Required: publicationId, endpointId. Returns the WebhookResponse.",
+      "method": "GET",
+      "path": "/publications/{publicationId}/webhooks/{endpointId}",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "endpointId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the webhook object",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_update",
+      "description": "Update webhook \u003cBadge intent='info' minimal outlined\u003eOAuth Scope: webhooks:write\u003c/Badge\u003e. Required: publicationId, endpointId. Optional: description, event_types. Returns the updated WebhookResponse.",
+      "method": "PATCH",
+      "path": "/publications/{publicationId}/webhooks/{endpointId}",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "endpointId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the webhook object",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "A description of the webhook."
+        },
+        {
+          "name": "event_types",
+          "type": "array",
+          "location": "body",
+          "description": "The types of events the webhook will receive."
+        }
+      ]
+    },
+    {
+      "name": "webhooks_tests_webhooks",
+      "description": "Test webhook \u003cBadge intent='info' minimal outlined\u003eOAuth Scope: webhooks:read\u003c/Badge\u003e. Required: publicationId, endpointId. Returns the GetPublicationsPublicationIdWebhooksWebhookIdTestsResponse.",
+      "method": "GET",
+      "path": "/publications/{publicationId}/webhooks/{endpointId}/tests",
+      "params": [
+        {
+          "name": "publicationId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the publication object",
+          "required": true
+        },
+        {
+          "name": "endpointId",
+          "type": "string",
+          "location": "path",
+          "description": "The prefixed ID of the webhook object",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workspaces_identify",
+      "description": "Identify workspace \u003cBadge intent='info' minimal outlined\u003eOAuth Scope: identify:read\u003c/Badge\u003e. Returns the WorkspaceIdentifyResponse.",
+      "method": "GET",
+      "path": "/workspaces/identify",
+      "params": []
+    },
+    {
+      "name": "workspaces_publications-by-subscription-email",
+      "description": "Retrieve all publications in the workspace that have a subscription for the specified email address. The workspace is determined by the provided API key. Required: email. Optional: expand. Returns array of PublicationsBySubscriptionEmailResponseItem.",
+      "method": "GET",
+      "path": "/workspaces/publications/by_subscription_email/{email}",
+      "params": [
+        {
+          "name": "email",
+          "type": "string",
+          "location": "path",
+          "description": "The email address to search for subscriptions",
+          "required": true
+        },
+        {
+          "name": "expand",
+          "type": "array",
+          "location": "query",
+          "description": "Optionally expand the results by adding additional information. \u003cbr\u003e`subscription` - Returns the full Subscription object for the email address in each publication. \u003cbr\u003e`publication` - Returns the full Publication object instead of just ID and name. \u003cbr\u003e`subscription_custom_fields` - Returns custom field values nested within the subscription object. (Returns the subscription object regardless of whether `subscription` is requested.)"
+        }
+      ]
+    }
+  ]
+}

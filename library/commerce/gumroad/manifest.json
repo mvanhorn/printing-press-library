@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "gumroad-pp-mcp",
+  "display_name": "Gumroad",
+  "version": "4.3.0",
+  "description": "Gumroad API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/gumroad-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/gumroad-pp-mcp",
+      "args": [],
+      "env": {
+        "GUMROAD_ACCESS_TOKEN": "${user_config.gumroad_access_token}"
+      }
+    }
+  },
+  "user_config": {
+    "gumroad_access_token": {
+      "type": "string",
+      "title": "GUMROAD_ACCESS_TOKEN",
+      "description": "Sets GUMROAD_ACCESS_TOKEN for the Gumroad MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
