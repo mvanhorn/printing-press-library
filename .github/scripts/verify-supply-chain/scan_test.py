@@ -266,6 +266,28 @@ class WorkflowTrustSignalTest(unittest.TestCase):
         self.assertEqual(len(findings), 1)
         self.assertIsNotNone(findings[0].line)
 
+    def test_job_level_write_all_blocks_with_line(self) -> None:
+        """Greptile-flagged: job-level `permissions: write-all` also implies
+        id-token. The previous needle-selection only inspected workflow-level
+        permissions, leaving job-level write-all with line=None even though
+        _walk_id_token_grants detected it."""
+        wf = (
+            "name: bad\n"
+            "on: push\n"
+            "jobs:\n"
+            "  x:\n"
+            "    runs-on: ubuntu-latest\n"
+            "    permissions: write-all\n"
+            "    steps:\n"
+            "      - run: echo hi\n"
+        )
+        findings = signals.signal_id_token_outside_allowlist(
+            _fc(".github/workflows/bad.yml", head=wf)
+        )
+        self.assertEqual(len(findings), 1)
+        self.assertTrue(findings[0].is_block())
+        self.assertIsNotNone(findings[0].line)
+
 
 class IdTokenSignalTest(unittest.TestCase):
     def test_id_token_in_non_publish_workflow_blocks(self) -> None:

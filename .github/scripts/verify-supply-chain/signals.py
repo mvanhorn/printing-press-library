@@ -360,12 +360,16 @@ def signal_id_token_outside_allowlist(change: FileChange) -> list[Finding]:
     if base is not None and _walk_id_token_grants(base):
         return []
 
-    # Pick a needle the file actually contains: `permissions: write-all`
-    # workflows don't have the literal "id-token" anywhere, so searching for
-    # it leaves line=None. When the grant came via write-all, point the
-    # annotation at the write-all line instead.
-    head_perm = head.get("permissions") if isinstance(head, dict) else None
-    needle = "write-all" if isinstance(head_perm, str) and head_perm.strip() == "write-all" else "id-token"
+    # Pick a needle the file actually contains. The grant can come from
+    # either a literal `id-token: write` line at workflow- or job-level, OR
+    # from a `permissions: write-all` shorthand at workflow- or job-level.
+    # Check for "id-token" first since that's the precise location; fall
+    # back to "write-all" when the grant only fires via the shorthand
+    # (covers both workflow-level and job-level write-all uniformly).
+    if "id-token" in change.head_content:
+        needle = "id-token"
+    else:
+        needle = "write-all"
     line = _find_line_in(change.head_content, needle)
     return [
         Finding(
