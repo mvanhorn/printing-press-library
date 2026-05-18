@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-17T22:58:15.825463Z",
+  "printing_press_version": "4.8.0",
+  "api_name": "youtube-creator-analytics",
+  "display_name": "Youtube",
+  "cli_name": "youtube-creator-analytics-pp-cli",
+  "owner": "user",
+  "printer": "CarazzoSantiago",
+  "printer_name": "Santiago Carazzo",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:af76ecb971ce84aac630e3ce101b80641385fdd0b468a0994044cbbb8f71aa23",
+  "run_id": "20260517-185050",
+  "mcp_binary": "youtube-creator-analytics-pp-mcp",
+  "mcp_tool_count": 84,
+  "mcp_ready": "full",
+  "api_version": "v3",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "YOUTUBE_DATA_OAUTH2C"
+  ],
+  "novel_features": [
+    {
+      "name": "Decay detector",
+      "command": "decay",
+      "description": "Flag underperforming videos by views-per-day vs the channel baseline (--metric velocity, default), with a --days window and a noise warning at \u003c30 videos."
+    },
+    {
+      "name": "Retention leaderboard",
+      "command": "retention-leaderboard",
+      "description": "Top videos by average view percentage from Analytics API. Statistically noisy with \u003c30 videos in the lookback window — treat as directional."
+    },
+    {
+      "name": "Subscriber velocity",
+      "command": "sub-velocity",
+      "description": "Daily subscriber gain/loss rate from Analytics, day-bucketed."
+    },
+    {
+      "name": "Competitor diff",
+      "command": "competitor-diff",
+      "description": "Compare uploads/cadence/avg views across cached channels (your channel + competitors)."
+    },
+    {
+      "name": "Posting cadence",
+      "command": "posting-cadence",
+      "description": "Correlate publish day-of-week or hour-of-day with average views."
+    },
+    {
+      "name": "CTR cohort",
+      "command": "ctr-cohort",
+      "description": "Impressions and click-through-rate per video (Analytics API)."
+    },
+    {
+      "name": "Transcript search",
+      "command": "transcript search",
+      "description": "Full-text search across scraped transcripts (offline, FTS5)."
+    },
+    {
+      "name": "Theme miner",
+      "command": "theme-mine",
+      "description": "Extract most-repeated bigrams/trigrams from cached comments (FAQ surface area)."
+    },
+    {
+      "name": "Comment FAQ",
+      "command": "comment-faq",
+      "description": "Surface most-liked question-shaped comments across cached videos."
+    },
+    {
+      "name": "Topic cluster",
+      "command": "topic-cluster",
+      "description": "Group videos into topic clusters by tag overlap and rank by avg views."
+    },
+    {
+      "name": "Quota-aware sync plan",
+      "command": "sync-plan",
+      "description": "Estimate Data v3 quota units needed for a full refresh + comment sync, with daily-quota headroom."
+    }
+  ]
+}

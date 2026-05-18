@@ -1,0 +1,388 @@
+{
+  "api_name": "youtube",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "djthorpe/ytapi",
+      "url": "https://github.com/djthorpe/ytapi",
+      "language": "",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "jdwit/ytstudio-cli",
+      "url": "https://github.com/jdwit/ytstudio-cli",
+      "language": "",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "nerveband/youtube-api-cli",
+      "url": "https://github.com/nerveband/youtube-api-cli",
+      "language": "",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ZubeidHendricks/youtube-mcp-server",
+      "url": "https://github.com/ZubeidHendricks/youtube-mcp-server",
+      "language": "",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "CDataSoftware/youtube-analytics-mcp-server",
+      "url": "https://github.com/CDataSoftware/youtube-analytics-mcp-server-by-cdata",
+      "language": "",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "youtube-transcript-api (PyPI)",
+      "url": "https://pypi.org/project/youtube-transcript-api/",
+      "language": "",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "youtube-transcript (npm)",
+      "url": "https://www.npmjs.com/package/youtube-transcript",
+      "language": "",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "yt-dlp",
+      "url": "https://github.com/yt-dlp/yt-dlp",
+      "language": "",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-17T18:55:00Z",
+  "novel_features": [
+    {
+      "name": "Decay detector",
+      "command": "decay",
+      "description": "Flag underperforming videos by views-per-day vs the channel baseline (--metric velocity, default), with a --days window and a noise warning at \u003c30 videos.",
+      "rationale": "Requires a local join across the cached videos table — no single Data v3 endpoint returns this. Velocity normalization (views/day) prevents false positives where older videos look like outliers purely because they had more time to accumulate views.",
+      "example": "youtube-pp-cli decay --metric velocity --days 90 --json",
+      "why_it_matters": "Tells the creator which videos to re-promote or re-edit, before the algorithm forgets them.",
+      "group": "Local analytics that compound"
+    },
+    {
+      "name": "Retention leaderboard",
+      "command": "retention-leaderboard",
+      "description": "Top videos by average view percentage from Analytics API. Statistically noisy with \u003c30 videos in the lookback window — treat as directional.",
+      "rationale": "Needs Analytics API + a sort the web UI does not expose per-video.",
+      "example": "youtube-pp-cli retention-leaderboard --days 90 --json",
+      "why_it_matters": "Ranks content by attention, not just views — the actual retention signal.",
+      "group": "Local analytics that compound"
+    },
+    {
+      "name": "Subscriber velocity",
+      "command": "sub-velocity",
+      "description": "Daily subscriber gain/loss rate from Analytics, day-bucketed.",
+      "rationale": "Needs OAuth Analytics API; the public Data v3 only reports rolling totals.",
+      "example": "youtube-pp-cli sub-velocity --days 28 --json",
+      "why_it_matters": "Pinpoints which days a creator added or lost subs so launch-day pulls become visible.",
+      "group": "Local analytics that compound"
+    },
+    {
+      "name": "Competitor diff",
+      "command": "competitor-diff",
+      "description": "Compare uploads/cadence/avg views across cached channels (your channel + competitors).",
+      "rationale": "Requires N channels in one SQLite store; nothing public ranks them side-by-side.",
+      "example": "youtube-pp-cli competitor-diff --json",
+      "why_it_matters": "One call answers 'how does my niche move?' without leaving the terminal.",
+      "group": "Cross-channel intelligence"
+    },
+    {
+      "name": "Posting cadence",
+      "command": "posting-cadence",
+      "description": "Correlate publish day-of-week or hour-of-day with average views.",
+      "rationale": "Needs all of a channel's videos plus their stats in one table — only possible with the local store.",
+      "example": "youtube-pp-cli posting-cadence --mode dow --json",
+      "why_it_matters": "Surfaces the channel's actual best posting window from observed data, not folklore.",
+      "group": "Local analytics that compound"
+    },
+    {
+      "name": "CTR cohort",
+      "command": "ctr-cohort",
+      "description": "Impressions and click-through-rate per video (Analytics API).",
+      "rationale": "Card impressions/CTR are only in Analytics, not public Data v3.",
+      "example": "youtube-pp-cli ctr-cohort --days 90 --json",
+      "why_it_matters": "Tells the creator which thumbnails earn the click before they reroll the entire batch.",
+      "group": "Local analytics that compound"
+    },
+    {
+      "name": "Transcript search",
+      "command": "transcript search",
+      "description": "Full-text search across scraped transcripts (offline, FTS5).",
+      "rationale": "No public API returns video transcripts in bulk — this scrapes timedtext, persists locally, then queries via SQLite FTS5.",
+      "example": "youtube-pp-cli transcript search 'sueño infantil' --json",
+      "why_it_matters": "Lets an agent grep an entire channel's spoken content offline, with no quota cost.",
+      "group": "Transcript \u0026 comment mining"
+    },
+    {
+      "name": "Theme miner",
+      "command": "theme-mine",
+      "description": "Extract most-repeated bigrams/trigrams from cached comments (FAQ surface area).",
+      "rationale": "Needs every comment in one place — Data v3 returns them paginated per video.",
+      "example": "youtube-pp-cli theme-mine --n 2 --limit 30 --json",
+      "why_it_matters": "Shows what audience actually talks about so the creator picks topics with proven demand.",
+      "group": "Transcript \u0026 comment mining"
+    },
+    {
+      "name": "Comment FAQ",
+      "command": "comment-faq",
+      "description": "Surface most-liked question-shaped comments across cached videos.",
+      "rationale": "The web UI buries questions in noise; with everything in SQLite we just rank by likes + question-shape.",
+      "example": "youtube-pp-cli comment-faq --limit 20 --json",
+      "why_it_matters": "Generates a ready-to-answer Q\u0026A pipeline straight from the audience.",
+      "group": "Transcript \u0026 comment mining"
+    },
+    {
+      "name": "Topic cluster",
+      "command": "topic-cluster",
+      "description": "Group videos into topic clusters by tag overlap and rank by avg views.",
+      "rationale": "Needs every video + tags in one table; no API endpoint clusters videos topically.",
+      "example": "youtube-pp-cli topic-cluster --limit 12 --json",
+      "why_it_matters": "Reveals which themes pull views, not just which individual videos won.",
+      "group": "Cross-channel intelligence"
+    },
+    {
+      "name": "Quota-aware sync plan",
+      "command": "sync-plan",
+      "description": "Estimate Data v3 quota units needed for a full refresh + comment sync, with daily-quota headroom.",
+      "rationale": "Calculated from what's already in the local store — no external tool knows your channel's video count locally.",
+      "example": "youtube-pp-cli sync-plan --comments-per-video 2 --json",
+      "why_it_matters": "Prevents the surprise 'quotaExceeded' that wipes a creator's tooling for the day.",
+      "group": "Quota-aware ops"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Decay detector",
+      "command": "decay",
+      "description": "Flag underperforming videos by views-per-day vs the channel baseline (--metric velocity, default), with a --days window and a noise warning at \u003c30 videos.",
+      "rationale": "Requires a local join across the cached videos table — no single Data v3 endpoint returns this. Velocity normalization (views/day) prevents false positives where older videos look like outliers purely because they had more time to accumulate views.",
+      "example": "youtube-pp-cli decay --metric velocity --days 90 --json",
+      "why_it_matters": "Tells the creator which videos to re-promote or re-edit, before the algorithm forgets them.",
+      "group": "Local analytics that compound"
+    },
+    {
+      "name": "Retention leaderboard",
+      "command": "retention-leaderboard",
+      "description": "Top videos by average view percentage from Analytics API. Statistically noisy with \u003c30 videos in the lookback window — treat as directional.",
+      "rationale": "Needs Analytics API + a sort the web UI does not expose per-video.",
+      "example": "youtube-pp-cli retention-leaderboard --days 90 --json",
+      "why_it_matters": "Ranks content by attention, not just views — the actual retention signal.",
+      "group": "Local analytics that compound"
+    },
+    {
+      "name": "Subscriber velocity",
+      "command": "sub-velocity",
+      "description": "Daily subscriber gain/loss rate from Analytics, day-bucketed.",
+      "rationale": "Needs OAuth Analytics API; the public Data v3 only reports rolling totals.",
+      "example": "youtube-pp-cli sub-velocity --days 28 --json",
+      "why_it_matters": "Pinpoints which days a creator added or lost subs so launch-day pulls become visible.",
+      "group": "Local analytics that compound"
+    },
+    {
+      "name": "Competitor diff",
+      "command": "competitor-diff",
+      "description": "Compare uploads/cadence/avg views across cached channels (your channel + competitors).",
+      "rationale": "Requires N channels in one SQLite store; nothing public ranks them side-by-side.",
+      "example": "youtube-pp-cli competitor-diff --json",
+      "why_it_matters": "One call answers 'how does my niche move?' without leaving the terminal.",
+      "group": "Cross-channel intelligence"
+    },
+    {
+      "name": "Posting cadence",
+      "command": "posting-cadence",
+      "description": "Correlate publish day-of-week or hour-of-day with average views.",
+      "rationale": "Needs all of a channel's videos plus their stats in one table — only possible with the local store.",
+      "example": "youtube-pp-cli posting-cadence --mode dow --json",
+      "why_it_matters": "Surfaces the channel's actual best posting window from observed data, not folklore.",
+      "group": "Local analytics that compound"
+    },
+    {
+      "name": "CTR cohort",
+      "command": "ctr-cohort",
+      "description": "Impressions and click-through-rate per video (Analytics API).",
+      "rationale": "Card impressions/CTR are only in Analytics, not public Data v3.",
+      "example": "youtube-pp-cli ctr-cohort --days 90 --json",
+      "why_it_matters": "Tells the creator which thumbnails earn the click before they reroll the entire batch.",
+      "group": "Local analytics that compound"
+    },
+    {
+      "name": "Transcript search",
+      "command": "transcript search",
+      "description": "Full-text search across scraped transcripts (offline, FTS5).",
+      "rationale": "No public API returns video transcripts in bulk — this scrapes timedtext, persists locally, then queries via SQLite FTS5.",
+      "example": "youtube-pp-cli transcript search 'sueño infantil' --json",
+      "why_it_matters": "Lets an agent grep an entire channel's spoken content offline, with no quota cost.",
+      "group": "Transcript \u0026 comment mining"
+    },
+    {
+      "name": "Theme miner",
+      "command": "theme-mine",
+      "description": "Extract most-repeated bigrams/trigrams from cached comments (FAQ surface area).",
+      "rationale": "Needs every comment in one place — Data v3 returns them paginated per video.",
+      "example": "youtube-pp-cli theme-mine --n 2 --limit 30 --json",
+      "why_it_matters": "Shows what audience actually talks about so the creator picks topics with proven demand.",
+      "group": "Transcript \u0026 comment mining"
+    },
+    {
+      "name": "Comment FAQ",
+      "command": "comment-faq",
+      "description": "Surface most-liked question-shaped comments across cached videos.",
+      "rationale": "The web UI buries questions in noise; with everything in SQLite we just rank by likes + question-shape.",
+      "example": "youtube-pp-cli comment-faq --limit 20 --json",
+      "why_it_matters": "Generates a ready-to-answer Q\u0026A pipeline straight from the audience.",
+      "group": "Transcript \u0026 comment mining"
+    },
+    {
+      "name": "Topic cluster",
+      "command": "topic-cluster",
+      "description": "Group videos into topic clusters by tag overlap and rank by avg views.",
+      "rationale": "Needs every video + tags in one table; no API endpoint clusters videos topically.",
+      "example": "youtube-pp-cli topic-cluster --limit 12 --json",
+      "why_it_matters": "Reveals which themes pull views, not just which individual videos won.",
+      "group": "Cross-channel intelligence"
+    },
+    {
+      "name": "Quota-aware sync plan",
+      "command": "sync-plan",
+      "description": "Estimate Data v3 quota units needed for a full refresh + comment sync, with daily-quota headroom.",
+      "rationale": "Calculated from what's already in the local store — no external tool knows your channel's video count locally.",
+      "example": "youtube-pp-cli sync-plan --comments-per-video 2 --json",
+      "why_it_matters": "Prevents the surprise 'quotaExceeded' that wipes a creator's tooling for the day.",
+      "group": "Quota-aware ops"
+    }
+  ],
+  "narrative": {
+    "display_name": "YouTube",
+    "headline": "The terminal-native YouTube CLI that unifies Data, Analytics, and transcripts in one offline SQLite store — so agents can compound queries without burning your 10K daily quota.",
+    "value_prop": "youtube-pp-cli wraps both the YouTube Data API v3 and the YouTube Analytics API v2 behind one binary, scrapes transcripts with no auth, and syncs everything to a local FTS5-indexed SQLite store. After one morning sync, decay detection, retention leaderboards, theme mining, and competitor diffs all run locally at zero quota cost — surfaces no web dashboard or MCP server ships today.",
+    "auth_narrative": "Two auth surfaces coexist. `YOUTUBE_API_KEY` (a free key from Google Cloud Console) unlocks public Data v3 reads — channel and video metadata, comments, captions list, transcript scraping. OAuth2 (installed-app flow with refresh token cached at `~/.config/youtube-pp-cli/token.json`) unlocks YouTube Analytics v2 and owner-only Data v3 fields. Run `youtube-pp-cli auth login` once; the CLI opens a browser, captures the consent code on localhost, and stores the refresh token. `auth status` shows scope coverage; `auth logout` clears it.",
+    "quickstart": [
+      {
+        "command": "youtube-pp-cli doctor --json",
+        "comment": "Confirms config path, auth source, and API reachability before anything else."
+      },
+      {
+        "command": "youtube-pp-cli auth status",
+        "comment": "Reports whether the OAuth refresh token is cached (run `auth login` first if missing)."
+      },
+      {
+        "command": "youtube-pp-cli sync-plan --json",
+        "comment": "Quota-aware estimate of how many Data v3 units a full refresh would cost — run before any heavy sync."
+      },
+      {
+        "command": "youtube-pp-cli decay --threshold 0.3 --json",
+        "comment": "Surfaces cached videos whose views fell 30%+ below the channel's rolling baseline."
+      },
+      {
+        "command": "youtube-pp-cli retention-leaderboard --days 90 --json",
+        "comment": "Top videos by average view percentage straight from Analytics API."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "`quotaExceeded` error from any Data v3 command",
+        "fix": "10K units/day is per-project. Wait for midnight Pacific Time reset, or create a second Google Cloud project and rotate `YOUTUBE_API_KEY`. Avoid `search list` (100 units/call) — prefer `videos list --id` (1 unit) and the offline `search` command after `sync`."
+      },
+      {
+        "symptom": "`invalid_grant` or `Token has been expired or revoked` on OAuth calls",
+        "fix": "Refresh tokens expire after 6 months of disuse or when the user changes their Google password. Run `youtube-pp-cli auth login` again to re-grant."
+      },
+      {
+        "symptom": "`transcripts get` returns empty or `no transcripts available`",
+        "fix": "The video may have transcripts disabled, be age-restricted, region-blocked, or auto-captioning not yet processed. Try `--lang en-US,en` or fall back to `--via yt-dlp` (requires yt-dlp installed)."
+      },
+      {
+        "symptom": "Analytics returns 403 `forbidden` even after `auth login`",
+        "fix": "The OAuth scope `yt-analytics.readonly` is required. Run `youtube-pp-cli auth status` to confirm; if missing, `auth logout` then `auth login` again and accept all consent prompts."
+      },
+      {
+        "symptom": "`sync` is slow or hits quota on a large channel",
+        "fix": "Run `youtube-pp-cli sync plan --videos --comments --analytics` first to see the unit estimate, then sync incrementally with `--since \u003cdate\u003e` or `--limit N`."
+      }
+    ],
+    "when_to_use": "Use youtube-pp-cli when you want to answer real questions about a YouTube channel from the terminal or from an agent: 'which videos are decaying?', 'what do my comments keep asking?', 'how does my upload cadence compare to my competitors?'. It's the right tool when one-off API calls are not enough — when you want a local store that compounds, an FTS5 transcript index, and derived metrics that no dashboard ships. It is NOT the right tool for uploading videos (use YouTube Studio), live streaming, or downloading video files (use yt-dlp).",
+    "recipes": [
+      {
+        "title": "Morning channel snapshot",
+        "command": "youtube-pp-cli decay --threshold 0.25 --limit 10 --json",
+        "explanation": "Lists the 10 worst-decayed videos in one call so an agent can draft a re-promotion plan."
+      },
+      {
+        "title": "Surface FAQ from comments",
+        "command": "youtube-pp-cli comment-faq --limit 20 --json",
+        "explanation": "Returns most-liked question-shaped comments across every cached video — ready for content-planning."
+      },
+      {
+        "title": "Quota plan before a heavy sync",
+        "command": "youtube-pp-cli sync-plan --comments-per-video 2 --json",
+        "explanation": "Estimates Data v3 quota units needed for a full refresh and reports daily-quota headroom."
+      },
+      {
+        "title": "Offline transcript search (no quota)",
+        "command": "youtube-pp-cli transcript search 'sueño infantil' --json",
+        "explanation": "FTS5 query over scraped transcripts — works offline once `transcript sync` has run."
+      },
+      {
+        "title": "Agent-friendly compact video list with field selection",
+        "command": "youtube-pp-cli youtube videos-list --part snippet,statistics --chart mostPopular --agent --select items.id,items.snippet.title,items.statistics.viewCount",
+        "explanation": "Returns only the high-gravity fields so an agent doesn't burn context on thumbnails/etag/localizations."
+      }
+    ],
+    "trigger_phrases": [
+      "metricas de mi canal de youtube",
+      "videos en decay",
+      "competidores en mi nicho de youtube",
+      "comentarios mas frecuentes en mis videos",
+      "buscar en transcripts de youtube",
+      "que retencion tienen mis videos",
+      "use youtube",
+      "run youtube-pp-cli"
+    ]
+  }
+}
