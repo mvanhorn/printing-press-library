@@ -69,6 +69,12 @@
       "summary": "Wrap SELECT/WITH queries in `SELECT * FROM (<query>) LIMIT N` when --limit is appended so trailing line/block comments can't comment out the LIMIT; extend stripSQLStringLiterals to also skip `\"…\"` identifiers, `--` line comments, and `/* … */` block comments before the mutation-keyword check.",
       "reason": "Greptile P2 review findings on PR #676 (sixth pass summary, 5/5 confidence): (1) `--limit N` appended via Sprintf was silently swallowed when the user's query ended with a trailing comment, yielding unbounded rows with no error; subquery-wrap makes the LIMIT non-bypassable. (2) The mutation-keyword regex still false-positived on `SELECT \"create\" FROM messages` (double-quoted identifier) and `SELECT /* update later */ id FROM messages` (block comment) because stripSQLStringLiterals only handled single-quoted strings. Both are now stripped before the keyword scan. Driver-level mode=ro remains the real write barrier; these are usability fixes to the defence-in-depth layer.",
       "files": ["internal/cli/sql.go"]
+    },
+    {
+      "id": "doctor-split-reachability-from-credentials",
+      "summary": "Split the doctor probe into two independent checks: reachability hits GET / (any HTTP response = reachable, including Nylas's documented 401 at the root) and credentials hit GET /v3/grants?limit=1 (200 = valid, 401 = invalid, 403 = scoped). Previously both probes targeted /v3/grants/me, which requires a grant-scoped token and returned 401 for API-key (admin/account-level) auth even when the key was fully valid.",
+      "reason": "Direct user report (amend run, 2026-05-19): every new user running `nylas-pp-cli doctor` with a valid API-key hit a false `FAIL Credentials: invalid (HTTP 401)` because /v3/grants/me requires a grant-scoped token, not an API-key, while all other commands (`grants get-all`, etc.) succeeded with the same key. Reproduces on first install, leads users into credential-rotation rabbit holes when nothing is wrong. The fix uses an API-key-compatible authenticated endpoint (/v3/grants list) for the credential verdict and isolates the transport-only reachability probe.",
+      "files": ["internal/cli/doctor.go"]
     }
   ]
 }

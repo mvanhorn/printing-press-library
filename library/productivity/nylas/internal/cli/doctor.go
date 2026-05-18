@@ -145,11 +145,17 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				if clientErr != nil {
 					report["api"] = fmt.Sprintf("client init error: %s", clientErr)
 				} else {
-					// Step 1: Basic reachability via the configured transport.
-					healthPath := "/v3/grants/me"
-					if !strings.HasPrefix(healthPath, "/") {
-						healthPath = "/" + healthPath
-					}
+					// PATCH(amend-2026-05-19: split reachability from credential check)
+					// Reachability probe = GET / (the API root). Pure transport
+					// check: any HTTP response — including the 401 Nylas always
+					// returns at /, which is documented behaviour and NOT a
+					// credential failure — means the network reached the
+					// server. The credential check below is the authoritative
+					// auth verdict. Conflating the two produced false-failure
+					// "Credentials: invalid (HTTP 401)" reports on the very
+					// first `doctor` run for users whose API key is valid
+					// (every API-key-authed command returns 200).
+					healthPath := "/"
 					reachBody, reachErr := c.Get(healthPath, nil)
 					var reachAPIErr *client.APIError
 					switch {
@@ -167,6 +173,9 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 						// server responded — that's "reachable" for our
 						// purposes. Inspect the response body for a known
 						// interstitial first; otherwise note the status.
+						// Nylas always returns 401 at GET / regardless of
+						// auth; that is documented reachability, not a
+						// credential signal.
 						status := reachAPIErr.StatusCode
 						if vendor := looksLikeDoctorInterstitial([]byte(reachAPIErr.Body)); vendor != "" {
 							report["api"] = fmt.Sprintf("blocked by %s interstitial (HTTP %d) — the configured transport reached the wall.", vendor, status)
@@ -180,18 +189,23 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 						report["api"] = fmt.Sprintf("unreachable: %s", reachErr)
 					}
 
-					// Step 2: Validate credentials with an authenticated probe.
+					// PATCH(amend-2026-05-19: credential probe targets a real
+					// auth-gated list endpoint). GET /v3/grants?limit=1 is the
+					// cheapest authenticated request that reflects API-key
+					// auth: 200 = creds valid, 401 = creds invalid, 403 =
+					// creds valid but scoped out. Previously this probed
+					// /v3/grants/me, which requires a grant-scoped token and
+					// returns 401 for API-key (admin/account-level) auth even
+					// when the key is fully valid — every API-key user hit a
+					// false "Credentials: invalid" on first run.
 					authHeader := cfg.AuthHeader()
 					if authHeader == "" {
 						// No auth configured — skip credential validation
 					} else if reachErr != nil && !errors.As(reachErr, &reachAPIErr) {
 						report["credentials"] = "skipped (API unreachable)"
 					} else {
-						verifyPath := "/v3/grants/me"
-						if !strings.HasPrefix(verifyPath, "/") {
-							verifyPath = "/" + verifyPath
-						}
-						authParams := map[string]string{}
+						verifyPath := "/v3/grants"
+						authParams := map[string]string{"limit": "1"}
 						authHeaders := map[string]string{}
 						authHeaders["Authorization"] = authHeader
 						authHeaders["User-Agent"] = "nylas-pp-cli"
