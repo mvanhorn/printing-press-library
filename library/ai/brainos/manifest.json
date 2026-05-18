@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "brainos-pp-mcp",
+  "display_name": "Brainos Personal Ai",
+  "version": "4.6.1",
+  "description": "Brainos Personal Ai API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/brainos-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/brainos-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

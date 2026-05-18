@@ -1,0 +1,335 @@
+{
+  "api_name": "brainos",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "brain-mcp",
+      "url": "https://github.com/dbostwick/brain-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "supabase/cli",
+      "url": "https://github.com/supabase/cli",
+      "language": "Go",
+      "install_method": "",
+      "stars": 5000,
+      "last_updated": "",
+      "command_count": 40,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-15T11:31:10Z",
+  "novel_features": [
+    {
+      "name": "Live Trading Pulse",
+      "command": "trading pulse",
+      "description": "Instant overview of today's trading session: wins, losses, running PnL, regime, and setup distribution.",
+      "rationale": "Requires join across trading_sessions + postmortems + calibration for today's date — no single API call covers this.",
+      "example": "brainos-pp-cli trading pulse --json",
+      "why_it_matters": "Use when you need a pre-market or mid-session status check without opening a dashboard.",
+      "group": "Trading intelligence"
+    },
+    {
+      "name": "Trading Calibration Summary",
+      "command": "trading calibrate",
+      "description": "Current win rate by setup type and market regime from calibration history + recent sessions.",
+      "rationale": "Requires aggregating trading_calibration rows by setup + regime and joining recent session outcomes.",
+      "example": "brainos-pp-cli trading calibrate --setup gap-go --regime trending --json",
+      "why_it_matters": "Use before sizing a trade to confirm calibration data supports the setup in the current regime.",
+      "group": "Trading intelligence"
+    },
+    {
+      "name": "Trading Setup Drift Alert",
+      "command": "trading drift",
+      "description": "Detects when your premortem setup distribution is drifting toward lower expected-value setups before P\u0026L shows it.",
+      "rationale": "Rolling window aggregation over premortems joined to calibration.expected_value per setup — no single query or dashboard catches this early.",
+      "example": "brainos-pp-cli trading drift --weeks 2 --json",
+      "why_it_matters": "Use weekly to catch unconscious setup drift before it becomes a drawdown.",
+      "group": "Trading intelligence"
+    },
+    {
+      "name": "MCP Reliability Report",
+      "command": "mcp reliability",
+      "description": "Latency percentiles and error rates per MCP server, with auth error overlay.",
+      "rationale": "Requires local join across mcp_activity_logs + mcp_auth_errors + mcp_servers — three tables with no FK relationship.",
+      "example": "brainos-pp-cli mcp reliability --top 5 --json",
+      "why_it_matters": "Use when diagnosing agent failures that may be caused by a degraded MCP backend.",
+      "group": "MCP infrastructure"
+    },
+    {
+      "name": "MCP Blast Radius",
+      "command": "mcp blast-radius",
+      "description": "Shows which NatureOS tasks failed downstream of MCP auth errors within a time window.",
+      "rationale": "Temporal anti-join across mcp_auth_errors + mcp_activity_logs + natureos_task_queue with no FK — only possible via local time-window correlation.",
+      "example": "brainos-pp-cli mcp blast-radius --since 1h --json",
+      "why_it_matters": "Use when agents are failing and you need to trace whether an MCP auth error is the root cause.",
+      "group": "MCP infrastructure"
+    },
+    {
+      "name": "Memory Load by Agent",
+      "command": "memory load",
+      "description": "Which agents have the most active memories, ranked by importance, with expiry alerts.",
+      "rationale": "Requires aggregation across active_memory by agent_id with importance weighting — not a single endpoint.",
+      "example": "brainos-pp-cli memory load --agent navigator --json",
+      "why_it_matters": "Use when an agent is behaving oddly to check if it is over- or under-loaded with context.",
+      "group": "Brain and memory"
+    },
+    {
+      "name": "Brain Activity Window",
+      "command": "brain since",
+      "description": "All thoughts, agent messages, and shared_state changes in a time window — cross-domain activity snapshot.",
+      "rationale": "Time-windowed join across three tables with no FK. The only way to see what the system did in the last N hours.",
+      "example": "brainos-pp-cli brain since 2h --json",
+      "why_it_matters": "Use at start of day to catch up on what agents did overnight.",
+      "group": "Brain and memory"
+    },
+    {
+      "name": "Thought-to-Task Latency",
+      "command": "brain lag",
+      "description": "How long insights sit in thoughts before becoming NatureOS agent tasks, by topic.",
+      "rationale": "Fuzzy-joins thoughts.topics to natureos_dual_model_tasks.project_slug on creation timestamps — requires local cross-table text matching.",
+      "example": "brainos-pp-cli brain lag --topic ops --json",
+      "why_it_matters": "Use to identify which thought topics are being ignored by the agent system.",
+      "group": "Brain and memory"
+    },
+    {
+      "name": "Agent Deadlock Detection",
+      "command": "agents deadlock",
+      "description": "Finds agents holding shared_state locks while sending no messages — potential deadlock.",
+      "rationale": "Cross-references shared_state.locked_by against agent_messages.sender recency via time-window anti-join. No FK exists.",
+      "example": "brainos-pp-cli agents deadlock --json",
+      "why_it_matters": "Use when agents seem stuck but no error is surfaced — often a silent lock.",
+      "group": "Agent coordination"
+    },
+    {
+      "name": "Agent Throughput",
+      "command": "agents throughput",
+      "description": "NatureOS task completion rates by agent type over a rolling window, with backlog depth.",
+      "rationale": "Requires aggregation of natureos_task_queue completions by agent_type + time window — not a single endpoint.",
+      "example": "brainos-pp-cli agents throughput --hours 24 --json",
+      "why_it_matters": "Use for daily agent health check to see if any agent type is falling behind.",
+      "group": "Agent coordination"
+    },
+    {
+      "name": "Cross-Domain Anomaly Detection",
+      "command": "brain anomalies",
+      "description": "Detects unusual spikes: MCP auth error floods, memory expiry cliffs, task queue backlogs — all at once.",
+      "rationale": "Cross-domain pattern detection across 4+ tables with time-window comparison. No dashboard covers all domains simultaneously.",
+      "example": "brainos-pp-cli brain anomalies --hours 1 --json",
+      "why_it_matters": "Use when something feels off but you are not sure where — surfaces the domain with the highest deviation.",
+      "group": "Brain and memory"
+    },
+    {
+      "name": "Skill Gap Analysis",
+      "command": "skills gap",
+      "description": "Which skill domains have low proficiency relative to tool usage frequency.",
+      "rationale": "Joins skills.proficiency + tool_usage_stats.tool to compare declared capability vs. actual system usage.",
+      "example": "brainos-pp-cli skills gap --domain AI --json",
+      "why_it_matters": "Use monthly to identify which capability areas need reinforcement based on actual workload.",
+      "group": "Agent coordination"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Live Trading Pulse",
+      "command": "trading pulse",
+      "description": "Instant overview of today's trading session: wins, losses, running PnL, regime, and setup distribution.",
+      "rationale": "Requires join across trading_sessions + postmortems + calibration for today's date — no single API call covers this.",
+      "example": "brainos-pp-cli trading pulse --json",
+      "why_it_matters": "Use when you need a pre-market or mid-session status check without opening a dashboard.",
+      "group": "Trading intelligence"
+    },
+    {
+      "name": "Trading Calibration Summary",
+      "command": "trading calibrate",
+      "description": "Current win rate by setup type and market regime from calibration history + recent sessions.",
+      "rationale": "Requires aggregating trading_calibration rows by setup + regime and joining recent session outcomes.",
+      "example": "brainos-pp-cli trading calibrate --setup gap-go --regime trending --json",
+      "why_it_matters": "Use before sizing a trade to confirm calibration data supports the setup in the current regime.",
+      "group": "Trading intelligence"
+    },
+    {
+      "name": "Trading Setup Drift Alert",
+      "command": "trading drift",
+      "description": "Detects when your premortem setup distribution is drifting toward lower expected-value setups before P\u0026L shows it.",
+      "rationale": "Rolling window aggregation over premortems joined to calibration.expected_value per setup — no single query or dashboard catches this early.",
+      "example": "brainos-pp-cli trading drift --weeks 2 --json",
+      "why_it_matters": "Use weekly to catch unconscious setup drift before it becomes a drawdown.",
+      "group": "Trading intelligence"
+    },
+    {
+      "name": "MCP Reliability Report",
+      "command": "mcp reliability",
+      "description": "Latency percentiles and error rates per MCP server, with auth error overlay.",
+      "rationale": "Requires local join across mcp_activity_logs + mcp_auth_errors + mcp_servers — three tables with no FK relationship.",
+      "example": "brainos-pp-cli mcp reliability --top 5 --json",
+      "why_it_matters": "Use when diagnosing agent failures that may be caused by a degraded MCP backend.",
+      "group": "MCP infrastructure"
+    },
+    {
+      "name": "MCP Blast Radius",
+      "command": "mcp blast-radius",
+      "description": "Shows which NatureOS tasks failed downstream of MCP auth errors within a time window.",
+      "rationale": "Temporal anti-join across mcp_auth_errors + mcp_activity_logs + natureos_task_queue with no FK — only possible via local time-window correlation.",
+      "example": "brainos-pp-cli mcp blast-radius --since 1h --json",
+      "why_it_matters": "Use when agents are failing and you need to trace whether an MCP auth error is the root cause.",
+      "group": "MCP infrastructure"
+    },
+    {
+      "name": "Memory Load by Agent",
+      "command": "memory load",
+      "description": "Which agents have the most active memories, ranked by importance, with expiry alerts.",
+      "rationale": "Requires aggregation across active_memory by agent_id with importance weighting — not a single endpoint.",
+      "example": "brainos-pp-cli memory load --agent navigator --json",
+      "why_it_matters": "Use when an agent is behaving oddly to check if it is over- or under-loaded with context.",
+      "group": "Brain and memory"
+    },
+    {
+      "name": "Brain Activity Window",
+      "command": "brain since",
+      "description": "All thoughts, agent messages, and shared_state changes in a time window — cross-domain activity snapshot.",
+      "rationale": "Time-windowed join across three tables with no FK. The only way to see what the system did in the last N hours.",
+      "example": "brainos-pp-cli brain since 2h --json",
+      "why_it_matters": "Use at start of day to catch up on what agents did overnight.",
+      "group": "Brain and memory"
+    },
+    {
+      "name": "Thought-to-Task Latency",
+      "command": "brain lag",
+      "description": "How long insights sit in thoughts before becoming NatureOS agent tasks, by topic.",
+      "rationale": "Fuzzy-joins thoughts.topics to natureos_dual_model_tasks.project_slug on creation timestamps — requires local cross-table text matching.",
+      "example": "brainos-pp-cli brain lag --topic ops --json",
+      "why_it_matters": "Use to identify which thought topics are being ignored by the agent system.",
+      "group": "Brain and memory"
+    },
+    {
+      "name": "Agent Deadlock Detection",
+      "command": "agents deadlock",
+      "description": "Finds agents holding shared_state locks while sending no messages — potential deadlock.",
+      "rationale": "Cross-references shared_state.locked_by against agent_messages.sender recency via time-window anti-join. No FK exists.",
+      "example": "brainos-pp-cli agents deadlock --json",
+      "why_it_matters": "Use when agents seem stuck but no error is surfaced — often a silent lock.",
+      "group": "Agent coordination"
+    },
+    {
+      "name": "Agent Throughput",
+      "command": "agents throughput",
+      "description": "NatureOS task completion rates by agent type over a rolling window, with backlog depth.",
+      "rationale": "Requires aggregation of natureos_task_queue completions by agent_type + time window — not a single endpoint.",
+      "example": "brainos-pp-cli agents throughput --hours 24 --json",
+      "why_it_matters": "Use for daily agent health check to see if any agent type is falling behind.",
+      "group": "Agent coordination"
+    },
+    {
+      "name": "Cross-Domain Anomaly Detection",
+      "command": "brain anomalies",
+      "description": "Detects unusual spikes: MCP auth error floods, memory expiry cliffs, task queue backlogs — all at once.",
+      "rationale": "Cross-domain pattern detection across 4+ tables with time-window comparison. No dashboard covers all domains simultaneously.",
+      "example": "brainos-pp-cli brain anomalies --hours 1 --json",
+      "why_it_matters": "Use when something feels off but you are not sure where — surfaces the domain with the highest deviation.",
+      "group": "Brain and memory"
+    },
+    {
+      "name": "Skill Gap Analysis",
+      "command": "skills gap",
+      "description": "Which skill domains have low proficiency relative to tool usage frequency.",
+      "rationale": "Joins skills.proficiency + tool_usage_stats.tool to compare declared capability vs. actual system usage.",
+      "example": "brainos-pp-cli skills gap --domain AI --json",
+      "why_it_matters": "Use monthly to identify which capability areas need reinforcement based on actual workload.",
+      "group": "Agent coordination"
+    }
+  ],
+  "narrative": {
+    "display_name": "BrainOS",
+    "headline": "Your AI infrastructure CLI: offline analytics across trading, memory, agents, and MCP — all from one binary.",
+    "value_prop": "brainos-pp-cli syncs your Supabase backend to a local SQLite store, enabling sub-second cross-domain queries that no single API call or dashboard can answer. Trading drift alerts, MCP blast radius traces, agent deadlock detection, and thought-to-task latency — all offline, all composable with jq.",
+    "quickstart": [
+      {
+        "command": "brainos-pp-cli doctor",
+        "comment": "verify auth and API reachability"
+      },
+      {
+        "command": "brainos-pp-cli sync --full",
+        "comment": "mirror all key tables to local SQLite"
+      },
+      {
+        "command": "brainos-pp-cli trading pulse --json",
+        "comment": "today's session overview"
+      },
+      {
+        "command": "brainos-pp-cli brain since 2h --json",
+        "comment": "what happened in the last 2 hours"
+      },
+      {
+        "command": "brainos-pp-cli mcp reliability --json",
+        "comment": "MCP server health report"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized",
+        "fix": "export BRAINOS_SERVICE_KEY=\u003cyour-service-role-key\u003e"
+      },
+      {
+        "symptom": "Empty results after sync",
+        "fix": "brainos-pp-cli sync --full --table thoughts to force full resync"
+      },
+      {
+        "symptom": "mcp blast-radius returns nothing",
+        "fix": "Extend window: brainos-pp-cli mcp blast-radius --since 6h"
+      }
+    ],
+    "when_to_use": "Use brainos-pp-cli when you need to query your AI infrastructure backend without opening a dashboard. Best for morning standups (trading pulse, brain since), incident response (mcp blast-radius, agents deadlock), and weekly reviews (trading drift, skills gap). It is the only tool that joins trading, memory, MCP, and agent data in a single offline query.",
+    "recipes": [
+      {
+        "title": "Morning standup",
+        "command": "brainos-pp-cli trading pulse --json",
+        "explanation": "Get today's trading status — wins, losses, PnL, regime."
+      },
+      {
+        "title": "Overnight agent activity",
+        "command": "brainos-pp-cli brain since 8h --json --select type,content,ts",
+        "explanation": "What thoughts and agent messages arrived overnight."
+      },
+      {
+        "title": "Incident triage",
+        "command": "brainos-pp-cli mcp blast-radius --since 2h --json",
+        "explanation": "Find which MCP auth errors caused downstream task failures in the last 2 hours."
+      },
+      {
+        "title": "Weekly trading review",
+        "command": "brainos-pp-cli trading drift --weeks 2 --json",
+        "explanation": "Check if setup distribution is drifting before the drawdown shows up."
+      },
+      {
+        "title": "Agent health check",
+        "command": "brainos-pp-cli agents deadlock --json",
+        "explanation": "Detect stuck agents holding shared_state locks while silent."
+      },
+      {
+        "title": "Brain context dump",
+        "command": "brainos-pp-cli brain since 24h --agent --select type,content,ts",
+        "explanation": "Full time-windowed activity snapshot for agent consumption."
+      }
+    ],
+    "trigger_phrases": [
+      "check my trading session",
+      "what did agents do overnight",
+      "MCP health check",
+      "trading drift",
+      "brain status",
+      "use brainos",
+      "run brainos"
+    ]
+  }
+}

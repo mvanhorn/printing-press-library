@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-16T00:13:03.961422Z",
+  "printing_press_version": "4.6.1",
+  "api_name": "brainos",
+  "display_name": "Brainos Personal Ai",
+  "cli_name": "brainos-pp-cli",
+  "owner": "devin",
+  "printer": "b0stwickvibes",
+  "printer_name": "Devin",
+  "spec_path": "/Users/devin/printing-press/.runstate/devin-26117293/runs/20260515-113110/research/brainos-spec-enriched.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:d99030f640652d9125a05a1ff624bf33fc80c6479ec5886e1c1251ea659c4cf4",
+  "run_id": "20260515-113110",
+  "mcp_binary": "brainos-pp-mcp",
+  "mcp_tool_count": 157,
+  "mcp_public_tool_count": 157,
+  "mcp_ready": "full",
+  "api_version": "14.5",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Live Trading Pulse",
+      "command": "trading pulse",
+      "description": "Instant overview of today's trading session: wins, losses, running PnL, regime, and setup distribution."
+    },
+    {
+      "name": "Trading Calibration Summary",
+      "command": "trading calibrate",
+      "description": "Current win rate by setup type and market regime from calibration history + recent sessions."
+    },
+    {
+      "name": "Trading Setup Drift Alert",
+      "command": "trading drift",
+      "description": "Detects when your premortem setup distribution is drifting toward lower expected-value setups before P&L shows it."
+    },
+    {
+      "name": "MCP Reliability Report",
+      "command": "mcp reliability",
+      "description": "Latency percentiles and error rates per MCP server, with auth error overlay."
+    },
+    {
+      "name": "MCP Blast Radius",
+      "command": "mcp blast-radius",
+      "description": "Shows which NatureOS tasks failed downstream of MCP auth errors within a time window."
+    },
+    {
+      "name": "Memory Load by Agent",
+      "command": "memory load",
+      "description": "Which agents have the most active memories, ranked by importance, with expiry alerts."
+    },
+    {
+      "name": "Brain Activity Window",
+      "command": "brain since",
+      "description": "All thoughts, agent messages, and shared_state changes in a time window \u2014 cross-domain activity snapshot."
+    },
+    {
+      "name": "Thought-to-Task Latency",
+      "command": "brain lag",
+      "description": "How long insights sit in thoughts before becoming NatureOS agent tasks, by topic."
+    },
+    {
+      "name": "Agent Deadlock Detection",
+      "command": "agents deadlock",
+      "description": "Finds agents holding shared_state locks while sending no messages \u2014 potential deadlock."
+    },
+    {
+      "name": "Agent Throughput",
+      "command": "agents throughput",
+      "description": "NatureOS task completion rates by agent type over a rolling window, with backlog depth."
+    },
+    {
+      "name": "Cross-Domain Anomaly Detection",
+      "command": "brain anomalies",
+      "description": "Detects unusual spikes: MCP auth error floods, memory expiry cliffs, task queue backlogs \u2014 all at once."
+    },
+    {
+      "name": "Skill Gap Analysis",
+      "command": "skills gap",
+      "description": "Which skill domains have low proficiency relative to tool usage frequency."
+    }
+  ],
+  "category": "ai"
+}
