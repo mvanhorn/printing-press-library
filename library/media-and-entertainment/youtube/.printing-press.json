@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-15T12:59:42.433708Z",
+  "printing_press_version": "4.2.2",
+  "api_name": "youtube",
+  "display_name": "Youtube Data",
+  "cli_name": "youtube-pp-cli",
+  "owner": "justinwfu",
+  "printer": "justinwfu",
+  "printer_name": "Justin",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:2bdb40d21ee2685b64ce4f457ee626e2aef00f5ff989236d664f370420559ead",
+  "run_id": "20260515-050804",
+  "mcp_binary": "youtube-pp-mcp",
+  "mcp_tool_count": 5,
+  "mcp_ready": "full",
+  "api_version": "v3",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "YOUTUBE_API_KEY"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "YOUTUBE_API_KEY",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": true,
+      "description": "YouTube Data API key for read-only public-data operations"
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Bulk search from stdin",
+      "command": "youtube search-bulk",
+      "description": "Take a list of search terms from stdin or args, return top-N YouTube videos per term in one JSON document with titles, channels, embed URLs, and thumbnails."
+    },
+    {
+      "name": "Transcript fetcher",
+      "command": "youtube videos-transcript",
+      "description": "Fetch the spoken-content transcript of a YouTube video using the timedtext endpoint. Works for auto-generated and manual captions on any public video. Caches into the local store."
+    },
+    {
+      "name": "Embed snippet generator",
+      "command": "youtube videos-embed",
+      "description": "Print embed HTML, iframe, or markdown-style embed for a video ID. Direct copy-paste into a blog draft."
+    },
+    {
+      "name": "Topic-similarity related videos",
+      "command": "youtube videos-related",
+      "description": "Find videos related to a target video using topicDetails + same-channel + tag overlap from the local store. Best-effort replacement for the deprecated relatedToVideoId parameter."
+    },
+    {
+      "name": "Top comments by likes",
+      "command": "youtube videos-comments",
+      "description": "Fetch top comments on a video, ranked locally by likeCount. Pulls up to 5 pages from commentThreads.list and sorts so most-liked floats regardless of API order."
+    },
+    {
+      "name": "Channel uploads in one call",
+      "command": "youtube channel-uploads",
+      "description": "List a channel's most recent uploads in one call. Resolves @handle or channelId, walks the auto-generated uploads playlist, returns video IDs + titles + publish times."
+    }
+  ]
+}

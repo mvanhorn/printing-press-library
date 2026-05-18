@@ -8,7 +8,7 @@ Learn more at [Dub](https://dub.co/support).
 
 ## Install
 
-The recommended path installs both the `dub-pp-cli` binary and the `pp-dub` agent skill in one shot:
+The recommended path installs both the `dub-pp-cli` binary and the `pp-dub` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
 npx -y @mvanhorn/printing-press install dub
@@ -18,6 +18,19 @@ For CLI only (no skill):
 
 ```bash
 npx -y @mvanhorn/printing-press install dub --cli-only
+```
+
+For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
+
+```bash
+npx -y @mvanhorn/printing-press install dub --skill-only
+```
+
+To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
+
+```bash
+npx -y @mvanhorn/printing-press install dub --agent claude-code
+npx -y @mvanhorn/printing-press install dub --agent claude-code --agent codex
 ```
 
 ### Without Node (Go fallback)
@@ -56,6 +69,44 @@ Tell your OpenClaw agent (copy this):
 ```
 Install the pp-dub skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-dub. The skill defines how its required CLI can be installed.
 ```
+
+## Use with Claude Desktop
+
+This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
+
+To install:
+
+1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/dub-current).
+2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
+3. Fill in `DUB_TOKEN` when Claude Desktop prompts you.
+
+Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
+
+<details>
+<summary>Manual JSON config (advanced)</summary>
+
+If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/other/dub/cmd/dub-pp-mcp@latest
+```
+
+Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "dub": {
+      "command": "dub-pp-mcp",
+      "env": {
+        "DUB_TOKEN": "<your-key>"
+      }
+    }
+  }
+}
+```
+
+</details>
 
 ## Authentication
 
@@ -348,97 +399,6 @@ This CLI is designed for AI agent consumption:
 - **Agent-safe by default** - no colors or formatting unless `--human-friendly` is set
 
 Exit codes: `0` success, `2` usage error, `3` not found, `4` auth error, `5` API error, `7` rate limited, `10` config error.
-
-## Use with Claude Code
-
-Install the focused skill — it auto-installs the CLI on first invocation:
-
-```bash
-npx skills add mvanhorn/printing-press-library/cli-skills/pp-dub -g
-```
-
-Then invoke `/pp-dub <query>` in Claude Code. The skill is the most efficient path — Claude Code drives the CLI directly without an MCP server in the middle.
-
-<details>
-<summary>Use as an MCP server in Claude Code (advanced)</summary>
-
-If you'd rather register this CLI as an MCP server in Claude Code, install the MCP binary first:
-
-```bash
-go install github.com/mvanhorn/printing-press-library/library/other/dub/cmd/dub-pp-mcp@latest
-```
-
-Then register it:
-
-```bash
-claude mcp add dub dub-pp-mcp -e DUB_API_KEY=<your-token>
-```
-
-### Remote MCP (Streamable HTTP)
-
-`dub-pp-mcp` also serves over Streamable HTTP for cloud agent hosts. Set
-`DUB_MCP_TRANSPORT=http` (and optionally `DUB_MCP_ADDR=:8080`) before
-launching:
-
-```bash
-DUB_API_KEY=<your-token> DUB_MCP_TRANSPORT=http DUB_MCP_ADDR=:8080 dub-pp-mcp
-# Server: Dub MCP server listening (Streamable HTTP) on :8080/mcp
-```
-
-The default transport is `stdio`, so existing local installs are unaffected.
-
-### Tool surface modes
-
-`dub-pp-mcp` exposes the API to agents through one of two tool surfaces.
-`DUB_MCP_SURFACE` selects which:
-
-- `thin` (default) — two tools, `dub_search` and `dub_execute`, that cover the entire 53-endpoint API. The agent calls `dub_search("create a short link")`, gets a ranked endpoint id back, then calls `dub_execute("links_create", {...})`. Loads ~1K tokens of tool definitions into the agent's catalog instead of ~30K.
-- `full` — the 53 typed endpoint-mirror tools (`links_create`, `analytics_retrieve`, etc.). Use when your MCP host benefits from per-endpoint typed argument schemas and your context budget can absorb the catalog.
-- `both` — registers both surfaces. Useful if you want to A/B in one server.
-
-Default is `thin` because the agent's tool catalog is loaded every conversation regardless of transport, and the orchestration: code pattern collapses the cost without losing coverage.
-
-Pattern source: Anthropic 2026-04 "Building agents that reach production systems with MCP" (Cloudflare's MCP server uses the same search+execute shape for ~2,500 endpoints in ~1K tokens).
-
-</details>
-
-## Use with Claude Desktop
-
-This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
-
-To install:
-
-1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/dub-current).
-2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
-3. Fill in `DUB_TOKEN` when Claude Desktop prompts you.
-
-Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
-
-<details>
-<summary>Manual JSON config (advanced)</summary>
-
-If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
-
-```bash
-go install github.com/mvanhorn/printing-press-library/library/other/dub/cmd/dub-pp-mcp@latest
-```
-
-Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "dub": {
-      "command": "dub-pp-mcp",
-      "env": {
-        "DUB_TOKEN": "<your-key>"
-      }
-    }
-  }
-}
-```
-
-</details>
 
 ## Health Check
 

@@ -1,0 +1,2982 @@
+{
+  "api_name": "pricebook",
+  "base_url": "https://api.servicetitan.io/pricebook/v2",
+  "description": "Categories, client-specific pricing, discounts and fees, equipment, materials, pricebook bulk operations, pricebook images, services",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "ST_CLIENT_ID",
+      "ST_CLIENT_SECRET"
+    ],
+    "env_var_specs": [
+      {
+        "name": "ST_CLIENT_ID",
+        "kind": "auth_flow_input",
+        "required": true,
+        "sensitive": true,
+        "description": "ServiceTitan OAuth2 client_id for the integration. Used by the auth login flow to exchange for a bearer token at https://auth.servicetitan.io/connect/token. Whitespace is stripped defensively."
+      },
+      {
+        "name": "ST_CLIENT_SECRET",
+        "kind": "auth_flow_input",
+        "required": true,
+        "sensitive": true,
+        "description": "ServiceTitan OAuth2 client_secret paired with ST_CLIENT_ID. Whitespace is stripped defensively (a known JKA env gotcha that produced opaque invalid_client 400s)."
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "categories_create",
+      "description": "Post to add a new category to your pricebook. Required: tenant, categoryType, name. Optional: active, businessUnitIds, description (plus 5 more). Returns the new PricebookV2CategoryResponse.",
+      "method": "POST",
+      "path": "/tenant/{tenant}/categories",
+      "params": [
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        },
+        {
+          "name": "active",
+          "type": "bool",
+          "location": "body",
+          "description": "Active shows if this category is currently active"
+        },
+        {
+          "name": "businessUnitIds",
+          "type": "array",
+          "location": "body",
+          "description": "The business units that are associated with this category"
+        },
+        {
+          "name": "categoryType",
+          "type": "string",
+          "location": "body",
+          "description": "The category type. This field can be Service or Material.",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "A description that described the category"
+        },
+        {
+          "name": "image",
+          "type": "string",
+          "location": "body",
+          "description": "The image to display as the category"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the category",
+          "required": true
+        },
+        {
+          "name": "parentId",
+          "type": "int",
+          "location": "body",
+          "description": "The id of the category that is the parent of this item"
+        },
+        {
+          "name": "position",
+          "type": "int",
+          "location": "body",
+          "description": "The position location of this item"
+        },
+        {
+          "name": "skuImages",
+          "type": "array",
+          "location": "body",
+          "description": "The images that will be used for the SKUs under this category"
+        },
+        {
+          "name": "skuVideos",
+          "type": "array",
+          "location": "body",
+          "description": "The videos that will be used for the videos under this category"
+        }
+      ]
+    },
+    {
+      "name": "categories_delete",
+      "description": "Deletes an existing category from your pricebook. Required: id, tenant. Destructive.",
+      "method": "DELETE",
+      "path": "/tenant/{tenant}/categories/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id of the SKU you are deleting",
+          "required": true
+        },
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "categories_get",
+      "description": "Gets category details. Required: id, tenant. Returns the PricebookV2CategoryResponse.",
+      "method": "GET",
+      "path": "/tenant/{tenant}/categories/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "The id of the service you are requesting",
+          "required": true
+        },
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "categories_get-list",
+      "description": "GET the categories in your pricebook. Required: tenant. Optional: page, pageSize, includeTotal (plus 7 more). Returns array of PricebookV2CategoryResponse.",
+      "method": "GET",
+      "path": "/tenant/{tenant}/categories",
+      "params": [
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "The logical number of page to return, starting from 1"
+        },
+        {
+          "name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "How many records to return (50 by default)"
+        },
+        {
+          "name": "includeTotal",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether total count should be returned"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Applies sorting by the specified field: '?sort=+FieldName' for ascending order, '?sort=-FieldName' for descending order. Available fields are: Id, Name."
+        },
+        {
+          "name": "categoryType",
+          "type": "string",
+          "location": "query",
+          "description": "Category type Values: [Services, Materials]"
+        },
+        {
+          "name": "active",
+          "type": "string",
+          "location": "query",
+          "description": "What kind of items should be returned (only active items will be returned by default)..."
+        },
+        {
+          "name": "createdBefore",
+          "type": "string",
+          "location": "query",
+          "description": "Return items created before certain date/time (in UTC)"
+        },
+        {
+          "name": "createdOnOrAfter",
+          "type": "string",
+          "location": "query",
+          "description": "Return items created on or after certain date/time (in UTC)"
+        },
+        {
+          "name": "modifiedBefore",
+          "type": "string",
+          "location": "query",
+          "description": "Return items modified before certain date/time (in UTC)"
+        },
+        {
+          "name": "modifiedOnOrAfter",
+          "type": "string",
+          "location": "query",
+          "description": "Return items modified on or after certain date/time (in UTC)"
+        }
+      ]
+    },
+    {
+      "name": "categories_update",
+      "description": "Edits an existing category in your pricebook. Required: id, tenant. Optional: active, businessUnitIds, categoryType (plus 7 more). Returns the updated PricebookV2CategoryResponse.",
+      "method": "PATCH",
+      "path": "/tenant/{tenant}/categories/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Unique id for the SKU is modified",
+          "required": true
+        },
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        },
+        {
+          "name": "active",
+          "type": "bool",
+          "location": "body",
+          "description": "Active shows if this category is currently active"
+        },
+        {
+          "name": "businessUnitIds",
+          "type": "array",
+          "location": "body",
+          "description": "The business units that are associated with this category"
+        },
+        {
+          "name": "categoryType",
+          "type": "string",
+          "location": "body",
+          "description": "The category type. This field can be Service or Material."
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "A description that described the category"
+        },
+        {
+          "name": "image",
+          "type": "string",
+          "location": "body",
+          "description": "The image to display as the category"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the category"
+        },
+        {
+          "name": "parentId",
+          "type": "int",
+          "location": "body",
+          "description": "The id of the category that is the parent of this item"
+        },
+        {
+          "name": "position",
+          "type": "int",
+          "location": "body",
+          "description": "The position location of this item"
+        },
+        {
+          "name": "skuImages",
+          "type": "array",
+          "location": "body",
+          "description": "The images that will be used for the SKUs under this category"
+        },
+        {
+          "name": "skuVideos",
+          "type": "array",
+          "location": "body",
+          "description": "The videos that will be used for the videos under this category"
+        }
+      ]
+    },
+    {
+      "name": "clientspecificpricing_client-specific-pricing-get-all-rate-sheets",
+      "description": "Client specific pricing_get all rate sheets. Required: tenant. Optional: ids, searchTerm, active (plus 3 more). Returns array of EstimatesV2ClientSpecificPricingResponse.",
+      "method": "GET",
+      "path": "/tenant/{tenant}/clientspecificpricing",
+      "params": [
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        },
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "query",
+          "description": "Ids"
+        },
+        {
+          "name": "searchTerm",
+          "type": "string",
+          "location": "query",
+          "description": "Search term"
+        },
+        {
+          "name": "active",
+          "type": "string",
+          "location": "query",
+          "description": "Values: [True, Any, False]"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        },
+        {
+          "name": "includeTotal",
+          "type": "bool",
+          "location": "query",
+          "description": "Include total"
+        }
+      ]
+    },
+    {
+      "name": "clientspecificpricing_client-specific-pricing-update-rate-sheet",
+      "description": "Client specific pricing_update rate sheet. Required: rateSheetId, tenant. Optional: exceptions. Returns the updated EstimatesV2UpdateClientSpecificPricingResponse.",
+      "method": "PATCH",
+      "path": "/tenant/{tenant}/clientspecificpricing/{rateSheetId}",
+      "params": [
+        {
+          "name": "rateSheetId",
+          "type": "int",
+          "location": "path",
+          "description": "Rate sheet id",
+          "required": true
+        },
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        },
+        {
+          "name": "exceptions",
+          "type": "array",
+          "location": "body",
+          "description": "Exceptions"
+        }
+      ]
+    },
+    {
+      "name": "discounts-and-fees_discount-and-fees-create",
+      "description": "Post to add a new discount or fee to your pricebook. Required: tenant, amount, amountType, code, description, type. Optional: account, active, assets (plus 14 more). Returns the new PricebookV2DiscountAndFeesResponse.",
+      "method": "POST",
+      "path": "/tenant/{tenant}/discounts-and-fees",
+      "params": [
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        },
+        {
+          "name": "account",
+          "type": "string",
+          "location": "body",
+          "description": "The accounting account assigned to the SKU"
+        },
+        {
+          "name": "active",
+          "type": "bool",
+          "location": "body",
+          "description": "Active shows if this item is currently active"
+        },
+        {
+          "name": "amount",
+          "type": "float",
+          "location": "body",
+          "description": "Amount is either the flat amount or percentage you want discounted/added",
+          "required": true
+        },
+        {
+          "name": "amountType",
+          "type": "string",
+          "location": "body",
+          "description": "The amount type takes either 'percentage' or 'flat ' and apply the 'amount' field accordingly",
+          "required": true
+        },
+        {
+          "name": "assets",
+          "type": "array",
+          "location": "body",
+          "description": "Images, videos or PDFs attached to SKU"
+        },
+        {
+          "name": "bonus",
+          "type": "float",
+          "location": "body",
+          "description": "Flat rate bonus paid for this item"
+        },
+        {
+          "name": "budgetCostCode",
+          "type": "string",
+          "location": "body",
+          "description": "The Budget CostCode segment for this entity. (Note: BudgetCostType should also be provided)"
+        },
+        {
+          "name": "budgetCostType",
+          "type": "string",
+          "location": "body",
+          "description": "The Budget CostType segment for this entity (Note: BudgetCostCode should also be provided)"
+        },
+        {
+          "name": "categories",
+          "type": "array",
+          "location": "body",
+          "description": "The category technicians will use to find the item"
+        },
+        {
+          "name": "code",
+          "type": "string",
+          "location": "body",
+          "description": "Code used for the discount or fee",
+          "required": true
+        },
+        {
+          "name": "commissionBonus",
+          "type": "float",
+          "location": "body",
+          "description": "Percentage rate bonus paid for this item"
+        },
+        {
+          "name": "crossSaleGroup",
+          "type": "string",
+          "location": "body",
+          "description": "A grouping of similar items that you'll then be able to track as a separate columns on the..."
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description for the item",
+          "required": true
+        },
+        {
+          "name": "displayName",
+          "type": "string",
+          "location": "body",
+          "description": "Name for the discount of fee"
+        },
+        {
+          "name": "excludeFromPayroll",
+          "type": "bool",
+          "location": "body",
+          "description": "Exclude from payroll"
+        },
+        {
+          "name": "externalData",
+          "type": "string",
+          "location": "body",
+          "description": "Optional model that contains a list of external data items that should be attached to this entity."
+        },
+        {
+          "name": "hours",
+          "type": "float",
+          "location": "body",
+          "description": "The number of hours associated with the SKU"
+        },
+        {
+          "name": "intacctGlGroupAccount",
+          "type": "string",
+          "location": "body",
+          "description": "Intacct GL Group Name"
+        },
+        {
+          "name": "limit",
+          "type": "float",
+          "location": "body",
+          "description": "The maximum amount that can be applied for this item"
+        },
+        {
+          "name": "paysCommission",
+          "type": "bool",
+          "location": "body",
+          "description": "PaysCommissions shows if for this item commission payed"
+        },
+        {
+          "name": "taxable",
+          "type": "bool",
+          "location": "body",
+          "description": "Should tax be applied when the item is added on an estimate or invoice"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type should be entered as Discount or Fee to show the type",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "discounts-and-fees_discount-and-fees-delete",
+      "description": "Deletes a discount or fee from your pricebook. Required: id, tenant. Destructive.",
+      "method": "DELETE",
+      "path": "/tenant/{tenant}/discounts-and-fees/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id of the SKU you are deleting",
+          "required": true
+        },
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "discounts-and-fees_discount-and-fees-get",
+      "description": "Get details of a discount or fee in the pricebook. Required: id, tenant. Optional: externalDataApplicationGuid. Returns the PricebookV2DiscountAndFeesResponse.",
+      "method": "GET",
+      "path": "/tenant/{tenant}/discounts-and-fees/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "The id of the discount and fee you are requesting",
+          "required": true
+        },
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        },
+        {
+          "name": "externalDataApplicationGuid",
+          "type": "string",
+          "location": "query",
+          "description": "Items that are created with a specific guid, could be fetched/updated/removed only when the..."
+        }
+      ]
+    },
+    {
+      "name": "discounts-and-fees_discount-and-fees-get-list",
+      "description": "Get data on all of the discounts or fees in the pricebook. Supports optional search filtering. Required: tenant. Optional: page, pageSize, includeTotal (plus 11 more). Returns array of PricebookV2DiscountAndFeesResponse.",
+      "method": "GET",
+      "path": "/tenant/{tenant}/discounts-and-fees",
+      "params": [
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "The logical number of page to return, starting from 1"
+        },
+        {
+          "name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "How many records to return (50 by default)"
+        },
+        {
+          "name": "includeTotal",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether total count should be returned"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Applies sorting by the specified field: '?"
+        },
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "query",
+          "description": "Perform lookup by multiple IDs (maximum 50)"
+        },
+        {
+          "name": "createdBefore",
+          "type": "string",
+          "location": "query",
+          "description": "Return items created before certain date/time (in UTC)"
+        },
+        {
+          "name": "createdOnOrAfter",
+          "type": "string",
+          "location": "query",
+          "description": "Return items created on or after certain date/time (in UTC)"
+        },
+        {
+          "name": "modifiedBefore",
+          "type": "string",
+          "location": "query",
+          "description": "Return items modified before certain date/time (in UTC)"
+        },
+        {
+          "name": "modifiedOnOrAfter",
+          "type": "string",
+          "location": "query",
+          "description": "Return items modified on or after certain date/time (in UTC)"
+        },
+        {
+          "name": "active",
+          "type": "string",
+          "location": "query",
+          "description": "What kind of items should be returned (only active items will be returned by default)..."
+        },
+        {
+          "name": "externalDataApplicationGuid",
+          "type": "string",
+          "location": "query",
+          "description": "Items that are created with a specific guid, could be fetched/updated/removed only when the..."
+        },
+        {
+          "name": "externalDataKey",
+          "type": "string",
+          "location": "query",
+          "description": "Allows filtering by external data key"
+        },
+        {
+          "name": "externalDataValues",
+          "type": "string",
+          "location": "query",
+          "description": "Allows filtering by external data values"
+        },
+        {
+          "name": "searchText",
+          "type": "string",
+          "location": "query",
+          "description": "Optional search text to filter by."
+        }
+      ]
+    },
+    {
+      "name": "discounts-and-fees_discount-and-fees-update",
+      "description": "Edit an existing item in your pricebook. Required: id, tenant. Optional: account, active, amount (plus 19 more). Returns the updated PricebookV2DiscountAndFeesResponse.",
+      "method": "PATCH",
+      "path": "/tenant/{tenant}/discounts-and-fees/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Unique id for the SKU is modified",
+          "required": true
+        },
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        },
+        {
+          "name": "account",
+          "type": "string",
+          "location": "body",
+          "description": "The accounting account assigned to the SKU"
+        },
+        {
+          "name": "active",
+          "type": "bool",
+          "location": "body",
+          "description": "Active shows if this item is currently active"
+        },
+        {
+          "name": "amount",
+          "type": "float",
+          "location": "body",
+          "description": "Amount is either the flat amount or percentage you want discounted/added"
+        },
+        {
+          "name": "amountType",
+          "type": "string",
+          "location": "body",
+          "description": "The amount type takes either 'percentage' or 'flat ' and apply the 'amount' field accordingly"
+        },
+        {
+          "name": "assets",
+          "type": "array",
+          "location": "body",
+          "description": "Images, videos or PDFs attached to SKU"
+        },
+        {
+          "name": "bonus",
+          "type": "float",
+          "location": "body",
+          "description": "Flat rate bonus paid for this item"
+        },
+        {
+          "name": "budgetCostCode",
+          "type": "string",
+          "location": "body",
+          "description": "The Budget CostCode segment for this entity. (Note: BudgetCostType should also be provided)"
+        },
+        {
+          "name": "budgetCostType",
+          "type": "string",
+          "location": "body",
+          "description": "The Budget CostType segment for this entity (Note: BudgetCostCode should also be provided)"
+        },
+        {
+          "name": "categories",
+          "type": "array",
+          "location": "body",
+          "description": "The category technicians will use to find the item"
+        },
+        {
+          "name": "code",
+          "type": "string",
+          "location": "body",
+          "description": "Code used for the discount or fee"
+        },
+        {
+          "name": "commissionBonus",
+          "type": "float",
+          "location": "body",
+          "description": "Percentage rate bonus paid for this item"
+        },
+        {
+          "name": "crossSaleGroup",
+          "type": "string",
+          "location": "body",
+          "description": "A grouping of similar items that you'll then be able to track as a separate columns on the..."
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description for the item"
+        },
+        {
+          "name": "displayName",
+          "type": "string",
+          "location": "body",
+          "description": "Name for the discount of fee"
+        },
+        {
+          "name": "excludeFromPayroll",
+          "type": "bool",
+          "location": "body",
+          "description": "Exclude from payroll"
+        },
+        {
+          "name": "externalData",
+          "type": "string",
+          "location": "body",
+          "description": "External data update model."
+        },
+        {
+          "name": "hours",
+          "type": "float",
+          "location": "body",
+          "description": "The number of hours associated with the SKU"
+        },
+        {
+          "name": "intacctGlGroupAccount",
+          "type": "string",
+          "location": "body",
+          "description": "Intacct GL Group Name"
+        },
+        {
+          "name": "limit",
+          "type": "float",
+          "location": "body",
+          "description": "The maximum amount that can be applied for this item"
+        },
+        {
+          "name": "paysCommission",
+          "type": "bool",
+          "location": "body",
+          "description": "PaysCommissions shows if for this item commission payed"
+        },
+        {
+          "name": "taxable",
+          "type": "bool",
+          "location": "body",
+          "description": "Should tax be applied when the item is added on an estimate or invoice"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type should be entered as Discount or Fee to show the type"
+        }
+      ]
+    },
+    {
+      "name": "equipment_create",
+      "description": "Post to add new equipment to your pricebook. Required: tenant, code, description. Optional: account, active, addOnMemberPrice (plus 33 more). Returns the new PricebookV2EquipmentResponse.",
+      "method": "POST",
+      "path": "/tenant/{tenant}/equipment",
+      "params": [
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        },
+        {
+          "name": "account",
+          "type": "string",
+          "location": "body",
+          "description": "The accounting account assigned to this SKU"
+        },
+        {
+          "name": "active",
+          "type": "bool",
+          "location": "body",
+          "description": "Active shows if the SKU is active or inactive"
+        },
+        {
+          "name": "addOnMemberPrice",
+          "type": "float",
+          "location": "body",
+          "description": "The price if the SKU is sold to a member as an add-on item"
+        },
+        {
+          "name": "addOnPrice",
+          "type": "float",
+          "location": "body",
+          "description": "The price of the SKU is sold as an add-on item"
+        },
+        {
+          "name": "assetAccount",
+          "type": "string",
+          "location": "body",
+          "description": "Asset account"
+        },
+        {
+          "name": "assets",
+          "type": "array",
+          "location": "body",
+          "description": "Images, videos or PDFs attached to SKU"
+        },
+        {
+          "name": "bonus",
+          "type": "float",
+          "location": "body",
+          "description": "Flat rate bonus paid for this task"
+        },
+        {
+          "name": "budgetCostCode",
+          "type": "string",
+          "location": "body",
+          "description": "The Budget CostCode segment for this entity. (Note: BudgetCostType should also be provided)"
+        },
+        {
+          "name": "budgetCostType",
+          "type": "string",
+          "location": "body",
+          "description": "The Budget CostType segment for this entity (Note: BudgetCostCode should also be provided)"
+        },
+        {
+          "name": "categories",
+          "type": "array",
+          "location": "body",
+          "description": "Categories that this SKU belongs to"
+        },
+        {
+          "name": "code",
+          "type": "string",
+          "location": "body",
+          "description": "Code for the SKU",
+          "required": true
+        },
+        {
+          "name": "commissionBonus",
+          "type": "float",
+          "location": "body",
+          "description": "Percentage rate bonus paid for this task"
+        },
+        {
+          "name": "cost",
+          "type": "float",
+          "location": "body",
+          "description": "The cost paid to acquire the material"
+        },
+        {
+          "name": "costOfSaleAccount",
+          "type": "string",
+          "location": "body",
+          "description": "Cost of sale account"
+        },
+        {
+          "name": "crossSaleGroup",
+          "type": "string",
+          "location": "body",
+          "description": "A grouping of similar items that you'll then be able to track as a separate columns on the..."
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description on the SKU that is displayed with the item",
+          "required": true
+        },
+        {
+          "name": "dimensions",
+          "type": "string",
+          "location": "body",
+          "description": "The equipment dimensions"
+        },
+        {
+          "name": "displayName",
+          "type": "string",
+          "location": "body",
+          "description": "Name that displays with the SKU"
+        },
+        {
+          "name": "equipmentMaterials",
+          "type": "array",
+          "location": "body",
+          "description": "Array of materials used with this equipment"
+        },
+        {
+          "name": "externalData",
+          "type": "string",
+          "location": "body",
+          "description": "Optional model that contains a list of external data items that should be attached to this entity."
+        },
+        {
+          "name": "hours",
+          "type": "float",
+          "location": "body",
+          "description": "The number of hours associated with the installing the equipment"
+        },
+        {
+          "name": "intacctGlGroupAccount",
+          "type": "string",
+          "location": "body",
+          "description": "Intacct GL Group Name"
+        },
+        {
+          "name": "isConfigurableEquipment",
+          "type": "bool",
+          "location": "body",
+          "description": "Is this a Configurable Equipment"
+        },
+        {
+          "name": "isInventory",
+          "type": "bool",
+          "location": "body",
+          "description": "Is this equipment a part of your inventory"
+        },
+        {
+          "name": "manufacturer",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the manufactures"
+        },
+        {
+          "name": "manufacturerWarranty",
+          "type": "string",
+          "location": "body",
+          "description": "Description of the manufacturer warranty included in this SKU"
+        },
+        {
+          "name": "memberPrice",
+          "type": "float",
+          "location": "body",
+          "description": "The price if the item is sold to a member"
+        },
+        {
+          "name": "model",
+          "type": "string",
+          "location": "body",
+          "description": "The model of the equipment"
+        },
+        {
+          "name": "otherVendors",
+          "type": "array",
+          "location": "body",
+          "description": "Other vendors that you might go to acquire this SKU"
+        },
+        {
+          "name": "paysCommission",
+          "type": "bool",
+          "location": "body",
+          "description": "PaysCommissions shows if this task pays commission"
+        },
+        {
+          "name": "price",
+          "type": "float",
+          "location": "body",
+          "description": "Price of this SKU sold"
+        },
+        {
+          "name": "primaryVendor",
+          "type": "string",
+          "location": "body",
+          "description": "The primary vendor you use to acquire this SKU"
+        },
+        {
+          "name": "recommendations",
+          "type": "array",
+          "location": "body",
+          "description": "Recommended services and materials to include with this SKU"
+        },
+        {
+          "name": "serviceProviderWarranty",
+          "type": "string",
+          "location": "body",
+          "description": "Description of the manufacturer warranty included in this SKU"
+        },
+        {
+          "name": "taxable",
+          "type": "bool",
+          "location": "body",
+          "description": "Is this SKU taxable"
+        },
+        {
+          "name": "unitOfMeasure",
+          "type": "string",
+          "location": "body",
+          "description": "The unit of measure used for this SKU"
+        },
+        {
+          "name": "upgrades",
+          "type": "array",
+          "location": "body",
+          "description": "Upgrades that can be sold for this SKU"
+        },
+        {
+          "name": "variationEquipment",
+          "type": "array",
+          "location": "body",
+          "description": "Variations to add"
+        }
+      ]
+    },
+    {
+      "name": "equipment_delete",
+      "description": "Deletes equipment from your pricebook. Required: id, tenant. Destructive.",
+      "method": "DELETE",
+      "path": "/tenant/{tenant}/equipment/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id of the SKU you are deleting",
+          "required": true
+        },
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "equipment_get",
+      "description": "Get details of equipment in the pricebook. Required: id, tenant. Optional: externalDataApplicationGuid. Returns the PricebookV2EquipmentResponse.",
+      "method": "GET",
+      "path": "/tenant/{tenant}/equipment/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "The id of the equipment you are requesting",
+          "required": true
+        },
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        },
+        {
+          "name": "externalDataApplicationGuid",
+          "type": "string",
+          "location": "query",
+          "description": "Items that are created with a specific guid, could be fetched/updated/removed only when the..."
+        }
+      ]
+    },
+    {
+      "name": "equipment_get-list",
+      "description": "Get data on all the equipment in the pricebook. Supports optional search filtering. Required: tenant. Optional: page, pageSize, includeTotal (plus 11 more). Returns array of PricebookV2EquipmentResponse.",
+      "method": "GET",
+      "path": "/tenant/{tenant}/equipment",
+      "params": [
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "The logical number of page to return, starting from 1"
+        },
+        {
+          "name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "How many records to return (50 by default)"
+        },
+        {
+          "name": "includeTotal",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether total count should be returned"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Applies sorting by the specified field: '?"
+        },
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "query",
+          "description": "Perform lookup by multiple IDs (maximum 50)"
+        },
+        {
+          "name": "createdBefore",
+          "type": "string",
+          "location": "query",
+          "description": "Return items created before certain date/time (in UTC)"
+        },
+        {
+          "name": "createdOnOrAfter",
+          "type": "string",
+          "location": "query",
+          "description": "Return items created on or after certain date/time (in UTC)"
+        },
+        {
+          "name": "modifiedBefore",
+          "type": "string",
+          "location": "query",
+          "description": "Return items modified before certain date/time (in UTC)"
+        },
+        {
+          "name": "modifiedOnOrAfter",
+          "type": "string",
+          "location": "query",
+          "description": "Return items modified on or after certain date/time (in UTC)"
+        },
+        {
+          "name": "active",
+          "type": "string",
+          "location": "query",
+          "description": "What kind of items should be returned (only active items will be returned by default)..."
+        },
+        {
+          "name": "externalDataApplicationGuid",
+          "type": "string",
+          "location": "query",
+          "description": "Items that are created with a specific guid, could be fetched/updated/removed only when the..."
+        },
+        {
+          "name": "externalDataKey",
+          "type": "string",
+          "location": "query",
+          "description": "Allows filtering by external data key"
+        },
+        {
+          "name": "externalDataValues",
+          "type": "string",
+          "location": "query",
+          "description": "Allows filtering by external data values"
+        },
+        {
+          "name": "searchText",
+          "type": "string",
+          "location": "query",
+          "description": "Optional search text to filter by."
+        }
+      ]
+    },
+    {
+      "name": "equipment_update",
+      "description": "Edit an existing item in your pricebook. Required: id, tenant. Optional: account, active, addOnMemberPrice (plus 35 more). Returns the updated PricebookV2EquipmentResponse.",
+      "method": "PATCH",
+      "path": "/tenant/{tenant}/equipment/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Unique id for the SKU is modified",
+          "required": true
+        },
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        },
+        {
+          "name": "account",
+          "type": "string",
+          "location": "body",
+          "description": "The accounting account assigned to this SKU"
+        },
+        {
+          "name": "active",
+          "type": "bool",
+          "location": "body",
+          "description": "Active shows if the SKU is active or inactive"
+        },
+        {
+          "name": "addOnMemberPrice",
+          "type": "float",
+          "location": "body",
+          "description": "The price if the SKU is sold to a member as an add-on item"
+        },
+        {
+          "name": "addOnPrice",
+          "type": "float",
+          "location": "body",
+          "description": "The price of the SKU is sold as an add-on item"
+        },
+        {
+          "name": "assetAccount",
+          "type": "string",
+          "location": "body",
+          "description": "Asset account"
+        },
+        {
+          "name": "assets",
+          "type": "array",
+          "location": "body",
+          "description": "Images, videos or PDFs attached to SKU"
+        },
+        {
+          "name": "bonus",
+          "type": "float",
+          "location": "body",
+          "description": "Flat rate bonus paid for this task"
+        },
+        {
+          "name": "budgetCostCode",
+          "type": "string",
+          "location": "body",
+          "description": "The Budget CostCode segment for this entity. (Note: BudgetCostType should also be provided)"
+        },
+        {
+          "name": "budgetCostType",
+          "type": "string",
+          "location": "body",
+          "description": "The Budget CostType segment for this entity (Note: BudgetCostCode should also be provided)"
+        },
+        {
+          "name": "categories",
+          "type": "array",
+          "location": "body",
+          "description": "Categories that this SKU belongs to"
+        },
+        {
+          "name": "code",
+          "type": "string",
+          "location": "body",
+          "description": "Code for the SKU"
+        },
+        {
+          "name": "commissionBonus",
+          "type": "float",
+          "location": "body",
+          "description": "Percentage rate bonus paid for this task"
+        },
+        {
+          "name": "cost",
+          "type": "float",
+          "location": "body",
+          "description": "The cost paid to acquire the material"
+        },
+        {
+          "name": "costOfSaleAccount",
+          "type": "string",
+          "location": "body",
+          "description": "Cost of sale account"
+        },
+        {
+          "name": "crossSaleGroup",
+          "type": "string",
+          "location": "body",
+          "description": "A grouping of similar items that you'll then be able to track as a separate columns on the..."
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description on the SKU that is displayed with the item"
+        },
+        {
+          "name": "dimensions",
+          "type": "string",
+          "location": "body",
+          "description": "The equipement dimensions"
+        },
+        {
+          "name": "displayName",
+          "type": "string",
+          "location": "body",
+          "description": "Name that displays with the SKU"
+        },
+        {
+          "name": "equipmentMaterials",
+          "type": "array",
+          "location": "body",
+          "description": "Array of materials used with this equipment"
+        },
+        {
+          "name": "externalData",
+          "type": "string",
+          "location": "body",
+          "description": "External data update model."
+        },
+        {
+          "name": "hours",
+          "type": "float",
+          "location": "body",
+          "description": "The number of hours associated with the installing the equipment"
+        },
+        {
+          "name": "intacctGlGroupAccount",
+          "type": "string",
+          "location": "body",
+          "description": "Intacct GL Group Name"
+        },
+        {
+          "name": "isConfigurableEquipment",
+          "type": "bool",
+          "location": "body",
+          "description": "Is this a Configurable Equipment"
+        },
+        {
+          "name": "isInventory",
+          "type": "bool",
+          "location": "body",
+          "description": "Is this equipment a part of your inventory"
+        },
+        {
+          "name": "manufacturer",
+          "type": "string",
+          "location": "body",
+          "description": "Name of the manufactures"
+        },
+        {
+          "name": "manufacturerWarranty",
+          "type": "string",
+          "location": "body",
+          "description": "Description of the manufacturer warranty included in this SKU"
+        },
+        {
+          "name": "memberPrice",
+          "type": "float",
+          "location": "body",
+          "description": "The price if the item is sold to a member"
+        },
+        {
+          "name": "model",
+          "type": "string",
+          "location": "body",
+          "description": "The model of the equipment"
+        },
+        {
+          "name": "otherVendors",
+          "type": "array",
+          "location": "body",
+          "description": "Other vendors that you might go to acquire this SKU"
+        },
+        {
+          "name": "paysCommission",
+          "type": "bool",
+          "location": "body",
+          "description": "PaysCommissions shows if this task pays commission"
+        },
+        {
+          "name": "price",
+          "type": "float",
+          "location": "body",
+          "description": "Price of this SKU sold"
+        },
+        {
+          "name": "primaryVendor",
+          "type": "string",
+          "location": "body",
+          "description": "The primary vendor you use to acquire this SKU"
+        },
+        {
+          "name": "recommendations",
+          "type": "array",
+          "location": "body",
+          "description": "Recommended services and materials to include with this SKU"
+        },
+        {
+          "name": "serviceProviderWarranty",
+          "type": "string",
+          "location": "body",
+          "description": "Description of the manufacturer warranty included in this SKU"
+        },
+        {
+          "name": "taxable",
+          "type": "bool",
+          "location": "body",
+          "description": "Is this SKU taxable"
+        },
+        {
+          "name": "unitOfMeasure",
+          "type": "string",
+          "location": "body",
+          "description": "The unit of measure used for this SKU"
+        },
+        {
+          "name": "upgrades",
+          "type": "array",
+          "location": "body",
+          "description": "Upgrades that can be sold for this SKU"
+        },
+        {
+          "name": "variationEquipment",
+          "type": "array",
+          "location": "body",
+          "description": "Added Variations"
+        }
+      ]
+    },
+    {
+      "name": "images_get",
+      "description": "Downloads a specified pricebook image. Required: tenant. Optional: path.",
+      "method": "GET",
+      "path": "/tenant/{tenant}/images",
+      "params": [
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        },
+        {
+          "name": "path",
+          "type": "string",
+          "location": "query",
+          "description": "The storage path of the pricebook image to retrieve, as returned by other pricebook API endpoints. The path is case sensitive and must begin with 'Images/'."
+        }
+      ]
+    },
+    {
+      "name": "images_post",
+      "description": "Uploads a specified image to temporary storage. To associate the image with a pricebook item, send a separate request to update that item. Required: tenant. Optional: file. Returns the new PricebookV2ImageUploadResponse.",
+      "method": "POST",
+      "path": "/tenant/{tenant}/images",
+      "params": [
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        },
+        {
+          "name": "file",
+          "type": "string",
+          "location": "body",
+          "description": "File"
+        }
+      ]
+    },
+    {
+      "name": "materials_create",
+      "description": "Add a new Materials to your pricebook. Required: tenant, code, description. Optional: account, active, addOnMemberPrice (plus 28 more). Returns the new PricebookV2MaterialResponse.",
+      "method": "POST",
+      "path": "/tenant/{tenant}/materials",
+      "params": [
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        },
+        {
+          "name": "account",
+          "type": "string",
+          "location": "body",
+          "description": "The accounting account assigned to this SKU"
+        },
+        {
+          "name": "active",
+          "type": "bool",
+          "location": "body",
+          "description": "Active shows if the SKU is active or inactive"
+        },
+        {
+          "name": "addOnMemberPrice",
+          "type": "float",
+          "location": "body",
+          "description": "The price if the SKU is sold to a member as an add-on item"
+        },
+        {
+          "name": "addOnPrice",
+          "type": "float",
+          "location": "body",
+          "description": "The price of the SKU is sold as an add-on item"
+        },
+        {
+          "name": "assetAccount",
+          "type": "string",
+          "location": "body",
+          "description": "Asset account"
+        },
+        {
+          "name": "assets",
+          "type": "array",
+          "location": "body",
+          "description": "Images, videos or PDFs attached to SKU"
+        },
+        {
+          "name": "bonus",
+          "type": "float",
+          "location": "body",
+          "description": "Flat rate bonus paid for this task"
+        },
+        {
+          "name": "budgetCostCode",
+          "type": "string",
+          "location": "body",
+          "description": "The Budget CostCode segment for this entity. (Note: BudgetCostType should also be provided)"
+        },
+        {
+          "name": "budgetCostType",
+          "type": "string",
+          "location": "body",
+          "description": "The Budget CostType segment for this entity (Note: BudgetCostCode should also be provided)"
+        },
+        {
+          "name": "categories",
+          "type": "array",
+          "location": "body",
+          "description": "Categories that this SKU belongs to"
+        },
+        {
+          "name": "chargeableByDefault",
+          "type": "bool",
+          "location": "body",
+          "description": "Is this Chargeable by default"
+        },
+        {
+          "name": "code",
+          "type": "string",
+          "location": "body",
+          "description": "Code for the SKU",
+          "required": true
+        },
+        {
+          "name": "commissionBonus",
+          "type": "float",
+          "location": "body",
+          "description": "Percentage rate bonus paid for this task"
+        },
+        {
+          "name": "cost",
+          "type": "float",
+          "location": "body",
+          "description": "The cost paid to acquire the material"
+        },
+        {
+          "name": "costOfSaleAccount",
+          "type": "string",
+          "location": "body",
+          "description": "Cost of sale account"
+        },
+        {
+          "name": "costTypeId",
+          "type": "int",
+          "location": "body",
+          "description": "The Cost Type of the Other Direct Cost"
+        },
+        {
+          "name": "deductAsJobCost",
+          "type": "bool",
+          "location": "body",
+          "description": "Is this deducted as job cost"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description on the SKU that is displayed with the item",
+          "required": true
+        },
+        {
+          "name": "displayName",
+          "type": "string",
+          "location": "body",
+          "description": "Name that displays with the SKU"
+        },
+        {
+          "name": "externalData",
+          "type": "string",
+          "location": "body",
+          "description": "Optional model that contains a list of external data items that should be attached to this entity."
+        },
+        {
+          "name": "hours",
+          "type": "float",
+          "location": "body",
+          "description": "The number of hours associated with the installing the material"
+        },
+        {
+          "name": "intacctGlGroupAccount",
+          "type": "string",
+          "location": "body",
+          "description": "Intacct GL Group Name"
+        },
+        {
+          "name": "isConfigurableMaterial",
+          "type": "bool",
+          "location": "body",
+          "description": "Is this a Configurable Material"
+        },
+        {
+          "name": "isInventory",
+          "type": "bool",
+          "location": "body",
+          "description": "Is this equipment a part of your inventory"
+        },
+        {
+          "name": "isOtherDirectCost",
+          "type": "bool",
+          "location": "body",
+          "description": "Is Other Direct Cost (false by default)"
+        },
+        {
+          "name": "memberPrice",
+          "type": "float",
+          "location": "body",
+          "description": "The price if the item is sold to a member"
+        },
+        {
+          "name": "otherVendors",
+          "type": "array",
+          "location": "body",
+          "description": "Other vendors that you might go to acquire this SKU"
+        },
+        {
+          "name": "paysCommission",
+          "type": "bool",
+          "location": "body",
+          "description": "PaysCommissions shows if this task pays commission"
+        },
+        {
+          "name": "price",
+          "type": "float",
+          "location": "body",
+          "description": "Price of this SKU sold"
+        },
+        {
+          "name": "primaryVendor",
+          "type": "string",
+          "location": "body",
+          "description": "The primary vendor you use to acquire this SKU"
+        },
+        {
+          "name": "taxable",
+          "type": "bool",
+          "location": "body",
+          "description": "Is this SKU taxable"
+        },
+        {
+          "name": "unitOfMeasure",
+          "type": "string",
+          "location": "body",
+          "description": "The unit of measure used for this SKU"
+        },
+        {
+          "name": "variationMaterials",
+          "type": "array",
+          "location": "body",
+          "description": "Variations to add"
+        }
+      ]
+    },
+    {
+      "name": "materials_delete",
+      "description": "Deletes a material from your pricebook. Required: id, tenant. Destructive.",
+      "method": "DELETE",
+      "path": "/tenant/{tenant}/materials/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id of the SKU you are deleting",
+          "required": true
+        },
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "materials_get",
+      "description": "Get details on a material in the pricebook. Required: id, tenant. Optional: externalDataApplicationGuid. Returns the PricebookV2MaterialResponse.",
+      "method": "GET",
+      "path": "/tenant/{tenant}/materials/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "The id of the material you are requesting",
+          "required": true
+        },
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        },
+        {
+          "name": "externalDataApplicationGuid",
+          "type": "string",
+          "location": "query",
+          "description": "Items that are created with a specific guid, could be fetched/updated/removed only when the..."
+        }
+      ]
+    },
+    {
+      "name": "materials_get-cost-types",
+      "description": "Get details on materials in the pricebook. Required: tenant. Returns array of PricebookV2CostTypeResponse.",
+      "method": "GET",
+      "path": "/tenant/{tenant}/materials/costtypes",
+      "params": [
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "materials_get-list",
+      "description": "Get details on materials in the pricebook. Supports optional search filtering. Required: tenant. Optional: isOtherDirectCost, costTypeIds, page (plus 13 more). Returns array of PricebookV2MaterialResponse.",
+      "method": "GET",
+      "path": "/tenant/{tenant}/materials",
+      "params": [
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        },
+        {
+          "name": "isOtherDirectCost",
+          "type": "bool",
+          "location": "query",
+          "description": "Allows filtering by Is Other Direct Cost"
+        },
+        {
+          "name": "costTypeIds",
+          "type": "string",
+          "location": "query",
+          "description": "Allows filtering by Cost Type Ids"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "The logical number of page to return, starting from 1"
+        },
+        {
+          "name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "How many records to return (50 by default)"
+        },
+        {
+          "name": "includeTotal",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether total count should be returned"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Applies sorting by the specified field: '?"
+        },
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "query",
+          "description": "Perform lookup by multiple IDs (maximum 50)"
+        },
+        {
+          "name": "createdBefore",
+          "type": "string",
+          "location": "query",
+          "description": "Return items created before certain date/time (in UTC)"
+        },
+        {
+          "name": "createdOnOrAfter",
+          "type": "string",
+          "location": "query",
+          "description": "Return items created on or after certain date/time (in UTC)"
+        },
+        {
+          "name": "modifiedBefore",
+          "type": "string",
+          "location": "query",
+          "description": "Return items modified before certain date/time (in UTC)"
+        },
+        {
+          "name": "modifiedOnOrAfter",
+          "type": "string",
+          "location": "query",
+          "description": "Return items modified on or after certain date/time (in UTC)"
+        },
+        {
+          "name": "active",
+          "type": "string",
+          "location": "query",
+          "description": "What kind of items should be returned (only active items will be returned by default)..."
+        },
+        {
+          "name": "externalDataApplicationGuid",
+          "type": "string",
+          "location": "query",
+          "description": "Items that are created with a specific guid, could be fetched/updated/removed only when the..."
+        },
+        {
+          "name": "externalDataKey",
+          "type": "string",
+          "location": "query",
+          "description": "Allows filtering by external data key"
+        },
+        {
+          "name": "externalDataValues",
+          "type": "string",
+          "location": "query",
+          "description": "Allows filtering by external data values"
+        },
+        {
+          "name": "searchText",
+          "type": "string",
+          "location": "query",
+          "description": "Optional search text to filter by."
+        }
+      ]
+    },
+    {
+      "name": "materials_update",
+      "description": "Edit an existing item in your pricebook. Required: id, tenant. Optional: account, active, addOnMemberPrice (plus 29 more). Returns the updated PricebookV2MaterialResponse.",
+      "method": "PATCH",
+      "path": "/tenant/{tenant}/materials/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Unique id for the SKU is modified",
+          "required": true
+        },
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        },
+        {
+          "name": "account",
+          "type": "string",
+          "location": "body",
+          "description": "The accounting account assigned to this SKU"
+        },
+        {
+          "name": "active",
+          "type": "bool",
+          "location": "body",
+          "description": "Active shows if the SKU is active or inactive"
+        },
+        {
+          "name": "addOnMemberPrice",
+          "type": "float",
+          "location": "body",
+          "description": "The price if the SKU is sold to a member as an add-on item"
+        },
+        {
+          "name": "addOnPrice",
+          "type": "float",
+          "location": "body",
+          "description": "The price of the SKU is sold as an add-on item"
+        },
+        {
+          "name": "assetAccount",
+          "type": "string",
+          "location": "body",
+          "description": "Asset account"
+        },
+        {
+          "name": "assets",
+          "type": "array",
+          "location": "body",
+          "description": "Images, videos or PDFs attached to SKU"
+        },
+        {
+          "name": "bonus",
+          "type": "float",
+          "location": "body",
+          "description": "Flat rate bonus paid for this task"
+        },
+        {
+          "name": "budgetCostCode",
+          "type": "string",
+          "location": "body",
+          "description": "The Budget CostCode segment for this entity. (Note: BudgetCostType should also be provided)"
+        },
+        {
+          "name": "budgetCostType",
+          "type": "string",
+          "location": "body",
+          "description": "The Budget CostType segment for this entity (Note: BudgetCostCode should also be provided)"
+        },
+        {
+          "name": "categories",
+          "type": "array",
+          "location": "body",
+          "description": "Categories that this SKU belongs to"
+        },
+        {
+          "name": "chargeableByDefault",
+          "type": "bool",
+          "location": "body",
+          "description": "Is this Chargeable by default"
+        },
+        {
+          "name": "code",
+          "type": "string",
+          "location": "body",
+          "description": "Code for the SKU"
+        },
+        {
+          "name": "commissionBonus",
+          "type": "float",
+          "location": "body",
+          "description": "Percentage rate bonus paid for this task"
+        },
+        {
+          "name": "cost",
+          "type": "float",
+          "location": "body",
+          "description": "The cost paid to acquire the material"
+        },
+        {
+          "name": "costOfSaleAccount",
+          "type": "string",
+          "location": "body",
+          "description": "Cost of sale account"
+        },
+        {
+          "name": "costTypeId",
+          "type": "int",
+          "location": "body",
+          "description": "The Cost Type of the Other Direct Cost"
+        },
+        {
+          "name": "deductAsJobCost",
+          "type": "bool",
+          "location": "body",
+          "description": "Is this deducted as job cost"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description on the SKU that is displayed with the item"
+        },
+        {
+          "name": "displayName",
+          "type": "string",
+          "location": "body",
+          "description": "Name that displays with the SKU"
+        },
+        {
+          "name": "externalData",
+          "type": "string",
+          "location": "body",
+          "description": "External data update model."
+        },
+        {
+          "name": "hours",
+          "type": "float",
+          "location": "body",
+          "description": "The number of hours associated with the installing the material"
+        },
+        {
+          "name": "intacctGlGroupAccount",
+          "type": "string",
+          "location": "body",
+          "description": "Intacct GL Group Name"
+        },
+        {
+          "name": "isConfigurableMaterial",
+          "type": "bool",
+          "location": "body",
+          "description": "Is this a Configurable Material"
+        },
+        {
+          "name": "isInventory",
+          "type": "bool",
+          "location": "body",
+          "description": "Is this material a part of your inventory"
+        },
+        {
+          "name": "memberPrice",
+          "type": "float",
+          "location": "body",
+          "description": "The price if the item is sold to a member"
+        },
+        {
+          "name": "otherVendors",
+          "type": "array",
+          "location": "body",
+          "description": "Other vendors that you might go to acquire this SKU"
+        },
+        {
+          "name": "paysCommission",
+          "type": "bool",
+          "location": "body",
+          "description": "PaysCommissions shows if this task pays commission"
+        },
+        {
+          "name": "price",
+          "type": "float",
+          "location": "body",
+          "description": "Price of this SKU sold"
+        },
+        {
+          "name": "primaryVendor",
+          "type": "string",
+          "location": "body",
+          "description": "The primary vendor you use to acquire this SKU"
+        },
+        {
+          "name": "taxable",
+          "type": "bool",
+          "location": "body",
+          "description": "Is this SKU taxable"
+        },
+        {
+          "name": "unitOfMeasure",
+          "type": "string",
+          "location": "body",
+          "description": "The unit of measure used for this SKU"
+        },
+        {
+          "name": "variationMaterials",
+          "type": "array",
+          "location": "body",
+          "description": "Added Variations"
+        }
+      ]
+    },
+    {
+      "name": "materialsmarkup_materials-markup-create",
+      "description": "Create materials markup item. Required: tenant, from, id, percent, to. Returns the new ResultOfPricebookV2MaterialsMarkupResponse.",
+      "method": "POST",
+      "path": "/tenant/{tenant}/materialsmarkup",
+      "params": [
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        },
+        {
+          "name": "from",
+          "type": "float",
+          "location": "body",
+          "description": "From",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "int",
+          "location": "body",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "percent",
+          "type": "float",
+          "location": "body",
+          "description": "Percent",
+          "required": true
+        },
+        {
+          "name": "to",
+          "type": "float",
+          "location": "body",
+          "description": "To",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "materialsmarkup_materials-markup-get",
+      "description": "Get materials markup item. Required: id, tenant. Returns the ResultOfPricebookV2MaterialsMarkupResponse.",
+      "method": "GET",
+      "path": "/tenant/{tenant}/materialsmarkup/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Materials markup id",
+          "required": true
+        },
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "materialsmarkup_materials-markup-get-list",
+      "description": "Get materials markup collection. Required: tenant. Optional: page, pageSize. Returns array of PricebookV2MaterialsMarkupResponse.",
+      "method": "GET",
+      "path": "/tenant/{tenant}/materialsmarkup",
+      "params": [
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        }
+      ]
+    },
+    {
+      "name": "materialsmarkup_materials-markup-update",
+      "description": "Update materials markup item. Required: id, tenant, from, percent, to. Returns the updated ResultOfPricebookV2MaterialsMarkupResponse.",
+      "method": "PUT",
+      "path": "/tenant/{tenant}/materialsmarkup/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Materials markup id",
+          "required": true
+        },
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        },
+        {
+          "name": "from",
+          "type": "float",
+          "location": "body",
+          "description": "From",
+          "required": true
+        },
+        {
+          "name": "percent",
+          "type": "float",
+          "location": "body",
+          "description": "Percent",
+          "required": true
+        },
+        {
+          "name": "to",
+          "type": "float",
+          "location": "body",
+          "description": "To",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "pricebook_bulk-create",
+      "description": "Pricebook bulk_create. Required: tenant. Optional: discountAndFees, equipment, materials (plus 1 more). Returns the new PricebookV2PricebookBulkCreateResponse.",
+      "method": "POST",
+      "path": "/tenant/{tenant}/pricebook",
+      "params": [
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        },
+        {
+          "name": "discountAndFees",
+          "type": "array",
+          "location": "body",
+          "description": "Discount and fees"
+        },
+        {
+          "name": "equipment",
+          "type": "array",
+          "location": "body",
+          "description": "Equipment"
+        },
+        {
+          "name": "materials",
+          "type": "array",
+          "location": "body",
+          "description": "Materials"
+        },
+        {
+          "name": "services",
+          "type": "array",
+          "location": "body",
+          "description": "Services"
+        }
+      ]
+    },
+    {
+      "name": "pricebook_bulk-update",
+      "description": "Pricebook bulk_update. Required: tenant. Optional: discountAndFees, equipment, materials (plus 1 more). Partial update.",
+      "method": "PATCH",
+      "path": "/tenant/{tenant}/pricebook",
+      "params": [
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        },
+        {
+          "name": "discountAndFees",
+          "type": "array",
+          "location": "body",
+          "description": "Discount and fees"
+        },
+        {
+          "name": "equipment",
+          "type": "array",
+          "location": "body",
+          "description": "Equipment"
+        },
+        {
+          "name": "materials",
+          "type": "array",
+          "location": "body",
+          "description": "Materials"
+        },
+        {
+          "name": "services",
+          "type": "array",
+          "location": "body",
+          "description": "Services"
+        }
+      ]
+    },
+    {
+      "name": "pricebook-export_categories",
+      "description": "Provides export feed for categories. Required: tenant. Optional: from, includeRecentChanges. Returns array of PricebookV2ExportCategoryResponse.",
+      "method": "GET",
+      "path": "/tenant/{tenant}/export/categories",
+      "params": [
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        },
+        {
+          "name": "from",
+          "type": "string",
+          "location": "query",
+          "description": "Continuation token received from previous export request in 'continueFrom' field."
+        },
+        {
+          "name": "includeRecentChanges",
+          "type": "bool",
+          "location": "query",
+          "description": "Use 'true' to start receiving the most recent changes quicker."
+        }
+      ]
+    },
+    {
+      "name": "pricebook-export_equipment",
+      "description": "Provides export feed for equipment. Required: tenant. Optional: from, includeRecentChanges. Returns array of PricebookV2ExportEquipmentResponse.",
+      "method": "GET",
+      "path": "/tenant/{tenant}/export/equipment",
+      "params": [
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        },
+        {
+          "name": "from",
+          "type": "string",
+          "location": "query",
+          "description": "Continuation token received from previous export request in 'continueFrom' field."
+        },
+        {
+          "name": "includeRecentChanges",
+          "type": "bool",
+          "location": "query",
+          "description": "Use 'true' to start receiving the most recent changes quicker."
+        }
+      ]
+    },
+    {
+      "name": "pricebook-export_materials",
+      "description": "Provides export feed for materials. Required: tenant. Optional: from, includeRecentChanges. Returns array of PricebookV2ExportMaterialResponse.",
+      "method": "GET",
+      "path": "/tenant/{tenant}/export/materials",
+      "params": [
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        },
+        {
+          "name": "from",
+          "type": "string",
+          "location": "query",
+          "description": "Continuation token received from previous export request in 'continueFrom' field."
+        },
+        {
+          "name": "includeRecentChanges",
+          "type": "bool",
+          "location": "query",
+          "description": "Use 'true' to start receiving the most recent changes quicker."
+        }
+      ]
+    },
+    {
+      "name": "pricebook-export_services",
+      "description": "Provides export feed for services. Required: tenant. Optional: from, includeRecentChanges. Returns array of PricebookV2ExportServiceResponse.",
+      "method": "GET",
+      "path": "/tenant/{tenant}/export/services",
+      "params": [
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        },
+        {
+          "name": "from",
+          "type": "string",
+          "location": "query",
+          "description": "Continuation token received from previous export request in 'continueFrom' field."
+        },
+        {
+          "name": "includeRecentChanges",
+          "type": "bool",
+          "location": "query",
+          "description": "Use 'true' to start receiving the most recent changes quicker."
+        }
+      ]
+    },
+    {
+      "name": "services_create",
+      "description": "Post to add a new service to your pricebook. Required: tenant, code, description. Optional: account, active, addOnMemberPrice (plus 22 more). Returns the new PricebookV2ServiceResponse.",
+      "method": "POST",
+      "path": "/tenant/{tenant}/services",
+      "params": [
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        },
+        {
+          "name": "account",
+          "type": "string",
+          "location": "body",
+          "description": "The accounting account assigned to this SKU"
+        },
+        {
+          "name": "active",
+          "type": "bool",
+          "location": "body",
+          "description": "Active shows if the SKU is active or inactive"
+        },
+        {
+          "name": "addOnMemberPrice",
+          "type": "float",
+          "location": "body",
+          "description": "The price if the SKU is sold to a member as an add-on item"
+        },
+        {
+          "name": "addOnPrice",
+          "type": "float",
+          "location": "body",
+          "description": "The price of the SKU is sold as an add-on item"
+        },
+        {
+          "name": "assets",
+          "type": "array",
+          "location": "body",
+          "description": "Images, videos or PDFs attached to SKU"
+        },
+        {
+          "name": "bonus",
+          "type": "float",
+          "location": "body",
+          "description": "Flat rate bonus paid for this task"
+        },
+        {
+          "name": "budgetCostCode",
+          "type": "string",
+          "location": "body",
+          "description": "The Budget CostCode segment for this entity. (Note: BudgetCostType should also be provided)"
+        },
+        {
+          "name": "budgetCostType",
+          "type": "string",
+          "location": "body",
+          "description": "The Budget CostType segment for this entity (Note: BudgetCostCode should also be provided)"
+        },
+        {
+          "name": "categories",
+          "type": "array",
+          "location": "body",
+          "description": "Categories that this SKU belongs to"
+        },
+        {
+          "name": "code",
+          "type": "string",
+          "location": "body",
+          "description": "Code for the SKU",
+          "required": true
+        },
+        {
+          "name": "commissionBonus",
+          "type": "float",
+          "location": "body",
+          "description": "Percentage rate bonus paid for this task"
+        },
+        {
+          "name": "crossSaleGroup",
+          "type": "string",
+          "location": "body",
+          "description": "A grouping of similar items that you'll then be able to track as a separate columns on the..."
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description on the SKU that is displayed with the item",
+          "required": true
+        },
+        {
+          "name": "displayName",
+          "type": "string",
+          "location": "body",
+          "description": "Name that displays with the SKU"
+        },
+        {
+          "name": "externalData",
+          "type": "string",
+          "location": "body",
+          "description": "Optional model that contains a list of external data items that should be attached to this entity."
+        },
+        {
+          "name": "hours",
+          "type": "float",
+          "location": "body",
+          "description": "Hours needed to complete this service"
+        },
+        {
+          "name": "intacctGlGroupAccount",
+          "type": "string",
+          "location": "body",
+          "description": "Intacct GL Group Name"
+        },
+        {
+          "name": "isLabor",
+          "type": "bool",
+          "location": "body",
+          "description": "Is a labor service"
+        },
+        {
+          "name": "memberPrice",
+          "type": "float",
+          "location": "body",
+          "description": "The price if the item is sold to a member"
+        },
+        {
+          "name": "paysCommission",
+          "type": "bool",
+          "location": "body",
+          "description": "True if this task pays commission"
+        },
+        {
+          "name": "price",
+          "type": "float",
+          "location": "body",
+          "description": "Price of this SKU sold"
+        },
+        {
+          "name": "recommendations",
+          "type": "array",
+          "location": "body",
+          "description": "Recommended services and materials to include with this SKU"
+        },
+        {
+          "name": "serviceEquipment",
+          "type": "array",
+          "location": "body",
+          "description": "Array of equipment linked to the service"
+        },
+        {
+          "name": "serviceMaterials",
+          "type": "array",
+          "location": "body",
+          "description": "Array of materials linked to the service"
+        },
+        {
+          "name": "taxable",
+          "type": "bool",
+          "location": "body",
+          "description": "Is this SKU taxable"
+        },
+        {
+          "name": "upgrades",
+          "type": "array",
+          "location": "body",
+          "description": "Upgrades that can be sold for this SKU"
+        },
+        {
+          "name": "warranty",
+          "type": "string",
+          "location": "body",
+          "description": "Description of the warranty included in this SKU"
+        }
+      ]
+    },
+    {
+      "name": "services_delete",
+      "description": "Deletes a service from your pricebook. Required: id, tenant. Destructive.",
+      "method": "DELETE",
+      "path": "/tenant/{tenant}/services/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id of the SKU you are deleting",
+          "required": true
+        },
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "services_get",
+      "description": "Get details a service in the pricebook. Required: id, tenant. Optional: calculatePrices (default: false), externalDataApplicationGuid. Returns the PricebookV2ServiceGetResponse.",
+      "method": "GET",
+      "path": "/tenant/{tenant}/services/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "The id of the service you are requesting",
+          "required": true
+        },
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        },
+        {
+          "name": "calculatePrices",
+          "type": "bool",
+          "location": "query",
+          "description": "If true, the prices will be calculated based on the current dynamic pricing rules."
+        },
+        {
+          "name": "externalDataApplicationGuid",
+          "type": "string",
+          "location": "query",
+          "description": "Items that are created with a specific guid, could be fetched/updated/removed only when the..."
+        }
+      ]
+    },
+    {
+      "name": "services_get-list",
+      "description": "Get data on all of the services in the pricebook. Supports optional search filtering. Required: tenant. Optional: calculatePrices, page, pageSize (plus 12 more). Returns array of PricebookV2ServiceGetResponse.",
+      "method": "GET",
+      "path": "/tenant/{tenant}/services",
+      "params": [
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        },
+        {
+          "name": "calculatePrices",
+          "type": "bool",
+          "location": "query",
+          "description": "If true, the prices will be calculated based on the current dynamic pricing rules."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "The logical number of page to return, starting from 1"
+        },
+        {
+          "name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "How many records to return (50 by default)"
+        },
+        {
+          "name": "includeTotal",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether total count should be returned"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Applies sorting by the specified field: '?"
+        },
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "query",
+          "description": "Perform lookup by multiple IDs (maximum 50)"
+        },
+        {
+          "name": "createdBefore",
+          "type": "string",
+          "location": "query",
+          "description": "Return items created before certain date/time (in UTC)"
+        },
+        {
+          "name": "createdOnOrAfter",
+          "type": "string",
+          "location": "query",
+          "description": "Return items created on or after certain date/time (in UTC)"
+        },
+        {
+          "name": "modifiedBefore",
+          "type": "string",
+          "location": "query",
+          "description": "Return items modified before certain date/time (in UTC)"
+        },
+        {
+          "name": "modifiedOnOrAfter",
+          "type": "string",
+          "location": "query",
+          "description": "Return items modified on or after certain date/time (in UTC)"
+        },
+        {
+          "name": "active",
+          "type": "string",
+          "location": "query",
+          "description": "What kind of items should be returned (only active items will be returned by default)..."
+        },
+        {
+          "name": "externalDataApplicationGuid",
+          "type": "string",
+          "location": "query",
+          "description": "Items that are created with a specific guid, could be fetched/updated/removed only when the..."
+        },
+        {
+          "name": "externalDataKey",
+          "type": "string",
+          "location": "query",
+          "description": "Allows filtering by external data key"
+        },
+        {
+          "name": "externalDataValues",
+          "type": "string",
+          "location": "query",
+          "description": "Allows filtering by external data values"
+        },
+        {
+          "name": "searchText",
+          "type": "string",
+          "location": "query",
+          "description": "Optional search text to filter by."
+        }
+      ]
+    },
+    {
+      "name": "services_update",
+      "description": "Edit an existing item in your pricebook. Required: id, tenant. Optional: account, active, addOnMemberPrice (plus 24 more). Returns the updated PricebookV2ServiceResponse.",
+      "method": "PATCH",
+      "path": "/tenant/{tenant}/services/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Unique id for the SKU is modified",
+          "required": true
+        },
+        {
+          "name": "tenant",
+          "type": "int",
+          "location": "path",
+          "description": "Tenant ID",
+          "required": true
+        },
+        {
+          "name": "account",
+          "type": "string",
+          "location": "body",
+          "description": "The accounting account assigned to this SKU"
+        },
+        {
+          "name": "active",
+          "type": "bool",
+          "location": "body",
+          "description": "Active shows if the SKU is active or inactive"
+        },
+        {
+          "name": "addOnMemberPrice",
+          "type": "float",
+          "location": "body",
+          "description": "The price if the SKU is sold to a member as an add-on item"
+        },
+        {
+          "name": "addOnPrice",
+          "type": "float",
+          "location": "body",
+          "description": "The price of the SKU is sold as an add-on item"
+        },
+        {
+          "name": "assets",
+          "type": "array",
+          "location": "body",
+          "description": "Images, videos or PDFs attached to SKU"
+        },
+        {
+          "name": "bonus",
+          "type": "float",
+          "location": "body",
+          "description": "Flat rate bonus paid for this task"
+        },
+        {
+          "name": "budgetCostCode",
+          "type": "string",
+          "location": "body",
+          "description": "The Budget CostCode segment for this entity. (Note: BudgetCostType should also be provided)"
+        },
+        {
+          "name": "budgetCostType",
+          "type": "string",
+          "location": "body",
+          "description": "The Budget CostType segment for this entity (Note: BudgetCostCode should also be provided)"
+        },
+        {
+          "name": "categories",
+          "type": "array",
+          "location": "body",
+          "description": "Categories that this SKU belongs to"
+        },
+        {
+          "name": "code",
+          "type": "string",
+          "location": "body",
+          "description": "Code for the SKU"
+        },
+        {
+          "name": "commissionBonus",
+          "type": "float",
+          "location": "body",
+          "description": "Percentage rate bonus paid for this task"
+        },
+        {
+          "name": "crossSaleGroup",
+          "type": "string",
+          "location": "body",
+          "description": "A grouping of similar items that you'll then be able to track as a separate columns on the..."
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description on the SKU that is displayed with the item"
+        },
+        {
+          "name": "displayName",
+          "type": "string",
+          "location": "body",
+          "description": "Name that displays with the SKU"
+        },
+        {
+          "name": "externalData",
+          "type": "string",
+          "location": "body",
+          "description": "External data update model."
+        },
+        {
+          "name": "hours",
+          "type": "float",
+          "location": "body",
+          "description": "Hours needed to complete this service"
+        },
+        {
+          "name": "intacctGlGroupAccount",
+          "type": "string",
+          "location": "body",
+          "description": "Intacct GL Group Name"
+        },
+        {
+          "name": "isLabor",
+          "type": "bool",
+          "location": "body",
+          "description": "Is a labor service"
+        },
+        {
+          "name": "memberPrice",
+          "type": "float",
+          "location": "body",
+          "description": "The price if the item is sold to a member"
+        },
+        {
+          "name": "paysCommission",
+          "type": "bool",
+          "location": "body",
+          "description": "PaysCommissions shows if this task pays commission"
+        },
+        {
+          "name": "price",
+          "type": "float",
+          "location": "body",
+          "description": "Price of this SKU sold"
+        },
+        {
+          "name": "recommendations",
+          "type": "array",
+          "location": "body",
+          "description": "Recommended other services to include with this SKU"
+        },
+        {
+          "name": "serviceEquipment",
+          "type": "array",
+          "location": "body",
+          "description": "Array of equipment linked to the service"
+        },
+        {
+          "name": "serviceMaterials",
+          "type": "array",
+          "location": "body",
+          "description": "Array of materials linked to the service"
+        },
+        {
+          "name": "taxable",
+          "type": "bool",
+          "location": "body",
+          "description": "Is this SKU taxable"
+        },
+        {
+          "name": "upgrades",
+          "type": "array",
+          "location": "body",
+          "description": "Upgrades that can be sold for this SKU"
+        },
+        {
+          "name": "warranty",
+          "type": "string",
+          "location": "body",
+          "description": "Description of the warranty included in this SKU"
+        }
+      ]
+    }
+  ]
+}
