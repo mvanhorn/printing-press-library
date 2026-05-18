@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-08T06:58:51.712229Z",
+  "printing_press_version": "4.0.4",
+  "api_name": "nse-india",
+  "cli_name": "nse-india-pp-cli",
+  "spec_path": "/Users/mayanklavania/printing-press/.runstate/cli-printing-press-00dee511/runs/20260508-113209/research/nse-india-spec.yaml",
+  "run_id": "20260508-113209",
+  "novel_features": [
+    {
+      "name": "Delivery Spike Detector",
+      "command": "delivery-spike",
+      "description": "Flags stocks where today's delivery-to-traded ratio is significantly above their 20-session rolling average \u2014 early signal of institutional accumulation."
+    },
+    {
+      "name": "Pre-Market IEP Drift Analyzer",
+      "command": "iep-drift",
+      "description": "Tracks how accurately each stock's pre-market IEP (Indicative Equilibrium Price) predicts the actual opening price over 30 sessions."
+    },
+    {
+      "name": "Announcement Flood Detector",
+      "command": "announcement-flood",
+      "description": "Surfaces companies whose filing cadence has spiked above their own historical baseline \u2014 a leading indicator of imminent corporate actions like rights issues or mergers."
+    },
+    {
+      "name": "Sector Breadth Analyzer",
+      "command": "sector-breadth",
+      "description": "Computes advance/decline ratio, median pChange, and delivery breadth for every constituent of a named index \u2014 far richer than the index headline number."
+    },
+    {
+      "name": "Index Basket Contributor",
+      "command": "index-driver",
+      "description": "Decomposes any day's index move into per-stock point contributions \u2014 identifies the 3-5 stocks driving 80%+ of the index change."
+    },
+    {
+      "name": "Portfolio P&L Tracker",
+      "command": "portfolio pnl",
+      "description": "Tracks unrealized P&L, daily delta, and drawdown for a personal holdings file against the synced quote history."
+    },
+    {
+      "name": "Portfolio Margin Health Dashboard",
+      "command": "portfolio margin-health",
+      "description": "Aggregates VaR margin, extreme loss margin, and adhoc margin across a full portfolio \u2014 shows total margin-at-risk and which holdings are the biggest margin consumers."
+    },
+    {
+      "name": "Delivery-Price Divergence Scanner",
+      "command": "delivery-divergence",
+      "description": "Detects when price is rising but delivery % is falling (distribution signal) or price falling while delivery is rising (accumulation signal) \u2014 separates smart money from retail."
+    }
+  ],
+  "category": "developer-tools",
+  "printer": "lavs9",
+  "printer_name": "Mayank Lavania"
+}

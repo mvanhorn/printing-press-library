@@ -1,0 +1,15 @@
+{
+  "api_name": "skool",
+  "base_url": "https://www.skool.com",
+  "description": "Community + course platform (skool.com). No public API — reverse-engineered from www.skool.com Next.js data routes (reads) and api2.skool.com REST (writes), authenticated via the auth_token JWT cookie.",
+  "mcp_ready": "partial",
+  "http_transport": "standard",
+  "auth": {
+    "type": "cookie",
+    "header": "Cookie",
+    "key_url": "https://www.skool.com/login",
+    "cookie_domain": ".skool.com"
+  },
+  "required_headers": [],
+  "tools": []
+}

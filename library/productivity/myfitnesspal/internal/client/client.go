@@ -20,6 +20,8 @@ import (
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/enetx/surf"
 )
 
 type Client struct {
@@ -45,12 +47,30 @@ func (e *APIError) Error() string {
 }
 
 func newHTTPClient(timeout time.Duration, jar http.CookieJar) *http.Client {
-	// HAND-MODIFIED: install MFPTransport so /v2/ paths route to
-	// api.myfitnesspal.com and the required mfp-client-id / mfp-user-id /
-	// origin / referer headers are injected on every request.
+	// PATCH(upstream cli-printing-press#787, fix #822): wrap Surf's Chrome-fingerprinted
+	// transport with MFPTransport. Surf provides the TLS fingerprint that clears MFP's
+	// anti-bot; MFPTransport adds the host rewrite (/v2/ → api.myfitnesspal.com) and the
+	// mfp-client-id / mfp-user-id / origin headers required by the v2 API surface.
+	// Composition order matters: MFPTransport is the outer layer (sees the original request,
+	// rewrites host + adds headers) → Surf is the inner layer (provides fingerprint at TLS).
 	homeDir, _ := os.UserHomeDir()
 	statePath := filepath.Join(homeDir, ".config", "myfitnesspal-pp-cli", "mfp-state.json")
-	transport := NewMFPTransport(http.DefaultTransport, statePath)
+
+	surfClient := surf.NewClient().Builder().Impersonate().Chrome().Timeout(timeout).Build().Unwrap()
+	surfHTTPClient := surfClient.Std()
+	surfTransport := surfHTTPClient.Transport
+	if surfTransport == nil {
+		// PATCH(local): fail loud instead of silently degrading. A nil transport here
+		// means Surf's API changed shape — falling back to http.DefaultTransport would
+		// drop the Chrome TLS fingerprint and every request would hit MFP's anti-bot
+		// wall with no visible cause.
+		fmt.Fprintln(os.Stderr, "WARNING: Surf transport is nil — Chrome TLS fingerprint unavailable. "+
+			"MFP requests will likely be rejected by anti-bot. Falling back to stdlib transport; "+
+			"check the enetx/surf version.")
+		surfTransport = http.DefaultTransport
+	}
+
+	transport := NewMFPTransport(surfTransport, statePath)
 	return &http.Client{Timeout: timeout, Jar: jar, Transport: transport}
 }
 
@@ -222,15 +242,25 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 			req.URL.RawQuery = q.Encode()
 		}
 
+		// PATCH(local): MFP uses cookie auth — send the auth header as Cookie:, not Authorization:.
+		// Authorization: <cookie-string> gets ignored by MFP and the request is treated as
+		// unauthenticated (302 → /account/login).
 		if authHeader != "" {
-			req.Header.Set("Authorization", authHeader)
+			req.Header.Set("Cookie", authHeader)
 		}
-		req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36")
+		// PATCH(local): no shared Accept header here. The shared client is used for both
+		// HTML web routes and JSON v2 API endpoints; a Chrome-style "text/html,...,application/
+		// json;q=0.9" line would cause any content-negotiating API endpoint (/v2/foods/*,
+		// /api/services/reports/*) to respond with HTML and break JSON parsing. The HTML
+		// scrape paths (fetchAuthenticatedHTML) set their own Accept where it's actually
+		// the target.
 		// Per-endpoint header overrides (e.g., different API version per resource)
 		for k, v := range headerOverrides {
 			req.Header.Set(k, v)
 		}
-		req.Header.Set("User-Agent", "myfitnesspal-pp-cli/0.1.0")
+		// PATCH(local): do not overwrite User-Agent — Surf's Impersonate().Chrome() sets
+		// the right one at the TLS layer; setting "myfitnesspal-pp-cli/0.1.0" here was
+		// triggering MFP's bot detection on every shared-client request.
 
 		resp, err := c.HTTPClient.Do(req)
 		if err != nil {
@@ -320,8 +350,11 @@ func (c *Client) dryRun(method, targetURL, path string, params map[string]string
 			enc.Encode(pretty)
 		}
 	}
+	// PATCH(local): dry-run displays "Cookie:" to match what the live request actually
+	// sends (the cookie-header-not-authorization patch). Previously hard-coded
+	// "Authorization", which misled anyone using --dry-run to diagnose auth failures.
 	if authHeader != "" {
-		fmt.Fprintf(os.Stderr, "  %s: %s\n", "Authorization", maskToken(authHeader))
+		fmt.Fprintf(os.Stderr, "  %s: %s\n", "Cookie", maskToken(authHeader))
 	}
 	fmt.Fprintf(os.Stderr, "\n(dry run - no request sent)\n")
 	return json.RawMessage(`{"dry_run": true}`), 0, nil

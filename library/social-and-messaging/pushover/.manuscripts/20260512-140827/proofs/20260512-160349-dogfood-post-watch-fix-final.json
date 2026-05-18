@@ -1,0 +1,2123 @@
+{
+  "dir": "/Users/todd_1/printing-press/library/pushover",
+  "binary": "/Users/todd_1/printing-press/library/pushover/pushover-pp-cli",
+  "level": "full",
+  "verdict": "PASS",
+  "matrix_size": 114,
+  "passed": 114,
+  "failed": 0,
+  "skipped": 102,
+  "commands": [
+    "analytics",
+    "api",
+    "apps",
+    "devices create",
+    "devices delete-through",
+    "doctor",
+    "emergency watch",
+    "feedback list",
+    "glances",
+    "groups add-user",
+    "groups create",
+    "groups disable-user",
+    "groups enable-user",
+    "groups get",
+    "groups list",
+    "groups remove-user",
+    "groups rename",
+    "history list",
+    "history show",
+    "import",
+    "inbox list",
+    "inbox sync",
+    "licenses assign",
+    "licenses credits",
+    "messages download",
+    "messages send",
+    "notify",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "quota",
+    "receipts cancel",
+    "receipts cancel-by-tag",
+    "receipts get",
+    "search",
+    "sounds",
+    "subscriptions",
+    "sync",
+    "tail",
+    "teams add-user",
+    "teams info",
+    "teams remove-user",
+    "users login",
+    "users validate",
+    "which",
+    "workflow archive",
+    "workflow status"
+  ],
+  "tests": [
+    {
+      "command": "analytics",
+      "kind": "help",
+      "args": [
+        "analytics",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Analyze locally synced data with count, group-by, and summary operations.\nData must be synced first with the sync command.\n\nUsage:\n  pushover-pp-cli analytics [flags]\n\nExamples:\n  # Count records by type\n  pushover-pp-cli analytics --type messages\n\n  # Group by a field\n  pushover-pp-cli analytics --type messages --group-by author_id\n\n  # Top 10 most frequent values\n  pushover-pp-cli analytics --type messages --group-by channel_id --limit 10 --json\n\nFlags:\n      --db string         Database path\n      --group-by string   Field to group by\n  -h, --help              help for analytics\n      --limit int         Max groups to show (default 25)\n      --type string       Resource type to analyze\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pushover-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "happy_path",
+      "args": [
+        "analytics",
+        "--type",
+        "messages"
+      ],
+      "status": "pass",
+      "output_sample": "messages: 0 records\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "json_fidelity",
+      "args": [
+        "analytics",
+        "--type",
+        "messages",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"count\": 0,\n  \"resource_type\": \"messages\"\n}\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api \u003cinterface\u003e' to see that interface's methods.\n\nUsage:\n  pushover-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  pushover-pp-cli api\n\n  # Show methods for a specific interface\n  pushover-pp-cli api \u003cinterface-name\u003e\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pushover-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'pushover-pp-cli api' to list all interfaces\ninterface \"__printing_press_invalid__\" not found. Run 'pushover-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "apps",
+      "kind": "help",
+      "args": [
+        "apps",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Shortcut for 'apps limits'. Check monthly message limit, remaining sends, and reset time\n\nUsage:\n  pushover-pp-cli apps [flags]\n\nExamples:\n  pushover-pp-cli apps --app-token your-token-here\n\nFlags:\n      --app-token string   Application API token\n  -h, --help               help for apps\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pushover-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "apps",
+      "kind": "happy_path",
+      "args": [
+        "apps",
+        "--app-token",
+        "your-token-here"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"limit\": 10000,\n    \"remaining\": 9597,\n    \"reset\": 1780290000,\n    \"status\": 1,\n    \"request\": \"cb1d567f-ad5b-4c44-b818-29adc5aa959f\"\n  }\n}\n"
+    },
+    {
+      "command": "apps",
+      "kind": "json_fidelity",
+      "args": [
+        "apps",
+        "--app-token",
+        "your-token-here",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"limit\": 10000,\n    \"remaining\": 9597,\n    \"reset\": 1780290000,\n    \"status\": 1,\n    \"request\": \"cb1d567f-ad5b-4c44-b818-29adc5aa959f\"\n  }\n}\n"
+    },
+    {
+      "command": "apps",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "devices create",
+      "kind": "help",
+      "args": [
+        "devices",
+        "create",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Register a new Open Client desktop device\n\nUsage:\n  pushover-pp-cli devices create [flags]\n\nExamples:\n  pushover-pp-cli devices create --client-secret example-value\n\nFlags:\n      --client-secret string   Open Client session secret\n  -h, --help                   help for create\n      --name string            Short device name; alphanumeric, underscore, or dash\n      --os string              Open Client operating system marker; use capital O (default \"O\")\n      --stdin                  Read request body as JSON from stdin\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pushover-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "devices create",
+      "kind": "happy_path",
+      "args": [
+        "devices",
+        "create",
+        "--client-secret",
+        "example-value",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/1/devices.json\",\n  \"resource\": \"devices\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://api.pushover.net/1/devices.json\n  Body:\n{\n    \"os\": \"O\",\n    \"secret\": \"****alue\"\n  }\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "devices create",
+      "kind": "json_fidelity",
+      "args": [
+        "devices",
+        "create",
+        "--client-secret",
+        "example-value",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/1/devices.json\",\n  \"resource\": \"devices\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://api.pushover.net/1/devices.json\n  Body:\n{\n    \"os\": \"O\",\n    \"secret\": \"****alue\"\n  }\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "devices create",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "devices create",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "devices delete-through",
+      "kind": "help",
+      "args": [
+        "devices",
+        "delete-through",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Delete downloaded Open Client messages up to a highest message id\n\nUsage:\n  pushover-pp-cli devices delete-through \u003cdevice_id\u003e [flags]\n\nExamples:\n  pushover-pp-cli devices delete-through 550e8400-e29b-41d4-a716-446655440000 --client-secret example-value\n\nFlags:\n      --client-secret string   Open Client session secret\n  -h, --help                   help for delete-through\n      --message-id string      Highest downloaded message id to delete through\n      --stdin                  Read request body as JSON from stdin\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pushover-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "devices delete-through",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"device_id\""
+    },
+    {
+      "command": "devices delete-through",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"device_id\""
+    },
+    {
+      "command": "devices delete-through",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "devices delete-through",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"device_id\""
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  pushover-pp-cli doctor [flags]\n\nExamples:\n  pushover-pp-cli doctor\n  pushover-pp-cli doctor --json\n  pushover-pp-cli doctor --fail-on warn\n\nFlags:\n      --fail-on string   Exit non-zero when a health level is reached: stale, error. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pushover-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  OK Auth: parameter credentials\n  FAIL Env Vars: app_token=present(PUSHOVER_APP_TOKEN), user_key=present(PUSHOVER_USER_KEY), client_secret=missing, device_id=missing\n  OK API: reachable (HTTP 400 at /)\n  OK Credentials: valid\n  config_path: /Users/todd_1/.config/pushover-pp-cli/config.toml\n  base_url: https://api.pushover.net\n  version: 1.0.0\n  INFO Cache: unknown\n    db_path: /Users/todd_1/.local/share/pushover-pp-cli/data.db\n    schema_version: 2\n    db_bytes: 159744\n    stale_after: 6h0m0s\n    hint: sync_state is empty; run 'pushover-pp-cli sync' to hydrate.\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"api\": \"reachable (HTTP 400 at /)\",\n  \"auth\": \"parameter credentials\",\n  \"base_url\": \"https://api.pushover.net\",\n  \"cache\": {\n    \"db_bytes\": 159744,\n    \"db_path\": \"/Users/todd_1/.local/share/pushover-pp-cli/data.db\",\n    \"hint\": \"sync_state is empty; run 'pushover-pp-cli sync' to hydrate.\",\n    \"resources\": null,\n    \"schema_version\": 2,\n    \"stale_after\": \"6h0m0s\",\n    \"status\": \"unknown\"\n  },\n  \"config\": \"ok\",\n  \"config_path\": \"/Users/todd_1/.config/pushover-pp-cli/config.toml\",\n  \"credentials\": \"valid\",\n  \"env_vars\": \"app_token=present(PUSHOVER_APP_TOKEN), user_key=present(PUSHOVER_USER_KEY), client_secret=missing, device_id=missing\",\n  \"version\": \"1.0.0\"\n}\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "emergency watch",
+      "kind": "help",
+      "args": [
+        "emergency",
+        "watch",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Poll an emergency receipt until terminal state\n\nUsage:\n  pushover-pp-cli emergency watch [flags]\n\nExamples:\n  pushover-pp-cli emergency watch --receipt receipt-example --dry-run --json\n  pushover-pp-cli emergency watch --receipt \u003creceipt\u003e --json\n\nFlags:\n      --app-token string         Application API token; may be read from PUSHOVER_APP_TOKEN or PUSHOVER_TOKEN\n      --cancel-on-timeout        Cancel emergency retries if the watch times out\n  -h, --help                     help for watch\n      --poll-interval duration   Receipt polling interval (default 30s)\n      --receipt string           Emergency receipt id to watch\n      --timeout duration         Maximum time to watch the receipt (default 15m0s)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pushover-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "emergency watch",
+      "kind": "happy_path",
+      "args": [
+        "emergency",
+        "watch",
+        "--receipt",
+        "receipt-example",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"dry_run\": true,\n  \"polls\": 0,\n  \"receipt\": \"receipt-example\",\n  \"timed_out\": false\n}\n"
+    },
+    {
+      "command": "emergency watch",
+      "kind": "json_fidelity",
+      "args": [
+        "emergency",
+        "watch",
+        "--receipt",
+        "receipt-example",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"dry_run\": true,\n  \"polls\": 0,\n  \"receipt\": \"receipt-example\",\n  \"timed_out\": false\n}\n"
+    },
+    {
+      "command": "emergency watch",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent feedback entries\n\nUsage:\n  pushover-pp-cli feedback list [flags]\n\nExamples:\n  pushover-pp-cli feedback list\n  pushover-pp-cli feedback list --limit 5\n  pushover-pp-cli feedback list --json\n\nFlags:\n  -h, --help        help for list\n      --limit int   Maximum number of recent entries to return (default 20)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pushover-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"pushover-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-12T21:31:25.953444Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"pushover-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-12T21:31:25.962795Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"pushover-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-12T21:40:12.221755Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"pushover-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-12T21:40:12.231639Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"pushover-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-12T23:00:44.721764Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"pushover-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-12T23:00:44.73608Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"pushover-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-12T23:03:34.051283Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"pushover-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-12T23:03:34.062569Z\"\n  }\n]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"pushover-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-12T21:31:25.953444Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"pushover-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-12T21:31:25.962795Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"pushover-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-12T21:40:12.221755Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"pushover-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-12T21:40:12.231639Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"pushover-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-12T23:00:44.721764Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"pushover-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-12T23:00:44.73608Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"pushover-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-12T23:03:34.051283Z\"\n  },\n  {\n    \"text\": \"mock-value\",\n    \"cli\": \"pushover-pp-cli\",\n    \"version\": \"1.0.0\",\n    \"timestamp\": \"2026-05-12T23:03:34.062569Z\"\n  }\n]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "glances",
+      "kind": "help",
+      "args": [
+        "glances",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Shortcut for 'glances update'. Update Glances widget fields\n\nUsage:\n  pushover-pp-cli glances [flags]\n\nExamples:\n  pushover-pp-cli glances --app-token your-token-here\n\nFlags:\n      --app-token string   Application API token\n      --count int          Integer count value\n      --device string      Optional device/widget restriction\n  -h, --help               help for glances\n      --percent int        Integer progress value from 0 to 100\n      --subtext string     Secondary text field, up to 100 characters\n      --text string        Main text field, up to 100 characters\n      --title string       Short field label, up to 100 characters\n      --user-key string    Recipient user key\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pushover-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "glances",
+      "kind": "happy_path",
+      "args": [
+        "glances",
+        "--app-token",
+        "your-token-here",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"dry_run\": true\n  }\n}\nPOST https://api.pushover.net/1/glances.json\n  Body:\n{\n    \"token\": \"****k4wi\",\n    \"user\": \"****kuq3\"\n  }\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "glances",
+      "kind": "json_fidelity",
+      "args": [
+        "glances",
+        "--app-token",
+        "your-token-here",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"dry_run\": true\n  }\n}\nPOST https://api.pushover.net/1/glances.json\n  Body:\n{\n    \"token\": \"****k4wi\",\n    \"user\": \"****kuq3\"\n  }\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "glances",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "glances",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "groups add-user",
+      "kind": "help",
+      "args": [
+        "groups",
+        "add-user",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Add a user to a delivery group\n\nUsage:\n  pushover-pp-cli groups add-user \u003cgroup_key\u003e [flags]\n\nExamples:\n  pushover-pp-cli groups add-user your-token-here --app-token your-token-here\n\nFlags:\n      --app-token string   Application API token\n      --device string      Optional device restriction\n  -h, --help               help for add-user\n      --memo string        Free-text memo for the group member\n      --stdin              Read request body as JSON from stdin\n      --user-key string    User key to add\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pushover-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "groups add-user",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"group_key\" at depth 0"
+    },
+    {
+      "command": "groups add-user",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"group_key\" at depth 0"
+    },
+    {
+      "command": "groups add-user",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "groups add-user",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"group_key\" at depth 0"
+    },
+    {
+      "command": "groups create",
+      "kind": "help",
+      "args": [
+        "groups",
+        "create",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Create a delivery group\n\nUsage:\n  pushover-pp-cli groups create [flags]\n\nExamples:\n  pushover-pp-cli groups create --app-token your-token-here\n\nFlags:\n      --app-token string   Application API token\n  -h, --help               help for create\n      --name string        Group name\n      --stdin              Read request body as JSON from stdin\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pushover-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "groups create",
+      "kind": "happy_path",
+      "args": [
+        "groups",
+        "create",
+        "--app-token",
+        "your-token-here",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/1/groups.json\",\n  \"resource\": \"groups\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://api.pushover.net/1/groups.json\n  Body:\n{\n    \"token\": \"****k4wi\"\n  }\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "groups create",
+      "kind": "json_fidelity",
+      "args": [
+        "groups",
+        "create",
+        "--app-token",
+        "your-token-here",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/1/groups.json\",\n  \"resource\": \"groups\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://api.pushover.net/1/groups.json\n  Body:\n{\n    \"token\": \"****k4wi\"\n  }\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "groups create",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "groups create",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "groups disable-user",
+      "kind": "help",
+      "args": [
+        "groups",
+        "disable-user",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Temporarily disable a group user\n\nUsage:\n  pushover-pp-cli groups disable-user \u003cgroup_key\u003e [flags]\n\nExamples:\n  pushover-pp-cli groups disable-user your-token-here --app-token your-token-here\n\nFlags:\n      --app-token string   Application API token\n      --device string      Optional device restriction\n  -h, --help               help for disable-user\n      --stdin              Read request body as JSON from stdin\n      --user-key string    User key to disable\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pushover-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "groups disable-user",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"group_key\" at depth 0"
+    },
+    {
+      "command": "groups disable-user",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"group_key\" at depth 0"
+    },
+    {
+      "command": "groups disable-user",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "groups disable-user",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"group_key\" at depth 0"
+    },
+    {
+      "command": "groups enable-user",
+      "kind": "help",
+      "args": [
+        "groups",
+        "enable-user",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Re-enable a disabled group user\n\nUsage:\n  pushover-pp-cli groups enable-user \u003cgroup_key\u003e [flags]\n\nExamples:\n  pushover-pp-cli groups enable-user your-token-here --app-token your-token-here\n\nFlags:\n      --app-token string   Application API token\n      --device string      Optional device restriction\n  -h, --help               help for enable-user\n      --stdin              Read request body as JSON from stdin\n      --user-key string    User key to enable\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pushover-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "groups enable-user",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"group_key\" at depth 0"
+    },
+    {
+      "command": "groups enable-user",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"group_key\" at depth 0"
+    },
+    {
+      "command": "groups enable-user",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "groups enable-user",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"group_key\" at depth 0"
+    },
+    {
+      "command": "groups get",
+      "kind": "help",
+      "args": [
+        "groups",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get a delivery group's name and users\n\nUsage:\n  pushover-pp-cli groups get \u003cgroup_key\u003e [flags]\n\nExamples:\n  pushover-pp-cli groups get your-token-here --app-token your-token-here\n\nFlags:\n      --app-token string   Application API token\n  -h, --help               help for get\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pushover-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "groups get",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"group_key\" at depth 0"
+    },
+    {
+      "command": "groups get",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"group_key\" at depth 0"
+    },
+    {
+      "command": "groups get",
+      "kind": "error_path",
+      "args": [
+        "groups",
+        "get",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 5,
+      "output_sample": "Error: GET /1/groups/__printing_press_invalid__.json returned HTTP 400: {\"group\":\"not found\",\"errors\":[\"group not found or you are not authorized to edit it\"],\"status\":0,\"request\":\"b63e8497-5d5a-4442-b53f-036948bae797\"}\nGET /1/groups/__printing_press_invalid__.json returned HTTP 400: {\"group\":\"not found\",\"errors\":[\"group not found or you are not authorized to edit it\"],\"status\":0,\"request\":\"b63e8497-5d5a-4442-b53f-036948bae797\"}\n"
+    },
+    {
+      "command": "groups list",
+      "kind": "help",
+      "args": [
+        "groups",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List delivery groups owned by the account\n\nUsage:\n  pushover-pp-cli groups list [flags]\n\nExamples:\n  pushover-pp-cli groups list --app-token your-token-here\n\nFlags:\n      --app-token string   Application API token\n  -h, --help               help for list\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pushover-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "groups list",
+      "kind": "happy_path",
+      "args": [
+        "groups",
+        "list",
+        "--app-token",
+        "your-token-here"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"groups\": [],\n    \"status\": 1,\n    \"request\": \"37bb3bc5-0039-4988-aa5b-0d8d96c8d298\"\n  }\n}\n"
+    },
+    {
+      "command": "groups list",
+      "kind": "json_fidelity",
+      "args": [
+        "groups",
+        "list",
+        "--app-token",
+        "your-token-here",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"groups\": [],\n    \"status\": 1,\n    \"request\": \"37bb3bc5-0039-4988-aa5b-0d8d96c8d298\"\n  }\n}\n"
+    },
+    {
+      "command": "groups list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "groups remove-user",
+      "kind": "help",
+      "args": [
+        "groups",
+        "remove-user",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a user from a delivery group\n\nUsage:\n  pushover-pp-cli groups remove-user \u003cgroup_key\u003e [flags]\n\nExamples:\n  pushover-pp-cli groups remove-user your-token-here --app-token your-token-here\n\nFlags:\n      --app-token string   Application API token\n      --device string      Optional device restriction\n  -h, --help               help for remove-user\n      --stdin              Read request body as JSON from stdin\n      --user-key string    User key to remove\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pushover-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "groups remove-user",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"group_key\" at depth 0"
+    },
+    {
+      "command": "groups remove-user",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"group_key\" at depth 0"
+    },
+    {
+      "command": "groups remove-user",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "groups remove-user",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"group_key\" at depth 0"
+    },
+    {
+      "command": "groups rename",
+      "kind": "help",
+      "args": [
+        "groups",
+        "rename",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Rename a delivery group\n\nUsage:\n  pushover-pp-cli groups rename \u003cgroup_key\u003e [flags]\n\nExamples:\n  pushover-pp-cli groups rename your-token-here --app-token your-token-here\n\nFlags:\n      --app-token string   Application API token\n  -h, --help               help for rename\n      --name string        New group name\n      --stdin              Read request body as JSON from stdin\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pushover-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "groups rename",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"group_key\" at depth 0"
+    },
+    {
+      "command": "groups rename",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"group_key\" at depth 0"
+    },
+    {
+      "command": "groups rename",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "groups rename",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"group_key\" at depth 0"
+    },
+    {
+      "command": "history list",
+      "kind": "help",
+      "args": [
+        "history",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List notification history\n\nUsage:\n  pushover-pp-cli history list [flags]\n\nExamples:\n  pushover-pp-cli history list --since 24h --json\n  pushover-pp-cli history list --limit 10\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --db string            SQLite database path (default: ~/.local/share/pushover-pp-cli/data.db)\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --limit int            Maximum rows to return (default 25)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pushover-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --since string         Only include rows since a duration like 24h or 7d, or an RFC3339 timestamp\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "history list",
+      "kind": "happy_path",
+      "args": [
+        "history",
+        "list",
+        "--since",
+        "24h",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"id\": 30,\n    \"created_at\": \"2026-05-12T23:03:34Z\",\n    \"command\": \"notify\",\n    \"status_code\": 200,\n    \"success\": false,\n    \"priority\": 0,\n    \"message_preview\": \"mock-value\",\n    \"recipient_hash\": \"f3e9f3ab821880bd\",\n    \"response\": {\n      \"created_at\": \"2026-03-27T00:00:00Z\",\n      \"full_name\": \"mock/repo\",\n      \"id\": 1,\n      \"login\": \"mock-user\",\n      \"name\": \"mock-item\",\n      \"state\": \"open\",\n      \"title\": \"Mock Item\",\n      \"updated_at\": \"2026-03-27T00:00:00Z\"\n    }\n  },\n  {\n    \"id\": 29,\n    \"created_at\": \"2026-05-12T23:00:45Z\",\n    \"command\": \"notify\",\n    \"status_code\": 200,\n    \"success\": false,\n    \"priority\": 0,\n    \"message_preview\": \"mock-value\",\n    \"recipient_hash\": \"f3e9f3ab821880bd\",\n    \"response\": {\n      \"created_at\": \"2026-03-27T00:00:00Z\",\n      \"full_name\": \"mock/repo\",\n      \"id\": 1,\n      \"login\": \"mock-user\",\n      \"name\": \"mock-item\",\n      \"state\": \"open\",\n      \"title\": \"Mock Item\",\n      \"updated_at\": \"2026-03-27T00:00:00Z\"\n    }\n  },\n  {\n    \"id\": 28,\n    \"created_at\": \"2026-05-12T22:59:32Z\",\n    \"command\": \"notify\",\n    \"request_id\": \"72006b84-166b-4167-870c-51aedf36fb62\",\n    \"receipt\": \"rvtx1tncw38ai3ei6upz9c9boqq115\",\n    \"status_code\": 200,\n    \"success\": true,\n    \"priority\": 2,\n    \"title\": \"Printing Press watch retest\",\n    \"message_preview\": \"Watch exit retest: acknowledge this one Tue May 12 15:59:32 PDT 2026\",\n    \"recipient_hash\": \"f3e9f3ab821880bd\",\n    \"response\": {\n      \"receipt\": \"rvtx1tncw38ai3ei6upz9c9boqq115\",\n      \"request\": \"72006b84-166b-4167-870c-51aedf36fb62\",\n      \"status\": 1\n    }\n  },\n  {\n    \"id\": 27,\n    \"created_at\": \"2026-05-12T22:55:28Z\",\n    \"command\": \"notify\",\n    \"request_id\": \"d136850f-7ae8-4089-a675-0cf028a37bdc\",\n    \"receipt\": \"r2g1674iyjio5n9vyn24mkjsfdtkg8\",\n    \"status_code\": 200,\n    \"success\": true,\n    \"priority\": 2,\n    \"title\": \"Printing Press watch test\",\n    \"message_preview\": \"Watch exit test: acknowledge this one Tue May 12 15:55:28 PDT 2026\",\n    \"recipient_hash\": \"f3e9f3ab821880bd\",\n    \"response\": {\n      \"receipt\": \"r2g1674iyjio5n9vyn24mkjsfdtkg8\",\n      \"request\": \"d136850f-7ae8-4089-a675-0cf028a37bdc\",\n      \"status\": 1\n    }\n  },\n  {\n    \"id\": 26,\n    \"created_at\": \"2026-05-12T22:06:05Z\",\n    \"command\": \"notify\",\n    \"request_id\": \"563f03d5-ed69-40cb-bc52-b2e912572c86\",\n    \"receipt\": \"r847nemw1ru7wz5t9hzh1grpok99r1\",\n    \"status_code\": 200,\n    \"success\": true,\n    \"priority\": 2,\n    \"title\": \"Printing Press emergency\",\n    \"message_preview\": \"Emergency default-sound test: please acknowledge Tue May 12 15:06:05 PDT 2026\",\n    \"recipient_hash\": \"f3e9f3ab821880bd\",\n    \"response\": {\n      \"receipt\": \"r847nemw1ru7wz5t9hzh1grpok99r1\",\n      \"request\": \"563f03d5-ed69-40cb-bc52-b2e912572c86\",\n      \"status\": 1\n    }\n  },\n  {\n    \"id\": 25,\n    \"created_at\": \"2026-05-12T22:05:54Z\",\n    \"command\": \"notify\",\n    \"request_id\": \"d4fdcc90-3548-442b-8f43-ccc903454a9d\",\n    \"status_code\": 200,\n    \"success\": true,\n    \"priority\": 0,\n    \"title\": \"Printing Press sound test\",\n    \"message_preview\": \"Default sound test Tue May 12 15:05:54 PDT 2026\",\n    \"recipient_hash\": \"f3e9f3ab821880bd\",\n    \"response\": {\n      \"request\": \"d4fdcc90-3548-442b-8f43-ccc903454a9d\",\n      \"status\": 1\n    }\n  },\n  {\n    \"id\": 24,\n    \"created_at\": \"2026-05-12T22:05:28Z\",\n    \"command\": \"notify\",\n    \"request_id\": \"5194de74-b458-463c-9940-4852de898fcc\",\n    \"status_code\": 200,\n    \"success\": true,\n    \"priority\": 0,\n    \"title\": \"Printing Press sound test\",\n    \"message_preview\": \"Default sound test Tue May 12 15:05:28 PDT 2026\",\n    \"recipient_hash\": \"f3e9f3ab821880bd\",\n    \"response\": {\n      \"request\": \"5194de74-b458-463c-9940-4852de898fcc\",\n      \"status\": 1\n    }\n  },\n  {\n    \"id\": 23,\n    \"created_at\": \"2026-05-12T22:04:59Z\",\n    \"command\": \"notify\",\n    \"request_id\": \"aada4da8-290a-49a2-8e3a-b1349c51dc91\",\n    \"status_code\": 200,\n    \"success\": true,\n    \"priority\": 0,\n    \"title\": \"Printing Press sound test\",\n    \"message_preview\": \"Default sound test Tue May 12 15:04:58 PDT 2026\",\n    \"recipient_hash\": \"f3e9f3ab821880bd\",\n    \"response\": {…[truncated]"
+    },
+    {
+      "command": "history list",
+      "kind": "json_fidelity",
+      "args": [
+        "history",
+        "list",
+        "--since",
+        "24h",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[\n  {\n    \"id\": 30,\n    \"created_at\": \"2026-05-12T23:03:34Z\",\n    \"command\": \"notify\",\n    \"status_code\": 200,\n    \"success\": false,\n    \"priority\": 0,\n    \"message_preview\": \"mock-value\",\n    \"recipient_hash\": \"f3e9f3ab821880bd\",\n    \"response\": {\n      \"created_at\": \"2026-03-27T00:00:00Z\",\n      \"full_name\": \"mock/repo\",\n      \"id\": 1,\n      \"login\": \"mock-user\",\n      \"name\": \"mock-item\",\n      \"state\": \"open\",\n      \"title\": \"Mock Item\",\n      \"updated_at\": \"2026-03-27T00:00:00Z\"\n    }\n  },\n  {\n    \"id\": 29,\n    \"created_at\": \"2026-05-12T23:00:45Z\",\n    \"command\": \"notify\",\n    \"status_code\": 200,\n    \"success\": false,\n    \"priority\": 0,\n    \"message_preview\": \"mock-value\",\n    \"recipient_hash\": \"f3e9f3ab821880bd\",\n    \"response\": {\n      \"created_at\": \"2026-03-27T00:00:00Z\",\n      \"full_name\": \"mock/repo\",\n      \"id\": 1,\n      \"login\": \"mock-user\",\n      \"name\": \"mock-item\",\n      \"state\": \"open\",\n      \"title\": \"Mock Item\",\n      \"updated_at\": \"2026-03-27T00:00:00Z\"\n    }\n  },\n  {\n    \"id\": 28,\n    \"created_at\": \"2026-05-12T22:59:32Z\",\n    \"command\": \"notify\",\n    \"request_id\": \"72006b84-166b-4167-870c-51aedf36fb62\",\n    \"receipt\": \"rvtx1tncw38ai3ei6upz9c9boqq115\",\n    \"status_code\": 200,\n    \"success\": true,\n    \"priority\": 2,\n    \"title\": \"Printing Press watch retest\",\n    \"message_preview\": \"Watch exit retest: acknowledge this one Tue May 12 15:59:32 PDT 2026\",\n    \"recipient_hash\": \"f3e9f3ab821880bd\",\n    \"response\": {\n      \"receipt\": \"rvtx1tncw38ai3ei6upz9c9boqq115\",\n      \"request\": \"72006b84-166b-4167-870c-51aedf36fb62\",\n      \"status\": 1\n    }\n  },\n  {\n    \"id\": 27,\n    \"created_at\": \"2026-05-12T22:55:28Z\",\n    \"command\": \"notify\",\n    \"request_id\": \"d136850f-7ae8-4089-a675-0cf028a37bdc\",\n    \"receipt\": \"r2g1674iyjio5n9vyn24mkjsfdtkg8\",\n    \"status_code\": 200,\n    \"success\": true,\n    \"priority\": 2,\n    \"title\": \"Printing Press watch test\",\n    \"message_preview\": \"Watch exit test: acknowledge this one Tue May 12 15:55:28 PDT 2026\",\n    \"recipient_hash\": \"f3e9f3ab821880bd\",\n    \"response\": {\n      \"receipt\": \"r2g1674iyjio5n9vyn24mkjsfdtkg8\",\n      \"request\": \"d136850f-7ae8-4089-a675-0cf028a37bdc\",\n      \"status\": 1\n    }\n  },\n  {\n    \"id\": 26,\n    \"created_at\": \"2026-05-12T22:06:05Z\",\n    \"command\": \"notify\",\n    \"request_id\": \"563f03d5-ed69-40cb-bc52-b2e912572c86\",\n    \"receipt\": \"r847nemw1ru7wz5t9hzh1grpok99r1\",\n    \"status_code\": 200,\n    \"success\": true,\n    \"priority\": 2,\n    \"title\": \"Printing Press emergency\",\n    \"message_preview\": \"Emergency default-sound test: please acknowledge Tue May 12 15:06:05 PDT 2026\",\n    \"recipient_hash\": \"f3e9f3ab821880bd\",\n    \"response\": {\n      \"receipt\": \"r847nemw1ru7wz5t9hzh1grpok99r1\",\n      \"request\": \"563f03d5-ed69-40cb-bc52-b2e912572c86\",\n      \"status\": 1\n    }\n  },\n  {\n    \"id\": 25,\n    \"created_at\": \"2026-05-12T22:05:54Z\",\n    \"command\": \"notify\",\n    \"request_id\": \"d4fdcc90-3548-442b-8f43-ccc903454a9d\",\n    \"status_code\": 200,\n    \"success\": true,\n    \"priority\": 0,\n    \"title\": \"Printing Press sound test\",\n    \"message_preview\": \"Default sound test Tue May 12 15:05:54 PDT 2026\",\n    \"recipient_hash\": \"f3e9f3ab821880bd\",\n    \"response\": {\n      \"request\": \"d4fdcc90-3548-442b-8f43-ccc903454a9d\",\n      \"status\": 1\n    }\n  },\n  {\n    \"id\": 24,\n    \"created_at\": \"2026-05-12T22:05:28Z\",\n    \"command\": \"notify\",\n    \"request_id\": \"5194de74-b458-463c-9940-4852de898fcc\",\n    \"status_code\": 200,\n    \"success\": true,\n    \"priority\": 0,\n    \"title\": \"Printing Press sound test\",\n    \"message_preview\": \"Default sound test Tue May 12 15:05:28 PDT 2026\",\n    \"recipient_hash\": \"f3e9f3ab821880bd\",\n    \"response\": {\n      \"request\": \"5194de74-b458-463c-9940-4852de898fcc\",\n      \"status\": 1\n    }\n  },\n  {\n    \"id\": 23,\n    \"created_at\": \"2026-05-12T22:04:59Z\",\n    \"command\": \"notify\",\n    \"request_id\": \"aada4da8-290a-49a2-8e3a-b1349c51dc91\",\n    \"status_code\": 200,\n    \"success\": true,\n    \"priority\": 0,\n    \"title\": \"Printing Press sound test\",\n    \"message_preview\": \"Default sound test Tue May 12 15:04:58 PDT 2026\",\n    \"recipient_hash\": \"f3e9f3ab821880bd\",\n    \"response\": {…[truncated]"
+    },
+    {
+      "command": "history list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "history show",
+      "kind": "help",
+      "args": [
+        "history",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show one notification history row\n\nUsage:\n  pushover-pp-cli history show \u003cid\u003e [flags]\n\nExamples:\n  pushover-pp-cli history show 1 --json\n  pushover-pp-cli history show 1 --dry-run --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --db string            SQLite database path (default: ~/.local/share/pushover-pp-cli/data.db)\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --limit int            Maximum rows to return (default 25)\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pushover-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --since string         Only include rows since a duration like 24h or 7d, or an RFC3339 timestamp\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "history show",
+      "kind": "happy_path",
+      "args": [
+        "history",
+        "show",
+        "30",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"id\": 30,\n  \"created_at\": \"2026-05-12T23:03:34Z\",\n  \"command\": \"notify\",\n  \"status_code\": 200,\n  \"success\": false,\n  \"priority\": 0,\n  \"message_preview\": \"mock-value\",\n  \"recipient_hash\": \"f3e9f3ab821880bd\",\n  \"response\": {\n    \"created_at\": \"2026-03-27T00:00:00Z\",\n    \"full_name\": \"mock/repo\",\n    \"id\": 1,\n    \"login\": \"mock-user\",\n    \"name\": \"mock-item\",\n    \"state\": \"open\",\n    \"title\": \"Mock Item\",\n    \"updated_at\": \"2026-03-27T00:00:00Z\"\n  }\n}\n"
+    },
+    {
+      "command": "history show",
+      "kind": "json_fidelity",
+      "args": [
+        "history",
+        "show",
+        "30",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"id\": 30,\n  \"created_at\": \"2026-05-12T23:03:34Z\",\n  \"command\": \"notify\",\n  \"status_code\": 200,\n  \"success\": false,\n  \"priority\": 0,\n  \"message_preview\": \"mock-value\",\n  \"recipient_hash\": \"f3e9f3ab821880bd\",\n  \"response\": {\n    \"created_at\": \"2026-03-27T00:00:00Z\",\n    \"full_name\": \"mock/repo\",\n    \"id\": 1,\n    \"login\": \"mock-user\",\n    \"name\": \"mock-item\",\n    \"state\": \"open\",\n    \"title\": \"Mock Item\",\n    \"updated_at\": \"2026-03-27T00:00:00Z\"\n  }\n}\n"
+    },
+    {
+      "command": "history show",
+      "kind": "error_path",
+      "args": [
+        "history",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: invalid history id \"__printing_press_invalid__\"\ninvalid history id \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "import",
+      "kind": "help",
+      "args": [
+        "import",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Import data from a JSONL file by issuing POST requests for each record.\nEach line must be a valid JSON object. Failed records are logged to stderr\nbut do not stop the import.\n\nUsage:\n  pushover-pp-cli import \u003cresource\u003e [flags]\n\nExamples:\n  # Import from a JSONL file\n  pushover-pp-cli import \u003cresource\u003e --input data.jsonl\n\n  # Dry-run to preview without sending\n  pushover-pp-cli import \u003cresource\u003e --input data.jsonl --dry-run\n\n  # Import from stdin\n  cat data.jsonl | pushover-pp-cli import \u003cresource\u003e --input -\n\nFlags:\n      --batch-size int   Records per batch (future: batch API support) (default 1)\n      --dry-run          Preview import without sending requests\n  -h, --help             help for import\n  -i, --input string     Input JSONL file path (use - for stdin)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pushover-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "import",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "error_path",
+      "args": [
+        "import",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: required flag(s) \"input\" not set\nrequired flag(s) \"input\" not set\n"
+    },
+    {
+      "command": "inbox list",
+      "kind": "help",
+      "args": [
+        "inbox",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List locally synced Open Client messages\n\nUsage:\n  pushover-pp-cli inbox list [flags]\n\nExamples:\n  pushover-pp-cli inbox list --json\n  pushover-pp-cli inbox list --limit 10\n\nFlags:\n      --db string   SQLite database path (default: ~/.local/share/pushover-pp-cli/data.db)\n  -h, --help        help for list\n      --limit int   Maximum rows to return (default 25)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pushover-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "inbox list",
+      "kind": "happy_path",
+      "args": [
+        "inbox",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "inbox list",
+      "kind": "json_fidelity",
+      "args": [
+        "inbox",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "inbox list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "inbox sync",
+      "kind": "help",
+      "args": [
+        "inbox",
+        "sync",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Download Open Client messages into local SQLite\n\nUsage:\n  pushover-pp-cli inbox sync [flags]\n\nExamples:\n  pushover-pp-cli inbox sync --client-secret \"$PUSHOVER_CLIENT_SECRET\" --device-id \"$PUSHOVER_DEVICE_ID\" --json\n  pushover-pp-cli inbox sync --client-secret example-value --device-id example-device --dry-run --json\n\nFlags:\n      --client-secret string   Open Client session secret; may be read from PUSHOVER_CLIENT_SECRET\n      --db string              SQLite database path (default: ~/.local/share/pushover-pp-cli/data.db)\n      --delete-through         After storing downloaded messages, delete them through the highest synced message id\n      --device-id string       Open Client device id; may be read from PUSHOVER_DEVICE_ID\n  -h, --help                   help for sync\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pushover-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "inbox sync",
+      "kind": "happy_path",
+      "args": [
+        "inbox",
+        "sync",
+        "--client-secret",
+        "$PUSHOVER_CLIENT_SECRET",
+        "--device-id",
+        "$PUSHOVER_DEVICE_ID",
+        "--json"
+      ],
+      "status": "skip",
+      "exit_code": 4,
+      "reason": "unavailable for runner credentials",
+      "output_sample": "Error: GET /1/messages.json returned HTTP 403: {\"secret\":\"invalid\",\"errors\":[\"secret is invalid\"],\"status\":0,\"request\":\"009e77cd-1dbd-416e-86a4-615b44bf8ec3\"}\nhint: permission denied. This API is configured without credentials, so the service may be blocking the request by rate limit, geography, bot protection, or endpoint policy.\n      Run 'pushover-pp-cli doctor' to check connectivity.\nGET /1/messages.json returned HTTP 403: {\"secret\":\"invalid\",\"errors\":[\"secret is invalid\"],\"status\":0,\"request\":\"009e77cd-1dbd-416e-86a4-615b44bf8ec3\"}\nhint: permission denied. This API is configured without credentials, so the service may be blocking the request by rate limit, geography, bot protection, or endpoint policy.\n      Run 'pushover-pp-cli doctor' to check connectivity.\n"
+    },
+    {
+      "command": "inbox sync",
+      "kind": "json_fidelity",
+      "args": [
+        "inbox",
+        "sync",
+        "--client-secret",
+        "$PUSHOVER_CLIENT_SECRET",
+        "--device-id",
+        "$PUSHOVER_DEVICE_ID",
+        "--json"
+      ],
+      "status": "skip",
+      "exit_code": 4,
+      "reason": "unavailable for runner credentials",
+      "output_sample": "Error: GET /1/messages.json returned HTTP 403: {\"secret\":\"invalid\",\"errors\":[\"secret is invalid\"],\"status\":0,\"request\":\"d1dc8aa3-d744-4623-a890-db2e4e3e99f6\"}\nhint: permission denied. This API is configured without credentials, so the service may be blocking the request by rate limit, geography, bot protection, or endpoint policy.\n      Run 'pushover-pp-cli doctor' to check connectivity.\nGET /1/messages.json returned HTTP 403: {\"secret\":\"invalid\",\"errors\":[\"secret is invalid\"],\"status\":0,\"request\":\"d1dc8aa3-d744-4623-a890-db2e4e3e99f6\"}\nhint: permission denied. This API is configured without credentials, so the service may be blocking the request by rate limit, geography, bot protection, or endpoint policy.\n      Run 'pushover-pp-cli doctor' to check connectivity.\n"
+    },
+    {
+      "command": "inbox sync",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "licenses assign",
+      "kind": "help",
+      "args": [
+        "licenses",
+        "assign",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Assign a pre-paid license credit to a user or email\n\nUsage:\n  pushover-pp-cli licenses assign [flags]\n\nExamples:\n  pushover-pp-cli licenses assign --app-token your-token-here\n\nFlags:\n      --app-token string   Application API token with purchased license credits\n      --email string       Email address; required unless user-key is supplied\n  -h, --help               help for assign\n      --os string          Optional platform: Android, iOS, or Desktop\n      --stdin              Read request body as JSON from stdin\n      --user-key string    Pushover user key; required unless email is supplied\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pushover-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "licenses assign",
+      "kind": "happy_path",
+      "args": [
+        "licenses",
+        "assign",
+        "--app-token",
+        "your-token-here",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/1/licenses/assign.json\",\n  \"resource\": \"licenses\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://api.pushover.net/1/licenses/assign.json\n  Body:\n{\n    \"token\": \"****k4wi\",\n    \"user\": \"****kuq3\"\n  }\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "licenses assign",
+      "kind": "json_fidelity",
+      "args": [
+        "licenses",
+        "assign",
+        "--app-token",
+        "your-token-here",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/1/licenses/assign.json\",\n  \"resource\": \"licenses\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://api.pushover.net/1/licenses/assign.json\n  Body:\n{\n    \"token\": \"****k4wi\",\n    \"user\": \"****kuq3\"\n  }\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "licenses assign",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "licenses assign",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "licenses credits",
+      "kind": "help",
+      "args": [
+        "licenses",
+        "credits",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check remaining license credits\n\nUsage:\n  pushover-pp-cli licenses credits [flags]\n\nExamples:\n  pushover-pp-cli licenses credits --app-token your-token-here\n\nFlags:\n      --app-token string   Application API token\n  -h, --help               help for credits\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pushover-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "licenses credits",
+      "kind": "happy_path",
+      "args": [
+        "licenses",
+        "credits",
+        "--app-token",
+        "your-token-here"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"credits\": 0,\n    \"status\": 1,\n    \"request\": \"ef901f86-11ee-4413-a2fa-ff2c088fce88\"\n  }\n}\n"
+    },
+    {
+      "command": "licenses credits",
+      "kind": "json_fidelity",
+      "args": [
+        "licenses",
+        "credits",
+        "--app-token",
+        "your-token-here",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"credits\": 0,\n    \"status\": 1,\n    \"request\": \"ef901f86-11ee-4413-a2fa-ff2c088fce88\"\n  }\n}\n"
+    },
+    {
+      "command": "licenses credits",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "messages download",
+      "kind": "help",
+      "args": [
+        "messages",
+        "download",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Download pending messages for an Open Client device\n\nUsage:\n  pushover-pp-cli messages download [flags]\n\nExamples:\n  pushover-pp-cli messages download --client-secret example-value --device-id 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n      --client-secret string   Open Client session secret\n      --device-id string       Open Client device id\n  -h, --help                   help for download\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pushover-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "messages download",
+      "kind": "happy_path",
+      "args": [
+        "messages",
+        "download",
+        "--client-secret",
+        "example-value",
+        "--device-id",
+        "550e8400-e29b-41d4-a716-446655440000"
+      ],
+      "status": "skip",
+      "exit_code": 4,
+      "reason": "unavailable for runner credentials",
+      "output_sample": "Error: GET /1/messages.json returned HTTP 403: {\"secret\":\"invalid\",\"errors\":[\"secret is invalid\"],\"status\":0,\"request\":\"33fc93dd-b1fa-4bd0-920d-b5388a6fe49c\"}\nhint: permission denied. This API is configured without credentials, so the service may be blocking the request by rate limit, geography, bot protection, or endpoint policy.\n      Run 'pushover-pp-cli doctor' to check connectivity.\nGET /1/messages.json returned HTTP 403: {\"secret\":\"invalid\",\"errors\":[\"secret is invalid\"],\"status\":0,\"request\":\"33fc93dd-b1fa-4bd0-920d-b5388a6fe49c\"}\nhint: permission denied. This API is configured without credentials, so the service may be blocking the request by rate limit, geography, bot protection, or endpoint policy.\n      Run 'pushover-pp-cli doctor' to check connectivity.\n"
+    },
+    {
+      "command": "messages download",
+      "kind": "json_fidelity",
+      "args": [
+        "messages",
+        "download",
+        "--client-secret",
+        "example-value",
+        "--device-id",
+        "550e8400-e29b-41d4-a716-446655440000",
+        "--json"
+      ],
+      "status": "skip",
+      "exit_code": 4,
+      "reason": "unavailable for runner credentials",
+      "output_sample": "Error: GET /1/messages.json returned HTTP 403: {\"secret\":\"invalid\",\"errors\":[\"secret is invalid\"],\"status\":0,\"request\":\"6e2473af-31b1-47a5-859f-45d850b5c270\"}\nhint: permission denied. This API is configured without credentials, so the service may be blocking the request by rate limit, geography, bot protection, or endpoint policy.\n      Run 'pushover-pp-cli doctor' to check connectivity.\nGET /1/messages.json returned HTTP 403: {\"secret\":\"invalid\",\"errors\":[\"secret is invalid\"],\"status\":0,\"request\":\"6e2473af-31b1-47a5-859f-45d850b5c270\"}\nhint: permission denied. This API is configured without credentials, so the service may be blocking the request by rate limit, geography, bot protection, or endpoint policy.\n      Run 'pushover-pp-cli doctor' to check connectivity.\n"
+    },
+    {
+      "command": "messages download",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "messages send",
+      "kind": "help",
+      "args": [
+        "messages",
+        "send",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Send a Pushover notification\n\nUsage:\n  pushover-pp-cli messages send [flags]\n\nExamples:\n  pushover-pp-cli messages send --app-token your-token-here\n\nFlags:\n      --app-token string           Application API token; may be read from PUSHOVER_APP_TOKEN\n      --attachment-base64 string   Base64-encoded image attachment\n      --attachment-type string     MIME type for attachment-base64\n      --callback string            Public callback URL for emergency acknowledgement callbacks\n      --device string              Device name or comma-separated device names for single-user sends\n      --encrypted                  Set when encrypted message fields are supplied\n      --expire int                 Emergency priority retry duration in seconds; maximum 10800\n  -h, --help                       help for send\n      --html                       Enable supported HTML formatting\n      --message string             Notification body text\n      --monospace                  Display message in monospace formatting\n      --priority int               Message priority: -2 lowest, -1 low, 0 normal, 1 high, 2 emergency\n      --retry int                  Emergency priority retry interval in seconds; minimum 30\n      --sound string               Notification sound name\n      --stdin                      Read request body as JSON from stdin\n      --tags string                Comma-separated tags for emergency receipt cancellation\n      --timestamp int              Unix timestamp to display as the message time\n      --title string               Notification title; defaults to the application name when omitted\n      --ttl int                    Seconds before the message is automatically deleted from devices\n      --url string                 Supplementary URL shown with the message\n      --url-title string           Title for the supplementary URL\n      --user-key string            Recipient user, group, or subscribed user key; may be read from PUSHOVER_USER_KEY\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pushover-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "messages send",
+      "kind": "happy_path",
+      "args": [
+        "messages",
+        "send",
+        "--app-token",
+        "your-token-here",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/1/messages.json\",\n  \"resource\": \"messages\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://api.pushover.net/1/messages.json\n  Body:\n{\n    \"token\": \"****k4wi\",\n    \"user\": \"****kuq3\"\n  }\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "messages send",
+      "kind": "json_fidelity",
+      "args": [
+        "messages",
+        "send",
+        "--app-token",
+        "your-token-here",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/1/messages.json\",\n  \"resource\": \"messages\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://api.pushover.net/1/messages.json\n  Body:\n{\n    \"token\": \"****k4wi\",\n    \"user\": \"****kuq3\"\n  }\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "messages send",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "messages send",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "notify",
+      "kind": "help",
+      "args": [
+        "notify",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Send a Pushover notification using env/config defaults, named priorities, stdin support, emergency validation, and local redacted history.\n\nUsage:\n  pushover-pp-cli notify [message] [flags]\n\nExamples:\n  pushover-pp-cli notify \"Printing Press test\" --priority low --json\n\nFlags:\n      --app-token string           Application API token; may be read from PUSHOVER_APP_TOKEN or PUSHOVER_TOKEN\n      --attachment-base64 string   Base64-encoded image attachment\n      --attachment-type string     MIME type for attachment-base64\n      --callback string            Public callback URL for emergency acknowledgement callbacks\n      --cancel-on-timeout          Cancel emergency retries if --watch times out\n      --device string              Device name or comma-separated device names for single-user sends\n      --expire int                 Emergency retry duration in seconds; required with emergency priority and maximum 10800\n  -h, --help                       help for notify\n      --history-db string          SQLite database path for the local redacted ledger\n      --html                       Enable supported HTML formatting\n      --message string             Notification body text\n      --monospace                  Display message in monospace formatting\n      --poll-interval duration     Receipt polling interval for --watch (default 30s)\n      --priority string            Priority name or value: lowest, low, normal, high, emergency, or -2..2 (default \"normal\")\n      --retry int                  Emergency retry interval in seconds; required with emergency priority and minimum 30\n      --sound string               Notification sound name\n      --stdin                      Read notification body from stdin\n      --tags string                Comma-separated tags for emergency receipt cancellation\n      --timestamp int              Unix timestamp to display as the message time\n      --title string               Notification title\n      --ttl int                    Seconds before the message is automatically deleted from devices\n      --url string                 Supplementary URL shown with the message\n      --url-title string           Title for the supplementary URL\n      --user-key string            Recipient user, group, or subscribed user key; may be read from PUSHOVER_USER_KEY or PUSHOVER_USER\n      --watch                      For emergency notifications, poll the receipt until acknowledged, expired, or timed out\n      --watch-timeout duration     Maximum time to watch an emergency receipt (default 15m0s)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pushover-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for …[truncated]"
+    },
+    {
+      "command": "notify",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [notify] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "notify",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [notify] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "notify",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "notify",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [notify] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a profile\n\nUsage:\n  pushover-pp-cli profile delete \u003cname\u003e [flags]\n\nExamples:\n  pushover-pp-cli profile delete my-defaults --yes\n  pushover-pp-cli profile delete old-profile --yes --json\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pushover-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved profiles\n\nUsage:\n  pushover-pp-cli profile list [flags]\n\nExamples:\n  pushover-pp-cli profile list\n  pushover-pp-cli profile list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pushover-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "NAME  FIELDS  DESCRIPTION\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Captures every flag explicitly set on the invocation and stores\nthem under \u003cname\u003e. To update an existing profile, run save again; the\nentry is replaced.\n\nTo avoid creating empty profiles, at least one non-default flag must be\npresent (other than --profile and --config).\n\nUsage:\n  pushover-pp-cli profile save \u003cname\u003e [--\u003cflag\u003e \u003cvalue\u003e ...] [flags]\n\nExamples:\n  pushover-pp-cli profile save my-defaults --json --compact\n  pushover-pp-cli profile save tonight-defaults --region US\n\nFlags:\n      --description string   Short description shown in 'profile list'\n  -h, --help                 help for save\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pushover-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "save",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: no non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\nno non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a profile's values as JSON\n\nUsage:\n  pushover-pp-cli profile show \u003cname\u003e [flags]\n\nExamples:\n  pushover-pp-cli profile show my-defaults\n  pushover-pp-cli profile show tonight-defaults --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pushover-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\nprofile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the flag values a profile will apply (does not execute anything)\n\nUsage:\n  pushover-pp-cli profile use \u003cname\u003e [flags]\n\nExamples:\n  pushover-pp-cli profile use my-defaults\n  pushover-pp-cli profile use tonight-defaults --json\n\nFlags:\n  -h, --help   help for use\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pushover-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "use",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\nprofile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "quota",
+      "kind": "help",
+      "args": [
+        "quota",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check Pushover monthly app send quota\n\nUsage:\n  pushover-pp-cli quota [flags]\n\nExamples:\n  pushover-pp-cli quota --json\n  pushover-pp-cli quota --json --select remaining,reset\n\nFlags:\n      --app-token string   Application API token; may be read from PUSHOVER_APP_TOKEN or PUSHOVER_TOKEN\n  -h, --help               help for quota\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pushover-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "quota",
+      "kind": "happy_path",
+      "args": [
+        "quota",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"limit\": 10000,\n  \"remaining\": 9597,\n  \"reset\": 1780290000,\n  \"status\": 1,\n  \"request\": \"842e89d6-52fb-4c73-be36-11a8a8decf9b\"\n}\n"
+    },
+    {
+      "command": "quota",
+      "kind": "json_fidelity",
+      "args": [
+        "quota",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"limit\": 10000,\n  \"remaining\": 9597,\n  \"reset\": 1780290000,\n  \"status\": 1,\n  \"request\": \"842e89d6-52fb-4c73-be36-11a8a8decf9b\"\n}\n"
+    },
+    {
+      "command": "quota",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "receipts cancel",
+      "kind": "help",
+      "args": [
+        "receipts",
+        "cancel",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Cancel retries for one emergency-priority receipt\n\nUsage:\n  pushover-pp-cli receipts cancel \u003creceipt\u003e [flags]\n\nExamples:\n  pushover-pp-cli receipts cancel example-value --app-token your-token-here\n\nFlags:\n      --app-token string   Application API token\n  -h, --help               help for cancel\n      --stdin              Read request body as JSON from stdin\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pushover-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "receipts cancel",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"receipt\" at depth 0"
+    },
+    {
+      "command": "receipts cancel",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"receipt\" at depth 0"
+    },
+    {
+      "command": "receipts cancel",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "receipts cancel",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"receipt\" at depth 0"
+    },
+    {
+      "command": "receipts cancel-by-tag",
+      "kind": "help",
+      "args": [
+        "receipts",
+        "cancel-by-tag",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Cancel active emergency-priority retries matching a tag\n\nUsage:\n  pushover-pp-cli receipts cancel-by-tag \u003ctag\u003e [flags]\n\nExamples:\n  pushover-pp-cli receipts cancel-by-tag example-value --app-token your-token-here\n\nFlags:\n      --app-token string   Application API token\n  -h, --help               help for cancel-by-tag\n      --stdin              Read request body as JSON from stdin\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pushover-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "receipts cancel-by-tag",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"tag\" at depth 0"
+    },
+    {
+      "command": "receipts cancel-by-tag",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"tag\" at depth 0"
+    },
+    {
+      "command": "receipts cancel-by-tag",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "receipts cancel-by-tag",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"tag\" at depth 0"
+    },
+    {
+      "command": "receipts get",
+      "kind": "help",
+      "args": [
+        "receipts",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get emergency-priority receipt status\n\nUsage:\n  pushover-pp-cli receipts get \u003creceipt\u003e [flags]\n\nExamples:\n  pushover-pp-cli receipts get example-value --app-token your-token-here\n\nFlags:\n      --app-token string   Application API token\n  -h, --help               help for get\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pushover-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "receipts get",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"receipt\" at depth 0"
+    },
+    {
+      "command": "receipts get",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"receipt\" at depth 0"
+    },
+    {
+      "command": "receipts get",
+      "kind": "error_path",
+      "args": [
+        "receipts",
+        "get",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /1/receipts/__printing_press_invalid__.json returned HTTP 404: {\"receipt\":\"not found\",\"errors\":[\"receipt not found; may be invalid or expired\"],\"status\":0,\"request\":\"4029b5b4-c079-4f5f-a793-bdc8323ada8b\"}\nhint: resource not found. Run the 'list' command to see available items\nGET /1/receipts/__printing_press_invalid__.json returned HTTP 404: {\"receipt\":\"not found\",\"errors\":[\"receipt not found; may be invalid or expired\"],\"status\":0,\"request\":\"4029b5b4-c079-4f5f-a793-bdc8323ada8b\"}\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "search",
+      "kind": "help",
+      "args": [
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search data using FTS5 full-text search on locally synced data,\nor hit the API's search endpoint when available.\n\nIn auto mode (default): uses the API search endpoint if the API has one,\notherwise searches local data. Falls back to local on network failure.\nIn live mode: uses the API search endpoint only.\nIn local mode: searches locally synced data only.\n\nUsage:\n  pushover-pp-cli search \u003cquery\u003e [flags]\n\nExamples:\n  # Search (uses API endpoint if available, local FTS otherwise)\n  pushover-pp-cli search \"error timeout\"\n\n  # Force local search only\n  pushover-pp-cli search \"payment failed\" --data-source local\n\n  # Search a specific resource type locally\n  pushover-pp-cli search \"critical\" --type transactions --data-source local\n\n  # JSON output for piping\n  pushover-pp-cli search \"critical\" --json --limit 20\n\nFlags:\n      --db string     Database path (default: ~/.local/share/pushover-pp-cli/data.db)\n  -h, --help          help for search\n      --limit int     Maximum results to return (default 50)\n      --type string   Filter by resource type\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pushover-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "search",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "error_path",
+      "args": [
+        "search",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"reason\": \"no_search_endpoint\",\n    \"resource_type\": \"search\",\n    \"source\": \"local\"\n  },\n  \"results\": []\n}\nThis API has no search endpoint. Searching local data.\n"
+    },
+    {
+      "command": "sounds",
+      "kind": "help",
+      "args": [
+        "sounds",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Shortcut for 'sounds list'. List built-in and account custom notification sounds\n\nUsage:\n  pushover-pp-cli sounds [flags]\n\nExamples:\n  pushover-pp-cli sounds --app-token your-token-here\n\nFlags:\n      --app-token string   Application API token\n  -h, --help               help for sounds\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pushover-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "sounds",
+      "kind": "happy_path",
+      "args": [
+        "sounds",
+        "--app-token",
+        "your-token-here"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"sounds\": {\n      \"pushover\": \"Pushover (default)\",\n      \"bike\": \"Bike\",\n      \"bugle\": \"Bugle\",\n      \"cashregister\": \"Cash Register\",\n      \"classical\": \"Classical\",\n      \"cosmic\": \"Cosmic\",\n      \"falling\": \"Falling\",\n      \"gamelan\": \"Gamelan\",\n      \"incoming\": \"Incoming\",\n      \"intermission\": \"Intermission\",\n      \"magic\": \"Magic\",\n      \"mechanical\": \"Mechanical\",\n      \"pianobar\": \"Piano Bar\",\n      \"siren\": \"Siren\",\n      \"spacealarm\": \"Space Alarm\",\n      \"tugboat\": \"Tug Boat\",\n      \"alien\": \"Alien Alarm (long)\",\n      \"climb\": \"Climb (long)\",\n      \"persistent\": \"Persistent (long)\",\n      \"echo\": \"Pushover Echo (long)\",\n      \"updown\": \"Up Down (long)\",\n      \"vibrate\": \"Vibrate Only\",\n      \"none\": \"None (silent)\"\n    },\n    \"status\": 1,\n    \"request\": \"f318ed5a-21cd-4821-b170-2e55335c4cc1\"\n  }\n}\n"
+    },
+    {
+      "command": "sounds",
+      "kind": "json_fidelity",
+      "args": [
+        "sounds",
+        "--app-token",
+        "your-token-here",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"sounds\": {\n      \"pushover\": \"Pushover (default)\",\n      \"bike\": \"Bike\",\n      \"bugle\": \"Bugle\",\n      \"cashregister\": \"Cash Register\",\n      \"classical\": \"Classical\",\n      \"cosmic\": \"Cosmic\",\n      \"falling\": \"Falling\",\n      \"gamelan\": \"Gamelan\",\n      \"incoming\": \"Incoming\",\n      \"intermission\": \"Intermission\",\n      \"magic\": \"Magic\",\n      \"mechanical\": \"Mechanical\",\n      \"pianobar\": \"Piano Bar\",\n      \"siren\": \"Siren\",\n      \"spacealarm\": \"Space Alarm\",\n      \"tugboat\": \"Tug Boat\",\n      \"alien\": \"Alien Alarm (long)\",\n      \"climb\": \"Climb (long)\",\n      \"persistent\": \"Persistent (long)\",\n      \"echo\": \"Pushover Echo (long)\",\n      \"updown\": \"Up Down (long)\",\n      \"vibrate\": \"Vibrate Only\",\n      \"none\": \"None (silent)\"\n    },\n    \"status\": 1,\n    \"request\": \"f318ed5a-21cd-4821-b170-2e55335c4cc1\"\n  }\n}\n"
+    },
+    {
+      "command": "sounds",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "subscriptions",
+      "kind": "help",
+      "args": [
+        "subscriptions",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Shortcut for 'subscriptions migrate'. Migrate an existing user key into a subscription user key\n\nUsage:\n  pushover-pp-cli subscriptions [flags]\n\nExamples:\n  pushover-pp-cli subscriptions --app-token your-token-here\n\nFlags:\n      --app-token string      Application API token\n      --device-name string    Optional device name limit for the subscription\n  -h, --help                  help for subscriptions\n      --sound string          Preferred default sound\n      --subscription string   Subscription code\n      --user-key string       Existing user key to migrate\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pushover-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "subscriptions",
+      "kind": "happy_path",
+      "args": [
+        "subscriptions",
+        "--app-token",
+        "your-token-here",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"dry_run\": true\n  }\n}\nPOST https://api.pushover.net/1/subscriptions/migrate.json\n  Body:\n{\n    \"token\": \"****k4wi\",\n    \"user\": \"****kuq3\"\n  }\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "subscriptions",
+      "kind": "json_fidelity",
+      "args": [
+        "subscriptions",
+        "--app-token",
+        "your-token-here",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"dry_run\": true\n  }\n}\nPOST https://api.pushover.net/1/subscriptions/migrate.json\n  Body:\n{\n    \"token\": \"****k4wi\",\n    \"user\": \"****kuq3\"\n  }\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "subscriptions",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "subscriptions",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "sync",
+      "kind": "help",
+      "args": [
+        "sync",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Sync data from the API into a local SQLite database. Supports resumable\nincremental sync (only fetches new data since last sync) and full resync.\nOnce synced, use the 'search' command for instant full-text search.\n\nExit codes \u0026 warnings:\n  Resources the API denies access to (HTTP 403, or HTTP 400 with an\n  access-policy body) are reported as warnings rather than failing the\n  run. In --json mode each is emitted as a {\"event\":\"sync_warning\",...}\n  line carrying status, reason, and message fields, and a final\n  {\"event\":\"sync_summary\",...} aggregates the run.\n\n  Exit 0 when at least one resource synced and no resource flagged in\n  the spec as critical (x-critical: true) failed; non-critical failures\n  emit {\"event\":\"sync_warning\",\"reason\":\"exit_policy_default_changed\",\n  ...} so callers can detect that a partial failure was tolerated. Pass\n  --strict to exit non-zero on any per-resource failure. Exit is always\n  non-zero when every selected resource failed, regardless of --strict.\n\nUsage:\n  pushover-pp-cli sync [flags]\n\nExamples:\n  # Sync all resources\n  pushover-pp-cli sync\n\n  # Sync specific resources only\n  pushover-pp-cli sync --resources channels,messages\n\n  # Full resync (ignore previous checkpoint)\n  pushover-pp-cli sync --full\n\n  # Incremental sync: only records from the last 7 days\n  pushover-pp-cli sync --since 7d\n\n  # Parallel sync with 8 workers\n  pushover-pp-cli sync --concurrency 8\n\n  # Latest-only: refresh head of each resource, no historical backfill\n  pushover-pp-cli sync --latest-only\n\nFlags:\n      --concurrency int              Number of parallel sync workers (default 4)\n      --db string                    Database path (default: ~/.local/share/pushover-pp-cli/data.db)\n      --full                         Full resync (ignore previous checkpoint)\n  -h, --help                         help for sync\n      --latest-only                  Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).\n      --max-pages int                Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event) (default 100)\n      --param stringArray            Extra query param to inject into every sync request (repeatable, key=value). Use for APIs whose spec marks a filter optional but the endpoint rejects calls without it (e.g. --param mine=true). Avoid pagination keys (limit/since/cursor) — overriding them corrupts resume state.\n      --resource-param stringArray   Per-resource extra query param (repeatable, resource:key=value). Wins over --param when both define the same key.\n      --resources strings            Comma-separated resource types to sync\n      --since string                 Incremental sync duration (e.g. 7d, 24h, 1w, 30m)\n      --strict                       Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (…[truncated]"
+    },
+    {
+      "command": "sync",
+      "kind": "happy_path",
+      "args": [
+        "sync"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_summary\",\"total_records\":0,\"resources\":0,\"success\":0,\"warned\":0,\"errored\":0,\"duration_ms\":0}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "json_fidelity",
+      "args": [
+        "sync",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_summary\",\"total_records\":0,\"resources\":0,\"success\":0,\"warned\":0,\"errored\":0,\"duration_ms\":0}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "tail",
+      "kind": "help",
+      "args": [
+        "tail",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Tail streams live data changes by polling the API at configurable intervals.\nEvents are emitted as NDJSON to stdout for piping to other tools.\nGracefully shuts down on SIGTERM/SIGINT.\n\nNote: For APIs with WebSocket or SSE support, a future version will use\nnative streaming instead of polling.\n\nUsage:\n  pushover-pp-cli tail [resource] [flags]\n\nExamples:\n  # Tail all changes every 10 seconds\n  pushover-pp-cli tail --interval 10s\n\n  # Tail a specific resource\n  pushover-pp-cli tail messages --interval 5s\n\n  # Pipe to jq for filtering\n  pushover-pp-cli tail events --interval 30s | jq 'select(.type == \"error\")'\n\nFlags:\n      --follow              Keep running (set --follow=false for single poll) (default true)\n  -h, --help                help for tail\n      --interval duration   Poll interval (default 10s)\n      --resource string     Resource type to tail\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pushover-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "tail",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [tail] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "tail",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [tail] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "tail",
+      "kind": "error_path",
+      "args": [
+        "tail",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": -1,
+      "output_sample": "Tailing __printing_press_invalid__ every 10s (Ctrl+C to stop)\nwarning: initial fetch failed: GET /__printing_press_invalid__ returned HTTP 404: {\"status\":0,\"errors\":[\"resource not found\"],\"request\":\"6a9f1a41-07a2-44bd-a7f1-4bac7fed34bd\"}\nwarning: poll failed: GET /__printing_press_invalid__ returned HTTP 404: {\"status\":0,\"errors\":[\"resource not found\"],\"request\":\"8288b753-3c51-4094-8be6-6ca4755320bf\"}\nwarning: poll failed: GET /__printing_press_invalid__ returned HTTP 404: {\"status\":0,\"errors\":[\"resource not found\"],\"request\":\"183b8328-976b-4abd-aa72-e24237787417\"}\n"
+    },
+    {
+      "command": "teams add-user",
+      "kind": "help",
+      "args": [
+        "teams",
+        "add-user",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Add a user to a team\n\nUsage:\n  pushover-pp-cli teams add-user [flags]\n\nExamples:\n  pushover-pp-cli teams add-user --team-token your-token-here\n\nFlags:\n      --admin string        Set to true to add the user as a team administrator\n      --email string        User email address\n      --group string        Delivery group name to add this user to\n  -h, --help                help for add-user\n      --instant string      Set to true to include an Instant Login link\n      --name string         User full name\n      --password string     Optional initial password\n      --stdin               Read request body as JSON from stdin\n      --team-token string   Team API token, not an application token\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pushover-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "teams add-user",
+      "kind": "happy_path",
+      "args": [
+        "teams",
+        "add-user",
+        "--team-token",
+        "your-token-here",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/1/teams/add_user.json\",\n  \"resource\": \"teams\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://api.pushover.net/1/teams/add_user.json\n  Body:\n{\n    \"token\": \"****here\"\n  }\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "teams add-user",
+      "kind": "json_fidelity",
+      "args": [
+        "teams",
+        "add-user",
+        "--team-token",
+        "your-token-here",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/1/teams/add_user.json\",\n  \"resource\": \"teams\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://api.pushover.net/1/teams/add_user.json\n  Body:\n{\n    \"token\": \"****here\"\n  }\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "teams add-user",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "teams add-user",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "teams info",
+      "kind": "help",
+      "args": [
+        "teams",
+        "info",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show team information and users\n\nUsage:\n  pushover-pp-cli teams info [flags]\n\nExamples:\n  pushover-pp-cli teams info --team-token your-token-here --dry-run\n\nFlags:\n  -h, --help                help for info\n      --team-token string   Team API token, not an application token\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pushover-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "teams info",
+      "kind": "happy_path",
+      "args": [
+        "teams",
+        "info",
+        "--team-token",
+        "your-token-here",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"dry_run\": true\n  }\n}\nGET https://api.pushover.net/1/teams.json\n  ?token=****here\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "teams info",
+      "kind": "json_fidelity",
+      "args": [
+        "teams",
+        "info",
+        "--team-token",
+        "your-token-here",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"dry_run\": true\n  }\n}\nGET https://api.pushover.net/1/teams.json\n  ?token=****here\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "teams info",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "teams remove-user",
+      "kind": "help",
+      "args": [
+        "teams",
+        "remove-user",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a user from a team\n\nUsage:\n  pushover-pp-cli teams remove-user [flags]\n\nExamples:\n  pushover-pp-cli teams remove-user --team-token your-token-here\n\nFlags:\n      --email string        User email address\n  -h, --help                help for remove-user\n      --stdin               Read request body as JSON from stdin\n      --team-token string   Team API token, not an application token\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pushover-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "teams remove-user",
+      "kind": "happy_path",
+      "args": [
+        "teams",
+        "remove-user",
+        "--team-token",
+        "your-token-here",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/1/teams/remove_user.json\",\n  \"resource\": \"teams\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://api.pushover.net/1/teams/remove_user.json\n  Body:\n{\n    \"token\": \"****here\"\n  }\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "teams remove-user",
+      "kind": "json_fidelity",
+      "args": [
+        "teams",
+        "remove-user",
+        "--team-token",
+        "your-token-here",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/1/teams/remove_user.json\",\n  \"resource\": \"teams\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://api.pushover.net/1/teams/remove_user.json\n  Body:\n{\n    \"token\": \"****here\"\n  }\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "teams remove-user",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "teams remove-user",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "users login",
+      "kind": "help",
+      "args": [
+        "users",
+        "login",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Log in a user for Open Client and return a user key plus session secret\n\nUsage:\n  pushover-pp-cli users login [flags]\n\nExamples:\n  pushover-pp-cli users login --email email-redacted\n\nFlags:\n      --email string      Pushover account email address\n  -h, --help              help for login\n      --password string   Pushover account password\n      --stdin             Read request body as JSON from stdin\n      --twofa string      Two-factor authentication code when the first login returns HTTP 412\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pushover-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "users login",
+      "kind": "happy_path",
+      "args": [
+        "users",
+        "login",
+        "--email",
+        "email-redacted",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/1/users/login.json\",\n  \"resource\": \"users\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://api.pushover.net/1/users/login.json\n  Body:\n{\n    \"email\": \"****.com\"\n  }\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "users login",
+      "kind": "json_fidelity",
+      "args": [
+        "users",
+        "login",
+        "--email",
+        "email-redacted",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/1/users/login.json\",\n  \"resource\": \"users\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://api.pushover.net/1/users/login.json\n  Body:\n{\n    \"email\": \"****.com\"\n  }\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "users login",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "users login",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "users validate",
+      "kind": "help",
+      "args": [
+        "users",
+        "validate",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Validate a user or group key and optional device\n\nUsage:\n  pushover-pp-cli users validate [flags]\n\nExamples:\n  pushover-pp-cli users validate --app-token your-token-here\n\nFlags:\n      --app-token string   Application API token\n      --device string      Optional device name to validate for this user\n  -h, --help               help for validate\n      --stdin              Read request body as JSON from stdin\n      --user-key string    User or group key to validate\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pushover-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "users validate",
+      "kind": "happy_path",
+      "args": [
+        "users",
+        "validate",
+        "--app-token",
+        "your-token-here",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/1/users/validate.json\",\n  \"resource\": \"users\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://api.pushover.net/1/users/validate.json\n  Body:\n{\n    \"token\": \"****k4wi\",\n    \"user\": \"****kuq3\"\n  }\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "users validate",
+      "kind": "json_fidelity",
+      "args": [
+        "users",
+        "validate",
+        "--app-token",
+        "your-token-here",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/1/users/validate.json\",\n  \"resource\": \"users\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://api.pushover.net/1/users/validate.json\n  Body:\n{\n    \"token\": \"****k4wi\",\n    \"user\": \"****kuq3\"\n  }\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "users validate",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "users validate",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "which resolves a natural-language capability query (for example, \"search messages\" or \"stale tickets\") to the best matching command from this CLI's curated feature index.\n\nExit codes:\n  0  at least one match found\n  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one\n\nUsage:\n  pushover-pp-cli which [query] [flags]\n\nExamples:\n  pushover-pp-cli which \"stale tickets\"\n  pushover-pp-cli which \"bottleneck\"\n  pushover-pp-cli which --limit 1 \"send message\"\n  pushover-pp-cli which                                # list the full capability index\n\nFlags:\n  -h, --help        help for which\n      --limit int   Maximum number of matches to return (default 3)\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pushover-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"matches\": []\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "archive",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Archive fetches all syncable resources from the API and stores them in a\nlocal SQLite database. Supports incremental sync (only new data since last run)\nand full resync. After archiving, use 'search' for instant full-text search.\n\nUsage:\n  pushover-pp-cli workflow archive [flags]\n\nExamples:\n  # Archive all resources\n  pushover-pp-cli workflow archive\n\n  # Full re-archive (ignore previous sync state)\n  pushover-pp-cli workflow archive --full\n\nFlags:\n      --db string   Database path (default: ~/.local/share/pushover-pp-cli/data.db)\n      --full        Full re-archive (ignore previous sync state)\n  -h, --help        help for archive\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pushover-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "archive"
+      ],
+      "status": "pass",
+      "output_sample": "Archived 0 items across 0 resources to /Users/todd_1/.local/share/pushover-pp-cli/data.db\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "archive",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"resources_synced\": 0,\n  \"store_path\": \"/Users/todd_1/.local/share/pushover-pp-cli/data.db\",\n  \"timestamp\": \"2026-05-12T23:04:22Z\",\n  \"total_items\": 0\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show local archive status and sync state for all resources\n\nUsage:\n  pushover-pp-cli workflow status [flags]\n\nExamples:\n  # Show archive status\n  pushover-pp-cli workflow status\n\n  # Show status as JSON\n  pushover-pp-cli workflow status --json\n\nFlags:\n      --db string   Database path\n  -h, --help        help for status\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'pushover-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "status"
+      ],
+      "status": "pass",
+      "output_sample": "Archive Status:\n  apps                           1 items\n  sounds                         1 items\n\n  Total: 2 items\n  Store: /Users/todd_1/.local/share/pushover-pp-cli/data.db\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "status",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"apps\": 1,\n  \"sounds\": 1\n}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-05-12T23:03:49.363221Z"
+}

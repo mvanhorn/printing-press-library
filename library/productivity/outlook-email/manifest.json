@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "outlook-email-pp-mcp",
+  "display_name": "Outlook Email",
+  "version": "4.2.2",
+  "description": "Drive your personal Microsoft 365 inbox from agentic workflows: read, send, sync, and run offline triage analytics like followup, senders, waiting, and digest that no Graph endpoint exposes.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/outlook-email-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/outlook-email-pp-mcp",
+      "args": [],
+      "env": {
+        "OUTLOOK_EMAIL_TOKEN": "${user_config.outlook_email_token}"
+      }
+    }
+  },
+  "user_config": {
+    "outlook_email_token": {
+      "type": "string",
+      "title": "OUTLOOK_EMAIL_TOKEN",
+      "description": "Sets OUTLOOK_EMAIL_TOKEN for the Outlook Email MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

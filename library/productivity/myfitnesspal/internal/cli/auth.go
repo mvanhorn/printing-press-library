@@ -730,7 +730,15 @@ func extractCookies(tool, domain, profileDir string) (string, error) {
 }
 
 func extractViaPycookiecheat(domain, profileDir string) (string, error) {
+	// PATCH(local): pycookiecheat returns DIFFERENT cookie sets for "https://myfitnesspal.com"
+	// vs "https://www.myfitnesspal.com" — bare-domain query misses cookies set on the .myfitnesspal.com
+	// parent domain (which includes the __Secure-next-auth.session-token and remember_me cookies
+	// the auth flow needs). When the cookie domain starts with "." (parent-domain notation), prepend
+	// "www." to the URL passed to pycookiecheat so the subdomain-scoped cookies surface.
 	cleanDomain := strings.TrimPrefix(domain, ".")
+	if strings.HasPrefix(domain, ".") {
+		cleanDomain = "www." + cleanDomain
+	}
 	cookiePath := ""
 	if profileDir != "" && profileDir != "Default" {
 		dataDir, err := chromeDataDir()

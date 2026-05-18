@@ -1,0 +1,51 @@
+version: 2
+project_name: substack-creator-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: substack-creator-pp-cli
+    main: ./cmd/substack-creator-pp-cli
+    binary: substack-creator-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/media-and-entertainment/substack-creator/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: substack-creator-pp-mcp
+    main: ./cmd/substack-creator-pp-mcp
+    binary: substack-creator-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: substack-creator-pp-cli
+    repository:
+      owner: jimpresting
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every Substack feature, plus a local SQLite database, full-text search across years of writing, and the only..."
+    install: |
+      bin.install "substack-creator-pp-cli"
+      bin.install "substack-creator-pp-mcp"

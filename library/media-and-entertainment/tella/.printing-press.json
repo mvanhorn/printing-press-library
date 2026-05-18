@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-09T22:49:48.490437Z",
+  "printing_press_version": "4.2.1",
+  "api_name": "tella",
+  "display_name": "Tella Public",
+  "cli_name": "tella-pp-cli",
+  "owner": "",
+  "printer": "gregce",
+  "printer_name": "Greg Ceccarelli",
+  "spec_path": "https://www.tella.com/docs/openapi.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:26b92970081ae7bb683930ad21170445517c02d954222715c5d4add6731be90d",
+  "run_id": "20260509-180956",
+  "mcp_binary": "tella-pp-mcp",
+  "mcp_tool_count": 51,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "TELLA_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Cross-video transcript search",
+      "command": "transcripts search",
+      "description": "FTS5 search across every cached clip transcript in your workspace; returns video, clip, and timecode hits in milliseconds."
+    },
+    {
+      "name": "Watch-milestone digest",
+      "command": "videos viewed",
+      "description": "Roll up webhook view-milestone events into a per-video summary over a window (e.g. who crossed 75% in the last 7 days)."
+    },
+    {
+      "name": "Webhook tail + replay",
+      "command": "webhooks tail",
+      "description": "Stream new webhook events from the inbox to stdout, and replay any prior message to a local URL with valid HMAC headers \u2014 no public tunnel needed."
+    },
+    {
+      "name": "Bulk standard edit pass",
+      "command": "clips edit-pass",
+      "description": "Apply a chained set of edits (remove-fillers, trim-silences-gt N, blur preset) across every clip in a playlist in one command."
+    },
+    {
+      "name": "Transcript diff (cut vs uncut)",
+      "command": "clips transcript-diff",
+      "description": "Diff a clip's cut transcript against its uncut transcript to surface every word that editing removed (filler, silence, hand-edit) with timecodes."
+    },
+    {
+      "name": "Exports waitlist",
+      "command": "exports wait",
+      "description": "Kick off exports for one or more videos and block until each is ready, short-circuiting on the Export ready webhook event."
+    },
+    {
+      "name": "Caption-file export",
+      "command": "clips captions",
+      "description": "Format a clip's cut transcript as an SRT or VTT subtitle file ready to attach to an embed or upload."
+    },
+    {
+      "name": "Workspace stats",
+      "command": "workspace stats",
+      "description": "Local aggregate of video count, clip count, total duration, transcript word count, and export count by month across the cached workspace."
+    }
+  ]
+}

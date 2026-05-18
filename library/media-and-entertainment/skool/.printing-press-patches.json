@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260510-114931",
+  "base_printing_press_version": "4.5.2",
+  "patches": [
+    {
+      "id": "cookie-jar-jwt-sanitize",
+      "summary": "Filter auth login cookie jar to extract only the auth_token JWT, dropping cookies whose values contain Chrome's raw encrypted_value bytes.",
+      "reason": "On macOS, pycookiecheat sometimes returns Chrome's encrypted_value blob unchanged for cookies like _fbp, client_id, _fbp. Even the auth_token cookie can have a binary prefix before the JWT. Storing those bytes in TOML breaks config.Load on the next run with `toml: invalid character U+00D9`. The fix scans for the JWT pattern (eyJ...eyJ...) inside the auth_token cookie value and drops every other cookie — Skool's API only authenticates with auth_token.",
+      "files": ["internal/cli/auth.go"],
+      "validated_outcome": "Fresh `auth login --chrome` on macOS Studio writes ASCII TOML; `posts top` returns real ranked results.",
+      "upstream_issue": "cli-printing-press: cookie extraction backend could surface a per-CLI hook for jar sanitization; today, every printed CLI that uses cookie auth has to hand-roll this filter."
+    },
+    {
+      "id": "iscobrausageerror-backport",
+      "summary": "Hand-merged isCobraUsageError() into root.go to satisfy the new generated root_test.go that v4.5.2 emits.",
+      "reason": "regen-merge from pp v4.0.6 to v4.5.2 left root.go classified as TEMPLATED-BODY-DRIFT (we'd modified the JSON encoder block earlier). The fresh root_test.go file references isCobraUsageError(), so the test wouldn't compile without the function. Re-added the function and the call site that wraps Cobra/pflag pre-RunE errors in usageErr() so they exit with code 2.",
+      "files": ["internal/cli/root.go"],
+      "validated_outcome": "`go vet ./...` and `go test ./internal/cli/` pass; verify-skill PASS.",
+      "upstream_issue": "cli-printing-press: regen-merge's BODY-DRIFT classification correctly avoids overwriting hand-edits, but should optionally emit a stub for required new functions to keep tests compiling."
+    },
+    {
+      "id": "mcp-root-flag-blocklist",
+      "summary": "Drop root-level auth/config/delivery flags from MCP structured arguments and reject flag-like tokens in the free-form args field.",
+      "reason": "The generated MCP shellout bridge accepted every structured key as a CLI flag. That let an MCP caller override root control-plane flags such as --config, --token, --profile, and --deliver instead of staying within the per-command tool surface.",
+      "files": ["internal/mcp/cobratree/shellout.go"],
+      "validated_outcome": "`go test ./internal/mcp/cobratree` passes.",
+      "upstream_issue": "cli-printing-press: generated MCP shellout code should include the root-flag blocklist and args-field guard by default."
+    }
+  ]
+}

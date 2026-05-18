@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-17T19:17:24.963451Z",
+  "printing_press_version": "4.8.0",
+  "api_name": "podcast-goat",
+  "display_name": "Podcast GOAT",
+  "cli_name": "podcast-goat-pp-cli",
+  "spec_path": "/Users/mvanhorn/printing-press/.runstate/mvanhorn-eb6a05f2/runs/20260517-103310/working/podcast-goat-pp-cli/spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:4ef2533d61711e5e63f560f66d68a47cefbf67201854bfd6a04c6867de9fac4f",
+  "run_id": "20260517-103310",
+  "mcp_binary": "podcast-goat-pp-mcp",
+  "mcp_tool_count": 2,
+  "mcp_public_tool_count": 2,
+  "mcp_ready": "partial",
+  "auth_type": "composed",
+  "auth_env_vars": [
+    "SPOKEN_API_KEY",
+    "TADDY_API_KEY",
+    "TADDY_USER_ID",
+    "OPENAI_API_KEY",
+    "DEEPGRAM_API_KEY",
+    "ELEVENLABS_API_KEY"
+  ],
+  "auth_description": "Cookie chain for the four bundled member publishers (set via\n`auth login --chrome --service <huberman|acquired|founders|peterattia>`),\nplus optional api_key vars for paid fallbacks. No credential required for the\nfree Dwarkesh / RSS / yt-dlp tier \u2014 that's the default dispatch.\n",
+  "novel_features": [
+    {
+      "name": "Topic bundle for one-shot agent runs",
+      "command": "magic",
+      "description": "Bundle top-N cached transcripts about a topic into one markdown file an agent can summarize in a single call."
+    },
+    {
+      "name": "Dispatcher decision trace",
+      "command": "episode get --explain",
+      "description": "Dry-run shows which source tier will fire and why earlier tiers were skipped, with projected cost before any paid call."
+    },
+    {
+      "name": "Local quote grep with speaker context",
+      "command": "episode quote",
+      "description": "FTS5 phrase search returns the matched segment plus N surrounding segments preserving the canonical speaker shape and deeplink timestamp."
+    },
+    {
+      "name": "Cross-source content diff",
+      "command": "source compare",
+      "description": "For an episode resolvable on multiple sources, fetch all available adapters and diff segment count, token count, distinct speakers, label confidence."
+    },
+    {
+      "name": "Bilingual zh-Hans + en aligned transcript",
+      "command": "episode get --bilingual",
+      "description": "yt-dlp dual-language auto-subs, greedy nearest-neighbor alignment, emits one markdown file with paired Chinese + auto-translated English per turn."
+    },
+    {
+      "name": "Per-service cookie freshness table",
+      "command": "auth services",
+      "description": "One-row-per-service table of cookie age, expiry, last-fetch result, with remediation hint when stale."
+    },
+    {
+      "name": "Distinct-speaker corpus index",
+      "command": "speakers list",
+      "description": "Aggregate speaker names across the cached corpus with episode counts, optionally filtered by show."
+    },
+    {
+      "name": "Spend pivot by show + provider",
+      "command": "budget show --by-show",
+      "description": "Pivot spend.jsonl joined to episodes by URL; group by show, provider, month to attribute cost."
+    }
+  ],
+  "printer": "mvanhorn",
+  "printer_name": "Matt Van Horn",
+  "category": "media-and-entertainment",
+  "owner": "podcast-goat",
+  "owner_name": "Podcast GOAT"
+}

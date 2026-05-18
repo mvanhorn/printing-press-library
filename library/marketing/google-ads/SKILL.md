@@ -1,6 +1,6 @@
 ---
 name: pp-google-ads
-description: "Printing Press CLI for Google Ads. Google Ads API for account discovery, GAQL reporting, campaigns, budgets, assets, conversions, audiences, planning,..."
+description: "Google Ads API for account discovery, GAQL reporting, campaigns, budgets, assets, conversions, audiences, planning, and billing operations. Trigger phrases: `pull a Google Ads report`, `GAQL query`, `check campaign performance`, `use google-ads`."
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
 metadata:

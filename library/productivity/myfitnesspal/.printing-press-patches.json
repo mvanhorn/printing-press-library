@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-12",
+  "base_run_id": "20260508-133559",
+  "base_printing_press_version": "4.0.6",
+  "patches": [
+    {
+      "id": "surf-transport-shared-client",
+      "summary": "Wrap Surf's Chrome-fingerprinted transport with MFPTransport in newHTTPClient so all spec-emitted commands clear MFP's anti-bot.",
+      "reason": "MFP redirects stdlib User-Agent requests to /account/login even with valid cookies. Surf's TLS fingerprint matches a real Chrome and clears the challenge; MFPTransport must remain as the outer wrapper for /v2/ host rewriting and mfp-* headers.",
+      "files": ["internal/client/client.go", "go.mod", "go.sum"],
+      "validated_outcome": "Live diary get-day, water, exercise, food search, and user auth-token all return real account data instead of the login-page redirect they hit before.",
+      "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/787"
+    },
+    {
+      "id": "surf-transport-nil-loud-warning",
+      "summary": "Emit a loud stderr warning when Surf's underlying *http.Transport is nil instead of silently falling back to http.DefaultTransport.",
+      "reason": "If a future enetx/surf release changes Std()'s shape and returns a client with no Transport, the silent fallback in surf-transport-shared-client would lose the Chrome TLS fingerprint and every MFP request would hit anti-bot with no visible cause. The warning makes the failure mode debuggable.",
+      "files": ["internal/client/client.go"],
+      "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/787"
+    },
+    {
+      "id": "cookie-header-not-authorization",
+      "summary": "Send the user's cookie payload as Cookie: header, not Authorization:.",
+      "reason": "MFP's web routes (/food/diary, /goals, /exercise, etc.) authenticate via cookie. Sending the cookie string as Authorization: causes MFP to treat the request as unauthenticated. The generator default targets bearer-auth; cookie auth needed the explicit override here.",
+      "files": ["internal/client/client.go"],
+      "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/787"
+    },
+    {
+      "id": "dry-run-cookie-label",
+      "summary": "--dry-run prints `Cookie:` (not `Authorization:`) so its output matches the live request shape.",
+      "reason": "The dryRun helper hard-coded `Authorization` as the auth-line label, but cookie-header-not-authorization made the live path send `Cookie:`. A user running --dry-run to diagnose auth failures would see the wrong header and chase the exact bug this PR fixes.",
+      "files": ["internal/client/client.go"]
+    },
+    {
+      "id": "drop-user-agent-override",
+      "summary": "Remove the post-overrides User-Agent assignment that pinned the request to myfitnesspal-pp-cli/0.1.0.",
+      "reason": "Surf's Impersonate().Chrome() sets the right Chrome User-Agent at the TLS layer; the subsequent req.Header.Set('User-Agent', 'myfitnesspal-pp-cli/0.1.0') was overwriting it and re-triggering bot detection on every request that went through the shared client.",
+      "files": ["internal/client/client.go"]
+    },
+    {
+      "id": "diary-scrape-uses-surf",
+      "summary": "Hand-written fetchAuthenticatedHTML helper now uses Surf's Chrome-fingerprinted *http.Client.",
+      "reason": "Hand-written diary_get_day.go bypasses the shared client and previously made its own stdlib http call that hit the same anti-bot wall. Routing through Surf brings the diary scrape path in line with the rest of the CLI.",
+      "files": ["internal/cli/diary_get_day.go", "go.mod", "go.sum"],
+      "validated_outcome": "Yesterday's diary returns parsed JSON with real meal entries.",
+      "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/787"
+    },
+    {
+      "id": "diary-scrape-shared-surf-client",
+      "summary": "Promote the Surf-backed *http.Client in diary_get_day.go to a package-level sync.Once singleton so multi-date reads reuse TLS connections; extract only Surf's Transport and wrap it in a jar-less *http.Client.",
+      "reason": "fetchAuthenticatedHTML previously built a fresh Surf client (and its TLS connection pool) on every call, costing a full TLS handshake per date. Reusing the full Surf *http.Client (which carries a CookieJar from Impersonate().Chrome()) would have accumulated Set-Cookie responses from MFP and re-sent them alongside the manually-set Cookie: <session> header on subsequent calls, producing duplicate/conflicting cookies. Mirrors newHTTPClient's pattern in internal/client/client.go.",
+      "files": ["internal/cli/diary_get_day.go"]
+    },
+    {
+      "id": "diary-surf-transport-nil-loud-warning",
+      "summary": "Emit a loud stderr warning when Surf's underlying *http.Transport is nil in sharedDiaryHTTPClient(), mirroring the existing guard in newHTTPClient.",
+      "reason": "sharedDiaryHTTPClient previously assigned surfStd.Transport without a nil check. If a future enetx/surf release changes Std()'s shape and returns a client with no Transport, the silent fallback would drop the Chrome TLS fingerprint on the diary scrape path and every request would hit MFP's anti-bot wall with no visible cause. Brings the diary path in line with surf-transport-nil-loud-warning in internal/client/client.go.",
+      "files": ["internal/cli/diary_get_day.go"]
+    },
+    {
+      "id": "drop-html-preferring-accept-header",
+      "summary": "Remove the unconditional Accept: text/html,...,application/json;q=0.9 header from the shared do() function.",
+      "reason": "The shared client is used for both HTML scrape paths and JSON v2 API endpoints. Setting an HTML-preferring Accept header globally would cause any content-negotiating API endpoint (/v2/foods/*, /api/services/reports/*) to return HTML and break JSON parsing. HTML scrape paths set their own Accept where it's actually the target; the Chrome TLS fingerprint (not the Accept header) is what clears MFP's anti-bot.",
+      "files": ["internal/client/client.go"]
+    },
+    {
+      "id": "pycookiecheat-www-prefix",
+      "summary": "Prepend www. when the cookie domain begins with . (parent-domain notation) before passing the URL to pycookiecheat.",
+      "reason": "pycookiecheat's chrome_cookies('https://myfitnesspal.com') returns a different (smaller) cookie set than chrome_cookies('https://www.myfitnesspal.com') — the bare-domain form misses parent-domain cookies, which include the __Secure-next-auth.session-token MFP needs to recognize the request as logged-in. Auth login was reporting success but storing 12 of the wrong cookies.",
+      "files": ["internal/cli/auth.go"]
+    }
+  ],
+  "known_remaining_issues": [
+    {
+      "summary": "v2 Bearer-token-required endpoints (/api/services/reports/*, /v2/foods/*, /v2/users/*) still fail with 'Missing HTTP header: Authorization' because the shared client now sends Cookie: but those endpoints need Authorization: Bearer <token> bootstrapped from /user/auth_token.",
+      "next_step": "Auth-mode-aware client routing: detect v2 paths and use Bearer (cached after one auth-token call) instead of Cookie."
+    },
+    {
+      "summary": "goals command path /account/my-goals returns the login redirect because the actual endpoint is /profile/goals.",
+      "next_step": "Fix the spec or the promoted-goals.go path."
+    },
+    {
+      "summary": "Diary parser: nutrient field names contain embedded newlines and unit suffixes (e.g. 'calories\\n                      kcal').",
+      "next_step": "Trim whitespace and split out units in internal/parser/diary.go."
+    }
+  ]
+}

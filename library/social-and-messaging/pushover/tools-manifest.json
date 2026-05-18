@@ -1,0 +1,1023 @@
+{
+  "api_name": "pushover",
+  "base_url": "https://api.pushover.net",
+  "description": "Pushover Message, Receipts, Groups, Glances, Subscriptions, Teams, Licensing, and Open Client APIs.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "apps_limits",
+      "description": "Check monthly message limit, remaining sends, and reset time. Required: app-token. Returns the AppLimitsResponse.",
+      "method": "GET",
+      "path": "/1/apps/limits.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "app-token",
+          "wire_name": "token",
+          "type": "string",
+          "location": "query",
+          "description": "Application API token",
+          "required": true,
+          "aliases": [
+            "token"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "devices_create",
+      "description": "Register a new Open Client desktop device. Required: client-secret, name. Optional: os (default: O). Returns the new DeviceCreateResponse.",
+      "method": "POST",
+      "path": "/1/devices.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "client-secret",
+          "wire_name": "secret",
+          "type": "string",
+          "location": "body",
+          "description": "Open Client session secret",
+          "required": true,
+          "aliases": [
+            "secret"
+          ]
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Short device name; alphanumeric, underscore, or dash",
+          "required": true
+        },
+        {
+          "name": "os",
+          "type": "string",
+          "location": "body",
+          "description": "Open Client operating system marker; use capital O"
+        }
+      ]
+    },
+    {
+      "name": "devices_delete-through",
+      "description": "Delete downloaded Open Client messages up to a highest message id. Required: device-id, client-secret, message-id. Returns the new StatusResponse.",
+      "method": "POST",
+      "path": "/1/devices/{device_id}/update_highest_message.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "device-id",
+          "wire_name": "device_id",
+          "type": "string",
+          "location": "path",
+          "description": "Open Client device id",
+          "required": true
+        },
+        {
+          "name": "client-secret",
+          "wire_name": "secret",
+          "type": "string",
+          "location": "body",
+          "description": "Open Client session secret",
+          "required": true,
+          "aliases": [
+            "secret"
+          ]
+        },
+        {
+          "name": "message-id",
+          "wire_name": "message",
+          "type": "string",
+          "location": "body",
+          "description": "Highest downloaded message id to delete through",
+          "required": true,
+          "aliases": [
+            "message"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "glances_update",
+      "description": "Update Glances widget fields. Required: app-token, user-key. Optional: device, title, text (plus 3 more). Returns the new StatusResponse.",
+      "method": "POST",
+      "path": "/1/glances.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "app-token",
+          "wire_name": "token",
+          "type": "string",
+          "location": "body",
+          "description": "Application API token",
+          "required": true,
+          "aliases": [
+            "token"
+          ]
+        },
+        {
+          "name": "user-key",
+          "wire_name": "user",
+          "type": "string",
+          "location": "body",
+          "description": "Recipient user key",
+          "required": true,
+          "aliases": [
+            "user"
+          ]
+        },
+        {
+          "name": "device",
+          "type": "string",
+          "location": "body",
+          "description": "Optional device/widget restriction"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Short field label, up to 100 characters"
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "Main text field, up to 100 characters"
+        },
+        {
+          "name": "subtext",
+          "type": "string",
+          "location": "body",
+          "description": "Secondary text field, up to 100 characters"
+        },
+        {
+          "name": "count",
+          "type": "int",
+          "location": "body",
+          "description": "Integer count value"
+        },
+        {
+          "name": "percent",
+          "type": "int",
+          "location": "body",
+          "description": "Integer progress value from 0 to 100"
+        }
+      ]
+    },
+    {
+      "name": "groups_add-user",
+      "description": "Add a user to a delivery group. Required: group-key, app-token, user-key. Optional: device, memo. Returns the new StatusResponse.",
+      "method": "POST",
+      "path": "/1/groups/{group_key}/add_user.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "group-key",
+          "wire_name": "group_key",
+          "type": "string",
+          "location": "path",
+          "description": "Delivery group key",
+          "required": true
+        },
+        {
+          "name": "app-token",
+          "wire_name": "token",
+          "type": "string",
+          "location": "body",
+          "description": "Application API token",
+          "required": true,
+          "aliases": [
+            "token"
+          ]
+        },
+        {
+          "name": "user-key",
+          "wire_name": "user",
+          "type": "string",
+          "location": "body",
+          "description": "User key to add",
+          "required": true,
+          "aliases": [
+            "user"
+          ]
+        },
+        {
+          "name": "device",
+          "type": "string",
+          "location": "body",
+          "description": "Optional device restriction"
+        },
+        {
+          "name": "memo",
+          "type": "string",
+          "location": "body",
+          "description": "Free-text memo for the group member"
+        }
+      ]
+    },
+    {
+      "name": "groups_create",
+      "description": "Create a delivery group. Required: app-token, name. Returns the new GroupCreateResponse.",
+      "method": "POST",
+      "path": "/1/groups.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "app-token",
+          "wire_name": "token",
+          "type": "string",
+          "location": "body",
+          "description": "Application API token",
+          "required": true,
+          "aliases": [
+            "token"
+          ]
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Group name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "groups_disable-user",
+      "description": "Temporarily disable a group user. Required: group-key, app-token, user-key. Optional: device. Returns the new StatusResponse.",
+      "method": "POST",
+      "path": "/1/groups/{group_key}/disable_user.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "group-key",
+          "wire_name": "group_key",
+          "type": "string",
+          "location": "path",
+          "description": "Delivery group key",
+          "required": true
+        },
+        {
+          "name": "app-token",
+          "wire_name": "token",
+          "type": "string",
+          "location": "body",
+          "description": "Application API token",
+          "required": true,
+          "aliases": [
+            "token"
+          ]
+        },
+        {
+          "name": "user-key",
+          "wire_name": "user",
+          "type": "string",
+          "location": "body",
+          "description": "User key to disable",
+          "required": true,
+          "aliases": [
+            "user"
+          ]
+        },
+        {
+          "name": "device",
+          "type": "string",
+          "location": "body",
+          "description": "Optional device restriction"
+        }
+      ]
+    },
+    {
+      "name": "groups_enable-user",
+      "description": "Re-enable a disabled group user. Required: group-key, app-token, user-key. Optional: device. Returns the new StatusResponse.",
+      "method": "POST",
+      "path": "/1/groups/{group_key}/enable_user.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "group-key",
+          "wire_name": "group_key",
+          "type": "string",
+          "location": "path",
+          "description": "Delivery group key",
+          "required": true
+        },
+        {
+          "name": "app-token",
+          "wire_name": "token",
+          "type": "string",
+          "location": "body",
+          "description": "Application API token",
+          "required": true,
+          "aliases": [
+            "token"
+          ]
+        },
+        {
+          "name": "user-key",
+          "wire_name": "user",
+          "type": "string",
+          "location": "body",
+          "description": "User key to enable",
+          "required": true,
+          "aliases": [
+            "user"
+          ]
+        },
+        {
+          "name": "device",
+          "type": "string",
+          "location": "body",
+          "description": "Optional device restriction"
+        }
+      ]
+    },
+    {
+      "name": "groups_get",
+      "description": "Get a delivery group's name and users. Required: group-key, app-token. Returns the GroupInfoResponse.",
+      "method": "GET",
+      "path": "/1/groups/{group_key}.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "group-key",
+          "wire_name": "group_key",
+          "type": "string",
+          "location": "path",
+          "description": "Delivery group key",
+          "required": true
+        },
+        {
+          "name": "app-token",
+          "wire_name": "token",
+          "type": "string",
+          "location": "query",
+          "description": "Application API token",
+          "required": true,
+          "aliases": [
+            "token"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "groups_list",
+      "description": "List delivery groups owned by the account. Required: app-token. Returns the GroupsListResponse.",
+      "method": "GET",
+      "path": "/1/groups.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "app-token",
+          "wire_name": "token",
+          "type": "string",
+          "location": "query",
+          "description": "Application API token",
+          "required": true,
+          "aliases": [
+            "token"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "groups_remove-user",
+      "description": "Remove a user from a delivery group. Required: group-key, app-token, user-key. Optional: device. Returns the new StatusResponse.",
+      "method": "POST",
+      "path": "/1/groups/{group_key}/remove_user.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "group-key",
+          "wire_name": "group_key",
+          "type": "string",
+          "location": "path",
+          "description": "Delivery group key",
+          "required": true
+        },
+        {
+          "name": "app-token",
+          "wire_name": "token",
+          "type": "string",
+          "location": "body",
+          "description": "Application API token",
+          "required": true,
+          "aliases": [
+            "token"
+          ]
+        },
+        {
+          "name": "user-key",
+          "wire_name": "user",
+          "type": "string",
+          "location": "body",
+          "description": "User key to remove",
+          "required": true,
+          "aliases": [
+            "user"
+          ]
+        },
+        {
+          "name": "device",
+          "type": "string",
+          "location": "body",
+          "description": "Optional device restriction"
+        }
+      ]
+    },
+    {
+      "name": "groups_rename",
+      "description": "Rename a delivery group. Required: group-key, app-token, name. Returns the new StatusResponse.",
+      "method": "POST",
+      "path": "/1/groups/{group_key}/rename.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "group-key",
+          "wire_name": "group_key",
+          "type": "string",
+          "location": "path",
+          "description": "Delivery group key",
+          "required": true
+        },
+        {
+          "name": "app-token",
+          "wire_name": "token",
+          "type": "string",
+          "location": "body",
+          "description": "Application API token",
+          "required": true,
+          "aliases": [
+            "token"
+          ]
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "New group name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "licenses_assign",
+      "description": "Assign a pre-paid license credit to a user or email. Required: app-token. Optional: user-key, email, os. Returns the new LicenseResponse.",
+      "method": "POST",
+      "path": "/1/licenses/assign.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "app-token",
+          "wire_name": "token",
+          "type": "string",
+          "location": "body",
+          "description": "Application API token with purchased license credits",
+          "required": true,
+          "aliases": [
+            "token"
+          ]
+        },
+        {
+          "name": "user-key",
+          "wire_name": "user",
+          "type": "string",
+          "location": "body",
+          "description": "Pushover user key; required unless email is supplied",
+          "aliases": [
+            "user"
+          ]
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email address; required unless user-key is supplied"
+        },
+        {
+          "name": "os",
+          "type": "string",
+          "location": "body",
+          "description": "Optional platform: Android, iOS, or Desktop"
+        }
+      ]
+    },
+    {
+      "name": "licenses_credits",
+      "description": "Check remaining license credits. Required: app-token. Returns the LicenseResponse.",
+      "method": "GET",
+      "path": "/1/licenses.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "app-token",
+          "wire_name": "token",
+          "type": "string",
+          "location": "query",
+          "description": "Application API token",
+          "required": true,
+          "aliases": [
+            "token"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "messages_download",
+      "description": "Download pending messages for an Open Client device. Required: client-secret, device-id. Returns the ClientMessagesResponse.",
+      "method": "GET",
+      "path": "/1/messages.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "client-secret",
+          "wire_name": "secret",
+          "type": "string",
+          "location": "query",
+          "description": "Open Client session secret",
+          "required": true,
+          "aliases": [
+            "secret"
+          ]
+        },
+        {
+          "name": "device-id",
+          "wire_name": "device_id",
+          "type": "string",
+          "location": "query",
+          "description": "Open Client device id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "messages_send",
+      "description": "Send a Pushover notification. Required: app-token, user-key, message. Optional: title, device, html (plus 14 more). Returns the new MessageSendResponse.",
+      "method": "POST",
+      "path": "/1/messages.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "app-token",
+          "wire_name": "token",
+          "type": "string",
+          "location": "body",
+          "description": "Application API token; may be read from PUSHOVER_APP_TOKEN",
+          "required": true,
+          "aliases": [
+            "token"
+          ]
+        },
+        {
+          "name": "user-key",
+          "wire_name": "user",
+          "type": "string",
+          "location": "body",
+          "description": "Recipient user, group, or subscribed user key; may be read from PUSHOVER_USER_KEY",
+          "required": true,
+          "aliases": [
+            "user"
+          ]
+        },
+        {
+          "name": "message",
+          "type": "string",
+          "location": "body",
+          "description": "Notification body text",
+          "required": true
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Notification title; defaults to the application name when omitted"
+        },
+        {
+          "name": "device",
+          "type": "string",
+          "location": "body",
+          "description": "Device name or comma-separated device names for single-user sends"
+        },
+        {
+          "name": "html",
+          "type": "bool",
+          "location": "body",
+          "description": "Enable supported HTML formatting"
+        },
+        {
+          "name": "monospace",
+          "type": "bool",
+          "location": "body",
+          "description": "Display message in monospace formatting"
+        },
+        {
+          "name": "priority",
+          "type": "int",
+          "location": "body",
+          "description": "Message priority: -2 lowest, -1 low, 0 normal, 1 high, 2 emergency"
+        },
+        {
+          "name": "sound",
+          "type": "string",
+          "location": "body",
+          "description": "Notification sound name"
+        },
+        {
+          "name": "timestamp",
+          "type": "int",
+          "location": "body",
+          "description": "Unix timestamp to display as the message time"
+        },
+        {
+          "name": "ttl",
+          "type": "int",
+          "location": "body",
+          "description": "Seconds before the message is automatically deleted from devices"
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "Supplementary URL shown with the message"
+        },
+        {
+          "name": "url-title",
+          "wire_name": "url_title",
+          "type": "string",
+          "location": "body",
+          "description": "Title for the supplementary URL"
+        },
+        {
+          "name": "attachment-base64",
+          "wire_name": "attachment_base64",
+          "type": "string",
+          "location": "body",
+          "description": "Base64-encoded image attachment"
+        },
+        {
+          "name": "attachment-type",
+          "wire_name": "attachment_type",
+          "type": "string",
+          "location": "body",
+          "description": "MIME type for attachment-base64"
+        },
+        {
+          "name": "encrypted",
+          "type": "bool",
+          "location": "body",
+          "description": "Set when encrypted message fields are supplied"
+        },
+        {
+          "name": "retry",
+          "type": "int",
+          "location": "body",
+          "description": "Emergency priority retry interval in seconds; minimum 30"
+        },
+        {
+          "name": "expire",
+          "type": "int",
+          "location": "body",
+          "description": "Emergency priority retry duration in seconds; maximum 10800"
+        },
+        {
+          "name": "callback",
+          "type": "string",
+          "location": "body",
+          "description": "Public callback URL for emergency acknowledgement callbacks"
+        },
+        {
+          "name": "tags",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated tags for emergency receipt cancellation"
+        }
+      ]
+    },
+    {
+      "name": "receipts_cancel",
+      "description": "Cancel retries for one emergency-priority receipt. Required: receipt, app-token. Returns the new StatusResponse.",
+      "method": "POST",
+      "path": "/1/receipts/{receipt}/cancel.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "receipt",
+          "type": "string",
+          "location": "path",
+          "description": "Emergency receipt id",
+          "required": true
+        },
+        {
+          "name": "app-token",
+          "wire_name": "token",
+          "type": "string",
+          "location": "body",
+          "description": "Application API token",
+          "required": true,
+          "aliases": [
+            "token"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "receipts_cancel-by-tag",
+      "description": "Cancel active emergency-priority retries matching a tag. Required: tag, app-token. Returns the new StatusResponse.",
+      "method": "POST",
+      "path": "/1/receipts/cancel_by_tag/{tag}.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "tag",
+          "type": "string",
+          "location": "path",
+          "description": "Emergency receipt tag",
+          "required": true
+        },
+        {
+          "name": "app-token",
+          "wire_name": "token",
+          "type": "string",
+          "location": "body",
+          "description": "Application API token",
+          "required": true,
+          "aliases": [
+            "token"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "receipts_get",
+      "description": "Get emergency-priority receipt status. Required: receipt, app-token. Returns the ReceiptStatusResponse.",
+      "method": "GET",
+      "path": "/1/receipts/{receipt}.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "receipt",
+          "type": "string",
+          "location": "path",
+          "description": "Emergency receipt id",
+          "required": true
+        },
+        {
+          "name": "app-token",
+          "wire_name": "token",
+          "type": "string",
+          "location": "query",
+          "description": "Application API token",
+          "required": true,
+          "aliases": [
+            "token"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "sounds_list",
+      "description": "List built-in and account custom notification sounds. Required: app-token. Returns the SoundsResponse.",
+      "method": "GET",
+      "path": "/1/sounds.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "app-token",
+          "wire_name": "token",
+          "type": "string",
+          "location": "query",
+          "description": "Application API token",
+          "required": true,
+          "aliases": [
+            "token"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "subscriptions_migrate",
+      "description": "Migrate an existing user key into a subscription user key. Required: app-token, subscription, user-key. Optional: device-name, sound. Returns the new SubscriptionMigrateResponse.",
+      "method": "POST",
+      "path": "/1/subscriptions/migrate.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "app-token",
+          "wire_name": "token",
+          "type": "string",
+          "location": "body",
+          "description": "Application API token",
+          "required": true,
+          "aliases": [
+            "token"
+          ]
+        },
+        {
+          "name": "subscription",
+          "type": "string",
+          "location": "body",
+          "description": "Subscription code",
+          "required": true
+        },
+        {
+          "name": "user-key",
+          "wire_name": "user",
+          "type": "string",
+          "location": "body",
+          "description": "Existing user key to migrate",
+          "required": true,
+          "aliases": [
+            "user"
+          ]
+        },
+        {
+          "name": "device-name",
+          "wire_name": "device_name",
+          "type": "string",
+          "location": "body",
+          "description": "Optional device name limit for the subscription"
+        },
+        {
+          "name": "sound",
+          "type": "string",
+          "location": "body",
+          "description": "Preferred default sound"
+        }
+      ]
+    },
+    {
+      "name": "teams_add-user",
+      "description": "Add a user to a team. Required: team-token, email. Optional: name, password, instant (plus 2 more). Returns the new StatusResponse.",
+      "method": "POST",
+      "path": "/1/teams/add_user.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "team-token",
+          "wire_name": "token",
+          "type": "string",
+          "location": "body",
+          "description": "Team API token, not an application token",
+          "required": true,
+          "aliases": [
+            "token"
+          ]
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "User email address",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "User full name"
+        },
+        {
+          "name": "password",
+          "type": "string",
+          "location": "body",
+          "description": "Optional initial password"
+        },
+        {
+          "name": "instant",
+          "type": "string",
+          "location": "body",
+          "description": "Set to true to include an Instant Login link"
+        },
+        {
+          "name": "admin",
+          "type": "string",
+          "location": "body",
+          "description": "Set to true to add the user as a team administrator"
+        },
+        {
+          "name": "group",
+          "type": "string",
+          "location": "body",
+          "description": "Delivery group name to add this user to"
+        }
+      ]
+    },
+    {
+      "name": "teams_info",
+      "description": "Show team information and users. Required: team-token. Returns the TeamInfoResponse.",
+      "method": "GET",
+      "path": "/1/teams.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "team-token",
+          "wire_name": "token",
+          "type": "string",
+          "location": "query",
+          "description": "Team API token, not an application token",
+          "required": true,
+          "aliases": [
+            "token"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "teams_remove-user",
+      "description": "Remove a user from a team. Required: team-token, email. Returns the new StatusResponse.",
+      "method": "POST",
+      "path": "/1/teams/remove_user.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "team-token",
+          "wire_name": "token",
+          "type": "string",
+          "location": "body",
+          "description": "Team API token, not an application token",
+          "required": true,
+          "aliases": [
+            "token"
+          ]
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "User email address",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_login",
+      "description": "Log in a user for Open Client and return a user key plus session secret. Required: email, password. Optional: twofa. Returns the new ClientLoginResponse.",
+      "method": "POST",
+      "path": "/1/users/login.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Pushover account email address",
+          "required": true
+        },
+        {
+          "name": "password",
+          "type": "string",
+          "location": "body",
+          "description": "Pushover account password",
+          "required": true
+        },
+        {
+          "name": "twofa",
+          "type": "string",
+          "location": "body",
+          "description": "Two-factor authentication code when the first login returns HTTP 412"
+        }
+      ]
+    },
+    {
+      "name": "users_validate",
+      "description": "Validate a user or group key and optional device. Required: app-token, user-key. Optional: device. Returns the new UserValidationResponse.",
+      "method": "POST",
+      "path": "/1/users/validate.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "app-token",
+          "wire_name": "token",
+          "type": "string",
+          "location": "body",
+          "description": "Application API token",
+          "required": true,
+          "aliases": [
+            "token"
+          ]
+        },
+        {
+          "name": "user-key",
+          "wire_name": "user",
+          "type": "string",
+          "location": "body",
+          "description": "User or group key to validate",
+          "required": true,
+          "aliases": [
+            "user"
+          ]
+        },
+        {
+          "name": "device",
+          "type": "string",
+          "location": "body",
+          "description": "Optional device name to validate for this user"
+        }
+      ]
+    }
+  ]
+}

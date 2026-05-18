@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260512-093229",
+  "base_printing_press_version": "4.4.0",
+  "patches": [
+    {
+      "id": "cli-output-bounds-guard",
+      "summary": "Guard printAutoCards against short headers slices (len==0 early return, len>2 wrap before headers[2:]).",
+      "reason": "When prioritizeAllHeaders returned <2 entries the headers[2:] slice panicked with 'slice bounds out of range'. Surfaced by Greptile review of the initial print.",
+      "files": ["internal/cli/helpers.go"],
+      "validated_outcome": "go test ./internal/cli passes; CLI no longer panics on items whose displayable fields collapse to 0/1 keys."
+    },
+    {
+      "id": "store-fts-hash-and-identifier-validation",
+      "summary": "Replaced ftsRowID polynomial hash with FNV-1a 64-bit + NUL separator and added validIdentifierRE check to ResolveByName matchFields.",
+      "reason": "Polynomial hash had non-trivial collision probability for (scope, id) pairs; on collision DELETE WHERE rowid=? silently evicted an unrelated FTS row. ResolveByName interpolated matchFields into json_extract without the same identifier guard ListField uses, creating a future SQL-injection trap.",
+      "files": ["internal/store/store.go"],
+      "validated_outcome": "go test ./internal/store passes; defence-in-depth aligns ResolveByName with ListField."
+    },
+    {
+      "id": "store-sticky-kill-and-receiver-shadow",
+      "summary": "AddCandidate ON CONFLICT preserves killed=1 (sticky-kill); UpsertBatch renamed local 's' shadows to 'idStr'.",
+      "reason": "Shortlist promote always passes killed=0, so the unconditional ON CONFLICT killed=excluded.killed silently resurrected candidates the user had killed via `lists kill`. UpsertBatch's `s := fmt.Sprintf(...)` shadowed the *Store receiver, creating a confusing compile error trap for future edits.",
+      "files": [
+        "internal/store/domain_schema.go",
+        "internal/store/store.go"
+      ],
+      "validated_outcome": "go test ./internal/store passes; shortlist promote no longer revives killed candidates."
+    },
+    {
+      "id": "cli-flag-rename-max-annual-cost",
+      "summary": "Renamed budget --max-renewal to --max-annual-cost; updated help text, README, SKILL examples.",
+      "reason": "budget command treated --max-renewal as an amortised annual cap (total/years) but named the flag as if it capped the raw renewal price. gen suggest's --max-renewal correctly caps raw renewal and was left unchanged.",
+      "files": [
+        "internal/cli/transcendence.go",
+        "README.md",
+        "SKILL.md"
+      ],
+      "validated_outcome": "Help output shows the formula; smoke-tested both old budget call patterns rejected with unknown-flag and new flag accepted."
+    },
+    {
+      "id": "namecheap-credentials-doc",
+      "summary": "Documented at package level that Namecheap auth credentials travel in URL query params and rotation is the only mitigation.",
+      "reason": "Namecheap's API offers no header-based auth; callers/auditors should know up front that the only remediation for unexpected log exposure is dashboard key rotation.",
+      "files": ["internal/source/namecheap/namecheap.go"],
+      "validated_outcome": "No code change; doc-only patch."
+    },
+    {
+      "id": "check-stdin-buffered-read",
+      "summary": "readNamesFile reads all input into a single []byte before JSON vs plain-text branching.",
+      "reason": "Previous implementation opened the source twice; for path=='-' the second open returned the same os.Stdin fd after the first json.Decoder had buffered ~512 bytes internally, silently truncating plain-text input piped via `check --file -`.",
+      "files": ["internal/cli/check.go"],
+      "validated_outcome": "Smoke-tested JSON array and plain-text (with # comments) stdin shapes via `check --file - --dry-run`; both round-trip cleanly."
+    },
+    {
+      "id": "drops-timeline-null-scan-and-dedup",
+      "summary": "Scan score/tld as sql.NullInt64/NullString; replaced MAX(fetched_at) join with ROW_NUMBER() window for per-fqdn dedup.",
+      "reason": "(a) Domains looked up via `rdap` (writes rdap_records only) were silently dropped from the timeline because the LEFT JOIN to `domains` produced NULL on score/tld and the plain-int scan errored. (b) Two writes within one second shared fetched_at (1s SQLite resolution), so MAX(fetched_at) matched both rows and the domain appeared twice.",
+      "files": ["internal/cli/transcendence.go"],
+      "validated_outcome": "go test ./internal/cli passes; rdap-only domains now appear once each in the timeline."
+    },
+    {
+      "id": "socials-request-error-handling",
+      "summary": "Capture http.NewRequestWithContext error in socials handler, record on the result row, skip the request instead of dereferencing nil req.",
+      "reason": "A handle with URL-unsafe characters (e.g. control bytes) made url.Parse fail, req nil, and req.Header.Set on the next line panicked.",
+      "files": ["internal/cli/gen_score_similar.go"],
+      "validated_outcome": "Smoke-tested `socials` with control-char input — each platform returns the parse error as `note` with no crash."
+    },
+    {
+      "id": "ratelimit-concurrent-slot-reservation",
+      "summary": "AdaptiveLimiter advances lastRequest atomically inside the lock; sleeps until reserved instant outside the lock.",
+      "reason": "Previous read-then-sleep-then-write pattern let N parallel goroutines all read the same stale lastRequest, sleep identically, and fire simultaneously — defeating the per-session rate pacing under `check --parallel 8`.",
+      "files": [
+        "internal/cliutil/ratelimit.go",
+        "internal/cliutil/cliutil_test.go"
+      ],
+      "validated_outcome": "Added TestAdaptiveLimiter_WaitPacesConcurrentCallers regression test: 5 concurrent Wait() calls at 10rps now take ~500ms (5 stacked slots) instead of ~100ms (all firing together)."
+    },
+    {
+      "id": "transcendence-rows-err-and-defer",
+      "summary": "tld-affinity inner SELECT...LIMIT 100 wrapped in IIFE with defer rows.Close() and rows.Err() zeroes partial counts.",
+      "reason": "Missing rows.Err() let a mid-scan cursor error produce a misleadingly low historical-availability estimate. Missing defer meant a hypothetical panic from rows.Scan would leak the SQL connection from the pool.",
+      "files": ["internal/cli/transcendence.go"],
+      "validated_outcome": "go test ./internal/cli passes; per-iteration close path is now deterministic on any exit."
+    },
+    {
+      "id": "watch-cadence-enforcement",
+      "summary": "Added Store.ListDueWatches with cadence-gated WHERE clause; `watch run` calls it by default; new --force flag falls back to ListWatches.",
+      "reason": "watch run iterated every domain on every cron tick regardless of cadence_hours, making the cadence configuration a no-op for users wiring `watch run` into cron.",
+      "files": [
+        "internal/cli/lists_watch.go",
+        "internal/store/domain_schema.go"
+      ],
+      "validated_outcome": "Smoke-tested `watch run --dry-run` and `watch run --dry-run --force` — the dry_run payload reports the force flag end-to-end."
+    },
+    {
+      "id": "whois-goroutine-bounded",
+      "summary": "whoissrc.Lookup constructs a per-call whois.NewClient().SetTimeout(15s) so the goroutine terminates on TCP deadline rather than the library's 30s default.",
+      "reason": "likexian/whois has no ctx hook; the goroutine could be stranded on an open WHOIS socket for ~30s after the outer ctx already returned. Under check --parallel 8 against a slow server that was 8 sockets held simultaneously.",
+      "files": ["internal/source/whoissrc/whoissrc.go"],
+      "validated_outcome": "go vet/build clean; lookup deadline now matches outer time.After arm."
+    },
+    {
+      "id": "gen-suggest-max-renewal-strict",
+      "summary": "gen suggest --max-renewal now returns an error when openStore fails instead of silently dropping the filter.",
+      "reason": "Previous code wrapped the entire filter in `if err == nil`, so a failed store-open returned every candidate unfiltered — users got results that violated the budget ceiling they passed.",
+      "files": ["internal/cli/gen_score_similar.go"],
+      "validated_outcome": "go vet/build clean; the filter is honoured or the command errors — never silently relaxes."
+    },
+    {
+      "id": "shortlist-promote-error-surfacing",
+      "summary": "shortlist promote collects per-candidate AddCandidate failures and surfaces them under `errors` in the output map.",
+      "reason": "Errors were swallowed — operators saw `promoted < top` with no diagnostic on DB-full / ctx-cancel / writeMu-contention.",
+      "files": ["internal/cli/transcendence.go"],
+      "validated_outcome": "Output JSON now includes `errors` array when any candidate write fails; happy path unchanged."
+    },
+    {
+      "id": "drop-bid-window-redemption-fallback",
+      "summary": "drop-bid-window now falls through pendingDelete → redemption → expiration when computing the bid window.",
+      "reason": "Code extracted redemption from RDAP events but only computed windows for pendingDelete or expiration; domains in active redemption (30-day grace) returned an error even though redemption+35d was enough to estimate.",
+      "files": ["internal/cli/transcendence.go"],
+      "validated_outcome": "go vet/build clean; redemption-only domains now produce a window with basis 'redemption+35d (estimated; verify with later RDAP refresh)'."
+    },
+    {
+      "id": "normalize-doc-comment-direction",
+      "summary": "SplitTLD doc comment updated to reflect actual first-dot (strings.Index) split behaviour.",
+      "reason": "Comment said 'last-dot split' but the code used strings.Index (first dot). Future readers debugging ccSLD edge cases could be misled.",
+      "files": ["internal/source/normalize/normalize.go"],
+      "validated_outcome": "No code change; doc-only patch."
+    },
+    {
+      "id": "gen-suggest-score-sort-before-filter",
+      "summary": "Sort gen-suggest rows by score BEFORE the --available-only RDAP filter loop, so the count early-exit returns the top-N highest-scoring available domains.",
+      "reason": "gen.Generate emits candidates alphabetically; the availableOnly loop iterated in that order and broke at `count` matches, so users got the first N alphabetically-available domains rather than the top-N by brandability score (which --include-score=true makes the implicit goal).",
+      "files": ["internal/cli/gen_score_similar.go"],
+      "validated_outcome": "go test ./... passes; alphabetical-vs-score selection bias removed. The standalone `else if includeScore` sort block became unnecessary and was inlined into the unconditional pre-filter sort."
+    }
+  ]
+}
