@@ -52,7 +52,7 @@ func newMealSummaryCmd(flags *rootFlags) *cobra.Command {
 					// Last day of current month
 					lastDay := time.Date(now.Year(), now.Month()+1, 0, 0, 0, 0, 0, now.Location())
 					to = lastDay.Format("2006-01-02")
-				} else {
+				} else if bodyWeek {
 					// Current week Mon-Sun
 					weekday := int(now.Weekday())
 					if weekday == 0 {
@@ -62,6 +62,9 @@ func newMealSummaryCmd(flags *rootFlags) *cobra.Command {
 					sunday := monday.AddDate(0, 0, 6)
 					from = monday.Format("2006-01-02")
 					to = sunday.Format("2006-01-02")
+				} else {
+					// PATCH: Do not ignore an explicit --week=false without another range mode.
+					return fmt.Errorf("either --week, --month, or --from/--to date range is required")
 				}
 			}
 			if to == "" {
@@ -136,7 +139,6 @@ func newMealSummaryCmd(flags *rootFlags) *cobra.Command {
 				fmt.Fprintln(w)
 			}
 
-			_ = bodyWeek // used to trigger week mode (default)
 			return nil
 		},
 	}

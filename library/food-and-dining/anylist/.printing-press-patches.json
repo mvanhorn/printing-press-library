@@ -96,6 +96,16 @@
         "internal/cli/root_test.go"
       ],
       "validated_outcome": "Added regression coverage proving canceled contexts abort webhook delivery before the POST is sent."
+    },
+    {
+      "id": "review-meal-summary-week-flag",
+      "summary": "Wired meal summary's week flag into date-range selection.",
+      "reason": "Greptile noted that meal summary registered --week but ignored explicit --week=false when no alternate range mode was provided.",
+      "files": [
+        "internal/cli/meal_summary.go",
+        "internal/cli/root_test.go"
+      ],
+      "validated_outcome": "Added regression coverage for --week=false requiring --month or an explicit date range."
     }
   ]
 }

@@ -198,6 +198,27 @@ func TestListsResetDryRunRequiresName(t *testing.T) {
 	}
 }
 
+func TestMealSummaryWeekFalseRequiresAlternateRange(t *testing.T) {
+	t.Parallel()
+
+	configPath := filepath.Join(t.TempDir(), "config.toml")
+	st, err := store.Open(&config.Config{Path: configPath})
+	if err != nil {
+		t.Fatalf("Open returned error: %v", err)
+	}
+	defer st.Close()
+
+	cmd := newMealSummaryCmd(&rootFlags{configPath: configPath})
+	cmd.SetArgs([]string{"--week=false"})
+	err = cmd.Execute()
+	if err == nil {
+		t.Fatal("Execute returned nil error, want missing range mode error")
+	}
+	if !strings.Contains(err.Error(), "either --week, --month, or --from/--to date range is required") {
+		t.Fatalf("error = %v, want missing range mode error", err)
+	}
+}
+
 func TestListsResetDryRunJSONUsesStructuredOutput(t *testing.T) {
 	t.Parallel()
 
