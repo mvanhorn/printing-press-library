@@ -18,13 +18,14 @@ name: Verify supply chain
 
 on:
   pull_request:
+    # Trigger only on paths that have associated scan signals — go.sum and
+    # package-lock.json don't, and including them produces no-op runs on
+    # routine `go mod tidy` / `npm install` commits (Greptile-flagged).
     paths:
       - '.github/workflows/**'
       - '.github/scripts/verify-supply-chain/**'
       - 'library/**/go.mod'
-      - 'library/**/go.sum'
       - 'npm/package.json'
-      - 'npm/package-lock.json'
   workflow_dispatch:
     inputs:
       strict:

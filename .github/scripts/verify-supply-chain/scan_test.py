@@ -524,6 +524,20 @@ class ModulePathDriftSignalTest(unittest.TestCase):
         self.assertTrue(findings[0].is_block())
         self.assertEqual(findings[0].signal_id, "module_path_noncanonical_on_new_cli")
 
+    def test_within_canonical_rename_blocks(self) -> None:
+        """Greptile-flagged: a rename that keeps the canonical prefix
+        (e.g., kalshi → kalshi-evil, both under github.com/.../library/) still
+        redirects `go install` for users pinned to the old slug. Must block."""
+        base = f"module {self.PREFIX}payments/kalshi\n\ngo 1.22\n"
+        head = f"module {self.PREFIX}payments/kalshi-evil\n\ngo 1.22\n"
+        # build_change in scan.py sets base_content from the OLD path on a
+        # rename; here we simulate that by populating base_content directly.
+        change = _fc("library/payments/kalshi-evil/go.mod", base=base, head=head)
+        findings = signals.signal_module_path_drift(change)
+        self.assertEqual(len(findings), 1)
+        self.assertTrue(findings[0].is_block())
+        self.assertEqual(findings[0].signal_id, "module_path_rename_on_existing_cli")
+
 
 # ---------------------------------------------------------------------------
 # Integration test: real git repo, end-to-end scan invocation
@@ -706,6 +720,22 @@ class ScanIntegrationTest(unittest.TestCase):
         self._git("checkout", "-q", "-b", "feat/x")
         self._write("library/payments/kalshi/go.mod", head)
         self._commit("rewrite module path")
+        rc = self._run_scan(base="main")
+        self.assertEqual(rc, 1)
+
+    def test_within_canonical_rename_detected_via_git_rename(self) -> None:
+        """End-to-end: git records a rename (kalshi → kalshi-evil), scan.py
+        passes old_path to signals.py via build_change, R6 fires with the
+        rename signal."""
+        base = "module github.com/mvanhorn/printing-press-library/library/payments/kalshi\n\ngo 1.22\n"
+        head = "module github.com/mvanhorn/printing-press-library/library/payments/kalshi-evil\n\ngo 1.22\n"
+        self._write("library/payments/kalshi/go.mod", base)
+        self._commit("baseline")
+        self._git("checkout", "-q", "-b", "feat/rename")
+        # Simulate rename: move directory + update module directive
+        self._git("mv", "library/payments/kalshi", "library/payments/kalshi-evil")
+        self._write("library/payments/kalshi-evil/go.mod", head)
+        self._commit("rename + module update")
         rc = self._run_scan(base="main")
         self.assertEqual(rc, 1)
 

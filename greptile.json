@@ -55,7 +55,7 @@
       },
       {
         "scope": ["library/**/go.mod"],
-        "rule": "P0. The `module` directive in library/<cat>/<slug>/go.mod is the canonical module path used by `go install` and the registry generator. It must remain prefixed with github.com/mvanhorn/printing-press-library/library/. A PR that rewrites an existing CLI's module directive to a non-canonical path silently redirects every future install (BufferZoneCorp variant). Renaming or moving a published CLI is a generator-repo operation, not a manual go.mod edit. Flag any module directive change on an existing CLI that breaks the canonical prefix."
+        "rule": "P0. The `module` directive in library/<cat>/<slug>/go.mod is the canonical module path used by `go install` and the registry generator. ANY change to an existing CLI's module directive should block, whether it drifts outside the canonical prefix github.com/mvanhorn/printing-press-library/library/ (the original BufferZoneCorp redirect-to-attacker-fork shape) OR stays within the canonical prefix as a rename (e.g., kalshi → kalshi-evil — still redirects `go install` for users pinned to the old slug). Renaming or moving a published CLI is a generator-pipeline operation, not a manual go.mod edit. Flag any module-directive change on an existing CLI. New CLIs must still use the canonical prefix."
       },
       {
         "scope": ["library/**/internal/**/*.go", "library/**/cmd/**/*.go"],

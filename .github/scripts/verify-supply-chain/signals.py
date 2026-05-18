@@ -551,19 +551,41 @@ def signal_module_path_drift(change: FileChange) -> list[Finding]:
             ]
         return []
 
-    # Existing CLI: module must not change to a non-canonical value.
-    if head_module != base_module and not head_module.startswith(CANONICAL_MODULE_PREFIX):
+    # Existing CLI: ANY module-directive change blocks. Catches both:
+    #   1. Drift outside the canonical prefix (the original BufferZoneCorp
+    #      shape — module redirected to attacker fork).
+    #   2. Within-canonical-prefix renames (e.g., kalshi → kalshi-evil) that
+    #      still start with github.com/mvanhorn/printing-press-library/library/
+    #      but redirect `go install` to a different slug. Self-evident in PR
+    #      review for humans, but worth blocking mechanically since renames
+    #      of published CLIs are generator-pipeline operations, not manual
+    #      go.mod edits.
+    if head_module != base_module:
+        outside_canonical = not head_module.startswith(CANONICAL_MODULE_PREFIX)
+        if outside_canonical:
+            message = (
+                "module directive on an existing library CLI changed from %s "
+                "to %s, which is outside the canonical prefix %s. This silently "
+                "redirects `go install` for every user."
+                % (base_module, head_module, CANONICAL_MODULE_PREFIX)
+            )
+            signal_id = "module_path_drift_on_existing_cli"
+        else:
+            message = (
+                "module directive on an existing library CLI changed from %s "
+                "to %s. Even within the canonical prefix, renaming a published "
+                "CLI redirects `go install` for users pinned to the old slug — "
+                "this must go through the generator pipeline, not a manual edit."
+                % (base_module, head_module)
+            )
+            signal_id = "module_path_rename_on_existing_cli"
         return [
             Finding(
                 path=change.path,
                 line=_find_line(change.head_content, head_module),
                 severity="block",
-                signal_id="module_path_drift_on_existing_cli",
-                message=(
-                    "module directive on an existing library CLI changed from %s "
-                    "to %s, which is outside the canonical prefix %s. This silently "
-                    "redirects `go install` for every user." % (base_module, head_module, CANONICAL_MODULE_PREFIX)
-                ),
+                signal_id=signal_id,
+                message=message,
                 remediation=(
                     "Revert the module directive. Renaming or moving a published CLI "
                     "is a generator-repo operation, not a manual go.mod edit."
