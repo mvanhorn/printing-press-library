@@ -1,7 +1,20 @@
 {
   "schema_version": 1,
-  "applied_at": "2026-05-08",
+  "applied_at": "2026-05-12",
   "base_run_id": "20260504-175601",
   "base_printing_press_version": "3.8.0",
-  "patches": []
+  "patches": [
+    {
+      "id": "sold-sf-window",
+      "summary": "Replace Stingray-rejected sf=1,3,5,7,9 default with the website-verified 1,2,3,5,6,7 combo and expose --sold-window + --sf flags on homes and sold commands.",
+      "reason": "Stingray returns resultCode 101 'Invalid arguments' on the prior multi-code default, breaking every sold-data path (sold, homes --status sold, comps, downstream agent skills). Live-verified the new default and the per-window codes against TX/Austin.",
+      "files": [
+        "internal/cli/promoted_homes.go",
+        "internal/cli/apt_sold.go",
+        "internal/cli/promoted_homes_test.go"
+      ],
+      "validated_outcome": "curl against /stingray/api/gis with sf=1,2,3,5,6,7 returns resultCode 0 + 5 homes; sf=7 (--sold-window 1y) returns resultCode 0 + 5 homes; the broken sf=1,3,5,7,9 still reproduces the 101 error.",
+      "upstream_issue": "https://github.com/mvanhorn/printing-press-library/issues/482"
+    }
+  ]
 }

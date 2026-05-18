@@ -3,22 +3,18 @@ name: Verify SKILL.md
 on:
   pull_request:
     paths:
-      - 'cli-skills/**'
       - 'library/**/.printing-press.json'
       - 'library/**/SKILL.md'
       - 'library/**/internal/cli/**'
       - '.github/workflows/verify-skills.yml'
       - '.github/scripts/verify-skill/**'
-      - 'tools/generate-skills/**'
   push:
     branches: [main]
     paths:
-      - 'cli-skills/**'
       - 'library/**/.printing-press.json'
       - 'library/**/SKILL.md'
       - 'library/**/internal/cli/**'
       - '.github/scripts/verify-skill/**'
-      - 'tools/generate-skills/**'
 
 jobs:
   verify:
@@ -37,26 +33,14 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Set up Go
-        uses: actions/setup-go@v6
-        with:
-          go-version: '1.23'
-
-      - name: Verify cli-skills mirror is generated
-        run: |
-          set -euo pipefail
-          go run ./tools/generate-skills/main.go
-
-          drift=$(git status --porcelain -- cli-skills/)
-          if [ -n "$drift" ]; then
-            echo "::error title=cli-skills mirror is stale::cli-skills/ must be generated from library/<category>/<slug>/SKILL.md. Run \`go run ./tools/generate-skills/main.go\` and commit the generated mirror changes."
-            echo "Out-of-sync cli-skills entries:"
-            echo "$drift"
-            git diff -- cli-skills/
-            exit 1
-          fi
-
-          echo "cli-skills/ matches generated output."
+      # cli-skills/ drift is handled by post-merge regen
+      # (generate-skills.yml), not by this PR-time workflow.
+      # verify-library-conventions.yml's `Fail on changes to generated
+      # artifacts` step blocks any PR commit that touches
+      # cli-skills/pp-*/SKILL.md; the post-merge regen produces the
+      # mirror once library/<cat>/<slug>/SKILL.md lands on main.
+      # An additional strict drift gate here is redundant. This
+      # workflow's job is verify_skill.py.
 
       - name: Run verifier against affected CLI skills
         id: verify

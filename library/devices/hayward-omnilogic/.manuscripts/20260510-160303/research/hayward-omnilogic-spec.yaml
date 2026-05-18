@@ -1,0 +1,388 @@
+name: hayward-omnilogic
+display_name: Hayward OmniLogic
+description: "Drive the Hayward OmniLogic pool/spa cloud API: telemetry, control, schedule diffs, multi-site sweeps, and historical chemistry from a local store."
+version: "0.1.0"
+base_url: "https://www.haywardomnilogic.com"
+owner: rzehner
+owner_name: Rob Zehner
+
+# Auth is two-stage (REST JSON login -> XML-envelope ops) which the generator
+# can't natively emit. We declare 'none' here so the generator produces clean
+# scaffolding; the hand-built client in internal/client/omnilogic/ handles the
+# real auth and reads HAYWARD_USER / HAYWARD_PW directly. The custom doctor
+# subcommand verifies both env vars are present.
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/hayward-omnilogic/config.toml"
+
+resources:
+  sites:
+    description: "Hayward OmniLogic sites (one per backyard controller registered to your account)"
+    endpoints:
+      list:
+        method: POST
+        path: "/HAAPI/HomeAutomation/API.ashx"
+        description: "List every site registered under your Hayward account."
+        response:
+          type: array
+          item: Site
+
+  config:
+    description: "Equipment inventory (MSP config tree) per site"
+    endpoints:
+      get:
+        method: POST
+        path: "/HAAPI/HomeAutomation/API.ashx"
+        description: "Fetch the equipment inventory for one site — pumps, heaters, chlorinator, lights, valves, relays, sensors."
+        params:
+          - name: msp_system_id
+            type: int
+            description: "Site MspSystemID. Omit to use the only registered site, or the first site if multiple exist."
+        response:
+          type: object
+          item: MspConfig
+
+  alarms:
+    description: "Active alarms across the OmniLogic system"
+    endpoints:
+      list:
+        method: POST
+        path: "/HAAPI/HomeAutomation/API.ashx"
+        description: "List active alarms for a site or every site."
+        params:
+          - name: msp_system_id
+            type: int
+            description: "Site MspSystemID. Omit to sweep every site."
+        response:
+          type: array
+          item: Alarm
+
+  telemetry:
+    description: "Live state of every equipment item at one site"
+    endpoints:
+      get:
+        method: POST
+        path: "/HAAPI/HomeAutomation/API.ashx"
+        description: "Snapshot live state: chemistry (pH/ORP/salt), water and air temperature, pump speeds, heater enable, light state, alarm flags. Append-only-stored in telemetry_samples."
+        params:
+          - name: msp_system_id
+            type: int
+            description: "Site MspSystemID. Omit to use the only registered site."
+        response:
+          type: object
+          item: Telemetry
+
+  chemistry:
+    description: "Chemistry-only view of telemetry plus historical-store-backed readouts"
+    endpoints:
+      get:
+        method: POST
+        path: "/HAAPI/HomeAutomation/API.ashx"
+        description: "Current chemistry snapshot: pH, ORP, salt, water temp, with safe-range verdict."
+        params:
+          - name: msp_system_id
+            type: int
+            description: "Site MspSystemID. Omit to use the only registered site."
+        response:
+          type: object
+          item: Chemistry
+
+  heater:
+    description: "Heater control (enable/disable + setpoint)"
+    endpoints:
+      enable:
+        method: POST
+        path: "/HAAPI/HomeAutomation/API.ashx"
+        description: "Turn a heater on. Heater stays on until set-temp is reached or you disable it."
+        params:
+          - name: heater_name
+            type: string
+            positional: true
+            description: "Heater name from the MSP config (e.g. 'Pool Heater', 'Spa Heater'). Use 'config get' to list them."
+        response:
+          type: object
+          item: CommandResult
+      disable:
+        method: POST
+        path: "/HAAPI/HomeAutomation/API.ashx"
+        description: "Turn a heater off."
+        params:
+          - name: heater_name
+            type: string
+            positional: true
+            description: "Heater name. Use 'config get' to list them."
+        response:
+          type: object
+          item: CommandResult
+      set_temp:
+        method: POST
+        path: "/HAAPI/HomeAutomation/API.ashx"
+        description: "Set a heater's target setpoint in degrees Fahrenheit."
+        params:
+          - name: heater_name
+            type: string
+            positional: true
+            description: "Heater name. Use 'config get' to list them."
+          - name: temp
+            type: int
+            required: true
+            description: "Target temperature in °F. Must fall within the heater's Min-Settable / Max-Settable range from MSP config."
+        response:
+          type: object
+          item: CommandResult
+
+  pump:
+    description: "Variable-speed pump control"
+    endpoints:
+      set_speed:
+        method: POST
+        path: "/HAAPI/HomeAutomation/API.ashx"
+        description: "Set a pump's running speed in RPM or percent (range comes from the pump's MSP config)."
+        params:
+          - name: pump_name
+            type: string
+            positional: true
+            description: "Pump name. Use 'config get' to list them."
+          - name: speed
+            type: int
+            required: true
+            description: "Speed value (RPM for high-speed pumps, percent for VSPs)."
+        response:
+          type: object
+          item: CommandResult
+
+  equipment:
+    description: "Generic on/off + timed-run control for valves, relays, lights, and accessory pumps"
+    endpoints:
+      on:
+        method: POST
+        path: "/HAAPI/HomeAutomation/API.ashx"
+        description: "Turn an equipment item on. Use --for to run for a bounded duration; otherwise stays on until you turn it off."
+        params:
+          - name: name
+            type: string
+            positional: true
+            description: "Equipment name (relay, valve, accessory pump, light). Use 'config get' to list them."
+          - name: for
+            type: string
+            description: "Duration to run, e.g. 1h, 30m, 2h30m. Omit to run indefinitely."
+        response:
+          type: object
+          item: CommandResult
+      off:
+        method: POST
+        path: "/HAAPI/HomeAutomation/API.ashx"
+        description: "Turn an equipment item off."
+        params:
+          - name: name
+            type: string
+            positional: true
+            description: "Equipment name. Use 'config get' to list them."
+        response:
+          type: object
+          item: CommandResult
+
+  spillover:
+    description: "Spillover control (pool-to-spa overflow)"
+    endpoints:
+      set:
+        method: POST
+        path: "/HAAPI/HomeAutomation/API.ashx"
+        description: "Set spillover speed and optional run duration."
+        params:
+          - name: speed
+            type: int
+            required: true
+            description: "Spillover speed percent."
+          - name: for
+            type: string
+            description: "Duration to run, e.g. 2h. Omit to run indefinitely."
+        response:
+          type: object
+          item: CommandResult
+
+  superchlor:
+    description: "Manual superchlorination (one-shot)"
+    endpoints:
+      on:
+        method: POST
+        path: "/HAAPI/HomeAutomation/API.ashx"
+        description: "Start superchlorination on the body-of-water's salt chlorinator. Runs until the configured SCTimeout expires or you turn it off."
+        response:
+          type: object
+          item: CommandResult
+      off:
+        method: POST
+        path: "/HAAPI/HomeAutomation/API.ashx"
+        description: "Stop superchlorination."
+        response:
+          type: object
+          item: CommandResult
+
+  light:
+    description: "ColorLogic light shows"
+    endpoints:
+      list_shows:
+        method: POST
+        path: "/HAAPI/HomeAutomation/API.ashx"
+        description: "List every available ColorLogic show with its numeric ID and human-readable name."
+        response:
+          type: array
+          item: LightShow
+      show:
+        method: POST
+        path: "/HAAPI/HomeAutomation/API.ashx"
+        description: "Activate a ColorLogic show. V2 lights also accept --speed and --brightness."
+        params:
+          - name: show
+            type: string
+            positional: true
+            required: true
+            description: "Show name (case-insensitive) or numeric ID. Use 'light list-shows' to enumerate."
+          - name: light_name
+            type: string
+            description: "Light name. Omit to apply to all ColorLogic lights at the site."
+          - name: speed
+            type: int
+            description: "(V2 only) Show speed 0-8."
+          - name: brightness
+            type: int
+            description: "(V2 only) Brightness 0-100."
+        response:
+          type: object
+          item: CommandResult
+
+  chlorinator:
+    description: "Salt chlorinator configuration"
+    endpoints:
+      set_params:
+        method: POST
+        path: "/HAAPI/HomeAutomation/API.ashx"
+        description: "Set chlorinator config (op mode, timed percent, ORP timeout, etc). Defaults to current MSP values for any flag you don't pass."
+        params:
+          - name: op_mode
+            type: string
+            description: "Operating mode: timed | orp-autosense | disabled."
+          - name: timed_pct
+            type: int
+            description: "Timed-mode chlorination percent (0-100)."
+          - name: cell_type
+            type: string
+            description: "Cell type: T-3 | T-5 | T-9 | T-15. Defaults to the value in MSP config."
+          - name: sc_timeout
+            type: int
+            description: "Superchlorinate timeout in hours (1-96)."
+          - name: orp_timeout
+            type: int
+            description: "ORP timeout in hours (1-96)."
+        response:
+          type: object
+          item: CommandResult
+
+# Sync, search, sql, and doctor commands are emitted automatically by the generator
+# as table-stakes operator commands. The novel transcendence commands (status,
+# ready-by, chemistry log/drift, runtime, command log, why-not-running,
+# schedule diff, sweep) are not declared here — they're hand-built in Phase 3
+# under internal/cli/ and registered against the generated rootCmd.
+
+types:
+  Site:
+    description: "An OmniLogic backyard (one physical controller) registered to your account."
+    fields:
+      - name: msp_system_id
+        type: int
+        description: "Internal Hayward site ID (MspSystemID)."
+      - name: backyard_name
+        type: string
+        description: "User-visible site name."
+
+  MspConfig:
+    description: "Parsed equipment inventory for one site."
+    fields:
+      - name: msp_system_id
+        type: int
+      - name: backyard_name
+        type: string
+      - name: bodies_of_water
+        type: array
+        description: "List of pools, spas, or pool+spa shared bodies."
+      - name: relays
+        type: array
+        description: "Backyard-level relays (lights, accessories not tied to a BoW)."
+
+  Alarm:
+    description: "An active alarm reported by the controller."
+    fields:
+      - name: alarm_id
+        type: string
+      - name: equipment_id
+        type: string
+      - name: severity
+        type: string
+      - name: message
+        type: string
+      - name: bow_id
+        type: string
+      - name: first_seen
+        type: string
+
+  Telemetry:
+    description: "Live state snapshot for one site, joined with equipment names from MSP config."
+    fields:
+      - name: msp_system_id
+        type: int
+      - name: air_temp
+        type: int
+      - name: bodies_of_water
+        type: array
+        description: "Per-BoW state: water_temp, pump speeds, light state, heater enabled, chemistry."
+      - name: relays
+        type: array
+      - name: sampled_at
+        type: string
+
+  Chemistry:
+    description: "Chemistry-only view: pH, ORP, salt, water temp, plus a safe-range verdict."
+    fields:
+      - name: bow_name
+        type: string
+      - name: ph
+        type: number
+      - name: orp
+        type: int
+      - name: salt_ppm
+        type: int
+      - name: water_temp
+        type: int
+      - name: verdict
+        type: string
+        description: "ok | low | high | unknown"
+      - name: sampled_at
+        type: string
+
+  CommandResult:
+    description: "Outcome of a Set* operation, structured for agent consumption."
+    fields:
+      - name: status
+        type: string
+        description: "ok | error"
+      - name: operation
+        type: string
+      - name: target
+        type: string
+      - name: detail
+        type: string
+
+  LightShow:
+    description: "A ColorLogic show available on the controller."
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: v2_only
+        type: bool

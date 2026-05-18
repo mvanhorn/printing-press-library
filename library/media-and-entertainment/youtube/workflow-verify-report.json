@@ -1,0 +1,8 @@
+{
+  "dir": "/Users/justinfu/printing-press/library/youtube",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "applied_at": "2026-05-09",
+  "applied_at": "2026-05-14",
   "base_run_id": "20260508-225745",
   "base_printing_press_version": "4.0.6",
   "patches": [
@@ -22,6 +22,24 @@
         "internal/cli/pages_markdown_update-page.go"
       ],
       "validated_outcome": "pages markdown import <id> --markdown '# Title\\n\\nBody' returns 200 and replaces page content."
+    },
+    {
+      "id": "fix-search-omit-empty-sort-333",
+      "summary": "Send only `query` in the POST /v1/search body; drop the empty sort/filter/page_size/start_cursor fields the API rejects.",
+      "reason": "Reported in #333. Notion's POST /v1/search rejects an empty `sort: {}` because the sort object, when present, must include both `direction` and `timestamp`. The same constraint applies to `filter` (needs `value` + `property`) and `start_cursor` (must be a valid cursor from a prior response). The generated handler unconditionally included all four as empty/nil values, so every `search` call returned HTTP 400 validation_error. Until this CLI surfaces flags for sort/filter/pagination, the cleanest fix is to send only the `query` field and let the API apply its own defaults.",
+      "files": [
+        "internal/cli/search.go"
+      ],
+      "validated_outcome": "notion-pp-cli search \"\" now returns 200 with the API's default ordering; previously returned HTTP 400 'body.sort.timestamp should be defined'."
+    },
+    {
+      "id": "fix-sync-views-requires-scope-334",
+      "summary": "Drop `views` from the default sync resource list because /v1/views cannot be called without a database_id/data_source_id scope.",
+      "reason": "Reported in #334. Notion's GET /v1/views rejects every unscoped call with HTTP 400 'At least one of database_id or data_source_id must be provided.' Notion exposes no listing endpoint for databases or data sources either (databases are discovered via POST /v1/search; data sources via /v1/databases/{id}/data_sources), so there is no parent-table enumeration path in the local store today. `sync --full` therefore always errored on the views resource, and the dependent `queries` resource never had a parent table to iterate. Removing views from defaultSyncResources stops the error; users who want views populated can run `notion-pp-cli views list --data-source-id <id>` per data source.",
+      "files": [
+        "internal/cli/sync.go"
+      ],
+      "validated_outcome": "notion-pp-cli sync --full no longer emits a sync_error for views; the views resource is simply skipped. Per-data-source population via `views list --data-source-id <id>` remains available."
     }
   ]
 }

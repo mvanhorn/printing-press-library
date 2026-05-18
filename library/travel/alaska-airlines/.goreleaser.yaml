@@ -1,0 +1,51 @@
+version: 2
+project_name: alaska-airlines-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: alaska-airlines-pp-cli
+    main: ./cmd/alaska-airlines-pp-cli
+    binary: alaska-airlines-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/travel/alaska-airlines/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: alaska-airlines-pp-mcp
+    main: ./cmd/alaska-airlines-pp-mcp
+    binary: alaska-airlines-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: alaska-airlines-pp-cli
+    repository:
+      owner: matt-van-horn
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Search Alaska Airlines flights, manage Atmos Rewards, and pre-build cart deeplinks for one-click checkout - all from..."
+    install: |
+      bin.install "alaska-airlines-pp-cli"
+      bin.install "alaska-airlines-pp-mcp"

@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-11",
+  "base_run_id": "local-generate",
+  "base_printing_press_version": "4.3.0",
+  "patches": [
+    {
+      "id": "standard-cloudflare-token-env",
+      "summary": "Accept CLOUDFLARE_API_TOKEN for bearer auth.",
+      "reason": "Cloudflare docs and Hermes workflows use CLOUDFLARE_API_TOKEN, not the generated long env var.",
+      "files": ["internal/config/config.go", "internal/cli/doctor.go"],
+      "validated_outcome": "go test ./... and go build ./cmd/cf-domain-pp-cli pass."
+    },
+    {
+      "id": "cloudflare-registrar-wire-shapes",
+      "summary": "Match Cloudflare Registrar wire params for search and check.",
+      "reason": "Live API requires q for domain-search and domains[] for domain-check; generated spec used query/domain_name.",
+      "files": ["internal/cli/registrar_domain-search.go", "internal/cli/registrar_domain-check.go"],
+      "validated_outcome": "Live domain-search and domain-check for domainpress.dev returned registrable with USD pricing."
+    },
+    {
+      "id": "domain-registration-confirm-gate",
+      "summary": "Require --confirm-domain for live registration and disable stdin registration.",
+      "reason": "Domain purchase is destructive/paid; --agent sets --yes, so registration needs a typed target confirmation after price check.",
+      "files": ["internal/cli/registrar_domain-register.go"],
+      "validated_outcome": "go test ./... and go build ./cmd/cf-domain-pp-cli pass."
+    },
+    {
+      "id": "private-registrar-store",
+      "summary": "Create the SQLite store directory with private permissions.",
+      "reason": "Synced domain data and API responses should not be readable by other local users on shared machines.",
+      "files": ["internal/store/store.go"],
+      "validated_outcome": "go test ./... passes."
+    },
+    {
+      "id": "registrar-domain-check-openapi-body",
+      "summary": "Expose domain-check's real domains[] request body in the OpenAPI spec.",
+      "reason": "Tools that read spec.yaml directly should send the same Cloudflare wire shape as the CLI.",
+      "files": ["spec.yaml", "internal/cli/registrar_domain-check.go"],
+      "validated_outcome": "go test ./... passes."
+    }
+  ]
+}

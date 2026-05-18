@@ -1,0 +1,109 @@
+name: sec-edgar
+display_name: "SEC EDGAR"
+description: "Every SEC filing, every XBRL fact, every insider trade — synced into a local SQLite store you can pivot, search, and watch offline."
+cli_description: "Every SEC filing, every XBRL fact, every insider trade — synced into a local SQLite store you can pivot, search, and watch offline."
+version: "0.1.0"
+base_url: "https://data.sec.gov"
+category: "developer-tools"
+
+auth:
+  type: api_key
+  in: header
+  header: "User-Agent"
+  env_vars: [SEC_EDGAR_USER_AGENT]
+  title: "SEC EDGAR User-Agent"
+  description: "The SEC requires a User-Agent header with a name and contact email on every request to data.sec.gov and www.sec.gov. There is no API key. Set SEC_EDGAR_USER_AGENT='Your Name your@email.com' and the CLI will send it on every call."
+  key_url: "https://www.sec.gov/os/accessing-edgar-data"
+  instructions: "Use format 'Your Name your@email.com'. No registration required. The SEC enforces a 10 req/sec rate cap per host; this CLI caps itself at 8 req/sec with jitter."
+
+config:
+  format: toml
+  path: "~/.config/sec-edgar-pp-cli/config.toml"
+
+resources:
+  submissions:
+    description: "Filer (company) filing history"
+    endpoints:
+      get:
+        method: GET
+        path: "/submissions/CIK{cik}.json"
+        description: "Get full submissions history for a filer by 10-digit zero-padded CIK"
+        params:
+          - name: cik
+            type: string
+            required: true
+            positional: true
+            description: "10-digit zero-padded Central Index Key (e.g. 0000320193 for Apple)"
+
+  facts:
+    description: "XBRL financial facts (data.sec.gov)"
+    endpoints:
+      company:
+        method: GET
+        path: "/api/xbrl/companyfacts/CIK{cik}.json"
+        description: "Get all XBRL facts for a company across every reporting period"
+        params:
+          - name: cik
+            type: string
+            required: true
+            positional: true
+            description: "10-digit zero-padded CIK"
+
+      get:
+        method: GET
+        path: "/api/xbrl/companyconcept/CIK{cik}/{taxonomy}/{tag}.json"
+        description: "Get a single XBRL concept time series for one company (one tag across all of its filings)"
+        params:
+          - name: cik
+            type: string
+            required: true
+            description: "10-digit zero-padded CIK"
+          - name: taxonomy
+            type: string
+            required: true
+            description: "Taxonomy: us-gaap, dei, ifrs-full, srt"
+          - name: tag
+            type: string
+            required: true
+            description: "XBRL element name (e.g., Revenues, OperatingIncomeLoss, AccountsPayableCurrent)"
+
+      frame:
+        method: GET
+        path: "/api/xbrl/frames/{taxonomy}/{tag}/{unit}/{period}.json"
+        description: "Get one XBRL concept value reported by every public filer for one period (cross-company slice)"
+        params:
+          - name: taxonomy
+            type: string
+            required: true
+            description: "Taxonomy: us-gaap, dei, ifrs-full, srt"
+          - name: tag
+            type: string
+            required: true
+            description: "XBRL element name"
+          - name: unit
+            type: string
+            required: true
+            description: "Unit of measure: USD, USD/shares, shares, pure, etc."
+          - name: period
+            type: string
+            required: true
+            description: "Period code: CY2024Q1I (instantaneous), CY2024Q1 (quarterly average), CY2024 (annual)"
+
+  companies:
+    description: "Company directory (ticker → CIK → name)"
+    base_url: "https://www.sec.gov"
+    endpoints:
+      tickers:
+        method: GET
+        path: "/files/company_tickers.json"
+        description: "Full ticker-to-CIK map for every public-equity issuer with a listed ticker (~10k entries)"
+
+      tickers_mf:
+        method: GET
+        path: "/files/company_tickers_mf.json"
+        description: "Mutual fund ticker-to-CIK map (one row per share class)"
+
+      tickers_exchange:
+        method: GET
+        path: "/files/company_tickers_exchange.json"
+        description: "Ticker-to-CIK map keyed by exchange (Nasdaq, NYSE, etc.)"

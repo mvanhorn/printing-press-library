@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-13T02:06:50.21487Z",
+  "printing_press_version": "4.2.2",
+  "api_name": "outlook-email",
+  "display_name": "Outlook Email",
+  "cli_name": "outlook-email-pp-cli",
+  "owner": "paul-brennaman",
+  "printer": "brennaman",
+  "printer_name": "Paul Brennaman",
+  "spec_path": "/Users/paul/printing-press/.runstate/cli-printing-press-d5831482/runs/20260512-172123/research/outlook-email-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:1e283a99efbb9f9a8d66f4f42dc871685012de52ee199e9e80a0f4397e70a025",
+  "run_id": "20260512-172123",
+  "category": "productivity",
+  "description": "Drive your personal Microsoft 365 inbox from agentic workflows: read, send, sync, and run offline triage analytics like followup, senders, waiting, and digest that no Graph endpoint exposes.",
+  "mcp_binary": "outlook-email-pp-mcp",
+  "mcp_tool_count": 38,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "OUTLOOK_EMAIL_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Unanswered sent mail",
+      "command": "followup",
+      "description": "List emails you sent more than N days ago that the recipient never replied to — close the loops you forgot about."
+    },
+    {
+      "name": "Sender volume rollup",
+      "command": "senders",
+      "description": "Group your inbox by sender over a window: count, unread, last-received, dominant folder — see who's drowning your inbox."
+    },
+    {
+      "name": "What arrived since",
+      "command": "since",
+      "description": "Show what landed since a timestamp, grouped by focused/other, sender, and folder. Perfect for 'what did I miss while I was heads-down'."
+    },
+    {
+      "name": "Open flagged todos",
+      "command": "flagged",
+      "description": "List flagged messages with open due dates, days-overdue, age. The inbox-zero work list Outlook never aggregates."
+    },
+    {
+      "name": "Stale unread report",
+      "command": "stale-unread",
+      "description": "Unread messages older than N days, grouped by folder. Surfaces the unread debt hiding in subfolders."
+    },
+    {
+      "name": "Waiting-on-me conversations",
+      "command": "waiting",
+      "description": "Conversations where the last message is not from you and is unread or unanswered for N days. The 'someone's waiting on you' work list."
+    },
+    {
+      "name": "Top conversations",
+      "command": "conversations",
+      "description": "Conversations ranked by message count, participants, and unread tail. Find the threads burning your attention budget."
+    },
+    {
+      "name": "Quiet senders",
+      "command": "quiet",
+      "description": "Senders you used to hear from but who've gone silent for N days. Useful for relationship lapse detection."
+    },
+    {
+      "name": "Daily digest",
+      "command": "digest",
+      "description": "One-shot daily summary: received/sent/unread/flagged counts, top senders, top conversations, focused/other ratio."
+    },
+    {
+      "name": "Stale attachments",
+      "command": "attachments-stale",
+      "description": "Attachments older than N days and over a size threshold, sortable by size. The mailbox-quota rescue plan."
+    },
+    {
+      "name": "Likely duplicates",
+      "command": "dedup",
+      "description": "Find probable duplicate threads or messages by conversation_id, internet_message_id, or normalized (subject, from, to)."
+    },
+    {
+      "name": "Plan-then-execute bulk archive",
+      "command": "bulk-archive",
+      "description": "Read a sender list or query, print a move plan, optionally execute it. Safe by default, no surprises."
+    }
+  ]
+}

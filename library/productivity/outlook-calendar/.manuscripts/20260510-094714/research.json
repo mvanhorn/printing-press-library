@@ -1,0 +1,327 @@
+{
+  "api_name": "outlook-calendar",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "msgcli",
+      "url": "https://github.com/skylarbpayne/msgcli",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 7,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ms-365-mcp-server",
+      "url": "https://github.com/softeria/ms-365-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 200,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "microsoft-mcp",
+      "url": "https://github.com/elyxlz/microsoft-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "outlook-mcp",
+      "url": "https://github.com/sajadghawami/outlook-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 9,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "outlook-meetings-scheduler-mcp",
+      "url": "https://github.com/anoopt/outlook-meetings-scheduler-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "cli-microsoft365",
+      "url": "https://github.com/pnp/cli-microsoft365",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 100,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "CalendarSync",
+      "url": "https://github.com/inovex/CalendarSync",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-10T13:55:00Z",
+  "novel_features": [
+    {
+      "name": "Cross-calendar conflicts",
+      "command": "conflicts",
+      "description": "Find overlapping events across all your Outlook calendars in one pass — the double-bookings Outlook's own UI never shows.",
+      "rationale": "Requires a SQL self-join over locally-synced events; no Graph endpoint returns overlap pairs.",
+      "example": "outlook-calendar-pp-cli conflicts --from today --to +7d --json --select pair_id,a.subject,b.subject,overlap_minutes",
+      "why_it_matters": "When the agent needs to know whether a proposed time blocks the user, this is the source of truth across every calendar the user owns.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Free-time finder with working hours",
+      "command": "freetime",
+      "description": "Compute N-minute gaps in your working hours over the next K days, honoring all calendars and optional OOF/tentative exclusion.",
+      "rationale": "getSchedule is degraded on personal Microsoft accounts; local merged-busy-intervals is the only reliable path.",
+      "example": "outlook-calendar-pp-cli freetime --duration 60m --within 'Mon-Fri 9-17' --next 7d --exclude-oof --json",
+      "why_it_matters": "When the agent needs to propose a meeting time, this gives a deterministic answer that respects the user's actual working hours.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Weekly review (change set)",
+      "command": "review",
+      "description": "Diff against the last delta-sync snapshot: what was added, rescheduled, cancelled, or had its RSVP change.",
+      "rationale": "The events/delta endpoint provides the cursor; the diff UX requires retaining the prior snapshot in SQLite.",
+      "example": "outlook-calendar-pp-cli review --since last-sync --json",
+      "why_it_matters": "Lets the agent answer \"what changed since I last looked?\" without scanning the whole week.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Pending invites",
+      "command": "pending",
+      "description": "List events whose RSVP is still pending and whose start time is in the future, ordered by start.",
+      "rationale": "Local filter on responseStatus + start_utc that the API does not expose as a single endpoint.",
+      "example": "outlook-calendar-pp-cli pending --json",
+      "why_it_matters": "Agent task: \"what invites do I still need to answer?\" — answered in one query.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Recurring drift",
+      "command": "recurring-drift",
+      "description": "For each recurring-series master, list instances whose start/end/subject/location diverged from the master pattern.",
+      "rationale": "Requires comparing instance rows to a projected master pattern locally; no Graph endpoint emits this.",
+      "example": "outlook-calendar-pp-cli recurring-drift --json",
+      "why_it_matters": "Catches the silent organizer-side reschedules that cause people to join Teams calls at the wrong hour.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Meeting prep dossier",
+      "command": "prep",
+      "description": "For upcoming events in the next N hours, return a dossier: subject, location, attendee emails, organizer, body excerpt, attachments list, recurrence/online-meeting flags.",
+      "rationale": "Pre-joined local data assembled in one shot; agent-shaped JSON.",
+      "example": "outlook-calendar-pp-cli prep --next 4h --json",
+      "why_it_matters": "Single tool call that gives an agent everything needed to brief the user on what's coming up.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Attendee co-occurrence",
+      "command": "with",
+      "description": "How often have I met with this person, and when did I see them last? Counts and recent N events from local store.",
+      "rationale": "Cross-event aggregation by attendee; no Graph endpoint aggregates per-attendee history.",
+      "example": "outlook-calendar-pp-cli with alice@example.com --since 90d --json",
+      "why_it_matters": "Agent task: \"how often do I meet with X?\" without reading the whole calendar.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Time-zone audit",
+      "command": "tz-audit",
+      "description": "Surface events whose start time-zone differs from the calendar's default or from their own end-time TZ — likely-broken displays on other devices.",
+      "rationale": "Pure local filter; surfaces a real Outlook gotcha that the API's own output makes hard to spot.",
+      "example": "outlook-calendar-pp-cli tz-audit --json",
+      "why_it_matters": "Agent task: \"are any of my events about to render at the wrong hour for someone?\" — yes/no with the offenders.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Cross-calendar conflicts",
+      "command": "conflicts",
+      "description": "Find overlapping events across all your Outlook calendars in one pass — the double-bookings Outlook's own UI never shows.",
+      "rationale": "Requires a SQL self-join over locally-synced events; no Graph endpoint returns overlap pairs.",
+      "example": "outlook-calendar-pp-cli conflicts --from today --to +7d --json --select pair_id,a.subject,b.subject,overlap_minutes",
+      "why_it_matters": "When the agent needs to know whether a proposed time blocks the user, this is the source of truth across every calendar the user owns.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Free-time finder with working hours",
+      "command": "freetime",
+      "description": "Compute N-minute gaps in your working hours over the next K days, honoring all calendars and optional OOF/tentative exclusion.",
+      "rationale": "getSchedule is degraded on personal Microsoft accounts; local merged-busy-intervals is the only reliable path.",
+      "example": "outlook-calendar-pp-cli freetime --duration 60m --within 'Mon-Fri 9-17' --next 7d --exclude-oof --json",
+      "why_it_matters": "When the agent needs to propose a meeting time, this gives a deterministic answer that respects the user's actual working hours.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Weekly review (change set)",
+      "command": "review",
+      "description": "Diff against the last delta-sync snapshot: what was added, rescheduled, cancelled, or had its RSVP change.",
+      "rationale": "The events/delta endpoint provides the cursor; the diff UX requires retaining the prior snapshot in SQLite.",
+      "example": "outlook-calendar-pp-cli review --since last-sync --json",
+      "why_it_matters": "Lets the agent answer \"what changed since I last looked?\" without scanning the whole week.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Pending invites",
+      "command": "pending",
+      "description": "List events whose RSVP is still pending and whose start time is in the future, ordered by start.",
+      "rationale": "Local filter on responseStatus + start_utc that the API does not expose as a single endpoint.",
+      "example": "outlook-calendar-pp-cli pending --json",
+      "why_it_matters": "Agent task: \"what invites do I still need to answer?\" — answered in one query.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Recurring drift",
+      "command": "recurring-drift",
+      "description": "For each recurring-series master, list instances whose start/end/subject/location diverged from the master pattern.",
+      "rationale": "Requires comparing instance rows to a projected master pattern locally; no Graph endpoint emits this.",
+      "example": "outlook-calendar-pp-cli recurring-drift --json",
+      "why_it_matters": "Catches the silent organizer-side reschedules that cause people to join Teams calls at the wrong hour.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Meeting prep dossier",
+      "command": "prep",
+      "description": "For upcoming events in the next N hours, return a dossier: subject, location, attendee emails, organizer, body excerpt, attachments list, recurrence/online-meeting flags.",
+      "rationale": "Pre-joined local data assembled in one shot; agent-shaped JSON.",
+      "example": "outlook-calendar-pp-cli prep --next 4h --json",
+      "why_it_matters": "Single tool call that gives an agent everything needed to brief the user on what's coming up.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Attendee co-occurrence",
+      "command": "with",
+      "description": "How often have I met with this person, and when did I see them last? Counts and recent N events from local store.",
+      "rationale": "Cross-event aggregation by attendee; no Graph endpoint aggregates per-attendee history.",
+      "example": "outlook-calendar-pp-cli with alice@example.com --since 90d --json",
+      "why_it_matters": "Agent task: \"how often do I meet with X?\" without reading the whole calendar.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Time-zone audit",
+      "command": "tz-audit",
+      "description": "Surface events whose start time-zone differs from the calendar's default or from their own end-time TZ — likely-broken displays on other devices.",
+      "rationale": "Pure local filter; surfaces a real Outlook gotcha that the API's own output makes hard to spot.",
+      "example": "outlook-calendar-pp-cli tz-audit --json",
+      "why_it_matters": "Agent task: \"are any of my events about to render at the wrong hour for someone?\" — yes/no with the offenders.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "Outlook Calendar",
+    "headline": "The first Outlook calendar CLI built for AI agents on personal Microsoft 365 accounts — with offline conflict detection, free-time math, and recurring-drift insights no Graph endpoint can give you.",
+    "value_prop": "Drives your personal Microsoft 365 calendar from scripts and agents. OAuth 2.0 device-code flow against the /common tenant, so personal MSAs work alongside work accounts. A local SQLite store synced through events/delta unlocks `conflicts`, `freetime`, `review`, `pending`, `recurring-drift`, and `prep` — workflows no other Outlook CLI exposes because they require persisted state.",
+    "auth_narrative": "Authentication uses OAuth 2.0 device-code flow against `https://login.microsoftonline.com/common`. Run `outlook-calendar-pp-cli auth login --device-code` once; visit the displayed URL on any device, enter the code, and you're done. Refresh tokens are cached at `~/.config/outlook-calendar-pp-cli/token.json` (mode 0600). Your Azure app registration must be a public client with supported account types set to **Accounts in any organizational directory and personal Microsoft accounts** (`AzureADandPersonalMicrosoftAccount`); scopes `Calendars.ReadWrite User.Read offline_access`. Personal Microsoft accounts (Outlook.com, Hotmail, Live, MSA) are first-class and tested.",
+    "quickstart": [
+      {
+        "command": "outlook-calendar-pp-cli auth login --device-code",
+        "comment": "One-time interactive login; subsequent commands are non-interactive and refresh-token driven."
+      },
+      {
+        "command": "outlook-calendar-pp-cli delta events",
+        "comment": "Pull events into the local SQLite store via /me/events/delta. Run periodically to keep transcendence features fresh."
+      },
+      {
+        "command": "outlook-calendar-pp-cli events range --from today --to +7d --json",
+        "comment": "Today's week as JSON, ready for an agent."
+      },
+      {
+        "command": "outlook-calendar-pp-cli conflicts --from today --to +14d --json",
+        "comment": "Find any double-bookings across every calendar you own."
+      },
+      {
+        "command": "outlook-calendar-pp-cli freetime --duration 60m --within 'Mon-Fri 9-17' --next 7d --json",
+        "comment": "Hour-long open slots in working hours over the next week."
+      },
+      {
+        "command": "outlook-calendar-pp-cli prep --next 4h --json --select subject,location,attendees,body_preview",
+        "comment": "Agent-shaped dossier for the next four hours of meetings."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "auth login fails with AADSTS50059 'No tenant-identifying information found'",
+        "fix": "Confirm your Azure app's Supported account types is `AzureADandPersonalMicrosoftAccount`. Re-register if it was set to single-tenant."
+      },
+      {
+        "symptom": "auth login fails with AADSTS70016 polling timeout",
+        "fix": "Re-run `auth login --device-code`; the polling window is ~15 minutes."
+      },
+      {
+        "symptom": "401 on /me/events after a long idle",
+        "fix": "Run `outlook-calendar-pp-cli auth refresh` to rotate the access token, or just re-run the failing command (the client refreshes automatically)."
+      },
+      {
+        "symptom": "getSchedule returns degraded data on a personal MSA",
+        "fix": "Use `freetime` (offline, your own calendars only) instead of `availability schedule` — getSchedule is documented as degraded on consumer accounts."
+      },
+      {
+        "symptom": "Events show in the wrong time zone in --json output",
+        "fix": "Pass `--prefer-tz America/New_York` (or another IANA zone). The CLI sets the `Prefer: outlook.timezone=\"\u003ctz\u003e\"` header so all times return in that zone."
+      }
+    ],
+    "when_to_use": "Reach for outlook-calendar-pp-cli when an agent needs to read or write a personal Microsoft 365 calendar non-interactively. It is the right choice for daily-brief, schedule-this-meeting, find-me-time, what-changed-this-week, and prep-me-for-my-next-meeting tasks. Prefer it over hitting Microsoft Graph directly when you want offline-shaped queries (conflicts, free-time math, recurring drift) that the Graph endpoints don't expose as single calls.",
+    "recipes": [
+      {
+        "title": "Daily brief",
+        "command": "outlook-calendar-pp-cli prep --next 24h --json --select subject,start,end,location,attendees",
+        "explanation": "Agent-friendly daily snapshot with all the fields a briefing needs and nothing else."
+      },
+      {
+        "title": "Find an hour next week",
+        "command": "outlook-calendar-pp-cli freetime --duration 60m --within 'Mon-Fri 9-17' --next 7d --exclude-oof --json",
+        "explanation": "Returns gap windows in working hours, OOF excluded — pipe to `jq '.[0]'` for the first opening."
+      },
+      {
+        "title": "What changed since Monday",
+        "command": "outlook-calendar-pp-cli review --since 'Mon 09:00' --json",
+        "explanation": "Diff buckets (added/rescheduled/cancelled/rsvp-changed) that surface organizer-side reschedules."
+      },
+      {
+        "title": "Pending RSVPs",
+        "command": "outlook-calendar-pp-cli pending --json --select subject,start,organizer.email",
+        "explanation": "All future events whose RSVP is still pending — narrow output via `--select` so the agent only sees the fields it needs."
+      },
+      {
+        "title": "Conflict scan with deep `--select`",
+        "command": "outlook-calendar-pp-cli conflicts --from today --to +14d --json --select pair.a.subject,pair.b.subject,overlap_minutes,calendar.a,calendar.b",
+        "explanation": "Agents on multi-calendar users (consultant + personal) hit `conflicts` first to know what's actually colliding; dotted `--select` keeps the payload tiny."
+      }
+    ],
+    "trigger_phrases": [
+      "what's on my calendar today",
+      "find me an hour next week",
+      "do I have any conflicts",
+      "what meetings haven't I responded to",
+      "prep me for my next meeting",
+      "schedule a meeting on my Outlook calendar",
+      "use outlook-calendar",
+      "run outlook-calendar"
+    ]
+  }
+}

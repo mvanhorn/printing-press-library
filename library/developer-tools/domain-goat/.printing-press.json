@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-12T03:14:59.144831Z",
+  "printing_press_version": "4.4.0",
+  "api_name": "domain-goat",
+  "display_name": "Domain Goat",
+  "cli_name": "domain-goat-pp-cli",
+  "owner": "mitch-nick",
+  "printer": "mitch-nick",
+  "printer_name": "Mitch Nick",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:8f6425a7048452374f4da389720515e434255921f10dc3695cfec600c002e5f7",
+  "run_id": "20260512-093229",
+  "description": "Identify domains worth buying — across RDAP, WHOIS, and Porkbun pricing — without ever leaving the terminal.",
+  "mcp_binary": "domain-goat-pp-mcp",
+  "mcp_tool_count": 2,
+  "mcp_public_tool_count": 2,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Top-N finalist promotion",
+      "command": "shortlist promote",
+      "description": "Promote the top-N candidates from a list into a finalist sub-list ranked by combined score, price, and availability."
+    },
+    {
+      "name": "5-year true-cost budget filter",
+      "command": "budget",
+      "description": "Filter candidates whose 5-year total cost (registration + 4 renewals) is under your ceiling, sorted ascending."
+    },
+    {
+      "name": "Side-by-side compare",
+      "command": "compare",
+      "description": "One row per domain with score, length, TLD prestige, cross-registrar price, RDAP status, and drop flag."
+    },
+    {
+      "name": "Drop timeline by score",
+      "command": "drops timeline",
+      "description": "Time-axis view of every watched domain hitting pendingDelete/redemptionPeriod, filtered by brandability score and TLD."
+    },
+    {
+      "name": "Why-killed audit",
+      "command": "why-killed",
+      "description": "Show why a domain is no longer on the active shortlist: status, score, notes, tag history, last price."
+    },
+    {
+      "name": "Pricing arbitrage radar",
+      "command": "pricing-arbitrage",
+      "description": "Rank TLDs by renewal-delta (year-1 trap risk) or by prestige-to-price ratio."
+    },
+    {
+      "name": "Drop re-release window",
+      "command": "drop-bid-window",
+      "description": "Compute the exact UTC re-release window for a domain in pendingDelete (RDAP event + 5-day grace)."
+    },
+    {
+      "name": "Seed-to-TLD affinity",
+      "command": "tld-affinity",
+      "description": "Given a seed keyword, rank TLDs by suffix-semantics fit, historical availability rate in local history, and price tier."
+    }
+  ]
+}

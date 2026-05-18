@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "tenderned-pp-mcp",
+  "display_name": "TenderNed",
+  "version": "4.8.0",
+  "description": "Dutch public-tender CLI with offline search, document corpus, and the sub-threshold long tail TED never sees.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/tenderned-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/tenderned-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

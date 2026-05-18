@@ -1,0 +1,1711 @@
+{
+  "api_name": "freshservice",
+  "base_url": "https://yourcompany.freshservice.com/api/v2",
+  "description": "Freshservice ITSM REST API v2 — tickets, changes, assets, users, and more.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "Authorization",
+    "format": "Basic {FRESHSERVICE_APIKEY}:{FRESHSERVICE_DOMAIN}",
+    "env_vars": [
+      "FRESHSERVICE_APIKEY",
+      "FRESHSERVICE_DOMAIN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "FRESHSERVICE_APIKEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "description": "Personal Access Token from Freshservice Profile Settings → API Settings"
+      },
+      {
+        "name": "FRESHSERVICE_DOMAIN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": false,
+        "description": "Your Freshservice subdomain, e.g. acme.freshservice.com"
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "agent-fields_list",
+      "description": "List the configured agent profile fields (the schema behind agent records). Returns an array of field definitions with id, label, name, type, choices, and required flag. Use this before creating or updating agents when you need to know which custom fields exist and their valid values.",
+      "method": "GET",
+      "path": "/agent_fields",
+      "params": []
+    },
+    {
+      "name": "agents_create",
+      "description": "Create an agent. Required: email, first_name. Optional: job_title, last_name, phone.",
+      "method": "POST",
+      "path": "/agents",
+      "params": [
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email",
+          "required": true
+        },
+        {
+          "name": "first_name",
+          "type": "string",
+          "location": "body",
+          "description": "First name",
+          "required": true
+        },
+        {
+          "name": "job_title",
+          "type": "string",
+          "location": "body",
+          "description": "Job title"
+        },
+        {
+          "name": "last_name",
+          "type": "string",
+          "location": "body",
+          "description": "Last name"
+        },
+        {
+          "name": "phone",
+          "type": "string",
+          "location": "body",
+          "description": "Phone"
+        }
+      ]
+    },
+    {
+      "name": "agents_delete",
+      "description": "Permanently delete an agent (destructive — the agent's record and group memberships are removed). Required: id (numeric agent ID). Returns 204 No Content on success. Prefer agents_deactivate if you only need to disable login; deletion cannot be undone.",
+      "method": "DELETE",
+      "path": "/agents/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agents_get",
+      "description": "Fetch a single agent's full profile by numeric ID. Required: id. Returns the agent object with first_name, last_name, email, mobile_phone, work_phone, ticket_scope, group_ids, role_ids, occasional flag, signature, and active state. Use this when you already have an ID; use agents_list to search by attribute.",
+      "method": "GET",
+      "path": "/agents/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "agents_list",
+      "description": "List all agents in the workspace with pagination. Optional: query (Freshservice query DSL, e.g. 'email:'user@example.com''), page, per_page (max 100). Returns an array of agents with id, email, names, group_ids, role_ids, and active flag. Use changes_filter-style query for attribute search; agents_get when you already have an ID.",
+      "method": "GET",
+      "path": "/agents",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Query"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Per page"
+        }
+      ]
+    },
+    {
+      "name": "agents_update",
+      "description": "Update agent. Required: id. Optional: email, first_name, last_name.",
+      "method": "PUT",
+      "path": "/agents/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email"
+        },
+        {
+          "name": "first_name",
+          "type": "string",
+          "location": "body",
+          "description": "First name"
+        },
+        {
+          "name": "last_name",
+          "type": "string",
+          "location": "body",
+          "description": "Last name"
+        }
+      ]
+    },
+    {
+      "name": "assets_create",
+      "description": "Create an asset. Required: asset_type_id, name. Optional: asset_tag, department_id, description (plus 2 more).",
+      "method": "POST",
+      "path": "/assets",
+      "params": [
+        {
+          "name": "asset_tag",
+          "type": "string",
+          "location": "body",
+          "description": "Asset tag"
+        },
+        {
+          "name": "asset_type_id",
+          "type": "int",
+          "location": "body",
+          "description": "Asset type id",
+          "required": true
+        },
+        {
+          "name": "department_id",
+          "type": "int",
+          "location": "body",
+          "description": "Department id"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "location_id",
+          "type": "int",
+          "location": "body",
+          "description": "Location id"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "user_id",
+          "type": "int",
+          "location": "body",
+          "description": "User id"
+        }
+      ]
+    },
+    {
+      "name": "assets_delete",
+      "description": "Soft-delete an asset by its display ID (destructive — the asset is hidden from default lists but can be restored within 30 days via assets_restore). Required: display_id (CMDB display identifier, not the internal numeric ID). Returns 204 No Content.",
+      "method": "DELETE",
+      "path": "/assets/{display_id}",
+      "params": [
+        {
+          "name": "display_id",
+          "type": "int",
+          "location": "path",
+          "description": "Display id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "assets_get",
+      "description": "Fetch a single asset's full CMDB record by display ID. Required: display_id (e.g. '1', '42'). Returns the asset with name, asset_type_id, asset_tag, impact, usage_type, user_id, location_id, agent_id, and the full type_fields map (custom CMDB attributes vary by asset type).",
+      "method": "GET",
+      "path": "/assets/{display_id}",
+      "params": [
+        {
+          "name": "display_id",
+          "type": "int",
+          "location": "path",
+          "description": "Display id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "assets_list",
+      "description": "List or search assets. Optional: search, filter, page (plus 1 more).",
+      "method": "GET",
+      "path": "/assets",
+      "params": [
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Search"
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Per page"
+        }
+      ]
+    },
+    {
+      "name": "assets_update",
+      "description": "Update an asset. Required: display_id. Optional: description, name, user_id.",
+      "method": "PUT",
+      "path": "/assets/{display_id}",
+      "params": [
+        {
+          "name": "display_id",
+          "type": "int",
+          "location": "path",
+          "description": "Display id",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "user_id",
+          "type": "int",
+          "location": "body",
+          "description": "User id"
+        }
+      ]
+    },
+    {
+      "name": "assets_components_list-asset",
+      "description": "List the hardware/software components attached to a single asset (CPU, memory, disks, installed apps depending on asset type). Required: display_id. Returns an array of component objects with id, component_type, and component_data. Use when triaging hardware tickets or building a software inventory report.",
+      "method": "GET",
+      "path": "/assets/{display_id}/components",
+      "params": [
+        {
+          "name": "display_id",
+          "type": "int",
+          "location": "path",
+          "description": "Display id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "assets_contracts_list-asset",
+      "description": "List contracts (warranty, lease, maintenance) linked to a single asset. Required: display_id. Returns an array of contract summaries with id, name, contract_type, start_date, end_date, and status. Use to check warranty/support coverage before approving a repair or replacement ticket.",
+      "method": "GET",
+      "path": "/assets/{display_id}/contracts",
+      "params": [
+        {
+          "name": "display_id",
+          "type": "int",
+          "location": "path",
+          "description": "Display id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "assets_requests_list-asset",
+      "description": "List service-request and incident tickets that reference a single asset. Required: display_id. Returns an array of ticket summaries with id, subject, status, priority, and created_at. Use to gather an asset's full ticket history when diagnosing a recurring hardware issue.",
+      "method": "GET",
+      "path": "/assets/{display_id}/requests",
+      "params": [
+        {
+          "name": "display_id",
+          "type": "int",
+          "location": "path",
+          "description": "Display id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "assets_restore_asset",
+      "description": "Restore a previously soft-deleted asset back to active status. Required: display_id. Returns 204 No Content. Use within 30 days of assets_delete; after the retention window the asset is gone permanently.",
+      "method": "PUT",
+      "path": "/assets/{display_id}/restore",
+      "params": [
+        {
+          "name": "display_id",
+          "type": "int",
+          "location": "path",
+          "description": "Display id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "canned-responses_get",
+      "description": "Fetch a single canned-response template by ID. Required: id. Returns the response with title, content (HTML or plain), content_html, visibility (folder_id), and group_ids who can use it. Use to preview a template before inserting it into a ticket reply.",
+      "method": "GET",
+      "path": "/canned_responses/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "canned-responses_list",
+      "description": "List all canned-response templates the calling agent can access. Returns an array of templates with id, title, content_summary, folder_id, and visibility. Use to surface reply suggestions when an agent is composing a ticket response.",
+      "method": "GET",
+      "path": "/canned_responses",
+      "params": []
+    },
+    {
+      "name": "change-form-fields_list",
+      "description": "List the configured change-record form fields (the schema behind change records, including any custom fields). Returns an array of field definitions with id, label, name, type, choices, required, position. Use before creating or updating changes to discover available custom fields.",
+      "method": "GET",
+      "path": "/change_form_fields",
+      "params": []
+    },
+    {
+      "name": "changes_create",
+      "description": "Create a change. Required: requester_id, subject. Optional: change_type, description, impact (plus 5 more).",
+      "method": "POST",
+      "path": "/changes",
+      "params": [
+        {
+          "name": "change_type",
+          "type": "int",
+          "location": "body",
+          "description": "1=Minor 2=Standard 3=Major 4=Emergency"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "impact",
+          "type": "int",
+          "location": "body",
+          "description": "1=Low 2=Medium 3=High"
+        },
+        {
+          "name": "planned_end_date",
+          "type": "string",
+          "location": "body",
+          "description": "Planned end date"
+        },
+        {
+          "name": "planned_start_date",
+          "type": "string",
+          "location": "body",
+          "description": "Planned start date"
+        },
+        {
+          "name": "priority",
+          "type": "int",
+          "location": "body",
+          "description": "1=Low 2=Medium 3=High 4=Urgent"
+        },
+        {
+          "name": "requester_id",
+          "type": "int",
+          "location": "body",
+          "description": "Requester id",
+          "required": true
+        },
+        {
+          "name": "risk",
+          "type": "int",
+          "location": "body",
+          "description": "1=Low 2=Medium 3=High 4=Very High"
+        },
+        {
+          "name": "status",
+          "type": "int",
+          "location": "body",
+          "description": "1=Open 2=Planning 3=Awaiting Approval 4=Pending Release 5=Pending Review 6=Closed"
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "body",
+          "description": "Subject",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "changes_delete",
+      "description": "Permanently delete a change record (destructive — change history, notes, tasks, and approvals are removed). Required: id (numeric change ID). Returns 204 No Content. Cannot be undone; prefer setting status to cancelled if you only need to abort an unapproved change.",
+      "method": "DELETE",
+      "path": "/changes/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "changes_filter",
+      "description": "Search changes via the Freshservice query DSL (richer than list filters). Required: query (e.g. 'status:1 AND priority:\u003e2'). Returns an array of change summaries with id, subject, status, priority, planned_start_date, planned_end_date, requester_id, and assigned_agent_id. Prefer this over changes_list when you need attribute filters beyond pagination.",
+      "method": "GET",
+      "path": "/changes/filter",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Query",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "changes_get",
+      "description": "Fetch a single change record's full payload by ID. Required: id. Returns the change with subject, description_text, status, priority, impact, risk, change_type, planned_start_date, planned_end_date, requester_id, agent_id, group_id, department_id, approvers, and custom_fields. Use changes_list or changes_filter to discover IDs.",
+      "method": "GET",
+      "path": "/changes/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "changes_list",
+      "description": "List changes in the workspace, paginated. Optional: page, per_page (max 100). Returns an array of changes with id, subject, status, priority, planned dates, and assigned agent. For attribute filters (status, priority, date range) use changes_filter; this is the dumb pagination endpoint.",
+      "method": "GET",
+      "path": "/changes",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Per page"
+        }
+      ]
+    },
+    {
+      "name": "changes_update",
+      "description": "Update a change. Required: id. Optional: priority, status, subject.",
+      "method": "PUT",
+      "path": "/changes/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "priority",
+          "type": "int",
+          "location": "body",
+          "description": "Priority"
+        },
+        {
+          "name": "status",
+          "type": "int",
+          "location": "body",
+          "description": "Status"
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "body",
+          "description": "Subject"
+        }
+      ]
+    },
+    {
+      "name": "changes_notes_create-change",
+      "description": "Add an internal note (not a customer-visible reply) to a change record. Required: id (change ID) and body (note text, HTML allowed). Returns the new note with id, body, created_at, and user_id. Use to record approval discussion or post-implementation review notes; visible only to agents.",
+      "method": "POST",
+      "path": "/changes/{id}/notes",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "body",
+          "type": "string",
+          "location": "body",
+          "description": "Body",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "changes_notes_list-change",
+      "description": "List all internal notes attached to a single change. Required: id (change ID). Returns an array of notes with id, body, user_id, created_at. Use to read the change's discussion history before approving or rolling back.",
+      "method": "GET",
+      "path": "/changes/{id}/notes",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "changes_tasks_create-change",
+      "description": "Create change task. Required: id, title. Optional: description.",
+      "method": "POST",
+      "path": "/changes/{id}/tasks",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "changes_tasks_delete-change",
+      "description": "Permanently remove a task line-item from a change's task list (destructive). Required: id (change ID) and task_id (task ID within that change). Returns 204 No Content. Useful when restructuring a change plan; cannot be undone.",
+      "method": "DELETE",
+      "path": "/changes/{id}/tasks/{task_id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "task_id",
+          "type": "int",
+          "location": "path",
+          "description": "Task id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "changes_tasks_list-change",
+      "description": "List the implementation tasks attached to a single change record. Required: id (change ID). Returns an array of tasks with id, title, status, due_date, agent_id, and notify_before_seconds. Use to surface the change's runbook before approving or executing it.",
+      "method": "GET",
+      "path": "/changes/{id}/tasks",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "changes_tasks_update-change",
+      "description": "Update change task. Required: id, task_id. Optional: status, title.",
+      "method": "PUT",
+      "path": "/changes/{id}/tasks/{task_id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "task_id",
+          "type": "int",
+          "location": "path",
+          "description": "Task id",
+          "required": true
+        },
+        {
+          "name": "status",
+          "type": "int",
+          "location": "body",
+          "description": "Status"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title"
+        }
+      ]
+    },
+    {
+      "name": "changes_time-entries_create-change-time-entry",
+      "description": "Create change time entry. Required: id, time_spent. Optional: agent_id, note.",
+      "method": "POST",
+      "path": "/changes/{id}/time_entries",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "agent_id",
+          "type": "int",
+          "location": "body",
+          "description": "Agent id"
+        },
+        {
+          "name": "note",
+          "type": "string",
+          "location": "body",
+          "description": "Note"
+        },
+        {
+          "name": "time_spent",
+          "type": "string",
+          "location": "body",
+          "description": "Format hh:mm",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "changes_time-entries_list-change",
+      "description": "List billable/non-billable time entries logged against a single change. Required: id (change ID). Returns an array of time entries with id, time_spent (HH:MM), executed_at, billable flag, note, and agent_id. Use for change-effort reporting or labor cost accounting.",
+      "method": "GET",
+      "path": "/changes/{id}/time_entries",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contracts_list",
+      "description": "List vendor and warranty contracts in the workspace. Returns an array of contracts with id, name, contract_type, start_date, end_date, status (active/expired/about_to_expire), vendor_id, and cost. Use to surface expiring contracts in a renewal workflow.",
+      "method": "GET",
+      "path": "/contracts",
+      "params": []
+    },
+    {
+      "name": "departments_list",
+      "description": "List the organization's departments (used to scope tickets, agents, and assets). Returns an array of departments with id, name, description, head_user_id, and prime_user_id. Use when building a department dropdown or aggregating ticket metrics by department.",
+      "method": "GET",
+      "path": "/departments",
+      "params": []
+    },
+    {
+      "name": "groups_create",
+      "description": "Create a new agent group (a routing target for tickets, e.g. 'Network', 'Hardware'). Required: name. Optional: description, escalate_to (agent ID), unassigned_for (auto-escalate delay), business_hours_id, agent_ids. Returns the new group with id, created_at. Use during onboarding to mirror a new IT team in Freshservice.",
+      "method": "POST",
+      "path": "/groups",
+      "params": [
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "groups_get",
+      "description": "Fetch a single agent group by ID. Required: id. Returns the group with name, description, agent_ids, escalate_to, unassigned_for, business_hours_id, and approval_required flag. Use to read current membership before adding/removing agents.",
+      "method": "GET",
+      "path": "/groups/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "groups_list",
+      "description": "List all agent groups in the workspace. Returns an array of groups with id, name, description, agent_ids count, and business_hours_id. Use to build a ticket-assignment picker or to audit group membership.",
+      "method": "GET",
+      "path": "/groups",
+      "params": []
+    },
+    {
+      "name": "groups_update",
+      "description": "Update agent group. Required: id. Optional: description, name.",
+      "method": "PUT",
+      "path": "/groups/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        }
+      ]
+    },
+    {
+      "name": "locations_list",
+      "description": "List physical/logical locations defined in the workspace (sites, floors, rooms). Returns an array of locations with id, name, parent_location_id, contact_name, email, phone, and address fields. Use when filtering assets or tickets by site.",
+      "method": "GET",
+      "path": "/locations",
+      "params": []
+    },
+    {
+      "name": "products_create",
+      "description": "Register a new product (asset model template, e.g. 'MacBook Pro 16-inch 2024'). Required: name. Optional: description, asset_type_id, manufacturer, status (in_production/retired), mode_of_procurement. Returns the new product with id. Use during procurement onboarding before creating individual asset records of that model.",
+      "method": "POST",
+      "path": "/products",
+      "params": [
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "products_get",
+      "description": "Fetch a single product (asset model) by ID. Required: id. Returns the product with name, description, asset_type_id, manufacturer, status, mode_of_procurement, created_at. Use to inspect a model before linking new assets to it.",
+      "method": "GET",
+      "path": "/products/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "products_list",
+      "description": "List all product (asset model) records. Returns an array of products with id, name, asset_type_id, manufacturer, status. Use to populate a model dropdown when bulk-creating assets.",
+      "method": "GET",
+      "path": "/products",
+      "params": []
+    },
+    {
+      "name": "products_update",
+      "description": "Update an existing product (asset model) record. Required: id. Optional: name, description, status, mode_of_procurement, manufacturer. Returns the updated product. Use to retire a model (status=retired) or correct manufacturer metadata.",
+      "method": "PUT",
+      "path": "/products/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        }
+      ]
+    },
+    {
+      "name": "requester-fields_list",
+      "description": "List the configured requester (end-user) profile fields, including custom fields. Returns an array of field definitions with id, label, name, type, choices, required, position. Use before creating or updating requesters to discover the valid custom-field set.",
+      "method": "GET",
+      "path": "/requester_fields",
+      "params": []
+    },
+    {
+      "name": "requesters_create",
+      "description": "Create a requester. Required: first_name, primary_email. Optional: department_id, job_title, last_name (plus 2 more).",
+      "method": "POST",
+      "path": "/requesters",
+      "params": [
+        {
+          "name": "department_id",
+          "type": "int",
+          "location": "body",
+          "description": "Department id"
+        },
+        {
+          "name": "first_name",
+          "type": "string",
+          "location": "body",
+          "description": "First name",
+          "required": true
+        },
+        {
+          "name": "job_title",
+          "type": "string",
+          "location": "body",
+          "description": "Job title"
+        },
+        {
+          "name": "last_name",
+          "type": "string",
+          "location": "body",
+          "description": "Last name"
+        },
+        {
+          "name": "location_id",
+          "type": "int",
+          "location": "body",
+          "description": "Location id"
+        },
+        {
+          "name": "phone",
+          "type": "string",
+          "location": "body",
+          "description": "Phone"
+        },
+        {
+          "name": "primary_email",
+          "type": "string",
+          "location": "body",
+          "description": "Primary email",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "requesters_deactivate",
+      "description": "Deactivate a requester (end-user) so they can no longer log new tickets, without deleting their ticket history (destructive in the sense of revoking access). Required: id. Returns 204 No Content. Prefer over deletion when an employee leaves; their ticket history stays intact.",
+      "method": "DELETE",
+      "path": "/requesters/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "requesters_get",
+      "description": "Fetch a single requester (end-user) by ID. Required: id. Returns the requester with first_name, last_name, primary_email, secondary_emails, work_phone, mobile_phone_number, department_ids, location_id, reporting_manager_id, and active flag. Use to look up the person behind a ticket's requester_id.",
+      "method": "GET",
+      "path": "/requesters/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "requesters_list",
+      "description": "List requesters (end-users) with optional attribute search and pagination. Optional: query (Freshservice DSL, e.g. 'primary_email:'user@example.com''), page, per_page (max 100). Returns an array of requester summaries. Use for email-based lookup before creating a duplicate user.",
+      "method": "GET",
+      "path": "/requesters",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Query"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Per page"
+        }
+      ]
+    },
+    {
+      "name": "requesters_update",
+      "description": "Update requester. Required: id. Optional: first_name, job_title, last_name (plus 1 more).",
+      "method": "PUT",
+      "path": "/requesters/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "first_name",
+          "type": "string",
+          "location": "body",
+          "description": "First name"
+        },
+        {
+          "name": "job_title",
+          "type": "string",
+          "location": "body",
+          "description": "Job title"
+        },
+        {
+          "name": "last_name",
+          "type": "string",
+          "location": "body",
+          "description": "Last name"
+        },
+        {
+          "name": "primary_email",
+          "type": "string",
+          "location": "body",
+          "description": "Primary email"
+        }
+      ]
+    },
+    {
+      "name": "requesters_convert-to-agent_convert-requester-to-agent",
+      "description": "Promote a requester (end-user) to an agent account, preserving their ticket history. Required: id (requester ID). Returns the new agent record with id, email, group/role assignments. Use when an end-user joins the IT team; preserves their submitted-ticket history under their new agent identity.",
+      "method": "PUT",
+      "path": "/requesters/{id}/convert_to_agent",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "requesters_reactivate_requester",
+      "description": "Re-enable a previously deactivated requester so they can log new tickets again. Required: id (requester ID). Returns 204 No Content. The mirror operation to requesters_deactivate.",
+      "method": "PUT",
+      "path": "/requesters/{id}/reactivate",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "service-catalog_list-items",
+      "description": "List items available in the service catalog (request templates end-users can submit). Optional: page, per_page. Returns an array of catalog items with id, name, short_description, category_id, product_id, delivery_time, cost. Use to populate a self-service portal picker or audit the catalog.",
+      "method": "GET",
+      "path": "/service_catalog/items",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Per page"
+        }
+      ]
+    },
+    {
+      "name": "service-catalog_place-service-request",
+      "description": "Place a service catalog request. Required: id. Optional: quantity, requested_for.",
+      "method": "POST",
+      "path": "/service_catalog/items/{id}/place_request",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "quantity",
+          "type": "int",
+          "location": "body",
+          "description": "Quantity"
+        },
+        {
+          "name": "requested_for",
+          "type": "int",
+          "location": "body",
+          "description": "Requested for"
+        }
+      ]
+    },
+    {
+      "name": "solutions_get-category",
+      "description": "Fetch a single knowledge-base category by ID. Required: id. Returns the category with name, description, position, default_category flag, workspace_id, and visible_in_portal flag. Use to inspect category metadata before creating articles under it.",
+      "method": "GET",
+      "path": "/solutions/categories/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "solutions_list-categories",
+      "description": "List all knowledge-base categories (the top level of the KB taxonomy). Returns an array of categories with id, name, description, position, and default_category flag. Use to build a KB navigation tree or to find a category_id when creating an article.",
+      "method": "GET",
+      "path": "/solutions/categories",
+      "params": []
+    },
+    {
+      "name": "ticket-form-fields_list",
+      "description": "List the configured ticket form fields, including custom fields. Returns an array of field definitions with id, label, name, type, choices, required, position. Use before creating or updating tickets to discover the valid custom-field set and choice values.",
+      "method": "GET",
+      "path": "/ticket_form_fields",
+      "params": []
+    },
+    {
+      "name": "tickets_create",
+      "description": "Create a ticket. Required: subject. Optional: description, due_by, email (plus 7 more).",
+      "method": "POST",
+      "path": "/tickets",
+      "params": [
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "due_by",
+          "type": "string",
+          "location": "body",
+          "description": "Due by"
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email"
+        },
+        {
+          "name": "group_id",
+          "type": "int",
+          "location": "body",
+          "description": "Group id"
+        },
+        {
+          "name": "priority",
+          "type": "int",
+          "location": "body",
+          "description": "1=Low 2=Medium 3=High 4=Urgent"
+        },
+        {
+          "name": "requester_id",
+          "type": "int",
+          "location": "body",
+          "description": "Requester id"
+        },
+        {
+          "name": "responder_id",
+          "type": "int",
+          "location": "body",
+          "description": "Responder id"
+        },
+        {
+          "name": "source",
+          "type": "int",
+          "location": "body",
+          "description": "1=Email 2=Portal 3=Phone 7=Chat 10=Slack 15=Teams"
+        },
+        {
+          "name": "status",
+          "type": "int",
+          "location": "body",
+          "description": "2=Open 3=Pending 4=Resolved 5=Closed"
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "body",
+          "description": "Subject",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type"
+        }
+      ]
+    },
+    {
+      "name": "tickets_delete",
+      "description": "Soft-delete a ticket by ID (destructive — moves to trash; recoverable within 30 days via tickets_restore). Required: id. Returns 204 No Content. Use to remove spam or duplicate tickets; the requester's notification trail is preserved in audit logs.",
+      "method": "DELETE",
+      "path": "/tickets/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tickets_filter",
+      "description": "Filter tickets by query. Required: query. Optional: page, per_page.",
+      "method": "GET",
+      "path": "/tickets/filter",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Filter query string, must be double-quoted e.g. 'status:2 AND priority:3'",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Per page"
+        }
+      ]
+    },
+    {
+      "name": "tickets_get",
+      "description": "Get ticket by ID. Required: id. Optional: include.",
+      "method": "GET",
+      "path": "/tickets/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Include"
+        }
+      ]
+    },
+    {
+      "name": "tickets_list",
+      "description": "List tickets in the workspace, paginated. Optional: page, per_page (max 100), order_type (asc/desc). Returns an array of ticket summaries with id, subject, status, priority, requester_id, responder_id, group_id, created_at, due_by. For attribute filtering (status, priority, custom fields) use tickets_filter; this is the unfiltered paginated endpoint.",
+      "method": "GET",
+      "path": "/tickets",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page"
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Per page"
+        },
+        {
+          "name": "order_type",
+          "type": "string",
+          "location": "query",
+          "description": "Order type"
+        }
+      ]
+    },
+    {
+      "name": "tickets_update",
+      "description": "Update a ticket. Required: id. Optional: description, due_by, group_id (plus 4 more).",
+      "method": "PUT",
+      "path": "/tickets/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "due_by",
+          "type": "string",
+          "location": "body",
+          "description": "Due by"
+        },
+        {
+          "name": "group_id",
+          "type": "int",
+          "location": "body",
+          "description": "Group id"
+        },
+        {
+          "name": "priority",
+          "type": "int",
+          "location": "body",
+          "description": "Priority"
+        },
+        {
+          "name": "responder_id",
+          "type": "int",
+          "location": "body",
+          "description": "Responder id"
+        },
+        {
+          "name": "status",
+          "type": "int",
+          "location": "body",
+          "description": "Status"
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "body",
+          "description": "Subject"
+        }
+      ]
+    },
+    {
+      "name": "tickets_activities_list-ticket",
+      "description": "Read the chronological activity log for a single ticket (status changes, assignments, field edits, replies). Required: id. Returns an array of activity entries with actor_id, action, performed_at, and details map. Use for audit trails or to reconstruct what happened on a ticket.",
+      "method": "GET",
+      "path": "/tickets/{id}/activities",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tickets_conversations_list-ticket",
+      "description": "List all conversation entries (public replies and private notes) on a single ticket. Required: id. Returns an array of conversations with id, body, body_text, from_email, to_emails, private flag, attachments, and user_id. Use to read the full thread context before crafting a reply.",
+      "method": "GET",
+      "path": "/tickets/{id}/conversations",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tickets_notes_create-ticket",
+      "description": "Add a note to ticket. Required: id, body. Optional: private.",
+      "method": "POST",
+      "path": "/tickets/{id}/notes",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "body",
+          "type": "string",
+          "location": "body",
+          "description": "Body",
+          "required": true
+        },
+        {
+          "name": "private",
+          "type": "bool",
+          "location": "body",
+          "description": "Private"
+        }
+      ]
+    },
+    {
+      "name": "tickets_reply_to-ticket",
+      "description": "Reply to ticket requester. Required: id, body. Optional: bcc_emails, cc_emails, from_email.",
+      "method": "POST",
+      "path": "/tickets/{id}/reply",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "bcc_emails",
+          "type": "array",
+          "location": "body",
+          "description": "Bcc emails"
+        },
+        {
+          "name": "body",
+          "type": "string",
+          "location": "body",
+          "description": "Body",
+          "required": true
+        },
+        {
+          "name": "cc_emails",
+          "type": "array",
+          "location": "body",
+          "description": "Cc emails"
+        },
+        {
+          "name": "from_email",
+          "type": "string",
+          "location": "body",
+          "description": "From email"
+        }
+      ]
+    },
+    {
+      "name": "tickets_restore_ticket",
+      "description": "Restore a previously soft-deleted ticket from trash back to active status. Required: id. Returns 204 No Content. Use within 30 days of tickets_delete; after the retention window the ticket is gone permanently.",
+      "method": "PUT",
+      "path": "/tickets/{id}/restore",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tickets_tasks_create-ticket",
+      "description": "Create ticket task. Required: id, title. Optional: agent_id, description, due_date.",
+      "method": "POST",
+      "path": "/tickets/{id}/tasks",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "agent_id",
+          "type": "int",
+          "location": "body",
+          "description": "Agent id"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "due_date",
+          "type": "string",
+          "location": "body",
+          "description": "Due date"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tickets_tasks_delete-ticket",
+      "description": "Permanently remove a task line-item from a ticket's task list (destructive). Required: id (ticket ID) and task_id. Returns 204 No Content. Useful for cleaning up obsolete checklist items.",
+      "method": "DELETE",
+      "path": "/tickets/{id}/tasks/{task_id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "task_id",
+          "type": "int",
+          "location": "path",
+          "description": "Task id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tickets_tasks_get-ticket",
+      "description": "Fetch a single task from a ticket's task list by IDs. Required: id (ticket ID) and task_id. Returns the task with title, status (open/in_progress/completed), due_date, agent_id, notify_before_seconds, group_id. Use to inspect a task's current state before updating it.",
+      "method": "GET",
+      "path": "/tickets/{id}/tasks/{task_id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "task_id",
+          "type": "int",
+          "location": "path",
+          "description": "Task id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tickets_tasks_list-ticket",
+      "description": "List the checklist tasks attached to a single ticket. Required: id (ticket ID). Returns an array of tasks with id, title, status, due_date, agent_id, group_id. Use to surface a ticket's runbook or to check task completion before resolving the parent ticket.",
+      "method": "GET",
+      "path": "/tickets/{id}/tasks",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tickets_tasks_update-ticket",
+      "description": "Update ticket task. Required: id, task_id. Optional: status, title.",
+      "method": "PUT",
+      "path": "/tickets/{id}/tasks/{task_id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "task_id",
+          "type": "int",
+          "location": "path",
+          "description": "Task id",
+          "required": true
+        },
+        {
+          "name": "status",
+          "type": "int",
+          "location": "body",
+          "description": "1=Open 2=In Progress 3=Completed"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title"
+        }
+      ]
+    },
+    {
+      "name": "tickets_time-entries_create-ticket-time-entry",
+      "description": "Create ticket time entry. Required: id, time_spent. Optional: agent_id, note.",
+      "method": "POST",
+      "path": "/tickets/{id}/time_entries",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "agent_id",
+          "type": "int",
+          "location": "body",
+          "description": "Agent id"
+        },
+        {
+          "name": "note",
+          "type": "string",
+          "location": "body",
+          "description": "Note"
+        },
+        {
+          "name": "time_spent",
+          "type": "string",
+          "location": "body",
+          "description": "Format hh:mm e.g. 01:30",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tickets_time-entries_list-ticket",
+      "description": "List billable/non-billable time entries logged against a single ticket. Required: id (ticket ID). Returns an array of time entries with id, time_spent (HH:MM), executed_at, billable flag, note, agent_id. Use for ticket-effort reporting or labor cost accounting.",
+      "method": "GET",
+      "path": "/tickets/{id}/time_entries",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "vendors_list",
+      "description": "List vendor/supplier organizations registered for procurement and contract tracking. Returns an array of vendors with id, name, description, address, primary_contact_id, email, phone, and category. Use when filtering contracts or purchase orders by supplier.",
+      "method": "GET",
+      "path": "/vendors",
+      "params": []
+    },
+    {
+      "name": "workspaces_list",
+      "description": "List workspaces (top-level tenants) accessible to the calling token. Returns an array of workspaces with id, name, description, primary flag, and created_at. Use to discover the workspace_id required by other tools in multi-workspace accounts; single-workspace accounts always have one entry with primary=true.",
+      "method": "GET",
+      "path": "/workspaces",
+      "params": []
+    }
+  ]
+}

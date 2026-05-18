@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-15",
+  "base_run_id": "20260512-151223",
+  "base_printing_press_version": "4.5.1",
+  "patches": [
+    {
+      "id": "validate-uses-cookie-header",
+      "summary": "Send the composed cookie string in the Cookie request header (not Authorization) when validating the saved session.",
+      "reason": "Alaska Airlines uses cookie-based session auth. The previous code set Authorization: to the composed cookie string, which alaskaair.com ignores, so the HEAD request never returned 401/403 and every cookie composition - including expired sessions - reported 'valid' before subsequent API calls failed (greptile P1).",
+      "files": [
+        "internal/cli/auth.go"
+      ]
+    },
+    {
+      "id": "authheader-as-cookie",
+      "summary": "Route the composed cookie string to the Cookie request header in client.do() instead of Authorization.",
+      "reason": "All authenticated alaskaair.com endpoints (SvelteKit __data.json + Atmos Rewards API) read the standard Cookie header. The prior Authorization assignment was silently dropped server-side, so every authenticated command (atmos-rewards, account status, authenticated flight search) was effectively unauthenticated (greptile P1).",
+      "files": [
+        "internal/client/client.go"
+      ]
+    },
+    {
+      "id": "python-cookie-path-escape",
+      "summary": "Pass the cookie file path through an environment variable instead of splicing it into a Python -c source-text literal.",
+      "reason": "The prior code embedded a user-controlled path inside a Python \"...\" string. A double-quote in the home directory (possible on unusual Linux setups) escaped the literal and allowed arbitrary Python execution at the user's privilege level (greptile P1).",
+      "files": [
+        "internal/cli/auth.go"
+      ]
+    },
+    {
+      "id": "ratelimit-serialize-under-lock",
+      "summary": "Hold the AdaptiveLimiter mutex across the sleep and the lastRequest update so concurrent workers actually queue.",
+      "reason": "The prior Wait() dropped the lock before sleeping and only re-took it to write lastRequest. When sync ran with --concurrency N every worker read the same stale lastRequest, slept for the same duration, then fired the same instant; the limiter produced bursts of N requests rather than spacing them at 1/rate (greptile P1).",
+      "files": [
+        "internal/cliutil/ratelimit.go"
+      ]
+    }
+  ]
+}

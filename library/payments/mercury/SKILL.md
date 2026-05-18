@@ -1,6 +1,6 @@
 ---
 name: pp-mercury
-description: "Printing Press CLI for Mercury. Streamline financial tasks with secure account management and transaction processing. Enables user registration,..."
+description: "Mercury banking API for account management, transaction processing, balance tracking, and payment handling. Trigger phrases: `mercury account balance`, `mercury transactions`, `send a Mercury payment`, `use mercury`."
 author: "Cathryn Lavery"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"

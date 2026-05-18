@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-12",
+  "base_run_id": "20260511-180534",
+  "base_printing_press_version": "4.2.2",
+  "patches": [
+    {
+      "id": "upsertbatch-rename-shadow",
+      "summary": "Rename local `s` → `idStr` in UpsertBatch ID-extraction blocks.",
+      "reason": "The local `s` shadowed the `*Store` method receiver and would silently break any future block extension that called a receiver method.",
+      "files": ["internal/store/store.go"]
+    },
+    {
+      "id": "authheader-drop-dead-check",
+      "summary": "Remove unreachable duplicate `c.SecEdgarUserAgent == \"\"` check in `AuthHeader`.",
+      "reason": "Same value is already checked one line above via `token == \"\"`; the second check is dead code.",
+      "files": ["internal/config/config.go"]
+    },
+    {
+      "id": "watch-seen-fifo-eviction",
+      "summary": "Cap `watch` dedup set at 4096 entries with FIFO eviction.",
+      "reason": "`seen` accumulated every observed accession across all polling iterations and was never evicted, growing unboundedly on long-running watch processes. The Atom feed returns at most 100 entries per poll, so a cap well above that window preserves correct dedup semantics.",
+      "files": ["internal/cli/sec_transcendence.go"]
+    },
+    {
+      "id": "store-sql-injection-listids",
+      "summary": "Validate `resourceType` against a strict identifier regex in `ListIDs` before interpolating into a table-name slot.",
+      "reason": "SQLite cannot bind table names. An unvalidated `resourceType` carrying `; DROP TABLE …; --` could execute arbitrary SQL. Unsafe identifiers now fall straight through to the parameterized generic-table fallback instead of touching the dynamic query.",
+      "files": ["internal/store/store.go"]
+    },
+    {
+      "id": "store-sql-injection-resolvebyname",
+      "summary": "Skip any `field` that isn't a plain `[A-Za-z0-9_]+` identifier in `ResolveByName`.",
+      "reason": "SQLite cannot bind JSON path keys; `field` was interpolated directly into a `json_extract` path. Any future caller passing an untrusted field name could inject arbitrary SQL. Invalid fields are now silently skipped, matching the existing 'skip fields whose query errored' behavior.",
+      "files": ["internal/store/store.go"]
+    },
+    {
+      "id": "efts-pagination-shared-helper",
+      "summary": "Extract `fetchAllEFTSHits` shared pagination helper and route insider-cluster, restatements, and late-filers through it.",
+      "reason": "restatements and late-filers each called `resp.Flatten()` on a single un-paginated EFTS response, silently capping results at the EFTS default of 10 hits per query. insider-cluster paginated correctly but kept its own inlined copy of the loop. One shared helper now drives all three and emits a truncation warning to stderr when totalAvailable exceeds what was fetched.",
+      "files": ["internal/cli/sec_helpers.go", "internal/cli/sec_transcendence.go"]
+    },
+    {
+      "id": "find13fcaccession-walk-older-pages",
+      "summary": "Extend `find13FAccession` (holdings delta) to fall through to older `Filings.Files` pages when the target period falls outside `Filings.Recent`.",
+      "reason": "SEC submissions JSON caps `filings.recent` at the most recent ~400 filings; active large institutional filers exhaust Recent within a few years, so any `--period` or `--vs` older than that window silently returned 'no 13F-HR filing found'. Now we scan Recent first, then walk `filings.files[]` page refs whose [FilingFrom, FilingTo] overlaps the target quarter, fetching each via the new `fetchSubmissionPage`.",
+      "files": ["internal/cli/sec_absorbed.go", "internal/cli/sec_transcendence.go"]
+    },
+    {
+      "id": "watchlist-items-walk-older-pages",
+      "summary": "Extend `watchlist items` to scan older `Filings.Files` pages whose date range overlaps the requested `--since`/`--until` window.",
+      "reason": "Same Filings.Recent ~400-filing cap surfaced for find13FAccession also hides older watchlist matches when the window extends past Recent. Refactored the per-CIK scan into a closure and applied it to Recent plus every overlapping older page. filingsPageOverlaps now treats zero start/end as unbounded so an open-ended window doesn't reject every page.",
+      "files": ["internal/cli/sec_transcendence.go"]
+    },
+    {
+      "id": "store-ftsrowid-fnv1a",
+      "summary": "Swap the polynomial 31×h+c hash in `ftsRowID` for `hash/fnv.New64a`.",
+      "reason": "The polynomial hash collided readily on short string IDs of similar length and content (common shape for EDGAR accession numbers and ticker concatenations). A collision in `ftsRowID` causes the FTS upsert path's `DELETE FROM resources_fts WHERE rowid = ?` to silently delete the prior document's index row, leaving the first document unsearchable with no error surfaced. FNV-1a has dramatically better distribution at the same cost.",
+      "files": ["internal/store/store.go"]
+    },
+    {
+      "id": "insider-cluster-code-warn",
+      "summary": "Emit a stderr warning and reword `--help` when `--code` is set in `insider-cluster`.",
+      "reason": "The v1 implementation does not apply transaction-code filtering (would require per-filing Form 4 XML fetching). Previously the flag was silently ignored with only a buried note in the meta output; now it warns on stderr and the `--help` text states 'NOT APPLIED in v1' unambiguously.",
+      "files": ["internal/cli/sec_transcendence.go"]
+    },
+    {
+      "id": "industry-bench-sic-warn",
+      "summary": "Emit a stderr warning and reword `--help` when `--sic` is set in `industry-bench`.",
+      "reason": "The XBRL frame endpoint does not carry SIC codes; deriving them per-CIK via the submissions endpoint would cost thousands of HTTP calls per run. Previously the flag was silently ignored with only `sic_note` in the meta output; now it warns on stderr and the `--help` text states 'NOT APPLIED in v1' unambiguously.",
+      "files": ["internal/cli/sec_transcendence.go"]
+    },
+    {
+      "id": "insider-cluster-within-subday-warn",
+      "summary": "Warn when `insider-cluster --within` parses to less than 24h before silently rounding the clustering window to 1 day.",
+      "reason": "Clustering math operates on whole-day buckets so sub-day `--within` values (e.g., 12h) were clamped to 1 day with no indication to the user. Now we emit a stderr warning naming the parsed hours and the rounded floor.",
+      "files": ["internal/cli/sec_transcendence.go"]
+    },
+    {
+      "id": "efts-explicit-size-param",
+      "summary": "Pin EFTS page size explicitly via a new `efTSPageSize=100` constant and `size=` URL param.",
+      "reason": "fetchAllEFTSHits' 'less than a full page → done' termination heuristic relied on EFTS's implicit default of 10 hits per page. If EFTS ever changed the default the heuristic would silently terminate at the wrong boundary, hiding hits. Setting size= explicitly pins both ends of the contract. 100 is EFTS's documented maximum and cuts the worst-case full-1000-hit fetch from 100 HTTP calls to 10.",
+      "files": ["internal/cli/sec_helpers.go"]
+    },
+    {
+      "id": "period13fdaterange-quarter-guard",
+      "summary": "Reject quarters outside [1,4] in `period13FDateRange`.",
+      "reason": "Previously `q` was parsed as any integer; strings like `2024Q99` parsed cleanly and `time.Date` silently normalized `month := (q-1)*3+1 = 295` into a date range in roughly year 2048 rather than returning an empty range. Added an explicit range guard that returns `periodRange{}` for out-of-range quarters, matching the function's existing return-zero-on-invalid pattern.",
+      "files": ["internal/cli/sec_transcendence.go"]
+    },
+    {
+      "id": "watch-disable-client-cache",
+      "summary": "Set `c.NoCache = true` in the `watch` command so live polls don't get served stale data.",
+      "reason": "The Atom getcurrent URL is constant across polls. With the client's 5-minute response cache active by default, the first poll seeds the cache and every poll within the 5-min window returns the same body — entries hit the dedup guard and emit nothing. A live-streaming command must never serve from cache.",
+      "files": ["internal/cli/sec_transcendence.go"]
+    }
+  ]
+}

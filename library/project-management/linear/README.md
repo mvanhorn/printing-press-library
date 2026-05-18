@@ -4,15 +4,44 @@ Manage issues, projects, cycles, and teams via the Linear API with offline searc
 
 ## Install
 
-### Go
+The recommended path installs both the `linear-pp-cli` binary and the `pp-linear` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
+```bash
+npx -y @mvanhorn/printing-press install linear
 ```
+
+For CLI only (no skill):
+
+```bash
+npx -y @mvanhorn/printing-press install linear --cli-only
+```
+
+For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
+
+```bash
+npx -y @mvanhorn/printing-press install linear --skill-only
+```
+
+To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
+
+```bash
+npx -y @mvanhorn/printing-press install linear --agent claude-code
+npx -y @mvanhorn/printing-press install linear --agent claude-code --agent codex
+```
+
+### Without Node (Go fallback)
+
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
 go install github.com/mvanhorn/printing-press-library/library/project-management/linear/cmd/linear-pp-cli@latest
 ```
 
-### Binary
+This installs the CLI only — no skill.
 
-Download from [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/linear-current).
+### Pre-built binary
+
+Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/linear-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
 
 <!-- pp-hermes-install-anchor -->
 ## Install for Hermes
@@ -58,7 +87,6 @@ api_key = "lin_api_abc123..."
 ```
 
 **Cursor users:** see [CURSOR.md](./CURSOR.md) for a short setup guide (MCP vs skill, where keys live, verification).
-
 
 To override the API base URL (for self-hosted or proxied setups):
 
