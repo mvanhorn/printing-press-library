@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-18",
+  "base_run_id": "20260518-214920",
+  "base_printing_press_version": "4.8.0",
+  "patches": [
+    {
+      "id": "outputformat-default-json",
+      "summary": "Default `outputformat` flag to `\"json\"` on all 5 PVGIS endpoint commands so the CLI sends `outputformat=json` automatically.",
+      "reason": "PVGIS endpoints return CSV-style tab-separated text when `outputformat` is omitted, even though the CLI asks for JSON via `--json`. The generator left the flag default empty and gated the query param on `flagOutputformat != \"\"`, so the param was never sent. Changing the default to `\"json\"` flows through the existing gate and makes the CLI's JSON output match the spec without requiring users to pass `--outputformat json` explicitly.",
+      "files": [
+        "internal/cli/promoted_radiation.go",
+        "internal/cli/promoted_horizon.go",
+        "internal/cli/promoted_weather.go",
+        "internal/cli/production_monthly.go",
+        "internal/cli/production_hourly.go"
+      ],
+      "validated_outcome": "After the patch, `radiation --lat 45 --lon 9 --horizontal 1 --json` returns the documented JSON shape (inputs/outputs/meta) instead of plaintext CSV embedded in a JSON string."
+    },
+    {
+      "id": "novel-feature-commands",
+      "summary": "Add 6 hand-written transcendence commands: `sites rank`, `sites diff`, `production sweep`, `production compare`, `production optimal-tilt`, `weather similar`.",
+      "reason": "These commands compose multiple PVGIS calls in ways no single endpoint supports (multi-site batch ranking, 2D tilt/azimuth grid, three-database side-by-side compare, baseline-vs-target site diff, TMY climate similarity search, tilt-only sweep). They were approved at the Phase 1.5 absorb gate and are the CLI's main differentiator vs the existing Python pvgis-mcp and pvlib's PVGIS adapter.",
+      "files": [
+        "internal/cli/novel.go",
+        "internal/cli/production.go",
+        "internal/cli/promoted_weather.go",
+        "internal/cli/root.go"
+      ],
+      "validated_outcome": "Each command was live-tested against PVGIS v5_3: `sites diff` Milano→Roma reports +9.7%, `production compare` correctly surfaces NSRDB's HTTP 400 for EU coordinates, `production optimal-tilt` finds the yearly-energy peak in a 0-60° sweep. Recorded in the Phase 5 acceptance report."
+    },
+    {
+      "id": "production-parent-unhide",
+      "summary": "Unhide the `production` parent command so its subcommands (`monthly`, `hourly`, plus the four novel ones) are visible in `--help`.",
+      "reason": "The generator marked `production` as `Hidden: true` because radiation/weather/horizon were single-endpoint resources promoted to root shortcuts. With 6 subcommands under production (2 generated + 4 novel), hiding the parent makes the novel commands undiscoverable from `--help`. Unhiding restores normal Cobra `production --help` discovery.",
+      "files": [
+        "internal/cli/production.go"
+      ]
+    },
+    {
+      "id": "skill-readme-horizon-path-fix",
+      "summary": "Replace `horizon profile --lat ...` examples with `horizon --lat ...` in SKILL.md and README.md.",
+      "reason": "The narrative in research.json wrote recipes against `horizon profile`, but `horizon` is a single-promoted shortcut (no `profile` subcommand on the root). Verify-skill flagged the mismatch; fix is mechanical sed across the two files.",
+      "files": [
+        "SKILL.md",
+        "README.md"
+      ]
+    },
+    {
+      "id": "production-compare-partial-failure-fields",
+      "summary": "Add `partial` and `errors` fields to the `production compare` summary so agents can distinguish a clean comparison from one where a database returned an error (e.g. NSRDB rejected outside the Americas).",
+      "reason": "PVGIS v5_3 returns HTTP 400 for `raddatabase=PVGIS-NSRDB` outside the Americas. The original `summary.databases_ok` field was true whenever ≥1 database succeeded, which hid the partial-failure state. The polish skill split the boolean into `databases_ok` (false on any error) plus explicit `partial`/`errors` lists.",
+      "files": [
+        "internal/cli/novel.go"
+      ]
+    }
+  ]
+}
