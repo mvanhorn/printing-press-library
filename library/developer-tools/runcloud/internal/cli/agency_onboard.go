@@ -46,7 +46,11 @@ operator can finish onboarding manually instead of starting over.`,
 					fmt.Fprintln(cmd.OutOrStdout(), "(dry run - need --client-email, --package, --server-name to call agency onboarding chain)")
 					return nil
 				}
-				return cmd.Help()
+				// Print help to stderr, then return an error so exit code is non-zero.
+				// We don't use cobra.MarkFlagRequired because it gates before RunE,
+				// which breaks --dry-run probes from the verify runner.
+				_ = cmd.Usage()
+				return usageErr(fmt.Errorf("--client-email, --package, and --server-name are required"))
 			}
 
 			if dryRunOK(flags) {
