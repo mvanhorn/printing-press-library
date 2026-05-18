@@ -1,0 +1,1061 @@
+name: anylist
+description: "Every AnyList feature in your terminal — plus offline search, store routing, and cron-safe automations no mobile app can match."
+version: "0.1.0"
+base_url: "https://www.anylist.com"
+health_check_path: "/auth/token"
+
+required_headers:
+  - name: X-AnyLeaf-API-Version
+    value: "3"
+
+auth:
+  type: bearer_token
+  header: Authorization
+  format: "Bearer {token}"
+  env_vars:
+    - ANYLIST_ACCESS_TOKEN
+
+config:
+  format: toml
+  path: "~/.config/anylist-pp-cli/config.toml"
+
+mcp:
+  transport: [stdio, http]
+  orchestration: code
+  endpoint_tools: hidden
+
+resources:
+  lists:
+    description: "Manage shopping lists"
+    endpoints:
+      list:
+        method: POST
+        path: /data/user-data/get
+        description: "List all shopping lists"
+        body: []
+        response:
+          type: array
+          item: ShoppingList
+
+      create:
+        method: POST
+        path: /data/shopping-lists/update
+        description: "Create a new shopping list"
+        body:
+          - name: name
+            type: string
+            required: true
+            positional: true
+            description: "Name for the new list"
+        response:
+          type: object
+          item: ShoppingList
+
+      delete:
+        method: POST
+        path: /data/shopping-lists/update
+        description: "Delete a shopping list"
+        body:
+          - name: name
+            type: string
+            required: true
+            positional: true
+            description: "List name to delete"
+        response:
+          type: object
+          item: OperationResult
+
+      settings:
+        method: POST
+        path: /data/list-settings/update
+        description: "View or update settings for a shopping list"
+        body:
+          - name: name
+            type: string
+            required: true
+            positional: true
+            description: "List name"
+        response:
+          type: object
+          item: ListSettings
+
+      by-store:
+        method: POST
+        path: /data/user-data/get
+        description: "Display a shopping list grouped by store with aisle ordering"
+        body:
+          - name: name
+            type: string
+            required: true
+            positional: true
+            description: "List name"
+        response:
+          type: array
+          item: StoreGroup
+
+      reset:
+        method: POST
+        path: /data/shopping-lists/update
+        description: "Clear all checked items from a list to prepare for the next shopping trip"
+        body:
+          - name: name
+            type: string
+            required: true
+            positional: true
+            description: "List name to reset"
+          - name: keep_unchecked
+            flag_name: keep-unchecked
+            type: bool
+            required: false
+            default: false
+            description: "Keep unchecked items (default: remove checked, keep unchecked)"
+        response:
+          type: object
+          item: OperationResult
+
+  items:
+    description: "Manage items within a shopping list"
+    endpoints:
+      list:
+        method: POST
+        path: /data/user-data/get
+        description: "List items in a shopping list"
+        body:
+          - name: list_name
+            flag_name: list
+            type: string
+            required: true
+            positional: true
+            description: "Shopping list name"
+          - name: checked
+            type: bool
+            required: false
+            default: false
+            description: "Show only checked items"
+          - name: unchecked
+            type: bool
+            required: false
+            default: false
+            description: "Show only unchecked items (default shows all)"
+          - name: category
+            type: string
+            required: false
+            description: "Filter by category name"
+        response:
+          type: array
+          item: ListItem
+
+      add:
+        method: POST
+        path: /data/shopping-lists/update
+        description: "Add an item to a shopping list"
+        body:
+          - name: list_name
+            flag_name: list
+            type: string
+            required: true
+            positional: true
+            description: "Target list name"
+          - name: name
+            flag_name: item
+            type: string
+            required: true
+            positional: true
+            description: "Item name to add"
+          - name: quantity
+            type: string
+            required: false
+            description: "Quantity (e.g. '2', '1 lb', 'a dozen')"
+          - name: notes
+            type: string
+            required: false
+            description: "Item notes or details"
+          - name: category
+            type: string
+            required: false
+            description: "Category to assign"
+        response:
+          type: object
+          item: ListItem
+
+      check:
+        method: POST
+        path: /data/shopping-lists/update
+        description: "Mark one or more items as checked (bought)"
+        body:
+          - name: list_name
+            flag_name: list
+            type: string
+            required: true
+            positional: true
+            description: "List name"
+          - name: name
+            flag_name: item
+            type: string
+            required: true
+            positional: true
+            description: "Item name to check"
+          - name: all
+            type: bool
+            required: false
+            default: false
+            description: "Check all items in the list"
+        response:
+          type: object
+          item: OperationResult
+
+      uncheck:
+        method: POST
+        path: /data/shopping-lists/update
+        description: "Mark one or more items as unchecked"
+        body:
+          - name: list_name
+            flag_name: list
+            type: string
+            required: true
+            positional: true
+            description: "List name"
+          - name: name
+            flag_name: item
+            type: string
+            required: true
+            positional: true
+            description: "Item name to uncheck"
+          - name: all
+            type: bool
+            required: false
+            default: false
+            description: "Uncheck all items in the list"
+        response:
+          type: object
+          item: OperationResult
+
+      remove:
+        method: POST
+        path: /data/shopping-lists/update
+        description: "Remove an item from a shopping list"
+        body:
+          - name: list_name
+            flag_name: list
+            type: string
+            required: true
+            positional: true
+            description: "List name"
+          - name: name
+            flag_name: item
+            type: string
+            required: true
+            positional: true
+            description: "Item name to remove"
+          - name: all
+            type: bool
+            required: false
+            default: false
+            description: "Remove all checked items"
+        response:
+          type: object
+          item: OperationResult
+
+      update:
+        method: POST
+        path: /data/shopping-lists/update
+        description: "Update an existing item's quantity, notes, or category"
+        body:
+          - name: list_name
+            flag_name: list
+            type: string
+            required: true
+            positional: true
+            description: "List name"
+          - name: name
+            flag_name: item
+            type: string
+            required: true
+            positional: true
+            description: "Item name to update"
+          - name: quantity
+            type: string
+            required: false
+            description: "New quantity"
+          - name: notes
+            type: string
+            required: false
+            description: "New notes"
+          - name: category
+            type: string
+            required: false
+            description: "New category"
+        response:
+          type: object
+          item: ListItem
+
+      recent:
+        method: POST
+        path: /data/user-data/get
+        description: "Show recently added items across all lists"
+        body:
+          - name: limit
+            type: int
+            required: false
+            default: 20
+            description: "Maximum number of items to return"
+        response:
+          type: array
+          item: ListItem
+
+      search:
+        method: POST
+        path: /data/user-data/get
+        description: "Search for items by name across all shopping lists"
+        body:
+          - name: query
+            type: string
+            required: true
+            positional: true
+            description: "Search query (matched against item names)"
+        response:
+          type: array
+          item: ListItem
+
+  recipes:
+    description: "Manage recipes — import, organize, and add to shopping lists"
+    endpoints:
+      list:
+        method: POST
+        path: /data/user-data/get
+        description: "List all recipes"
+        body:
+          - name: limit
+            type: int
+            required: false
+            default: 0
+            description: "Maximum recipes to return (0 = all)"
+        response:
+          type: array
+          item: Recipe
+
+      show:
+        method: POST
+        path: /data/user-data/get
+        description: "Show full recipe details including ingredients and preparation steps"
+        body:
+          - name: name
+            type: string
+            required: true
+            positional: true
+            description: "Recipe name"
+          - name: ingredients_only
+            flag_name: ingredients-only
+            type: bool
+            required: false
+            default: false
+            description: "Show only ingredients"
+        response:
+          type: object
+          item: Recipe
+
+      search:
+        method: POST
+        path: /data/user-data/get
+        description: "Search recipes by name or ingredient (uses local SQLite cache)"
+        body:
+          - name: query
+            type: string
+            required: true
+            positional: true
+            description: "Search term (name or ingredient)"
+          - name: ingredient
+            type: bool
+            required: false
+            default: false
+            description: "Search by ingredient name instead of recipe name"
+        response:
+          type: array
+          item: Recipe
+
+      filter:
+        method: POST
+        path: /data/user-data/get
+        description: "Filter recipes by prep time, rating, servings, and collection"
+        body:
+          - name: max_prep
+            flag_name: max-prep
+            type: int
+            required: false
+            description: "Maximum prep time in minutes"
+          - name: max_cook
+            flag_name: max-cook
+            type: int
+            required: false
+            description: "Maximum cook time in minutes"
+          - name: min_rating
+            flag_name: min-rating
+            type: int
+            required: false
+            description: "Minimum rating (1-5)"
+          - name: servings
+            type: int
+            required: false
+            description: "Filter by serving count"
+          - name: collection
+            type: string
+            required: false
+            description: "Filter by collection name"
+        response:
+          type: array
+          item: Recipe
+
+      import:
+        method: POST
+        path: /data/user-recipe-data/update
+        description: "Import a recipe from a URL"
+        body:
+          - name: url
+            type: string
+            required: true
+            positional: true
+            description: "URL to import recipe from"
+          - name: add_to_list
+            flag_name: add-to-list
+            type: string
+            required: false
+            description: "Add recipe ingredients to this list after import"
+          - name: scale
+            type: int
+            required: false
+            default: 0
+            description: "Scale to this many servings (0 = no scaling)"
+        response:
+          type: object
+          item: Recipe
+
+      create:
+        method: POST
+        path: /data/user-recipe-data/update
+        description: "Create a new recipe"
+        body:
+          - name: name
+            type: string
+            required: true
+            positional: true
+            description: "Recipe name"
+          - name: source_url
+            flag_name: source-url
+            type: string
+            required: false
+            description: "Source URL for the recipe"
+          - name: servings
+            type: int
+            required: false
+            default: 4
+            description: "Number of servings"
+          - name: prep_time
+            flag_name: prep-time
+            type: int
+            required: false
+            description: "Prep time in minutes"
+          - name: cook_time
+            flag_name: cook-time
+            type: int
+            required: false
+            description: "Cook time in minutes"
+          - name: note
+            type: string
+            required: false
+            description: "Recipe notes"
+        response:
+          type: object
+          item: Recipe
+
+      delete:
+        method: POST
+        path: /data/user-recipe-data/update
+        description: "Delete a recipe"
+        body:
+          - name: name
+            type: string
+            required: true
+            positional: true
+            description: "Recipe name to delete"
+        response:
+          type: object
+          item: OperationResult
+
+      scale:
+        method: POST
+        path: /data/user-data/get
+        description: "Scale a recipe's ingredient quantities to a target serving count"
+        body:
+          - name: name
+            type: string
+            required: true
+            positional: true
+            description: "Recipe name to scale"
+          - name: servings
+            type: int
+            required: true
+            positional: false
+            description: "Target number of servings"
+        response:
+          type: object
+          item: Recipe
+
+      add-to-list:
+        method: POST
+        path: /data/shopping-lists/update
+        description: "Add recipe ingredients to a shopping list, merging quantities for duplicates"
+        body:
+          - name: recipe
+            type: string
+            required: true
+            positional: true
+            description: "Recipe name"
+          - name: list_name
+            flag_name: list
+            type: string
+            required: true
+            positional: true
+            description: "Target shopping list name"
+          - name: scale
+            type: int
+            required: false
+            default: 0
+            description: "Scale to this many servings before adding (0 = use recipe default)"
+          - name: merge
+            type: bool
+            required: false
+            default: true
+            description: "Sum quantities for ingredients already on the list"
+          - name: dedup
+            type: bool
+            required: false
+            default: true
+            description: "Skip ingredients already on the list (when --merge=false)"
+        response:
+          type: object
+          item: OperationResult
+
+      missing:
+        method: POST
+        path: /data/user-data/get
+        description: "Show which recipe ingredients are not already on a shopping list"
+        body:
+          - name: recipe
+            type: string
+            required: true
+            positional: true
+            description: "Recipe name"
+          - name: list_name
+            flag_name: list
+            type: string
+            required: true
+            positional: false
+            description: "Shopping list to check against"
+        response:
+          type: array
+          item: Ingredient
+
+      batch-add:
+        method: POST
+        path: /data/shopping-lists/update
+        description: "Add ingredients from multiple recipes to a list at once"
+        body:
+          - name: list_name
+            flag_name: list
+            type: string
+            required: true
+            positional: true
+            description: "Target shopping list name"
+          - name: recipes
+            type: string
+            required: true
+            positional: false
+            description: "Comma-separated list of recipe names"
+          - name: merge
+            type: bool
+            required: false
+            default: true
+            description: "Sum quantities for duplicate ingredients"
+        response:
+          type: object
+          item: OperationResult
+
+  collections:
+    description: "Manage recipe collections"
+    endpoints:
+      list:
+        method: POST
+        path: /data/user-data/get
+        description: "List all recipe collections"
+        body: []
+        response:
+          type: array
+          item: RecipeCollection
+
+      create:
+        method: POST
+        path: /data/user-recipe-data/update
+        description: "Create a new recipe collection"
+        body:
+          - name: name
+            type: string
+            required: true
+            positional: true
+            description: "Collection name"
+        response:
+          type: object
+          item: RecipeCollection
+
+      add:
+        method: POST
+        path: /data/user-recipe-data/update
+        description: "Add a recipe to a collection"
+        body:
+          - name: collection
+            type: string
+            required: true
+            positional: true
+            description: "Collection name"
+          - name: recipe
+            type: string
+            required: true
+            positional: true
+            description: "Recipe name to add"
+        response:
+          type: object
+          item: OperationResult
+
+      remove:
+        method: POST
+        path: /data/user-recipe-data/update
+        description: "Remove a recipe from a collection"
+        body:
+          - name: collection
+            type: string
+            required: true
+            positional: true
+            description: "Collection name"
+          - name: recipe
+            type: string
+            required: true
+            positional: true
+            description: "Recipe name to remove"
+        response:
+          type: object
+          item: OperationResult
+
+      delete:
+        method: POST
+        path: /data/user-recipe-data/update
+        description: "Delete a recipe collection"
+        body:
+          - name: name
+            type: string
+            required: true
+            positional: true
+            description: "Collection name to delete"
+        response:
+          type: object
+          item: OperationResult
+
+  meal:
+    description: "Manage the meal planning calendar"
+    endpoints:
+      show:
+        method: POST
+        path: /data/user-data/get
+        description: "Show meal plan events for a date range (defaults to current week)"
+        body:
+          - name: from
+            type: string
+            required: false
+            description: "Start date (YYYY-MM-DD)"
+          - name: to
+            type: string
+            required: false
+            description: "End date (YYYY-MM-DD)"
+        response:
+          type: array
+          item: MealEvent
+
+      labels:
+        method: POST
+        path: /data/user-data/get
+        description: "List meal plan labels (Breakfast, Lunch, Dinner, Snack, etc.)"
+        body: []
+        response:
+          type: array
+          item: MealLabel
+
+      add:
+        method: POST
+        path: /data/meal-planning-calendar/update
+        description: "Add an event to the meal planning calendar"
+        body:
+          - name: date
+            type: string
+            required: true
+            positional: true
+            description: "Event date (YYYY-MM-DD)"
+          - name: recipe
+            type: string
+            required: false
+            description: "Recipe name to associate"
+          - name: title
+            type: string
+            required: false
+            description: "Event title (for non-recipe events)"
+          - name: label
+            type: string
+            required: false
+            description: "Meal label (Breakfast/Lunch/Dinner/etc.)"
+          - name: details
+            type: string
+            required: false
+            description: "Optional event details/notes"
+        response:
+          type: object
+          item: MealEvent
+
+      delete:
+        method: POST
+        path: /data/meal-planning-calendar/update
+        description: "Delete a meal plan event"
+        body:
+          - name: event_id
+            flag_name: event-id
+            type: string
+            required: true
+            positional: true
+            description: "Event ID to delete"
+        response:
+          type: object
+          item: OperationResult
+
+      add-to-list:
+        method: POST
+        path: /data/shopping-lists/update
+        description: "Add all recipe ingredients from the meal plan to a shopping list (idempotent, quantity-merging)"
+        body:
+          - name: list_name
+            flag_name: list
+            type: string
+            required: true
+            positional: false
+            description: "Target shopping list name"
+          - name: week
+            type: bool
+            required: false
+            default: true
+            description: "Use current ISO week (Mon–Sun)"
+          - name: from
+            type: string
+            required: false
+            description: "Start date override (YYYY-MM-DD)"
+          - name: to
+            type: string
+            required: false
+            description: "End date override (YYYY-MM-DD)"
+          - name: dry_run
+            flag_name: dry-run
+            type: bool
+            required: false
+            default: false
+            description: "Preview what would be added without writing to the list"
+        response:
+          type: object
+          item: OperationResult
+
+      summary:
+        method: POST
+        path: /data/user-data/get
+        description: "Display the meal plan as a Mon–Sun grid with Breakfast/Lunch/Dinner labels"
+        body:
+          - name: week
+            type: bool
+            required: false
+            default: true
+            description: "Show current week (default)"
+          - name: month
+            type: bool
+            required: false
+            default: false
+            description: "Show current month"
+          - name: from
+            type: string
+            required: false
+            description: "Start date (YYYY-MM-DD)"
+        response:
+          type: object
+          item: MealSummary
+
+  categories:
+    description: "View item categories"
+    endpoints:
+      list:
+        method: POST
+        path: /data/user-data/get
+        description: "List all item categories"
+        body: []
+        response:
+          type: array
+          item: Category
+
+  stores:
+    description: "View and manage stores and store filters"
+    endpoints:
+      list:
+        method: POST
+        path: /data/user-data/get
+        description: "List all stores and store filters"
+        body: []
+        response:
+          type: array
+          item: Store
+
+  favorites:
+    description: "View favorite items"
+    endpoints:
+      list:
+        method: POST
+        path: /data/user-data/get
+        description: "List favorite items across all lists"
+        body: []
+        response:
+          type: array
+          item: ListItem
+
+  starters:
+    description: "Manage starter list items (template items for new lists)"
+    endpoints:
+      list:
+        method: POST
+        path: /data/user-data/get
+        description: "List starter list items"
+        body: []
+        response:
+          type: array
+          item: ListItem
+
+  folders:
+    description: "Organize shopping lists into folders"
+    endpoints:
+      list:
+        method: POST
+        path: /data/user-data/get
+        description: "List all list folders"
+        body: []
+        response:
+          type: array
+          item: ListFolder
+
+      create:
+        method: POST
+        path: /data/list-folders/update
+        description: "Create a new list folder"
+        body:
+          - name: name
+            type: string
+            required: true
+            positional: true
+            description: "Folder name"
+        response:
+          type: object
+          item: ListFolder
+
+      delete:
+        method: POST
+        path: /data/list-folders/update
+        description: "Delete a list folder"
+        body:
+          - name: name
+            type: string
+            required: true
+            positional: true
+            description: "Folder name to delete"
+        response:
+          type: object
+          item: OperationResult
+
+types:
+  AuthTokens:
+    fields:
+      - name: access_token
+        type: string
+      - name: refresh_token
+        type: string
+      - name: user_id
+        type: string
+
+  AuthStatus:
+    fields:
+      - name: user_id
+        type: string
+      - name: email
+        type: string
+      - name: authenticated
+        type: bool
+      - name: token_expires_at
+        type: string
+
+  ShoppingList:
+    fields:
+      - name: identifier
+        type: string
+      - name: name
+        type: string
+      - name: item_count
+        type: int
+      - name: unchecked_count
+        type: int
+      - name: note
+        type: string
+      - name: is_checked_list
+        type: bool
+
+  ListItem:
+    fields:
+      - name: identifier
+        type: string
+      - name: name
+        type: string
+      - name: details
+        type: string
+      - name: checked
+        type: bool
+      - name: quantity
+        type: string
+      - name: category
+        type: string
+      - name: list_name
+        type: string
+      - name: store_names
+        type: string
+
+  Recipe:
+    fields:
+      - name: identifier
+        type: string
+      - name: name
+        type: string
+      - name: source_url
+        type: string
+      - name: source_name
+        type: string
+      - name: servings
+        type: int
+      - name: prep_time
+        type: int
+      - name: cook_time
+        type: int
+      - name: rating
+        type: int
+      - name: note
+        type: string
+      - name: ingredient_count
+        type: int
+      - name: step_count
+        type: int
+
+  Ingredient:
+    fields:
+      - name: name
+        type: string
+      - name: quantity
+        type: string
+      - name: note
+        type: string
+      - name: raw_ingredient
+        type: string
+
+  RecipeCollection:
+    fields:
+      - name: identifier
+        type: string
+      - name: name
+        type: string
+      - name: recipe_count
+        type: int
+
+  MealEvent:
+    fields:
+      - name: identifier
+        type: string
+      - name: date
+        type: string
+      - name: title
+        type: string
+      - name: recipe_name
+        type: string
+      - name: label
+        type: string
+      - name: details
+        type: string
+
+  MealLabel:
+    fields:
+      - name: identifier
+        type: string
+      - name: name
+        type: string
+
+  MealSummary:
+    fields:
+      - name: week_start
+        type: string
+      - name: week_end
+        type: string
+      - name: grid
+        type: string
+
+  Category:
+    fields:
+      - name: identifier
+        type: string
+      - name: name
+        type: string
+
+  Store:
+    fields:
+      - name: identifier
+        type: string
+      - name: name
+        type: string
+      - name: sort_index
+        type: int
+
+  StoreGroup:
+    fields:
+      - name: store_name
+        type: string
+      - name: item_count
+        type: int
+      - name: items
+        type: string
+
+  ListSettings:
+    fields:
+      - name: list_name
+        type: string
+      - name: smart_extras_enabled
+        type: bool
+      - name: category_sorting
+        type: bool
+
+  ListFolder:
+    fields:
+      - name: identifier
+        type: string
+      - name: name
+        type: string
+      - name: list_count
+        type: int
+
+  OperationResult:
+    fields:
+      - name: success
+        type: bool
+      - name: message
+        type: string
+      - name: item_count
+        type: int

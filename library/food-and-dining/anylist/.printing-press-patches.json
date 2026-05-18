@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-18",
+  "base_run_id": "20260514-120439",
+  "base_printing_press_version": "4.6.1",
+  "patches": [
+    {
+      "id": "review-auth-and-sync-fixes",
+      "summary": "Addressed PR review findings in AnyList auth, client identifier persistence, response body handling, and store grouping.",
+      "reason": "The published AnyList CLI exposed a plaintext password flag, generated client identifiers were not persisted until successful login, retry response body handling was unclear, and store grouping matched JSON store IDs by substring.",
+      "files": [
+        "internal/cli/auth.go",
+        "internal/config/config.go",
+        "internal/anylist/client.go",
+        "internal/store/store.go"
+      ],
+      "validated_outcome": "Added regression coverage for the removed password flag, persisted client identifiers, and exact store ID matching."
+    },
+    {
+      "id": "review-meal-and-rate-limit-fixes",
+      "summary": "Routed meal-plan list writes through the typed AnyList ingredient path and tightened request, import, MCP, and limiter safeguards.",
+      "reason": "The published AnyList CLI used the generic JSON client for a protobuf shopping-list write endpoint, generic HTTP calls did not inherit command cancellation, imported recipe bodies were unbounded, MCP could disable rate limiting, and concurrent limiter callers could reserve the same request slot.",
+      "files": [
+        "internal/anylist/client.go",
+        "internal/cli/collections_add.go",
+        "internal/cli/collections_create.go",
+        "internal/cli/collections_delete.go",
+        "internal/cli/collections_remove.go",
+        "internal/cli/folders_create.go",
+        "internal/cli/folders_delete.go",
+        "internal/cli/items_check.go",
+        "internal/cli/items_uncheck.go",
+        "internal/cli/lists_reset.go",
+        "internal/cli/meal_add-to-list.go",
+        "internal/cli/local_anylist.go",
+        "internal/cli/root.go",
+        "internal/cli/recipes_to_list.go",
+        "internal/client/client.go",
+        "internal/cliutil/ratelimit.go",
+        "internal/mcp/cobratree/shellout.go",
+        "internal/store/store.go"
+      ],
+      "validated_outcome": "Added regression coverage for meal event recipe-ID resolution, context cancellation, MCP rate-limit blocking, recipe lookup by ID, and concurrent limiter spacing; local validation covers list reset and item check cache refresh paths."
+    }
+  ]
+}
