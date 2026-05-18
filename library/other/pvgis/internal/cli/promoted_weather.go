@@ -38,12 +38,8 @@ func newWeatherPromotedCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/tmy"
 			params := map[string]string{}
-			if flagLat != 0.0 {
-				params["lat"] = fmt.Sprintf("%v", flagLat)
-			}
-			if flagLon != 0.0 {
-				params["lon"] = fmt.Sprintf("%v", flagLon)
-			}
+			params["lat"] = fmt.Sprintf("%v", flagLat)
+			params["lon"] = fmt.Sprintf("%v", flagLon)
 			if flagStartyear != 0 {
 				params["startyear"] = fmt.Sprintf("%v", flagStartyear)
 			}
