@@ -242,6 +242,17 @@ class IdTokenSignalTest(unittest.TestCase):
         self.assertEqual(len(findings), 1)
         self.assertTrue(findings[0].is_block())
 
+    def test_id_token_with_trailing_comment_blocks(self) -> None:
+        """Greptile-flagged edge case: `id-token: write  # justification` would
+        evade the strict end-of-line regex. Now allowed via optional trailing
+        comment in the regex."""
+        wf = "permissions:\n  id-token: write  # i promise this is fine\n"
+        findings = signals.signal_id_token_outside_allowlist(
+            _fc(".github/workflows/sneaky.yml", head=wf)
+        )
+        self.assertEqual(len(findings), 1)
+        self.assertTrue(findings[0].is_block())
+
 
 class GomodReplaceSignalTest(unittest.TestCase):
     def test_replace_to_github_blocks(self) -> None:

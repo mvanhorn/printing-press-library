@@ -70,10 +70,24 @@ jobs:
           git remote add pr "https://github.com/${HEAD_REPO}.git" 2>/dev/null || git remote set-url pr "https://github.com/${HEAD_REPO}.git"
           git fetch --no-tags --depth=200 pr "${HEAD_SHA}"
 
-          # Bootstrap case: base branch has no scanner yet (we're the PR
-          # introducing it). Restore the scanner files from PR head so the
-          # gate can run at all. Once this PR merges, the base will carry
-          # the trusted scanner and this fallback becomes a no-op.
+          # Deletion guard: refuse to bootstrap-or-run if the PR deletes
+          # scanner files. Closes the staged two-step attack (Greptile P1):
+          # PR-1 deletes scan.py from main → PR-2 re-introduces a patched
+          # scan.py → bootstrap fallback runs the patched scanner against
+          # PR-2's payload. Blocking PR-1 here prevents the chain.
+          # Compares base (HEAD after checkout) vs the PR head SHA.
+          deleted_scanner=$(git diff --name-status --diff-filter=D HEAD "${HEAD_SHA}" -- .github/scripts/verify-supply-chain/ || true)
+          if [ -n "${deleted_scanner}" ]; then
+            echo "::error::PR deletes supply-chain scanner files. Removing or relocating the scanner requires explicit out-of-band review — automated gate refuses to proceed. Files: ${deleted_scanner}"
+            exit 1
+          fi
+
+          # Bootstrap case: base has no scanner yet (this PR introduces it).
+          # Restore the scanner files from PR head so the gate can run at
+          # all. Once this PR merges, the base will carry the trusted
+          # scanner and this fallback becomes a no-op. The deletion guard
+          # above ensures the only way to enter this branch is the genuine
+          # first-introduction case.
           if [ ! -f .github/scripts/verify-supply-chain/scan.py ]; then
             echo "::notice::Base branch has no scanner — bootstrap mode, restoring scanner from PR head ${HEAD_SHA}."
             mkdir -p .github/scripts/verify-supply-chain
