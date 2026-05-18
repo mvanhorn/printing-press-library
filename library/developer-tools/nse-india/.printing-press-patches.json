@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-10",
+  "base_run_id": "20260508-113209",
+  "base_printing_press_version": "4.0.4",
+  "patches": [
+    {
+      "id": "sort-cache-key-params",
+      "summary": "Sort map keys before hashing in cacheKey to produce a deterministic cache key.",
+      "reason": "Go map iteration is randomized; multi-param requests produced different keys on every call, making the 5-minute response cache always miss.",
+      "files": ["internal/client/client.go"]
+    },
+    {
+      "id": "listids-sql-injection",
+      "summary": "Guard ListIDs against SQL injection by validating resourceType via sqlite_master before interpolating into a table-name position.",
+      "reason": "resourceType was passed directly into fmt.Sprintf as a table name with no sanitization; a crafted value could escape the SELECT context.",
+      "files": ["internal/store/store.go"]
+    },
+    {
+      "id": "resolvebyname-field-injection",
+      "summary": "Guard ResolveByName against SQL injection by validating matchFields entries against ^[a-zA-Z0-9_]+$ before interpolating into the json_extract path.",
+      "reason": "field was interpolated directly into the json_extract path expression; a crafted value like name')) OR 1=1-- could break out of the json_extract context.",
+      "files": ["internal/store/store.go"]
+    },
+    {
+      "id": "equity-write-through",
+      "summary": "Project equityResponse items to the flat shape novel analysis commands query before storing in writeThroughCache.",
+      "reason": "NSE India equity quote responses wrap data under 'equityResponse' with nested fields; writeThroughCache only handled 'results'/'data'/'items'/'id' envelopes so equity data was never persisted, causing all eight novel commands to always return empty results.",
+      "files": ["internal/cli/data_source.go"],
+      "validated_outcome": "After running equity quote, SELECT from resources WHERE resource_type='equity' returns rows keyed symbol_YYYYMMDD with correct symbol, lastPrice, deliveryToTradedQty, varMargin, extremeLossMargin, and metadata.preOpenMarket.IEP fields. delivery-spike returns spike signals after 2+ sessions."
+    },
+    {
+      "id": "equity-offline-fallback",
+      "summary": "Fix resolveLocal to look up equity snapshots by symbol param rather than URL path segment.",
+      "reason": "The generic fallback extracted the last URL path segment (GetQuoteApi) as the store ID, but equity rows are keyed symbol_YYYYMMDD — offline fallback always returned not-found even when cached data existed.",
+      "files": ["internal/cli/data_source.go"],
+      "validated_outcome": "equity quote --symbol RELIANCE --data-source local returns cached snapshot with source=local."
+    },
+    {
+      "id": "ratelimit-concurrent-burst",
+      "summary": "Pre-reserve the next request slot under the lock in AdaptiveLimiter.Wait so concurrent workers see monotonically advancing lastRequest.",
+      "reason": "Wait released the mutex before sleeping, letting concurrent sync workers all read the same lastRequest, sleep the same duration, and fire simultaneously — defeating the per-second rate limit.",
+      "files": ["internal/cliutil/ratelimit.go"]
+    }
+  ]
+}

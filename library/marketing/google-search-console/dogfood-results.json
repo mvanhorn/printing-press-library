@@ -1,6 +1,6 @@
 {
-  "dir": "/home/mattr/printing-press/.runstate/mattr-cbe4858d/runs/20260509-053752/working/google-search-console-pp-cli",
-  "spec_path": "/home/mattr/printing-press/.runstate/mattr-cbe4858d/runs/20260509-053752/research/gsc-openapi.yaml",
+  "dir": ".",
+  "spec_path": "/home/mattr/printing-press/manuscripts/google-search-console/20260509-053752/research/gsc-openapi.yaml",
   "verdict": "PASS",
   "path_check": {
     "tested": 0,
@@ -40,8 +40,8 @@
   },
   "wiring_check": {
     "command_tree": {
-      "defined": 44,
-      "registered": 44
+      "defined": 47,
+      "registered": 47
     },
     "config_consistency": {
       "consistent": true
@@ -71,13 +71,13 @@
     "skipped": true
   },
   "print_json_filtered_check": {
-    "checked": 38
+    "checked": 40
   },
   "test_presence": {
     "checked": 0
   },
   "naming_check": {
-    "checked": 38
+    "checked": 40
   },
   "issues": null
 }

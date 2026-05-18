@@ -259,6 +259,32 @@ Commands that read from the local store or the API wrap output in a provenance e
 
 Parse `.results` for data and `.meta.source` to know whether it's live or local. A human-readable `N results (live)` summary is printed to stderr only when stdout is a terminal — piped/agent consumers get pure JSON on stdout.
 
+### Flight booking URLs
+
+Each result from `flights` carries `booking_urls` for one-tap booking handoff:
+
+```json
+{
+  "booking_urls": {
+    "primary": "https://www.delta.com/flightsearch/book-a-flight?...",
+    "primary_kind": "prefill",
+    "airline_url": "https://www.delta.com/flightsearch/book-a-flight?...",
+    "airline_kind": "prefill",
+    "google_url": "https://www.google.com/travel/flights/search?tfs=..."
+  }
+}
+```
+
+- `primary` is the recommended single URL. Click once, land on a booking surface.
+- `primary_kind` tells you what to call it:
+  - `prefill` — airline form pre-filled with route + dates. Render as "Book on <airline>".
+  - `landing` — airline booking page; user may need to retype dates. Render as "Open <airline> booking".
+  - `search` — Google Flights search executed with the user's query. Render as "View on Google Flights".
+- `airline_url` and `airline_kind` are present only when the itinerary is operated end-to-end by a single carrier in the curated table (~35 carriers, see `internal/gflights/testdata/airline_url_captures.md`). Codeshare itineraries and unknown carriers omit these.
+- `google_url` is always populated.
+
+If you only render one URL, render `primary` and use `primary_kind` to pick the call-to-action text.
+
 ## Agent Feedback
 
 When you (or the agent) notice something off about this CLI, record it:

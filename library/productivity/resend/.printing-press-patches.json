@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-14",
+  "base_run_id": "20260514-152759",
+  "base_printing_press_version": "4.5.1",
+  "patches": [
+    {
+      "id": "novel-cross-resource-commands",
+      "summary": "8 hand-authored cross-resource novel commands: emails to/timeline, audiences inventory, contacts where, broadcasts performance, domains health, deliverability summary, api-keys rotation.",
+      "reason": "Resend's API is one-shot per resource — there is no aggregate endpoint for recipient timelines, per-audience rollups, cross-audience contact lookup, broadcast performance trends, or deliverability summaries. Every command in this patch reads from the local SQLite store populated by sync; all are read-only and surface in MCP via Cobra-tree mirror. Spec-level patches (x-mcp Cloudflare orchestration + x-auth-env-vars: RESEND_API_KEY) were applied to the upstream OpenAPI before generation; they're not source patches because the generator consumed them at ingest time.",
+      "files": [
+        "internal/cli/emails_to.go",
+        "internal/cli/emails_timeline.go",
+        "internal/cli/audiences_inventory.go",
+        "internal/cli/contacts_where.go",
+        "internal/cli/broadcasts_performance.go",
+        "internal/cli/domains_health.go",
+        "internal/cli/deliverability_summary.go",
+        "internal/cli/api-keys_rotation.go"
+      ]
+    }
+  ]
+}

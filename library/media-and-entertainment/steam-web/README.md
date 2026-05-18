@@ -8,7 +8,7 @@ Learn more at [Steam Web](https://store.steampowered.com).
 
 ## Install
 
-The recommended path installs both the `steam-web-pp-cli` binary and the `pp-steam-web` agent skill in one shot:
+The recommended path installs both the `steam-web-pp-cli` binary and the `pp-steam-web` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
 npx -y @mvanhorn/printing-press install steam-web
@@ -20,12 +20,25 @@ For CLI only (no skill):
 npx -y @mvanhorn/printing-press install steam-web --cli-only
 ```
 
+For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
+
+```bash
+npx -y @mvanhorn/printing-press install steam-web --skill-only
+```
+
+To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
+
+```bash
+npx -y @mvanhorn/printing-press install steam-web --agent claude-code
+npx -y @mvanhorn/printing-press install steam-web --agent claude-code --agent codex
+```
+
 ### Without Node (Go fallback)
 
 If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
 
 ```bash
-go install github.com/mvanhorn/printing-press-library/library/other/steam-web/cmd/steam-web-pp-cli@latest
+go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/steam-web/cmd/steam-web-pp-cli@latest
 ```
 
 This installs the CLI only — no skill.
@@ -57,6 +70,44 @@ Tell your OpenClaw agent (copy this):
 Install the pp-steam-web skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-steam-web. The skill defines how its required CLI can be installed.
 ```
 
+## Use with Claude Desktop
+
+This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
+
+To install:
+
+1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/steam-web-current).
+2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
+3. Fill in `STEAM_WEB_API_KEY` when Claude Desktop prompts you.
+
+Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
+
+<details>
+<summary>Manual JSON config (advanced)</summary>
+
+If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/other/steam-web/cmd/steam-web-pp-mcp@latest
+```
+
+Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "steam-web": {
+      "command": "steam-web-pp-mcp",
+      "env": {
+        "STEAM_WEB_API_KEY": "<your-key>"
+      }
+    }
+  }
+}
+```
+
+</details>
+
 ## Authentication
 
 Standard Steam Web API key auth: get one at https://steamcommunity.com/dev/apikey and set STEAM_WEB_API_KEY in your environment. The key is sent as a `?key=` query parameter on every request. Some endpoints (server time, app list, news) require no auth at all and work without a key. The IAuthenticationService endpoints in the spec are NOT for Web API auth — they implement Steam's interactive QR-code login flow. They remain reachable via the CLI subcommand and the MCP code-orchestration pair for completeness but should not be used as part of normal Web API workflows.
@@ -67,18 +118,14 @@ Standard Steam Web API key auth: get one at https://steamcommunity.com/dev/apike
 # Reports whether STEAM_WEB_API_KEY is set in your env. Steam keys are env-var only; export it from your shell rather than running auth set-token.
 steam-web-pp-cli auth status
 
-
 # Probes /ISteamWebAPIUtil/GetServerInfo and a key-gated read to confirm both reachability and your key's validity.
 steam-web-pp-cli doctor
-
 
 # Pulls profile, owned games, friend list, and recent achievements into the local SQLite store; the cross-library novel features all read from this store.
 steam-web-pp-cli sync
 
-
 # Once sync completes, this is the achievement-hunter's daily ritual — five lowest-effort unlocks across your whole library.
 steam-web-pp-cli next-achievement --steamid 76561197960287930 --limit 5
-
 
 # Throttled fan-out across your friend list to rank everyone by hours in app 1245620 (Elden Ring); each call also caches per-friend GetOwnedGames responses to local SQLite for next time.
 steam-web-pp-cli friends compare 1245620 --my-steamid 76561197960287930
@@ -617,7 +664,6 @@ Manage iwishlist service
 - **`steam-web-pp-cli iwishlist-service get-wishlist-item-count`** - GetWishlistItemCount operation of IWishlistService
 - **`steam-web-pp-cli iwishlist-service get-wishlist-sorted-filtered`** - GetWishlistSortedFiltered operation of IWishlistService
 
-
 ## Output Formats
 
 ```bash
@@ -652,71 +698,6 @@ This CLI is designed for AI agent consumption:
 - **Agent-safe by default** - no colors or formatting unless `--human-friendly` is set
 
 Exit codes: `0` success, `2` usage error, `3` not found, `4` auth error, `5` API error, `7` rate limited, `10` config error.
-
-## Use with Claude Code
-
-Install the focused skill — it auto-installs the CLI on first invocation:
-
-```bash
-npx skills add mvanhorn/printing-press-library/cli-skills/pp-steam-web -g
-```
-
-Then invoke `/pp-steam-web <query>` in Claude Code. The skill is the most efficient path — Claude Code drives the CLI directly without an MCP server in the middle.
-
-<details>
-<summary>Use as an MCP server in Claude Code (advanced)</summary>
-
-If you'd rather register this CLI as an MCP server in Claude Code, install the MCP binary first:
-
-```bash
-go install github.com/mvanhorn/printing-press-library/library/other/steam-web/cmd/steam-web-pp-mcp@latest
-```
-
-Then register it:
-
-```bash
-claude mcp add steam-web steam-web-pp-mcp -e STEAM_WEB_API_KEY=<your-key>
-```
-
-</details>
-
-## Use with Claude Desktop
-
-This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
-
-To install:
-
-1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/steam-web-current).
-2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
-3. Fill in `STEAM_WEB_API_KEY` when Claude Desktop prompts you.
-
-Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
-
-<details>
-<summary>Manual JSON config (advanced)</summary>
-
-If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
-
-```bash
-go install github.com/mvanhorn/printing-press-library/library/other/steam-web/cmd/steam-web-pp-mcp@latest
-```
-
-Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "steam-web": {
-      "command": "steam-web-pp-mcp",
-      "env": {
-        "STEAM_WEB_API_KEY": "<your-key>"
-      }
-    }
-  }
-}
-```
-
-</details>
 
 ## Health Check
 

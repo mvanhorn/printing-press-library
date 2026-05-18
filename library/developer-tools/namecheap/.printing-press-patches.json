@@ -1,0 +1,176 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-14",
+  "base_run_id": "20260514-namecheap",
+  "base_printing_press_version": "4.6.0",
+  "patches": [
+    {
+      "id": "namecheap-query-auth",
+      "summary": "Adapt the published Namecheap CLI to the Namecheap XML API query-parameter authentication model.",
+      "reason": "Namecheap requires ApiUser, ApiKey, UserName, and ClientIp query parameters instead of bearer headers; the published CLI must inject and advertise the credentials users actually configure.",
+      "files": [
+        "internal/config/config.go",
+        "internal/client/client.go",
+        "internal/cli/auth.go",
+        "internal/cli/agent_context.go",
+        "internal/cli/helpers.go",
+        "internal/mcp/tools.go"
+      ],
+      "validated_outcome": "go test ./... and focused auth/cache regression tests pass."
+    },
+    {
+      "id": "namecheap-deterministic-cache-key",
+      "summary": "Sort GET query parameters before hashing cache keys.",
+      "reason": "Go map iteration order is randomized, so cache reads and writes for the same Namecheap request could otherwise hash to different filenames.",
+      "files": [
+        "internal/client/client.go",
+        "internal/client/cache_test.go"
+      ],
+      "validated_outcome": "TestCacheKeySortsParameters verifies equivalent parameter maps produce the same cache key."
+    },
+    {
+      "id": "namecheap-api-key-env",
+      "summary": "Replace stale NAMECHEAP_API_KEY_QUERY user-facing references with NAMECHEAP_API_KEY.",
+      "reason": "config.Load reads NAMECHEAP_API_KEY, so hints and agent/MCP metadata must not direct users to an ignored environment variable.",
+      "files": [
+        "internal/cli/agent_context.go",
+        "internal/cli/auth.go",
+        "internal/cli/auth_test.go",
+        "internal/cli/helpers.go",
+        "internal/mcp/tools.go"
+      ],
+      "validated_outcome": "TestAuthStatusHintUsesNamecheapAPIKeyEnv verifies auth status hints use NAMECHEAP_API_KEY and omit NAMECHEAP_API_KEY_QUERY."
+    },
+    {
+      "id": "namecheap-dry-run-mask",
+      "summary": "Mask Namecheap ApiKey query parameters in dry-run output.",
+      "reason": "Namecheap credentials are injected into query params, so generic bearer-header masking did not protect --dry-run previews.",
+      "files": [
+        "internal/client/client.go",
+        "internal/client/review_regression_test.go"
+      ],
+      "validated_outcome": "TestDryRunMasksNamecheapAPIKeyParam verifies raw API keys are absent and masked values are present."
+    },
+    {
+      "id": "namecheap-set-token-api-key",
+      "summary": "Persist auth set-token values to the Namecheap api_key config field and clear query-auth credentials on logout.",
+      "reason": "The generated OAuth-style access_token field is not used by Namecheap request preparation; persisted keys must land in api_key.",
+      "files": [
+        "internal/config/config.go",
+        "internal/cli/auth.go",
+        "internal/cli/auth_test.go"
+      ],
+      "validated_outcome": "TestAuthSetTokenPersistsNamecheapAPIKey verifies auth set-token writes api_key and leaves access_token empty."
+    },
+    {
+      "id": "namecheap-client-ip-cache",
+      "summary": "Cache the auto-detected public ClientIp once per Client instance.",
+      "reason": "Repeated calls to api.ipify.org add latency and make commands fragile when NAMECHEAP_CLIENT_IP is not explicitly configured.",
+      "files": [
+        "internal/client/client.go",
+        "internal/client/review_regression_test.go"
+      ],
+      "validated_outcome": "TestPrepareNamecheapRequestCachesDetectedClientIP verifies two prepared requests perform one ipify lookup."
+    },
+    {
+      "id": "namecheap-api-error-status",
+      "summary": "Treat Namecheap XML ApiResponse Status=ERROR envelopes as command errors.",
+      "reason": "Namecheap returns HTTP 200 for invalid credentials and other API failures, so the converted JSON body must be inspected before reporting success.",
+      "files": [
+        "internal/client/client.go",
+        "internal/client/review_regression_test.go",
+        "internal/cli/doctor.go"
+      ],
+      "validated_outcome": "TestNamecheapXMLStatusErrorReturnsError verifies Status=ERROR converts to *NamecheapAPIError."
+    },
+    {
+      "id": "namecheap-mcp-destructive-hints",
+      "summary": "Mark Namecheap paid and DNS-changing MCP tools as destructive and non-read-only.",
+      "reason": "MCP hosts use read-only/destructive annotations for auto-approval decisions; DNS changes and domain registration/renewal/lock changes must require confirmation.",
+      "files": [
+        "internal/mcp/tools.go"
+      ],
+      "validated_outcome": "Focused source scan and go test ./... verify mutation tools use ReadOnly=false and Destructive=true."
+    },
+    {
+      "id": "namecheap-read-only-store",
+      "summary": "Open MCP SQL stores with SQLite mode=ro for database-enforced read-only protection.",
+      "reason": "The MCP SQL validator allows WITH queries and relies on the read-only store as a second safety layer; the store must reject writes at the database level.",
+      "files": [
+        "internal/store/store.go",
+        "internal/store/read_only_test.go"
+      ],
+      "validated_outcome": "TestOpenReadOnlyRejectsWrites verifies writes fail through OpenReadOnly while reads continue to work."
+    },
+    {
+      "id": "namecheap-store-sql-identifiers",
+      "summary": "Allowlist and quote generated SQL identifiers in exported store helper functions.",
+      "reason": "ListIDs and ResolveByName interpolate table names and JSON-path keys because SQLite cannot bind identifiers; generated helper inputs must be identifier-shaped before interpolation.",
+      "files": [
+        "internal/store/store.go",
+        "internal/store/sql_identifier_test.go"
+      ],
+      "validated_outcome": "TestListIDsRejectsUnsafeResourceTableIdentifier and TestResolveByNameRejectsUnsafeMatchField verify unsafe strings are not interpolated."
+    },
+    {
+      "id": "namecheap-full-cache-key",
+      "summary": "Use the full SHA-256 digest for cache filenames.",
+      "reason": "The generated cache key truncated to 64 bits; keeping the full digest avoids avoidable filename collisions.",
+      "files": [
+        "internal/client/client.go",
+        "internal/client/cache_test.go"
+      ],
+      "validated_outcome": "TestCacheKeyUsesFullSHA256Digest verifies cache keys are 64 hex characters."
+    },
+    {
+      "id": "namecheap-mcp-sql-row-errors",
+      "summary": "Return MCP SQL row, column, and JSON encoding errors instead of silently emitting partial results.",
+      "reason": "The MCP SQL tool should not hide scan or iteration failures when agents use it for local analysis.",
+      "files": [
+        "internal/mcp/tools.go"
+      ],
+      "validated_outcome": "go test ./internal/mcp and go test ./... pass."
+    },
+    {
+      "id": "namecheap-internal-cache-full-digest",
+      "summary": "Use the full SHA-256 digest in the auxiliary internal/cache package.",
+      "reason": "The auxiliary cache helper should not retain the generated 64-bit truncated filename pattern after the client cache was hardened.",
+      "files": [
+        "internal/cache/cache.go",
+        "internal/cache/cache_test.go"
+      ],
+      "validated_outcome": "TestPathUsesFullSHA256Digest verifies the cache filename uses a 64-character digest."
+    },
+    {
+      "id": "namecheap-mcp-transport-error-sanitize",
+      "summary": "Sanitize MCP transport errors before returning them to hosts.",
+      "reason": "Go transport errors can include full request URLs; Namecheap authenticates through query params, so MCP error responses must redact ApiKey-style query parameters on every path.",
+      "files": [
+        "internal/mcp/tools.go",
+        "internal/cliutil/text.go",
+        "internal/cliutil/cliutil_test.go"
+      ],
+      "validated_outcome": "TestAuthErrorHelpers verifies ApiKey query params are redacted; go test ./... passes."
+    },
+    {
+      "id": "namecheap-private-cache-permissions",
+      "summary": "Write Namecheap client cache directories and files with owner-only permissions.",
+      "reason": "Cached Namecheap responses can include account, domain, balance, and certificate details; local users should not be able to read them through world-readable cache paths.",
+      "files": [
+        "internal/client/client.go",
+        "internal/client/cache_test.go"
+      ],
+      "validated_outcome": "TestWriteCacheUsesPrivatePermissions verifies cache directories use 0700 and cache files use 0600."
+    },
+    {
+      "id": "namecheap-cli-transport-error-sanitize",
+      "summary": "Sanitize CLI transport/API error paths before printing to stderr.",
+      "reason": "Go transport errors can include full request URLs; Namecheap authenticates through query params, so CLI stderr must redact ApiKey-style query parameters like the MCP path.",
+      "files": [
+        "internal/cli/helpers.go",
+        "internal/cli/api_error_test.go"
+      ],
+      "validated_outcome": "TestClassifyAPIErrorSanitizesTransportURLCredentials verifies CLI transport errors do not expose ApiKey query params; go test ./... passes."
+    }
+  ]
+}

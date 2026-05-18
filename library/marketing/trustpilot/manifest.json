@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "trustpilot-pp-mcp",
+  "display_name": "Trustpilot",
+  "version": "4.6.1",
+  "description": "Every Trustpilot review surface, plus the local SQLite database and balanced good-and-bad agent bundle no other Trustpilot tool ships.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/trustpilot-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/trustpilot-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

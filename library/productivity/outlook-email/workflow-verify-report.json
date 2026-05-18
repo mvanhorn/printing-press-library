@@ -1,0 +1,8 @@
+{
+  "dir": "/Users/paul/printing-press/.runstate/cli-printing-press-d5831482/runs/20260512-172123/working/outlook-email-pp-cli",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

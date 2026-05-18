@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "patches": [
+    {
+      "id": "dedup-classroom-name-vars",
+      "applied_at": "2026-05-12T02:55:00Z",
+      "reason": "Generator emitted duplicate `var bodyClassSessionClassroomName string` declarations in 4 reservation request-body command files, breaking compilation. Spec has both `classroom.name` (nested) and `classroom_name` (flat alias) on the reservation body schema; the codegen walked both into the same Go identifier.",
+      "files": [
+        "internal/cli/me_reservations-assign-to-spot-create.go",
+        "internal/cli/me_reservations-cancel-create.go",
+        "internal/cli/me_reservations-check-in-create.go",
+        "internal/cli/me_reservations-create.go"
+      ],
+      "change": "Removed the second consecutive `var bodyClassSessionClassroomName string` declaration in each file (line 30)."
+    },
+    {
+      "id": "dedup-classroom-name-flag",
+      "applied_at": "2026-05-12T02:55:00Z",
+      "reason": "Same root cause as dedup-classroom-name-vars: duplicate `cmd.Flags().StringVar(&bodyClassSessionClassroomName, \"class-session-classroom-name\", \"\", \"Classroom name\")` registration would panic Cobra at command init on duplicate flag.",
+      "files": [
+        "internal/cli/me_reservations-assign-to-spot-create.go",
+        "internal/cli/me_reservations-cancel-create.go",
+        "internal/cli/me_reservations-check-in-create.go",
+        "internal/cli/me_reservations-create.go"
+      ],
+      "change": "Removed the duplicate StringVar registration with description \"Classroom name\" in each file. Kept the registration with description \"Name\"."
+    },
+    {
+      "id": "marianatek-required-flag-bloat",
+      "applied_at": "2026-05-12T04:00:00Z",
+      "reason": "Generator marked every nested body field as required on `me reservations-create`, but the live API only requires {reservation_type, class_session.id, payment_option.id} (and payment_option is optional for waitlist). Discovered during production booking test: the CLI rejected reservations-create with --class-session-id alone, demanding 50+ unrelated flags. Empirically validated the minimal body shape against the real /me/reservations endpoint.",
+      "files": ["internal/cli/me_reservations-create.go"],
+      "change": "Replaced the 550-line `if !stdinBody { ... }` block (lines 209-759 in the generated file) with a 3-rule validator: default reservation_type to standard; enforce enum standard|standby|waitlist; require class-session-id with a hint pointing to `classes list`; require payment-option-id (except for waitlist) with a hint pointing to `classes payment-options <id>`. Defaults and validation now fire in dry-run too so the preview body reflects what would actually be sent."
+    },
+    {
+      "id": "marianatek-bearer-prefix",
+      "applied_at": "2026-05-12T04:00:00Z",
+      "reason": "Config field `oauth_authorization` stored the raw token and `AuthHeader()` returned it verbatim — the upstream Customer API requires `Bearer <token>` and returned 401 when the prefix was missing. Discovered during production test: had to manually set `auth_header = \"Bearer <token>\"` in config.toml because the more natural `oauth_authorization = \"<token>\"` produced silent auth failures.",
+      "files": ["internal/config/config.go"],
+      "change": "Patched `AuthHeader()` to auto-prefix `Bearer ` when the source is `oauth_authorization`, with a pass-through for tokens that already include a `Bearer ` or `Token ` scheme. `auth_header` continues to be sent verbatim."
+    },
+    {
+      "id": "marianatek-browser-auth",
+      "applied_at": "2026-05-12T04:00:00Z",
+      "reason": "Mariana Tek's Customer API does not offer a self-serve token endpoint for end users — OAuth registration requires going through <vendor-integrations-email>. The only practical auth path for individual members is to extract the bearer token from the iframe widget's session cookie. The generator's default `auth setup` text pointed at RFC 6750 (the bearer-token RFC) but offered no concrete extraction steps.",
+      "files": [
+        "internal/cli/auth.go",
+        "internal/cli/auth_browser.go"
+      ],
+      "change": "Added a new `auth from-browser` subcommand that parses the cookie value `{expires, tokenData: {accessToken, refreshToken, tokenType, scope, expiresIn}}` users copy from DevTools, then writes the access token to config under oauth_authorization (the auto-Bearer-prefix patch handles the wire format). Updated `auth setup` to print Mariana-Tek-specific extraction steps instead of the generic RFC 6750 message."
+    },
+    {
+      "id": "marianatek-required-flag-bloat-mass-strip",
+      "applied_at": "2026-05-12T04:30:00Z",
+      "reason": "Same root cause as marianatek-required-flag-bloat, but extended across the remaining 18 create commands the generator produced. After the production booking test surfaced the over-required pattern on `me reservations-create`, an audit of the other POST endpoints found the same spec-derived require-storm — totalling ~2300 lines of false-positive required-flag checks. Verified with a sample call: `me credit-cards-create` with no args now returns the API's actual 422 (\"number is required, usage_location is required\") instead of the spec's invented requirements.",
+      "files": [
+        "internal/cli/locations_cart_locations-add-product-listing-create.go",
+        "internal/cli/locations_cart_locations-adjust-quantity-create.go",
+        "internal/cli/locations_cart_locations-checkout-create.go",
+        "internal/cli/locations_cart_locations-clear-create.go",
+        "internal/cli/locations_cart_locations-clear-discount-codes-create.go",
+        "internal/cli/me_account-create.go",
+        "internal/cli/me_account-redeem-giftcard-create.go",
+        "internal/cli/me_account-update-communications-preferences-create.go",
+        "internal/cli/me_appointments-bookings-create.go",
+        "internal/cli/me_credit-cards-create.go",
+        "internal/cli/me_reservations-assign-to-spot-create.go",
+        "internal/cli/me_reservations-cancel-create.go",
+        "internal/cli/me_reservations-cart-add-product-listing-create.go",
+        "internal/cli/me_reservations-cart-adjust-quantity-create.go",
+        "internal/cli/me_reservations-cart-checkout-create.go",
+        "internal/cli/me_reservations-cart-clear-create.go",
+        "internal/cli/me_reservations-cart-clear-discount-codes-create.go",
+        "internal/cli/me_reservations-check-in-create.go"
+      ],
+      "change": "Replaced each `if !stdinBody { ... 100s of required-flag checks ... }` block with an empty PATCH-commented block that lets the API surface real-required fields via 422 errors. ~2300 lines removed. `me reservations-create` keeps its bespoke 3-rule validator (different patch above)."
+    },
+    {
+      "id": "marianatek-helpful-example",
+      "applied_at": "2026-05-12T04:30:00Z",
+      "reason": "Generator emitted a generic example `marianatek-pp-cli me reservations-create --booked-by example-value` based on a server-derived field. Misleading for new users.",
+      "files": ["internal/cli/me_reservations-create.go"],
+      "change": "Replaced the generic example with three real-world variants: book-with-payment, dry-run preview, and waitlist join. Imported `strings` to use `strings.Trim` per the framework's convention for multi-line examples."
+    },
+    {
+      "id": "marianatek-watch-mcp-write-annotation",
+      "applied_at": "2026-05-12T16:10:35Z",
+      "reason": "`watch --auto-book` posts to `/me/reservations`, so advertising the shell-out MCP tool as read-only can bypass host write confirmation guardrails.",
+      "files": ["internal/cli/watch.go"],
+      "change": "Removed the `mcp:read-only` annotation from `watch` while keeping the command exposed as a novel MCP shell-out tool."
+    },
+    {
+      "id": "marianatek-reservation-jsonapi-body",
+      "applied_at": "2026-05-12T16:10:35Z",
+      "reason": "`watch --auto-book` and `book-regular --auto` used the live-proven JSONAPI reservation body, while `me reservations-create` still sent generated flat/nested fields for the same endpoint.",
+      "files": [
+        "internal/cli/reservation_body.go",
+        "internal/cli/watch.go",
+        "internal/cli/book_regular.go",
+        "internal/cli/me_reservations-create.go"
+      ],
+      "change": "Added a shared reservation body helper that emits `{data:{type:\"reservation\",attributes:{class_session_id,...}}}` and normalized the generated reservations-create body into that envelope."
+    },
+    {
+      "id": "marianatek-dependent-parent-id-fallback",
+      "applied_at": "2026-05-12T16:10:35Z",
+      "reason": "Generated typed store tables declare resource-specific parent columns as NOT NULL, but dependent-resource sync injects the generic `parent_id`; generic generated upsert tests also exercise id-only rows.",
+      "files": ["internal/store/store.go"],
+      "change": "Added a helper that fills required parent columns from the resource-specific field, then `parent_id`, then an empty string fallback so dependent typed upserts do not fail before storing the JSON payload."
+    }
+  ],
+  "upstream_followups": [
+    {
+      "type": "generator-template-bug",
+      "summary": "OpenAPI nested-vs-flat alias for same property emits duplicate Go declarations + duplicate Cobra flag bindings",
+      "where": "Generator codegen for request-body fields (probably internal/codegen/cli/body_flags.go) walks both `classroom.name` and `classroom_name` into the same Go identifier without deduplication.",
+      "evidence": "All 4 reservation request-body commands hit the same dup; classroom.name + classroom_name in the Reservation request schema is the trigger."
+    },
+    {
+      "type": "spec-over-required-pattern",
+      "summary": "OpenAPI request body marked every nested field required, but the live API treats most as optional or server-derived",
+      "where": "The Mariana Tek Customer API's UserReservation schema (and likely many other vendor specs) defines a flat property required list that includes derived/readonly fields. The generator should distinguish writable-required from readonly-required, or default to optional when in doubt.",
+      "evidence": "/me/reservations real-API minimal body = {reservation_type, class_session: {id}, payment_option: {id}}. Generator emitted 50+ required flags from the spec."
+    },
+    {
+      "type": "auth-template-missing-bearer-prefix",
+      "summary": "When a spec declares `bearer auth` with the standard security scheme, the generated AuthHeader() should auto-prefix `Bearer ` for the raw-token storage field.",
+      "where": "config-template in the generator. Today the AuthHeader() function returns the raw token unchanged.",
+      "evidence": "Spec-declared `OAuth Authorization` security scheme used bearer scheme. Users storing a raw token in oauth_authorization got 401s. Workaround: set auth_header = \"Bearer <token>\" verbatim."
+    }
+  ]
+}

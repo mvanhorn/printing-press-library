@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-13T02:39:51.000000000Z",
+  "printing_press_version": "4.5.2",
+  "api_name": "airframe",
+  "display_name": "airframe",
+  "cli_name": "airframe-pp-cli",
+  "owner": "chris-drit",
+  "printer": "ChrisDrit",
+  "printer_name": "Chris Drit",
+  "spec_format": "plan",
+  "spec_checksum": "sha256:283384aa111a8b4342ccdff9137968af66906b19a50a0f3a265a56a16fea7e37",
+  "run_id": "20260513-023951",
+  "category": "developer-tools",
+  "description": "Aircraft forensics from open public records — tail-number dossiers, fleet research, model-level safety, and NTSB event archaeology. Offline-first SQLite, no API key required.",
+  "mcp_binary": "airframe-pp-mcp",
+  "mcp_tool_count": 9,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "auth_env_vars": [],
+  "novel_features": [
+    {
+      "name": "Tail-number dossier",
+      "command": "tail",
+      "description": "Full dossier for a given N-number: FAA registry row (owner, make/model, engine, status, Mode-S hex) joined with every NTSB-investigated event involving that specific airframe."
+    },
+    {
+      "name": "Owner fleet lookup",
+      "command": "owner",
+      "description": "List every aircraft registered to an owner name (substring or exact match), with optional accident-count enrichment per tail. Surfaces fleet make-up for any registered operator or LLC."
+    },
+    {
+      "name": "Model-level safety profile",
+      "command": "model",
+      "description": "Resolve a free-text aircraft-model query (e.g. \"Cessna 172\") to its FAA make/model codes, then aggregate every NTSB event involving that model with year/state filters. Returns total/fatal/serious/minor breakdown plus the event list."
+    },
+    {
+      "name": "Day-of flight enrichment via flight-goat",
+      "command": "flight",
+      "description": "Composes with flight-goat-pp-cli to resolve a commercial flight ident (e.g. UA1234) to the specific tail flying it within ~72 hours of departure, then enriches with the local FAA + NTSB store. Returns a full pre-flight dossier in one command."
+    },
+    {
+      "name": "FTS5 full-text search over narratives + owners",
+      "command": "search",
+      "description": "Porter-stemmed FTS5 search across NTSB narratives and FAA owner names with snippet highlighting. Surfaces patterns like icing-related accidents or CAPS-deployment events that structured queries can't reach."
+    }
+  ]
+}

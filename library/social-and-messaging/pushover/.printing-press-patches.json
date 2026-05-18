@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260512-140827",
+  "base_printing_press_version": "4.5.1",
+  "patches": [
+    {
+      "id": "pr511-client-cache-hardening",
+      "summary": "Harden the generated HTTP cache after PR review (live path + unused scaffolding package).",
+      "reason": "GET cache responses can contain user-scoped Pushover data, so cache files must be owner-only; the review also identified a redundant AuthHeader read in the cache key path. A later Greptile pass surfaced that the unused internal/cache package wrote at 0o644; aligned it to 0o600 so it doesn't ship a regression vector if it's ever wired up.",
+      "files": [
+        "internal/client/client.go",
+        "internal/client/dryrun_test.go",
+        "internal/cache/cache.go"
+      ],
+      "validated_outcome": "go test ./internal/client -run TestWriteCacheUsesOwnerOnlyPermissions -count=1 confirms live cache files are written 0o600; publish-package verifier passes locally. internal/cache has no callers and no tests; the change is a one-line constant align that go vet ./... and go build ./... cover."
+    },
+    {
+      "id": "pr511-inbox-delete-through-int",
+      "summary": "Send update_highest_message.json `message` as a JSON integer, not a string.",
+      "reason": "upsertInboxMessages originally returned the highest seen message ID only as a Go string. Passing that string into the POST body produced \"message\":\"789\", which Pushover's type-strict update_highest_message.json endpoint rejects — server-side cleanup silently failed even though the local SQLite store updated. The function now also returns the parsed int64, and the inbox-sync caller uses it (gated on highestNum >= 0) so non-numeric fallback IDs never reach the API.",
+      "files": [
+        "internal/cli/pushover_history.go",
+        "internal/cli/pushover_history_test.go"
+      ],
+      "validated_outcome": "go test ./internal/cli -run TestUpsertInboxMessages -count=1 covers both the numeric-highest path and the all-hashed-IDs fallback (highestNum=-1) that suppresses the delete-through POST."
+    },
+    {
+      "id": "pr511-mcp-double-marshal",
+      "summary": "Drop the pre-marshal of bodyArgs in makeAPIHandler so MCP POST/PUT/PATCH send JSON objects, not base64 strings.",
+      "reason": "client.Post/Put/Patch take `body any` and json-marshal it inside do(). makeAPIHandler was calling `json.Marshal(bodyArgs)` first and passing the resulting []byte; Go re-encodes []byte as a base64 JSON string, so every mutating MCP tool sent a quoted base64 blob (e.g. \"eyJ0b2tlbiI6Li4ufQ==\") instead of the intended JSON object — Pushover rejected all ~20 mutating MCP tools (messages.send, groups.add_user, licenses.assign, etc). Same pre-marshal pattern reproduces in 38 published CLIs; this is a template-level bug filed upstream (cli-printing-press#TBD) but patched locally first so the published pushover MCP works.",
+      "files": [
+        "internal/mcp/tools.go",
+        "internal/mcp/body_shape_test.go"
+      ],
+      "validated_outcome": "go test ./internal/mcp -run TestMCPBodyIsJSONObjectNotBase64 -count=1 stands up an httptest server, drives c.Post(_, map[string]any{...}), and asserts the captured request body parses as a JSON object containing the bound keys."
+    },
+    {
+      "id": "pr511-delete-through-int",
+      "summary": "Send numeric body fields as JSON integers across both CLI and MCP surfaces — devices_delete-through `message-id`, glances_update `count`/`percent`, and messages_send `priority`/`retry`/`expire`/`timestamp`/`ttl`.",
+      "reason": "The earlier inbox-sync --delete-through fix landed the int-vs-string correction at one call site for update_highest_message.json, but the standalone CLI wrapper (devices_delete-through.go) and the MCP tool's WithString binding for the same endpoint both still sent the message id as a quoted string. The same WithString-for-integer-spec-field mismatch then surfaced across more MCP bindings during subsequent Greptile passes: glances_update's `count` and `percent`, then messages_send's `priority`, `retry`, `expire`, `timestamp`, and `ttl`. All affected MCP bindings switched to WithNumber so makeAPIHandler emits JSON integers; the CLI now ParseInt's --message-id (returning a usage error on bad input) and the existing CLI int flags (glances IntVar, notify int64) already produce integers on the CLI side. The cross-cutting template angle is filed upstream as mvanhorn/cli-printing-press#1362.",
+      "files": [
+        "internal/cli/devices_delete-through.go",
+        "internal/cli/devices_delete-through_test.go",
+        "internal/mcp/tools.go"
+      ],
+      "validated_outcome": "go test ./internal/cli -run TestDevicesDeleteThrough -count=1 covers both the integer-on-wire happy path (httptest captures the body and asserts it decodes to a JSON number, not a Go string) and the usage-error path on non-numeric input. The glances count/percent change is a one-line binding swap from WithString to WithNumber; makeAPIHandler's pass-through behavior is already pinned by TestMCPBodyIsJSONObjectNotBase64."
+    },
+    {
+      "id": "pr511-handle-sql-scan-error",
+      "summary": "Surface rows.Scan / rows.Err / Columns / MarshalIndent errors in handleSQL instead of swallowing them.",
+      "reason": "A swallowed rows.Scan error left every column at the zero value and the row serialized as all-null entries — indistinguishable from a legitimately-empty result row to an agent calling the MCP sql tool. Same pattern existed for rows.Columns and the final MarshalIndent. The MCP surface is the boundary where these silent failures would matter most because the agent can't see the underlying driver state.",
+      "files": [
+        "internal/mcp/tools.go"
+      ],
+      "validated_outcome": "go test ./internal/mcp -count=1 still passes (no behavior change on the happy path); a future regression test can drive a malformed value into Scan to assert the new error result, but the change is mechanical enough that a unit test would mostly be testing the stdlib."
+    },
+    {
+      "id": "pr511-db-file-perms",
+      "summary": "Lock down SQLite DB files (and WAL/SHM sidecars) to 0o600 in both store and CLI-local open paths.",
+      "reason": "sql.Open is lazy: the underlying SQLite file is created on first I/O via the process umask, which on default systems lands at 0o644 — world-readable next to data that can include the Open Client session secret (users.secret) and notification metadata. The earlier cache-permission fix only covered the HTTP cache; the database files themselves still inherited the umask. WAL/SHM sidecars carry the same sensitivity (WAL holds uncommitted writes; SHM holds the index mapping WAL frames to pages), so all three files need 0o600. Both open paths now touch the main file at 0o600 before sql.Open and chmod the file + sidecars after migration; the helper is inline in each package rather than a shared API to keep their lifecycles decoupled.",
+      "files": [
+        "internal/store/store.go",
+        "internal/store/store_perms_test.go",
+        "internal/cli/pushover_history.go",
+        "internal/cli/pushover_history_perms_test.go"
+      ],
+      "validated_outcome": "go test ./internal/store -run TestOpenWithContextLocksDownDBFilePermissions -count=1 and go test ./internal/cli -run TestOpenPushoverLocalDBLocksDownFilePermissions -count=1 both stat the on-disk file (and any sidecars SQLite created during migration) and assert mode == 0o600. The tests skip on Windows where POSIX modes aren't meaningful."
+    },
+    {
+      "id": "pr511-cancel-on-timeout-requires-watch",
+      "summary": "Reject --cancel-on-timeout without --watch under --priority emergency in validateNotifyOptions.",
+      "reason": "The cancel-on-timeout path only fires from inside the watchEmergencyReceipt poll loop. The non-emergency branch already rejected --cancel-on-timeout (it routed through the catch-all emergency-only flags check), but the emergency branch had no guard for cancelOnTimeout-without-watch: the flag was silently accepted, the cancellation never fired, and an emergency retry chain kept paging the recipient while the user believed it was cancelled.",
+      "files": [
+        "internal/cli/pushover_notify.go",
+        "internal/cli/pushover_notify_test.go"
+      ],
+      "validated_outcome": "go test ./internal/cli -run TestValidateNotifyEmergencyOptions -count=1 covers the rejection (emergency + cancel-on-timeout - watch) and the still-accepted shape (emergency + cancel-on-timeout + watch)."
+    },
+    {
+      "id": "pr511-bool-flags-as-int",
+      "summary": "Encode --html / --monospace / --encrypted as integer 1 in messages_send body, matching Pushover's binary-as-integer convention.",
+      "reason": "Pushover's /1/messages.json takes binary on/off flags as integer 1, not JSON true. The novel notify command already did this correctly (body[\"html\"] = 1), but the direct messages_send CLI bound the cobra BoolVars and assigned `body[\"html\"] = bodyHtml` — so json.Marshal emitted \"html\":true. HTML / monospace formatting was silently dropped; --encrypted was the worst case because it would have made Pushover treat an encrypted payload as plaintext on the device. All three (Greptile flagged html / monospace; encrypted has the same line shape and same defect class) now encode as integer 1, with the original CLI BoolVar shape preserved so the user experience stays --html instead of forcing --html=1.",
+      "files": [
+        "internal/cli/messages_send.go",
+        "internal/cli/messages_send_test.go"
+      ],
+      "validated_outcome": "go test ./internal/cli -run TestMessagesSendBoolFlagsAsIntegerOne -count=1 stands up an httptest server, drives `messages send --html --monospace --encrypted`, and asserts the captured body decodes each of the three keys as a JSON number 1 (not a JSON bool)."
+    }
+  ]
+}

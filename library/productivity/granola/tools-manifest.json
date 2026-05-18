@@ -1,0 +1,105 @@
+{
+  "api_name": "granola",
+  "base_url": "https://public-api.granola.ai",
+  "description": "API for accessing meeting data from Granola",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "GRANOLA_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "GRANOLA_API_KEY",
+        "kind": "per_call",
+        "required": false,
+        "sensitive": true,
+        "description": "Granola public API key (Personal or Enterprise). Optional — only required when using --remote against the public API. Cache and internal API use auto-discovered WorkOS tokens from the local Granola app data."
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "folders_list",
+      "description": "List folders. Optional: cursor, page_size (default: 10). Returns the ListFoldersOutput.",
+      "method": "GET",
+      "path": "/v1/folders",
+      "params": [
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor"
+        },
+        {
+          "name": "page_size",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        }
+      ]
+    },
+    {
+      "name": "notes_get",
+      "description": "Get note. Required: note_id. Optional: include. Returns the Note.",
+      "method": "GET",
+      "path": "/v1/notes/{note_id}",
+      "params": [
+        {
+          "name": "note_id",
+          "type": "string",
+          "location": "path",
+          "description": "Note id",
+          "required": true
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Include"
+        }
+      ]
+    },
+    {
+      "name": "notes_list",
+      "description": "List notes. Optional: created_before, created_after, updated_after (plus 2 more). Returns the ListNotesOutput.",
+      "method": "GET",
+      "path": "/v1/notes",
+      "params": [
+        {
+          "name": "created_before",
+          "type": "string",
+          "location": "query",
+          "description": "Created before"
+        },
+        {
+          "name": "created_after",
+          "type": "string",
+          "location": "query",
+          "description": "Created after"
+        },
+        {
+          "name": "updated_after",
+          "type": "string",
+          "location": "query",
+          "description": "Updated after"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor"
+        },
+        {
+          "name": "page_size",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        }
+      ]
+    }
+  ]
+}

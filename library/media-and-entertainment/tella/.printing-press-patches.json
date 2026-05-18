@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-10",
+  "base_run_id": "20260509-180956",
+  "base_printing_press_version": "4.2.1",
+  "patches": [
+    {
+      "id": "pagination-cursor-wiring",
+      "summary": "Wire pagination.nextCursor and pagination.hasMore paths into list commands.",
+      "reason": "The OpenAPI parser (parser.go:4295) only walks top-level response properties when scanning for next_cursor / has_more. Tella's REST envelope nests them under {pagination:{...}}, so Pagination.NextCursorPath and HasMoreField were emitted as empty strings and the --all loop exited after page 1.",
+      "files": [
+        "internal/cli/videos_list.go",
+        "internal/cli/playlists_list.go"
+      ],
+      "validated_outcome": "videos list --all returns all 232 videos across 16 cursor-followed pages (was 15)."
+    },
+    {
+      "id": "format-flag-routing-and-helpers",
+      "summary": "Add unwrapResultsArray, unwrapSingleEnvelope, printQuiet, printPlain helpers; route --csv/--quiet/--plain above the piped JSON gate; unwrap envelopes before --select/--compact.",
+      "reason": "The generated gate `flags.asJSON || !isTerminal()` short-circuited explicit format flags when stdout was piped (the agent / shell case). printOutputWithFlags also fed CSV/plain renderers an envelope-shaped JSON instead of a flat array. --quiet was silent despite docs saying 'one value per line'. --plain had no renderer at all.",
+      "files": [
+        "internal/cli/helpers.go",
+        "internal/cli/videos_list.go"
+      ],
+      "validated_outcome": "videos list --csv --select id,name | head -3 emits CSV header + 2 rows; videos list --quiet --select id emits one ID per line; videos list --plain --select id,views emits tab-separated rows; videos/playlists/clips get --select id,name returns the populated {id,name} object."
+    },
+    {
+      "id": "usage-exit-codes",
+      "summary": "Replace `if len(args) == 0 { return cmd.Help() }` with usageErr; add rejectUnknownSubcommand RunE on parent commands.",
+      "reason": "Two related issues: (1) cmd.Help() returns nil so missing positional args silently exited rc=0 in 51 generated commands; (2) parent commands without Run/RunE are non-Runnable in cobra v1.9.1, so `videos garbage` returned flag.ErrHelp (rc=0) before Args validation could run. Fix: make parents Runnable with a RunE that errors on unknown subcommand.",
+      "files": [
+        "internal/cli/helpers.go",
+        "internal/cli/playlists.go"
+      ],
+      "validated_outcome": "playlists update --name x (missing <id>) exits rc=2; videos garbage exits rc=3 with 'unknown command'; bare parent (videos with no subcommand) still exits rc=0 with help; valid subcommands still dispatch."
+    },
+    {
+      "id": "videos-viewed-help-clarity",
+      "summary": "Add long-form --help text clarifying that videos viewed sources from the webhook event stream.",
+      "reason": "Empty results from videos viewed against a workspace with real views (622 total) was confusing. The rollup is keyed off video.viewed/video.milestone webhook events, not the API counter — empty results don't mean zero views, they mean no view events have hit the inbox yet.",
+      "files": [
+        "internal/cli/videos_viewed.go"
+      ],
+      "validated_outcome": "videos viewed --help now explains the data source and points users to wire a webhook endpoint."
+    }
+  ]
+}

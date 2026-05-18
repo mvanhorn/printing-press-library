@@ -13,9 +13,9 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/marketing/google-search-console/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/marketing/google-search-console/internal/config"
+	"github.com/spf13/cobra"
 )
 
 var version = "1.0.0"
@@ -195,6 +195,9 @@ See README.md or the bundled SKILL.md for recipes.`,
 	urlInspectionCmd.AddCommand(newUrlInspectionInspectBatchCmd(flags))
 	rootCmd.AddCommand(urlInspectionCmd)
 	rootCmd.AddCommand(newVersionCliCmd())
+	// PATCH: Promote two live Search Analytics workflow shortcuts for SEO agents.
+	rootCmd.AddCommand(newBrandVsNonbrandSplitCmd(flags))
+	rootCmd.AddCommand(newPageQueriesCmd(flags))
 
 	// Hand-built foundation + transcendence commands (Phase 3 build)
 	rootCmd.AddCommand(newSyncCmd(flags))

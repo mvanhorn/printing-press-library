@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "api_name": "airframe",
+  "run_id": "20260513-023951",
+  "status": "pass",
+  "level": "quick",
+  "matrix_size": 4,
+  "tests_passed": 4,
+  "tests_skipped": 0,
+  "auth_context": {
+    "type": "none"
+  },
+  "notes": "Exercised end-to-end during development: FAA sync ingested 312,640 aircraft from registry.faa.gov, doctor reports schema_version=1, tail N628TS resolved to FALCON LANDING LLC's 2015 Gulfstream G650ER with Mode-S A835AF (verifiable against ADS-B Exchange). NTSB ingest covered by synthetic-CSV unit tests in internal/ingest/ntsb_test.go. flight-goat composition path verified with clear auth-hint error surfacing when FLIGHT_GOAT_API_KEY_AUTH is unset. FTS5 search smoke-tested with porter-stemmed snippets."
+}

@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-11T19:27:36.06918Z",
+  "printing_press_version": "4.3.0",
+  "api_name": "cf-domain",
+  "display_name": "Cloudflare Registrar Domains",
+  "cli_name": "cf-domain-pp-cli",
+  "owner": "danny-shmueli",
+  "printer_name": "Danny Shmueli",
+  "spec_path": "/Users/danny/dev/cloudflare-registrar-pp/openapi.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:b5ebdfcd1011aff2a13f6c9904282151a282b638c2ba8b5fc094708977ebf35d",
+  "mcp_binary": "cf-domain-pp-mcp",
+  "mcp_tool_count": 3,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "CLOUDFLARE_API_TOKEN",
+    "CLOUDFLARE_REGISTRAR_DOMAINS_BEARER_AUTH",
+    "ACCOUNT_ID",
+    "CLOUDFLARE_ACCOUNT_ID"
+  ],
+  "printer": "danny-shmueli",
+  "run_id": "cf-domain-registrar-20260511-local-hardening",
+  "category": "cloud",
+  "description": "Agent-native Cloudflare Registrar CLI for domain search, live pricing checks, and gated registration.",
+  "mcp_public_tool_count": 5,
+  "novel_features": [
+    {
+      "name": "Cloudflare cf OAuth reuse",
+      "command": "auth context",
+      "description": "Reuses existing Cloudflare cf OAuth token and account context when explicit env vars are absent, without printing secrets."
+    },
+    {
+      "name": "Registrar purchase confirmation gate",
+      "command": "registrar domain-register",
+      "description": "Blocks live registration unless confirm-domain exactly matches domain-name after a fresh price check."
+    },
+    {
+      "name": "Agent-safe live domain pricing",
+      "command": "registrar domain-check",
+      "description": "Uses Cloudflare Registrar live check endpoint with the correct domains[] wire shape for final availability and pricing."
+    }
+  ]
+}

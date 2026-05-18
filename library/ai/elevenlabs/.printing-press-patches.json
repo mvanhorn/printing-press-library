@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260513T152516Z-e836a3fe",
+  "base_printing_press_version": "4.5.2",
+  "patches": [
+    {
+      "id": "auth-logout-clears-api-key",
+      "summary": "ClearTokens now removes persisted API-key auth fields during logout.",
+      "reason": "The generated logout path only cleared OAuth token fields, leaving saved ElevenLabs API keys active after auth logout.",
+      "files": ["internal/config/config.go"],
+      "validated_outcome": "go test ./..."
+    },
+    {
+      "id": "auth-header-single-empty-guard",
+      "summary": "AuthHeader no longer performs a duplicated unreachable empty-key check.",
+      "reason": "The generated api_key path checked the same field twice after copying it to a local token variable.",
+      "files": ["internal/config/config.go"],
+      "validated_outcome": "go test ./..."
+    },
+    {
+      "id": "dialogue-cast-timestamps-opt-in",
+      "summary": "dialogue cast --timestamps now defaults to false.",
+      "reason": "The default should use the normal audio endpoint unless callers explicitly request timestamp extraction.",
+      "files": ["internal/cli/agent_audio.go"],
+      "validated_outcome": "go test ./..."
+    }
+  ]
+}
