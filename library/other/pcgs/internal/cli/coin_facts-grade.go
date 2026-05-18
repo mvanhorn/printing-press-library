@@ -51,6 +51,10 @@ func newCoinFactsGradeCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
+			// PATCH(amend-2026-05-18: coin-response-transforms) — apply
+			// PriceGuideValue=0→null and year_mismatch transforms before any
+			// rendering path so all consumers see the corrected payload.
+			data = applyCoinResponseTransforms(data)
 			// Print provenance to stderr for human-facing output only.
 			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
 			// --select) and piped stdout suppress this line; the JSON envelope
