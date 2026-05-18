@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-09T19:36:00Z",
+  "printing_press_version": "4.2.1",
+  "api_name": "monarch-money",
+  "display_name": "Monarch Money",
+  "cli_name": "monarch-money-pp-cli",
+  "printer": "count",
+  "printer_name": "Count",
+  "spec_format": "manual-graphql-plan",
+  "spec_checksum": "sha256:manual-plan-20260509",
+  "spec_source": "manual plan based on Monarch Money browser GraphQL behavior",
+  "spec_path": "printing-press-monarch-plan.md",
+  "run_id": "manual-plan-20260509",
+  "catalog_entry": "monarch-money",
+  "category": "payments",
+  "description": "Use Monarch Money account balances, tags, transactions, cashflow summaries, and explicit transaction CRUD workflows from the terminal.",
+  "auth_type": "token",
+  "auth_env_vars": [
+    "MONARCH_TOKEN",
+    "MONARCH_EMAIL",
+    "MONARCH_PASSWORD"
+  ],
+  "novel_features": [
+    {
+      "name": "Guarded GraphQL query runner",
+      "command": "query",
+      "description": "Runs custom read-only Monarch Money GraphQL query files and refuses files that contain GraphQL mutations."
+    },
+    {
+      "name": "Dry-run transaction CRUD",
+      "command": "transactions create|update|set-tags|delete",
+      "description": "Creates, updates, tags, and deletes individual transactions through explicit commands that dry-run by default and require --yes to apply."
+    }
+  ]
+}

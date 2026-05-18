@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-17T09:38:32.617902Z",
+  "printing_press_version": "4.8.0",
+  "api_name": "mailchimp",
+  "display_name": "Mailchimp Marketing",
+  "cli_name": "mailchimp-pp-cli",
+  "owner": "trevin-chow",
+  "printer": "tmchow",
+  "printer_name": "Trevin Chow",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:77a85347d99135ade13fd2ee351d8320d33711215bc512e53af4adaf2178f2b3",
+  "run_id": "20260517-014518",
+  "mcp_binary": "mailchimp-pp-mcp",
+  "mcp_tool_count": 291,
+  "mcp_ready": "full",
+  "api_version": "3.0.91",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "MAILCHIMP_USERNAME",
+    "MAILCHIMP_PASSWORD"
+  ],
+  "novel_features": [
+    {
+      "name": "Subscribe and tag in one call",
+      "command": "subscribe",
+      "description": "Upsert a member by email and apply tags in a single command. Auto-computes the MD5 subscriber hash so you never see it."
+    },
+    {
+      "name": "CSV bulk subscribe with batch decode",
+      "command": "bulk-subscribe",
+      "description": "Read a CSV, fan out through Mailchimp's /batches endpoint (the official 10-concurrent-connection escape hatch), poll until done, decode the tar.gz of JSONL results within the 10-minute response URL window, and print per-row outcomes."
+    },
+    {
+      "name": "Campaign performance digest (single + rollup)",
+      "command": "digest",
+      "description": "Single-campaign mode (digest \u003cid\u003e) joins report + email-activity + ecommerce-product-activity into one summary with opens/clicks/bounces/revenue + top-clicked links + top-converted products. Rollup mode (digest --last N or --week) renders a multi-campaign summary table with aggregate stats. --md renders either as paste-ready markdown."
+    },
+    {
+      "name": "Segment health audit",
+      "command": "segments audit",
+      "description": "Find empty segments, segments that haven't grown in 90 days, and segments not referenced by any recent campaign. Reads the segments endpoint and joins with member counts from the local SQLite store."
+    },
+    {
+      "name": "Send-checklist CI gate",
+      "command": "send-checked",
+      "description": "Run the official send-checklist before sending. Exits 2 with the failing items if any have type=error or is_ready=false; otherwise sends."
+    },
+    {
+      "name": "E-commerce attribution per campaign",
+      "command": "attribution",
+      "description": "Join a campaign's e-commerce product activity report with synced store orders to compute attributed revenue, top products by attributed revenue, and conversion rate (orders divided by opens)."
+    },
+    {
+      "name": "Per-domain deliverability rollup",
+      "command": "deliverability",
+      "description": "Roll up domain-performance reports across the last N campaigns. Surfaces per-domain (gmail.com, yahoo.com, outlook.com) bounce, spam, open, and click rates. Highlights domains performing below the account average."
+    },
+    {
+      "name": "Head-to-head campaign comparison",
+      "command": "compare",
+      "description": "Side-by-side metric diff for two campaigns. Fetches both campaigns' report + email-activity in parallel, renders open rate / CTR / click-to-open / bounces / unsubscribes / revenue with a winner per metric, computes delta, and surfaces top differences (subject line, send time, audience size). --md renders as paste-ready markdown."
+    }
+  ]
+}

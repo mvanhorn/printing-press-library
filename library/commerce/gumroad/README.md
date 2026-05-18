@@ -8,7 +8,7 @@ Printed by [@bheemreddy181](https://github.com/bheemreddy181) (Bheem Reddy).
 
 ## Install
 
-The recommended path installs both the `gumroad-pp-cli` binary and the `pp-gumroad` agent skill in one shot:
+The recommended path installs both the `gumroad-pp-cli` binary and the `pp-gumroad` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
 npx -y @mvanhorn/printing-press install gumroad
@@ -20,10 +20,28 @@ For CLI only (no skill):
 npx -y @mvanhorn/printing-press install gumroad --cli-only
 ```
 
+For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
-### Without Node
+```bash
+npx -y @mvanhorn/printing-press install gumroad --skill-only
+```
 
-The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
+To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
+
+```bash
+npx -y @mvanhorn/printing-press install gumroad --agent claude-code
+npx -y @mvanhorn/printing-press install gumroad --agent claude-code --agent codex
+```
+
+### Without Node (Go fallback)
+
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/commerce/gumroad/cmd/gumroad-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
 
 ### Pre-built binary
 
@@ -52,6 +70,43 @@ Tell your OpenClaw agent (copy this):
 Install the pp-gumroad skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-gumroad. The skill defines how its required CLI can be installed.
 ```
 
+## Use with Claude Desktop
+
+This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
+
+To install:
+
+1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/gumroad-current).
+2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
+3. Fill in `GUMROAD_ACCESS_TOKEN` when Claude Desktop prompts you.
+
+Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
+
+<details>
+<summary>Manual JSON config (advanced)</summary>
+
+If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
+
+
+Install the MCP binary from this CLI's published public-library entry or pre-built release.
+
+Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "gumroad": {
+      "command": "gumroad-pp-mcp",
+      "env": {
+        "GUMROAD_ACCESS_TOKEN": "<your-key>"
+      }
+    }
+  }
+}
+```
+
+</details>
+
 ## Authentication
 
 Create a Gumroad OAuth application, authorize it with the scopes needed for your workflow, and provide the resulting access token as GUMROAD_ACCESS_TOKEN. The MCP bundle exposes this as a sensitive user configuration value.
@@ -62,10 +117,8 @@ Create a Gumroad OAuth application, authorize it with the scopes needed for your
 # Confirm the token is present and the API is reachable.
 gumroad-pp-cli doctor
 
-
 # List products in agent-friendly JSON.
 gumroad-pp-cli products list --agent
-
 
 # Sync seller data for local search and analytics.
 gumroad-pp-cli sync --resources products,sales,subscribers,payouts --latest-only --json
@@ -191,7 +244,6 @@ Manage user
 
 - **`gumroad-pp-cli user get`** - Retrieve the authenticated user's data.
 
-
 ## Output Formats
 
 ```bash
@@ -226,69 +278,6 @@ This CLI is designed for AI agent consumption:
 - **Agent-safe by default** - no colors or formatting unless `--human-friendly` is set
 
 Exit codes: `0` success, `2` usage error, `3` not found, `4` auth error, `5` API error, `7` rate limited, `10` config error.
-
-## Use with Claude Code
-
-Install the focused skill — it auto-installs the CLI on first invocation:
-
-```bash
-npx skills add mvanhorn/printing-press-library/cli-skills/pp-gumroad -g
-```
-
-Then invoke `/pp-gumroad <query>` in Claude Code. The skill is the most efficient path — Claude Code drives the CLI directly without an MCP server in the middle.
-
-<details>
-<summary>Use as an MCP server in Claude Code (advanced)</summary>
-
-If you'd rather register this CLI as an MCP server in Claude Code, install the MCP binary first:
-
-
-Install the MCP binary from this CLI's published public-library entry or pre-built release.
-
-Then register it:
-
-```bash
-claude mcp add gumroad gumroad-pp-mcp -e GUMROAD_ACCESS_TOKEN=<your-token>
-```
-
-</details>
-
-## Use with Claude Desktop
-
-This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
-
-To install:
-
-1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/gumroad-current).
-2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
-3. Fill in `GUMROAD_ACCESS_TOKEN` when Claude Desktop prompts you.
-
-Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
-
-<details>
-<summary>Manual JSON config (advanced)</summary>
-
-If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
-
-
-Install the MCP binary from this CLI's published public-library entry or pre-built release.
-
-Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "gumroad": {
-      "command": "gumroad-pp-mcp",
-      "env": {
-        "GUMROAD_ACCESS_TOKEN": "<your-key>"
-      }
-    }
-  }
-}
-```
-
-</details>
 
 ## Health Check
 

@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-15T15:56:27.831278Z",
+  "printing_press_version": "4.6.1",
+  "api_name": "trustpilot",
+  "display_name": "Trustpilot",
+  "cli_name": "trustpilot-pp-cli",
+  "owner": "mvanhorn",
+  "printer": "mvanhorn",
+  "printer_name": "Matt Van Horn",
+  "spec_path": "/Users/mvanhorn/printing-press/.runstate/mvanhorn-eb6a05f2/runs/20260515-075905/research/trustpilot-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:71761b3e058fcfeaa02616f6852f9736e9b5c857f2aad212959ece5da14d6929",
+  "run_id": "20260515-075905",
+  "description": "Every Trustpilot review surface, plus the local SQLite database and balanced good-and-bad agent bundle no other Trustpilot tool ships.",
+  "mcp_binary": "trustpilot-pp-mcp",
+  "mcp_tool_count": 2,
+  "mcp_public_tool_count": 2,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Balanced recent slice",
+      "command": "top-recent",
+      "description": "Pulls N freshest 4-5 star reviews and N freshest 1-2 star reviews for a company in one call, so agents can quote a balanced view without two separate scrapes."
+    },
+    {
+      "name": "One-shot agent bundle",
+      "command": "agent-bundle",
+      "description": "Returns a single JSON payload with company metadata, TrustScore, Trustpilot's own AI summary, top recent good and bad reviews, and the 5-bin rating histogram — everything an external agent needs in one call."
+    },
+    {
+      "name": "TrustScore + sentiment drift",
+      "command": "drift",
+      "description": "Week-over-week TrustScore, 1-star %, 5-star %, and review volume reconstructed from locally synced reviews. Trustpilot exposes only the current TrustScore; this surfaces history."
+    },
+    {
+      "name": "Multi-company comparison",
+      "command": "compare",
+      "description": "Side-by-side TrustScore, review velocity, and 1/5-star mix across N companies over a chosen window, all read from the local synced store."
+    },
+    {
+      "name": "Review-velocity surge",
+      "command": "surge",
+      "description": "Detects statistically significant spikes in total review volume or 1-star volume against a rolling baseline using Z-scores over locally synced rows."
+    },
+    {
+      "name": "Offline review FTS",
+      "command": "search-reviews",
+      "description": "Full-text search over synced review titles, bodies, and business replies with star, language, and date filters. FTS5-backed, works offline."
+    },
+    {
+      "name": "Business-reply gap",
+      "command": "replies",
+      "description": "Reply rate by star bucket over synced reviews, plus a listing of unreplied 1-stars when --unreplied is set."
+    },
+    {
+      "name": "Country-of-reviewer mix",
+      "command": "geo",
+      "description": "Reviewer-country distribution over a window with per-country count, average rating, and 1-star rate."
+    },
+    {
+      "name": "Trustpilot topic-AI passthrough",
+      "command": "topics",
+      "description": "Surfaces Trustpilot's own pre-computed topic AI summaries (e.g., 'shipping', 'price', 'condition') as JSON."
+    },
+    {
+      "name": "Similar-companies sweep",
+      "command": "similar-sweep",
+      "description": "Takes the 8 'similar businesses' Trustpilot returns for a company, fetches each one's info in parallel, and ranks them by TrustScore and total reviews."
+    },
+    {
+      "name": "Sync delta",
+      "command": "whats-new",
+      "description": "Lists reviews that arrived since the last sync, bucketed by star rating, so an agent can poll for fresh customer feedback without re-fetching everything."
+    },
+    {
+      "name": "Category leaderboard",
+      "command": "category-top",
+      "description": "Ranks the companies in a Trustpilot category by TrustScore (with an optional minimum-review floor)."
+    }
+  ]
+}
