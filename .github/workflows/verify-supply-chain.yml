@@ -1,0 +1,75 @@
+name: Verify supply chain
+
+# PR-time gate against supply-chain attack shapes observed in May 2026:
+# Axios (npm postinstall RAT), TanStack mini-Shai-Hulud (pull_request_target
+# + OIDC theft), node-ipc (credential harvesting), BufferZoneCorp (Go module
+# replace redirection). Sister doc: docs/solutions/security/2026-05-supply-chain-hardening.md.
+#
+# This workflow is informational on landing — promote to a required check
+# via branch protection only after a one-week green window confirms no
+# false-positive miscalibration on real PRs (per the plan's KD7).
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/**'
+      - '.github/scripts/verify-supply-chain/**'
+      - 'library/**/go.mod'
+      - 'library/**/go.sum'
+      - 'npm/package.json'
+      - 'npm/package-lock.json'
+  workflow_dispatch:
+    inputs:
+      strict:
+        description: 'Promote advisory findings to block-severity'
+        required: false
+        default: 'false'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verify-supply-chain-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  scan:
+    name: Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          ref: ${{ github.event.pull_request.head.ref || github.ref }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Run supply-chain scan
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_REF: ${{ github.base_ref }}
+          BASE_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          git remote add base "https://github.com/${BASE_REPO}.git" 2>/dev/null || git remote set-url base "https://github.com/${BASE_REPO}.git"
+          base_remote_ref="refs/remotes/base/${BASE_REF}"
+          if ! git show-ref --verify --quiet "${base_remote_ref}"; then
+            git fetch --no-tags base "${BASE_REF}:${base_remote_ref}"
+          fi
+
+          python3 .github/scripts/verify-supply-chain/scan.py --base-ref "${base_remote_ref}"
+
+      - name: Run supply-chain scan (manual dispatch)
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          STRICT: ${{ inputs.strict }}
+        run: |
+          set -euo pipefail
+
+          if [ "${STRICT}" = "true" ]; then
+            python3 .github/scripts/verify-supply-chain/scan.py --base-ref origin/main --strict
+          else
+            python3 .github/scripts/verify-supply-chain/scan.py --base-ref origin/main
+          fi
