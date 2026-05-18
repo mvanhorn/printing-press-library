@@ -101,24 +101,31 @@ function parseRegistryEntry(value: unknown): RegistryEntry {
     throw new Error("registry entry must be an object");
   }
 
+  // Read the entry name opportunistically before validating so that
+  // downstream "missing string field" errors can name the offending
+  // row. Without this, a single bad entry produces a context-free
+  // error like `registry entry missing string field: description`
+  // with no clue which of 129 entries failed.
+  const entryName = typeof value.name === "string" && value.name.trim() !== "" ? value.name : null;
+
   const entry = {
-    name: requiredString(value, "name"),
-    category: requiredString(value, "category"),
-    api: requiredString(value, "api"),
-    description: requiredString(value, "description"),
-    path: requiredString(value, "path"),
+    name: requiredString(value, "name", entryName),
+    category: requiredString(value, "category", entryName),
+    api: requiredString(value, "api", entryName),
+    description: requiredString(value, "description", entryName),
+    path: requiredString(value, "path", entryName),
   };
 
   return isRecord(value.mcp)
     ? {
         ...entry,
         mcp: {
-          binary: requiredString(value.mcp, "binary"),
-          transports: requiredStringArray(value.mcp, "transports"),
-          tool_count: requiredNumber(value.mcp, "tool_count"),
+          binary: requiredString(value.mcp, "binary", entryName),
+          transports: requiredStringArray(value.mcp, "transports", entryName),
+          tool_count: requiredNumber(value.mcp, "tool_count", entryName),
           public_tool_count:
             typeof value.mcp.public_tool_count === "number" ? value.mcp.public_tool_count : undefined,
-          auth_type: requiredString(value.mcp, "auth_type"),
+          auth_type: requiredString(value.mcp, "auth_type", entryName),
           env_vars: Array.isArray(value.mcp.env_vars) ? value.mcp.env_vars.map(String) : [],
           mcp_ready: typeof value.mcp.mcp_ready === "string" ? value.mcp.mcp_ready : undefined,
         },
@@ -130,29 +137,33 @@ function normalizeName(value: string): string {
   return value.toLowerCase().replace(/^pp-/, "").replace(/-pp-cli$/, "").replace(/[^a-z0-9]+/g, "-");
 }
 
-function requiredString(value: Record<string, unknown>, key: string): string {
+function entryLabel(name: string | null): string {
+  return name ? `registry entry '${name}'` : "registry entry";
+}
+
+function requiredString(value: Record<string, unknown>, key: string, entryName: string | null = null): string {
   if (typeof value[key] !== "string" || value[key].trim() === "") {
-    throw new Error(`registry entry missing string field: ${key}`);
+    throw new Error(`${entryLabel(entryName)} missing string field: ${key}`);
   }
   return value[key];
 }
 
-function requiredNumber(value: Record<string, unknown>, key: string): number {
+function requiredNumber(value: Record<string, unknown>, key: string, entryName: string | null = null): number {
   if (typeof value[key] !== "number") {
-    throw new Error(`registry entry missing number field: ${key}`);
+    throw new Error(`${entryLabel(entryName)} missing number field: ${key}`);
   }
   return value[key];
 }
 
-function requiredStringArray(value: Record<string, unknown>, key: string): string[] {
+function requiredStringArray(value: Record<string, unknown>, key: string, entryName: string | null = null): string[] {
   const raw = value[key];
   if (!Array.isArray(raw) || raw.length === 0) {
-    throw new Error(`registry entry missing non-empty string array field: ${key}`);
+    throw new Error(`${entryLabel(entryName)} missing non-empty string array field: ${key}`);
   }
   const out: string[] = [];
   for (const item of raw) {
     if (typeof item !== "string" || item.trim() === "") {
-      throw new Error(`registry entry has non-string value in array field: ${key}`);
+      throw new Error(`${entryLabel(entryName)} has non-string value in array field: ${key}`);
     }
     out.push(item);
   }

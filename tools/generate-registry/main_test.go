@@ -66,11 +66,30 @@ func TestFormatDescription(t *testing.T) {
 }
 
 func TestRegistryDescriptionReplacesBareMarkdownHeading(t *testing.T) {
-	if got := registryDescription("# Introduction", "Real catalog copy."); got != "Real catalog copy." {
-		t.Fatalf("registryDescription heading fallback = %q, want fallback", got)
+	if got := registryDescription("# Introduction", "Real catalog copy.", "Manifest copy."); got != "Real catalog copy." {
+		t.Fatalf("registryDescription heading fallback = %q, want brews fallback", got)
 	}
-	if got := registryDescription("Curated catalog copy.", "Fallback."); got != "Curated catalog copy." {
+	if got := registryDescription("Curated catalog copy.", "Fallback.", "Manifest copy."); got != "Curated catalog copy." {
 		t.Fatalf("registryDescription curated copy = %q, want prior", got)
+	}
+}
+
+// TestRegistryDescriptionManifestFallback covers the gap that motivated
+// the third tier: a CLI without a brews: block in .goreleaser.yaml
+// (lawhub is the canonical example) had no fallback once `prior` was
+// empty, so its registry entry shipped with description: "". That
+// broke the npm installer's `list` command, which treats `description`
+// as a required non-empty field. The manifest carries a real
+// description; consult it before giving up.
+func TestRegistryDescriptionManifestFallback(t *testing.T) {
+	if got := registryDescription("", "", "Manifest copy."); got != "Manifest copy." {
+		t.Fatalf("registryDescription manifest fallback = %q, want manifest", got)
+	}
+	if got := registryDescription("", "Brews copy.", "Manifest copy."); got != "Brews copy." {
+		t.Fatalf("registryDescription brews-over-manifest = %q, want brews", got)
+	}
+	if got := registryDescription("", "", ""); got != "" {
+		t.Fatalf("registryDescription all-empty = %q, want empty", got)
 	}
 }
 

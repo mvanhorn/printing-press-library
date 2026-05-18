@@ -71,6 +71,47 @@ test("parseRegistry rejects unsupported schema versions", () => {
   assert.throws(() => parseRegistry({ schema_version: 3, entries: [] }), /unsupported registry/);
 });
 
+test("parseRegistry names the offending entry in missing-field errors", () => {
+  // One bad row in a multi-entry registry used to surface as an
+  // anonymous `registry entry missing string field: description` with
+  // no clue which name failed. With 129 entries in the live catalog,
+  // that was a multi-step diagnosis; the entry name turns it into one.
+  assert.throws(
+    () =>
+      parseRegistry({
+        schema_version: 2,
+        entries: [
+          {
+            name: "lawhub",
+            category: "education",
+            api: "LawHub",
+            description: "",
+            path: "library/education/lawhub",
+          },
+        ],
+      }),
+    /registry entry 'lawhub' missing string field: description/,
+  );
+});
+
+test("parseRegistry falls back to anonymous error when name itself is missing", () => {
+  assert.throws(
+    () =>
+      parseRegistry({
+        schema_version: 2,
+        entries: [
+          {
+            category: "education",
+            api: "LawHub",
+            description: "Anything.",
+            path: "library/education/lawhub",
+          },
+        ],
+      }),
+    /^Error: registry entry missing string field: name$/,
+  );
+});
+
 test("parseRegistry parses transports as a non-empty string array", () => {
   const registry = parseRegistry({
     schema_version: 2,

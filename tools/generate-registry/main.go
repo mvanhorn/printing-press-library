@@ -116,6 +116,7 @@ type MCPBlock struct {
 type printingPressManifest struct {
 	APIName            string   `json:"api_name"`
 	DisplayName        string   `json:"display_name"`
+	Description        string   `json:"description"`
 	Printer            string   `json:"printer"`
 	PrinterName        string   `json:"printer_name"`
 	MCPBinary          string   `json:"mcp_binary"`
@@ -309,12 +310,24 @@ func buildEntry(dir, category, slug string, existing map[string]RegistryEntry) (
 	}
 
 	// Description preference: existing registry value (curated) > goreleaser
-	// brew description (homebrew tap one-liner) > empty. Curated descriptions
-	// in registry.json are the documented surface and shouldn't be clobbered.
+	// brew description (homebrew tap one-liner) > .printing-press.json
+	// manifest description > empty. Curated descriptions in registry.json
+	// are the documented surface and shouldn't be clobbered.
 	// Exception: an old generator bug let bare Markdown headings like
 	// "# Introduction" land as descriptions. Those are not real curated copy,
 	// so allow the source one-liner to repair them on the next regen.
-	entry.Description = registryDescription(prior.Description, readGoreleaserDescription(filepath.Join(dir, ".goreleaser.yaml")))
+	//
+	// The manifest fallback exists because a CLI may legitimately ship
+	// without a `brews:` block in .goreleaser.yaml (e.g., a printer who
+	// hasn't set up a homebrew tap), in which case the goreleaser fallback
+	// is empty and the registry entry would otherwise have no description.
+	// That breaks downstream parsers that require a non-empty description
+	// (the npm installer's `list` command, for one).
+	entry.Description = registryDescription(
+		prior.Description,
+		readGoreleaserDescription(filepath.Join(dir, ".goreleaser.yaml")),
+		pp.Description,
+	)
 
 	// MCP block preference: derive from .printing-press.json when it
 	// declares mcp_binary (the modern, authoritative source) > preserve
@@ -338,11 +351,14 @@ func buildEntry(dir, category, slug string, existing map[string]RegistryEntry) (
 	return &entry, nil
 }
 
-func registryDescription(prior, fallback string) string {
+func registryDescription(prior, brewsFallback, manifestFallback string) string {
 	if prior != "" && !isBareMarkdownHeading(prior) {
 		return prior
 	}
-	return fallback
+	if brewsFallback != "" {
+		return brewsFallback
+	}
+	return manifestFallback
 }
 
 func isBareMarkdownHeading(s string) bool {
