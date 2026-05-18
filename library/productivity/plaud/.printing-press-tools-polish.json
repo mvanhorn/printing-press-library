@@ -1,0 +1,24 @@
+{
+  "timestamp": "2026-05-16T13:27:26.649533Z",
+  "cli_dir": "\u003ccli-dir\u003e/plaud-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "ai",
+      "file": "ai.go",
+      "line": 11,
+      "evidence": "AI subsystem",
+      "status": "accepted",
+      "note": "Hidden parent grouper in DO-NOT-EDIT generated file; uses parentNoSubcommandRunE so the cobratree walker does not expose it as a standalone MCP tool. Short comes verbatim from spec.yaml resources.ai.description and is fine for human --help context. Retro candidate: generator could either skip Hidden parent groupers from the tools-audit thin-short scan or write a slightly richer Short ('AI transcript and summary endpoints') from the endpoint set."
+    },
+    {
+      "kind": "thin-short",
+      "command": "recordings",
+      "file": "recordings.go",
+      "line": 11,
+      "evidence": "Voice recordings",
+      "status": "accepted",
+      "note": "Hidden parent grouper in DO-NOT-EDIT generated file; uses parentNoSubcommandRunE so the cobratree walker does not expose it as a standalone MCP tool. Short comes verbatim from spec.yaml resources.recordings.description and is fine for human --help context. Retro candidate: see ai (same pattern, different resource)."
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "plaud-pp-mcp",
+  "display_name": "Plaud",
+  "version": "4.8.0",
+  "description": "Every conversation, queryable — your transcripts as a searchable history, not a feed.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/plaud-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/plaud-pp-mcp",
+      "args": [],
+      "env": {
+        "PLAUD_TOKEN": "${user_config.plaud_token}"
+      }
+    }
+  },
+  "user_config": {
+    "plaud_token": {
+      "type": "string",
+      "title": "PLAUD_TOKEN",
+      "description": "Sets PLAUD_TOKEN for the Plaud MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

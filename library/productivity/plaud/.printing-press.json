@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-18T01:10:18.932236Z",
+  "printing_press_version": "4.8.0",
+  "api_name": "plaud",
+  "display_name": "Plaud",
+  "cli_name": "plaud-pp-cli",
+  "owner": "jnalv414",
+  "printer": "jnalv414",
+  "printer_name": "jnalv414",
+  "spec_path": "/Volumes/HOME-EX/Users/justinnalven/printing-press/.runstate/cli-printing-press-4232bc6c/runs/20260516-020750/spec/plaud.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:3c6c75b5c7511fddd75d9512408ecc69078acac495ecd222f2ef7336b4babf10",
+  "run_id": "20260516-020750",
+  "category": "productivity",
+  "description": "Every conversation, queryable \u2014 your transcripts as a searchable history, not a feed.",
+  "mcp_binary": "plaud-pp-mcp",
+  "mcp_tool_count": 14,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "PLAUD_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Commitments extractor",
+      "command": "commitments",
+      "description": "Surface every promise you made \u2014 \"I'll send\", \"let me follow up\", \"by EOW\" \u2014 across every recording, grouped by who you said it to, with the date and recording link."
+    },
+    {
+      "name": "Recurring-topic trajectory",
+      "command": "topic",
+      "description": "Trace how often a topic comes up across your recordings over time. Bucketed by week or day. Shows emerging vs decaying signal with the speakers anchoring each bucket."
+    },
+    {
+      "name": "About a person",
+      "command": "about",
+      "description": "Every utterance by one named speaker, across every recording, with \u00b11 segments of surrounding context. Optional topic filter for laser-focus."
+    },
+    {
+      "name": "Forgotten commitments",
+      "command": "forgotten",
+      "description": "Commitments you made that have no follow-up signal in any later recording. The set difference between things-you-said-you-would-do and things-you-actually-talked-about-again."
+    },
+    {
+      "name": "Themes diff",
+      "command": "themes",
+      "description": "Top n-gram shingles in recent recordings vs the prior equivalent window. Frequency-based \u2014 no LLM. Output shows what's new this period, what's vanished, what's steady."
+    },
+    {
+      "name": "Cross-meeting consistency",
+      "command": "cross-meeting",
+      "description": "Every utterance by one person about one topic, ordered chronologically across meetings, with prior + next segment as context. Read it to see whether their (or your) position has drifted."
+    },
+    {
+      "name": "Silence detector",
+      "command": "silence",
+      "description": "People who used to appear in your recordings but haven't in N days. Last recording link + last topic mentioned. Surfaces relationships going cold."
+    },
+    {
+      "name": "Mentioned me",
+      "command": "mentioned-me",
+      "description": "Every time someone OTHER than you said your name in a recording. Pulls from the cached /user/me name and FTS5-filtered out your own segments."
+    }
+  ]
+}

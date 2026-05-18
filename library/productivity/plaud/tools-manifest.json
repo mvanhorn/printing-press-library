@@ -1,0 +1,328 @@
+{
+  "api_name": "plaud",
+  "base_url": "https://api.plaud.ai",
+  "description": "Every conversation, queryable \u2014 your transcripts as a searchable history, not a feed.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "in": "header",
+    "env_vars": [
+      "PLAUD_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "PLAUD_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "ai_status",
+      "description": "Check Plaud AI subsystem reachability and current operational state. Useful as a lightweight smoke test before running heavier transcript or summary calls. Returns the AIStatus.",
+      "method": "GET",
+      "path": "/ai/status",
+      "params": []
+    },
+    {
+      "name": "ai_transsumm",
+      "description": "Combined transcript + AI summary (newer recordings). Required: id. Optional: refresh. Returns the new TranssumResult.",
+      "method": "POST",
+      "path": "/ai/transsumm/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Recording ID",
+          "required": true
+        },
+        {
+          "name": "refresh",
+          "type": "bool",
+          "location": "body",
+          "description": "Force re-fetch from API instead of local store"
+        }
+      ]
+    },
+    {
+      "name": "filetags_list",
+      "description": "List the user's file tags (folder structure). Returns array of FileTag.",
+      "method": "GET",
+      "path": "/filetag/",
+      "params": []
+    },
+    {
+      "name": "recordings_audio_url",
+      "description": "Get pre-signed audio download URL (24-hour TTL). Required: id. Optional: is_opus. Returns the AudioURL.",
+      "method": "GET",
+      "path": "/file/temp-url/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Recording ID",
+          "required": true
+        },
+        {
+          "name": "is_opus",
+          "type": "bool",
+          "location": "query",
+          "description": "Return OGG/Opus instead of MP3"
+        }
+      ]
+    },
+    {
+      "name": "recordings_delete",
+      "description": "Permanently delete recordings (batch, irreversible). Required: ids. Returns the BatchResult. Destructive.",
+      "method": "DELETE",
+      "path": "/file/",
+      "params": [
+        {
+          "name": "ids",
+          "type": "array",
+          "location": "body",
+          "description": "Array of recording IDs to permanently delete",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "recordings_export",
+      "description": "Export transcript or summary as DOCX/PDF/TXT/MD. Required: file_id, prompt_type, to_format. Optional: title, create_time, with_speaker (plus 4 more). Returns the new ExportResult.",
+      "method": "POST",
+      "path": "/file/document/export",
+      "params": [
+        {
+          "name": "file_id",
+          "type": "string",
+          "location": "body",
+          "description": "Recording ID",
+          "required": true
+        },
+        {
+          "name": "prompt_type",
+          "type": "string",
+          "location": "body",
+          "description": "trans or summary",
+          "required": true
+        },
+        {
+          "name": "to_format",
+          "type": "string",
+          "location": "body",
+          "description": "docx, pdf, txt, or md",
+          "required": true
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Document title (defaults to recording filename)"
+        },
+        {
+          "name": "create_time",
+          "type": "int",
+          "location": "body",
+          "description": "Recording start_time (epoch seconds)"
+        },
+        {
+          "name": "with_speaker",
+          "type": "int",
+          "location": "body",
+          "description": "1 to include speaker labels (transcript only)"
+        },
+        {
+          "name": "with_timestamp",
+          "type": "int",
+          "location": "body",
+          "description": "1 to include timestamps (transcript only)"
+        },
+        {
+          "name": "trans_content",
+          "type": "string",
+          "location": "body",
+          "description": "Transcript content (if not fetched server-side)"
+        },
+        {
+          "name": "summary_content",
+          "type": "string",
+          "location": "body",
+          "description": "Summary content (if not fetched server-side)"
+        },
+        {
+          "name": "summary_id",
+          "type": "string",
+          "location": "body",
+          "description": "Summary task_id"
+        }
+      ]
+    },
+    {
+      "name": "recordings_get",
+      "description": "Get full recording detail including content_list. Required: id. Returns the RecordingDetail.",
+      "method": "GET",
+      "path": "/file/detail/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Recording ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "recordings_list",
+      "description": "List recordings (after sync, served from local store). Optional: skip, limit, is_trash (plus 2 more). Returns array of Recording.",
+      "method": "GET",
+      "path": "/file/simple/web",
+      "params": [
+        {
+          "name": "skip",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Page size (default 50)"
+        },
+        {
+          "name": "is_trash",
+          "type": "int",
+          "location": "query",
+          "description": "0=active (default), 1=trashed, 2=all"
+        },
+        {
+          "name": "sort_by",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field: start_time or edit_time (default start_time)"
+        },
+        {
+          "name": "is_desc",
+          "type": "bool",
+          "location": "query",
+          "description": "Descending order (default true)"
+        }
+      ]
+    },
+    {
+      "name": "recordings_list_by_ids",
+      "description": "Fetch specific recordings by ID list (returns trans_result + ai_content). Required: ids.",
+      "method": "POST",
+      "path": "/file/list",
+      "params": [
+        {
+          "name": "ids",
+          "type": "array",
+          "location": "body",
+          "description": "Array of recording IDs",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "recordings_share",
+      "description": "Create a shareable public link for the recording. Required: id. Optional: can_view_transcript, can_view_summary, can_download_audio (plus 1 more). Returns the new ShareableLink.",
+      "method": "POST",
+      "path": "/file/share-url/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Recording ID",
+          "required": true
+        },
+        {
+          "name": "can_view_transcript",
+          "type": "bool",
+          "location": "body",
+          "description": "Allow viewers to see the transcript"
+        },
+        {
+          "name": "can_view_summary",
+          "type": "bool",
+          "location": "body",
+          "description": "Allow viewers to see the summary"
+        },
+        {
+          "name": "can_download_audio",
+          "type": "bool",
+          "location": "body",
+          "description": "Allow viewers to download the audio"
+        },
+        {
+          "name": "expires_in",
+          "type": "int",
+          "location": "body",
+          "description": "Expiry in seconds (omit for no expiry)"
+        }
+      ]
+    },
+    {
+      "name": "recordings_trash",
+      "description": "Move recordings to trash (batch). Required: ids. Returns the new BatchResult.",
+      "method": "POST",
+      "path": "/file/trash/",
+      "params": [
+        {
+          "name": "ids",
+          "type": "array",
+          "location": "body",
+          "description": "Array of recording IDs to trash",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "recordings_untrash",
+      "description": "Restore recordings from trash (batch). Required: ids. Returns the new BatchResult.",
+      "method": "POST",
+      "path": "/file/untrash/",
+      "params": [
+        {
+          "name": "ids",
+          "type": "array",
+          "location": "body",
+          "description": "Array of recording IDs to restore",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "recordings_upload_info",
+      "description": "Pre-flight telemetry call (used internally before exports). Required: info. Returns the new BatchResult.",
+      "method": "POST",
+      "path": "/others/upload-info",
+      "params": [
+        {
+          "name": "info",
+          "type": "object",
+          "location": "body",
+          "description": "Telemetry envelope { event_cat, event_param: { action, file_key, file_id, summary_id, from } }",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_me",
+      "description": "Get the authenticated user (cached after sync). Returns the User.",
+      "method": "GET",
+      "path": "/user/me",
+      "params": []
+    }
+  ]
+}

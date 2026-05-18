@@ -1,0 +1,344 @@
+{
+  "api_name": "plaud",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "openplaud",
+      "url": "https://github.com/openplaud/openplaud",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 179,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "plaud-sync-for-obsidian",
+      "url": "https://github.com/leonardsellem/plaud-sync-for-obsidian",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 49,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "applaud",
+      "url": "https://github.com/rsteckler/applaud",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 46,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "plaud-recording-downloader",
+      "url": "https://github.com/iiAtlas/plaud-recording-downloader",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 29,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "plaud-pipeline",
+      "url": "https://github.com/xclgordon/plaud-pipeline",
+      "language": "Python",
+      "install_method": "",
+      "stars": 24,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Plaud_API",
+      "url": "https://github.com/JamesStuder/Plaud_API",
+      "language": "C#",
+      "install_method": "",
+      "stars": 20,
+      "last_updated": "",
+      "command_count": 14,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "plaud-toolkit",
+      "url": "https://github.com/sergivalverde/plaud-toolkit",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 18,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "PlaudBlender",
+      "url": "https://github.com/Gunnarguy/PlaudBlender",
+      "language": "Python",
+      "install_method": "",
+      "stars": 1,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-16T02:07:50Z",
+  "novel_features": [
+    {
+      "name": "Commitments extractor",
+      "command": "commitments",
+      "description": "Surface every promise you made — \"I'll send\", \"let me follow up\", \"by EOW\" — across every recording, grouped by who you said it to, with the date and recording link.",
+      "rationale": "Plaud has speaker-diarized transcripts of every conversation but exposes no cross-recording aggregation. Only possible because we mirror transcripts to a local SQLite store with FTS5.",
+      "example": "plaud-pp-cli commitments --since 30d --open --by-person --agent",
+      "why_it_matters": "When the user asks \"what did I promise people this week?\", reach for this before opening any individual recording. The answer is a list, not a transcript.",
+      "group": "Memory of what you said"
+    },
+    {
+      "name": "Recurring-topic trajectory",
+      "command": "topic",
+      "description": "Trace how often a topic comes up across your recordings over time. Bucketed by week or day. Shows emerging vs decaying signal with the speakers anchoring each bucket.",
+      "rationale": "Requires FTS5 over transcripts joined to recordings.start_time with bucketed aggregation. No single Plaud API call returns this shape.",
+      "example": "plaud-pp-cli topic 'pricing' --since 90d --bucket week --agent",
+      "why_it_matters": "When the user is wondering whether a concern is growing or fading, this command answers it in one query instead of opening 20 summaries.",
+      "group": "Patterns across conversations"
+    },
+    {
+      "name": "About a person",
+      "command": "about",
+      "description": "Every utterance by one named speaker, across every recording, with ±1 segments of surrounding context. Optional topic filter for laser-focus.",
+      "rationale": "FTS5 over speaker-diarized transcripts is the join Plaud's app cannot serve. Requires the speaker dimension materialized in local SQLite.",
+      "example": "plaud-pp-cli about 'Sandra' --topic 'renewal' --since 90d --agent",
+      "why_it_matters": "Pre-call prep: pull everything a person said about a topic in one read. Beats scrubbing recordings at 2x speed.",
+      "group": "Memory of what you said"
+    },
+    {
+      "name": "Forgotten commitments",
+      "command": "forgotten",
+      "description": "Commitments you made that have no follow-up signal in any later recording. The set difference between things-you-said-you-would-do and things-you-actually-talked-about-again.",
+      "rationale": "Requires the commitment row set from #1 plus a left-anti-join over later transcripts. Pure local computation.",
+      "example": "plaud-pp-cli forgotten --since 90d --by-person --agent",
+      "why_it_matters": "Surface the broken promises before the other person does. There is no other tool that knows what you said you'd do AND whether you followed through.",
+      "group": "Memory of what you said"
+    },
+    {
+      "name": "Themes diff",
+      "command": "themes",
+      "description": "Top n-gram shingles in recent recordings vs the prior equivalent window. Frequency-based — no LLM. Output shows what's new this period, what's vanished, what's steady.",
+      "rationale": "SQLite tokenize + stop-word list + window comparison. Mechanical extraction, not generative summarization.",
+      "example": "plaud-pp-cli themes --last 30d --against 30d-prior --agent",
+      "why_it_matters": "Monthly reviews without reading anything. The deltas tell you where your attention is shifting.",
+      "group": "Patterns across conversations"
+    },
+    {
+      "name": "Cross-meeting consistency",
+      "command": "cross-meeting",
+      "description": "Every utterance by one person about one topic, ordered chronologically across meetings, with prior + next segment as context. Read it to see whether their (or your) position has drifted.",
+      "rationale": "Requires FTS5 + speaker filter + start_time ordering. Per-recording view in Plaud's app cannot answer it.",
+      "example": "plaud-pp-cli cross-meeting 'Marcus' 'launch date' --agent",
+      "why_it_matters": "When you need to know whether a stakeholder has been saying the same thing over time. Drift detection without rereading every meeting.",
+      "group": "Patterns across conversations"
+    },
+    {
+      "name": "Silence detector",
+      "command": "silence",
+      "description": "People who used to appear in your recordings but haven't in N days. Last recording link + last topic mentioned. Surfaces relationships going cold.",
+      "rationale": "MAX(start_time) GROUP BY speaker — aggregate that requires the speaker dimension. Plaud's app has no speaker-as-entity view.",
+      "example": "plaud-pp-cli silence --days 21 --agent",
+      "why_it_matters": "For managers and operators: which reports, customers, or stakeholders have gone quiet? The recording you need is the absence of one.",
+      "group": "Patterns across conversations"
+    },
+    {
+      "name": "Mentioned me",
+      "command": "mentioned-me",
+      "description": "Every time someone OTHER than you said your name in a recording. Pulls from the cached /user/me name and FTS5-filtered out your own segments.",
+      "rationale": "Cached user identity + FTS5 + speaker exclusion. Requires both the user store row and the speaker dimension.",
+      "example": "plaud-pp-cli mentioned-me --since 90d --agent",
+      "why_it_matters": "Third-party mentions of the user — who's talking about them and what they're saying. No other Plaud tool surfaces this.",
+      "group": "Memory of what you said"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Commitments extractor",
+      "command": "commitments",
+      "description": "Surface every promise you made — \"I'll send\", \"let me follow up\", \"by EOW\" — across every recording, grouped by who you said it to, with the date and recording link.",
+      "rationale": "Plaud has speaker-diarized transcripts of every conversation but exposes no cross-recording aggregation. Only possible because we mirror transcripts to a local SQLite store with FTS5.",
+      "example": "plaud-pp-cli commitments --since 30d --open --by-person --agent",
+      "why_it_matters": "When the user asks \"what did I promise people this week?\", reach for this before opening any individual recording. The answer is a list, not a transcript.",
+      "group": "Memory of what you said"
+    },
+    {
+      "name": "Recurring-topic trajectory",
+      "command": "topic",
+      "description": "Trace how often a topic comes up across your recordings over time. Bucketed by week or day. Shows emerging vs decaying signal with the speakers anchoring each bucket.",
+      "rationale": "Requires FTS5 over transcripts joined to recordings.start_time with bucketed aggregation. No single Plaud API call returns this shape.",
+      "example": "plaud-pp-cli topic 'pricing' --since 90d --bucket week --agent",
+      "why_it_matters": "When the user is wondering whether a concern is growing or fading, this command answers it in one query instead of opening 20 summaries.",
+      "group": "Patterns across conversations"
+    },
+    {
+      "name": "About a person",
+      "command": "about",
+      "description": "Every utterance by one named speaker, across every recording, with ±1 segments of surrounding context. Optional topic filter for laser-focus.",
+      "rationale": "FTS5 over speaker-diarized transcripts is the join Plaud's app cannot serve. Requires the speaker dimension materialized in local SQLite.",
+      "example": "plaud-pp-cli about 'Sandra' --topic 'renewal' --since 90d --agent",
+      "why_it_matters": "Pre-call prep: pull everything a person said about a topic in one read. Beats scrubbing recordings at 2x speed.",
+      "group": "Memory of what you said"
+    },
+    {
+      "name": "Forgotten commitments",
+      "command": "forgotten",
+      "description": "Commitments you made that have no follow-up signal in any later recording. The set difference between things-you-said-you-would-do and things-you-actually-talked-about-again.",
+      "rationale": "Requires the commitment row set from #1 plus a left-anti-join over later transcripts. Pure local computation.",
+      "example": "plaud-pp-cli forgotten --since 90d --by-person --agent",
+      "why_it_matters": "Surface the broken promises before the other person does. There is no other tool that knows what you said you'd do AND whether you followed through.",
+      "group": "Memory of what you said"
+    },
+    {
+      "name": "Themes diff",
+      "command": "themes",
+      "description": "Top n-gram shingles in recent recordings vs the prior equivalent window. Frequency-based — no LLM. Output shows what's new this period, what's vanished, what's steady.",
+      "rationale": "SQLite tokenize + stop-word list + window comparison. Mechanical extraction, not generative summarization.",
+      "example": "plaud-pp-cli themes --last 30d --against 30d-prior --agent",
+      "why_it_matters": "Monthly reviews without reading anything. The deltas tell you where your attention is shifting.",
+      "group": "Patterns across conversations"
+    },
+    {
+      "name": "Cross-meeting consistency",
+      "command": "cross-meeting",
+      "description": "Every utterance by one person about one topic, ordered chronologically across meetings, with prior + next segment as context. Read it to see whether their (or your) position has drifted.",
+      "rationale": "Requires FTS5 + speaker filter + start_time ordering. Per-recording view in Plaud's app cannot answer it.",
+      "example": "plaud-pp-cli cross-meeting 'Marcus' 'launch date' --agent",
+      "why_it_matters": "When you need to know whether a stakeholder has been saying the same thing over time. Drift detection without rereading every meeting.",
+      "group": "Patterns across conversations"
+    },
+    {
+      "name": "Silence detector",
+      "command": "silence",
+      "description": "People who used to appear in your recordings but haven't in N days. Last recording link + last topic mentioned. Surfaces relationships going cold.",
+      "rationale": "MAX(start_time) GROUP BY speaker — aggregate that requires the speaker dimension. Plaud's app has no speaker-as-entity view.",
+      "example": "plaud-pp-cli silence --days 21 --agent",
+      "why_it_matters": "For managers and operators: which reports, customers, or stakeholders have gone quiet? The recording you need is the absence of one.",
+      "group": "Patterns across conversations"
+    },
+    {
+      "name": "Mentioned me",
+      "command": "mentioned-me",
+      "description": "Every time someone OTHER than you said your name in a recording. Pulls from the cached /user/me name and FTS5-filtered out your own segments.",
+      "rationale": "Cached user identity + FTS5 + speaker exclusion. Requires both the user store row and the speaker dimension.",
+      "example": "plaud-pp-cli mentioned-me --since 90d --agent",
+      "why_it_matters": "Third-party mentions of the user — who's talking about them and what they're saying. No other Plaud tool surfaces this.",
+      "group": "Memory of what you said"
+    }
+  ],
+  "narrative": {
+    "display_name": "Plaud",
+    "headline": "Every conversation, queryable — your transcripts as a searchable history, not a feed.",
+    "value_prop": "Plaud captures every meeting with speaker diarization. plaud-pp-cli mirrors that history to a local SQLite store with FTS5, then asks the questions the app cannot: what did I promise across all my recordings, who said what about a topic over time, which commitments did I drop, who has gone quiet. A raw `sql` escape hatch lives at the bottom for anything we didn't anticipate.",
+    "auth_narrative": "Auth uses Plaud's own user-app endpoint (POST /auth/access-token, email + password) — same as the community libraries. Tokens last ~300 days; the CLI silently re-logs in 30 days before expiry. For a no-password path, `auth login --chrome` lifts the JWT directly from your logged-in browser. Region (us / eu / ap) auto-detects on the first call.",
+    "quickstart": [
+      {
+        "command": "plaud-pp-cli auth login",
+        "comment": "Email + password → 300-day JWT cached at ~/.plaud-pp-cli/config.json (mode 0600)"
+      },
+      {
+        "command": "plaud-pp-cli doctor",
+        "comment": "Verify token, region, and reachability before syncing anything"
+      },
+      {
+        "command": "plaud-pp-cli sync --full",
+        "comment": "Walk every recording into the local SQLite store: list, transcripts (speaker-diarized), summaries, file tags"
+      },
+      {
+        "command": "plaud-pp-cli commitments --since 30d --open --agent",
+        "comment": "Every promise you made in the last month with no follow-up signal — the headline command"
+      },
+      {
+        "command": "plaud-pp-cli about 'Sandra' --topic 'renewal' --agent",
+        "comment": "Speaker-scoped FTS — pull everything one person said about one topic across every meeting"
+      },
+      {
+        "command": "plaud-pp-cli sql 'SELECT speaker, COUNT(*) FROM transcripts GROUP BY speaker ORDER BY 2 DESC LIMIT 10'",
+        "comment": "Raw SELECT-only SQL escape hatch when the typed commands fall short"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Login returns status -302 with a `domains.api` payload",
+        "fix": "Region mismatch — the CLI auto-retries at the correct host. If it loops, set `--region eu` (or `us`/`ap`) explicitly on `auth login`."
+      },
+      {
+        "symptom": "401 on every command after working previously",
+        "fix": "JWT expired or was rotated server-side. Run `plaud-pp-cli auth login` again. If that fails, try `auth login --chrome` after logging into web.plaud.ai."
+      },
+      {
+        "symptom": "`recordings transcript \u003cid\u003e` returns empty for old recordings",
+        "fix": "Recordings created before March 2026 use the S3 fallback path. Re-run `sync` so the CLI fetches the unauthenticated S3 transcript URL from `/file/detail`."
+      },
+      {
+        "symptom": "`search` returns nothing but recordings exist",
+        "fix": "Run `sync` first — FTS5 indexes are built locally from transcripts, not the API. `doctor` confirms whether the store has rows."
+      },
+      {
+        "symptom": "`commitments` misses obvious commitments",
+        "fix": "Speaker labels may be `Speaker 1` / `Speaker 2` from raw ASR; rename them in app.plaud.ai then re-`sync`. The CLI follows whatever speaker names Plaud has assigned."
+      }
+    ],
+    "when_to_use": "Reach for plaud-pp-cli when the user wants to query their conversation history as data: \"what did I promise across all meetings\", \"who said X about Y over time\", \"have I been consistent\". Don't reach for it for one-recording-at-a-time consumption — Plaud's app or the official CLI are fine for that. The transcendence commands (commitments, topic, about, forgotten, themes, cross-meeting, silence, mentioned-me) only work after `sync` has populated the local SQLite mirror.",
+    "recipes": [
+      {
+        "title": "Sunday-night planning",
+        "command": "plaud-pp-cli sync \u0026\u0026 plaud-pp-cli commitments --since 7d --open --agent --select speaker,commitment,recording_id,start_time",
+        "explanation": "Sync first, then pull every open commitment from the last week. `--select` narrows the response to what the agent needs — plaud transcripts can be huge."
+      },
+      {
+        "title": "Pre-call prep for a renewal",
+        "command": "plaud-pp-cli about 'Sandra' --topic 'pricing' --since 90d --agent",
+        "explanation": "Every utterance by Sandra mentioning pricing across the last quarter of meetings. Faster than scrubbing recordings."
+      },
+      {
+        "title": "Monthly thematic review",
+        "command": "plaud-pp-cli themes --last 30d --against 30d-prior --agent",
+        "explanation": "What's growing and what's fading in your recent conversations. Frequency-based, no LLM call — runs entirely on local data."
+      },
+      {
+        "title": "Who has gone quiet",
+        "command": "plaud-pp-cli silence --days 21 --agent",
+        "explanation": "Speakers who appeared in past recordings but not in the last 21 days. For managers and operators tracking relationships."
+      },
+      {
+        "title": "Cross-meeting drift check",
+        "command": "plaud-pp-cli cross-meeting 'Marcus' 'launch date' --agent",
+        "explanation": "Every utterance from Marcus mentioning launch date, ordered chronologically. Read the rows top to bottom — that's the drift."
+      },
+      {
+        "title": "Raw SQL when typed commands fall short",
+        "command": "plaud-pp-cli sql 'SELECT speaker, COUNT(*) AS n FROM transcripts GROUP BY speaker ORDER BY n DESC LIMIT 10' --json",
+        "explanation": "SELECT-only escape hatch. FTS5 MATCH is supported. The store schema is documented in the README."
+      }
+    ],
+    "trigger_phrases": [
+      "what did I promise this week",
+      "what did Sandra say about renewal",
+      "what topics are coming up in my meetings",
+      "what commitments have I forgotten",
+      "who haven't I talked to lately",
+      "search my conversations",
+      "my plaud recordings",
+      "use plaud-pp-cli",
+      "run plaud-pp-cli"
+    ]
+  }
+}
