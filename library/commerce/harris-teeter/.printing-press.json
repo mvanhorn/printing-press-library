@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-17T19:13:14.002052Z",
+  "printing_press_version": "4.0.2",
+  "api_name": "harris-teeter",
+  "display_name": "Harris Teeter",
+  "cli_name": "harris-teeter-pp-cli",
+  "owner": "jonathan-moss",
+  "printer": "jwmoss",
+  "printer_name": "Jonathan Moss",
+  "spec_path": "spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:3b54b787b4433b7a5d5cb5478e7f8e1b4e87d7b79dfc38387c9042d823a933f7",
+  "run_id": "20260517-190052",
+  "category": "commerce",
+  "description": "Read-only Harris Teeter grocery CLI for products, stores, coupons, cart, lists, account preferences, and recommendations through the logged-in web app session.",
+  "mcp_binary": "harris-teeter-pp-mcp",
+  "mcp_tool_count": 15,
+  "mcp_ready": "partial",
+  "api_version": "0.1.0",
+  "auth_type": "cookie",
+  "novel_features": [
+    {
+      "name": "Live Chrome session login",
+      "command": "auth login --chrome",
+      "description": "Read Harris Teeter session cookies from the already logged-in Chrome session, falling back through agent-browser/browser-use when standalone cookie tools are missing."
+    },
+    {
+      "name": "Store-aware product search",
+      "command": "products search",
+      "description": "Search Harris Teeter products using the browser-observed Atlas search endpoint with location, fulfillment method, and LAF/modality headers."
+    },
+    {
+      "name": "UPC product detail replay",
+      "command": "products get",
+      "description": "Fetch full product, offer, nutrition, inventory, and variant projections by UPC/GTIN through the logged-in Atlas product endpoint."
+    },
+    {
+      "name": "Digital coupon inspection",
+      "command": "coupons",
+      "description": "List Harris Teeter digital coupons from the authenticated web endpoint, including optional UPC filtering."
+    },
+    {
+      "name": "Read-only cart and list inspection",
+      "command": "cart",
+      "description": "Inspect the authenticated Harris Teeter cart and shopping-list surfaces without exposing mutating checkout or order actions."
+    }
+  ]
+}

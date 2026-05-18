@@ -1,0 +1,1312 @@
+{
+  "api_name": "commerce",
+  "base_url": "https://api.squarespace.com",
+  "description": "",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "COMMERCE_AUTHORIZATION"
+    ],
+    "env_var_specs": [
+      {
+        "name": "COMMERCE_AUTHORIZATION",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "1-0_adjust-inventory-stock-levels",
+      "description": "Adjusts stock quantities for product variants. Stock quantities can be added or subtracted, set with a given number, or marked as 'unlimited'. All quantity information is stored in InventoryItems. Optional: decrementOperations, incrementOperations, setFiniteOperations (plus 1 more).",
+      "method": "POST",
+      "path": "/1.0/commerce/inventory/adjustments",
+      "params": [
+        {
+          "name": "decrementOperations",
+          "type": "array",
+          "location": "body",
+          "description": "Optional; array of objects. Subtracts stock quantity for InventoryItems."
+        },
+        {
+          "name": "incrementOperations",
+          "type": "array",
+          "location": "body",
+          "description": "Optional; array of objects. Increments stock quantity for InventoryItems."
+        },
+        {
+          "name": "setFiniteOperations",
+          "type": "array",
+          "location": "body",
+          "description": "Optional; array of objects. Sets the exact stock quantity for InventoryItems."
+        },
+        {
+          "name": "setUnlimitedOperations",
+          "type": "array",
+          "location": "body",
+          "description": "Optional; array of InventoryItem ids. Marks stock quantity as 'unlimited' for the given InventoryItems."
+        }
+      ]
+    },
+    {
+      "name": "1-0_create-order",
+      "description": "Creates an order using information from a third-party sales channel. A successful request creates an Order resource. Required: channelName, createdOn, externalOrderReference, fulfillments, grandTotal, lineItems, priceTaxInterpretation. Optional: billingAddress, customerEmail, discountLines (plus 10 more). Returns the new Order.",
+      "method": "POST",
+      "path": "/1.0/commerce/orders",
+      "params": [
+        {
+          "name": "billingAddress",
+          "type": "object",
+          "location": "body",
+          "description": "Customer's shipping address."
+        },
+        {
+          "name": "channelName",
+          "type": "string",
+          "location": "body",
+          "description": "Name of third-party sales channel.",
+          "required": true
+        },
+        {
+          "name": "createdOn",
+          "type": "string",
+          "location": "body",
+          "description": "ISO 8601 UTC date and time string. Represents the date and time when the order was placed through the third-party sales channel.",
+          "required": true
+        },
+        {
+          "name": "customerEmail",
+          "type": "string",
+          "location": "body",
+          "description": "Email address provided at checkout on the third-party sales channel."
+        },
+        {
+          "name": "discountLines",
+          "type": "array",
+          "location": "body",
+          "description": "Array of discount line items. Describes the promotions redeemed during checkout."
+        },
+        {
+          "name": "discountTotal",
+          "type": "object",
+          "location": "body",
+          "description": "A monetary amount with currency code and decimal value"
+        },
+        {
+          "name": "externalOrderReference",
+          "type": "string",
+          "location": "body",
+          "description": "Order reference identifier used by the third-party sales channel.",
+          "required": true
+        },
+        {
+          "name": "fulfilledOn",
+          "type": "string",
+          "location": "body",
+          "description": "ISO 8601 UTC date and time string. Represents the moment the order was fulfilled. Required if fulfillmentStatus is FULFILLED."
+        },
+        {
+          "name": "fulfillmentStatus",
+          "type": "string",
+          "location": "body",
+          "description": "Current fulfillment status of the order. Value may be PENDING or FULFILLED."
+        },
+        {
+          "name": "fulfillments",
+          "type": "array",
+          "location": "body",
+          "description": "Array of shipping fulfillments; up to 100 entries. Describes shipment information for the order.",
+          "required": true
+        },
+        {
+          "name": "grandTotal",
+          "type": "object",
+          "location": "body",
+          "description": "A monetary amount with currency code and decimal value",
+          "required": true
+        },
+        {
+          "name": "inventoryBehavior",
+          "type": "string",
+          "location": "body",
+          "description": "Indicates whether to deduct stock quantity for the product variant upon Order creation. Values may be DEDUCT or SKIP. Defaults to SKIP."
+        },
+        {
+          "name": "lineItems",
+          "type": "array",
+          "location": "body",
+          "description": "Array of purchased line items; cannot be empty.",
+          "required": true
+        },
+        {
+          "name": "priceTaxInterpretation",
+          "type": "string",
+          "location": "body",
+          "description": "Indicates that lineItems.unitPricePaid includes tax. Values may be EXCLUSIVE or INCLUSIVE.",
+          "required": true
+        },
+        {
+          "name": "shippingAddress",
+          "type": "object",
+          "location": "body",
+          "description": "Customer's shipping address."
+        },
+        {
+          "name": "shippingLines",
+          "type": "array",
+          "location": "body",
+          "description": "Array of shipping line items. Describes the shipping options chosen at checkout. Currently accepts only one shipping entry."
+        },
+        {
+          "name": "shippingTotal",
+          "type": "object",
+          "location": "body",
+          "description": "A monetary amount with currency code and decimal value"
+        },
+        {
+          "name": "shopperFulfillmentNotificationBehavior",
+          "type": "string",
+          "location": "body",
+          "description": "Indicates whether to send a fulfillment notification email to the customer. Value may be SEND or SKIP."
+        },
+        {
+          "name": "subtotal",
+          "type": "object",
+          "location": "body",
+          "description": "A monetary amount with currency code and decimal value"
+        },
+        {
+          "name": "taxTotal",
+          "type": "object",
+          "location": "body",
+          "description": "A monetary amount with currency code and decimal value"
+        }
+      ]
+    },
+    {
+      "name": "1-0_create-webhook-subscription",
+      "description": "Creates a webhook subscription. A successful request returns the created Webhook Subscription resource. Required: endpointUrl. Optional: topics.",
+      "method": "POST",
+      "path": "/1.0/webhook_subscriptions",
+      "params": [
+        {
+          "name": "endpointUrl",
+          "type": "string",
+          "location": "body",
+          "description": "HTTPS URL to POST webhook notifications.",
+          "required": true
+        },
+        {
+          "name": "topics",
+          "type": "array",
+          "location": "body",
+          "description": "List of event topics that trigger a webhook notification."
+        }
+      ]
+    },
+    {
+      "name": "1-0_delete-webhook-subscription",
+      "description": "Deletes a webhook subscription. Required: subscriptionId. Destructive.",
+      "method": "DELETE",
+      "path": "/1.0/webhook_subscriptions/{subscriptionId}",
+      "params": [
+        {
+          "name": "subscriptionId",
+          "type": "string",
+          "location": "path",
+          "description": "Specifies the Webhook Subscription to delete.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "1-0_fulfill-order",
+      "description": "Updates the status of a specific order to fulfilled, with options to include shipment information and send a customer notification. Required: id. Optional: shipments, shouldSendNotification.",
+      "method": "POST",
+      "path": "/1.0/commerce/orders/{id}/fulfillments",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Specifies the Order to update.",
+          "required": true
+        },
+        {
+          "name": "shipments",
+          "type": "array",
+          "location": "body",
+          "description": "Array of shipment data."
+        },
+        {
+          "name": "shouldSendNotification",
+          "type": "bool",
+          "location": "body",
+          "description": "Indicates whether the customer should receive an email notification about the added shipments."
+        }
+      ]
+    },
+    {
+      "name": "1-0_get-documents-by-id",
+      "description": "Retrieves information for specific transaction Documents. The response contains up to 50 Documents. Multiple Documents can be retrieved by providing a comma-separated list of Document ids. Required: documentIds. Returns the TransactionListResponse.",
+      "method": "GET",
+      "path": "/1.0/commerce/transactions/{documentIds}",
+      "params": [
+        {
+          "name": "documentIds",
+          "type": "string",
+          "location": "path",
+          "description": "Specifies the Documents to retrieve. Multiple Documents can be retrieved by providing a comma-separated list of Document ids.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "1-0_get-documents-by-updated-on",
+      "description": "Retrieves all financial transactions for orders and donations. Per order and donation, the response groups transactions into a Document, contains up to 50 Documents ordered by their modification date (modifiedOn), and supports dynamic cursors for pagination. Optional: cursor, modifiedAfter, modifiedBefore (plus 1 more). Returns the PaginatedTransactionListResponse.",
+      "method": "GET",
+      "path": "/1.0/commerce/transactions",
+      "params": [
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Identifies where the next page of results should begin. Should be the value of pagination.nextPageCursor from a previous response."
+        },
+        {
+          "name": "modifiedAfter",
+          "type": "string",
+          "location": "query",
+          "description": "Time-boxes the request to Documents that were modified after a given ISO 8601 UTC date and time string (YYYY-MM-DDThh:mm:ss.sZ)."
+        },
+        {
+          "name": "modifiedBefore",
+          "type": "string",
+          "location": "query",
+          "description": "Time-boxes the request to Documents that were modified before a given ISO 8601 UTC date and time string (YYYY-MM-DDThh:mm:ss.sZ)."
+        },
+        {
+          "name": "orderId",
+          "type": "string",
+          "location": "query",
+          "description": "Order id"
+        }
+      ]
+    },
+    {
+      "name": "1-0_get-inventory-items",
+      "description": "Retrieves real-time stock information for all product variants. Stock information is stored in an InventoryItem for each product variant. The response contains up to 50 InventoryItems and supports dynamic cursors for pagination. Optional: cursor. Returns the PaginatedInventoryItemListResponse.",
+      "method": "GET",
+      "path": "/1.0/commerce/inventory",
+      "params": [
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Identifies where the next page of results should begin. Should be the value of pagination.nextPageCursor from a previous response. If not present or empty, the endpoint returns up to 50 InventoryItems."
+        }
+      ]
+    },
+    {
+      "name": "1-0_get-member-profile",
+      "description": "Retrieves basic details about the Squarespace member who owns the provided OAuth token. Returns the MemberProfile.",
+      "method": "GET",
+      "path": "/1.0/authorization/member",
+      "params": []
+    },
+    {
+      "name": "1-0_get-order",
+      "description": "Retrieves information for a specific order. The response contains order information in an Order. Required: id. Returns the Order.",
+      "method": "GET",
+      "path": "/1.0/commerce/orders/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Specifies the Order to retrieve.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "1-0_get-orders",
+      "description": "Retrieves information about all orders. Orders can be filtered by Customer ID and date ranges. The response contains order information in an Order, up to 50 Orders ordered by their modification date (modifiedOn), and supports dynamic cursors for pagination. Optional: customerId, modifiedAfter, modifiedBefore (plus 2 more). Returns the OrderListResponse.",
+      "method": "GET",
+      "path": "/1.0/commerce/orders",
+      "params": [
+        {
+          "name": "customerId",
+          "type": "string",
+          "location": "query",
+          "description": "Used to filter Orders by Customer ID."
+        },
+        {
+          "name": "modifiedAfter",
+          "type": "string",
+          "location": "query",
+          "description": "Time-boxes the request to Orders that were modified after a given ISO 8601 UTC date and time string (YYYY-MM-DDThh:mm:ss.sZ). Required when modifiedBefore is passed; cannot be used with cursor."
+        },
+        {
+          "name": "modifiedBefore",
+          "type": "string",
+          "location": "query",
+          "description": "Time-boxes the request to Orders that were modified before a given ISO 8601 UTC date and time string (YYYY-MM-DDThh:mm:ss.sZ). Required when modifiedAfter is passed; cannot be used with cursor."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Identifies where the next page of results should begin. Should be the value of pagination.nextPageCursor from a previous response. Cannot be used with other parameters."
+        },
+        {
+          "name": "fulfillmentStatus",
+          "type": "string",
+          "location": "query",
+          "description": "Used to filter Orders by fulfillment status. Values may be PENDING, FULFILLED, or CANCELED."
+        }
+      ]
+    },
+    {
+      "name": "1-0_get-profiles",
+      "description": "Retrieves all profiles; profiles can be filtered and sorted. The response contains up to 50 Profiles and supports dynamic cursors for pagination. Optional: sortDirection, sortField, filter (plus 2 more). Returns the PaginatedProfileListResponse.",
+      "method": "GET",
+      "path": "/1.0/profiles",
+      "params": [
+        {
+          "name": "sortDirection",
+          "type": "string",
+          "location": "query",
+          "description": "Identifies the sort direction of the result list; asc for ascending or dsc for descending. If not specified, the returned list is in descending order."
+        },
+        {
+          "name": "sortField",
+          "type": "string",
+          "location": "query",
+          "description": "Identifies the sort field of the result list. Values include: createdOn, id, email, or lastName. If not specified, the returned list is sorted by id."
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Semicolon separated list used to filter profile results. Values include: isCustomer and/or hasAccount, or email. The email filter cannot be used with isCustomer or hasAccount."
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "query",
+          "description": "Email address filter (URL-encoded, case insensitive)."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Identifies where the next page of results should begin. Should be the value of pagination.nextPageCursor from a previous response. Cannot be used with other parameters."
+        }
+      ]
+    },
+    {
+      "name": "1-0_get-specific-inventory-items",
+      "description": "Retrieves real-time stock information for specific product variants. Stock information is stored in an InventoryItem and up to 50 InventoryItems can be retrieved per request. Required: variantIdCsvs. Returns the InventoryItemListResponse.",
+      "method": "GET",
+      "path": "/1.0/commerce/inventory/{variantIdCsvs}",
+      "params": [
+        {
+          "name": "variantIdCsvs",
+          "type": "string",
+          "location": "path",
+          "description": "Specifies the InventoryItems to retrieve. Multiple InventoryItems can be retrieved by providing a comma-separated list: {id1},{id2}..., though the same sequence is not guaranteed in the response.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "1-0_get-specific-profiles",
+      "description": "Retrieves information for specific profiles. The response contains a list of up to 50 Profiles. Multiple Profiles can be retrieved by providing a comma-separated list of profile ids. Required: profileIdCsvs. Returns the ProfileListResponse.",
+      "method": "GET",
+      "path": "/1.0/profiles/{profileIdCsvs}",
+      "params": [
+        {
+          "name": "profileIdCsvs",
+          "type": "string",
+          "location": "path",
+          "description": "Specifies the profiles to retrieve. Multiple Profiles can be retrieved by providing a comma-separated list of profile ids.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "1-0_get-store-pages",
+      "description": "Retrieves information for all store pages on the website. The response supports dynamic cursors for pagination. Optional: cursor. Returns the PaginatedStorePagesResponse.",
+      "method": "GET",
+      "path": "/1.0/commerce/store_pages",
+      "params": [
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor"
+        }
+      ]
+    },
+    {
+      "name": "1-0_get-webhook-subscription",
+      "description": "Retrieves information for a specific webhook subscription. Required: subscriptionId. Returns the ExternalWebhookSubscriptionResponse.",
+      "method": "GET",
+      "path": "/1.0/webhook_subscriptions/{subscriptionId}",
+      "params": [
+        {
+          "name": "subscriptionId",
+          "type": "string",
+          "location": "path",
+          "description": "Specifies the Webhook Subscription to retrieve.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "1-0_get-webhook-subscriptions",
+      "description": "Retrieves information for all webhook subscriptions. The response contains up to 25 Webhook Subscriptions. Returns the ExternalWebhookSubscriptionListResponse.",
+      "method": "GET",
+      "path": "/1.0/webhook_subscriptions",
+      "params": []
+    },
+    {
+      "name": "1-0_get-website-profile",
+      "description": "Retrieves basic details about the website that owns the provided API key or OAuth token. Returns the WebsiteProfile.",
+      "method": "GET",
+      "path": "/1.0/authorization/website",
+      "params": []
+    },
+    {
+      "name": "1-0_rotate-subscription-secret",
+      "description": "Rotates a webhook subscription's secret. The previous secret for a subscription is no longer valid after a new one is generated. Required: subscriptionId. Returns the new ExternalRotateSecretResponse.",
+      "method": "POST",
+      "path": "/1.0/webhook_subscriptions/{subscriptionId}/actions/rotateSecret",
+      "params": [
+        {
+          "name": "subscriptionId",
+          "type": "string",
+          "location": "path",
+          "description": "Specifies the Webhook Subscription to update.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "1-0_send-test-notification-for-webhook-subscription",
+      "description": "Sends a notification to a subscribed webhook endpoint for testing purposes. This is a one-time notification, and will not be retried if it fails or times out. Required: subscriptionId, topic. Returns the new ExternalTestNotificationResponse.",
+      "method": "POST",
+      "path": "/1.0/webhook_subscriptions/{subscriptionId}/actions/sendTestNotification",
+      "params": [
+        {
+          "name": "subscriptionId",
+          "type": "string",
+          "location": "path",
+          "description": "Specifies the Webhook Subscription to send a notification to.",
+          "required": true
+        },
+        {
+          "name": "topic",
+          "type": "string",
+          "location": "body",
+          "description": "Required; Squarespace event topic that triggers a webhook notification. Possible values include: extension.uninstall, order.create, order.update.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "1-0_update-webhook-subscription",
+      "description": "Updates information for a webhook subscription. A successful request returns the updated Webhook Subscription resource. Required: subscriptionId. Optional: endpointUrl, topics.",
+      "method": "POST",
+      "path": "/1.0/webhook_subscriptions/{subscriptionId}",
+      "params": [
+        {
+          "name": "subscriptionId",
+          "type": "string",
+          "location": "path",
+          "description": "Specifies the Webhook Subscription to update.",
+          "required": true
+        },
+        {
+          "name": "endpointUrl",
+          "type": "object",
+          "location": "body",
+          "description": "Optional; HTTPS URL to receive webhook notifications."
+        },
+        {
+          "name": "topics",
+          "type": "object",
+          "location": "body",
+          "description": "Optional; list of event topics that trigger a webhook notification. Possible values include: extension.uninstall, order.create, order.update."
+        }
+      ]
+    },
+    {
+      "name": "commerce_associate-product-variant-image",
+      "description": "Assigns a product image to a product variant. Specifying imageId of null will delete the association. Required: productId, variantId, imageId.",
+      "method": "POST",
+      "path": "/v2/commerce/products/{productId}/variants/{variantId}/image",
+      "params": [
+        {
+          "name": "productId",
+          "type": "string",
+          "location": "path",
+          "description": "Product id",
+          "required": true
+        },
+        {
+          "name": "variantId",
+          "type": "string",
+          "location": "path",
+          "description": "Variant id",
+          "required": true
+        },
+        {
+          "name": "imageId",
+          "type": "object",
+          "location": "body",
+          "description": "Optional; HTTPS URL to receive webhook notifications.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "commerce_create-product",
+      "description": "Creates a product with appropriate subresources based on product type. Returns the new ProductV2.",
+      "method": "POST",
+      "path": "/v2/commerce/products",
+      "params": []
+    },
+    {
+      "name": "commerce_create-product-variant",
+      "description": "Creates a variant of a product. Creating a variant for a physical or service product requires that the product already has at least one attribute. Required: productId, pricing, sku. Optional: attributes, shippingMeasurements, stock. Returns the new ProductVariantV2.",
+      "method": "POST",
+      "path": "/v2/commerce/products/{productId}/variants",
+      "params": [
+        {
+          "name": "productId",
+          "type": "string",
+          "location": "path",
+          "description": "Product id",
+          "required": true
+        },
+        {
+          "name": "attributes",
+          "type": "object",
+          "location": "body",
+          "description": "Specifies attribute-value pairs for the variant. 100 char limit per key and per value with no more than six key-value pairs. Supported for PHYSICAL products only."
+        },
+        {
+          "name": "pricing",
+          "type": "object",
+          "location": "body",
+          "description": "Present for DIGITAL products only. Digital products don't have variants, so pricing is at the product level.",
+          "required": true
+        },
+        {
+          "name": "shippingMeasurements",
+          "type": "object",
+          "location": "body",
+          "description": "Measurements of the variant when it's shipped. Present for PHYSICAL products only."
+        },
+        {
+          "name": "sku",
+          "type": "string",
+          "location": "body",
+          "description": "Merchant-defined code that identifies the product variant. Value must be unique among variants. Leading and trailing whitespace is removed.",
+          "required": true
+        },
+        {
+          "name": "stock",
+          "type": "object",
+          "location": "body",
+          "description": "Available stock for the variant. Present for PHYSICAL products only."
+        }
+      ]
+    },
+    {
+      "name": "commerce_delete-product",
+      "description": "Delete specified product. Required: productId. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/commerce/products/{productId}",
+      "params": [
+        {
+          "name": "productId",
+          "type": "string",
+          "location": "path",
+          "description": "Product id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "commerce_delete-product-image",
+      "description": "Delete one product image. Required: productId, imageId. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/commerce/products/{productId}/images/{imageId}",
+      "params": [
+        {
+          "name": "productId",
+          "type": "string",
+          "location": "path",
+          "description": "Product id",
+          "required": true
+        },
+        {
+          "name": "imageId",
+          "type": "string",
+          "location": "path",
+          "description": "Image id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "commerce_delete-product-variant",
+      "description": "Delete one product variant. Required: productId, variantId. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/commerce/products/{productId}/variants/{variantId}",
+      "params": [
+        {
+          "name": "productId",
+          "type": "string",
+          "location": "path",
+          "description": "Product id",
+          "required": true
+        },
+        {
+          "name": "variantId",
+          "type": "string",
+          "location": "path",
+          "description": "Variant id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "commerce_get-product-image-processing-status",
+      "description": "Retrieves the processing status for an uploaded product image. A successful request indicates that a ProductImage is processing, ready, or in an error state. Required: productId, imageId. Returns the ProductImageProcessingStatus.",
+      "method": "GET",
+      "path": "/v2/commerce/products/{productId}/images/{imageId}/status",
+      "params": [
+        {
+          "name": "productId",
+          "type": "string",
+          "location": "path",
+          "description": "Product id",
+          "required": true
+        },
+        {
+          "name": "imageId",
+          "type": "string",
+          "location": "path",
+          "description": "Image id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "commerce_get-products",
+      "description": "Retrieves information for products; products can be filtered within a date range and by product type. The response contains product information in a Product, up to 50 Products ordered by their modification date (modifiedOn), and supports dynamic cursors for pagination. Optional: modifiedAfter, modifiedBefore, cursor (plus 2 more). Returns the PaginatedProductListResponseV2.",
+      "method": "GET",
+      "path": "/v2/commerce/products",
+      "params": [
+        {
+          "name": "modifiedAfter",
+          "type": "string",
+          "location": "query",
+          "description": "Modified after"
+        },
+        {
+          "name": "modifiedBefore",
+          "type": "string",
+          "location": "query",
+          "description": "Modified before"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor"
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Query"
+        },
+        {
+          "name": "type",
+          "type": "array",
+          "location": "query",
+          "description": "Type"
+        }
+      ]
+    },
+    {
+      "name": "commerce_get-specific-products",
+      "description": "Retrieves information for specific products, including information for any variants or images. Up to 50 products can be retrieved per request. Required: productIdCsvs. Returns the ProductListResponseV2.",
+      "method": "GET",
+      "path": "/v2/commerce/products/{productIdCsvs}",
+      "params": [
+        {
+          "name": "productIdCsvs",
+          "type": "string",
+          "location": "path",
+          "description": "Product id csvs",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "commerce_update-product",
+      "description": "Updates information for a product. The endpoint supports partial updates. Required: productId. Optional: description, isVisible, name (plus 5 more). Returns the new ProductV2.",
+      "method": "POST",
+      "path": "/v2/commerce/products/{productId}",
+      "params": [
+        {
+          "name": "productId",
+          "type": "string",
+          "location": "path",
+          "description": "Product id",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "object",
+          "location": "body",
+          "description": "Optional; HTTPS URL to receive webhook notifications."
+        },
+        {
+          "name": "isVisible",
+          "type": "object",
+          "location": "body",
+          "description": "Is visible"
+        },
+        {
+          "name": "name",
+          "type": "object",
+          "location": "body",
+          "description": "Optional; HTTPS URL to receive webhook notifications."
+        },
+        {
+          "name": "pricing",
+          "type": "object",
+          "location": "body",
+          "description": "Pricing data for the product."
+        },
+        {
+          "name": "productAttributeNames",
+          "type": "object",
+          "location": "body",
+          "description": "Optional; list of event topics that trigger a webhook notification. Possible values include: extension.uninstall, order.create, order.update."
+        },
+        {
+          "name": "seoData",
+          "type": "object",
+          "location": "body",
+          "description": "Options for search engine optimization."
+        },
+        {
+          "name": "tags",
+          "type": "object",
+          "location": "body",
+          "description": "Optional; list of event topics that trigger a webhook notification. Possible values include: extension.uninstall, order.create, order.update."
+        },
+        {
+          "name": "urlSlug",
+          "type": "object",
+          "location": "body",
+          "description": "Optional; HTTPS URL to receive webhook notifications."
+        }
+      ]
+    },
+    {
+      "name": "commerce_update-product-image",
+      "description": "Updates information for a product image. Currently, the endpoint only supports updates to the alt text for an image. Required: productId, imageId. Optional: altText. Returns the new ProductImage.",
+      "method": "POST",
+      "path": "/v2/commerce/products/{productId}/images/{imageId}",
+      "params": [
+        {
+          "name": "productId",
+          "type": "string",
+          "location": "path",
+          "description": "Product id",
+          "required": true
+        },
+        {
+          "name": "imageId",
+          "type": "string",
+          "location": "path",
+          "description": "Image id",
+          "required": true
+        },
+        {
+          "name": "altText",
+          "type": "object",
+          "location": "body",
+          "description": "Optional; HTTPS URL to receive webhook notifications."
+        }
+      ]
+    },
+    {
+      "name": "commerce_update-product-image-order",
+      "description": "Updates the ordering of a product image on the product details page. Required: productId, imageId. Optional: afterImageId.",
+      "method": "POST",
+      "path": "/v2/commerce/products/{productId}/images/{imageId}/order",
+      "params": [
+        {
+          "name": "productId",
+          "type": "string",
+          "location": "path",
+          "description": "Product id",
+          "required": true
+        },
+        {
+          "name": "imageId",
+          "type": "string",
+          "location": "path",
+          "description": "Image id",
+          "required": true
+        },
+        {
+          "name": "afterImageId",
+          "type": "object",
+          "location": "body",
+          "description": "Optional; HTTPS URL to receive webhook notifications."
+        }
+      ]
+    },
+    {
+      "name": "commerce_update-product-variant",
+      "description": "Updates a variant of a product. The endpoint supports partial updates. Required: productId, variantId. Optional: attributes, pricing, shippingMeasurements (plus 1 more). Returns the new ProductVariantV2.",
+      "method": "POST",
+      "path": "/v2/commerce/products/{productId}/variants/{variantId}",
+      "params": [
+        {
+          "name": "productId",
+          "type": "string",
+          "location": "path",
+          "description": "Product id",
+          "required": true
+        },
+        {
+          "name": "variantId",
+          "type": "string",
+          "location": "path",
+          "description": "Variant id",
+          "required": true
+        },
+        {
+          "name": "attributes",
+          "type": "object",
+          "location": "body",
+          "description": "Specifies attribute-value pairs for the variant. Supported for PHYSICAL products only."
+        },
+        {
+          "name": "pricing",
+          "type": "object",
+          "location": "body",
+          "description": "Pricing data for the product."
+        },
+        {
+          "name": "shippingMeasurements",
+          "type": "object",
+          "location": "body",
+          "description": "Measurements of the variant when it's shipped. Supported for PHYSICAL products only."
+        },
+        {
+          "name": "sku",
+          "type": "object",
+          "location": "body",
+          "description": "Optional; HTTPS URL to receive webhook notifications."
+        }
+      ]
+    },
+    {
+      "name": "commerce_upload-product-image",
+      "description": "Uploads an image for a product. Uploading an image doesn't set the product's featured image. A successful request creates a ProductImage subresource of the Product. Required: productId. Returns the new UploadProductImageResponse.",
+      "method": "POST",
+      "path": "/v2/commerce/products/{productId}/images",
+      "params": [
+        {
+          "name": "productId",
+          "type": "string",
+          "location": "path",
+          "description": "Product id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "commerce-analytics_get-transactions-summaries",
+      "description": "Retrieve transaction summaries grouped by contact. Required: contactIds, groupBy. Returns the new RetrieveTransactionsSummariesResponse.",
+      "method": "POST",
+      "path": "/v1/analytics/transaction-summaries",
+      "params": [
+        {
+          "name": "contactIds",
+          "type": "array",
+          "location": "body",
+          "description": "Contact ids",
+          "required": true
+        },
+        {
+          "name": "groupBy",
+          "type": "string",
+          "location": "body",
+          "description": "Field to group results by, should be a contactId",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contacts_create",
+      "description": "Creates a new contact. Requires OAuth website scope WEBSITE_CONTACTS or WEBSITE_PROFILES (read/write). Required: firstName, lastName, locale, primaryEmail. Returns the new CreateContactResponse.",
+      "method": "POST",
+      "path": "/v1/contacts",
+      "params": [
+        {
+          "name": "firstName",
+          "type": "string",
+          "location": "body",
+          "description": "Contact's first name",
+          "required": true
+        },
+        {
+          "name": "lastName",
+          "type": "string",
+          "location": "body",
+          "description": "Contact's last name",
+          "required": true
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "body",
+          "description": "Contact's locale",
+          "required": true
+        },
+        {
+          "name": "primaryEmail",
+          "type": "object",
+          "location": "body",
+          "description": "Primary email supplied when creating a contact.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contacts_delete",
+      "description": "Deletes the contact for the given contact ID. Requires OAuth website scope WEBSITE_CONTACTS or WEBSITE_PROFILES (read/write). Required: contactId. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/contacts/{contactId}",
+      "params": [
+        {
+          "name": "contactId",
+          "type": "string",
+          "location": "path",
+          "description": "The contact's ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contacts_get",
+      "description": "Returns a paginated list of contacts for the website. Requires OAuth website scope WEBSITE_CONTACTS_READ, WEBSITE_CONTACTS, WEBSITE_PROFILES_READ, or WEBSITE_PROFILES. Required: paginationParameters.",
+      "method": "GET",
+      "path": "/v1/contacts",
+      "params": [
+        {
+          "name": "paginationParameters",
+          "type": "object",
+          "location": "query",
+          "description": "Pagination parameters",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contacts_get-contactid",
+      "description": "Returns the contact for the given contact ID. Requires OAuth website scope WEBSITE_CONTACTS_READ, WEBSITE_CONTACTS, WEBSITE_PROFILES_READ, or WEBSITE_PROFILES. Required: contactId.",
+      "method": "GET",
+      "path": "/v1/contacts/{contactId}",
+      "params": [
+        {
+          "name": "contactId",
+          "type": "string",
+          "location": "path",
+          "description": "The contact's ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contacts_patch",
+      "description": "Updates a contact using JSON merge patch. Requires OAuth website scope WEBSITE_CONTACTS or WEBSITE_PROFILES (read/write). Required: contactId. Optional: firstName, lastName, locale (plus 1 more). Returns the updated PatchContactResponse.",
+      "method": "PATCH",
+      "path": "/v1/contacts/{contactId}",
+      "params": [
+        {
+          "name": "contactId",
+          "type": "string",
+          "location": "path",
+          "description": "The contact's ID.",
+          "required": true
+        },
+        {
+          "name": "firstName",
+          "type": "string",
+          "location": "body",
+          "description": "The contact's first name."
+        },
+        {
+          "name": "lastName",
+          "type": "string",
+          "location": "body",
+          "description": "The contact's last name."
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "body",
+          "description": "The contact's locale."
+        },
+        {
+          "name": "primaryEmail",
+          "type": "object",
+          "location": "body",
+          "description": "Primary email fields for an update request."
+        }
+      ]
+    },
+    {
+      "name": "contacts_query",
+      "description": "Returns a paginated list of contacts matching filters and sort options in the request body. Requires OAuth website scope WEBSITE_CONTACTS_READ, WEBSITE_CONTACTS, WEBSITE_PROFILES_READ, or WEBSITE_PROFILES. Optional: acceptsMarketingWithDate, cursor, donationAmount (plus 11 more).",
+      "method": "POST",
+      "path": "/v1/contacts/query",
+      "params": [
+        {
+          "name": "acceptsMarketingWithDate",
+          "type": "object",
+          "location": "body",
+          "description": "Contact's marketing settings with joined on date"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "body",
+          "description": "The cursor for the next page of results. Use the value of `pagination.nextPageCursor` from the previous response."
+        },
+        {
+          "name": "donationAmount",
+          "type": "object",
+          "location": "body",
+          "description": "Object for filtering by a min and max integer"
+        },
+        {
+          "name": "donationCount",
+          "type": "object",
+          "location": "body",
+          "description": "Object for filtering by a min and max integer"
+        },
+        {
+          "name": "firstDonationOn",
+          "type": "object",
+          "location": "body",
+          "description": "Object for filtering by before and after dates"
+        },
+        {
+          "name": "firstOrderOn",
+          "type": "object",
+          "location": "body",
+          "description": "Object for filtering by before and after dates"
+        },
+        {
+          "name": "lastDonationOn",
+          "type": "object",
+          "location": "body",
+          "description": "Object for filtering by before and after dates"
+        },
+        {
+          "name": "lastOrderOn",
+          "type": "object",
+          "location": "body",
+          "description": "Object for filtering by before and after dates"
+        },
+        {
+          "name": "orderAmount",
+          "type": "object",
+          "location": "body",
+          "description": "Object for filtering by a min and max integer"
+        },
+        {
+          "name": "orderCount",
+          "type": "object",
+          "location": "body",
+          "description": "Object for filtering by a min and max integer"
+        },
+        {
+          "name": "pageSize",
+          "type": "int",
+          "location": "body",
+          "description": "The number of contacts to return per request."
+        },
+        {
+          "name": "searchString",
+          "type": "string",
+          "location": "body",
+          "description": "Search string for Name and Email address"
+        },
+        {
+          "name": "sortDirection",
+          "type": "string",
+          "location": "body",
+          "description": "Direction to sort results, ASCENDING or DESCENDING"
+        },
+        {
+          "name": "sortField",
+          "type": "string",
+          "location": "body",
+          "description": "Field to sort results by"
+        }
+      ]
+    },
+    {
+      "name": "contacts_address-book_create-entry",
+      "description": "Creates a new address book entry for the contact. If this is the contact's only address book entry after creation, it becomes the default shipping address even when defaultShipping is false. Requires OAuth website scope WEBSITE_CONTACTS or WEBSITE_PROFILES (read/write). Required: contactId, address. Optional: defaultShipping. Returns the new CreateAddressBookEntryResponse.",
+      "method": "POST",
+      "path": "/v1/contacts/{contactId}/address-book",
+      "params": [
+        {
+          "name": "contactId",
+          "type": "string",
+          "location": "path",
+          "description": "The contact's ID.",
+          "required": true
+        },
+        {
+          "name": "address",
+          "type": "object",
+          "location": "body",
+          "description": "Address properties for a contact.",
+          "required": true
+        },
+        {
+          "name": "defaultShipping",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether this entry should be the default shipping address. If this is the only address book entry for the contact after creation, it becomes the default even when set to false."
+        }
+      ]
+    },
+    {
+      "name": "contacts_address-book_delete-entry",
+      "description": "Deletes the address book entry for the contact. If the deleted entry was the default shipping address, another entry is assigned as the default. Requires OAuth website scope WEBSITE_CONTACTS or WEBSITE_PROFILES (read/write). Required: contactId, addressBookEntryId. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/contacts/{contactId}/address-book/{addressBookEntryId}",
+      "params": [
+        {
+          "name": "contactId",
+          "type": "string",
+          "location": "path",
+          "description": "The contact's ID.",
+          "required": true
+        },
+        {
+          "name": "addressBookEntryId",
+          "type": "string",
+          "location": "path",
+          "description": "The address book entry's ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contacts_address-book_get",
+      "description": "Returns paginated addresses for the contact. When there is at least one entry, exactly one is the default shipping address (defaultShippingAddressId and each entry's defaultShipping reflect this). The default shipping address (when present) is always included on the first page of results. Requires OAuth website scope WEBSITE_CONTACTS_READ, WEBSITE_CONTACTS, WEBSITE_PROFILES_READ, or WEBSITE_PROFILES. Required: contactId, paginationParameters.",
+      "method": "GET",
+      "path": "/v1/contacts/{contactId}/address-book",
+      "params": [
+        {
+          "name": "contactId",
+          "type": "string",
+          "location": "path",
+          "description": "The contact's ID.",
+          "required": true
+        },
+        {
+          "name": "paginationParameters",
+          "type": "object",
+          "location": "query",
+          "description": "Pagination parameters",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contacts_address-book_get-entry",
+      "description": "Returns a single address book entry for the contact. Requires OAuth website scope WEBSITE_CONTACTS_READ, WEBSITE_CONTACTS, WEBSITE_PROFILES_READ, or WEBSITE_PROFILES. Required: contactId, addressBookEntryId.",
+      "method": "GET",
+      "path": "/v1/contacts/{contactId}/address-book/{addressBookEntryId}",
+      "params": [
+        {
+          "name": "contactId",
+          "type": "string",
+          "location": "path",
+          "description": "The contact's ID.",
+          "required": true
+        },
+        {
+          "name": "addressBookEntryId",
+          "type": "string",
+          "location": "path",
+          "description": "The address book entry's ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "contacts_address-book_update-entry",
+      "description": "Replaces an address book entry for the contact with a full JSON body. When updating the entry that is currently the default, setting 'defaultShipping' from true to false has no effect. Requires OAuth website scope WEBSITE_CONTACTS or WEBSITE_PROFILES (read/write). Required: contactId, addressBookEntryId, address. Optional: defaultShipping. Returns the updated UpdateAddressBookEntryResponse.",
+      "method": "PUT",
+      "path": "/v1/contacts/{contactId}/address-book/{addressBookEntryId}",
+      "params": [
+        {
+          "name": "contactId",
+          "type": "string",
+          "location": "path",
+          "description": "The contact's ID.",
+          "required": true
+        },
+        {
+          "name": "addressBookEntryId",
+          "type": "string",
+          "location": "path",
+          "description": "The address book entry's ID.",
+          "required": true
+        },
+        {
+          "name": "address",
+          "type": "object",
+          "location": "body",
+          "description": "Address properties for a contact.",
+          "required": true
+        },
+        {
+          "name": "defaultShipping",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether this entry should be the default shipping address. When updating the entry that is currently the default, changing this value from true to false has no effect."
+        }
+      ]
+    }
+  ]
+}

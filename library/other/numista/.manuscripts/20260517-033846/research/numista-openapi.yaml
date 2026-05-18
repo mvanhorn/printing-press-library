@@ -1,0 +1,4710 @@
+openapi: 3.0.0
+info:
+  version: '3.31.1'
+  title: Numista API Documentation
+  description:
+    Numista provides a REST API to access the numismatic catalogue and collection data programmatically.
+    The functionalities include coin search, coin identification by image, coin pricing, and coin collection management.
+
+servers:
+  - url: https://api.numista.com/v3
+    description: "Latest version"
+  - url: https://api.numista.com/v2
+    description: "Version 2"
+  - url: https://api.numista.com/v1
+    description: "Version 1"
+
+tags:
+  - name: Get started
+    description: |
+      The API is available at `https://api.numista.com/v3`. For example, the data about the 1 thaler coin from the 
+      Free imperial city of Mühlhausen (N# 95420) can be retrieved at `https://api.numista.com/v3/types/95420`
+      
+      ```bash
+      curl -X GET "https://api.numista.com/v3/types/95420" \
+      -H "Numista-API-Key: YOUR_API_KEY"
+      ```
+
+      An example Python script is available here: [numista_api_example.py](https://en.numista.com/api/doc/numista_api_example.py).
+      The script intends to illustrate how to use the Numista API. It is not suitable for direct use in real applications.
+
+  - name: Authentication
+    description: |
+      ## API key
+      All requests to the Numista API should include your API key in a HTTP header named "Numista-API-Key".
+      
+      `Numista-API-Key: YOUR_API_KEY`
+      
+      ## User authentication
+      Some endpoints allow access to the personal data of a Numista user. In order to use these endpoints, you need to 
+      get authorization from the user via the OAuth 2.0 protocol (see below) to get a temporary access token.
+      The OAuth access token should be provided as a bearer token in the HTTP header named "Authorization"
+      
+      `Authorization: Bearer YOUR_ACCESS_TOKEN`
+      
+      Two types of OAuth authentication are available: authorization code and client credentials.
+      
+      ### Authorization code
+      The first step consists in redirecting the user to the page  `https://{language}.numista.com/api/oauth_authorize.php?response_type=code&client_id={client_id}&redirect_uri={redirect_uri}&scope={scope}&state={state}`
+
+      where:
+      - `{language}` is the 2-letter language code ('en', 'es' or 'fr')
+      - `{client_id}` is the client ID which was assigned to your application and provided together with your API key.
+      - `{redirect_uri}` URI to redirect back the user to your application after they authenticate.
+      - `{scope}` is a comma-separated list of permissions you are requesting (e.g. 'view_collection').
+      - `{state}` is a value of your choice, which will be echoed in the redirection back to the redirect URI.
+
+      On that page, the user will be prompted whether they allow your application to get the requested permissions. 
+      If the user is successfully authenticated and grant the authorization, they will be redirected back to the 
+      redirect URI you provided with the following elements in the query string:
+      - `code`: the authorization code
+      - `state`: the same state value as your provided previously
+
+      Your application should verify that the returned value for "state" matches the value sent in the redirection.
+
+
+      In a second step, you can exchange the authorization code for an access token by calling the endpoint `/oauth_token` 
+      described below with the following parameters:
+      - `grant_type` is "authorization_code".
+      - `code` is the code you received in the query string of the back redirection described above.
+      - `client_id` is the client ID which was assigned to your application and provided together with your API key.
+      - `client_secret` is your API key.
+      - `redirect_uri` is the redirection URI you specified for the step described above.
+
+      ### Client credentials
+      To authenticate to your own account, you can call directly the endpoint `/oauth_token` described below, 
+      with the following parameters:
+      - `grant_type` is "client_credentials".
+      - `scope` is a comma-separated list of permissions you are requesting (e.g. 'view_collection').
+
+  - name: "Catalogue"
+    description: "The API endpoints in this section allow to access the data of the Numista catalogue of coins, banknotes and exonumia."
+  - name: "Literature"
+    description: "The API endpoints in this section allow to access the data of the Numista catalogue of numismatic literature."
+  - name: "OAuth"
+    description: "Authenticate a Numista user with OAuth 2.0."
+  - name: "User"
+    description: "The API endpoints in this section allow to access data about the Numista users and their collection."
+  - name: "Catalogue Edition"
+    description: "These endpoints allow to edit the content of the Numista catalogue. A special permission is required to access them."
+  - name: "Deprecated"
+    description: "These endpoints are deprecated. Do not use them for a new application."
+
+security:
+  - ApiKeyAuth: [ ]
+
+paths:
+  /types:
+    get:
+      summary: Search the catalogue
+      description: "Search the catalogue for coin, banknote, and exonumia types. At least one of the following parameters should be provided: `q`, `issuer`, `catalogue`, `date`, or `year`."
+      operationId: searchTypes
+      tags:
+        - "Catalogue"
+      parameters:
+        - name: lang
+          in: query
+          description: Language
+          required: false
+          schema:
+            type: string
+            enum: [ en, es, fr ]
+            default: en
+        - name: q
+          in: query
+          description: Search query
+          required: false
+          schema:
+            type: string
+        - name: object_type
+          in: query
+          description: ID of a object type. If provided, only the objects of this type are returned.
+          required: false
+          schema:
+            type: integer
+        - name: issuer
+          in: query
+          description: Issuer code. If provided, only the types from the given issuer are returned.
+          required: false
+          schema:
+            type: string
+        - name: catalogue
+          in: query
+          description: ID of a reference catalogue. If provided, only the types referenced in the given catalogue are returned.
+          required: false
+          schema:
+            type: integer
+        - name: number
+          in: query
+          description: Number of the searched typed in a reference catalogue. This parameter works only with the other parameter `catalogue`.
+          required: false
+          schema:
+            type: string
+        - name: ruler
+          in: query
+          description: ID of a ruler. If provided, only the types issued by this ruler are returned.
+          required: false
+          schema:
+            type: integer
+        - name: material
+          in: query
+          description: ID of a material. If provided, only the types made of this material are returned.
+          required: false
+          schema:
+            type: integer
+        - name: year
+          in: query
+          description: Year (for example "1302"), or a range of years (for example "1800-1850"), as written on the item.
+          required: false
+          schema:
+            type: string
+        - name: date
+          in: query
+          description: Year of the Gregorian calendar when the type was issued, or a range of years (for example "1789", "800-900").
+          required: false
+          schema:
+            type: string
+        - name: size
+          in: query
+          description: Diameter of the item (or largest dimension for non-round objects) in millimetres, or a range of diameters (for example "10.5", "9-11").
+          required: false
+          schema:
+            type: string
+        - name: weight
+          in: query
+          description: Weight of the item in grams, or a range of weights (for example "31.1", "10-12").
+          required: false
+          schema:
+            type: string
+        - name: category
+          in: query
+          deprecated: true
+          description: Catalogue category
+          required: false
+          schema:
+            type: string
+            enum: [ coin, banknote, exonumia ]
+        - name: page
+          in: query
+          description: Page of results
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: count
+          in: query
+          description: Number of results per page
+          required: false
+          schema:
+            type: integer
+            default: 50
+            maximum: 50
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - count
+                  - types
+                properties:
+                  count:
+                    description: Total count of results
+                    type: integer
+                  types:
+                    description: List of results on the given page
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - id
+                        - title
+                      properties:
+                        id:
+                          description: Unique ID of the type on Numista
+                          type: integer
+                        title:
+                          description: Title of the type
+                          type: string
+                        object_type:
+                          $ref: '#/components/schemas/object_type'
+                        issuer:
+                          $ref: '#/components/schemas/issuer'
+                        min_year:
+                          description: First year the type was produced (in the Gregorian calendar). This property was spelled "minYear" in the API v1.
+                          type: integer
+                        max_year:
+                          description: Last year the type was produced (in the Gregorian calendar). This property was spelled "maxYear" in the API v1.
+                          type: integer
+                        obverse_thumbnail:
+                          description: URL to a thumbnail of the picture of the obverse
+                          type: string
+                        reverse_thumbnail:
+                          description: URL to a thumbnail of the picture of the reverse
+                          type: string
+                        category:
+                          description: Category
+                          deprecated: true
+                          type: string
+                          enum: [ coin, banknote, exonumia ]
+                example:
+                  count: '2'
+                  types:
+                    - id: 420
+                      title: 5 Cents - Victoria
+                      object_type:
+                        id: 1
+                        name: Standard circulation coins
+                      issuer:
+                        code: canada
+                        name: Canada
+                      min_year: 1858
+                      max_year: 1901
+                      obverse_thumbnail: https://en.numista.com/catalogue/photos/canada/1009-180.jpg
+                      reverse_thumbnail: https://en.numista.com/catalogue/photos/canada/1010-180.jpg
+                      category: coin
+                    - id: 419
+                      title: 5 Cents - Edward VII
+                      object_type:
+                        id: 1
+                        name: Standard circulation coins
+                      issuer:
+                        code: canada
+                        name: Canada
+                      min_year: 1902
+                      max_year: 1902
+                      obverse_thumbnail: https://en.numista.com/catalogue/photos/canada/1021-180.jpg
+                      reverse_thumbnail: https://en.numista.com/catalogue/photos/canada/1022-180.jpg
+                      category: coin
+        '400':
+          description: Invalid value for a parameter or missing value for a mandatory parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Invalid or missing API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '429':
+          description: You sent too many simultaneous requests or you reached the limit of your monthly quota.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+    post:
+      summary: Add a type to the catalogue
+      description: This endpoint allows to add a coin to the catalogue. It requires a specific permission associated to your API key. After adding a coin, you are required to add at least one issue with `POST /coins/{coin_id}/issues`
+      operationId: addType
+      tags:
+        - "Catalogue Edition"
+      parameters:
+        - name: lang
+          in: query
+          description: Language of the response
+          required: false
+          schema:
+            type: string
+            enum: [ en, es, fr ]
+            default: en
+      requestBody:
+        description: Data related to the coin to add to the catalogue
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/type_update'
+            example:
+              title:
+                - language: en
+                  label: Title in English
+                - language: fr
+                  label: Titre en français
+                - language: es
+                  label: Titulo en español
+              category:
+                code: coin
+              issuer:
+                code: france
+              type: 1
+              value:
+                denomination:
+                  id: 54868
+                currency:
+                  id: 9006
+              ruling_authority:
+                - id: 11
+              shape:
+                id: 1
+                additional_details:
+                  - language: en
+                    label: shape details
+              composition:
+                composition_type: plain
+                core:
+                  material:
+                    id: 6
+                  fineness: 900
+                additional_details:
+                  - language: en
+                    label: composition details
+              weight: 10
+              size: 15
+              thickness: 2
+              orientation: medal
+              demonetization:
+                is_demonetized: true
+                demonetization_date: '2020-11-01'
+              calendar:
+                code: gregorien
+              obverse:
+                engravers:
+                  - Henri Lagriffoul
+                  - Louis-Oscar Roty
+                description:
+                  - language: en
+                    label: Obverse description
+                lettering: Lettres
+                lettering_translation:
+                  - language: en
+                    label: Letters
+                picture: 'https://www.ecb.europa.eu/euro/coins/common/shared/img/fr/France_1cent.jpg'
+                picture_copyright: ECB
+                picture_copyright_type: site_autorise
+              reverse:
+                engravers:
+                  - Émile Rousseau
+                description:
+                  - language: en
+                    label: Reverse description
+                lettering: BLABLABLA
+                lettering_translation:
+                  - language: en
+                    label: Blablaba
+                picture: 'https://www.ecb.europa.eu/euro/coins/common/shared/img/common_1cent_800.jpg'
+                picture_copyright: ECB
+                picture_copyright_type: site_autorise
+              edge:
+                description:
+                  - language: en
+                    label: Plain
+                lettering: TRANCHE
+                lettering_translation:
+                  - language: en
+                    label: Edge
+                picture: 'https://fr.numista.com/catalogue/photos/france/8643-original.jpg'
+                picture_copyright: Numista
+                picture_copyright_type: site_autorise
+              mints:
+                - id: 15
+                  letter: A
+              comments:
+                - language: en
+                  label: 'This is a [b]comment[/b].'
+                - language: fr
+                  label: 'Ceci est un [b]commentaire[/b].'
+              related_coins:
+                - id: 1
+              tags:
+                - id: 7
+                - id: 43
+              references:
+                - catalogue:
+                    id: 3
+                  number: '100'
+      responses:
+        '201':
+          description: The coin has been added to the catalogue.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/coin'
+        '400':
+          description: Invalid value for a parameter or missing value for a mandatory parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Invalid or missing API key, or insufficient permission
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '429':
+          description: You sent too many simultaneous requests or you reached the limit of your monthly quota.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+
+  /types/{type_id}:
+    get:
+      summary: Get details about a type
+      description: Retrieve the details about a specific type in the catalogue.
+      operationId: getType
+      tags:
+        - "Catalogue"
+      parameters:
+        - name: type_id
+          in: path
+          description: ID of the type to fetch
+          required: true
+          schema:
+            type: integer
+        - name: lang
+          in: query
+          description: Language
+          required: false
+          schema:
+            type: string
+            enum: [ en, es, fr ]
+            default: en
+      responses:
+        '200':
+          description: The type has been found. Details are present in body.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/type'
+              example:
+                id: 420
+                url: https://en.numista.com/420
+                title: 5 Cents - Victoria
+                issuer:
+                  code: canada
+                  name: Canada
+                min_year: 1858
+                max_year: 1901
+                ruler:
+                  - id: 1774
+                    name: Victoria
+                    wikidata_id: Q9439
+                    nomisma_id: queen_victoria
+                value:
+                  text: 5 Cents
+                  numeric_value: 0.05
+                  currency:
+                    id: 44
+                    name: Canadian dollar
+                    full_name: Canadian dollar (1858-date)
+                demonetization:
+                  is_demonetized: false
+                shape: Round
+                composition:
+                  text: Silver (.925) (.925 silver .075 copper)
+                technique:
+                  text: Milled
+                obverse:
+                  engravers:
+                    - Leonard Charles Wyon
+                  description: Head of the very young Queen Victoria wearing a laurel wreath, facing left.
+                  lettering: "VICTORIA DEI GRATIA REGINA.\r\nCANADA"
+                  lettering_scripts:
+                    - name: Latin
+                  unabridged_legend: VICTORIA DEI GRATIA REGINA
+                  lettering_translation: |
+                    Victoria Queen by the grace of God
+                  picture: https://en.numista.com/catalogue/photos/canada/1009-original.jpg
+                  thumbnail: https://en.numista.com/catalogue/photos/canada/1009-180.jpg
+                  picture_copyright: Heritage Auctions
+                  picture_copyright_url: http://www.ha.com
+                reverse:
+                  engravers:
+                    - Leonard Charles Wyon
+                  description: The face value surrounded by two maple boughs and the crown of Queen Victoria
+                  lettering: "5\r\nCENTS\r\n1858"
+                  lettering_scripts:
+                    - name: Latin
+                  picture: https://en.numista.com/catalogue/photos/canada/1010-original.jpg
+                  thumbnail: https://en.numista.com/catalogue/photos/canada/1010-180.jpg
+                  picture_copyright: Heritage Auctions
+                  picture_copyright_url: http://www.ha.com
+                comments: |-
+                  1858<br />
+                  <a href="https://en.numista.com/catalogue/images/6229f47e5a745.jpg"><img src="https://en.numista.com/catalogue/images/miniatures/6229f47e5a745.jpg" alt="" width="200" height="150" /></a><br />
+                  1870<br />
+                  <a href="https://en.numista.com/catalogue/images/6229f496c8975.jpg"><img src="https://en.numista.com/catalogue/images/miniatures/6229f496c8975.jpg" alt="" width="200" height="150" /></a><br />
+                  1871<br />
+                  <a href="https://en.numista.com/catalogue/images/6229f4afebba2.jpg"><img src="https://en.numista.com/catalogue/images/miniatures/6229f4afebba2.jpg" alt="" width="200" height="150" /></a><br />
+                  1872<br />
+                  <a href="https://en.numista.com/catalogue/images/6229f4cfb46a7.jpg"><img src="https://en.numista.com/catalogue/images/miniatures/6229f4cfb46a7.jpg" alt="" width="200" height="150" /></a><br />
+                  1874<br />
+                  <a href="https://en.numista.com/catalogue/images/6229f4e6d6ea5.jpg"><img src="https://en.numista.com/catalogue/images/miniatures/6229f4e6d6ea5.jpg" alt="" width="200" height="150" /></a><br />
+                  1875<br />
+                  <a href="https://en.numista.com/catalogue/images/6229f4fe6675b.jpg"><img src="https://en.numista.com/catalogue/images/miniatures/6229f4fe6675b.jpg" alt="" width="200" height="150" /></a><br />
+                  1884<br />
+                  <a href="https://en.numista.com/catalogue/images/6229f51565846.jpg"><img src="https://en.numista.com/catalogue/images/miniatures/6229f51565846.jpg" alt="" width="200" height="150" /></a><br />
+                  1885<br />
+                  <a href="https://en.numista.com/catalogue/images/6229f5313d730.jpg"><img src="https://en.numista.com/catalogue/images/miniatures/6229f5313d730.jpg" alt="" width="200" height="150" /></a><br />
+                  1886<br />
+                  <a href="https://en.numista.com/catalogue/images/6229f54fd8048.jpg"><img src="https://en.numista.com/catalogue/images/miniatures/6229f54fd8048.jpg" alt="" width="200" height="150" /></a><br />
+                  1887<br />
+                  <a href="https://en.numista.com/catalogue/images/6229f57014795.jpg"><img src="https://en.numista.com/catalogue/images/miniatures/6229f57014795.jpg" alt="" width="200" height="150" /></a><br />
+                  1897<br />
+                  <a href="https://en.numista.com/catalogue/images/6229f58eacb9e.jpg"><img src="https://en.numista.com/catalogue/images/miniatures/6229f58eacb9e.jpg" alt="" width="200" height="150" /></a><br />
+                  1900<br />
+                  <a href="https://en.numista.com/catalogue/images/6229f5b00d019.jpg"><img src="https://en.numista.com/catalogue/images/miniatures/6229f5b00d019.jpg" alt="" width="200" height="150" /></a>
+                tags:
+                  - Crown
+                  - Wreath
+                references:
+                  - catalogue:
+                      id: 3
+                      code: KM
+                    number: '2'
+                  - catalogue:
+                      id: 24
+                      code: Schön
+                    number: '2'
+                weight: 1.167
+                size: 15.494
+                thickness: 0.7
+                orientation: coin
+                edge:
+                  description: Reeded
+                mints:
+                  - id: '17'
+                    name: Royal Mint (Tower Hill)
+                  - id: '18'
+                    name: Heaton and Sons / The Mint Birmingham Limited
+                category: coin
+                type: Standard circulation coin
+
+        '400':
+          description: Invalid value for a parameter or missing value for a mandatory parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Invalid or missing API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '404':
+          description: The coin with given ID was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '429':
+          description: You sent too many simultaneous requests or you reached the limit of your monthly quota.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+
+  /types/{type_id}/issues:
+    get:
+      summary: Get the issues of a type
+      description: The types in the catalogue have one or more issues for the different years, mintmarks and varieties.
+      operationId: getIssues
+      tags:
+        - "Catalogue"
+      parameters:
+        - name: type_id
+          in: path
+          description: ID of the type to fetch the issues from
+          required: true
+          schema:
+            type: integer
+        - name: lang
+          in: query
+          description: Language
+          required: false
+          schema:
+            type: string
+            enum: [ en, es, fr ]
+            default: en
+      responses:
+        '200':
+          description: The type has been found. Details about the issues are present in body.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/issue'
+              example:
+                - id: 51757
+                  is_dated: true
+                  year: 1823
+                  gregorian_year: 1823
+                  mint_letter: R
+                  mintage: 1700000
+                  references:
+                    - catalogue:
+                        id: 3
+                        code: KM
+                      number: '360.1'
+                  comment: Rio de Janeiro
+                - id: 51759
+                  is_dated: true
+                  year: 1824
+                  gregorian_year: 1824
+                  mint_letter: R
+                  mintage: 4955564
+                  references:
+                    - catalogue:
+                        id: 3
+                        code: KM
+                      number: '360.1'
+                  comment: Rio de Janeiro
+                - id: 51758
+                  is_dated: true
+                  year: 1824
+                  gregorian_year: 1824
+                  mint_letter: R
+                  references:
+                    - catalogue:
+                        id: 3
+                        code: KM
+                      number: '360.1'
+                  comment: Rio de Janeiro, BRSA
+                - id: 51767
+                  is_dated: true
+                  year: 1825
+                  gregorian_year: 1825
+                  mint_letter: B
+                  mintage: 581808
+                  references:
+                    - catalogue:
+                        id: 3
+                        code: KM
+                      number: '360.2'
+                  comment: Bahia
+                - id: 51760
+                  is_dated: true
+                  year: 1825
+                  gregorian_year: 1825
+                  mint_letter: R
+                  mintage: 9053601
+                  references:
+                    - catalogue:
+                        id: 3
+                        code: KM
+                      number: '360.1'
+                  comment: Rio de Janeiro
+        '400':
+          description: Invalid value for a parameter or missing value for a mandatory parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Invalid or missing API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '404':
+          description: The coin with given ID was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '429':
+          description: You sent too many simultaneous requests or you reached the limit of your monthly quota.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+    post:
+      summary: Add an issue
+      description: This endpoint allows to add coin issues to the catalogue. It requires a specific permission associated to your API key.
+      operationId: addIssue
+      tags:
+        - "Catalogue Edition"
+      parameters:
+        - name: type_id
+          in: path
+          description: ID of the coin to which the issue is added
+          required: true
+          schema:
+            type: integer
+        - name: lang
+          in: query
+          description: Language of the response
+          required: false
+          schema:
+            type: string
+            enum: [ en, es, fr ]
+            default: en
+      requestBody:
+        description: Data related to the coin issue to add to the catalogue
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/issue_update'
+            example:
+              is_dated: false
+              min_year: -220
+              max_year: -210
+              mint_letter: A
+              mintage: 1000
+              comment:
+                - language: en
+                  label: Comment in English
+                - language: fr
+                  label: Commentaire en françaiss
+      responses:
+        '201':
+          description: The coin issue has been added to the catalogue.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/issue'
+        '400':
+          description: Invalid value for a parameter or missing value for a mandatory parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Invalid or missing API key, or insufficient permission
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '429':
+          description: You sent too many simultaneous requests or you reached the limit of your monthly quota.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+
+  /types/{type_id}/issues/{issue_id}/prices:
+    get:
+      summary: Get prices
+      description: Get estimates for the price of an issue, depending on the grade.
+      operationId: getPrices
+      tags:
+        - "Catalogue"
+      parameters:
+        - name: type_id
+          in: path
+          description: ID of the type
+          required: true
+          schema:
+            type: integer
+        - name: issue_id
+          in: path
+          description: ID of the issue
+          required: true
+          schema:
+            type: integer
+        - name: currency
+          in: query
+          description: 3-letter ISO 4217 currency code
+          required: false
+          schema:
+            type: string
+            default: EUR
+        - name: lang
+          in: query
+          description: Language
+          required: false
+          schema:
+            type: string
+            enum: [ en, es, fr ]
+            default: en
+      responses:
+        '200':
+          description: The issue has been found. Prices are present in the body.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - currency
+                  - prices
+                properties:
+                  currency:
+                    description: 3-letter ISO 4217 code of the currency in which the prices are provided
+                    type: string
+                  prices:
+                    description: List of zero or more prices for each grade
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - grade
+                        - price
+                      properties:
+                        grade:
+                          description: Grade of the coin ("g", "vg", "f", "vf", "xf", "au" or "unc")
+                          type: string
+                          enum: [ g, vg, f, vf, xf, au, unc ]
+                        price:
+                          description: Estimate of the price determined by Numista
+                          type: number
+              example:
+                currency: EUR
+                prices:
+                  - grade: f
+                    price: 180
+                  - grade: vf
+                    price: 220
+                  - gradde: xf
+                    price: 380
+        '400':
+          description: Invalid value for a parameter or missing value for a mandatory parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Invalid or missing API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '404':
+          description: The issue with given ID was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '429':
+          description: You sent too many simultaneous requests or you reached the limit of your monthly quota.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+
+  /coins:
+    get:
+      deprecated: true
+      summary: Search for coins
+      description: This endpoint was removed in the API version 3 and above. Please use the endpoint /types instead.
+      operationId: searchCoins
+      tags:
+        - "Deprecated"
+      parameters:
+        - name: lang
+          in: query
+          description: Language
+          required: false
+          schema:
+            type: string
+            enum: [ en, es, fr ]
+            default: en
+        - name: q
+          in: query
+          description: Search query
+          required: true
+          schema:
+            type: string
+        - name: issuer
+          in: query
+          description: Issuer code. If provided, only the coins from the given issuer are returned.
+          required: false
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: Page of results
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: count
+          in: query
+          description: Results per page
+          required: false
+          schema:
+            type: integer
+            default: 50
+      responses:
+        '200':
+          description: List of matching coins
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - count
+                  - coins
+                properties:
+                  count:
+                    description: Total count of matching coins
+                    type: integer
+                  coins:
+                    description: List of matching coins on the given page
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - id
+                        - title
+                      properties:
+                        id:
+                          description: Unique ID of the coin on Numista
+                          type: integer
+                        title:
+                          description: Title of the coin
+                          type: string
+                        issuer:
+                          $ref: '#/components/schemas/issuer'
+                        min_year:
+                          description: First year the coin was minted (in the Gregorian calendar). This property was spelled "minYear" in the API v1.
+                          type: integer
+                        max_year:
+                          description: Last year the coin was minted (in the Gregorian calendar). This property was spelled "maxYear" in the API v1.
+                          type: integer
+                example:
+                  count: '2'
+                  coins:
+                    - id: 420
+                      title: 5 Cents - Victoria
+                      issuer:
+                        code: canada
+                        name: Canada
+                      min_year: 1858
+                      max_year: 1901
+                    - id: 419
+                      title: 5 Cents - Edward VII
+                      issuer:
+                        code: canada
+                        name: Canada
+                      min_year: 1902
+                      max_year: 1902
+
+        '400':
+          description: Invalid value for a parameter or missing value for a mandatory parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Invalid or missing API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '429':
+          description: You sent too many simultaneous requests or you reached the limit of your monthly quota.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+    post:
+      deprecated: true
+      summary: Add a coin to the catalogue
+      description: This endpoint was removed in the API version 3 and above. Please use the endpoint /types instead.
+      operationId: addCoin
+      tags:
+        - "Deprecated"
+      parameters:
+        - name: lang
+          in: query
+          description: Language of the response
+          required: false
+          schema:
+            type: string
+            enum: [ en, es, fr ]
+            default: en
+      requestBody:
+        description: Data related to the coin to add to the catalogue
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/coin_update'
+            example:
+              title:
+                - language: en
+                  label: Title in English
+                - language: fr
+                  label: Titre en français
+              issuer:
+                code: france
+              type: 1
+              value:
+                text:
+                  - language: en
+                    label: 1 cent
+                numerator: 1
+                denominator: 100
+                currency:
+                  id: 9006
+              ruling_authority:
+                - id: 11
+              shape:
+                id: 1
+                additional_details:
+                  - language: en
+                    label: shape details
+              composition:
+                composition_type: plain
+                core:
+                  material:
+                    id: 6
+                  fineness: 900
+                additional_details:
+                  - language: en
+                    label: composition details
+              weight: 10
+              size: 15
+              thickness: 2
+              orientation: medal
+              demonetization:
+                is_demonetized: true
+                demonetization_date: '2020-11-01'
+              calendar:
+                code: gregorien
+              obverse:
+                engravers:
+                  - Henri Lagriffoul
+                  - Louis-Oscar Roty
+                description:
+                  - language: en
+                    label: Obverse description
+                lettering: Lettres
+                lettering_translation:
+                  - language: en
+                    label: Letters
+                picture: 'https://www.ecb.europa.eu/euro/coins/common/shared/img/fr/France_1cent.jpg'
+                picture_copyright: ECB
+                picture_copyright_type: site_autorise
+              reverse:
+                engravers:
+                  - Émile Rousseau
+                description:
+                  - language: en
+                    label: Reverse description
+                lettering: BLABLABLA
+                lettering_translation:
+                  - language: en
+                    label: Blablaba
+                picture: 'https://www.ecb.europa.eu/euro/coins/common/shared/img/common_1cent_800.jpg'
+                picture_copyright: ECB
+                picture_copyright_type: site_autorise
+              edge:
+                description:
+                  - language: en
+                    label: Plain
+                lettering: TRANCHE
+                lettering_translation:
+                  - language: en
+                    label: Edge
+                picture: 'https://fr.numista.com/catalogue/photos/france/8643-original.jpg'
+                picture_copyright: Numista
+                picture_copyright_type: site_autorise
+              mints:
+                - id: 15
+                  letter: A
+              comments:
+                - language: en
+                  label: 'This is a [b]comment[/b].'
+                - language: fr
+                  label: 'Ceci est un [b]commentaire[/b].'
+              related_coins:
+                - id: 1
+              tags:
+                - id: 7
+                - id: 43
+              references:
+                - catalogue:
+                    id: 3
+                  number: '100'
+      responses:
+        '201':
+          description: The coin has been added to the catalogue.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/coin'
+        '400':
+          description: Invalid value for a parameter or missing value for a mandatory parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Invalid or missing API key, or insufficient permission
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '429':
+          description: You sent too many simultaneous requests or you reached the limit of your monthly quota.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+
+  /coins/{coin_id}:
+    get:
+      deprecated: true
+      summary: Find a coin by ID
+      description: This endpoint was removed in the API version 3 and above. Please use the endpoint /types/{type_id} instead.
+      operationId: getCoin
+      tags:
+        - "Deprecated"
+      parameters:
+        - name: coin_id
+          in: path
+          description: ID of the coin to fetch
+          required: true
+          schema:
+            type: integer
+        - name: lang
+          in: query
+          description: Language
+          required: false
+          schema:
+            type: string
+            enum: [ en, es, fr ]
+            default: en
+      responses:
+        '200':
+          description: The coin has been found. Details are present in body.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/coin'
+
+              example:
+                id: 420
+                url: 'https://en.numista.com/420'
+                title: 5 Cents - Victoria
+                issuer:
+                  code: canada
+                  name: Canada
+                min_year: 1858
+                max_year: 1901
+                type: Standard circulation coin
+                ruler:
+                  - id: 1774
+                    name: Victoria
+                    wikidata_id: Q9439
+                    nomisma_id: queen_victoria
+                value:
+                  text: 5 Cents
+                  numeric_value: 0.05
+                  currency:
+                    id: 44
+                    name: Canadian dollar
+                    full_name: Canadian dollar (1858-date)
+                shape: Round
+                composition:
+                  text: Silver (.925)
+                weight: 1.167
+                size: 15.494
+                thickness: 0.7
+                orientation: coin
+                obverse:
+                  engravers:
+                    - Leonard Charles Wyon
+                  description: 'The portrait in left profile of Victoria is surrounded with the inscriptions "CANADA" and "VICTORIA DEI GRATIA REGINA" (Victoria, Queen by the grace of God)'
+                  lettering: "VICTORIA DEI GRATIA REGINA.\r\nCANADA"
+                  picture: 'https://en.numista.com/catalogue/photos/canada/1009-original.jpg'
+                  thumbnail: 'https://en.numista.com/catalogue/photos/canada/1009-135.jpg'
+                  picture_copyright: Heritage Auctions
+                  picture_copyright_url: 'https://www.ha.com'
+                reverse:
+                  engravers:
+                    - Leonard Charles Wyon
+                  description: The face value is surrounded with two maple boughs and the crown of Queen Victoria
+                  lettering: "5\r\nCENTS\r\n1858"
+                  picture: 'https://en.numista.com/catalogue/photos/canada/1010-original.jpg'
+                  thumbnail: 'https://en.numista.com/catalogue/photos/canada/1010-135.jpg'
+                  picture_copyright: Heritage Auctions
+                  picture_copyright_url: 'https://www.ha.com'
+                edge:
+                  description: Reeded
+                references:
+                  - catalogue:
+                      id: 3
+                      code: KM
+                    number: '2'
+                  - catalogue:
+                      id: 24
+                      code: Schön
+                    number: '2'
+        '400':
+          description: Invalid value for a parameter or missing value for a mandatory parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Invalid or missing API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '404':
+          description: The coin with given ID was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '429':
+          description: You sent too many simultaneous requests or you reached the limit of your monthly quota.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+
+  /coins/{coin_id}/issues:
+    get:
+      deprecated: true
+      summary: Find the issues of a coin
+      description: This endpoint was removed in the API version 3 and above. Please use the endpoint /types/{type_id}/issues instead.
+      operationId: getIssuesDeprecated
+      tags:
+        - "Deprecated"
+      parameters:
+        - name: coin_id
+          in: path
+          description: ID of the coin to fetch the issues from
+          required: true
+          schema:
+            type: integer
+        - name: lang
+          in: query
+          description: Language
+          required: false
+          schema:
+            type: string
+            enum: [ en, es, fr ]
+            default: en
+      responses:
+        '200':
+          description: The coin has been found. Details about mintage are present in body.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/issue'
+              example:
+                - id: 51757
+                  is_dated: true
+                  year: 1823
+                  gregorian_year: 1823
+                  mint_letter: R
+                  mintage: 1700000
+                  comment: 'KM#360.1 (Rio de Janeiro)'
+                - id: 51758
+                  is_dated: true
+                  year: 1824
+                  gregorian_year: 1824
+                  mint_letter: R
+                  comment: 'KM#360.1 (Rio de Janeiro, BRSA)'
+                - id: 51759
+                  is_dated: true
+                  year: 1824
+                  gregorian_year: 1824
+                  mint_letter: R
+                  mintage: 4955564
+                  comment: 'KM#360.1 (Rio de Janeiro)'
+                - id: 51767
+                  is_dated: true
+                  year: 1825
+                  gregorian_year: 1825
+                  mint_letter: B
+                  mintage: 581808
+                  comment: 'KM#360.2 (Bahia)'
+        '400':
+          description: Invalid value for a parameter or missing value for a mandatory parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Invalid or missing API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '404':
+          description: The coin with given ID was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '429':
+          description: You sent too many simultaneous requests or you reached the limit of your monthly quota.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+    post:
+      deprecated: true
+      summary: Add a coin issue
+      description: This endpoint was removed in the API version 3 and above. Please use the endpoint /types/{type_id}/issues instead.
+      operationId: addIssueDeprecated
+      tags:
+        - "Deprecated"
+      parameters:
+        - name: coin_id
+          in: path
+          description: ID of the coin to which the issue is added
+          required: true
+          schema:
+            type: integer
+        - name: lang
+          in: query
+          description: Language of the response
+          required: false
+          schema:
+            type: string
+            enum: [ en, es, fr ]
+            default: en
+      requestBody:
+        description: Data related to the coin issue to add to the catalogue
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/issue_update'
+            example:
+              is_dated: false
+              min_year: -220
+              max_year: -210
+              mint_letter: A
+              mintage: 1000
+              comment:
+                - language: en
+                  label: Comment in English
+                - language: fr
+                  label: Commentaire en françaiss
+      responses:
+        '201':
+          description: The coin issue has been added to the catalogue.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/issue'
+        '400':
+          description: Invalid value for a parameter or missing value for a mandatory parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Invalid or missing API key, or insufficient permission
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '429':
+          description: You sent too many simultaneous requests or you reached the limit of your monthly quota.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+  /coins/{coin_id}/issues/{issue_id}/prices:
+    get:
+      deprecated: true
+      summary: Get estimates for the price of an issue of a coin
+      description: This endpoint was removed in the API version 3 and above. Please use the endpoint /types/{type_id}/issues/{issue_id}/prices instead.
+      operationId: getPricesDeprecated
+      tags:
+        - "Deprecated"
+      parameters:
+        - name: coin_id
+          in: path
+          description: ID of the coin type
+          required: true
+          schema:
+            type: integer
+        - name: issue_id
+          in: path
+          description: ID of the issue of the coin
+          required: true
+          schema:
+            type: integer
+        - name: currency
+          in: query
+          description: 3-letter ISO 4217 currency code
+          required: false
+          schema:
+            type: string
+            default: EUR
+        - name: lang
+          in: query
+          description: Language
+          required: false
+          schema:
+            type: string
+            enum: [ en, es, fr ]
+            default: en
+      responses:
+        '200':
+          description: The issue has been found. Prices are present in the body.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - currency
+                  - prices
+                properties:
+                  currency:
+                    description: 3-letter ISO 4217 code of the currency in which the prices are provided
+                    type: string
+                  prices:
+                    description: List of zero or more prices for each grade
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - grade
+                        - price
+                      properties:
+                        grade:
+                          description: Grade of the coin ("g", "vg", "f", "vf", "xf", "au" or "unc")
+                          type: string
+                          enum: [ g, vg, f, vf, xf, au, unc ]
+                        price:
+                          description: Estimate of the price determined by Numista
+                          type: number
+              example:
+                currency: EUR
+                prices:
+                  - grade: f
+                    price: 180
+                  - grade: vf
+                    price: 220
+                  - grade: xf
+                    price: 380
+        '400':
+          description: Invalid value for a parameter or missing value for a mandatory parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Invalid or missing API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '404':
+          description: The issue with given ID was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '429':
+          description: You sent too many simultaneous requests or you reached the limit of your monthly quota.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+
+  /issuers:
+    get:
+      summary: Get the list of issuers
+      description: Retrieve the details about all the issuing countries and territories
+      operationId: getIssuers
+      tags:
+        - "Catalogue"
+      parameters:
+        - name: lang
+          in: query
+          description: Language
+          required: false
+          schema:
+            type: string
+            enum: [ en, es, fr ]
+            default: en
+      responses:
+        '200':
+          description: The list of issuers could be retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - count
+                  - issuers
+                properties:
+                  count:
+                    description: Count of issuers
+                    type: integer
+                  issuers:
+                    description: List of issuers
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - code
+                        - name
+                      properties:
+                        code:
+                          description: Unique ID of the issuer
+                          type: string
+                        name:
+                          description: Name of the issuer
+                          type: string
+                        flag:
+                          description: URL of the issuer's flag image
+                          type: string
+                        wikidata_id:
+                          description: Identifier of the issuer at Wikidata, starting with a "Q"
+                          type: string
+                        parent:
+                          $ref: '#/components/schemas/issuer'
+                        level:
+                          description: Level of the issuer in the tree of issuers (from 1 to 5)
+                          type: integer
+              example:
+                count: 4239
+                issuers:
+                  - code: abkhazia
+                    name: Abkhazia
+                    flag: https://en.numista.com/design/pays/abkhazia.gif
+                    wikidata_id: Q23334
+                    level: 1
+                  - code: afghanistan
+                    name: Afghanistan
+                    flag: https://en.numista.com/design/pays/afghanistan.gif
+                    wikidata_id: Q889
+                    parent:
+                      code: afghanistan_section
+                      name: Afghanistan
+                    level: 2
+                  - code: aksum
+                    name: Aksum
+                    flag: https://en.numista.com/design/pays/aksum.gif
+                    wikidata_id: Q5832
+                    level: 1
+                  - code: albanie
+                    name: Albania
+                    flag: https://en.numista.com/design/pays/albanie.gif
+                    wikidata_id: Q222
+                    parent:
+                      code: albania_section
+                      name: Albania
+                    level: 2
+        '400':
+          description: Invalid value for a parameter or missing value for a mandatory parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Invalid or missing API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '429':
+          description: You sent too many simultaneous requests or you reached the limit of your monthly quota.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+
+  /mints:
+    get:
+      summary: Get the list of mints
+      description: Retrieve the details about all the mints
+      operationId: getMints
+      tags:
+        - "Catalogue"
+      parameters:
+        - name: lang
+          in: query
+          description: Language
+          required: false
+          schema:
+            type: string
+            enum: [ en, es, fr ]
+            default: en
+      responses:
+        '200':
+          description: The list of mints
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - count
+                  - mints
+                properties:
+                  count:
+                    description: Count of mints
+                    type: integer
+                  mints:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/mint'
+              example:
+                count: 4035
+                catalogues:
+                  - id: 1
+                    place: Munich (München), Germany
+                    country:
+                      code: allemagne
+                      name: Germany, Federal Republic of
+                    start_year: 1158,
+                    end_year: 9999,
+                    nomisma_id: munich
+                    wikidata_id: Q812404
+                  - id: 2
+                    local_name: Staatliche Münze Baden-Württemberg
+                    place: Stuttgart, Germany
+                    country:
+                      code: allemagne
+                      name: Germany, Federal Republic of
+                    start_year: 1374
+                    end_year: 9999
+                    nomisma_id: stuttgart
+                    wikidata_id: Q1022
+                  - id: 41
+                    name: Japan Mint
+                    local_name: 独立行政法人造幣局 / Dokuritsu Gyōsei Hōjin Zōheikyoku
+                    place: Hiroschima, Japan
+                    country:
+                      code: japon
+                      name: Japan
+                    wikidata_id: Q34664
+
+        '401':
+          description: Invalid or missing API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '429':
+          description: You sent too many simultaneous requests or you reached the limit of your monthly quota.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+
+  /mints/{mint_id}:
+    get:
+      summary: Get details about a mint
+      description: Retrieve the details about a specific mint.
+      operationId: getMint
+      tags:
+        - "Catalogue"
+      parameters:
+        - name: mint_id
+          in: path
+          description: ID of the mint
+          required: true
+          schema:
+            type: integer
+        - name: lang
+          in: query
+          description: Language
+          required: false
+          schema:
+            type: string
+            enum: [ en, es, fr ]
+            default: en
+      responses:
+        '200':
+          description: Details about the mint
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/mint'
+              example:
+                id: 1
+                place: Munich (München), Germany
+                country:
+                  code: allemagne
+                  name: Germany, Federal Republic of
+                start_year: 1158,
+                end_year: 9999,
+                nomisma_id: munich
+                wikidata_id: Q812404
+        '400':
+          description: Invalid value for a parameter or missing value for a mandatory parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Invalid or missing API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '404':
+          description: The coin with given ID was not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '429':
+          description: You sent too many simultaneous requests or you reached the limit of your monthly quota.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+
+  /catalogues:
+    get:
+      summary: Get the list of reference catalogues
+      description: Retrieve the list of all the reference catalogues used for cross-reference in the catalogue
+      operationId: getCatalogues
+      tags:
+        - "Catalogue"
+      parameters: [ ]
+      responses:
+        '200':
+          description: The list of catalogues
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - count
+                  - catalogues
+                properties:
+                  count:
+                    description: Count of catalogues
+                    type: integer
+                  catalogues:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - id
+                        - code
+                        - title
+                        - author
+                        - publisher
+                      properties:
+                        id:
+                          description: Unique ID of the catalogue at Numista
+                          type: integer
+                        code:
+                          description: Code of the catalogue
+                          type: string
+                        title:
+                          description: Title of the catalogue
+                          type: string
+                        author:
+                          description: Author(s) of the catalogue
+                          type: string
+                        publisher:
+                          description: Publisher of the catalogue
+                          type: string
+                        isbn13:
+                          description: ISBN-13 code for the catalogue
+                          type: string
+              example:
+                count: 1268
+                catalogues:
+                  - id: 206
+                    code: A
+                    title: A Checklist of Islamic Coins
+                    author: Stephen Album
+                    publisher: Self-published
+                    isbn13: '9780615562445'
+                  - id: 241
+                    code: AB
+                    title: 'Catálogo de la moneda medieval castellano-leonesa : siglos XI al XV'
+                    author: Fernando Álvarez Burgos
+                    publisher: Vico-Segarra Editores
+                    isbn13: '9788485711185'
+                  - id: 26
+                    code: AC
+                    title: The Atwood-Coffee Catalogue of United States and Canadian Transportation Tokens
+                    author: 'John M Coffee, Harold V Ford'
+                    publisher: American Vecturist Associationn
+
+        '401':
+          description: Invalid or missing API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '429':
+          description: You sent too many simultaneous requests or you reached the limit of your monthly quota.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+
+  /search_by_image:
+    post:
+      summary: Search the catalogue by image
+      description: |
+        Find the coin, banknote, and exonumia types that match the input image(s).
+        
+        Search by image is a paid feature. See the [pricing page](https://en.numista.com/api/pricing.php) for more information.
+      operationId: searchByImage
+      tags:
+        - "Catalogue"
+      parameters:
+        - name: lang
+          in: query
+          description: Language
+          required: false
+          schema:
+            type: string
+            enum: [ en, es, fr ]
+            default: en
+        - name: activate_experimental_features
+          in: query
+          description: Activate experimental features (beta version). If this parameter is included, the system will attempt to determine the year and grade. Note that the response time may be longer.
+          required: false
+          schema:
+            type: boolean
+            default: false
+      requestBody:
+        description: The request body contains a list of one or two input images for the obverse and/or the reverse. Images are provided in JPEG or PNG format with base64 encoding. Images should have a size smaller than 1024 px × 1024 px. For best results, the coin on the image should be correctly rotated.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - images
+              properties:
+                category:
+                  description: Catalogue category
+                  type: string
+                  enum: [ coin, banknote, exonumia ]
+                images:
+                  description: List of one or two input images in JPEG or PNG format with base64 encoding.
+                  type: array
+                  minItems: 1
+                  maxItems: 2
+                  items:
+                    type: object
+                    required:
+                      - mime_type
+                      - image_data
+                    properties:
+                      mime_type:
+                        type: string
+                        description: MIME type
+                        enum: [ image/jpeg, image/png ]
+                      image_data:
+                        type: string
+                        description: Base64 encoding of the image
+                        example: "/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAIBAQIBAQICAgICAgICAwUDAwMDAw..."
+                max_results:
+                  description: Maximum number of results. Note that the API may return less results than the specified maximum if less matching types are found.
+                  type: integer
+                  minimum: 1
+                  maximum: 100
+                  default: 100
+              example:
+                category: coin
+                images:
+                  - mime_type: image/jpeg
+                    image_data: /9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAIBAQIBAQICAgICAgICAwUDAwMDAw...
+                  - mime_type: image/jpeg
+                    image_data: /9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAIBAQIBAQICAgICAgICAwUDAwMDAw...
+
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - count
+                  - types
+                properties:
+                  count:
+                    description: Total count of results
+                    type: integer
+                  types:
+                    description: List of results
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - id
+                        - title
+                      properties:
+                        id:
+                          description: Unique ID of the type on Numista
+                          type: integer
+                        title:
+                          description: Title of the type
+                          type: string
+                        object_type:
+                          $ref: '#/components/schemas/object_type'
+                        issuer:
+                          $ref: '#/components/schemas/issuer'
+                        min_year:
+                          description: First year the type was produced (in the Gregorian calendar). This property was spelled "minYear" in the API v1.
+                          type: integer
+                        max_year:
+                          description: Last year the type was produced (in the Gregorian calendar). This property was spelled "maxYear" in the API v1.
+                          type: integer
+                        obverse_thumbnail:
+                          description: URL to a thumbnail of the picture of the obverse
+                          type: string
+                        reverse_thumbnail:
+                          description: URL to a thumbnail of the picture of the reverse
+                          type: string
+                        similarity_distance:
+                          description: Number between 0 and 1. A lower distance indicates that the type is more similar to the input images.
+                          type: number
+                          format: float
+                        category:
+                          description: Category
+                          deprecated: true
+                          type: string
+                          enum: [ coin, banknote, exonumia ]
+                  experimental_tentative_year:
+                    description: Year of the coin, or null if the year could not be determined. This is an experimental feature (beta version). It is returned only if the parameter 'activate_experimental_features' was included in the query.
+                    type: integer
+                    nullable: true
+                  experimental_tentative_grade:
+                    description: Approximate grade of the coin, or null if the grade could not be determined. This is an experimental feature (beta version). It is returned only if the parameter 'activate_experimental_features' was included in the query.
+                    type: string
+                    enum: [ g, vg, f, vf, xf, au, unc ]
+                    nullable: true
+                example:
+                  count: '2'
+                  types:
+                    - id: 420
+                      title: 5 Cents - Victoria
+                      object_type:
+                        id: 1
+                        name: Standard circulation coins
+                      issuer:
+                        code: canada
+                        name: Canada
+                      min_year: 1858
+                      max_year: 1901
+                      obverse_thumbnail: https://en.numista.com/catalogue/photos/canada/1009-180.jpg
+                      reverse_thumbnail: https://en.numista.com/catalogue/photos/canada/1010-180.jpg
+                      similarity_distance: 0.3260901
+                      category: coin
+                    - id: 419
+                      title: 5 Cents - Edward VII
+                      object_type:
+                        id: 1
+                        name: Standard circulation coins
+                      issuer:
+                        code: canada
+                        name: Canada
+                      min_year: 1902
+                      max_year: 1902
+                      obverse_thumbnail: https://en.numista.com/catalogue/photos/canada/1021-180.jpg
+                      reverse_thumbnail: https://en.numista.com/catalogue/photos/canada/1022-180.jpg
+                      similarity_distance: 0.38576567
+                      category: coin
+                  experimental_tentative_year: 1900
+                  experimental_tentative_grade: 'vf'
+        '400':
+          description: Invalid value for a parameter or missing value for a mandatory parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Invalid or missing API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '403':
+          description: Your API key is not activated for using this API endpoint.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '429':
+          description: You sent too many simultaneous requests or you reached the limit of your monthly quota.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+
+  /publications/{id}:
+    get:
+      summary: Get details about a publication
+      description: Retrieve the details about a specific item in the literature catalogue.
+      operationId: getPublication
+      tags:
+        - "Literature"
+      parameters:
+        - name: id
+          in: path
+          description: Numista ID of the publication to fetch, starting with "L" followed by 6 digits.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The publication has been found. Details are present in body.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/publication'
+              examples:
+                book:
+                  summary: Example of a volume (book)
+                  value:
+                    id: L106610
+                    url: https://numista.com/L106610
+                    type: volume
+                    title: Cast Chinese Coins
+                    edition: 2nd edition
+                    languages:
+                      - en
+                    year: 2017
+                    page_count: 453
+                    cover: softcover
+                    isbn10: "1787194949"
+                    isbn13: "9781787194946"
+                    oclc_number: "1000342699"
+                    contributors:
+                      - role: author
+                        name: David Hartill
+                        id: 369
+                    publishers:
+                      - name: Self-published
+                        id: 93
+                    publication_places:
+                      - name: London, United Kingdom
+                        geonames_id: "2643743"
+                    part_of:
+                    - type: volume_group
+                      id: L111322
+                      title: Cast Chinese Coins
+                    bibliographical_notice: David Hartill; 2017. Cast Chinese Coins (2nd Edition). Self-published, London, United Kingdom.
+
+                article:
+                  summary: Example of an article
+                  value:
+                    id: L157773
+                    url: https://numista.com/L157773
+                    type: article
+                    title: Three unknown spade coins
+                    pages: 36-39
+                    contributors:
+                      - role: author
+                        name: David Hartill
+                        id: 369
+                      - role: author
+                        name: W. Op den Welde
+                        id: 13687
+                    part_of:
+                    - type: volume
+                      id: L109295
+                      title: ONS Journal
+                      volume_number: Volume 222
+                    bibliographical_notice: David Hartill, W. Op den Welde; 2015. “Three unknown spade coins”, ONS Journal, Volume 222, pages 36-39.
+                    download_urls:
+                      - https://www.orientalnumismaticsociety.org/archive/ONS_222.pdf
+
+        '400':
+          description: Invalid value for a parameter or missing value for a mandatory parameter.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Invalid or missing API key.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '404':
+          description: The publication with given ID was not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '429':
+          description: You sent too many simultaneous requests or you reached the limit of your monthly quota.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+
+  /oauth_token:
+    get:
+      summary: Get the OAuth access token
+      operationId: getOAuthToken
+      tags:
+        - "OAuth"
+      description: |
+        In order to access the data of a Numista user, you will need to authenticate using the OAuth 2.0 protocol.
+        See the section "Authentication" above.
+        
+        
+        Two types of authentications are available: authorization code and client credentials.
+        
+        
+        For the "authoriation code" flow, call the endpoint `/oauth_token` with the following parameters:
+        - `grant_type` is "authorization_code".
+        - `code` is the code you received in the query string of the back redirection described above.
+        - `client_id` is the client ID which was assigned to your application and provided together with your API key.
+        - `client_secret` is your API key.
+        - `redirect_uri` is the redirection URI you specified for the step described above.
+        
+        
+        For the "client credentials" flow, call the endpoint `/oauth_token` with the following parameters:
+        - `grant_type` is "client_credentials".
+        - `scope` is a comma-separated list of permissions you are requesting (e.g. 'view_collection').
+
+        You may use the resulting access token for all subsequent API calls which need user authentication. 
+        The access token should be provided in the HTTP header of the subsequent API calls according the following model:
+        
+        `Authorization: Bearer {access_token}`
+        
+        
+        The access token has a limited validity period. The lifetime of the access token is indicated in the response of the API.
+
+      parameters:
+        - name: grant_type
+          in: query
+          description: Grant type "authorization_code" (default) or "client_credentials"
+          required: false
+          schema:
+            type: string
+            enum: [ authorization_code, client_credentials ]
+            default: authorization_code
+        - name: code
+          in: query
+          description: For grant type "authorization_code", this is the authorization code (mandatory for grant type "authorization_code")
+          required: false
+          schema:
+            type: string
+        - name: client_id
+          in: query
+          description: For grant type "authorization_code", client ID (mandatory for grant type "authorization_code")
+          required: false
+          schema:
+            type: string
+        - name: client_secret
+          in: query
+          description: For grant type "authorization_code", client secret, which is the same as the API key (mandatory for grant type "authorization_code")
+          required: false
+          schema:
+            type: string
+        - name: redirect_uri
+          in: query
+          description: For grant type "authorization_code", repeat the redirect URI used to get the authorization code (mandatory for grant type "authorization_code")
+          required: false
+          schema:
+            type: string
+        - name: scope
+          in: query
+          description: A comma-separated list of permissions you are requesting (e.g. 'view_collection') (for grant type "client_credentials")
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A token is provided to access the data of a Numista user
+          content:
+            application/json:
+              schema:
+                required:
+                  - access_token
+                  - token_type
+                  - expires_in
+                  - user_id
+                properties:
+                  access_token:
+                    description: Token granting access to the data of a Numista user
+                    type: string
+                  token_type:
+                    description: Type of token ("bearer")
+                    type: string
+                  expires_in:
+                    description: Delay in seconds before the token expires
+                    type: integer
+                  user_id:
+                    description: ID of the user who authenticated
+                    type: integer
+              example:
+                access_token: b85cb9515e4d3215cd22f2a2771235f759978f0f
+                token_type: bearer
+                expires_in: 7776000
+                user_id: 2104
+
+        '400':
+          description: Invalid value for a parameter or missing value for a mandatory parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Invalid or missing API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '429':
+          description: You sent too many simultaneous requests or you reached the limit of your monthly quota.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '501':
+          description: No user associated to your API key (for grant type "client_credentials")
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+
+  /users/{user_id}:
+    get:
+      summary: Get details about a user
+      operationId: getUser
+      tags:
+        - "User"
+      parameters:
+        - name: user_id
+          in: path
+          description: ID of the user
+          required: true
+          schema:
+            type: integer
+        - name: lang
+          in: query
+          description: Language
+          required: false
+          schema:
+            type: string
+            enum: [ en, es, fr ]
+            default: en
+      responses:
+        '200':
+          description: The user information are returned
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - username
+                  - avatar
+                properties:
+                  username:
+                    description: User name
+                    type: string
+                  avatar:
+                    description: URL to the avatar picture of the user
+                    type: string
+              example:
+                username: demo
+                avatar: 'https://en.numista.com/forum/avatars/183219764755b257d9cf3b7.png'
+        '400':
+          description: Invalid value for a parameter or missing value for a mandatory parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Invalid or missing API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '404':
+          description: The user with given ID does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '429':
+          description: You sent too many simultaneous requests or you reached the limit of your monthly quota.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+
+  /users/{user_id}/collections:
+    get:
+      summary: Get the list of collections of a user
+      description: |
+        A user can organize their items in multiple collections.
+        
+        This functionality requires the OAuth 2.0 authentication with the scope "view_collection".
+      operationId: getUserCollections
+      security:
+        - ApiKeyAuth: [ ]
+          OAuth2: [ view_collection ]
+      tags:
+        - "User"
+      parameters:
+        - name: user_id
+          in: path
+          description: ID of the user
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: The collections are returned
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - count
+                  - collections
+                properties:
+                  count:
+                    description: Number of collections
+                    type: integer
+                  collections:
+                    description: List of collections
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/collection'
+              example:
+                count: 3
+                collections:
+                  - id: 1001
+                    name: Coins with flowers
+                  - id: 1002
+                    name: Lucy's collection
+                  - id: 1003
+                    name: Bullion investment
+        '400':
+          description: Invalid value for a parameter or missing value for a mandatory parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Invalid or missing API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '404':
+          description: The user with given ID does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '429':
+          description: You sent too many simultaneous requests or you reached the limit of your monthly quota.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+
+  /users/{user_id}/collected_items:
+    get:
+      summary: Get the items owned by a user
+      description:
+        Retrieve the details about all the items (coins, banknotes, pieces of exonumia) in collected by the user.
+        
+        This functionality requires the OAuth 2.0 authentication with the scope "view_collection".
+      operationId: getCollectedItems
+      security:
+        - ApiKeyAuth: [ ]
+          OAuth2: [ view_collection ]
+      tags:
+        - "User"
+      parameters:
+        - name: user_id
+          in: path
+          description: ID of the user
+          required: true
+          schema:
+            type: integer
+        - name: category
+          in: query
+          description: Category. If this parameter is provided, only items of the given category are returned.
+          required: false
+          schema:
+            type: string
+            enum: [ coin, banknote, exonumia ]
+        - name: type
+          in: query
+          description: Type ID. If this parameter is provided, only items of the given type are returned.
+          required: false
+          schema:
+            type: integer
+        - name: collection
+          in: query
+          description: Collection ID. If this parameter is provided, only items in the given collection are returned.
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: The list of items in the user collection could is returned.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - item_count
+                  - item_for_swap_count
+                  - item_type_count
+                  - item_type_for_swap_count
+                  - items
+                properties:
+                  item_count:
+                    description: Count of items owned by the user
+                    type: integer
+                  item_for_swap_count:
+                    description: Count of items offered for swap by the user
+                    type: integer
+                  item_type_count:
+                    description: Count of different types owned by the user
+                    type: integer
+                  item_type_for_swap_count:
+                    description: Count of different types offered for swap by the user
+                    type: integer
+                  items:
+                    description: List of items in the collection
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/collected_item'
+        '400':
+          description: Invalid value for a parameter or missing value for a mandatory parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Invalid or missing API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '404':
+          description: The user with given ID does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '429':
+          description: You sent too many simultaneous requests or you reached the limit of your monthly quota.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+
+    post:
+      summary: Add an item in the user collection
+      description: This functionality requires the OAuth 2.0 authentication with the scope "edit_collection".
+      operationId: addCollectedItems
+      security:
+        - ApiKeyAuth: [ ]
+          OAuth2: [ edit_collection ]
+      tags:
+        - "User"
+      parameters:
+        - name: user_id
+          in: path
+          description: ID of the user
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        description: Data related to the item to be added to the collection
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - type
+              properties:
+                type:
+                  description: ID of the type of the item
+                  type: integer
+                issue:
+                  description: ID of the issue of the item
+                  type: integer
+                quantity:
+                  description: Quantity of items
+                  type: integer
+                  default: 1
+                grade:
+                  description: Grade of the item
+                  type: string
+                  enum: [ g, vg, f, vf, xf, au, unc ]
+                for_swap:
+                  description: Indicate whether the item is available for swap
+                  type: boolean
+                  default: false
+                private_comment:
+                  description: Private comment
+                  type: string
+                public_comment:
+                  description: Public comment
+                  type: string
+                price:
+                  $ref: '#/components/schemas/price'
+                collection:
+                  description: ID of the collection.
+                  type: integer
+                storage_location:
+                  description: Storage location
+                  type: string
+                acquisition_place:
+                  description: Acquisition place
+                  type: string
+                acquisition_date:
+                  description: Acquisition date (YYYY-MM-DD)
+                  type: string
+                  format: date
+                serial_number:
+                  description: Serial number
+                  type: string
+                internal_id:
+                  description: Internal ID
+                  type: string
+                weight:
+                  description: Weight, g
+                  type: number
+                  format: float
+                size:
+                  description: Size, mm
+                  type: number
+                  format: float
+                axis:
+                  description: Axis, h (integers from 1 to 12)
+                  type: integer
+                grading_details:
+                  required:
+                    - grading_company
+                  properties:
+                    grading_company:
+                      description: ID of the grading service
+                      type: integer
+                    slab_grade:
+                      description: ID of the grading mark
+                      type: integer
+                    slab_number:
+                      description: Slab number
+                      type: string
+                    cac_sticker:
+                      description: CAC sticker ("Green" or "Gold")
+                      type: string
+                    grading_designations:
+                      description: IDs of the grading designations
+                      type: array
+                      items:
+                        type: integer
+                    grading_strike:
+                      description: ID of the grading strike
+                      type: integer
+                    grading_surface:
+                      description: ID of the grading surface
+                      type: integer
+            example:
+              type: 11331
+              issue: 63444
+              quantity: 1
+              grade: vf
+              for_swap: false
+              private_comment: Test with the API
+              price:
+                value: 76
+                currency: EUR
+              storage_location: Minsk
+              acquisition_place: Babruysk
+              acquisition_date: 2020-08-08
+              serial_number: 123456789A
+              internal_id: Emergency reserve №12
+              weight: 4.4
+              size: 20.5
+              axis: 6
+              grading_details:
+                grading_company: 2 #NGC Ancient
+                slab_grade: 13 #AU55
+                slab_number: 12345/3210
+                cac_sticker: Gold
+                grading_designations: [192, 193] #★, fine style
+                grading_strike: 223 #1
+                grading_surface: 228 #1
+      responses:
+        '201':
+          description: The item was added to the user collection. The item is described in the response body.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/collected_item'
+        '400':
+          description: Invalid value for a parameter or missing value for a mandatory parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Invalid or missing API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '404':
+          description: The user with given ID does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '429':
+          description: You sent too many simultaneous requests or you reached the limit of your monthly quota.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+
+  /users/{user_id}/collected_items/{item_id}:
+    get:
+      summary: Get an item in a user's collection
+      description: |
+        Retrieve the details about a specific item collected by the user.
+        
+        This functionality requires the OAuth 2.0 authentication with the scope "view_collection".
+      operationId: getCollectedItem
+      security:
+        - ApiKeyAuth: [ ]
+          OAuth2: [ view_collection ]
+      tags:
+        - "User"
+      parameters:
+        - name: user_id
+          in: path
+          description: ID of the user
+          required: true
+          schema:
+            type: integer
+        - name: item_id
+          in: path
+          description: ID of the collected item
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: The item in the user collection is returned.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/collected_item'
+        '400':
+          description: Invalid value for a parameter or missing value for a mandatory parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Invalid or missing API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '404':
+          description: The user or item with given ID does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '429':
+          description: You sent too many simultaneous requests or you reached the limit of your monthly quota.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+
+    patch:
+      summary: Edit an item in a user's collection
+      description: |
+        All fields in the request body are optional. Only the fields which are present will be updated.
+        
+        This functionality requires the OAuth 2.0 authentication with the scope "edit_collection".
+      operationId: editCollectedItem
+      security:
+        - ApiKeyAuth: [ ]
+          OAuth2: [ edit_collection ]
+      tags:
+        - "User"
+      parameters:
+        - name: user_id
+          in: path
+          description: ID of the user
+          required: true
+          schema:
+            type: integer
+        - name: item_id
+          in: path
+          description: ID of the collected item
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        description: Item data which need to be edited
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                type:
+                  description: ID of the type of the item
+                  type: integer
+                issue:
+                  description: ID of the issue of the item, or null for undetermined issue
+                  type: integer
+                  nullable: true
+                quantity:
+                  description: Quantity of items
+                  type: integer
+                  default: 1
+                grade:
+                  description: Grade of the item, or null for undetermined grade
+                  type: string
+                  enum: [ g, vg, f, vf, xf, au, unc ]
+                  nullable: true
+                for_swap:
+                  description: Indicate whether the item is available for swap
+                  type: boolean
+                  default: false
+                private_comment:
+                  description: Private comment
+                  type: string
+                public_comment:
+                  description: Public comment
+                  type: string
+                price:
+                  description: Buying price
+                  nullable: true
+                  type: object
+                  required:
+                    - value
+                    - currency
+                  properties:
+                    value:
+                      description: Value
+                      type: number
+                    currency:
+                      description: 3-letter ISO 4217 currency code
+                      type: string
+                collection:
+                  description: ID of the collection.
+                  type: integer
+                storage_location:
+                  description: Storage location
+                  type: string
+                acquisition_place:
+                  description: Acquisition place
+                  type: string
+                acquisition_date:
+                  description: Acquisition date (YYYY-MM-DD)
+                  type: string
+                  format: date
+                serial_number:
+                  description: Serial number
+                  type: string
+                internal_id:
+                  description: Internal ID
+                  type: string
+                weight:
+                  description: Weight, g
+                  type: number
+                  format: float
+                size:
+                  description: Size, mm
+                  type: number
+                  format: float
+                axis:
+                  description: Axis, h (integers from 1 to 12)
+                  type: integer
+                grading_details:
+                  properties:
+                    grading_company:
+                      description: ID of the grading service
+                      type: integer
+                    slab_grade:
+                      description: ID of the grading mark
+                      type: integer
+                    slab_number:
+                      description: Slab number
+                      type: string
+                    cac_sticker:
+                      description: CAC sticker ("Green" or "Gold")
+                      type: string
+                    grading_designations:
+                      description: IDs of the grading designations
+                      type: array
+                      items:
+                        type: integer
+                    grading_strike:
+                      description: ID of the grading strike
+                      type: integer
+                    grading_surface:
+                      description: ID of the grading surface
+                      type: integer
+            example:
+              issue: null
+              grade: f
+              price:
+                value: 93
+                currency: USD
+              storage_location: Minsk
+              acquisition_place: Babruysk
+              acquisition_date: 2020-08-08
+              serial_number: 123456789A
+              internal_id: Emergency reserve №12
+              weight: 4.4
+              size: 20.5
+              axis: 6
+              grading_details:
+                grading_company: 1 #NGC
+                slab_grade: 387 #AG DETAILS
+                slab_number: 12321/0110
+                grading_designations: [420] #★
+      responses:
+        '200':
+          description: The item had been edited. The updated item is described in the response body.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/collected_item'
+        '400':
+          description: Invalid value for a parameter or missing value for a mandatory parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Invalid or missing API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '404':
+          description: The user or item with given ID does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '429':
+          description: You sent too many simultaneous requests or you reached the limit of your monthly quota.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+
+    delete:
+      summary: Delete an item from a user's collection
+      description: This functionality requires the OAuth 2.0 authentication with the scope "edit_collection".
+      operationId: deleteCollectedItem
+      security:
+        - ApiKeyAuth: [ ]
+          OAuth2: [ edit_collection ]
+      tags:
+        - "User"
+      parameters:
+        - name: user_id
+          in: path
+          description: ID of the user
+          required: true
+          schema:
+            type: integer
+        - name: item_id
+          in: path
+          description: ID of the collected item
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: The item has been deleted.
+        '401':
+          description: Invalid or missing API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '404':
+          description: The user or item with given ID does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '429':
+          description: You sent too many simultaneous requests or you reached the limit of your monthly quota.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+
+  /users/{user_id}/collected_coins:
+    get:
+      deprecated: true
+      summary: Get the coins owned by a user
+      description: This endpoint was removed in the API version 3 and above. Please use the endpoint /users/{user_id}/collected_items instead.
+      operationId: getCollectedCoins
+      security:
+        - ApiKeyAuth: [ ]
+          OAuth2: [ view_collection ]
+      tags:
+        - "Deprecated"
+      parameters:
+        - name: user_id
+          in: path
+          description: ID of the user
+          required: true
+          schema:
+            type: integer
+        - name: lang
+          in: query
+          description: Language
+          required: false
+          schema:
+            type: string
+            enum: [ en, es, fr ]
+            default: en
+        - name: coin
+          in: query
+          description: Coin type ID. If this parameter is provided, only coins of the given coin type are returned.
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: The list of coins in the user collection could is returned.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - coin_count
+                  - coin_for_swap_count
+                  - coin_type_count
+                  - coin_type_for_swap_count
+                  - collected_coins
+                properties:
+                  coin_count:
+                    description: Count of coins owned by the user
+                    type: integer
+                  coin_for_swap_count:
+                    description: Count of coins offered for swap by the user
+                    type: integer
+                  coin_type_count:
+                    description: Count of different coin types owned by the user
+                    type: integer
+                  coin_type_for_swap_count:
+                    description: Count of different coin types offered for swap by the user
+                    type: integer
+                  collected_coins:
+                    description: List of collected coins
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/collected_item'
+        '400':
+          description: Invalid value for a parameter or missing value for a mandatory parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '401':
+          description: Invalid or missing API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '404':
+          description: The user with given ID does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+        '429':
+          description: You sent too many simultaneous requests or you reached the limit of your monthly quota.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      description: Please send your API key in a HTTP header named "Numista-API-Key"
+      in: header
+      name: Numista-API-Key
+    OAuth2:
+      type: oauth2
+      description: OAuth 2.0 authentication with authorization code flow and client credentials flow.
+      flows:
+        authorizationCode:
+          authorizationUrl: https://en.numista.com/api/oauth_authorize.php
+          tokenUrl: https://api.numista.com/v3/oauth_token
+          scopes:
+            view_collection: Get user's collection data
+            edit_collection: Modify user's collection
+        clientCredentials:
+          tokenUrl: https://api.numista.com/v3/oauth_token
+          scopes:
+            view_collection: Get user's collection data
+            edit_collection: Modify user's collection
+  schemas:
+    error:
+      required:
+        - error
+      properties:
+        error_message:
+          description: Error message.
+          type: string
+      example:
+        error_message: This is an error message.
+
+    type:
+      required:
+        - id
+        - title
+      properties:
+        id:
+          description: Unique ID of the type on Numista
+          type: integer
+        url:
+          description: URL to the type on Numista
+          type: string
+        title:
+          description: Title of the type
+          type: string
+        object_type:
+          $ref: '#/components/schemas/object_type'
+        issuer:
+          $ref: '#/components/schemas/issuer'
+        issuing_entity:
+          description: Issuing entity (bank, company, etc.)
+          type: object
+          required:
+            - id
+            - name
+          properties:
+            id:
+              description: Unique ID of the issuing entity on Numista
+              type: integer
+            name:
+              description: Name of the issuing entity
+              type: string
+            wikidata_id:
+              description: Identifier of the issuing entity at Wikidata, starting with a "Q"
+              type: string
+        secondary_issuing_entity:
+          description: Secondary issuing entity participating in the type release along with the primary one
+          type: object
+          required:
+            - id
+            - name
+          properties:
+            id:
+              description: Unique ID of the issuing entity on Numista
+              type: integer
+            name:
+              description: Name of the issuing entity
+              type: string
+            wikidata_id:
+              description: Identifier of the issuing entity at Wikidata, starting with a "Q"
+              type: string
+        min_year:
+          description: First year the type was produced (in the Gregorian calendar)
+          type: integer
+        max_year:
+          description: Last year the type was produced (in the Gregorian calendar)
+          type: integer
+        value:
+          description: Face value
+          type: object
+          properties:
+            text:
+              description: Face value in text format
+              type: string
+            numeric_value:
+              description: Face value as a floating number.
+              type: number
+              format: float
+            numerator:
+              description: If the value is better described as a fraction, this is the numerator of the fraction
+              type: integer
+            denominator:
+              description: If the value is better described as a fraction, this is the denominator of the fraction
+              type: integer
+            currency:
+              $ref: '#/components/schemas/currency'
+        ruler:
+          description: Ruling authorities (emperor, queen, period, etc.)
+          type: array
+          items:
+            type: object
+            required:
+              - id
+              - name
+            properties:
+              id:
+                description: Unique ID of the ruling authority on Numista
+                type: integer
+              name:
+                description: Name of the ruling authority
+                type: string
+              wikidata_id:
+                description: Identifier of the ruling authority at Wikidata, starting with a "Q"
+                type: string
+              nomisma_id:
+                description: Identifier of the ruling authority at Nomisma
+                type: string
+              group:
+                description: Dynasty, house, extended period, or any other group of ruling authorities
+                type: object
+                required:
+                  - id
+                  - name
+                properties:
+                  id:
+                    description: Unique ID of the ruling authority group on Numista
+                    type: integer
+                  name:
+                    description: Name of the ruling authority group
+                    type: string
+        demonetization:
+          description: Information about the demonetization of the coin or banknote
+          type: object
+          required:
+            - is_demonetized
+          properties:
+            is_demonetized:
+              description: True if the type is demonetized, false if it is not demonetized
+              type: boolean
+            demonetization_date:
+              description: Date of demonetisation (YYYY-MM-DD)
+              type: string
+              format: date
+        shape:
+          description: Shape
+          type: string
+        composition:
+          description: Composition (metallic content)
+          type: object
+          properties:
+            text:
+              description: Description of the composition
+              type: string
+        technique:
+          description: Manufacturing technique
+          type: object
+          properties:
+            text:
+              description: Description of the technique
+              type: string
+        weight:
+          description: Weight in grams
+          type: number
+          format: float
+        size:
+          description: Size in millimeters. For round items, this is the diameter. For other shapes, this is the main (largest) dimension.
+          type: number
+          format: float
+        size2:
+          description: For items with a non-round shape, size of the second dimension in millimeters.
+          type: number
+          format: float
+        thickness:
+          description: Thickness of the coin in millimeters
+          type: number
+          format: float
+        orientation:
+          description: Orientation of the coin ("coin", "medal", "three" (3 o'clock), "nine" (9 o'clock), or "variable")
+          type: string
+          enum: [ coin, medal, variable, three, nine ]
+        obverse:
+          $ref: '#/components/schemas/coin_side'
+        reverse:
+          $ref: '#/components/schemas/coin_side'
+        edge:
+          $ref: '#/components/schemas/coin_side'
+        watermark:
+          $ref: '#/components/schemas/coin_side'
+        mints:
+          description: Mints where the coin was minted
+          type: array
+          items:
+            type: object
+            required:
+              - id
+              - name
+            properties:
+              id:
+                description: Unique ID of the mint on Numista
+                type: integer
+              name:
+                description: Name of the mint
+                type: string
+        printers:
+          description: Printers where the banknote was printed
+          type: array
+          items:
+            type: object
+            required:
+              - id
+              - name
+            properties:
+              id:
+                description: Unique ID of the printer on Numista
+                type: integer
+              name:
+                description: Name of the printer
+                type: string
+        series:
+          description: For types which are part of a series, the name of the series
+          type: string
+        commemorated_topic:
+          description: For commemorated types, short description of the commemorated topic (event, person, etc.)
+          type: string
+        comments:
+          description: General comments about the type (HTML format)
+          type: string
+        related_types:
+          description: List of related types
+          type: array
+          items:
+            type: object
+            required:
+              - id
+              - title
+            properties:
+              id:
+                description: Unique ID of the type on Numista
+                type: integer
+              title:
+                description: Title of the type
+                type: string
+              category:
+                description: Category
+                type: string
+                enum: [ coin, banknote, exonumia ]
+              issuer:
+                $ref: '#/components/schemas/issuer'
+              min_year:
+                description: First year the type was producted (in the Gregorian calendar).
+                type: integer
+              max_year:
+                description: Last year the type was producted (in the Gregorian calendar).
+                type: integer
+        tags:
+          description: List of tags
+          type: array
+          items:
+            type: string
+        references:
+          description: References of the type in other catalogues
+          type: array
+          items:
+            $ref: '#/components/schemas/reference'
+        category:
+          description: Category
+          deprecated: true
+          type: string
+          enum: [ coin, banknote, exonumia ]
+        type:
+          description: Type
+          deprecated: true
+          type: string
+
+    coin:
+      deprecated: true
+      required:
+        - id
+        - title
+      properties:
+        id:
+          description: Unique ID of the coin on Numista
+          type: integer
+        url:
+          description: URL to the coin on Numista
+          type: string
+        title:
+          description: Title of the coin
+          type: string
+        issuer:
+          $ref: '#/components/schemas/issuer'
+        min_year:
+          description: First year the coin was minted (in the Gregorian calendar). This property was spelled "minYear" in the API v1.
+          type: integer
+        max_year:
+          description: Last year the coin was minted (in the Gregorian calendar). This property was spelled "maxYear" in the API v1.
+          type: integer
+        type:
+          description: Type of coin
+          type: integer
+        value:
+          description: Face value of the coin
+          type: object
+          properties:
+            text:
+              description: Face value in text format
+              type: string
+            numeric_value:
+              description: Face value as a floating number. This property was named "value" in the API v1.
+              type: number
+              format: float
+            numerator:
+              description: If the value is better described as a fraction, this is the numerator of the fraction
+              type: integer
+            denominator:
+              description: If the value is better described as a fraction, this is the denominator of the fraction
+              type: integer
+            currency:
+              $ref: '#/components/schemas/currency'
+        ruler:
+          description: Ruling authorities (emperor, queen, period, etc.)
+          type: array
+          items:
+            type: object
+            required:
+              - id
+              - name
+            properties:
+              id:
+                description: Unique ID of the ruling authority on Numista
+                type: integer
+              name:
+                description: Name of the ruling authority
+                type: string
+              wikidata_id:
+                description: Identifier of the ruling authority at Wikidata, starting with a "Q"
+                type: string
+              nomisma_id:
+                description: Identifier of the ruling authority at Nomisma
+                type: string
+              group:
+                description: Dynasty, house, extended period, or any other group of ruling authorities
+                type: object
+                required:
+                  - id
+                  - name
+                properties:
+                  id:
+                    description: Unique ID of the ruling authority group on Numista
+                    type: integer
+                  name:
+                    description: Name of the ruling authority group
+                    type: string
+        shape:
+          description: Shape of the coin
+          type: string
+        composition:
+          description: Composition of coin (metallic content)
+          type: object
+          properties:
+            text:
+              description: Description of the composition
+              type: string
+        weight:
+          description: Weight of the coin in grams
+          type: number
+          format: float
+        size:
+          description: Size in millimeters. For round items, this is the diameter. For other shapes, this is the main (largest) dimension.
+          type: number
+          format: float
+        size2:
+          description: For items with a non-round shape, size of the second dimension in millimeters.
+          type: number
+          format: float
+        thickness:
+          description: Thickness of the coin in millimeters
+          type: number
+          format: float
+        orientation:
+          description: Orientation of the coin ("coin", "medal" or "variable")
+          type: string
+          enum: [ coin, medal, variable ]
+        obverse:
+          $ref: '#/components/schemas/coin_side'
+        reverse:
+          $ref: '#/components/schemas/coin_side'
+        edge:
+          $ref: '#/components/schemas/coin_side'
+        mints:
+          description: Mints where the coin was minted
+          type: array
+          items:
+            type: object
+            required:
+              - id
+              - name
+            properties:
+              id:
+                description: Unique ID of the mint on Numista
+                type: integer
+              name:
+                description: Name of the mint
+                type: string
+        series:
+          description: For coins which are part of a series, the name of the series
+          type: string
+        commemorated_topic:
+          description: For commemorated coins, short description of the commemorated topic (event, person, etc.)
+          type: string
+        comments:
+          description: General comments about the coin (HTML format)
+          type: string
+        related_coins:
+          description: List of related coins
+          type: array
+          items:
+            type: object
+            required:
+              - id
+              - title
+            properties:
+              id:
+                description: Unique ID of the coin on Numista
+                type: integer
+              title:
+                description: Title of the coin
+                type: string
+              issuer:
+                $ref: '#/components/schemas/issuer'
+              min_year:
+                description: First year the coin was minted (in the Gregorian calendar). This property was spelled "minYear" in the API v1.
+                type: integer
+              max_year:
+                description: Last year the coin was minted (in the Gregorian calendar). This property was spelled "maxYear" in the API v1.
+                type: integer
+        tags:
+          description: List of tags
+          type: array
+          items:
+            type: string
+        references:
+          description: References of the coin in other catalogues
+          type: array
+          items:
+            $ref: '#/components/schemas/reference'
+
+    type_update:
+      required:
+        - title
+        - category
+      properties:
+        title:
+          description: Title of the type
+          type: array
+          items:
+            $ref: '#/components/schemas/localized_label'
+        category:
+          description: Category
+          type: string
+          enum: [ coin, banknote, exonumia ]
+        issuer:
+          description: Issuer
+          type: object
+          required:
+            - code
+          properties:
+            code:
+              description: Unique ID of the issuer on Numista
+              type: string
+        issuing_entity:
+          description: Issuing entity
+          type: object
+          required:
+            - id
+          properties:
+            id:
+              description: Unique ID of the issuing entity on Numista
+              type: integer
+        type:
+          description: Type
+          type: integer
+        value:
+          description: Face value
+          type: object
+          properties:
+            denomination:
+              description: Denomination
+              type: object
+              required:
+                - id
+              properties:
+                id:
+                  description: Unique ID of the denomination on Numista
+                  type: integer
+            currency:
+              description: Currency
+              type: object
+              required:
+                - id
+              properties:
+                id:
+                  description: Unique ID of the currency on Numista
+                  type: integer
+        ruling_authority:
+          description: Ruling authorities (emperor, queen, period, etc.).
+          type: array
+          items:
+            type: object
+            required:
+              - id
+            properties:
+              id:
+                description: Unique ID of the ruling authority on Numista
+                type: integer
+          minItems: 1
+          maxItems: 5
+        shape:
+          description: Shape
+          type: object
+          required:
+            - id
+          properties:
+            id:
+              description: Unique ID of the shape on Numista
+              type: integer
+            additional_details:
+              type: array
+              items:
+                $ref: '#/components/schemas/localized_label'
+        composition:
+          description: Composition (metallic content)
+          type: object
+          required:
+            - composition_type
+          properties:
+            composition_type:
+              description: Type of composition (only "plain" is currently supported)
+              type: string
+              example: plain
+            core:
+              type: object
+              description: Composition of the core
+              required:
+                - material
+              properties:
+                material:
+                  type: object
+                  required:
+                    - id
+                  properties:
+                    id:
+                      description: Unique ID of the material on Numista
+                      type: integer
+                fineness:
+                  description: Fineness of the material (e.g. 999.9)
+                  type: number
+                  format: float
+            additional_details:
+              type: array
+              items:
+                $ref: '#/components/schemas/localized_label'
+        technique:
+          description: Manufacturing technique
+          properties:
+            list:
+              type: array
+              items:
+                type: object
+                required:
+                  - id
+                properties:
+                  id:
+                    description: Unique ID of the manufacturing technique on Numista
+                    type: integer
+            additional_details:
+              type: array
+              items:
+                $ref: '#/components/schemas/localized_label'
+        weight:
+          description: Weight in grams
+          type: number
+          format: float
+        size:
+          description: Size (diameter) in millimeters
+          type: number
+          format: float
+        thickness:
+          description: Thickness of the coin in millimeters
+          type: number
+          format: float
+        orientation:
+          description: Orientation of the coin ("coin", "medal" or "variable")
+          type: string
+          enum: [ coin, medal, variable ]
+          example: coin
+        demonetization:
+          description: Inform whether the coin or banknote is demonetized
+          type: object
+          required:
+            - is_demonetized
+          properties:
+            is_demonetized:
+              description: true if demonetized, and false if still legal tender.
+              type: boolean
+            demonetization_date:
+              description: Demonetization date, with format "YYYY-MM-DD"
+              type: string
+              format: date
+        calendar:
+          description: Calendar to which the year visible on the type belongs
+          type: object
+          required:
+            - code
+          properties:
+            code:
+              description: Unique ID of the calendar on Numista
+              type: string
+        obverse:
+          $ref: '#/components/schemas/type_side_update'
+        reverse:
+          $ref: '#/components/schemas/type_side_update'
+        edge:
+          $ref: '#/components/schemas/type_side_update'
+        watermark:
+          $ref: '#/components/schemas/type_side_update'
+        mints:
+          description: Mints where the coin was minted
+          type: array
+          items:
+            type: object
+            required:
+              - id
+            properties:
+              id:
+                description: Unique ID of the mint on Numista
+                type: integer
+              letter:
+                description: Mint letter
+                type: string
+        printers:
+          description: Printers where the banknote was printed
+          type: array
+          items:
+            type: object
+            required:
+              - id
+            properties:
+              id:
+                description: Unique ID of the printer on Numista
+                type: integer
+        series:
+          description: For types which are part of a series, the name of the series
+          type: array
+          items:
+            $ref: '#/components/schemas/localized_label'
+        commemorated_topic:
+          description: For commemorated types, short description of the commemorated topic (event, person, etc.)
+          type: array
+          items:
+            $ref: '#/components/schemas/localized_label'
+        comments:
+          description: General comments about the type (HTML format)
+          type: array
+          items:
+            $ref: '#/components/schemas/localized_label'
+        related_types:
+          description: List of related types
+          type: array
+          items:
+            type: object
+            required:
+              - id
+            properties:
+              id:
+                description: Unique ID of the type on Numista
+                type: integer
+        tags:
+          description: List of tags
+          type: array
+          items:
+            type: object
+            required:
+              - id
+            properties:
+              id:
+                description: ID of the tag in Numista
+                type: integer
+        references:
+          description: References of the type in other catalogues
+          type: array
+          items:
+            type: object
+            required:
+              - catalogue
+              - number
+            properties:
+              catalogue:
+                description: The catalogue in which the reference can be found
+                type: object
+                required:
+                  - id
+                properties:
+                  id:
+                    description: ID of the catalogue in Numista
+                    type: integer
+              number:
+                description: Number of the type in the catalogue
+                type: string
+          maxItems: 5
+
+    coin_update:
+      deprecated: true
+      required:
+        - title
+      properties:
+        title:
+          description: Title of the coin
+          type: array
+          items:
+            $ref: '#/components/schemas/localized_label'
+        issuer:
+          description: Issuer
+          type: object
+          required:
+            - code
+          properties:
+            code:
+              description: Unique ID of the issuer on Numista
+              type: string
+        type:
+          description: Type of coin
+          type: integer
+        value:
+          description: Face value of the coin
+          type: object
+          properties:
+            text:
+              description: Face value in text format
+              type: array
+              items:
+                $ref: '#/components/schemas/localized_label'
+            numeric_value:
+              description: Face value as a floating number. This field is ignored if a numerator and a denominator are provided.
+              type: number
+              format: float
+            numerator:
+              description: If the value is better described as a fraction, this is the numerator of the fraction
+              type: integer
+            denominator:
+              description: If the value is better described as a fraction, this is the denominator of the fraction
+              type: integer
+            currency:
+              description: Currency of the coin
+              type: object
+              required:
+                - id
+              properties:
+                id:
+                  description: Unique ID of the currency on Numista
+                  type: integer
+        ruling_authority:
+          description: Ruling authorities (emperor, queen, period, etc.).
+          type: array
+          items:
+            type: object
+            required:
+              - id
+            properties:
+              id:
+                description: Unique ID of the ruling authority on Numista
+                type: integer
+          minItems: 1
+          maxItems: 5
+        shape:
+          description: Shape of the coin
+          type: object
+          required:
+            - id
+          properties:
+            id:
+              description: Unique ID of the shape on Numista
+              type: integer
+            additional_details:
+              type: array
+              items:
+                $ref: '#/components/schemas/localized_label'
+        composition:
+          description: Composition of coin (metallic content)
+          type: object
+          required:
+            - composition_type
+          properties:
+            composition_type:
+              description: Type of composition (only "plain" is currently supported)
+              type: string
+              example: plain
+            core:
+              type: object
+              description: Composition of the core
+              required:
+                - material
+              properties:
+                material:
+                  type: object
+                  required:
+                    - id
+                  properties:
+                    id:
+                      description: Unique ID of the material on Numista
+                      type: integer
+                fineness:
+                  description: Fineness of the material (e.g. 999.9)
+                  type: number
+                  format: float
+            additional_details:
+              type: array
+              items:
+                $ref: '#/components/schemas/localized_label'
+        weight:
+          description: Weight of the coin in grams
+          type: number
+          format: float
+        size:
+          description: Size of coin (diameter) in millimeters
+          type: number
+          format: float
+        thickness:
+          description: Thickness of the coin in millimeters
+          type: number
+          format: float
+        orientation:
+          description: Orientation of the coin ("coin", "medal" or "variable")
+          type: string
+          enum: [ coin, medal, variable ]
+          example: coin
+        demonetization:
+          description: Inform whether the coin is demonetized
+          type: object
+          required:
+            - is_demonetized
+          properties:
+            is_demonetized:
+              description: true for demonetized coins and false for coins which are still legal tender.
+              type: boolean
+            demonetization_date:
+              description: Demonetization date, with format "YYYY-MM-DD"
+              type: string
+              format: date
+        calendar:
+          description: Calendar to which the year visible on the coin belongs
+          type: object
+          required:
+            - code
+          properties:
+            code:
+              description: Unique ID of the calendar on Numista
+              type: string
+        obverse:
+          $ref: '#/components/schemas/coin_side_update'
+        reverse:
+          $ref: '#/components/schemas/coin_side_update'
+        edge:
+          $ref: '#/components/schemas/coin_side_update'
+        mints:
+          description: Mints where the coin was minted
+          type: array
+          items:
+            type: object
+            required:
+              - id
+            properties:
+              id:
+                description: Unique ID of the mint on Numista
+                type: integer
+              letter:
+                description: Mint letter
+                type: string
+        series:
+          description: For coins which are part of a series, the name of the series
+          type: array
+          items:
+            $ref: '#/components/schemas/localized_label'
+        commemorated_topic:
+          description: For commemorated coins, short description of the commemorated topic (event, person, etc.)
+          type: array
+          items:
+            $ref: '#/components/schemas/localized_label'
+        comments:
+          description: General comments about the coin (HTML format)
+          type: array
+          items:
+            $ref: '#/components/schemas/localized_label'
+        related_coins:
+          description: List of related coins
+          type: array
+          items:
+            type: object
+            required:
+              - id
+            properties:
+              id:
+                description: Unique ID of the coin on Numista
+                type: integer
+        tags:
+          description: List of tags
+          type: array
+          items:
+            type: object
+            required:
+              - id
+            properties:
+              id:
+                description: ID of the tag in Numista
+                type: integer
+        references:
+          description: References of the coin in other catalogues
+          type: array
+          items:
+            type: object
+            required:
+              - catalogue
+              - number
+            properties:
+              catalogue:
+                description: The catalogue in which the reference can be found
+                type: object
+                required:
+                  - id
+                properties:
+                  id:
+                    description: ID of the catalogue in Numista
+                    type: integer
+              number:
+                description: Number of the coin in the catalogue
+                type: string
+          maxItems: 5
+
+    issue:
+      required:
+        - id
+      properties:
+        id:
+          description: Unique ID of the issue on Numista
+          type: integer
+        is_dated:
+          description: Informs whether the issuance year is present on the issue
+          type: boolean
+        year:
+          description: Issuance year as written on the coin, if the issue is dated
+          type: integer
+        gregorian_year:
+          description: Issuance year in Gregorian calendar, if the issue is dated
+          type: integer
+        month:
+          description: Issuance month in Gregorian calendar, if the issue is dated by month
+          type: integer
+          minimum: 1
+          maximum: 12
+        day:
+          description: Issuance day in Gregorian calendar, if the issue is dated by day
+          type: integer
+          minimum: 1
+          maximum: 31
+        min_year:
+          description: First year of issuance in Gregorian calendar, if the issue is non dated
+          type: integer
+        max_year:
+          description: Last year of issuance in Gregorian calendar, if the issue is non dated
+          type: integer
+        mint_letter:
+          description: Mint letter
+          type: string
+        marks:
+          description: List of marks (mint master mark, privy mark, die mark, etc.)
+          type: array
+          items:
+            type: object
+            required:
+              - id
+            properties:
+              id:
+                description: ID of the mark
+                type: integer
+              title:
+                description: Title of the mark
+                type: string
+              picture:
+                description: URL to the picture of the mark. Marks either have a picture or letters.
+                type: string
+              letters:
+                description: Letters of the mark. Marks either have a picture or letters.
+                type: string
+        signatures:
+          description: List of signatures on the banknote
+          type: array
+          items:
+            type: object
+            required:
+              - signer_name
+            properties:
+              signer_name:
+                description: Name of the person who signed
+                type: string
+              signer_title:
+                description: Job title of the person who signed
+                type: string
+        mintage:
+          description: Quantity produced
+          type: integer
+        references:
+          description: References of the issue in other catalogues
+          type: array
+          items:
+            $ref: '#/components/schemas/reference'
+        comment:
+          description: Comment about the issue
+          type: string
+
+    issue_update:
+      required:
+        - is_dated
+      properties:
+        is_dated:
+          description: Informs whether the issuance year is present on the coin
+          type: boolean
+        year:
+          description: Issuance year as written on the coin. This field is mandatory for dated coins and ignored for non-dated coins.
+          type: integer
+        gregorian_year:
+          description: Issuance year in Gregorian calendar. If missing, it will be calculated automatically. This field is ignored for non-dated coins.
+          type: integer
+        min_year:
+          description: First year of issuance in Gregorian calendar, if the coin is non dated. This field is ignored for dated coins.
+          type: integer
+        max_year:
+          description: Last year of issuance in Gregorian calendar, if the coin is non dated. This field is ignored for dated coins.
+          type: integer
+        mint_letter:
+          description: Mint letter
+          type: string
+        marks:
+          description: List of marks (mint master mark, privy mark, die mark, etc.)
+          type: array
+          items:
+            type: object
+            required:
+              - id
+            properties:
+              id:
+                description: ID of the mark
+                type: integer
+        signatures:
+          description: List of signatures
+          type: array
+          items:
+            type: object
+            required:
+              - id
+            properties:
+              id:
+                description: ID of the signature
+                type: integer
+        mintage:
+          description: Quantity minted
+          type: integer
+        comment:
+          description: Comment about the issue
+          type: array
+          items:
+            $ref: '#/components/schemas/localized_label'
+
+    object_type:
+      required:
+        - id
+        - name
+      properties:
+        id:
+          description: Unique ID of the object type
+          type: string
+        name:
+          description: Name of the object type
+          type: string
+
+    issuer:
+      required:
+        - code
+        - name
+      properties:
+        code:
+          description: Unique ID of the issuer on Numista
+          type: string
+        name:
+          description: Name of the issuer
+          type: string
+
+    currency:
+      required:
+        - id
+        - name
+        - full_name
+      properties:
+        id:
+          description: Unique ID of the currency on Numista
+          type: integer
+        name:
+          description: Name of the currency
+          type: string
+        full_name:
+          description: Full name of the currency, including dates
+          type: string
+
+    mint:
+      required:
+        - id
+      properties:
+        id:
+          description: Unique ID of the mint at Numista
+          type: integer
+        name:
+          description: Name of the mint in the chosen language
+          type: string
+        local_name:
+          description: Name of the mint in the local language
+          type: string
+        place:
+          description: Place where the mint is located
+          type: string
+        country:
+          $ref: '#/components/schemas/issuer'
+        start_year:
+          description: First year of operation of the mint
+          type: integer
+        end_year:
+          description: Last year of operation of the mint. The special value "9999" denotes that the mint is still in activity.
+          type: integer
+        nomisma_id:
+          description: Nomisma ID of the mint
+          type: string
+        wikidata_id:
+          description: Wikidata ID of the mint or the place
+          type: string
+
+    reference:
+      required:
+        - catalogue
+        - number
+      properties:
+        catalogue:
+          description: The catalogue in which the reference can be found
+          type: object
+          required:
+            - id
+            - code
+          properties:
+            id:
+              description: ID of the catalogue in Numista
+              type: integer
+            code:
+              description: Code identifying the catalogue
+              type: string
+        number:
+          description: Number of the coin in the catalogue
+          type: string
+
+    publication:
+      type: object
+      description: Represents a bibliographic publication — either a volume (book) or an article (authored book chapter), series of books (volume_group), or series of articles (article_group).
+      properties:
+        id:
+          type: string
+          description: Unique ID of the publication on Numista.
+        url:
+          type: string
+          format: uri
+          description: URL of the publication entry.
+        type:
+          type: string
+          description: Type of publication (e.g. `volume` or `article`). Volume — the basic unit of the catalogue, representing a single book, one volume of a multi-volume set, or an issue of a periodical. Volume group — a collection of volumes representing multi-volume works, series, or periodicals. Article — a self-contained text with its own title and author(s), included within a volume. Article group — a collection of articles that together form a work published in multiple parts.
+          enum: [ volume, article, volume_group, article_group ]
+        title:
+          type: string
+          description: Title of the publication.
+        translated_title:
+          type: string
+          description: Title of the publication translated into English.
+        volume_number:
+          type: string
+          description: Number or specific title the volume has within its volume group (only for volumes).
+        subtitle:
+          type: string
+          description: Subtitle of the publication (only for volumes).
+        translated_subtitle:
+          type: string
+          description: Subtitle of the publication translated into English (only for volumes).
+        edition:
+          type: string
+          description: Edition information (only for volumes).
+        languages:
+          type: array
+          description: List of languages the publication is written in. The languages are denoted by their ISO 639 (alpha-2) code.
+          items:
+            type: string
+        year:
+          type: integer
+          description: Year of publication (for volumes and articles).
+        page_count:
+          type: integer
+          description: Total number of pages (only for volumes).
+        pages:
+          type: string
+          description: Page range (only for articles).
+        cover:
+          type: string
+          description: Type of cover (only for volumes - e.g. softcover, hardcover).
+          enum: [ softcover, hardcover, spiral, hidden_spiral ]
+        isbn10:
+          type: string
+          description: ISBN-10 code (only for volumes).
+        isbn13:
+          type: string
+          description: ISBN-13 code (only for volumes).
+        issn:
+          type: string
+          description: ISSN code (only for volume groups).
+        oclc_number:
+          type: string
+          description: OCLC catalogue number (for volumes and articles).
+        contributors:
+          type: array
+          description: List of contributors (for volumes and articles).
+          items:
+            type: object
+            properties:
+              role:
+                type: string
+                description: Contributor’s role.
+                enum: [ author, editor, translator ]
+              name:
+                type: string
+                description: Full name of the contributor.
+              id:
+                type: integer
+                description: Unique ID of the person.
+        publishers:
+          type: array
+          description: Information about the publishers (for volumes).
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                description: Name of the publisher.
+              id:
+                type: integer
+                description: Unique ID of the publisher.
+        publication_places:
+          type: array
+          description: Places where the volume was released (for volumes).
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                description: City and country of publication.
+              geonames_id:
+                type: string
+                description: GeoNames ID for location reference.
+        part_of:
+          type: array
+          description: For articles, the volume in which the article was published or/and optionally a series it belongs to. For volumes, an optional volume group which gathers the volumes of a book published in multiple volumes, in multiple editions, or as part of a book collections.
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                description: Type of parent.
+                enum: [ volume_group, volume, article_group ]
+              id:
+                type: string
+                description: Unique ID of the parent publication.
+              title:
+                type: string
+                description: Title of the parent publication.
+              volume_number:
+                type: string
+                description: Number or specific title the volume has within its volume group (only if the parent publication is a volume).
+        bibliographical_notice:
+          type: string
+          description: HTML-formatted bibliographical notice.
+        homepage_url:
+          type: string
+          description: URL of the website representing the publication (for volumes).
+        download_urls:
+          type: array
+          description: List of URLs where the publication can be downloaded (for volumes and articles).
+          items:
+            type: string
+            format: uri
+
+    coin_side:
+      properties:
+        engravers:
+          description: Name of the engraver(s).
+          type: array
+          items:
+            type: string
+        designers:
+          description: Name of the designer(s).
+          type: array
+          items:
+            type: string
+        description:
+          description: Description of the side of the coin.
+          type: string
+        lettering:
+          description: Lettering visible on the side of the coin.
+          type: string
+        lettering_scripts:
+          description: Scripts used to write the lettering on the side of the coins.
+          type: array
+          items:
+            type: object
+            required:
+              - name
+            properties:
+              name:
+                description: Name of the script.
+                type: string
+        unabridged_legend:
+          description: Legend visible on the side of the coin with abbreviations replaced by full words.
+          type: string
+        lettering_translation:
+          description: Translation of the lettering visible on the side of the coin.
+          type: string
+        picture:
+          description: URL to the picture of the side of the coin.
+          type: string
+        thumbnail:
+          description: URL to the thumbnail of the picture of the side of the coin.
+          type: string
+        picture_copyright:
+          description: Name of the owner of the picture. Pictures should not be used without consent from their owner.
+          type: string
+        picture_copyright_url:
+          description: URL to the website of the owner of the picture. Pictures should not be used without consent from their owner.
+          type: string
+        picture_license_name:
+          description: Name of the license of the picture, if the owner of the picture specified a license.
+          type: string
+        picture_license_url:
+          description: URL to the license of the picture, if the owner of the picture specified a license.
+          type: string
+
+    type_side_update:
+      properties:
+        engravers:
+          description: Name of the engraver(s). Note that this field is not applicable for the edge or watermark.
+          type: array
+          items:
+            type: string
+        designers:
+          description: Name of the designer(s). Note that this field is not applicable for the edge or watermark.
+          type: array
+          items:
+            type: string
+        description:
+          description: Description of the side of the type
+          type: array
+          items:
+            $ref: '#/components/schemas/localized_label'
+        lettering:
+          description: Lettering visible on the side of the type
+          type: string
+        lettering_scripts:
+          description: Scripts used to write the lettering on the side of the coins
+          type: array
+          items:
+            type: object
+            required:
+              - id
+            properties:
+              id:
+                description: Unique ID of the script
+                type: integer
+        unabridged_legend:
+          description: Legend visible on the side of the type with abbreviations replaced by full words
+          type: string
+        lettering_translation:
+          description: Translation of the lettering visible on the side of the type
+          type: array
+          items:
+            $ref: '#/components/schemas/localized_label'
+        picture:
+          description: URL to the picture of the side of the type. You may provide any URL publicly available. The picture will be downloded by Numista and stored internally. Only JPEG images are accpted.
+          type: string
+        picture_copyright:
+          description: Name of the owner of the picture. This field is mandatory if a picture is provided. Pictures should not be used without consent from their owner.
+          type: string
+        picture_copyright_type:
+          description: Type of source of the picture. This field is mandatory if a picture is provided.
+          type: string
+          enum: [ personnel, site_autorise, autre ]
+          example: site_autorise
+
+    coin_side_update:
+      deprecated: true
+      properties:
+        engravers:
+          description: Name of the engraver(s). Note that this field is not applicable for the edge.
+          type: array
+          items:
+            type: string
+        description:
+          description: Description of the side of the coin
+          type: array
+          items:
+            $ref: '#/components/schemas/localized_label'
+        lettering:
+          description: Lettering visible on the side of the coin
+          type: string
+        unabridged_legend:
+          description: Legend visible on the side of the coin with abbreviations replaced by full words
+          type: string
+        lettering_translation:
+          description: Translation of the lettering visible on the side of the coin
+          type: array
+          items:
+            $ref: '#/components/schemas/localized_label'
+        picture:
+          description: URL to the picture of the side of the coin. You may provide any URL publicly available. The picture will be downloded by Numista and stored internally. Only JPEG images are accpted.
+          type: string
+        picture_copyright:
+          description: Name of the owner of the picture. This field is mandatory if a picture is provided. Pictures should not be used without consent from their owner.
+          type: string
+        picture_copyright_type:
+          description: Type of source of the picture. This field is mandatory if a picture is provided.
+          type: string
+          enum: [ personnel, site_autorise, autre ]
+          example: site_autorise
+
+    collection:
+      required:
+        - id
+        - name
+      properties:
+        id:
+          description: ID of the collection
+          type: integer
+        name:
+          description: Name of the collection
+          type: string
+
+    collected_item:
+      required:
+        - id
+        - quantity
+        - type
+        - for_swap
+      properties:
+        id:
+          description: Unique ID of the item
+          type: integer
+        quantity:
+          description: Quantity of items
+          type: integer
+        type:
+          description: Describe the type of the item
+          type: object
+          required:
+            - id
+            - title
+            - category
+          properties:
+            id:
+              description: ID of the type
+              type: integer
+            title:
+              description: Title of the type
+              type: string
+            category:
+              description: Category
+              type: string
+            issuer:
+              $ref: '#/components/schemas/issuer'
+        issue:
+          $ref: '#/components/schemas/issue'
+        for_swap:
+          description: Indicate whether the item is available for swap
+          type: boolean
+        grade:
+          description: Grade of the item
+          type: string
+          enum: [ g, vg, f, vf, xf, au, unc ]
+        private_comment:
+          description: Private comment (not available if the user is not authenticated)
+          type: string
+        public_comment:
+          description: Public comment
+          type: string
+        price:
+          $ref: '#/components/schemas/price'
+        collection:
+          $ref: '#/components/schemas/collection'
+        pictures:
+          description: List of pictures or PDF documents. PDF documents are available only if the user is not authenticated.
+          type: array
+          items:
+            type: object
+            required:
+              - url
+              - thumbnail_url
+            properties:
+              url:
+                description: URL to the picture or the document in original size
+                type: string
+              thumbnail_url:
+                description: URL to the thumbnail of the picture or document
+                type: string
+        storage_location:
+          description: Storage location
+          type: string
+        acquisition_place:
+          description: Acquisition place
+          type: string
+        acquisition_date:
+          description: Acquisition date (YYYY-MM-DD)
+          type: string
+          format: date
+        serial_number:
+          description: Serial number
+          type: string
+        internal_id:
+          description: Internal ID
+          type: string
+        weight:
+          description: Weight, g
+          type: number
+          format: float
+        size:
+          description: Size, mm
+          type: number
+          format: float
+        axis:
+          description: Axis, h (integers from 1 to 12)
+          type: integer
+        grading_details:
+          properties:
+            grading_company:
+              properties:
+                id:
+                  description: ID of the grading service in Numista
+                  type: integer
+                name:
+                  description: Name of the grading service
+                  type: string
+            slab_grade:
+              properties:
+                id:
+                  description: ID of the grading mark in Numista
+                  type: integer
+                value:
+                  description: Value of the grading mark
+                  type: string
+            slab_number:
+              description: Slab number
+              type: string
+            cac_sticker:
+              description: CAC sticker ("Green" or "Gold")
+              type: string
+            grading_designations:
+              description: IDs of the grading designations
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    description: ID of the grading designation in Numista
+                    type: integer
+                  value:
+                    description: Value of the grading designation
+                    type: string
+            grading_strike:
+              properties:
+                id:
+                  description: ID of the grading strike in Numista
+                  type: integer
+                value:
+                  description: Value of the grading strike
+                  type: string
+            grading_surface:
+              properties:
+                id:
+                  description: ID of the grading surface in Numista
+                  type: integer
+                value:
+                  description: Value of the grading surface
+                  type: string
+      example:
+        id: 48527092
+        quantity: 1
+        type:
+          id: 11331
+          title: 2 Sapèque
+          category: coin
+          issuer:
+            code: indochine
+            name: French Indochina
+        issue:
+          id: 63444
+          is_dated: true
+          year: 1887
+          gregorian_year: 1887
+          mint_letter: A
+          mintage: 5000000
+        for_swap: false
+        grade: vf
+        private_comment: My private comment
+        acquisition_place: Minsk
+        acquisition_date: 2020-08-08
+        weight: 4.4
+        axis: 10
+        grading_details:
+          grading_company:
+            id: 1,
+            name: "NGC"
+          slab_grade:
+            id: 13
+            value: "AU55"
+          slab_number: 12345/3210
+          grading_designations: [
+              {
+                id: 419,
+                value: "+"
+              },
+              {
+                id: 420,
+                value: "★"
+              }
+            ]
+
+    price:
+      required:
+        - value
+        - currency
+      properties:
+        value:
+          description: Value
+          type: number
+        currency:
+          description: 3-letter ISO 4217 currency code
+          type: string
+
+    localized_label:
+      required:
+        - language
+        - label
+      properties:
+        language:
+          description: Language code
+          type: string
+          enum: [ en, es, fr ]
+          example: en
+        label:
+          description: Label in the given language
+          type: string

@@ -1,9 +1,9 @@
 {
   "manifest_version": "0.3",
   "name": "digg-pp-mcp",
-  "display_name": "Digg AI",
+  "display_name": "Digg",
   "version": "4.0.6",
-  "description": "Read-only CLI for Digg AI — the 1,000 AI accounts on X and the story clusters they surface.",
+  "description": "Read-only CLI for Digg — the AI story leaderboard, GitHub feeds, and ingestion pipeline events on digg.com.",
   "author": {
     "name": "CLI Printing Press"
   },

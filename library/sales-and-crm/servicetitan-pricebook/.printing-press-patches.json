@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-14",
+  "base_run_id": "20260514-073613",
+  "base_printing_press_version": "4.6.1",
+  "patches": [
+    {
+      "id": "composed-auth-apikey-config",
+      "summary": "Adds StAppKey (ST-App-Key apiKey header) and TenantID fields plus ST_APP_KEY/ST_TENANT_ID env reads to Config.",
+      "reason": "ServiceTitan uses composed auth (static ST-App-Key apiKey header AND OAuth2 client_credentials bearer), but the v4.6.1 generator wired only the OAuth half (#1303 apiKey half). Every Pricebook path is also tenant-scoped (/tenant/{tenant}/...), which needs a TenantID surface (#1332).",
+      "files": ["internal/config/config.go"],
+      "validated_outcome": "go test ./internal/config/, end-to-end auth login + categories get-list against live JKA tenant"
+    },
+    {
+      "id": "composed-auth-credentials-trim",
+      "summary": "TrimSpace defensively around all four ST_* env reads (ST_CLIENT_ID, ST_CLIENT_SECRET, ST_APP_KEY, ST_TENANT_ID).",
+      "reason": "Trailing newlines from PowerShell/.env sourcing produced opaque invalid_client 400s from the ServiceTitan OAuth endpoint. Whitespace-stripping the values at the env-read boundary is the only place this can be fixed without leaking the credential bytes to logs (see JKA env gotcha in user memory).",
+      "files": ["internal/config/config.go"],
+      "validated_outcome": "auth login succeeds with credentials that have trailing whitespace"
+    },
+    {
+      "id": "composed-auth-apikey-wire",
+      "summary": "Wires the ST-App-Key header into every HTTP request (do() and the dry-run preview).",
+      "reason": "ServiceTitan rejects calls that present only the OAuth bearer; both halves of the composed auth must be on every request. The generator emitted the bearer half but not the apiKey half (#1303 apiKey half).",
+      "files": ["internal/client/client.go"],
+      "validated_outcome": "live categories get-list returned real JKA data with both headers present"
+    },
+    {
+      "id": "sync-default-resources",
+      "summary": "Populates defaultSyncResources() with the seven Pricebook resource types (categories, equipment, materials, services, discounts-and-fees, materialsmarkup, clientspecificpricing).",
+      "reason": "The v4.6.1 generator emitted an empty defaultSyncResources(), so `sync` was a no-op (#1305). Resource names match the exact strings the generated list commands use as resourceType keys.",
+      "files": ["internal/cli/sync.go"],
+      "validated_outcome": "sync populates the local SQLite store; the 12 novel audit/find/dedupe commands read from it"
+    },
+    {
+      "id": "sync-paths-registry",
+      "summary": "Populates syncResourcePath() with the seven resource→/tenant/{tenant}/... path mappings and substitutes ST_TENANT_ID at call time.",
+      "reason": "Companion to sync-default-resources: every Pricebook path is tenant-scoped, but the generator left the path registry empty and did not handle the {tenant} placeholder (#1305 / #1332).",
+      "files": ["internal/cli/sync.go"],
+      "validated_outcome": "sync resolves each resource to its tenant-scoped endpoint and writes to the local store"
+    },
+    {
+      "id": "composed-auth-doctor",
+      "summary": "doctor recognizes composed auth as configured when ST_APP_KEY + ST_CLIENT_ID + ST_CLIENT_SECRET are all present, even before the bearer has been minted; also surfaces ST_TENANT_ID readiness.",
+      "reason": "The generator's doctor only recognized a bearer token as 'configured', so fresh installs of a composed-auth CLI always reported 'unconfigured' until the first call minted a token (#1303 / inventory-retro anti-pattern). Tenant readiness is part of the same readiness check (#1332).",
+      "files": ["internal/cli/doctor.go"],
+      "validated_outcome": "doctor reports 'configured (composed: ST-App-Key + OAuth2 client_credentials; bearer minted on first call)' when env vars are set"
+    },
+    {
+      "id": "cache-key-param-separator",
+      "summary": "cacheKey() inserts '&' between sorted param entries so different param sets cannot collide on a single cache file.",
+      "reason": "Greptile review (PR #576): the original loop concatenated 'k=v' with no separator, so {\"a\":\"1b\",\"c\":\"2\"} and {\"a\":\"1\",\"bc\":\"2\"} both produced 'a=1bc=2' — different queries could silently share a cached response.",
+      "files": ["internal/client/client.go"],
+      "validated_outcome": "go build, go vet, go test ./internal/pricebook/ all clean"
+    },
+    {
+      "id": "cost-drift-since-yyyymmdd",
+      "summary": "CostDrift promotes a bare YYYY-MM-DD --since to end-of-day before comparing against RFC3339 snapshot timestamps so same-day snapshots are included in the baseline window.",
+      "reason": "Greptile review (PR #576): s.at is stored as RFC3339 (\"2026-04-01T08:00:00Z\") but --since is documented as YYYY-MM-DD. Lexicographically \"2026-04-01T08:00:00Z\" sorts after \"2026-04-01\", so s.at <= since was false for every same-day snapshot — the baseline silently slipped to the previous day.",
+      "files": ["internal/pricebook/costhistory.go"],
+      "validated_outcome": "go build, go vet, go test ./internal/pricebook/ all clean"
+    },
+    {
+      "id": "orphan-sku-health-dedup",
+      "summary": "Health.OrphanSKUs now counts distinct (Kind, ID) SKUs instead of (SKU, bad-ref) pairs, so a SKU in two inactive categories contributes 1 to the rollup, not 2.",
+      "reason": "Greptile review (PR #576): the orphan-skus command still emits one row per bad reference (agents need to see every broken assignment), but the health report is the agent-priming signal and over-reporting drives redundant fix attempts in automated pipelines.",
+      "files": ["internal/pricebook/audits.go"],
+      "validated_outcome": "go build, go vet, go test ./internal/pricebook/ all clean"
+    },
+    {
+      "id": "drop-refresh-token-flow",
+      "summary": "Removed the unreachable refreshAccessToken() function from the HTTP client.",
+      "reason": "Greptile review (PR #576): ServiceTitan composed auth only issues client_credentials tokens — no refresh tokens are ever minted. The generator-emitted function was never called from authHeader() (which uses mintClientCredentials exclusively) and existed only to mislead future maintainers into believing a refresh-token flow was wired.",
+      "files": ["internal/client/client.go"],
+      "validated_outcome": "go build, go vet, go test ./internal/pricebook/ all clean"
+    },
+    {
+      "id": "snapshot-nanos-precision",
+      "summary": "Snapshot() formats snapshot_at with time.RFC3339Nano so sub-second concurrent Snapshot() calls cannot collide on the composite PK.",
+      "reason": "Greptile review (PR #576): RFC3339 (second precision) + INSERT OR IGNORE on (snapshot_at, sku_kind, sku_id) silently dropped any row whose timestamp collided with an existing one. Agent-loop modes (--tail, parallel health checks) hit this window. RFC3339Nano keeps the same TEXT column shape but makes real collisions astronomically unlikely.",
+      "files": ["internal/pricebook/costhistory.go"],
+      "validated_outcome": "go build, go vet, go test ./internal/pricebook/ all clean"
+    }
+  ]
+}

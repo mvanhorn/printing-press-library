@@ -1,0 +1,373 @@
+{
+  "api_name": "youtube",
+  "base_url": "https://youtube.googleapis.com",
+  "description": "YouTube Data API v3 (trimmed read-only subset: search, videos, channels, playlists, playlistItems) for blog-research workflows. API-key auth only; OAuth-required write operations are out of scope.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "key",
+    "in": "query",
+    "env_vars": [
+      "YOUTUBE_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "YOUTUBE_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "description": "YouTube Data API key for read-only public-data operations"
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "youtube_channels-list",
+      "description": "Retrieves a list of resources, possibly filtered. Optional: categoryId, forUsername, hl (plus 4 more). Returns the ChannelListResponse.",
+      "method": "GET",
+      "path": "/youtube/v3/channels",
+      "params": [
+        {
+          "name": "categoryId",
+          "type": "string",
+          "location": "query",
+          "description": "Return the channels within the specified guide category ID."
+        },
+        {
+          "name": "forUsername",
+          "type": "string",
+          "location": "query",
+          "description": "Return the channel associated with a YouTube username."
+        },
+        {
+          "name": "hl",
+          "type": "string",
+          "location": "query",
+          "description": "Stands for 'host language'. Specifies the localization language of the metadata to be filled into snippet.localized. The field is filled with the default metadata if there is no localization in the specified language. The parameter value must be a language code included in the list returned by the i18nLanguages.list method (e.g. en_US, es_MX)."
+        },
+        {
+          "name": "id",
+          "type": "array",
+          "location": "query",
+          "description": "Return the channels with the specified IDs."
+        },
+        {
+          "name": "managedByMe",
+          "type": "bool",
+          "location": "query",
+          "description": "Return the channels managed by the authenticated user."
+        },
+        {
+          "name": "mine",
+          "type": "bool",
+          "location": "query",
+          "description": "Return the ids of channels owned by the authenticated user."
+        },
+        {
+          "name": "mySubscribers",
+          "type": "bool",
+          "location": "query",
+          "description": "Return the channels subscribed to the authenticated user"
+        }
+      ]
+    },
+    {
+      "name": "youtube_playlist-items-list",
+      "description": "Retrieves a list of resources, possibly filtered. Optional: id, playlistId, videoId. Returns the PlaylistItemListResponse.",
+      "method": "GET",
+      "path": "/youtube/v3/playlistItems",
+      "params": [
+        {
+          "name": "id",
+          "type": "array",
+          "location": "query",
+          "description": "Id"
+        },
+        {
+          "name": "playlistId",
+          "type": "string",
+          "location": "query",
+          "description": "Return the playlist items within the given playlist."
+        },
+        {
+          "name": "videoId",
+          "type": "string",
+          "location": "query",
+          "description": "Return the playlist items associated with the given video ID."
+        }
+      ]
+    },
+    {
+      "name": "youtube_playlists-list",
+      "description": "Retrieves a list of resources, possibly filtered. Optional: channelId, hl, id (plus 2 more). Returns the PlaylistListResponse.",
+      "method": "GET",
+      "path": "/youtube/v3/playlists",
+      "params": [
+        {
+          "name": "channelId",
+          "type": "string",
+          "location": "query",
+          "description": "Return the playlists owned by the specified channel ID."
+        },
+        {
+          "name": "hl",
+          "type": "string",
+          "location": "query",
+          "description": "Return content in specified language"
+        },
+        {
+          "name": "id",
+          "type": "array",
+          "location": "query",
+          "description": "Return the playlists with the given IDs for Stubby or Apiary."
+        },
+        {
+          "name": "mine",
+          "type": "bool",
+          "location": "query",
+          "description": "Return the playlists owned by the authenticated user."
+        },
+        {
+          "name": "onBehalfOfContentOwnerChannel",
+          "type": "string",
+          "location": "query",
+          "description": "This parameter can only be used in a properly authorized request. *Note:* This parameter is intended exclusively for YouTube content partners. The *onBehalfOfContentOwnerChannel* parameter specifies the YouTube channel ID of the channel to which a video is being added. This parameter is required when a request specifies a value for the onBehalfOfContentOwner parameter, and it can only be used in conjunction with that parameter. In addition, the request must be authorized using a CMS account that is linked to the content owner that the onBehalfOfContentOwner parameter specifies. Finally, the channel that the onBehalfOfContentOwnerChannel parameter value specifies must be linked to the content owner that the onBehalfOfContentOwner parameter specifies. This parameter is intended for YouTube content partners that own and manage many different YouTube channels. It allows content owners to authenticate once and perform actions on behalf of the channel specified in the parameter value, without having to provide authentication credentials for each separate channel."
+        }
+      ]
+    },
+    {
+      "name": "youtube_search-list",
+      "description": "Retrieves a list of search resources. Optional: channelId, channelType, eventType (plus 24 more). Returns the SearchListResponse.",
+      "method": "GET",
+      "path": "/youtube/v3/search",
+      "params": [
+        {
+          "name": "channelId",
+          "type": "string",
+          "location": "query",
+          "description": "Filter on resources belonging to this channelId."
+        },
+        {
+          "name": "channelType",
+          "type": "string",
+          "location": "query",
+          "description": "Add a filter on the channel search."
+        },
+        {
+          "name": "eventType",
+          "type": "string",
+          "location": "query",
+          "description": "Filter on the livestream status of the videos."
+        },
+        {
+          "name": "forContentOwner",
+          "type": "bool",
+          "location": "query",
+          "description": "Search owned by a content owner."
+        },
+        {
+          "name": "forDeveloper",
+          "type": "bool",
+          "location": "query",
+          "description": "Restrict the search to only retrieve videos uploaded using the project id of the authenticated user."
+        },
+        {
+          "name": "forMine",
+          "type": "bool",
+          "location": "query",
+          "description": "Search for the private videos of the authenticated user."
+        },
+        {
+          "name": "location",
+          "type": "string",
+          "location": "query",
+          "description": "Filter on location of the video"
+        },
+        {
+          "name": "locationRadius",
+          "type": "string",
+          "location": "query",
+          "description": "Filter on distance from the location (specified above)."
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order of the results."
+        },
+        {
+          "name": "publishedAfter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter on resources published after this date."
+        },
+        {
+          "name": "publishedBefore",
+          "type": "string",
+          "location": "query",
+          "description": "Filter on resources published before this date."
+        },
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Textual search terms to match."
+        },
+        {
+          "name": "regionCode",
+          "type": "string",
+          "location": "query",
+          "description": "Display the content as seen by viewers in this country."
+        },
+        {
+          "name": "relatedToVideoId",
+          "type": "string",
+          "location": "query",
+          "description": "Search related to a resource."
+        },
+        {
+          "name": "relevanceLanguage",
+          "type": "string",
+          "location": "query",
+          "description": "Return results relevant to this language."
+        },
+        {
+          "name": "safeSearch",
+          "type": "string",
+          "location": "query",
+          "description": "Indicates whether the search results should include restricted content as well as standard content."
+        },
+        {
+          "name": "topicId",
+          "type": "string",
+          "location": "query",
+          "description": "Restrict results to a particular topic."
+        },
+        {
+          "name": "type",
+          "type": "array",
+          "location": "query",
+          "description": "Restrict results to a particular set of resource types from One Platform."
+        },
+        {
+          "name": "videoCaption",
+          "type": "string",
+          "location": "query",
+          "description": "Filter on the presence of captions on the videos."
+        },
+        {
+          "name": "videoCategoryId",
+          "type": "string",
+          "location": "query",
+          "description": "Filter on videos in a specific category."
+        },
+        {
+          "name": "videoDefinition",
+          "type": "string",
+          "location": "query",
+          "description": "Filter on the definition of the videos."
+        },
+        {
+          "name": "videoDimension",
+          "type": "string",
+          "location": "query",
+          "description": "Filter on 3d videos."
+        },
+        {
+          "name": "videoDuration",
+          "type": "string",
+          "location": "query",
+          "description": "Filter on the duration of the videos."
+        },
+        {
+          "name": "videoEmbeddable",
+          "type": "string",
+          "location": "query",
+          "description": "Filter on embeddable videos."
+        },
+        {
+          "name": "videoLicense",
+          "type": "string",
+          "location": "query",
+          "description": "Filter on the license of the videos."
+        },
+        {
+          "name": "videoSyndicated",
+          "type": "string",
+          "location": "query",
+          "description": "Filter on syndicated videos."
+        },
+        {
+          "name": "videoType",
+          "type": "string",
+          "location": "query",
+          "description": "Filter on videos of a specific type."
+        }
+      ]
+    },
+    {
+      "name": "youtube_videos-list",
+      "description": "Retrieves a list of resources, possibly filtered. Optional: chart, hl, id (plus 6 more). Returns the VideoListResponse.",
+      "method": "GET",
+      "path": "/youtube/v3/videos",
+      "params": [
+        {
+          "name": "chart",
+          "type": "string",
+          "location": "query",
+          "description": "Return the videos that are in the specified chart."
+        },
+        {
+          "name": "hl",
+          "type": "string",
+          "location": "query",
+          "description": "Stands for 'host language'. Specifies the localization language of the metadata to be filled into snippet.localized. The field is filled with the default metadata if there is no localization in the specified language. The parameter value must be a language code included in the list returned by the i18nLanguages.list method (e.g. en_US, es_MX)."
+        },
+        {
+          "name": "id",
+          "type": "array",
+          "location": "query",
+          "description": "Return videos with the given ids."
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "query",
+          "description": "Locale"
+        },
+        {
+          "name": "maxHeight",
+          "type": "int",
+          "location": "query",
+          "description": "Max height"
+        },
+        {
+          "name": "maxWidth",
+          "type": "int",
+          "location": "query",
+          "description": "Return the player with maximum height specified in"
+        },
+        {
+          "name": "myRating",
+          "type": "string",
+          "location": "query",
+          "description": "Return videos liked/disliked by the authenticated user. Does not support RateType.RATED_TYPE_NONE."
+        },
+        {
+          "name": "regionCode",
+          "type": "string",
+          "location": "query",
+          "description": "Use a chart that is specific to the specified region"
+        },
+        {
+          "name": "videoCategoryId",
+          "type": "string",
+          "location": "query",
+          "description": "Use chart that is specific to the specified video category"
+        }
+      ]
+    }
+  ]
+}

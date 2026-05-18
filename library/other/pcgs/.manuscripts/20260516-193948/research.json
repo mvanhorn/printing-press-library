@@ -1,0 +1,370 @@
+{
+  "api_name": "pcgs",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "BobdaFett/pcgs-inv-gui",
+      "url": "https://github.com/BobdaFett/pcgs-inv-gui",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "BobdaFett/pcgs-inv",
+      "url": "https://github.com/BobdaFett/pcgs-inv",
+      "language": "C#",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Cfomodz/what-bot",
+      "url": "https://github.com/Cfomodz/what-bot",
+      "language": "Python",
+      "install_method": "",
+      "stars": 3,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Cfomodz/PCGS-slab-picture-to-listing-tool",
+      "url": "https://github.com/Cfomodz/PCGS-slab-picture-to-listing-tool",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "pixiitech/lustre",
+      "url": "https://github.com/pixiitech/lustre",
+      "language": "Ruby",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "evansminotwood/Aureus",
+      "url": "https://github.com/evansminotwood/Aureus",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Arunavanag1/anags-bullion-tracker",
+      "url": "https://github.com/Arunavanag1/anags-bullion-tracker",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "PhillyG76/AuctionEye",
+      "url": "https://github.com/PhillyG76/AuctionEye",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-16T23:50:00Z",
+  "novel_features": [
+    {
+      "name": "Quota-aware batch with dry-run + resumable checkpointing + column passthrough",
+      "command": "coin batch",
+      "description": "Parse a CSV / JSON wrapper / JSONL / plain-text cert list and look up every cert against PCGS. --dry-run forecasts cost (live calls, cache hits, %-of-quota) without spending a single call. --resumable + --checkpoint split a list larger than the 1,000/day cap across UTC days. --list-certs emits the parsed cert list to stdout without calling. Non-cert input columns round-trip to output as `_keep.\u003ccol\u003e` for downstream re-keying.",
+      "rationale": "PCGS exposes single-cert lookup only, no batch endpoint. Doing the batch math against a local cache + lookup_log means the user can plan, resume, and re-key against their own source rows without burning quota.",
+      "example": "pcgs-pp-cli coin batch --file ./pcgs-coin-list.csv --dry-run --json",
+      "why_it_matters": "Use this any time you have more than one cert to look up. The dry-run mode answers 'does this fit today's quota?' for free; --resumable makes multi-day batches idempotent.",
+      "group": "Quota-aware orchestration"
+    },
+    {
+      "name": "Mutable-only refresh (with --dry-run for stale-watching)",
+      "command": "refresh",
+      "description": "Refresh cached coins by updating only the fields PCGS can actually change — Population, PopHigher, PriceGuideValue, AuctionList, Images, CoinFactsNotes — while leaving cert identity fields untouched. Emits a per-field diff. --dry-run --older 30d --field price-guide lists which cached coins need refresh without calling the API.",
+      "rationale": "A naive re-fetch overwrites every cached field, so a transient bad response can corrupt cert identity. Mutable-only sync enforces the invariant the API does not. The --dry-run path doubles as a stale-watcher.",
+      "example": "pcgs-pp-cli refresh --all --older 7d --json",
+      "why_it_matters": "This is the safe way to keep market data current without putting cert identity at risk. Pair --dry-run --older with --field to find what to refresh before spending quota.",
+      "group": "Quota-aware orchestration"
+    },
+    {
+      "name": "Spec-number population sweep",
+      "command": "coin pop-curve",
+      "description": "Pull every grade 1–70 (and PlusGrade variants, plus the 82–98 Details codes when --include-details) for one PCGSNo in one command, persist the full population curve to local store, and print the scarcity table.",
+      "rationale": "PCGS exposes population only one (PCGSNo, GradeNo, PlusGrade) tuple per call. Building a pop curve manually is 70+ ad-hoc calls; one command handles the fan-out, the local persistence, and the Plus/Details extensions the articles describe.",
+      "example": "pcgs-pp-cli coin pop-curve 7356 --plus --include-details --json",
+      "why_it_matters": "Use this when you need scarcity context across grades — dealer pricing, key-date analysis, or seeing where Details-grade coins fit relative to numerical grades.",
+      "group": "PCGS-specific content patterns"
+    },
+    {
+      "name": "Lookup-log audit",
+      "command": "audit",
+      "description": "Query the lookup_log table directly: every API call, its endpoint, IsValidRequest, ServerMessage, and request hash. Aggregate by day, by endpoint, or by cert; filter to failed calls only.",
+      "rationale": "Once a CLI talks to a rate-limited API persistently, the question 'what burned my quota?' becomes weekly. The audit command is a local SQL view answering it without any API call.",
+      "example": "pcgs-pp-cli audit --since 7d --failed --by-endpoint --json",
+      "why_it_matters": "Reach for this when quota usage looks off, when you want to spot which certs return IsValidRequest=false, or when triaging a sync diff.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Submission fan-out",
+      "command": "order hydrate",
+      "description": "Take a PCGS submission number, fetch the order, then fan out CoinFacts (and optionally images) for every cert in the order. Respects cache and refuses to start when remaining quota is less than the cert count.",
+      "rationale": "Submitters today fan out manually: pull the submission, copy each cert, look up each cert. One command handles the chain plus the quota interlock.",
+      "example": "pcgs-pp-cli order hydrate 12345678 --with-images --json",
+      "why_it_matters": "Use this the moment a PCGS submission posts. It turns one submission number into a fully-cached, fully-hydrated set of coins in one command.",
+      "group": "PCGS-specific content patterns"
+    },
+    {
+      "name": "Local search across cached coins (with --top-pct rarity)",
+      "command": "search",
+      "description": "FTS5 + numeric filters over your local cache: search by Name, Country, SeriesName, Category, Designer, MintLocation, or variety fields, plus range filters on Year, Grade, PriceGuideValue, Population, PopHigher, Mintage, Weight, Diameter. --max-pop and --top-pct flags expose continuous rarity slicing (e.g. --top-pct 5 = top 5% rarest in the scoped cohort) — no API call.",
+      "rationale": "PCGS has no general search endpoint. Every search against a cached collection is a local SQL/FTS5 query that pays nothing against the daily quota. --top-pct lets the dealer persona slice by relative rarity instead of just absolute Pop-1.",
+      "example": "pcgs-pp-cli search --text \"morgan dollar\" --year 1881 --top-pct 5 --json --select Name,Year,Grade,Population,PriceGuideValue",
+      "why_it_matters": "Use this any time you need to slice your cached collection without burning quota. --top-pct 1 surfaces apex-rarity coins; --max-pop N for explicit thresholds.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Quota-aware batch with dry-run + resumable checkpointing + column passthrough",
+      "command": "coin batch",
+      "description": "Parse a CSV / JSON wrapper / JSONL / plain-text cert list and look up every cert against PCGS. --dry-run forecasts cost (live calls, cache hits, %-of-quota) without spending a single call. --resumable + --checkpoint split a list larger than the 1,000/day cap across UTC days. --list-certs emits the parsed cert list to stdout without calling. Non-cert input columns round-trip to output as `_keep.\u003ccol\u003e` for downstream re-keying.",
+      "rationale": "PCGS exposes single-cert lookup only, no batch endpoint. Doing the batch math against a local cache + lookup_log means the user can plan, resume, and re-key against their own source rows without burning quota.",
+      "example": "pcgs-pp-cli coin batch --file ./pcgs-coin-list.csv --dry-run --json",
+      "why_it_matters": "Use this any time you have more than one cert to look up. The dry-run mode answers 'does this fit today's quota?' for free; --resumable makes multi-day batches idempotent.",
+      "group": "Quota-aware orchestration"
+    },
+    {
+      "name": "Mutable-only refresh (with --dry-run for stale-watching)",
+      "command": "refresh",
+      "description": "Refresh cached coins by updating only the fields PCGS can actually change — Population, PopHigher, PriceGuideValue, AuctionList, Images, CoinFactsNotes — while leaving cert identity fields untouched. Emits a per-field diff. --dry-run --older 30d --field price-guide lists which cached coins need refresh without calling the API.",
+      "rationale": "A naive re-fetch overwrites every cached field, so a transient bad response can corrupt cert identity. Mutable-only sync enforces the invariant the API does not. The --dry-run path doubles as a stale-watcher.",
+      "example": "pcgs-pp-cli refresh --all --older 7d --json",
+      "why_it_matters": "This is the safe way to keep market data current without putting cert identity at risk. Pair --dry-run --older with --field to find what to refresh before spending quota.",
+      "group": "Quota-aware orchestration"
+    },
+    {
+      "name": "Spec-number population sweep",
+      "command": "coin pop-curve",
+      "description": "Pull every grade 1–70 (and PlusGrade variants, plus the 82–98 Details codes when --include-details) for one PCGSNo in one command, persist the full population curve to local store, and print the scarcity table.",
+      "rationale": "PCGS exposes population only one (PCGSNo, GradeNo, PlusGrade) tuple per call. Building a pop curve manually is 70+ ad-hoc calls; one command handles the fan-out, the local persistence, and the Plus/Details extensions the articles describe.",
+      "example": "pcgs-pp-cli coin pop-curve 7356 --plus --include-details --json",
+      "why_it_matters": "Use this when you need scarcity context across grades — dealer pricing, key-date analysis, or seeing where Details-grade coins fit relative to numerical grades.",
+      "group": "PCGS-specific content patterns"
+    },
+    {
+      "name": "Lookup-log audit",
+      "command": "audit",
+      "description": "Query the lookup_log table directly: every API call, its endpoint, IsValidRequest, ServerMessage, and request hash. Aggregate by day, by endpoint, or by cert; filter to failed calls only.",
+      "rationale": "Once a CLI talks to a rate-limited API persistently, the question 'what burned my quota?' becomes weekly. The audit command is a local SQL view answering it without any API call.",
+      "example": "pcgs-pp-cli audit --since 7d --failed --by-endpoint --json",
+      "why_it_matters": "Reach for this when quota usage looks off, when you want to spot which certs return IsValidRequest=false, or when triaging a sync diff.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Submission fan-out",
+      "command": "order hydrate",
+      "description": "Take a PCGS submission number, fetch the order, then fan out CoinFacts (and optionally images) for every cert in the order. Respects cache and refuses to start when remaining quota is less than the cert count.",
+      "rationale": "Submitters today fan out manually: pull the submission, copy each cert, look up each cert. One command handles the chain plus the quota interlock.",
+      "example": "pcgs-pp-cli order hydrate 12345678 --with-images --json",
+      "why_it_matters": "Use this the moment a PCGS submission posts. It turns one submission number into a fully-cached, fully-hydrated set of coins in one command.",
+      "group": "PCGS-specific content patterns"
+    },
+    {
+      "name": "Local search across cached coins (with --top-pct rarity)",
+      "command": "search",
+      "description": "FTS5 + numeric filters over your local cache: search by Name, Country, SeriesName, Category, Designer, MintLocation, or variety fields, plus range filters on Year, Grade, PriceGuideValue, Population, PopHigher, Mintage, Weight, Diameter. --max-pop and --top-pct flags expose continuous rarity slicing (e.g. --top-pct 5 = top 5% rarest in the scoped cohort) — no API call.",
+      "rationale": "PCGS has no general search endpoint. Every search against a cached collection is a local SQL/FTS5 query that pays nothing against the daily quota. --top-pct lets the dealer persona slice by relative rarity instead of just absolute Pop-1.",
+      "example": "pcgs-pp-cli search --text \"morgan dollar\" --year 1881 --top-pct 5 --json --select Name,Year,Grade,Population,PriceGuideValue",
+      "why_it_matters": "Use this any time you need to slice your cached collection without burning quota. --top-pct 1 surfaces apex-rarity coins; --max-pop N for explicit thresholds.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "PCGS",
+    "headline": "The first CLI for the PCGS Public API — cert lookup, full CoinFacts extraction, and the 1,000-call-per-day budget enforced for you.",
+    "value_prop": "PCGS gives you 1,000 API calls per day per token. This CLI tracks every call locally, forecasts batch cost before you spend a single one, refreshes only mutable market fields on update, and ingests CSV / JSON / JSONL / plain-text cert lists straight into a local SQLite cache. Quota usage prints to stderr on every command; the global --quota flag answers \"how much budget is left?\" without an API call. No community wrapper exists. This is the only PCGS CLI.",
+    "auth_narrative": "Set `PCGS_AUTH_TOKEN` to the bearer token generated at https://www.pcgs.com/publicapi. Run `pcgs-pp-cli doctor` to confirm reachability. All commands authenticate identically — there is one auth mode.",
+    "quickstart": [
+      {
+        "command": "pcgs-pp-cli doctor --json",
+        "comment": "Confirm the token is set and the API is reachable before spending quota."
+      },
+      {
+        "command": "pcgs-pp-cli audit --since 24h --json",
+        "comment": "Show today's API calls (the stderr quota line at the end is printed by every command; the global --quota flag is an alternative for budget-only output)."
+      },
+      {
+        "command": "pcgs-pp-cli coin facts-cert 53972744 --json",
+        "comment": "Single-cert verification + full CoinFacts extraction (IsValidRequest = true iff the cert is legit)."
+      },
+      {
+        "command": "pcgs-pp-cli coin batch --file examples-pcgs-coin-list.csv --dry-run --json",
+        "comment": "Forecast batch cost against remaining quota with zero live calls. Substitute your cert list path."
+      },
+      {
+        "command": "pcgs-pp-cli coin batch --file examples-pcgs-coin-list.csv --resumable --checkpoint pcgs.ckpt --json",
+        "comment": "Real batch ingest, resumable across UTC days if the file is larger than the daily budget."
+      },
+      {
+        "command": "pcgs-pp-cli refresh --all --older 7d --json",
+        "comment": "Refresh only Population / PriceGuide / Auction / Images / CoinFactsNotes — never overwrite cert identity."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "IsValidRequest=false with ServerMessage 'Invalid CertNo'",
+        "fix": "The cert number was not in the expected format. Confirm digits only and the right length; `pcgs-pp-cli coin batch --file \u003cfixture\u003e --list-certs` normalizes plus-grade slab IDs like 7130.67/51225377 down to the bare cert number."
+      },
+      {
+        "symptom": "IsValidRequest=true but ServerMessage='No data found'",
+        "fix": "PCGS has no record for that cert number — it is not a typo, the API just has no row. Exit code 3 distinguishes this from invalid input. Confirm against pcgs.com/cert before treating it as suspect."
+      },
+      {
+        "symptom": "Exit code 7 with 'PCGS daily quota exceeded'",
+        "fix": "1,000-call budget burned for today. Run `pcgs-pp-cli --quota --json` to see the reset time; use `pcgs-pp-cli coin batch --resumable` to pick up tomorrow without re-spending today's calls."
+      },
+      {
+        "symptom": "HTTP 500 from the API",
+        "fix": "PCGS returns 500 for invalid credentials AND for genuine server errors. Run `pcgs-pp-cli doctor --json`; if doctor passes, retry once."
+      },
+      {
+        "symptom": "HTTP 204 with empty body",
+        "fix": "PCGS returns 204 for empty request data (a required param was missing on the wire). Re-run with the global --dry-run flag to print the constructed request URL."
+      },
+      {
+        "symptom": "Cached row's Year or Mintage looks wrong after refresh",
+        "fix": "`refresh` never writes identity fields. The cached identity came from the original lookup. Re-run `pcgs-pp-cli coin facts-cert \u003ccert\u003e --no-cache --json` to compare; if they still differ, file a PCGS data-correction issue — the cache is not at fault."
+      }
+    ],
+    "when_to_use": "Use this CLI when you need to verify PCGS certs at scale, extract full CoinFacts metadata for downstream import, or keep a local snapshot of population / price-guide / auction data refreshed under a tight 1,000-call daily budget. It is upstream of any personal collection system, not a replacement for one. Reach for it when an agent needs the raw PCGS record, not a curated subset.",
+    "recipes": [
+      {
+        "title": "Verify one cert and dump every field",
+        "command": "pcgs-pp-cli coin facts-cert 53972744 --json --select Name,Year,Grade,Population,PopHigher,PriceGuideValue,CoinFactsLink,IsValidRequest,ServerMessage",
+        "explanation": "Single live call. The --json --select pair gives a deeply nested response trimmed to import-friendly fields without losing the IsValidRequest envelope."
+      },
+      {
+        "title": "Plan a batch (forecast only, no calls)",
+        "command": "pcgs-pp-cli coin batch --file examples-pcgs-coin-list.csv --dry-run --json",
+        "explanation": "Reads the local cache, dedupes against the fixture, and tells you whether the batch fits today's remaining quota — zero API calls spent. Substitute your own cert list path."
+      },
+      {
+        "title": "Mixed-shape fixture to clean cert list",
+        "command": "pcgs-pp-cli coin batch --file examples-pcgs-coin-list.csv --list-certs --json",
+        "explanation": "Auto-detects CSV / JSON wrappers ({slabs:[…]}, {holdings:[…]}) / JSONL / plain text, strips plus-grade slab IDs like 7130.67/51225377 down to bare cert numbers, and emits them to stdout — no API calls."
+      },
+      {
+        "title": "Pop curve for a Peace Dollar (with Details grades)",
+        "command": "pcgs-pp-cli coin pop-curve 7356 --plus --include-details --json",
+        "explanation": "One command fans every grade across the 1-70 + Plus axis and the 82-98 Details codes, persists the curve, and prints the scarcity table. Hand-fans 70+ separate API calls behind the scenes with cache reuse and the per-call quota log."
+      },
+      {
+        "title": "Local SQL over cached coins",
+        "command": "pcgs-pp-cli search --text morgan --year 1881 --min-pop 100 --json --select Name,Year,Grade,Population,PopHigher,PriceGuideValue",
+        "explanation": "No API call. Uses FTS5 + numeric filters against the local cache, with --select narrowing the response so an agent sees only the fields that matter."
+      },
+      {
+        "title": "Find the top 5% rarest coins in your cache",
+        "command": "pcgs-pp-cli search --top-pct 5 --denom \"$1\" --json",
+        "explanation": "Ranks cached coins by ascending Population within the silver-dollar cohort and returns the top 5%. Use --max-pop 1 instead for strict Pop-1 only."
+      },
+      {
+        "title": "Pre-refresh staleness check",
+        "command": "pcgs-pp-cli refresh --dry-run --all --older 30d --field price-guide --json",
+        "explanation": "Lists cached coins whose PriceGuideValue has not been refreshed in 30 days, without calling the API. Pipe into `refresh` (without --dry-run) to refresh only those rows."
+      },
+      {
+        "title": "Inspect today's API calls",
+        "command": "pcgs-pp-cli audit --since 24h --json",
+        "explanation": "Local SQL view over the lookup_log table — every call, IsValidRequest, ServerMessage, duration, cache-hit status. No API call."
+      },
+      {
+        "title": "Bullion-floor analysis (compose with spot prices)",
+        "command": "pcgs-pp-cli coin facts-cert 53972744 --json --select MetalContent,Weight",
+        "explanation": "Recipe R1 — pair this output with current Pt/Au/Ag/Pd spot prices to compute the bullion floor. The CLI gives you metal content and weight; you multiply by spot. Article: market-101-silver-dollars-on-the-move."
+      },
+      {
+        "title": "Cross-house auction spread (compose with Heritage / Stacks-Bowers / GreatCollections)",
+        "command": "pcgs-pp-cli coin apr-cert 53972744 --json",
+        "explanation": "Recipe R2 — PCGS APR is one realized-price snapshot. Pair it with auction houses' sold-lot APIs to spot lots that traded below PCGS APR or to find cross-house arbitrage."
+      },
+      {
+        "title": "Survival-rate scarcity (compose with US Mint mintage)",
+        "command": "pcgs-pp-cli coin pop-curve 7356 --json",
+        "explanation": "Recipe R3 — PCGS pop ÷ original mintage = survival rate, a more honest scarcity signal than raw pop. The CLI gives you pop across grades; you cross-walk PCGSNo to mintage from US Mint records."
+      },
+      {
+        "title": "True-market scarcity (compose with NGC pop data)",
+        "command": "pcgs-pp-cli coin pop-curve 7356 --json",
+        "explanation": "Recipe R4 — join PCGS pop with NGC pop on (Year, Denom, Mint, Grade) to compute the full-market scarcity and the PCGS-only premium."
+      },
+      {
+        "title": "Retail-vs-auction spread (compose with eBay sold listings)",
+        "command": "pcgs-pp-cli coin apr-cert 53972744 --json",
+        "explanation": "Recipe R5 — pair PCGS APR with eBay completed-sales to spot retail-vs-auction spreads and counterfeit-cheap PCGS-labeled coins."
+      },
+      {
+        "title": "Inflation-adjusted realized prices (compose with FRED CPI)",
+        "command": "pcgs-pp-cli coin apr-grade --pcgs-no 7356 --grade 65 --plus false --start 2000-01-01 --end 2026-01-01 --json",
+        "explanation": "Recipe R6 — apply CPI ratio to APR Date+Price pairs to get real-dollar realized prices over time."
+      },
+      {
+        "title": "Set Registry path planning (compose with PCGS Set Registry)",
+        "command": "pcgs-pp-cli search --text morgan --min-grade 65 --json",
+        "explanation": "Recipe R7 — cross-walk your cached cert list against PCGS Set Registry slot requirements to find which coins would qualify for top sets and the cheapest path to a top-100 set."
+      },
+      {
+        "title": "Pre-show inventory refresh (compose with PCGS show calendar)",
+        "command": "pcgs-pp-cli refresh --dry-run --all --older 30d --field price-guide --json",
+        "explanation": "Recipe R8 — narrow stale-detection output to series you're bringing to an upcoming show; pipe into refresh so the Price Guide values are current when you walk in."
+      },
+      {
+        "title": "Holder-type premium (compose with holder-generation catalog)",
+        "command": "pcgs-pp-cli coin facts-cert 53972744 --json",
+        "explanation": "Recipe R9 — tag cached records by holder generation (OGH / rattler / blue label / gold-shield) using a cert-range + image lookup table."
+      },
+      {
+        "title": "Personal collection diff (compose with your downstream system)",
+        "command": "pcgs-pp-cli coin batch --file examples-pcgs-coin-list.csv --list-certs --json",
+        "explanation": "Recipe R10 — diff coin batch's normalized cert list against your downstream collection's cert export to find mismatches, missing certs, or certs that no longer match PCGS truth."
+      }
+    ],
+    "trigger_phrases": [
+      "verify a pcgs cert",
+      "look up a pcgs cert number",
+      "extract pcgs coinfacts",
+      "pcgs population report",
+      "pcgs price guide",
+      "use pcgs",
+      "run pcgs"
+    ]
+  }
+}
