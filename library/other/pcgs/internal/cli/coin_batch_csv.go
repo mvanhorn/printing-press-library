@@ -121,11 +121,6 @@ func csvCellFromValue(v any) string {
 			return strconv.FormatInt(int64(t), 10)
 		}
 		return strconv.FormatFloat(t, 'f', -1, 64)
-	case json.Number:
-		return string(t)
-	case json.RawMessage:
-		// Already valid JSON bytes; pass through verbatim.
-		return string(t)
 	default:
 		// Maps, slices, or anything else exotic: JSON-encode so the cell
 		// carries the structure and downstream tooling can re-parse.
@@ -166,12 +161,15 @@ func envelopeToAnyMap(obj map[string]any) map[string]any {
 // when the user did NOT pass --columns. The order is deterministic:
 //
 //  1. cert_no (always first when present)
-//  2. _keep.<key> for every top-level key inside _keep, in input-encounter order
-//  3. data.<key> for every top-level key inside data, in input-encounter order
+//  2. _keep.<key> for every top-level key inside _keep, alphabetically sorted
+//  3. data.<key> for every top-level key inside data, alphabetically sorted
 //
-// This is intentionally shallow — deep CoinFacts nesting (e.g. AuctionList
-// arrays) would explode the column count beyond utility. Users who need a
-// specific nested path should pass --columns explicitly.
+// Map-key sort (see sortedMapKeys) is what makes the auto-header stable across
+// runs given Go's randomised map iteration; it does NOT preserve the original
+// CSV column order. Users who need a specific column order should pass
+// --columns explicitly. This is also intentionally shallow — deep CoinFacts
+// nesting (e.g. AuctionList arrays) would explode the column count beyond
+// utility.
 func autoColumnsFromEnvelope(envelope map[string]any) []csvColumnSpec {
 	out := []csvColumnSpec{}
 	if _, ok := envelope["cert_no"]; ok {

@@ -125,15 +125,21 @@ func runBatch(cmd *cobra.Command, flags *rootFlags, rows []inputRow, resumable b
 	// data" case; when --columns is omitted, the header is auto-discovered
 	// from the first emitted row (see autoColumnsFromEnvelope).
 	var emit func(obj map[string]any) error
+	var csvFlush func() error
 	if flags.csv {
 		cols, parseErr := parseColumnSpec(columnsSpec)
 		if parseErr != nil {
 			return usageErr(parseErr)
 		}
 		csvW := csv.NewWriter(cmd.OutOrStdout())
-		// Force LF line endings (default for encoding/csv) — flushing at the
-		// end of every batch run.
-		defer csvW.Flush()
+		// csv.Writer wraps bufio.Writer; a deferred Flush would discard its
+		// error and silently drop buffered rows on a failed underlying write.
+		// Caller flushes explicitly at the success path below and checks
+		// csvW.Error() so partial-file truncation surfaces as a return error.
+		csvFlush = func() error {
+			csvW.Flush()
+			return csvW.Error()
+		}
 		headerWritten := false
 		emit = func(obj map[string]any) error {
 			envelope := envelopeToAnyMap(obj)
@@ -227,6 +233,11 @@ func runBatch(cmd *cobra.Command, flags *rootFlags, rows []inputRow, resumable b
 			if err := appendCheckpoint(checkpoint, r.CertNo); err != nil {
 				return err
 			}
+		}
+	}
+	if csvFlush != nil {
+		if err := csvFlush(); err != nil {
+			return fmt.Errorf("csv flush: %w", err)
 		}
 	}
 	return nil
