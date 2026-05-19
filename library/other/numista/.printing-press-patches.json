@@ -49,6 +49,19 @@
         "internal/store/store.go"
       ],
       "validated_outcome": "go build ./... and go vet ./... pass; requested command help probes exit 0."
+    },
+    {
+      "id": "amend-2026-05-18-catalogues-find-and-pcgs-cookbook",
+      "summary": "Add 'numista-pp-cli catalogues find <query>' local-only fuzzy-search subcommand that resolves Numista reference-catalogue codes/titles/authors/publishers against the on-disk cache (3,106 rows). Also add a SKILL.md cookbook section 'If your input is a PCGS cert' documenting the direct PCGSNo -> N# cross-walk via catalogue id 1856 (PCGS CoinFacts).",
+      "reason": "Closes pp-numista/AGENTS.md Priority 4. The 'catalogues find' subcommand mirrors the 'issuers find' pattern shipped in PR #684 (loadXFromCache + scoreX + fuzzyFindX + Cobra attach), including the empty-cache discipline that fails with a warm-the-cache message rather than auto-fetching (a typo on the error path must not silently spend a quota call). Local DB has 'catalogues' rows persisted under resource_type='catalogues' in the resources table, so loadCataloguesFromCache reads via store.List('catalogues', limit) with no schema changes. The SKILL.md cookbook entry corrects a factual error in PR #684's draft (which I introduced during the AGENTS.md review by checking only the swagger spec, not the catalogue data): PCGS IS one of Numista's reference catalogues, registered at id=1856. Direct cross-walk verified 2026-05-18 with PCGSNos 7130 -> N#1492 (Morgan Dollar) and 7787 -> N#13432 (Coronet Head Quarter Eagle). The cookbook leads with this direct one-command bridge and keeps text search as a fallback (using --date for Gregorian year per swagger semantics, not --year which is 'as written on the item' and ambiguous for non-Gregorian dating systems on world coins). Tests cover exact-code, code/title-prefix, author-substring, publisher-substring, case-insensitive, diacritic-normalized, empty-query, and zero-limit edge cases.",
+      "files": [
+        "internal/cli/catalogues_amend.go",
+        "internal/cli/catalogues_amend_test.go",
+        "internal/cli/root.go",
+        "SKILL.md"
+      ],
+      "findings_addressed": ["F1", "F2"],
+      "validated_outcome": "go build ./... PASS, go vet ./... PASS, go test ./... PASS (TestFuzzyFindCatalogues 9/9 sub-tests including pcgs_locks_to_id=1856_(exact_code)), printing-press publish validate PASS. Live smokes: 'numista-pp-cli catalogues find pcgs' returns id=1856 top hit (no API call); 'numista-pp-cli types search --catalogue 1856 --number 7130' returns N#1492."
     }
   ]
 }

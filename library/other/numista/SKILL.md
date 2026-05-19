@@ -201,6 +201,43 @@ numista-pp-cli collection value 12345 --json --select totals.estimated_value,tot
 
 Joins your locally-cached collection against the prices table; refuses to start if remaining quota would be exceeded.
 
+### If your input is a PCGS cert
+
+Pair with [`pcgs-pp-cli`](https://github.com/mvanhorn/printing-press-library/tree/main/library/other/pcgs) when you're starting from a PCGS-graded coin and need its Numista catalogue ID (N#). PCGS is one of Numista's reference catalogues — registered as catalogue id `1856` (code `PCGS`, title "PCGS CoinFacts") — so a PCGSNo resolves to an N# in one API call with no text-match guessing.
+
+**Direct cross-walk (recommended when you have a PCGSNo).**
+
+```bash
+# 1. Get the PCGSNo from PCGS (no Numista quota cost).
+pcgs-pp-cli coin facts-cert <cert-number> --json --select PCGSNo,Name,Year
+# → e.g. {"PCGSNo":"7130","Name":"1881-S Morgan Dollar","Year":"1881"}
+
+# 2. Look up the Numista N# directly via the catalogue cross-reference.
+numista-pp-cli types search --catalogue 1856 --number 7130 \
+  --agent --select types.id,types.title
+# → {"results":{"types":[{"id":1492,"title":"1 Dollar \"Morgan Dollar\""}]}}
+```
+
+Verify the catalogue id at any time with `numista-pp-cli catalogues find pcgs` (local-only, no quota cost; requires that `numista-pp-cli catalogues` has been run at least once to populate the local cache).
+
+**Text-search fallback (no PCGSNo, or the catalogue lookup misses).** The PCGS CoinFacts reference catalogue doesn't index every cert. When `--catalogue 1856 --number <PCGSNo>` returns no types, fall back to text search:
+
+```bash
+pcgs-pp-cli coin facts-cert <cert-number> --json --select Name,Year,CountryName
+# → e.g. {"Name":"1881-S Morgan Dollar","Year":"1881","CountryName":"United States"}
+
+numista-pp-cli types search --q "morgan dollar" --issuer united-states --date 1881 \
+  --agent --select types.id,types.title
+# → top result is usually the Numista N# you want.
+```
+
+Use `--date` (Gregorian calendar year) for the year PCGS returns, not `--year` — Numista's `--year` is the year *as written on the item* (relevant for Hijri / Republican / other non-Gregorian dating on world coins; for US coins they coincide).
+
+Tips:
+
+- Issuer slugs are hyphenated (`united-states`, `south-africa`). Run `numista-pp-cli issuers find <name>` to look one up — local-only, no quota cost.
+- This CLI does NOT depend on `pcgs-pp-cli`. No shell-out, no auto-detection — install it separately when you want grade / cert / population data on the coin Numista returned.
+
 ## Auth Setup
 
 Set `NUMISTA_API_KEY` in your environment (request one at https://en.numista.com/api/index.php — the free plan is 2000 calls/month). Catalogue and reference endpoints work with the API key alone. User-collection commands (`users collected-items add`, `collection value`, `users collections hydrate`) need an OAuth token — request an OAuth bearer with `numista-pp-cli oauth-token --grant-type client_credentials --scope view_collection` and save it via `numista-pp-cli auth set-token <token>` to grant the CLI access to your own account; the token is stored at ~/.numista-pp-cli/auth.json (mode 0600).
