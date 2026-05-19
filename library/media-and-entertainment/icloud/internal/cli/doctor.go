@@ -165,6 +165,9 @@ func formatFloat(f float64) string {
 }
 
 func formatInt(n int64) string {
+	if n < 0 {
+		return "-" + formatInt(-n)
+	}
 	s := fmt.Sprintf("%d", n)
 	out := []byte{}
 	for i, c := range s {

@@ -97,10 +97,14 @@ Get UUIDs from:  icloud-pp-cli photos top --json | jq '.[].uuid'`,
 				return nil
 			}
 
-			// Delete via Photos.app scripting
+			// Delete via Photos.app scripting — single batched osascript call.
+			results, batchErr := deleteViaPhotosBatch(assets)
+			if batchErr != nil {
+				return fmt.Errorf("Photos.app scripting failed: %w", batchErr)
+			}
 			deleted, errors := 0, 0
 			for _, a := range assets {
-				if err := deleteViaPhotos(a.UUID); err != nil {
+				if err := results[a.UUID]; err != nil {
 					fmt.Fprintf(out, "  %s %s: %v\n", red(f, out, "✗"), a.Filename, err)
 					errors++
 				} else {
@@ -125,29 +129,82 @@ Get UUIDs from:  icloud-pp-cli photos top --json | jq '.[].uuid'`,
 }
 
 // PATCH(applescript-delete): uses osascript because there is no public iCloud deletion API.
-// deleteViaPhotos calls Photos.app via osascript to move an item to Recently Deleted.
-func deleteViaPhotos(uuid string) error {
-	if !uuidRE.MatchString(uuid) {
-		return fmt.Errorf("invalid UUID %q: must be RFC 4122 hex-and-dash format", uuid)
-	}
-	script := fmt.Sprintf(`
-tell application "Photos"
-	activate
-	set theItems to (media items whose id is "%s")
-	if (count of theItems) is 0 then
-		error "Item not found: %s"
-	end if
-	delete (item 1 of theItems)
-end tell
-`, uuid, uuid)
+// deleteViaPhotosBatch moves all assets to Recently Deleted in a single osascript invocation.
+// activate is called once and all UUIDs are iterated inside one tell block, avoiding the
+// N-process-spawn and repeated focus-steal that occurred with the old per-item scalar function.
+// Returns a per-UUID error map (nil value = success).
+func deleteViaPhotosBatch(assets []Asset) (map[string]error, error) {
+	results := make(map[string]error, len(assets))
 
-	out, err := exec.Command("osascript", "-e", script).CombinedOutput()
+	// Validate UUIDs and build the AppleScript list literal.
+	var valid []Asset
+	for _, a := range assets {
+		if !uuidRE.MatchString(a.UUID) {
+			results[a.UUID] = fmt.Errorf("invalid UUID %q: must be RFC 4122 hex-and-dash format", a.UUID)
+		} else {
+			valid = append(valid, a)
+		}
+	}
+	if len(valid) == 0 {
+		return results, nil
+	}
+
+	quoted := make([]string, len(valid))
+	for i, a := range valid {
+		quoted[i] = `"` + a.UUID + `"`
+	}
+	script := fmt.Sprintf(`tell application "Photos"
+	activate
+	set theIDs to {%s}
+	set output to ""
+	repeat with theID in theIDs
+		try
+			set theItems to (media items whose id is theID)
+			if (count of theItems) is 0 then
+				set output to output & "NOTFOUND" & tab & theID & linefeed
+			else
+				delete (item 1 of theItems)
+				set output to output & "OK" & tab & theID & linefeed
+			end if
+		on error errMsg
+			set output to output & "ERR" & tab & theID & tab & errMsg & linefeed
+		end try
+	end repeat
+	return output
+end tell
+`, strings.Join(quoted, ", "))
+
+	raw, err := exec.Command("osascript", "-e", script).CombinedOutput()
 	if err != nil {
-		msg := strings.TrimSpace(string(out))
+		msg := strings.TrimSpace(string(raw))
 		if msg == "" {
 			msg = err.Error()
 		}
-		return fmt.Errorf("%s", msg)
+		return results, fmt.Errorf("osascript: %s", msg)
 	}
-	return nil
+
+	for _, line := range strings.Split(strings.TrimSpace(string(raw)), "\n") {
+		line = strings.TrimSpace(line)
+		if line == "" {
+			continue
+		}
+		parts := strings.SplitN(line, "\t", 3)
+		if len(parts) < 2 {
+			continue
+		}
+		status, uuid := parts[0], parts[1]
+		switch status {
+		case "OK":
+			results[uuid] = nil
+		case "NOTFOUND":
+			results[uuid] = fmt.Errorf("item not found in library")
+		default: // "ERR"
+			msg := "unknown error"
+			if len(parts) == 3 && parts[2] != "" {
+				msg = parts[2]
+			}
+			results[uuid] = fmt.Errorf("%s", msg)
+		}
+	}
+	return results, nil
 }
