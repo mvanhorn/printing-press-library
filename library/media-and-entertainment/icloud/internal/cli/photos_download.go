@@ -138,18 +138,21 @@ func exportOne(a Asset, destDir string) (string, error) {
 	// Snapshot directory before so we can detect the new file.
 	before, _ := listDir(destDir)
 
+	// Pass destDir and UUID as separate -e arguments to avoid any quoting issues
+	// inside the AppleScript string literal (e.g. paths with double quotes).
 	script := fmt.Sprintf(`tell application "Photos"
 	activate
-	set destFolder to POSIX file %q
-	set found to (media items whose id starts with %q)
+	set found to (media items whose id starts with "%s")
 	if (count of found) is 0 then
 		error "item not found: %s"
 	end if
-	export {item 1 of found} to destFolder using originals true
-end tell
-`, destDir, a.UUID, a.UUID)
+	export {item 1 of found} to destArg using originals true
+end tell`, a.UUID, a.UUID)
 
-	raw, err := exec.Command("osascript", "-e", script).CombinedOutput()
+	raw, err := exec.Command("osascript",
+		"-e", fmt.Sprintf(`set destArg to POSIX file %q`, destDir),
+		"-e", script,
+	).CombinedOutput()
 	if err != nil {
 		msg := strings.TrimSpace(string(raw))
 		if msg == "" {
@@ -163,7 +166,9 @@ end tell
 
 	after, _ := listDir(destDir)
 
-	// Find the newly appeared file.
+	// Find the newly appeared file by exact (case-insensitive) filename match.
+	// We intentionally avoid extension-only fallbacks: if two assets share the same
+	// extension we would silently attribute the wrong file to the wrong UUID.
 	matchedName := ""
 	lower := strings.ToLower(a.Filename)
 	for name := range after {
@@ -173,19 +178,6 @@ end tell
 		if strings.ToLower(name) == lower {
 			matchedName = name
 			break
-		}
-	}
-	// Fallback: any new file with matching extension.
-	if matchedName == "" {
-		ext := strings.ToLower(filepath.Ext(a.Filename))
-		for name := range after {
-			if before[name] {
-				continue
-			}
-			if strings.ToLower(filepath.Ext(name)) == ext {
-				matchedName = name
-				break
-			}
 		}
 	}
 	if matchedName == "" {

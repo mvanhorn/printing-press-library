@@ -149,7 +149,7 @@ func macOSVersion() string {
 }
 
 func checkSchema(db *sql.DB) bool {
-	for _, table := range []string{"ZASSET", "ZADDITIONALASSETATTRIBUTES"} {
+	for _, table := range []string{"ZASSET", "ZADDITIONALASSETATTRIBUTES", "ZMEDIAANALYSISASSETATTRIBUTES"} {
 		var name string
 		if err := db.QueryRow(
 			"SELECT name FROM sqlite_master WHERE type='table' AND name=?", table,
