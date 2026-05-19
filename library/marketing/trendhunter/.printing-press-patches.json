@@ -24,6 +24,15 @@
       "upstream_issue": "Generator template internal/generator/templates/client.go.tmpl emits http.NewRequest without ctx for every printed CLI; upstream fix would replace this single-CLI patch across the catalog."
     },
     {
+      "id": "bodytext-rune-safe-truncation",
+      "summary": "Cap parsed trend BodyText by rune count rather than byte slice so the 4000-char limit doesn't split a multi-byte UTF-8 sequence introduced by html.UnescapeString.",
+      "reason": "Greptile flagged a U+FFFD replacement glyph at the byte boundary on long trend bodies. Adds a shared truncateRunes helper in thparse/common.go and uses it from ParseTrendPage.",
+      "files": [
+        "internal/thparse/common.go",
+        "internal/thparse/html_trend.go"
+      ]
+    },
+    {
       "id": "parse-since-and-inbox-first-run-bounds",
       "summary": "Reject negative durations in parseSince (they silently inverted the lookback window to a future cutoff) and cap the first-run inbox scan at 200 trends instead of dumping the whole corpus.",
       "reason": "Both flagged by Greptile on PR #548 as edge-case correctness/UX bugs: --since -7d returned empty results without an error, and a first inbox run on a freshly synced sitemap (hundreds of thousands of rows) would stream the entire corpus.",

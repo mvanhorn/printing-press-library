@@ -52,10 +52,7 @@ func ParseTrendPage(body []byte, pageURL string) (*Trend, error) {
 	t.RelatedSlugs = relatedSlugs(raw, t.Slug)
 	t.FAQ = parseFAQ(raw)
 	if m := storyDivRE.FindStringSubmatch(raw); len(m) >= 2 {
-		t.BodyText = cleanText(m[1])
-		if len(t.BodyText) > 4000 {
-			t.BodyText = t.BodyText[:4000]
-		}
+		t.BodyText = truncateRunes(cleanText(m[1]), 4000)
 	}
 	return t, nil
 }

@@ -18,6 +18,20 @@ func cleanText(s string) string {
 	return strings.TrimSpace(s)
 }
 
+// truncateRunes returns s capped at max runes (not bytes). html.UnescapeString
+// can introduce multi-byte UTF-8 sequences, so a byte-level slice can split
+// a code point and leave a U+FFFD replacement glyph at the boundary.
+func truncateRunes(s string, max int) string {
+	if max <= 0 {
+		return s
+	}
+	runes := []rune(s)
+	if len(runes) <= max {
+		return s
+	}
+	return string(runes[:max])
+}
+
 func collapse(s string) string {
 	return strings.TrimSpace(wsRE.ReplaceAllString(html.UnescapeString(s), " "))
 }
