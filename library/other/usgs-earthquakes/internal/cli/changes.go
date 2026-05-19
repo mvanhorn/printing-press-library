@@ -163,6 +163,23 @@ recorded yet'.`,
 	return cmd
 }
 
+// ensureRevisionsTable creates the revisions table and the SQLite trigger
+// that actually populates it during sync. Without the trigger, `changes`
+// would always print "no revisions recorded yet" — sync.go is
+// generator-emitted and does not write to `revisions` directly. Instead the
+// trigger fires BEFORE INSERT on the `resources` table, snapshotting deltas
+// at the moment sync upserts via INSERT OR REPLACE.
+//
+// The trigger handles both shapes in a single BEFORE INSERT:
+//   - If an event row with the same id already exists with different
+//     mag/alert/status, appends a `revised` row capturing pre/post. INSERT OR
+//     REPLACE deletes the old row after BEFORE INSERT runs, so the snapshot
+//     is captured before the old data is lost.
+//   - If no existing row matches, appends a `new` row.
+//
+// Idempotent (CREATE IF NOT EXISTS). Safe to call from any path that opens
+// the store; ensureRevisionsSchemaOnDefaultDB calls it from cobra.OnInitialize
+// in root.go so the trigger is in place before sync upserts.
 func ensureRevisionsTable(ctx context.Context, db *store.Store) error {
 	_, err := db.DB().ExecContext(ctx, `
 		CREATE TABLE IF NOT EXISTS revisions (
@@ -180,8 +197,64 @@ func ensureRevisionsTable(ctx context.Context, db *store.Store) error {
 		);
 		CREATE INDEX IF NOT EXISTS idx_revisions_observed ON revisions(observed_at);
 		CREATE INDEX IF NOT EXISTS idx_revisions_event ON revisions(event_id);
+
+		CREATE TRIGGER IF NOT EXISTS events_revision_before
+		BEFORE INSERT ON resources
+		FOR EACH ROW WHEN NEW.resource_type = 'events'
+		BEGIN
+			INSERT INTO revisions (event_id, change_type, observed_at,
+				pre_mag, post_mag, pre_alert, post_alert, pre_status, post_status, note)
+			SELECT
+				NEW.id, 'revised',
+				CAST((julianday('now') - 2440587.5) * 86400000 AS INTEGER),
+				CAST(json_extract(r.data, '$.properties.mag') AS REAL),
+				CAST(json_extract(NEW.data, '$.properties.mag') AS REAL),
+				json_extract(r.data, '$.properties.alert'),
+				json_extract(NEW.data, '$.properties.alert'),
+				json_extract(r.data, '$.properties.status'),
+				json_extract(NEW.data, '$.properties.status'),
+				'sync revised'
+			FROM resources r
+			WHERE r.resource_type = 'events' AND r.id = NEW.id
+			  AND (
+				IFNULL(CAST(json_extract(r.data, '$.properties.mag') AS REAL), -999) !=
+				IFNULL(CAST(json_extract(NEW.data, '$.properties.mag') AS REAL), -999)
+				OR IFNULL(json_extract(r.data, '$.properties.alert'), '') !=
+				   IFNULL(json_extract(NEW.data, '$.properties.alert'), '')
+				OR IFNULL(json_extract(r.data, '$.properties.status'), '') !=
+				   IFNULL(json_extract(NEW.data, '$.properties.status'), '')
+			  );
+
+			INSERT INTO revisions (event_id, change_type, observed_at,
+				post_mag, post_alert, post_status, note)
+			SELECT
+				NEW.id, 'new',
+				CAST((julianday('now') - 2440587.5) * 86400000 AS INTEGER),
+				CAST(json_extract(NEW.data, '$.properties.mag') AS REAL),
+				json_extract(NEW.data, '$.properties.alert'),
+				json_extract(NEW.data, '$.properties.status'),
+				'new event'
+			WHERE NOT EXISTS (
+				SELECT 1 FROM resources r
+				WHERE r.resource_type = 'events' AND r.id = NEW.id
+			);
+		END;
 	`)
 	return err
+}
+
+// ensureRevisionsSchemaOnDefaultDB opens the canonical local store path and
+// installs the revisions table + trigger. Called from root.go's
+// cobra.OnInitialize so the trigger is live before sync upserts. Best-effort:
+// any error (missing dir, locked DB) is suppressed so command startup doesn't
+// break; the next `changes` or `sync` invocation retries.
+func ensureRevisionsSchemaOnDefaultDB(ctx context.Context) {
+	db, err := openLocalStore(ctx)
+	if err != nil {
+		return
+	}
+	defer db.Close()
+	_ = ensureRevisionsTable(ctx, db)
 }
 
 func oradefault(s, dflt string) string {

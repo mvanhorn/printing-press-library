@@ -5,6 +5,7 @@ package cli
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io"
 	"os"
@@ -133,6 +134,23 @@ func isCobraUsageError(err error) bool {
 		strings.HasPrefix(msg, `required flag(s) "`) ||
 		strings.HasPrefix(msg, "flag needs an argument:") ||
 		strings.HasPrefix(msg, `invalid argument "`)
+}
+
+// init installs the revisions-table SQLite trigger before any command runs.
+// The trigger fires BEFORE INSERT on `resources` and snapshots event
+// magnitude/alert/status deltas into the `revisions` table. Without this,
+// `changes` would always report "no revisions recorded yet" — sync.go is
+// generator-emitted and doesn't write to `revisions` directly. cobra.OnInitialize
+// runs after flag parsing but before any subcommand's RunE, so the trigger is
+// guaranteed to be in place before the first sync upsert of this process.
+//
+// Best-effort: any error (missing dir, permission denied) is suppressed so
+// command startup doesn't break. The first changes/sync invocation retries
+// schema setup via the changes command's direct path.
+func init() {
+	cobra.OnInitialize(func() {
+		ensureRevisionsSchemaOnDefaultDB(context.Background())
+	})
 }
 
 func newRootCmd(flags *rootFlags) *cobra.Command {

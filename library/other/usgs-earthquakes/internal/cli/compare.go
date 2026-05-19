@@ -145,16 +145,18 @@ absolute and percentage.`,
 }
 
 type compareSide struct {
-	Label       string    `json:"label"`
-	BboxW       float64   `json:"bbox_w"`
-	BboxS       float64   `json:"bbox_s"`
-	BboxE       float64   `json:"bbox_e"`
-	BboxN       float64   `json:"bbox_n"`
-	StartTime   time.Time `json:"start_time"`
-	EndTime     time.Time `json:"end_time"`
-	Count       int       `json:"count"`
-	MaxMag      float64   `json:"max_mag"`
-	TotalEnergy float64   `json:"total_energy_j"`
+	Label            string    `json:"label"`
+	BboxW            float64   `json:"bbox_w"`
+	BboxS            float64   `json:"bbox_s"`
+	BboxE            float64   `json:"bbox_e"`
+	BboxN            float64   `json:"bbox_n"`
+	StartTime        time.Time `json:"start_time"`
+	EndTime          time.Time `json:"end_time"`
+	Count            int       `json:"count"`
+	MaxMag           float64   `json:"max_mag"`
+	TotalEnergy      float64   `json:"total_energy_j"`
+	EnergyTruncated  bool      `json:"energy_truncated,omitempty"`
+	EnergySampleSize int       `json:"energy_sample_size,omitempty"`
 }
 
 // parsePeriod accepts "YYYY-MM-DD:YYYY-MM-DD", "YYYY:YYYY", or single year "YYYY".
@@ -248,13 +250,21 @@ func computeSide(ctx context.Context, flags *rootFlags, side *compareSide, minMa
 		}
 	}
 
-	// Live fallback: use /count.
+	// Live fallback uses two FDSN calls:
+	//   1. /count (text response, no 20k cap) → exact event count regardless
+	//      of how many events fall in the window
+	//   2. /query (capped at FDSN's hard 20000 ceiling) → top-magnitude
+	//      sample for max_mag and total_energy
+	// When count > 20000, total_energy reflects only the top-magnitude
+	// sample; EnergyTruncated=true signals that to the consumer. Counting
+	// via len(features) on a single /query call (the prior shape) silently
+	// capped count at 20000 and miscounted both energy and the delta for
+	// any seismically active region.
 	c, err := flags.newClient()
 	if err != nil {
 		return err
 	}
-	params := map[string]string{
-		"format":       "geojson",
+	filterParams := map[string]string{
 		"starttime":    fdsnTimeFormat(side.StartTime),
 		"endtime":      fdsnTimeFormat(side.EndTime),
 		"minlongitude": strconv.FormatFloat(side.BboxW, 'f', -1, 64),
@@ -262,10 +272,44 @@ func computeSide(ctx context.Context, flags *rootFlags, side *compareSide, minMa
 		"maxlongitude": strconv.FormatFloat(side.BboxE, 'f', -1, 64),
 		"maxlatitude":  strconv.FormatFloat(side.BboxN, 'f', -1, 64),
 		"minmagnitude": strconv.FormatFloat(minMag, 'f', -1, 64),
-		"limit":        "20000",
-		"orderby":      "magnitude",
 	}
-	data, err := c.Get("/query", params)
+
+	// Step 1: exact count via /count (text response). FDSN's /count has no
+	// 20000 cap.
+	countParams := map[string]string{"format": "text"}
+	for k, v := range filterParams {
+		countParams[k] = v
+	}
+	countData, err := c.Get("/count", countParams)
+	if err != nil {
+		return classifyAPIError(err, flags)
+	}
+	// /count?format=text returns the integer literal (possibly with trailing
+	// newline) or a small JSON envelope wrapping it depending on the client.
+	exactCount, err := strconv.Atoi(strings.TrimSpace(string(countData)))
+	if err != nil {
+		// Fall back to numeric extraction if the body is wrapped.
+		exactCount = 0
+		for _, b := range countData {
+			if b >= '0' && b <= '9' {
+				exactCount = exactCount*10 + int(b-'0')
+			} else if exactCount > 0 {
+				break
+			}
+		}
+	}
+	side.Count = exactCount
+
+	// Step 2: top-magnitude sample for max + energy via /query.
+	queryParams := map[string]string{
+		"format":  "geojson",
+		"limit":   "20000",
+		"orderby": "magnitude",
+	}
+	for k, v := range filterParams {
+		queryParams[k] = v
+	}
+	data, err := c.Get("/query", queryParams)
 	if err != nil {
 		return classifyAPIError(err, flags)
 	}
@@ -275,7 +319,10 @@ func computeSide(ctx context.Context, flags *rootFlags, side *compareSide, minMa
 	if json.Unmarshal(data, &fc) != nil {
 		return fmt.Errorf("parse compare response")
 	}
-	side.Count = len(fc.Features)
+	side.EnergySampleSize = len(fc.Features)
+	if exactCount > len(fc.Features) {
+		side.EnergyTruncated = true
+	}
 	for _, f := range fc.Features {
 		props, _ := f["properties"].(map[string]any)
 		mag, _ := props["mag"].(float64)
