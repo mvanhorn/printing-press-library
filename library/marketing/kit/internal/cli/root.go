@@ -12,9 +12,9 @@ import (
 	"text/tabwriter"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/marketing/kit/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/marketing/kit/internal/config"
 	"github.com/spf13/cobra"
-	"kit-pp-cli/internal/client"
-	"kit-pp-cli/internal/config"
 )
 
 var version = "1.0.0"

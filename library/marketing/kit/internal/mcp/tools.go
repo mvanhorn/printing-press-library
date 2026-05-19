@@ -15,12 +15,12 @@ import (
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
-	"kit-pp-cli/internal/cli"
-	"kit-pp-cli/internal/client"
-	"kit-pp-cli/internal/cliutil"
-	"kit-pp-cli/internal/config"
-	"kit-pp-cli/internal/mcp/cobratree"
-	"kit-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/marketing/kit/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/marketing/kit/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/marketing/kit/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/marketing/kit/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/marketing/kit/internal/mcp/cobratree"
+	"github.com/mvanhorn/printing-press-library/library/marketing/kit/internal/store"
 )
 
 // RegisterTools registers all API operations as MCP tools.
@@ -111,14 +111,13 @@ func RegisterTools(s *server.MCPServer) {
 	)
 	s.AddTool(
 		mcplib.NewTool("broadcasts_get",
-			mcplib.WithDescription("Get a broadcast. Required: id. Optional: []. Returns the BroadcastsGetResponse."),
-			mcplib.WithString("[]", mcplib.Description("")),
+			mcplib.WithDescription("Get a broadcast. Required: id. Returns the BroadcastsGetResponse."),
 			mcplib.WithNumber("id", mcplib.Required(), mcplib.Description("Id")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v4/broadcasts/{id}", false, []mcpParamBinding{{PublicName: "[]", WireName: "[]", Location: "query"}, {PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
+		makeAPIHandler("GET", "/v4/broadcasts/{id}", false, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("broadcasts_list",

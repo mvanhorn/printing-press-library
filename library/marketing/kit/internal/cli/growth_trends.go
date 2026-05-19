@@ -12,8 +12,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/marketing/kit/internal/store"
 	"github.com/spf13/cobra"
-	"kit-pp-cli/internal/store"
 )
 
 // newGrowthTrendsCmd builds the `kit-pp-cli growth-trends` command. It

@@ -189,15 +189,10 @@
     },
     {
       "name": "broadcasts_get",
-      "description": "Get a broadcast. Required: id. Optional: []. Returns the BroadcastsGetResponse.",
+      "description": "Get a broadcast. Required: id. Returns the BroadcastsGetResponse.",
       "method": "GET",
       "path": "/v4/broadcasts/{id}",
       "params": [
-        {
-          "name": "[]",
-          "type": "string",
-          "location": "query"
-        },
         {
           "name": "id",
           "type": "int",

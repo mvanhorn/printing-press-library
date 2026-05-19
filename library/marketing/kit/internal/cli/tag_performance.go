@@ -11,8 +11,8 @@ import (
 	"sort"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/marketing/kit/internal/store"
 	"github.com/spf13/cobra"
-	"kit-pp-cli/internal/store"
 )
 
 // newTagPerformanceCmd builds the `kit-pp-cli tag-performance` command. It

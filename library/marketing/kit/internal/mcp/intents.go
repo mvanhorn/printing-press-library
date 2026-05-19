@@ -21,7 +21,7 @@ import (
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
-	"kit-pp-cli/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/marketing/kit/internal/cli"
 )
 
 // RegisterIntents registers Kit-specific compound workflows as first-class
