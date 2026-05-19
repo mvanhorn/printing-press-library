@@ -47,6 +47,17 @@
         "SKILL.md"
       ],
       "validated_outcome": "go fmt ./..., go vet ./..., go build ./... passed; growth-trends/tag-performance --help render; MCP smoke test with proper initialize handshake exposes all 4 intent_workflow_* tools; scorecard reports 90/100 (87+3 from data_pipeline_integrity domain Search lift). Pre-existing TestUpsertBatch_Sets*ParentID failures in internal/store are unrelated to this patch."
+    },
+    {
+      "id": "kit-redirect-api-key-scrub",
+      "summary": "Removed Kit's API key header from cross-host HTTP redirect requests while preserving same-host redirect auth.",
+      "reason": "Go strips standard auth headers on cross-domain redirects but does not strip custom API-key headers. Kit uses X-Kit-Api-Key, so the printed client must delete it explicitly before following a redirect to another host.",
+      "files": [
+        "internal/client/client.go",
+        "internal/client/client_test.go"
+      ],
+      "validated_outcome": "go test ./internal/client passed.",
+      "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/1672"
     }
   ]
 }

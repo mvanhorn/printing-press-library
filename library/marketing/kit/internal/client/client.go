@@ -10,9 +10,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"github.com/mvanhorn/printing-press-library/library/marketing/kit/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/marketing/kit/internal/config"
+	"io"
 	"math"
 	"net/http"
 	"os"
@@ -85,6 +85,8 @@ func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {
 			if h, err := c.authHeader(); err == nil && h != "" {
 				req.Header.Set("X-Kit-Api-Key", h)
 			}
+		} else {
+			req.Header.Del("X-Kit-Api-Key")
 		}
 		return nil
 	}

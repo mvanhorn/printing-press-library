@@ -5,9 +5,14 @@ package client
 
 import (
 	"bytes"
+	"net/http"
+	"net/url"
 	"strings"
 	"testing"
+	"time"
 	"unicode/utf8"
+
+	"github.com/mvanhorn/printing-press-library/library/marketing/kit/internal/config"
 )
 
 func TestTruncateBody(t *testing.T) {
@@ -69,4 +74,58 @@ func TestTruncateBody_UTF8RuneAtBoundary(t *testing.T) {
 	if want := 4094 + 3; len(got) != want {
 		t.Fatalf("len = %d, want %d (partial rune should be dropped, not replaced)", len(got), want)
 	}
+}
+
+func TestCheckRedirectStripsAPIKeyOnCrossHostRedirect(t *testing.T) {
+	t.Parallel()
+
+	c := New(&config.Config{
+		BaseURL:   "https://api.kit.com",
+		KitApiKey: "secret-key",
+	}, time.Second, 0)
+
+	previous := &http.Request{URL: mustURL(t, "https://api.kit.com/v4/account")}
+	next := &http.Request{
+		URL:    mustURL(t, "https://example.com/redirected"),
+		Header: http.Header{"X-Kit-Api-Key": []string{"secret-key"}},
+	}
+
+	if err := c.HTTPClient.CheckRedirect(next, []*http.Request{previous}); err != nil {
+		t.Fatalf("CheckRedirect returned error: %v", err)
+	}
+	if got := next.Header.Get("X-Kit-Api-Key"); got != "" {
+		t.Fatalf("cross-host redirect retained API key %q", got)
+	}
+}
+
+func TestCheckRedirectReaddsAPIKeyOnSameHostRedirect(t *testing.T) {
+	t.Parallel()
+
+	c := New(&config.Config{
+		BaseURL:   "https://api.kit.com",
+		KitApiKey: "secret-key",
+	}, time.Second, 0)
+
+	previous := &http.Request{URL: mustURL(t, "https://api.kit.com/v4/account")}
+	next := &http.Request{
+		URL:    mustURL(t, "https://api.kit.com/v4/creator_profile"),
+		Header: http.Header{},
+	}
+
+	if err := c.HTTPClient.CheckRedirect(next, []*http.Request{previous}); err != nil {
+		t.Fatalf("CheckRedirect returned error: %v", err)
+	}
+	if got := next.Header.Get("X-Kit-Api-Key"); got != "secret-key" {
+		t.Fatalf("same-host redirect API key = %q, want %q", got, "secret-key")
+	}
+}
+
+func mustURL(t *testing.T, raw string) *url.URL {
+	t.Helper()
+
+	u, err := url.Parse(raw)
+	if err != nil {
+		t.Fatalf("parse URL %q: %v", raw, err)
+	}
+	return u
 }
