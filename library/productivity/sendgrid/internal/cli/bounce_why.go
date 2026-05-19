@@ -120,8 +120,13 @@ Output: structured JSON or a narrative prose block.`,
 				}
 			}
 
-			// Check email activity
-			query := fmt.Sprintf("to_email=%s", email)
+			// Check email activity. The /v3/messages query parameter is a
+			// filter-expression DSL that requires double-quoted string values
+			// (to_email="user@example.com"). Bare values break on plus-tag
+			// addresses — after URL decoding "+" may be parsed as a boolean
+			// operator, so plus-tagged recipients silently return zero
+			// activity even when messages exist.
+			query := fmt.Sprintf("to_email=%q", email)
 			activityData, err := c.Get("/v3/messages", map[string]string{
 				"query": query,
 				"limit": "25",
