@@ -576,14 +576,22 @@ func newTHMegatrendMapCmd(flags *rootFlags) *cobra.Command {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
-			t, err := loadOrFetchTrend(cmd.Context(), flags, args[0])
+			// Open the store once for the whole walk. Each loadOrFetchTrend
+			// call previously reopened+closed the DB, which is wasteful on
+			// the depth-1 loop.
+			_, db, closeFn, err := openTHStore(cmd.Context())
+			if err != nil {
+				return err
+			}
+			defer closeFn()
+			t, err := loadOrFetchTrendWithDB(cmd.Context(), db, flags, args[0])
 			if err != nil {
 				return err
 			}
 			depth1 := t.RelatedSlugs
 			depth2Set := map[string]struct{}{}
 			for _, slug := range depth1 {
-				rt, err := loadOrFetchTrend(cmd.Context(), flags, slug)
+				rt, err := loadOrFetchTrendWithDB(cmd.Context(), db, flags, slug)
 				if err != nil {
 					continue
 				}
@@ -848,6 +856,17 @@ func loadOrFetchTrend(ctx context.Context, flags *rootFlags, slug string) (*thpa
 	_, db, closeFn, err := openTHStore(ctx)
 	if err == nil {
 		defer closeFn()
+		return loadOrFetchTrendWithDB(ctx, db, flags, slug)
+	}
+	return fetchTrendDetail(ctx, flags, slug)
+}
+
+// loadOrFetchTrendWithDB looks up a trend in a caller-supplied store and
+// falls back to a network fetch on cache miss. Use this from loops where
+// the store stays open for many lookups (e.g. megatrend-map's related-slug
+// walk) to avoid re-opening SQLite per call.
+func loadOrFetchTrendWithDB(ctx context.Context, db *sql.DB, flags *rootFlags, slug string) (*thparse.Trend, error) {
+	if db != nil {
 		if t, ok, err := thstore.GetTrend(ctx, db, slug); err == nil && ok && len(t.RelatedSlugs) > 0 {
 			return t, nil
 		}
