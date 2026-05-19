@@ -79,6 +79,11 @@ Local-only — run 'bird-pp-cli sync' first.`,
 						view.Participants = append(view.Participants, label)
 					}
 				}
+				// PATCH: rows.Err() audit so a participants-scan failure
+				// surfaces instead of silently producing a partial label list.
+				if scanErr := pRows.Err(); scanErr != nil {
+					view.Participants = append(view.Participants, fmt.Sprintf("(participants scan error: %v)", scanErr))
+				}
 				pRows.Close()
 			}
 
@@ -118,6 +123,12 @@ Local-only — run 'bird-pp-cli sync' first.`,
 					}
 				}
 				view.Timeline = append(view.Timeline, row)
+			}
+			// PATCH: rows.Err() audit on the messages scan so a truncated
+			// timeline is reported instead of silently producing partial
+			// output.
+			if err := mRows.Err(); err != nil {
+				return fmt.Errorf("scan conversation messages: %w", err)
 			}
 			sort.SliceStable(view.Timeline, func(i, j int) bool {
 				return view.Timeline[i].Timestamp < view.Timeline[j].Timestamp

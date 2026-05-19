@@ -146,6 +146,14 @@ func queryFailures(db *store.Store, cutoff time.Time) ([]failureMessageRow, erro
 			CreatedAt: createdAtStr,
 		})
 	}
+	// PATCH: surface mid-iteration scan errors (Greptile P1 in PR #417 ninth
+	// review pass). Same shape as the fixes in compliance_auto_block.go,
+	// sms_search.go, and messages_from.go: rows.Next() returns false on
+	// both exhaustion and error, so without this check a truncated failure
+	// list would feed --group-by reason and silently understate counts.
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("query messages: %w", err)
+	}
 	return out, nil
 }
 

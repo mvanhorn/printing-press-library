@@ -132,6 +132,12 @@ func conversationsForIdentifier(db *store.Store, identifier string) (map[string]
 			out[convID] = struct{}{}
 		}
 	}
+	// PATCH: catch mid-iteration scan errors so a truncated participant
+	// set doesn't silently narrow downstream search results. See Greptile
+	// P1 in PR #417 ninth review pass.
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("query participants: %w", err)
+	}
 	return out, nil
 }
 
@@ -177,6 +183,11 @@ func scanForBody(db *store.Store, query string, convFilter map[string]struct{}, 
 			hit.CreatedAt = s
 		}
 		out = append(out, hit)
+	}
+	// PATCH: surface mid-iteration scan errors; without this a query
+	// failure mid-scan would silently truncate the search result set.
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("scan conversations_messages: %w", err)
 	}
 	return out, nil
 }

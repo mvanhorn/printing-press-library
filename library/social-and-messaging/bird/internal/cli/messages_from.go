@@ -87,6 +87,11 @@ func queryCustomerMessages(db *store.Store, identifier string) ([]customerMessag
 			convIDs[convID] = struct{}{}
 		}
 	}
+	// PATCH: surface mid-iteration participants scan errors. See Greptile
+	// P1 in PR #417 ninth review pass.
+	if err := pRows.Err(); err != nil {
+		return nil, fmt.Errorf("query participants: %w", err)
+	}
 	if len(convIDs) == 0 {
 		return out, nil
 	}
@@ -124,6 +129,11 @@ func queryCustomerMessages(db *store.Store, identifier string) ([]customerMessag
 				}
 			}
 			out = append(out, row)
+		}
+		// PATCH: same rows.Err() audit on the per-conversation messages scan.
+		if err := mRows.Err(); err != nil {
+			mRows.Close()
+			return nil, fmt.Errorf("scan messages for conversation %s: %w", cid, err)
 		}
 		mRows.Close()
 	}

@@ -181,6 +181,15 @@ func scanOptOuts(db *store.Store, cutoff time.Time) ([]optOutCandidate, error) {
 			Timestamp:       ts,
 		})
 	}
+	// PATCH: surface mid-iteration scan errors. rows.Next() returns false
+	// both on exhaustion and on internal error; without this check
+	// scanOptOuts would silently return a partial candidate list and
+	// --apply would bulk-block a truncated set of phone numbers without
+	// any indication that the scan was incomplete. Surfaced by Greptile
+	// P1 in PR #417 ninth review pass.
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("scan conversations_messages: %w", err)
+	}
 	return out, nil
 }
 

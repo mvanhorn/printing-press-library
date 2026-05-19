@@ -795,6 +795,12 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 		}
 		results = append(results, row)
 	}
+	// PATCH: surface mid-iteration scan errors instead of silently truncating
+	// the SQL tool's result set. Same shape as the rows.Err() audits surfaced
+	// by Greptile in PR #417 for the CLI-side scan loops.
+	if err := rows.Err(); err != nil {
+		return mcplib.NewToolResultError(fmt.Sprintf("scan failed mid-iteration: %v", err)), nil
+	}
 
 	data, _ := json.MarshalIndent(results, "", "  ")
 	return mcplib.NewToolResultText(string(data)), nil

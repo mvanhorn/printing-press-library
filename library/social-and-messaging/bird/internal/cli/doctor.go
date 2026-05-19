@@ -416,6 +416,14 @@ func collectCacheReport(ctx context.Context, staleAfterSpec string) map[string]a
 		}
 		resources = append(resources, r)
 	}
+	// PATCH: surface mid-iteration sync_state scan errors so a partial
+	// resource list doesn't silently flag the cache as fresh. Same shape
+	// as the other rows.Err() audits surfaced by Greptile in PR #417.
+	if err := rows.Err(); err != nil {
+		report["status"] = "error"
+		report["hint"] = fmt.Sprintf("scan sync_state: %v", err)
+		return report
+	}
 	report["resources"] = resources
 	report["stale_after"] = staleAfter.String()
 
