@@ -1,4 +1,4 @@
-// Copyright 2026 trevin-chow. Licensed under Apache-2.0. See LICENSE.
+// Copyright 2026 matt-van-horn. Licensed under Apache-2.0. See LICENSE.
 
 // linear_groups.go provides Cobra parent groups for Linear-specific
 // command families that have a transcendence subcommand. Each parent

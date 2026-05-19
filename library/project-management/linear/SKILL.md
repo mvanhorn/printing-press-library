@@ -1,7 +1,7 @@
 ---
 name: pp-linear
 description: "Offline-capable, agent-native Linear CLI with SQLite-backed sync, FTS5 search, cross-cycle comparison, project... Trigger phrases: `what's on my Linear plate today`, `Linear sprint plan for the team`, `Linear cycle comparison`, `Linear burndown for the project`, `which Linear milestone is at risk`, `stale Linear issues`, `clean up the Linear test tickets I created`, `use linear-pp-cli`, `run linear-pp-cli`."
-author: "Trevin Chow"
+author: "Matt Van Horn"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
