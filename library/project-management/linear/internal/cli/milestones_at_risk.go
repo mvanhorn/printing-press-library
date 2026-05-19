@@ -128,6 +128,13 @@ slipDays descending. Only milestones with slipDays > 0 are returned.`,
 					if err != nil {
 						continue
 					}
+					// rowSource snapshots the per-project projectedSource
+					// for this milestone only. Without this, the past-due
+					// branch below would mutate the outer-scope variable
+					// and leak "past-due" forward to every subsequent
+					// milestone in the same project — breaking the
+					// projectedSource three-value contract.
+					rowSource := projectedSource
 					var slip int
 					var projected string
 					if projectLanding != "" {
@@ -144,14 +151,14 @@ slipDays descending. Only milestones with slipDays > 0 are returned.`,
 							// is in the past and the burndown projection
 							// (when present) did not flag it. Emit today's
 							// date as a parseable ISO value and tag
-							// projectedSource as "past-due" so consumers can
+							// rowSource as "past-due" so consumers can
 							// (a) parse projectedLandingDate without
 							// special-casing a " (now)" suffix and (b) tell
 							// this branch apart from the burndown and
 							// target-date-fallback branches.
 							slip = daysToNow
 							projected = now.Format("2006-01-02")
-							projectedSource = "past-due"
+							rowSource = "past-due"
 						}
 					}
 					if slip > 0 {
@@ -159,7 +166,7 @@ slipDays descending. Only milestones with slipDays > 0 are returned.`,
 							MilestoneID: ms.ID, MilestoneName: ms.Name,
 							ProjectID: prj.ID, ProjectName: prj.Name,
 							TargetDate: firstTen(ms.TargetDate), ProjectedLandingDate: projected,
-							ProjectedSource: projectedSource,
+							ProjectedSource: rowSource,
 							SlipDays:        slip,
 						})
 					}
