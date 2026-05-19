@@ -539,31 +539,72 @@ func fetchIssuesLive(ctx context.Context, flags *rootFlags, db *store.Store, fil
 	default:
 		gqlFilter["state"] = map[string]any{"type": map[string]any{"eq": stateFlag}}
 	}
-	page := limit
-	if page <= 0 || page > 100 {
-		page = 100
-	}
-	vars := map[string]any{"first": page, "filter": gqlFilter}
-	var resp struct {
-		Issues struct {
-			Nodes []json.RawMessage `json:"nodes"`
-		} `json:"issues"`
-	}
-	if err := c.QueryInto(client.IssuesQuery, vars, &resp); err != nil {
-		return nil, err
-	}
-	// Write-through: upsert each fetched issue into the local store so
-	// follow-up `--data-source local` reads in the same session are fresh.
-	for _, n := range resp.Issues.Nodes {
-		var meta struct {
-			ID         string `json:"id"`
-			Identifier string `json:"identifier"`
-			Title      string `json:"title"`
+	// Linear's GraphQL `issues` query caps `first` at 100 per page. To
+	// honor a user-supplied --limit greater than 100, paginate via
+	// pageInfo.endCursor until we have enough rows or there's no next
+	// page. This keeps live and local result sets consistent for the same
+	// --limit (the local path's db.ListIssues handles arbitrary limits
+	// against the snapshot). When --limit is 0 or negative, the user
+	// asked for "everything" — paginate until pageInfo.hasNextPage flips.
+	want := limit
+	all := want <= 0
+	const pageMax = 100
+	collected := make([]json.RawMessage, 0)
+	cursor := ""
+	for {
+		first := pageMax
+		if !all {
+			remaining := want - len(collected)
+			if remaining <= 0 {
+				break
+			}
+			if remaining < pageMax {
+				first = remaining
+			}
 		}
-		if err := json.Unmarshal(n, &meta); err != nil || meta.ID == "" {
-			continue
+		vars := map[string]any{"first": first, "filter": gqlFilter}
+		if cursor != "" {
+			vars["after"] = cursor
 		}
-		_ = db.UpsertIssue(meta.ID, meta.Identifier, meta.Title, n)
+		var resp struct {
+			Issues struct {
+				Nodes    []json.RawMessage `json:"nodes"`
+				PageInfo struct {
+					HasNextPage bool   `json:"hasNextPage"`
+					EndCursor   string `json:"endCursor"`
+				} `json:"pageInfo"`
+			} `json:"issues"`
+		}
+		if err := c.QueryInto(client.IssuesQuery, vars, &resp); err != nil {
+			return nil, err
+		}
+		// Write-through: upsert each fetched issue into the local store so
+		// follow-up `--data-source local` reads in the same session are fresh.
+		for _, n := range resp.Issues.Nodes {
+			var meta struct {
+				ID         string `json:"id"`
+				Identifier string `json:"identifier"`
+				Title      string `json:"title"`
+			}
+			if err := json.Unmarshal(n, &meta); err != nil || meta.ID == "" {
+				continue
+			}
+			_ = db.UpsertIssue(meta.ID, meta.Identifier, meta.Title, n)
+		}
+		collected = append(collected, resp.Issues.Nodes...)
+		if !resp.Issues.PageInfo.HasNextPage {
+			break
+		}
+		cursor = resp.Issues.PageInfo.EndCursor
+		if cursor == "" {
+			break
+		}
+		if !all && len(collected) >= want {
+			break
+		}
 	}
-	return resp.Issues.Nodes, nil
+	if !all && len(collected) > want {
+		collected = collected[:want]
+	}
+	return collected, nil
 }
