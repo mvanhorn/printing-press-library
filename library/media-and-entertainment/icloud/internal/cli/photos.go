@@ -20,6 +20,7 @@ The delete command requires Photos.app and moves items to Recently Deleted.`,
 	photos.AddCommand(newStorageCmd(f))
 	photos.AddCommand(newStatsCmd(f))
 	photos.AddCommand(newDeleteCmd(f))
+	photos.AddCommand(newDownloadCmd(f))
 
 	return photos
 }

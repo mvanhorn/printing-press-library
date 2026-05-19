@@ -180,6 +180,39 @@ func queryTopFiles(db *sql.DB, limit int, mediaType string) ([]Asset, error) {
 	return scanAssets(db, q)
 }
 
+// querySensitiveAssets returns assets Apple's on-device ML has flagged as containing
+// nudity (ZSCREENTIMEDEVICEIMAGESENSITIVITY = 1). Results are shuffled randomly so
+// repeated calls with the same limit produce a varied sample. Pass limit=0 for all.
+func querySensitiveAssets(db *sql.DB, limit int, mediaType string) ([]Asset, error) {
+	kindFilter := ""
+	switch mediaType {
+	case "video":
+		kindFilter = "AND a.ZKIND = 1"
+	case "photo":
+		kindFilter = "AND a.ZKIND = 0"
+	}
+
+	q := fmt.Sprintf(`
+		SELECT
+			COALESCE(a.ZUUID, ''),
+			COALESCE(aa.ZORIGINALFILENAME, a.ZFILENAME, ''),
+			COALESCE(aa.ZORIGINALFILESIZE, 0),
+			COALESCE(a.ZKIND, 0),
+			COALESCE(a.ZDATECREATED, 0)
+		FROM ZASSET a
+		JOIN ZADDITIONALASSETATTRIBUTES aa ON aa.ZASSET = a.Z_PK
+		JOIN ZMEDIAANALYSISASSETATTRIBUTES m ON m.ZASSET = a.Z_PK
+		WHERE a.ZTRASHEDSTATE = 0
+		  AND m.ZSCREENTIMEDEVICEIMAGESENSITIVITY = 1
+		  %s
+		ORDER BY RANDOM()
+	`, kindFilter)
+	if limit > 0 {
+		q += fmt.Sprintf(" LIMIT %d", limit)
+	}
+	return scanAssets(db, q)
+}
+
 // queryByUUIDs returns assets matching the given UUIDs (used by the delete command).
 // Batches requests in chunks of 999 to stay within SQLite's SQLITE_LIMIT_VARIABLE_NUMBER.
 func queryByUUIDs(db *sql.DB, uuids []string) ([]Asset, error) {
