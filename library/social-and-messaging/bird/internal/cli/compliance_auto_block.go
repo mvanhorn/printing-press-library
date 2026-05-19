@@ -216,5 +216,15 @@ func lookupParticipantIdentifier(db *store.Store, convID string) (string, string
 			}
 		}
 	}
+	// PATCH: surface mid-iteration scan errors here too. The helper has no
+	// error return, so the best we can do is make the no-result path
+	// explicit and document that a DB failure mid-scan is indistinguishable
+	// from "no contact found" -- which is the safer of the two failure
+	// modes under --apply (skip rather than mis-block). Closing this
+	// missed-by-the-sweep gap surfaced by Greptile P1 in PR #417 tenth
+	// review pass.
+	if rows.Err() != nil {
+		return "", ""
+	}
 	return "", ""
 }
