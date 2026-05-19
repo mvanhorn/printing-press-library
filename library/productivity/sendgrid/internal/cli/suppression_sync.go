@@ -7,6 +7,7 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"os"
 	"strings"
 
@@ -273,12 +274,14 @@ func syncOneSuppressionType(
 		}
 	}
 
-	// Execute removes
+	// Execute removes. Path-escape the email so plus-tags (user+tag@…) and
+	// other RFC-5321-legal characters survive the DELETE request — bare "+"
+	// in a path segment may be interpreted as a space by intermediaries.
 	for _, row := range rows {
 		if row.Action != "remove" {
 			continue
 		}
-		delPath := apiPath + "/" + row.Email
+		delPath := apiPath + "/" + url.PathEscape(row.Email)
 		if _, _, err := c.Delete(delPath); err != nil {
 			_, _ = fmt.Fprintf(os.Stderr, "warn: remove %s %s: %v\n", typeName, row.Email, err)
 		}
