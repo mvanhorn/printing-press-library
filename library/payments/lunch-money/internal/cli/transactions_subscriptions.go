@@ -131,7 +131,7 @@ func subscriptionCountsTransaction(tx localTransaction) bool {
 	if strings.EqualFold(tx.Status, "exclude") || strings.EqualFold(tx.Status, "excluded") {
 		return false
 	}
-	return tx.SplitParentID == "" && tx.GroupParentID == ""
+	return tx.SplitParentID == "" && tx.GroupParentID == "" && !tx.IsSplitParent && !tx.IsGroupParent
 }
 
 func groupHasRecurring(group []localTransaction) bool {
