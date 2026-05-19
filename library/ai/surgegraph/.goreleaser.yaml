@@ -45,7 +45,7 @@ brews:
       owner: surgegraph
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Every SurgeGraph workflow — research, write, publish, monitor — from the terminal or any agent, with a local..."
+    description: "SurgeGraph is the Answer Engine Optimization (AEO) platform that tracks AI citations, scores pages for citation readiness, and one-click fixes the gaps — now every workflow runs from the terminal or any agent."
     install: |
       bin.install "surgegraph-pp-cli"
       bin.install "surgegraph-pp-mcp"

@@ -1,6 +1,6 @@
 # SurgeGraph CLI
 
-**Every SurgeGraph workflow — research, write, publish, monitor — from the terminal or any agent, with a local SQLite that compounds week-over-week deltas the web app can't produce.**
+**SurgeGraph is the Answer Engine Optimization (AEO) platform that tracks AI citations, scores pages for citation readiness, and one-click fixes the gaps — now every workflow runs from the terminal or any agent.**
 
 SurgeGraph is an AI-search content operations cockpit. The web app shows point-in-time snapshots; this CLI keeps a local cache so you can run `visibility delta`, `prompts losers`, and `citation-domains rank-shift` over time. It compounds three split workflows — topic research, bulk writing, WordPress publishing — into a single `research gaps publish` pipeline, and ships every command as both CLI and MCP so the same agent that drafts an article can monitor the citations it generates.
 
