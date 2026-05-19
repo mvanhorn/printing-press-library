@@ -134,6 +134,25 @@ func parseSince(s string) (time.Duration, error) {
 	return time.ParseDuration(s)
 }
 
+// withinPubDateCutoff reports whether an RSS-style PubDate string is at or
+// after cutoff. A zero cutoff disables filtering. Unparseable or empty dates
+// are kept (lenient) so date-parse drift never silently hides trends.
+func withinPubDateCutoff(pubDate string, cutoff time.Time) bool {
+	if cutoff.IsZero() {
+		return true
+	}
+	pubDate = strings.TrimSpace(pubDate)
+	if pubDate == "" {
+		return true
+	}
+	for _, layout := range []string{time.RFC1123Z, time.RFC1123, time.RFC3339, time.RFC822Z, time.RFC822} {
+		if t, err := time.Parse(layout, pubDate); err == nil {
+			return !t.Before(cutoff)
+		}
+	}
+	return true
+}
+
 func newTHLatestCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "latest",
@@ -406,7 +425,8 @@ func newTHWatchCmd(flags *rootFlags) *cobra.Command {
 			if category == "" {
 				return fmt.Errorf("--category is required")
 			}
-			if _, err := parseSince(sinceRaw); err != nil {
+			since, err := parseSince(sinceRaw)
+			if err != nil {
 				return err
 			}
 			trends, err := fetchCategory(cmd.Context(), flags, category)
@@ -418,6 +438,10 @@ func newTHWatchCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			defer closeFn()
+			cutoff := time.Time{}
+			if since > 0 {
+				cutoff = time.Now().Add(-since)
+			}
 			var fresh []thparse.Trend
 			for _, t := range trends {
 				t.Category = category
@@ -425,7 +449,7 @@ func newTHWatchCmd(flags *rootFlags) *cobra.Command {
 				if err != nil {
 					return err
 				}
-				if !exists {
+				if !exists && withinPubDateCutoff(t.PubDate, cutoff) {
 					fresh = append(fresh, t)
 				}
 				if err := thstore.UpsertTrend(cmd.Context(), db, t); err != nil {
@@ -655,8 +679,12 @@ func newTHInboxCmd(flags *rootFlags) *cobra.Command {
 			if err := thstore.UpdateCursor(cmd.Context(), db, now); err != nil {
 				return err
 			}
+			cursorStr := ""
+			if ok {
+				cursorStr = cursor.Format(time.RFC3339)
+			}
 			return outputTH(cmd, flags, map[string]any{
-				"cursor":     cursor.Format(time.RFC3339),
+				"cursor":     cursorStr,
 				"new_count":  len(trends),
 				"new_trends": trends,
 			})
@@ -844,7 +872,11 @@ func limitTrends(trends []thparse.Trend, top int) []thparse.Trend {
 }
 
 func renderBriefMarkdown(w io.Writer, category string, trends []thparse.Trend) error {
-	fmt.Fprintf(w, "# %s Trend Brief\n\n", strings.Title(category))
+	title := category
+	if title != "" {
+		title = strings.ToUpper(title[:1]) + title[1:]
+	}
+	fmt.Fprintf(w, "# %s Trend Brief\n\n", title)
 	for _, t := range trends {
 		fmt.Fprintf(w, "## %s\n\n", t.Title)
 		if t.Description != "" {

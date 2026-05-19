@@ -60,14 +60,45 @@ func EnsureSchema(db *sql.DB) error {
 			id INTEGER PRIMARY KEY CHECK (id=1),
 			last_seen_at DATETIME
 		)`,
+		// Keep parsed_trends_fts in sync with parsed_trends via triggers.
+		// INSERT OR REPLACE on parsed_trends fires DELETE+INSERT, so the AI/AD
+		// pair covers upsert; the AU trigger handles plain UPDATE statements.
+		`CREATE TRIGGER IF NOT EXISTS parsed_trends_fts_ai AFTER INSERT ON parsed_trends BEGIN
+			INSERT INTO parsed_trends_fts(rowid, title, description, keywords, body_text)
+			VALUES (new.rowid, new.title, new.description, new.keywords, new.body_text);
+		END`,
+		`CREATE TRIGGER IF NOT EXISTS parsed_trends_fts_ad AFTER DELETE ON parsed_trends BEGIN
+			INSERT INTO parsed_trends_fts(parsed_trends_fts, rowid, title, description, keywords, body_text)
+			VALUES('delete', old.rowid, old.title, old.description, old.keywords, old.body_text);
+		END`,
+		`CREATE TRIGGER IF NOT EXISTS parsed_trends_fts_au AFTER UPDATE ON parsed_trends BEGIN
+			INSERT INTO parsed_trends_fts(parsed_trends_fts, rowid, title, description, keywords, body_text)
+			VALUES('delete', old.rowid, old.title, old.description, old.keywords, old.body_text);
+			INSERT INTO parsed_trends_fts(rowid, title, description, keywords, body_text)
+			VALUES (new.rowid, new.title, new.description, new.keywords, new.body_text);
+		END`,
 	}
 	for _, stmt := range stmts {
 		if _, err := db.Exec(stmt); err != nil {
 			return err
 		}
 	}
-	_, err := db.Exec(`INSERT INTO parsed_trends_fts(parsed_trends_fts) VALUES('rebuild')`)
-	return err
+	// One-time rebuild for upgrade safety: if parsed_trends has data but the
+	// FTS index is empty (older schema without triggers), fill the FTS index
+	// once. Triggers maintain it from there on.
+	var hasFTS, hasData bool
+	if err := db.QueryRow(`SELECT EXISTS(SELECT 1 FROM parsed_trends_fts)`).Scan(&hasFTS); err != nil {
+		return err
+	}
+	if err := db.QueryRow(`SELECT EXISTS(SELECT 1 FROM parsed_trends)`).Scan(&hasData); err != nil {
+		return err
+	}
+	if !hasFTS && hasData {
+		if _, err := db.Exec(`INSERT INTO parsed_trends_fts(parsed_trends_fts) VALUES('rebuild')`); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func UpsertTrend(ctx context.Context, db *sql.DB, t thparse.Trend) error {
@@ -90,10 +121,6 @@ func UpsertTrend(ctx context.Context, db *sql.DB, t thparse.Trend) error {
 			CURRENT_TIMESTAMP)`,
 		t.Slug, t.Title, t.Description, t.ImageURL, keywords, t.Author, t.Category, t.TrendID,
 		t.PubDate, t.BodyText, string(related), string(faq), t.SourceURL, t.Source, t.Slug)
-	if err != nil {
-		return err
-	}
-	_, err = db.ExecContext(ctx, `INSERT INTO parsed_trends_fts(parsed_trends_fts) VALUES('rebuild')`)
 	return err
 }
 
