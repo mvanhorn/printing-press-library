@@ -159,7 +159,7 @@ func deleteViaPhotosBatch(assets []Asset) (map[string]error, error) {
 	set output to ""
 	repeat with theID in theIDs
 		try
-			set theItems to (media items whose id is theID)
+			set theItems to (media items whose id starts with theID)
 			if (count of theItems) is 0 then
 				set output to output & "NOTFOUND" & tab & theID & linefeed
 			else

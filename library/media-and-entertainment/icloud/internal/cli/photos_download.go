@@ -169,7 +169,7 @@ func exportViaPhotos(assets []Asset, destDir string) (map[string]error, error) {
 	set theItems to {}
 	repeat with theID in theIDs
 		try
-			set found to (media items whose id is theID)
+			set found to (media items whose id starts with theID)
 			if (count of found) > 0 then
 				set theItems to theItems & found
 			end if
