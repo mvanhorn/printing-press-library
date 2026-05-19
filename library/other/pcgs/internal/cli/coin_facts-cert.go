@@ -26,7 +26,8 @@ func newCoinFactsCertCmd(flags *rootFlags) *cobra.Command {
 			"  }\n\n" +
 			"_keep is always {} for single-cert lookups (it carries non-cert CSV columns through `coin batch`). The same parser works for both surfaces.\n\n" +
 			"PriceGuideValue: PCGS returns 0 for unpriced modern slabs (David Hall FDI, brand-new releases). This CLI rewrites 0 to null so downstream consumers can distinguish 'unpriced' from 'zero-valued'. A genuinely zero-valued coin still receives null — those are vanishingly rare.\n\n" +
-			"year_mismatch: when the year prefix parsed from Name disagrees with the integer Year field (PCGS occasionally returns Name='2022-S ...' but Year=2021), a top-level year_mismatch object is added: {\"name_year\": 2022, \"year_field\": 2021}. Absent (or null) when they agree.",
+			"year_mismatch: when the year prefix parsed from Name disagrees with the integer Year field (PCGS occasionally returns Name='2022-S ...' but Year=2021), a top-level year_mismatch object is added: {\"name_year\": 2022, \"year_field\": 2021}. Absent (or null) when they agree.\n\n" +
+			"Images: the PCGS API returns a stub Images array on this endpoint with no URL fields. This CLI strips the Images key entirely to avoid the empty Images: [{}, {}] noise. The HasObverseImage, HasReverseImage, HasTrueViewImage, and ImageReady booleans are preserved so you can tell whether images exist before paying a second quota call. Fetch image URLs with `pcgs-pp-cli coin images <cert>`.",
 		Example:     "  pcgs-pp-cli coin facts-cert 50483263 --agent | jq '.data.Name'",
 		Annotations: map[string]string{"pp:endpoint": "coin.facts-cert", "pp:method": "GET", "pp:path": "/coindetail/GetCoinFactsByCertNo/{certNo}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {

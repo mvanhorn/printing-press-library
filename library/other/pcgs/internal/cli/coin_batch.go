@@ -15,9 +15,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/other/pcgs/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/other/pcgs/internal/store"
+	"github.com/spf13/cobra"
 )
 
 type inputRow struct {
@@ -26,14 +26,16 @@ type inputRow struct {
 }
 
 func newCoinBatchCmd(flags *rootFlags) *cobra.Command {
-	var filePath, format, checkpoint, keyColumn string
+	var filePath, format, checkpoint, keyColumn, columnsSpec string
 	var listCerts, dryRunBatch, resumable, noPassthrough bool
 	cmd := &cobra.Command{
 		Use:   "batch",
 		Short: "Look up many PCGS certs at once from a CSV/JSON/JSONL/plain fixture, with cache reuse and resumable checkpointing.",
-		Long:  "Parses a cert list (auto-detects CSV header / JSON wrapper / JSONL / plain text), normalizes plus-grade slab IDs like 7130.67/51225377 to bare cert numbers, looks each one up against GetCoinFactsByCertNo, persists into the local store, and round-trips non-cert input columns to each output row as _keep.<col>. Supports --dry-run cost estimation, --list-certs parse-only mode, --resumable checkpoint files.",
+		Long: "Parses a cert list (auto-detects CSV header / JSON wrapper / JSONL / plain text), normalizes plus-grade slab IDs like 7130.67/51225377 to bare cert numbers, looks each one up against GetCoinFactsByCertNo, persists into the local store, and round-trips non-cert input columns to each output row as _keep.<col>. Supports --dry-run cost estimation, --list-certs parse-only mode, --resumable checkpoint files.\n\n" +
+			"Output: JSONL by default (one {cert_no, data, _keep} object per line). Pass --csv to flatten the same stream into a single CSV with a header row. Pair with --columns to project a subset of dotted paths across the envelope — data.* reaches into the coin record, _keep.* reaches into passthrough columns, and cert_no is the top-level scalar. Missing fields emit empty cells, not the literal string \"null\".",
 		Example: "  pcgs-pp-cli coin batch --file ./pcgs-coin-list.csv --dry-run --json\n" +
 			"  pcgs-pp-cli coin batch --file ./pcgs-coin-list.csv --resumable --checkpoint ./pcgs.ckpt --json\n" +
+			"  pcgs-pp-cli coin batch --file ./pcgs-coin-list.csv --csv --columns \"_keep.box,_keep.slot,cert_no,data.Name,data.Year,data.Grade,data.PriceGuideValue\" > out.csv\n" +
 			"  pcgs-pp-cli coin batch --file ./test-input-generated/valid_json_wrapper_slabs.json --list-certs --json",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -56,7 +58,7 @@ func newCoinBatchCmd(flags *rootFlags) *cobra.Command {
 				}
 				return nil
 			}
-			if err := runBatch(cmd, flags, rows, resumable, checkpoint, keyColumn); err != nil {
+			if err := runBatch(cmd, flags, rows, resumable, checkpoint, keyColumn, columnsSpec); err != nil {
 				return fmt.Errorf("batch: %w", err)
 			}
 			return nil
@@ -70,10 +72,13 @@ func newCoinBatchCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&checkpoint, "checkpoint", defaultCheckpointPath(), "checkpoint file path")
 	cmd.Flags().BoolVar(&noPassthrough, "no-passthrough", false, "disable _keep passthrough columns")
 	cmd.Flags().StringVar(&keyColumn, "key-column", "", "promote this column to _key")
+	// PATCH(amend-2026-05-19: batch-csv-export) — --columns drives projection
+	// when the global --csv flag is set on `coin batch`. See coin_batch_csv.go.
+	cmd.Flags().StringVar(&columnsSpec, "columns", "", "comma-separated dotted paths for --csv output (e.g. cert_no,data.Name,_keep.box). When unset with --csv, the header is auto-discovered from the first row's cert_no + top-level _keep.* + data.* keys.")
 	return cmd
 }
 
-func runBatch(cmd *cobra.Command, flags *rootFlags, rows []inputRow, resumable bool, checkpoint, keyColumn string) error {
+func runBatch(cmd *cobra.Command, flags *rootFlags, rows []inputRow, resumable bool, checkpoint, keyColumn, columnsSpec string) error {
 	s, err := store.OpenWithContext(cmd.Context(), defaultDBPath("pcgs-pp-cli"))
 	if err != nil {
 		return fmt.Errorf("open store: %w", err)
@@ -110,7 +115,65 @@ func runBatch(cmd *cobra.Command, flags *rootFlags, rows []inputRow, resumable b
 	if err != nil {
 		return err
 	}
-	enc := json.NewEncoder(cmd.OutOrStdout())
+
+	// PATCH(amend-2026-05-19: batch-csv-export) — --csv switches the batch
+	// emitter from JSONL (default) to a streaming CSV. Both modes share the
+	// same row-build loop below; the per-row "sink" closure encapsulates the
+	// format choice so the cache-lookup / live-call / quota-checkpoint paths
+	// stay identical. CSV-mode parses --columns up front and pre-writes the
+	// header so a downstream importer never has to handle the "first row is
+	// data" case; when --columns is omitted, the header is auto-discovered
+	// from the first emitted row (see autoColumnsFromEnvelope).
+	var emit func(obj map[string]any) error
+	if flags.csv {
+		cols, parseErr := parseColumnSpec(columnsSpec)
+		if parseErr != nil {
+			return usageErr(parseErr)
+		}
+		csvW := csv.NewWriter(cmd.OutOrStdout())
+		// Force LF line endings (default for encoding/csv) — flushing at the
+		// end of every batch run.
+		defer csvW.Flush()
+		headerWritten := false
+		emit = func(obj map[string]any) error {
+			envelope := envelopeToAnyMap(obj)
+			if !headerWritten {
+				effective := cols
+				if len(effective) == 0 {
+					effective = autoColumnsFromEnvelope(envelope)
+				}
+				// Replace the user-supplied (or auto-discovered) list with
+				// what was actually written for subsequent rows.
+				cols = effective
+				headers := make([]string, len(cols))
+				for i, col := range cols {
+					headers[i] = col.Header
+				}
+				if err := csvW.Write(headers); err != nil {
+					return fmt.Errorf("csv header: %w", err)
+				}
+				headerWritten = true
+			}
+			row := make([]string, len(cols))
+			for i, col := range cols {
+				v, _ := lookupPath(envelope, col.Segments)
+				row[i] = csvCellFromValue(v)
+			}
+			if err := csvW.Write(row); err != nil {
+				return fmt.Errorf("csv row: %w", err)
+			}
+			return nil
+		}
+	} else {
+		enc := json.NewEncoder(cmd.OutOrStdout())
+		emit = func(obj map[string]any) error {
+			if err := enc.Encode(obj); err != nil {
+				return fmt.Errorf("encode output: %w", err)
+			}
+			return nil
+		}
+	}
+
 	for i, r := range rows {
 		if i > 0 && i%25 == 0 {
 			if q, err = cliutil.ReadQuotaFromDB(cmd.Context(), s.DB()); err == nil && q.Remaining <= 0 {
@@ -120,8 +183,8 @@ func runBatch(cmd *cobra.Command, flags *rootFlags, rows []inputRow, resumable b
 		}
 		obj := rowBase(r, keyColumn)
 		if r.Err != "" || r.CertNo == "" {
-			if err := enc.Encode(obj); err != nil {
-				return fmt.Errorf("encode output: %w", err)
+			if err := emit(obj); err != nil {
+				return err
 			}
 			continue
 		}
@@ -157,8 +220,8 @@ func runBatch(cmd *cobra.Command, flags *rootFlags, rows []inputRow, resumable b
 				obj["data"] = applyCoinResponseTransforms(json.RawMessage(data))
 			}
 		}
-		if err := enc.Encode(obj); err != nil {
-			return fmt.Errorf("encode output: %w", err)
+		if err := emit(obj); err != nil {
+			return err
 		}
 		if resumable {
 			if err := appendCheckpoint(checkpoint, r.CertNo); err != nil {
