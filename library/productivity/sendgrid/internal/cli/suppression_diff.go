@@ -57,17 +57,40 @@ only_in_external, and cases where the reason field differs (mismatched_reason).`
 				}
 			}
 
-			// Fetch live API state
+			// Fetch live API state across all pages. A single 500-record
+			// window silently truncates large accounts, producing false-positive
+			// only_in_local entries and missing only_in_api / missing_from_external
+			// rows. Mirror the offset/limit loop used by suppression sync.
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
-			apiData, err := c.Get(info.apiPath, map[string]string{"limit": "500"})
-			if err != nil {
-				return classifyAPIError(err, flags)
+			const pageSize = 500
+			const maxPages = 200 // safety cap: 100k entries per type
+			apiEntries := map[string]suppressionEntry{}
+			for page := 0; page < maxPages; page++ {
+				offset := page * pageSize
+				params := map[string]string{
+					"limit":  fmt.Sprintf("%d", pageSize),
+					"offset": fmt.Sprintf("%d", offset),
+				}
+				data, err := c.Get(info.apiPath, params)
+				if err != nil {
+					return classifyAPIError(err, flags)
+				}
+				// Count raw rows before dedup-into-map so duplicate emails on
+				// one page (different case) don't trigger an early break.
+				var rawList []map[string]any
+				if err := json.Unmarshal(data, &rawList); err != nil {
+					return fmt.Errorf("parsing %s page %d: %w", typeName, page, err)
+				}
+				for k, v := range parseSuppressionList(data) {
+					apiEntries[k] = v
+				}
+				if len(rawList) < pageSize {
+					break
+				}
 			}
-
-			apiEntries := parseSuppressionList(apiData)
 
 			// Load local store state
 			var localEntries map[string]suppressionEntry

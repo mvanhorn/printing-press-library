@@ -46,15 +46,32 @@ monitoring tenant health across a subuser hierarchy.`,
 				return err
 			}
 
-			// List subusers
-			subusersData, err := c.Get("/v3/subusers", map[string]string{"limit": "200"})
-			if err != nil {
-				return classifyAPIError(err, flags)
-			}
-
+			// List subusers across all pages. /v3/subusers supports offset
+			// pagination; a single 200-record fetch silently under-counts
+			// accounts with more subusers than that — the rollup's stated
+			// audience (ESP operators with large tenant hierarchies) is
+			// exactly the case that hits this.
+			const subusersPageSize = 200
+			const subusersMaxPages = 200 // safety cap: 40k subusers
 			var subusers []map[string]any
-			if err := json.Unmarshal(subusersData, &subusers); err != nil {
-				return fmt.Errorf("parsing subusers: %w", err)
+			for page := 0; page < subusersMaxPages; page++ {
+				offset := page * subusersPageSize
+				params := map[string]string{
+					"limit":  fmt.Sprintf("%d", subusersPageSize),
+					"offset": fmt.Sprintf("%d", offset),
+				}
+				data, err := c.Get("/v3/subusers", params)
+				if err != nil {
+					return classifyAPIError(err, flags)
+				}
+				var batch []map[string]any
+				if err := json.Unmarshal(data, &batch); err != nil {
+					return fmt.Errorf("parsing subusers page %d: %w", page, err)
+				}
+				subusers = append(subusers, batch...)
+				if len(batch) < subusersPageSize {
+					break
+				}
 			}
 
 			if len(subusers) == 0 {
