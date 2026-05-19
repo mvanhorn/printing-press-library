@@ -24,6 +24,15 @@
       "upstream_issue": "Generator template internal/generator/templates/client.go.tmpl emits http.NewRequest without ctx for every printed CLI; upstream fix would replace this single-CLI patch across the catalog."
     },
     {
+      "id": "parse-since-and-inbox-first-run-bounds",
+      "summary": "Reject negative durations in parseSince (they silently inverted the lookback window to a future cutoff) and cap the first-run inbox scan at 200 trends instead of dumping the whole corpus.",
+      "reason": "Both flagged by Greptile on PR #548 as edge-case correctness/UX bugs: --since -7d returned empty results without an error, and a first inbox run on a freshly synced sitemap (hundreds of thousands of rows) would stream the entire corpus.",
+      "files": [
+        "internal/cli/trendhunter_commands.go",
+        "internal/cli/llm_score_test.go"
+      ]
+    },
+    {
       "id": "watch-since-source-from-store",
       "summary": "Source watch --since from the local store's first_seen rather than RSS PubDate; upsert all fetched category trends, then return the recency window from the store.",
       "reason": "Category-card HTML has no per-trend publication dates, so the previous withinPubDateCutoff check was always lenient and --since was effectively a no-op. first_seen is the only reliable time signal we have for category-page sources, and it gives --since the obvious meaning of \"trends discovered in my store in the last N time\". Greptile blocking finding on PR #548.",

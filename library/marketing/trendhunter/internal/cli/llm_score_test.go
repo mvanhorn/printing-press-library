@@ -3,7 +3,42 @@ package cli
 import (
 	"strings"
 	"testing"
+	"time"
 )
+
+func TestParseSinceRejectsNegative(t *testing.T) {
+	t.Parallel()
+	cases := []struct {
+		name     string
+		in       string
+		wantErr  bool
+		wantDur  time.Duration
+	}{
+		{"empty is zero", "", false, 0},
+		{"positive days", "7d", false, 7 * 24 * time.Hour},
+		{"positive weeks", "2w", false, 14 * 24 * time.Hour},
+		{"positive hours", "24h", false, 24 * time.Hour},
+		{"negative days rejected", "-7d", true, 0},
+		{"negative hours rejected", "-1h", true, 0},
+		{"garbage rejected", "abc", true, 0},
+	}
+	for _, tc := range cases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			got, err := parseSince(tc.in)
+			if tc.wantErr && err == nil {
+				t.Fatalf("expected error for %q, got nil", tc.in)
+			}
+			if !tc.wantErr && err != nil {
+				t.Fatalf("unexpected error for %q: %v", tc.in, err)
+			}
+			if !tc.wantErr && got != tc.wantDur {
+				t.Fatalf("parseSince(%q) = %v, want %v", tc.in, got, tc.wantDur)
+			}
+		})
+	}
+}
 
 func TestParseLLMScore(t *testing.T) {
 	t.Parallel()

@@ -120,6 +120,7 @@ func parseSince(s string) (time.Duration, error) {
 	if s == "" {
 		return 0, nil
 	}
+	var d time.Duration
 	unit := s[len(s)-1]
 	if unit == 'd' || unit == 'w' {
 		n, err := strconv.Atoi(s[:len(s)-1])
@@ -129,9 +130,18 @@ func parseSince(s string) (time.Duration, error) {
 		if unit == 'w' {
 			n *= 7
 		}
-		return time.Duration(n) * 24 * time.Hour, nil
+		d = time.Duration(n) * 24 * time.Hour
+	} else {
+		parsed, err := time.ParseDuration(s)
+		if err != nil {
+			return 0, err
+		}
+		d = parsed
 	}
-	return time.ParseDuration(s)
+	if d < 0 {
+		return 0, fmt.Errorf("--since %q must be a non-negative lookback window", s)
+	}
+	return d, nil
 }
 
 func newTHLatestCmd(flags *rootFlags) *cobra.Command {
@@ -952,6 +962,13 @@ func keywordCounts(ctx context.Context, db *sql.DB, category string, start, end 
 	return out, nil
 }
 
+// inboxFirstRunLimit caps the result count when no cursor exists yet.
+// Without it, the first inbox run dumps the entire parsed_trends corpus,
+// which on a synced sitemap (hundreds of thousands of rows) is both
+// surprising UX and expensive. 200 matches the practical "what's new since
+// I started using this" framing the inbox command advertises.
+const inboxFirstRunLimit = 200
+
 func trendsSince(ctx context.Context, db *sql.DB, cursor time.Time, hasCursor bool) ([]thparse.Trend, error) {
 	query := `SELECT slug, title, description, image_url, keywords, author, category, trend_id, pub_date, body_text, related_slugs, faq, source_url, source FROM parsed_trends`
 	var args []any
@@ -960,6 +977,10 @@ func trendsSince(ctx context.Context, db *sql.DB, cursor time.Time, hasCursor bo
 		args = append(args, cursor.UTC().Format(time.RFC3339))
 	}
 	query += ` ORDER BY first_seen DESC`
+	if !hasCursor {
+		query += ` LIMIT ?`
+		args = append(args, inboxFirstRunLimit)
+	}
 	rows, err := db.QueryContext(ctx, query, args...)
 	if err != nil {
 		return nil, err
