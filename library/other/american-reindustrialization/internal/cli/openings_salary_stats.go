@@ -97,6 +97,9 @@ func newOpeningsSalaryStatsCmd(flags *rootFlags) *cobra.Command {
 				}
 				midpoints = append(midpoints, mid)
 			}
+			if err := rows.Err(); err != nil {
+				return fmt.Errorf("iterating salary-stats rows: %w", err)
+			}
 
 			if len(midpoints) > 0 {
 				sort.Slice(midpoints, func(i, j int) bool { return midpoints[i] < midpoints[j] })

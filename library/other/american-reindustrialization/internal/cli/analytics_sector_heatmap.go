@@ -84,6 +84,9 @@ func newAnalyticsSectorHeatmapCmd(flags *rootFlags) *cobra.Command {
 					Value:  value.Int64,
 				})
 			}
+			if err := rows.Err(); err != nil {
+				return fmt.Errorf("iterating sector-heatmap rows: %w", err)
+			}
 			sort.Slice(out, func(i, j int) bool {
 				if out[i].Value != out[j].Value {
 					return out[i].Value > out[j].Value

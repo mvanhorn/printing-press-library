@@ -126,6 +126,9 @@ func newOpeningsFindCmd(flags *rootFlags) *cobra.Command {
 				r.SalaryMax = smax.Int64
 				out = append(out, r)
 			}
+			if err := rows.Err(); err != nil {
+				return fmt.Errorf("iterating openings rows: %w", err)
+			}
 			return printJSONFiltered(cmd.OutOrStdout(), out, flags)
 		},
 	}

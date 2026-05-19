@@ -58,8 +58,6 @@ func newAnalyticsFundingBySectorCmd(flags *rootFlags) *cobra.Command {
 			}
 			cells := map[string]*cellAccum{}
 			key := func(stage, sector string) string { return stage + "\x1f" + sector }
-			stages := map[string]string{}
-			sectors := map[string]string{}
 			for rows.Next() {
 				var stage, sector, er sql.NullString
 				if err := rows.Scan(&stage, &sector, &er); err != nil {
@@ -70,13 +68,14 @@ func newAnalyticsFundingBySectorCmd(flags *rootFlags) *cobra.Command {
 				if c == nil {
 					c = &cellAccum{erCounts: map[string]int{}}
 					cells[k] = c
-					stages[stage.String] = stage.String
-					sectors[sector.String] = sector.String
 				}
 				c.count++
 				if er.String != "" {
 					c.erCounts[er.String]++
 				}
+			}
+			if err := rows.Err(); err != nil {
+				return fmt.Errorf("iterating funding-by-sector rows: %w", err)
 			}
 
 			out := make([]fundingSectorCell, 0, len(cells))

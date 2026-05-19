@@ -111,6 +111,9 @@ func newAnalyticsGeoClustersCmd(flags *rootFlags) *cobra.Command {
 					b.sectors[sector.String]++
 				}
 			}
+			if err := rows.Err(); err != nil {
+				return fmt.Errorf("iterating geo-cluster rows: %w", err)
+			}
 
 			out := make([]cluster, 0, len(buckets))
 			for _, b := range buckets {

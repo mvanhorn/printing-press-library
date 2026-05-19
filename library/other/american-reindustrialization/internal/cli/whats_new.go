@@ -87,6 +87,10 @@ func newWhatsNewCmd(flags *rootFlags) *cobra.Command {
 						Timestamp:     ts.String,
 					})
 				}
+				if err := rows.Err(); err != nil {
+					rows.Close()
+					return fmt.Errorf("iterating companies rows: %w", err)
+				}
 				rows.Close()
 			}
 			if kind == "" || kind == "openings" {
@@ -114,6 +118,10 @@ func newWhatsNewCmd(flags *rootFlags) *cobra.Command {
 						CompanyID:  companyID.String,
 						Timestamp:  ts.String,
 					})
+				}
+				if err := rows.Err(); err != nil {
+					rows.Close()
+					return fmt.Errorf("iterating openings rows: %w", err)
 				}
 				rows.Close()
 			}

@@ -86,6 +86,9 @@ func newCompaniesCohortsCmd(flags *rootFlags) *cobra.Command {
 					b.sectors[sector.String]++
 				}
 			}
+			if err := rows.Err(); err != nil {
+				return fmt.Errorf("iterating cohorts rows: %w", err)
+			}
 
 			out := make([]cohortRow, 0, len(buckets))
 			for start, b := range buckets {

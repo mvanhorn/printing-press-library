@@ -89,6 +89,9 @@ func newCompaniesTopHiringCmd(flags *rootFlags) *cobra.Command {
 					FundingStage: funding.String,
 				})
 			}
+			if err := rows.Err(); err != nil {
+				return fmt.Errorf("iterating top-hiring rows: %w", err)
+			}
 			return printJSONFiltered(cmd.OutOrStdout(), out, flags)
 		},
 	}
