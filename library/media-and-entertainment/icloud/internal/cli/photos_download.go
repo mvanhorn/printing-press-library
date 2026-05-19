@@ -97,21 +97,15 @@ Get UUIDs from any read command:
 				)
 			}
 			fmt.Fprintln(out)
-			fmt.Fprintf(out, "Waiting for Photos.app to export (iCloud downloads may take a moment)...\n")
-
-			results, batchErr := exportViaPhotos(assets, abs)
-			if batchErr != nil {
-				return fmt.Errorf("Photos.app export failed: %w", batchErr)
-			}
-
-			fmt.Fprintln(out)
 			exported, failed := 0, 0
-			for _, a := range assets {
-				if err := results[a.UUID]; err != nil {
-					fmt.Fprintf(out, "  %s %s: %v\n", red(f, out, "✗"), a.Filename, err)
+			for i, a := range assets {
+				fmt.Fprintf(out, "  [%d/%d] %s … ", i+1, len(assets), a.Filename)
+				uuidName, err := exportOne(a, abs)
+				if err != nil {
+					fmt.Fprintf(out, "%s %v\n", red(f, out, "✗"), err)
 					failed++
 				} else {
-					fmt.Fprintf(out, "  %s %s\n", green(f, out, "✓"), a.Filename)
+					fmt.Fprintf(out, "%s → %s\n", green(f, out, "✓"), uuidName)
 					exported++
 				}
 			}
@@ -133,53 +127,27 @@ Get UUIDs from any read command:
 	return cmd
 }
 
-// exportViaPhotos exports assets to destDir via a single Photos.app AppleScript call.
-// Photos.app downloads originals from iCloud automatically before exporting.
-// Returns a per-UUID error map (nil value = success).
-func exportViaPhotos(assets []Asset, destDir string) (map[string]error, error) {
-	results := make(map[string]error, len(assets))
-
-	var valid []Asset
-	for _, a := range assets {
-		if !uuidRE.MatchString(a.UUID) {
-			results[a.UUID] = fmt.Errorf("invalid UUID %q", a.UUID)
-		} else {
-			valid = append(valid, a)
-		}
-	}
-	if len(valid) == 0 {
-		return results, nil
+// exportOne exports a single asset to destDir via Photos.app AppleScript.
+// Photos.app downloads the original from iCloud if needed before exporting.
+// Returns the final UUID-based filename on success.
+func exportOne(a Asset, destDir string) (string, error) {
+	if !uuidRE.MatchString(a.UUID) {
+		return "", fmt.Errorf("invalid UUID %q", a.UUID)
 	}
 
-	// Snapshot output directory before export so we can detect new files.
+	// Snapshot directory before so we can detect the new file.
 	before, _ := listDir(destDir)
 
-	// Build AppleScript UUID list literal.
-	quoted := make([]string, len(valid))
-	for i, a := range valid {
-		quoted[i] = `"` + a.UUID + `"`
-	}
-
-	// The export command is synchronous: Photos.app downloads from iCloud if needed,
-	// then copies the original to destDir, before the tell block returns.
 	script := fmt.Sprintf(`tell application "Photos"
 	activate
 	set destFolder to POSIX file %q
-	set theIDs to {%s}
-	set theItems to {}
-	repeat with theID in theIDs
-		try
-			set found to (media items whose id starts with theID)
-			if (count of found) > 0 then
-				set theItems to theItems & found
-			end if
-		end try
-	end repeat
-	if (count of theItems) > 0 then
-		export theItems to destFolder using originals true
+	set found to (media items whose id starts with %q)
+	if (count of found) is 0 then
+		error "item not found: %s"
 	end if
+	export {item 1 of found} to destFolder using originals true
 end tell
-`, destDir, strings.Join(quoted, ", "))
+`, destDir, a.UUID, a.UUID)
 
 	raw, err := exec.Command("osascript", "-e", script).CombinedOutput()
 	if err != nil {
@@ -187,51 +155,54 @@ end tell
 		if msg == "" {
 			msg = err.Error()
 		}
-		return results, fmt.Errorf("osascript: %s", msg)
+		return "", fmt.Errorf("%s", msg)
 	}
 
-	// Give the filesystem a moment to flush writes.
-	time.Sleep(300 * time.Millisecond)
+	// Give the filesystem a moment to flush.
+	time.Sleep(200 * time.Millisecond)
 
 	after, _ := listDir(destDir)
 
-	// Build set of files that appeared during the export.
-	newFiles := make(map[string]bool)
+	// Find the newly appeared file.
+	matchedName := ""
+	lower := strings.ToLower(a.Filename)
 	for name := range after {
-		if !before[name] {
-			newFiles[name] = true
+		if before[name] {
+			continue
+		}
+		if strings.ToLower(name) == lower {
+			matchedName = name
+			break
 		}
 	}
-
-	// Match each UUID to a newly appeared file by filename (case-insensitive),
-	// then rename to <UUID>.<ext> so callers can process by UUID directly.
-	for _, a := range valid {
-		lower := strings.ToLower(a.Filename)
-		matchedName := ""
-		for name := range newFiles {
-			if strings.ToLower(name) == lower {
+	// Fallback: any new file with matching extension.
+	if matchedName == "" {
+		ext := strings.ToLower(filepath.Ext(a.Filename))
+		for name := range after {
+			if before[name] {
+				continue
+			}
+			if strings.ToLower(filepath.Ext(name)) == ext {
 				matchedName = name
 				break
 			}
 		}
-		if matchedName == "" {
-			results[a.UUID] = fmt.Errorf("file not found after export — may still be downloading from iCloud")
-			continue
-		}
-
-		ext := strings.ToLower(filepath.Ext(matchedName))
-		uuidName := a.UUID + ext
-		oldPath := filepath.Join(destDir, matchedName)
-		newPath := filepath.Join(destDir, uuidName)
-		if oldPath != newPath {
-			if err := os.Rename(oldPath, newPath); err != nil {
-				results[a.UUID] = fmt.Errorf("exported but rename failed: %w", err)
-				continue
-			}
-		}
-		results[a.UUID] = nil
 	}
-	return results, nil
+	if matchedName == "" {
+		return "", fmt.Errorf("file not found after export — iCloud download may have timed out")
+	}
+
+	// Rename to <UUID>.<lowercased-ext>.
+	ext := strings.ToLower(filepath.Ext(matchedName))
+	uuidName := a.UUID + ext
+	oldPath := filepath.Join(destDir, matchedName)
+	newPath := filepath.Join(destDir, uuidName)
+	if oldPath != newPath {
+		if err := os.Rename(oldPath, newPath); err != nil {
+			return "", fmt.Errorf("exported but rename failed: %w", err)
+		}
+	}
+	return uuidName, nil
 }
 
 // listDir returns a set of filenames (not full paths) in dir.
