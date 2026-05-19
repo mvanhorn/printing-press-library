@@ -772,6 +772,29 @@
       }
     },
     {
+      "name": "facebook-marketplace",
+      "category": "commerce",
+      "api": "Facebook Marketplace",
+      "description": "A read-mostly Marketplace CLI with local watches, seller workflow helpers, and explicit write checkpoints.",
+      "path": "library/commerce/facebook-marketplace",
+      "printer": "cathrynlavery",
+      "printer_name": "Cathryn Lavery",
+      "mcp": {
+        "binary": "facebook-marketplace-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 16,
+        "public_tool_count": 0,
+        "auth_type": "cookie",
+        "env_vars": [
+          "FACEBOOK_MARKET_COOKIES"
+        ],
+        "mcp_ready": "partial",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "fathom",
       "category": "productivity",
       "api": "Fathom",

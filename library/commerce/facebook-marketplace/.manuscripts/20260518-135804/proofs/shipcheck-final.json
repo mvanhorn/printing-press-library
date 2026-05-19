@@ -1,0 +1,56 @@
+{
+  "passed": false,
+  "exit_code": 1,
+  "started_at": "2026-05-18T19:20:39Z",
+  "elapsed_ms": 11935,
+  "legs": [
+    {
+      "name": "dogfood",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-18T19:20:39Z",
+      "elapsed_ms": 2750,
+      "command": "/Users/cathrynlavery/Developer/mvanhorn/cli-printing-press/printing-press dogfood --dir /Users/cathrynlavery/printing-press/.runstate/cli-printing-press-23b02465/runs/20260518-135804/working/facebook-market-pp-cli --spec /Users/cathrynlavery/printing-press/.runstate/cli-printing-press-23b02465/runs/20260518-135804/research/facebook-market-augmented-spec.yaml --research-dir /Users/cathrynlavery/printing-press/.runstate/cli-printing-press-23b02465/runs/20260518-135804"
+    },
+    {
+      "name": "verify",
+      "exit_code": 1,
+      "passed": false,
+      "started_at": "2026-05-18T19:20:42Z",
+      "elapsed_ms": 8738,
+      "command": "/Users/cathrynlavery/Developer/mvanhorn/cli-printing-press/printing-press verify --dir /Users/cathrynlavery/printing-press/.runstate/cli-printing-press-23b02465/runs/20260518-135804/working/facebook-market-pp-cli --spec /Users/cathrynlavery/printing-press/.runstate/cli-printing-press-23b02465/runs/20260518-135804/research/facebook-market-augmented-spec.yaml --fix"
+    },
+    {
+      "name": "workflow-verify",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-18T19:20:51Z",
+      "elapsed_ms": 15,
+      "command": "/Users/cathrynlavery/Developer/mvanhorn/cli-printing-press/printing-press workflow-verify --dir /Users/cathrynlavery/printing-press/.runstate/cli-printing-press-23b02465/runs/20260518-135804/working/facebook-market-pp-cli"
+    },
+    {
+      "name": "verify-skill",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-18T19:20:51Z",
+      "elapsed_ms": 178,
+      "command": "/Users/cathrynlavery/Developer/mvanhorn/cli-printing-press/printing-press verify-skill --dir /Users/cathrynlavery/printing-press/.runstate/cli-printing-press-23b02465/runs/20260518-135804/working/facebook-market-pp-cli"
+    },
+    {
+      "name": "validate-narrative",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-18T19:20:51Z",
+      "elapsed_ms": 183,
+      "command": "/Users/cathrynlavery/Developer/mvanhorn/cli-printing-press/printing-press validate-narrative --strict --full-examples --research /Users/cathrynlavery/printing-press/.runstate/cli-printing-press-23b02465/runs/20260518-135804/research.json --binary /Users/cathrynlavery/printing-press/.runstate/cli-printing-press-23b02465/runs/20260518-135804/working/facebook-market-pp-cli/facebook-market-pp-cli"
+    },
+    {
+      "name": "scorecard",
+      "exit_code": 0,
+      "passed": true,
+      "started_at": "2026-05-18T19:20:51Z",
+      "elapsed_ms": 69,
+      "command": "/Users/cathrynlavery/Developer/mvanhorn/cli-printing-press/printing-press scorecard --dir /Users/cathrynlavery/printing-press/.runstate/cli-printing-press-23b02465/runs/20260518-135804/working/facebook-market-pp-cli --research-dir /Users/cathrynlavery/printing-press/.runstate/cli-printing-press-23b02465/runs/20260518-135804 --spec /Users/cathrynlavery/printing-press/.runstate/cli-printing-press-23b02465/runs/20260518-135804/research/facebook-market-augmented-spec.yaml"
+    }
+  ]
+}
