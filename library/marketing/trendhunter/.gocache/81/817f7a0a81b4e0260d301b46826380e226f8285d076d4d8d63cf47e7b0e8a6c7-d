@@ -1,3 +1,0 @@
-./store.go
-./schema_version_test.go
-./upsert_batch_test.go

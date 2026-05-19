@@ -1,8 +1,0 @@
-./annotations.go
-./doc.go
-./infer.go
-./json_pointer.go
-./resolve.go
-./schema.go
-./util.go
-./validate.go

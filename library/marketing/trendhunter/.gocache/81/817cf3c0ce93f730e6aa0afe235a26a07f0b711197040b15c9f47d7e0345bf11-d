@@ -1,6 +1,0 @@
-./classify.go
-./cli_path.go
-./names.go
-./shellout.go
-./typemap.go
-./walker.go
