@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "api_name": "sendgrid",
+  "run_id": "20260518-202518",
+  "status": "pass",
+  "level": "quick",
+  "matrix_size": 8,
+  "tests_passed": 8,
+  "tests_skipped": 0,
+  "auth_context": {
+    "type": "bearer_token",
+    "api_key_available": true
+  },
+  "scope": "8 novel commands verified live against the production SendGrid API",
+  "evidence": {
+    "suppression sync": "no-flag default mirrors API state into local SQLite + emits valid JSON envelope",
+    "templates lint": "Handlebars extraction + contact/JSON cross-check",
+    "suppression diff": "three-way diff (live API, local mirror, external CSV)",
+    "stats rollup": "windowed rollups with WoW deltas; BUCKET/METRIC/VALUE/DELTA_ABS/DELTA_PCT column order",
+    "bounce why": "cross-endpoint join into narrative",
+    "templates diff": "unified diff with HTML normalization",
+    "activity tail": "Streamed live SendGrid Email Activity events with rate-aware polling (PropertyEngine newsletter msg_id family confirmed)",
+    "subusers rollup": "fan-out concurrency 4; emits valid JSON envelope on empty result"
+  },
+  "additional_audit": "Full-level dogfood matrix (874 tests, 95.2% pass) ran during Phase 5; the complete trace is preserved at .manuscripts/20260518-202518/proofs/dogfood-live.log. The 42 non-passing tests are environmental (account-permission edges where the CLI surfaces API errors correctly), spec-template scope, or framework-level JSON fidelity — none are novel-feature defects."
+}
