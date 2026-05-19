@@ -235,5 +235,10 @@ func loadGrantAddresses(db *store.Store) map[string]struct{} {
 			out[strings.ToLower(email)] = struct{}{}
 		}
 	}
+	if rows.Err() != nil {
+		// Return empty set so callers produce zero intervals rather than
+		// false positives from misclassified inbound/outbound messages.
+		return make(map[string]struct{})
+	}
 	return out
 }
