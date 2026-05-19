@@ -1,69 +1,22 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-05-09T06:57:47.924638Z",
+  "generated_at": "2026-05-19T07:55:53.972464Z",
   "printing_press_version": "4.1.0",
   "api_name": "orgo",
   "display_name": "Orgo",
   "cli_name": "orgo-pp-cli",
   "owner": "nickvasilescu",
+  "printer": "NickVasilescu",
   "printer_name": "NickVasilescu",
   "spec_format": "openapi3",
-  "spec_checksum": "sha256:a4997c40358c1d25b66a357f3eeb2f82db90aa0109daccc6da58247b84d30706",
-  "run_id": "20260508-215235",
+  "spec_checksum": "sha256:2465a39ab324dbe4c850a8c9908ea50d4022aeedc5976f2995ab7b6fd95f65cd",
+  "run_id": "20260519-001704",
   "mcp_binary": "orgo-pp-mcp",
-  "mcp_tool_count": 33,
+  "mcp_tool_count": 26,
   "mcp_ready": "full",
   "api_version": "2.0.0",
   "auth_type": "bearer_token",
   "auth_env_vars": [
     "ORGO_API_KEY"
-  ],
-  "novel_features": [
-    {
-      "name": "Agent Action Replay",
-      "command": "replay",
-      "description": "Generate a self-contained static HTML timeline of every screenshot, click, bash, and exec your agent ran on a computer."
-    },
-    {
-      "name": "Audit Trail",
-      "command": "audit",
-      "description": "Chronological table of every CLI-driven action against your computers in a time window, scoped by workspace, FTS-searchable."
-    },
-    {
-      "name": "Action Grep",
-      "command": "grep",
-      "description": "FTS5 search over historical bash commands, Python exec code, and click coordinates from the local actions store."
-    },
-    {
-      "name": "Fleet Doctor",
-      "command": "fleet",
-      "description": "Cross-workspace health rollup: surfaces suspended (over-quota), errored, stuck-creating, and stuck-stopping computers, plus an API-key validity probe."
-    },
-    {
-      "name": "Idle Computers",
-      "command": "idle",
-      "description": "Sorts running computers by hours-since-last-CLI-action, surfacing burns that could be stopped."
-    },
-    {
-      "name": "Oversized Computers",
-      "command": "oversized",
-      "description": "Flags computers with CPU >= 4 cores or RAM >= 16 GB whose last CLI-recorded action is older than the threshold and whose auto-stop is disabled."
-    },
-    {
-      "name": "Bulk Prune",
-      "command": "prune",
-      "description": "Cross-workspace status-filtered batch delete with dry-run by default."
-    },
-    {
-      "name": "Cost Breakdown",
-      "command": "cost",
-      "description": "Reconstructs per-computer running-hours from local action timestamps + observed status transitions, multiplies by per-tier rate, sums by workspace. --forecast projects month-end burn."
-    },
-    {
-      "name": "DOM-Aware Browser Automation",
-      "command": "chrome",
-      "description": "16-subcommand group driving Chrome inside an Orgo VM at the DOM level via an auto-deployed in-VM Node bridge (port 7331). Surface: navigate, tabs, new-tab, switch-tab, read-page (a11y tree with refs), find, page-text, screenshot, click (--ref or --x/--y), type, form-input, scroll, evaluate, console, network, resize. Cobra-tree walker auto-registers each as an MCP tool (chrome_*). Inherits VM-direct routing transparently."
-    }
-  ],
-  "printer": "NickVasilescu"
+  ]
 }

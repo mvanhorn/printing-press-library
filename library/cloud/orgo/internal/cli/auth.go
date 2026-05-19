@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/mvanhorn/printing-press-library/library/cloud/orgo/internal/config"
 	"github.com/spf13/cobra"
+	"orgo-pp-cli/internal/config"
 )
 
 func newAuthCmd(flags *rootFlags) *cobra.Command {

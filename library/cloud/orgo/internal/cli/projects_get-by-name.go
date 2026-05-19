@@ -11,13 +11,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newComputersScreenshotGetCmd(flags *rootFlags) *cobra.Command {
+func newProjectsGetByNameCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:         "get <id>",
-		Short:       "Captures a screenshot of the computer display. Returns base64-encoded PNG or a URL.",
-		Example:     "  orgo-pp-cli computers screenshot get 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "screenshot.get", "pp:method": "GET", "pp:path": "/computers/{id}/screenshot", "mcp:read-only": "true"},
+		Use:         "get-by-name <name>",
+		Short:       "Returns a workspace looked up by name. Useful when you have a workspace name from configuration but no ID.",
+		Example:     "  orgo-pp-cli projects get-by-name example-resource",
+		Annotations: map[string]string{"pp:endpoint": "projects.get-by-name", "pp:method": "GET", "pp:path": "/projects/by-name/{name}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
@@ -27,10 +27,10 @@ func newComputersScreenshotGetCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "/computers/{id}/screenshot"
-			path = replacePathParam(path, "id", args[0])
+			path := "/projects/by-name/{name}"
+			path = replacePathParam(path, "name", args[0])
 			params := map[string]string{}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "screenshot", false, path, params, nil)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "projects", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

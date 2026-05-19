@@ -9,16 +9,6 @@ type ActionResponse struct {
 	Success bool `json:"success"`
 }
 
-type AutoStopGetResponse struct {
-	AutoStopMinutes int  `json:"auto_stop_minutes"`
-	Configurable    bool `json:"configurable"`
-}
-
-type AutoStopUpdateResponse struct {
-	AutoStopMinutes  int    `json:"auto_stop_minutes"`
-	AutoSuspendAfter string `json:"auto_suspend_after"`
-}
-
 type BashRequest struct {
 	Command string `json:"command"`
 }
@@ -94,6 +84,11 @@ type DragRequest struct {
 	StartY   int     `json:"start_y"`
 }
 
+type EnsureRunningEnsureComputerRunningResponse struct {
+	Status  string `json:"status"`
+	Success bool   `json:"success"`
+}
+
 type Error struct {
 	Error string `json:"error"`
 }
@@ -142,10 +137,6 @@ type FileUploadResponse struct {
 	File json.RawMessage `json:"file"`
 }
 
-type FilesDeleteResponse struct {
-	Success bool `json:"success"`
-}
-
 type KeyRequest struct {
 	Key string `json:"key"`
 }
@@ -153,6 +144,14 @@ type KeyRequest struct {
 type MoveComputerResponse struct {
 	ProjectId string `json:"project_id"`
 	Success   bool   `json:"success"`
+}
+
+type ProjectsDeleteResponse struct {
+	Success bool `json:"success"`
+}
+
+type ProjectsListResponse struct {
+	Workspaces json.RawMessage `json:"workspaces"`
 }
 
 type ResizeComputerResponse struct {
@@ -174,16 +173,6 @@ type ScreenshotGetResponse struct {
 type ScrollRequest struct {
 	Amount    int    `json:"amount"`
 	Direction string `json:"direction"`
-}
-
-type StartComputerResponse struct {
-	Status  string `json:"status"`
-	Success bool   `json:"success"`
-}
-
-type StopComputerResponse struct {
-	Status  string `json:"status"`
-	Success bool   `json:"success"`
 }
 
 type StreamStartRequest struct {
@@ -217,10 +206,6 @@ type UpdateBuildRequest struct {
 	Status       string `json:"status"`
 }
 
-type VncPasswordGetResponse struct {
-	Password string `json:"password"`
-}
-
 type WaitRequest struct {
 	Duration float64 `json:"duration"`
 }
@@ -244,12 +229,4 @@ type WorkspaceWithDesktops struct {
 	Status    string          `json:"status"`
 	UpdatedAt string          `json:"updated_at"`
 	UserId    string          `json:"user_id"`
-}
-
-type WorkspacesDeleteResponse struct {
-	Success bool `json:"success"`
-}
-
-type WorkspacesListResponse struct {
-	Workspaces json.RawMessage `json:"workspaces"`
 }

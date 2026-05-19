@@ -124,7 +124,7 @@ func buildAgentContext(rootCmd *cobra.Command) agentContext {
 		SchemaVersion: agentContextSchemaVersion,
 		CLI: agentContextCLI{
 			Name:        "orgo-pp-cli",
-			Description: "The audit ledger Orgo doesn't otherwise have, plus every existing Orgo SDK feature in one Go binary.",
+			Description: "Thin Go-binary alias of the Orgo MCP server — every MCP tool, accessible from a shell.",
 			Version:     rootCmd.Version,
 		},
 		Auth: agentContextAuth{

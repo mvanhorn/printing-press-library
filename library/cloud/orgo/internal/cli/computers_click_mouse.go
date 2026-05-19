@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"time"
 
 	"github.com/spf13/cobra"
 )
@@ -71,16 +70,9 @@ func newComputersClickMouseCmd(flags *rootFlags) *cobra.Command {
 					body["y"] = bodyY
 				}
 			}
-			start := time.Now()
 			data, statusCode, err := c.Post(path, body)
 			if err != nil {
 				return classifyAPIError(err, flags)
-			}
-			// PATCH(printing-press novel-features): actions-ledger hook.
-			// Best-effort — never block the user's command on logging.
-			// Skip on --dry-run: those calls are previews, not real actions.
-			if !flags.dryRun {
-				_ = logActionBestEffort(cmd.Context(), args[0], "click", map[string]any{"x": bodyX, "y": bodyY, "button": bodyButton, "double": bodyDouble}, string(data), statusCode, time.Since(start))
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")

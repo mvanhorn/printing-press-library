@@ -1,4 +1,4 @@
-module github.com/mvanhorn/printing-press-library/library/cloud/orgo
+module orgo-pp-cli
 
 go 1.26.3
 

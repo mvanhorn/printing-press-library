@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/mvanhorn/printing-press-library/library/cloud/orgo/internal/store"
 	"github.com/spf13/cobra"
+	"orgo-pp-cli/internal/store"
 )
 
 func newWorkflowCmd(flags *rootFlags) *cobra.Command {
@@ -55,7 +55,7 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 			}
 			defer s.Close()
 
-			resources := []string{"workspaces"}
+			resources := []string{"projects"}
 			totalSynced := 0
 
 			for _, resource := range resources {

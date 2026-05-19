@@ -13,7 +13,6 @@ func newFilesCmd(flags *rootFlags) *cobra.Command {
 		Short: "Upload and download files",
 	}
 
-	cmd.AddCommand(newFilesDeleteCmd(flags))
 	cmd.AddCommand(newFilesDownloadCmd(flags))
 	cmd.AddCommand(newFilesExportCmd(flags))
 	cmd.AddCommand(newFilesListCmd(flags))

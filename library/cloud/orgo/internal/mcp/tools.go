@@ -14,12 +14,12 @@ import (
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
-	"github.com/mvanhorn/printing-press-library/library/cloud/orgo/internal/cli"
-	"github.com/mvanhorn/printing-press-library/library/cloud/orgo/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/cloud/orgo/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/cloud/orgo/internal/config"
-	"github.com/mvanhorn/printing-press-library/library/cloud/orgo/internal/mcp/cobratree"
-	"github.com/mvanhorn/printing-press-library/library/cloud/orgo/internal/store"
+	"orgo-pp-cli/internal/cli"
+	"orgo-pp-cli/internal/client"
+	"orgo-pp-cli/internal/cliutil"
+	"orgo-pp-cli/internal/config"
+	"orgo-pp-cli/internal/mcp/cobratree"
+	"orgo-pp-cli/internal/store"
 )
 
 // RegisterTools registers all API operations as MCP tools.
@@ -59,25 +59,6 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/computers/{id}", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("computers_auto-stop_get",
-			mcplib.WithDescription("Returns the current auto-stop configuration for a computer. Required: id."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("Computer ID")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/computers/{id}/auto-stop", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("computers_auto-stop_update",
-			mcplib.WithDescription("Updates the auto-stop setting for a computer. Paid plans only — free tier is fixed at 15 minutes. Required: id, auto_stop_minutes. Returns the updated AutoStopUpdateResponse."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("Computer ID")),
-			mcplib.WithString("auto_stop_minutes", mcplib.Required(), mcplib.Description("Minutes of inactivity before auto-stop. Set to 0 to disable.")),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("PATCH", "/computers/{id}/auto-stop", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "auto_stop_minutes", WireName: "auto_stop_minutes", Location: "body"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("computers_bash_execute",
@@ -125,6 +106,15 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("POST", "/computers/{id}/drag", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "button", WireName: "button", Location: "body"}, {PublicName: "duration", WireName: "duration", Location: "body"}, {PublicName: "end_x", WireName: "end_x", Location: "body"}, {PublicName: "end_y", WireName: "end_y", Location: "body"}, {PublicName: "start_x", WireName: "start_x", Location: "body"}, {PublicName: "start_y", WireName: "start_y", Location: "body"}}, []string{"id"}),
+	)
+	s.AddTool(
+		mcplib.NewTool("computers_ensure-running_ensure-computer-running",
+			mcplib.WithDescription("Idempotently ensures a computer is running. Resumes a suspended VM if needed. Safe to call on a computer that is already running. Required: id. Returns the new EnsureRunningEnsureComputerRunningResponse."),
+			mcplib.WithString("id", mcplib.Required(), mcplib.Description("Computer ID")),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("POST", "/computers/{id}/ensure-running", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("computers_exec_execute-python",
@@ -199,53 +189,6 @@ func RegisterTools(s *server.MCPServer) {
 		makeAPIHandler("POST", "/computers/{id}/scroll", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "amount", WireName: "amount", Location: "body"}, {PublicName: "direction", WireName: "direction", Location: "body"}}, []string{"id"}),
 	)
 	s.AddTool(
-		mcplib.NewTool("computers_start_computer",
-			mcplib.WithDescription("Starts a stopped computer. Computers auto-stop after inactivity. Required: id. Returns the new StartComputerResponse."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("Computer ID")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/computers/{id}/start", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("computers_stop_computer",
-			mcplib.WithDescription("Stops a running computer. State is preserved. Required: id. Returns the new StopComputerResponse."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("Computer ID")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/computers/{id}/stop", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("computers_stream_get-status",
-			mcplib.WithDescription("Get the current RTMP display-stream status for a computer. Required: id (computer ID). Returns a status enum (idle, streaming, terminated), the streamer process start_time, and the streamer pid. Use this to check whether computers_stream_start succeeded and the framebuffer is currently being broadcast before reading network traffic with computers_screenshot or starting a recorder."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("Computer ID")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/computers/{id}/stream/status", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("computers_stream_start",
-			mcplib.WithDescription("Starts streaming the computer display via RTMP to a configured connection. Required: id, connection_name. Returns the new StreamStartResponse."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("Computer ID")),
-			mcplib.WithString("connection_name", mcplib.Required(), mcplib.Description("Name of the configured RTMP connection")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/computers/{id}/stream/start", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "connection_name", WireName: "connection_name", Location: "body"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("computers_stream_stop",
-			mcplib.WithDescription("Stops the active RTMP stream. Required: id. Returns the new StreamStopResponse."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("Computer ID")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/computers/{id}/stream/stop", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
-	)
-	s.AddTool(
 		mcplib.NewTool("computers_type_text",
 			mcplib.WithDescription("Types text on the computer keyboard. Required: id, text. Returns the new ActionResponse."),
 			mcplib.WithString("id", mcplib.Required(), mcplib.Description("Computer ID")),
@@ -256,16 +199,6 @@ func RegisterTools(s *server.MCPServer) {
 		makeAPIHandler("POST", "/computers/{id}/type", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "text", WireName: "text", Location: "body"}}, []string{"id"}),
 	)
 	s.AddTool(
-		mcplib.NewTool("computers_vnc-password_get",
-			mcplib.WithDescription("Returns the VNC password for direct VNC connection to the computer. Only accessible by workspace owners and members. Required: id."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("Computer ID")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/computers/{id}/vnc-password", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
-	)
-	s.AddTool(
 		mcplib.NewTool("computers_wait_wait",
 			mcplib.WithDescription("Pauses execution for the specified duration. Required: id, duration. Returns the new ActionResponse."),
 			mcplib.WithString("id", mcplib.Required(), mcplib.Description("Computer ID")),
@@ -274,15 +207,6 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("POST", "/computers/{id}/wait", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}, {PublicName: "duration", WireName: "duration", Location: "body"}}, []string{"id"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("files_delete",
-			mcplib.WithDescription("Permanently deletes a file from storage. Required: id. Returns the FilesDeleteResponse. Destructive."),
-			mcplib.WithString("id", mcplib.Required(), mcplib.Description("File ID")),
-			mcplib.WithDestructiveHintAnnotation(true),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("DELETE", "/files/delete", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("files_download",
@@ -327,7 +251,7 @@ func RegisterTools(s *server.MCPServer) {
 		makeAPIHandler("POST", "/files/upload", []mcpParamBinding{{PublicName: "desktopId", WireName: "desktopId", Location: "body"}, {PublicName: "file", WireName: "file", Location: "body"}, {PublicName: "projectId", WireName: "projectId", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
-		mcplib.NewTool("workspaces_create",
+		mcplib.NewTool("projects_create",
 			mcplib.WithDescription("Creates a new workspace. Workspace names must be unique per user. Required: name. Optional: icon_url, status (default: active). Returns the new Workspace."),
 			mcplib.WithString("icon_url", mcplib.Description("Optional icon URL")),
 			mcplib.WithString("name", mcplib.Required(), mcplib.Description("Workspace name. Must be unique within your account.")),
@@ -335,35 +259,45 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/workspaces", []mcpParamBinding{{PublicName: "icon_url", WireName: "icon_url", Location: "body"}, {PublicName: "name", WireName: "name", Location: "body"}, {PublicName: "status", WireName: "status", Location: "body"}}, []string{}),
+		makeAPIHandler("POST", "/projects", []mcpParamBinding{{PublicName: "icon_url", WireName: "icon_url", Location: "body"}, {PublicName: "name", WireName: "name", Location: "body"}, {PublicName: "status", WireName: "status", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
-		mcplib.NewTool("workspaces_delete",
-			mcplib.WithDescription("Deletes a workspace and all its computers. This action cannot be undone. Required: id. Returns the WorkspacesDeleteResponse. Destructive."),
+		mcplib.NewTool("projects_delete",
+			mcplib.WithDescription("Deletes a workspace and all its computers. This action cannot be undone. Required: id. Returns the ProjectsDeleteResponse. Destructive."),
 			mcplib.WithString("id", mcplib.Required(), mcplib.Description("Workspace ID")),
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/workspaces/{id}", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
+		makeAPIHandler("DELETE", "/projects/{id}", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
 	)
 	s.AddTool(
-		mcplib.NewTool("workspaces_get",
+		mcplib.NewTool("projects_get",
 			mcplib.WithDescription("Returns a workspace by ID, including its computers. Required: id."),
 			mcplib.WithString("id", mcplib.Required(), mcplib.Description("Workspace ID")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/workspaces/{id}", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
+		makeAPIHandler("GET", "/projects/{id}", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
 	)
 	s.AddTool(
-		mcplib.NewTool("workspaces_list",
-			mcplib.WithDescription("List all workspaces owned by the authenticated user. Returns an array of workspace objects, each with id, name, user_id, status (active|inactive), icon_url, created_at, and updated_at. Workspaces are the top-level container for computers; use this to discover the workspace id you pass to computers_create or computers_list. No parameters; the response is not paginated."),
+		mcplib.NewTool("projects_get-by-name",
+			mcplib.WithDescription("Returns a workspace looked up by name. Useful when you have a workspace name from configuration but no ID. Required: name."),
+			mcplib.WithString("name", mcplib.Required(), mcplib.Description("Workspace name to look up")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/workspaces", []mcpParamBinding{}, []string{}),
+		makeAPIHandler("GET", "/projects/by-name/{name}", []mcpParamBinding{{PublicName: "name", WireName: "name", Location: "path"}}, []string{"name"}),
+	)
+	s.AddTool(
+		mcplib.NewTool("projects_list",
+			mcplib.WithDescription("List all workspaces (projects) for the authenticated user. No parameters. Returns an array of workspaces with id, name, status (active/inactive), icon_url, user_id, and timestamps. Use this to discover workspace IDs before scoping computer or file operations; pair with projects_get-by-name when you only have a workspace name."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/projects", []mcpParamBinding{}, []string{}),
 	)
 	// Search tool — faster than iterating list endpoints for finding specific items
 	s.AddTool(
@@ -692,9 +626,9 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	ctx := map[string]any{
 		"api":         "orgo",
-		"description": "Desktop infrastructure for AI agents. Create workspaces, provision virtual computers, and control them programmatically.",
-		"archetype":   "generic",
-		"tool_count":  33,
+		"description": "Desktop infrastructure for AI agents. Provision workspaces, create virtual computers, and control them via shell,...",
+		"archetype":   "project-management",
+		"tool_count":  26,
 		// tool_surface tells agents which surface a capability lives on.
 		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion orgo-pp-cli binary.",
 		"auth": map[string]any{
@@ -719,13 +653,13 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			{
 				"name":        "files",
 				"description": "Upload and download files",
-				"endpoints":   []string{"delete", "download", "export", "list", "upload"},
+				"endpoints":   []string{"download", "export", "list", "upload"},
 				"searchable":  true,
 			},
 			{
-				"name":        "workspaces",
-				"description": "Organize computers into named workspaces",
-				"endpoints":   []string{"create", "delete", "get", "list"},
+				"name":        "projects",
+				"description": "Manage projects",
+				"endpoints":   []string{"create", "delete", "get", "get-by-name", "list"},
 				"syncable":    true,
 				"searchable":  true,
 			},
@@ -737,29 +671,10 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			"Use the search tool for full-text search across all synced resources. Faster than iterating list endpoints.",
 			"Prefer sql/search over repeated API calls when the data is already synced.",
 		},
-		// Command-mirror capabilities are exposed through MCP by shelling out
-		// to the companion CLI binary.
-		"command_mirror_capabilities": []map[string]string{
-			{"name": "Agent Action Replay", "command": "replay", "description": "Generate a self-contained static HTML timeline of every screenshot, click, bash, and exec your agent ran on a computer.", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "Audit Trail", "command": "audit", "description": "Chronological table of every CLI-driven action against your computers in a time window, scoped by workspace,...", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "Action Grep", "command": "grep", "description": "FTS5 search over historical bash commands, Python exec code, and click coordinates from the local actions store.", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "Fleet Doctor", "command": "fleet", "description": "Cross-workspace health rollup: surfaces suspended (over-quota), errored, stuck-creating, and stuck-stopping...", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "Idle Computers", "command": "idle", "description": "Sorts running computers by hours-since-last-CLI-action, surfacing burns that could be stopped.", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "Oversized Computers", "command": "oversized", "description": "Flags computers with CPU >= 4 cores or RAM >= 16 GB whose last CLI-recorded action is older than the threshold and...", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "Bulk Prune", "command": "prune", "description": "Cross-workspace status-filtered batch delete with dry-run by default.", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "Cost Breakdown", "command": "cost", "description": "Reconstructs per-computer running-hours from local action timestamps + observed status transitions, multiplies by...", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "DOM-Aware Browser Automation", "command": "chrome", "description": "16-subcommand group driving Chrome inside an Orgo VM at the DOM level via an auto-deployed in-VM Node bridge (port 7331). Surface: navigate, tabs, new-tab, switch-tab, read-page (a11y tree with refs), find, page-text, screenshot, click (--ref or --x/--y), type, form-input, scroll, evaluate, console, network, resize. Each subcommand is auto-registered as an MCP tool (chrome_*).", "rationale": "", "via": "mcp-command-mirror"},
-		},
 		"playbook": []map[string]string{
-			{"topic": "Agent Action Replay", "insight": ""},
-			{"topic": "Audit Trail", "insight": ""},
-			{"topic": "Action Grep", "insight": ""},
-			{"topic": "Fleet Doctor", "insight": ""},
-			{"topic": "Idle Computers", "insight": ""},
-			{"topic": "Oversized Computers", "insight": ""},
-			{"topic": "Bulk Prune", "insight": ""},
-			{"topic": "Cost Breakdown", "insight": ""},
-			{"topic": "DOM-Aware Browser Automation", "insight": "Prefer chrome read-page + chrome click --ref over pixel-based computers screenshot get + computers click mouse for any web workflow; refs are stable across re-renders and 1-2 orders of magnitude cheaper in tokens than re-screenshotting between actions."},
+			{"topic": "Finding stale work", "insight": "Use the stale command or sql query to find items not updated recently. More reliable than scanning list results manually."},
+			{"topic": "Load analysis", "insight": "When analyzing team workload, filter by assignee and status. Raw counts without status filtering are misleading."},
+			{"topic": "Bulk operations", "insight": "For bulk status changes, prefer update endpoints over delete+create. Most PM APIs track history on updates."},
 		},
 	}
 	data, _ := json.MarshalIndent(ctx, "", "  ")

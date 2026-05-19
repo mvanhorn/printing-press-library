@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/mvanhorn/printing-press-library/library/cloud/orgo/internal/store"
 	"github.com/spf13/cobra"
+	"orgo-pp-cli/internal/store"
 )
 
 // isNilOrEmpty checks whether a JSON object has nil or empty values for

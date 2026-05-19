@@ -1,7 +1,7 @@
 {
   "api_name": "orgo",
   "base_url": "https://www.orgo.ai/api",
-  "description": "Desktop infrastructure for AI agents. Create workspaces, provision virtual computers, and control them programmatically.",
+  "description": "Desktop infrastructure for AI agents. Provision workspaces, create virtual computers, and control them via shell, files, and screen actions. Thin Go-binary alias of the @orgo-ai/mcp server.",
   "mcp_ready": "full",
   "http_transport": "standard",
   "auth": {
@@ -112,43 +112,6 @@
           "type": "string",
           "location": "path",
           "description": "Computer ID",
-          "required": true
-        }
-      ]
-    },
-    {
-      "name": "computers_auto-stop_get",
-      "description": "Returns the current auto-stop configuration for a computer. Required: id.",
-      "method": "GET",
-      "path": "/computers/{id}/auto-stop",
-      "params": [
-        {
-          "name": "id",
-          "type": "string",
-          "location": "path",
-          "description": "Computer ID",
-          "required": true
-        }
-      ]
-    },
-    {
-      "name": "computers_auto-stop_update",
-      "description": "Updates the auto-stop setting for a computer. Paid plans only — free tier is fixed at 15 minutes. Required: id, auto_stop_minutes. Returns the updated AutoStopUpdateResponse.",
-      "method": "PATCH",
-      "path": "/computers/{id}/auto-stop",
-      "params": [
-        {
-          "name": "id",
-          "type": "string",
-          "location": "path",
-          "description": "Computer ID",
-          "required": true
-        },
-        {
-          "name": "auto_stop_minutes",
-          "type": "int",
-          "location": "body",
-          "description": "Minutes of inactivity before auto-stop. Set to 0 to disable.",
           "required": true
         }
       ]
@@ -282,6 +245,21 @@
           "type": "int",
           "location": "body",
           "description": "Start Y coordinate",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "computers_ensure-running_ensure-computer-running",
+      "description": "Idempotently ensures a computer is running. Resumes a suspended VM if needed. Safe to call on a computer that is already running. Required: id. Returns the new EnsureRunningEnsureComputerRunningResponse.",
+      "method": "POST",
+      "path": "/computers/{id}/ensure-running",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Computer ID",
           "required": true
         }
       ]
@@ -456,88 +434,6 @@
       ]
     },
     {
-      "name": "computers_start_computer",
-      "description": "Starts a stopped computer. Computers auto-stop after inactivity. Required: id. Returns the new StartComputerResponse.",
-      "method": "POST",
-      "path": "/computers/{id}/start",
-      "params": [
-        {
-          "name": "id",
-          "type": "string",
-          "location": "path",
-          "description": "Computer ID",
-          "required": true
-        }
-      ]
-    },
-    {
-      "name": "computers_stop_computer",
-      "description": "Stops a running computer. State is preserved. Required: id. Returns the new StopComputerResponse.",
-      "method": "POST",
-      "path": "/computers/{id}/stop",
-      "params": [
-        {
-          "name": "id",
-          "type": "string",
-          "location": "path",
-          "description": "Computer ID",
-          "required": true
-        }
-      ]
-    },
-    {
-      "name": "computers_stream_get-status",
-      "description": "Get the current RTMP display-stream status for a computer. Required: id (computer ID). Returns a status enum (idle, streaming, terminated), the streamer process start_time, and the streamer pid. Use this to check whether computers_stream_start succeeded and the framebuffer is currently being broadcast before reading network traffic with computers_screenshot or starting a recorder.",
-      "method": "GET",
-      "path": "/computers/{id}/stream/status",
-      "params": [
-        {
-          "name": "id",
-          "type": "string",
-          "location": "path",
-          "description": "Computer ID",
-          "required": true
-        }
-      ]
-    },
-    {
-      "name": "computers_stream_start",
-      "description": "Starts streaming the computer display via RTMP to a configured connection. Required: id, connection_name. Returns the new StreamStartResponse.",
-      "method": "POST",
-      "path": "/computers/{id}/stream/start",
-      "params": [
-        {
-          "name": "id",
-          "type": "string",
-          "location": "path",
-          "description": "Computer ID",
-          "required": true
-        },
-        {
-          "name": "connection_name",
-          "type": "string",
-          "location": "body",
-          "description": "Name of the configured RTMP connection",
-          "required": true
-        }
-      ]
-    },
-    {
-      "name": "computers_stream_stop",
-      "description": "Stops the active RTMP stream. Required: id. Returns the new StreamStopResponse.",
-      "method": "POST",
-      "path": "/computers/{id}/stream/stop",
-      "params": [
-        {
-          "name": "id",
-          "type": "string",
-          "location": "path",
-          "description": "Computer ID",
-          "required": true
-        }
-      ]
-    },
-    {
       "name": "computers_type_text",
       "description": "Types text on the computer keyboard. Required: id, text. Returns the new ActionResponse.",
       "method": "POST",
@@ -560,21 +456,6 @@
       ]
     },
     {
-      "name": "computers_vnc-password_get",
-      "description": "Returns the VNC password for direct VNC connection to the computer. Only accessible by workspace owners and members. Required: id.",
-      "method": "GET",
-      "path": "/computers/{id}/vnc-password",
-      "params": [
-        {
-          "name": "id",
-          "type": "string",
-          "location": "path",
-          "description": "Computer ID",
-          "required": true
-        }
-      ]
-    },
-    {
       "name": "computers_wait_wait",
       "description": "Pauses execution for the specified duration. Required: id, duration. Returns the new ActionResponse.",
       "method": "POST",
@@ -592,21 +473,6 @@
           "type": "float",
           "location": "body",
           "description": "Duration in seconds",
-          "required": true
-        }
-      ]
-    },
-    {
-      "name": "files_delete",
-      "description": "Permanently deletes a file from storage. Required: id. Returns the FilesDeleteResponse. Destructive.",
-      "method": "DELETE",
-      "path": "/files/delete",
-      "params": [
-        {
-          "name": "id",
-          "type": "string",
-          "location": "query",
-          "description": "File ID",
           "required": true
         }
       ]
@@ -698,10 +564,10 @@
       ]
     },
     {
-      "name": "workspaces_create",
+      "name": "projects_create",
       "description": "Creates a new workspace. Workspace names must be unique per user. Required: name. Optional: icon_url, status (default: active). Returns the new Workspace.",
       "method": "POST",
-      "path": "/workspaces",
+      "path": "/projects",
       "params": [
         {
           "name": "icon_url",
@@ -725,10 +591,10 @@
       ]
     },
     {
-      "name": "workspaces_delete",
-      "description": "Deletes a workspace and all its computers. This action cannot be undone. Required: id. Returns the WorkspacesDeleteResponse. Destructive.",
+      "name": "projects_delete",
+      "description": "Deletes a workspace and all its computers. This action cannot be undone. Required: id. Returns the ProjectsDeleteResponse. Destructive.",
       "method": "DELETE",
-      "path": "/workspaces/{id}",
+      "path": "/projects/{id}",
       "params": [
         {
           "name": "id",
@@ -740,10 +606,10 @@
       ]
     },
     {
-      "name": "workspaces_get",
+      "name": "projects_get",
       "description": "Returns a workspace by ID, including its computers. Required: id.",
       "method": "GET",
-      "path": "/workspaces/{id}",
+      "path": "/projects/{id}",
       "params": [
         {
           "name": "id",
@@ -755,10 +621,25 @@
       ]
     },
     {
-      "name": "workspaces_list",
-      "description": "List all workspaces owned by the authenticated user. Returns an array of workspace objects, each with id, name, user_id, status (active|inactive), icon_url, created_at, and updated_at. Workspaces are the top-level container for computers; use this to discover the workspace id you pass to computers_create or computers_list. No parameters; the response is not paginated.",
+      "name": "projects_get-by-name",
+      "description": "Returns a workspace looked up by name. Useful when you have a workspace name from configuration but no ID. Required: name.",
       "method": "GET",
-      "path": "/workspaces",
+      "path": "/projects/by-name/{name}",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "path",
+          "description": "Workspace name to look up",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_list",
+      "description": "List all workspaces (projects) for the authenticated user. No parameters. Returns an array of workspaces with id, name, status (active/inactive), icon_url, user_id, and timestamps. Use this to discover workspace IDs before scoping computer or file operations; pair with projects_get-by-name when you only have a workspace name.",
+      "method": "GET",
+      "path": "/projects",
       "params": []
     }
   ]

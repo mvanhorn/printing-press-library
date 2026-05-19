@@ -12,23 +12,21 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newComputersKeyPressCmd(flags *rootFlags) *cobra.Command {
-	var bodyKey string
+func newProjectsCreateCmd(flags *rootFlags) *cobra.Command {
+	var bodyIconUrl string
+	var bodyName string
+	var bodyStatus string
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:         "press <id>",
-		Aliases:     []string{"create"},
-		Short:       "Presses a key or key combination (e.g., Enter, Tab, ctrl+c).",
-		Example:     "  orgo-pp-cli computers key press 550e8400-e29b-41d4-a716-446655440000 --key your-token-here",
-		Annotations: map[string]string{"pp:endpoint": "key.press", "pp:method": "POST", "pp:path": "/computers/{id}/key"},
+		Use:         "create",
+		Short:       "Creates a new workspace. Workspace names must be unique per user.",
+		Example:     "  orgo-pp-cli projects create --name example-resource",
+		Annotations: map[string]string{"pp:endpoint": "projects.create", "pp:method": "POST", "pp:path": "/projects"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if len(args) == 0 {
-				return cmd.Help()
-			}
 			if !stdinBody {
-				if !cmd.Flags().Changed("key") && !flags.dryRun {
-					return fmt.Errorf("required flag \"%s\" not set", "key")
+				if !cmd.Flags().Changed("name") && !flags.dryRun {
+					return fmt.Errorf("required flag \"%s\" not set", "name")
 				}
 			}
 			c, err := flags.newClient()
@@ -36,8 +34,7 @@ func newComputersKeyPressCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "/computers/{id}/key"
-			path = replacePathParam(path, "id", args[0])
+			path := "/projects"
 			var body map[string]any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
@@ -51,8 +48,14 @@ func newComputersKeyPressCmd(flags *rootFlags) *cobra.Command {
 				body = jsonBody
 			} else {
 				body = map[string]any{}
-				if bodyKey != "" {
-					body["key"] = bodyKey
+				if bodyIconUrl != "" {
+					body["icon_url"] = bodyIconUrl
+				}
+				if bodyName != "" {
+					body["name"] = bodyName
+				}
+				if bodyStatus != "" {
+					body["status"] = bodyStatus
 				}
 			}
 			data, statusCode, err := c.Post(path, body)
@@ -97,7 +100,7 @@ func newComputersKeyPressCmd(flags *rootFlags) *cobra.Command {
 				}
 				envelope := map[string]any{
 					"action":   "post",
-					"resource": "key",
+					"resource": "projects",
 					"path":     path,
 					"status":   statusCode,
 					"success":  statusCode >= 200 && statusCode < 300,
@@ -122,7 +125,9 @@ func newComputersKeyPressCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().StringVar(&bodyKey, "key", "", "Key or key combination (e.g., Enter, Tab, ctrl+c, alt+F4)")
+	cmd.Flags().StringVar(&bodyIconUrl, "icon-url", "", "Optional icon URL")
+	cmd.Flags().StringVar(&bodyName, "name", "", "Workspace name. Must be unique within your account.")
+	cmd.Flags().StringVar(&bodyStatus, "status", "active", "Status")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd

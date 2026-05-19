@@ -6,9 +6,9 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/mvanhorn/printing-press-library/library/cloud/orgo/internal/store"
 	"github.com/spf13/cobra"
 	"net/url"
+	"orgo-pp-cli/internal/store"
 	"os"
 	"regexp"
 	"strconv"
@@ -755,8 +755,6 @@ func upsertSingleObject(db *store.Store, resource string, data json.RawMessage) 
 	switch resource {
 	case "computers":
 		return db.UpsertComputers(data)
-	case "auto_stop":
-		return db.UpsertAutoStop(data)
 	case "bash":
 		return db.UpsertBash(data)
 	case "click":
@@ -765,6 +763,8 @@ func upsertSingleObject(db *store.Store, resource string, data json.RawMessage) 
 		return db.UpsertClone(data)
 	case "drag":
 		return db.UpsertDrag(data)
+	case "ensure_running":
+		return db.UpsertEnsureRunning(data)
 	case "exec":
 		return db.UpsertExec(data)
 	case "key":
@@ -779,22 +779,14 @@ func upsertSingleObject(db *store.Store, resource string, data json.RawMessage) 
 		return db.UpsertScreenshot(data)
 	case "scroll":
 		return db.UpsertScroll(data)
-	case "start":
-		return db.UpsertStart(data)
-	case "stop":
-		return db.UpsertStop(data)
-	case "stream":
-		return db.UpsertStream(data)
 	case "type":
 		return db.UpsertType(data)
-	case "vnc_password":
-		return db.UpsertVncPassword(data)
 	case "wait":
 		return db.UpsertWait(data)
 	case "files":
 		return db.UpsertFiles(data)
-	case "workspaces":
-		return db.UpsertWorkspaces(data)
+	case "projects":
+		return db.UpsertProjects(data)
 	default:
 		return db.Upsert(resource, id, data)
 	}
@@ -831,7 +823,7 @@ func parseSinceDuration(s string) (time.Time, error) {
 
 func defaultSyncResources() []string {
 	return []string{
-		"workspaces",
+		"projects",
 	}
 }
 
@@ -840,7 +832,7 @@ func defaultSyncResources() []string {
 // this preserves the actual endpoint path like "/ISteamApps/GetAppList/v2".
 func syncResourcePath(resource string) (string, error) {
 	paths := map[string]string{
-		"workspaces": "/workspaces",
+		"projects": "/projects",
 	}
 	if p, ok := paths[resource]; ok {
 		return p, nil
@@ -858,7 +850,7 @@ func syncResourcePath(resource string) (string, error) {
 // annotations on a child path-item are honored at runtime, not just on
 // flat paths.
 var resourceIDFieldOverrides = map[string]string{
-	"workspaces": "id",
+	"projects": "id",
 }
 
 // genericIDFieldFallbacks is the runtime safety net for resources that did

@@ -33,32 +33,6 @@ orgo-pp-cli <command> --dry-run --agent
 
 Use `--yes --no-input` only after the target, arguments, and side effects are clear.
 
-For hot-path computer-use loops (bash/click/type/key/scroll/drag/exec/screenshot), reach for the `--vm-*` flags to bypass the central API and cut per-call latency by ~70% on a sample machine:
-
-```bash
-# One-call resolver — recommended default for short sessions.
-orgo-pp-cli computers bash execute <id> --vm-from <id> --command 'echo hi'
-
-# Explicit (skip the resolver) — recommended for long loops or in-VM agents.
-orgo-pp-cli computers screenshot get <id> --vm-url <url> --vm-token <vnc_password>
-
-# Env-injected:
-ORGO_VM_URL=<url> ORGO_VM_TOKEN=<vnc_password> orgo-pp-cli computers click mouse <id> --x 640 --y 360
-```
-
-Non-bypassable commands (workspaces, fleet, etc.) flow through the central API unchanged when `--vm-*` is set, so mixed workloads don't need flag juggling. See `README.md` "VM-Direct Routing" for the response-shape caveat on `screenshot get` (base64 inline vs signed URL).
-
-For DOM-aware web workflows, prefer the `chrome` subcommands over pixel-based `computers click mouse` / `computers screenshot get` loops:
-
-```bash
-# Read the page as a ref-keyed accessibility tree, then act by ref.
-orgo-pp-cli chrome read-page <id> --filter interactive --agent
-orgo-pp-cli chrome click <id> --ref ref_3 --agent
-orgo-pp-cli chrome form-input <id> --ref ref_7 --value "..." --agent
-```
-
-`chrome` calls bottom out on `/computers/{id}/bash`, so they inherit `--vm-from`/`--vm-url`/`--vm-token` transparently. The bridge auto-deploys on first call and survives across invocations until the VM stops or the embedded bridge hash changes. See `README.md` "DOM-Aware Browser Automation" for the full 16-command surface.
-
 For install, auth, examples, and longer product guidance, read `README.md` and `SKILL.md`. This file intentionally stays small so repo-local agents get invariant local guidance without duplicating the generated docs.
 
 ## Local Customizations

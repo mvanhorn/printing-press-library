@@ -1,6 +1,6 @@
 ---
 name: pp-orgo
-description: "The audit ledger Orgo doesn't otherwise have, plus every existing Orgo SDK feature in one Go binary. Trigger phrases: `orgo cli`, `what did the agent do on the orgo computer`, `audit my orgo computers`, `spin up an orgo desktop`, `screenshot the orgo computer`, `use orgo`, `run orgo`."
+description: "Thin Go-binary alias of the Orgo MCP server — every MCP tool, accessible from a shell. Trigger phrases: `orgo cli`, `spin up an orgo desktop`, `screenshot the orgo computer`, `run bash on orgo`, `use orgo from the shell`, `use orgo`."
 author: "NickVasilescu"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
@@ -29,134 +29,54 @@ If the `npx` install fails before this CLI has a public-library category, instal
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
-Every screenshot, bash command, and click your agent runs through this CLI lands in a local SQLite store, so commands like `replay`, `audit`, `grep`, and `cost` see what no Orgo API call can. On top of that, the full computer-control surface — clone, resize, screenshot, click, type, bash — works offline-first with auto-JSON when piped, typed exit codes, and a `doctor` that flags stuck or suspended computers across every workspace in one call.
+Mirrors the @orgo-ai/mcp server's tools as Cobra commands across projects (workspaces), computers, screen actions, shell, and files. The CLI uses `projects` as the resource name to match the Orgo API path; the MCP exposes the same resource as `workspaces` semantically. Use this CLI to script Orgo from cron, CI, or the terminal when the MCP transport is the wrong shape.
 
 ## When to Use This CLI
 
-This CLI is the right choice for any agent task that involves Orgo cloud computers — provisioning, controlling, cleaning up, or auditing what an agent did on them. Reach for it when an agent needs to drive a desktop and you want a local audit trail, when you need fleet-wide visibility (idle, oversized, suspended), or when you need to reconstruct what happened during an incident. Use the orgo SDKs (Python or TS) only when you need in-process integration; the CLI is the right shape for shell, cron, and agent invocations.
-
-## Unique Capabilities
-
-These capabilities aren't available in any other tool for this API.
-
-### Audit ledger only the CLI has
-- **`replay`** — Generate a self-contained static HTML timeline of every screenshot, click, bash, and exec your agent ran on a computer.
-
-  _Reach for this when you need to audit, share, or debug what an agent actually did on a desktop — no live API roundtrips, just a single HTML file you can email or attach to an issue._
-
-  ```bash
-  orgo replay desktop_abc --since 1h --out replay.html
-  ```
-- **`audit`** — Chronological table of every CLI-driven action against your computers in a time window, scoped by workspace, FTS-searchable.
-
-  _Reach for this when a customer asks 'what did the agent do this week' or you need a regression bundle for an incident._
-
-  ```bash
-  orgo audit --workspace prod --since 7d --agent --select timestamp,computer,kind,summary
-  ```
-- **`grep`** — FTS5 search over historical bash commands, Python exec code, and click coordinates from the local actions store.
-
-  _Reach for this when you need to find a specific command an agent ran but don't remember which computer or when._
-
-  ```bash
-  orgo grep 'pip install' --type bash --since 30d
-  ```
-
-### Fleet stewardship
-- **`fleet`** — Cross-workspace health rollup: surfaces suspended (over-quota), errored, stuck-creating, and stuck-stopping computers, plus an API-key validity probe.
-
-  _Reach for this for incident response, before pushing a fleet change, or as a daily cron — one call replaces walking every workspace by hand._
-
-  ```bash
-  orgo-pp-cli fleet --agent
-  ```
-- **`idle`** — Sorts running computers by hours-since-last-CLI-action, surfacing burns that could be stopped.
-
-  _Reach for this on your weekly cost pass — every idle computer with auto-stop disabled is a known leak._
-
-  ```bash
-  orgo idle --threshold-hours 24
-  ```
-- **`oversized`** — Flags computers with CPU >= 4 cores or RAM >= 16 GB whose last CLI-recorded action is older than the threshold and whose auto-stop is disabled.
-
-  _Reach for this when you suspect a workspace is overspending — it pinpoints the exact downsize candidates._
-
-  ```bash
-  orgo oversized --min-cores 4 --idle-days 7
-  ```
-- **`prune`** — Cross-workspace status-filtered batch delete with dry-run by default.
-
-  _Reach for this for Friday cleanup or after a downgrade leaves a fleet of suspended computers behind._
-
-  ```bash
-  orgo prune --status suspended,error --older-than 7d --dry-run
-  ```
-- **`cost`** — Reconstructs per-computer running-hours from local action timestamps + observed status transitions, multiplies by per-tier rate, sums by workspace. --forecast projects month-end burn.
-
-  _Reach for this for monthly invoicing, customer billing questions, or to forecast whether a workload will hit the plan ceiling._
-
-  ```bash
-  orgo cost --workspace prod --since 30d --forecast
-  ```
-
-### DOM-aware browser automation (`chrome`)
-
-Drive Chrome inside the Orgo VM at the **DOM level** instead of pixel-based click/screenshot loops. Faster, more reliable, far fewer tokens for any web workflow.
-
-A small Node bridge is shipped embedded in this binary and auto-deploys to `/tmp/orgo-chrome-bridge.js` inside the VM on first call. Subsequent calls reuse it. Bridge auto-redeploys when the CLI is upgraded and ships a new embedded version.
-
-- **`chrome read-page <id> --filter interactive`** — Get the accessibility tree with element refs (`ref_N`). Cheap, fast, the right "seeing" tool for web pages.
-- **`chrome find <id> --query "search bar"`** — Find elements by intent. Returns up to 20 matches with refs.
-- **`chrome click <id> --ref ref_3`** — Click by ref (prefer over `--x`/`--y` coordinates). Resilient to layout shifts.
-- **`chrome form-input <id> --ref ref_7 --value "..."`** — Set form field values directly. No focus-then-type dance.
-- **`chrome evaluate <id> --expression "document.title"`** — JavaScript in the page context. Do not write `return` — just the expression.
-- **`chrome screenshot <id> --out /tmp/page.png`** — Decoded PNG/JPEG straight to disk. Without `--out`, returns base64 inline.
-- **`chrome console <id> --only-errors`** / **`chrome network <id> --url-pattern "/api/"`** — Buffered console + network for in-page debugging.
-
-  _Reach for `chrome` whenever the task is "do something on a web page" — searching, form filling, scraping, scraping-then-acting. Use pixel-based `computers click mouse` / `computers screenshot get` only for native desktop apps or when the page has no useful DOM (canvases, maps, charts)._
-
-  ```bash
-  # Recipe: extract structured data from a page.
-  orgo chrome navigate <id> --url https://news.ycombinator.com
-  orgo chrome read-page <id> --filter interactive --max-chars 20000 --agent
-  orgo chrome evaluate <id> --expression "[...document.querySelectorAll('.titleline a')].map(a => a.textContent).slice(0, 10)" --agent
-
-  # Recipe: log in and grab post-login state.
-  orgo chrome navigate <id> --url https://app.example.com/login
-  orgo chrome find <id> --query "email" --agent
-  orgo chrome form-input <id> --ref ref_2 --value "agent@example.com"
-  orgo chrome form-input <id> --ref ref_3 --value "$EXAMPLE_PASSWORD"
-  orgo chrome find <id> --query "sign in" --agent
-  orgo chrome click <id> --ref ref_5
-  orgo chrome page-text <id> --agent
-  ```
-
-  **VM-direct routing applies.** Add `--vm-from <id>` (or set `ORGO_VM_URL` + `ORGO_VM_TOKEN`) and chrome calls skip the central API the same way `bash`/`click`/`screenshot` do. Measured win for chrome on a sample machine: central ~1.23s avg vs VM-direct steady-state ~0.48s.
-
-  **Full command set:** `navigate`, `tabs`, `new-tab`, `switch-tab`, `read-page`, `find`, `page-text`, `screenshot`, `click`, `type`, `form-input`, `scroll`, `evaluate`, `console`, `network`, `resize`. Every subcommand is auto-registered as an MCP tool (`chrome_navigate`, `chrome_read_page`, …) — one MCP server, both API and browser surfaces.
+Use this CLI when scripting Orgo workflows in shell, cron, CI, or agent harnesses where the MCP transport is the wrong shape. Same surface as @orgo-ai/mcp; pick whichever fits the calling context.
 
 ## Command Reference
 
-**computers** — Provision and manage virtual computers
+**Workspaces (projects)** — Organize computers into named workspaces
 
-- `orgo-pp-cli computers create` — Creates a new virtual computer in a workspace. The computer starts automatically after creation.
-- `orgo-pp-cli computers delete` — Permanently deletes a computer and all its data.
-- `orgo-pp-cli computers get` — Returns computer details including current status.
+- `orgo-pp-cli projects list` — List all workspaces for the authenticated user.
+- `orgo-pp-cli projects get <id>` — Return a workspace by ID, including its computers.
+- `orgo-pp-cli projects get-by-name <name>` — Look up a workspace by name when you only have the name from config.
+- `orgo-pp-cli projects create --name <name>` — Create a new workspace (names must be unique per user).
+- `orgo-pp-cli projects delete <id> --yes` — Delete a workspace and all its computers. Cannot be undone.
 
-**files** — Upload and download files
+**Computers (lifecycle)** — Provision and manage virtual computers
 
-- `orgo-pp-cli files delete` — Permanently deletes a file from storage.
-- `orgo-pp-cli files download` — Returns a signed download URL for a file. URLs expire in 1 hour.
-- `orgo-pp-cli files export` — Exports a file from the computer's filesystem and returns a download URL.
-- `orgo-pp-cli files list` — Lists all files in a workspace, optionally filtered by computer.
-- `orgo-pp-cli files upload` — Uploads a file to a workspace. Maximum file size is 10MB.
+- `orgo-pp-cli computers get <id>` — Return computer details including status.
+- `orgo-pp-cli computers create --workspace-id <ws> --name <n> [--ram <gb> --cpu <n>]` — Provision a new computer.
+- `orgo-pp-cli computers delete <id> --yes` — Permanently delete a computer.
+- `orgo-pp-cli computers clone computer <id>` — Clone a computer with the same disk state.
+- `orgo-pp-cli computers move computer <id> --project-id <ws>` — Move a computer between workspaces.
+- `orgo-pp-cli computers resize computer <id> [--vcpus N --mem-gb N --disk-size-gb N]` — Live-resize a running computer.
+- `orgo-pp-cli computers restart computer <id>` — Restart (stop + start).
+- `orgo-pp-cli computers ensure-running ensure-computer-running <id>` — Idempotently resume a suspended VM.
 
-**workspaces** — Organize computers into named workspaces
+**Screen actions** — Drive the desktop
 
-- `orgo-pp-cli workspaces create` — Creates a new workspace. Workspace names must be unique per user.
-- `orgo-pp-cli workspaces delete` — Deletes a workspace and all its computers. This action cannot be undone.
-- `orgo-pp-cli workspaces get` — Returns a workspace by ID, including its computers.
-- `orgo-pp-cli workspaces list` — Returns all workspaces for the authenticated user.
+- `orgo-pp-cli computers screenshot get <id>` — Capture a screenshot. Returns base64 PNG or URL.
+- `orgo-pp-cli computers click mouse <id> --x N --y N [--button left|right --double]` — Click at coordinates.
+- `orgo-pp-cli computers drag mouse <id> --start-x N --start-y N --end-x N --end-y N` — Drag.
+- `orgo-pp-cli computers scroll scroll <id> --direction up|down --amount N` — Scroll the mouse wheel.
+- `orgo-pp-cli computers type text <id> --text "..."` — Type literal text at the cursor.
+- `orgo-pp-cli computers key press <id> --key "Enter"` — Press a key or combination (e.g. `ctrl+c`).
+- `orgo-pp-cli computers wait wait <id> --duration <seconds>` — Pause between actions.
+
+**Shell & code execution**
+
+- `orgo-pp-cli computers bash execute <id> --command "<bash>"` — Run a bash command.
+- `orgo-pp-cli computers exec execute-python <id> --code "<py>"` — Run Python code. Use `--stdin` for multi-line.
+
+**Files** — Upload and download
+
+- `orgo-pp-cli files list --project-id <ws>` — List files in a workspace (optionally filter by `--desktop-id`).
+- `orgo-pp-cli files upload --project-id <ws> --file <path>` — Upload a file (max 10MB).
+- `orgo-pp-cli files download --id <file>` — Get a signed download URL (expires in 1h).
+- `orgo-pp-cli files export --desktop-id <cmp> --path <path>` — Export a file from inside the VM.
 
 
 ### Finding the right command
@@ -172,49 +92,33 @@ orgo-pp-cli which "<capability in your own words>"
 ## Recipes
 
 
-### Recover stuck computers
+### Move a computer between workspaces
 
 ```bash
-orgo doctor --json | jq '.issues[] | select(.kind == "stuck") | .computer_id'
+orgo-pp-cli computers move computer cmp_456 --project-id ws_789
 ```
 
-Lists every computer that's been stuck creating or stopping for too long, ready to pipe into `xargs orgo computers restart`.
+Reparents a computer to a different project without copying disk state.
 
-### Weekly cost pass
+### Type into a focused window
 
 ```bash
-orgo cost --since 7d --forecast --agent --select workspace,running_hours,projected_month_end
+orgo-pp-cli computers type text cmp_456 --text "hello world"
 ```
 
-Per-workspace running-hours plus month-end projection; pairs `--agent` with `--select` to keep the response under a hundred bytes per row.
+Types literal text at the current cursor position; pair with `key press` for control keys like Enter.
 
-### Replay a debugging session
+### Look up a project by name
 
 ```bash
-orgo replay agent-1 --since 30m --out /tmp/last-session.html
+orgo-pp-cli projects get-by-name production
 ```
 
-Single-file HTML timeline of every screenshot, bash, and exec the agent ran; attach to issues.
-
-### Find the bash command that broke things
-
-```bash
-orgo grep 'rm -rf' --type bash --since 24h
-```
-
-FTS over the local actions store; finds the exact command across every computer.
-
-### Friday fleet cleanup
-
-```bash
-orgo prune --status suspended,error --older-than 7d --dry-run
-```
-
-Cross-workspace dry-run pass; drop --dry-run after eyeballing the list.
+When you have a workspace name from configuration but no ID handy.
 
 ## Auth Setup
 
-Bearer auth via ORGO_API_KEY (sk_live_...). Get a key at https://www.orgo.ai/workspaces. The CLI reads ORGO_API_KEY on every invocation, so rotating keys requires no restart. orgo doctor probes the key against the live API and reports the source (env var vs config file) without printing the value.
+Bearer auth via ORGO_API_KEY (sk_live_...). Get a key at https://www.orgo.ai/workspaces. Same env var the MCP reads.
 
 Run `orgo-pp-cli doctor` to verify setup.
 

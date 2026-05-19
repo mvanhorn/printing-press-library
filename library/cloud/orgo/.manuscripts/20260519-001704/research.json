@@ -1,0 +1,87 @@
+{
+  "api_name": "orgo",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "@orgo-ai/mcp",
+      "url": "https://github.com/orgo-ai/orgo-mcp",
+      "language": "TypeScript",
+      "stars": 0,
+      "command_count": 27
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-19T07:21:21Z",
+  "novel_features": [],
+  "novel_features_built": [],
+  "narrative": {
+    "display_name": "Orgo",
+    "headline": "Thin Go-binary alias of the Orgo MCP server — every MCP tool, accessible from a shell.",
+    "value_prop": "Mirrors the @orgo-ai/mcp server's tools as Cobra commands across projects (workspaces), computers, screen actions, shell, and files. The CLI uses `projects` as the resource name to match the Orgo API path; the MCP exposes the same resource as `workspaces` semantically. Use this CLI to script Orgo from cron, CI, or the terminal when the MCP transport is the wrong shape.",
+    "auth_narrative": "Bearer auth via ORGO_API_KEY (sk_live_...). Get a key at https://www.orgo.ai/workspaces. Same env var the MCP reads.",
+    "quickstart": [
+      {
+        "command": "orgo-pp-cli projects list",
+        "comment": "Sanity check: auth works, returns your projects"
+      },
+      {
+        "command": "orgo-pp-cli computers create --workspace-id ws_123 --name agent-1 --ram 8 --cpu 2",
+        "comment": "Provision a fresh VM in <500ms"
+      },
+      {
+        "command": "orgo-pp-cli computers screenshot get cmp_456",
+        "comment": "Capture the desktop"
+      },
+      {
+        "command": "orgo-pp-cli computers bash execute cmp_456 --command \"ls /home/orgo\"",
+        "comment": "Run a shell command on the VM"
+      },
+      {
+        "command": "orgo-pp-cli computers wait wait cmp_456 --duration 2",
+        "comment": "Pause execution between screen actions"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized",
+        "fix": "export ORGO_API_KEY=sk_live_... — rotate at https://www.orgo.ai/workspaces"
+      },
+      {
+        "symptom": "404 on computer ID after restart",
+        "fix": "fly_instance_id can change; call orgo-pp-cli computers get <id> to refresh"
+      },
+      {
+        "symptom": "Computer suspended",
+        "fix": "orgo-pp-cli computers ensure-running ensure-computer-running <id> — idempotent resume"
+      }
+    ],
+    "when_to_use": "Use this CLI when scripting Orgo workflows in shell, cron, CI, or agent harnesses where the MCP transport is the wrong shape. Same surface as @orgo-ai/mcp; pick whichever fits the calling context.",
+    "recipes": [
+      {
+        "title": "Move a computer between workspaces",
+        "command": "orgo-pp-cli computers move computer cmp_456 --project-id ws_789",
+        "explanation": "Reparents a computer to a different project without copying disk state."
+      },
+      {
+        "title": "Type into a focused window",
+        "command": "orgo-pp-cli computers type text cmp_456 --text \"hello world\"",
+        "explanation": "Types literal text at the current cursor position; pair with `key press` for control keys like Enter."
+      },
+      {
+        "title": "Look up a project by name",
+        "command": "orgo-pp-cli projects get-by-name production",
+        "explanation": "When you have a workspace name from configuration but no ID handy."
+      }
+    ],
+    "trigger_phrases": [
+      "orgo cli",
+      "spin up an orgo desktop",
+      "screenshot the orgo computer",
+      "run bash on orgo",
+      "use orgo from the shell",
+      "use orgo"
+    ]
+  }
+}

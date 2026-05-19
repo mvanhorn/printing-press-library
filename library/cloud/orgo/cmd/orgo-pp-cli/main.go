@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/mvanhorn/printing-press-library/library/cloud/orgo/internal/cli"
+	"orgo-pp-cli/internal/cli"
 )
 
 func main() {

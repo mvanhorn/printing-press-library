@@ -11,26 +11,22 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newComputersScreenshotGetCmd(flags *rootFlags) *cobra.Command {
+func newProjectsListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:         "get <id>",
-		Short:       "Captures a screenshot of the computer display. Returns base64-encoded PNG or a URL.",
-		Example:     "  orgo-pp-cli computers screenshot get 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "screenshot.get", "pp:method": "GET", "pp:path": "/computers/{id}/screenshot", "mcp:read-only": "true"},
+		Use:         "list",
+		Short:       "Returns all workspaces for the authenticated user.",
+		Example:     "  orgo-pp-cli projects list",
+		Annotations: map[string]string{"pp:endpoint": "projects.list", "pp:method": "GET", "pp:path": "/projects", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if len(args) == 0 {
-				return cmd.Help()
-			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
-			path := "/computers/{id}/screenshot"
-			path = replacePathParam(path, "id", args[0])
+			path := "/projects"
 			params := map[string]string{}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "screenshot", false, path, params, nil)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "projects", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

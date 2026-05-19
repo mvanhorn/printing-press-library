@@ -6,58 +6,32 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"os"
 
 	"github.com/spf13/cobra"
 )
 
-func newComputersKeyPressCmd(flags *rootFlags) *cobra.Command {
-	var bodyKey string
-	var stdinBody bool
+func newProjectsDeleteCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:         "press <id>",
-		Aliases:     []string{"create"},
-		Short:       "Presses a key or key combination (e.g., Enter, Tab, ctrl+c).",
-		Example:     "  orgo-pp-cli computers key press 550e8400-e29b-41d4-a716-446655440000 --key your-token-here",
-		Annotations: map[string]string{"pp:endpoint": "key.press", "pp:method": "POST", "pp:path": "/computers/{id}/key"},
+		Use:         "delete <id>",
+		Short:       "Deletes a workspace and all its computers. This action cannot be undone.",
+		Example:     "  orgo-pp-cli projects delete 550e8400-e29b-41d4-a716-446655440000",
+		Annotations: map[string]string{"pp:endpoint": "projects.delete", "pp:method": "DELETE", "pp:path": "/projects/{id}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
-			}
-			if !stdinBody {
-				if !cmd.Flags().Changed("key") && !flags.dryRun {
-					return fmt.Errorf("required flag \"%s\" not set", "key")
-				}
 			}
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
-			path := "/computers/{id}/key"
+			path := "/projects/{id}"
 			path = replacePathParam(path, "id", args[0])
-			var body map[string]any
-			if stdinBody {
-				stdinData, err := io.ReadAll(os.Stdin)
-				if err != nil {
-					return fmt.Errorf("reading stdin: %w", err)
-				}
-				var jsonBody map[string]any
-				if err := json.Unmarshal(stdinData, &jsonBody); err != nil {
-					return fmt.Errorf("parsing stdin JSON: %w", err)
-				}
-				body = jsonBody
-			} else {
-				body = map[string]any{}
-				if bodyKey != "" {
-					body["key"] = bodyKey
-				}
-			}
-			data, statusCode, err := c.Post(path, body)
+			data, statusCode, err := c.Delete(path)
 			if err != nil {
-				return classifyAPIError(err, flags)
+				return classifyDeleteError(err, flags)
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")
@@ -96,8 +70,8 @@ func newComputersKeyPressCmd(flags *rootFlags) *cobra.Command {
 					filtered = compactFields(filtered)
 				}
 				envelope := map[string]any{
-					"action":   "post",
-					"resource": "key",
+					"action":   "delete",
+					"resource": "projects",
 					"path":     path,
 					"status":   statusCode,
 					"success":  statusCode >= 200 && statusCode < 300,
@@ -122,8 +96,6 @@ func newComputersKeyPressCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().StringVar(&bodyKey, "key", "", "Key or key combination (e.g., Enter, Tab, ctrl+c, alt+F4)")
-	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
 
 	return cmd
 }

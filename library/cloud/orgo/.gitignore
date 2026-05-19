@@ -18,10 +18,6 @@
 *.db-wal
 
 # Editor noise
+.DS_Store
 .vscode/
 .idea/
-.DS_Store
-
-# Environment-local
-.env
-.env.local

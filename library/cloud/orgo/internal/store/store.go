@@ -217,11 +217,11 @@ func (s *Store) backfillColumns(ctx context.Context, conn *sql.Conn) error {
 		{table: "computers", column: "status", decl: "TEXT"},
 		{table: "computers", column: "url", decl: "TEXT"},
 		{table: "computers", column: "vnc_password", decl: "TEXT"},
-		{table: "auto_stop", column: "computers_id", decl: "TEXT"},
 		{table: "bash", column: "computers_id", decl: "TEXT"},
 		{table: "click", column: "computers_id", decl: "TEXT"},
 		{table: "clone", column: "computers_id", decl: "TEXT"},
 		{table: "drag", column: "computers_id", decl: "TEXT"},
+		{table: "ensure_running", column: "computers_id", decl: "TEXT"},
 		{table: "exec", column: "computers_id", decl: "TEXT"},
 		{table: "key", column: "computers_id", decl: "TEXT"},
 		{table: "move", column: "computers_id", decl: "TEXT"},
@@ -229,19 +229,15 @@ func (s *Store) backfillColumns(ctx context.Context, conn *sql.Conn) error {
 		{table: "restart", column: "computers_id", decl: "TEXT"},
 		{table: "screenshot", column: "computers_id", decl: "TEXT"},
 		{table: "scroll", column: "computers_id", decl: "TEXT"},
-		{table: "start", column: "computers_id", decl: "TEXT"},
-		{table: "stop", column: "computers_id", decl: "TEXT"},
-		{table: "stream", column: "computers_id", decl: "TEXT"},
 		{table: "type", column: "computers_id", decl: "TEXT"},
-		{table: "vnc_password", column: "computers_id", decl: "TEXT"},
 		{table: "wait", column: "computers_id", decl: "TEXT"},
 		{table: "files", column: "url", decl: "TEXT"},
-		{table: "workspaces", column: "created_at", decl: "DATETIME"},
-		{table: "workspaces", column: "icon_url", decl: "TEXT"},
-		{table: "workspaces", column: "name", decl: "TEXT"},
-		{table: "workspaces", column: "status", decl: "TEXT"},
-		{table: "workspaces", column: "updated_at", decl: "DATETIME"},
-		{table: "workspaces", column: "user_id", decl: "TEXT"},
+		{table: "projects", column: "created_at", decl: "DATETIME"},
+		{table: "projects", column: "icon_url", decl: "TEXT"},
+		{table: "projects", column: "name", decl: "TEXT"},
+		{table: "projects", column: "status", decl: "TEXT"},
+		{table: "projects", column: "updated_at", decl: "DATETIME"},
+		{table: "projects", column: "user_id", decl: "TEXT"},
 		{table: "sync_state", column: "last_cursor", decl: "TEXT"},
 		{table: "sync_state", column: "last_synced_at", decl: "DATETIME"},
 		{table: "sync_state", column: "total_count", decl: "INTEGER DEFAULT 0"},
@@ -314,13 +310,6 @@ func (s *Store) migrate(ctx context.Context) error {
 		)`,
 		`CREATE INDEX IF NOT EXISTS idx_computers_fly_instance_id ON computers(fly_instance_id)`,
 		`CREATE INDEX IF NOT EXISTS idx_computers_created_at ON computers(created_at)`,
-		`CREATE TABLE IF NOT EXISTS auto_stop (
-			id TEXT PRIMARY KEY,
-			computers_id TEXT NOT NULL,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
-		)`,
-		`CREATE INDEX IF NOT EXISTS idx_auto_stop_computers_id ON auto_stop(computers_id)`,
 		`CREATE TABLE IF NOT EXISTS bash (
 			id TEXT PRIMARY KEY,
 			computers_id TEXT NOT NULL,
@@ -349,6 +338,13 @@ func (s *Store) migrate(ctx context.Context) error {
 			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
 		)`,
 		`CREATE INDEX IF NOT EXISTS idx_drag_computers_id ON drag(computers_id)`,
+		`CREATE TABLE IF NOT EXISTS ensure_running (
+			id TEXT PRIMARY KEY,
+			computers_id TEXT NOT NULL,
+			data JSON NOT NULL,
+			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_ensure_running_computers_id ON ensure_running(computers_id)`,
 		`CREATE TABLE IF NOT EXISTS exec (
 			id TEXT PRIMARY KEY,
 			computers_id TEXT NOT NULL,
@@ -398,27 +394,6 @@ func (s *Store) migrate(ctx context.Context) error {
 			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
 		)`,
 		`CREATE INDEX IF NOT EXISTS idx_scroll_computers_id ON scroll(computers_id)`,
-		`CREATE TABLE IF NOT EXISTS start (
-			id TEXT PRIMARY KEY,
-			computers_id TEXT NOT NULL,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
-		)`,
-		`CREATE INDEX IF NOT EXISTS idx_start_computers_id ON start(computers_id)`,
-		`CREATE TABLE IF NOT EXISTS stop (
-			id TEXT PRIMARY KEY,
-			computers_id TEXT NOT NULL,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
-		)`,
-		`CREATE INDEX IF NOT EXISTS idx_stop_computers_id ON stop(computers_id)`,
-		`CREATE TABLE IF NOT EXISTS stream (
-			id TEXT PRIMARY KEY,
-			computers_id TEXT NOT NULL,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
-		)`,
-		`CREATE INDEX IF NOT EXISTS idx_stream_computers_id ON stream(computers_id)`,
 		`CREATE TABLE IF NOT EXISTS type (
 			id TEXT PRIMARY KEY,
 			computers_id TEXT NOT NULL,
@@ -426,13 +401,6 @@ func (s *Store) migrate(ctx context.Context) error {
 			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
 		)`,
 		`CREATE INDEX IF NOT EXISTS idx_type_computers_id ON type(computers_id)`,
-		`CREATE TABLE IF NOT EXISTS vnc_password (
-			id TEXT PRIMARY KEY,
-			computers_id TEXT NOT NULL,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
-		)`,
-		`CREATE INDEX IF NOT EXISTS idx_vnc_password_computers_id ON vnc_password(computers_id)`,
 		`CREATE TABLE IF NOT EXISTS wait (
 			id TEXT PRIMARY KEY,
 			computers_id TEXT NOT NULL,
@@ -446,7 +414,7 @@ func (s *Store) migrate(ctx context.Context) error {
 			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 			url TEXT
 		)`,
-		`CREATE TABLE IF NOT EXISTS workspaces (
+		`CREATE TABLE IF NOT EXISTS projects (
 			id TEXT PRIMARY KEY,
 			data JSON NOT NULL,
 			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -457,9 +425,9 @@ func (s *Store) migrate(ctx context.Context) error {
 			updated_at DATETIME,
 			user_id TEXT
 		)`,
-		`CREATE INDEX IF NOT EXISTS idx_workspaces_user_id ON workspaces(user_id)`,
-		`CREATE INDEX IF NOT EXISTS idx_workspaces_created_at ON workspaces(created_at)`,
-		`CREATE INDEX IF NOT EXISTS idx_workspaces_updated_at ON workspaces(updated_at)`,
+		`CREATE INDEX IF NOT EXISTS idx_projects_user_id ON projects(user_id)`,
+		`CREATE INDEX IF NOT EXISTS idx_projects_created_at ON projects(created_at)`,
+		`CREATE INDEX IF NOT EXISTS idx_projects_updated_at ON projects(updated_at)`,
 	}
 
 	// Run every migration — including the column backfill and the
@@ -851,57 +819,6 @@ func (s *Store) UpsertComputers(data json.RawMessage) error {
 	return tx.Commit()
 }
 
-// upsertAutoStopTx writes the typed-table portion of a auto_stop upsert
-// inside an existing transaction. The caller is responsible for the generic
-// resources insert (via upsertGenericResourceTx) and for committing the tx.
-// Splitting this out lets UpsertBatch dispatch typed inserts per item without
-// opening a per-item transaction.
-func (s *Store) upsertAutoStopTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
-	if _, err := tx.Exec(
-		`INSERT INTO auto_stop (id, computers_id, data, synced_at)
-		 VALUES (?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET computers_id = excluded.computers_id, data = excluded.data, synced_at = excluded.synced_at`,
-		id,
-		string(data),
-		time.Now(),
-		lookupFieldValue(obj, "computers_id"),
-	); err != nil {
-		return fmt.Errorf("insert into auto_stop: %w", err)
-	}
-
-	return nil
-}
-
-// UpsertAutoStop inserts or updates a auto_stop record with domain-specific columns.
-func (s *Store) UpsertAutoStop(data json.RawMessage) error {
-	var obj map[string]any
-	if err := json.Unmarshal(data, &obj); err != nil {
-		return fmt.Errorf("unmarshaling auto_stop: %w", err)
-	}
-
-	id := extractObjectID(obj)
-	if id == "" {
-		return fmt.Errorf("missing id for auto_stop")
-	}
-
-	s.writeMu.Lock()
-	defer s.writeMu.Unlock()
-	tx, err := s.db.Begin()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	if err := s.upsertGenericResourceTx(tx, "auto_stop", id, data); err != nil {
-		return err
-	}
-	if err := s.upsertAutoStopTx(tx, id, obj, data); err != nil {
-		return err
-	}
-
-	return tx.Commit()
-}
-
 // upsertBashTx writes the typed-table portion of a bash upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1100,6 +1017,57 @@ func (s *Store) UpsertDrag(data json.RawMessage) error {
 		return err
 	}
 	if err := s.upsertDragTx(tx, id, obj, data); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
+// upsertEnsureRunningTx writes the typed-table portion of a ensure_running upsert
+// inside an existing transaction. The caller is responsible for the generic
+// resources insert (via upsertGenericResourceTx) and for committing the tx.
+// Splitting this out lets UpsertBatch dispatch typed inserts per item without
+// opening a per-item transaction.
+func (s *Store) upsertEnsureRunningTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
+	if _, err := tx.Exec(
+		`INSERT INTO ensure_running (id, computers_id, data, synced_at)
+		 VALUES (?, ?, ?, ?)
+		 ON CONFLICT(id) DO UPDATE SET computers_id = excluded.computers_id, data = excluded.data, synced_at = excluded.synced_at`,
+		id,
+		string(data),
+		time.Now(),
+		lookupFieldValue(obj, "computers_id"),
+	); err != nil {
+		return fmt.Errorf("insert into ensure_running: %w", err)
+	}
+
+	return nil
+}
+
+// UpsertEnsureRunning inserts or updates a ensure_running record with domain-specific columns.
+func (s *Store) UpsertEnsureRunning(data json.RawMessage) error {
+	var obj map[string]any
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return fmt.Errorf("unmarshaling ensure_running: %w", err)
+	}
+
+	id := extractObjectID(obj)
+	if id == "" {
+		return fmt.Errorf("missing id for ensure_running")
+	}
+
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if err := s.upsertGenericResourceTx(tx, "ensure_running", id, data); err != nil {
+		return err
+	}
+	if err := s.upsertEnsureRunningTx(tx, id, obj, data); err != nil {
 		return err
 	}
 
@@ -1463,159 +1431,6 @@ func (s *Store) UpsertScroll(data json.RawMessage) error {
 	return tx.Commit()
 }
 
-// upsertStartTx writes the typed-table portion of a start upsert
-// inside an existing transaction. The caller is responsible for the generic
-// resources insert (via upsertGenericResourceTx) and for committing the tx.
-// Splitting this out lets UpsertBatch dispatch typed inserts per item without
-// opening a per-item transaction.
-func (s *Store) upsertStartTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
-	if _, err := tx.Exec(
-		`INSERT INTO start (id, computers_id, data, synced_at)
-		 VALUES (?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET computers_id = excluded.computers_id, data = excluded.data, synced_at = excluded.synced_at`,
-		id,
-		string(data),
-		time.Now(),
-		lookupFieldValue(obj, "computers_id"),
-	); err != nil {
-		return fmt.Errorf("insert into start: %w", err)
-	}
-
-	return nil
-}
-
-// UpsertStart inserts or updates a start record with domain-specific columns.
-func (s *Store) UpsertStart(data json.RawMessage) error {
-	var obj map[string]any
-	if err := json.Unmarshal(data, &obj); err != nil {
-		return fmt.Errorf("unmarshaling start: %w", err)
-	}
-
-	id := extractObjectID(obj)
-	if id == "" {
-		return fmt.Errorf("missing id for start")
-	}
-
-	s.writeMu.Lock()
-	defer s.writeMu.Unlock()
-	tx, err := s.db.Begin()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	if err := s.upsertGenericResourceTx(tx, "start", id, data); err != nil {
-		return err
-	}
-	if err := s.upsertStartTx(tx, id, obj, data); err != nil {
-		return err
-	}
-
-	return tx.Commit()
-}
-
-// upsertStopTx writes the typed-table portion of a stop upsert
-// inside an existing transaction. The caller is responsible for the generic
-// resources insert (via upsertGenericResourceTx) and for committing the tx.
-// Splitting this out lets UpsertBatch dispatch typed inserts per item without
-// opening a per-item transaction.
-func (s *Store) upsertStopTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
-	if _, err := tx.Exec(
-		`INSERT INTO stop (id, computers_id, data, synced_at)
-		 VALUES (?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET computers_id = excluded.computers_id, data = excluded.data, synced_at = excluded.synced_at`,
-		id,
-		string(data),
-		time.Now(),
-		lookupFieldValue(obj, "computers_id"),
-	); err != nil {
-		return fmt.Errorf("insert into stop: %w", err)
-	}
-
-	return nil
-}
-
-// UpsertStop inserts or updates a stop record with domain-specific columns.
-func (s *Store) UpsertStop(data json.RawMessage) error {
-	var obj map[string]any
-	if err := json.Unmarshal(data, &obj); err != nil {
-		return fmt.Errorf("unmarshaling stop: %w", err)
-	}
-
-	id := extractObjectID(obj)
-	if id == "" {
-		return fmt.Errorf("missing id for stop")
-	}
-
-	s.writeMu.Lock()
-	defer s.writeMu.Unlock()
-	tx, err := s.db.Begin()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	if err := s.upsertGenericResourceTx(tx, "stop", id, data); err != nil {
-		return err
-	}
-	if err := s.upsertStopTx(tx, id, obj, data); err != nil {
-		return err
-	}
-
-	return tx.Commit()
-}
-
-// upsertStreamTx writes the typed-table portion of a stream upsert
-// inside an existing transaction. The caller is responsible for the generic
-// resources insert (via upsertGenericResourceTx) and for committing the tx.
-// Splitting this out lets UpsertBatch dispatch typed inserts per item without
-// opening a per-item transaction.
-func (s *Store) upsertStreamTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
-	if _, err := tx.Exec(
-		`INSERT INTO stream (id, computers_id, data, synced_at)
-		 VALUES (?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET computers_id = excluded.computers_id, data = excluded.data, synced_at = excluded.synced_at`,
-		id,
-		string(data),
-		time.Now(),
-		lookupFieldValue(obj, "computers_id"),
-	); err != nil {
-		return fmt.Errorf("insert into stream: %w", err)
-	}
-
-	return nil
-}
-
-// UpsertStream inserts or updates a stream record with domain-specific columns.
-func (s *Store) UpsertStream(data json.RawMessage) error {
-	var obj map[string]any
-	if err := json.Unmarshal(data, &obj); err != nil {
-		return fmt.Errorf("unmarshaling stream: %w", err)
-	}
-
-	id := extractObjectID(obj)
-	if id == "" {
-		return fmt.Errorf("missing id for stream")
-	}
-
-	s.writeMu.Lock()
-	defer s.writeMu.Unlock()
-	tx, err := s.db.Begin()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	if err := s.upsertGenericResourceTx(tx, "stream", id, data); err != nil {
-		return err
-	}
-	if err := s.upsertStreamTx(tx, id, obj, data); err != nil {
-		return err
-	}
-
-	return tx.Commit()
-}
-
 // upsertTypeTx writes the typed-table portion of a type upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1661,57 +1476,6 @@ func (s *Store) UpsertType(data json.RawMessage) error {
 		return err
 	}
 	if err := s.upsertTypeTx(tx, id, obj, data); err != nil {
-		return err
-	}
-
-	return tx.Commit()
-}
-
-// upsertVncPasswordTx writes the typed-table portion of a vnc_password upsert
-// inside an existing transaction. The caller is responsible for the generic
-// resources insert (via upsertGenericResourceTx) and for committing the tx.
-// Splitting this out lets UpsertBatch dispatch typed inserts per item without
-// opening a per-item transaction.
-func (s *Store) upsertVncPasswordTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
-	if _, err := tx.Exec(
-		`INSERT INTO vnc_password (id, computers_id, data, synced_at)
-		 VALUES (?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET computers_id = excluded.computers_id, data = excluded.data, synced_at = excluded.synced_at`,
-		id,
-		string(data),
-		time.Now(),
-		lookupFieldValue(obj, "computers_id"),
-	); err != nil {
-		return fmt.Errorf("insert into vnc_password: %w", err)
-	}
-
-	return nil
-}
-
-// UpsertVncPassword inserts or updates a vnc_password record with domain-specific columns.
-func (s *Store) UpsertVncPassword(data json.RawMessage) error {
-	var obj map[string]any
-	if err := json.Unmarshal(data, &obj); err != nil {
-		return fmt.Errorf("unmarshaling vnc_password: %w", err)
-	}
-
-	id := extractObjectID(obj)
-	if id == "" {
-		return fmt.Errorf("missing id for vnc_password")
-	}
-
-	s.writeMu.Lock()
-	defer s.writeMu.Unlock()
-	tx, err := s.db.Begin()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	if err := s.upsertGenericResourceTx(tx, "vnc_password", id, data); err != nil {
-		return err
-	}
-	if err := s.upsertVncPasswordTx(tx, id, obj, data); err != nil {
 		return err
 	}
 
@@ -1820,14 +1584,14 @@ func (s *Store) UpsertFiles(data json.RawMessage) error {
 	return tx.Commit()
 }
 
-// upsertWorkspacesTx writes the typed-table portion of a workspaces upsert
+// upsertProjectsTx writes the typed-table portion of a projects upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
 // Splitting this out lets UpsertBatch dispatch typed inserts per item without
 // opening a per-item transaction.
-func (s *Store) upsertWorkspacesTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
+func (s *Store) upsertProjectsTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
 	if _, err := tx.Exec(
-		`INSERT INTO workspaces (id, data, synced_at, created_at, icon_url, name, status, updated_at, user_id)
+		`INSERT INTO projects (id, data, synced_at, created_at, icon_url, name, status, updated_at, user_id)
 		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
 		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, created_at = excluded.created_at, icon_url = excluded.icon_url, name = excluded.name, status = excluded.status, updated_at = excluded.updated_at, user_id = excluded.user_id`,
 		id,
@@ -1840,22 +1604,22 @@ func (s *Store) upsertWorkspacesTx(tx *sql.Tx, id string, obj map[string]any, da
 		lookupFieldValue(obj, "updated_at"),
 		lookupFieldValue(obj, "user_id"),
 	); err != nil {
-		return fmt.Errorf("insert into workspaces: %w", err)
+		return fmt.Errorf("insert into projects: %w", err)
 	}
 
 	return nil
 }
 
-// UpsertWorkspaces inserts or updates a workspaces record with domain-specific columns.
-func (s *Store) UpsertWorkspaces(data json.RawMessage) error {
+// UpsertProjects inserts or updates a projects record with domain-specific columns.
+func (s *Store) UpsertProjects(data json.RawMessage) error {
 	var obj map[string]any
 	if err := json.Unmarshal(data, &obj); err != nil {
-		return fmt.Errorf("unmarshaling workspaces: %w", err)
+		return fmt.Errorf("unmarshaling projects: %w", err)
 	}
 
 	id := extractObjectID(obj)
 	if id == "" {
-		return fmt.Errorf("missing id for workspaces")
+		return fmt.Errorf("missing id for projects")
 	}
 
 	s.writeMu.Lock()
@@ -1866,10 +1630,10 @@ func (s *Store) UpsertWorkspaces(data json.RawMessage) error {
 	}
 	defer tx.Rollback()
 
-	if err := s.upsertGenericResourceTx(tx, "workspaces", id, data); err != nil {
+	if err := s.upsertGenericResourceTx(tx, "projects", id, data); err != nil {
 		return err
 	}
-	if err := s.upsertWorkspacesTx(tx, id, obj, data); err != nil {
+	if err := s.upsertProjectsTx(tx, id, obj, data); err != nil {
 		return err
 	}
 
@@ -1886,7 +1650,7 @@ func (s *Store) UpsertWorkspaces(data json.RawMessage) error {
 // child path-item annotated with x-resource-id resolves the same as a flat
 // path-item.
 var resourceIDFieldOverrides = map[string]string{
-	"workspaces": "id",
+	"projects": "id",
 }
 
 // genericIDFieldFallbacks is the runtime safety net for resources that did
@@ -1962,10 +1726,6 @@ func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, 
 			if err := s.upsertComputersTx(tx, id, obj, item); err != nil {
 				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
 			}
-		case "auto_stop":
-			if err := s.upsertAutoStopTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
 		case "bash":
 			if err := s.upsertBashTx(tx, id, obj, item); err != nil {
 				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
@@ -1980,6 +1740,10 @@ func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, 
 			}
 		case "drag":
 			if err := s.upsertDragTx(tx, id, obj, item); err != nil {
+				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
+			}
+		case "ensure_running":
+			if err := s.upsertEnsureRunningTx(tx, id, obj, item); err != nil {
 				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
 			}
 		case "exec":
@@ -2010,24 +1774,8 @@ func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, 
 			if err := s.upsertScrollTx(tx, id, obj, item); err != nil {
 				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
 			}
-		case "start":
-			if err := s.upsertStartTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "stop":
-			if err := s.upsertStopTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "stream":
-			if err := s.upsertStreamTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
 		case "type":
 			if err := s.upsertTypeTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "vnc_password":
-			if err := s.upsertVncPasswordTx(tx, id, obj, item); err != nil {
 				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
 			}
 		case "wait":
@@ -2038,8 +1786,8 @@ func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, 
 			if err := s.upsertFilesTx(tx, id, obj, item); err != nil {
 				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
 			}
-		case "workspaces":
-			if err := s.upsertWorkspacesTx(tx, id, obj, item); err != nil {
+		case "projects":
+			if err := s.upsertProjectsTx(tx, id, obj, item); err != nil {
 				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
 			}
 		}

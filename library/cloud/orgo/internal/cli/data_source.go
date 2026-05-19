@@ -13,8 +13,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mvanhorn/printing-press-library/library/cloud/orgo/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/cloud/orgo/internal/store"
+	"orgo-pp-cli/internal/client"
+	"orgo-pp-cli/internal/store"
 )
 
 // isNetworkError returns true for errors caused by network connectivity issues

@@ -36,12 +36,12 @@ large datasets as it has no memory pressure.`,
 		Args: cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			validResources := map[string]bool{
-				"files":      true,
-				"workspaces": true,
+				"files":    true,
+				"projects": true,
 			}
 			validResourceList := []string{
 				"files",
-				"workspaces",
+				"projects",
 			}
 			resource := args[0]
 			if !validResources[resource] {

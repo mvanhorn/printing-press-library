@@ -9,12 +9,12 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/mvanhorn/printing-press-library/library/cloud/orgo/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/cloud/orgo/internal/config"
 	"io"
 	"math"
 	"net/http"
 	"net/url"
+	"orgo-pp-cli/internal/cliutil"
+	"orgo-pp-cli/internal/config"
 	"os"
 	"path/filepath"
 	"sort"
@@ -30,53 +30,6 @@ type Client struct {
 	NoCache    bool
 	cacheDir   string
 	limiter    *cliutil.AdaptiveLimiter
-
-	// VM-direct routing. When VMURL is set, computer-use endpoints under
-	// /computers/{id}/{bash,click,type,key,scroll,drag,exec,screenshot} are
-	// rewritten to <VMURL>/<endpoint> and authenticated with VMToken (the
-	// per-VM vnc_password) instead of the central API key. All other paths
-	// (workspaces, computers metadata, files, etc.) continue to use BaseURL
-	// + the central auth header. See vmRoute() for the routing decision.
-	VMURL   string
-	VMToken string
-}
-
-// vmBypassSuffixes is the closed set of computer-use endpoints the per-VM
-// agent at <VMURL> exposes. Discovered by probing a live VM at /screenshot,
-// /bash, /exec, /click, /type, /key, /scroll, /drag. Everything else stays
-// on the central API. Update this set if the VM agent grows new endpoints.
-var vmBypassSuffixes = map[string]bool{
-	"/bash":       true,
-	"/click":      true,
-	"/drag":       true,
-	"/exec":       true,
-	"/key":        true,
-	"/screenshot": true,
-	"/scroll":     true,
-	"/type":       true,
-}
-
-// vmRoute returns the rewritten URL for a VM-direct call, or ("", false) when
-// the path isn't bypass-eligible or VMURL is unset. Eligibility: VMURL set AND
-// path matches /computers/<id>/<suffix> AND suffix is in vmBypassSuffixes.
-func (c *Client) vmRoute(path string) (string, bool) {
-	if c.VMURL == "" {
-		return "", false
-	}
-	const prefix = "/computers/"
-	if !strings.HasPrefix(path, prefix) {
-		return "", false
-	}
-	rest := path[len(prefix):]
-	slash := strings.IndexByte(rest, '/')
-	if slash == -1 {
-		return "", false
-	}
-	suffix := rest[slash:]
-	if !vmBypassSuffixes[suffix] {
-		return "", false
-	}
-	return strings.TrimRight(c.VMURL, "/") + suffix, true
 }
 
 // APIError carries HTTP status information for structured exit codes.
@@ -118,19 +71,14 @@ func (c *Client) Get(path string, params map[string]string) (json.RawMessage, er
 }
 
 func (c *Client) GetWithHeaders(path string, params map[string]string, headers map[string]string) (json.RawMessage, error) {
-	// VM-direct calls bypass the response cache entirely: the cache lives on
-	// the operator's host, the VM agent is on a different network, and the
-	// audience for these calls is hot-path computer-use loops where staleness
-	// would be wrong. The cache is for central-API metadata.
-	_, isVMDirect := c.vmRoute(path)
-	cacheOK := !c.NoCache && !c.DryRun && c.cacheDir != "" && !isVMDirect
-	if cacheOK {
+	// Check cache for GET requests
+	if !c.NoCache && !c.DryRun && c.cacheDir != "" {
 		if cached, ok := c.readCache(path, params); ok {
 			return cached, nil
 		}
 	}
 	result, _, err := c.do("GET", path, params, nil, headers)
-	if err == nil && cacheOK {
+	if err == nil && !c.NoCache && !c.DryRun && c.cacheDir != "" {
 		c.writeCache(path, params, result)
 	}
 	return result, err
@@ -141,24 +89,10 @@ func (c *Client) ProbeGet(path string) (int, error) {
 	return status, err
 }
 
-// PATCH(cache-key-auth-fingerprint): include credential fingerprint and sort
-// params so different API keys get different cache buckets and map iteration
-// order can't perturb the key.
 func (c *Client) cacheKey(path string, params map[string]string) string {
-	keys := make([]string, 0, len(params))
-	for k := range params {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
 	key := path
-	for _, k := range keys {
-		key += "&" + k + "=" + params[k]
-	}
-	if c.Config != nil {
-		// Hash the auth header so cache files don't reveal the credential but
-		// different credentials still hit different buckets.
-		authHash := sha256.Sum256([]byte(c.Config.AuthHeader()))
-		key += "|auth=" + hex.EncodeToString(authHash[:4])
+	for k, v := range params {
+		key += k + "=" + v
 	}
 	h := sha256.Sum256([]byte(key))
 	return hex.EncodeToString(h[:8])
@@ -227,20 +161,7 @@ func (c *Client) PatchWithHeaders(path string, body any, headers map[string]stri
 
 // do executes an HTTP request. headerOverrides, when non-nil, override global
 // RequiredHeaders for this specific request (used for per-endpoint API versioning).
-// rewriteSpecPath maps OpenAPI-spec paths onto live-API paths where the
-// two have drifted. Currently the public OpenAPI 3.1 spec advertises
-// `/workspaces` but the live API exposes the same resources at
-// `/projects`. This is a single-rule rewriter; remove when the spec
-// catches up.
-func rewriteSpecPath(p string) string {
-	if strings.HasPrefix(p, "/workspaces") {
-		return "/projects" + p[len("/workspaces"):]
-	}
-	return p
-}
-
 func (c *Client) do(method, path string, params map[string]string, body any, headerOverrides map[string]string) (json.RawMessage, int, error) {
-	path = rewriteSpecPath(path)
 	targetURL := c.BaseURL + path
 
 	var bodyBytes []byte
@@ -259,19 +180,6 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 	authHeader, err := c.authHeader()
 	if err != nil {
 		return nil, 0, err
-	}
-
-	// VM-direct routing. When --vm-url is set and the path is bypass-eligible,
-	// override the target URL and swap the auth header to the per-VM bearer
-	// (vnc_password). The central API key is *not* sent on VM-direct calls —
-	// the VM's auth keyspace is distinct and the central key would 401.
-	if vmURL, ok := c.vmRoute(path); ok {
-		targetURL = vmURL
-		if c.VMToken != "" {
-			authHeader = "Bearer " + c.VMToken
-		} else {
-			authHeader = ""
-		}
 	}
 
 	// Build the request for dry-run display or actual execution
