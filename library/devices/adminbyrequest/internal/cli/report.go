@@ -102,7 +102,7 @@ func newReportComplianceCmd(flags *rootFlags) *cobra.Command {
 				  COALESCE(auditlog_link,'')
 				 FROM auditlog
 				 WHERE ` + strings.Join(where, " AND ") + `
-				 ORDER BY request_time ASC`
+				 ORDER BY COALESCE(request_time, start_time, '') ASC`
 			rows, err := db.DB().QueryContext(cmd.Context(), q, argv...)
 			if err != nil {
 				return fmt.Errorf("querying auditlog: %w", err)
