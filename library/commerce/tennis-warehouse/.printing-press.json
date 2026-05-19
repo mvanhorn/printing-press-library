@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-19T16:45:45.479678Z",
+  "printing_press_version": "4.9.0",
+  "api_name": "tennis-warehouse",
+  "display_name": "Tennis Warehouse",
+  "cli_name": "tennis-warehouse-pp-cli",
+  "owner": "blake-johnson",
+  "printer": "blake41",
+  "printer_name": "blake johnson",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:d139e69546a64b7c6e60756a35cf47f4658418ebfb0ab4a8df5f3693ba8b37f5",
+  "run_id": "20260519-104537",
+  "mcp_binary": "tennis-warehouse-pp-mcp",
+  "mcp_tool_count": 3,
+  "mcp_public_tool_count": 3,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Substitute finder",
+      "command": "racquets similar",
+      "description": "Find current racquets whose specs match a target SKU within a tolerance band \u2014 head size, strung weight, swingweight, and exact string pattern."
+    },
+    {
+      "name": "Spec compare",
+      "command": "racquets compare",
+      "description": "Render an aligned spec-by-spec table for 2\u20135 racquets with diff highlighting; --json emits a row-per-spec matrix."
+    },
+    {
+      "name": "Used-vs-new deals",
+      "command": "used deals",
+      "description": "Find used listings whose price is a steep discount versus the new-racquet MSRP \u2014 joins used inventory against the new catalog."
+    },
+    {
+      "name": "Price drop tracking",
+      "command": "used drops",
+      "description": "List used listings whose latest price snapshot dropped below a prior snapshot beyond a threshold within a time window."
+    },
+    {
+      "name": "New-arrival feed",
+      "command": "used new",
+      "description": "Used listings whose first_seen_at falls within a recent time window \u2014 \"what is new since I last looked.\""
+    },
+    {
+      "name": "Inventory depth",
+      "command": "used depth",
+      "description": "Aggregate per-physical-unit counts grouped by model and condition grade \u2014 answers \"how many Grade A Blade 98s are in stock right now?\""
+    },
+    {
+      "name": "Watchlist + drops",
+      "command": "used watch",
+      "description": "Save SKUs to a local watchlist; view current state; combine with drops to alert on watched-only items."
+    },
+    {
+      "name": "Grip-size availability",
+      "command": "used grip-availability",
+      "description": "Find used units in a specific grip size grouped by model and grade \u2014 wrong grip = unplayable, so this is a hard filter most shoppers care about."
+    }
+  ],
+  "category": "commerce"
+}

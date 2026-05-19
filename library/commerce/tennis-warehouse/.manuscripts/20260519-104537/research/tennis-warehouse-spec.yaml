@@ -1,0 +1,69 @@
+name: tennis-warehouse
+description: "Tennis Warehouse — racquet catalog, used inventory, and the cross-entity queries the website can't answer."
+version: "0.1.0"
+base_url: "https://www.tennis-warehouse.com"
+spec_source: sniffed
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/tennis-warehouse-pp-cli/config.toml"
+
+resources:
+  used:
+    description: "Used racquet inventory — Grade A/B/C and Unused units across all stocked brands"
+    endpoints:
+      list:
+        method: GET
+        path: /usedcatpage.html
+        description: "List used-racquet models stocked for a brand"
+        response_format: html
+        no_auth: true
+        html_extract:
+          mode: page
+        params:
+          - name: ccode
+            type: string
+            required: true
+            default: WILSONRACS
+            description: "Brand code (e.g., WILSONRACS, BABRACS, HEADRACS, YONEXRACS, BABBABRACS). Visit /usedracquets.html to see the full list."
+            enum:
+              - BABRACS
+              - DUNLOPRACS
+              - HEADRACS
+              - KENNEXRACS
+              - PRINCERACS
+              - SOLINCORAC
+              - TECRACS
+              - VOLKLRACS
+              - WILSONRACS
+              - YONEXRACS
+              - RACSBYMAKER
+      get:
+        method: GET
+        path: /orderusedproduct.html
+        description: "Fetch the detail page for a used model (full spec sheet + individual unit listings)"
+        response_format: html
+        no_auth: true
+        html_extract:
+          mode: page
+        params:
+          - name: pcode
+            type: string
+            required: true
+            description: "Model SKU (e.g., WB9810, PS9818). Find these via `used list` or the website's used catalog pages."
+
+  racquets:
+    description: "Current (new) racquet catalog across all stocked brands"
+    endpoints:
+      catalog:
+        method: GET
+        path: /Tennis_Racquets/catpage-RACQUET.html
+        description: "Fetch the all-racquets landing page (featured + best-sellers across every brand)"
+        response_format: html
+        no_auth: true
+        html_extract:
+          mode: page
+        params: []

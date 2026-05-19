@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "tennis-warehouse-pp-mcp",
+  "display_name": "Tennis Warehouse",
+  "version": "4.9.0",
+  "description": "Tennis Warehouse API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/tennis-warehouse-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/tennis-warehouse-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

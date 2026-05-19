@@ -1,0 +1,53 @@
+{
+  "api_name": "tennis-warehouse",
+  "base_url": "https://www.tennis-warehouse.com",
+  "description": "Tennis Warehouse — racquet catalog, used inventory, and the cross-entity queries the website can't answer.",
+  "mcp_ready": "full",
+  "http_transport": "browser-chrome-h2",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "racquets_catalog",
+      "description": "Fetch the all-racquets landing page (featured + best-sellers across every brand).",
+      "method": "GET",
+      "path": "/Tennis_Racquets/catpage-RACQUET.html",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "used_get",
+      "description": "Fetch the detail page for a used model (full spec sheet + individual unit listings). Required: pcode.",
+      "method": "GET",
+      "path": "/orderusedproduct.html",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "pcode",
+          "type": "string",
+          "location": "query",
+          "description": "Model SKU (e.g., WB9810, PS9818). Find these via `used list` or the website's used catalog pages.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "used_list",
+      "description": "List used-racquet models stocked for a brand. Required: ccode (default: WILSONRACS).",
+      "method": "GET",
+      "path": "/usedcatpage.html",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "ccode",
+          "type": "string",
+          "location": "query",
+          "description": "Brand code (e.g., WILSONRACS, BABRACS, HEADRACS, YONEXRACS, BABBABRACS). Visit /usedracquets.html to see the full list.",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

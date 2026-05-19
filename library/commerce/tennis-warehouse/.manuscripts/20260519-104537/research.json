@@ -1,0 +1,241 @@
+{
+  "api_name": "tennis-warehouse",
+  "novelty_score": 9,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-19T17:36:00Z",
+  "novel_features": [
+    {
+      "name": "Substitute finder",
+      "command": "racquets similar",
+      "description": "Find current racquets whose specs match a target SKU within a tolerance band — head size, strung weight, swingweight, and exact string pattern.",
+      "rationale": "Cross-row similarity scoring over the local catalog. The Tennis Warehouse website has no \"racquets similar to this one\" surface.",
+      "example": "tennis-warehouse-pp-cli racquets similar WB9810 --tolerance tight --json",
+      "why_it_matters": "When a player's racquet cracks or is discontinued, picking a replacement requires triangulating across 9 spec fields. This command does it in one call.",
+      "group": "Spec-driven discovery"
+    },
+    {
+      "name": "Spec compare",
+      "command": "racquets compare",
+      "description": "Render an aligned spec-by-spec table for 2–5 racquets with diff highlighting; --json emits a row-per-spec matrix.",
+      "rationale": "Pure local SQLite read over the racquet catalog. No web page joins the spec data for multiple racquets side-by-side.",
+      "example": "tennis-warehouse-pp-cli racquets compare WB9810 WB9818 --json",
+      "why_it_matters": "Replaces opening 2–5 browser tabs and copy-pasting specs into a spreadsheet.",
+      "group": "Spec-driven discovery"
+    },
+    {
+      "name": "Used-vs-new deals",
+      "command": "used deals",
+      "description": "Find used listings whose price is a steep discount versus the new-racquet MSRP — joins used inventory against the new catalog.",
+      "rationale": "Cross-entity JOIN between used_listing and racquet MSRP. Tennis Warehouse exposes used and new on separate pages with no comparison view.",
+      "example": "tennis-warehouse-pp-cli used deals --min-discount-pct 40 --grade A --brand wilson --json",
+      "why_it_matters": "Surfaces the actual bargain hunt — \"40% off new for a Grade A unit\" is the buy signal, not \"$150 vs unknown.\"",
+      "group": "Buying signals"
+    },
+    {
+      "name": "Price drop tracking",
+      "command": "used drops",
+      "description": "List used listings whose latest price snapshot dropped below a prior snapshot beyond a threshold within a time window.",
+      "rationale": "Joins each used_listing to its price_snapshot history. Tennis Warehouse has no price-history view at all.",
+      "example": "tennis-warehouse-pp-cli used drops --since 7d --min-drop-pct 10 --json",
+      "why_it_matters": "Catches deals the website cannot expose because it stores no historical pricing.",
+      "group": "Buying signals"
+    },
+    {
+      "name": "New-arrival feed",
+      "command": "used new",
+      "description": "Used listings whose first_seen_at falls within a recent time window — \"what is new since I last looked.\"",
+      "rationale": "SQLite query over a first_seen_at column the sync populates. The website has no \"new since\" view.",
+      "example": "tennis-warehouse-pp-cli used new --since 7d --brand babolat --json",
+      "why_it_matters": "Used inventory churns fast and good Grade A units sell in hours — the new-arrival feed is how bargain hunters actually shop.",
+      "group": "Buying signals"
+    },
+    {
+      "name": "Inventory depth",
+      "command": "used depth",
+      "description": "Aggregate per-physical-unit counts grouped by model and condition grade — answers \"how many Grade A Blade 98s are in stock right now?\"",
+      "rationale": "Aggregation over per-unit rows that the site only exposes one model at a time on the order page.",
+      "example": "tennis-warehouse-pp-cli used depth --min-units 3 --grade A --json",
+      "why_it_matters": "Depth is a buying-confidence signal. One unit at Grade A is a gamble; twelve units is a healthy market.",
+      "group": "Buying signals"
+    },
+    {
+      "name": "Watchlist + drops",
+      "command": "used watch",
+      "description": "Save SKUs to a local watchlist; view current state; combine with drops to alert on watched-only items.",
+      "rationale": "Local watchlist table joined against price_snapshot history. The site has no watchlist with price-history.",
+      "example": "tennis-warehouse-pp-cli used watchlist drops --since 30d --json",
+      "why_it_matters": "Lets a player track a small set of candidates without manually refreshing pages.",
+      "group": "Buying signals"
+    },
+    {
+      "name": "Grip-size availability",
+      "command": "used grip-availability",
+      "description": "Find used units in a specific grip size grouped by model and grade — wrong grip = unplayable, so this is a hard filter most shoppers care about.",
+      "rationale": "Cross-model grip-size aggregation. The web UI only shows grip per detail page.",
+      "example": "tennis-warehouse-pp-cli used grip-availability --size 4_3/8 --grade A --brand wilson --json",
+      "why_it_matters": "Saves the shopper from clicking through every model to see if their grip size is even in stock.",
+      "group": "Spec-driven discovery"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Substitute finder",
+      "command": "racquets similar",
+      "description": "Find current racquets whose specs match a target SKU within a tolerance band — head size, strung weight, swingweight, and exact string pattern.",
+      "rationale": "Cross-row similarity scoring over the local catalog. The Tennis Warehouse website has no \"racquets similar to this one\" surface.",
+      "example": "tennis-warehouse-pp-cli racquets similar WB9810 --tolerance tight --json",
+      "why_it_matters": "When a player's racquet cracks or is discontinued, picking a replacement requires triangulating across 9 spec fields. This command does it in one call.",
+      "group": "Spec-driven discovery"
+    },
+    {
+      "name": "Spec compare",
+      "command": "racquets compare",
+      "description": "Render an aligned spec-by-spec table for 2–5 racquets with diff highlighting; --json emits a row-per-spec matrix.",
+      "rationale": "Pure local SQLite read over the racquet catalog. No web page joins the spec data for multiple racquets side-by-side.",
+      "example": "tennis-warehouse-pp-cli racquets compare WB9810 WB9818 --json",
+      "why_it_matters": "Replaces opening 2–5 browser tabs and copy-pasting specs into a spreadsheet.",
+      "group": "Spec-driven discovery"
+    },
+    {
+      "name": "Used-vs-new deals",
+      "command": "used deals",
+      "description": "Find used listings whose price is a steep discount versus the new-racquet MSRP — joins used inventory against the new catalog.",
+      "rationale": "Cross-entity JOIN between used_listing and racquet MSRP. Tennis Warehouse exposes used and new on separate pages with no comparison view.",
+      "example": "tennis-warehouse-pp-cli used deals --min-discount-pct 40 --grade A --brand wilson --json",
+      "why_it_matters": "Surfaces the actual bargain hunt — \"40% off new for a Grade A unit\" is the buy signal, not \"$150 vs unknown.\"",
+      "group": "Buying signals"
+    },
+    {
+      "name": "Price drop tracking",
+      "command": "used drops",
+      "description": "List used listings whose latest price snapshot dropped below a prior snapshot beyond a threshold within a time window.",
+      "rationale": "Joins each used_listing to its price_snapshot history. Tennis Warehouse has no price-history view at all.",
+      "example": "tennis-warehouse-pp-cli used drops --since 7d --min-drop-pct 10 --json",
+      "why_it_matters": "Catches deals the website cannot expose because it stores no historical pricing.",
+      "group": "Buying signals"
+    },
+    {
+      "name": "New-arrival feed",
+      "command": "used new",
+      "description": "Used listings whose first_seen_at falls within a recent time window — \"what is new since I last looked.\"",
+      "rationale": "SQLite query over a first_seen_at column the sync populates. The website has no \"new since\" view.",
+      "example": "tennis-warehouse-pp-cli used new --since 7d --brand babolat --json",
+      "why_it_matters": "Used inventory churns fast and good Grade A units sell in hours — the new-arrival feed is how bargain hunters actually shop.",
+      "group": "Buying signals"
+    },
+    {
+      "name": "Inventory depth",
+      "command": "used depth",
+      "description": "Aggregate per-physical-unit counts grouped by model and condition grade — answers \"how many Grade A Blade 98s are in stock right now?\"",
+      "rationale": "Aggregation over per-unit rows that the site only exposes one model at a time on the order page.",
+      "example": "tennis-warehouse-pp-cli used depth --min-units 3 --grade A --json",
+      "why_it_matters": "Depth is a buying-confidence signal. One unit at Grade A is a gamble; twelve units is a healthy market.",
+      "group": "Buying signals"
+    },
+    {
+      "name": "Watchlist + drops",
+      "command": "used watch",
+      "description": "Save SKUs to a local watchlist; view current state; combine with drops to alert on watched-only items.",
+      "rationale": "Local watchlist table joined against price_snapshot history. The site has no watchlist with price-history.",
+      "example": "tennis-warehouse-pp-cli used watchlist drops --since 30d --json",
+      "why_it_matters": "Lets a player track a small set of candidates without manually refreshing pages.",
+      "group": "Buying signals"
+    },
+    {
+      "name": "Grip-size availability",
+      "command": "used grip-availability",
+      "description": "Find used units in a specific grip size grouped by model and grade — wrong grip = unplayable, so this is a hard filter most shoppers care about.",
+      "rationale": "Cross-model grip-size aggregation. The web UI only shows grip per detail page.",
+      "example": "tennis-warehouse-pp-cli used grip-availability --size 4_3/8 --grade A --brand wilson --json",
+      "why_it_matters": "Saves the shopper from clicking through every model to see if their grip size is even in stock.",
+      "group": "Spec-driven discovery"
+    }
+  ],
+  "narrative": {
+    "display_name": "Tennis Warehouse",
+    "headline": "Every racquet Tennis Warehouse sells — new and used — searchable offline with spec compare, substitute finder, price-drop tracking, and grip-size availability no browser tab gives you.",
+    "value_prop": "Tennis Warehouse has the deepest racquet catalog and used inventory in the U.S., but the web UI is browse-only and the data is locked behind page navigation. This CLI mirrors the entire catalog into a local SQLite store, then exposes the spec-driven and price-driven queries the website cannot answer — `racquets similar \u003csku\u003e`, `racquets compare \u003csku\u003e \u003csku\u003e`, `used deals --min-discount-pct 40`, `used drops --since 7d`, `used new --since 7d`, `used depth --grade A`, `used watch \u003cpcode\u003e`, `used grip-availability --size 4_3/8`.",
+    "auth_narrative": "No authentication required — Tennis Warehouse's catalog and used inventory are publicly browseable. Run `crawl` to populate the local store; everything else queries that store.",
+    "quickstart": [
+      {
+        "command": "tennis-warehouse-pp-cli crawl --brand wilson",
+        "comment": "Populate the local SQLite store for Wilson — both new catalog and used inventory."
+      },
+      {
+        "command": "tennis-warehouse-pp-cli racquets list --brand wilson --string-pattern 16x19 --json --select sku,model,strung_weight,swingweight",
+        "comment": "Filter the new catalog and emit only the fields an agent needs."
+      },
+      {
+        "command": "tennis-warehouse-pp-cli racquets compare WB9810 WB9818 WB9816 --json",
+        "comment": "Diff three Wilson Blade 98 versions side-by-side."
+      },
+      {
+        "command": "tennis-warehouse-pp-cli used deals --grade A --min-discount-pct 40 --json",
+        "comment": "Surface Grade A used listings selling 40%+ below new MSRP."
+      },
+      {
+        "command": "tennis-warehouse-pp-cli used watchlist drops --since 30d --json",
+        "comment": "Watch a model and check for price drops since last sync."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "`crawl` returns 0 racquets for a brand",
+        "fix": "The brand catalog path is `/{Brand}racquets.html` with capitalized brand. Verify the brand slug matches (wilson → Wilson, prokennex → ProKennex, head → Head)."
+      },
+      {
+        "symptom": "`used drops` returns empty",
+        "fix": "Price drop detection requires at least two `crawl` runs separated by enough time for the site to update prices. Run `crawl` once, wait a day, crawl again."
+      },
+      {
+        "symptom": "HTML parsing fails on a specific SKU",
+        "fix": "Tennis Warehouse occasionally redesigns individual product pages. Run `crawl \u003cpcode\u003e --debug` to dump the raw HTML and report the SKU in an issue."
+      },
+      {
+        "symptom": "Rate limited (HTTP 429)",
+        "fix": "Crawl is rate-limited to 1 req/sec by default with adaptive backoff. If you still see 429s, run `crawl --rate 0.5` to halve the rate."
+      }
+    ],
+    "when_to_use": "Pick this CLI when you (or your agent) need to query the Tennis Warehouse catalog in a way the website itself doesn't support — spec-driven similarity, multi-racquet comparison, used-vs-new discount triage, or price-drop tracking. Use it for pre-purchase research, substitute-finder workflows after a discontinued frame cracks, or to drive a daily \"new arrivals + drops\" digest. Don't use it for placing orders, demos, or anything that requires a logged-in Tennis Warehouse account.",
+    "recipes": [
+      {
+        "title": "Find a substitute for a cracked racquet",
+        "command": "tennis-warehouse-pp-cli racquets similar WB9810 --tolerance tight --limit 10 --json --select sku,model,head_size,strung_weight,swingweight,string_pattern",
+        "explanation": "Given your current racquet's SKU, returns the closest current models by spec — narrows a season-long replacement decision into one query."
+      },
+      {
+        "title": "Catch a Grade A bargain on a Wilson Blade 98",
+        "command": "tennis-warehouse-pp-cli used deals --brand wilson --grade A --min-discount-pct 35 --json --select pcode,model,grade,price,msrp,discount_pct",
+        "explanation": "Lists Grade A Wilson listings selling 35%+ off new MSRP — the joined-vs-MSRP view the website cannot show."
+      },
+      {
+        "title": "Compare three racquet generations side-by-side",
+        "command": "tennis-warehouse-pp-cli racquets compare WB9810 WB9818 WB9816 --json",
+        "explanation": "Aligned spec-by-spec table for Blade 98 v10, v8, and v9. Replaces three browser tabs."
+      },
+      {
+        "title": "Watch a model and check daily drops",
+        "command": "tennis-warehouse-pp-cli used watchlist drops --since 7d --min-drop-pct 5 --json",
+        "explanation": "Saves the SKU; lists every Grade A/B/C listing whose price dropped at least 5% in the last week."
+      },
+      {
+        "title": "Filter by grip size before anything else",
+        "command": "tennis-warehouse-pp-cli used grip-availability --size 4_3/8 --grade A --json",
+        "explanation": "Wrong grip is unplayable — start with grip, then narrow by brand/spec from there."
+      }
+    ],
+    "trigger_phrases": [
+      "find a tennis racquet similar to",
+      "compare these tennis racquets",
+      "tennis racquet under $",
+      "used wilson blade",
+      "racquets with 16x19 string pattern",
+      "tennis warehouse used inventory",
+      "use tennis-warehouse",
+      "run tennis-warehouse"
+    ]
+  }
+}
