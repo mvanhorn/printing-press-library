@@ -1,0 +1,76 @@
+{
+  "api_name": "ted-search",
+  "base_url": "https://api.ted.europa.eu",
+  "description": "\u003ch1\u003eIntroduction\u003c/h1\u003e\n\nThis API provides multiple read-only operations on the TED website data.\nThe endpoint 'Notice Search API' can be used to search notices both TED schema notices and eForms notices.\nMore information is available on the help pages of the TED website:\n\u003cul\u003e\n    \u003cli\u003e\u003ca href=\"https://ted.europa.eu\"\u003eTED - Website\u003c/a\u003e\u003c/li\u003e\n    \u003cli\u003e\u003ca href=\"https://ted.europa.eu/en/search/expert-search\"\u003eExpert Search\u003c/a\u003e\u003c/li\u003e\n    \u003cli\u003e\u003ca href=\"https://ted.europa.eu/en/contact\"\u003eContact\u003c/a\u003e\u003c/li\u003e\n    \u003cli\u003e\u003ca href=\"https://ted.europa.eu/en/legal-notice\"\u003eLegal notice\u003c/a\u003e\u003c/li\u003e\n\u003c/ul\u003e\n\nThe API is accessible to the general public and can be utilized by anyone in accordance with the \u003ca href=\"#terms-of-usage\"\u003eterm of usage\u003c/a\u003e.\n\n\u003ch1 id=\"change-log\"\u003eChange logs\u003c/h1\u003e\n\n\u003ctable style=\"border: 1px solid;\"\u003e\n    \u003cthead\u003e\n        \u003ctr\u003e\n            \u003cth style=\"border: 1px solid;\"\u003eVersion\u003c/th\u003e\n            \u003cth style=\"border: 1px solid;\"\u003eDate\u003c/th\u003e\n            \u003cth style=\"border: 1px solid;\"\u003eChanges\u003c/th\u003e\n        \u003c/tr\u003e\n    \u003c/thead\u003e\n    \u003ctr\u003e\n        \u003ctd style=\"border: 1px solid;\"\u003eN/A\u003c/td\u003e\n        \u003ctd style=\"border: 1px solid;\"\u003eN/A\u003c/td\u003e\n        \u003ctd style=\"border: 1px solid;\"\u003eN/A\u003c/td\u003e\n    \u003c/tr\u003e\n\u003c/table\u003e\n\n\n\u003ch1\u003ePublic API search modes\u003c/h1\u003e\n\nThis section describes the different search modes provided by the public search API.\nEach parameter of the search API is detailed in the OpenAPI documentation of the API.\n\n\u003ch2\u003ePagination mode\u003c/h2\u003e\nThe pagination mode is the default mode of the public search API.\nThis mode is stateless: the user can retrieve any result page, and not necessary in order. It also means that there is no mechanism to ensure consistency between two retrieved pages: if the user retrieves multiple pages and an OJS is released between two retrieved pages, then the user might miss some notices or have duplicated notices.\nAlso, due to how Elasticsearch works internally, a limit on the number of retrievable notices for a given query has been put in place. This limit is described in the \u003ci\u003eDefinition of limits\u003c/i\u003e section.\n\nThe user must provide the following parameters to the API to paginate results:\n\u003cul\u003e\n    \u003cli\u003elimit: the number of notices returned per page. For example, limit=10 means that 10 notices will be returned.\n    \u003c/li\u003e\n    \u003cli\u003epage: the page number to retrieve. For example, page=1 means that the first result page will be retrieved.\u003c/li\u003e\n\u003c/ul\u003e\n\n\u003ch2\u003eScroll mode\u003c/h2\u003e\nThe scroll mode allows user to retrieve all notices for a given query, without limitations defined in section \u003ci\u003eDefinition of limits\u003c/i\u003e.\nWith this mode, the user calls the search API to retrieve the first result page and a token. This token can then be included in the next query sent to the search API to retrieve the next result page. The user knows all notices have been retrieved once there is no more notice returned.\nThe Elasticsearch point in time feature is used to ensure a consistency between all returned pages, which means that the user cannot miss notices or have duplicated notices. An Elasticsearch point in time is a freeze of the Elasticsearch instance at a specific time. If notices are added or removed during the lifetime of a point in time, the notices registered in the point in time don’t change.\nThe point in time has an expiration time. This expiration time is defined as the date of the next OJS release plus 24 hours. It means that the user has always at least 24 hours to retrieve all the notices for a given query.\n\nThe user must provide the following parameters to the API to retrieve results in scroll mode:\n\u003cul\u003e\n    \u003cli\u003epaginationMode should be set to “ITERATION”.\u003c/li\u003e\n    \u003cli\u003elimit: the number of notices to return for the next page.\u003c/li\u003e\n    \u003cli\u003eiterationNextToken: the token returned by the previous call to the search API. If this is the first call (i.e.,\n        to retrieve the first page), this parameter shouldn’t be provided.\n    \u003c/li\u003e\n\u003c/ul\u003e\n\n\u003ch1\u003eDefinition of limits\u003c/h1\u003e\nHere is a definition of the different limits defined for the SEM (Search Engine Module) endpoints in the next sections:\n\u003cul\u003e\n    \u003cli\u003eMaximum number of retrievable notices: this corresponds to the number of notices that can be retrieved once the\n        user has queried all pages. For example, if the user retrieves all notices for a given query with page size 250,\n        and the limit of retrievable notices is 10k, it means the SEM will return no more notice after page 10k / 250 =\n        40, even if the query matches more than 10k notices.\n    \u003c/li\u003e\n    \u003cli\u003eMaximum number of notices per page: if this limit is X, then it means the user can retrieve X or less notices\n        per page, but not more than X notices per page.\n    \u003c/li\u003e\n    \u003cli\u003eMaximum number of fields per page: the number of fields per page is defined as the number of notices per page\n        multiplied by the number of fields retrieved for each notice. For example, with a limit of 250, the user is\n        allowed to retrieve 50 notices per page and 4 fields per notice (50 * 4 \u003c 250). However, they are not allowed to\n        retrieve 100 notices per page and 4 fields per notice (100 * 4 \u003e 250).\n    \u003c/li\u003e\n\u003c/ul\u003e\n\n\u003ch2\u003eSearch using pagination mode of public API\u003c/h2\u003e\n\nThe pagination mode of the public search API has the following limits:\n\u003cul\u003e\n    \u003cli\u003eMaximum number of retrievable notices: 15k.\u003c/li\u003e\n    \u003cli\u003eMaximum number of notices per page: 250.\u003c/li\u003e\n    \u003cli\u003eMaximum number of fields per page: 10k.\u003c/li\u003e\n\u003c/ul\u003e\nIn case a limit is reached, the search API will return an error to the user.\n\n\u003ch2\u003eSearch using scroll mode of public API\u003c/h2\u003e\n\nThe scroll mode of the public search API has the following limits:\n\u003cul\u003e\n    \u003cli\u003eMaximum number of notices per page: 250.\u003c/li\u003e\n    \u003cli\u003eMaximum number of fields per page: 10k.\u003c/li\u003e\n\u003c/ul\u003e\nIn case a limit is reached, the search API will return an error to the user.\nThere is no limit on the number of retrievable notices.\n\n\u003ch1\u003eVersioning\u003c/h1\u003e\n\nThe versioning of the TED Public API is managed by including the major version in the URL (eg. v1). An upgrade of the major version will denote a breaking changes of the API whereas minor and maintenance will be transparent to the client. The \u003ca href=\"#change-log\"\u003echange logs\u003c/a\u003e will contain the details of any modifications made to the API, serving as a means to notify clients about newly added features or bug fixes. The list of \u003ci\u003efields\u003c/i\u003e by their variable nature are excluded from the versioning, addition, removal or update of a fields will not change the versioning.\n\n\n\u003ch1\u003eFrequently Asked Questions\u003c/h1\u003e\n\n\u003ch3\u003eHow can I create, test or validate an expert query?\u003c/h3\u003e\n\u003ch3\u003eThe API returns an error regarding an invalid field, format or value, how can I debug?\u003c/h3\u003e\n\nThe \u003ca href=\"https://ted.europa.eu/en/search/expert-search\"\u003eTED Expert Search\u003c/a\u003e page can be used for that purpose. It includes the capabilities to write a query,\ncheck the syntax, list all the fields and execute the query. The query once tailored can be reused in the query field parameter.\n\n\n\u003ch1 id=\"terms-of-usage\"\u003eTerms of Usage\u003c/h1\u003e\n\n\u003cli\u003e\u003ca href=\"https://ted.europa.eu/en/legal-notice\"\u003eLegal notice\u003c/a\u003e\u003c/li\u003e",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "notices_search",
+      "description": "Search for notices using expert search query. More information about the query format and field names can be found on [this page](https://ted.europa.eu/en/search/expert-search)). Optional: checkQuerySyntax (default: false), fields, iterationNextToken (plus 6 more).",
+      "method": "POST",
+      "path": "/v3/notices/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "checkQuerySyntax",
+          "type": "bool",
+          "location": "body",
+          "description": "To check the syntax of the query. When the parameter is set to 'true', the syntax of the query is checked, but the search query is not executed."
+        },
+        {
+          "name": "fields",
+          "type": "array",
+          "location": "body",
+          "description": "Fields to return for each notice"
+        },
+        {
+          "name": "iterationNextToken",
+          "type": "string",
+          "location": "body",
+          "description": "Opaque token returned by the previous call to the search endpoint to retrieve the next result page. It shouldn't be provided in PAGE_NUMBER mode or if this is the first request in ITERATION mode."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of returned notices, used to paginate results. You can retrieve up to 250 notices per page, and 10000 fields per page (the number of fields per page corresponds to the size of the 'fields' array multiplied by the value of 'limit')."
+        },
+        {
+          "name": "onlyLatestVersions",
+          "type": "bool",
+          "location": "body",
+          "description": "Include only the latest versions"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "body",
+          "description": "Result page number, used to paginate results"
+        },
+        {
+          "name": "paginationMode",
+          "type": "string",
+          "location": "body",
+          "description": "The PAGE_NUMBER mode allows you to retrieve up to 15000 notices for a given query, using pagination. To retrieve more notices, you can use the ITERATION mode. ITERATION mode does not have limitation on the number of retrievable notices, but you can't choose the page you want to retrieve. The first request will return an iterationNextToken that should be provided to the next call of the search endpoint in order to retrieve the next result page."
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "Expert search query to filter and sort notices"
+        },
+        {
+          "name": "scope",
+          "type": "string",
+          "location": "body",
+          "description": "Search scope (LATEST: only notices of the current OJ S release, ACTIVE: only active notices, ALL: all notices)"
+        }
+      ]
+    }
+  ]
+}

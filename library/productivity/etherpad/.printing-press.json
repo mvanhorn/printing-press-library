@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-10T14:34:49.497178085Z",
+  "printing_press_version": "4.2.2",
+  "api_name": "etherpad",
+  "display_name": "Etherpad",
+  "cli_name": "etherpad-pp-cli",
+  "owner": "john-mclear",
+  "printer": "JohnMcLear",
+  "printer_name": "John McLear",
+  "spec_url": "https://pad-dev.etherpad.org/api/openapi.json",
+  "mcp_binary": "etherpad-pp-mcp",
+  "mcp_tool_count": 50,
+  "mcp_ready": "full",
+  "api_version": "1.3.1",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "ETHERPAD_OPENID"
+  ],
+  "run_id": "20260510T124341Z-e440f457",
+  "scope": "etherpad-59ad227e",
+  "category": "productivity",
+  "novel_features": [
+    {
+      "name": "Live Change Tail",
+      "command": "tail",
+      "description": "Stream changes by polling."
+    },
+    {
+      "name": "Bulk JSONL Import",
+      "command": "import",
+      "description": "Bulk import from JSONL."
+    },
+    {
+      "name": "Agent Context Bootstrap",
+      "command": "agent-context",
+      "description": "Emit JSON brief for LLM agents."
+    }
+  ]
+}

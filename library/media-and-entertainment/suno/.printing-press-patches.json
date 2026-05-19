@@ -1,9 +1,21 @@
 {
   "schema_version": 1,
-  "applied_at": "2026-05-15",
+  "applied_at": "2026-05-18",
   "base_run_id": "20260514-184203",
   "base_printing_press_version": "4.6.1",
   "patches": [
+    {
+      "id": "suno-jwt-staleness-check",
+      "summary": "Decode the __session JWT on login/refresh/doctor and refuse stale tokens with an actionable hint.",
+      "reason": "Suno's __session cookie carries a Clerk JWT with a ~1h lifetime. Chrome keeps the cookie row long after the JWT inside it expires, so a long-idle Suno tab leaves a stale value on disk. The previous flow silently saved the stale value: the read-side validation endpoint (eligible-discounts) accepted it so doctor reported 'valid', but every write endpoint (billing/info, generate/v2-web) returned HTTP 401 with no hint pointing back at the cookie. The patch adds a config.JWTExpiry helper, refuses to save an expired token in auth login/refresh, and surfaces token age + expiry in doctor so a silent failure becomes a visible one.",
+      "files": [
+        "internal/cli/auth.go",
+        "internal/cli/doctor.go",
+        "internal/config/jwt.go",
+        "internal/config/jwt_test.go"
+      ],
+      "validated_outcome": "go test ./internal/config 7/7 pass including 6 new JWT cases; go test ./... 175/175 pass; go vet clean; live doctor surfaces 'valid for 33m30s' on fresh token and 'expired 1h0m0s ago' + actionable hint on stale token; --fail-on=error exits 1 on stale token."
+    },
     {
       "id": "suno-transcendence-commands",
       "summary": "Adds local Suno workflow and analytics commands beyond the sniffed endpoint spec.",
