@@ -5,6 +5,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"sort"
 	"time"
 
@@ -35,15 +36,20 @@ func newMilestonesAtRiskCmd(flags *rootFlags) *cobra.Command {
 		},
 		Long: `Surface project milestones whose projected landing date has slipped past their
 target date, ranked by the magnitude of the slip. The projected landing date for
-each parent project comes from the velocity-regressed burndown
-(see "projects burndown"); milestones whose target_date is on or after the
-project's projected landing date are flagged at-risk.
+each parent project is computed by the same velocity-regressed burndown logic
+as "projects burndown --weeks 4" (computeBurndownStats over the project's
+issues in the local store). When that regression has insufficient signal — no
+completed estimate-points in the recent window — the command falls back to the
+project's static target_date. The output's "projectedSource" field tags each
+row "burndown" or "target-date-fallback" so consumers can tell them apart.
 
-The command reads from the local SQLite store — run "sync" first.
+Milestones whose target_date is on or after the project's projected landing
+date are flagged at-risk. The command reads from the local SQLite store — run
+"sync" first.
 
 Output (JSON): array of {milestoneId, milestoneName, projectId, projectName,
-targetDate, projectedLandingDate, slipDays} sorted by slipDays descending.
-Only milestones with slipDays > 0 are returned.`,
+targetDate, projectedLandingDate, projectedSource, slipDays} sorted by
+slipDays descending. Only milestones with slipDays > 0 are returned.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dbPath == "" {
 				dbPath = defaultDBPath("linear-pp-cli")
@@ -67,6 +73,7 @@ Only milestones with slipDays > 0 are returned.`,
 				ProjectName          string `json:"projectName"`
 				TargetDate           string `json:"targetDate"`
 				ProjectedLandingDate string `json:"projectedLandingDate,omitempty"`
+				ProjectedSource      string `json:"projectedSource,omitempty"` // "burndown" or "target-date-fallback"
 				SlipDays             int    `json:"slipDays"`
 			}
 			var risks []milestoneRisk
@@ -87,7 +94,31 @@ Only milestones with slipDays > 0 are returned.`,
 					continue
 				}
 
-				projectLanding := prj.TargetDate
+				// projectLanding follows the command's contract ("velocity-
+				// regressed projection ... see 'projects burndown'"). Pull
+				// the project's issues and reuse computeBurndownStats over
+				// the same default 4-week window as `projects burndown`.
+				// When the project has zero completed estimate points in
+				// the window the regression can't produce a date — fall
+				// back to the static target_date and tag the fallback
+				// source in the row so consumers can distinguish.
+				projectLanding := ""
+				projectedSource := ""
+				if prj.ID != "" {
+					if issues, ierr := db.ListIssues(map[string]string{"project_id": prj.ID}, 1000); ierr == nil && len(issues) > 0 {
+						stats := computeBurndownStats(issues, 4)
+						if stats.WeeklyVelocity > 0 {
+							weeksToLand := stats.RemainingEstimate / stats.WeeklyVelocity
+							landing := time.Now().UTC().AddDate(0, 0, int(math.Ceil(weeksToLand*7)))
+							projectLanding = landing.Format("2006-01-02")
+							projectedSource = "burndown"
+						}
+					}
+				}
+				if projectLanding == "" && prj.TargetDate != "" {
+					projectLanding = firstTen(prj.TargetDate)
+					projectedSource = "target-date-fallback"
+				}
 
 				for _, ms := range prj.Milestones.Nodes {
 					if ms.TargetDate == "" {
@@ -118,7 +149,8 @@ Only milestones with slipDays > 0 are returned.`,
 							MilestoneID: ms.ID, MilestoneName: ms.Name,
 							ProjectID: prj.ID, ProjectName: prj.Name,
 							TargetDate: firstTen(ms.TargetDate), ProjectedLandingDate: projected,
-							SlipDays: slip,
+							ProjectedSource: projectedSource,
+							SlipDays:        slip,
 						})
 					}
 				}
