@@ -81,7 +81,12 @@ func newProductionMonthlyCmd(flags *rootFlags) *cobra.Command {
 			if flagMountingplace != "" {
 				params["mountingplace"] = fmt.Sprintf("%v", flagMountingplace)
 			}
-			if flagUsehorizon != 0 {
+			// PATCH(p1-zero-value-optional-params-sent): same Changed-vs-!=0
+			// fix for boolean toggles. --use-horizon 0 (flat-horizon scenario)
+			// would otherwise be dropped and PVGIS would apply its default
+			// (usehorizon=1, terrain horizon ON), silently returning a lower
+			// yield estimate than the user asked for.
+			if cmd.Flags().Changed("use-horizon") || cmd.Flags().Changed("usehorizon") {
 				params["usehorizon"] = fmt.Sprintf("%v", flagUsehorizon)
 			}
 			if flagRaddatabase != "" {

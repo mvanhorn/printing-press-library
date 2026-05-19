@@ -48,7 +48,10 @@ func newProductionHourlyCmd(flags *rootFlags) *cobra.Command {
 			params := map[string]string{}
 			params["lat"] = fmt.Sprintf("%v", flagLat)
 			params["lon"] = fmt.Sprintf("%v", flagLon)
-			if flagPvcalculation != 0 {
+			// PATCH(p1-zero-value-optional-params-sent): same Changed gate.
+			// --pvcalculation 0 (radiation-only timeseries, no PV columns)
+			// would otherwise be dropped.
+			if cmd.Flags().Changed("pvcalculation") {
 				params["pvcalculation"] = fmt.Sprintf("%v", flagPvcalculation)
 			}
 			// PATCH(p1-zero-value-optional-params-sent): peakpower follows
@@ -76,7 +79,9 @@ func newProductionHourlyCmd(flags *rootFlags) *cobra.Command {
 			if flagMountingplace != "" {
 				params["mountingplace"] = fmt.Sprintf("%v", flagMountingplace)
 			}
-			if flagUsehorizon != 0 {
+			// PATCH(p1-zero-value-optional-params-sent): same gate as the
+			// other zero-valid params. --use-horizon 0 must reach the API.
+			if cmd.Flags().Changed("use-horizon") || cmd.Flags().Changed("usehorizon") {
 				params["usehorizon"] = fmt.Sprintf("%v", flagUsehorizon)
 			}
 			if flagStartyear != 0 {

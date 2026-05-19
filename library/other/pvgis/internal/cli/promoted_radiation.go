@@ -48,13 +48,16 @@ func newRadiationPromotedCmd(flags *rootFlags) *cobra.Command {
 			params := map[string]string{}
 			params["lat"] = fmt.Sprintf("%v", flagLat)
 			params["lon"] = fmt.Sprintf("%v", flagLon)
-			if flagUsehorizon != 0 {
+			// PATCH(p1-zero-value-optional-params-sent): Changed gate so
+			// explicit 0 (use-horizon off, individual output toggles off)
+			// reaches PVGIS instead of being dropped.
+			if cmd.Flags().Changed("use-horizon") || cmd.Flags().Changed("usehorizon") {
 				params["usehorizon"] = fmt.Sprintf("%v", flagUsehorizon)
 			}
-			if flagHorirrad != 0 {
+			if cmd.Flags().Changed("horizontal") || cmd.Flags().Changed("horirrad") {
 				params["horirrad"] = fmt.Sprintf("%v", flagHorirrad)
 			}
-			if flagSelectrad != 0 {
+			if cmd.Flags().Changed("tilted") || cmd.Flags().Changed("selectrad") {
 				params["selectrad"] = fmt.Sprintf("%v", flagSelectrad)
 			}
 			// PATCH(p1-zero-value-optional-params-sent): same fix as in
@@ -66,10 +69,12 @@ func newRadiationPromotedCmd(flags *rootFlags) *cobra.Command {
 			if cmd.Flags().Changed("azimuth") || cmd.Flags().Changed("aspect") {
 				params["aspect"] = fmt.Sprintf("%v", flagAspect)
 			}
-			if flagOptrad != 0 {
+			// PATCH(p1-zero-value-optional-params-sent): boolean toggles —
+			// 0 must reach PVGIS when the user explicitly opts out.
+			if cmd.Flags().Changed("optimal") || cmd.Flags().Changed("optrad") {
 				params["optrad"] = fmt.Sprintf("%v", flagOptrad)
 			}
-			if flagAvtemp != 0 {
+			if cmd.Flags().Changed("avg-temp") || cmd.Flags().Changed("avtemp") {
 				params["avtemp"] = fmt.Sprintf("%v", flagAvtemp)
 			}
 			if flagRaddatabase != "" {
