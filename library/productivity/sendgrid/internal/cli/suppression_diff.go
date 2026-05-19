@@ -220,7 +220,21 @@ func loadLocalSuppressions(db *store.Store, resourceType string) map[string]supp
 	if err != nil {
 		return entries
 	}
+	// suppression sync writes one blob per type containing a JSON array of
+	// records. Fall back to single-object parsing for any rows written by
+	// other code paths (defensive — current writers always emit arrays).
 	for _, raw := range items {
+		var arr []map[string]any
+		if json.Unmarshal(raw, &arr) == nil {
+			for _, item := range arr {
+				email, _ := item["email"].(string)
+				reason, _ := item["reason"].(string)
+				if email != "" {
+					entries[strings.ToLower(email)] = suppressionEntry{Email: strings.ToLower(email), Reason: reason}
+				}
+			}
+			continue
+		}
 		var item map[string]any
 		if json.Unmarshal(raw, &item) != nil {
 			continue

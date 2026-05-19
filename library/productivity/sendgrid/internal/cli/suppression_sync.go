@@ -61,6 +61,11 @@ local SQLite store under suppression_bounces, suppression_blocks, etc.`,
 
 			// Load CSV if --from supplied. Without --from, we just mirror current API state
 			// into the local store (a read-only refresh) — useful as a happy-path probe.
+			// Guard: --apply without --from would mark every live suppression as "in API
+			// but not in CSV" and remove the entire list. Refuse that combination.
+			if flagFrom == "" && flagApply {
+				return usageErr(fmt.Errorf("--apply requires --from: applying with no CSV would remove every live suppression"))
+			}
 			var csvEntries map[string]suppressionEntry
 			if flagFrom != "" {
 				loaded, err := loadSuppressionCSV(flagFrom)
@@ -199,7 +204,6 @@ func syncOneSuppressionType(
 	const pageSize = 500
 	const maxPages = 200 // safety cap: 100k entries per type
 	var apiList []map[string]any
-	var lastPage json.RawMessage
 	for page := 0; page < maxPages; page++ {
 		offset := page * pageSize
 		params := map[string]string{
@@ -210,7 +214,6 @@ func syncOneSuppressionType(
 		if err != nil {
 			return nil, fmt.Errorf("fetching %s page %d: %w", typeName, page, err)
 		}
-		lastPage = data
 		var batch []map[string]any
 		if err := json.Unmarshal(data, &batch); err != nil {
 			return nil, fmt.Errorf("parsing %s page %d: %w", typeName, page, err)
@@ -221,10 +224,14 @@ func syncOneSuppressionType(
 		}
 	}
 
-	// Mirror last fetched page raw into store as a coarse mirror checkpoint.
-	// (Full pagination is preserved in apiList; the local mirror is a hint
-	// for offline diffs, not the source of truth.)
-	_ = db.Upsert(resourceType, typeName, lastPage)
+	// Mirror the full deduped list into the local store as a single JSON
+	// array blob keyed by typeName. loadLocalSuppressions unmarshals it
+	// as an array — storing only the last page (the prior implementation)
+	// produced a store that the diff loader couldn't parse, making the
+	// local arm of the three-way diff inoperative.
+	if mirror, mErr := json.Marshal(apiList); mErr == nil {
+		_ = db.Upsert(resourceType, typeName, mirror)
+	}
 
 	apiEntries := make(map[string]suppressionEntry, len(apiList))
 	for _, item := range apiList {

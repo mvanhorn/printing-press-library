@@ -5,6 +5,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -61,12 +62,18 @@ Output: structured JSON or a narrative prose block.`,
 			result := bounceWhyResult{Email: email}
 			var narrativeParts []string
 
+			// Path-escape the email so plus-tags (user+tag@example.com) and
+			// other RFC-5321-legal characters survive transit. Bare "+" in a
+			// path segment may be interpreted as a space by intermediaries,
+			// producing 404s or wrong-record lookups.
+			encodedEmail := url.PathEscape(email)
+
 			// Check bounces. /v3/suppression/bounces/{email} returns a JSON
 			// array (same schema as the list endpoint), not a single object.
 			// Unmarshaling into a map silently failed, hiding suppressed
 			// bounces from the narrative — matching the pattern already used
 			// for blocks / invalid_emails / spam_reports below.
-			bounceData, err := c.Get("/v3/suppression/bounces/"+email, nil)
+			bounceData, err := c.Get("/v3/suppression/bounces/"+encodedEmail, nil)
 			if err == nil {
 				var bounces []map[string]any
 				if json.Unmarshal(bounceData, &bounces) == nil && len(bounces) > 0 {
@@ -84,7 +91,7 @@ Output: structured JSON or a narrative prose block.`,
 			}
 
 			// Check blocks
-			blocksData, err := c.Get("/v3/suppression/blocks/"+email, nil)
+			blocksData, err := c.Get("/v3/suppression/blocks/"+encodedEmail, nil)
 			if err == nil {
 				var blocks []map[string]any
 				if json.Unmarshal(blocksData, &blocks) == nil && len(blocks) > 0 {
@@ -94,7 +101,7 @@ Output: structured JSON or a narrative prose block.`,
 			}
 
 			// Check invalid emails
-			invalidData, err := c.Get("/v3/suppression/invalid_emails/"+email, nil)
+			invalidData, err := c.Get("/v3/suppression/invalid_emails/"+encodedEmail, nil)
 			if err == nil {
 				var invalids []map[string]any
 				if json.Unmarshal(invalidData, &invalids) == nil && len(invalids) > 0 {
@@ -104,7 +111,7 @@ Output: structured JSON or a narrative prose block.`,
 			}
 
 			// Check spam reports
-			spamData, err := c.Get("/v3/suppression/spam_reports/"+email, nil)
+			spamData, err := c.Get("/v3/suppression/spam_reports/"+encodedEmail, nil)
 			if err == nil {
 				var spam []map[string]any
 				if json.Unmarshal(spamData, &spam) == nil && len(spam) > 0 {
