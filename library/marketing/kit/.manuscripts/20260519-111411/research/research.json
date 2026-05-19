@@ -1,0 +1,117 @@
+{
+  "api_name": "kit",
+  "novelty_score": 8,
+  "alternatives": [],
+  "gaps": [
+    "Plain MCP exposes Kit v4 endpoints one at a time, leaving agents to discover resource relationships, manage fan-out, and summarize account state manually."
+  ],
+  "patterns": [
+    "Creator marketing agents need account, audience, content, and broadcast context before safely choosing narrower write or read endpoints.",
+    "Read-only compound workflows reduce token use and permission prompts while keeping raw endpoint parity available for exact operations."
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-19T16:45:00Z",
+  "novel_features": [
+    {
+      "name": "Creator Snapshot",
+      "command": "workflow creator-snapshot",
+      "description": "One-call read-only operating snapshot for Kit account, growth, audience, content, webhooks, and broadcast stats.",
+      "rationale": "Combines the operating context an agent needs before campaign planning or account diagnosis.",
+      "example": "kit-pp-cli workflow creator-snapshot --agent",
+      "why_it_matters": "Use this first when an agent needs current creator-account context without manually fanning out across endpoint mirrors.",
+      "group": "Creator operations"
+    },
+    {
+      "name": "Audience Health",
+      "command": "workflow audience-health",
+      "description": "Read-only subscriber status counts, recent growth stats, and largest tags by subscriber count.",
+      "rationale": "Turns several subscriber and tag calls into one audience-health surface for cleanup and segmentation decisions.",
+      "example": "kit-pp-cli workflow audience-health --agent",
+      "why_it_matters": "Use this before list cleaning, segmentation, or campaign planning to avoid multiple fragile subscriber and tag calls.",
+      "group": "Audience intelligence"
+    },
+    {
+      "name": "Content Inventory",
+      "command": "workflow content-inventory",
+      "description": "Read-only inventory of sequences, sequence emails, snippets, forms, templates, and recent broadcast stats.",
+      "rationale": "Collects Kit content surfaces that agents usually need together when planning or auditing campaigns.",
+      "example": "kit-pp-cli workflow content-inventory --agent",
+      "why_it_matters": "Use this for content audits and planning instead of separately listing each Kit content surface.",
+      "group": "Content planning"
+    },
+    {
+      "name": "Subscriber Lookup",
+      "command": "workflow subscriber-lookup",
+      "description": "Read-only subscriber dossier by email or id with profile, custom fields, tags, attribution, and email stats.",
+      "rationale": "Combines subscriber details, tags, and engagement stats into a support-safe single-record lookup.",
+      "why_it_matters": "Use this for support, segmentation checks, and personalization debugging before raw subscriber endpoint calls.",
+      "group": "Audience intelligence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Creator Snapshot",
+      "command": "workflow creator-snapshot",
+      "description": "One-call read-only operating snapshot for Kit account, growth, audience, content, webhooks, and broadcast stats.",
+      "rationale": "Combines the operating context an agent needs before campaign planning or account diagnosis.",
+      "example": "kit-pp-cli workflow creator-snapshot --agent",
+      "why_it_matters": "Use this first when an agent needs current creator-account context without manually fanning out across endpoint mirrors.",
+      "group": "Creator operations"
+    },
+    {
+      "name": "Audience Health",
+      "command": "workflow audience-health",
+      "description": "Read-only subscriber status counts, recent growth stats, and largest tags by subscriber count.",
+      "rationale": "Turns several subscriber and tag calls into one audience-health surface for cleanup and segmentation decisions.",
+      "example": "kit-pp-cli workflow audience-health --agent",
+      "why_it_matters": "Use this before list cleaning, segmentation, or campaign planning to avoid multiple fragile subscriber and tag calls.",
+      "group": "Audience intelligence"
+    },
+    {
+      "name": "Content Inventory",
+      "command": "workflow content-inventory",
+      "description": "Read-only inventory of sequences, sequence emails, snippets, forms, templates, and recent broadcast stats.",
+      "rationale": "Collects Kit content surfaces that agents usually need together when planning or auditing campaigns.",
+      "example": "kit-pp-cli workflow content-inventory --agent",
+      "why_it_matters": "Use this for content audits and planning instead of separately listing each Kit content surface.",
+      "group": "Content planning"
+    },
+    {
+      "name": "Subscriber Lookup",
+      "command": "workflow subscriber-lookup",
+      "description": "Read-only subscriber dossier by email or id with profile, custom fields, tags, attribution, and email stats.",
+      "rationale": "Combines subscriber details, tags, and engagement stats into a support-safe single-record lookup.",
+      "why_it_matters": "Use this for support, segmentation checks, and personalization debugging before raw subscriber endpoint calls.",
+      "group": "Audience intelligence"
+    }
+  ],
+  "narrative": {
+    "display_name": "Kit",
+    "headline": "Kit CLI with read-only creator operations, audience health, content inventory, and subscriber lookup workflows.",
+    "value_prop": "Wrap Kit's v4 API and add compact workflow commands for the account, audience, content, and subscriber context agents need before choosing narrower endpoint operations.",
+    "quickstart": [
+      {
+        "command": "kit-pp-cli doctor --help",
+        "comment": "Check the auth diagnostic surface before making live API calls."
+      },
+      {
+        "command": "kit-pp-cli workflow creator-snapshot --help",
+        "comment": "Inspect the one-call operating snapshot workflow."
+      },
+      {
+        "command": "kit-pp-cli workflow audience-health --help",
+        "comment": "Inspect the audience health workflow before segmentation or cleanup."
+      }
+    ],
+    "recipes": [
+      {
+        "title": "Plan from account context",
+        "command": "kit-pp-cli workflow creator-snapshot --help"
+      },
+      {
+        "title": "Audit content assets",
+        "command": "kit-pp-cli workflow content-inventory --help"
+      }
+    ]
+  }
+}
