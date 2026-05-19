@@ -61,11 +61,16 @@ Output: structured JSON or a narrative prose block.`,
 			result := bounceWhyResult{Email: email}
 			var narrativeParts []string
 
-			// Check bounces
+			// Check bounces. /v3/suppression/bounces/{email} returns a JSON
+			// array (same schema as the list endpoint), not a single object.
+			// Unmarshaling into a map silently failed, hiding suppressed
+			// bounces from the narrative — matching the pattern already used
+			// for blocks / invalid_emails / spam_reports below.
 			bounceData, err := c.Get("/v3/suppression/bounces/"+email, nil)
 			if err == nil {
-				var bounce map[string]any
-				if json.Unmarshal(bounceData, &bounce) == nil {
+				var bounces []map[string]any
+				if json.Unmarshal(bounceData, &bounces) == nil && len(bounces) > 0 {
+					bounce := bounces[0]
 					if reason, ok := bounce["reason"].(string); ok && reason != "" {
 						result.BounceReason = reason
 					}
