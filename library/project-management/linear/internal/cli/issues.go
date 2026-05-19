@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -176,7 +177,7 @@ func runIssuesGet(cmd *cobra.Command, flags *rootFlags, dbPath, identifier strin
 			return renderIssue(cmd, flags, rows[0], DataProvenance{Source: "local", ResourceType: "issues", Reason: "api_unreachable"})
 		}
 	}
-	return classifyAPIError(liveErr)
+	return classifyAPIError(liveErr, flags)
 }
 
 // fetchIssueLive fetches a single issue by identifier via the Linear GraphQL API.
@@ -238,6 +239,12 @@ func runIssuesList(cmd *cobra.Command, flags *rootFlags, dbPath, assignee, state
 
 	filter := map[string]string{}
 
+	// Key→UUID resolution always goes through the local store. These
+	// reference tables (teams, projects, users) are small, change rarely,
+	// and resolving via API would burn complexity budget on every list
+	// invocation. The user must `sync` at least once before filter keys
+	// resolve; the live-first branch below still calls the API for the
+	// actual issue collection.
 	if assignee != "" {
 		userID, err := resolveAssigneeFilter(flags, db, assignee)
 		if err != nil {
@@ -262,9 +269,35 @@ func runIssuesList(cmd *cobra.Command, flags *rootFlags, dbPath, assignee, state
 		filter["project_id"] = projectID
 	}
 
-	raw, err := db.ListIssues(filter, limit)
-	if err != nil {
-		return err
+	// Honor --data-source for the actual issue fetch. `auto` (default)
+	// tries live-first per the framework's resolveRead pattern; `local`
+	// pins to the store (budget-conscious); `live` errors instead of
+	// falling back. Without this, the v3-ported command silently ignored
+	// the flag and always read local — see the data-source-reasoning
+	// retro candidate for the full story.
+	var raw []json.RawMessage
+	useLive := flags.dataSource != "local"
+	if useLive {
+		raw, err = fetchIssuesLive(cmd.Context(), flags, db, filter, stateFlag, limit)
+		if err != nil {
+			if flags.dataSource == "live" {
+				return err
+			}
+			// auto: fall back to local on network error only — propagate
+			// 4xx/5xx so auth/permission failures don't silently use stale
+			// data.
+			if !isNetworkError(err) {
+				return err
+			}
+			fmt.Fprintln(cmd.ErrOrStderr(), "  (live API unreachable — falling back to local store)")
+			raw = nil
+		}
+	}
+	if raw == nil {
+		raw, err = db.ListIssues(filter, limit)
+		if err != nil {
+			return err
+		}
 	}
 
 	rows := make([]issueRow, 0, len(raw))
@@ -295,6 +328,12 @@ func runIssuesList(cmd *cobra.Command, flags *rootFlags, dbPath, assignee, state
 
 	prov := localProvenance(db, "issues", "user_requested")
 	printProvenance(cmd, len(rows), prov)
+
+	if len(rows) == 0 {
+		hintIfUnsynced(cmd, db, "issues")
+	} else {
+		hintIfStale(cmd, db, "issues", flags.maxAge)
+	}
 
 	if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
 		enc := json.NewEncoder(cmd.OutOrStdout())
@@ -442,4 +481,64 @@ func renderIssue(cmd *cobra.Command, flags *rootFlags, data json.RawMessage, pro
 		return printOutput(cmd.OutOrStdout(), wrapped, true)
 	}
 	return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+}
+
+// fetchIssuesLive queries Linear's `issues(filter:...)` GraphQL endpoint
+// using the filter map produced by runIssuesList. On success, it
+// write-throughs the response into the local store via UpsertIssue so the
+// next --data-source local read sees fresh data. The cliutil/store imports
+// already in this file's import block cover the helpers used here.
+func fetchIssuesLive(ctx context.Context, flags *rootFlags, db *store.Store, filter map[string]string, stateFlag string, limit int) ([]json.RawMessage, error) {
+	c, err := flags.newClient()
+	if err != nil {
+		return nil, err
+	}
+	gqlFilter := map[string]any{}
+	if v, ok := filter["assignee_id"]; ok && v != "" {
+		gqlFilter["assignee"] = map[string]any{"id": map[string]any{"eq": v}}
+	}
+	if v, ok := filter["team_id"]; ok && v != "" {
+		gqlFilter["team"] = map[string]any{"id": map[string]any{"eq": v}}
+	}
+	if v, ok := filter["project_id"]; ok && v != "" {
+		gqlFilter["project"] = map[string]any{"id": map[string]any{"eq": v}}
+	}
+	switch stateFlag {
+	case "", "all":
+		// no filter — return everything
+	case "active":
+		// "active" is the v3 semantic: not completed AND not canceled. Linear's
+		// state.type enum is {backlog, unstarted, started, completed, canceled,
+		// triage}; the live filter uses nin.
+		gqlFilter["state"] = map[string]any{"type": map[string]any{"nin": []string{"completed", "canceled"}}}
+	default:
+		gqlFilter["state"] = map[string]any{"type": map[string]any{"eq": stateFlag}}
+	}
+	page := limit
+	if page <= 0 || page > 100 {
+		page = 100
+	}
+	vars := map[string]any{"first": page, "filter": gqlFilter}
+	var resp struct {
+		Issues struct {
+			Nodes []json.RawMessage `json:"nodes"`
+		} `json:"issues"`
+	}
+	if err := c.QueryInto(client.IssuesQuery, vars, &resp); err != nil {
+		return nil, err
+	}
+	// Write-through: upsert each fetched issue into the local store so
+	// follow-up `--data-source local` reads in the same session are fresh.
+	for _, n := range resp.Issues.Nodes {
+		var meta struct {
+			ID         string `json:"id"`
+			Identifier string `json:"identifier"`
+			Title      string `json:"title"`
+		}
+		if err := json.Unmarshal(n, &meta); err != nil || meta.ID == "" {
+			continue
+		}
+		_ = db.UpsertIssue(meta.ID, meta.Identifier, meta.Title, n)
+	}
+	return resp.Issues.Nodes, nil
 }
