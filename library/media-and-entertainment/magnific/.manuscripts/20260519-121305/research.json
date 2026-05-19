@@ -1,0 +1,321 @@
+{
+  "api_name": "magnific",
+  "novelty_score": 7,
+  "alternatives": [
+    {
+      "name": "freepik-cli",
+      "url": "https://github.com/Balneario-de-Cofrentes/freepik-cli",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 3,
+      "last_updated": "",
+      "command_count": 23,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "freepik-mcp (official)",
+      "url": "https://github.com/freepik-company/freepik-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 67,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "freepik-mcp (mcerqua)",
+      "url": "https://github.com/mcerqua/freepik-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 2,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "freepik-mcp-server (grafikogr)",
+      "url": "https://github.com/grafikogr/freepik-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-19T11:25:00Z",
+  "novel_features": [
+    {
+      "name": "Prompt history FTS",
+      "command": "history search",
+      "description": "Full-text search every prompt you have ever sent to Magnific, filtered by model, date, or cost — your generation archive becomes queryable instead of lost in a tab.",
+      "rationale": "No Magnific API endpoint returns your prompt-text history. SQLite FTS5 over a local prompts table is the only way to recover the prompt that made last month's winning frame.",
+      "example": "magnific-pp-cli history search \"neon city skyline\" --since 90d --json",
+      "why_it_matters": "When the user says 'find the prompt I used for the ACME hero shot' the agent gets a structured answer instead of guessing.",
+      "group": "Local archive that compounds"
+    },
+    {
+      "name": "Model bake-off",
+      "command": "compare",
+      "description": "Fire the same prompt at N image or video models in parallel, then return a manifest of cost, latency, and output URL per model so you can pick the right tool empirically.",
+      "rationale": "Magnific exposes 22+ image models and 60+ video models. No competitor lets you A/B them in one command — `freepik-cli` has --smart auto-selection but no comparison.",
+      "example": "magnific-pp-cli compare \"a futuristic Tokyo street at golden hour\" --models mystic,flux-2-pro,seedream-v4-5,z-image-turbo --aspect 16:9 --json",
+      "why_it_matters": "Answers the recurring question 'is the new model worth the credit cost?' with real outputs and timing, not vendor marketing.",
+      "group": "Cross-model leverage"
+    },
+    {
+      "name": "Unified task wait/watch",
+      "command": "task wait",
+      "description": "Resolve any Magnific task_id back to its model endpoint and block (or stream) until terminal state — one command across all 80+ async model families.",
+      "rationale": "Every Magnific async POST returns a task_id with a model-specific GET endpoint. `freepik-mcp` hand-rolls the polling per route; agents and CI scripts need ONE polling command.",
+      "example": "magnific-pp-cli task wait task-7f3a-... --timeout 5m --json",
+      "why_it_matters": "Lets an agent submit work then block on completion without knowing which of 80+ model families produced the task.",
+      "group": "Async lifecycle, unified"
+    },
+    {
+      "name": "Cost ledger + forecast",
+      "command": "cost ledger",
+      "description": "Local SQL aggregation over every task you have run: spend by model, by day, by tag, with a sibling `cost forecast` that estimates a planned batch against the curated per-model credit cost table.",
+      "rationale": "Magnific's OpenAPI spec does not expose a /v1/me or /v1/credits endpoint — credit balance lives in the web dashboard only. The local tasks table is the only place a historical breakdown can exist.",
+      "example": "magnific-pp-cli cost ledger --since 30d --group-by model --json",
+      "why_it_matters": "Turns 'where did my credits go this month?' from a spreadsheet exercise into one SQL-backed command.",
+      "group": "Credits and accountability"
+    },
+    {
+      "name": "Local asset gallery",
+      "command": "gallery list",
+      "description": "Filter every output you have ever downloaded by tag, date, orientation, or model. Companion `gallery open \u003cid\u003e` reveals the file (opt-in side effect under --launch).",
+      "rationale": "Magnific outputs land at signed URLs that expire; without a local index you cannot answer 'find the upscaled hero frame I made for ACME last Friday.'",
+      "example": "magnific-pp-cli gallery list --tag client-acme --since 7d --orientation landscape --json",
+      "why_it_matters": "Outputs become an addressable archive instead of UUID-named blobs in ~/Downloads.",
+      "group": "Local archive that compounds"
+    },
+    {
+      "name": "Models registry with empirical stats",
+      "command": "models list",
+      "description": "Curated catalog of every Magnific model (family, listed credit cost, capabilities) joined with your local task aggregation (your p50 latency, success rate, $ spent). Sibling `models stats \u003cmodel\u003e` deep-dives one.",
+      "rationale": "388 raw endpoints overwhelm agents; the official Freepik MCP exists to whitelist. A queryable registry with your own data is the answer to 'which model do I actually use?'",
+      "example": "magnific-pp-cli models list --capability text-to-image --sort cost --json",
+      "why_it_matters": "Agents pick the cheapest fit-for-purpose model instead of cargo-culting Mystic for everything.",
+      "group": "Cross-model leverage"
+    },
+    {
+      "name": "Stale-task reconcile",
+      "command": "tasks stale",
+      "description": "Find tasks the local store thinks are still pending past a threshold; sibling `tasks reconcile` re-polls each via the real GET and updates terminal state.",
+      "rationale": "Polling crashes and dropped webhooks leak orphan tasks in the local store; the reconcile pattern is the standard fix from internal/store/*.",
+      "example": "magnific-pp-cli tasks stale --since 24h --json",
+      "why_it_matters": "Keeps the local ledger honest so cost queries and history search are not lying about pending work.",
+      "group": "Async lifecycle, unified"
+    },
+    {
+      "name": "Prompt templates / replay",
+      "command": "prompt save",
+      "description": "Save reusable prompt templates with {{placeholder}} syntax; replay them with --override key=value substitutions through the real Magnific endpoint.",
+      "rationale": "No API endpoint manages reusable prompts; the local prompts table is the natural home.",
+      "example": "magnific-pp-cli prompt run hero-shot --override city=tokyo --override mood=neon --json",
+      "why_it_matters": "Stable prompt surfaces for agents that re-run brand-approved shots across hundreds of variants.",
+      "group": "Local archive that compounds"
+    },
+    {
+      "name": "Stock library local index",
+      "command": "stock library index",
+      "description": "Walk your downloaded Freepik icons/videos/resources into a local FTS5 index. `stock library search` queries that index first before hitting the API.",
+      "rationale": "Freepik's catalog is 250M+ assets so pre-sync is impossible, but your own working set is finite and re-downloads are wasteful.",
+      "example": "magnific-pp-cli stock library search \"rocket icon\" --json",
+      "why_it_matters": "Lets the agent answer 'do we already have this asset?' without an API round-trip.",
+      "group": "Local archive that compounds"
+    },
+    {
+      "name": "Agent context bundle",
+      "command": "context",
+      "description": "Single command emitting JSON with: top 10 most-used models, last 10 prompts, recent output directories, and the live API reachability status. Read-only and MCP-safe.",
+      "rationale": "Agents drown in 388 raw endpoints; the official Magnific MCP exists precisely because of this. A one-shot orientation file is the agent's seatbelt.",
+      "example": "magnific-pp-cli context --json",
+      "why_it_matters": "An agent reads this once at session start and stops asking obvious questions about which model to pick or what's in flight.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Prompt history FTS",
+      "command": "history search",
+      "description": "Full-text search every prompt you have ever sent to Magnific, filtered by model, date, or cost — your generation archive becomes queryable instead of lost in a tab.",
+      "rationale": "No Magnific API endpoint returns your prompt-text history. SQLite FTS5 over a local prompts table is the only way to recover the prompt that made last month's winning frame.",
+      "example": "magnific-pp-cli history search \"neon city skyline\" --since 90d --json",
+      "why_it_matters": "When the user says 'find the prompt I used for the ACME hero shot' the agent gets a structured answer instead of guessing.",
+      "group": "Local archive that compounds"
+    },
+    {
+      "name": "Model bake-off",
+      "command": "compare",
+      "description": "Fire the same prompt at N image or video models in parallel, then return a manifest of cost, latency, and output URL per model so you can pick the right tool empirically.",
+      "rationale": "Magnific exposes 22+ image models and 60+ video models. No competitor lets you A/B them in one command — `freepik-cli` has --smart auto-selection but no comparison.",
+      "example": "magnific-pp-cli compare \"a futuristic Tokyo street at golden hour\" --models mystic,flux-2-pro,seedream-v4-5,z-image-turbo --aspect 16:9 --json",
+      "why_it_matters": "Answers the recurring question 'is the new model worth the credit cost?' with real outputs and timing, not vendor marketing.",
+      "group": "Cross-model leverage"
+    },
+    {
+      "name": "Unified task wait/watch",
+      "command": "task wait",
+      "description": "Resolve any Magnific task_id back to its model endpoint and block (or stream) until terminal state — one command across all 80+ async model families.",
+      "rationale": "Every Magnific async POST returns a task_id with a model-specific GET endpoint. `freepik-mcp` hand-rolls the polling per route; agents and CI scripts need ONE polling command.",
+      "example": "magnific-pp-cli task wait task-7f3a-... --timeout 5m --json",
+      "why_it_matters": "Lets an agent submit work then block on completion without knowing which of 80+ model families produced the task.",
+      "group": "Async lifecycle, unified"
+    },
+    {
+      "name": "Cost ledger + forecast",
+      "command": "cost ledger",
+      "description": "Local SQL aggregation over every task you have run: spend by model, by day, by tag, with a sibling `cost forecast` that estimates a planned batch against the curated per-model credit cost table.",
+      "rationale": "Magnific's OpenAPI spec does not expose a /v1/me or /v1/credits endpoint — credit balance lives in the web dashboard only. The local tasks table is the only place a historical breakdown can exist.",
+      "example": "magnific-pp-cli cost ledger --since 30d --group-by model --json",
+      "why_it_matters": "Turns 'where did my credits go this month?' from a spreadsheet exercise into one SQL-backed command.",
+      "group": "Credits and accountability"
+    },
+    {
+      "name": "Local asset gallery",
+      "command": "gallery list",
+      "description": "Filter every output you have ever downloaded by tag, date, orientation, or model. Companion `gallery open \u003cid\u003e` reveals the file (opt-in side effect under --launch).",
+      "rationale": "Magnific outputs land at signed URLs that expire; without a local index you cannot answer 'find the upscaled hero frame I made for ACME last Friday.'",
+      "example": "magnific-pp-cli gallery list --tag client-acme --since 7d --orientation landscape --json",
+      "why_it_matters": "Outputs become an addressable archive instead of UUID-named blobs in ~/Downloads.",
+      "group": "Local archive that compounds"
+    },
+    {
+      "name": "Models registry with empirical stats",
+      "command": "models list",
+      "description": "Curated catalog of every Magnific model (family, listed credit cost, capabilities) joined with your local task aggregation (your p50 latency, success rate, $ spent). Sibling `models stats \u003cmodel\u003e` deep-dives one.",
+      "rationale": "388 raw endpoints overwhelm agents; the official Freepik MCP exists to whitelist. A queryable registry with your own data is the answer to 'which model do I actually use?'",
+      "example": "magnific-pp-cli models list --capability text-to-image --sort cost --json",
+      "why_it_matters": "Agents pick the cheapest fit-for-purpose model instead of cargo-culting Mystic for everything.",
+      "group": "Cross-model leverage"
+    },
+    {
+      "name": "Stale-task reconcile",
+      "command": "tasks stale",
+      "description": "Find tasks the local store thinks are still pending past a threshold; sibling `tasks reconcile` re-polls each via the real GET and updates terminal state.",
+      "rationale": "Polling crashes and dropped webhooks leak orphan tasks in the local store; the reconcile pattern is the standard fix from internal/store/*.",
+      "example": "magnific-pp-cli tasks stale --since 24h --json",
+      "why_it_matters": "Keeps the local ledger honest so cost queries and history search are not lying about pending work.",
+      "group": "Async lifecycle, unified"
+    },
+    {
+      "name": "Prompt templates / replay",
+      "command": "prompt save",
+      "description": "Save reusable prompt templates with {{placeholder}} syntax; replay them with --override key=value substitutions through the real Magnific endpoint.",
+      "rationale": "No API endpoint manages reusable prompts; the local prompts table is the natural home.",
+      "example": "magnific-pp-cli prompt run hero-shot --override city=tokyo --override mood=neon --json",
+      "why_it_matters": "Stable prompt surfaces for agents that re-run brand-approved shots across hundreds of variants.",
+      "group": "Local archive that compounds"
+    },
+    {
+      "name": "Stock library local index",
+      "command": "stock library index",
+      "description": "Walk your downloaded Freepik icons/videos/resources into a local FTS5 index. `stock library search` queries that index first before hitting the API.",
+      "rationale": "Freepik's catalog is 250M+ assets so pre-sync is impossible, but your own working set is finite and re-downloads are wasteful.",
+      "example": "magnific-pp-cli stock library search \"rocket icon\" --json",
+      "why_it_matters": "Lets the agent answer 'do we already have this asset?' without an API round-trip.",
+      "group": "Local archive that compounds"
+    },
+    {
+      "name": "Agent context bundle",
+      "command": "context",
+      "description": "Single command emitting JSON with: top 10 most-used models, last 10 prompts, recent output directories, and the live API reachability status. Read-only and MCP-safe.",
+      "rationale": "Agents drown in 388 raw endpoints; the official Magnific MCP exists precisely because of this. A one-shot orientation file is the agent's seatbelt.",
+      "example": "magnific-pp-cli context --json",
+      "why_it_matters": "An agent reads this once at session start and stops asking obvious questions about which model to pick or what's in flight.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "narrative": {
+    "display_name": "Magnific",
+    "headline": "Every Magnific feature, plus a local archive of every prompt, task, and credit — so your generation history finally becomes queryable.",
+    "value_prop": "Magnific exposes 80+ AI generation and editing models across image, video, audio, and stock content. This CLI mirrors all of them with the same `x-freepik-api-key` you already have, then adds what the platform cannot: SQLite-backed prompt history, model bake-off (`compare`), unified task polling (`task wait`), a credit-cost ledger, and a local asset gallery. Built as a single Go binary with offline search, agent-native JSON output, and an MCP code-orchestration surface so agents see search+execute instead of 388 raw tools.",
+    "auth_narrative": "Magnific (formerly Freepik) authenticates with a single `x-freepik-api-key` header. The same key works on both `api.freepik.com` and `api.magnific.com`. Set `FREEPIK_API_KEY` (preferred) or the rebrand alias `MAGNIFIC_API_KEY` in your environment, or run `magnific-pp-cli auth set-token \u003ckey\u003e` to write it to your config. Get a key at https://www.magnific.com/api.",
+    "quickstart": [
+      {
+        "command": "magnific-pp-cli auth set-token sk_live_...",
+        "comment": "Store your Magnific/Freepik key once; subsequent commands pick it up."
+      },
+      {
+        "command": "magnific-pp-cli doctor --json",
+        "comment": "Verify auth + connectivity. Magnific has no /v1/me endpoint so a doctor probe is the canonical auth check."
+      },
+      {
+        "command": "magnific-pp-cli context --json",
+        "comment": "Print the agent-native orientation bundle: top models you've used, recent prompts, recent output dirs."
+      },
+      {
+        "command": "magnific-pp-cli compare \"a cinematic Tokyo street at golden hour\" --models mystic,flux-2-pro,seedream-v4-5 --aspect 16:9 --json",
+        "comment": "Run a real bake-off across three flagship image models with cost+latency in the manifest."
+      },
+      {
+        "command": "magnific-pp-cli history search \"tokyo\" --since 30d --json",
+        "comment": "Recover the exact prompt that produced last month's frame."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized with \"No API key provided\"",
+        "fix": "Set `FREEPIK_API_KEY` in your environment or run `magnific-pp-cli auth set-token \u003ckey\u003e`. Same key works for both magnific.com and freepik.com hostnames."
+      },
+      {
+        "symptom": "429 throttled during a bake-off run",
+        "fix": "Magnific enforces 10 req/s average, 50 req/s peak. Reduce `--concurrency` on `compare` or stagger your `task wait` loops."
+      },
+      {
+        "symptom": "task stays in IN_PROGRESS for hours",
+        "fix": "Run `magnific-pp-cli tasks stale --since 30m` to find leaked tasks, then `magnific-pp-cli tasks reconcile` to re-poll terminal state from the real GET endpoints."
+      },
+      {
+        "symptom": "output URL returns 404 days later",
+        "fix": "Magnific signed URLs expire. Use `magnific-pp-cli gallery list` to find local copies — the CLI downloads outputs into the assets table on completion when run with `--download`."
+      }
+    ],
+    "when_to_use": "Reach for this CLI when an agent or pipeline needs to drive Magnific's full AI catalog non-interactively: generating images across multiple models for comparison, polling long-running video tasks without hand-rolled retry loops, querying historical prompt usage to recover a known-good seed, or budgeting credits against the curated per-model cost table. It is the right surface when a Mac-native single-binary install matters more than a pretty TUI, and when MCP code-orchestration matters more than 388 raw tool entries in the agent catalog.",
+    "recipes": [
+      {
+        "title": "Pick the right image model for a brand campaign",
+        "command": "magnific-pp-cli compare \"product hero shot, neon-lit, isometric\" --models mystic,flux-2-pro,seedream-v4-5,z-image-turbo --aspect 1:1 --json --select results[].model,results[].cost_credits,results[].latency_ms,results[].output_url",
+        "explanation": "Fans the same prompt to 4 image models, polls all tasks, and returns only the fields an agent needs to score the winners."
+      },
+      {
+        "title": "Resume work after a polling crash",
+        "command": "magnific-pp-cli tasks stale --since 24h --json \u0026\u0026 magnific-pp-cli tasks reconcile --json",
+        "explanation": "Surfaces tasks the local store thinks are still pending, then re-polls each model endpoint to update terminal state — the standard reconcile fix from internal/store."
+      },
+      {
+        "title": "Search your own generation history",
+        "command": "magnific-pp-cli history search \"tokyo neon\" --since 90d --json --select prompt,model,output_url,credit_cost",
+        "explanation": "FTS5 query against the local prompts table. Returns just the dotted fields agents need; verbose payloads stay out of context."
+      },
+      {
+        "title": "Forecast a video batch before submitting",
+        "command": "magnific-pp-cli cost forecast --model kling-v2-6-pro --count 20 --json",
+        "explanation": "Multiplies the curated per-model credit cost by intended runs so you can compare against your dashboard balance before submitting."
+      },
+      {
+        "title": "Replay an approved prompt with one variable swap",
+        "command": "magnific-pp-cli prompt run hero-shot --override city=osaka --json",
+        "explanation": "Substitutes {{city}} in the saved template and dispatches the real model endpoint, recording the run in the local tasks table for later analytics."
+      }
+    ],
+    "trigger_phrases": [
+      "use magnific",
+      "run magnific-pp-cli",
+      "upscale this image with magnific",
+      "generate a magnific mystic image",
+      "compare image models on magnific",
+      "what did I spend on magnific this month",
+      "find the magnific prompt I used last week"
+    ]
+  }
+}

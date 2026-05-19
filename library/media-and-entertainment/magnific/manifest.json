@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "magnific-pp-mcp",
+  "display_name": "Freepik",
+  "version": "4.9.0",
+  "description": "Freepik API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/magnific-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/magnific-pp-mcp",
+      "args": [],
+      "env": {
+        "MAGNIFIC_API_KEY": "${user_config.magnific_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "magnific_api_key": {
+      "type": "string",
+      "title": "MAGNIFIC_API_KEY",
+      "description": "Sets MAGNIFIC_API_KEY for the Freepik MCP server. Get a credential from https://docs.magnific.com/quickstart.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

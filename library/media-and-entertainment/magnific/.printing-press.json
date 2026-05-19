@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-19T13:50:55.078916Z",
+  "printing_press_version": "4.9.0",
+  "api_name": "magnific",
+  "display_name": "Freepik",
+  "cli_name": "magnific-pp-cli",
+  "owner": "nuno-duarte",
+  "printer": "nunomcduarte",
+  "printer_name": "Nuno Duarte",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:204f50bfe25a9a6dab4987ecfed09dcffaf52c262e6bc9a6d783c4867a79ffc6",
+  "run_id": "20260519-121305",
+  "mcp_binary": "magnific-pp-mcp",
+  "mcp_tool_count": 388,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "MAGNIFIC_API_KEY"
+  ],
+  "auth_key_url": "https://docs.magnific.com/quickstart",
+  "novel_features": [
+    {
+      "name": "Prompt history FTS",
+      "command": "history search",
+      "description": "Full-text search every prompt you have ever sent to Magnific, filtered by model, date, or cost — your generation archive becomes queryable instead of lost in a tab."
+    },
+    {
+      "name": "Model bake-off",
+      "command": "compare",
+      "description": "Fire the same prompt at N image or video models in parallel, then return a manifest of cost, latency, and output URL per model so you can pick the right tool empirically."
+    },
+    {
+      "name": "Unified task wait/watch",
+      "command": "task wait",
+      "description": "Resolve any Magnific task_id back to its model endpoint and block (or stream) until terminal state — one command across all 80+ async model families."
+    },
+    {
+      "name": "Cost ledger + forecast",
+      "command": "cost ledger",
+      "description": "Local SQL aggregation over every task you have run: spend by model, by day, by tag, with a sibling `cost forecast` that estimates a planned batch against the curated per-model credit cost table."
+    },
+    {
+      "name": "Local asset gallery",
+      "command": "gallery list",
+      "description": "Filter every output you have ever downloaded by tag, date, orientation, or model. Companion `gallery open <id>` reveals the file (opt-in side effect under --launch)."
+    },
+    {
+      "name": "Models registry with empirical stats",
+      "command": "models list",
+      "description": "Curated catalog of every Magnific model (family, listed credit cost, capabilities) joined with your local task aggregation (your run count + credits spent per model). Sibling `models stats <model>` reports run / completed / failed counts and success rate."
+    },
+    {
+      "name": "Stale-task reconcile",
+      "command": "tasks stale",
+      "description": "Find tasks the local store thinks are still pending past a threshold; sibling `tasks reconcile` re-polls each via the real GET and updates terminal state."
+    },
+    {
+      "name": "Prompt templates / replay",
+      "command": "prompt save",
+      "description": "Save reusable prompt templates with {{placeholder}} syntax; replay them with --override key=value substitutions through the real Magnific endpoint."
+    },
+    {
+      "name": "Stock library local index",
+      "command": "stock library index",
+      "description": "Walk your downloaded Freepik icons/videos/resources into a local FTS5 index. `stock library search` queries that index first before hitting the API."
+    },
+    {
+      "name": "Agent context bundle",
+      "command": "context",
+      "description": "Single command emitting JSON with: top 10 most-used models, last 10 prompts, recent output directories, and the live API reachability status. Read-only and MCP-safe."
+    }
+  ]
+}

@@ -1,0 +1,123 @@
+{
+  "timestamp": "2026-05-19T13:49:59.327623Z",
+  "cli_dir": "\u003ccli-dir\u003e/magnific-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "ai",
+      "file": "ai.go",
+      "line": 11,
+      "evidence": "Manage ai",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated parent grouper for the ai/* image- and video-model subcommands; richer text must come from a generator-template fix to parentNoSubcommandRunE emitters"
+    },
+    {
+      "kind": "thin-short",
+      "command": "icons",
+      "file": "icons.go",
+      "line": 11,
+      "evidence": "Manage icons",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated parent grouper for icon stock-library subcommands (search/index/download); generator template emits 'Manage \u003cname\u003e' boilerplate that needs a category-aware rewrite"
+    },
+    {
+      "kind": "thin-short",
+      "command": "download",
+      "file": "icons_download.go",
+      "line": 11,
+      "evidence": "Manage download",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated nested parent under icons; download has a single subcommand and the same parentNoSubcommandRunE boilerplate the generator emits for every category node"
+    },
+    {
+      "kind": "missing-read-only",
+      "command": "reconcile",
+      "file": "magnific_tasks_admin.go",
+      "line": 100,
+      "evidence": "name matches read heuristic; no mcp:read-only annotation",
+      "status": "accepted",
+      "note": "Heuristic false positive: 'reconcile' is in the read-shaped name list but RunE re-polls the API for stale tasks AND writes terminal state back to the local SQLite store via store.UpdateTaskTerminalState — a local-write, not a read. mcp:read-only would mislead agents into skipping the permission prompt for a mutation"
+    },
+    {
+      "kind": "thin-short",
+      "command": "music",
+      "file": "music.go",
+      "line": 11,
+      "evidence": "Manage music",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated parent grouper for music/audio stock-library subcommands; generator should emit something like 'Search and download royalty-free music tracks' but currently produces 'Manage \u003cname\u003e' for all category nodes"
+    },
+    {
+      "kind": "thin-short",
+      "command": "download",
+      "file": "music_download.go",
+      "line": 11,
+      "evidence": "Manage download",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated nested parent under music; another instance of the parentNoSubcommandRunE 'Manage \u003cname\u003e' default for download category nodes"
+    },
+    {
+      "kind": "thin-short",
+      "command": "resources",
+      "file": "resources.go",
+      "line": 11,
+      "evidence": "Manage resources",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated parent grouper for stock resources (images/icons/music/sound-effects/videos); 'resources' is itself an umbrella category and the generator-emitted Short doesn't describe the umbrella"
+    },
+    {
+      "kind": "thin-short",
+      "command": "download",
+      "file": "resources_download.go",
+      "line": 11,
+      "evidence": "Manage download",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated nested parent under resources; identical 'Manage download' default the generator emits for every download category node across resources/icons/music/sound-effects/videos"
+    },
+    {
+      "kind": "thin-short",
+      "command": "sound-effects",
+      "file": "sound-effects.go",
+      "line": 11,
+      "evidence": "Manage sound effects",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated parent grouper for the sound-effects stock-library subcommands; an agent-grade Short would name search/download/by-duration filters"
+    },
+    {
+      "kind": "thin-short",
+      "command": "download",
+      "file": "sound-effects_download.go",
+      "line": 11,
+      "evidence": "Manage download",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated nested parent under sound-effects; identical boilerplate to the other download category nodes — same generator-template fix repairs all five"
+    },
+    {
+      "kind": "thin-short",
+      "command": "videos",
+      "file": "videos.go",
+      "line": 11,
+      "evidence": "Manage videos",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated parent grouper for video stock-library subcommands; carries an options sub-grouper plus search/download, so the rewrite should mention duration/resolution filters"
+    },
+    {
+      "kind": "thin-short",
+      "command": "download",
+      "file": "videos_download.go",
+      "line": 11,
+      "evidence": "Manage download",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated nested parent under videos; identical boilerplate to the other download category nodes — same generator-template fix repairs all five"
+    },
+    {
+      "kind": "thin-short",
+      "command": "options",
+      "file": "videos_options.go",
+      "line": 11,
+      "evidence": "Manage options",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated nested parent under videos exposing video model registry/options subcommands; the Short should describe the model-catalog surface but currently inherits the generator boilerplate"
+    }
+  ]
+}
