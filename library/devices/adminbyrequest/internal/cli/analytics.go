@@ -6,6 +6,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"os"
 	"sort"
 
@@ -93,7 +94,11 @@ Data must be synced first with the sync command.`,
 }
 
 func runGroupBy(db *store.Store, resourceType, field string, limit int, flags *rootFlags) error {
-	items, err := db.List(resourceType, 0)
+	// Pass math.MaxInt to bypass store.List's default-200 cap — group-by
+	// counts must aggregate the entire resource population, not a paginated
+	// slice. The user-visible --limit caps the sorted output below, not the
+	// scan size.
+	items, err := db.List(resourceType, math.MaxInt)
 	if err != nil {
 		return err
 	}
