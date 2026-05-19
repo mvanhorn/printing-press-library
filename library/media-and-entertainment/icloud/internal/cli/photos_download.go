@@ -203,21 +203,33 @@ end tell
 		}
 	}
 
-	// Match each UUID to a newly appeared file by filename (case-insensitive).
+	// Match each UUID to a newly appeared file by filename (case-insensitive),
+	// then rename to <UUID>.<ext> so callers can process by UUID directly.
 	for _, a := range valid {
-		matched := false
 		lower := strings.ToLower(a.Filename)
+		matchedName := ""
 		for name := range newFiles {
 			if strings.ToLower(name) == lower {
-				matched = true
+				matchedName = name
 				break
 			}
 		}
-		if matched {
-			results[a.UUID] = nil
-		} else {
+		if matchedName == "" {
 			results[a.UUID] = fmt.Errorf("file not found after export — may still be downloading from iCloud")
+			continue
 		}
+
+		ext := strings.ToLower(filepath.Ext(matchedName))
+		uuidName := a.UUID + ext
+		oldPath := filepath.Join(destDir, matchedName)
+		newPath := filepath.Join(destDir, uuidName)
+		if oldPath != newPath {
+			if err := os.Rename(oldPath, newPath); err != nil {
+				results[a.UUID] = fmt.Errorf("exported but rename failed: %w", err)
+				continue
+			}
+		}
+		results[a.UUID] = nil
 	}
 	return results, nil
 }
