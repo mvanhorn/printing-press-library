@@ -1,0 +1,237 @@
+name: naver-blog
+description: "Read-only CLI for searching and extracting public Naver Blog (네이버 블로그) posts — engagement metrics that match the live page exactly, no Playwright required."
+version: "0.1.0"
+base_url: "https://m.blog.naver.com"
+http_transport: standard
+health_check_path: "/"
+cli_description: "Search, fetch, and aggregate public Naver Blog posts — title, body, tags, likes (공감), comments — with a local SQLite store and offline search."
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/naver-blog-pp-cli/config.toml"
+
+required_headers:
+  - name: User-Agent
+    value: "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1"
+  - name: Accept-Language
+    value: "ko-KR,ko;q=0.9,en;q=0.8"
+
+resources:
+  posts:
+    description: "Public post lookups (single post or batch). Returns title, body, tags, likes (공감), comments. Engagement matches the live page exactly via the public reaction API — no Playwright."
+    endpoints:
+      get:
+        method: GET
+        path: "/{blog_id}/{log_no}"
+        description: "Get a single Naver Blog post by blog ID and log number. Extracts title, body, tags from the mobile post page, then queries the reaction API for the like count and PostView.naver for comment count. Output matches what you see in a browser."
+        params:
+          - name: blog_id
+            type: string
+            required: true
+            positional: true
+            description: "Blog ID (the part after the slash in blog.naver.com/<this>/123456789)"
+          - name: log_no
+            type: string
+            required: true
+            positional: true
+            description: "Log/post number (12+ digit integer at the end of the post URL)"
+        response:
+          type: object
+          item: Post
+
+  blogs:
+    description: "Per-blog feeds. The feed JSON endpoint returns 30 recent posts per page, each with sympathyCnt (likes), commentCnt, shareCnt, readCount, briefContents, and addDate — all in one HTTP call."
+    endpoints:
+      feed:
+        method: GET
+        path: "/api/blogs/{blog_id}/post-list"
+        description: "List recent posts from a Naver blog with engagement metrics already populated. Pagination via --page; items array is empty when no more pages."
+        params:
+          - name: blog_id
+            type: string
+            required: true
+            positional: true
+            description: "Blog ID to list (e.g., 'naver_diary')"
+          - name: categoryNo
+            flag_name: category
+            aliases: []
+            type: int
+            default: 0
+            description: "Category ID filter (0 = all categories; positive int = specific category)"
+          - name: itemCount
+            flag_name: limit
+            type: int
+            default: 30
+            description: "Max posts per page (Naver caps at ~30)"
+          - name: page
+            type: int
+            default: 1
+            description: "Page number (1-indexed)"
+        response:
+          type: array
+          item: FeedPost
+        response_path: "result.items"
+
+  find:
+    description: "Online discovery against Naver integrated search (m.search.naver.com). Use 'find posts' for keyword queries, 'find hashtag' for tag queries. Returns ~22 results per page with title and snippet. (Note: the press's built-in 'search' command does offline FTS over the local SQLite cache; this 'find' resource is for live Naver searches.)"
+    base_url: "https://m.search.naver.com"
+    endpoints:
+      posts:
+        method: GET
+        path: "/search.naver"
+        description: "Find Naver Blog posts by keyword (live Naver search). Returns mobile blog URLs, title, and snippet. Pair with --agent --select to narrow the output for AI consumers."
+        params:
+          - name: where
+            type: string
+            default: "m_view"
+            description: "Naver search vertical (default 'm_view' = mobile integrated view; do not change unless you know the Naver internal vertical codes)"
+          - name: query
+            type: string
+            required: true
+            description: "Search query (Korean preferred; UTF-8). URL-encoded automatically."
+          - name: month
+            type: string
+            description: "Optional YYYY-MM filter to bound results by upload month (applied client-side)"
+          - name: limit
+            type: int
+            default: 22
+            description: "Max results to return (1-22; one SERP page)"
+        response:
+          type: array
+          item: SearchResult
+
+      hashtag:
+        method: GET
+        path: "/search.naver"
+        description: "Search Naver Blog posts by hashtag(s). Use 'tag1,tag2' for multiple; --require-all returns only posts containing all tags."
+        params:
+          - name: where
+            type: string
+            default: "m_view"
+            description: "Naver search vertical"
+          - name: tags
+            type: string
+            required: true
+            description: "Comma-separated hashtag(s) without '#'; the CLI adds '#' to each before query"
+          - name: require-all
+            type: bool
+            default: false
+            description: "When set, return only posts that match every tag (intersect results)"
+          - name: month
+            type: string
+            description: "Optional YYYY-MM filter"
+          - name: limit
+            type: int
+            default: 22
+            description: "Max results per tag"
+        response:
+          type: array
+          item: SearchResult
+
+  reactions:
+    description: "Public reaction (likes/공감) API. Single REST call returns counts for one or many posts. Same integer Naver renders to the page."
+    base_url: "https://apis.naver.com"
+    endpoints:
+      get:
+        method: GET
+        path: "/blogserver/like/v1/search/contents"
+        description: "Get like/공감 counts for one or more posts. The 'q' parameter is composed as BLOG[blog_id_log_no,blog_id_log_no,...] — the post command builds this automatically; use directly only for batch queries."
+        params:
+          - name: pool
+            type: string
+            default: "blogid"
+            description: "Reaction pool (always 'blogid' for Naver Blog)"
+          - name: q
+            type: string
+            required: true
+            description: "Query composed as BLOG[id_logno,id_logno,...]"
+          - name: isDuplication
+            flag_name: dedupe
+            type: bool
+            default: false
+            description: "Naver internal: deduplicate contents (false in production)"
+        response:
+          type: object
+          item: ReactionBatch
+
+types:
+  Post:
+    fields:
+      - name: url
+        type: string
+      - name: blog_id
+        type: string
+      - name: log_no
+        type: string
+      - name: title
+        type: string
+      - name: body_text
+        type: string
+      - name: tags
+        type: string
+      - name: likes
+        type: int
+      - name: comments
+        type: int
+      - name: published_at
+        type: string
+      - name: thumbnail_url
+        type: string
+      - name: category_name
+        type: string
+      - name: nickname
+        type: string
+
+  FeedPost:
+    fields:
+      - name: logNo
+        type: int
+      - name: domainIdOrBlogId
+        type: string
+      - name: titleWithInspectMessage
+        type: string
+      - name: briefContents
+        type: string
+      - name: sympathyCnt
+        type: int
+      - name: commentCnt
+        type: int
+      - name: shareCnt
+        type: int
+      - name: readCount
+        type: int
+      - name: addDate
+        type: int
+      - name: categoryName
+        type: string
+      - name: thumbnailUrl
+        type: string
+
+  SearchResult:
+    fields:
+      - name: rank
+        type: int
+      - name: url
+        type: string
+      - name: blog_id
+        type: string
+      - name: log_no
+        type: string
+      - name: title
+        type: string
+      - name: snippet
+        type: string
+      - name: hashtag_match
+        type: string
+
+  ReactionBatch:
+    fields:
+      - name: serviceId
+        type: string
+      - name: contentsId
+        type: string
+      - name: count
+        type: int

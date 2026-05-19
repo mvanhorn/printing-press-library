@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "api_name": "naver-blog",
+  "run_id": "20260519-162524",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 73,
+  "tests_passed": 69,
+  "tests_failed": 0,
+  "auth_context": {
+    "type": "none",
+    "api_key_available": false,
+    "browser_session_available": false
+  },
+  "false_positives_documented": [
+    {
+      "test": "hashtag __printing_press_invalid__ (error_path)",
+      "reason": "The CLI treats any string as a valid hashtag query; Naver's search returns matching posts regardless. The CLI is correct; the runner cannot know that hashtag commands accept any string."
+    },
+    {
+      "test": "post-batch --urls urls.csv (happy_path + json_fidelity)",
+      "reason": "The runner does not pre-create the placeholder file. The CLI correctly errors when the file is missing. Real users always pass a real file."
+    },
+    {
+      "test": "query __printing_press_invalid__ (error_path)",
+      "reason": "The CLI returns an empty array + a friendly hint when the local cache has no matching rows. The runner expected non-zero exit; empty-results-is-not-an-error is correct UX for FTS commands."
+    }
+  ],
+  "polish_summary": {
+    "ship_recommendation": "ship",
+    "scorecard_before": 83,
+    "scorecard_after": 88,
+    "verify_before": 80,
+    "verify_after": 100,
+    "dogfood_before": "WARN",
+    "dogfood_after": "PASS",
+    "remaining_issues": []
+  }
+}

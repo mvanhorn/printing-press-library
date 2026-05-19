@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "naver-blog-pp-mcp",
+  "display_name": "Naver Blog",
+  "version": "4.9.0",
+  "description": "Search, fetch, and aggregate public Naver Blog posts — title, body, tags, likes (공감), comments — with a local SQLite store and offline search.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/naver-blog-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/naver-blog-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

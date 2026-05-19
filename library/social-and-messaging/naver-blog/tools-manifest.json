@@ -1,0 +1,184 @@
+{
+  "api_name": "naver-blog",
+  "base_url": "https://m.blog.naver.com",
+  "description": "Read-only CLI for searching and extracting public Naver Blog (네이버 블로그) posts — engagement metrics that match the live page exactly, no Playwright required.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1"
+    },
+    {
+      "name": "Accept-Language",
+      "value": "ko-KR,ko;q=0.9,en;q=0.8"
+    }
+  ],
+  "tools": [
+    {
+      "name": "blogs_feed",
+      "description": "List recent posts from a Naver blog with engagement metrics already populated. Pagination via --page; items array is empty when no more pages. Required: blog_id. Optional: category (default: 0), limit (default: 30), page (default: 1). Returns array of FeedPost.",
+      "method": "GET",
+      "path": "/api/blogs/{blog_id}/post-list",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "blog_id",
+          "type": "string",
+          "location": "path",
+          "description": "Blog ID to list (e.g., 'naver_diary')",
+          "required": true
+        },
+        {
+          "name": "category",
+          "wire_name": "categoryNo",
+          "type": "int",
+          "location": "query",
+          "description": "Category ID filter (0 = all categories; positive int = specific category)"
+        },
+        {
+          "name": "limit",
+          "wire_name": "itemCount",
+          "type": "int",
+          "location": "query",
+          "description": "Max posts per page (Naver caps at ~30)"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-indexed)"
+        }
+      ]
+    },
+    {
+      "name": "find_hashtag",
+      "description": "Search Naver Blog posts by hashtag(s). Use 'tag1,tag2' for multiple; --require-all returns only posts containing all tags. Required: tags. Optional: where (default: m_view), require-all (default: false), month (plus 1 more).",
+      "method": "GET",
+      "path": "/search.naver",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "where",
+          "type": "string",
+          "location": "query",
+          "description": "Naver search vertical"
+        },
+        {
+          "name": "tags",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated hashtag(s) without '#'; the CLI adds '#' to each before query",
+          "required": true
+        },
+        {
+          "name": "require-all",
+          "type": "bool",
+          "location": "query",
+          "description": "When set, return only posts that match every tag (intersect results)"
+        },
+        {
+          "name": "month",
+          "type": "string",
+          "location": "query",
+          "description": "Optional YYYY-MM filter"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max results per tag"
+        }
+      ]
+    },
+    {
+      "name": "find_posts",
+      "description": "Find Naver Blog posts by keyword (live Naver search). Returns mobile blog URLs, title, and snippet. Pair with --agent --select to narrow the output for AI consumers. Required: query. Optional: where (default: m_view), month, limit (default: 22).",
+      "method": "GET",
+      "path": "/search.naver",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "where",
+          "type": "string",
+          "location": "query",
+          "description": "Naver search vertical (default 'm_view' = mobile integrated view; do not change unless you know the Naver internal vertical codes)"
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Search query (Korean preferred; UTF-8). URL-encoded automatically.",
+          "required": true
+        },
+        {
+          "name": "month",
+          "type": "string",
+          "location": "query",
+          "description": "Optional YYYY-MM filter to bound results by upload month (applied client-side)"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max results to return (1-22; one SERP page)"
+        }
+      ]
+    },
+    {
+      "name": "posts_get",
+      "description": "Get a single Naver Blog post by blog ID and log number. Extracts title, body, tags from the mobile post page, then queries the reaction API for the like count and PostView.naver for comment count. Output matches what you see in a browser. Required: blog_id, log_no. Returns the Post.",
+      "method": "GET",
+      "path": "/{blog_id}/{log_no}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "blog_id",
+          "type": "string",
+          "location": "path",
+          "description": "Blog ID (the part after the slash in blog.naver.com/\u003cthis\u003e/123456789)",
+          "required": true
+        },
+        {
+          "name": "log_no",
+          "type": "string",
+          "location": "path",
+          "description": "Log/post number (12+ digit integer at the end of the post URL)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "reactions_get",
+      "description": "Get like/공감 counts for one or more posts. The 'q' parameter is composed as BLOG[blog_id_log_no,blog_id_log_no,...] — the post command builds this automatically; use directly only for batch queries. Required: q. Optional: pool (default: blogid), dedupe (default: false). Returns the ReactionBatch.",
+      "method": "GET",
+      "path": "/blogserver/like/v1/search/contents",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "pool",
+          "type": "string",
+          "location": "query",
+          "description": "Reaction pool (always 'blogid' for Naver Blog)"
+        },
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Query composed as BLOG[id_logno,id_logno,...]",
+          "required": true
+        },
+        {
+          "name": "dedupe",
+          "wire_name": "isDuplication",
+          "type": "bool",
+          "location": "query",
+          "description": "Naver internal: deduplicate contents (false in production)"
+        }
+      ]
+    }
+  ]
+}

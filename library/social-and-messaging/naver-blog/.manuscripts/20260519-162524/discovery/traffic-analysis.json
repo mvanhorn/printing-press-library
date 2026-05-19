@@ -1,0 +1,96 @@
+{
+  "api_name": "naver-blog",
+  "primary_host": "m.blog.naver.com",
+  "hosts_used": [
+    "m.blog.naver.com",
+    "blog.naver.com",
+    "apis.naver.com",
+    "m.search.naver.com",
+    "search.naver.com"
+  ],
+  "reachability": {
+    "mode": "standard_http",
+    "evidence": "All 5 confirmed endpoints answered direct curl with no challenge, no Cloudflare, no Vercel mitigation, no clearance cookie required. Plain HTTPS GET, ~100-300ms latency, valid responses.",
+    "probed_at": "2026-05-19T07:30:00Z"
+  },
+  "auth": {
+    "observed_modes": ["none"],
+    "evidence": "Empty cookie jar, no Authorization header, no X-Naver-Client-Id, all endpoints returned 200 with full data."
+  },
+  "client_pattern": "rest",
+  "transport_recommendation": "standard",
+  "endpoint_clusters": [
+    {
+      "name": "per-blog-feed",
+      "host": "m.blog.naver.com",
+      "path_pattern": "/api/blogs/{blog_id}/post-list",
+      "method": "GET",
+      "response_format": "json",
+      "auth_required": false,
+      "rate_limit_observed": "1-3s between requests is safe per OSS scrapers; no 429 seen",
+      "engagement_fields_present": ["sympathyCnt", "commentCnt", "shareCnt", "readCount"],
+      "observed_auth": [],
+      "notes": "Returns 30 posts per page with engagement metrics inline. totalCount field is unreliable (always 0); paginate until items array is empty."
+    },
+    {
+      "name": "post-detail-mobile",
+      "host": "m.blog.naver.com",
+      "path_pattern": "/{blog_id}/{log_no}",
+      "method": "GET",
+      "response_format": "html",
+      "auth_required": false,
+      "inline_extractors": {
+        "title": "og:title meta",
+        "description": "og:description meta",
+        "thumbnail": "og:image meta",
+        "tags": "gsTagName JS assignment (comma-separated)",
+        "body_html": ".se-main-container block (no iframe on mobile)"
+      },
+      "observed_auth": [],
+      "notes": "Mobile URL renders post body inline; PC URL wraps in iframe (avoid). gsTagName is the only stable tag source on the mobile page."
+    },
+    {
+      "name": "post-detail-pc-postview",
+      "host": "blog.naver.com",
+      "path_pattern": "/PostView.naver",
+      "method": "GET",
+      "response_format": "html",
+      "auth_required": false,
+      "inline_extractors": {
+        "comment_count": "<em id=\"commentCount\">N</em> (empty == 0)",
+        "publish_date": "<span class=\"se_publishDate\">YYYY. M. D. HH:mm</span> (KST)"
+      },
+      "observed_auth": [],
+      "notes": "Use only as a fallback when feed JSON doesn't cover the post (older posts). Larger payload (~250KB)."
+    },
+    {
+      "name": "reaction-api",
+      "host": "apis.naver.com",
+      "path_pattern": "/blogserver/like/v1/search/contents",
+      "method": "GET",
+      "response_format": "json",
+      "auth_required": false,
+      "batchable": true,
+      "query_params": ["pool=blogid", "q=BLOG[id_logno,...]", "isDuplication=false"],
+      "observed_auth": [],
+      "notes": "🏆 The Phase 1.7 win. Public, batchable, no headers required. Returns reactions[].count where reactionType=='like'. Eliminates Playwright fallback entirely."
+    },
+    {
+      "name": "search-serp-mobile",
+      "host": "m.search.naver.com",
+      "path_pattern": "/search.naver",
+      "method": "GET",
+      "response_format": "html",
+      "auth_required": false,
+      "query_params": ["where=m_view", "query={urlencoded}"],
+      "observed_auth": [],
+      "notes": "22 m.blog.naver.com URLs per page. Hashtag works via %23<tag> prefix. Pagination behavior beyond first page is unstable; defer."
+    }
+  ],
+  "warnings": [
+    "Search/hashtag SERP selectors may rotate (scrapfly 2025/26 notes). Phase 3 should ship dual-selector strategy (modern + legacy) and a --debug-html flag.",
+    "Feed JSON 'totalCount' field is misleading; rely on length of 'items'.",
+    "Post titles in feed JSON ('titleWithInspectMessage') may be URL-encoded; decode before display.",
+    "PC URL (blog.naver.com/{id}/{n}) iframe-wraps body content; mobile URL does not. Always canonicalize to mobile URL for body extraction."
+  ]
+}

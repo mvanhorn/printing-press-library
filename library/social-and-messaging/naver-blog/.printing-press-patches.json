@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-19",
+  "base_run_id": "20260519-162524",
+  "base_printing_press_version": "4.9.0",
+  "patches": [
+    {
+      "id": "comments-extraction-v2",
+      "summary": "Adds posts-comments and posts --include-comments using Naver's public cbox endpoint.",
+      "reason": "The generated CLI only exposed comment counts; v2 needs actual comment author/body/timestamp/like data for engagement-quality audits.",
+      "files": [
+        ".printing-press.json",
+        "README.md",
+        "SKILL.md",
+        "internal/cli/post_alias.go",
+        "internal/cli/posts_comments.go",
+        "internal/cli/promoted_posts.go",
+        "internal/cli/root.go",
+        "internal/cli/which.go",
+        "internal/cliutil/cliutil_test.go",
+        "internal/cliutil/probe.go",
+        "internal/lib/commentapi/commentapi.go",
+        "internal/lib/commentapi/commentapi_test.go",
+        "internal/lib/reactionapi/reactionapi_test.go"
+      ],
+      "validated_outcome": "go build ./..., go vet ./..., and go test ./... pass with GOCACHE=/private/tmp/naver-blog-go-cache; live smoke is blocked by sandbox DNS; shipcheck reaches 5/6 legs, with verify blocked by sandbox loopback-listener restrictions."
+    },
+    {
+      "id": "scorecard-quality-polish",
+      "summary": "Adds plain output, explicit terminal detection, cache TTL expiry, typed blog feed projection, and streamable HTTP MCP transport.",
+      "reason": "These are narrow quality improvements requested after the baseline scorecard: better shell output, clearer terminal behavior, bounded HTTP cache staleness, safer Naver feed numeric decoding, and remote MCP transport support.",
+      "files": [
+        "README.md",
+        "cmd/naver-blog-pp-mcp/main.go",
+        "internal/cli/doctor.go",
+        "internal/cli/helpers.go",
+        "internal/cli/promoted_blogs.go",
+        "internal/cli/root.go",
+        "internal/client/client.go",
+        "internal/client/client_test.go"
+      ],
+      "validated_outcome": "go build ./..., go vet ./..., and go test ./... pass with GOCACHE=/private/tmp/naver-blog-go-cache; scorecard is 90/100; shipcheck reaches 5/6 legs with verify blocked by sandbox loopback-listener restrictions."
+    },
+    {
+      "id": "general-blog-coverage-v3",
+      "summary": "Broadens the CLI from campaign-specific scraping to general Naver Blog metadata, media, feed, and comment coverage.",
+      "reason": "General-purpose influencer and blog audits need profile reach signals, post media URLs, dropped feed metadata, and media-rich comment content that the generated baseline did not surface.",
+      "files": [
+        ".printing-press.json",
+        "README.md",
+        "SKILL.md",
+        "internal/cli/blogs_info.go",
+        "internal/cli/blogs_health.go",
+        "internal/cli/feed_alias.go",
+        "internal/cli/posts_comments.go",
+        "internal/cli/promoted_blogs.go",
+        "internal/cli/promoted_blogs_test.go",
+        "internal/cli/promoted_posts.go",
+        "internal/cli/root.go",
+        "internal/cli/which.go",
+        "internal/lib/blogapi/blogapi.go",
+        "internal/lib/blogapi/blogapi_test.go",
+        "internal/lib/commentapi/commentapi.go",
+        "internal/lib/commentapi/commentapi_test.go",
+        "internal/lib/postparse/postparse.go",
+        "internal/lib/postparse/postparse_test.go"
+      ],
+      "validated_outcome": "go build ./..., go vet ./..., and go test ./... pass with GOCACHE=/private/tmp/naver-blog-go-cache after each scope item; original research.json writeback is blocked by sandbox permissions."
+    },
+    {
+      "id": "b17-engagement-primitive",
+      "summary": "Fixes PostView URL generation and routes posts, bundle, and batch engagement through a shared cbox/reaction/PostView primitive.",
+      "reason": "Naver no longer inlines comment counts in the old PostView shape; cbox is now the authoritative comment-count source while PostView remains useful for publish dates.",
+      "files": [
+        "internal/cli/bundle.go",
+        "internal/cli/posts_batch.go",
+        "internal/cli/promoted_posts.go",
+        "internal/lib/engagement/engagement.go",
+        "internal/lib/engagement/engagement_test.go",
+        "internal/lib/naverurl/naverurl.go",
+        "internal/lib/naverurl/naverurl_test.go",
+        "internal/lib/postparse/postparse.go",
+        "internal/store/store.go"
+      ],
+      "validated_outcome": "GOCACHE=/private/tmp/naver-blog-go-build go build ./... and go test ./... pass; live Naver smokes are blocked by sandbox DNS; shipcheck still fails verify because printing-press builds ./cmd, which has no Go files in this tree."
+    }
+  ]
+}

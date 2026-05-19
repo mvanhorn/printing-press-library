@@ -1,0 +1,51 @@
+version: 2
+project_name: naver-blog-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: naver-blog-pp-cli
+    main: ./cmd/naver-blog-pp-cli
+    binary: naver-blog-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/social-and-messaging/naver-blog/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: naver-blog-pp-mcp
+    main: ./cmd/naver-blog-pp-mcp
+    binary: naver-blog-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: naver-blog-pp-cli
+    repository:
+      owner: user
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every Naver Blog feature the OSS ecosystem has learned, in one Go binary — with a local SQLite store, an offline..."
+    install: |
+      bin.install "naver-blog-pp-cli"
+      bin.install "naver-blog-pp-mcp"

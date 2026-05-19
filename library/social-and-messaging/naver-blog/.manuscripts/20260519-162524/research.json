@@ -1,0 +1,360 @@
+{
+  "api_name": "naver-blog",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "baek-labs/hames (naver_blog_scraper.js)",
+      "url": "https://github.com/baek-labs/hames",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "krsite-dl/krsite-dl",
+      "url": "https://github.com/krsite-dl/krsite-dl",
+      "language": "Python",
+      "install_method": "",
+      "stars": 7,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "snudm/naver-blog-crawler",
+      "url": "https://github.com/snudm/naver-blog-crawler",
+      "language": "Python",
+      "install_method": "",
+      "stars": 30,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "tiger-beom/naverblog_scraping",
+      "url": "https://github.com/tiger-beom/naverblog_scraping",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "isnow890/naver-search-mcp",
+      "url": "https://github.com/isnow890/naver-search-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "hyunsikhwang/naverblog",
+      "url": "https://github.com/hyunsikhwang/naverblog",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-19T16:35:00Z",
+  "novel_features": [
+    {
+      "name": "Engagement diff over time",
+      "command": "posts-diff",
+      "description": "See exactly which posts gained likes or comments since you last checked, without re-scraping everything.",
+      "rationale": "Requires local engagement_history snapshots in SQLite; no public Naver endpoint answers 'what changed since last Friday'. Every competing scraper is point-in-time.",
+      "example": "naver-blog-pp-cli posts-diff https://blog.naver.com/selly9401/224234460263 --since 24h --agent",
+      "why_it_matters": "When an agent is asked 'which Chilly posts moved this week', this is the one-call answer — no full re-crawl.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Sponsored-post detector",
+      "command": "posts --flag-sponsored",
+      "description": "Mechanically detects KFTC-required sponsored-post disclosure phrases in the body — 협찬, 체험단, 광고 포함, 유료광고 포함 — and returns a sponsored boolean plus the matched markers.",
+      "rationale": "Korean Fair Trade Commission mandates a finite phrase set for sponsored disclosure; a regex over body_text is byte-perfect. No OSS scraper composes this. Not LLM-dependent.",
+      "example": "naver-blog-pp-cli posts selly9401 224234460263 --flag-sponsored --agent --select sponsored,sponsored_markers,title",
+      "why_it_matters": "Distinguishes genuine reviews from paid placements for influencer-audit workflows.",
+      "group": "Korean content-pattern intelligence"
+    },
+    {
+      "name": "Influencer health snapshot",
+      "command": "blogs-health",
+      "description": "Given a file of blog IDs, returns posts-this-week, median likes, median comments, sponsored ratio, and days-since-last-post — one command, every influencer.",
+      "rationale": "Combines feed walk + engagement + sponsored detector (the press's own composition) over N blogs. Pure local SQL after sync. No Naver endpoint surfaces this aggregate.",
+      "example": "naver-blog-pp-cli blogs-health --ids-file ~/.config/influencers.txt --window 7d --agent",
+      "why_it_matters": "Replaces a Friday-afternoon Notion-doc-writing ritual with a deterministic JSON.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Query bundle (cron-mode)",
+      "command": "bundle",
+      "description": "Runs a list of keyword/hashtag queries from a YAML/JSONL file, enriches every result with engagement, dedupes by canonical URL, and streams a sheet-ready TSV — one binary replaces the Hermes web_search + web_extract + Playwright pipeline.",
+      "rationale": "Composes search + hashtag + reaction API in one batch with the local SQLite cache. The headline integration story.",
+      "example": "naver-blog-pp-cli bundle ~/.config/chilly-queries.yaml --format tsv",
+      "why_it_matters": "The Monday-morning Chilly Hermes cron becomes one CLI invocation with no Chromium dependency.",
+      "group": "Headline integration"
+    },
+    {
+      "name": "Offline Korean FTS",
+      "command": "query",
+      "description": "Korean-aware FTS5 over every post ever cached — title, body, tags, nickname — ranked by FTS relevance and likes.",
+      "rationale": "Korean tokenization in FTS5 with unicode61 + trigram fallback works offline against the local store; no Naver tool ships this.",
+      "example": "naver-blog-pp-cli query '여성청결제 후기' --limit 20 --agent --select url,title,likes",
+      "why_it_matters": "Rerun the same campaign query weekly without paying for new Naver fetches.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Hashtag co-occurrence",
+      "command": "neighbors",
+      "description": "For a target hashtag, returns the top N hashtags that travel with it across the cached corpus — the campaign 'neighborhood'.",
+      "rationale": "Local SQL join over posts.tags_json. Korean blog culture clusters hashtags densely per post; no API surfaces co-occurrence.",
+      "example": "naver-blog-pp-cli neighbors '#칠리여성청결제' --top 20 --agent",
+      "why_it_matters": "Strategy signal for campaign hashtag expansion.",
+      "group": "Korean content-pattern intelligence"
+    },
+    {
+      "name": "File-driven URL backfill (order-preserving, mixed-format)",
+      "command": "batch",
+      "description": "Accepts CSV / JSON column / newline-delimited URLs in any mix of m.blog.naver.com / blog.naver.com / PostView.naver shapes; canonicalizes each; runs concurrent fetches with adaptive rate limiting; preserves input order; emits per-URL error JSON for failures.",
+      "rationale": "The reaction API is batchable, so engagement is O(1) per N posts. The file-driven, mixed-format, order-preserving slice is what no OSS tool ships.",
+      "example": "naver-blog-pp-cli batch --from-file slack-bundle.csv --agent",
+      "why_it_matters": "Slack-bundle workflow: paste a column of URLs, get a column of engagement.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Category browse",
+      "command": "categories",
+      "description": "Lists a blog's numbered Naver categories with post counts; --category flag filters feed/local-search results by category number.",
+      "rationale": "Naver-specific (numbered categories are core platform UX); feed JSON already returns category info so this is local query.",
+      "example": "naver-blog-pp-cli categories selly9401 --agent",
+      "why_it_matters": "Topic-segment an influencer (e.g., only their beauty posts) without crawling everything.",
+      "group": "Korean content-pattern intelligence"
+    },
+    {
+      "name": "Comments extraction",
+      "command": "posts-comments",
+      "description": "Fetch the actual content of comments on a Naver Blog post — author, body, timestamps, like counts — via the public cbox endpoint. Optional flat or nested-tree output.",
+      "rationale": "The cbox endpoint is public for ticket=blog with the right objectId shape (\u003cblogNo\u003e_201_\u003clogNo\u003e); no OSS scraper documents this — they all either use the deprecated .nhn endpoint or skip comments entirely.",
+      "example": "naver-blog-pp-cli posts-comments https://blog.naver.com/perfect62/224286416663 --agent",
+      "why_it_matters": "When auditing influencer engagement quality, the content of comments matters as much as the count — bot comments, identical-template spam, or genuine engagement.",
+      "group": "Korean content-pattern intelligence"
+    },
+    {
+      "name": "Blog profile metadata",
+      "command": "blogs-info",
+      "description": "Get rich blog profile data: subscriber count, daily/total visitor counts, Naver Power Blog status, directory category, profile/cover images — everything Naver shows on the blog homepage.",
+      "rationale": "The /api/blogs/\u003cid\u003e endpoint returns blog-level metadata that no OSS scraper surfaces. Required for influencer-tier qualification (Power Blog, AI Pick, Year of Blog badges).",
+      "example": "naver-blog-pp-cli blogs-info selly9401 --agent",
+      "why_it_matters": "Influencer-marketing audits need to qualify creators by reach (subscribers, daily visitors) and Naver-assigned tier badges. This is the only command that gives both.",
+      "group": "Korean content-pattern intelligence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Engagement diff over time",
+      "command": "posts-diff",
+      "description": "See exactly which posts gained likes or comments since you last checked, without re-scraping everything.",
+      "rationale": "Requires local engagement_history snapshots in SQLite; no public Naver endpoint answers 'what changed since last Friday'. Every competing scraper is point-in-time.",
+      "example": "naver-blog-pp-cli posts-diff https://blog.naver.com/selly9401/224234460263 --since 24h --agent",
+      "why_it_matters": "When an agent is asked 'which Chilly posts moved this week', this is the one-call answer — no full re-crawl.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Sponsored-post detector",
+      "command": "posts --flag-sponsored",
+      "description": "Mechanically detects KFTC-required sponsored-post disclosure phrases in the body — 협찬, 체험단, 광고 포함, 유료광고 포함 — and returns a sponsored boolean plus the matched markers.",
+      "rationale": "Korean Fair Trade Commission mandates a finite phrase set for sponsored disclosure; a regex over body_text is byte-perfect. No OSS scraper composes this. Not LLM-dependent.",
+      "example": "naver-blog-pp-cli posts selly9401 224234460263 --flag-sponsored --agent --select sponsored,sponsored_markers,title",
+      "why_it_matters": "Distinguishes genuine reviews from paid placements for influencer-audit workflows.",
+      "group": "Korean content-pattern intelligence"
+    },
+    {
+      "name": "Influencer health snapshot",
+      "command": "blogs-health",
+      "description": "Given a file of blog IDs, returns posts-this-week, median likes, median comments, sponsored ratio, and days-since-last-post — one command, every influencer.",
+      "rationale": "Combines feed walk + engagement + sponsored detector (the press's own composition) over N blogs. Pure local SQL after sync. No Naver endpoint surfaces this aggregate.",
+      "example": "naver-blog-pp-cli blogs-health --ids-file ~/.config/influencers.txt --window 7d --agent",
+      "why_it_matters": "Replaces a Friday-afternoon Notion-doc-writing ritual with a deterministic JSON.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Query bundle (cron-mode)",
+      "command": "bundle",
+      "description": "Runs a list of keyword/hashtag queries from a YAML/JSONL file, enriches every result with engagement, dedupes by canonical URL, and streams a sheet-ready TSV — one binary replaces the Hermes web_search + web_extract + Playwright pipeline.",
+      "rationale": "Composes search + hashtag + reaction API in one batch with the local SQLite cache. The headline integration story.",
+      "example": "naver-blog-pp-cli bundle ~/.config/chilly-queries.yaml --format tsv",
+      "why_it_matters": "The Monday-morning Chilly Hermes cron becomes one CLI invocation with no Chromium dependency.",
+      "group": "Headline integration"
+    },
+    {
+      "name": "Offline Korean FTS",
+      "command": "query",
+      "description": "Korean-aware FTS5 over every post ever cached — title, body, tags, nickname — ranked by FTS relevance and likes.",
+      "rationale": "Korean tokenization in FTS5 with unicode61 + trigram fallback works offline against the local store; no Naver tool ships this.",
+      "example": "naver-blog-pp-cli query '여성청결제 후기' --limit 20 --agent --select url,title,likes",
+      "why_it_matters": "Rerun the same campaign query weekly without paying for new Naver fetches.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Hashtag co-occurrence",
+      "command": "neighbors",
+      "description": "For a target hashtag, returns the top N hashtags that travel with it across the cached corpus — the campaign 'neighborhood'.",
+      "rationale": "Local SQL join over posts.tags_json. Korean blog culture clusters hashtags densely per post; no API surfaces co-occurrence.",
+      "example": "naver-blog-pp-cli neighbors '#칠리여성청결제' --top 20 --agent",
+      "why_it_matters": "Strategy signal for campaign hashtag expansion.",
+      "group": "Korean content-pattern intelligence"
+    },
+    {
+      "name": "File-driven URL backfill (order-preserving, mixed-format)",
+      "command": "batch",
+      "description": "Accepts CSV / JSON column / newline-delimited URLs in any mix of m.blog.naver.com / blog.naver.com / PostView.naver shapes; canonicalizes each; runs concurrent fetches with adaptive rate limiting; preserves input order; emits per-URL error JSON for failures.",
+      "rationale": "The reaction API is batchable, so engagement is O(1) per N posts. The file-driven, mixed-format, order-preserving slice is what no OSS tool ships.",
+      "example": "naver-blog-pp-cli batch --from-file slack-bundle.csv --agent",
+      "why_it_matters": "Slack-bundle workflow: paste a column of URLs, get a column of engagement.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Category browse",
+      "command": "categories",
+      "description": "Lists a blog's numbered Naver categories with post counts; --category flag filters feed/local-search results by category number.",
+      "rationale": "Naver-specific (numbered categories are core platform UX); feed JSON already returns category info so this is local query.",
+      "example": "naver-blog-pp-cli categories selly9401 --agent",
+      "why_it_matters": "Topic-segment an influencer (e.g., only their beauty posts) without crawling everything.",
+      "group": "Korean content-pattern intelligence"
+    },
+    {
+      "name": "Comments extraction",
+      "command": "posts-comments",
+      "description": "Fetch the actual content of comments on a Naver Blog post — author, body, timestamps, like counts — via the public cbox endpoint. Optional flat or nested-tree output.",
+      "rationale": "The cbox endpoint is public for ticket=blog with the right objectId shape (\u003cblogNo\u003e_201_\u003clogNo\u003e); no OSS scraper documents this — they all either use the deprecated .nhn endpoint or skip comments entirely.",
+      "example": "naver-blog-pp-cli posts-comments https://blog.naver.com/perfect62/224286416663 --agent",
+      "why_it_matters": "When auditing influencer engagement quality, the content of comments matters as much as the count — bot comments, identical-template spam, or genuine engagement.",
+      "group": "Korean content-pattern intelligence"
+    },
+    {
+      "name": "Blog profile metadata",
+      "command": "blogs-info",
+      "description": "Get rich blog profile data: subscriber count, daily/total visitor counts, Naver Power Blog status, directory category, profile/cover images — everything Naver shows on the blog homepage.",
+      "rationale": "The /api/blogs/\u003cid\u003e endpoint returns blog-level metadata that no OSS scraper surfaces. Required for influencer-tier qualification (Power Blog, AI Pick, Year of Blog badges).",
+      "example": "naver-blog-pp-cli blogs-info selly9401 --agent",
+      "why_it_matters": "Influencer-marketing audits need to qualify creators by reach (subscribers, daily visitors) and Naver-assigned tier badges. This is the only command that gives both.",
+      "group": "Korean content-pattern intelligence"
+    }
+  ],
+  "narrative": {
+    "display_name": "Naver Blog",
+    "headline": "Every Naver Blog feature the OSS ecosystem has learned, in one Go binary — with a local SQLite store, an offline Korean FTS, and likes counts that match the live page exactly without Playwright.",
+    "value_prop": "naver-blog-pp-cli is the read-only CLI for searching, fetching, and aggregating public Naver Blog posts. Phase 1.7 sniffed Naver's public reaction API, so the CLI gets the same byte-for-byte likes count the page renders — no headless browser, no quota, no Naver Developer credentials. A SQLite store and an offline Korean FTS turn one-shot queries into a queryable historical corpus. The `cron` command replaces the Hermes web_search + web_extract + Playwright pipeline with a single binary invocation.",
+    "auth_narrative": "No authentication required. The CLI exclusively uses public read-only endpoints: m.blog.naver.com (feed + post HTML), blog.naver.com (PostView.naver fallback), apis.naver.com (reaction API), and m.search.naver.com (search SERP). The Naver Developer API (X-Naver-Client-Id + X-Naver-Client-Secret) is NOT used in v1; if you want to use it as an alternate search backend, set NAVER_CLIENT_ID and NAVER_CLIENT_SECRET (v2 work).",
+    "quickstart": [
+      {
+        "command": "naver-blog-pp-cli doctor",
+        "comment": "Confirm the CLI can reach all 4 Naver hosts and the local store opens cleanly."
+      },
+      {
+        "command": "naver-blog-pp-cli post https://blog.naver.com/selly9401/224234460263 --agent",
+        "comment": "Fetch one post: title, body, tags, exact likes (via reaction API), comments — JSON."
+      },
+      {
+        "command": "naver-blog-pp-cli blogs feed naver_diary --limit 30 --agent",
+        "comment": "List 30 most-recent posts from a blog with engagement metrics inline (one HTTP call)."
+      },
+      {
+        "command": "naver-blog-pp-cli hashtag '칠리,여성청결제' --require-all --agent",
+        "comment": "Find Naver Blog posts tagged with BOTH hashtags (intersect)."
+      },
+      {
+        "command": "naver-blog-pp-cli posts-diff https://blog.naver.com/selly9401/224234460263 --since 168h --agent",
+        "comment": "What changed in this post's engagement since last week — using local SQLite history."
+      },
+      {
+        "command": "naver-blog-pp-cli cron ~/.config/chilly-queries.yaml --format tsv",
+        "comment": "The headline integration: run a query bundle, get a sheet-ready TSV."
+      },
+      {
+        "command": "naver-blog-pp-cli posts-comments perfect62 224286416663 --json",
+        "comment": "Pull the actual comment content (author, body, timestamps) for a post — the cbox endpoint is public."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "doctor says 'apis.naver.com unreachable'",
+        "fix": "Run `naver-blog-pp-cli doctor --json` to see the failing URL. From Korea this should always work; from non-KR IPs Naver occasionally serves degraded responses — set NAVER_BLOG_USER_AGENT to a Chrome desktop UA and retry."
+      },
+      {
+        "symptom": "Likes count is 0 when the page shows a higher number",
+        "fix": "Your local SQLite has a stale snapshot. Run `post \u003curl\u003e` (without --cache) to re-query the reaction API directly. The CLI never uses static-HTML for likes; if 0 persists, file a bug — the post was likely deleted or set to private."
+      },
+      {
+        "symptom": "search posts returns empty for a query that has results in a browser",
+        "fix": "Naver rotates the integrated-search DOM selectors periodically. Use `--debug-html` to dump the SERP HTML, then file an issue with the dump attached. Until a fix ships, run the query through `feed` against any blogs known to post about the topic."
+      },
+      {
+        "symptom": "post-batch --from-file fails with 'invalid URL'",
+        "fix": "Naver Blog URLs come in 3 shapes (blog.naver.com/\u003cid\u003e/\u003cn\u003e, m.blog.naver.com/\u003cid\u003e/\u003cn\u003e, blog.naver.com/PostView.naver?blogId=X\u0026logNo=Y). All three are accepted. If the input is a CSV, the URL column must be named `url` (or use --url-column to specify)."
+      },
+      {
+        "symptom": "Sponsored detector misses an obviously sponsored post",
+        "fix": "The detector only matches KFTC-required phrases (협찬, 체험단, 광고 포함, 유료광고 포함, '본 포스팅은 ... 받아 작성됨'). Posts that use creative-but-non-compliant wording (e.g., '협업', 'PR') will not be caught — by design, since those are not legal disclosures."
+      }
+    ],
+    "when_to_use": "Reach for naver-blog-pp-cli when an agent is asked to search Korean Naver Blog posts by keyword or hashtag, extract a single post's title/body/tags/engagement, or aggregate engagement across a list of post URLs. It is the right choice when accuracy matters (the reaction API gives exact same-instant counts), when the workflow runs weekly or more often (the SQLite cache compounds), or when the Naver Developer API's 25k-request daily quota or credential requirement is a friction. It is NOT the right choice for write workflows (publishing, editing, deleting posts) or for authenticated-only data (admin stats, 이웃 neighbor lists, drafts) — both are explicitly out of scope.",
+    "recipes": [
+      {
+        "title": "Replace the Chilly weekly cron",
+        "command": "naver-blog-pp-cli cron ~/.config/chilly-queries.yaml --format tsv",
+        "explanation": "Runs the 6 Chilly queries, enriches with engagement, dedupes by canonical URL, writes TSV for Google Sheets, caches everything in SQLite for next week's diff."
+      },
+      {
+        "title": "Friday influencer health roll-up",
+        "command": "naver-blog-pp-cli blogs-health --ids-file ~/.config/influencers.txt --window 7d --agent",
+        "explanation": "For each blog ID in the file, returns posts-this-week, median engagement, sponsored ratio, days-since-last-post."
+      },
+      {
+        "title": "Find what changed in a watched post",
+        "command": "naver-blog-pp-cli posts-diff https://blog.naver.com/selly9401/224234460263 --since 24h --agent",
+        "explanation": "Compares the live engagement to the most recent snapshot in local SQLite older than 24h. Returns the delta only."
+      },
+      {
+        "title": "Narrow a verbose post payload for an agent (--agent + --select)",
+        "command": "naver-blog-pp-cli post https://blog.naver.com/selly9401/224234460263 --agent --select url,blog_id,log_no,title,likes,comments,sponsored,published_at",
+        "explanation": "Per-post output includes body_text (often kilobytes). --select narrows to just the fields the agent needs, keeping prompt context lean. Pair with --flag-sponsored when scanning a batch."
+      },
+      {
+        "title": "Find tag neighborhoods for campaign strategy",
+        "command": "naver-blog-pp-cli neighbors '#칠리여성청결제' --top 20 --agent",
+        "explanation": "Returns the top 20 hashtags that co-occur with the target tag across the cached corpus, ranked by joint-occurrence count."
+      },
+      {
+        "title": "Audit influencer comment quality",
+        "command": "naver-blog-pp-cli posts-comments https://blog.naver.com/perfect62/224286416663 --all --agent --select user_name,contents,reg_time_utc,sympathy_count",
+        "explanation": "Pulls every comment on a post, narrowed to author/body/time/likes for an agent to scan for boilerplate, bot patterns, or genuine engagement."
+      }
+    ],
+    "trigger_phrases": [
+      "search naver blog for",
+      "get naver blog post engagement",
+      "네이버 블로그 검색",
+      "칠리 블로그 인플루언서 운영 결과",
+      "monthly chilly naver blog data",
+      "use naver-blog",
+      "run naver-blog"
+    ]
+  }
+}

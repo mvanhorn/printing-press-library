@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-05-19T17:03:54.988836Z",
+  "cli_dir": "\u003ccli-dir\u003e/naver-blog",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-05-19T12:15:27.346125Z"
+  }
+}

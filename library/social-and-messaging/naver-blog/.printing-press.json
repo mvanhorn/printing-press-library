@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-19T09:37:41.103549Z",
+  "printing_press_version": "4.9.0",
+  "api_name": "naver-blog",
+  "display_name": "Naver Blog",
+  "cli_name": "naver-blog-pp-cli",
+  "owner": "user",
+  "printer": "AKL-John",
+  "printer_name": "AKL-John",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:9adcbd36b7d28c79fdb9099286e696f4331de6d24f4d435e1110b94315a39462",
+  "run_id": "20260519-162524",
+  "description": "Search, fetch, and aggregate public Naver Blog posts — title, body, tags, likes (공감), comments — with a local SQLite store and offline search.",
+  "mcp_binary": "naver-blog-pp-mcp",
+  "mcp_tool_count": 5,
+  "mcp_public_tool_count": 5,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Engagement diff over time",
+      "command": "posts-diff",
+      "description": "See exactly which posts gained likes or comments since you last checked, without re-scraping everything."
+    },
+    {
+      "name": "Sponsored-post detector",
+      "command": "posts --flag-sponsored",
+      "description": "Mechanically detects KFTC-required sponsored-post disclosure phrases in the body — 협찬, 체험단, 광고 포함, 유료광고 포함 — and returns a sponsored boolean plus the matched markers."
+    },
+    {
+      "name": "Influencer health snapshot",
+      "command": "blogs-health",
+      "description": "Given a file of blog IDs, returns posts-this-week, median likes, median comments, sponsored ratio, and days-since-last-post — one command, every influencer."
+    },
+    {
+      "name": "Query bundle (cron-mode)",
+      "command": "bundle",
+      "description": "Runs a list of keyword/hashtag queries from a YAML/JSONL file, enriches every result with engagement, dedupes by canonical URL, and streams a sheet-ready TSV — one binary replaces the Hermes web_search + web_extract + Playwright pipeline."
+    },
+    {
+      "name": "Offline Korean FTS",
+      "command": "query",
+      "description": "Korean-aware FTS5 over every post ever cached — title, body, tags, nickname — ranked by FTS relevance and likes."
+    },
+    {
+      "name": "Hashtag co-occurrence",
+      "command": "neighbors",
+      "description": "For a target hashtag, returns the top N hashtags that travel with it across the cached corpus — the campaign 'neighborhood'."
+    },
+    {
+      "name": "File-driven URL backfill (order-preserving, mixed-format)",
+      "command": "batch",
+      "description": "Accepts CSV / JSON column / newline-delimited URLs in any mix of m.blog.naver.com / blog.naver.com / PostView.naver shapes; canonicalizes each; runs concurrent fetches with adaptive rate limiting; preserves input order; emits per-URL error JSON for failures."
+    },
+    {
+      "name": "Category browse",
+      "command": "categories",
+      "description": "Lists a blog's numbered Naver categories with post counts; --category flag filters feed/local-search results by category number."
+    },
+    {
+      "name": "Comments extraction",
+      "command": "posts-comments",
+      "description": "Fetch the actual content of comments on a Naver Blog post — author, body, timestamps, like counts — via the public cbox endpoint. Optional flat or nested-tree output."
+    },
+    {
+      "name": "Blog profile metadata",
+      "command": "blogs-info",
+      "description": "Get rich blog profile data: subscriber count, daily/total visitor counts, Naver Power Blog status, directory category, profile/cover images — everything Naver shows on the blog homepage."
+    }
+  ],
+  "category": "social-and-messaging"
+}
