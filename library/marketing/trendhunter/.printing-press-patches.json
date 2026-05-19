@@ -24,6 +24,14 @@
       "upstream_issue": "Generator template internal/generator/templates/client.go.tmpl emits http.NewRequest without ctx for every printed CLI; upstream fix would replace this single-CLI patch across the catalog."
     },
     {
+      "id": "scout-llm-business-profile",
+      "summary": "Forward the --business profile into llmTrendScore so the LLM scores trends against the user's stated business context.",
+      "reason": "scoreTrends received business but never passed it to llmTrendScore, so scout --llm scored trends on an undirected scale unrelated to --business. Greptile blocking finding on PR #548.",
+      "files": [
+        "internal/cli/trendhunter_commands.go"
+      ]
+    },
+    {
       "id": "megatrend-map-drop-stub-overlap",
       "summary": "Removed the always-empty keyword_overlap_with_megatrends field from megatrend-map output; updated SKILL.md/README.md/manifest description to match what the command actually returns (two-level related-trend walk).",
       "reason": "Output schema advertised a list field that was hardcoded to []; the underlying overlap join isn't implemented. Documenting truth beats shipping a misleading schema. Greptile P2 on PR #548.",
