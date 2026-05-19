@@ -15,7 +15,7 @@
     {
       "id": "rows-err-checks-on-novel-commands",
       "summary": "Add rows.Err() inspection after every for rows.Next() loop in the 9 novel commands so mid-iteration SQLite errors fail loudly instead of returning truncated results with exit 0.",
-      "reason": "Greptile P2 finding on PR #694: without rows.Err() the loop exit is indistinguishable from successful completion when SQLite interrupts (corrupted WAL page, storage error, context cancellation), and commands return partial results with no signal.",
+      "reason": "Greptile P2 (initial wave) and P1 (companies_profile.go follow-up) findings on PR #694: without rows.Err() the loop exit is indistinguishable from successful completion when SQLite interrupts (corrupted WAL page, storage error, context cancellation), and commands return partial results with no signal.",
       "files": [
         "internal/cli/whats_new.go",
         "internal/cli/analytics_funding_by_sector.go",
@@ -23,10 +23,11 @@
         "internal/cli/analytics_sector_heatmap.go",
         "internal/cli/companies_cohorts.go",
         "internal/cli/companies_top_hiring.go",
+        "internal/cli/companies_profile.go",
         "internal/cli/openings_find.go",
         "internal/cli/openings_salary_stats.go"
       ],
-      "validated_outcome": "go build ./... still passes; nine rows.Err() checks present across the eight files (whats_new.go has two loops)."
+      "validated_outcome": "go build ./... still passes; eleven rows.Err() checks present across the nine files (whats_new.go has two loops; companies_profile.go has two helper functions)."
     },
     {
       "id": "analytics-funding-by-sector-dead-code",

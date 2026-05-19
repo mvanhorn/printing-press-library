@@ -133,6 +133,9 @@ func profileOpeningsForCompany(cmd *cobra.Command, db *store.Store, companyID st
 			PostedAt:        posted.String,
 		})
 	}
+	if err := rows.Err(); err != nil {
+		return out, fmt.Errorf("iterating profile openings rows: %w", err)
+	}
 	return out, nil
 }
 
@@ -168,6 +171,9 @@ func profileSimilarCompanies(cmd *cobra.Command, db *store.Store, excludeSlug, s
 			State:         st.String,
 			EmployeeRange: emp.String,
 		})
+	}
+	if err := rows.Err(); err != nil {
+		return out, fmt.Errorf("iterating similar-companies rows: %w", err)
 	}
 	return out, nil
 }
