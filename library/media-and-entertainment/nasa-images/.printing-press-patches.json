@@ -28,6 +28,11 @@
       "file": "internal/cli/channel_workflow.go (additional)",
       "rationale": "Workflow archive --json must emit a single JSON document on stdout. Sync's NDJSON event stream was writing to os.Stdout directly, polluting the document. Swap os.Stdout to /dev/null for the sync loop; restore before the summary JSON encode.",
       "evidence": "live dogfood json_fidelity failure: combined output had 3 sync_* events on stdout preceding the summary JSON."
+    },
+    {
+      "file": "internal/cli/{nasa_shared.go, download.go, assets_best.go, captions_fetch.go, metadata_fetch.go}",
+      "rationale": "Address Greptile review (P1 + P2): direct CDN fetches now use an *http.Client honoring flags.timeout (was http.DefaultClient with no timeout). httpGetBody bounds the response body to 16 MiB via io.LimitReader to defend against misconfigured CDNs and HTML error pages.",
+      "evidence": "PR #695 Greptile review (score 3/5): P1 download.go:268-276 binary downloads bypass --timeout; P2 nasa_shared.go:202 io.ReadAll lacks size guard."
     }
   ]
 }

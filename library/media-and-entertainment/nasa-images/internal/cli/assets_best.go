@@ -91,7 +91,7 @@ filename-prose interpretation.`,
 				}
 				for _, u := range urls {
 					if maxBytes > 0 {
-						size, ok := probeContentLength(ctx, u)
+						size, ok := probeContentLength(ctx, flags, u)
 						if !ok {
 							// HEAD failed — skip this URL rather than accept
 							// it without verifying the size; the caller asked
@@ -137,13 +137,15 @@ filename-prose interpretation.`,
 }
 
 // probeContentLength issues a HEAD request to learn the file size.
+// Uses an *http.Client honoring flags.timeout so a stalled CDN HEAD respects
+// --timeout instead of hanging.
 // Returns (0, false) if the HEAD fails or Content-Length is missing.
-func probeContentLength(ctx context.Context, url string) (int64, bool) {
+func probeContentLength(ctx context.Context, flags *rootFlags, url string) (int64, bool) {
 	req, err := http.NewRequestWithContext(ctx, "HEAD", url, nil)
 	if err != nil {
 		return 0, false
 	}
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := httpClientForFlags(flags).Do(req)
 	if err != nil {
 		return 0, false
 	}

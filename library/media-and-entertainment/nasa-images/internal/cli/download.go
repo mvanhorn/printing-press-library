@@ -112,7 +112,7 @@ from the last completed byte (via HTTP Range requests).`,
 					continue
 				}
 				localPath := filepath.Join(out, fmt.Sprintf("%s.%s", sanitizeFilename(nasaID), urlExt(url)))
-				status, bytesDL, dlErr := resumeOrDownload(ctx, s, nasaID, vresolved, url, localPath)
+				status, bytesDL, dlErr := resumeOrDownload(ctx, flags, s, nasaID, vresolved, url, localPath)
 				switch status {
 				case "completed":
 					downloaded++
@@ -228,8 +228,10 @@ func pickVariantURL(ctx context.Context, c *client.Client, nasaID, want string) 
 }
 
 // resumeOrDownload downloads url to localPath with byte-range resume.
+// Uses an *http.Client honoring flags.timeout so a stalled CDN connection
+// respects --timeout instead of hanging indefinitely.
 // Returns ("completed"|"skipped"|"errored", bytes_downloaded, err).
-func resumeOrDownload(ctx context.Context, s *store.Store, nasaID, variant, url, localPath string) (string, int64, error) {
+func resumeOrDownload(ctx context.Context, flags *rootFlags, s *store.Store, nasaID, variant, url, localPath string) (string, int64, error) {
 	now := time.Now().UTC().Format(time.RFC3339)
 	// Inspect the existing ledger row. ErrNoRows is expected on the first
 	// run for a given (nasa_id, variant); any other Scan error is a real DB
@@ -272,7 +274,7 @@ func resumeOrDownload(ctx context.Context, s *store.Store, nasaID, variant, url,
 	if startBytes > 0 {
 		req.Header.Set("Range", fmt.Sprintf("bytes=%d-", startBytes))
 	}
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := httpClientForFlags(flags).Do(req)
 	if err != nil {
 		return "errored", startBytes, err
 	}

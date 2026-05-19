@@ -56,7 +56,7 @@ status 404 when the asset has no captions.`,
 			if loc.Location == "" {
 				return fmt.Errorf("captions response has no location URL")
 			}
-			body, err := httpGetBody(ctx, loc.Location)
+			body, err := httpGetBody(ctx, flags, loc.Location)
 			if err != nil {
 				return fmt.Errorf("fetching captions body: %w", err)
 			}

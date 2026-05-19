@@ -182,16 +182,36 @@ func hrefPathAndParams(rawURL string) (string, map[string]string, error) {
 	return u.Path, params, nil
 }
 
-// httpGetBody fetches an arbitrary URL and returns the response body bytes.
-// Used by the indirection-following commands (captions fetch, metadata fetch)
-// and bulk download. Bypasses the generated client because these requests hit
-// images-assets.nasa.gov, not the API host.
-func httpGetBody(ctx context.Context, rawURL string) ([]byte, error) {
+// httpResponseBodyCap bounds responses read into memory by httpGetBody.
+// Caption files and metadata sidecars are kilobytes; 16 MiB is a generous
+// safety margin against misconfigured CDNs or HTML error pages.
+const httpResponseBodyCap = 16 << 20
+
+// httpClientForFlags builds an *http.Client that honors the CLI's --timeout
+// flag for direct fetches against images-assets.nasa.gov (the asset CDN).
+// The generated client.Client is API-host-only and applies the same timeout
+// to /search, /asset, /metadata, /captions, /album — this helper extends the
+// guarantee to the indirection-followed and bulk-download paths so a stalled
+// CDN connection respects --timeout instead of hanging indefinitely.
+func httpClientForFlags(flags *rootFlags) *http.Client {
+	if flags == nil || flags.timeout <= 0 {
+		return http.DefaultClient
+	}
+	return &http.Client{Timeout: flags.timeout}
+}
+
+// httpGetBody fetches an arbitrary URL and returns the response body bytes,
+// bounded by httpResponseBodyCap to defend against misconfigured CDNs or HTML
+// error pages. Used by the indirection-following commands (captions fetch,
+// metadata fetch). Bypasses the generated client because these requests hit
+// images-assets.nasa.gov, not the API host; the per-call client honors the
+// CLI's --timeout flag.
+func httpGetBody(ctx context.Context, flags *rootFlags, rawURL string) ([]byte, error) {
 	req, err := http.NewRequestWithContext(ctx, "GET", upgradeToHTTPS(rawURL), nil)
 	if err != nil {
 		return nil, err
 	}
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := httpClientForFlags(flags).Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -199,7 +219,7 @@ func httpGetBody(ctx context.Context, rawURL string) ([]byte, error) {
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		return nil, fmt.Errorf("GET %s: status %d", rawURL, resp.StatusCode)
 	}
-	return io.ReadAll(resp.Body)
+	return io.ReadAll(io.LimitReader(resp.Body, httpResponseBodyCap))
 }
 
 // quoteFTS wraps a user-supplied FTS5 query in double quotes when it
