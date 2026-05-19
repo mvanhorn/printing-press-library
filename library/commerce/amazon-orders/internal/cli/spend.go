@@ -84,7 +84,17 @@ func rollupSpend(orders []parser.OrderSummary, by string) []SpendBucket {
 		}
 		b, ok := buckets[key]
 		if !ok {
-			b = &SpendBucket{Key: key, Currency: "USD"}
+			// PATCH(greptile-rollup-currency): use the per-order Currency that
+			// parser.parseOrderCard populated (e.g. "GBP" on amazon.co.uk)
+			// instead of hardcoding "USD". Fall back to "USD" only if the
+			// parser couldn't determine one. We freeze on the first order's
+			// currency per bucket — mixed-currency aggregation isn't a real
+			// case because a single Amazon TLD only emits one currency.
+			currency := o.Currency
+			if currency == "" {
+				currency = "USD"
+			}
+			b = &SpendBucket{Key: key, Currency: currency}
 			buckets[key] = b
 		}
 		b.OrderCount++

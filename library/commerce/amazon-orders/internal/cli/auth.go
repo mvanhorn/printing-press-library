@@ -775,6 +775,19 @@ func extractCookies(tool, domain, profileDir string) (string, error) {
 	}
 }
 
+// PATCH(greptile-pycookiecheat-argv): pass cleanDomain and cookiePath as
+// process arguments via sys.argv instead of interpolating them into the
+// Python script string. A Chrome profile directory whose name contains a
+// double-quote character would otherwise break out of the inline string
+// literal and execute arbitrary Python on Linux/macOS.
+const pycookiecheatScript = `import json, sys
+from pycookiecheat import chrome_cookies
+url = "https://" + sys.argv[1]
+kwargs = {}
+if len(sys.argv) > 2:
+    kwargs["cookie_file"] = sys.argv[2]
+print(json.dumps(chrome_cookies(url, **kwargs)))`
+
 func extractViaPycookiecheat(domain, profileDir string) (string, error) {
 	cleanDomain := strings.TrimPrefix(domain, ".")
 	cookiePath := ""
@@ -785,23 +798,14 @@ func extractViaPycookiecheat(domain, profileDir string) (string, error) {
 		}
 	}
 
-	var script string
+	args := []string{"-c", pycookiecheatScript, cleanDomain}
 	if cookiePath != "" {
-		// Use forward slashes so Python doesn't interpret backslashes as escapes on Windows
-		safePath := filepath.ToSlash(cookiePath)
-		script = fmt.Sprintf(
-			`import json; from pycookiecheat import chrome_cookies; print(json.dumps(chrome_cookies("https://%s", cookie_file="%s")))`,
-			cleanDomain, safePath,
-		)
-	} else {
-		script = fmt.Sprintf(
-			`import json; from pycookiecheat import chrome_cookies; print(json.dumps(chrome_cookies("https://%s")))`,
-			cleanDomain,
-		)
+		// Forward slashes so Python doesn't interpret backslashes as escapes on Windows.
+		args = append(args, filepath.ToSlash(cookiePath))
 	}
 
 	var out bytes.Buffer
-	cmd := exec.Command("python3", "-c", script)
+	cmd := exec.Command("python3", args...)
 	cmd.Stdout = &out
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {

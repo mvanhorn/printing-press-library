@@ -104,6 +104,23 @@
       "files": [
         "internal/cli/auth_portable.go"
       ]
+    },
+    {
+      "id": "greptile-pycookiecheat-argv",
+      "summary": "Pass cleanDomain and cookiePath as sys.argv to the pycookiecheat helper instead of fmt.Sprintf-interpolating them into the Python script string.",
+      "reason": "A Chrome profile directory whose name contains a double-quote character could break out of the inline string literal and execute arbitrary Python on Linux/macOS (extractViaPycookiecheat). Although Chrome itself never creates such names, discoverChromeProfiles will pick up any directory with a Preferences + Cookies layout. Switching to sys.argv removes the interpolation entirely and closes the injection class.",
+      "files": [
+        "internal/cli/auth.go"
+      ]
+    },
+    {
+      "id": "greptile-rollup-currency",
+      "summary": "rollupSpend propagates OrderSummary.Currency to SpendBucket.Currency instead of hardcoding \"USD\"; falls back to \"USD\" only when the parser couldn't extract one.",
+      "reason": "parser.parseOrderCard already extracts the per-order currency (e.g. \"GBP\" on amazon.co.uk, \"EUR\" on amazon.de). Hardcoding \"USD\" in the rollup mislabeled every non-US user's spend buckets. Freezing on the first order's currency per bucket is safe because a single Amazon TLD only emits one currency. Added spend_test.go covering both the GBP/EUR propagation and the empty-currency USD fallback.",
+      "files": [
+        "internal/cli/spend.go",
+        "internal/cli/spend_test.go"
+      ]
     }
   ]
 }
