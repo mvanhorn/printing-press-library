@@ -73,7 +73,7 @@ slipDays descending. Only milestones with slipDays > 0 are returned.`,
 				ProjectName          string `json:"projectName"`
 				TargetDate           string `json:"targetDate"`
 				ProjectedLandingDate string `json:"projectedLandingDate,omitempty"`
-				ProjectedSource      string `json:"projectedSource,omitempty"` // "burndown" or "target-date-fallback"
+				ProjectedSource      string `json:"projectedSource,omitempty"` // "burndown", "target-date-fallback", or "past-due"
 				SlipDays             int    `json:"slipDays"`
 			}
 			var risks []milestoneRisk
@@ -140,8 +140,18 @@ slipDays descending. Only milestones with slipDays > 0 are returned.`,
 					if slip <= 0 {
 						daysToNow := int(now.Sub(targetT).Hours() / 24)
 						if daysToNow > 0 {
+							// Past-due fallback: the milestone's target_date
+							// is in the past and the burndown projection
+							// (when present) did not flag it. Emit today's
+							// date as a parseable ISO value and tag
+							// projectedSource as "past-due" so consumers can
+							// (a) parse projectedLandingDate without
+							// special-casing a " (now)" suffix and (b) tell
+							// this branch apart from the burndown and
+							// target-date-fallback branches.
 							slip = daysToNow
-							projected = now.Format("2006-01-02") + " (now)"
+							projected = now.Format("2006-01-02")
+							projectedSource = "past-due"
 						}
 					}
 					if slip > 0 {
