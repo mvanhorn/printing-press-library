@@ -40,6 +40,9 @@ Outputs scope_count, completed_scope_count, completion_pct, plus diff metrics:
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		Args:        cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if flags.dryRun {
+				return nil
+			}
 			if dbPath == "" {
 				dbPath = defaultDBPath("linear-pp-cli")
 			}

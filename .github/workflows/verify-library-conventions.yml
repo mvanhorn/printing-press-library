@@ -41,6 +41,7 @@ on:
       - 'library/**'
       - 'cli-skills/**'
       - 'registry.json'
+      - 'tools/generate-registry/**'
       - 'tools/generate-skills/**'
       - 'tools/sweep-canonical/**'
       - '.github/scripts/verify-attribution/**'
@@ -133,9 +134,15 @@ jobs:
           # The intersection is the only signal that means "this PR
           # introduced a divergent change to a generated file."
 
+          # `awk 'NF'` keeps non-blank lines; unlike `grep -v '^$'`, it exits
+          # 0 even when no lines pass through. With `set -o pipefail`, the
+          # previous `grep -v '^$'` form failed the assignment whenever
+          # `git log` produced empty output (the common no-touch case),
+          # making the whole step exit 1 with no stdout. awk's exit code
+          # reflects script errors only, not match counts.
           touched=$(git log "${BASE_REMOTE_REF}..HEAD" --name-only --format= \
             -- 'registry.json' 'cli-skills/pp-*/SKILL.md' \
-            | grep -v '^$' | sort -u)
+            | awk 'NF' | sort -u)
           differs=$(git diff --name-only "${BASE_REMOTE_REF}" HEAD \
             -- 'registry.json' 'cli-skills/pp-*/SKILL.md' \
             | sort -u)
@@ -196,3 +203,28 @@ jobs:
             exit 1
           fi
           echo "All library/*/*/go.mod module declarations match their directories."
+
+      # Go is needed only for the next step's `go run ./tools/generate-registry`.
+      # Pinned to the same version as the post-merge regen workflow
+      # (generate-registry.yml) so a CI pass here implies the same generator
+      # binary that will run after merge.
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.26.3'
+
+      - name: Validate registry source descriptions
+        # Reject PRs whose .printing-press.json + .goreleaser.yaml sources would
+        # produce an empty `description` (or other required field) in the
+        # post-merge regenerated registry.json. Catches the lawhub-shape
+        # regression at PR time so the npm installer never sees a malformed
+        # entry. See tools/generate-registry/main.go validateEntries() for the
+        # exact field set.
+        #
+        # The file-path form (./tools/generate-registry/main.go) is required
+        # because the repo root has no go.mod — Go locates the tool's go.mod
+        # by walking up from the source file. The package-path form
+        # (./tools/generate-registry) fails with "go.mod not found" from the
+        # repo root. Matches the invocation in generate-registry.yml.
+        run: |
+          set -euo pipefail
+          go run ./tools/generate-registry/main.go --validate

@@ -38,18 +38,28 @@ native streaming instead of polling.`,
   # Pipe to jq for filtering
   linear-pp-cli tail events --interval 30s | jq 'select(.type == "error")'`,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if len(args) > 0 {
+				resource = args[0]
+			}
+			// JSON help envelope: when called with no resource AND --json,
+			// surface the list of known resources so agents can discover
+			// what to pass without parsing a usage error message.
+			// Envelope: {resources: [...], note}.
+			if resource == "" && flags.asJSON {
+				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
+					"resources": tailKnownResources(),
+					"note":      "tail requires a resource name; pass one of the listed names",
+				}, flags)
+			}
+			if resource == "" {
+				return fmt.Errorf("resource name required (e.g., 'tail messages')")
+			}
+
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 			c.NoCache = true
-
-			if len(args) > 0 {
-				resource = args[0]
-			}
-			if resource == "" {
-				return fmt.Errorf("resource name required (e.g., 'tail messages')")
-			}
 
 			path := "/" + resource
 
@@ -87,6 +97,41 @@ native streaming instead of polling.`,
 	cmd.Flags().BoolVar(&follow, "follow", true, "Keep running (set --follow=false for single poll)")
 
 	return cmd
+}
+
+// tailKnownResources returns the resource names this CLI exposes, so the
+// no-arg JSON help envelope can list them without depending on sync's
+// defaultSyncResources (which only exists when sync is generated).
+func tailKnownResources() []string {
+	return []string{
+		"attachments",
+		"audit-entry-types",
+		"auth-resolver-responses",
+		"authentication-session-responses",
+		"email-intake-addresses",
+		"favorites",
+		"initiative-relations",
+		"initiative-to-projects",
+		"initiatives",
+		"integrations",
+		"issue-priority-values",
+		"organizations",
+		"project-labels",
+		"project-milestones",
+		"project-relations",
+		"project-statuses",
+		"projects",
+		"release-notes",
+		"release-pipelines",
+		"release-stages",
+		"releases",
+		"roadmap-to-projects",
+		"roadmaps",
+		"teams",
+		"templates",
+		"user-settingses",
+		"users",
+	}
 }
 
 func fetchAndEmit(c interface {

@@ -4,7 +4,10 @@
 package cli
 
 import (
+	"context"
+	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net"
 	"net/url"
@@ -46,12 +49,12 @@ func isNetworkError(err error) bool {
 
 // openStoreForRead opens the local SQLite store for reading.
 // Returns nil, nil if the database file does not exist (no sync has been run).
-func openStoreForRead(cliName string) (*store.Store, error) {
+func openStoreForRead(ctx context.Context, cliName string) (*store.Store, error) {
 	dbPath := defaultDBPath(cliName)
 	if _, err := os.Stat(dbPath); os.IsNotExist(err) {
 		return nil, nil
 	}
-	return store.Open(dbPath)
+	return store.OpenWithContext(ctx, dbPath)
 }
 
 // localProvenance builds a DataProvenance for local data reads.
@@ -68,6 +71,13 @@ func localProvenance(db *store.Store, resourceType, reason string) DataProvenanc
 	return prov
 }
 
+func attachFreshness(prov DataProvenance, flags *rootFlags) DataProvenance {
+	if flags != nil {
+		prov.Freshness = flags.freshnessMeta
+	}
+	return prov
+}
+
 // resolveRead dispatches a GET request to either the live API or local store
 // based on the --data-source flag. Returns the response data and provenance metadata.
 //
@@ -78,82 +88,135 @@ func localProvenance(db *store.Store, resourceType, reason string) DataProvenanc
 //   - isList: true for list endpoints, false for get-by-ID endpoints
 //   - path: the API path (e.g., "/links" or "/links/abc123")
 //   - params: query parameters for the API call
-func resolveRead(c *client.Client, flags *rootFlags, resourceType string, isList bool, path string, params map[string]string) (json.RawMessage, DataProvenance, error) {
+//   - headers: per-endpoint required headers (e.g. cal-api-version, Stripe-Version)
+//     baked in by the command template at codegen time. Pass nil when the endpoint
+//     declares no per-endpoint header overrides. Without this parameter, store-backed
+//     reads on per-endpoint-versioned APIs silently get the wrong response shape
+//     (cal-com retro #334 F1).
+func resolveRead(ctx context.Context, c *client.Client, flags *rootFlags, resourceType string, isList bool, path string, params map[string]string, headers map[string]string) (json.RawMessage, DataProvenance, error) {
 	switch flags.dataSource {
 	case "local":
-		return resolveLocal(resourceType, isList, path, params, "user_requested")
+		data, prov, err := resolveLocal(ctx, resourceType, isList, path, params, "user_requested")
+		return data, attachFreshness(prov, flags), err
 
 	case "live":
-		data, err := c.Get(path, params)
+		data, err := c.GetWithHeaders(path, params, headers)
 		if err != nil {
 			return nil, DataProvenance{}, err
 		}
-		writeThroughCache(resourceType, data)
-		return data, DataProvenance{Source: "live"}, nil
+		// Write-through to the local store so a follow-up
+		// `--data-source local` read sees what was just fetched. The
+		// `auto` branch already does this; `live` must too, otherwise
+		// the store goes stale while the user is paying for live calls.
+		writeThroughCache(ctx, resourceType, data)
+		return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 
 	default: // "auto"
-		data, err := c.Get(path, params)
+		data, err := c.GetWithHeaders(path, params, headers)
 		if err == nil {
-			writeThroughCache(resourceType, data)
-			return data, DataProvenance{Source: "live"}, nil
+			writeThroughCache(ctx, resourceType, data)
+			return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 		}
 		if !isNetworkError(err) {
 			// HTTP 4xx/5xx errors propagate — not a fallback case
 			return nil, DataProvenance{}, err
 		}
 		// Network error — try local fallback
-		localData, prov, localErr := resolveLocal(resourceType, isList, path, params, "api_unreachable")
-		if localErr != nil {
+		fallbackData, fallbackProv, fallbackErr := resolveLocal(ctx, resourceType, isList, path, params, "api_unreachable")
+		if fallbackErr != nil {
 			return nil, DataProvenance{}, fmt.Errorf("API unreachable and no local data. Run 'linear-pp-cli sync' to enable offline access.\n\nOriginal error: %w", err)
 		}
-		return localData, prov, nil
+		return fallbackData, attachFreshness(fallbackProv, flags), nil
 	}
 }
 
 // resolvePaginatedRead dispatches a paginated GET request to either the live API
-// or local store. When local, skips pagination and returns all synced data.
-func resolvePaginatedRead(c *client.Client, flags *rootFlags, resourceType string, path string, params map[string]string, fetchAll bool, cursorParam, nextCursorPath, hasMoreField string) (json.RawMessage, DataProvenance, error) {
+// or local store. When local, skips pagination and returns all synced data. The
+// headers argument carries per-endpoint required headers; pass nil when the
+// endpoint declares no overrides.
+func resolvePaginatedRead(ctx context.Context, c *client.Client, flags *rootFlags, resourceType string, path string, params map[string]string, headers map[string]string, fetchAll bool, cursorParam, nextCursorPath, hasMoreField string) (json.RawMessage, DataProvenance, error) {
 	switch flags.dataSource {
 	case "local":
-		return resolveLocal(resourceType, true, path, params, "user_requested")
+		data, prov, err := resolveLocal(ctx, resourceType, true, path, params, "user_requested")
+		return data, attachFreshness(prov, flags), err
 
 	case "live":
-		data, err := paginatedGet(c, path, params, fetchAll, cursorParam, nextCursorPath, hasMoreField)
+		data, err := paginatedGet(c, path, params, headers, fetchAll, cursorParam, nextCursorPath, hasMoreField)
 		if err != nil {
 			return nil, DataProvenance{}, err
 		}
-		writeThroughCache(resourceType, data)
-		return data, DataProvenance{Source: "live"}, nil
+		// See resolveRead's live arm — write-through is mandatory on the
+		// `live` path too, not just `auto`.
+		writeThroughCache(ctx, resourceType, data)
+		return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 
 	default: // "auto"
-		data, err := paginatedGet(c, path, params, fetchAll, cursorParam, nextCursorPath, hasMoreField)
+		data, err := paginatedGet(c, path, params, headers, fetchAll, cursorParam, nextCursorPath, hasMoreField)
 		if err == nil {
-			writeThroughCache(resourceType, data)
-			return data, DataProvenance{Source: "live"}, nil
+			writeThroughCache(ctx, resourceType, data)
+			return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 		}
 		if !isNetworkError(err) {
 			return nil, DataProvenance{}, err
 		}
-		localData, prov, localErr := resolveLocal(resourceType, true, path, params, "api_unreachable")
-		if localErr != nil {
+		fallbackData, fallbackProv, fallbackErr := resolveLocal(ctx, resourceType, true, path, params, "api_unreachable")
+		if fallbackErr != nil {
 			return nil, DataProvenance{}, fmt.Errorf("API unreachable and no local data. Run 'linear-pp-cli sync' to enable offline access.\n\nOriginal error: %w", err)
 		}
-		return localData, prov, nil
+		return fallbackData, attachFreshness(fallbackProv, flags), nil
 	}
 }
 
-func writeThroughCache(resourceType string, data json.RawMessage) {
-	db, err := store.Open(defaultDBPath("linear-pp-cli"))
+// listEnvelopeMetadataKeys are top-level keys that, when accompanying a
+// list-wrapper array, suggest the response is a paginated list envelope
+// rather than a detail object. Used by writeThroughCache to decide
+// whether to upsert a single-object body. Any envelope key NOT in this
+// set (and not a list wrapper itself) signals real per-row data, and
+// the envelope is treated as a detail object even when one of its
+// wrapper-named fields happens to be an empty array.
+var listEnvelopeMetadataKeys = map[string]bool{
+	// list wrappers themselves
+	"results": true, "data": true, "items": true,
+	// pagination cursors / tokens
+	"next_cursor": true, "nextCursor": true,
+	"next_page_token": true, "nextPageToken": true,
+	"page_token": true, "pageToken": true,
+	"end_cursor": true, "endCursor": true,
+	"start_cursor": true, "startCursor": true,
+	"cursor": true, "after": true, "before": true,
+	// has-more flags and page numbers
+	"has_more": true, "hasMore": true, "has_next": true, "hasNext": true,
+	"next_page": true, "previous_page": true,
+	"page": true, "page_size": true, "per_page": true,
+	// counts / totals
+	"total": true, "count": true, "size": true, "total_count": true, "totalCount": true,
+	// wrapper objects
+	"links": true, "meta": true, "pagination": true,
+	"response_metadata": true, "paging": true,
+	// links shape
+	"next": true, "prev": true, "previous": true, "first": true, "last": true,
+}
+
+// writeThroughCache upserts live API results into the local SQLite store so
+// FTS search covers everything the user has looked up — not just explicit syncs.
+// Best-effort: failures are silently ignored (the live result already succeeded).
+func writeThroughCache(ctx context.Context, resourceType string, data json.RawMessage) {
+	db, err := store.OpenWithContext(ctx, defaultDBPath("linear-pp-cli"))
 	if err != nil {
 		return
 	}
 	defer db.Close()
+
+	// Collect items to upsert from various response shapes
 	var items []json.RawMessage
+
+	// Try direct array first
 	if json.Unmarshal(data, &items) != nil || len(items) == 0 {
 		items = nil
+		// Try object — check for common envelope patterns (results, data, items)
 		var envelope map[string]json.RawMessage
 		if json.Unmarshal(data, &envelope) == nil {
-			for _, key := range []string{"results", "data", "items", "issues", "projects", "cycles", "teams"} {
+			for _, key := range []string{"results", "data", "items"} {
 				if raw, ok := envelope[key]; ok {
 					var arr []json.RawMessage
 					if json.Unmarshal(raw, &arr) == nil && len(arr) > 0 {
@@ -162,22 +225,54 @@ func writeThroughCache(resourceType string, data json.RawMessage) {
 					}
 				}
 			}
-			if items == nil {
-				if idRaw, ok := envelope["id"]; ok {
-					_ = db.Upsert(resourceType, strings.Trim(string(idRaw), "\""), data)
+			// Single object detail response: let UpsertBatch's existing
+			// resourceIDFieldOverrides mechanism resolve the primary key.
+			// Guarding on envelope["id"] dropped any API whose PK is named
+			// CertNo / sku / invoiceId / etc. on the floor (#1439).
+			//
+			// Treat the envelope as a list-shaped response only when EVERY
+			// top-level key is either a list-wrapper (results/data/items)
+			// holding a real array, or a known pagination-metadata key.
+			// A detail object that happens to carry an empty wrapper-named
+			// field alongside real data (e.g. {"id":"order","items":[],
+			// "status":"pending"}) must still cache as a single row.
+			if items == nil && len(envelope) > 0 {
+				looksLikeListEnvelope := false
+				hasListWrapperArray := false
+				for _, key := range []string{"results", "data", "items"} {
+					raw, ok := envelope[key]
+					if !ok {
+						continue
+					}
+					// json.Unmarshal("null", &arr) succeeds with arr=nil,
+					// so require arr != nil to keep true empty arrays in
+					// the skip branch while letting scalar/null values fall
+					// through as regular field-name collisions.
+					var arr []json.RawMessage
+					if json.Unmarshal(raw, &arr) == nil && arr != nil {
+						hasListWrapperArray = true
+						break
+					}
+				}
+				if hasListWrapperArray {
+					looksLikeListEnvelope = true
+					for k := range envelope {
+						if !listEnvelopeMetadataKeys[k] {
+							looksLikeListEnvelope = false
+							break
+						}
+					}
+				}
+				if !looksLikeListEnvelope {
+					_ = db.UpsertBatch(resourceType, []json.RawMessage{data})
 					return
 				}
 			}
 		}
 	}
-	for _, item := range items {
-		var obj map[string]json.RawMessage
-		if json.Unmarshal(item, &obj) != nil {
-			continue
-		}
-		if idRaw, ok := obj["id"]; ok {
-			_ = db.Upsert(resourceType, strings.Trim(string(idRaw), "\""), item)
-		}
+
+	if len(items) > 0 {
+		_ = db.UpsertBatch(resourceType, items)
 	}
 }
 
@@ -185,8 +280,8 @@ func writeThroughCache(resourceType string, data json.RawMessage) {
 // Note: local reads return ALL synced data for the resource type. Endpoint-specific
 // filters (query params, path scoping like /teams/{id}/users) are NOT applied locally.
 // The provenance metadata includes "unscoped":true when params were present but not applied.
-func resolveLocal(resourceType string, isList bool, path string, params map[string]string, reason string) (json.RawMessage, DataProvenance, error) {
-	db, err := openStoreForRead("linear-pp-cli")
+func resolveLocal(ctx context.Context, resourceType string, isList bool, path string, params map[string]string, reason string) (json.RawMessage, DataProvenance, error) {
+	db, err := openStoreForRead(ctx, "linear-pp-cli")
 	if err != nil {
 		return nil, DataProvenance{}, fmt.Errorf("opening local database: %w\nRun 'linear-pp-cli sync' first.", err)
 	}
@@ -232,20 +327,12 @@ func resolveLocal(resourceType string, isList bool, path string, params map[stri
 	parts := strings.Split(strings.TrimRight(path, "/"), "/")
 	id := parts[len(parts)-1]
 
-	// The generator emits path="/graphql" for promoted single-resource commands on
-	// GraphQL APIs — the request is broken (GraphQL rejects GET) and the fallback
-	// here treats "graphql" as the ID. Surface a useful error instead of the raw
-	// lookup miss.
-	if id == "graphql" {
-		return nil, DataProvenance{}, fmt.Errorf("%q fallback to local is not supported for this resource (the GraphQL GET path is a generator bug).\nTry 'linear-pp-cli sync' then a resource-specific local command (e.g. 'issues list', 'today')", resourceType)
-	}
-
 	item, err := db.Get(resourceType, id)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, DataProvenance{}, fmt.Errorf("resource %q with ID %q not found in local store. Run 'linear-pp-cli sync' first", resourceType, id)
+		}
 		return nil, DataProvenance{}, fmt.Errorf("querying local store: %w", err)
-	}
-	if item == nil {
-		return nil, DataProvenance{}, fmt.Errorf("resource %q with ID %q not found in local store. Run 'linear-pp-cli sync' first", resourceType, id)
 	}
 	return item, prov, nil
 }

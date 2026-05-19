@@ -1,0 +1,12 @@
+{
+  "version": 0,
+  "api_name": "dreo",
+  "run_id": "20260517-015408",
+  "scope": "lexical-conjuring-kahan-622724c9",
+  "output_dir": "/Users/tmchow/printing-press/.runstate/lexical-conjuring-kahan-622724c9/runs/20260517-015408/working/dreo-pp-cli",
+  "working_dir": "/Users/tmchow/printing-press/library/dreo",
+  "published_dir": "/Users/tmchow/printing-press/library/dreo",
+  "started_at": "0001-01-01T00:00:00Z",
+  "phases": {},
+  "spec_path": "/Users/tmchow/printing-press/.runstate/lexical-conjuring-kahan-622724c9/runs/20260517-015408/research/dreo-spec.yaml"
+}

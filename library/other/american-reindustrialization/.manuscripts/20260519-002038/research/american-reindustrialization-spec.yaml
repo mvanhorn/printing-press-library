@@ -1,0 +1,452 @@
+name: american-reindustrialization
+description: "Browse, slice, and analyze the curated American Reindustrialization company directory and jobs board"
+version: "0.1.0"
+base_url: "https://americanreindustrialization.com/api"
+cli_description: "Browse, slice, and analyze the curated American Reindustrialization directory — with diffs, geo clusters, sector heatmaps, and offline SQL no website view shows."
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/american-reindustrialization-pp-cli/config.toml"
+
+mcp:
+  transport:
+    - stdio
+    - http
+  addr: ":7777"
+
+resources:
+  companies:
+    description: "US-based companies driving reindustrialization (manufacturing, robotics, advanced materials, supply chains)"
+    endpoints:
+      list:
+        method: GET
+        path: "/companies"
+        description: "List companies with pagination and optional server-side filters"
+        params:
+          - name: page
+            type: int
+            description: "Page number (1-indexed)"
+          - name: limit
+            type: int
+            default: 20
+            description: "Items per page"
+          - name: state
+            type: string
+            description: "Filter by HQ state code (e.g. CA, TX)"
+          - name: category
+            type: string
+            description: "Filter by category slug (e.g. manufacturing)"
+        response:
+          type: object
+          item: CompanyPage
+      get:
+        method: GET
+        path: "/companies/{slug}"
+        description: "Get one company by slug (returns the full object directly, not wrapped)"
+        params:
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: "Company slug (e.g. harmony-ai)"
+        response:
+          type: object
+          item: Company
+      search:
+        method: GET
+        path: "/companies/search"
+        description: "Full-text search across company names and descriptions; returns a bare array"
+        params:
+          - name: q
+            type: string
+            required: true
+            description: "Search query"
+        response:
+          type: array
+          item: Company
+
+  categories:
+    description: "Top-level sectors (hierarchical via parent_id)"
+    endpoints:
+      list:
+        method: GET
+        path: "/categories"
+        description: "List every category (bare array)"
+        response:
+          type: array
+          item: Category
+      get:
+        method: GET
+        path: "/categories/{slug}"
+        description: "Get one category by slug"
+        params:
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: "Category slug"
+        response:
+          type: object
+          item: Category
+      counts:
+        method: GET
+        path: "/categories/counts"
+        description: "Map of category_id -> company count"
+        response:
+          type: object
+          item: CountMap
+      search:
+        method: GET
+        path: "/categories/search"
+        description: "Search categories by query string"
+        params:
+          - name: q
+            type: string
+            required: true
+            description: "Search query"
+        response:
+          type: array
+          item: Category
+
+  tags:
+    description: "Typed tags (tag_type = tech, sector, focus area, etc.)"
+    endpoints:
+      list:
+        method: GET
+        path: "/tags"
+        description: "List every tag (bare array)"
+        response:
+          type: array
+          item: Tag
+      get:
+        method: GET
+        path: "/tags/{slug}"
+        description: "Get one tag by slug"
+        params:
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: "Tag slug"
+        response:
+          type: object
+          item: Tag
+      counts:
+        method: GET
+        path: "/tags/counts"
+        description: "Map of tag_id -> company count"
+        response:
+          type: object
+          item: CountMap
+      search:
+        method: GET
+        path: "/tags/search"
+        description: "Search tags by query string"
+        params:
+          - name: q
+            type: string
+            required: true
+            description: "Search query"
+        response:
+          type: array
+          item: Tag
+
+  openings:
+    description: "Open job listings aggregated from companies in the directory"
+    endpoints:
+      list:
+        method: GET
+        path: "/jobs"
+        description: "List job openings with pagination and optional server-side filters (work_mode and experience_level are honored; state is silently ignored upstream — use `openings find` for cross-resource filters)"
+        params:
+          - name: page
+            type: int
+            description: "Page number (1-indexed)"
+          - name: limit
+            type: int
+            default: 20
+            description: "Items per page"
+          - name: work_mode
+            type: string
+            description: "Filter by work_mode (remote, hybrid, onsite)"
+          - name: experience_level
+            type: string
+            description: "Filter by experience level (entry, mid, senior, lead)"
+        response:
+          type: object
+          item: JobPage
+      get:
+        method: GET
+        path: "/jobs/{slug}"
+        description: "Get one job opening by slug"
+        params:
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: "Job slug"
+        response:
+          type: object
+          item: Job
+      companies:
+        method: GET
+        path: "/jobs/companies"
+        description: "Autocomplete list of {id, name} for companies that currently have open openings"
+        response:
+          type: array
+          item: CompanyRef
+      titles:
+        method: GET
+        path: "/jobs/titles"
+        description: "Autocomplete list of job titles matching the query"
+        params:
+          - name: q
+            type: string
+            description: "Query prefix (empty returns the full title list)"
+        response:
+          type: array
+          item: string
+      categories:
+        method: GET
+        path: "/jobs/categories"
+        description: "Autocomplete list of categories that have at least one opening"
+        response:
+          type: array
+          item: Category
+      tags:
+        method: GET
+        path: "/jobs/tags"
+        description: "Autocomplete list of tags that appear on at least one opening"
+        response:
+          type: array
+          item: Tag
+
+  news:
+    description: "News feed (currently empty upstream; reserved for future API population)"
+    endpoints:
+      list:
+        method: GET
+        path: "/news"
+        description: "List news items (returns a bare array; empty at capture)"
+        response:
+          type: array
+          item: NewsItem
+
+types:
+  Company:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: slug
+        type: string
+      - name: tagline
+        type: string
+      - name: short_description
+        type: string
+      - name: full_description
+        type: string
+      - name: website_url
+        type: string
+      - name: logo_url
+        type: string
+      - name: cover_image_url
+        type: string
+      - name: hq_city
+        type: string
+      - name: hq_state
+        type: string
+      - name: hq_country
+        type: string
+      - name: latitude
+        type: float
+      - name: longitude
+        type: float
+      - name: founded_year
+        type: int
+      - name: employee_range
+        type: string
+      - name: funding_stage
+        type: string
+      - name: primary_sector
+        type: string
+      - name: is_us_based
+        type: bool
+      - name: status
+        type: string
+      - name: published_at
+        type: string
+      - name: seo_title
+        type: string
+      - name: seo_meta_description
+        type: string
+      - name: generic_email
+        type: string
+      - name: press_email
+        type: string
+      - name: careers_email
+        type: string
+      - name: phone
+        type: string
+      - name: address_line1
+        type: string
+      - name: address_line2
+        type: string
+      - name: postal_code
+        type: string
+      - name: products_services
+        type: string
+      - name: last_enriched_at
+        type: string
+      - name: created_at
+        type: string
+      - name: updated_at
+        type: string
+      - name: job_listing_url
+        type: string
+      - name: jobs_count
+        type: int
+
+  CompanyPage:
+    fields:
+      - name: data
+        type: array
+      - name: total
+        type: int
+      - name: page
+        type: int
+      - name: limit
+        type: int
+      - name: totalPages
+        type: int
+
+  CompanyRef:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+
+  Category:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: slug
+        type: string
+      - name: description
+        type: string
+      - name: parent_id
+        type: string
+      - name: sort_order
+        type: int
+      - name: image_url
+        type: string
+      - name: created_at
+        type: string
+      - name: updated_at
+        type: string
+
+  Tag:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: slug
+        type: string
+      - name: description
+        type: string
+      - name: tag_type
+        type: string
+      - name: created_at
+        type: string
+      - name: updated_at
+        type: string
+
+  CountMap:
+    fields:
+      - name: value
+        type: int
+
+  Job:
+    fields:
+      - name: id
+        type: string
+      - name: company_id
+        type: string
+      - name: title
+        type: string
+      - name: slug
+        type: string
+      - name: description
+        type: string
+      - name: job_type
+        type: string
+      - name: work_mode
+        type: string
+      - name: location_city
+        type: string
+      - name: location_state
+        type: string
+      - name: location_country
+        type: string
+      - name: location_display
+        type: string
+      - name: salary_min
+        type: int
+      - name: salary_max
+        type: int
+      - name: salary_currency
+        type: string
+      - name: salary_period
+        type: string
+      - name: experience_level
+        type: string
+      - name: industry
+        type: string
+      - name: qualifications
+        type: string
+      - name: apply_url
+        type: string
+      - name: status
+        type: string
+      - name: posted_at
+        type: string
+      - name: expires_at
+        type: string
+      - name: is_auto_fetched
+        type: bool
+      - name: created_at
+        type: string
+      - name: updated_at
+        type: string
+
+  JobPage:
+    fields:
+      - name: data
+        type: array
+      - name: total
+        type: int
+      - name: page
+        type: int
+      - name: limit
+        type: int
+      - name: totalPages
+        type: int
+
+  NewsItem:
+    fields:
+      - name: id
+        type: string
+      - name: title
+        type: string
+      - name: url
+        type: string
+      - name: published_at
+        type: string

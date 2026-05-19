@@ -1,0 +1,182 @@
+{
+  "api_name": "nasa-images",
+  "base_url": "https://images-api.nasa.gov",
+  "description": "NASA Image and Video Library CLI: search, download, and extract from 140k+ public-domain NASA images, videos, and audio assets",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "albums_get",
+      "description": "Return paginated asset listing for a curated album. Album names are case-sensitive (Apollo-at-50 works, apollo-at-50 returns 404). Required: album_name. Optional: page (default: 1).",
+      "method": "GET",
+      "path": "/album/{album_name}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "album_name",
+          "type": "string",
+          "location": "path",
+          "description": "Curated album name, case-sensitive (discover names via search results' data.album field)",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "1-indexed page number; page_size is fixed by the server (~100) for albums."
+        }
+      ]
+    },
+    {
+      "name": "assets_get",
+      "description": "Return the list of every file URL for an asset. Required: nasa_id.",
+      "method": "GET",
+      "path": "/asset/{nasa_id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "nasa_id",
+          "type": "string",
+          "location": "path",
+          "description": "Asset's NASA ID (from a search result's data.nasa_id field, e.g. PIA12348 or as11-40-5874)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "captions_get",
+      "description": "Return the location URL of the captions file. Video assets only — 400 for images, 404 for video without captions. Use `captions fetch` (novel command) to follow the indirection and fetch the caption text. Required: nasa_id.",
+      "method": "GET",
+      "path": "/captions/{nasa_id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "nasa_id",
+          "type": "string",
+          "location": "path",
+          "description": "Asset's NASA ID (video media_type only)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "media_list",
+      "description": "Search the catalog by free text or filters. At least one query parameter is required. Optional: q, media_type, year_start (plus 12 more).",
+      "method": "GET",
+      "path": "/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Free-text query terms matched against indexed metadata (title, description, keywords). Any one search parameter satisfies the API; omit q to filter by media_type/center/year only."
+        },
+        {
+          "name": "media_type",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by media type. Use comma-separated values for OR: image,video"
+        },
+        {
+          "name": "year_start",
+          "type": "string",
+          "location": "query",
+          "description": "Earliest date_created year (YYYY format, e.g. 2020)"
+        },
+        {
+          "name": "year_end",
+          "type": "string",
+          "location": "query",
+          "description": "Latest date_created year (YYYY format, e.g. 2026)"
+        },
+        {
+          "name": "center",
+          "type": "string",
+          "location": "query",
+          "description": "NASA center code that published the media. One of HQ, JSC (Johnson), KSC (Kennedy), GSFC (Goddard), JPL (Jet Propulsion), MSFC (Marshall), ARC (Ames), LRC (Langley), AFRC (Armstrong), GRC (Glenn), SSC (Stennis). Comma-separated for OR."
+        },
+        {
+          "name": "photographer",
+          "type": "string",
+          "location": "query",
+          "description": "Primary photographer's name"
+        },
+        {
+          "name": "secondary_creator",
+          "type": "string",
+          "location": "query",
+          "description": "Secondary photographer or videographer"
+        },
+        {
+          "name": "keywords",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated keyword terms (matched against the indexed keyword set)"
+        },
+        {
+          "name": "location",
+          "type": "string",
+          "location": "query",
+          "description": "Matched against the asset's Location field"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "query",
+          "description": "Matched against the asset's Description field"
+        },
+        {
+          "name": "description_508",
+          "type": "string",
+          "location": "query",
+          "description": "Matched against the asset's Section-508 accessibility description"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "query",
+          "description": "Matched against the asset's Title field"
+        },
+        {
+          "name": "nasa_id",
+          "type": "string",
+          "location": "query",
+          "description": "Exact match on a specific NASA ID. Returns at most one item."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "1-indexed page number for pagination"
+        },
+        {
+          "name": "page_size",
+          "type": "int",
+          "location": "query",
+          "description": "Items per page. Practical max ~200; defaults to 100."
+        }
+      ]
+    },
+    {
+      "name": "metadata_get",
+      "description": "Return the location URL of the metadata.json sidecar for an asset. Use `metadata fetch` (novel command) to follow the indirection and fetch the cleaned metadata content. Required: nasa_id.",
+      "method": "GET",
+      "path": "/metadata/{nasa_id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "nasa_id",
+          "type": "string",
+          "location": "path",
+          "description": "Asset's NASA ID",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

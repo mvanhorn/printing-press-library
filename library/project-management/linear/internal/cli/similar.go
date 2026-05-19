@@ -55,6 +55,12 @@ func newSimilarCmd(flags *rootFlags) *cobra.Command {
 				results = results[:limit]
 			}
 
+			if len(results) == 0 {
+				hintIfUnsynced(cmd, db, "issues")
+			} else {
+				hintIfStale(cmd, db, "issues", flags.maxAge)
+			}
+
 			if jsonOut {
 				enc := json.NewEncoder(os.Stdout)
 				enc.SetIndent("", "  ")

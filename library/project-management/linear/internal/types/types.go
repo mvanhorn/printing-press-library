@@ -20,7 +20,7 @@ type AgentActivity struct {
 	Content            string `json:"content"`
 	ContextualMetadata string `json:"contextualMetadata"`
 	CreatedAt          string `json:"createdAt"`
-	Ephemeral          string `json:"ephemeral"`
+	Ephemeral          bool   `json:"ephemeral"`
 	Id                 string `json:"id"`
 	Signal             string `json:"signal"`
 	SignalMetadata     string `json:"signalMetadata"`
@@ -72,9 +72,9 @@ type AgentSession struct {
 	After           string          `json:"after"`
 	Before          string          `json:"before"`
 	Filter          string          `json:"filter"`
-	First           string          `json:"first"`
-	IncludeArchived string          `json:"includeArchived"`
-	Last            string          `json:"last"`
+	First           int             `json:"first"`
+	IncludeArchived bool            `json:"includeArchived"`
+	Last            int             `json:"last"`
 	OrderBy         string          `json:"orderBy"`
 	AppUser         string          `json:"appUser"`
 	ArchivedAt      string          `json:"archivedAt"`
@@ -91,6 +91,7 @@ type AgentSession struct {
 	Id              string          `json:"id"`
 	Issue           string          `json:"issue"`
 	Plan            string          `json:"plan"`
+	SlugId          string          `json:"slugId"`
 	SourceComment   string          `json:"sourceComment"`
 	SourceMetadata  string          `json:"sourceMetadata"`
 	StartedAt       string          `json:"startedAt"`
@@ -116,20 +117,23 @@ type AgentSessionToPullRequest struct {
 }
 
 type AiConversation struct {
-	ArchivedAt         string          `json:"archivedAt"`
-	Context            string          `json:"context"`
-	CreatedAt          string          `json:"createdAt"`
-	EvalLogId          string          `json:"evalLogId"`
-	Id                 string          `json:"id"`
-	InitialSource      string          `json:"initialSource"`
-	IterationId        string          `json:"iterationId"`
-	Parts              json.RawMessage `json:"parts"`
-	ReadAt             string          `json:"readAt"`
-	Status             string          `json:"status"`
-	Summary            string          `json:"summary"`
-	UpdatedAt          string          `json:"updatedAt"`
-	User               string          `json:"user"`
-	WorkflowDefinition string          `json:"workflowDefinition"`
+	ArchivedAt                string          `json:"archivedAt"`
+	ClientPlatform            string          `json:"clientPlatform"`
+	Context                   string          `json:"context"`
+	CreatedAt                 string          `json:"createdAt"`
+	EvalLogId                 string          `json:"evalLogId"`
+	Id                        string          `json:"id"`
+	InitialSource             string          `json:"initialSource"`
+	IterationId               string          `json:"iterationId"`
+	Parts                     json.RawMessage `json:"parts"`
+	ReadAt                    string          `json:"readAt"`
+	SlugId                    string          `json:"slugId"`
+	Status                    string          `json:"status"`
+	Summary                   string          `json:"summary"`
+	UpdatedAt                 string          `json:"updatedAt"`
+	User                      string          `json:"user"`
+	WorkflowCronJobDefinition string          `json:"workflowCronJobDefinition"`
+	WorkflowDefinition        string          `json:"workflowDefinition"`
 }
 
 type AiConversationCodeIntelligenceToolCall struct {
@@ -153,8 +157,8 @@ type AiConversationCreateEntityToolCall struct {
 }
 
 type AiConversationCreateEntityToolCallArgs struct {
-	Count string `json:"count"`
-	Type  string `json:"type"`
+	Count float64 `json:"count"`
+	Type  string  `json:"type"`
 }
 
 type AiConversationDeleteEntityToolCall struct {
@@ -192,7 +196,7 @@ type AiConversationEntityListWidget struct {
 
 type AiConversationEntityListWidgetArgs struct {
 	Action   string          `json:"action"`
-	Count    string          `json:"count"`
+	Count    float64         `json:"count"`
 	Entities json.RawMessage `json:"entities"`
 }
 
@@ -202,11 +206,34 @@ type AiConversationEntityListWidgetArgsEntities struct {
 	Type string `json:"type"`
 }
 
+type AiConversationEventPart struct {
+	Body           string `json:"body"`
+	BodyData       string `json:"bodyData"`
+	Id             string `json:"id"`
+	Metadata       string `json:"metadata"`
+	SubscriptionId string `json:"subscriptionId"`
+	Type           string `json:"type"`
+}
+
 type AiConversationGetMicrosoftTeamsConversationHistoryToolCall struct {
 	DisplayInfo string `json:"displayInfo"`
 	Name        string `json:"name"`
 	RawArgs     string `json:"rawArgs"`
 	RawResult   string `json:"rawResult"`
+}
+
+type AiConversationGetPullRequestCheckLogsToolCall struct {
+	Args        string `json:"args"`
+	DisplayInfo string `json:"displayInfo"`
+	Name        string `json:"name"`
+	RawArgs     string `json:"rawArgs"`
+	RawResult   string `json:"rawResult"`
+}
+
+type AiConversationGetPullRequestCheckLogsToolCallArgs struct {
+	CheckName    string `json:"checkName"`
+	Entity       string `json:"entity"`
+	WorkflowName string `json:"workflowName"`
 }
 
 type AiConversationGetPullRequestDiffToolCall struct {
@@ -239,6 +266,19 @@ type AiConversationGetSlackConversationHistoryToolCall struct {
 	Name        string `json:"name"`
 	RawArgs     string `json:"rawArgs"`
 	RawResult   string `json:"rawResult"`
+}
+
+type AiConversationHandoffToCodingSessionToolCall struct {
+	Args        string `json:"args"`
+	DisplayInfo string `json:"displayInfo"`
+	Name        string `json:"name"`
+	RawArgs     string `json:"rawArgs"`
+	RawResult   string `json:"rawResult"`
+}
+
+type AiConversationHandoffToCodingSessionToolCallArgs struct {
+	Entity       string `json:"entity"`
+	Instructions string `json:"instructions"`
 }
 
 type AiConversationInvokeMcpToolToolCall struct {
@@ -275,13 +315,16 @@ type AiConversationNavigateToPageToolCall struct {
 }
 
 type AiConversationNavigateToPageToolCallArgs struct {
+	Entities json.RawMessage `json:"entities"`
+}
+
+type AiConversationNavigateToPageToolCallArgsEntities struct {
 	EntityType string `json:"entityType"`
-	Identifier string `json:"identifier"`
+	Uuid       string `json:"uuid"`
 }
 
 type AiConversationNavigateToPageToolCallResult struct {
-	NewTab string `json:"newTab"`
-	Url    string `json:"url"`
+	Urls json.RawMessage `json:"urls"`
 }
 
 type AiConversationPartMetadata struct {
@@ -399,6 +442,20 @@ type AiConversationRetrieveEntitiesToolCallArgs struct {
 	Entities json.RawMessage `json:"entities"`
 }
 
+type AiConversationRetryPullRequestCheckToolCall struct {
+	Args        string `json:"args"`
+	DisplayInfo string `json:"displayInfo"`
+	Name        string `json:"name"`
+	RawArgs     string `json:"rawArgs"`
+	RawResult   string `json:"rawResult"`
+}
+
+type AiConversationRetryPullRequestCheckToolCallArgs struct {
+	CheckName    string `json:"checkName"`
+	Entity       string `json:"entity"`
+	WorkflowName string `json:"workflowName"`
+}
+
 type AiConversationSearchDocumentationToolCall struct {
 	DisplayInfo string `json:"displayInfo"`
 	Name        string `json:"name"`
@@ -427,6 +484,22 @@ type AiConversationSearchEntitiesToolCallResult struct {
 type AiConversationSearchEntitiesToolCallResultEntities struct {
 	Id   string `json:"id"`
 	Type string `json:"type"`
+}
+
+type AiConversationSubscribeToEventToolCall struct {
+	Args        string `json:"args"`
+	DisplayInfo string `json:"displayInfo"`
+	Name        string `json:"name"`
+	RawArgs     string `json:"rawArgs"`
+	RawResult   string `json:"rawResult"`
+}
+
+type AiConversationSubscribeToEventToolCallArgs struct {
+	EndsAt         string `json:"endsAt"`
+	Kind           string `json:"kind"`
+	Message        string `json:"message"`
+	SubscriptionId string `json:"subscriptionId"`
+	Type           string `json:"type"`
 }
 
 type AiConversationSuggestValuesToolCall struct {
@@ -477,6 +550,19 @@ type AiConversationTranscribeVideoToolCall struct {
 	Name        string `json:"name"`
 	RawArgs     string `json:"rawArgs"`
 	RawResult   string `json:"rawResult"`
+}
+
+type AiConversationUnsubscribeFromEventToolCall struct {
+	Args        string `json:"args"`
+	DisplayInfo string `json:"displayInfo"`
+	Name        string `json:"name"`
+	RawArgs     string `json:"rawArgs"`
+	RawResult   string `json:"rawResult"`
+}
+
+type AiConversationUnsubscribeFromEventToolCallArgs struct {
+	Message        string `json:"message"`
+	SubscriptionId string `json:"subscriptionId"`
 }
 
 type AiConversationUpdateEntityToolCall struct {
@@ -548,9 +634,9 @@ type Application struct {
 
 type ArchiveResponse struct {
 	Archive              string          `json:"archive"`
-	DatabaseVersion      string          `json:"databaseVersion"`
+	DatabaseVersion      float64         `json:"databaseVersion"`
 	IncludesDependencies json.RawMessage `json:"includesDependencies"`
-	TotalCount           string          `json:"totalCount"`
+	TotalCount           float64         `json:"totalCount"`
 }
 
 type Attachment struct {
@@ -559,7 +645,7 @@ type Attachment struct {
 	CreatedAt           string `json:"createdAt"`
 	Creator             string `json:"creator"`
 	ExternalUserCreator string `json:"externalUserCreator"`
-	GroupBySource       string `json:"groupBySource"`
+	GroupBySource       bool   `json:"groupBySource"`
 	Id                  string `json:"id"`
 	Issue               string `json:"issue"`
 	Metadata            string `json:"metadata"`
@@ -593,45 +679,45 @@ type AuditEntryType struct {
 }
 
 type AuthIdentityProvider struct {
-	CreatedAt       string `json:"createdAt"`
-	DefaultMigrated string `json:"defaultMigrated"`
-	Id              string `json:"id"`
-	IssuerEntityId  string `json:"issuerEntityId"`
-	Priority        string `json:"priority"`
-	SamlEnabled     string `json:"samlEnabled"`
-	ScimEnabled     string `json:"scimEnabled"`
-	SpEntityId      string `json:"spEntityId"`
-	SsoBinding      string `json:"ssoBinding"`
-	SsoEndpoint     string `json:"ssoEndpoint"`
-	SsoSignAlgo     string `json:"ssoSignAlgo"`
-	SsoSigningCert  string `json:"ssoSigningCert"`
-	Type            string `json:"type"`
+	CreatedAt       string  `json:"createdAt"`
+	DefaultMigrated bool    `json:"defaultMigrated"`
+	Id              string  `json:"id"`
+	IssuerEntityId  string  `json:"issuerEntityId"`
+	Priority        float64 `json:"priority"`
+	SamlEnabled     bool    `json:"samlEnabled"`
+	ScimEnabled     bool    `json:"scimEnabled"`
+	SpEntityId      string  `json:"spEntityId"`
+	SsoBinding      string  `json:"ssoBinding"`
+	SsoEndpoint     string  `json:"ssoEndpoint"`
+	SsoSignAlgo     string  `json:"ssoSignAlgo"`
+	SsoSigningCert  string  `json:"ssoSigningCert"`
+	Type            string  `json:"type"`
 }
 
 type AuthOrganization struct {
 	AllowedAuthServices         json.RawMessage `json:"allowedAuthServices"`
-	ApproximateUserCount        string          `json:"approximateUserCount"`
+	ApproximateUserCount        float64         `json:"approximateUserCount"`
 	AuthSettings                string          `json:"authSettings"`
 	CreatedAt                   string          `json:"createdAt"`
 	DeletionRequestedAt         string          `json:"deletionRequestedAt"`
-	Enabled                     string          `json:"enabled"`
-	HideNonPrimaryOrganizations string          `json:"hideNonPrimaryOrganizations"`
+	Enabled                     bool            `json:"enabled"`
+	HideNonPrimaryOrganizations bool            `json:"hideNonPrimaryOrganizations"`
 	Id                          string          `json:"id"`
 	LogoUrl                     string          `json:"logoUrl"`
 	Name                        string          `json:"name"`
 	PreviousUrlKeys             json.RawMessage `json:"previousUrlKeys"`
 	Region                      string          `json:"region"`
 	ReleaseChannel              string          `json:"releaseChannel"`
-	SamlEnabled                 string          `json:"samlEnabled"`
+	SamlEnabled                 bool            `json:"samlEnabled"`
 	SamlSettings                string          `json:"samlSettings"`
-	ScimEnabled                 string          `json:"scimEnabled"`
+	ScimEnabled                 bool            `json:"scimEnabled"`
 	ServiceId                   string          `json:"serviceId"`
 	UrlKey                      string          `json:"urlKey"`
-	UserCount                   string          `json:"userCount"`
+	UserCount                   float64         `json:"userCount"`
 }
 
 type AuthResolverResponse struct {
-	AllowDomainAccess      string          `json:"allowDomainAccess"`
+	AllowDomainAccess      bool            `json:"allowDomainAccess"`
 	AvailableOrganizations json.RawMessage `json:"availableOrganizations"`
 	Email                  string          `json:"email"`
 	Id                     string          `json:"id"`
@@ -644,7 +730,7 @@ type AuthResolverResponse struct {
 }
 
 type AuthUser struct {
-	Active           string `json:"active"`
+	Active           bool   `json:"active"`
 	AvatarUrl        string `json:"avatarUrl"`
 	CreatedAt        string `json:"createdAt"`
 	DisplayName      string `json:"displayName"`
@@ -662,9 +748,10 @@ type AuthenticationSessionResponse struct {
 	Client              string          `json:"client"`
 	CountryCodes        json.RawMessage `json:"countryCodes"`
 	CreatedAt           string          `json:"createdAt"`
+	DetailedName        string          `json:"detailedName"`
 	Id                  string          `json:"id"`
 	Ip                  string          `json:"ip"`
-	IsCurrentSession    string          `json:"isCurrentSession"`
+	IsCurrentSession    bool            `json:"isCurrentSession"`
 	LastActiveAt        string          `json:"lastActiveAt"`
 	Location            string          `json:"location"`
 	LocationCity        string          `json:"locationCity"`
@@ -679,13 +766,27 @@ type AuthenticationSessionResponse struct {
 	UserAgent           string          `json:"userAgent"`
 }
 
+type CodingAgentSandboxEntry struct {
+	BaseRef              string `json:"baseRef"`
+	BranchName           string `json:"branchName"`
+	CreatedAt            string `json:"createdAt"`
+	CreatorId            string `json:"creatorId"`
+	EndedAt              string `json:"endedAt"`
+	Id                   string `json:"id"`
+	Repository           string `json:"repository"`
+	SandboxLogsUrl       string `json:"sandboxLogsUrl"`
+	SandboxUrl           string `json:"sandboxUrl"`
+	StartedAt            string `json:"startedAt"`
+	WorkerConversationId string `json:"workerConversationId"`
+}
+
 type Comment struct {
 	AgentSession                 string          `json:"agentSession"`
 	After                        string          `json:"after"`
 	Before                       string          `json:"before"`
-	First                        string          `json:"first"`
-	IncludeArchived              string          `json:"includeArchived"`
-	Last                         string          `json:"last"`
+	First                        int             `json:"first"`
+	IncludeArchived              bool            `json:"includeArchived"`
+	Last                         int             `json:"last"`
 	OrderBy                      string          `json:"orderBy"`
 	Filter                       string          `json:"filter"`
 	ArchivedAt                   string          `json:"archivedAt"`
@@ -698,13 +799,13 @@ type Comment struct {
 	EditedAt                     string          `json:"editedAt"`
 	ExternalThread               string          `json:"externalThread"`
 	ExternalUser                 string          `json:"externalUser"`
-	HideInLinear                 string          `json:"hideInLinear"`
+	HideInLinear                 bool            `json:"hideInLinear"`
 	Id                           string          `json:"id"`
 	Initiative                   string          `json:"initiative"`
 	InitiativeId                 string          `json:"initiativeId"`
 	InitiativeUpdate             string          `json:"initiativeUpdate"`
 	InitiativeUpdateId           string          `json:"initiativeUpdateId"`
-	IsArtificialAgentSessionRoot string          `json:"isArtificialAgentSessionRoot"`
+	IsArtificialAgentSessionRoot bool            `json:"isArtificialAgentSessionRoot"`
 	Issue                        string          `json:"issue"`
 	IssueId                      string          `json:"issueId"`
 	OnBehalfOf                   string          `json:"onBehalfOf"`
@@ -750,11 +851,11 @@ type CustomView struct {
 	After                       string          `json:"after"`
 	Before                      string          `json:"before"`
 	Filter                      string          `json:"filter"`
-	First                       string          `json:"first"`
-	IncludeArchived             string          `json:"includeArchived"`
-	Last                        string          `json:"last"`
+	First                       int             `json:"first"`
+	IncludeArchived             bool            `json:"includeArchived"`
+	Last                        int             `json:"last"`
 	OrderBy                     string          `json:"orderBy"`
-	IncludeSubTeams             string          `json:"includeSubTeams"`
+	IncludeSubTeams             bool            `json:"includeSubTeams"`
 	Sort                        json.RawMessage `json:"sort"`
 	ModelName                   string          `json:"modelName"`
 	Name                        string          `json:"name"`
@@ -762,7 +863,7 @@ type CustomView struct {
 	OrganizationViewPreferences string          `json:"organizationViewPreferences"`
 	Owner                       string          `json:"owner"`
 	ProjectFilterData           string          `json:"projectFilterData"`
-	Shared                      string          `json:"shared"`
+	Shared                      bool            `json:"shared"`
 	SlugId                      string          `json:"slugId"`
 	Team                        string          `json:"team"`
 	UpdatedAt                   string          `json:"updatedAt"`
@@ -772,7 +873,7 @@ type CustomView struct {
 }
 
 type CustomViewNotificationSubscription struct {
-	Active                        string          `json:"active"`
+	Active                        bool            `json:"active"`
 	ArchivedAt                    string          `json:"archivedAt"`
 	ContextViewType               string          `json:"contextViewType"`
 	CreatedAt                     string          `json:"createdAt"`
@@ -792,7 +893,7 @@ type CustomViewNotificationSubscription struct {
 }
 
 type Customer struct {
-	ApproximateNeedCount string          `json:"approximateNeedCount"`
+	ApproximateNeedCount float64         `json:"approximateNeedCount"`
 	ArchivedAt           string          `json:"archivedAt"`
 	CreatedAt            string          `json:"createdAt"`
 	Domains              json.RawMessage `json:"domains"`
@@ -804,8 +905,8 @@ type Customer struct {
 	Name                 string          `json:"name"`
 	Needs                json.RawMessage `json:"needs"`
 	Owner                string          `json:"owner"`
-	Revenue              string          `json:"revenue"`
-	Size                 string          `json:"size"`
+	Revenue              int             `json:"revenue"`
+	Size                 float64         `json:"size"`
 	SlackChannelId       string          `json:"slackChannelId"`
 	SlugId               string          `json:"slugId"`
 	Status               string          `json:"status"`
@@ -815,92 +916,92 @@ type Customer struct {
 }
 
 type CustomerNeed struct {
-	ArchivedAt        string `json:"archivedAt"`
-	Attachment        string `json:"attachment"`
-	Body              string `json:"body"`
-	BodyData          string `json:"bodyData"`
-	Comment           string `json:"comment"`
-	CreatedAt         string `json:"createdAt"`
-	Creator           string `json:"creator"`
-	Customer          string `json:"customer"`
-	Id                string `json:"id"`
-	Issue             string `json:"issue"`
-	OriginalIssue     string `json:"originalIssue"`
-	Priority          string `json:"priority"`
-	Project           string `json:"project"`
-	ProjectAttachment string `json:"projectAttachment"`
-	UpdatedAt         string `json:"updatedAt"`
-	Url               string `json:"url"`
+	ArchivedAt        string  `json:"archivedAt"`
+	Attachment        string  `json:"attachment"`
+	Body              string  `json:"body"`
+	BodyData          string  `json:"bodyData"`
+	Comment           string  `json:"comment"`
+	CreatedAt         string  `json:"createdAt"`
+	Creator           string  `json:"creator"`
+	Customer          string  `json:"customer"`
+	Id                string  `json:"id"`
+	Issue             string  `json:"issue"`
+	OriginalIssue     string  `json:"originalIssue"`
+	Priority          float64 `json:"priority"`
+	Project           string  `json:"project"`
+	ProjectAttachment string  `json:"projectAttachment"`
+	UpdatedAt         string  `json:"updatedAt"`
+	Url               string  `json:"url"`
 }
 
 type CustomerNeedNotification struct {
-	Actor                  string `json:"actor"`
-	ActorAvatarColor       string `json:"actorAvatarColor"`
-	ActorAvatarUrl         string `json:"actorAvatarUrl"`
-	ActorInitials          string `json:"actorInitials"`
-	ArchivedAt             string `json:"archivedAt"`
-	BotActor               string `json:"botActor"`
-	Category               string `json:"category"`
-	CreatedAt              string `json:"createdAt"`
-	CustomerNeed           string `json:"customerNeed"`
-	CustomerNeedId         string `json:"customerNeedId"`
-	EmailedAt              string `json:"emailedAt"`
-	ExternalUserActor      string `json:"externalUserActor"`
-	GroupingKey            string `json:"groupingKey"`
-	GroupingPriority       string `json:"groupingPriority"`
-	Id                     string `json:"id"`
-	InboxUrl               string `json:"inboxUrl"`
-	InitiativeUpdateHealth string `json:"initiativeUpdateHealth"`
-	IsLinearActor          string `json:"isLinearActor"`
-	IssueStatusType        string `json:"issueStatusType"`
-	ProjectUpdateHealth    string `json:"projectUpdateHealth"`
-	ReadAt                 string `json:"readAt"`
-	RelatedIssue           string `json:"relatedIssue"`
-	RelatedProject         string `json:"relatedProject"`
-	SnoozedUntilAt         string `json:"snoozedUntilAt"`
-	Subtitle               string `json:"subtitle"`
-	Title                  string `json:"title"`
-	Type                   string `json:"type"`
-	UnsnoozedAt            string `json:"unsnoozedAt"`
-	UpdatedAt              string `json:"updatedAt"`
-	Url                    string `json:"url"`
-	User                   string `json:"user"`
+	Actor                  string  `json:"actor"`
+	ActorAvatarColor       string  `json:"actorAvatarColor"`
+	ActorAvatarUrl         string  `json:"actorAvatarUrl"`
+	ActorInitials          string  `json:"actorInitials"`
+	ArchivedAt             string  `json:"archivedAt"`
+	BotActor               string  `json:"botActor"`
+	Category               string  `json:"category"`
+	CreatedAt              string  `json:"createdAt"`
+	CustomerNeed           string  `json:"customerNeed"`
+	CustomerNeedId         string  `json:"customerNeedId"`
+	EmailedAt              string  `json:"emailedAt"`
+	ExternalUserActor      string  `json:"externalUserActor"`
+	GroupingKey            string  `json:"groupingKey"`
+	GroupingPriority       float64 `json:"groupingPriority"`
+	Id                     string  `json:"id"`
+	InboxUrl               string  `json:"inboxUrl"`
+	InitiativeUpdateHealth string  `json:"initiativeUpdateHealth"`
+	IsLinearActor          bool    `json:"isLinearActor"`
+	IssueStatusType        string  `json:"issueStatusType"`
+	ProjectUpdateHealth    string  `json:"projectUpdateHealth"`
+	ReadAt                 string  `json:"readAt"`
+	RelatedIssue           string  `json:"relatedIssue"`
+	RelatedProject         string  `json:"relatedProject"`
+	SnoozedUntilAt         string  `json:"snoozedUntilAt"`
+	Subtitle               string  `json:"subtitle"`
+	Title                  string  `json:"title"`
+	Type                   string  `json:"type"`
+	UnsnoozedAt            string  `json:"unsnoozedAt"`
+	UpdatedAt              string  `json:"updatedAt"`
+	Url                    string  `json:"url"`
+	User                   string  `json:"user"`
 }
 
 type CustomerNotification struct {
-	Actor                  string `json:"actor"`
-	ActorAvatarColor       string `json:"actorAvatarColor"`
-	ActorAvatarUrl         string `json:"actorAvatarUrl"`
-	ActorInitials          string `json:"actorInitials"`
-	ArchivedAt             string `json:"archivedAt"`
-	BotActor               string `json:"botActor"`
-	Category               string `json:"category"`
-	CreatedAt              string `json:"createdAt"`
-	Customer               string `json:"customer"`
-	CustomerId             string `json:"customerId"`
-	EmailedAt              string `json:"emailedAt"`
-	ExternalUserActor      string `json:"externalUserActor"`
-	GroupingKey            string `json:"groupingKey"`
-	GroupingPriority       string `json:"groupingPriority"`
-	Id                     string `json:"id"`
-	InboxUrl               string `json:"inboxUrl"`
-	InitiativeUpdateHealth string `json:"initiativeUpdateHealth"`
-	IsLinearActor          string `json:"isLinearActor"`
-	IssueStatusType        string `json:"issueStatusType"`
-	ProjectUpdateHealth    string `json:"projectUpdateHealth"`
-	ReadAt                 string `json:"readAt"`
-	SnoozedUntilAt         string `json:"snoozedUntilAt"`
-	Subtitle               string `json:"subtitle"`
-	Title                  string `json:"title"`
-	Type                   string `json:"type"`
-	UnsnoozedAt            string `json:"unsnoozedAt"`
-	UpdatedAt              string `json:"updatedAt"`
-	Url                    string `json:"url"`
-	User                   string `json:"user"`
+	Actor                  string  `json:"actor"`
+	ActorAvatarColor       string  `json:"actorAvatarColor"`
+	ActorAvatarUrl         string  `json:"actorAvatarUrl"`
+	ActorInitials          string  `json:"actorInitials"`
+	ArchivedAt             string  `json:"archivedAt"`
+	BotActor               string  `json:"botActor"`
+	Category               string  `json:"category"`
+	CreatedAt              string  `json:"createdAt"`
+	Customer               string  `json:"customer"`
+	CustomerId             string  `json:"customerId"`
+	EmailedAt              string  `json:"emailedAt"`
+	ExternalUserActor      string  `json:"externalUserActor"`
+	GroupingKey            string  `json:"groupingKey"`
+	GroupingPriority       float64 `json:"groupingPriority"`
+	Id                     string  `json:"id"`
+	InboxUrl               string  `json:"inboxUrl"`
+	InitiativeUpdateHealth string  `json:"initiativeUpdateHealth"`
+	IsLinearActor          bool    `json:"isLinearActor"`
+	IssueStatusType        string  `json:"issueStatusType"`
+	ProjectUpdateHealth    string  `json:"projectUpdateHealth"`
+	ReadAt                 string  `json:"readAt"`
+	SnoozedUntilAt         string  `json:"snoozedUntilAt"`
+	Subtitle               string  `json:"subtitle"`
+	Title                  string  `json:"title"`
+	Type                   string  `json:"type"`
+	UnsnoozedAt            string  `json:"unsnoozedAt"`
+	UpdatedAt              string  `json:"updatedAt"`
+	Url                    string  `json:"url"`
+	User                   string  `json:"user"`
 }
 
 type CustomerNotificationSubscription struct {
-	Active                        string          `json:"active"`
+	Active                        bool            `json:"active"`
 	ArchivedAt                    string          `json:"archivedAt"`
 	ContextViewType               string          `json:"contextViewType"`
 	CreatedAt                     string          `json:"createdAt"`
@@ -920,28 +1021,28 @@ type CustomerNotificationSubscription struct {
 }
 
 type CustomerStatus struct {
-	ArchivedAt  string `json:"archivedAt"`
-	Color       string `json:"color"`
-	CreatedAt   string `json:"createdAt"`
-	Description string `json:"description"`
-	DisplayName string `json:"displayName"`
-	Id          string `json:"id"`
-	Name        string `json:"name"`
-	Position    string `json:"position"`
-	Type        string `json:"type"`
-	UpdatedAt   string `json:"updatedAt"`
+	ArchivedAt  string  `json:"archivedAt"`
+	Color       string  `json:"color"`
+	CreatedAt   string  `json:"createdAt"`
+	Description string  `json:"description"`
+	DisplayName string  `json:"displayName"`
+	Id          string  `json:"id"`
+	Name        string  `json:"name"`
+	Position    float64 `json:"position"`
+	Type        string  `json:"type"`
+	UpdatedAt   string  `json:"updatedAt"`
 }
 
 type CustomerTier struct {
-	ArchivedAt  string `json:"archivedAt"`
-	Color       string `json:"color"`
-	CreatedAt   string `json:"createdAt"`
-	Description string `json:"description"`
-	DisplayName string `json:"displayName"`
-	Id          string `json:"id"`
-	Name        string `json:"name"`
-	Position    string `json:"position"`
-	UpdatedAt   string `json:"updatedAt"`
+	ArchivedAt  string  `json:"archivedAt"`
+	Color       string  `json:"color"`
+	CreatedAt   string  `json:"createdAt"`
+	Description string  `json:"description"`
+	DisplayName string  `json:"displayName"`
+	Id          string  `json:"id"`
+	Name        string  `json:"name"`
+	Position    float64 `json:"position"`
+	UpdatedAt   string  `json:"updatedAt"`
 }
 
 type Cycle struct {
@@ -956,23 +1057,23 @@ type Cycle struct {
 	After                      string          `json:"after"`
 	Before                     string          `json:"before"`
 	Filter                     string          `json:"filter"`
-	First                      string          `json:"first"`
-	IncludeArchived            string          `json:"includeArchived"`
-	Last                       string          `json:"last"`
+	First                      int             `json:"first"`
+	IncludeArchived            bool            `json:"includeArchived"`
+	Last                       int             `json:"last"`
 	OrderBy                    string          `json:"orderBy"`
 	EndsAt                     string          `json:"endsAt"`
 	Id                         string          `json:"id"`
 	InProgressScopeHistory     json.RawMessage `json:"inProgressScopeHistory"`
 	InheritedFrom              string          `json:"inheritedFrom"`
-	IsActive                   string          `json:"isActive"`
-	IsFuture                   string          `json:"isFuture"`
-	IsNext                     string          `json:"isNext"`
-	IsPast                     string          `json:"isPast"`
-	IsPrevious                 string          `json:"isPrevious"`
+	IsActive                   bool            `json:"isActive"`
+	IsFuture                   bool            `json:"isFuture"`
+	IsNext                     bool            `json:"isNext"`
+	IsPast                     bool            `json:"isPast"`
+	IsPrevious                 bool            `json:"isPrevious"`
 	IssueCountHistory          json.RawMessage `json:"issueCountHistory"`
 	Name                       string          `json:"name"`
-	Number                     string          `json:"number"`
-	Progress                   string          `json:"progress"`
+	Number                     float64         `json:"number"`
+	Progress                   float64         `json:"progress"`
 	ProgressHistory            string          `json:"progressHistory"`
 	ScopeHistory               json.RawMessage `json:"scopeHistory"`
 	StartsAt                   string          `json:"startsAt"`
@@ -981,7 +1082,7 @@ type Cycle struct {
 }
 
 type CycleNotificationSubscription struct {
-	Active                        string          `json:"active"`
+	Active                        bool            `json:"active"`
 	ArchivedAt                    string          `json:"archivedAt"`
 	ContextViewType               string          `json:"contextViewType"`
 	CreatedAt                     string          `json:"createdAt"`
@@ -1001,59 +1102,59 @@ type CycleNotificationSubscription struct {
 }
 
 type Dashboard struct {
-	ArchivedAt    string `json:"archivedAt"`
-	Color         string `json:"color"`
-	CreatedAt     string `json:"createdAt"`
-	Creator       string `json:"creator"`
-	Description   string `json:"description"`
-	Icon          string `json:"icon"`
-	Id            string `json:"id"`
-	IssueFilter   string `json:"issueFilter"`
-	Name          string `json:"name"`
-	Organization  string `json:"organization"`
-	Owner         string `json:"owner"`
-	ProjectFilter string `json:"projectFilter"`
-	Shared        string `json:"shared"`
-	SlugId        string `json:"slugId"`
-	SortOrder     string `json:"sortOrder"`
-	UpdatedAt     string `json:"updatedAt"`
-	UpdatedBy     string `json:"updatedBy"`
-	Widgets       string `json:"widgets"`
+	ArchivedAt    string  `json:"archivedAt"`
+	Color         string  `json:"color"`
+	CreatedAt     string  `json:"createdAt"`
+	Creator       string  `json:"creator"`
+	Description   string  `json:"description"`
+	Icon          string  `json:"icon"`
+	Id            string  `json:"id"`
+	IssueFilter   string  `json:"issueFilter"`
+	Name          string  `json:"name"`
+	Organization  string  `json:"organization"`
+	Owner         string  `json:"owner"`
+	ProjectFilter string  `json:"projectFilter"`
+	Shared        bool    `json:"shared"`
+	SlugId        string  `json:"slugId"`
+	SortOrder     float64 `json:"sortOrder"`
+	UpdatedAt     string  `json:"updatedAt"`
+	UpdatedBy     string  `json:"updatedBy"`
+	Widgets       string  `json:"widgets"`
 }
 
 type Document struct {
-	ArchivedAt          string `json:"archivedAt"`
-	Color               string `json:"color"`
-	After               string `json:"after"`
-	Before              string `json:"before"`
-	Filter              string `json:"filter"`
-	First               string `json:"first"`
-	IncludeArchived     string `json:"includeArchived"`
-	Last                string `json:"last"`
-	OrderBy             string `json:"orderBy"`
-	Content             string `json:"content"`
-	ContentState        string `json:"contentState"`
-	CreatedAt           string `json:"createdAt"`
-	Creator             string `json:"creator"`
-	Cycle               string `json:"cycle"`
-	DocumentContentId   string `json:"documentContentId"`
-	HiddenAt            string `json:"hiddenAt"`
-	Icon                string `json:"icon"`
-	Id                  string `json:"id"`
-	Initiative          string `json:"initiative"`
-	Issue               string `json:"issue"`
-	LastAppliedTemplate string `json:"lastAppliedTemplate"`
-	Project             string `json:"project"`
-	Release             string `json:"release"`
-	SlugId              string `json:"slugId"`
-	SortOrder           string `json:"sortOrder"`
-	Summary             string `json:"summary"`
-	Team                string `json:"team"`
-	Title               string `json:"title"`
-	Trashed             string `json:"trashed"`
-	UpdatedAt           string `json:"updatedAt"`
-	UpdatedBy           string `json:"updatedBy"`
-	Url                 string `json:"url"`
+	ArchivedAt          string  `json:"archivedAt"`
+	Color               string  `json:"color"`
+	After               string  `json:"after"`
+	Before              string  `json:"before"`
+	Filter              string  `json:"filter"`
+	First               int     `json:"first"`
+	IncludeArchived     bool    `json:"includeArchived"`
+	Last                int     `json:"last"`
+	OrderBy             string  `json:"orderBy"`
+	Content             string  `json:"content"`
+	ContentState        string  `json:"contentState"`
+	CreatedAt           string  `json:"createdAt"`
+	Creator             string  `json:"creator"`
+	Cycle               string  `json:"cycle"`
+	DocumentContentId   string  `json:"documentContentId"`
+	HiddenAt            string  `json:"hiddenAt"`
+	Icon                string  `json:"icon"`
+	Id                  string  `json:"id"`
+	Initiative          string  `json:"initiative"`
+	Issue               string  `json:"issue"`
+	LastAppliedTemplate string  `json:"lastAppliedTemplate"`
+	Project             string  `json:"project"`
+	Release             string  `json:"release"`
+	SlugId              string  `json:"slugId"`
+	SortOrder           float64 `json:"sortOrder"`
+	Summary             string  `json:"summary"`
+	Team                string  `json:"team"`
+	Title               string  `json:"title"`
+	Trashed             bool    `json:"trashed"`
+	UpdatedAt           string  `json:"updatedAt"`
+	UpdatedBy           string  `json:"updatedBy"`
+	Url                 string  `json:"url"`
 }
 
 type DocumentContent struct {
@@ -1096,73 +1197,73 @@ type DocumentContentHistoryType struct {
 }
 
 type DocumentNotification struct {
-	Actor                  string `json:"actor"`
-	ActorAvatarColor       string `json:"actorAvatarColor"`
-	ActorAvatarUrl         string `json:"actorAvatarUrl"`
-	ActorInitials          string `json:"actorInitials"`
-	ArchivedAt             string `json:"archivedAt"`
-	BotActor               string `json:"botActor"`
-	Category               string `json:"category"`
-	CommentId              string `json:"commentId"`
-	CreatedAt              string `json:"createdAt"`
-	DocumentId             string `json:"documentId"`
-	EmailedAt              string `json:"emailedAt"`
-	ExternalUserActor      string `json:"externalUserActor"`
-	GroupingKey            string `json:"groupingKey"`
-	GroupingPriority       string `json:"groupingPriority"`
-	Id                     string `json:"id"`
-	InboxUrl               string `json:"inboxUrl"`
-	InitiativeUpdateHealth string `json:"initiativeUpdateHealth"`
-	IsLinearActor          string `json:"isLinearActor"`
-	IssueStatusType        string `json:"issueStatusType"`
-	ParentCommentId        string `json:"parentCommentId"`
-	ProjectUpdateHealth    string `json:"projectUpdateHealth"`
-	ReactionEmoji          string `json:"reactionEmoji"`
-	ReadAt                 string `json:"readAt"`
-	SnoozedUntilAt         string `json:"snoozedUntilAt"`
-	Subtitle               string `json:"subtitle"`
-	Title                  string `json:"title"`
-	Type                   string `json:"type"`
-	UnsnoozedAt            string `json:"unsnoozedAt"`
-	UpdatedAt              string `json:"updatedAt"`
-	Url                    string `json:"url"`
-	User                   string `json:"user"`
+	Actor                  string  `json:"actor"`
+	ActorAvatarColor       string  `json:"actorAvatarColor"`
+	ActorAvatarUrl         string  `json:"actorAvatarUrl"`
+	ActorInitials          string  `json:"actorInitials"`
+	ArchivedAt             string  `json:"archivedAt"`
+	BotActor               string  `json:"botActor"`
+	Category               string  `json:"category"`
+	CommentId              string  `json:"commentId"`
+	CreatedAt              string  `json:"createdAt"`
+	DocumentId             string  `json:"documentId"`
+	EmailedAt              string  `json:"emailedAt"`
+	ExternalUserActor      string  `json:"externalUserActor"`
+	GroupingKey            string  `json:"groupingKey"`
+	GroupingPriority       float64 `json:"groupingPriority"`
+	Id                     string  `json:"id"`
+	InboxUrl               string  `json:"inboxUrl"`
+	InitiativeUpdateHealth string  `json:"initiativeUpdateHealth"`
+	IsLinearActor          bool    `json:"isLinearActor"`
+	IssueStatusType        string  `json:"issueStatusType"`
+	ParentCommentId        string  `json:"parentCommentId"`
+	ProjectUpdateHealth    string  `json:"projectUpdateHealth"`
+	ReactionEmoji          string  `json:"reactionEmoji"`
+	ReadAt                 string  `json:"readAt"`
+	SnoozedUntilAt         string  `json:"snoozedUntilAt"`
+	Subtitle               string  `json:"subtitle"`
+	Title                  string  `json:"title"`
+	Type                   string  `json:"type"`
+	UnsnoozedAt            string  `json:"unsnoozedAt"`
+	UpdatedAt              string  `json:"updatedAt"`
+	Url                    string  `json:"url"`
+	User                   string  `json:"user"`
 }
 
 type DocumentSearchResult struct {
-	ArchivedAt          string `json:"archivedAt"`
-	Color               string `json:"color"`
-	After               string `json:"after"`
-	Before              string `json:"before"`
-	Filter              string `json:"filter"`
-	First               string `json:"first"`
-	IncludeArchived     string `json:"includeArchived"`
-	Last                string `json:"last"`
-	OrderBy             string `json:"orderBy"`
-	Content             string `json:"content"`
-	ContentState        string `json:"contentState"`
-	CreatedAt           string `json:"createdAt"`
-	Creator             string `json:"creator"`
-	Cycle               string `json:"cycle"`
-	DocumentContentId   string `json:"documentContentId"`
-	HiddenAt            string `json:"hiddenAt"`
-	Icon                string `json:"icon"`
-	Id                  string `json:"id"`
-	Initiative          string `json:"initiative"`
-	Issue               string `json:"issue"`
-	LastAppliedTemplate string `json:"lastAppliedTemplate"`
-	Metadata            string `json:"metadata"`
-	Project             string `json:"project"`
-	Release             string `json:"release"`
-	SlugId              string `json:"slugId"`
-	SortOrder           string `json:"sortOrder"`
-	Summary             string `json:"summary"`
-	Team                string `json:"team"`
-	Title               string `json:"title"`
-	Trashed             string `json:"trashed"`
-	UpdatedAt           string `json:"updatedAt"`
-	UpdatedBy           string `json:"updatedBy"`
-	Url                 string `json:"url"`
+	ArchivedAt          string  `json:"archivedAt"`
+	Color               string  `json:"color"`
+	After               string  `json:"after"`
+	Before              string  `json:"before"`
+	Filter              string  `json:"filter"`
+	First               int     `json:"first"`
+	IncludeArchived     bool    `json:"includeArchived"`
+	Last                int     `json:"last"`
+	OrderBy             string  `json:"orderBy"`
+	Content             string  `json:"content"`
+	ContentState        string  `json:"contentState"`
+	CreatedAt           string  `json:"createdAt"`
+	Creator             string  `json:"creator"`
+	Cycle               string  `json:"cycle"`
+	DocumentContentId   string  `json:"documentContentId"`
+	HiddenAt            string  `json:"hiddenAt"`
+	Icon                string  `json:"icon"`
+	Id                  string  `json:"id"`
+	Initiative          string  `json:"initiative"`
+	Issue               string  `json:"issue"`
+	LastAppliedTemplate string  `json:"lastAppliedTemplate"`
+	Metadata            string  `json:"metadata"`
+	Project             string  `json:"project"`
+	Release             string  `json:"release"`
+	SlugId              string  `json:"slugId"`
+	SortOrder           float64 `json:"sortOrder"`
+	Summary             string  `json:"summary"`
+	Team                string  `json:"team"`
+	Title               string  `json:"title"`
+	Trashed             bool    `json:"trashed"`
+	UpdatedAt           string  `json:"updatedAt"`
+	UpdatedBy           string  `json:"updatedBy"`
+	Url                 string  `json:"url"`
 }
 
 type Draft struct {
@@ -1175,7 +1276,7 @@ type Draft struct {
 	Id               string `json:"id"`
 	Initiative       string `json:"initiative"`
 	InitiativeUpdate string `json:"initiativeUpdate"`
-	IsAutogenerated  string `json:"isAutogenerated"`
+	IsAutogenerated  bool   `json:"isAutogenerated"`
 	Issue            string `json:"issue"`
 	ParentComment    string `json:"parentComment"`
 	Post             string `json:"post"`
@@ -1184,7 +1285,7 @@ type Draft struct {
 	Team             string `json:"team"`
 	UpdatedAt        string `json:"updatedAt"`
 	User             string `json:"user"`
-	WasLocalDraft    string `json:"wasLocalDraft"`
+	WasLocalDraft    bool   `json:"wasLocalDraft"`
 }
 
 type EmailIntakeAddress struct {
@@ -1192,31 +1293,31 @@ type EmailIntakeAddress struct {
 	ArchivedAt                     string `json:"archivedAt"`
 	CreatedAt                      string `json:"createdAt"`
 	Creator                        string `json:"creator"`
-	CustomerRequestsEnabled        string `json:"customerRequestsEnabled"`
-	Enabled                        string `json:"enabled"`
+	CustomerRequestsEnabled        bool   `json:"customerRequestsEnabled"`
+	Enabled                        bool   `json:"enabled"`
 	ForwardingEmailAddress         string `json:"forwardingEmailAddress"`
 	Id                             string `json:"id"`
 	IssueCanceledAutoReply         string `json:"issueCanceledAutoReply"`
-	IssueCanceledAutoReplyEnabled  string `json:"issueCanceledAutoReplyEnabled"`
+	IssueCanceledAutoReplyEnabled  bool   `json:"issueCanceledAutoReplyEnabled"`
 	IssueCompletedAutoReply        string `json:"issueCompletedAutoReply"`
-	IssueCompletedAutoReplyEnabled string `json:"issueCompletedAutoReplyEnabled"`
+	IssueCompletedAutoReplyEnabled bool   `json:"issueCompletedAutoReplyEnabled"`
 	IssueCreatedAutoReply          string `json:"issueCreatedAutoReply"`
-	IssueCreatedAutoReplyEnabled   string `json:"issueCreatedAutoReplyEnabled"`
+	IssueCreatedAutoReplyEnabled   bool   `json:"issueCreatedAutoReplyEnabled"`
 	Organization                   string `json:"organization"`
-	ReopenOnReply                  string `json:"reopenOnReply"`
-	RepliesEnabled                 string `json:"repliesEnabled"`
+	ReopenOnReply                  bool   `json:"reopenOnReply"`
+	RepliesEnabled                 bool   `json:"repliesEnabled"`
 	SenderName                     string `json:"senderName"`
 	SesDomainIdentity              string `json:"sesDomainIdentity"`
 	Team                           string `json:"team"`
 	Template                       string `json:"template"`
 	Type                           string `json:"type"`
 	UpdatedAt                      string `json:"updatedAt"`
-	UseUserNamesInReplies          string `json:"useUserNamesInReplies"`
+	UseUserNamesInReplies          bool   `json:"useUserNamesInReplies"`
 }
 
 type EmailUserAccountAuthChallengeResponse struct {
 	AuthType string `json:"authType"`
-	Success  string `json:"success"`
+	Success  bool   `json:"success"`
 }
 
 type Emoji struct {
@@ -1232,15 +1333,15 @@ type Emoji struct {
 }
 
 type EntityExternalLink struct {
-	ArchivedAt string `json:"archivedAt"`
-	CreatedAt  string `json:"createdAt"`
-	Creator    string `json:"creator"`
-	Id         string `json:"id"`
-	Initiative string `json:"initiative"`
-	Label      string `json:"label"`
-	SortOrder  string `json:"sortOrder"`
-	UpdatedAt  string `json:"updatedAt"`
-	Url        string `json:"url"`
+	ArchivedAt string  `json:"archivedAt"`
+	CreatedAt  string  `json:"createdAt"`
+	Creator    string  `json:"creator"`
+	Id         string  `json:"id"`
+	Initiative string  `json:"initiative"`
+	Label      string  `json:"label"`
+	SortOrder  float64 `json:"sortOrder"`
+	UpdatedAt  string  `json:"updatedAt"`
+	Url        string  `json:"url"`
 }
 
 type ExternalEntityInfo struct {
@@ -1250,9 +1351,9 @@ type ExternalEntityInfo struct {
 }
 
 type ExternalEntityInfoGithubMetadata struct {
-	Number string `json:"number"`
-	Owner  string `json:"owner"`
-	Repo   string `json:"repo"`
+	Number float64 `json:"number"`
+	Owner  string  `json:"owner"`
+	Repo   string  `json:"repo"`
 }
 
 type ExternalEntityInfoJiraMetadata struct {
@@ -1264,7 +1365,7 @@ type ExternalEntityInfoJiraMetadata struct {
 type ExternalEntitySlackMetadata struct {
 	ChannelId   string `json:"channelId"`
 	ChannelName string `json:"channelName"`
-	IsFromSlack string `json:"isFromSlack"`
+	IsFromSlack bool   `json:"isFromSlack"`
 	MessageUrl  string `json:"messageUrl"`
 }
 
@@ -1282,61 +1383,62 @@ type ExternalUser struct {
 }
 
 type Facet struct {
-	ArchivedAt         string `json:"archivedAt"`
-	CreatedAt          string `json:"createdAt"`
-	Id                 string `json:"id"`
-	SortOrder          string `json:"sortOrder"`
-	SourceFeedUser     string `json:"sourceFeedUser"`
-	SourceInitiative   string `json:"sourceInitiative"`
-	SourceOrganization string `json:"sourceOrganization"`
-	SourcePage         string `json:"sourcePage"`
-	SourceProject      string `json:"sourceProject"`
-	SourceTeam         string `json:"sourceTeam"`
-	TargetCustomView   string `json:"targetCustomView"`
-	UpdatedAt          string `json:"updatedAt"`
+	ArchivedAt         string  `json:"archivedAt"`
+	CreatedAt          string  `json:"createdAt"`
+	Id                 string  `json:"id"`
+	SortOrder          float64 `json:"sortOrder"`
+	SourceFeedUser     string  `json:"sourceFeedUser"`
+	SourceInitiative   string  `json:"sourceInitiative"`
+	SourceOrganization string  `json:"sourceOrganization"`
+	SourcePage         string  `json:"sourcePage"`
+	SourceProject      string  `json:"sourceProject"`
+	SourceTeam         string  `json:"sourceTeam"`
+	TargetCustomView   string  `json:"targetCustomView"`
+	UpdatedAt          string  `json:"updatedAt"`
 }
 
 type Favorite struct {
-	ArchivedAt         string `json:"archivedAt"`
-	After              string `json:"after"`
-	Before             string `json:"before"`
-	First              string `json:"first"`
-	IncludeArchived    string `json:"includeArchived"`
-	Last               string `json:"last"`
-	OrderBy            string `json:"orderBy"`
-	Color              string `json:"color"`
-	CreatedAt          string `json:"createdAt"`
-	CustomView         string `json:"customView"`
-	Customer           string `json:"customer"`
-	Cycle              string `json:"cycle"`
-	Dashboard          string `json:"dashboard"`
-	Detail             string `json:"detail"`
-	Document           string `json:"document"`
-	Facet              string `json:"facet"`
-	FolderName         string `json:"folderName"`
-	Icon               string `json:"icon"`
-	Id                 string `json:"id"`
-	Initiative         string `json:"initiative"`
-	InitiativeTab      string `json:"initiativeTab"`
-	Issue              string `json:"issue"`
-	Label              string `json:"label"`
-	Owner              string `json:"owner"`
-	Parent             string `json:"parent"`
-	PredefinedViewTeam string `json:"predefinedViewTeam"`
-	PredefinedViewType string `json:"predefinedViewType"`
-	Project            string `json:"project"`
-	ProjectLabel       string `json:"projectLabel"`
-	ProjectTab         string `json:"projectTab"`
-	ProjectTeam        string `json:"projectTeam"`
-	PullRequest        string `json:"pullRequest"`
-	Release            string `json:"release"`
-	ReleasePipeline    string `json:"releasePipeline"`
-	SortOrder          string `json:"sortOrder"`
-	Title              string `json:"title"`
-	Type               string `json:"type"`
-	UpdatedAt          string `json:"updatedAt"`
-	Url                string `json:"url"`
-	User               string `json:"user"`
+	ArchivedAt         string  `json:"archivedAt"`
+	After              string  `json:"after"`
+	Before             string  `json:"before"`
+	First              int     `json:"first"`
+	IncludeArchived    bool    `json:"includeArchived"`
+	Last               int     `json:"last"`
+	OrderBy            string  `json:"orderBy"`
+	Color              string  `json:"color"`
+	CreatedAt          string  `json:"createdAt"`
+	CustomView         string  `json:"customView"`
+	Customer           string  `json:"customer"`
+	Cycle              string  `json:"cycle"`
+	Dashboard          string  `json:"dashboard"`
+	Detail             string  `json:"detail"`
+	Document           string  `json:"document"`
+	Facet              string  `json:"facet"`
+	FolderName         string  `json:"folderName"`
+	Icon               string  `json:"icon"`
+	Id                 string  `json:"id"`
+	Initiative         string  `json:"initiative"`
+	InitiativeTab      string  `json:"initiativeTab"`
+	Issue              string  `json:"issue"`
+	Label              string  `json:"label"`
+	Owner              string  `json:"owner"`
+	Parent             string  `json:"parent"`
+	PredefinedViewTeam string  `json:"predefinedViewTeam"`
+	PredefinedViewType string  `json:"predefinedViewType"`
+	Project            string  `json:"project"`
+	ProjectLabel       string  `json:"projectLabel"`
+	ProjectTab         string  `json:"projectTab"`
+	ProjectTeam        string  `json:"projectTeam"`
+	PullRequest        string  `json:"pullRequest"`
+	Release            string  `json:"release"`
+	ReleasePipeline    string  `json:"releasePipeline"`
+	SortOrder          float64 `json:"sortOrder"`
+	Team               string  `json:"team"`
+	Title              string  `json:"title"`
+	Type               string  `json:"type"`
+	UpdatedAt          string  `json:"updatedAt"`
+	Url                string  `json:"url"`
+	User               string  `json:"user"`
 }
 
 type FeedItem struct {
@@ -1368,38 +1470,38 @@ type GitAutomationTargetBranch struct {
 	ArchivedAt      string `json:"archivedAt"`
 	After           string `json:"after"`
 	Before          string `json:"before"`
-	First           string `json:"first"`
-	IncludeArchived string `json:"includeArchived"`
-	Last            string `json:"last"`
+	First           int    `json:"first"`
+	IncludeArchived bool   `json:"includeArchived"`
+	Last            int    `json:"last"`
 	OrderBy         string `json:"orderBy"`
 	BranchPattern   string `json:"branchPattern"`
 	CreatedAt       string `json:"createdAt"`
 	Id              string `json:"id"`
-	IsRegex         string `json:"isRegex"`
+	IsRegex         bool   `json:"isRegex"`
 	Team            string `json:"team"`
 	UpdatedAt       string `json:"updatedAt"`
 }
 
 type IdentityProvider struct {
-	AdminsGroupPush string `json:"adminsGroupPush"`
-	AllowNameChange string `json:"allowNameChange"`
-	ArchivedAt      string `json:"archivedAt"`
-	CreatedAt       string `json:"createdAt"`
-	DefaultMigrated string `json:"defaultMigrated"`
-	GuestsGroupPush string `json:"guestsGroupPush"`
-	Id              string `json:"id"`
-	IssuerEntityId  string `json:"issuerEntityId"`
-	OwnersGroupPush string `json:"ownersGroupPush"`
-	Priority        string `json:"priority"`
-	SamlEnabled     string `json:"samlEnabled"`
-	ScimEnabled     string `json:"scimEnabled"`
-	SpEntityId      string `json:"spEntityId"`
-	SsoBinding      string `json:"ssoBinding"`
-	SsoEndpoint     string `json:"ssoEndpoint"`
-	SsoSignAlgo     string `json:"ssoSignAlgo"`
-	SsoSigningCert  string `json:"ssoSigningCert"`
-	Type            string `json:"type"`
-	UpdatedAt       string `json:"updatedAt"`
+	AdminsGroupPush string  `json:"adminsGroupPush"`
+	AllowNameChange bool    `json:"allowNameChange"`
+	ArchivedAt      string  `json:"archivedAt"`
+	CreatedAt       string  `json:"createdAt"`
+	DefaultMigrated bool    `json:"defaultMigrated"`
+	GuestsGroupPush string  `json:"guestsGroupPush"`
+	Id              string  `json:"id"`
+	IssuerEntityId  string  `json:"issuerEntityId"`
+	OwnersGroupPush string  `json:"ownersGroupPush"`
+	Priority        float64 `json:"priority"`
+	SamlEnabled     bool    `json:"samlEnabled"`
+	ScimEnabled     bool    `json:"scimEnabled"`
+	SpEntityId      string  `json:"spEntityId"`
+	SsoBinding      string  `json:"ssoBinding"`
+	SsoEndpoint     string  `json:"ssoEndpoint"`
+	SsoSignAlgo     string  `json:"ssoSignAlgo"`
+	SsoSigningCert  string  `json:"ssoSigningCert"`
+	Type            string  `json:"type"`
+	UpdatedAt       string  `json:"updatedAt"`
 }
 
 type Initiative struct {
@@ -1414,9 +1516,9 @@ type Initiative struct {
 	After                          string          `json:"after"`
 	Before                         string          `json:"before"`
 	Filter                         string          `json:"filter"`
-	First                          string          `json:"first"`
-	IncludeArchived                string          `json:"includeArchived"`
-	Last                           string          `json:"last"`
+	First                          int             `json:"first"`
+	IncludeArchived                bool            `json:"includeArchived"`
+	Last                           int             `json:"last"`
 	OrderBy                        string          `json:"orderBy"`
 	Facets                         json.RawMessage `json:"facets"`
 	FrequencyResolution            string          `json:"frequencyResolution"`
@@ -1425,24 +1527,25 @@ type Initiative struct {
 	Icon                           string          `json:"icon"`
 	Id                             string          `json:"id"`
 	IntegrationsSettings           string          `json:"integrationsSettings"`
+	LabelIds                       json.RawMessage `json:"labelIds"`
 	LastUpdate                     string          `json:"lastUpdate"`
 	Name                           string          `json:"name"`
 	Organization                   string          `json:"organization"`
 	Owner                          string          `json:"owner"`
 	ParentInitiative               string          `json:"parentInitiative"`
 	Sort                           json.RawMessage `json:"sort"`
-	IncludeSubInitiatives          string          `json:"includeSubInitiatives"`
+	IncludeSubInitiatives          bool            `json:"includeSubInitiatives"`
 	SlugId                         string          `json:"slugId"`
-	SortOrder                      string          `json:"sortOrder"`
+	SortOrder                      float64         `json:"sortOrder"`
 	StartedAt                      string          `json:"startedAt"`
 	Status                         string          `json:"status"`
 	TargetDate                     string          `json:"targetDate"`
 	TargetDateResolution           string          `json:"targetDateResolution"`
-	Trashed                        string          `json:"trashed"`
-	UpdateReminderFrequency        string          `json:"updateReminderFrequency"`
-	UpdateReminderFrequencyInWeeks string          `json:"updateReminderFrequencyInWeeks"`
+	Trashed                        bool            `json:"trashed"`
+	UpdateReminderFrequency        float64         `json:"updateReminderFrequency"`
+	UpdateReminderFrequencyInWeeks float64         `json:"updateReminderFrequencyInWeeks"`
 	UpdateRemindersDay             string          `json:"updateRemindersDay"`
-	UpdateRemindersHour            string          `json:"updateRemindersHour"`
+	UpdateRemindersHour            float64         `json:"updateRemindersHour"`
 	UpdatedAt                      string          `json:"updatedAt"`
 	Url                            string          `json:"url"`
 }
@@ -1456,48 +1559,65 @@ type InitiativeHistory struct {
 	UpdatedAt  string `json:"updatedAt"`
 }
 
+type InitiativeLabel struct {
+	ArchivedAt    string `json:"archivedAt"`
+	Color         string `json:"color"`
+	CreatedAt     string `json:"createdAt"`
+	Creator       string `json:"creator"`
+	Description   string `json:"description"`
+	Id            string `json:"id"`
+	IsGroup       bool   `json:"isGroup"`
+	LastAppliedAt string `json:"lastAppliedAt"`
+	Name          string `json:"name"`
+	Organization  string `json:"organization"`
+	Parent        string `json:"parent"`
+	RetiredAt     string `json:"retiredAt"`
+	RetiredBy     string `json:"retiredBy"`
+	UpdatedAt     string `json:"updatedAt"`
+}
+
 type InitiativeNotification struct {
-	Actor                  string `json:"actor"`
-	ActorAvatarColor       string `json:"actorAvatarColor"`
-	ActorAvatarUrl         string `json:"actorAvatarUrl"`
-	ActorInitials          string `json:"actorInitials"`
-	ArchivedAt             string `json:"archivedAt"`
-	BotActor               string `json:"botActor"`
-	Category               string `json:"category"`
-	Comment                string `json:"comment"`
-	CommentId              string `json:"commentId"`
-	CreatedAt              string `json:"createdAt"`
-	Document               string `json:"document"`
-	EmailedAt              string `json:"emailedAt"`
-	ExternalUserActor      string `json:"externalUserActor"`
-	GroupingKey            string `json:"groupingKey"`
-	GroupingPriority       string `json:"groupingPriority"`
-	Id                     string `json:"id"`
-	InboxUrl               string `json:"inboxUrl"`
-	Initiative             string `json:"initiative"`
-	InitiativeId           string `json:"initiativeId"`
-	InitiativeUpdate       string `json:"initiativeUpdate"`
-	InitiativeUpdateHealth string `json:"initiativeUpdateHealth"`
-	InitiativeUpdateId     string `json:"initiativeUpdateId"`
-	IsLinearActor          string `json:"isLinearActor"`
-	IssueStatusType        string `json:"issueStatusType"`
-	ParentComment          string `json:"parentComment"`
-	ParentCommentId        string `json:"parentCommentId"`
-	ProjectUpdateHealth    string `json:"projectUpdateHealth"`
-	ReactionEmoji          string `json:"reactionEmoji"`
-	ReadAt                 string `json:"readAt"`
-	SnoozedUntilAt         string `json:"snoozedUntilAt"`
-	Subtitle               string `json:"subtitle"`
-	Title                  string `json:"title"`
-	Type                   string `json:"type"`
-	UnsnoozedAt            string `json:"unsnoozedAt"`
-	UpdatedAt              string `json:"updatedAt"`
-	Url                    string `json:"url"`
-	User                   string `json:"user"`
+	Actor                  string  `json:"actor"`
+	ActorAvatarColor       string  `json:"actorAvatarColor"`
+	ActorAvatarUrl         string  `json:"actorAvatarUrl"`
+	ActorInitials          string  `json:"actorInitials"`
+	ArchivedAt             string  `json:"archivedAt"`
+	BotActor               string  `json:"botActor"`
+	Category               string  `json:"category"`
+	Comment                string  `json:"comment"`
+	CommentId              string  `json:"commentId"`
+	CreatedAt              string  `json:"createdAt"`
+	Document               string  `json:"document"`
+	EmailedAt              string  `json:"emailedAt"`
+	ExternalUserActor      string  `json:"externalUserActor"`
+	GroupingKey            string  `json:"groupingKey"`
+	GroupingPriority       float64 `json:"groupingPriority"`
+	Id                     string  `json:"id"`
+	InboxUrl               string  `json:"inboxUrl"`
+	Initiative             string  `json:"initiative"`
+	InitiativeId           string  `json:"initiativeId"`
+	InitiativeUpdate       string  `json:"initiativeUpdate"`
+	InitiativeUpdateHealth string  `json:"initiativeUpdateHealth"`
+	InitiativeUpdateId     string  `json:"initiativeUpdateId"`
+	IsLinearActor          bool    `json:"isLinearActor"`
+	IssueStatusType        string  `json:"issueStatusType"`
+	ParentComment          string  `json:"parentComment"`
+	ParentCommentId        string  `json:"parentCommentId"`
+	ProjectUpdateHealth    string  `json:"projectUpdateHealth"`
+	ReactionEmoji          string  `json:"reactionEmoji"`
+	ReadAt                 string  `json:"readAt"`
+	SnoozedUntilAt         string  `json:"snoozedUntilAt"`
+	Subtitle               string  `json:"subtitle"`
+	Title                  string  `json:"title"`
+	Type                   string  `json:"type"`
+	UnsnoozedAt            string  `json:"unsnoozedAt"`
+	UpdatedAt              string  `json:"updatedAt"`
+	Url                    string  `json:"url"`
+	User                   string  `json:"user"`
 }
 
 type InitiativeNotificationSubscription struct {
-	Active                        string          `json:"active"`
+	Active                        bool            `json:"active"`
 	ArchivedAt                    string          `json:"archivedAt"`
 	ContextViewType               string          `json:"contextViewType"`
 	CreatedAt                     string          `json:"createdAt"`
@@ -1517,14 +1637,14 @@ type InitiativeNotificationSubscription struct {
 }
 
 type InitiativeRelation struct {
-	ArchivedAt        string `json:"archivedAt"`
-	CreatedAt         string `json:"createdAt"`
-	Id                string `json:"id"`
-	Initiative        string `json:"initiative"`
-	RelatedInitiative string `json:"relatedInitiative"`
-	SortOrder         string `json:"sortOrder"`
-	UpdatedAt         string `json:"updatedAt"`
-	User              string `json:"user"`
+	ArchivedAt        string  `json:"archivedAt"`
+	CreatedAt         string  `json:"createdAt"`
+	Id                string  `json:"id"`
+	Initiative        string  `json:"initiative"`
+	RelatedInitiative string  `json:"relatedInitiative"`
+	SortOrder         float64 `json:"sortOrder"`
+	UpdatedAt         string  `json:"updatedAt"`
+	User              string  `json:"user"`
 }
 
 type InitiativeToProject struct {
@@ -1541,13 +1661,13 @@ type InitiativeUpdate struct {
 	ArchivedAt      string          `json:"archivedAt"`
 	Body            string          `json:"body"`
 	BodyData        string          `json:"bodyData"`
-	CommentCount    string          `json:"commentCount"`
+	CommentCount    int             `json:"commentCount"`
 	After           string          `json:"after"`
 	Before          string          `json:"before"`
 	Filter          string          `json:"filter"`
-	First           string          `json:"first"`
-	IncludeArchived string          `json:"includeArchived"`
-	Last            string          `json:"last"`
+	First           int             `json:"first"`
+	IncludeArchived bool            `json:"includeArchived"`
+	Last            int             `json:"last"`
 	OrderBy         string          `json:"orderBy"`
 	CreatedAt       string          `json:"createdAt"`
 	Diff            string          `json:"diff"`
@@ -1557,8 +1677,8 @@ type InitiativeUpdate struct {
 	Id              string          `json:"id"`
 	InfoSnapshot    string          `json:"infoSnapshot"`
 	Initiative      string          `json:"initiative"`
-	IsDiffHidden    string          `json:"isDiffHidden"`
-	IsStale         string          `json:"isStale"`
+	IsDiffHidden    bool            `json:"isDiffHidden"`
+	IsStale         bool            `json:"isStale"`
 	ReactionData    string          `json:"reactionData"`
 	Reactions       json.RawMessage `json:"reactions"`
 	SlugId          string          `json:"slugId"`
@@ -1594,19 +1714,20 @@ type IntegrationsSettings struct {
 	CreatedAt                            string `json:"createdAt"`
 	Id                                   string `json:"id"`
 	Initiative                           string `json:"initiative"`
+	MicrosoftTeamsProjectUpdateCreated   bool   `json:"microsoftTeamsProjectUpdateCreated"`
 	Project                              string `json:"project"`
-	SlackInitiativeUpdateCreated         string `json:"slackInitiativeUpdateCreated"`
-	SlackIssueAddedToTriage              string `json:"slackIssueAddedToTriage"`
-	SlackIssueAddedToView                string `json:"slackIssueAddedToView"`
-	SlackIssueCreated                    string `json:"slackIssueCreated"`
-	SlackIssueNewComment                 string `json:"slackIssueNewComment"`
-	SlackIssueSlaBreached                string `json:"slackIssueSlaBreached"`
-	SlackIssueSlaHighRisk                string `json:"slackIssueSlaHighRisk"`
-	SlackIssueStatusChangedAll           string `json:"slackIssueStatusChangedAll"`
-	SlackIssueStatusChangedDone          string `json:"slackIssueStatusChangedDone"`
-	SlackProjectUpdateCreated            string `json:"slackProjectUpdateCreated"`
-	SlackProjectUpdateCreatedToTeam      string `json:"slackProjectUpdateCreatedToTeam"`
-	SlackProjectUpdateCreatedToWorkspace string `json:"slackProjectUpdateCreatedToWorkspace"`
+	SlackInitiativeUpdateCreated         bool   `json:"slackInitiativeUpdateCreated"`
+	SlackIssueAddedToTriage              bool   `json:"slackIssueAddedToTriage"`
+	SlackIssueAddedToView                bool   `json:"slackIssueAddedToView"`
+	SlackIssueCreated                    bool   `json:"slackIssueCreated"`
+	SlackIssueNewComment                 bool   `json:"slackIssueNewComment"`
+	SlackIssueSlaBreached                bool   `json:"slackIssueSlaBreached"`
+	SlackIssueSlaHighRisk                bool   `json:"slackIssueSlaHighRisk"`
+	SlackIssueStatusChangedAll           bool   `json:"slackIssueStatusChangedAll"`
+	SlackIssueStatusChangedDone          bool   `json:"slackIssueStatusChangedDone"`
+	SlackProjectUpdateCreated            bool   `json:"slackProjectUpdateCreated"`
+	SlackProjectUpdateCreatedToTeam      bool   `json:"slackProjectUpdateCreatedToTeam"`
+	SlackProjectUpdateCreatedToWorkspace bool   `json:"slackProjectUpdateCreatedToWorkspace"`
 	Team                                 string `json:"team"`
 	UpdatedAt                            string `json:"updatedAt"`
 }
@@ -1619,9 +1740,9 @@ type Issue struct {
 	After                     string          `json:"after"`
 	Before                    string          `json:"before"`
 	Filter                    string          `json:"filter"`
-	First                     string          `json:"first"`
-	IncludeArchived           string          `json:"includeArchived"`
-	Last                      string          `json:"last"`
+	First                     int             `json:"first"`
+	IncludeArchived           bool            `json:"includeArchived"`
+	Last                      int             `json:"last"`
 	OrderBy                   string          `json:"orderBy"`
 	ArchivedAt                string          `json:"archivedAt"`
 	AsksExternalUserRequester string          `json:"asksExternalUserRequester"`
@@ -1629,35 +1750,35 @@ type Issue struct {
 	Assignee                  string          `json:"assignee"`
 	AutoArchivedAt            string          `json:"autoArchivedAt"`
 	AutoClosedAt              string          `json:"autoClosedAt"`
-	BoardOrder                string          `json:"boardOrder"`
+	BoardOrder                float64         `json:"boardOrder"`
 	BotActor                  string          `json:"botActor"`
 	BranchName                string          `json:"branchName"`
 	CanceledAt                string          `json:"canceledAt"`
 	CompletedAt               string          `json:"completedAt"`
 	CreatedAt                 string          `json:"createdAt"`
 	Creator                   string          `json:"creator"`
-	CustomerTicketCount       string          `json:"customerTicketCount"`
+	CustomerTicketCount       int             `json:"customerTicketCount"`
 	Cycle                     string          `json:"cycle"`
 	Delegate                  string          `json:"delegate"`
 	Description               string          `json:"description"`
 	DescriptionState          string          `json:"descriptionState"`
 	DocumentContent           string          `json:"documentContent"`
 	DueDate                   string          `json:"dueDate"`
-	Estimate                  string          `json:"estimate"`
+	Estimate                  float64         `json:"estimate"`
 	ExternalUserCreator       string          `json:"externalUserCreator"`
 	Favorite                  string          `json:"favorite"`
 	Id                        string          `json:"id"`
 	Identifier                string          `json:"identifier"`
-	InheritsSharedAccess      string          `json:"inheritsSharedAccess"`
+	InheritsSharedAccess      bool            `json:"inheritsSharedAccess"`
 	IntegrationSourceType     string          `json:"integrationSourceType"`
 	LabelIds                  json.RawMessage `json:"labelIds"`
 	LastAppliedTemplate       string          `json:"lastAppliedTemplate"`
-	Number                    string          `json:"number"`
+	Number                    float64         `json:"number"`
 	Parent                    string          `json:"parent"`
 	PreviousIdentifiers       json.RawMessage `json:"previousIdentifiers"`
-	Priority                  string          `json:"priority"`
+	Priority                  float64         `json:"priority"`
 	PriorityLabel             string          `json:"priorityLabel"`
-	PrioritySortOrder         string          `json:"prioritySortOrder"`
+	PrioritySortOrder         float64         `json:"prioritySortOrder"`
 	Project                   string          `json:"project"`
 	ProjectMilestone          string          `json:"projectMilestone"`
 	ReactionData              string          `json:"reactionData"`
@@ -1671,19 +1792,19 @@ type Issue struct {
 	SlaType                   string          `json:"slaType"`
 	SnoozedBy                 string          `json:"snoozedBy"`
 	SnoozedUntilAt            string          `json:"snoozedUntilAt"`
-	SortOrder                 string          `json:"sortOrder"`
+	SortOrder                 float64         `json:"sortOrder"`
 	SourceComment             string          `json:"sourceComment"`
 	StartedAt                 string          `json:"startedAt"`
 	StartedTriageAt           string          `json:"startedTriageAt"`
 	State                     string          `json:"state"`
-	SubIssueSortOrder         string          `json:"subIssueSortOrder"`
-	IncludeDisabled           string          `json:"includeDisabled"`
+	SubIssueSortOrder         float64         `json:"subIssueSortOrder"`
+	IncludeDisabled           bool            `json:"includeDisabled"`
 	SuggestionsGeneratedAt    string          `json:"suggestionsGeneratedAt"`
 	Summary                   string          `json:"summary"`
 	SyncedWith                json.RawMessage `json:"syncedWith"`
 	Team                      string          `json:"team"`
 	Title                     string          `json:"title"`
-	Trashed                   string          `json:"trashed"`
+	Trashed                   bool            `json:"trashed"`
 	TriagedAt                 string          `json:"triagedAt"`
 	UpdatedAt                 string          `json:"updatedAt"`
 	Url                       string          `json:"url"`
@@ -1700,7 +1821,7 @@ type IssueDraft struct {
 	Description        string          `json:"description"`
 	DescriptionData    string          `json:"descriptionData"`
 	DueDate            string          `json:"dueDate"`
-	Estimate           string          `json:"estimate"`
+	Estimate           float64         `json:"estimate"`
 	Id                 string          `json:"id"`
 	LabelIds           json.RawMessage `json:"labelIds"`
 	Needs              string          `json:"needs"`
@@ -1708,7 +1829,7 @@ type IssueDraft struct {
 	ParentId           string          `json:"parentId"`
 	ParentIssue        string          `json:"parentIssue"`
 	ParentIssueId      string          `json:"parentIssueId"`
-	Priority           string          `json:"priority"`
+	Priority           float64         `json:"priority"`
 	PriorityLabel      string          `json:"priorityLabel"`
 	ProjectId          string          `json:"projectId"`
 	ProjectMilestoneId string          `json:"projectMilestoneId"`
@@ -1716,7 +1837,7 @@ type IssueDraft struct {
 	Schedule           string          `json:"schedule"`
 	SourceCommentId    string          `json:"sourceCommentId"`
 	StateId            string          `json:"stateId"`
-	SubIssueSortOrder  string          `json:"subIssueSortOrder"`
+	SubIssueSortOrder  float64         `json:"subIssueSortOrder"`
 	TeamId             string          `json:"teamId"`
 	Title              string          `json:"title"`
 	UpdatedAt          string          `json:"updatedAt"`
@@ -1730,12 +1851,12 @@ type IssueHistory struct {
 	AddedLabels                       json.RawMessage `json:"addedLabels"`
 	AddedToReleaseIds                 json.RawMessage `json:"addedToReleaseIds"`
 	AddedToReleases                   json.RawMessage `json:"addedToReleases"`
-	Archived                          string          `json:"archived"`
+	Archived                          bool            `json:"archived"`
 	ArchivedAt                        string          `json:"archivedAt"`
 	Attachment                        string          `json:"attachment"`
 	AttachmentId                      string          `json:"attachmentId"`
-	AutoArchived                      string          `json:"autoArchived"`
-	AutoClosed                        string          `json:"autoClosed"`
+	AutoArchived                      bool            `json:"autoArchived"`
+	AutoClosed                        bool            `json:"autoClosed"`
 	BotActor                          string          `json:"botActor"`
 	Changes                           string          `json:"changes"`
 	CreatedAt                         string          `json:"createdAt"`
@@ -1747,14 +1868,14 @@ type IssueHistory struct {
 	FromCycleId                       string          `json:"fromCycleId"`
 	FromDelegate                      string          `json:"fromDelegate"`
 	FromDueDate                       string          `json:"fromDueDate"`
-	FromEstimate                      string          `json:"fromEstimate"`
+	FromEstimate                      float64         `json:"fromEstimate"`
 	FromParent                        string          `json:"fromParent"`
 	FromParentId                      string          `json:"fromParentId"`
-	FromPriority                      string          `json:"fromPriority"`
+	FromPriority                      float64         `json:"fromPriority"`
 	FromProject                       string          `json:"fromProject"`
 	FromProjectId                     string          `json:"fromProjectId"`
 	FromProjectMilestone              string          `json:"fromProjectMilestone"`
-	FromSlaBreached                   string          `json:"fromSlaBreached"`
+	FromSlaBreached                   bool            `json:"fromSlaBreached"`
 	FromSlaBreachesAt                 string          `json:"fromSlaBreachesAt"`
 	FromSlaStartedAt                  string          `json:"fromSlaStartedAt"`
 	FromSlaType                       string          `json:"fromSlaType"`
@@ -1779,14 +1900,14 @@ type IssueHistory struct {
 	ToCycleId                         string          `json:"toCycleId"`
 	ToDelegate                        string          `json:"toDelegate"`
 	ToDueDate                         string          `json:"toDueDate"`
-	ToEstimate                        string          `json:"toEstimate"`
+	ToEstimate                        float64         `json:"toEstimate"`
 	ToParent                          string          `json:"toParent"`
 	ToParentId                        string          `json:"toParentId"`
-	ToPriority                        string          `json:"toPriority"`
+	ToPriority                        float64         `json:"toPriority"`
 	ToProject                         string          `json:"toProject"`
 	ToProjectId                       string          `json:"toProjectId"`
 	ToProjectMilestone                string          `json:"toProjectMilestone"`
-	ToSlaBreached                     string          `json:"toSlaBreached"`
+	ToSlaBreached                     bool            `json:"toSlaBreached"`
 	ToSlaBreachesAt                   string          `json:"toSlaBreachesAt"`
 	ToSlaStartedAt                    string          `json:"toSlaStartedAt"`
 	ToSlaType                         string          `json:"toSlaType"`
@@ -1795,18 +1916,18 @@ type IssueHistory struct {
 	ToTeam                            string          `json:"toTeam"`
 	ToTeamId                          string          `json:"toTeamId"`
 	ToTitle                           string          `json:"toTitle"`
-	Trashed                           string          `json:"trashed"`
-	TriageResponsibilityAutoAssigned  string          `json:"triageResponsibilityAutoAssigned"`
+	Trashed                           bool            `json:"trashed"`
+	TriageResponsibilityAutoAssigned  bool            `json:"triageResponsibilityAutoAssigned"`
 	TriageResponsibilityNotifiedUsers json.RawMessage `json:"triageResponsibilityNotifiedUsers"`
 	TriageResponsibilityTeam          string          `json:"triageResponsibilityTeam"`
 	TriageRuleMetadata                string          `json:"triageRuleMetadata"`
 	UpdatedAt                         string          `json:"updatedAt"`
-	UpdatedDescription                string          `json:"updatedDescription"`
+	UpdatedDescription                bool            `json:"updatedDescription"`
 	WorkflowMetadata                  string          `json:"workflowMetadata"`
 }
 
 type IssueHistoryTriageRuleError struct {
-	ConflictForSameChildLabel string          `json:"conflictForSameChildLabel"`
+	ConflictForSameChildLabel bool            `json:"conflictForSameChildLabel"`
 	ConflictingLabels         json.RawMessage `json:"conflictingLabels"`
 	FromTeam                  string          `json:"fromTeam"`
 	Property                  string          `json:"property"`
@@ -1825,21 +1946,21 @@ type IssueHistoryWorkflowMetadata struct {
 }
 
 type IssueImport struct {
-	ArchivedAt      string `json:"archivedAt"`
-	CreatedAt       string `json:"createdAt"`
-	CreatorId       string `json:"creatorId"`
-	CsvFileUrl      string `json:"csvFileUrl"`
-	DisplayName     string `json:"displayName"`
-	Error           string `json:"error"`
-	ErrorMetadata   string `json:"errorMetadata"`
-	Id              string `json:"id"`
-	Mapping         string `json:"mapping"`
-	Progress        string `json:"progress"`
-	Service         string `json:"service"`
-	ServiceMetadata string `json:"serviceMetadata"`
-	Status          string `json:"status"`
-	TeamName        string `json:"teamName"`
-	UpdatedAt       string `json:"updatedAt"`
+	ArchivedAt      string  `json:"archivedAt"`
+	CreatedAt       string  `json:"createdAt"`
+	CreatorId       string  `json:"creatorId"`
+	CsvFileUrl      string  `json:"csvFileUrl"`
+	DisplayName     string  `json:"displayName"`
+	Error           string  `json:"error"`
+	ErrorMetadata   string  `json:"errorMetadata"`
+	Id              string  `json:"id"`
+	Mapping         string  `json:"mapping"`
+	Progress        float64 `json:"progress"`
+	Service         string  `json:"service"`
+	ServiceMetadata string  `json:"serviceMetadata"`
+	Status          string  `json:"status"`
+	TeamName        string  `json:"teamName"`
+	UpdatedAt       string  `json:"updatedAt"`
 }
 
 type IssueLabel struct {
@@ -1847,9 +1968,9 @@ type IssueLabel struct {
 	After           string `json:"after"`
 	Before          string `json:"before"`
 	Filter          string `json:"filter"`
-	First           string `json:"first"`
-	IncludeArchived string `json:"includeArchived"`
-	Last            string `json:"last"`
+	First           int    `json:"first"`
+	IncludeArchived bool   `json:"includeArchived"`
+	Last            int    `json:"last"`
 	OrderBy         string `json:"orderBy"`
 	Color           string `json:"color"`
 	CreatedAt       string `json:"createdAt"`
@@ -1857,7 +1978,7 @@ type IssueLabel struct {
 	Description     string `json:"description"`
 	Id              string `json:"id"`
 	InheritedFrom   string `json:"inheritedFrom"`
-	IsGroup         string `json:"isGroup"`
+	IsGroup         bool   `json:"isGroup"`
 	LastAppliedAt   string `json:"lastAppliedAt"`
 	Name            string `json:"name"`
 	Organization    string `json:"organization"`
@@ -1882,11 +2003,11 @@ type IssueNotification struct {
 	EmailedAt              string          `json:"emailedAt"`
 	ExternalUserActor      string          `json:"externalUserActor"`
 	GroupingKey            string          `json:"groupingKey"`
-	GroupingPriority       string          `json:"groupingPriority"`
+	GroupingPriority       float64         `json:"groupingPriority"`
 	Id                     string          `json:"id"`
 	InboxUrl               string          `json:"inboxUrl"`
 	InitiativeUpdateHealth string          `json:"initiativeUpdateHealth"`
-	IsLinearActor          string          `json:"isLinearActor"`
+	IsLinearActor          bool            `json:"isLinearActor"`
 	Issue                  string          `json:"issue"`
 	IssueId                string          `json:"issueId"`
 	IssueStatusType        string          `json:"issueStatusType"`
@@ -1909,7 +2030,7 @@ type IssueNotification struct {
 
 type IssuePriorityValue struct {
 	Label    string `json:"label"`
-	Priority string `json:"priority"`
+	Priority int    `json:"priority"`
 }
 
 type IssueRelation struct {
@@ -1930,9 +2051,9 @@ type IssueSearchResult struct {
 	After                     string          `json:"after"`
 	Before                    string          `json:"before"`
 	Filter                    string          `json:"filter"`
-	First                     string          `json:"first"`
-	IncludeArchived           string          `json:"includeArchived"`
-	Last                      string          `json:"last"`
+	First                     int             `json:"first"`
+	IncludeArchived           bool            `json:"includeArchived"`
+	Last                      int             `json:"last"`
 	OrderBy                   string          `json:"orderBy"`
 	ArchivedAt                string          `json:"archivedAt"`
 	AsksExternalUserRequester string          `json:"asksExternalUserRequester"`
@@ -1940,36 +2061,36 @@ type IssueSearchResult struct {
 	Assignee                  string          `json:"assignee"`
 	AutoArchivedAt            string          `json:"autoArchivedAt"`
 	AutoClosedAt              string          `json:"autoClosedAt"`
-	BoardOrder                string          `json:"boardOrder"`
+	BoardOrder                float64         `json:"boardOrder"`
 	BotActor                  string          `json:"botActor"`
 	BranchName                string          `json:"branchName"`
 	CanceledAt                string          `json:"canceledAt"`
 	CompletedAt               string          `json:"completedAt"`
 	CreatedAt                 string          `json:"createdAt"`
 	Creator                   string          `json:"creator"`
-	CustomerTicketCount       string          `json:"customerTicketCount"`
+	CustomerTicketCount       int             `json:"customerTicketCount"`
 	Cycle                     string          `json:"cycle"`
 	Delegate                  string          `json:"delegate"`
 	Description               string          `json:"description"`
 	DescriptionState          string          `json:"descriptionState"`
 	DocumentContent           string          `json:"documentContent"`
 	DueDate                   string          `json:"dueDate"`
-	Estimate                  string          `json:"estimate"`
+	Estimate                  float64         `json:"estimate"`
 	ExternalUserCreator       string          `json:"externalUserCreator"`
 	Favorite                  string          `json:"favorite"`
 	Id                        string          `json:"id"`
 	Identifier                string          `json:"identifier"`
-	InheritsSharedAccess      string          `json:"inheritsSharedAccess"`
+	InheritsSharedAccess      bool            `json:"inheritsSharedAccess"`
 	IntegrationSourceType     string          `json:"integrationSourceType"`
 	LabelIds                  json.RawMessage `json:"labelIds"`
 	LastAppliedTemplate       string          `json:"lastAppliedTemplate"`
 	Metadata                  string          `json:"metadata"`
-	Number                    string          `json:"number"`
+	Number                    float64         `json:"number"`
 	Parent                    string          `json:"parent"`
 	PreviousIdentifiers       json.RawMessage `json:"previousIdentifiers"`
-	Priority                  string          `json:"priority"`
+	Priority                  float64         `json:"priority"`
 	PriorityLabel             string          `json:"priorityLabel"`
-	PrioritySortOrder         string          `json:"prioritySortOrder"`
+	PrioritySortOrder         float64         `json:"prioritySortOrder"`
 	Project                   string          `json:"project"`
 	ProjectMilestone          string          `json:"projectMilestone"`
 	ReactionData              string          `json:"reactionData"`
@@ -1983,19 +2104,19 @@ type IssueSearchResult struct {
 	SlaType                   string          `json:"slaType"`
 	SnoozedBy                 string          `json:"snoozedBy"`
 	SnoozedUntilAt            string          `json:"snoozedUntilAt"`
-	SortOrder                 string          `json:"sortOrder"`
+	SortOrder                 float64         `json:"sortOrder"`
 	SourceComment             string          `json:"sourceComment"`
 	StartedAt                 string          `json:"startedAt"`
 	StartedTriageAt           string          `json:"startedTriageAt"`
 	State                     string          `json:"state"`
-	SubIssueSortOrder         string          `json:"subIssueSortOrder"`
-	IncludeDisabled           string          `json:"includeDisabled"`
+	SubIssueSortOrder         float64         `json:"subIssueSortOrder"`
+	IncludeDisabled           bool            `json:"includeDisabled"`
 	SuggestionsGeneratedAt    string          `json:"suggestionsGeneratedAt"`
 	Summary                   string          `json:"summary"`
 	SyncedWith                json.RawMessage `json:"syncedWith"`
 	Team                      string          `json:"team"`
 	Title                     string          `json:"title"`
-	Trashed                   string          `json:"trashed"`
+	Trashed                   bool            `json:"trashed"`
 	TriagedAt                 string          `json:"triagedAt"`
 	UpdatedAt                 string          `json:"updatedAt"`
 	Url                       string          `json:"url"`
@@ -2003,10 +2124,10 @@ type IssueSearchResult struct {
 
 type IssueSharedAccess struct {
 	DisallowedIssueFields     json.RawMessage `json:"disallowedIssueFields"`
-	IsShared                  string          `json:"isShared"`
-	SharedWithCount           string          `json:"sharedWithCount"`
+	IsShared                  bool            `json:"isShared"`
+	SharedWithCount           int             `json:"sharedWithCount"`
 	SharedWithUsers           json.RawMessage `json:"sharedWithUsers"`
-	ViewerHasOnlySharedAccess string          `json:"viewerHasOnlySharedAccess"`
+	ViewerHasOnlySharedAccess bool            `json:"viewerHasOnlySharedAccess"`
 }
 
 type IssueStateSpan struct {
@@ -2043,9 +2164,9 @@ type IssueSuggestionMetadata struct {
 	AppliedAutomationRuleId string          `json:"appliedAutomationRuleId"`
 	Classification          string          `json:"classification"`
 	EvalLogId               string          `json:"evalLogId"`
-	Rank                    string          `json:"rank"`
+	Rank                    float64         `json:"rank"`
 	Reasons                 json.RawMessage `json:"reasons"`
-	Score                   string          `json:"score"`
+	Score                   float64         `json:"score"`
 	Variant                 string          `json:"variant"`
 }
 
@@ -2059,7 +2180,7 @@ type IssueToRelease struct {
 }
 
 type LabelNotificationSubscription struct {
-	Active                        string          `json:"active"`
+	Active                        bool            `json:"active"`
 	ArchivedAt                    string          `json:"archivedAt"`
 	ContextViewType               string          `json:"contextViewType"`
 	CreatedAt                     string          `json:"createdAt"`
@@ -2079,7 +2200,19 @@ type LabelNotificationSubscription struct {
 }
 
 type LogoutResponse struct {
-	Success string `json:"success"`
+	Success bool `json:"success"`
+}
+
+type MicrosoftTeamsChannel struct {
+	DisplayName    string `json:"displayName"`
+	Id             string `json:"id"`
+	MembershipType string `json:"membershipType"`
+}
+
+type MicrosoftTeamsTeam struct {
+	Channels    json.RawMessage `json:"channels"`
+	DisplayName string          `json:"displayName"`
+	Id          string          `json:"id"`
 }
 
 type NotificationCategoryPreferences struct {
@@ -2101,10 +2234,10 @@ type NotificationCategoryPreferences struct {
 }
 
 type NotificationChannelPreferences struct {
-	Desktop string `json:"desktop"`
-	Email   string `json:"email"`
-	Mobile  string `json:"mobile"`
-	Slack   string `json:"slack"`
+	Desktop bool `json:"desktop"`
+	Email   bool `json:"email"`
+	Mobile  bool `json:"mobile"`
+	Slack   bool `json:"slack"`
 }
 
 type NotificationDeliveryPreferences struct {
@@ -2112,7 +2245,7 @@ type NotificationDeliveryPreferences struct {
 }
 
 type NotificationDeliveryPreferencesChannel struct {
-	NotificationsDisabled string `json:"notificationsDisabled"`
+	NotificationsDisabled bool   `json:"notificationsDisabled"`
 	Schedule              string `json:"schedule"`
 }
 
@@ -2122,7 +2255,7 @@ type NotificationDeliveryPreferencesDay struct {
 }
 
 type NotificationDeliveryPreferencesSchedule struct {
-	Disabled  string `json:"disabled"`
+	Disabled  bool   `json:"disabled"`
 	Friday    string `json:"friday"`
 	Monday    string `json:"monday"`
 	Saturday  string `json:"saturday"`
@@ -2148,132 +2281,133 @@ type OauthClientApproval struct {
 }
 
 type OauthClientApprovalNotification struct {
-	Actor                  string `json:"actor"`
-	ActorAvatarColor       string `json:"actorAvatarColor"`
-	ActorAvatarUrl         string `json:"actorAvatarUrl"`
-	ActorInitials          string `json:"actorInitials"`
-	ArchivedAt             string `json:"archivedAt"`
-	BotActor               string `json:"botActor"`
-	Category               string `json:"category"`
-	CreatedAt              string `json:"createdAt"`
-	EmailedAt              string `json:"emailedAt"`
-	ExternalUserActor      string `json:"externalUserActor"`
-	GroupingKey            string `json:"groupingKey"`
-	GroupingPriority       string `json:"groupingPriority"`
-	Id                     string `json:"id"`
-	InboxUrl               string `json:"inboxUrl"`
-	InitiativeUpdateHealth string `json:"initiativeUpdateHealth"`
-	IsLinearActor          string `json:"isLinearActor"`
-	IssueStatusType        string `json:"issueStatusType"`
-	OauthClientApproval    string `json:"oauthClientApproval"`
-	OauthClientApprovalId  string `json:"oauthClientApprovalId"`
-	ProjectUpdateHealth    string `json:"projectUpdateHealth"`
-	ReadAt                 string `json:"readAt"`
-	SnoozedUntilAt         string `json:"snoozedUntilAt"`
-	Subtitle               string `json:"subtitle"`
-	Title                  string `json:"title"`
-	Type                   string `json:"type"`
-	UnsnoozedAt            string `json:"unsnoozedAt"`
-	UpdatedAt              string `json:"updatedAt"`
-	Url                    string `json:"url"`
-	User                   string `json:"user"`
+	Actor                  string  `json:"actor"`
+	ActorAvatarColor       string  `json:"actorAvatarColor"`
+	ActorAvatarUrl         string  `json:"actorAvatarUrl"`
+	ActorInitials          string  `json:"actorInitials"`
+	ArchivedAt             string  `json:"archivedAt"`
+	BotActor               string  `json:"botActor"`
+	Category               string  `json:"category"`
+	CreatedAt              string  `json:"createdAt"`
+	EmailedAt              string  `json:"emailedAt"`
+	ExternalUserActor      string  `json:"externalUserActor"`
+	GroupingKey            string  `json:"groupingKey"`
+	GroupingPriority       float64 `json:"groupingPriority"`
+	Id                     string  `json:"id"`
+	InboxUrl               string  `json:"inboxUrl"`
+	InitiativeUpdateHealth string  `json:"initiativeUpdateHealth"`
+	IsLinearActor          bool    `json:"isLinearActor"`
+	IssueStatusType        string  `json:"issueStatusType"`
+	OauthClientApproval    string  `json:"oauthClientApproval"`
+	OauthClientApprovalId  string  `json:"oauthClientApprovalId"`
+	ProjectUpdateHealth    string  `json:"projectUpdateHealth"`
+	ReadAt                 string  `json:"readAt"`
+	SnoozedUntilAt         string  `json:"snoozedUntilAt"`
+	Subtitle               string  `json:"subtitle"`
+	Title                  string  `json:"title"`
+	Type                   string  `json:"type"`
+	UnsnoozedAt            string  `json:"unsnoozedAt"`
+	UpdatedAt              string  `json:"updatedAt"`
+	Url                    string  `json:"url"`
+	User                   string  `json:"user"`
 }
 
 type Organization struct {
-	AgentAutomationEnabled                   string          `json:"agentAutomationEnabled"`
-	AiAddonEnabled                           string          `json:"aiAddonEnabled"`
-	AiDiscussionSummariesEnabled             string          `json:"aiDiscussionSummariesEnabled"`
+	AgentAutomationEnabled                   bool            `json:"agentAutomationEnabled"`
+	AiAddonEnabled                           bool            `json:"aiAddonEnabled"`
+	AiDiscussionSummariesEnabled             bool            `json:"aiDiscussionSummariesEnabled"`
 	AiProviderConfiguration                  string          `json:"aiProviderConfiguration"`
-	AiThreadSummariesEnabled                 string          `json:"aiThreadSummariesEnabled"`
-	AllowMembersToInvite                     string          `json:"allowMembersToInvite"`
+	AiThreadSummariesEnabled                 bool            `json:"aiThreadSummariesEnabled"`
+	AllowMembersToInvite                     bool            `json:"allowMembersToInvite"`
 	AllowedAiProviders                       json.RawMessage `json:"allowedAiProviders"`
 	AllowedAuthServices                      json.RawMessage `json:"allowedAuthServices"`
 	AllowedFileUploadContentTypes            json.RawMessage `json:"allowedFileUploadContentTypes"`
 	ArchivedAt                               string          `json:"archivedAt"`
 	AuthSettings                             string          `json:"authSettings"`
-	CodeIntelligenceEnabled                  string          `json:"codeIntelligenceEnabled"`
+	CodeIntelligenceEnabled                  bool            `json:"codeIntelligenceEnabled"`
 	CodeIntelligenceRepository               string          `json:"codeIntelligenceRepository"`
-	CodingAgentEnabled                       string          `json:"codingAgentEnabled"`
+	CodingAgentEnabled                       bool            `json:"codingAgentEnabled"`
+	CodingAgentSettings                      string          `json:"codingAgentSettings"`
 	CreatedAt                                string          `json:"createdAt"`
-	CreatedIssueCount                        string          `json:"createdIssueCount"`
-	CustomerCount                            string          `json:"customerCount"`
+	CreatedIssueCount                        int             `json:"createdIssueCount"`
+	CustomerCount                            int             `json:"customerCount"`
 	CustomersConfiguration                   string          `json:"customersConfiguration"`
-	CustomersEnabled                         string          `json:"customersEnabled"`
+	CustomersEnabled                         bool            `json:"customersEnabled"`
 	DefaultFeedSummarySchedule               string          `json:"defaultFeedSummarySchedule"`
 	DeletionRequestedAt                      string          `json:"deletionRequestedAt"`
 	Facets                                   json.RawMessage `json:"facets"`
-	FeedEnabled                              string          `json:"feedEnabled"`
-	FiscalYearStartMonth                     string          `json:"fiscalYearStartMonth"`
-	GeneratedUpdatesEnabled                  string          `json:"generatedUpdatesEnabled"`
+	FeedEnabled                              bool            `json:"feedEnabled"`
+	FiscalYearStartMonth                     float64         `json:"fiscalYearStartMonth"`
+	GeneratedUpdatesEnabled                  bool            `json:"generatedUpdatesEnabled"`
 	GitBranchFormat                          string          `json:"gitBranchFormat"`
-	GitLinkbackDescriptionsEnabled           string          `json:"gitLinkbackDescriptionsEnabled"`
-	GitLinkbackMessagesEnabled               string          `json:"gitLinkbackMessagesEnabled"`
-	GitPublicLinkbackMessagesEnabled         string          `json:"gitPublicLinkbackMessagesEnabled"`
-	HideNonPrimaryOrganizations              string          `json:"hideNonPrimaryOrganizations"`
-	HipaaComplianceEnabled                   string          `json:"hipaaComplianceEnabled"`
+	GitLinkbackDescriptionsEnabled           bool            `json:"gitLinkbackDescriptionsEnabled"`
+	GitLinkbackMessagesEnabled               bool            `json:"gitLinkbackMessagesEnabled"`
+	GitPublicLinkbackMessagesEnabled         bool            `json:"gitPublicLinkbackMessagesEnabled"`
+	HideNonPrimaryOrganizations              bool            `json:"hideNonPrimaryOrganizations"`
+	HipaaComplianceEnabled                   bool            `json:"hipaaComplianceEnabled"`
 	Id                                       string          `json:"id"`
-	InitiativeUpdateReminderFrequencyInWeeks string          `json:"initiativeUpdateReminderFrequencyInWeeks"`
+	InitiativeUpdateReminderFrequencyInWeeks float64         `json:"initiativeUpdateReminderFrequencyInWeeks"`
 	InitiativeUpdateRemindersDay             string          `json:"initiativeUpdateRemindersDay"`
-	InitiativeUpdateRemindersHour            string          `json:"initiativeUpdateRemindersHour"`
+	InitiativeUpdateRemindersHour            float64         `json:"initiativeUpdateRemindersHour"`
 	After                                    string          `json:"after"`
 	Before                                   string          `json:"before"`
-	First                                    string          `json:"first"`
-	IncludeArchived                          string          `json:"includeArchived"`
-	Last                                     string          `json:"last"`
+	First                                    int             `json:"first"`
+	IncludeArchived                          bool            `json:"includeArchived"`
+	Last                                     int             `json:"last"`
 	OrderBy                                  string          `json:"orderBy"`
 	IpRestrictions                           json.RawMessage `json:"ipRestrictions"`
 	Filter                                   string          `json:"filter"`
-	LinearAgentEnabled                       string          `json:"linearAgentEnabled"`
+	LinearAgentEnabled                       bool            `json:"linearAgentEnabled"`
 	LinearAgentSettings                      string          `json:"linearAgentSettings"`
 	LogoUrl                                  string          `json:"logoUrl"`
 	Name                                     string          `json:"name"`
-	PeriodUploadVolume                       string          `json:"periodUploadVolume"`
+	PeriodUploadVolume                       float64         `json:"periodUploadVolume"`
 	PreviousUrlKeys                          json.RawMessage `json:"previousUrlKeys"`
 	ProjectStatuses                          json.RawMessage `json:"projectStatuses"`
-	ProjectUpdateReminderFrequencyInWeeks    string          `json:"projectUpdateReminderFrequencyInWeeks"`
+	ProjectUpdateReminderFrequencyInWeeks    float64         `json:"projectUpdateReminderFrequencyInWeeks"`
 	ProjectUpdateRemindersDay                string          `json:"projectUpdateRemindersDay"`
-	ProjectUpdateRemindersHour               string          `json:"projectUpdateRemindersHour"`
+	ProjectUpdateRemindersHour               float64         `json:"projectUpdateRemindersHour"`
 	ProjectUpdatesReminderFrequency          string          `json:"projectUpdatesReminderFrequency"`
 	ReleaseChannel                           string          `json:"releaseChannel"`
-	ReleasesEnabled                          string          `json:"releasesEnabled"`
-	RestrictAgentInvocationToMembers         string          `json:"restrictAgentInvocationToMembers"`
-	RestrictLabelManagementToAdmins          string          `json:"restrictLabelManagementToAdmins"`
-	RestrictTeamCreationToAdmins             string          `json:"restrictTeamCreationToAdmins"`
-	RoadmapEnabled                           string          `json:"roadmapEnabled"`
-	SamlEnabled                              string          `json:"samlEnabled"`
+	ReleasesEnabled                          bool            `json:"releasesEnabled"`
+	RestrictAgentInvocationToMembers         bool            `json:"restrictAgentInvocationToMembers"`
+	RestrictLabelManagementToAdmins          bool            `json:"restrictLabelManagementToAdmins"`
+	RestrictTeamCreationToAdmins             bool            `json:"restrictTeamCreationToAdmins"`
+	RoadmapEnabled                           bool            `json:"roadmapEnabled"`
+	SamlEnabled                              bool            `json:"samlEnabled"`
 	SamlSettings                             string          `json:"samlSettings"`
-	ScimEnabled                              string          `json:"scimEnabled"`
+	ScimEnabled                              bool            `json:"scimEnabled"`
 	ScimSettings                             string          `json:"scimSettings"`
 	SecuritySettings                         string          `json:"securitySettings"`
 	SlaDayCount                              string          `json:"slaDayCount"`
-	SlackAutoCreateProjectChannel            string          `json:"slackAutoCreateProjectChannel"`
+	SlackAutoCreateProjectChannel            bool            `json:"slackAutoCreateProjectChannel"`
 	SlackProjectChannelIntegration           string          `json:"slackProjectChannelIntegration"`
 	SlackProjectChannelPrefix                string          `json:"slackProjectChannelPrefix"`
-	SlackProjectChannelsEnabled              string          `json:"slackProjectChannelsEnabled"`
+	SlackProjectChannelsEnabled              bool            `json:"slackProjectChannelsEnabled"`
 	Subscription                             string          `json:"subscription"`
 	ThemeSettings                            string          `json:"themeSettings"`
 	TrialEndsAt                              string          `json:"trialEndsAt"`
 	TrialStartsAt                            string          `json:"trialStartsAt"`
 	UpdatedAt                                string          `json:"updatedAt"`
 	UrlKey                                   string          `json:"urlKey"`
-	UserCount                                string          `json:"userCount"`
-	IncludeDisabled                          string          `json:"includeDisabled"`
+	UserCount                                int             `json:"userCount"`
+	IncludeDisabled                          bool            `json:"includeDisabled"`
 	WorkingDays                              json.RawMessage `json:"workingDays"`
 }
 
 type OrganizationDomain struct {
 	ArchivedAt                  string `json:"archivedAt"`
 	AuthType                    string `json:"authType"`
-	Claimed                     string `json:"claimed"`
+	Claimed                     bool   `json:"claimed"`
 	CreatedAt                   string `json:"createdAt"`
 	Creator                     string `json:"creator"`
-	DisableOrganizationCreation string `json:"disableOrganizationCreation"`
+	DisableOrganizationCreation bool   `json:"disableOrganizationCreation"`
 	Id                          string `json:"id"`
 	IdentityProvider            string `json:"identityProvider"`
 	Name                        string `json:"name"`
 	UpdatedAt                   string `json:"updatedAt"`
 	VerificationEmail           string `json:"verificationEmail"`
-	Verified                    string `json:"verified"`
+	Verified                    bool   `json:"verified"`
 }
 
 type OrganizationInvite struct {
@@ -2282,7 +2416,7 @@ type OrganizationInvite struct {
 	CreatedAt    string `json:"createdAt"`
 	Email        string `json:"email"`
 	ExpiresAt    string `json:"expiresAt"`
-	External     string `json:"external"`
+	External     bool   `json:"external"`
 	Id           string `json:"id"`
 	Invitee      string `json:"invitee"`
 	Inviter      string `json:"inviter"`
@@ -2294,7 +2428,7 @@ type OrganizationInvite struct {
 
 type OrganizationIpRestriction struct {
 	Description string `json:"description"`
-	Enabled     string `json:"enabled"`
+	Enabled     bool   `json:"enabled"`
 	Range       string `json:"range"`
 	Type        string `json:"type"`
 }
@@ -2305,26 +2439,26 @@ type OrganizationMeta struct {
 }
 
 type PaidSubscription struct {
-	ArchivedAt        string `json:"archivedAt"`
-	CancelAt          string `json:"cancelAt"`
-	CanceledAt        string `json:"canceledAt"`
-	CollectionMethod  string `json:"collectionMethod"`
-	CreatedAt         string `json:"createdAt"`
-	Creator           string `json:"creator"`
-	Id                string `json:"id"`
-	NextBillingAt     string `json:"nextBillingAt"`
-	Organization      string `json:"organization"`
-	PendingChangeType string `json:"pendingChangeType"`
-	Seats             string `json:"seats"`
-	SeatsMaximum      string `json:"seatsMaximum"`
-	SeatsMinimum      string `json:"seatsMinimum"`
-	Type              string `json:"type"`
-	UpdatedAt         string `json:"updatedAt"`
+	ArchivedAt        string  `json:"archivedAt"`
+	CancelAt          string  `json:"cancelAt"`
+	CanceledAt        string  `json:"canceledAt"`
+	CollectionMethod  string  `json:"collectionMethod"`
+	CreatedAt         string  `json:"createdAt"`
+	Creator           string  `json:"creator"`
+	Id                string  `json:"id"`
+	NextBillingAt     string  `json:"nextBillingAt"`
+	Organization      string  `json:"organization"`
+	PendingChangeType string  `json:"pendingChangeType"`
+	Seats             float64 `json:"seats"`
+	SeatsMaximum      float64 `json:"seatsMaximum"`
+	SeatsMinimum      float64 `json:"seatsMinimum"`
+	Type              string  `json:"type"`
+	UpdatedAt         string  `json:"updatedAt"`
 }
 
 type PasskeyLoginStartResponse struct {
 	Options string `json:"options"`
-	Success string `json:"success"`
+	Success bool   `json:"success"`
 }
 
 type Post struct {
@@ -2350,46 +2484,46 @@ type Post struct {
 }
 
 type PostNotification struct {
-	Actor                  string `json:"actor"`
-	ActorAvatarColor       string `json:"actorAvatarColor"`
-	ActorAvatarUrl         string `json:"actorAvatarUrl"`
-	ActorInitials          string `json:"actorInitials"`
-	ArchivedAt             string `json:"archivedAt"`
-	BotActor               string `json:"botActor"`
-	Category               string `json:"category"`
-	CommentId              string `json:"commentId"`
-	CreatedAt              string `json:"createdAt"`
-	EmailedAt              string `json:"emailedAt"`
-	ExternalUserActor      string `json:"externalUserActor"`
-	GroupingKey            string `json:"groupingKey"`
-	GroupingPriority       string `json:"groupingPriority"`
-	Id                     string `json:"id"`
-	InboxUrl               string `json:"inboxUrl"`
-	InitiativeUpdateHealth string `json:"initiativeUpdateHealth"`
-	IsLinearActor          string `json:"isLinearActor"`
-	IssueStatusType        string `json:"issueStatusType"`
-	ParentCommentId        string `json:"parentCommentId"`
-	PostId                 string `json:"postId"`
-	ProjectUpdateHealth    string `json:"projectUpdateHealth"`
-	ReactionEmoji          string `json:"reactionEmoji"`
-	ReadAt                 string `json:"readAt"`
-	SnoozedUntilAt         string `json:"snoozedUntilAt"`
-	Subtitle               string `json:"subtitle"`
-	Title                  string `json:"title"`
-	Type                   string `json:"type"`
-	UnsnoozedAt            string `json:"unsnoozedAt"`
-	UpdatedAt              string `json:"updatedAt"`
-	Url                    string `json:"url"`
-	User                   string `json:"user"`
+	Actor                  string  `json:"actor"`
+	ActorAvatarColor       string  `json:"actorAvatarColor"`
+	ActorAvatarUrl         string  `json:"actorAvatarUrl"`
+	ActorInitials          string  `json:"actorInitials"`
+	ArchivedAt             string  `json:"archivedAt"`
+	BotActor               string  `json:"botActor"`
+	Category               string  `json:"category"`
+	CommentId              string  `json:"commentId"`
+	CreatedAt              string  `json:"createdAt"`
+	EmailedAt              string  `json:"emailedAt"`
+	ExternalUserActor      string  `json:"externalUserActor"`
+	GroupingKey            string  `json:"groupingKey"`
+	GroupingPriority       float64 `json:"groupingPriority"`
+	Id                     string  `json:"id"`
+	InboxUrl               string  `json:"inboxUrl"`
+	InitiativeUpdateHealth string  `json:"initiativeUpdateHealth"`
+	IsLinearActor          bool    `json:"isLinearActor"`
+	IssueStatusType        string  `json:"issueStatusType"`
+	ParentCommentId        string  `json:"parentCommentId"`
+	PostId                 string  `json:"postId"`
+	ProjectUpdateHealth    string  `json:"projectUpdateHealth"`
+	ReactionEmoji          string  `json:"reactionEmoji"`
+	ReadAt                 string  `json:"readAt"`
+	SnoozedUntilAt         string  `json:"snoozedUntilAt"`
+	Subtitle               string  `json:"subtitle"`
+	Title                  string  `json:"title"`
+	Type                   string  `json:"type"`
+	UnsnoozedAt            string  `json:"unsnoozedAt"`
+	UpdatedAt              string  `json:"updatedAt"`
+	Url                    string  `json:"url"`
+	User                   string  `json:"user"`
 }
 
 type Project struct {
 	ArchivedAt                          string          `json:"archivedAt"`
 	After                               string          `json:"after"`
 	Before                              string          `json:"before"`
-	First                               string          `json:"first"`
-	IncludeArchived                     string          `json:"includeArchived"`
-	Last                                string          `json:"last"`
+	First                               int             `json:"first"`
+	IncludeArchived                     bool            `json:"includeArchived"`
+	Last                                int             `json:"last"`
 	OrderBy                             string          `json:"orderBy"`
 	AutoArchivedAt                      string          `json:"autoArchivedAt"`
 	CanceledAt                          string          `json:"canceledAt"`
@@ -2420,21 +2554,21 @@ type Project struct {
 	LastAppliedTemplate                 string          `json:"lastAppliedTemplate"`
 	LastUpdate                          string          `json:"lastUpdate"`
 	Lead                                string          `json:"lead"`
-	IncludeDisabled                     string          `json:"includeDisabled"`
+	IncludeDisabled                     bool            `json:"includeDisabled"`
 	Name                                string          `json:"name"`
-	Priority                            string          `json:"priority"`
+	Priority                            int             `json:"priority"`
 	PriorityLabel                       string          `json:"priorityLabel"`
-	PrioritySortOrder                   string          `json:"prioritySortOrder"`
-	Progress                            string          `json:"progress"`
+	PrioritySortOrder                   float64         `json:"prioritySortOrder"`
+	Progress                            float64         `json:"progress"`
 	ProgressHistory                     string          `json:"progressHistory"`
 	ProjectUpdateRemindersPausedUntilAt string          `json:"projectUpdateRemindersPausedUntilAt"`
-	Scope                               string          `json:"scope"`
+	Scope                               float64         `json:"scope"`
 	ScopeHistory                        json.RawMessage `json:"scopeHistory"`
-	SlackIssueComments                  string          `json:"slackIssueComments"`
-	SlackIssueStatuses                  string          `json:"slackIssueStatuses"`
-	SlackNewIssue                       string          `json:"slackNewIssue"`
+	SlackIssueComments                  bool            `json:"slackIssueComments"`
+	SlackIssueStatuses                  bool            `json:"slackIssueStatuses"`
+	SlackNewIssue                       bool            `json:"slackNewIssue"`
 	SlugId                              string          `json:"slugId"`
-	SortOrder                           string          `json:"sortOrder"`
+	SortOrder                           float64         `json:"sortOrder"`
 	StartDate                           string          `json:"startDate"`
 	StartDateResolution                 string          `json:"startDateResolution"`
 	StartedAt                           string          `json:"startedAt"`
@@ -2443,11 +2577,11 @@ type Project struct {
 	SyncedWith                          json.RawMessage `json:"syncedWith"`
 	TargetDate                          string          `json:"targetDate"`
 	TargetDateResolution                string          `json:"targetDateResolution"`
-	Trashed                             string          `json:"trashed"`
-	UpdateReminderFrequency             string          `json:"updateReminderFrequency"`
-	UpdateReminderFrequencyInWeeks      string          `json:"updateReminderFrequencyInWeeks"`
+	Trashed                             bool            `json:"trashed"`
+	UpdateReminderFrequency             float64         `json:"updateReminderFrequency"`
+	UpdateReminderFrequencyInWeeks      float64         `json:"updateReminderFrequencyInWeeks"`
 	UpdateRemindersDay                  string          `json:"updateRemindersDay"`
-	UpdateRemindersHour                 string          `json:"updateRemindersHour"`
+	UpdateRemindersHour                 float64         `json:"updateRemindersHour"`
 	UpdatedAt                           string          `json:"updatedAt"`
 	Url                                 string          `json:"url"`
 }
@@ -2480,16 +2614,16 @@ type ProjectLabel struct {
 	After           string          `json:"after"`
 	Before          string          `json:"before"`
 	Filter          string          `json:"filter"`
-	First           string          `json:"first"`
-	IncludeArchived string          `json:"includeArchived"`
-	Last            string          `json:"last"`
+	First           int             `json:"first"`
+	IncludeArchived bool            `json:"includeArchived"`
+	Last            int             `json:"last"`
 	OrderBy         string          `json:"orderBy"`
 	Color           string          `json:"color"`
 	CreatedAt       string          `json:"createdAt"`
 	Creator         string          `json:"creator"`
 	Description     string          `json:"description"`
 	Id              string          `json:"id"`
-	IsGroup         string          `json:"isGroup"`
+	IsGroup         bool            `json:"isGroup"`
 	LastAppliedAt   string          `json:"lastAppliedAt"`
 	Name            string          `json:"name"`
 	Organization    string          `json:"organization"`
@@ -2501,28 +2635,28 @@ type ProjectLabel struct {
 }
 
 type ProjectMilestone struct {
-	ArchivedAt       string `json:"archivedAt"`
-	CreatedAt        string `json:"createdAt"`
-	CurrentProgress  string `json:"currentProgress"`
-	Description      string `json:"description"`
-	DescriptionState string `json:"descriptionState"`
-	DocumentContent  string `json:"documentContent"`
-	Id               string `json:"id"`
-	After            string `json:"after"`
-	Before           string `json:"before"`
-	Filter           string `json:"filter"`
-	First            string `json:"first"`
-	IncludeArchived  string `json:"includeArchived"`
-	Last             string `json:"last"`
-	OrderBy          string `json:"orderBy"`
-	Name             string `json:"name"`
-	Progress         string `json:"progress"`
-	ProgressHistory  string `json:"progressHistory"`
-	Project          string `json:"project"`
-	SortOrder        string `json:"sortOrder"`
-	Status           string `json:"status"`
-	TargetDate       string `json:"targetDate"`
-	UpdatedAt        string `json:"updatedAt"`
+	ArchivedAt       string  `json:"archivedAt"`
+	CreatedAt        string  `json:"createdAt"`
+	CurrentProgress  string  `json:"currentProgress"`
+	Description      string  `json:"description"`
+	DescriptionState string  `json:"descriptionState"`
+	DocumentContent  string  `json:"documentContent"`
+	Id               string  `json:"id"`
+	After            string  `json:"after"`
+	Before           string  `json:"before"`
+	Filter           string  `json:"filter"`
+	First            int     `json:"first"`
+	IncludeArchived  bool    `json:"includeArchived"`
+	Last             int     `json:"last"`
+	OrderBy          string  `json:"orderBy"`
+	Name             string  `json:"name"`
+	Progress         float64 `json:"progress"`
+	ProgressHistory  string  `json:"progressHistory"`
+	Project          string  `json:"project"`
+	SortOrder        float64 `json:"sortOrder"`
+	Status           string  `json:"status"`
+	TargetDate       string  `json:"targetDate"`
+	UpdatedAt        string  `json:"updatedAt"`
 }
 
 type ProjectMilestoneMoveIssueToTeam struct {
@@ -2536,48 +2670,48 @@ type ProjectMilestoneMoveProjectTeams struct {
 }
 
 type ProjectNotification struct {
-	Actor                  string `json:"actor"`
-	ActorAvatarColor       string `json:"actorAvatarColor"`
-	ActorAvatarUrl         string `json:"actorAvatarUrl"`
-	ActorInitials          string `json:"actorInitials"`
-	ArchivedAt             string `json:"archivedAt"`
-	BotActor               string `json:"botActor"`
-	Category               string `json:"category"`
-	Comment                string `json:"comment"`
-	CommentId              string `json:"commentId"`
-	CreatedAt              string `json:"createdAt"`
-	Document               string `json:"document"`
-	EmailedAt              string `json:"emailedAt"`
-	ExternalUserActor      string `json:"externalUserActor"`
-	GroupingKey            string `json:"groupingKey"`
-	GroupingPriority       string `json:"groupingPriority"`
-	Id                     string `json:"id"`
-	InboxUrl               string `json:"inboxUrl"`
-	InitiativeUpdateHealth string `json:"initiativeUpdateHealth"`
-	IsLinearActor          string `json:"isLinearActor"`
-	IssueStatusType        string `json:"issueStatusType"`
-	ParentComment          string `json:"parentComment"`
-	ParentCommentId        string `json:"parentCommentId"`
-	Project                string `json:"project"`
-	ProjectId              string `json:"projectId"`
-	ProjectMilestoneId     string `json:"projectMilestoneId"`
-	ProjectUpdate          string `json:"projectUpdate"`
-	ProjectUpdateHealth    string `json:"projectUpdateHealth"`
-	ProjectUpdateId        string `json:"projectUpdateId"`
-	ReactionEmoji          string `json:"reactionEmoji"`
-	ReadAt                 string `json:"readAt"`
-	SnoozedUntilAt         string `json:"snoozedUntilAt"`
-	Subtitle               string `json:"subtitle"`
-	Title                  string `json:"title"`
-	Type                   string `json:"type"`
-	UnsnoozedAt            string `json:"unsnoozedAt"`
-	UpdatedAt              string `json:"updatedAt"`
-	Url                    string `json:"url"`
-	User                   string `json:"user"`
+	Actor                  string  `json:"actor"`
+	ActorAvatarColor       string  `json:"actorAvatarColor"`
+	ActorAvatarUrl         string  `json:"actorAvatarUrl"`
+	ActorInitials          string  `json:"actorInitials"`
+	ArchivedAt             string  `json:"archivedAt"`
+	BotActor               string  `json:"botActor"`
+	Category               string  `json:"category"`
+	Comment                string  `json:"comment"`
+	CommentId              string  `json:"commentId"`
+	CreatedAt              string  `json:"createdAt"`
+	Document               string  `json:"document"`
+	EmailedAt              string  `json:"emailedAt"`
+	ExternalUserActor      string  `json:"externalUserActor"`
+	GroupingKey            string  `json:"groupingKey"`
+	GroupingPriority       float64 `json:"groupingPriority"`
+	Id                     string  `json:"id"`
+	InboxUrl               string  `json:"inboxUrl"`
+	InitiativeUpdateHealth string  `json:"initiativeUpdateHealth"`
+	IsLinearActor          bool    `json:"isLinearActor"`
+	IssueStatusType        string  `json:"issueStatusType"`
+	ParentComment          string  `json:"parentComment"`
+	ParentCommentId        string  `json:"parentCommentId"`
+	Project                string  `json:"project"`
+	ProjectId              string  `json:"projectId"`
+	ProjectMilestoneId     string  `json:"projectMilestoneId"`
+	ProjectUpdate          string  `json:"projectUpdate"`
+	ProjectUpdateHealth    string  `json:"projectUpdateHealth"`
+	ProjectUpdateId        string  `json:"projectUpdateId"`
+	ReactionEmoji          string  `json:"reactionEmoji"`
+	ReadAt                 string  `json:"readAt"`
+	SnoozedUntilAt         string  `json:"snoozedUntilAt"`
+	Subtitle               string  `json:"subtitle"`
+	Title                  string  `json:"title"`
+	Type                   string  `json:"type"`
+	UnsnoozedAt            string  `json:"unsnoozedAt"`
+	UpdatedAt              string  `json:"updatedAt"`
+	Url                    string  `json:"url"`
+	User                   string  `json:"user"`
 }
 
 type ProjectNotificationSubscription struct {
-	Active                        string          `json:"active"`
+	Active                        bool            `json:"active"`
 	ArchivedAt                    string          `json:"archivedAt"`
 	ContextViewType               string          `json:"contextViewType"`
 	CreatedAt                     string          `json:"createdAt"`
@@ -2615,9 +2749,9 @@ type ProjectSearchResult struct {
 	ArchivedAt                          string          `json:"archivedAt"`
 	After                               string          `json:"after"`
 	Before                              string          `json:"before"`
-	First                               string          `json:"first"`
-	IncludeArchived                     string          `json:"includeArchived"`
-	Last                                string          `json:"last"`
+	First                               int             `json:"first"`
+	IncludeArchived                     bool            `json:"includeArchived"`
+	Last                                int             `json:"last"`
 	OrderBy                             string          `json:"orderBy"`
 	AutoArchivedAt                      string          `json:"autoArchivedAt"`
 	CanceledAt                          string          `json:"canceledAt"`
@@ -2648,22 +2782,22 @@ type ProjectSearchResult struct {
 	LastAppliedTemplate                 string          `json:"lastAppliedTemplate"`
 	LastUpdate                          string          `json:"lastUpdate"`
 	Lead                                string          `json:"lead"`
-	IncludeDisabled                     string          `json:"includeDisabled"`
+	IncludeDisabled                     bool            `json:"includeDisabled"`
 	Metadata                            string          `json:"metadata"`
 	Name                                string          `json:"name"`
-	Priority                            string          `json:"priority"`
+	Priority                            int             `json:"priority"`
 	PriorityLabel                       string          `json:"priorityLabel"`
-	PrioritySortOrder                   string          `json:"prioritySortOrder"`
-	Progress                            string          `json:"progress"`
+	PrioritySortOrder                   float64         `json:"prioritySortOrder"`
+	Progress                            float64         `json:"progress"`
 	ProgressHistory                     string          `json:"progressHistory"`
 	ProjectUpdateRemindersPausedUntilAt string          `json:"projectUpdateRemindersPausedUntilAt"`
-	Scope                               string          `json:"scope"`
+	Scope                               float64         `json:"scope"`
 	ScopeHistory                        json.RawMessage `json:"scopeHistory"`
-	SlackIssueComments                  string          `json:"slackIssueComments"`
-	SlackIssueStatuses                  string          `json:"slackIssueStatuses"`
-	SlackNewIssue                       string          `json:"slackNewIssue"`
+	SlackIssueComments                  bool            `json:"slackIssueComments"`
+	SlackIssueStatuses                  bool            `json:"slackIssueStatuses"`
+	SlackNewIssue                       bool            `json:"slackNewIssue"`
 	SlugId                              string          `json:"slugId"`
-	SortOrder                           string          `json:"sortOrder"`
+	SortOrder                           float64         `json:"sortOrder"`
 	StartDate                           string          `json:"startDate"`
 	StartDateResolution                 string          `json:"startDateResolution"`
 	StartedAt                           string          `json:"startedAt"`
@@ -2672,39 +2806,39 @@ type ProjectSearchResult struct {
 	SyncedWith                          json.RawMessage `json:"syncedWith"`
 	TargetDate                          string          `json:"targetDate"`
 	TargetDateResolution                string          `json:"targetDateResolution"`
-	Trashed                             string          `json:"trashed"`
-	UpdateReminderFrequency             string          `json:"updateReminderFrequency"`
-	UpdateReminderFrequencyInWeeks      string          `json:"updateReminderFrequencyInWeeks"`
+	Trashed                             bool            `json:"trashed"`
+	UpdateReminderFrequency             float64         `json:"updateReminderFrequency"`
+	UpdateReminderFrequencyInWeeks      float64         `json:"updateReminderFrequencyInWeeks"`
 	UpdateRemindersDay                  string          `json:"updateRemindersDay"`
-	UpdateRemindersHour                 string          `json:"updateRemindersHour"`
+	UpdateRemindersHour                 float64         `json:"updateRemindersHour"`
 	UpdatedAt                           string          `json:"updatedAt"`
 	Url                                 string          `json:"url"`
 }
 
 type ProjectStatus struct {
-	ArchivedAt  string `json:"archivedAt"`
-	Color       string `json:"color"`
-	CreatedAt   string `json:"createdAt"`
-	Description string `json:"description"`
-	Id          string `json:"id"`
-	Indefinite  string `json:"indefinite"`
-	Name        string `json:"name"`
-	Position    string `json:"position"`
-	Type        string `json:"type"`
-	UpdatedAt   string `json:"updatedAt"`
+	ArchivedAt  string  `json:"archivedAt"`
+	Color       string  `json:"color"`
+	CreatedAt   string  `json:"createdAt"`
+	Description string  `json:"description"`
+	Id          string  `json:"id"`
+	Indefinite  bool    `json:"indefinite"`
+	Name        string  `json:"name"`
+	Position    float64 `json:"position"`
+	Type        string  `json:"type"`
+	UpdatedAt   string  `json:"updatedAt"`
 }
 
 type ProjectUpdate struct {
 	ArchivedAt      string          `json:"archivedAt"`
 	Body            string          `json:"body"`
 	BodyData        string          `json:"bodyData"`
-	CommentCount    string          `json:"commentCount"`
+	CommentCount    int             `json:"commentCount"`
 	After           string          `json:"after"`
 	Before          string          `json:"before"`
 	Filter          string          `json:"filter"`
-	First           string          `json:"first"`
-	IncludeArchived string          `json:"includeArchived"`
-	Last            string          `json:"last"`
+	First           int             `json:"first"`
+	IncludeArchived bool            `json:"includeArchived"`
+	Last            int             `json:"last"`
 	OrderBy         string          `json:"orderBy"`
 	CreatedAt       string          `json:"createdAt"`
 	Diff            string          `json:"diff"`
@@ -2713,8 +2847,8 @@ type ProjectUpdate struct {
 	Health          string          `json:"health"`
 	Id              string          `json:"id"`
 	InfoSnapshot    string          `json:"infoSnapshot"`
-	IsDiffHidden    string          `json:"isDiffHidden"`
-	IsStale         string          `json:"isStale"`
+	IsDiffHidden    bool            `json:"isDiffHidden"`
+	IsStale         bool            `json:"isStale"`
 	Project         string          `json:"project"`
 	ReactionData    string          `json:"reactionData"`
 	Reactions       json.RawMessage `json:"reactions"`
@@ -2735,7 +2869,7 @@ type PullRequest struct {
 	Id            string          `json:"id"`
 	MergeCommit   string          `json:"mergeCommit"`
 	MergeSettings string          `json:"mergeSettings"`
-	Number        string          `json:"number"`
+	Number        float64         `json:"number"`
 	SlugId        string          `json:"slugId"`
 	SourceBranch  string          `json:"sourceBranch"`
 	Status        string          `json:"status"`
@@ -2747,7 +2881,7 @@ type PullRequest struct {
 
 type PullRequestCheck struct {
 	CompletedAt  string `json:"completedAt"`
-	IsRequired   string `json:"isRequired"`
+	IsRequired   bool   `json:"isRequired"`
 	Name         string `json:"name"`
 	Presentation string `json:"presentation"`
 	StartedAt    string `json:"startedAt"`
@@ -2757,58 +2891,58 @@ type PullRequestCheck struct {
 }
 
 type PullRequestCommit struct {
-	Additions             string          `json:"additions"`
+	Additions             float64         `json:"additions"`
 	AuthorExternalUserIds json.RawMessage `json:"authorExternalUserIds"`
 	AuthorUserIds         json.RawMessage `json:"authorUserIds"`
-	ChangedFiles          string          `json:"changedFiles"`
+	ChangedFiles          float64         `json:"changedFiles"`
 	CommittedAt           string          `json:"committedAt"`
-	Deletions             string          `json:"deletions"`
-	IsMergeCommit         string          `json:"isMergeCommit"`
+	Deletions             float64         `json:"deletions"`
+	IsMergeCommit         bool            `json:"isMergeCommit"`
 	Message               string          `json:"message"`
 	Sha                   string          `json:"sha"`
 }
 
 type PullRequestMergeSettings struct {
-	AutoMergeAllowed      string `json:"autoMergeAllowed"`
-	DeleteBranchOnMerge   string `json:"deleteBranchOnMerge"`
-	IsMergeQueueEnabled   string `json:"isMergeQueueEnabled"`
-	MergeCommitAllowed    string `json:"mergeCommitAllowed"`
+	AutoMergeAllowed      bool   `json:"autoMergeAllowed"`
+	DeleteBranchOnMerge   bool   `json:"deleteBranchOnMerge"`
+	IsMergeQueueEnabled   bool   `json:"isMergeQueueEnabled"`
+	MergeCommitAllowed    bool   `json:"mergeCommitAllowed"`
 	MergeQueueMergeMethod string `json:"mergeQueueMergeMethod"`
-	RebaseMergeAllowed    string `json:"rebaseMergeAllowed"`
-	SquashMergeAllowed    string `json:"squashMergeAllowed"`
+	RebaseMergeAllowed    bool   `json:"rebaseMergeAllowed"`
+	SquashMergeAllowed    bool   `json:"squashMergeAllowed"`
 }
 
 type PullRequestNotification struct {
-	Actor                  string `json:"actor"`
-	ActorAvatarColor       string `json:"actorAvatarColor"`
-	ActorAvatarUrl         string `json:"actorAvatarUrl"`
-	ActorInitials          string `json:"actorInitials"`
-	ArchivedAt             string `json:"archivedAt"`
-	BotActor               string `json:"botActor"`
-	Category               string `json:"category"`
-	CreatedAt              string `json:"createdAt"`
-	EmailedAt              string `json:"emailedAt"`
-	ExternalUserActor      string `json:"externalUserActor"`
-	GroupingKey            string `json:"groupingKey"`
-	GroupingPriority       string `json:"groupingPriority"`
-	Id                     string `json:"id"`
-	InboxUrl               string `json:"inboxUrl"`
-	InitiativeUpdateHealth string `json:"initiativeUpdateHealth"`
-	IsLinearActor          string `json:"isLinearActor"`
-	IssueStatusType        string `json:"issueStatusType"`
-	ProjectUpdateHealth    string `json:"projectUpdateHealth"`
-	PullRequest            string `json:"pullRequest"`
-	PullRequestCommentId   string `json:"pullRequestCommentId"`
-	PullRequestId          string `json:"pullRequestId"`
-	ReadAt                 string `json:"readAt"`
-	SnoozedUntilAt         string `json:"snoozedUntilAt"`
-	Subtitle               string `json:"subtitle"`
-	Title                  string `json:"title"`
-	Type                   string `json:"type"`
-	UnsnoozedAt            string `json:"unsnoozedAt"`
-	UpdatedAt              string `json:"updatedAt"`
-	Url                    string `json:"url"`
-	User                   string `json:"user"`
+	Actor                  string  `json:"actor"`
+	ActorAvatarColor       string  `json:"actorAvatarColor"`
+	ActorAvatarUrl         string  `json:"actorAvatarUrl"`
+	ActorInitials          string  `json:"actorInitials"`
+	ArchivedAt             string  `json:"archivedAt"`
+	BotActor               string  `json:"botActor"`
+	Category               string  `json:"category"`
+	CreatedAt              string  `json:"createdAt"`
+	EmailedAt              string  `json:"emailedAt"`
+	ExternalUserActor      string  `json:"externalUserActor"`
+	GroupingKey            string  `json:"groupingKey"`
+	GroupingPriority       float64 `json:"groupingPriority"`
+	Id                     string  `json:"id"`
+	InboxUrl               string  `json:"inboxUrl"`
+	InitiativeUpdateHealth string  `json:"initiativeUpdateHealth"`
+	IsLinearActor          bool    `json:"isLinearActor"`
+	IssueStatusType        string  `json:"issueStatusType"`
+	ProjectUpdateHealth    string  `json:"projectUpdateHealth"`
+	PullRequest            string  `json:"pullRequest"`
+	PullRequestCommentId   string  `json:"pullRequestCommentId"`
+	PullRequestId          string  `json:"pullRequestId"`
+	ReadAt                 string  `json:"readAt"`
+	SnoozedUntilAt         string  `json:"snoozedUntilAt"`
+	Subtitle               string  `json:"subtitle"`
+	Title                  string  `json:"title"`
+	Type                   string  `json:"type"`
+	UnsnoozedAt            string  `json:"unsnoozedAt"`
+	UpdatedAt              string  `json:"updatedAt"`
+	Url                    string  `json:"url"`
+	User                   string  `json:"user"`
 }
 
 type PushSubscription struct {
@@ -2834,34 +2968,35 @@ type Reaction struct {
 }
 
 type Release struct {
-	ArchivedAt      string `json:"archivedAt"`
-	CanceledAt      string `json:"canceledAt"`
-	CommitSha       string `json:"commitSha"`
-	CompletedAt     string `json:"completedAt"`
-	CreatedAt       string `json:"createdAt"`
-	Creator         string `json:"creator"`
-	CurrentProgress string `json:"currentProgress"`
-	Description     string `json:"description"`
-	After           string `json:"after"`
-	Before          string `json:"before"`
-	Filter          string `json:"filter"`
-	First           string `json:"first"`
-	IncludeArchived string `json:"includeArchived"`
-	Last            string `json:"last"`
-	OrderBy         string `json:"orderBy"`
-	Id              string `json:"id"`
-	Name            string `json:"name"`
-	Pipeline        string `json:"pipeline"`
-	ProgressHistory string `json:"progressHistory"`
-	SlugId          string `json:"slugId"`
-	Stage           string `json:"stage"`
-	StartDate       string `json:"startDate"`
-	StartedAt       string `json:"startedAt"`
-	TargetDate      string `json:"targetDate"`
-	Trashed         string `json:"trashed"`
-	UpdatedAt       string `json:"updatedAt"`
-	Url             string `json:"url"`
-	Version         string `json:"version"`
+	ArchivedAt      string          `json:"archivedAt"`
+	CanceledAt      string          `json:"canceledAt"`
+	CommitSha       string          `json:"commitSha"`
+	CompletedAt     string          `json:"completedAt"`
+	CreatedAt       string          `json:"createdAt"`
+	Creator         string          `json:"creator"`
+	CurrentProgress string          `json:"currentProgress"`
+	Description     string          `json:"description"`
+	After           string          `json:"after"`
+	Before          string          `json:"before"`
+	Filter          string          `json:"filter"`
+	First           int             `json:"first"`
+	IncludeArchived bool            `json:"includeArchived"`
+	Last            int             `json:"last"`
+	OrderBy         string          `json:"orderBy"`
+	Id              string          `json:"id"`
+	Name            string          `json:"name"`
+	Pipeline        string          `json:"pipeline"`
+	ProgressHistory string          `json:"progressHistory"`
+	ReleaseNotes    json.RawMessage `json:"releaseNotes"`
+	SlugId          string          `json:"slugId"`
+	Stage           string          `json:"stage"`
+	StartDate       string          `json:"startDate"`
+	StartedAt       string          `json:"startedAt"`
+	TargetDate      string          `json:"targetDate"`
+	Trashed         bool            `json:"trashed"`
+	UpdatedAt       string          `json:"updatedAt"`
+	Url             string          `json:"url"`
+	Version         string          `json:"version"`
 }
 
 type ReleaseHistory struct {
@@ -2873,19 +3008,33 @@ type ReleaseHistory struct {
 	UpdatedAt  string `json:"updatedAt"`
 }
 
+type ReleaseNote struct {
+	ArchivedAt      string          `json:"archivedAt"`
+	CreatedAt       string          `json:"createdAt"`
+	DocumentContent string          `json:"documentContent"`
+	Id              string          `json:"id"`
+	LastRelease     string          `json:"lastRelease"`
+	Releases        json.RawMessage `json:"releases"`
+	SlugId          string          `json:"slugId"`
+	Title           string          `json:"title"`
+	UpdatedAt       string          `json:"updatedAt"`
+}
+
 type ReleasePipeline struct {
-	ApproximateReleaseCount string          `json:"approximateReleaseCount"`
+	ApproximateReleaseCount int             `json:"approximateReleaseCount"`
 	ArchivedAt              string          `json:"archivedAt"`
 	CreatedAt               string          `json:"createdAt"`
 	Id                      string          `json:"id"`
 	IncludePathPatterns     json.RawMessage `json:"includePathPatterns"`
-	IsProduction            string          `json:"isProduction"`
+	IsProduction            bool            `json:"isProduction"`
+	LatestReleaseNote       string          `json:"latestReleaseNote"`
 	Name                    string          `json:"name"`
+	ReleaseNoteTemplate     string          `json:"releaseNoteTemplate"`
 	After                   string          `json:"after"`
 	Before                  string          `json:"before"`
-	First                   string          `json:"first"`
-	IncludeArchived         string          `json:"includeArchived"`
-	Last                    string          `json:"last"`
+	First                   int             `json:"first"`
+	IncludeArchived         bool            `json:"includeArchived"`
+	Last                    int             `json:"last"`
 	OrderBy                 string          `json:"orderBy"`
 	Sort                    json.RawMessage `json:"sort"`
 	SlugId                  string          `json:"slugId"`
@@ -2895,51 +3044,51 @@ type ReleasePipeline struct {
 }
 
 type ReleaseStage struct {
-	ArchivedAt      string `json:"archivedAt"`
-	Color           string `json:"color"`
-	CreatedAt       string `json:"createdAt"`
-	Frozen          string `json:"frozen"`
-	Id              string `json:"id"`
-	Name            string `json:"name"`
-	Pipeline        string `json:"pipeline"`
-	Position        string `json:"position"`
-	After           string `json:"after"`
-	Before          string `json:"before"`
-	First           string `json:"first"`
-	IncludeArchived string `json:"includeArchived"`
-	Last            string `json:"last"`
-	OrderBy         string `json:"orderBy"`
-	Type            string `json:"type"`
-	UpdatedAt       string `json:"updatedAt"`
+	ArchivedAt      string  `json:"archivedAt"`
+	Color           string  `json:"color"`
+	CreatedAt       string  `json:"createdAt"`
+	Frozen          bool    `json:"frozen"`
+	Id              string  `json:"id"`
+	Name            string  `json:"name"`
+	Pipeline        string  `json:"pipeline"`
+	Position        float64 `json:"position"`
+	After           string  `json:"after"`
+	Before          string  `json:"before"`
+	First           int     `json:"first"`
+	IncludeArchived bool    `json:"includeArchived"`
+	Last            int     `json:"last"`
+	OrderBy         string  `json:"orderBy"`
+	Type            string  `json:"type"`
+	UpdatedAt       string  `json:"updatedAt"`
 }
 
 type RepositorySuggestion struct {
-	Confidence         string `json:"confidence"`
-	Hostname           string `json:"hostname"`
-	RepositoryFullName string `json:"repositoryFullName"`
+	Confidence         float64 `json:"confidence"`
+	Hostname           string  `json:"hostname"`
+	RepositoryFullName string  `json:"repositoryFullName"`
 }
 
 type Roadmap struct {
-	ArchivedAt      string `json:"archivedAt"`
-	Color           string `json:"color"`
-	CreatedAt       string `json:"createdAt"`
-	Creator         string `json:"creator"`
-	Description     string `json:"description"`
-	Id              string `json:"id"`
-	Name            string `json:"name"`
-	Organization    string `json:"organization"`
-	Owner           string `json:"owner"`
-	After           string `json:"after"`
-	Before          string `json:"before"`
-	Filter          string `json:"filter"`
-	First           string `json:"first"`
-	IncludeArchived string `json:"includeArchived"`
-	Last            string `json:"last"`
-	OrderBy         string `json:"orderBy"`
-	SlugId          string `json:"slugId"`
-	SortOrder       string `json:"sortOrder"`
-	UpdatedAt       string `json:"updatedAt"`
-	Url             string `json:"url"`
+	ArchivedAt      string  `json:"archivedAt"`
+	Color           string  `json:"color"`
+	CreatedAt       string  `json:"createdAt"`
+	Creator         string  `json:"creator"`
+	Description     string  `json:"description"`
+	Id              string  `json:"id"`
+	Name            string  `json:"name"`
+	Organization    string  `json:"organization"`
+	Owner           string  `json:"owner"`
+	After           string  `json:"after"`
+	Before          string  `json:"before"`
+	Filter          string  `json:"filter"`
+	First           int     `json:"first"`
+	IncludeArchived bool    `json:"includeArchived"`
+	Last            int     `json:"last"`
+	OrderBy         string  `json:"orderBy"`
+	SlugId          string  `json:"slugId"`
+	SortOrder       float64 `json:"sortOrder"`
+	UpdatedAt       string  `json:"updatedAt"`
+	Url             string  `json:"url"`
 }
 
 type RoadmapToProject struct {
@@ -2963,7 +3112,7 @@ type SemanticSearchResult struct {
 
 type SesDomainIdentity struct {
 	ArchivedAt              string          `json:"archivedAt"`
-	CanSendFromCustomDomain string          `json:"canSendFromCustomDomain"`
+	CanSendFromCustomDomain bool            `json:"canSendFromCustomDomain"`
 	CreatedAt               string          `json:"createdAt"`
 	Creator                 string          `json:"creator"`
 	DnsRecords              json.RawMessage `json:"dnsRecords"`
@@ -2976,36 +3125,45 @@ type SesDomainIdentity struct {
 
 type SesDomainIdentityDnsRecord struct {
 	Content    string `json:"content"`
-	IsVerified string `json:"isVerified"`
+	IsVerified bool   `json:"isVerified"`
 	Name       string `json:"name"`
 	Type       string `json:"type"`
 }
 
+type SlaConfiguration struct {
+	Conditions string  `json:"conditions"`
+	Id         string  `json:"id"`
+	Name       string  `json:"name"`
+	RemovesSla bool    `json:"removesSla"`
+	Sla        float64 `json:"sla"`
+	SlaType    string  `json:"slaType"`
+}
+
 type SlackAsksTeamSettings struct {
-	HasDefaultAsk string `json:"hasDefaultAsk"`
+	HasDefaultAsk bool   `json:"hasDefaultAsk"`
 	Id            string `json:"id"`
 }
 
 type SlackChannelNameMapping struct {
-	AiTitles                      string          `json:"aiTitles"`
-	AutoCreateOnBotMention        string          `json:"autoCreateOnBotMention"`
-	AutoCreateOnEmoji             string          `json:"autoCreateOnEmoji"`
-	AutoCreateOnMessage           string          `json:"autoCreateOnMessage"`
+	AiTitles                      bool            `json:"aiTitles"`
+	AutoCreateOnBotMention        bool            `json:"autoCreateOnBotMention"`
+	AutoCreateOnEmoji             bool            `json:"autoCreateOnEmoji"`
+	AutoCreateOnMessage           bool            `json:"autoCreateOnMessage"`
 	AutoCreateTemplateId          string          `json:"autoCreateTemplateId"`
-	BotAdded                      string          `json:"botAdded"`
+	BotAdded                      bool            `json:"botAdded"`
 	Id                            string          `json:"id"`
-	IsPrivate                     string          `json:"isPrivate"`
-	IsShared                      string          `json:"isShared"`
+	IsPrivate                     bool            `json:"isPrivate"`
+	IsShared                      bool            `json:"isShared"`
 	Name                          string          `json:"name"`
-	PostAcceptedFromTriageUpdates string          `json:"postAcceptedFromTriageUpdates"`
-	PostCancellationUpdates       string          `json:"postCancellationUpdates"`
-	PostCompletionUpdates         string          `json:"postCompletionUpdates"`
+	PostAcceptedFromTriageUpdates bool            `json:"postAcceptedFromTriageUpdates"`
+	PostCancellationUpdates       bool            `json:"postCancellationUpdates"`
+	PostCompletionUpdates         bool            `json:"postCompletionUpdates"`
 	Teams                         json.RawMessage `json:"teams"`
 }
 
 type SsoUrlFromEmailResponse struct {
 	SamlSsoUrl string `json:"samlSsoUrl"`
-	Success    string `json:"success"`
+	Success    bool   `json:"success"`
 }
 
 type Summary struct {
@@ -3023,9 +3181,9 @@ type Summary struct {
 type SyncedExternalThread struct {
 	DisplayName                    string `json:"displayName"`
 	Id                             string `json:"id"`
-	IsConnected                    string `json:"isConnected"`
-	IsPersonalIntegrationConnected string `json:"isPersonalIntegrationConnected"`
-	IsPersonalIntegrationRequired  string `json:"isPersonalIntegrationRequired"`
+	IsConnected                    bool   `json:"isConnected"`
+	IsPersonalIntegrationConnected bool   `json:"isPersonalIntegrationConnected"`
+	IsPersonalIntegrationRequired  bool   `json:"isPersonalIntegrationRequired"`
 	Name                           string `json:"name"`
 	SubType                        string `json:"subType"`
 	Type                           string `json:"type"`
@@ -3034,36 +3192,36 @@ type SyncedExternalThread struct {
 
 type Team struct {
 	ActiveCycle                          string          `json:"activeCycle"`
-	AiDiscussionSummariesEnabled         string          `json:"aiDiscussionSummariesEnabled"`
-	AiThreadSummariesEnabled             string          `json:"aiThreadSummariesEnabled"`
-	AllMembersCanJoin                    string          `json:"allMembersCanJoin"`
+	AiDiscussionSummariesEnabled         bool            `json:"aiDiscussionSummariesEnabled"`
+	AiThreadSummariesEnabled             bool            `json:"aiThreadSummariesEnabled"`
+	AllMembersCanJoin                    bool            `json:"allMembersCanJoin"`
 	Ancestors                            json.RawMessage `json:"ancestors"`
 	ArchivedAt                           string          `json:"archivedAt"`
-	AutoArchivePeriod                    string          `json:"autoArchivePeriod"`
-	AutoCloseChildIssues                 string          `json:"autoCloseChildIssues"`
-	AutoCloseParentIssues                string          `json:"autoCloseParentIssues"`
-	AutoClosePeriod                      string          `json:"autoClosePeriod"`
+	AutoArchivePeriod                    float64         `json:"autoArchivePeriod"`
+	AutoCloseChildIssues                 bool            `json:"autoCloseChildIssues"`
+	AutoCloseParentIssues                bool            `json:"autoCloseParentIssues"`
+	AutoClosePeriod                      float64         `json:"autoClosePeriod"`
 	AutoCloseStateId                     string          `json:"autoCloseStateId"`
 	Children                             json.RawMessage `json:"children"`
 	Color                                string          `json:"color"`
 	CreatedAt                            string          `json:"createdAt"`
 	CurrentProgress                      string          `json:"currentProgress"`
 	CycleCalenderUrl                     string          `json:"cycleCalenderUrl"`
-	CycleCooldownTime                    string          `json:"cycleCooldownTime"`
-	CycleDuration                        string          `json:"cycleDuration"`
-	CycleIssueAutoAssignCompleted        string          `json:"cycleIssueAutoAssignCompleted"`
-	CycleIssueAutoAssignStarted          string          `json:"cycleIssueAutoAssignStarted"`
-	CycleLockToActive                    string          `json:"cycleLockToActive"`
-	CycleStartDay                        string          `json:"cycleStartDay"`
+	CycleCooldownTime                    float64         `json:"cycleCooldownTime"`
+	CycleDuration                        float64         `json:"cycleDuration"`
+	CycleIssueAutoAssignCompleted        bool            `json:"cycleIssueAutoAssignCompleted"`
+	CycleIssueAutoAssignStarted          bool            `json:"cycleIssueAutoAssignStarted"`
+	CycleLockToActive                    bool            `json:"cycleLockToActive"`
+	CycleStartDay                        float64         `json:"cycleStartDay"`
 	After                                string          `json:"after"`
 	Before                               string          `json:"before"`
 	Filter                               string          `json:"filter"`
-	First                                string          `json:"first"`
-	IncludeArchived                      string          `json:"includeArchived"`
-	Last                                 string          `json:"last"`
+	First                                int             `json:"first"`
+	IncludeArchived                      bool            `json:"includeArchived"`
+	Last                                 int             `json:"last"`
 	OrderBy                              string          `json:"orderBy"`
-	CyclesEnabled                        string          `json:"cyclesEnabled"`
-	DefaultIssueEstimate                 string          `json:"defaultIssueEstimate"`
+	CyclesEnabled                        bool            `json:"cyclesEnabled"`
+	DefaultIssueEstimate                 float64         `json:"defaultIssueEstimate"`
 	DefaultIssueState                    string          `json:"defaultIssueState"`
 	DefaultProjectTemplate               string          `json:"defaultProjectTemplate"`
 	DefaultTemplateForMembers            string          `json:"defaultTemplateForMembers"`
@@ -3074,24 +3232,24 @@ type Team struct {
 	DisplayName                          string          `json:"displayName"`
 	DraftWorkflowState                   string          `json:"draftWorkflowState"`
 	Facets                               json.RawMessage `json:"facets"`
-	GroupIssueHistory                    string          `json:"groupIssueHistory"`
+	GroupIssueHistory                    bool            `json:"groupIssueHistory"`
 	Icon                                 string          `json:"icon"`
 	Id                                   string          `json:"id"`
-	InheritIssueEstimation               string          `json:"inheritIssueEstimation"`
-	InheritSlackAutoCreateProjectChannel string          `json:"inheritSlackAutoCreateProjectChannel"`
-	InheritWorkflowStatuses              string          `json:"inheritWorkflowStatuses"`
+	InheritIssueEstimation               bool            `json:"inheritIssueEstimation"`
+	InheritSlackAutoCreateProjectChannel bool            `json:"inheritSlackAutoCreateProjectChannel"`
+	InheritWorkflowStatuses              bool            `json:"inheritWorkflowStatuses"`
 	IntegrationsSettings                 string          `json:"integrationsSettings"`
 	InviteHash                           string          `json:"inviteHash"`
-	IssueEstimationAllowZero             string          `json:"issueEstimationAllowZero"`
-	IssueEstimationExtended              string          `json:"issueEstimationExtended"`
+	IssueEstimationAllowZero             bool            `json:"issueEstimationAllowZero"`
+	IssueEstimationExtended              bool            `json:"issueEstimationExtended"`
 	IssueEstimationType                  string          `json:"issueEstimationType"`
-	IssueOrderingNoPriorityFirst         string          `json:"issueOrderingNoPriorityFirst"`
-	IssueSortOrderDefaultToBottom        string          `json:"issueSortOrderDefaultToBottom"`
-	IncludeSubTeams                      string          `json:"includeSubTeams"`
-	JoinByDefault                        string          `json:"joinByDefault"`
+	IssueOrderingNoPriorityFirst         bool            `json:"issueOrderingNoPriorityFirst"`
+	IssueSortOrderDefaultToBottom        bool            `json:"issueSortOrderDefaultToBottom"`
+	IncludeSubTeams                      bool            `json:"includeSubTeams"`
+	JoinByDefault                        bool            `json:"joinByDefault"`
 	Key                                  string          `json:"key"`
 	MarkedAsDuplicateWorkflowState       string          `json:"markedAsDuplicateWorkflowState"`
-	IncludeDisabled                      string          `json:"includeDisabled"`
+	IncludeDisabled                      bool            `json:"includeDisabled"`
 	UserId                               string          `json:"userId"`
 	MergeWorkflowState                   string          `json:"mergeWorkflowState"`
 	MergeableWorkflowState               string          `json:"mergeableWorkflowState"`
@@ -3099,42 +3257,42 @@ type Team struct {
 	Organization                         string          `json:"organization"`
 	Parent                               string          `json:"parent"`
 	Posts                                json.RawMessage `json:"posts"`
-	Private                              string          `json:"private"`
+	Private                              bool            `json:"private"`
 	ProgressHistory                      string          `json:"progressHistory"`
 	Sort                                 json.RawMessage `json:"sort"`
-	RequirePriorityToLeaveTriage         string          `json:"requirePriorityToLeaveTriage"`
+	RequirePriorityToLeaveTriage         bool            `json:"requirePriorityToLeaveTriage"`
 	RetiredAt                            string          `json:"retiredAt"`
 	ReviewWorkflowState                  string          `json:"reviewWorkflowState"`
 	ScimGroupName                        string          `json:"scimGroupName"`
-	ScimManaged                          string          `json:"scimManaged"`
+	ScimManaged                          bool            `json:"scimManaged"`
 	SecuritySettings                     string          `json:"securitySettings"`
 	SetIssueSortOrderOnStateChange       string          `json:"setIssueSortOrderOnStateChange"`
-	SlackAutoCreateProjectChannel        string          `json:"slackAutoCreateProjectChannel"`
-	SlackIssueComments                   string          `json:"slackIssueComments"`
-	SlackIssueStatuses                   string          `json:"slackIssueStatuses"`
-	SlackNewIssue                        string          `json:"slackNewIssue"`
+	SlackAutoCreateProjectChannel        bool            `json:"slackAutoCreateProjectChannel"`
+	SlackIssueComments                   bool            `json:"slackIssueComments"`
+	SlackIssueStatuses                   bool            `json:"slackIssueStatuses"`
+	SlackNewIssue                        bool            `json:"slackNewIssue"`
 	StartWorkflowState                   string          `json:"startWorkflowState"`
 	Timezone                             string          `json:"timezone"`
-	TriageEnabled                        string          `json:"triageEnabled"`
+	TriageEnabled                        bool            `json:"triageEnabled"`
 	TriageIssueState                     string          `json:"triageIssueState"`
 	TriageResponsibility                 string          `json:"triageResponsibility"`
-	UpcomingCycleCount                   string          `json:"upcomingCycleCount"`
+	UpcomingCycleCount                   float64         `json:"upcomingCycleCount"`
 	UpdatedAt                            string          `json:"updatedAt"`
 }
 
 type TeamMembership struct {
-	ArchivedAt string `json:"archivedAt"`
-	CreatedAt  string `json:"createdAt"`
-	Id         string `json:"id"`
-	Owner      string `json:"owner"`
-	SortOrder  string `json:"sortOrder"`
-	Team       string `json:"team"`
-	UpdatedAt  string `json:"updatedAt"`
-	User       string `json:"user"`
+	ArchivedAt string  `json:"archivedAt"`
+	CreatedAt  string  `json:"createdAt"`
+	Id         string  `json:"id"`
+	Owner      bool    `json:"owner"`
+	SortOrder  float64 `json:"sortOrder"`
+	Team       string  `json:"team"`
+	UpdatedAt  string  `json:"updatedAt"`
+	User       string  `json:"user"`
 }
 
 type TeamNotificationSubscription struct {
-	Active                        string          `json:"active"`
+	Active                        bool            `json:"active"`
 	ArchivedAt                    string          `json:"archivedAt"`
 	ContextViewType               string          `json:"contextViewType"`
 	CreatedAt                     string          `json:"createdAt"`
@@ -3154,24 +3312,25 @@ type TeamNotificationSubscription struct {
 }
 
 type Template struct {
-	ArchivedAt    string `json:"archivedAt"`
-	Color         string `json:"color"`
-	CreatedAt     string `json:"createdAt"`
-	Creator       string `json:"creator"`
-	Description   string `json:"description"`
-	HasFormFields string `json:"hasFormFields"`
-	Icon          string `json:"icon"`
-	Id            string `json:"id"`
-	InheritedFrom string `json:"inheritedFrom"`
-	LastAppliedAt string `json:"lastAppliedAt"`
-	LastUpdatedBy string `json:"lastUpdatedBy"`
-	Name          string `json:"name"`
-	Organization  string `json:"organization"`
-	SortOrder     string `json:"sortOrder"`
-	Team          string `json:"team"`
-	TemplateData  string `json:"templateData"`
-	Type          string `json:"type"`
-	UpdatedAt     string `json:"updatedAt"`
+	ArchivedAt    string  `json:"archivedAt"`
+	Color         string  `json:"color"`
+	CreatedAt     string  `json:"createdAt"`
+	Creator       string  `json:"creator"`
+	Description   string  `json:"description"`
+	HasFormFields bool    `json:"hasFormFields"`
+	Icon          string  `json:"icon"`
+	Id            string  `json:"id"`
+	InheritedFrom string  `json:"inheritedFrom"`
+	LastAppliedAt string  `json:"lastAppliedAt"`
+	LastUpdatedBy string  `json:"lastUpdatedBy"`
+	Name          string  `json:"name"`
+	Organization  string  `json:"organization"`
+	Pipeline      string  `json:"pipeline"`
+	SortOrder     float64 `json:"sortOrder"`
+	Team          string  `json:"team"`
+	TemplateData  string  `json:"templateData"`
+	Type          string  `json:"type"`
+	UpdatedAt     string  `json:"updatedAt"`
 }
 
 type TimeSchedule struct {
@@ -3207,7 +3366,7 @@ type TriageResponsibility struct {
 }
 
 type TriageResponsibilityManualSelection struct {
-	AssignmentIndex string          `json:"assignmentIndex"`
+	AssignmentIndex int             `json:"assignmentIndex"`
 	UserIds         json.RawMessage `json:"userIds"`
 }
 
@@ -3217,7 +3376,7 @@ type UploadFile struct {
 	Filename    string          `json:"filename"`
 	Headers     json.RawMessage `json:"headers"`
 	MetaData    string          `json:"metaData"`
-	Size        string          `json:"size"`
+	Size        int             `json:"size"`
 	UploadUrl   string          `json:"uploadUrl"`
 }
 
@@ -3227,44 +3386,44 @@ type UploadFileHeader struct {
 }
 
 type User struct {
-	Active                 string `json:"active"`
-	Admin                  string `json:"admin"`
-	App                    string `json:"app"`
+	Active                 bool   `json:"active"`
+	Admin                  bool   `json:"admin"`
+	App                    bool   `json:"app"`
 	ArchivedAt             string `json:"archivedAt"`
 	After                  string `json:"after"`
 	Before                 string `json:"before"`
 	Filter                 string `json:"filter"`
-	First                  string `json:"first"`
-	IncludeArchived        string `json:"includeArchived"`
-	Last                   string `json:"last"`
+	First                  int    `json:"first"`
+	IncludeArchived        bool   `json:"includeArchived"`
+	Last                   int    `json:"last"`
 	OrderBy                string `json:"orderBy"`
 	AvatarBackgroundColor  string `json:"avatarBackgroundColor"`
 	AvatarUrl              string `json:"avatarUrl"`
 	CalendarHash           string `json:"calendarHash"`
-	CanAccessAnyPublicTeam string `json:"canAccessAnyPublicTeam"`
+	CanAccessAnyPublicTeam bool   `json:"canAccessAnyPublicTeam"`
 	CreatedAt              string `json:"createdAt"`
-	CreatedIssueCount      string `json:"createdIssueCount"`
+	CreatedIssueCount      int    `json:"createdIssueCount"`
 	Description            string `json:"description"`
 	DisableReason          string `json:"disableReason"`
 	DisplayName            string `json:"displayName"`
 	Email                  string `json:"email"`
 	GitHubUserId           string `json:"gitHubUserId"`
-	Guest                  string `json:"guest"`
+	Guest                  bool   `json:"guest"`
 	Id                     string `json:"id"`
 	IdentityProvider       string `json:"identityProvider"`
 	Initials               string `json:"initials"`
 	InviteHash             string `json:"inviteHash"`
-	IsAssignable           string `json:"isAssignable"`
-	IsMe                   string `json:"isMe"`
-	IsMentionable          string `json:"isMentionable"`
+	IsAssignable           bool   `json:"isAssignable"`
+	IsMe                   bool   `json:"isMe"`
+	IsMentionable          bool   `json:"isMentionable"`
 	LastSeen               string `json:"lastSeen"`
 	Name                   string `json:"name"`
 	Organization           string `json:"organization"`
-	Owner                  string `json:"owner"`
+	Owner                  bool   `json:"owner"`
 	StatusEmoji            string `json:"statusEmoji"`
 	StatusLabel            string `json:"statusLabel"`
 	StatusUntilAt          string `json:"statusUntilAt"`
-	SupportsAgentSessions  string `json:"supportsAgentSessions"`
+	SupportsAgentSessions  bool   `json:"supportsAgentSessions"`
 	Timezone               string `json:"timezone"`
 	Title                  string `json:"title"`
 	UpdatedAt              string `json:"updatedAt"`
@@ -3272,7 +3431,7 @@ type User struct {
 }
 
 type UserNotificationSubscription struct {
-	Active                        string          `json:"active"`
+	Active                        bool            `json:"active"`
 	ArchivedAt                    string          `json:"archivedAt"`
 	ContextViewType               string          `json:"contextViewType"`
 	CreatedAt                     string          `json:"createdAt"`
@@ -3293,7 +3452,7 @@ type UserNotificationSubscription struct {
 
 type UserSettings struct {
 	ArchivedAt                      string          `json:"archivedAt"`
-	AutoAssignToSelf                string          `json:"autoAssignToSelf"`
+	AutoAssignToSelf                bool            `json:"autoAssignToSelf"`
 	CalendarHash                    string          `json:"calendarHash"`
 	CreatedAt                       string          `json:"createdAt"`
 	FeedLastSeenTime                string          `json:"feedLastSeenTime"`
@@ -3302,11 +3461,11 @@ type UserSettings struct {
 	NotificationCategoryPreferences string          `json:"notificationCategoryPreferences"`
 	NotificationChannelPreferences  string          `json:"notificationChannelPreferences"`
 	NotificationDeliveryPreferences string          `json:"notificationDeliveryPreferences"`
-	ShowFullUserNames               string          `json:"showFullUserNames"`
-	SubscribedToChangelog           string          `json:"subscribedToChangelog"`
-	SubscribedToDPA                 string          `json:"subscribedToDPA"`
-	SubscribedToInviteAccepted      string          `json:"subscribedToInviteAccepted"`
-	SubscribedToPrivacyLegalUpdates string          `json:"subscribedToPrivacyLegalUpdates"`
+	ShowFullUserNames               bool            `json:"showFullUserNames"`
+	SubscribedToChangelog           bool            `json:"subscribedToChangelog"`
+	SubscribedToDPA                 bool            `json:"subscribedToDPA"`
+	SubscribedToInviteAccepted      bool            `json:"subscribedToInviteAccepted"`
+	SubscribedToPrivacyLegalUpdates bool            `json:"subscribedToPrivacyLegalUpdates"`
 	DeviceType                      string          `json:"deviceType"`
 	Mode                            string          `json:"mode"`
 	UnsubscribedFrom                json.RawMessage `json:"unsubscribedFrom"`
@@ -3317,13 +3476,13 @@ type UserSettings struct {
 type UserSettingsCustomSidebarTheme struct {
 	Accent   json.RawMessage `json:"accent"`
 	Base     json.RawMessage `json:"base"`
-	Contrast string          `json:"contrast"`
+	Contrast int             `json:"contrast"`
 }
 
 type UserSettingsCustomTheme struct {
 	Accent   json.RawMessage `json:"accent"`
 	Base     json.RawMessage `json:"base"`
-	Contrast string          `json:"contrast"`
+	Contrast int             `json:"contrast"`
 	Sidebar  string          `json:"sidebar"`
 }
 
@@ -3342,83 +3501,100 @@ type ViewPreferences struct {
 	ViewType    string `json:"viewType"`
 }
 
+type ViewPreferencesInitiativeLabelGroupColumn struct {
+	Active bool   `json:"active"`
+	Id     string `json:"id"`
+}
+
 type ViewPreferencesProjectLabelGroupColumn struct {
-	Active string `json:"active"`
+	Active bool   `json:"active"`
 	Id     string `json:"id"`
 }
 
 type ViewPreferencesValues struct {
-	ClosedIssuesOrderedByRecency                    string          `json:"closedIssuesOrderedByRecency"`
-	CustomViewFieldDateCreated                      string          `json:"customViewFieldDateCreated"`
-	CustomViewFieldDateUpdated                      string          `json:"customViewFieldDateUpdated"`
-	CustomViewFieldOwner                            string          `json:"customViewFieldOwner"`
-	CustomViewFieldVisibility                       string          `json:"customViewFieldVisibility"`
+	ClosedIssuesOrderedByRecency                    bool            `json:"closedIssuesOrderedByRecency"`
+	ColumnOrderBoard                                json.RawMessage `json:"columnOrderBoard"`
+	ColumnOrderList                                 json.RawMessage `json:"columnOrderList"`
+	ContinuousPipelineReleaseFieldReleaseDate       bool            `json:"continuousPipelineReleaseFieldReleaseDate"`
+	ContinuousPipelineReleaseFieldReleaseNote       bool            `json:"continuousPipelineReleaseFieldReleaseNote"`
+	ContinuousPipelineReleaseFieldVersion           bool            `json:"continuousPipelineReleaseFieldVersion"`
+	ContinuousPipelineReleasesViewGrouping          string          `json:"continuousPipelineReleasesViewGrouping"`
+	CustomViewFieldDateCreated                      bool            `json:"customViewFieldDateCreated"`
+	CustomViewFieldDateUpdated                      bool            `json:"customViewFieldDateUpdated"`
+	CustomViewFieldOwner                            bool            `json:"customViewFieldOwner"`
+	CustomViewFieldVisibility                       bool            `json:"customViewFieldVisibility"`
 	CustomViewsOrdering                             string          `json:"customViewsOrdering"`
-	CustomerFieldDomains                            string          `json:"customerFieldDomains"`
-	CustomerFieldOwner                              string          `json:"customerFieldOwner"`
-	CustomerFieldRequestCount                       string          `json:"customerFieldRequestCount"`
-	CustomerFieldRevenue                            string          `json:"customerFieldRevenue"`
-	CustomerFieldSize                               string          `json:"customerFieldSize"`
-	CustomerFieldSource                             string          `json:"customerFieldSource"`
-	CustomerFieldStatus                             string          `json:"customerFieldStatus"`
-	CustomerFieldTier                               string          `json:"customerFieldTier"`
-	CustomerPageNeedsFieldIssueIdentifier           string          `json:"customerPageNeedsFieldIssueIdentifier"`
-	CustomerPageNeedsFieldIssuePriority             string          `json:"customerPageNeedsFieldIssuePriority"`
-	CustomerPageNeedsFieldIssueStatus               string          `json:"customerPageNeedsFieldIssueStatus"`
-	CustomerPageNeedsFieldIssueTargetDueDate        string          `json:"customerPageNeedsFieldIssueTargetDueDate"`
+	CustomerFieldDomains                            bool            `json:"customerFieldDomains"`
+	CustomerFieldOwner                              bool            `json:"customerFieldOwner"`
+	CustomerFieldRequestCount                       bool            `json:"customerFieldRequestCount"`
+	CustomerFieldRevenue                            bool            `json:"customerFieldRevenue"`
+	CustomerFieldSize                               bool            `json:"customerFieldSize"`
+	CustomerFieldSource                             bool            `json:"customerFieldSource"`
+	CustomerFieldStatus                             bool            `json:"customerFieldStatus"`
+	CustomerFieldTier                               bool            `json:"customerFieldTier"`
+	CustomerPageNeedsFieldIssueIdentifier           bool            `json:"customerPageNeedsFieldIssueIdentifier"`
+	CustomerPageNeedsFieldIssuePriority             bool            `json:"customerPageNeedsFieldIssuePriority"`
+	CustomerPageNeedsFieldIssueStatus               bool            `json:"customerPageNeedsFieldIssueStatus"`
+	CustomerPageNeedsFieldIssueTargetDueDate        bool            `json:"customerPageNeedsFieldIssueTargetDueDate"`
 	CustomerPageNeedsShowCompletedIssuesAndProjects string          `json:"customerPageNeedsShowCompletedIssuesAndProjects"`
-	CustomerPageNeedsShowImportantFirst             string          `json:"customerPageNeedsShowImportantFirst"`
+	CustomerPageNeedsShowImportantFirst             bool            `json:"customerPageNeedsShowImportantFirst"`
 	CustomerPageNeedsViewGrouping                   string          `json:"customerPageNeedsViewGrouping"`
 	CustomerPageNeedsViewOrdering                   string          `json:"customerPageNeedsViewOrdering"`
 	CustomersViewOrdering                           string          `json:"customersViewOrdering"`
-	DashboardFieldDateCreated                       string          `json:"dashboardFieldDateCreated"`
-	DashboardFieldDateUpdated                       string          `json:"dashboardFieldDateUpdated"`
-	DashboardFieldOwner                             string          `json:"dashboardFieldOwner"`
+	DashboardFieldDateCreated                       bool            `json:"dashboardFieldDateCreated"`
+	DashboardFieldDateUpdated                       bool            `json:"dashboardFieldDateUpdated"`
+	DashboardFieldOwner                             bool            `json:"dashboardFieldOwner"`
 	DashboardsOrdering                              string          `json:"dashboardsOrdering"`
-	EmbeddedCustomerNeedsShowImportantFirst         string          `json:"embeddedCustomerNeedsShowImportantFirst"`
+	EmbeddedCustomerNeedsShowImportantFirst         bool            `json:"embeddedCustomerNeedsShowImportantFirst"`
 	EmbeddedCustomerNeedsViewOrdering               string          `json:"embeddedCustomerNeedsViewOrdering"`
-	FieldAssignee                                   string          `json:"fieldAssignee"`
-	FieldCustomerCount                              string          `json:"fieldCustomerCount"`
-	FieldCustomerRevenue                            string          `json:"fieldCustomerRevenue"`
-	FieldCycle                                      string          `json:"fieldCycle"`
-	FieldDateArchived                               string          `json:"fieldDateArchived"`
-	FieldDateCreated                                string          `json:"fieldDateCreated"`
-	FieldDateMyActivity                             string          `json:"fieldDateMyActivity"`
-	FieldDateUpdated                                string          `json:"fieldDateUpdated"`
-	FieldDueDate                                    string          `json:"fieldDueDate"`
-	FieldEstimate                                   string          `json:"fieldEstimate"`
-	FieldId                                         string          `json:"fieldId"`
-	FieldLabels                                     string          `json:"fieldLabels"`
-	FieldLinkCount                                  string          `json:"fieldLinkCount"`
-	FieldMilestone                                  string          `json:"fieldMilestone"`
-	FieldPreviewLinks                               string          `json:"fieldPreviewLinks"`
-	FieldPriority                                   string          `json:"fieldPriority"`
-	FieldProject                                    string          `json:"fieldProject"`
-	FieldPullRequests                               string          `json:"fieldPullRequests"`
-	FieldRelease                                    string          `json:"fieldRelease"`
-	FieldSentryIssues                               string          `json:"fieldSentryIssues"`
-	FieldSla                                        string          `json:"fieldSla"`
-	FieldStatus                                     string          `json:"fieldStatus"`
-	FieldTimeInCurrentStatus                        string          `json:"fieldTimeInCurrentStatus"`
+	FieldAssignee                                   bool            `json:"fieldAssignee"`
+	FieldCustomerCount                              bool            `json:"fieldCustomerCount"`
+	FieldCustomerRevenue                            bool            `json:"fieldCustomerRevenue"`
+	FieldCycle                                      bool            `json:"fieldCycle"`
+	FieldDateArchived                               bool            `json:"fieldDateArchived"`
+	FieldDateCreated                                bool            `json:"fieldDateCreated"`
+	FieldDateMyActivity                             bool            `json:"fieldDateMyActivity"`
+	FieldDateUpdated                                bool            `json:"fieldDateUpdated"`
+	FieldDueDate                                    bool            `json:"fieldDueDate"`
+	FieldEstimate                                   bool            `json:"fieldEstimate"`
+	FieldId                                         bool            `json:"fieldId"`
+	FieldLabels                                     bool            `json:"fieldLabels"`
+	FieldLinkCount                                  bool            `json:"fieldLinkCount"`
+	FieldMilestone                                  bool            `json:"fieldMilestone"`
+	FieldPreviewLinks                               bool            `json:"fieldPreviewLinks"`
+	FieldPriority                                   bool            `json:"fieldPriority"`
+	FieldProject                                    bool            `json:"fieldProject"`
+	FieldPullRequests                               bool            `json:"fieldPullRequests"`
+	FieldRelease                                    bool            `json:"fieldRelease"`
+	FieldSentryIssues                               bool            `json:"fieldSentryIssues"`
+	FieldSla                                        bool            `json:"fieldSla"`
+	FieldStatus                                     bool            `json:"fieldStatus"`
+	FieldTimeInCurrentStatus                        bool            `json:"fieldTimeInCurrentStatus"`
 	FocusViewGrouping                               string          `json:"focusViewGrouping"`
 	FocusViewOrdering                               string          `json:"focusViewOrdering"`
 	FocusViewOrderingDirection                      string          `json:"focusViewOrderingDirection"`
+	GroupOrderingMode                               string          `json:"groupOrderingMode"`
 	HiddenColumns                                   json.RawMessage `json:"hiddenColumns"`
+	HiddenGroupsList                                json.RawMessage `json:"hiddenGroupsList"`
 	HiddenRows                                      json.RawMessage `json:"hiddenRows"`
 	InboxViewOrdering                               string          `json:"inboxViewOrdering"`
-	InitiativeFieldActivity                         string          `json:"initiativeFieldActivity"`
-	InitiativeFieldDateCompleted                    string          `json:"initiativeFieldDateCompleted"`
-	InitiativeFieldDateCreated                      string          `json:"initiativeFieldDateCreated"`
-	InitiativeFieldDateUpdated                      string          `json:"initiativeFieldDateUpdated"`
-	InitiativeFieldDescription                      string          `json:"initiativeFieldDescription"`
-	InitiativeFieldHealth                           string          `json:"initiativeFieldHealth"`
-	InitiativeFieldInitiativeHealth                 string          `json:"initiativeFieldInitiativeHealth"`
-	InitiativeFieldOwner                            string          `json:"initiativeFieldOwner"`
-	InitiativeFieldProjects                         string          `json:"initiativeFieldProjects"`
-	InitiativeFieldStartDate                        string          `json:"initiativeFieldStartDate"`
-	InitiativeFieldTargetDate                       string          `json:"initiativeFieldTargetDate"`
-	InitiativeFieldTeams                            string          `json:"initiativeFieldTeams"`
+	InitiativeFieldActivity                         bool            `json:"initiativeFieldActivity"`
+	InitiativeFieldDateCompleted                    bool            `json:"initiativeFieldDateCompleted"`
+	InitiativeFieldDateCreated                      bool            `json:"initiativeFieldDateCreated"`
+	InitiativeFieldDateUpdated                      bool            `json:"initiativeFieldDateUpdated"`
+	InitiativeFieldDescription                      bool            `json:"initiativeFieldDescription"`
+	InitiativeFieldHealth                           bool            `json:"initiativeFieldHealth"`
+	InitiativeFieldInitiativeHealth                 bool            `json:"initiativeFieldInitiativeHealth"`
+	InitiativeFieldLabels                           bool            `json:"initiativeFieldLabels"`
+	InitiativeFieldOwner                            bool            `json:"initiativeFieldOwner"`
+	InitiativeFieldProjects                         bool            `json:"initiativeFieldProjects"`
+	InitiativeFieldStartDate                        bool            `json:"initiativeFieldStartDate"`
+	InitiativeFieldStatus                           bool            `json:"initiativeFieldStatus"`
+	InitiativeFieldTargetDate                       bool            `json:"initiativeFieldTargetDate"`
+	InitiativeFieldTeams                            bool            `json:"initiativeFieldTeams"`
 	InitiativeGrouping                              string          `json:"initiativeGrouping"`
+	InitiativeGroupingLabelGroupId                  string          `json:"initiativeGroupingLabelGroupId"`
+	InitiativeLabelGroupColumns                     json.RawMessage `json:"initiativeLabelGroupColumns"`
 	InitiativesViewOrdering                         string          `json:"initiativesViewOrdering"`
 	IssueGrouping                                   string          `json:"issueGrouping"`
 	IssueGroupingLabelGroupId                       string          `json:"issueGroupingLabelGroupId"`
@@ -3426,51 +3602,52 @@ type ViewPreferencesValues struct {
 	IssueSubGrouping                                string          `json:"issueSubGrouping"`
 	IssueSubGroupingLabelGroupId                    string          `json:"issueSubGroupingLabelGroupId"`
 	Layout                                          string          `json:"layout"`
-	MemberFieldJoined                               string          `json:"memberFieldJoined"`
-	MemberFieldStatus                               string          `json:"memberFieldStatus"`
-	MemberFieldTeams                                string          `json:"memberFieldTeams"`
-	ProjectCustomerNeedsShowCompletedIssuesLast     string          `json:"projectCustomerNeedsShowCompletedIssuesLast"`
-	ProjectCustomerNeedsShowImportantFirst          string          `json:"projectCustomerNeedsShowImportantFirst"`
+	MemberFieldJoined                               bool            `json:"memberFieldJoined"`
+	MemberFieldStatus                               bool            `json:"memberFieldStatus"`
+	MemberFieldTeams                                bool            `json:"memberFieldTeams"`
+	ProjectCustomerNeedsShowCompletedIssuesLast     bool            `json:"projectCustomerNeedsShowCompletedIssuesLast"`
+	ProjectCustomerNeedsShowImportantFirst          bool            `json:"projectCustomerNeedsShowImportantFirst"`
 	ProjectCustomerNeedsViewGrouping                string          `json:"projectCustomerNeedsViewGrouping"`
 	ProjectCustomerNeedsViewOrdering                string          `json:"projectCustomerNeedsViewOrdering"`
-	ProjectFieldActivity                            string          `json:"projectFieldActivity"`
-	ProjectFieldCustomerCount                       string          `json:"projectFieldCustomerCount"`
-	ProjectFieldCustomerRevenue                     string          `json:"projectFieldCustomerRevenue"`
-	ProjectFieldDateCompleted                       string          `json:"projectFieldDateCompleted"`
-	ProjectFieldDateCreated                         string          `json:"projectFieldDateCreated"`
-	ProjectFieldDateUpdated                         string          `json:"projectFieldDateUpdated"`
-	ProjectFieldDescription                         string          `json:"projectFieldDescription"`
-	ProjectFieldDescriptionBoard                    string          `json:"projectFieldDescriptionBoard"`
-	ProjectFieldHealth                              string          `json:"projectFieldHealth"`
-	ProjectFieldHealthTimeline                      string          `json:"projectFieldHealthTimeline"`
-	ProjectFieldInitiatives                         string          `json:"projectFieldInitiatives"`
-	ProjectFieldLabels                              string          `json:"projectFieldLabels"`
-	ProjectFieldLead                                string          `json:"projectFieldLead"`
-	ProjectFieldLeadTimeline                        string          `json:"projectFieldLeadTimeline"`
-	ProjectFieldMembers                             string          `json:"projectFieldMembers"`
-	ProjectFieldMembersBoard                        string          `json:"projectFieldMembersBoard"`
-	ProjectFieldMembersList                         string          `json:"projectFieldMembersList"`
-	ProjectFieldMembersTimeline                     string          `json:"projectFieldMembersTimeline"`
-	ProjectFieldMilestone                           string          `json:"projectFieldMilestone"`
-	ProjectFieldMilestoneTimeline                   string          `json:"projectFieldMilestoneTimeline"`
-	ProjectFieldPredictions                         string          `json:"projectFieldPredictions"`
-	ProjectFieldPredictionsTimeline                 string          `json:"projectFieldPredictionsTimeline"`
-	ProjectFieldPriority                            string          `json:"projectFieldPriority"`
-	ProjectFieldRelations                           string          `json:"projectFieldRelations"`
-	ProjectFieldRelationsTimeline                   string          `json:"projectFieldRelationsTimeline"`
-	ProjectFieldRoadmaps                            string          `json:"projectFieldRoadmaps"`
-	ProjectFieldRoadmapsBoard                       string          `json:"projectFieldRoadmapsBoard"`
-	ProjectFieldRoadmapsList                        string          `json:"projectFieldRoadmapsList"`
-	ProjectFieldRoadmapsTimeline                    string          `json:"projectFieldRoadmapsTimeline"`
-	ProjectFieldRolloutStage                        string          `json:"projectFieldRolloutStage"`
-	ProjectFieldStartDate                           string          `json:"projectFieldStartDate"`
-	ProjectFieldStatus                              string          `json:"projectFieldStatus"`
-	ProjectFieldStatusTimeline                      string          `json:"projectFieldStatusTimeline"`
-	ProjectFieldTargetDate                          string          `json:"projectFieldTargetDate"`
-	ProjectFieldTeams                               string          `json:"projectFieldTeams"`
-	ProjectFieldTeamsBoard                          string          `json:"projectFieldTeamsBoard"`
-	ProjectFieldTeamsList                           string          `json:"projectFieldTeamsList"`
-	ProjectFieldTeamsTimeline                       string          `json:"projectFieldTeamsTimeline"`
+	ProjectFieldActivity                            bool            `json:"projectFieldActivity"`
+	ProjectFieldCustomerCount                       bool            `json:"projectFieldCustomerCount"`
+	ProjectFieldCustomerRevenue                     bool            `json:"projectFieldCustomerRevenue"`
+	ProjectFieldDateCompleted                       bool            `json:"projectFieldDateCompleted"`
+	ProjectFieldDateCreated                         bool            `json:"projectFieldDateCreated"`
+	ProjectFieldDateUpdated                         bool            `json:"projectFieldDateUpdated"`
+	ProjectFieldDescription                         bool            `json:"projectFieldDescription"`
+	ProjectFieldDescriptionBoard                    bool            `json:"projectFieldDescriptionBoard"`
+	ProjectFieldHealth                              bool            `json:"projectFieldHealth"`
+	ProjectFieldHealthTimeline                      bool            `json:"projectFieldHealthTimeline"`
+	ProjectFieldInitiatives                         bool            `json:"projectFieldInitiatives"`
+	ProjectFieldIssues                              bool            `json:"projectFieldIssues"`
+	ProjectFieldLabels                              bool            `json:"projectFieldLabels"`
+	ProjectFieldLead                                bool            `json:"projectFieldLead"`
+	ProjectFieldLeadTimeline                        bool            `json:"projectFieldLeadTimeline"`
+	ProjectFieldMembers                             bool            `json:"projectFieldMembers"`
+	ProjectFieldMembersBoard                        bool            `json:"projectFieldMembersBoard"`
+	ProjectFieldMembersList                         bool            `json:"projectFieldMembersList"`
+	ProjectFieldMembersTimeline                     bool            `json:"projectFieldMembersTimeline"`
+	ProjectFieldMilestone                           bool            `json:"projectFieldMilestone"`
+	ProjectFieldMilestoneTimeline                   bool            `json:"projectFieldMilestoneTimeline"`
+	ProjectFieldPredictions                         bool            `json:"projectFieldPredictions"`
+	ProjectFieldPredictionsTimeline                 bool            `json:"projectFieldPredictionsTimeline"`
+	ProjectFieldPriority                            bool            `json:"projectFieldPriority"`
+	ProjectFieldRelations                           bool            `json:"projectFieldRelations"`
+	ProjectFieldRelationsTimeline                   bool            `json:"projectFieldRelationsTimeline"`
+	ProjectFieldRoadmaps                            bool            `json:"projectFieldRoadmaps"`
+	ProjectFieldRoadmapsBoard                       bool            `json:"projectFieldRoadmapsBoard"`
+	ProjectFieldRoadmapsList                        bool            `json:"projectFieldRoadmapsList"`
+	ProjectFieldRoadmapsTimeline                    bool            `json:"projectFieldRoadmapsTimeline"`
+	ProjectFieldRolloutStage                        bool            `json:"projectFieldRolloutStage"`
+	ProjectFieldStartDate                           bool            `json:"projectFieldStartDate"`
+	ProjectFieldStatus                              bool            `json:"projectFieldStatus"`
+	ProjectFieldStatusTimeline                      bool            `json:"projectFieldStatusTimeline"`
+	ProjectFieldTargetDate                          bool            `json:"projectFieldTargetDate"`
+	ProjectFieldTeams                               bool            `json:"projectFieldTeams"`
+	ProjectFieldTeamsBoard                          bool            `json:"projectFieldTeamsBoard"`
+	ProjectFieldTeamsList                           bool            `json:"projectFieldTeamsList"`
+	ProjectFieldTeamsTimeline                       bool            `json:"projectFieldTeamsTimeline"`
 	ProjectGroupOrdering                            string          `json:"projectGroupOrdering"`
 	ProjectGrouping                                 string          `json:"projectGrouping"`
 	ProjectGroupingDateResolution                   string          `json:"projectGroupingDateResolution"`
@@ -3489,63 +3666,64 @@ type ViewPreferencesValues struct {
 	ProjectSubGroupingLabelGroupId                  string          `json:"projectSubGroupingLabelGroupId"`
 	ProjectViewOrdering                             string          `json:"projectViewOrdering"`
 	ProjectZoomLevel                                string          `json:"projectZoomLevel"`
-	ReleasePipelineFieldLatestRelease               string          `json:"releasePipelineFieldLatestRelease"`
-	ReleasePipelineFieldReleases                    string          `json:"releasePipelineFieldReleases"`
-	ReleasePipelineFieldTeams                       string          `json:"releasePipelineFieldTeams"`
-	ReleasePipelineFieldType                        string          `json:"releasePipelineFieldType"`
+	ReleasePipelineFieldLatestRelease               bool            `json:"releasePipelineFieldLatestRelease"`
+	ReleasePipelineFieldReleases                    bool            `json:"releasePipelineFieldReleases"`
+	ReleasePipelineFieldTeams                       bool            `json:"releasePipelineFieldTeams"`
+	ReleasePipelineFieldType                        bool            `json:"releasePipelineFieldType"`
 	ReleasePipelineGrouping                         string          `json:"releasePipelineGrouping"`
 	ReleasePipelinesViewOrdering                    string          `json:"releasePipelinesViewOrdering"`
-	ReviewFieldAvatar                               string          `json:"reviewFieldAvatar"`
-	ReviewFieldChecks                               string          `json:"reviewFieldChecks"`
-	ReviewFieldIdentifier                           string          `json:"reviewFieldIdentifier"`
-	ReviewFieldPreviewLinks                         string          `json:"reviewFieldPreviewLinks"`
-	ReviewFieldRepository                           string          `json:"reviewFieldRepository"`
+	ReviewFieldAvatar                               bool            `json:"reviewFieldAvatar"`
+	ReviewFieldChecks                               bool            `json:"reviewFieldChecks"`
+	ReviewFieldIdentifier                           bool            `json:"reviewFieldIdentifier"`
+	ReviewFieldPreviewLinks                         bool            `json:"reviewFieldPreviewLinks"`
+	ReviewFieldRepository                           bool            `json:"reviewFieldRepository"`
 	ReviewGrouping                                  string          `json:"reviewGrouping"`
 	ReviewViewOrdering                              string          `json:"reviewViewOrdering"`
-	ScheduledPipelineReleaseFieldCompletion         string          `json:"scheduledPipelineReleaseFieldCompletion"`
-	ScheduledPipelineReleaseFieldDescription        string          `json:"scheduledPipelineReleaseFieldDescription"`
-	ScheduledPipelineReleaseFieldReleaseDate        string          `json:"scheduledPipelineReleaseFieldReleaseDate"`
-	ScheduledPipelineReleaseFieldVersion            string          `json:"scheduledPipelineReleaseFieldVersion"`
+	ScheduledPipelineReleaseFieldCompletion         bool            `json:"scheduledPipelineReleaseFieldCompletion"`
+	ScheduledPipelineReleaseFieldDescription        bool            `json:"scheduledPipelineReleaseFieldDescription"`
+	ScheduledPipelineReleaseFieldReleaseDate        bool            `json:"scheduledPipelineReleaseFieldReleaseDate"`
+	ScheduledPipelineReleaseFieldReleaseNote        bool            `json:"scheduledPipelineReleaseFieldReleaseNote"`
+	ScheduledPipelineReleaseFieldVersion            bool            `json:"scheduledPipelineReleaseFieldVersion"`
 	ScheduledPipelineReleasesViewGrouping           string          `json:"scheduledPipelineReleasesViewGrouping"`
 	ScheduledPipelineReleasesViewOrdering           string          `json:"scheduledPipelineReleasesViewOrdering"`
 	SearchResultType                                string          `json:"searchResultType"`
 	SearchViewOrdering                              string          `json:"searchViewOrdering"`
-	ShowArchivedItems                               string          `json:"showArchivedItems"`
+	ShowArchivedItems                               bool            `json:"showArchivedItems"`
 	ShowCompletedAgentSessions                      string          `json:"showCompletedAgentSessions"`
 	ShowCompletedIssues                             string          `json:"showCompletedIssues"`
 	ShowCompletedProjects                           string          `json:"showCompletedProjects"`
 	ShowCompletedReviews                            string          `json:"showCompletedReviews"`
-	ShowDraftReviews                                string          `json:"showDraftReviews"`
-	ShowEmptyGroups                                 string          `json:"showEmptyGroups"`
-	ShowEmptyGroupsBoard                            string          `json:"showEmptyGroupsBoard"`
-	ShowEmptyGroupsList                             string          `json:"showEmptyGroupsList"`
-	ShowEmptySubGroups                              string          `json:"showEmptySubGroups"`
-	ShowEmptySubGroupsBoard                         string          `json:"showEmptySubGroupsBoard"`
-	ShowEmptySubGroupsList                          string          `json:"showEmptySubGroupsList"`
-	ShowNestedInitiatives                           string          `json:"showNestedInitiatives"`
-	ShowOnlySnoozedItems                            string          `json:"showOnlySnoozedItems"`
-	ShowParents                                     string          `json:"showParents"`
-	ShowReadItems                                   string          `json:"showReadItems"`
-	ShowSnoozedItems                                string          `json:"showSnoozedItems"`
-	ShowSubInitiativeProjects                       string          `json:"showSubInitiativeProjects"`
-	ShowSubIssues                                   string          `json:"showSubIssues"`
-	ShowSubTeamIssues                               string          `json:"showSubTeamIssues"`
-	ShowSubTeamProjects                             string          `json:"showSubTeamProjects"`
-	ShowSupervisedIssues                            string          `json:"showSupervisedIssues"`
-	ShowTriageIssues                                string          `json:"showTriageIssues"`
-	ShowUnreadItemsFirst                            string          `json:"showUnreadItemsFirst"`
-	TeamFieldCycle                                  string          `json:"teamFieldCycle"`
-	TeamFieldDateCreated                            string          `json:"teamFieldDateCreated"`
-	TeamFieldDateUpdated                            string          `json:"teamFieldDateUpdated"`
-	TeamFieldIdentifier                             string          `json:"teamFieldIdentifier"`
-	TeamFieldMembers                                string          `json:"teamFieldMembers"`
-	TeamFieldMembership                             string          `json:"teamFieldMembership"`
-	TeamFieldOwner                                  string          `json:"teamFieldOwner"`
-	TeamFieldProjects                               string          `json:"teamFieldProjects"`
+	ShowDraftReviews                                bool            `json:"showDraftReviews"`
+	ShowEmptyGroups                                 bool            `json:"showEmptyGroups"`
+	ShowEmptyGroupsBoard                            bool            `json:"showEmptyGroupsBoard"`
+	ShowEmptyGroupsList                             bool            `json:"showEmptyGroupsList"`
+	ShowEmptySubGroups                              bool            `json:"showEmptySubGroups"`
+	ShowEmptySubGroupsBoard                         bool            `json:"showEmptySubGroupsBoard"`
+	ShowEmptySubGroupsList                          bool            `json:"showEmptySubGroupsList"`
+	ShowNestedInitiatives                           bool            `json:"showNestedInitiatives"`
+	ShowOnlySnoozedItems                            bool            `json:"showOnlySnoozedItems"`
+	ShowParents                                     bool            `json:"showParents"`
+	ShowReadItems                                   bool            `json:"showReadItems"`
+	ShowSnoozedItems                                bool            `json:"showSnoozedItems"`
+	ShowSubInitiativeProjects                       bool            `json:"showSubInitiativeProjects"`
+	ShowSubIssues                                   bool            `json:"showSubIssues"`
+	ShowSubTeamIssues                               bool            `json:"showSubTeamIssues"`
+	ShowSubTeamProjects                             bool            `json:"showSubTeamProjects"`
+	ShowSupervisedIssues                            bool            `json:"showSupervisedIssues"`
+	ShowTriageIssues                                bool            `json:"showTriageIssues"`
+	ShowUnreadItemsFirst                            bool            `json:"showUnreadItemsFirst"`
+	TeamFieldCycle                                  bool            `json:"teamFieldCycle"`
+	TeamFieldDateCreated                            bool            `json:"teamFieldDateCreated"`
+	TeamFieldDateUpdated                            bool            `json:"teamFieldDateUpdated"`
+	TeamFieldIdentifier                             bool            `json:"teamFieldIdentifier"`
+	TeamFieldMembers                                bool            `json:"teamFieldMembers"`
+	TeamFieldMembership                             bool            `json:"teamFieldMembership"`
+	TeamFieldOwner                                  bool            `json:"teamFieldOwner"`
+	TeamFieldProjects                               bool            `json:"teamFieldProjects"`
 	TeamViewOrdering                                string          `json:"teamViewOrdering"`
 	TimelineChronologyShowCycleTeamIds              json.RawMessage `json:"timelineChronologyShowCycleTeamIds"`
-	TimelineChronologyShowWeekNumbers               string          `json:"timelineChronologyShowWeekNumbers"`
-	TimelineZoomScale                               string          `json:"timelineZoomScale"`
+	TimelineChronologyShowWeekNumbers               bool            `json:"timelineChronologyShowWeekNumbers"`
+	TimelineZoomScale                               float64         `json:"timelineZoomScale"`
 	TriageViewOrdering                              string          `json:"triageViewOrdering"`
 	ViewOrdering                                    string          `json:"viewOrdering"`
 	ViewOrderingDirection                           string          `json:"viewOrderingDirection"`
@@ -3553,11 +3731,11 @@ type ViewPreferencesValues struct {
 }
 
 type Webhook struct {
-	AllPublicTeams string          `json:"allPublicTeams"`
+	AllPublicTeams bool            `json:"allPublicTeams"`
 	ArchivedAt     string          `json:"archivedAt"`
 	CreatedAt      string          `json:"createdAt"`
 	Creator        string          `json:"creator"`
-	Enabled        string          `json:"enabled"`
+	Enabled        bool            `json:"enabled"`
 	Failures       json.RawMessage `json:"failures"`
 	Id             string          `json:"id"`
 	Label          string          `json:"label"`
@@ -3570,19 +3748,19 @@ type Webhook struct {
 }
 
 type WebhookFailureEvent struct {
-	CreatedAt       string `json:"createdAt"`
-	ExecutionId     string `json:"executionId"`
-	HttpStatus      string `json:"httpStatus"`
-	Id              string `json:"id"`
-	ResponseOrError string `json:"responseOrError"`
-	Url             string `json:"url"`
-	Webhook         string `json:"webhook"`
+	CreatedAt       string  `json:"createdAt"`
+	ExecutionId     string  `json:"executionId"`
+	HttpStatus      float64 `json:"httpStatus"`
+	Id              string  `json:"id"`
+	ResponseOrError string  `json:"responseOrError"`
+	Url             string  `json:"url"`
+	Webhook         string  `json:"webhook"`
 }
 
 type WelcomeMessage struct {
 	ArchivedAt string `json:"archivedAt"`
 	CreatedAt  string `json:"createdAt"`
-	Enabled    string `json:"enabled"`
+	Enabled    bool   `json:"enabled"`
 	Id         string `json:"id"`
 	Title      string `json:"title"`
 	UpdatedAt  string `json:"updatedAt"`
@@ -3590,34 +3768,49 @@ type WelcomeMessage struct {
 }
 
 type WelcomeMessageNotification struct {
-	Actor                  string `json:"actor"`
-	ActorAvatarColor       string `json:"actorAvatarColor"`
-	ActorAvatarUrl         string `json:"actorAvatarUrl"`
-	ActorInitials          string `json:"actorInitials"`
-	ArchivedAt             string `json:"archivedAt"`
-	BotActor               string `json:"botActor"`
-	Category               string `json:"category"`
-	CreatedAt              string `json:"createdAt"`
-	EmailedAt              string `json:"emailedAt"`
-	ExternalUserActor      string `json:"externalUserActor"`
-	GroupingKey            string `json:"groupingKey"`
-	GroupingPriority       string `json:"groupingPriority"`
-	Id                     string `json:"id"`
-	InboxUrl               string `json:"inboxUrl"`
-	InitiativeUpdateHealth string `json:"initiativeUpdateHealth"`
-	IsLinearActor          string `json:"isLinearActor"`
-	IssueStatusType        string `json:"issueStatusType"`
-	ProjectUpdateHealth    string `json:"projectUpdateHealth"`
-	ReadAt                 string `json:"readAt"`
-	SnoozedUntilAt         string `json:"snoozedUntilAt"`
-	Subtitle               string `json:"subtitle"`
-	Title                  string `json:"title"`
-	Type                   string `json:"type"`
-	UnsnoozedAt            string `json:"unsnoozedAt"`
-	UpdatedAt              string `json:"updatedAt"`
-	Url                    string `json:"url"`
-	User                   string `json:"user"`
-	WelcomeMessageId       string `json:"welcomeMessageId"`
+	Actor                  string  `json:"actor"`
+	ActorAvatarColor       string  `json:"actorAvatarColor"`
+	ActorAvatarUrl         string  `json:"actorAvatarUrl"`
+	ActorInitials          string  `json:"actorInitials"`
+	ArchivedAt             string  `json:"archivedAt"`
+	BotActor               string  `json:"botActor"`
+	Category               string  `json:"category"`
+	CreatedAt              string  `json:"createdAt"`
+	EmailedAt              string  `json:"emailedAt"`
+	ExternalUserActor      string  `json:"externalUserActor"`
+	GroupingKey            string  `json:"groupingKey"`
+	GroupingPriority       float64 `json:"groupingPriority"`
+	Id                     string  `json:"id"`
+	InboxUrl               string  `json:"inboxUrl"`
+	InitiativeUpdateHealth string  `json:"initiativeUpdateHealth"`
+	IsLinearActor          bool    `json:"isLinearActor"`
+	IssueStatusType        string  `json:"issueStatusType"`
+	ProjectUpdateHealth    string  `json:"projectUpdateHealth"`
+	ReadAt                 string  `json:"readAt"`
+	SnoozedUntilAt         string  `json:"snoozedUntilAt"`
+	Subtitle               string  `json:"subtitle"`
+	Title                  string  `json:"title"`
+	Type                   string  `json:"type"`
+	UnsnoozedAt            string  `json:"unsnoozedAt"`
+	UpdatedAt              string  `json:"updatedAt"`
+	Url                    string  `json:"url"`
+	User                   string  `json:"user"`
+	WelcomeMessageId       string  `json:"welcomeMessageId"`
+}
+
+type WorkflowCronJobDefinition struct {
+	Activities  string `json:"activities"`
+	ArchivedAt  string `json:"archivedAt"`
+	CreatedAt   string `json:"createdAt"`
+	Creator     string `json:"creator"`
+	Description string `json:"description"`
+	Enabled     bool   `json:"enabled"`
+	Id          string `json:"id"`
+	Name        string `json:"name"`
+	Schedule    string `json:"schedule"`
+	SortOrder   string `json:"sortOrder"`
+	Team        string `json:"team"`
+	UpdatedAt   string `json:"updatedAt"`
 }
 
 type WorkflowDefinition struct {
@@ -3630,7 +3823,7 @@ type WorkflowDefinition struct {
 	CustomView          string `json:"customView"`
 	Cycle               string `json:"cycle"`
 	Description         string `json:"description"`
-	Enabled             string `json:"enabled"`
+	Enabled             bool   `json:"enabled"`
 	GroupName           string `json:"groupName"`
 	Id                  string `json:"id"`
 	Initiative          string `json:"initiative"`
@@ -3651,22 +3844,22 @@ type WorkflowDefinition struct {
 }
 
 type WorkflowState struct {
-	ArchivedAt      string `json:"archivedAt"`
-	Color           string `json:"color"`
-	CreatedAt       string `json:"createdAt"`
-	Description     string `json:"description"`
-	Id              string `json:"id"`
-	InheritedFrom   string `json:"inheritedFrom"`
-	After           string `json:"after"`
-	Before          string `json:"before"`
-	Filter          string `json:"filter"`
-	First           string `json:"first"`
-	IncludeArchived string `json:"includeArchived"`
-	Last            string `json:"last"`
-	OrderBy         string `json:"orderBy"`
-	Name            string `json:"name"`
-	Position        string `json:"position"`
-	Team            string `json:"team"`
-	Type            string `json:"type"`
-	UpdatedAt       string `json:"updatedAt"`
+	ArchivedAt      string  `json:"archivedAt"`
+	Color           string  `json:"color"`
+	CreatedAt       string  `json:"createdAt"`
+	Description     string  `json:"description"`
+	Id              string  `json:"id"`
+	InheritedFrom   string  `json:"inheritedFrom"`
+	After           string  `json:"after"`
+	Before          string  `json:"before"`
+	Filter          string  `json:"filter"`
+	First           int     `json:"first"`
+	IncludeArchived bool    `json:"includeArchived"`
+	Last            int     `json:"last"`
+	OrderBy         string  `json:"orderBy"`
+	Name            string  `json:"name"`
+	Position        float64 `json:"position"`
+	Team            string  `json:"team"`
+	Type            string  `json:"type"`
+	UpdatedAt       string  `json:"updatedAt"`
 }

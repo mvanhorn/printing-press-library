@@ -44,6 +44,9 @@ Output:
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		Args:        cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if dryRunOK(flags) {
+				return nil
+			}
 			if dbPath == "" {
 				dbPath = defaultDBPath("linear-pp-cli")
 			}

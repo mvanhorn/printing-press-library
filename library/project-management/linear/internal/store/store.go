@@ -112,7 +112,7 @@ func OpenWithContext(ctx context.Context, dbPath string) (*Store, error) {
 	if err != nil {
 		return nil, fmt.Errorf("opening database: %w", err)
 	}
-	db.SetMaxOpenConns(1)
+	db.SetMaxOpenConns(8)
 	if err := db.PingContext(ctx); err != nil {
 		db.Close()
 		return nil, fmt.Errorf("opening database: %w", err)
@@ -918,3 +918,16 @@ func isReadOnlySQL(query string) bool {
 	}
 	return true
 }
+
+
+// DB returns the underlying *sql.DB for direct queries.
+// Restored for v4 compatibility — v4's doctor.go and other commands use this.
+func (s *Store) DB() *sql.DB { return s.db }
+
+// SchemaVersion returns a constant schema-version sentinel.
+// Restored for v4 compatibility — v3 didn't track versioned migrations.
+func (s *Store) SchemaVersion() (int, error) { return 2, nil }
+
+// OpenReadOnly opens the store. v3 didn't distinguish RO/RW;
+// kept as a method-name compatibility shim for v4's MCP tools.
+func OpenReadOnly(dbPath string) (*Store, error) { return Open(dbPath) }
