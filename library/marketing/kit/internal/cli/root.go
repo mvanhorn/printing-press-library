@@ -13,8 +13,8 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"github.com/mvanhorn/printing-press-library/library/marketing/kit/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/marketing/kit/internal/config"
+	"kit-pp-cli/internal/client"
+	"kit-pp-cli/internal/config"
 )
 
 var version = "1.0.0"
@@ -259,6 +259,8 @@ Run 'kit-pp-cli doctor' to verify auth and connectivity.`,
 	rootCmd.AddCommand(newTailCmd(flags))
 	rootCmd.AddCommand(newAnalyticsCmd(flags))
 	rootCmd.AddCommand(newWorkflowCmd(flags))
+	rootCmd.AddCommand(newGrowthTrendsCmd(flags))
+	rootCmd.AddCommand(newTagPerformanceCmd(flags))
 	rootCmd.AddCommand(newAPICmd(flags))
 	rootCmd.AddCommand(newEmailTemplatesPromotedCmd(flags))
 	rootCmd.AddCommand(newFormsPromotedCmd(flags))

@@ -225,6 +225,33 @@ These capabilities aren't available in any other tool for this API.
   kit-pp-cli workflow content-inventory --agent
   ```
 
+### Trends and ranking
+- **`growth-trends`** — Correlates `/v4/account/growth_stats` with recent `/v4/broadcasts/stats` to report subscriber growth alongside broadcast send/open/click rates over a date range. Optional `--cache-stats` warms the local store via the typed `UpsertBroadcastsStats` write path.
+
+  ```bash
+  kit-pp-cli growth-trends --agent
+  kit-pp-cli growth-trends --starting 2026-01-01 --ending 2026-03-31 --cache-stats --json
+  ```
+
+- **`tag-performance`** — Reads tags from the local store, queries the live API for each tag's current subscriber count, and sorts by share-of-total. Optional `--subscriber-query` calls `store.SearchSubscribers` (domain-typed FTS5 wrapper) to narrow the matched-subscriber count for a specific segment.
+
+  ```bash
+  kit-pp-cli sync tags
+  kit-pp-cli tag-performance --agent
+  kit-pp-cli tag-performance --subscriber-query "vip OR trial" --json
+  ```
+
+### MCP intent tools
+
+Four first-class MCP intent tools wrap the workflow commands with typed input schemas and read-only annotations. Each tool delegates in-process to the matching Cobra command so orchestration logic stays in one place. Endpoint mirror tools (75 typed endpoint tools) remain fully exposed alongside the intent tools.
+
+- `intent_workflow_creator_snapshot`
+- `intent_workflow_audience_health`
+- `intent_workflow_content_inventory`
+- `intent_workflow_subscriber_lookup`
+
+The MCP server (`kit-pp-mcp`) ships both stdio and streamable HTTP transports. Defaults to stdio; set `PP_MCP_TRANSPORT=http` or pass `--transport http` with `--addr :7777` to bind a remote-capable server.
+
 ## Usage
 
 Run `kit-pp-cli --help` for the full command reference and flag list.

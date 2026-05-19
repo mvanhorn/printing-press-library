@@ -84,6 +84,21 @@ These capabilities aren't available in any other tool for this API.
   kit-pp-cli workflow content-inventory --agent
   ```
 
+### Trends and ranking
+- **`growth-trends`** — Correlates account growth stats with broadcast performance over a date range. Optionally caches results via the typed `UpsertBroadcastsStats` write path.
+- **`tag-performance`** — Ranks tags by subscriber count with share-of-total percentages; optional `--subscriber-query` uses `SearchSubscribers` to narrow to a segment.
+
+### MCP intent tools
+
+Four first-class MCP intent tools expose the workflow commands with typed input schemas and read-only annotations. Use these via the MCP server (`kit-pp-mcp`) when an agent host wants typed parameters and explicit safety hints:
+
+- `intent_workflow_creator_snapshot`
+- `intent_workflow_audience_health`
+- `intent_workflow_content_inventory`
+- `intent_workflow_subscriber_lookup`
+
+The MCP server supports both stdio and streamable HTTP transports (`--transport http --addr :7777` or `PP_MCP_TRANSPORT=http`).
+
 ## Command Reference
 
 **workflow** — Kit-specific compound workflows for agents

@@ -2191,5 +2191,56 @@
         }
       ]
     }
+  ],
+  "intents": [
+    {
+      "name": "intent_workflow_creator_snapshot",
+      "kind": "intent",
+      "read_only": true,
+      "delegates_to": "workflow creator-snapshot",
+      "description": "Compound read-only operating snapshot for a Kit account: profile, growth stats, subscriber and tag counts, sample sequences/forms/custom fields/webhooks, and broadcast stats in a single response.",
+      "params": [
+        {"name": "starting", "type": "string", "description": "Growth-stat start date in yyyy-mm-dd format. Defaults to 90 days ago."},
+        {"name": "ending", "type": "string", "description": "Growth-stat end date in yyyy-mm-dd format. Defaults to today."},
+        {"name": "sample_size", "type": "number", "description": "Sample rows per collection (1-25, default 5)."}
+      ]
+    },
+    {
+      "name": "intent_workflow_audience_health",
+      "kind": "intent",
+      "read_only": true,
+      "delegates_to": "workflow audience-health",
+      "description": "Compound read-only audience report: subscriber status counts, recent growth stats, and largest tags by subscriber count.",
+      "params": [
+        {"name": "starting", "type": "string", "description": "Growth-stat start date in yyyy-mm-dd format."},
+        {"name": "ending", "type": "string", "description": "Growth-stat end date in yyyy-mm-dd format."},
+        {"name": "top_limit", "type": "number", "description": "Tags to inspect and rank by subscriber count (1-25, default 8)."}
+      ]
+    },
+    {
+      "name": "intent_workflow_content_inventory",
+      "kind": "intent",
+      "read_only": true,
+      "delegates_to": "workflow content-inventory",
+      "description": "Compound read-only inventory of sequences, sequence emails, snippets, forms, email templates, and recent broadcast stats.",
+      "params": [
+        {"name": "item_limit", "type": "number", "description": "Rows per content collection (1-50, default 10)."},
+        {"name": "sequence_limit", "type": "number", "description": "Sequences whose emails should be inspected (1-25, default 5)."},
+        {"name": "include_content", "type": "bool", "description": "Include sequence email body content when Kit returns it. Default false."}
+      ]
+    },
+    {
+      "name": "intent_workflow_subscriber_lookup",
+      "kind": "intent",
+      "read_only": true,
+      "delegates_to": "workflow subscriber-lookup",
+      "description": "Compound read-only subscriber dossier by email or Kit subscriber id: profile, custom fields, tags, attribution, and email engagement stats.",
+      "params": [
+        {"name": "email", "type": "string", "description": "Subscriber email address to look up. One of email or id is required."},
+        {"name": "id", "type": "string", "description": "Kit subscriber id to look up. One of email or id is required."},
+        {"name": "email_sent_after", "type": "string", "description": "Only include subscriber email stats after this yyyy-mm-dd date."},
+        {"name": "email_sent_before", "type": "string", "description": "Only include subscriber email stats before this yyyy-mm-dd date."}
+      ]
+    }
   ]
 }

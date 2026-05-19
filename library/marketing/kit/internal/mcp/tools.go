@@ -15,12 +15,12 @@ import (
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
-	"github.com/mvanhorn/printing-press-library/library/marketing/kit/internal/cli"
-	"github.com/mvanhorn/printing-press-library/library/marketing/kit/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/marketing/kit/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/marketing/kit/internal/config"
-	"github.com/mvanhorn/printing-press-library/library/marketing/kit/internal/mcp/cobratree"
-	"github.com/mvanhorn/printing-press-library/library/marketing/kit/internal/store"
+	"kit-pp-cli/internal/cli"
+	"kit-pp-cli/internal/client"
+	"kit-pp-cli/internal/cliutil"
+	"kit-pp-cli/internal/config"
+	"kit-pp-cli/internal/mcp/cobratree"
+	"kit-pp-cli/internal/store"
 )
 
 // RegisterTools registers all API operations as MCP tools.
@@ -913,6 +913,13 @@ func RegisterTools(s *server.MCPServer) {
 		handleContext,
 	)
 
+	// First-class MCP intent tools (Kit-specific compound workflows).
+	// Hand-authored in internal/mcp/intents.go and preserved via
+	// .printing-press-patches.json. Registered before the cobratree mirror so
+	// the typed intent_* names are present even if a future change to the
+	// generator's intent template adopts the same naming convention.
+	RegisterIntents(s)
+
 	// Runtime Cobra-tree mirror — exposes every user-facing command that is
 	// not already covered by a typed endpoint or framework MCP tool.
 	cobratree.RegisterAll(s, cli.RootCmd(), cobratree.SiblingCLIPath)
@@ -1407,13 +1414,15 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			"Use the search tool for full-text search across all synced resources. Faster than iterating list endpoints.",
 			"Prefer sql/search over repeated API calls when the data is already synced.",
 		},
-		// Command-mirror capabilities are exposed through MCP by shelling out
-		// to the companion CLI binary.
-		"command_mirror_capabilities": []map[string]string{
-			{"name": "Creator Snapshot", "command": "workflow creator-snapshot", "description": "One-call read-only operating snapshot for Kit account, growth, audience, content, webhooks, and broadcast stats.", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "Audience Health", "command": "workflow audience-health", "description": "Read-only subscriber status counts, recent growth stats, and largest tags by subscriber count.", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "Content Inventory", "command": "workflow content-inventory", "description": "Read-only inventory of sequences, sequence emails, snippets, forms, templates, and recent broadcast stats.", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "Subscriber Lookup", "command": "workflow subscriber-lookup", "description": "Read-only subscriber dossier by email or id with profile, custom fields, tags, attribution, and email stats.", "rationale": "", "via": "mcp-command-mirror"},
+		// Intent capabilities — typed MCP tools that compose multiple endpoint
+		// calls. Exposed under intent_workflow_* names alongside the cobratree
+		// runtime mirror so agents can pick the typed schema while humans keep
+		// the shell-out reach.
+		"intent_capabilities": []map[string]string{
+			{"name": "Creator Snapshot", "intent_tool": "intent_workflow_creator_snapshot", "command": "workflow creator-snapshot", "description": "One-call read-only operating snapshot for Kit account, growth, audience, content, webhooks, and broadcast stats.", "via": "mcp-intent-tool"},
+			{"name": "Audience Health", "intent_tool": "intent_workflow_audience_health", "command": "workflow audience-health", "description": "Read-only subscriber status counts, recent growth stats, and largest tags by subscriber count.", "via": "mcp-intent-tool"},
+			{"name": "Content Inventory", "intent_tool": "intent_workflow_content_inventory", "command": "workflow content-inventory", "description": "Read-only inventory of sequences, sequence emails, snippets, forms, templates, and recent broadcast stats.", "via": "mcp-intent-tool"},
+			{"name": "Subscriber Lookup", "intent_tool": "intent_workflow_subscriber_lookup", "command": "workflow subscriber-lookup", "description": "Read-only subscriber dossier by email or id with profile, custom fields, tags, attribution, and email stats.", "via": "mcp-intent-tool"},
 		},
 		"playbook": []map[string]string{
 			{"topic": "Creator Snapshot", "insight": ""},
