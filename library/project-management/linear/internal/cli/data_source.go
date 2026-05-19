@@ -104,6 +104,11 @@ func resolveRead(ctx context.Context, c *client.Client, flags *rootFlags, resour
 		if err != nil {
 			return nil, DataProvenance{}, err
 		}
+		// Write-through to the local store so a follow-up
+		// `--data-source local` read sees what was just fetched. The
+		// `auto` branch already does this; `live` must too, otherwise
+		// the store goes stale while the user is paying for live calls.
+		writeThroughCache(ctx, resourceType, data)
 		return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 
 	default: // "auto"
@@ -140,6 +145,9 @@ func resolvePaginatedRead(ctx context.Context, c *client.Client, flags *rootFlag
 		if err != nil {
 			return nil, DataProvenance{}, err
 		}
+		// See resolveRead's live arm — write-through is mandatory on the
+		// `live` path too, not just `auto`.
+		writeThroughCache(ctx, resourceType, data)
 		return data, attachFreshness(DataProvenance{Source: "live"}, flags), nil
 
 	default: // "auto"

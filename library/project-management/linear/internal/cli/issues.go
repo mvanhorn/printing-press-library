@@ -277,6 +277,8 @@ func runIssuesList(cmd *cobra.Command, flags *rootFlags, dbPath, assignee, state
 	// retro candidate for the full story.
 	var raw []json.RawMessage
 	useLive := flags.dataSource != "local"
+	servedFromLive := false
+	fellBackOnNetErr := false
 	if useLive {
 		raw, err = fetchIssuesLive(cmd.Context(), flags, db, filter, stateFlag, limit)
 		if err != nil {
@@ -291,6 +293,9 @@ func runIssuesList(cmd *cobra.Command, flags *rootFlags, dbPath, assignee, state
 			}
 			fmt.Fprintln(cmd.ErrOrStderr(), "  (live API unreachable — falling back to local store)")
 			raw = nil
+			fellBackOnNetErr = true
+		} else {
+			servedFromLive = true
 		}
 	}
 	if raw == nil {
@@ -326,13 +331,33 @@ func runIssuesList(cmd *cobra.Command, flags *rootFlags, dbPath, assignee, state
 		return rows[i].Identifier < rows[j].Identifier
 	})
 
-	prov := localProvenance(db, "issues", "user_requested")
+	// Provenance must reflect where `rows` actually came from, not where
+	// the default code path would read. When fetchIssuesLive succeeded
+	// (servedFromLive), the data is from Linear's GraphQL API and was
+	// write-through'd into the store; the source is "live". When the
+	// store served the read (default --data-source local, or auto's
+	// network-error fallback), it's "local" with the store's sync
+	// timestamp. The stale-hint only makes sense for store reads — a
+	// fresh live response can't be stale by definition.
+	var prov DataProvenance
+	switch {
+	case servedFromLive:
+		reason := "user_requested"
+		prov = DataProvenance{Source: "live", ResourceType: "issues", Reason: reason}
+	case fellBackOnNetErr:
+		prov = localProvenance(db, "issues", "api_unreachable")
+	default:
+		prov = localProvenance(db, "issues", "user_requested")
+	}
+	prov = attachFreshness(prov, flags)
 	printProvenance(cmd, len(rows), prov)
 
-	if len(rows) == 0 {
-		hintIfUnsynced(cmd, db, "issues")
-	} else {
-		hintIfStale(cmd, db, "issues", flags.maxAge)
+	if !servedFromLive {
+		if len(rows) == 0 {
+			hintIfUnsynced(cmd, db, "issues")
+		} else {
+			hintIfStale(cmd, db, "issues", flags.maxAge)
+		}
 	}
 
 	if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
