@@ -24,6 +24,14 @@
       "upstream_issue": "Generator template internal/generator/templates/client.go.tmpl emits http.NewRequest without ctx for every printed CLI; upstream fix would replace this single-CLI patch across the catalog."
     },
     {
+      "id": "watch-since-source-from-store",
+      "summary": "Source watch --since from the local store's first_seen rather than RSS PubDate; upsert all fetched category trends, then return the recency window from the store.",
+      "reason": "Category-card HTML has no per-trend publication dates, so the previous withinPubDateCutoff check was always lenient and --since was effectively a no-op. first_seen is the only reliable time signal we have for category-page sources, and it gives --since the obvious meaning of \"trends discovered in my store in the last N time\". Greptile blocking finding on PR #548.",
+      "files": [
+        "internal/cli/trendhunter_commands.go"
+      ]
+    },
+    {
       "id": "scout-llm-business-profile",
       "summary": "Forward the --business profile into llmTrendScore so the LLM scores trends against the user's stated business context.",
       "reason": "scoreTrends received business but never passed it to llmTrendScore, so scout --llm scored trends on an undirected scale unrelated to --business. Greptile blocking finding on PR #548.",

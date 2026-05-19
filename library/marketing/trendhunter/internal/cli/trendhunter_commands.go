@@ -134,25 +134,6 @@ func parseSince(s string) (time.Duration, error) {
 	return time.ParseDuration(s)
 }
 
-// withinPubDateCutoff reports whether an RSS-style PubDate string is at or
-// after cutoff. A zero cutoff disables filtering. Unparseable or empty dates
-// are kept (lenient) so date-parse drift never silently hides trends.
-func withinPubDateCutoff(pubDate string, cutoff time.Time) bool {
-	if cutoff.IsZero() {
-		return true
-	}
-	pubDate = strings.TrimSpace(pubDate)
-	if pubDate == "" {
-		return true
-	}
-	for _, layout := range []string{time.RFC1123Z, time.RFC1123, time.RFC3339, time.RFC822Z, time.RFC822} {
-		if t, err := time.Parse(layout, pubDate); err == nil {
-			return !t.Before(cutoff)
-		}
-	}
-	return true
-}
-
 func newTHLatestCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "latest",
@@ -438,23 +419,22 @@ func newTHWatchCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			defer closeFn()
-			cutoff := time.Time{}
-			if since > 0 {
-				cutoff = time.Now().Add(-since)
-			}
-			var fresh []thparse.Trend
+			// Upsert every fetched trend first so newly-discovered ones get
+			// first_seen=now and repeats keep their original first_seen via
+			// COALESCE. Then ask the store for the recency window. The
+			// category-card HTML doesn't carry per-trend publication dates,
+			// so first_seen is the only reliable time signal we have; using
+			// it gives --since the obvious meaning of "trends discovered in
+			// my store in the last N time".
 			for _, t := range trends {
 				t.Category = category
-				_, exists, err := thstore.GetTrend(cmd.Context(), db, t.Slug)
-				if err != nil {
-					return err
-				}
-				if !exists && withinPubDateCutoff(t.PubDate, cutoff) {
-					fresh = append(fresh, t)
-				}
 				if err := thstore.UpsertTrend(cmd.Context(), db, t); err != nil {
 					return err
 				}
+			}
+			fresh, err := thstore.ListTrendsByCategory(cmd.Context(), db, category, since, 500)
+			if err != nil {
+				return err
 			}
 			return outputTH(cmd, flags, map[string]any{
 				"category":   category,
