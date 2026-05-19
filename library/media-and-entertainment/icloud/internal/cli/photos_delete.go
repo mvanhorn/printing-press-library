@@ -137,11 +137,16 @@ func deleteViaPhotosBatch(assets []Asset) (map[string]error, error) {
 	results := make(map[string]error, len(assets))
 
 	// Validate UUIDs and build the AppleScript list literal.
+	// Pre-populate valid UUIDs with a sentinel error so that any UUID whose
+	// result line is absent from the osascript output is reported as failed
+	// rather than silently inheriting Go's nil zero-value (which the caller
+	// reads as success).
 	var valid []Asset
 	for _, a := range assets {
 		if !uuidRE.MatchString(a.UUID) {
 			results[a.UUID] = fmt.Errorf("invalid UUID %q: must be RFC 4122 hex-and-dash format", a.UUID)
 		} else {
+			results[a.UUID] = fmt.Errorf("no result returned from Photos.app")
 			valid = append(valid, a)
 		}
 	}

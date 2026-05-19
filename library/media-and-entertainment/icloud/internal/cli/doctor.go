@@ -157,6 +157,14 @@ func checkSchema(db *sql.DB) bool {
 			return false
 		}
 	}
+	// Verify the nudity-detection column used by --sensitive exists in the ML table.
+	// Older Photos libraries have the table but may predate the column.
+	var colCount int
+	if err := db.QueryRow(
+		"SELECT COUNT(*) FROM pragma_table_info('ZMEDIAANALYSISASSETATTRIBUTES') WHERE name='ZSCREENTIMEDEVICEIMAGESENSITIVITY'",
+	).Scan(&colCount); err != nil || colCount == 0 {
+		return false
+	}
 	return true
 }
 
