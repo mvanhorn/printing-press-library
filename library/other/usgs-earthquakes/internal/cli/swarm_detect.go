@@ -128,7 +128,15 @@ cells with at least --min-events, then merge contiguous hot cells within
 				events = append(events, ev{id.String, eLat, eLon, mag, tMs})
 			}
 
-			// Bucket by 0.1° cells.
+			// Bucket size derives from --cluster-radius-km. 1° of latitude ≈
+			// 111 km globally; longitude degree size varies by latitude but
+			// the lat-equivalent is a reasonable approximation for the
+			// bucket-grid step. Floor at 0.01° (≈1.1 km) so an unset/zero
+			// flag still produces useful clustering.
+			cellSizeDeg := clusterRadiusKm / 111.0
+			if cellSizeDeg < 0.01 {
+				cellSizeDeg = 0.01
+			}
 			type bucket struct {
 				CellLat int
 				CellLon int
@@ -136,7 +144,10 @@ cells with at least --min-events, then merge contiguous hot cells within
 			}
 			buckets := make(map[[2]int]*bucket)
 			for _, e := range events {
-				key := [2]int{int(math.Floor(e.Lat * 10)), int(math.Floor(e.Lon * 10))}
+				key := [2]int{
+					int(math.Floor(e.Lat / cellSizeDeg)),
+					int(math.Floor(e.Lon / cellSizeDeg)),
+				}
 				b, ok := buckets[key]
 				if !ok {
 					b = &bucket{CellLat: key[0], CellLon: key[1]}
@@ -237,8 +248,7 @@ cells with at least --min-events, then merge contiguous hot cells within
 	cmd.Flags().Float64Var(&radiusKm, "radius-km", 100, "Search radius when --near is set")
 	cmd.Flags().StringVar(&window, "window", "7d", "Time window lookback (24h, 7d, 30d)")
 	cmd.Flags().IntVar(&minEvents, "min-events", 5, "Minimum events per cluster")
-	cmd.Flags().Float64Var(&clusterRadiusKm, "cluster-radius-km", 20, "Approximate cluster radius in km (implementation uses 0.1° grid cells; this flag is a documented tuning hint, not a runtime threshold)")
+	cmd.Flags().Float64Var(&clusterRadiusKm, "cluster-radius-km", 20, "Cluster radius in km; controls the grid-cell size used to bucket events (smaller value → tighter clusters)")
 	cmd.Flags().Float64Var(&minMag, "min-mag", 0, "Skip events below this magnitude")
-	_ = clusterRadiusKm
 	return cmd
 }

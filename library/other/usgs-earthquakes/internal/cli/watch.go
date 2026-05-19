@@ -82,6 +82,15 @@ the shell hook under printing-press verify.`,
 					return 0, fmt.Errorf("parse feed: %w", err)
 				}
 				newCount := 0
+				// Batch the events we'll persist to SQLite so that on the
+				// next watch invocation, loadSeenEventIDs picks them up and
+				// we don't re-emit them as "new" — preserving the documented
+				// "deduplicates against the local SQLite store" contract.
+				type seenRow struct {
+					id  string
+					raw json.RawMessage
+				}
+				var toPersist []seenRow
 				for _, raw := range fc.Features {
 					var f map[string]any
 					if json.Unmarshal(raw, &f) != nil {
@@ -101,12 +110,25 @@ the shell hook under printing-press verify.`,
 					}
 					seen[id] = true
 					newCount++
+					toPersist = append(toPersist, seenRow{id: id, raw: raw})
 					emitWatchEvent(cmd, flags, raw, f)
 					if notify != "" && !cliutil.IsVerifyEnv() {
 						runNotifyHook(notify, id, f, raw)
 					}
 					if maxEvents > 0 && newCount >= maxEvents {
 						break
+					}
+				}
+				if len(toPersist) > 0 {
+					persisted := make([]persistRow, len(toPersist))
+					for i, r := range toPersist {
+						persisted[i] = persistRow{id: r.id, raw: r.raw}
+					}
+					if err := persistSeenEvents(ctx, persisted); err != nil {
+						// Best-effort; a write failure should not stop the watch
+						// loop, but surface it on stderr so users can spot a
+						// chronically full disk or locked DB.
+						fmt.Fprintf(cmd.ErrOrStderr(), "watch: persist seen events failed: %v\n", err)
 					}
 				}
 				return newCount, nil
@@ -212,4 +234,48 @@ func loadSeenEventIDs(ctx context.Context) (map[string]bool, error) {
 		}
 	}
 	return seen, nil
+}
+
+// persistRow carries the minimum fields needed to upsert a watched event
+// into the local resources table.
+type persistRow struct {
+	id  string
+	raw json.RawMessage
+}
+
+// persistSeenEvents writes each newly-observed event from a watch poll back
+// to the local SQLite store so that a subsequent watch invocation's
+// loadSeenEventIDs call dedups against it. Without this, IDs accumulated
+// during a watch session evaporate on exit and the same events are
+// re-emitted as "new" on the next run.
+//
+// Best-effort: callers log a warning on failure rather than aborting the
+// poll loop. Uses INSERT OR REPLACE so a subsequent sync that fetches the
+// same event with richer fields (products, updated_at) overwrites cleanly.
+func persistSeenEvents(ctx context.Context, rows []persistRow) error {
+	if len(rows) == 0 {
+		return nil
+	}
+	db, err := openLocalStore(ctx)
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+	tx, err := db.DB().BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer func() { _ = tx.Rollback() }() // no-op after Commit
+	stmt, err := tx.PrepareContext(ctx,
+		`INSERT OR REPLACE INTO resources (id, resource_type, data) VALUES (?, 'events', ?)`)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+	for _, r := range rows {
+		if _, err := stmt.ExecContext(ctx, r.id, string(r.raw)); err != nil {
+			return err
+		}
+	}
+	return tx.Commit()
 }

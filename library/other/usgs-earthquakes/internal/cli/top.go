@@ -175,11 +175,18 @@ func loadTopEvents(ctx context.Context, flags *rootFlags, startT time.Time, minM
 	if err != nil {
 		return nil, err
 	}
+	// Order by time (not magnitude) so the post-fetch composite ranking
+	// sees every event in the window — a widely-felt M3.8 in an urban area
+	// can outscore a remote M5.5, and a magnitude-ordered prefix of 20000
+	// would silently exclude the felt M3.8 during active swarms. FDSN has
+	// no server-side significance ordering, so this is the smallest fetch
+	// shape that preserves the ranking semantics. Cap at FDSN's hard
+	// limit of 20000 per request.
 	params := map[string]string{
 		"format":    "geojson",
 		"starttime": fdsnTimeFormat(startT),
-		"orderby":   "magnitude",
-		"limit":     "500",
+		"orderby":   "time",
+		"limit":     "20000",
 	}
 	if minMag > 0 {
 		params["minmagnitude"] = strconv.FormatFloat(minMag, 'f', -1, 64)

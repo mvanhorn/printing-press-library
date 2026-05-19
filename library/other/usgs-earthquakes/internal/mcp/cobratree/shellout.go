@@ -46,13 +46,15 @@ func shellOutToCLI(cliPath func() (string, error), commandPath []string) server.
 // blockedRootFlags are root-level CLI flags that an MCP client must not be
 // able to override via structured tool parameters. Allowing them lets a
 // caller swap auth credentials, redirect the API base URL, load a malicious
-// config file, or change the delivery target — all of which sit outside the
+// config file, change the delivery target, or execute arbitrary shell
+// commands via a per-command --notify hook — all of which sit outside the
 // per-command surface the agent is supposed to be calling.
 var blockedRootFlags = map[string]bool{
 	"args":     true,
 	"base-url": true,
 	"config":   true,
 	"deliver":  true,
+	"notify":   true,
 	"profile":  true,
 	"token":    true,
 }
