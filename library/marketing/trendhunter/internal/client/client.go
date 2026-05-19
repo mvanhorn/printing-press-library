@@ -5,6 +5,7 @@ package client
 
 import (
 	"bytes"
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -65,26 +66,26 @@ func (c *Client) RateLimit() float64 {
 	return c.limiter.Rate()
 }
 
-func (c *Client) Get(path string, params map[string]string) (json.RawMessage, error) {
-	return c.GetWithHeaders(path, params, nil)
+func (c *Client) Get(ctx context.Context, path string, params map[string]string) (json.RawMessage, error) {
+	return c.GetWithHeaders(ctx, path, params, nil)
 }
 
-func (c *Client) GetWithHeaders(path string, params map[string]string, headers map[string]string) (json.RawMessage, error) {
+func (c *Client) GetWithHeaders(ctx context.Context, path string, params map[string]string, headers map[string]string) (json.RawMessage, error) {
 	// Check cache for GET requests
 	if !c.NoCache && !c.DryRun && c.cacheDir != "" {
 		if cached, ok := c.readCache(path, params); ok {
 			return cached, nil
 		}
 	}
-	result, _, err := c.do("GET", path, params, nil, headers)
+	result, _, err := c.do(ctx, "GET", path, params, nil, headers)
 	if err == nil && !c.NoCache && !c.DryRun && c.cacheDir != "" {
 		c.writeCache(path, params, result)
 	}
 	return result, err
 }
 
-func (c *Client) ProbeGet(path string) (int, error) {
-	_, status, err := c.do("GET", path, nil, nil, nil)
+func (c *Client) ProbeGet(ctx context.Context, path string) (int, error) {
+	_, status, err := c.do(ctx, "GET", path, nil, nil, nil)
 	return status, err
 }
 
@@ -142,41 +143,47 @@ func (c *Client) invalidateCache() {
 	_ = os.RemoveAll(c.cacheDir)
 }
 
-func (c *Client) Post(path string, body any) (json.RawMessage, int, error) {
-	return c.do("POST", path, nil, body, nil)
+func (c *Client) Post(ctx context.Context, path string, body any) (json.RawMessage, int, error) {
+	return c.do(ctx, "POST", path, nil, body, nil)
 }
 
-func (c *Client) PostWithHeaders(path string, body any, headers map[string]string) (json.RawMessage, int, error) {
-	return c.do("POST", path, nil, body, headers)
+func (c *Client) PostWithHeaders(ctx context.Context, path string, body any, headers map[string]string) (json.RawMessage, int, error) {
+	return c.do(ctx, "POST", path, nil, body, headers)
 }
 
-func (c *Client) Delete(path string) (json.RawMessage, int, error) {
-	return c.do("DELETE", path, nil, nil, nil)
+func (c *Client) Delete(ctx context.Context, path string) (json.RawMessage, int, error) {
+	return c.do(ctx, "DELETE", path, nil, nil, nil)
 }
 
-func (c *Client) DeleteWithHeaders(path string, headers map[string]string) (json.RawMessage, int, error) {
-	return c.do("DELETE", path, nil, nil, headers)
+func (c *Client) DeleteWithHeaders(ctx context.Context, path string, headers map[string]string) (json.RawMessage, int, error) {
+	return c.do(ctx, "DELETE", path, nil, nil, headers)
 }
 
-func (c *Client) Put(path string, body any) (json.RawMessage, int, error) {
-	return c.do("PUT", path, nil, body, nil)
+func (c *Client) Put(ctx context.Context, path string, body any) (json.RawMessage, int, error) {
+	return c.do(ctx, "PUT", path, nil, body, nil)
 }
 
-func (c *Client) PutWithHeaders(path string, body any, headers map[string]string) (json.RawMessage, int, error) {
-	return c.do("PUT", path, nil, body, headers)
+func (c *Client) PutWithHeaders(ctx context.Context, path string, body any, headers map[string]string) (json.RawMessage, int, error) {
+	return c.do(ctx, "PUT", path, nil, body, headers)
 }
 
-func (c *Client) Patch(path string, body any) (json.RawMessage, int, error) {
-	return c.do("PATCH", path, nil, body, nil)
+func (c *Client) Patch(ctx context.Context, path string, body any) (json.RawMessage, int, error) {
+	return c.do(ctx, "PATCH", path, nil, body, nil)
 }
 
-func (c *Client) PatchWithHeaders(path string, body any, headers map[string]string) (json.RawMessage, int, error) {
-	return c.do("PATCH", path, nil, body, headers)
+func (c *Client) PatchWithHeaders(ctx context.Context, path string, body any, headers map[string]string) (json.RawMessage, int, error) {
+	return c.do(ctx, "PATCH", path, nil, body, headers)
 }
 
-// do executes an HTTP request. headerOverrides, when non-nil, override global
-// RequiredHeaders for this specific request (used for per-endpoint API versioning).
-func (c *Client) do(method, path string, params map[string]string, body any, headerOverrides map[string]string) (json.RawMessage, int, error) {
+// do executes an HTTP request. ctx is propagated to http.NewRequestWithContext
+// so Ctrl+C / command-level timeouts cancel in-flight HTTP calls instead of
+// hanging for the full HTTPClient.Timeout. headerOverrides, when non-nil,
+// override global RequiredHeaders for this specific request (used for
+// per-endpoint API versioning).
+func (c *Client) do(ctx context.Context, method, path string, params map[string]string, body any, headerOverrides map[string]string) (json.RawMessage, int, error) {
+	if ctx == nil {
+		ctx = context.Background()
+	}
 	targetURL := c.BaseURL + path
 
 	var bodyBytes []byte
@@ -213,7 +220,7 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 			bodyReader = strings.NewReader(string(bodyBytes))
 		}
 
-		req, err := http.NewRequest(method, targetURL, bodyReader)
+		req, err := http.NewRequestWithContext(ctx, method, targetURL, bodyReader)
 		if err != nil {
 			return nil, 0, fmt.Errorf("creating request: %w", err)
 		}

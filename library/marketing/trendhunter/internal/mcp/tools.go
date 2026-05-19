@@ -215,18 +215,18 @@ func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, pos
 		var data json.RawMessage
 		switch method {
 		case "GET":
-			data, err = c.Get(path, params)
+			data, err = c.Get(ctx, path, params)
 		case "POST":
 			body, _ := json.Marshal(bodyArgs)
-			data, _, err = c.Post(path, body)
+			data, _, err = c.Post(ctx, path, body)
 		case "PUT":
 			body, _ := json.Marshal(bodyArgs)
-			data, _, err = c.Put(path, body)
+			data, _, err = c.Put(ctx, path, body)
 		case "PATCH":
 			body, _ := json.Marshal(bodyArgs)
-			data, _, err = c.Patch(path, body)
+			data, _, err = c.Patch(ctx, path, body)
 		case "DELETE":
-			data, _, err = c.Delete(path)
+			data, _, err = c.Delete(ctx, path)
 		default:
 			return mcplib.NewToolResultError("unsupported method: " + method), nil
 		}

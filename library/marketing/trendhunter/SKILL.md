@@ -112,7 +112,7 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ### Graph and synthesis
-- **`megatrend-map`** — Join the megatrend index, the related-trend graph, and keyword overlap into one view that maps free trends to a paid megatrend bucket.
+- **`megatrend-map`** — Walk the related-trend graph two levels deep from a starting slug, returning depth-1 and depth-2 related slugs so you can see which free trends cluster around a given concept.
 
   _Evaluators deciding whether a paid megatrend report is worth $295 can see which free trends ladder up to it._
 
@@ -238,7 +238,7 @@ Time-windowed publish velocity for trend hunters and futurists - the site's /sco
 trendhunter-pp-cli megatrend-map ai-clone --json
 ```
 
-Joins the megatrend index, the related-trend graph, and keyword overlap to show which free trends ladder up to one megatrend bucket.
+Walks the related-trend graph two levels deep from the starting slug, surfacing the depth-1 and depth-2 related slugs around the concept.
 
 ## Auth Setup
 

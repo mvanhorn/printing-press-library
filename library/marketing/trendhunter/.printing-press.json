@@ -48,7 +48,7 @@
     {
       "name": "Megatrend map",
       "command": "megatrend-map",
-      "description": "Join the megatrend index, the related-trend graph, and keyword overlap into one view that maps free trends to a paid megatrend bucket."
+      "description": "Walk the related-trend graph two levels deep from a starting slug, returning depth-1 and depth-2 related slugs."
     },
     {
       "name": "Agent brief",

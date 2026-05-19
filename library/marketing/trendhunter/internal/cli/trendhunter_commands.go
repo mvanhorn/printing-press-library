@@ -103,8 +103,8 @@ func thClient(flags *rootFlags) (*client.Client, error) {
 	return c, nil
 }
 
-func fetchTH(c *client.Client, path string, params map[string]string) ([]byte, error) {
-	data, err := c.GetWithHeaders(path, params, thBrowserHeaders)
+func fetchTH(ctx context.Context, c *client.Client, path string, params map[string]string) ([]byte, error) {
+	data, err := c.GetWithHeaders(ctx, path, params, thBrowserHeaders)
 	if err != nil {
 		return nil, err
 	}
@@ -167,7 +167,7 @@ func newTHLatestCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			body, err := fetchTH(c, "/rss", nil)
+			body, err := fetchTH(cmd.Context(), c, "/rss", nil)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -607,10 +607,9 @@ func newTHMegatrendMapCmd(flags *rootFlags) *cobra.Command {
 			}
 			sort.Strings(depth2)
 			return outputTH(cmd, flags, map[string]any{
-				"trend":                           t,
-				"related_at_depth_1":              depth1,
-				"related_at_depth_2":              depth2,
-				"keyword_overlap_with_megatrends": []any{},
+				"trend":              t,
+				"related_at_depth_1": depth1,
+				"related_at_depth_2": depth2,
 			})
 		},
 	}
@@ -767,7 +766,7 @@ func newTHPullCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			defer closeFn()
-			body, err := fetchTH(c, "/rss", nil)
+			body, err := fetchTH(cmd.Context(), c, "/rss", nil)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -780,7 +779,7 @@ func newTHPullCmd(flags *rootFlags) *cobra.Command {
 					return err
 				}
 			}
-			sitemapBody, err := fetchTH(c, "/sitemap.xml", nil)
+			sitemapBody, err := fetchTH(cmd.Context(), c, "/sitemap.xml", nil)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -807,7 +806,7 @@ func fetchCardCommand(cmd *cobra.Command, flags *rootFlags, path, source string)
 	if err != nil {
 		return err
 	}
-	body, err := fetchTH(c, path, nil)
+	body, err := fetchTH(cmd.Context(), c, path, nil)
 	if err != nil {
 		return classifyAPIError(err, flags)
 	}
@@ -823,7 +822,7 @@ func fetchCategory(ctx context.Context, flags *rootFlags, category string) ([]th
 	if err != nil {
 		return nil, err
 	}
-	body, err := fetchTH(c, "/"+strings.Trim(category, "/"), nil)
+	body, err := fetchTH(ctx, c, "/"+strings.Trim(category, "/"), nil)
 	if err != nil {
 		return nil, classifyAPIError(err, flags)
 	}
@@ -834,7 +833,6 @@ func fetchCategory(ctx context.Context, flags *rootFlags, category string) ([]th
 	for i := range trends {
 		trends[i].Category = category
 	}
-	_ = ctx
 	return trends, nil
 }
 
@@ -844,11 +842,10 @@ func fetchTrendDetail(ctx context.Context, flags *rootFlags, slug string) (*thpa
 		return nil, err
 	}
 	path := "/trends/" + strings.Trim(slug, "/")
-	body, err := fetchTH(c, path, nil)
+	body, err := fetchTH(ctx, c, path, nil)
 	if err != nil {
 		return nil, classifyAPIError(err, flags)
 	}
-	_ = ctx
 	return thparse.ParseTrendPage(body, "https://www.trendhunter.com"+path)
 }
 
