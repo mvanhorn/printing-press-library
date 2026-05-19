@@ -24,21 +24,26 @@ func newChangesCmd(flags *rootFlags) *cobra.Command {
 	)
 	cmd := &cobra.Command{
 		Use:   "changes",
-		Short: "Stateful diff since the last sync: new events, magnitude/depth/alert revisions, deletions",
+		Short: "Stateful diff since the last sync: new events and magnitude/alert/status revisions",
 		Long: `Detect what changed in the USGS catalog since you last synced.
 
-A 'revisions' table is populated incrementally by 'sync' (compares pre/post
-values per event on mag, depth, alert, status, updated time). This command
-queries that table for the window you ask about.
+A 'revisions' table is populated incrementally by 'sync' (a SQLite BEFORE
+INSERT trigger on the resources table compares pre/post values per event on
+mag, alert, and status). This command queries that table for the window you
+ask about.
 
 Filter by --type:
-  new      — events that appeared in the catalog
-  revised  — events whose magnitude/depth/alert/status changed (use --min-mag-delta)
-  deleted  — events removed from the catalog
+  new      — events that appeared in the local store on a sync run
+  revised  — events whose magnitude/alert/status changed (use --min-mag-delta)
 
-On a fresh install, the revisions table is empty until at least two sync
-runs have completed. First-run output will simply note 'no revisions
-recorded yet'.`,
+Note: detecting events that USGS removed from the upstream catalog (true
+'deleted' semantics) would require a sync-time pass that diffs the local
+store against the live FDSN response; that pass is not implemented in this
+CLI, so 'deleted' is intentionally NOT a supported --type filter. The
+revisions table reflects only what sync upserts touched.
+
+On a fresh install, the revisions table is empty until the first sync run
+populates it. First-run output simply notes 'no revisions recorded yet'.`,
 		Example: strings.Trim(`
   # What's revised since yesterday with at least 0.3 magnitude delta
   usgs-earthquakes-pp-cli changes --since 24h --type revised --min-mag-delta 0.3 --json
@@ -55,6 +60,9 @@ recorded yet'.`,
 				return nil
 			}
 			ctx := cmd.Context()
+			if ct := strings.ToLower(strings.TrimSpace(changeType)); ct != "" && ct != "new" && ct != "revised" {
+				return usageErr(fmt.Errorf("--type must be one of: new, revised (got %q). 'deleted' is intentionally unsupported — see `usgs-earthquakes-pp-cli changes --help`", changeType))
+			}
 			startT, err := parseSinceArg(since)
 			if err != nil {
 				return usageErr(err)
@@ -157,7 +165,7 @@ recorded yet'.`,
 		},
 	}
 	cmd.Flags().StringVar(&since, "since", "24h", "Lookback window (24h, 7d, ISO 8601 timestamp)")
-	cmd.Flags().StringVar(&changeType, "type", "", "Change type filter: new | revised | deleted (default: all)")
+	cmd.Flags().StringVar(&changeType, "type", "", "Change type filter: new | revised (default: all). 'deleted' is intentionally not supported — detecting upstream-removed events requires a sync-time catalog diff that this CLI does not currently implement.")
 	cmd.Flags().Float64Var(&minMagDelta, "min-mag-delta", 0, "When --type revised, require absolute magnitude delta >= this value")
 	cmd.Flags().IntVar(&limit, "limit", 500, "Max changes to return")
 	return cmd
