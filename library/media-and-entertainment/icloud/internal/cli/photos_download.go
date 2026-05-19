@@ -16,6 +16,7 @@ import (
 func newDownloadCmd(f *rootFlags) *cobra.Command {
 	var outputDir string
 	var sensitive bool
+	var confirm bool
 	var mediaType string
 	var limit int
 
@@ -37,8 +38,8 @@ Get UUIDs from any read command:
 		Example: `  # Export a specific item by UUID
   icloud-pp-cli photos download --output ~/Desktop 6799AE02-EE45-4469-8AC9-1443582A828E
 
-  # Export a random 10 sensitive videos to a folder
-  icloud-pp-cli photos download --sensitive --type video --limit 10 --output ~/Desktop/naked
+  # Export a random 10 sensitive videos to a folder (requires --confirm)
+  icloud-pp-cli photos download --sensitive --confirm --type video --limit 10 --output ~/Desktop/export
 
   # Pipe the 5 largest videos into download
   icloud-pp-cli photos top --type video --limit 5 --json \
@@ -53,6 +54,12 @@ Get UUIDs from any read command:
 			}
 			if mediaType != "all" && mediaType != "photo" && mediaType != "video" {
 				return usageErr(fmt.Errorf("--type must be one of: all, photo, video"))
+			}
+			if sensitive && !confirm {
+				return usageErr(fmt.Errorf(
+					"--sensitive requires --confirm\n\n" +
+						"This flag targets content Apple's on-device ML has flagged as nudity.\n" +
+						"Add --confirm to acknowledge and proceed with the export."))
 			}
 
 			out := cmd.OutOrStdout()
@@ -120,7 +127,8 @@ Get UUIDs from any read command:
 	}
 
 	cmd.Flags().StringVarP(&outputDir, "output", "o", ".", "Destination folder for exported files")
-	cmd.Flags().BoolVar(&sensitive, "sensitive", false, "Export items flagged as containing sensitive content")
+	cmd.Flags().BoolVar(&sensitive, "sensitive", false, "Export items flagged as containing sensitive content (requires --confirm)")
+	cmd.Flags().BoolVar(&confirm, "confirm", false, "Required when using --sensitive: acknowledge export of nudity-flagged content")
 	cmd.Flags().StringVar(&mediaType, "type", "all", "Media type when using --sensitive: all, photo, video")
 	cmd.Flags().IntVar(&limit, "limit", 10, "Max items to export when using --sensitive (0 = all)")
 

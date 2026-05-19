@@ -32,7 +32,13 @@ This CLI is macOS-only. Every database command guards against non-Darwin platfor
 
 ## Read vs. Write
 
-All `photos` subcommands except `delete` are read-only — they open Photos.sqlite in `mode=ro`. The `photos delete` command drives Photos.app via AppleScript (`osascript`) and requires `--confirm` to move items to Recently Deleted. Items are NOT permanently deleted — they stay in Recently Deleted for 30 days.
+The `photos` subcommands fall into two categories:
+
+**Read-only** (`stats`, `storage`, `top`, `videos`) — open Photos.sqlite with `mode=ro&_query_only=1`. Safe to run at any time; no Photos.app involvement.
+
+**Write** (`delete`, `download`) — drive Photos.app via AppleScript (`osascript`):
+- `photos delete` requires `--confirm` to move items to Recently Deleted. Items are NOT permanently deleted — they stay in Recently Deleted for 30 days.
+- `photos download` exports originals to a local folder. When `--sensitive` is used (targets Apple's on-device nudity-flagged assets), `--confirm` is also required to prevent accidental bulk export of private content.
 
 ## Local Customizations
 

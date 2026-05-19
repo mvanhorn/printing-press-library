@@ -59,6 +59,8 @@ icloud-pp-cli doctor --library "/Volumes/External/Photos Library.photoslibrary/d
 - `icloud-pp-cli photos top` — Top heaviest files across all media types.
 - `icloud-pp-cli photos videos` — List your largest videos sorted by file size.
 - `icloud-pp-cli photos delete <uuid...>` — Move items to Recently Deleted in Photos.app (requires `--confirm`).
+- `icloud-pp-cli photos download [uuid...] --output <dir>` — Export originals from iCloud to a local folder. Photos.app downloads from iCloud automatically if Optimize Mac Storage is enabled.
+- `icloud-pp-cli photos download --sensitive --confirm --output <dir>` — Export items Apple's on-device ML has flagged as containing nudity (`--confirm` required).
 
 **doctor** — Run pre-flight checks before using any other command.
 
