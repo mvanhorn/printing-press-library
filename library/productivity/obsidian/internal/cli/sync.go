@@ -171,6 +171,10 @@ is skipped unless --full is passed.`,
 			syncedCount := 0
 			skippedCount := 0
 			errorCount := 0
+			// Track every .md path the walker considered so the post-loop
+			// pruning step can delete notes whose vault files no longer
+			// exist. Using a set (map keys) avoids O(n) lookups.
+			processedMD := make(map[string]struct{}, len(files))
 			for i, rel := range files {
 				if maxFiles > 0 && i >= maxFiles {
 					break
@@ -178,6 +182,7 @@ is skipped unless --full is passed.`,
 				if !strings.HasSuffix(strings.ToLower(rel), ".md") {
 					continue
 				}
+				processedMD[rel] = struct{}{}
 				absPath := filepath.Join(vaultPath, rel)
 				info, err := os.Stat(absPath)
 				if err != nil {
@@ -196,6 +201,25 @@ is skipped unless --full is passed.`,
 					continue
 				}
 				syncedCount++
+			}
+
+			// Prune notes whose vault files were deleted between syncs.
+			// Only safe to do when the file list reflects the complete
+			// vault: skip pruning when --max-files capped the walk, when
+			// --folder narrowed it, or when the previous loop hit an
+			// errored Stat (we don't want a transient filesystem error to
+			// mass-delete the mirror). ON DELETE CASCADE on the child
+			// tables (obsidian_tags / obsidian_links / frontmatter_kv)
+			// handles the cleanup.
+			deletedCount := 0
+			pruneEligible := maxFiles == 0 && folder == "" && errorCount == 0
+			if pruneEligible {
+				var n int
+				n, err = pruneDeletedNotes(db, processedMD)
+				if err != nil {
+					return fmt.Errorf("pruning deleted notes: %w", err)
+				}
+				deletedCount = n
 			}
 
 			now := time.Now().UTC().Format(time.RFC3339)
@@ -218,6 +242,7 @@ is skipped unless --full is passed.`,
 					"synced":       syncedCount,
 					"skipped":      skippedCount,
 					"errored":      errorCount,
+					"deleted":      deletedCount,
 					"max_files":    maxFiles,
 					"duration_ms":  elapsed.Milliseconds(),
 					"last_sync_at": now,
@@ -226,8 +251,8 @@ is skipped unless --full is passed.`,
 				return nil
 			}
 			fmt.Fprintf(cmd.OutOrStdout(),
-				"Sync complete in %s: synced=%d skipped=%d errored=%d (vault %s, %d files total)\n",
-				elapsed.Round(time.Millisecond), syncedCount, skippedCount, errorCount, vaultPath, len(files))
+				"Sync complete in %s: synced=%d skipped=%d errored=%d deleted=%d (vault %s, %d files total)\n",
+				elapsed.Round(time.Millisecond), syncedCount, skippedCount, errorCount, deletedCount, vaultPath, len(files))
 			return nil
 		},
 	}
@@ -529,4 +554,60 @@ func readLastSync(db *sql.DB) (time.Time, bool) {
 		return time.Time{}, false
 	}
 	return t, true
+}
+
+// pruneDeletedNotes removes rows from `notes` whose `path` is not in
+// the set of paths the sync walker just processed. Vault deletions
+// would otherwise leave ghost notes that every Tier-3 command silently
+// includes in its calculations.
+//
+// Callers must guarantee `keep` reflects the COMPLETE current vault
+// (no --max-files cap, no --folder scope, no errored Stat). The
+// schema's ON DELETE CASCADE on `obsidian_tags`, `obsidian_links`, and
+// `frontmatter_kv` handles the child rows.
+//
+// Returns the number of notes deleted.
+func pruneDeletedNotes(db *store.Store, keep map[string]struct{}) (int, error) {
+	dbi := db.DB()
+	rows, err := dbi.Query(`SELECT path FROM notes`)
+	if err != nil {
+		return 0, fmt.Errorf("listing mirror notes: %w", err)
+	}
+	defer rows.Close()
+	var stale []string
+	for rows.Next() {
+		var p string
+		if err := rows.Scan(&p); err != nil {
+			return 0, err
+		}
+		if _, ok := keep[p]; !ok {
+			stale = append(stale, p)
+		}
+	}
+	if err := rows.Err(); err != nil {
+		return 0, err
+	}
+	if len(stale) == 0 {
+		return 0, nil
+	}
+	tx, err := dbi.BeginTx(context.Background(), nil)
+	if err != nil {
+		return 0, fmt.Errorf("begin prune tx: %w", err)
+	}
+	committed := false
+	defer func() {
+		if !committed {
+			_ = tx.Rollback()
+		}
+	}()
+	for _, p := range stale {
+		if _, err := tx.Exec(`DELETE FROM notes WHERE path = ?`, p); err != nil {
+			return 0, fmt.Errorf("deleting %s: %w", p, err)
+		}
+	}
+	if err := tx.Commit(); err != nil {
+		return 0, fmt.Errorf("commit prune tx: %w", err)
+	}
+	committed = true
+	return len(stale), nil
 }
