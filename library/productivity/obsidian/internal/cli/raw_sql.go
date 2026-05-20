@@ -117,7 +117,12 @@ The mirror schema:
 				counter++
 			}
 
-			emitStalenessWarning(cmd, mustOpenForWarning(cmd, dbPath))
+			// Reuse the already-open read-only handle for the staleness
+			// hint. The prior approach opened a second `*store.Store` via
+			// mustOpenForWarning() and never closed it — under the
+			// long-running MCP server each `vault-sql` invocation leaked
+			// one DB handle.
+			emitStalenessWarning(cmd, db)
 
 			if flags.asJSON {
 				out, _ := json.MarshalIndent(map[string]any{
@@ -169,17 +174,6 @@ func normalizeScanned(v any) any {
 	default:
 		return x
 	}
-}
-
-// mustOpenForWarning returns a transient read-write handle for the
-// staleness-warning side effect. Returns nil on error;
-// emitStalenessWarning short-circuits on a nil handle.
-func mustOpenForWarning(cmd *cobra.Command, dbPath string) *store.Store {
-	s, err := store.OpenWithContext(cmd.Context(), dbPath)
-	if err != nil {
-		return nil
-	}
-	return s
 }
 
 // Mark the sql import as used; some callers expect it transitively.
