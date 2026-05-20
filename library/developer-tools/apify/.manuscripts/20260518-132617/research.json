@@ -1,0 +1,340 @@
+{
+  "api_name": "apify",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "apify-cli",
+      "url": "https://github.com/apify/apify-cli",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 25,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "apify-mcp-server",
+      "url": "https://github.com/apify/apify-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "apify-client-js",
+      "url": "https://github.com/apify/apify-client-js",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "apify-client-python",
+      "url": "https://github.com/apify/apify-client-python",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "apify-client-rs",
+      "url": "https://github.com/metalwarrior665/apify-client-rs",
+      "language": "Rust",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-18T18:32:00Z",
+  "novel_features": [
+    {
+      "name": "Novelty diffing",
+      "command": "run",
+      "description": "Run an Actor and emit only items not seen in prior runs of that Actor.",
+      "rationale": "Local SQLite of prior dataset items lets us URL+content-hash diff every run; no API or other tool has memory of prior runs.",
+      "example": "apify-pp run trudax/reddit-scraper --input @sub-list.json --only-new --format markdown",
+      "why_it_matters": "Reach for this when you need 'what's new since last run' across recurring scrapes for a newsletter or alert workflow.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cross-actor dataset FTS",
+      "command": "search",
+      "description": "Full-text search across every cached dataset from every Actor, normalized into a common schema.",
+      "rationale": "SQLite FTS5 over a normalized cross-Actor schema in the local store; Apify offers no cross-dataset search and the official CLI fetches one dataset at a time.",
+      "example": "apify-pp search \"model context protocol\" --since 7d --actors twitter,reddit,hn --json --select url,title,source_actor",
+      "why_it_matters": "Use this when you want 'what did anyone say about X this week' without juggling 8 dataset IDs.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "True cost ledger",
+      "command": "cost report",
+      "description": "Per-run USD cost report joining cached run metadata with the Apify monthly usage endpoint.",
+      "rationale": "Joins runs with users/me/usage to expose per-run cost (CU + RAM-hours + storage + PPE); the dashboard only shows aggregates and the API exposes raw numbers without rollup.",
+      "example": "apify-pp cost report --since 30d --group-by actor,schedule --json",
+      "why_it_matters": "Reach for this whenever the user asks 'why is my Apify bill so high' or 'which Actor costs most per useful item.'",
+      "group": "Cost discipline"
+    },
+    {
+      "name": "Newsletter digest renderer",
+      "command": "digest",
+      "description": "Render a markdown digest from local store: dedupe by URL + title-similarity, rank by engagement+recency+novelty, fill a Go template.",
+      "rationale": "Requires the local normalized FTS store plus novelty + dedupe; nothing in the Apify stack renders markdown digests.",
+      "example": "apify-pp digest --topic \"AI dev tools\" --since 24h --template weekly.tmpl",
+      "why_it_matters": "Use this as the last step of any newsletter / weekly report workflow; output is ready to paste into Beehiiv or pipe to a writer agent.",
+      "group": "Newsletter workflows"
+    },
+    {
+      "name": "Curated weekly workflow",
+      "command": "workflow run",
+      "description": "Run a YAML-declared workflow that chains run → normalize → novelty → digest → publish across multiple Actors.",
+      "rationale": "Replaces a 200-line bash script with one declarative file Claude or another agent can invoke as a single MCP tool.",
+      "example": "apify-pp workflow run ./weekly-newsletter.yaml --json",
+      "why_it_matters": "Use this when the user wants a recurring 'fire one command, get the newsletter' pipeline rather than orchestrating Actor calls by hand.",
+      "group": "Newsletter workflows"
+    },
+    {
+      "name": "Schedule-as-code",
+      "command": "schedule apply",
+      "description": "Declarative cron + Actor input bundle with terraform-style plan/apply/diff against the live Apify schedule API.",
+      "rationale": "Dashboard-managed schedules drift; YAML in git is auditable and the Apify schedule API has no first-party GitOps story.",
+      "example": "apify-pp schedule apply ./schedules.yaml --dry-run \u0026\u0026 apify-pp schedule diff",
+      "why_it_matters": "Reach for this when the user manages 3+ schedules and wants them version-controlled.",
+      "group": "GitOps"
+    },
+    {
+      "name": "Cost budget enforcement",
+      "command": "run --max-cost",
+      "description": "Pre-flight cost projection from local p50/p90 of past runs for the same Actor; aborts run if projection exceeds budget.",
+      "rationale": "Apify has org-level limits but no per-invocation guard; only feasible because we have local run history.",
+      "example": "apify-pp run apidojo/twitter-scraper-lite --input @q.json --max-cost 0.50 --max-cu 100",
+      "why_it_matters": "Use this on any long-tail or untrusted Actor to fail-closed on cost rather than learning about it on the invoice.",
+      "group": "Cost discipline"
+    },
+    {
+      "name": "Input presets",
+      "command": "preset save",
+      "description": "Capture known-good Actor input JSON from a prior run and replay with overrides.",
+      "rationale": "Apify's input templates live in Actor READMEs, not in the user's workflow; we persist them locally.",
+      "example": "apify-pp preset save twitter weekly-ai --from-run abc123 \u0026\u0026 apify-pp call twitter --preset weekly-ai --override startUrls=@new-list.txt",
+      "why_it_matters": "Use this to stop hand-rebuilding input JSON every time you re-run a recurring scrape.",
+      "group": "Repeatability"
+    },
+    {
+      "name": "Actor A/B cost+quality test",
+      "command": "ab run",
+      "description": "Run the same input through two competing Actors, normalize via unified schema, report cost-per-novel-item and overlap percentage.",
+      "rationale": "Impossible without the local normalize + novelty layers; nothing else lets you compare two scrapers head-to-head.",
+      "example": "apify-pp ab run apidojo/tweet-scraper kaitoeasyapi/twitter-x-data-tweet-scraper-pay-per-result-cheapest --input shared.json --judge novelty --json",
+      "why_it_matters": "Reach for this whenever the user wonders 'is the cheaper Actor good enough' before committing to a recurring schedule.",
+      "group": "Cost discipline"
+    },
+    {
+      "name": "Local replay mode",
+      "command": "digest --offline",
+      "description": "Run queries and template renders against the local SQLite copy of past datasets without hitting the API.",
+      "rationale": "Apify charges for every dataset read; we already cached the items, so further iteration is free.",
+      "example": "apify-pp digest --offline --topic AI --since 7d --template draft.tmpl",
+      "why_it_matters": "Use this while tuning templates or dedupe heuristics so iteration is free.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Novelty diffing",
+      "command": "run",
+      "description": "Run an Actor and emit only items not seen in prior runs of that Actor.",
+      "rationale": "Local SQLite of prior dataset items lets us URL+content-hash diff every run; no API or other tool has memory of prior runs.",
+      "example": "apify-pp run trudax/reddit-scraper --input @sub-list.json --only-new --format markdown",
+      "why_it_matters": "Reach for this when you need 'what's new since last run' across recurring scrapes for a newsletter or alert workflow.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cross-actor dataset FTS",
+      "command": "search",
+      "description": "Full-text search across every cached dataset from every Actor, normalized into a common schema.",
+      "rationale": "SQLite FTS5 over a normalized cross-Actor schema in the local store; Apify offers no cross-dataset search and the official CLI fetches one dataset at a time.",
+      "example": "apify-pp search \"model context protocol\" --since 7d --actors twitter,reddit,hn --json --select url,title,source_actor",
+      "why_it_matters": "Use this when you want 'what did anyone say about X this week' without juggling 8 dataset IDs.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "True cost ledger",
+      "command": "cost report",
+      "description": "Per-run USD cost report joining cached run metadata with the Apify monthly usage endpoint.",
+      "rationale": "Joins runs with users/me/usage to expose per-run cost (CU + RAM-hours + storage + PPE); the dashboard only shows aggregates and the API exposes raw numbers without rollup.",
+      "example": "apify-pp cost report --since 30d --group-by actor,schedule --json",
+      "why_it_matters": "Reach for this whenever the user asks 'why is my Apify bill so high' or 'which Actor costs most per useful item.'",
+      "group": "Cost discipline"
+    },
+    {
+      "name": "Newsletter digest renderer",
+      "command": "digest",
+      "description": "Render a markdown digest from local store: dedupe by URL + title-similarity, rank by engagement+recency+novelty, fill a Go template.",
+      "rationale": "Requires the local normalized FTS store plus novelty + dedupe; nothing in the Apify stack renders markdown digests.",
+      "example": "apify-pp digest --topic \"AI dev tools\" --since 24h --template weekly.tmpl",
+      "why_it_matters": "Use this as the last step of any newsletter / weekly report workflow; output is ready to paste into Beehiiv or pipe to a writer agent.",
+      "group": "Newsletter workflows"
+    },
+    {
+      "name": "Curated weekly workflow",
+      "command": "workflow run",
+      "description": "Run a YAML-declared workflow that chains run → normalize → novelty → digest → publish across multiple Actors.",
+      "rationale": "Replaces a 200-line bash script with one declarative file Claude or another agent can invoke as a single MCP tool.",
+      "example": "apify-pp workflow run ./weekly-newsletter.yaml --json",
+      "why_it_matters": "Use this when the user wants a recurring 'fire one command, get the newsletter' pipeline rather than orchestrating Actor calls by hand.",
+      "group": "Newsletter workflows"
+    },
+    {
+      "name": "Schedule-as-code",
+      "command": "schedule apply",
+      "description": "Declarative cron + Actor input bundle with terraform-style plan/apply/diff against the live Apify schedule API.",
+      "rationale": "Dashboard-managed schedules drift; YAML in git is auditable and the Apify schedule API has no first-party GitOps story.",
+      "example": "apify-pp schedule apply ./schedules.yaml --dry-run \u0026\u0026 apify-pp schedule diff",
+      "why_it_matters": "Reach for this when the user manages 3+ schedules and wants them version-controlled.",
+      "group": "GitOps"
+    },
+    {
+      "name": "Cost budget enforcement",
+      "command": "run --max-cost",
+      "description": "Pre-flight cost projection from local p50/p90 of past runs for the same Actor; aborts run if projection exceeds budget.",
+      "rationale": "Apify has org-level limits but no per-invocation guard; only feasible because we have local run history.",
+      "example": "apify-pp run apidojo/twitter-scraper-lite --input @q.json --max-cost 0.50 --max-cu 100",
+      "why_it_matters": "Use this on any long-tail or untrusted Actor to fail-closed on cost rather than learning about it on the invoice.",
+      "group": "Cost discipline"
+    },
+    {
+      "name": "Input presets",
+      "command": "preset save",
+      "description": "Capture known-good Actor input JSON from a prior run and replay with overrides.",
+      "rationale": "Apify's input templates live in Actor READMEs, not in the user's workflow; we persist them locally.",
+      "example": "apify-pp preset save twitter weekly-ai --from-run abc123 \u0026\u0026 apify-pp call twitter --preset weekly-ai --override startUrls=@new-list.txt",
+      "why_it_matters": "Use this to stop hand-rebuilding input JSON every time you re-run a recurring scrape.",
+      "group": "Repeatability"
+    },
+    {
+      "name": "Actor A/B cost+quality test",
+      "command": "ab run",
+      "description": "Run the same input through two competing Actors, normalize via unified schema, report cost-per-novel-item and overlap percentage.",
+      "rationale": "Impossible without the local normalize + novelty layers; nothing else lets you compare two scrapers head-to-head.",
+      "example": "apify-pp ab run apidojo/tweet-scraper kaitoeasyapi/twitter-x-data-tweet-scraper-pay-per-result-cheapest --input shared.json --judge novelty --json",
+      "why_it_matters": "Reach for this whenever the user wonders 'is the cheaper Actor good enough' before committing to a recurring schedule.",
+      "group": "Cost discipline"
+    },
+    {
+      "name": "Local replay mode",
+      "command": "digest --offline",
+      "description": "Run queries and template renders against the local SQLite copy of past datasets without hitting the API.",
+      "rationale": "Apify charges for every dataset read; we already cached the items, so further iteration is free.",
+      "example": "apify-pp digest --offline --topic AI --since 7d --template draft.tmpl",
+      "why_it_matters": "Use this while tuning templates or dedupe heuristics so iteration is free.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "Apify",
+    "headline": "Every Apify platform feature, plus a local SQLite store, cross-Actor search, novelty diffing, cost-aware runs, and newsletter-ready digests no other Apify tool offers.",
+    "value_prop": "apify-pp-cli is the operator CLI for the Apify platform — agent-native JSON across every endpoint, plus a layer of features built on top of a local store that the official CLI, SDKs, and MCP can't reach: cross-Actor full-text search (`search`), novel-only runs (`run --only-new`), per-run cost ledger (`cost report`), and templated newsletter digests (`digest`).",
+    "auth_narrative": "Set `APIFY_TOKEN` (from Apify Console → Settings → Integrations) or run `apify-pp auth set-token`. The CLI validates the token against `/v2/users/me` before any call. The query-param `?token=` form is supported but discouraged.",
+    "quickstart": [
+      {
+        "command": "apify-pp-cli doctor",
+        "comment": "Verify token, API reachability, and quota status."
+      },
+      {
+        "command": "apify-pp-cli store get --json",
+        "comment": "Browse the public Actor store (no auth required)."
+      },
+      {
+        "command": "apify-pp-cli run apidojo/twitter-scraper-lite --input @input.json --wait --json",
+        "comment": "Run an Actor and block until terminal state, with cost projection."
+      },
+      {
+        "command": "apify-pp-cli run trudax/reddit-scraper --input @input.json --wait --only-new --format markdown",
+        "comment": "Run an Actor and emit only items not seen in prior runs."
+      },
+      {
+        "command": "apify-pp-cli search items 'AI' --since 7d --agent",
+        "comment": "Full-text search across every cached dataset item, normalized."
+      },
+      {
+        "command": "apify-pp-cli digest --topic AI --since 24h --template default --agent",
+        "comment": "Render a newsletter-ready markdown digest from the local store."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 token-invalid",
+        "fix": "Re-run `apify-pp auth set-token` with a fresh token from Apify Console → Settings → Integrations."
+      },
+      {
+        "symptom": "Run stuck in READY/RUNNING",
+        "fix": "Check `apify-pp runs log \u003cid\u003e --follow`; abort with `apify-pp runs abort \u003cid\u003e` if the Actor is hung."
+      },
+      {
+        "symptom": "Cost report shows zero rows",
+        "fix": "Run `apify-pp sync --runs --since 30d` to backfill local run metadata first."
+      },
+      {
+        "symptom": "`--only-new` returns every item",
+        "fix": "No prior runs for that Actor are in the local store yet; the second run onward will dedupe."
+      },
+      {
+        "symptom": "Schedule diff shows unexpected drift",
+        "fix": "Someone edited the schedule in the dashboard; reconcile with `apify-pp schedule pull \u003e schedules.yaml`."
+      }
+    ],
+    "when_to_use": "Reach for apify-pp-cli when you need to orchestrate multiple Apify Actors as part of a recurring research, scraping, or newsletter pipeline. It's the right tool when you want per-run cost visibility, novel-only output, cross-Actor search, or schedule-as-code. For Actor development (writing your own scrapers), use the official `apify-cli`; this CLI is for platform operators.",
+    "recipes": [
+      {
+        "title": "Weekly newsletter scrape",
+        "command": "apify-pp-cli workflow run ./weekly-newsletter.yaml --agent",
+        "explanation": "One YAML-declared chain across Twitter + Reddit + HN + News scrapers; emits a single newsletter-ready digest."
+      },
+      {
+        "title": "Cost-capped exploratory run",
+        "command": "apify-pp-cli run apidojo/tweet-scraper --input @q.json --max-cost 0.25 --wait --agent",
+        "explanation": "Pre-flight projection from local history; aborts before start if projected cost exceeds budget."
+      },
+      {
+        "title": "Cross-Actor topic search (compact)",
+        "command": "apify-pp-cli search items 'agent' --since 30d --agent --select items.url,items.title,items.source_actor,items.published_at",
+        "explanation": "FTS5 over the local store; use `--select` with dotted paths to avoid pulling the full normalized item payload."
+      },
+      {
+        "title": "Schedule drift check",
+        "command": "apify-pp-cli schedules diff ./schedules.yaml --agent",
+        "explanation": "Terraform-style diff between local YAML and the live Apify schedules; output is a JSON change set."
+      },
+      {
+        "title": "A/B test two Twitter scrapers",
+        "command": "apify-pp-cli ab run apidojo/tweet-scraper kaitoeasyapi/twitter-x-data-tweet-scraper --input @shared.json --judge cost-per-novel --agent",
+        "explanation": "Runs both, normalizes via unified schema, reports cost-per-novel-item and overlap %."
+      }
+    ],
+    "trigger_phrases": [
+      "scrape twitter for AI mentions",
+      "run apify actor",
+      "what's new in my reddit scraper",
+      "build a newsletter from this week's scrapes",
+      "how much did my apify scrapes cost this month",
+      "use apify",
+      "run apify"
+    ]
+  }
+}

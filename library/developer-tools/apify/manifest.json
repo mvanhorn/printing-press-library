@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "apify-pp-mcp",
+  "display_name": "Apify",
+  "version": "4.8.0",
+  "description": "Apify API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/apify-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/apify-pp-mcp",
+      "args": [],
+      "env": {
+        "APIFY_TOKEN": "${user_config.apify_token}"
+      }
+    }
+  },
+  "user_config": {
+    "apify_token": {
+      "type": "string",
+      "title": "APIFY_TOKEN",
+      "description": "Sets APIFY_TOKEN for the Apify MCP server. Get a credential from https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Authorization.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

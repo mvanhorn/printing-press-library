@@ -1,0 +1,7 @@
+actor: apify/hacker-news-scraper
+title: [title]
+url: [url, hnUrl]
+body: [text, content]
+author: [author, by]
+published_at: [createdAt, created_at, time]
+engagement: [score, points, numberOfComments]

@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-18T19:12:22.18078Z",
+  "printing_press_version": "4.8.0",
+  "api_name": "apify",
+  "display_name": "Apify",
+  "cli_name": "apify-pp-cli",
+  "owner": "kevin-magnan",
+  "printer": "kjmagnan1s",
+  "printer_name": "Kevin Magnan",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:c8a1e9960029ce667a1bed2844639225f7a07ca80619d3a9c186565156bc6b44",
+  "run_id": "20260518-132617",
+  "mcp_binary": "apify-pp-mcp",
+  "mcp_tool_count": 231,
+  "mcp_public_tool_count": 11,
+  "mcp_ready": "full",
+  "api_version": "v2-2026-05-17T220227Z",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "APIFY_TOKEN"
+  ],
+  "auth_key_url": "https://console.apify.com/account#/integrations",
+  "novel_features": [
+    {
+      "name": "Novelty diffing",
+      "command": "run",
+      "description": "Run an Actor and emit only items not seen in prior runs of that Actor."
+    },
+    {
+      "name": "Cross-actor dataset FTS",
+      "command": "search items",
+      "description": "Full-text search across every cached dataset from every Actor, normalized into a common schema."
+    },
+    {
+      "name": "True cost ledger",
+      "command": "cost report",
+      "description": "Per-run USD cost report joining cached run metadata with the Apify monthly usage endpoint."
+    },
+    {
+      "name": "Newsletter digest renderer",
+      "command": "digest",
+      "description": "Render a markdown digest from local store: dedupe by URL + title-similarity, rank by engagement+recency+novelty, fill a Go template."
+    },
+    {
+      "name": "Curated weekly workflow",
+      "command": "workflow run",
+      "description": "Run a YAML-declared workflow that chains run → normalize → novelty → digest → publish across multiple Actors."
+    },
+    {
+      "name": "Schedule-as-code",
+      "command": "schedules apply",
+      "description": "Declarative cron + Actor input bundle with terraform-style plan/apply/diff against the live Apify schedule API."
+    },
+    {
+      "name": "Cost budget enforcement",
+      "command": "run --max-cost",
+      "description": "Pre-flight cost projection from local p50/p90 of past runs for the same Actor; aborts run if projection exceeds budget."
+    },
+    {
+      "name": "Input presets",
+      "command": "preset save",
+      "description": "Capture known-good Actor input JSON from a prior run and replay with overrides."
+    },
+    {
+      "name": "Actor A/B cost+quality test",
+      "command": "ab run",
+      "description": "Run the same input through two competing Actors, normalize via unified schema, report cost-per-novel-item and overlap percentage."
+    },
+    {
+      "name": "Local replay mode",
+      "command": "digest --offline",
+      "description": "Run queries and template renders against the local SQLite copy of past datasets without hitting the API."
+    }
+  ]
+}
