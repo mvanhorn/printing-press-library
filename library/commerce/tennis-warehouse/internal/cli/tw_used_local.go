@@ -526,11 +526,13 @@ per-model unit lists on the order page — there's no aggregate view.`,
 					MIN(u.price) AS min_price, MAX(u.price) AS max_price
 				FROM used_models m JOIN used_units u ON u.pcode = m.pcode
 				WHERE COALESCE(u.notes,'') != 'sold_out'`
+			var argsSQL []any
 			if brand != "" {
-				q += " AND LOWER(m.brand) = '" + strings.ReplaceAll(strings.ToLower(brand), "'", "''") + "'"
+				q += " AND LOWER(m.brand) = ?"
+				argsSQL = append(argsSQL, strings.ToLower(brand))
 			}
 			q += " GROUP BY m.pcode, m.brand, m.model ORDER BY total DESC"
-			rows, err := s.DB().QueryContext(ctx, q)
+			rows, err := s.DB().QueryContext(ctx, q, argsSQL...)
 			if err != nil {
 				return err
 			}
