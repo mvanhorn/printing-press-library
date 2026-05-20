@@ -116,7 +116,7 @@ func ParseRacquetCatalog(html, brand string) ([]Racquet, error) {
 			r.Brand = strings.TrimSpace(v)
 		}
 		if r.Brand == "" {
-			r.Brand = strings.Title(brand)
+			r.Brand = titleCase(brand)
 		}
 		if v, ok := sel.Attr("data-gtm_impression_price"); ok {
 			r.Price = parseFloat(v)
