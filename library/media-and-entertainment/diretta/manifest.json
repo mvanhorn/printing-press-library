@@ -1,0 +1,28 @@
+{
+  "manifest_version": "0.3",
+  "name": "diretta-pp-mcp",
+  "display_name": "Diretta.it",
+  "version": "4.6.1",
+  "description": "Risultati sportivi live, classifiche e statistiche da Diretta.it — zero setup, dati offline, MCP pronto.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "printer": "prisco-faiella",
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/diretta-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/diretta-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

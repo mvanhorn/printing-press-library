@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-18T13:52:09.6368554Z",
+  "printing_press_version": "4.6.1",
+  "api_name": "diretta",
+  "display_name": "Diretta.it",
+  "cli_name": "diretta-pp-cli",
+  "owner": "prisco-faiella",
+  "printer": "prisco-faiella",
+  "printer_name": "Prisco Faiella",
+  "spec_path": "C:/Users/pfaiella/printing-press/.runstate/cli-diretta-2971b997/runs/20260518-115106/research/diretta-browser-sniff-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:064182ee24323bcecff07a1b0da42bc5278638e6fe738b59a879001603d35994",
+  "run_id": "20260518-115106",
+  "description": "Risultati sportivi live, classifiche e statistiche da Diretta.it — zero setup, dati offline, MCP pronto.",
+  "mcp_binary": "diretta-pp-mcp",
+  "mcp_tool_count": 12,
+  "mcp_public_tool_count": 12,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Team form digest",
+      "command": "form",
+      "description": "Shows a team's last N results with goals, cards, and venue split — home vs. away — from local cache."
+    },
+    {
+      "name": "H2H + odds pivot",
+      "command": "h2h",
+      "description": "Shows historical head-to-head results alongside live odds for the next scheduled match between two teams."
+    },
+    {
+      "name": "Multi-match season export",
+      "command": "export",
+      "description": "Exports every match, statistic, and event for a full season of a competition as CSV or JSON."
+    },
+    {
+      "name": "Batch pregame report",
+      "command": "pregame",
+      "description": "For every match in a league on a given date, shows last-3 H2H and current odds in a single table."
+    },
+    {
+      "name": "Standings trend",
+      "command": "standings-trend",
+      "description": "Shows how each team's league position changed over the last N weeks using timestamped SQLite snapshots."
+    },
+    {
+      "name": "Sync health dashboard",
+      "command": "sync-status",
+      "description": "Reports the age, row counts, and freshness of every SQLite table so automation scripts can detect stale data before acting."
+    },
+    {
+      "name": "Team competitions cross-view",
+      "command": "team-competitions",
+      "description": "Lists every active competition a team is playing in, with the next fixture date for each — league, cup, and European."
+    },
+    {
+      "name": "Raw field explorer",
+      "command": "raw",
+      "description": "Dumps the raw FlashScore field-value pairs for any match ID, bypassing the normalizer — for debugging and protocol discovery."
+    }
+  ]
+}

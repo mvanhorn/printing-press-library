@@ -1,0 +1,215 @@
+{
+  "api_name": "diretta",
+  "base_url": "https://local-global.flashscore.ninja/2",
+  "description": "",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [
+    {
+      "name": "x-fsign",
+      "value": "SW9D1eZo"
+    },
+    {
+      "name": "User-Agent",
+      "value": "Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/117.0"
+    },
+    {
+      "name": "Referer",
+      "value": "https://www.diretta.it/"
+    },
+    {
+      "name": "Accept",
+      "value": "*/*"
+    }
+  ],
+  "tools": [
+    {
+      "name": "match_detail",
+      "description": "Match general info, score, and basic data. FlashScore delimiter format. Required: matchId.",
+      "method": "GET",
+      "path": "/x/feed/dc_1_{matchId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "matchId",
+          "type": "string",
+          "location": "path",
+          "description": "Match ID (e.g. vVn0EQM5)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "match_events",
+      "description": "Match events: goals, cards, substitutions. FlashScore delimiter format. Required: matchId.",
+      "method": "GET",
+      "path": "/x/feed/df_sui_1_{matchId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "matchId",
+          "type": "string",
+          "location": "path",
+          "description": "Match ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "match_h2h",
+      "description": "Head-to-head history between the two teams. FlashScore delimiter format. Required: matchId.",
+      "method": "GET",
+      "path": "/x/feed/df_hh_1_{matchId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "matchId",
+          "type": "string",
+          "location": "path",
+          "description": "Match ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "match_lineups",
+      "description": "Team lineups and formations. FlashScore delimiter format. Required: matchId.",
+      "method": "GET",
+      "path": "/x/feed/df_li_1_{matchId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "matchId",
+          "type": "string",
+          "location": "path",
+          "description": "Match ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "match_stats",
+      "description": "Match statistics: possession, shots, corners, xG. FlashScore delimiter format. Required: matchId.",
+      "method": "GET",
+      "path": "/x/feed/df_st_1_{matchId}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "matchId",
+          "type": "string",
+          "location": "path",
+          "description": "Match ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "matches_live",
+      "description": "Fetch Italian football matches currently in progress. No parameters required. Returns only live matches from today's feed, filtered by active status, in FlashScore delimiter format with current scores and match IDs. Prefer this over matches_today when you need only in-play matches to minimise noise.",
+      "method": "GET",
+      "path": "/x/feed/f_1_0_3_it_1",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "matches_today",
+      "description": "Fetch all Italian football matches for today. No parameters required. Returns the full day's schedule and live results in FlashScore delimiter format including team names, match IDs, kick-off times, and current scores. Use this as the primary entry point for today's fixtures; use matches_live to filter to only in-progress matches.",
+      "method": "GET",
+      "path": "/x/feed/f_1_0_3_it_1",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "matches_tomorrow",
+      "description": "Fetch Italian football fixtures scheduled for tomorrow. No parameters required. Returns a list of matches in FlashScore delimiter format including team names, kick-off times, and match IDs. Use this to retrieve the next day's schedule for planning pre-match analysis or odds queries.",
+      "method": "GET",
+      "path": "/x/feed/f_1_1_3_it_1",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "matches_yesterday",
+      "description": "Fetch Italian football results from yesterday. No parameters required. Returns completed matches in FlashScore delimiter format with final scores, team names, and match IDs. Use this when you need recent results for form analysis or H2H lookups without running a full sync.",
+      "method": "GET",
+      "path": "/x/feed/f_1_-1_3_it_1",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "odds_match_odds",
+      "description": "Betting odds for a match: 1X2, Under/Over, Asian handicap. Required: eventId. Optional: projectId (default: 2), geoIpCode (default: IT).",
+      "method": "POST",
+      "path": "/pq_graphql",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "eventId",
+          "type": "string",
+          "location": "path",
+          "description": "Match ID",
+          "required": true
+        },
+        {
+          "name": "projectId",
+          "type": "string",
+          "location": "body",
+          "description": "Project ID (2=Global)"
+        },
+        {
+          "name": "geoIpCode",
+          "type": "string",
+          "location": "body",
+          "description": "Geographic region code"
+        }
+      ]
+    },
+    {
+      "name": "sports_all_today",
+      "description": "All sports today: calcio, tennis, basket, hockey, etc. FlashScore delimiter format.",
+      "method": "GET",
+      "path": "/x/feed/f_2_0_3_it_1",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "standings_table",
+      "description": "League table for a tournament. FlashScore delimiter format. Required: tournamentId, season (default: 2024), page (default: 3), locale (default: it).",
+      "method": "GET",
+      "path": "/x/feed/tr_{tournamentId}_{season}_{page}_3_{locale}_1",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "tournamentId",
+          "type": "string",
+          "location": "path",
+          "description": "Tournament ID (e.g. naYhNOaA for Serie A)",
+          "required": true
+        },
+        {
+          "name": "season",
+          "type": "string",
+          "location": "path",
+          "description": "Season year (e.g. 2024 for 2024/25 season)",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "string",
+          "location": "path",
+          "description": "Page number for standings",
+          "required": true
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "path",
+          "description": "Locale code (it=Italian)",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

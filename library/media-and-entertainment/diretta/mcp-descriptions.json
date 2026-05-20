@@ -1,0 +1,8 @@
+{
+  "descriptions": {
+    "matches_tomorrow": "Fetch Italian football fixtures scheduled for tomorrow. No parameters required. Returns a list of matches in FlashScore delimiter format including team names, kick-off times, and match IDs. Use this to retrieve the next day's schedule for planning pre-match analysis or odds queries.",
+    "matches_yesterday": "Fetch Italian football results from yesterday. No parameters required. Returns completed matches in FlashScore delimiter format with final scores, team names, and match IDs. Use this when you need recent results for form analysis or H2H lookups without running a full sync.",
+    "matches_today": "Fetch all Italian football matches for today. No parameters required. Returns the full day's schedule and live results in FlashScore delimiter format including team names, match IDs, kick-off times, and current scores. Use this as the primary entry point for today's fixtures; use matches_live to filter to only in-progress matches.",
+    "matches_live": "Fetch Italian football matches currently in progress. No parameters required. Returns only live matches from today's feed, filtered by active status, in FlashScore delimiter format with current scores and match IDs. Prefer this over matches_today when you need only in-play matches to minimise noise."
+  }
+}
