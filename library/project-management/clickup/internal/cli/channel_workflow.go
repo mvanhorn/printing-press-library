@@ -78,7 +78,7 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 			for _, resource := range resources {
 				fmt.Fprintf(cmd.ErrOrStderr(), "Syncing %s...\n", resource)
 				// maxPages 100 matches the `sync` command's default cap.
-				res := syncResource(c, db, resource, "", full, 100)
+				res := syncResource(c, db, resource, "", full, false, 100)
 				switch {
 				case res.Err != nil:
 					fmt.Fprintf(cmd.ErrOrStderr(), "  warning: %s: %v\n", resource, res.Err)

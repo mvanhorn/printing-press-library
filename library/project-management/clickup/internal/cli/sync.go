@@ -106,27 +106,19 @@ Exit codes & warnings:
 				}
 			}
 
-			// --latest-only narrows to the first page of each resource
-			// ignoring the historical resume cursor. We cap maxPages at 1
-			// here rather than re-interpreting it downstream so the rest
-			// of the sync loop stays oblivious. Mutually-useful with
-			// --since: if the user set --since, that threshold still wins
-			// and we don't short-circuit historical context they asked for.
-			if latestOnly {
-				if since == "" {
-					maxPages = 1
-					// Clear the cursor so we start from the head each time;
-					// the goal of --latest-only is "refresh the top" not
-					// "resume from wherever I left off".
-					for _, resource := range resources {
-						existing, _, _, _ := db.GetSyncState(resource)
-						if existing != "" {
-							_ = db.SaveSyncState(resource, "", 0)
-						}
-					}
-				} else if humanFriendly {
-					fmt.Fprintln(os.Stderr, "warning: --latest-only ignored because --since is set; --since takes precedence")
-				}
+			// --latest-only refreshes the head of each resource: cap pages
+			// at 1 and ignore the stored resume cursor. --since takes
+			// precedence — if the user asked for a historical window, honor
+			// that instead. The cursor reset itself happens at point-of-use
+			// in syncResource (see `full || latestOnly` there): resume
+			// cursors are keyed per (resource, parentID), so clearing only
+			// top-level keys here would leave every hierarchical target
+			// resuming mid-history — exactly what --latest-only must prevent.
+			latestOnlyActive := latestOnly && since == ""
+			if latestOnlyActive {
+				maxPages = 1
+			} else if latestOnly && humanFriendly {
+				fmt.Fprintln(os.Stderr, "warning: --latest-only ignored because --since is set; --since takes precedence")
 			}
 
 			// Resolve --since into an RFC3339 timestamp
@@ -154,7 +146,7 @@ Exit codes & warnings:
 				go func() {
 					defer wg.Done()
 					for resource := range work {
-						res := syncResource(c, db, resource, sinceTS, full, maxPages)
+						res := syncResource(c, db, resource, sinceTS, full, latestOnlyActive, maxPages)
 						results <- res
 					}
 				}()
@@ -268,7 +260,7 @@ Exit codes & warnings:
 func syncResource(c interface {
 	Get(string, map[string]string) (json.RawMessage, error)
 	RateLimit() float64
-}, db *store.Store, resource, sinceTS string, full bool, maxPages int) syncResult {
+}, db *store.Store, resource, sinceTS string, full, latestOnly bool, maxPages int) syncResult {
 	started := time.Now()
 
 	if !humanFriendly {
@@ -332,13 +324,14 @@ func syncResource(c interface {
 			effectiveSince = lastSynced.Format(time.RFC3339)
 		}
 
-		// PATCH(pp-library#433): --full restarts every target from the head.
-		// Resume cursors are keyed per (resource, parentID) as `resource:parentID`,
-		// so a top-level clear in the caller cannot reach the per-parent keys
-		// hierarchical targets resume from. Honoring `full` at the point of use
-		// covers every target — global and per-parent alike.
+		// PATCH(pp-library#433): --full and --latest-only both restart every
+		// target from the head. Resume cursors are keyed per (resource,
+		// parentID) as `resource:parentID`, so a top-level clear in the caller
+		// cannot reach the per-parent keys hierarchical targets resume from.
+		// Honoring these flags at the point of use covers every target —
+		// global and per-parent alike.
 		cursor := existingCursor
-		if full {
+		if full || latestOnly {
 			cursor = ""
 		}
 		pagesFetched := 0
