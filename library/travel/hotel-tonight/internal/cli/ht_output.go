@@ -5,7 +5,6 @@ package cli
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/spf13/cobra"
 
@@ -37,7 +36,7 @@ func fetchAndRecord(ctx context.Context, cmd *cobra.Command, c *client.Client, l
 		return inv, nil
 	}
 	defer s.Close()
-	if _, err := recordSnapshots(ctx, s.DB(), inv, time.Now()); err != nil {
+	if _, err := recordSnapshots(ctx, s.DB(), inv, timeNow()); err != nil {
 		fmt.Fprintf(cmd.ErrOrStderr(), "note: price snapshot not recorded (%v)\n", err)
 	}
 	return inv, nil

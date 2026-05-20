@@ -82,6 +82,28 @@ func TestParseFeaturedDealMissing(t *testing.T) {
 	}
 }
 
+// TestParseFeaturedDealBraceInString guards the string-aware brace counter: a
+// `{` or `}` inside a string value must not be mistaken for an object boundary.
+func TestParseFeaturedDealBraceInString(t *testing.T) {
+	page := `x\"featured_deal\":{\"type\":\"DAILY_DROP\",\"state\":\"available\",` +
+		`\"title\":\"Tonight {only} deal }\",\"ht_price\":100,\"savings_amount\":25,` +
+		`\"unlock_url\":\"https://x?selected_hotel_id=7\"}` +
+		`,\"id\":7,\"name\":\"The Curly Hotel\"x`
+	fd, ok, err := parseFeaturedDeal(page)
+	if err != nil {
+		t.Fatalf("err = %v", err)
+	}
+	if !ok {
+		t.Fatal("expected available deal despite braces in the title string")
+	}
+	if numF(fd.HTPrice) != 100 {
+		t.Errorf("ht_price = %v, want 100 (object was truncated at an in-string brace)", numF(fd.HTPrice))
+	}
+	if fd.HotelName != "The Curly Hotel" {
+		t.Errorf("hotel name = %q, want The Curly Hotel", fd.HotelName)
+	}
+}
+
 func contains(s, sub string) bool {
 	for i := 0; i+len(sub) <= len(s); i++ {
 		if s[i:i+len(sub)] == sub {

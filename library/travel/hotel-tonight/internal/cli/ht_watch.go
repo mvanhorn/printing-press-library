@@ -5,6 +5,7 @@
 package cli
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -64,8 +65,16 @@ func newWatchCmd(flags *rootFlags) *cobra.Command {
 			runStart := timeNow()
 			var prior map[string]float64
 			if s, err := openPriceStore(cmd.Context()); err == nil {
-				prior, _ = lastPriceByHotel(cmd.Context(), s.DB(), runStart)
+				var perr error
+				prior, perr = lastPriceByHotel(cmd.Context(), s.DB(), runStart)
 				s.Close()
+				if perr != nil {
+					// Non-fatal: warn and continue with no baseline rather than
+					// silently treating a query failure as "nothing dropped".
+					fmt.Fprintf(cmd.ErrOrStderr(), "note: prior-price lookup failed (%v); reporting threshold matches only\n", perr)
+				}
+			} else {
+				fmt.Fprintf(cmd.ErrOrStderr(), "note: price store unavailable (%v); reporting threshold matches only\n", err)
 			}
 			if prior == nil {
 				prior = map[string]float64{}

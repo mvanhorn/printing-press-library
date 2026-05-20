@@ -149,9 +149,9 @@ var hotelNameRe = regexp.MustCompile(`\\"name\\":\\"([^\\]+)`)
 
 // extractEscapedJSONObject returns the brace-delimited JSON object that follows
 // `key` in an HTML-escaped page, counting `{`/`}` to find the matching close.
-// Braces are not escaped in the embedded JSON and none of the Daily Drop string
-// values contain braces, so a plain depth count is sufficient. Returns "" if
-// the key or a balanced object is not found.
+// Structural quotes appear as `\"` in the embedded JSON; the scan tracks
+// in-string state on those so a `{` or `}` inside a string value is not
+// counted. Returns "" if the key or a balanced object is not found.
 func extractEscapedJSONObject(page, key string) string {
 	ki := strings.Index(page, key)
 	if ki < 0 {
@@ -163,7 +163,18 @@ func extractEscapedJSONObject(page, key string) string {
 	}
 	bi += ki
 	depth := 0
+	inStr := false
 	for i := bi; i < len(page); i++ {
+		// A structural quote is the two-byte sequence `\"`. Toggle string
+		// state on it and skip both bytes so braces inside a value don't count.
+		if page[i] == '\\' && i+1 < len(page) && page[i+1] == '"' {
+			inStr = !inStr
+			i++
+			continue
+		}
+		if inStr {
+			continue
+		}
 		switch page[i] {
 		case '{':
 			depth++
@@ -200,7 +211,7 @@ type htDailyDrop struct {
 func recordDailyDrop(ctx context.Context, db *sql.DB, marketID int64, marketName, checkIn string, dd htDailyDrop) error {
 	hotelID, _ := strconv.ParseInt(dd.HotelID, 10, 64)
 	_, err := db.ExecContext(ctx, snapshotInsertSQL,
-		time.Now().UTC().Format(time.RFC3339), checkIn, hotelID, dd.Hotel, "",
+		timeNow().UTC().Format(time.RFC3339), checkIn, hotelID, dd.Hotel, "",
 		marketID, marketName, 0.0, 0.0, dailyDropDealType, "", dd.Price, dd.Was,
 		dd.PctOff, 0, 0)
 	return err

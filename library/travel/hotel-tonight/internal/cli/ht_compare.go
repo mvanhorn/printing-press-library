@@ -122,9 +122,11 @@ func groupByNeighborhood(deals []htDeal) []htNeighborhood {
 				a.cheapAt = d.Price
 				a.cheapest = d.HotelName
 			}
-		}
-		if d.PctOff > a.bestOff {
-			a.bestOff = d.PctOff
+			// Keep BestPctOff on the same priced-deal set as DealCount so the
+			// two metrics never disagree (e.g. DealCount 0 with BestPctOff > 0).
+			if d.PctOff > a.bestOff {
+				a.bestOff = d.PctOff
+			}
 		}
 	}
 	out := make([]htNeighborhood, 0, len(byHood))
