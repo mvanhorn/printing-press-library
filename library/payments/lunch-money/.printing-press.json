@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-13T18:41:35.9098Z",
+  "printing_press_version": "4.5.2",
+  "api_name": "lunch-money",
+  "display_name": "Lunch Money",
+  "cli_name": "lunch-money-pp-cli",
+  "owner": "salmonumbrella",
+  "printer_name": "salmonumbrella",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:b7e39bbf36b327b3b388cf2c3f92b6735da15f8bee6778718b73b2223b99f22a",
+  "run_id": "20260513-094903",
+  "mcp_binary": "lunch-money-pp-mcp",
+  "mcp_tool_count": 59,
+  "mcp_ready": "full",
+  "api_version": "2.11.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "LUNCHMONEY_API_KEY"
+  ],
+  "auth_key_url": "https://my.lunchmoney.app/developers",
+  "auth_title": "Lunch Money API Key",
+  "auth_description": "Bearer token from the Lunch Money developers page. The value IS the bearer token; the CLI prepends Authorization: Bearer for you.",
+  "novel_features": [
+    {
+      "name": "Subscription Detective",
+      "command": "transactions subscriptions",
+      "description": "Find regular-cadence merchant charges that are not yet linked to a recurring item, so you can promote them before subscription creep sneaks past you."
+    },
+    {
+      "name": "Recurring Miss Audit",
+      "command": "recurring missing",
+      "description": "List recurring items whose next expected date falls in the requested month but have no matching transaction yet, so you can catch missed bills."
+    },
+    {
+      "name": "Duplicate Charge Finder",
+      "command": "transactions duplicates",
+      "description": "Detect near-duplicate transactions in a window (same merchant, amount within tolerance, date within range) so you can group or delete them in bulk."
+    },
+    {
+      "name": "Stale Balance Audit",
+      "command": "accounts stale",
+      "description": "Surface manual accounts and manual crypto whose balance has not been updated in N days, so net worth stays honest."
+    },
+    {
+      "name": "Net Worth At Date",
+      "command": "net-worth on",
+      "description": "Reconstruct net worth at any historical date by walking balance_history across every account type, with last-known-balance carry-forward where needed."
+    },
+    {
+      "name": "Bulk Smart Retag",
+      "command": "transactions retag",
+      "description": "Match transactions by regex on payee/notes via local FTS, preview the affected set, then bulk-apply tag/category changes via the API."
+    },
+    {
+      "name": "Uncategorized Triage Inbox",
+      "command": "triage",
+      "description": "Pull all unreviewed transactions, compute a suggested category from prior categorizations of the same merchant, and optionally mass-apply the suggestion."
+    },
+    {
+      "name": "Budget Burn-Down",
+      "command": "budgets burn",
+      "description": "For the current budget period, project end-of-month spend per category at the current linear rate and flag categories projected to overshoot."
+    },
+    {
+      "name": "Morning Triage",
+      "command": "changed",
+      "description": "List everything created or edited in the local store since a cutoff (e.g. --since 8h, --since 2026-05-01). Use at session start to orient before taking action."
+    }
+  ],
+  "category": "payments",
+  "printer": "salmonumbrella"
+}

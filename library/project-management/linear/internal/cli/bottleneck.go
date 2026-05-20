@@ -89,6 +89,12 @@ func newBottleneckCmd(flags *rootFlags) *cobra.Command {
 				return sorted[i].Active > sorted[j].Active
 			})
 
+			if len(sorted) == 0 {
+				hintIfUnsynced(cmd, db, "issues")
+			} else {
+				hintIfStale(cmd, db, "issues", flags.maxAge)
+			}
+
 			if jsonOut {
 				enc := json.NewEncoder(os.Stdout)
 				enc.SetIndent("", "  ")

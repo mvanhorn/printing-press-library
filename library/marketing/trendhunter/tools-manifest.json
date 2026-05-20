@@ -1,0 +1,109 @@
+{
+  "api_name": "trendhunter",
+  "base_url": "https://www.trendhunter.com",
+  "description": "Trend Hunter CLI: sync the global trend feed, search the corpus offline, and pull rich trend metadata (FAQ Q\u0026A, related trends, author, category) from the terminal. Free public-site scrape, no API key.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "category_list",
+      "description": "Fetch a TrendHunter category index page (~30 trend cards). The CLI's 'category \u003cname\u003e' command parses this. Required: category. Returns the RawHTML.",
+      "method": "GET",
+      "path": "/{category}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "category",
+          "type": "string",
+          "location": "path",
+          "description": "Category slug: tech, fashion, food, eco, ai, marketing, design, lifestyle, autos, gadgets, etc.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "megatrends_list",
+      "description": "Fetch the megatrend index page. Returns the RawHTML.",
+      "method": "GET",
+      "path": "/megatrends",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "popular_get",
+      "description": "Fetch the popular-trends index page (~30 cards). Run 'popular' to get parsed JSON. Returns the RawHTML.",
+      "method": "GET",
+      "path": "/popular",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "reports_list",
+      "description": "Fetch the trend-reports landing page (titles, descriptions, paid PDF links). Returns the RawHTML.",
+      "method": "GET",
+      "path": "/trendreports",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "results_query",
+      "description": "Run a TrendHunter search and get the result-page HTML. The CLI's 'search \u003cterm\u003e' parses this; pass --raw to get HTML. Required: search. Returns the RawHTML.",
+      "method": "GET",
+      "path": "/results",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Search query, e.g. 'AI clone' or 'sustainable fashion'",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "rss_latest",
+      "description": "Fetch the global RSS 2.0 feed (~30 newest trends). Use 'sync' to land these in the local store; this raw endpoint is for one-off inspection. Returns the RawXML.",
+      "method": "GET",
+      "path": "/rss",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "scoreboard_get",
+      "description": "Fetch the scoreboard page with top contributor handles and recent trends. Run 'scoreboard' to get parsed JSON. Returns the RawHTML.",
+      "method": "GET",
+      "path": "/scoreboard",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "sitemap_get",
+      "description": "Fetch the sitemap.xml. The CLI's 'catalog refresh' uses this; users should use that instead. Returns the RawXML.",
+      "method": "GET",
+      "path": "/sitemap.xml",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "trends_get",
+      "description": "Fetch the full trend page HTML for a slug. The CLI's 'trend show \u003cslug\u003e' parses this; users should use that instead of calling this directly. Required: slug. Returns the RawHTML.",
+      "method": "GET",
+      "path": "/trends/{slug}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Trend slug from a /trends/\u003cslug\u003e URL or RSS link, e.g. ai-clone",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

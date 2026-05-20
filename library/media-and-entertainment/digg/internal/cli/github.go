@@ -105,11 +105,37 @@ func emitGithub(cmd *cobra.Command, flags *rootFlags, items any, limit int) erro
 
 func newGithubStarsCmd(flags *rootFlags) *cobra.Command {
 	var limit int
+	// PATCH(digg-rankings-and-min-starrers): smart-money-convergence
+	// filter on the existing stars feed; counts distinct AI-builder
+	// accounts that starred each repo.
+	var minStarrers int
 	cmd := &cobra.Command{
 		Use:         "stars",
 		Short:       "Top AI repos ranked by starring activity from Digg-tracked accounts",
-		Example:     "  digg-pp-cli github stars --limit 10 --json",
+		Example:     "  digg-pp-cli github stars --min-starrers 2 --limit 10 --json",
 		Annotations: map[string]string{"pp:endpoint": "github.stars", "pp:method": "GET", "pp:path": "/ai/github/stars", "mcp:read-only": "true"},
+		Long: `Top AI repos ranked by starring activity from Digg-tracked accounts.
+
+Returns each repo's full_name, stargazers_count, recent starrer list,
+breakout/novel/ai_related scores, and the model's one-sentence
+classification.
+
+The --min-starrers flag filters to repos starred by >= N distinct
+Digg-tracked accounts in the feed's window. It primarily reads
+.repo.distinct_starrers (upstream's explicit count) and falls back to
+the length of .repo.starrers when distinct_starrers is absent. The
+filter is applied BEFORE --limit, so 'stars --min-starrers 2 --limit
+10' returns up to 10 repos that all satisfy the threshold (not the
+first 10 raw rows then filtered).`,
+		// PATCH(digg-rankings-and-min-starrers): validate --min-starrers
+		// before fetching; negatives are meaningless and shouldn't burn
+		// a network roundtrip.
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			if minStarrers < 0 {
+				return fmt.Errorf("--min-starrers must be >= 0, got %d", minStarrers)
+			}
+			return nil
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
 				return nil
@@ -122,11 +148,55 @@ func newGithubStarsCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return fmt.Errorf("parsing /ai/github/stars: %w", err)
 			}
+			// PATCH(digg-rankings-and-min-starrers): apply convergence filter
+			// before emit so --limit caps the post-filter result.
+			repos = filterByMinStarrers(repos, minStarrers)
 			return emitGithub(cmd, flags, repos, limit)
 		},
 	}
 	cmd.Flags().IntVar(&limit, "limit", 0, "Max rows to return (0 = all)")
+	// PATCH(digg-rankings-and-min-starrers): expose the convergence filter.
+	cmd.Flags().IntVar(&minStarrers, "min-starrers", 0,
+		"Keep only repos starred by >= N distinct Digg-tracked accounts. "+
+			"Reads .repo.distinct_starrers (falls back to len .repo.starrers). "+
+			"Applied BEFORE --limit. 0 and 1 are no-ops (every repo on the "+
+			"stars feed has >= 1 starrer by construction); pass 2+ to filter. "+
+			"Must be >= 0.")
 	return cmd
+}
+
+// PATCH(digg-rankings-and-min-starrers):
+// filterByMinStarrers drops repos whose distinct-starrer count is
+// below threshold. Threshold semantics:
+//
+//   - threshold <= 1: no filter (returns input unchanged). 0 means "no
+//     flag", 1 means "at least one starrer" which is always true on
+//     the stars feed and so equivalent to no filter — both are no-ops
+//     to spare callers a meaningless walk.
+//   - threshold >= 2: each repo's distinct-starrer count must be >=
+//     threshold. Count source: repo.DistinctStarrers (the explicit
+//     upstream metric), falling back to len(repo.Starrers) when
+//     DistinctStarrers == 0 AND the Starrers slice is non-empty (a
+//     belt-and-suspenders for older response variants where the field
+//     wasn't yet emitted).
+//
+// nil-safety: a row with a zero-valued Repo + empty Starrers is dropped
+// silently. Callers don't need to filter nils first.
+func filterByMinStarrers(repos []diggparse.GithubRepoEntry, threshold int) []diggparse.GithubRepoEntry {
+	if threshold <= 1 {
+		return repos
+	}
+	out := repos[:0:0] // alloc-free slice header reuse; len 0 cap 0
+	for _, r := range repos {
+		count := r.Repo.DistinctStarrers
+		if count == 0 && len(r.Repo.Starrers) > 0 {
+			count = len(r.Repo.Starrers)
+		}
+		if count >= threshold {
+			out = append(out, r)
+		}
+	}
+	return out
 }
 
 func newGithubNewCmd(flags *rootFlags) *cobra.Command {

@@ -1,0 +1,51 @@
+version: 2
+project_name: clickup-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: clickup-pp-cli
+    main: ./cmd/clickup-pp-cli
+    binary: clickup-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/project-management/clickup/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: clickup-pp-mcp
+    main: ./cmd/clickup-pp-mcp
+    binary: clickup-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: clickup-pp-cli
+    repository:
+      owner: kjmagnan1s
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every ClickUp v2 + v3 endpoint as a typed CLI plus offline sync, search, and ergonomic chat/docs aliases."
+    install: |
+      bin.install "clickup-pp-cli"
+      bin.install "clickup-pp-mcp"

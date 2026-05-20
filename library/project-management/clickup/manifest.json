@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "clickup-pp-mcp",
+  "display_name": "Clickup",
+  "version": "4.2.2",
+  "description": "Clickup API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/clickup-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/clickup-pp-mcp",
+      "args": [],
+      "env": {
+        "CLICKUP_AUTHORIZATION_TOKEN": "${user_config.clickup_authorization_token}"
+      }
+    }
+  },
+  "user_config": {
+    "clickup_authorization_token": {
+      "type": "string",
+      "title": "CLICKUP_AUTHORIZATION_TOKEN",
+      "description": "Sets CLICKUP_AUTHORIZATION_TOKEN for the Clickup MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

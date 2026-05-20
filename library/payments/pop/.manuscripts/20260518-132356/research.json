@@ -1,0 +1,12 @@
+{
+  "api_name": "POP",
+  "api_slug": "pop",
+  "cli_name": "pop-pp-cli",
+  "spec_source": "docs",
+  "spec_url": "https://popapi.io/en/prices/",
+  "generated_at": "2026-05-18T13:23:56.682815Z",
+  "printing_press_version": "4.9.0",
+  "mcp_binary": "pop-pp-mcp",
+  "mcp_tool_count": 8,
+  "notes": "POP does not expose a public OpenAPI document for this workflow, so this printed CLI uses a hand-written OpenAPI 3.0.3 spec covering the documented 8-tool surface from POP docs and the POP MCP README."
+}

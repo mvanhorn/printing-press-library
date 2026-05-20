@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "pvgis-pp-mcp",
+  "display_name": "Pvgis",
+  "version": "4.8.0",
+  "description": "The free, single-binary PVGIS CLI — fetch JRC solar-radiation and PV-yield estimates with offline cache, multi-site batch, and agent-native JSON.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/pvgis-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/pvgis-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,6829 @@
+openapi: "3.1.0"
+x-mcp:
+  transport: [stdio, http]
+  orchestration: code
+  endpoint_tools: hidden
+info:
+  title: Conduyt API
+  version: "1.0.0"
+  description: |
+    The Conduyt CRM API provides programmatic access to your CRM data including
+    contacts, companies, deals, pipelines, tasks, notes, automations, invoices,
+    email sequences, and more.
+
+    ## Authentication
+
+    All authenticated endpoints require a Bearer token (API key) in the
+    `Authorization` header:
+
+    ```
+    Authorization: Bearer cdy_<your-api-key>
+    ```
+
+    API keys are generated in **Settings > API Keys** within the Conduyt
+    dashboard. Keys use the `cdy_` prefix and are hashed with bcrypt on
+    creation — the full key is shown exactly once at creation time.
+
+    Session cookie authentication (`conduyt_session`) is also supported for
+    browser-based clients but is not recommended for integrations.
+
+    ## Rate Limiting
+
+    Most write endpoints enforce per-IP rate limits. When exceeded, the API
+    returns `429 Too Many Requests` with a `Retry-After` header indicating
+    seconds until the next allowed request.
+
+    | Endpoint Group      | Limit               |
+    |---------------------|---------------------|
+    | Login               | 5 / 15 min per IP   |
+    | Registration        | 3 / hour per IP     |
+    | Contact/Deal create | 30 / min per IP     |
+    | General             | 100 / 15 min per IP |
+
+    ## Pagination
+
+    List endpoints support cursor-based pagination via query parameters:
+
+    - `page` — Page number (default: 1)
+    - `per_page` — Items per page (default: 50, max: 200)
+
+    Responses include a `meta` object: `{ page, per_page, total }`.
+
+    ## Response Format
+
+    All successful responses wrap data in a `data` envelope:
+    ```json
+    { "data": { ... } }
+    ```
+
+    Error responses use:
+    ```json
+    { "error": "Human-readable error message" }
+    ```
+
+    ## Multi-Tenancy
+
+    Conduyt is multi-tenant. All data is scoped to the authenticated user's
+    current account. API keys are bound to a specific account at creation time.
+
+    ## Webhook Events
+
+    Outbound webhooks fire on events including:
+    `contact.created`, `contact.updated`, `contact.deleted`,
+    `deal.created`, `deal.updated`, `deal.won`, `deal.lost`,
+    `task.created`, `task.completed`, `note.created`,
+    `appointment.created`, `appointment.updated`,
+    `form.submitted`, `invoice.paid`
+
+    Payloads are signed with HMAC-SHA256 using the webhook's secret. Retries
+    follow exponential backoff: 1m, 5m, 15m, 1h, 6h, 24h, 72h (7 attempts).
+  contact:
+    name: Conduyt Support
+    url: https://conduyt.app
+    email: support@conduyt.app
+  license:
+    name: Proprietary
+    url: https://conduyt.app/terms
+
+servers:
+  - url: https://conduyt.app/api/v1
+    description: Production
+
+tags:
+  - name: Auth
+    description: Authentication, registration, password management
+  - name: Contacts
+    description: Contact management, tagging, scoring, import/export, merge, duplicates
+  - name: Companies
+    description: Company (organization) management
+  - name: Deals
+    description: Deal/opportunity management within pipelines
+  - name: Pipelines
+    description: Sales pipeline and stage management
+  - name: Tasks
+    description: Task management with assignment and due dates
+  - name: Notes
+    description: Notes attached to contacts or deals
+  - name: Tags
+    description: Tag management and merging
+  - name: Activities
+    description: Activity feed and logging
+  - name: Messages
+    description: SMS and email message history
+  - name: Email
+    description: Send individual and bulk emails
+  - name: Email Templates
+    description: Reusable email/SMS templates
+  - name: Email Sequences
+    description: Multi-step email sequences with enrollment
+  - name: Conversations
+    description: Threaded conversation view per contact
+  - name: Automations
+    description: Workflow automations (native + n8n), publishing, analytics
+  - name: Automation Executions
+    description: Automation execution logs and step details
+  - name: Workflows
+    description: Simple trigger-action workflows
+  - name: Drip Campaigns
+    description: SMS drip campaign engine
+  - name: Custom Fields
+    description: Custom field definitions for contacts and deals
+  - name: Calendars
+    description: Internal calendar and appointment management
+  - name: Calendar Connections
+    description: Google / Microsoft calendar sync
+  - name: Booking Pages
+    description: Public booking pages (Calendly-style)
+  - name: Appointments
+    description: Appointment scheduling
+  - name: Forms
+    description: Lead capture forms and submissions
+  - name: Invoices
+    description: Invoice creation, sending, payments, PDF generation
+  - name: Products
+    description: Product catalog for invoices
+  - name: Notifications
+    description: In-app notifications
+  - name: Files
+    description: File uploads and attachments
+  - name: API Keys
+    description: API key management
+  - name: Users
+    description: Team member management and invitations
+  - name: Settings
+    description: Account settings, branding, SMS/Twilio configuration
+  - name: Billing
+    description: Stripe billing, checkout, and subscription status
+  - name: Webhooks
+    description: Outbound webhook management and logs
+  - name: Integrations
+    description: Third-party integrations (Zapier, etc.)
+  - name: Reports
+    description: Pipeline, revenue, activity, team, and custom reports
+  - name: Search
+    description: Global search across contacts, companies, deals
+  - name: Bulk Operations
+    description: Bulk update, delete, and tag contacts and deals
+  - name: Imports
+    description: CSV import jobs with mapping and deduplication
+  - name: Smart Lists
+    description: Static contact lists
+  - name: Scoring Rules
+    description: Lead scoring rule management
+  - name: Document Templates
+    description: Proposal and contract templates with merge fields
+  - name: Email Domains
+    description: Custom email domain verification (Resend)
+  - name: Dialer
+    description: Click-to-call dialer via Twilio
+  - name: Calls
+    description: Call log management
+  - name: Chat
+    description: Internal team chat channels and messages
+  - name: Push Notifications
+    description: Web push subscription management
+  - name: Dashboard
+    description: Dashboard summary metrics
+  - name: AI
+    description: AI-powered features (chat, email compose, contact enrichment)
+  - name: Admin
+    description: Super-admin account management and impersonation
+  - name: Public
+    description: Unauthenticated public endpoints (booking, form submit)
+
+security:
+  - BearerAuth: []
+
+paths:
+  # ──────────────────────────────────────────────
+  # Auth
+  # ──────────────────────────────────────────────
+  /auth/register:
+    post:
+      operationId: register
+      summary: Register a new account
+      description: Creates a new user and account. Rate limited to 3 requests per hour per IP.
+      tags: [Auth]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password, accountName]
+              properties:
+                email:
+                  type: string
+                  format: email
+                  maxLength: 254
+                password:
+                  type: string
+                  minLength: 8
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                accountName:
+                  type: string
+                  minLength: 2
+      responses:
+        "200":
+          description: Registration successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+
+  /auth/login:
+    post:
+      operationId: login
+      summary: Log in with email and password
+      description: Authenticates user credentials and returns a session cookie. Rate limited to 5 requests per 15 minutes per IP.
+      tags: [Auth]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                accountId:
+                  type: string
+                  format: uuid
+                  description: Target account ID (optional, defaults to first account)
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+
+  /auth/logout:
+    post:
+      operationId: logout
+      summary: Log out (destroy session)
+      tags: [Auth]
+      responses:
+        "200":
+          description: Logged out successfully
+
+  /auth/me:
+    get:
+      operationId: getMe
+      summary: Get current authenticated user
+      tags: [Auth]
+      responses:
+        "200":
+          description: Current user and account info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataEnvelope"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /auth/change-password:
+    post:
+      operationId: changePassword
+      summary: Change password (authenticated)
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [currentPassword, newPassword]
+              properties:
+                currentPassword:
+                  type: string
+                newPassword:
+                  type: string
+                  minLength: 8
+      responses:
+        "200":
+          description: Password changed
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /auth/forgot-password:
+    post:
+      operationId: forgotPassword
+      summary: Request a password reset email
+      tags: [Auth]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        "200":
+          description: Reset email sent (always returns 200 to prevent email enumeration)
+
+  /auth/reset-password:
+    post:
+      operationId: resetPassword
+      summary: Reset password with token
+      tags: [Auth]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token, password]
+              properties:
+                token:
+                  type: string
+                password:
+                  type: string
+                  minLength: 8
+      responses:
+        "200":
+          description: Password reset successful
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /auth/switch-account:
+    post:
+      operationId: switchAccount
+      summary: Switch to a different account
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [accountId]
+              properties:
+                accountId:
+                  type: string
+                  format: uuid
+      responses:
+        "200":
+          description: Account switched successfully
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /auth/accept-invite:
+    post:
+      operationId: acceptInvite
+      summary: Accept a team invitation
+      tags: [Auth]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token, password]
+              properties:
+                token:
+                  type: string
+                password:
+                  type: string
+                  minLength: 8
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+      responses:
+        "200":
+          description: Invite accepted, session created
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  # ──────────────────────────────────────────────
+  # Contacts
+  # ──────────────────────────────────────────────
+  /contacts:
+    get:
+      operationId: listContacts
+      summary: List contacts
+      description: |
+        Returns a paginated list of contacts. Supports search, filtering by tag,
+        source, company, assigned user, date ranges, lead score, and smart views.
+
+        Smart views: `needs_follow_up`, `hot_leads`, `new_this_week`,
+        `recently_won`, `untagged`, `missing_email`, `missing_phone`.
+      tags: [Contacts]
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PerPageParam"
+        - $ref: "#/components/parameters/SearchParam"
+        - name: tag
+          in: query
+          schema:
+            type: string
+          description: Filter by single tag name
+        - name: tags
+          in: query
+          schema:
+            type: string
+          description: Filter by comma-separated tag names
+        - name: source
+          in: query
+          schema:
+            type: string
+        - name: company
+          in: query
+          schema:
+            type: string
+        - name: assigned_to
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: created_from
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: created_to
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: updated_from
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: updated_to
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: min_score
+          in: query
+          schema:
+            type: integer
+          description: Minimum lead score filter
+        - name: smart_view
+          in: query
+          schema:
+            type: string
+            enum:
+              - needs_follow_up
+              - hot_leads
+              - new_this_week
+              - recently_won
+              - untagged
+              - missing_email
+              - missing_phone
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [createdAt, updatedAt, firstName, lastName, email, company, leadScore]
+            default: createdAt
+        - name: order
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+      responses:
+        "200":
+          description: Paginated list of contacts
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+    post:
+      operationId: createContact
+      summary: Create a contact
+      description: Creates a new contact. Rate limited to 30 requests per minute.
+      tags: [Contacts]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContactCreate"
+      responses:
+        "201":
+          description: Contact created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataEnvelope"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "402":
+          description: Trial expired or contact limit reached
+        "413":
+          description: Custom fields payload too large
+        "429":
+          $ref: "#/components/responses/RateLimited"
+
+  /contacts/{id}:
+    get:
+      operationId: getContact
+      summary: Get a contact by ID
+      tags: [Contacts]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Contact details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataEnvelope"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    patch:
+      operationId: updateContact
+      summary: Update a contact
+      tags: [Contacts]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContactUpdate"
+      responses:
+        "200":
+          description: Contact updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataEnvelope"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      operationId: deleteContact
+      summary: Soft-delete a contact
+      tags: [Contacts]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Contact deleted
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /contacts/{id}/tags:
+    post:
+      operationId: addContactTag
+      summary: Add a tag to a contact
+      tags: [Contacts]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [tagId]
+              properties:
+                tagId:
+                  type: string
+                  format: uuid
+      responses:
+        "200":
+          description: Tag added
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /contacts/{id}/tags/{tagId}:
+    delete:
+      operationId: removeContactTag
+      summary: Remove a tag from a contact
+      tags: [Contacts]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+        - name: tagId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Tag removed
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /contacts/{id}/score:
+    get:
+      operationId: getContactScore
+      summary: Get a contact's lead score breakdown
+      tags: [Contacts]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Score details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataEnvelope"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /contacts/duplicates:
+    get:
+      operationId: findDuplicateContacts
+      summary: Find duplicate contacts
+      tags: [Contacts]
+      responses:
+        "200":
+          description: List of duplicate contact groups
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataEnvelope"
+
+  /contacts/merge:
+    post:
+      operationId: mergeContacts
+      summary: Merge two contacts
+      tags: [Contacts]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [primaryId, secondaryId]
+              properties:
+                primaryId:
+                  type: string
+                  format: uuid
+                  description: Contact to keep
+                secondaryId:
+                  type: string
+                  format: uuid
+                  description: Contact to merge into primary (will be deleted)
+      responses:
+        "200":
+          description: Contacts merged
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /contacts/export:
+    get:
+      operationId: exportContacts
+      summary: Export contacts as CSV
+      tags: [Contacts]
+      responses:
+        "200":
+          description: CSV file download
+          content:
+            text/csv:
+              schema:
+                type: string
+
+  /contacts/import:
+    post:
+      operationId: importContacts
+      summary: Import contacts from CSV
+      tags: [Contacts]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: Import results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataEnvelope"
+
+  /contacts/import/template:
+    get:
+      operationId: getImportTemplate
+      summary: Download CSV import template
+      tags: [Contacts]
+      responses:
+        "200":
+          description: CSV template
+          content:
+            text/csv:
+              schema:
+                type: string
+
+  /contacts/smart-views:
+    get:
+      operationId: listSmartViews
+      summary: List available smart view definitions
+      tags: [Contacts]
+      responses:
+        "200":
+          description: Smart view configurations
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataEnvelope"
+
+  /contact:
+    post:
+      operationId: upsertContact
+      summary: Upsert a contact (webhook-friendly)
+      description: Creates or updates a contact by email or phone match. Designed for inbound webhook integrations.
+      tags: [Contacts]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContactCreate"
+      responses:
+        "200":
+          description: Contact created or updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataEnvelope"
+
+  # ──────────────────────────────────────────────
+  # Companies
+  # ──────────────────────────────────────────────
+  /companies:
+    get:
+      operationId: listCompanies
+      summary: List companies
+      tags: [Companies]
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PerPageParam"
+        - $ref: "#/components/parameters/SearchParam"
+        - name: industry
+          in: query
+          schema:
+            type: string
+        - name: size
+          in: query
+          schema:
+            type: string
+            enum: ["1-10", "11-50", "51-200", "201-500", "501-1000", "1001+"]
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [createdAt, updatedAt, name]
+            default: createdAt
+        - name: order
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+      responses:
+        "200":
+          description: Paginated list of companies
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedResponse"
+    post:
+      operationId: createCompany
+      summary: Create a company
+      tags: [Companies]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CompanyCreate"
+      responses:
+        "201":
+          description: Company created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataEnvelope"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /companies/{id}:
+    get:
+      operationId: getCompany
+      summary: Get a company by ID
+      tags: [Companies]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Company details with contact/deal counts and total value
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataEnvelope"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    patch:
+      operationId: updateCompany
+      summary: Update a company
+      tags: [Companies]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CompanyCreate"
+      responses:
+        "200":
+          description: Company updated
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      operationId: deleteCompany
+      summary: Soft-delete a company
+      tags: [Companies]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Company deleted
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  # ──────────────────────────────────────────────
+  # Deals
+  # ──────────────────────────────────────────────
+  /deals:
+    get:
+      operationId: listDeals
+      summary: List deals
+      description: Returns deals with Kanban-optimized sort order (stage, sortOrder, then requested sort).
+      tags: [Deals]
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PerPageParam"
+        - name: pipeline
+          in: query
+          schema:
+            type: string
+            format: uuid
+          description: Filter by pipeline ID
+        - name: stage
+          in: query
+          schema:
+            type: string
+            format: uuid
+          description: Filter by stage ID
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [open, won, lost]
+        - name: assigned_to
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [createdAt, updatedAt, title, value]
+            default: createdAt
+        - name: order
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+      responses:
+        "200":
+          description: Paginated list of deals
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedResponse"
+    post:
+      operationId: createDeal
+      summary: Create a deal
+      description: Creates a new deal in a pipeline stage. Rate limited to 30 requests per minute.
+      tags: [Deals]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DealCreate"
+      responses:
+        "201":
+          description: Deal created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataEnvelope"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          description: Pipeline or stage not found
+        "429":
+          $ref: "#/components/responses/RateLimited"
+
+  /deals/{id}:
+    get:
+      operationId: getDeal
+      summary: Get a deal by ID
+      tags: [Deals]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Deal details with contact, stage, pipeline, and assigned user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataEnvelope"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    patch:
+      operationId: updateDeal
+      summary: Update a deal
+      tags: [Deals]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DealUpdate"
+      responses:
+        "200":
+          description: Deal updated
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      operationId: deleteDeal
+      summary: Soft-delete a deal
+      tags: [Deals]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Deal deleted
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  # ──────────────────────────────────────────────
+  # Pipelines
+  # ──────────────────────────────────────────────
+  /pipelines:
+    get:
+      operationId: listPipelines
+      summary: List pipelines with stages
+      tags: [Pipelines]
+      responses:
+        "200":
+          description: All pipelines with their stages
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataEnvelope"
+    post:
+      operationId: createPipeline
+      summary: Create a pipeline
+      description: Requires owner or admin role. Subject to plan limits.
+      tags: [Pipelines]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                stages:
+                  type: array
+                  items:
+                    type: object
+                    required: [name]
+                    properties:
+                      name:
+                        type: string
+                      color:
+                        type: string
+                      isWon:
+                        type: boolean
+                      isLost:
+                        type: boolean
+      responses:
+        "201":
+          description: Pipeline created with stages
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataEnvelope"
+        "402":
+          description: Trial expired
+        "403":
+          description: Pipeline limit reached or insufficient role
+
+  /pipelines/{id}:
+    get:
+      operationId: getPipeline
+      summary: Get a pipeline by ID
+      tags: [Pipelines]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Pipeline with stages
+        "404":
+          $ref: "#/components/responses/NotFound"
+    patch:
+      operationId: updatePipeline
+      summary: Update a pipeline
+      tags: [Pipelines]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+      responses:
+        "200":
+          description: Pipeline updated
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      operationId: deletePipeline
+      summary: Delete a pipeline
+      tags: [Pipelines]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Pipeline deleted
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /pipelines/{id}/stages:
+    get:
+      operationId: listPipelineStages
+      summary: List stages for a pipeline
+      tags: [Pipelines]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Ordered list of stages
+    post:
+      operationId: createPipelineStage
+      summary: Add a stage to a pipeline
+      tags: [Pipelines]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PipelineStageCreate"
+      responses:
+        "201":
+          description: Stage created
+
+  /pipelines/{id}/stages/{stageId}:
+    patch:
+      operationId: updatePipelineStage
+      summary: Update a pipeline stage
+      tags: [Pipelines]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+        - name: stageId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PipelineStageCreate"
+      responses:
+        "200":
+          description: Stage updated
+    delete:
+      operationId: deletePipelineStage
+      summary: Delete a pipeline stage
+      tags: [Pipelines]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+        - name: stageId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Stage deleted
+
+  # ──────────────────────────────────────────────
+  # Tasks
+  # ──────────────────────────────────────────────
+  /tasks:
+    get:
+      operationId: listTasks
+      summary: List tasks
+      tags: [Tasks]
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PerPageParam"
+        - $ref: "#/components/parameters/SearchParam"
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [todo, in_progress, done]
+        - name: priority
+          in: query
+          schema:
+            type: string
+            enum: [low, medium, high, urgent]
+        - name: assigned_to
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: contact_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: deal_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [createdAt, updatedAt, dueDate, priority, title, status]
+            default: createdAt
+        - name: order
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+      responses:
+        "200":
+          description: Paginated list of tasks
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedResponse"
+    post:
+      operationId: createTask
+      summary: Create a task
+      tags: [Tasks]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TaskCreate"
+      responses:
+        "201":
+          description: Task created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataEnvelope"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /tasks/{id}:
+    get:
+      operationId: getTask
+      summary: Get a task by ID
+      tags: [Tasks]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Task details
+        "404":
+          $ref: "#/components/responses/NotFound"
+    patch:
+      operationId: updateTask
+      summary: Update a task
+      tags: [Tasks]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TaskCreate"
+      responses:
+        "200":
+          description: Task updated
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      operationId: deleteTask
+      summary: Delete a task
+      tags: [Tasks]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Task deleted
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  # ──────────────────────────────────────────────
+  # Notes
+  # ──────────────────────────────────────────────
+  /notes:
+    get:
+      operationId: listNotes
+      summary: List notes
+      tags: [Notes]
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PerPageParam"
+        - name: contact_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: deal_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Paginated list of notes (pinned first)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedResponse"
+    post:
+      operationId: createNote
+      summary: Create a note
+      description: Body is capped at 50 KB. Returns 413 if exceeded.
+      tags: [Notes]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NoteCreate"
+      responses:
+        "201":
+          description: Note created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataEnvelope"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "413":
+          description: Note body exceeds 50 KB limit
+
+  /notes/{id}:
+    get:
+      operationId: getNote
+      summary: Get a note by ID
+      tags: [Notes]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Note details
+        "404":
+          $ref: "#/components/responses/NotFound"
+    patch:
+      operationId: updateNote
+      summary: Update a note
+      tags: [Notes]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                body:
+                  type: string
+                isPinned:
+                  type: boolean
+      responses:
+        "200":
+          description: Note updated
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      operationId: deleteNote
+      summary: Delete a note
+      tags: [Notes]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Note deleted
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  # ──────────────────────────────────────────────
+  # Tags
+  # ──────────────────────────────────────────────
+  /tags:
+    get:
+      operationId: listTags
+      summary: List tags
+      tags: [Tags]
+      responses:
+        "200":
+          description: All tags for the account
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataEnvelope"
+    post:
+      operationId: createTag
+      summary: Create a tag
+      tags: [Tags]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name:
+                  type: string
+                color:
+                  type: string
+                  default: "#6B7280"
+      responses:
+        "201":
+          description: Tag created
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /tags/{id}:
+    patch:
+      operationId: updateTag
+      summary: Update a tag
+      tags: [Tags]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                color:
+                  type: string
+      responses:
+        "200":
+          description: Tag updated
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      operationId: deleteTag
+      summary: Delete a tag
+      tags: [Tags]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Tag deleted
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /tags/merge:
+    post:
+      operationId: mergeTags
+      summary: Merge two tags
+      tags: [Tags]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [sourceId, targetId]
+              properties:
+                sourceId:
+                  type: string
+                  format: uuid
+                  description: Tag to merge from (will be deleted)
+                targetId:
+                  type: string
+                  format: uuid
+                  description: Tag to merge into (will be kept)
+      responses:
+        "200":
+          description: Tags merged
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  # ──────────────────────────────────────────────
+  # Activities
+  # ──────────────────────────────────────────────
+  /activities:
+    get:
+      operationId: listActivities
+      summary: List activities
+      tags: [Activities]
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PerPageParam"
+        - name: contact_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: deal_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: type
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Paginated activity feed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedResponse"
+    post:
+      operationId: createActivity
+      summary: Log an activity
+      tags: [Activities]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [type, title]
+              properties:
+                type:
+                  type: string
+                title:
+                  type: string
+                description:
+                  type: string
+                contactId:
+                  type: string
+                  format: uuid
+                dealId:
+                  type: string
+                  format: uuid
+                metadata:
+                  type: object
+      responses:
+        "201":
+          description: Activity logged
+
+  # ──────────────────────────────────────────────
+  # Messages
+  # ──────────────────────────────────────────────
+  /messages:
+    get:
+      operationId: listMessages
+      summary: List messages
+      tags: [Messages]
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PerPageParam"
+        - name: contact_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: channel
+          in: query
+          schema:
+            type: string
+            enum: [sms, email]
+        - name: direction
+          in: query
+          schema:
+            type: string
+            enum: [inbound, outbound]
+      responses:
+        "200":
+          description: Paginated messages
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedResponse"
+    post:
+      operationId: createMessage
+      summary: Create a message record
+      tags: [Messages]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MessageCreate"
+      responses:
+        "201":
+          description: Message created
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /messages/sms/{id}:
+    get:
+      operationId: getSmsMessage
+      summary: Get an SMS message by ID
+      tags: [Messages]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: SMS message details
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /messages/sms/send:
+    post:
+      operationId: sendSms
+      summary: Send an SMS message
+      tags: [Messages]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [contactId, body]
+              properties:
+                contactId:
+                  type: string
+                  format: uuid
+                body:
+                  type: string
+                  maxLength: 1600
+      responses:
+        "200":
+          description: SMS sent
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  # ──────────────────────────────────────────────
+  # Email (send)
+  # ──────────────────────────────────────────────
+  /email/send:
+    post:
+      operationId: sendEmail
+      summary: Send an email to a contact
+      tags: [Email]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [contactId, subject, body]
+              properties:
+                contactId:
+                  type: string
+                  format: uuid
+                subject:
+                  type: string
+                  maxLength: 500
+                body:
+                  type: string
+                bodyHtml:
+                  type: string
+                scheduledAt:
+                  type: string
+                  format: date-time
+      responses:
+        "200":
+          description: Email sent or scheduled
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /email/send-bulk:
+    post:
+      operationId: sendBulkEmail
+      summary: Send bulk emails
+      tags: [Email]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [contactIds, subject, body]
+              properties:
+                contactIds:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+                subject:
+                  type: string
+                body:
+                  type: string
+                bodyHtml:
+                  type: string
+      responses:
+        "200":
+          description: Bulk send initiated
+
+  /emails:
+    get:
+      operationId: listEmails
+      summary: List email messages
+      tags: [Email]
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PerPageParam"
+      responses:
+        "200":
+          description: Paginated email messages
+
+  # ──────────────────────────────────────────────
+  # Email Templates
+  # ──────────────────────────────────────────────
+  /emails/templates:
+    get:
+      operationId: listEmailTemplates
+      summary: List email templates
+      tags: [Email Templates]
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PerPageParam"
+      responses:
+        "200":
+          description: Paginated templates
+    post:
+      operationId: createEmailTemplate
+      summary: Create an email template
+      tags: [Email Templates]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmailTemplateCreate"
+      responses:
+        "201":
+          description: Template created
+
+  /emails/templates/{id}:
+    get:
+      operationId: getEmailTemplate
+      summary: Get an email template by ID
+      tags: [Email Templates]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Template details
+        "404":
+          $ref: "#/components/responses/NotFound"
+    patch:
+      operationId: updateEmailTemplate
+      summary: Update an email template
+      tags: [Email Templates]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmailTemplateCreate"
+      responses:
+        "200":
+          description: Template updated
+    delete:
+      operationId: deleteEmailTemplate
+      summary: Delete an email template
+      tags: [Email Templates]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Template deleted
+
+  /emails/templates/test-send:
+    post:
+      operationId: testSendEmailTemplate
+      summary: Send a test email from a template
+      tags: [Email Templates]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [templateId, toEmail]
+              properties:
+                templateId:
+                  type: string
+                  format: uuid
+                toEmail:
+                  type: string
+                  format: email
+      responses:
+        "200":
+          description: Test email sent
+
+  # ──────────────────────────────────────────────
+  # Email Sequences
+  # ──────────────────────────────────────────────
+  /emails/sequences:
+    get:
+      operationId: listEmailSequences
+      summary: List email sequences
+      tags: [Email Sequences]
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PerPageParam"
+      responses:
+        "200":
+          description: Paginated sequences
+    post:
+      operationId: createEmailSequence
+      summary: Create an email sequence
+      tags: [Email Sequences]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, steps]
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                steps:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      subject:
+                        type: string
+                      body:
+                        type: string
+                      delayDays:
+                        type: integer
+      responses:
+        "201":
+          description: Sequence created
+
+  /emails/sequences/{id}:
+    get:
+      operationId: getEmailSequence
+      summary: Get an email sequence by ID
+      tags: [Email Sequences]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Sequence details with steps
+        "404":
+          $ref: "#/components/responses/NotFound"
+    patch:
+      operationId: updateEmailSequence
+      summary: Update an email sequence
+      tags: [Email Sequences]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                isActive:
+                  type: boolean
+                steps:
+                  type: array
+                  items:
+                    type: object
+      responses:
+        "200":
+          description: Sequence updated
+
+  /emails/sequences/{id}/enroll:
+    post:
+      operationId: enrollInSequence
+      summary: Enroll contacts in a sequence
+      tags: [Email Sequences]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [contactIds]
+              properties:
+                contactIds:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+      responses:
+        "200":
+          description: Contacts enrolled
+
+  /emails/sequences/{id}/unenroll:
+    post:
+      operationId: unenrollFromSequence
+      summary: Unenroll contacts from a sequence
+      tags: [Email Sequences]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [contactIds]
+              properties:
+                contactIds:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+      responses:
+        "200":
+          description: Contacts unenrolled
+
+  /emails/sequences/{id}/enrollments:
+    get:
+      operationId: listSequenceEnrollments
+      summary: List enrollments for a sequence
+      tags: [Email Sequences]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PerPageParam"
+      responses:
+        "200":
+          description: Paginated enrollments
+
+  /emails/sequences/{id}/stats:
+    get:
+      operationId: getSequenceStats
+      summary: Get sequence performance stats
+      tags: [Email Sequences]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Sequence stats (enrolled, completed, open rate, click rate)
+
+  # ──────────────────────────────────────────────
+  # Conversations
+  # ──────────────────────────────────────────────
+  /conversations:
+    get:
+      operationId: listConversations
+      summary: List conversation threads
+      tags: [Conversations]
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PerPageParam"
+      responses:
+        "200":
+          description: Paginated conversations
+
+  /conversations/{contactId}:
+    get:
+      operationId: getConversation
+      summary: Get conversation thread for a contact
+      tags: [Conversations]
+      parameters:
+        - name: contactId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Messages for this contact thread
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  # ──────────────────────────────────────────────
+  # Automations
+  # ──────────────────────────────────────────────
+  /automations:
+    get:
+      operationId: listAutomations
+      summary: List automations
+      tags: [Automations]
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PerPageParam"
+      responses:
+        "200":
+          description: Paginated automations
+    post:
+      operationId: createAutomation
+      summary: Create an automation
+      tags: [Automations]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AutomationCreate"
+      responses:
+        "201":
+          description: Automation created
+
+  /automations/{id}:
+    get:
+      operationId: getAutomation
+      summary: Get an automation by ID
+      tags: [Automations]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Automation details
+        "404":
+          $ref: "#/components/responses/NotFound"
+    patch:
+      operationId: updateAutomation
+      summary: Update an automation
+      tags: [Automations]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AutomationCreate"
+      responses:
+        "200":
+          description: Automation updated
+    delete:
+      operationId: deleteAutomation
+      summary: Delete an automation
+      tags: [Automations]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Automation deleted
+
+  /automations/{id}/publish:
+    post:
+      operationId: publishAutomation
+      summary: Publish an automation's draft graph
+      tags: [Automations]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Automation published
+
+  /automations/{id}/dry-run:
+    post:
+      operationId: dryRunAutomation
+      summary: Dry-run an automation without side effects
+      tags: [Automations]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                contactId:
+                  type: string
+                  format: uuid
+      responses:
+        "200":
+          description: Dry-run results
+
+  /automations/{id}/bulk-enroll:
+    post:
+      operationId: bulkEnrollAutomation
+      summary: Bulk-enroll contacts into an automation
+      tags: [Automations]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [contactIds]
+              properties:
+                contactIds:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+      responses:
+        "200":
+          description: Contacts enrolled
+
+  /automations/{id}/analytics:
+    get:
+      operationId: getAutomationAnalytics
+      summary: Get automation analytics
+      tags: [Automations]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Automation analytics (trigger count, success/fail rates)
+
+  /automations/{id}/node-stats:
+    get:
+      operationId: getAutomationNodeStats
+      summary: Get per-node execution stats for an automation
+      tags: [Automations]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Node-level stats
+
+  /automations/{id}/step-logs:
+    get:
+      operationId: getAutomationStepLogs
+      summary: Get step-level execution logs for an automation
+      tags: [Automations]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PerPageParam"
+      responses:
+        "200":
+          description: Step logs
+
+  /automations/events:
+    get:
+      operationId: listAutomationEvents
+      summary: List available trigger events
+      tags: [Automations]
+      responses:
+        "200":
+          description: Trigger event definitions
+
+  /automations/actions:
+    get:
+      operationId: listAutomationActions
+      summary: List available automation actions
+      tags: [Automations]
+      responses:
+        "200":
+          description: Action type definitions
+
+  /automations/condition-fields:
+    get:
+      operationId: listAutomationConditionFields
+      summary: List available condition fields for triggers
+      tags: [Automations]
+      responses:
+        "200":
+          description: Condition field definitions
+
+  /automations/templates:
+    get:
+      operationId: listAutomationTemplates
+      summary: List automation templates
+      tags: [Automations]
+      responses:
+        "200":
+          description: Pre-built automation templates
+    post:
+      operationId: createFromAutomationTemplate
+      summary: Create automation from a template
+      tags: [Automations]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [templateId]
+              properties:
+                templateId:
+                  type: string
+      responses:
+        "201":
+          description: Automation created from template
+
+  /automations/webhook-test:
+    post:
+      operationId: testAutomationWebhook
+      summary: Send a test payload to an automation's webhook URL
+      tags: [Automations]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [url]
+              properties:
+                url:
+                  type: string
+                  format: uri
+                payload:
+                  type: object
+      responses:
+        "200":
+          description: Test webhook response
+
+  # ──────────────────────────────────────────────
+  # Automation Executions
+  # ──────────────────────────────────────────────
+  /automation-executions:
+    get:
+      operationId: listAutomationExecutions
+      summary: List automation execution logs
+      tags: [Automation Executions]
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PerPageParam"
+      responses:
+        "200":
+          description: Paginated execution logs
+
+  /automation-executions/{id}:
+    get:
+      operationId: getAutomationExecution
+      summary: Get execution details by ID
+      tags: [Automation Executions]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Execution details with step logs
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  # ──────────────────────────────────────────────
+  # Workflows
+  # ──────────────────────────────────────────────
+  /workflows:
+    get:
+      operationId: listWorkflows
+      summary: List workflows
+      tags: [Workflows]
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PerPageParam"
+      responses:
+        "200":
+          description: Paginated workflows
+    post:
+      operationId: createWorkflow
+      summary: Create a workflow
+      tags: [Workflows]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, trigger, actions]
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                trigger:
+                  type: object
+                actions:
+                  type: array
+                  items:
+                    type: object
+                isActive:
+                  type: boolean
+      responses:
+        "201":
+          description: Workflow created
+
+  /workflows/{id}:
+    get:
+      operationId: getWorkflow
+      summary: Get a workflow by ID
+      tags: [Workflows]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Workflow details
+        "404":
+          $ref: "#/components/responses/NotFound"
+    patch:
+      operationId: updateWorkflow
+      summary: Update a workflow
+      tags: [Workflows]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                trigger:
+                  type: object
+                actions:
+                  type: array
+                  items:
+                    type: object
+      responses:
+        "200":
+          description: Workflow updated
+    delete:
+      operationId: deleteWorkflow
+      summary: Delete a workflow
+      tags: [Workflows]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Workflow deleted
+
+  /workflows/{id}/activate:
+    post:
+      operationId: activateWorkflow
+      summary: Activate a workflow
+      tags: [Workflows]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Workflow activated
+
+  /workflows/{id}/deactivate:
+    post:
+      operationId: deactivateWorkflow
+      summary: Deactivate a workflow
+      tags: [Workflows]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Workflow deactivated
+
+  /workflows/{id}/test:
+    post:
+      operationId: testWorkflow
+      summary: Test a workflow with sample data
+      tags: [Workflows]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                contactId:
+                  type: string
+                  format: uuid
+      responses:
+        "200":
+          description: Test run results
+
+  /workflows/{id}/runs:
+    get:
+      operationId: listWorkflowRuns
+      summary: List runs for a workflow
+      tags: [Workflows]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PerPageParam"
+      responses:
+        "200":
+          description: Paginated workflow runs
+
+  /workflows/{id}/runs/{runId}:
+    get:
+      operationId: getWorkflowRun
+      summary: Get a workflow run by ID
+      tags: [Workflows]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+        - name: runId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Run details with step results
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  # ──────────────────────────────────────────────
+  # Drip Campaigns
+  # ──────────────────────────────────────────────
+  /drip-campaigns:
+    get:
+      operationId: listDripCampaigns
+      summary: List SMS drip campaigns
+      tags: [Drip Campaigns]
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PerPageParam"
+      responses:
+        "200":
+          description: Paginated drip campaigns
+    post:
+      operationId: createDripCampaign
+      summary: Create a drip campaign
+      tags: [Drip Campaigns]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DripCampaignCreate"
+      responses:
+        "201":
+          description: Drip campaign created
+
+  /drip-campaigns/{id}:
+    patch:
+      operationId: updateDripCampaign
+      summary: Update a drip campaign
+      tags: [Drip Campaigns]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Drip campaign updated
+    delete:
+      operationId: deleteDripCampaign
+      summary: Delete a drip campaign
+      tags: [Drip Campaigns]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Drip campaign deleted
+
+  /drip-campaigns/seed:
+    post:
+      operationId: seedDripCampaigns
+      summary: Seed default drip campaigns
+      tags: [Drip Campaigns]
+      responses:
+        "200":
+          description: Default campaigns seeded
+
+  /drip-enrollments:
+    get:
+      operationId: listDripEnrollments
+      summary: List drip enrollments
+      tags: [Drip Campaigns]
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PerPageParam"
+      responses:
+        "200":
+          description: Paginated drip enrollments
+
+  # ──────────────────────────────────────────────
+  # Custom Fields
+  # ──────────────────────────────────────────────
+  /custom-fields:
+    get:
+      operationId: listCustomFields
+      summary: List custom field definitions
+      tags: [Custom Fields]
+      parameters:
+        - name: entity_type
+          in: query
+          schema:
+            type: string
+            enum: [contact, deal]
+      responses:
+        "200":
+          description: Custom field definitions
+    post:
+      operationId: createCustomField
+      summary: Create a custom field definition
+      tags: [Custom Fields]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CustomFieldCreate"
+      responses:
+        "201":
+          description: Custom field created
+
+  /custom-fields/{id}:
+    patch:
+      operationId: updateCustomField
+      summary: Update a custom field definition
+      tags: [Custom Fields]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CustomFieldCreate"
+      responses:
+        "200":
+          description: Custom field updated
+    delete:
+      operationId: deleteCustomField
+      summary: Delete a custom field definition
+      tags: [Custom Fields]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Custom field deleted
+
+  # ──────────────────────────────────────────────
+  # Calendars (internal)
+  # ──────────────────────────────────────────────
+  /calendars:
+    get:
+      operationId: listCalendars
+      summary: List internal calendars
+      tags: [Calendars]
+      responses:
+        "200":
+          description: All calendars
+    post:
+      operationId: createCalendar
+      summary: Create a calendar
+      tags: [Calendars]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                timezone:
+                  type: string
+                  default: America/Los_Angeles
+      responses:
+        "201":
+          description: Calendar created
+
+  /calendars/{id}:
+    get:
+      operationId: getCalendar
+      summary: Get a calendar by ID
+      tags: [Calendars]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Calendar details
+    patch:
+      operationId: updateCalendar
+      summary: Update a calendar
+      tags: [Calendars]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Calendar updated
+
+  /calendars/{id}/appointments:
+    get:
+      operationId: listCalendarAppointments
+      summary: List appointments in a calendar
+      tags: [Calendars]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PerPageParam"
+      responses:
+        "200":
+          description: Paginated appointments
+    post:
+      operationId: createCalendarAppointment
+      summary: Create an appointment in a calendar
+      tags: [Calendars]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AppointmentCreate"
+      responses:
+        "201":
+          description: Appointment created
+
+  /calendars/{id}/appointments/{appointmentId}:
+    get:
+      operationId: getCalendarAppointment
+      summary: Get an appointment by ID
+      tags: [Calendars]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+        - name: appointmentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Appointment details
+    patch:
+      operationId: updateCalendarAppointment
+      summary: Update an appointment
+      tags: [Calendars]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+        - name: appointmentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Appointment updated
+    delete:
+      operationId: deleteCalendarAppointment
+      summary: Delete an appointment
+      tags: [Calendars]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+        - name: appointmentId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Appointment deleted
+
+  # ──────────────────────────────────────────────
+  # Appointments (top-level)
+  # ──────────────────────────────────────────────
+  /appointments:
+    get:
+      operationId: listAppointments
+      summary: List all appointments
+      tags: [Appointments]
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PerPageParam"
+      responses:
+        "200":
+          description: Paginated appointments
+    post:
+      operationId: createAppointment
+      summary: Create an appointment
+      tags: [Appointments]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AppointmentCreate"
+      responses:
+        "201":
+          description: Appointment created
+
+  /appointments/{id}:
+    get:
+      operationId: getAppointment
+      summary: Get an appointment by ID
+      tags: [Appointments]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Appointment details
+    patch:
+      operationId: updateAppointment
+      summary: Update an appointment
+      tags: [Appointments]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Appointment updated
+    delete:
+      operationId: deleteAppointment
+      summary: Delete an appointment
+      tags: [Appointments]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Appointment deleted
+
+  # ──────────────────────────────────────────────
+  # Calendar Connections (Google/Microsoft)
+  # ──────────────────────────────────────────────
+  /calendar/connect/google:
+    post:
+      operationId: connectGoogleCalendar
+      summary: Initiate Google Calendar OAuth
+      tags: [Calendar Connections]
+      responses:
+        "200":
+          description: OAuth redirect URL
+
+  /calendar/connect/microsoft:
+    post:
+      operationId: connectMicrosoftCalendar
+      summary: Initiate Microsoft Calendar OAuth
+      tags: [Calendar Connections]
+      responses:
+        "200":
+          description: OAuth redirect URL
+
+  /calendar/callback/google:
+    get:
+      operationId: googleCalendarCallback
+      summary: Google Calendar OAuth callback
+      tags: [Calendar Connections]
+      security: []
+      responses:
+        "302":
+          description: Redirect to dashboard
+
+  /calendar/callback/microsoft:
+    get:
+      operationId: microsoftCalendarCallback
+      summary: Microsoft Calendar OAuth callback
+      tags: [Calendar Connections]
+      security: []
+      responses:
+        "302":
+          description: Redirect to dashboard
+
+  /calendar/connections:
+    get:
+      operationId: listCalendarConnections
+      summary: List calendar connections
+      tags: [Calendar Connections]
+      responses:
+        "200":
+          description: Active calendar connections
+
+  /calendar/connections/{id}:
+    get:
+      operationId: getCalendarConnection
+      summary: Get a calendar connection by ID
+      tags: [Calendar Connections]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Connection details
+    delete:
+      operationId: deleteCalendarConnection
+      summary: Disconnect a calendar
+      tags: [Calendar Connections]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Calendar disconnected
+
+  /calendar/events:
+    get:
+      operationId: listCalendarEvents
+      summary: List synced calendar events
+      tags: [Calendar Connections]
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PerPageParam"
+      responses:
+        "200":
+          description: Paginated calendar events
+    post:
+      operationId: createCalendarEvent
+      summary: Create an event on a connected calendar
+      tags: [Calendar Connections]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [calendarConnectionId, title, startAt, endAt]
+              properties:
+                calendarConnectionId:
+                  type: string
+                  format: uuid
+                title:
+                  type: string
+                description:
+                  type: string
+                startAt:
+                  type: string
+                  format: date-time
+                endAt:
+                  type: string
+                  format: date-time
+                location:
+                  type: string
+      responses:
+        "201":
+          description: Event created
+
+  /calendar/events/{id}:
+    get:
+      operationId: getCalendarEvent
+      summary: Get a synced calendar event
+      tags: [Calendar Connections]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Event details
+    patch:
+      operationId: updateCalendarEvent
+      summary: Update a synced calendar event
+      tags: [Calendar Connections]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Event updated
+    delete:
+      operationId: deleteCalendarEvent
+      summary: Delete a synced calendar event
+      tags: [Calendar Connections]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Event deleted
+
+  /calendar/sync:
+    post:
+      operationId: syncCalendar
+      summary: Trigger manual calendar sync
+      tags: [Calendar Connections]
+      responses:
+        "200":
+          description: Sync initiated
+
+  # ──────────────────────────────────────────────
+  # Booking Pages
+  # ──────────────────────────────────────────────
+  /booking-pages:
+    get:
+      operationId: listBookingPages
+      summary: List booking pages
+      tags: [Booking Pages]
+      responses:
+        "200":
+          description: All booking pages
+    post:
+      operationId: createBookingPage
+      summary: Create a booking page
+      tags: [Booking Pages]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, slug, durationMinutes]
+              properties:
+                title:
+                  type: string
+                slug:
+                  type: string
+                description:
+                  type: string
+                durationMinutes:
+                  type: integer
+                  default: 30
+                bufferBefore:
+                  type: integer
+                bufferAfter:
+                  type: integer
+                customQuestions:
+                  type: array
+                  items:
+                    type: object
+      responses:
+        "201":
+          description: Booking page created
+
+  /booking-pages/{id}:
+    get:
+      operationId: getBookingPage
+      summary: Get a booking page by ID
+      tags: [Booking Pages]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Booking page details
+    patch:
+      operationId: updateBookingPage
+      summary: Update a booking page
+      tags: [Booking Pages]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Booking page updated
+    delete:
+      operationId: deleteBookingPage
+      summary: Delete a booking page
+      tags: [Booking Pages]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Booking page deleted
+
+  /booking-pages/{id}/availability:
+    get:
+      operationId: getBookingPageAvailability
+      summary: Get availability for a booking page
+      tags: [Booking Pages]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Available time slots
+
+  /availability:
+    get:
+      operationId: getAvailability
+      summary: Get current user's availability rules
+      tags: [Booking Pages]
+      responses:
+        "200":
+          description: Availability rules
+    put:
+      operationId: setAvailability
+      summary: Set availability rules
+      tags: [Booking Pages]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [rules]
+              properties:
+                rules:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      dayOfWeek:
+                        type: integer
+                        minimum: 0
+                        maximum: 6
+                      startTime:
+                        type: string
+                        description: "HH:mm format"
+                      endTime:
+                        type: string
+                        description: "HH:mm format"
+      responses:
+        "200":
+          description: Availability updated
+
+  # ──────────────────────────────────────────────
+  # Forms
+  # ──────────────────────────────────────────────
+  /forms:
+    get:
+      operationId: listForms
+      summary: List forms
+      tags: [Forms]
+      responses:
+        "200":
+          description: All forms
+    post:
+      operationId: createForm
+      summary: Create a form
+      tags: [Forms]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, slug, fields]
+              properties:
+                name:
+                  type: string
+                slug:
+                  type: string
+                description:
+                  type: string
+                fields:
+                  type: array
+                  items:
+                    type: object
+                settings:
+                  type: object
+                redirectUrl:
+                  type: string
+                thankYouMessage:
+                  type: string
+      responses:
+        "201":
+          description: Form created
+
+  /forms/{id}:
+    get:
+      operationId: getForm
+      summary: Get a form by ID
+      tags: [Forms]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Form details
+    patch:
+      operationId: updateForm
+      summary: Update a form
+      tags: [Forms]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Form updated
+    delete:
+      operationId: deleteForm
+      summary: Delete a form
+      tags: [Forms]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Form deleted
+
+  /forms/{id}/submissions:
+    get:
+      operationId: listFormSubmissions
+      summary: List submissions for a form
+      tags: [Forms]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PerPageParam"
+      responses:
+        "200":
+          description: Paginated form submissions
+
+  /forms/{id}/submit:
+    post:
+      operationId: submitForm
+      summary: Submit a form (public, no auth)
+      tags: [Forms]
+      security: []
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Key-value pairs matching the form's field definitions
+      responses:
+        "200":
+          description: Submission accepted
+
+  # ──────────────────────────────────────────────
+  # Invoices
+  # ──────────────────────────────────────────────
+  /invoices:
+    get:
+      operationId: listInvoices
+      summary: List invoices
+      tags: [Invoices]
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PerPageParam"
+      responses:
+        "200":
+          description: Paginated invoices
+    post:
+      operationId: createInvoice
+      summary: Create an invoice
+      tags: [Invoices]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InvoiceCreate"
+      responses:
+        "201":
+          description: Invoice created
+
+  /invoices/next-number:
+    get:
+      operationId: getNextInvoiceNumber
+      summary: Get the next auto-incremented invoice number
+      tags: [Invoices]
+      responses:
+        "200":
+          description: Next invoice number
+
+  /invoices/{id}:
+    get:
+      operationId: getInvoice
+      summary: Get an invoice by ID
+      tags: [Invoices]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Invoice details with line items
+        "404":
+          $ref: "#/components/responses/NotFound"
+    patch:
+      operationId: updateInvoice
+      summary: Update an invoice
+      tags: [Invoices]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Invoice updated
+    delete:
+      operationId: deleteInvoice
+      summary: Delete an invoice
+      tags: [Invoices]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Invoice deleted
+
+  /invoices/{id}/send:
+    post:
+      operationId: sendInvoice
+      summary: Send an invoice via email
+      tags: [Invoices]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Invoice sent
+
+  /invoices/{id}/void:
+    post:
+      operationId: voidInvoice
+      summary: Void an invoice
+      tags: [Invoices]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Invoice voided
+
+  /invoices/{id}/pdf:
+    get:
+      operationId: getInvoicePdf
+      summary: Download invoice as PDF
+      tags: [Invoices]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: PDF file
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+
+  /invoices/{id}/payment-link:
+    post:
+      operationId: createInvoicePaymentLink
+      summary: Create a Stripe payment link for an invoice
+      tags: [Invoices]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Payment link URL
+
+  /invoices/{id}/payments:
+    get:
+      operationId: listInvoicePayments
+      summary: List payments for an invoice
+      tags: [Invoices]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Payments for this invoice
+    post:
+      operationId: recordInvoicePayment
+      summary: Record a manual payment against an invoice
+      tags: [Invoices]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [amount]
+              properties:
+                amount:
+                  type: number
+                  format: double
+                method:
+                  type: string
+                  default: card
+                reference:
+                  type: string
+                notes:
+                  type: string
+      responses:
+        "201":
+          description: Payment recorded
+
+  # ──────────────────────────────────────────────
+  # Products
+  # ──────────────────────────────────────────────
+  /products:
+    get:
+      operationId: listProducts
+      summary: List products
+      tags: [Products]
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PerPageParam"
+      responses:
+        "200":
+          description: Paginated products
+    post:
+      operationId: createProduct
+      summary: Create a product
+      tags: [Products]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductCreate"
+      responses:
+        "201":
+          description: Product created
+
+  /products/{id}:
+    get:
+      operationId: getProduct
+      summary: Get a product by ID
+      tags: [Products]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Product details
+        "404":
+          $ref: "#/components/responses/NotFound"
+    patch:
+      operationId: updateProduct
+      summary: Update a product
+      tags: [Products]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Product updated
+    delete:
+      operationId: deleteProduct
+      summary: Delete a product
+      tags: [Products]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Product deleted
+
+  # ──────────────────────────────────────────────
+  # Notifications
+  # ──────────────────────────────────────────────
+  /notifications:
+    get:
+      operationId: listNotifications
+      summary: List notifications
+      tags: [Notifications]
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PerPageParam"
+      responses:
+        "200":
+          description: Paginated notifications
+    post:
+      operationId: createNotification
+      summary: Create a notification
+      tags: [Notifications]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userId, type, title, message]
+              properties:
+                userId:
+                  type: string
+                  format: uuid
+                type:
+                  type: string
+                  enum: [deal_won, deal_lost, deal_stalled, task_due, task_overdue, mention, system]
+                title:
+                  type: string
+                message:
+                  type: string
+                metadata:
+                  type: object
+      responses:
+        "201":
+          description: Notification created
+
+  /notifications/{id}:
+    patch:
+      operationId: markNotificationRead
+      summary: Mark a notification as read
+      tags: [Notifications]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                isRead:
+                  type: boolean
+      responses:
+        "200":
+          description: Notification updated
+
+  /notifications/read-all:
+    post:
+      operationId: markAllNotificationsRead
+      summary: Mark all notifications as read
+      tags: [Notifications]
+      responses:
+        "200":
+          description: All notifications marked as read
+
+  # ──────────────────────────────────────────────
+  # Files
+  # ──────────────────────────────────────────────
+  /files:
+    get:
+      operationId: listFiles
+      summary: List file attachments
+      tags: [Files]
+      parameters:
+        - name: entity_type
+          in: query
+          schema:
+            type: string
+            enum: [contact, deal, company]
+        - name: entity_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: File list
+    post:
+      operationId: createFileRecord
+      summary: Create a file attachment record
+      tags: [Files]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [entityType, entityId, fileName, fileUrl, fileSize, contentType]
+              properties:
+                entityType:
+                  type: string
+                  enum: [contact, deal, company]
+                entityId:
+                  type: string
+                  format: uuid
+                fileName:
+                  type: string
+                fileUrl:
+                  type: string
+                  format: uri
+                fileSize:
+                  type: integer
+                contentType:
+                  type: string
+      responses:
+        "201":
+          description: File record created
+    delete:
+      operationId: deleteFile
+      summary: Delete a file attachment
+      tags: [Files]
+      responses:
+        "200":
+          description: File deleted
+
+  /files/upload:
+    post:
+      operationId: uploadFile
+      summary: Upload a file
+      tags: [Files]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                entityType:
+                  type: string
+                entityId:
+                  type: string
+      responses:
+        "200":
+          description: File uploaded
+
+  # ──────────────────────────────────────────────
+  # API Keys
+  # ──────────────────────────────────────────────
+  /api-keys:
+    get:
+      operationId: listApiKeys
+      summary: List API keys (owner/admin only)
+      description: Returns API key metadata. Never returns the full key.
+      tags: [API Keys]
+      responses:
+        "200":
+          description: List of API keys
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DataEnvelope"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+    post:
+      operationId: createApiKey
+      summary: Generate a new API key (owner/admin only)
+      description: Returns the full key exactly once. Store it securely.
+      tags: [API Keys]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+                scopes:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        "200":
+          description: API key created (includes full key)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      name:
+                        type: string
+                      keyPrefix:
+                        type: string
+                      key:
+                        type: string
+                        description: Full API key (shown once)
+                      createdAt:
+                        type: string
+                        format: date-time
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /api-keys/{id}:
+    delete:
+      operationId: revokeApiKey
+      summary: Revoke an API key
+      tags: [API Keys]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: API key revoked
+
+  # ──────────────────────────────────────────────
+  # Users
+  # ──────────────────────────────────────────────
+  /users:
+    get:
+      operationId: listUsers
+      summary: List team members
+      tags: [Users]
+      responses:
+        "200":
+          description: Team member list
+
+  /users/invite:
+    post:
+      operationId: inviteUser
+      summary: Invite a team member
+      tags: [Users]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, role]
+              properties:
+                email:
+                  type: string
+                  format: email
+                role:
+                  type: string
+                  enum: [admin, member]
+      responses:
+        "200":
+          description: Invitation sent
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /users/{id}:
+    get:
+      operationId: getUser
+      summary: Get a team member by ID
+      tags: [Users]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: User details
+        "404":
+          $ref: "#/components/responses/NotFound"
+    patch:
+      operationId: updateUser
+      summary: Update a team member
+      tags: [Users]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                role:
+                  type: string
+                isActive:
+                  type: boolean
+      responses:
+        "200":
+          description: User updated
+    delete:
+      operationId: removeUser
+      summary: Remove a team member
+      tags: [Users]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: User removed
+
+  # ──────────────────────────────────────────────
+  # Settings
+  # ──────────────────────────────────────────────
+  /settings:
+    get:
+      operationId: getSettings
+      summary: Get account settings
+      tags: [Settings]
+      responses:
+        "200":
+          description: Account settings
+    patch:
+      operationId: updateSettings
+      summary: Update account settings
+      tags: [Settings]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                domain:
+                  type: string
+                settings:
+                  type: object
+      responses:
+        "200":
+          description: Settings updated
+
+  /settings/branding:
+    get:
+      operationId: getBranding
+      summary: Get white-label branding settings
+      tags: [Settings]
+      responses:
+        "200":
+          description: Branding settings
+    patch:
+      operationId: updateBranding
+      summary: Update white-label branding
+      tags: [Settings]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                brandName:
+                  type: string
+                brandLogo:
+                  type: string
+                  format: uri
+                brandFavicon:
+                  type: string
+                  format: uri
+                brandPrimaryColor:
+                  type: string
+                  description: Hex color e.g. "#2E3B5B"
+                brandAccentColor:
+                  type: string
+                customDomain:
+                  type: string
+      responses:
+        "200":
+          description: Branding updated
+
+  /settings/sms:
+    get:
+      operationId: getSmsSettings
+      summary: Get SMS provider settings
+      tags: [Settings]
+      responses:
+        "200":
+          description: SMS settings
+    patch:
+      operationId: updateSmsSettings
+      summary: Update SMS provider settings
+      tags: [Settings]
+      responses:
+        "200":
+          description: SMS settings updated
+
+  /settings/sms/test:
+    post:
+      operationId: testSmsSettings
+      summary: Send a test SMS
+      tags: [Settings]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [toNumber]
+              properties:
+                toNumber:
+                  type: string
+      responses:
+        "200":
+          description: Test SMS sent
+
+  /settings/twilio:
+    get:
+      operationId: getTwilioSettings
+      summary: Get Twilio configuration
+      tags: [Settings]
+      responses:
+        "200":
+          description: Twilio settings
+    put:
+      operationId: updateTwilioSettings
+      summary: Update Twilio configuration
+      tags: [Settings]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                twilioAccountSid:
+                  type: string
+                twilioAuthToken:
+                  type: string
+                twilioPhoneNumber:
+                  type: string
+                twilioTwimlAppSid:
+                  type: string
+                twilioApiKey:
+                  type: string
+                twilioApiSecret:
+                  type: string
+      responses:
+        "200":
+          description: Twilio settings updated
+
+  /settings/twilio/test:
+    post:
+      operationId: testTwilioSettings
+      summary: Test Twilio configuration
+      tags: [Settings]
+      responses:
+        "200":
+          description: Twilio connection test result
+
+  /settings/integrations/{id}/test:
+    post:
+      operationId: testIntegration
+      summary: Test an integration connection
+      tags: [Settings]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Integration test result
+
+  # ──────────────────────────────────────────────
+  # Email Domains
+  # ──────────────────────────────────────────────
+  /email-domains:
+    get:
+      operationId: getEmailDomain
+      summary: Get email domain configuration
+      tags: [Email Domains]
+      responses:
+        "200":
+          description: Email domain details with DNS records
+    post:
+      operationId: addEmailDomain
+      summary: Add a custom email domain
+      tags: [Email Domains]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [domain]
+              properties:
+                domain:
+                  type: string
+                fromAddress:
+                  type: string
+                fromName:
+                  type: string
+      responses:
+        "200":
+          description: Domain added with DNS records to configure
+    patch:
+      operationId: updateEmailDomain
+      summary: Update email domain settings
+      tags: [Email Domains]
+      responses:
+        "200":
+          description: Email domain updated
+    delete:
+      operationId: removeEmailDomain
+      summary: Remove email domain
+      tags: [Email Domains]
+      responses:
+        "200":
+          description: Email domain removed
+
+  /email-domains/verify:
+    post:
+      operationId: verifyEmailDomain
+      summary: Verify DNS configuration for email domain
+      tags: [Email Domains]
+      responses:
+        "200":
+          description: Verification result
+
+  # ──────────────────────────────────────────────
+  # Billing
+  # ──────────────────────────────────────────────
+  /billing/checkout:
+    post:
+      operationId: createCheckoutSession
+      summary: Create a Stripe checkout session
+      tags: [Billing]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                priceId:
+                  type: string
+      responses:
+        "200":
+          description: Checkout session URL
+
+  /billing/portal:
+    post:
+      operationId: createBillingPortal
+      summary: Create a Stripe billing portal session
+      tags: [Billing]
+      responses:
+        "200":
+          description: Portal session URL
+
+  /billing/status:
+    get:
+      operationId: getBillingStatus
+      summary: Get subscription status
+      tags: [Billing]
+      responses:
+        "200":
+          description: Billing status details
+
+  # ──────────────────────────────────────────────
+  # Webhooks (outbound management)
+  # ──────────────────────────────────────────────
+  /webhooks/manage:
+    get:
+      operationId: listWebhooks
+      summary: List outbound webhooks
+      tags: [Webhooks]
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PerPageParam"
+      responses:
+        "200":
+          description: Paginated webhook list
+    post:
+      operationId: createWebhook
+      summary: Create an outbound webhook
+      description: URL is validated for SSRF protection. HMAC signing secret is auto-generated.
+      tags: [Webhooks]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [url, events]
+              properties:
+                url:
+                  type: string
+                  format: uri
+                events:
+                  type: array
+                  items:
+                    type: string
+                  description: "Events to subscribe to (e.g., contact.created, deal.won)"
+                description:
+                  type: string
+      responses:
+        "201":
+          description: Webhook created (includes signing secret)
+        "422":
+          description: Invalid URL or SSRF protection triggered
+
+  /webhooks/manage/{id}:
+    get:
+      operationId: getWebhook
+      summary: Get a webhook by ID
+      tags: [Webhooks]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Webhook details
+        "404":
+          $ref: "#/components/responses/NotFound"
+    patch:
+      operationId: updateWebhook
+      summary: Update a webhook
+      tags: [Webhooks]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
+                  format: uri
+                events:
+                  type: array
+                  items:
+                    type: string
+                isActive:
+                  type: boolean
+                description:
+                  type: string
+      responses:
+        "200":
+          description: Webhook updated
+    delete:
+      operationId: deleteWebhook
+      summary: Delete a webhook
+      tags: [Webhooks]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Webhook deleted
+
+  /webhooks/manage/{id}/test:
+    post:
+      operationId: testWebhook
+      summary: Send a test payload to a webhook
+      tags: [Webhooks]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Test result with status code
+
+  /webhook-logs:
+    get:
+      operationId: listWebhookLogs
+      summary: List webhook delivery logs
+      tags: [Webhooks]
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PerPageParam"
+      responses:
+        "200":
+          description: Paginated webhook logs
+
+  # ──────────────────────────────────────────────
+  # Integrations
+  # ──────────────────────────────────────────────
+  /integrations:
+    get:
+      operationId: listIntegrations
+      summary: List active integrations
+      tags: [Integrations]
+      responses:
+        "200":
+          description: Integration connections
+
+  /integrations/{provider}:
+    post:
+      operationId: connectIntegration
+      summary: Connect an integration
+      tags: [Integrations]
+      parameters:
+        - name: provider
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                credentials:
+                  type: object
+                config:
+                  type: object
+      responses:
+        "200":
+          description: Integration connected
+    delete:
+      operationId: disconnectIntegration
+      summary: Disconnect an integration
+      tags: [Integrations]
+      parameters:
+        - name: provider
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Integration disconnected
+
+  /integrations/zapier/subscribe:
+    get:
+      operationId: listZapierSubscriptions
+      summary: List Zapier webhook subscriptions
+      tags: [Integrations]
+      responses:
+        "200":
+          description: Active subscriptions
+    post:
+      operationId: createZapierSubscription
+      summary: Create a Zapier webhook subscription
+      tags: [Integrations]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [targetUrl, event]
+              properties:
+                targetUrl:
+                  type: string
+                  format: uri
+                event:
+                  type: string
+      responses:
+        "201":
+          description: Subscription created
+
+  /integrations/zapier/subscribe/{id}:
+    delete:
+      operationId: deleteZapierSubscription
+      summary: Delete a Zapier subscription
+      tags: [Integrations]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Subscription deleted
+
+  /integrations/zapier/sample/{event}:
+    get:
+      operationId: getZapierSampleData
+      summary: Get sample data for a Zapier event
+      tags: [Integrations]
+      parameters:
+        - name: event
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Sample event payload
+
+  # ──────────────────────────────────────────────
+  # Reports
+  # ──────────────────────────────────────────────
+  /reports/pipeline:
+    get:
+      operationId: getPipelineReport
+      summary: Pipeline performance report
+      tags: [Reports]
+      responses:
+        "200":
+          description: Pipeline metrics (deals by stage, conversion rates, etc.)
+
+  /reports/revenue:
+    get:
+      operationId: getRevenueReport
+      summary: Revenue report
+      tags: [Reports]
+      responses:
+        "200":
+          description: Revenue metrics over time
+
+  /reports/activity:
+    get:
+      operationId: getActivityReport
+      summary: Activity report
+      tags: [Reports]
+      responses:
+        "200":
+          description: Activity metrics (calls, emails, tasks, etc.)
+
+  /reports/team:
+    get:
+      operationId: getTeamReport
+      summary: Team performance report
+      tags: [Reports]
+      responses:
+        "200":
+          description: Per-user performance metrics
+
+  /reports/custom:
+    get:
+      operationId: listCustomReports
+      summary: List saved custom reports
+      tags: [Reports]
+      responses:
+        "200":
+          description: Saved reports
+    post:
+      operationId: createCustomReport
+      summary: Create a custom report
+      tags: [Reports]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SavedReportCreate"
+      responses:
+        "201":
+          description: Report created
+
+  /reports/custom/{id}:
+    get:
+      operationId: getCustomReport
+      summary: Get a custom report by ID
+      tags: [Reports]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Report definition
+    patch:
+      operationId: updateCustomReport
+      summary: Update a custom report
+      tags: [Reports]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Report updated
+    delete:
+      operationId: deleteCustomReport
+      summary: Delete a custom report
+      tags: [Reports]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Report deleted
+
+  /reports/custom/{id}/run:
+    post:
+      operationId: runCustomReport
+      summary: Execute a custom report and return results
+      tags: [Reports]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Report results
+
+  # ──────────────────────────────────────────────
+  # Search
+  # ──────────────────────────────────────────────
+  /search:
+    get:
+      operationId: globalSearch
+      summary: Global search across contacts, companies, and deals
+      tags: [Search]
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Search query
+      responses:
+        "200":
+          description: Search results grouped by entity type
+
+  # ──────────────────────────────────────────────
+  # Bulk Operations
+  # ──────────────────────────────────────────────
+  /bulk:
+    get:
+      operationId: getBulkStatus
+      summary: Get bulk operation status
+      tags: [Bulk Operations]
+      responses:
+        "200":
+          description: Status of running bulk operations
+
+  /bulk/contacts/delete:
+    post:
+      operationId: bulkDeleteContacts
+      summary: Bulk delete contacts
+      tags: [Bulk Operations]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ids]
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+      responses:
+        "200":
+          description: Contacts deleted
+
+  /bulk/contacts/edit:
+    post:
+      operationId: bulkEditContacts
+      summary: Bulk edit contact fields
+      tags: [Bulk Operations]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ids, updates]
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+                updates:
+                  type: object
+      responses:
+        "200":
+          description: Contacts updated
+
+  /bulk/contacts/tag:
+    post:
+      operationId: bulkTagContacts
+      summary: Bulk add/remove tags on contacts
+      tags: [Bulk Operations]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ids]
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+                addTags:
+                  type: array
+                  items:
+                    type: string
+                removeTags:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        "200":
+          description: Tags updated
+
+  /bulk/contacts/update:
+    post:
+      operationId: bulkUpdateContacts
+      summary: Bulk update contacts with field values
+      tags: [Bulk Operations]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ids, data]
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+                data:
+                  type: object
+      responses:
+        "200":
+          description: Contacts updated
+
+  /bulk/deals/edit:
+    post:
+      operationId: bulkEditDeals
+      summary: Bulk edit deal fields
+      tags: [Bulk Operations]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ids, updates]
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+                updates:
+                  type: object
+      responses:
+        "200":
+          description: Deals updated
+
+  /bulk/deals/update:
+    post:
+      operationId: bulkUpdateDeals
+      summary: Bulk update deals
+      tags: [Bulk Operations]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ids, data]
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+                data:
+                  type: object
+      responses:
+        "200":
+          description: Deals updated
+
+  # ──────────────────────────────────────────────
+  # Imports
+  # ──────────────────────────────────────────────
+  /imports:
+    get:
+      operationId: listImports
+      summary: List import jobs
+      tags: [Imports]
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PerPageParam"
+      responses:
+        "200":
+          description: Paginated import jobs
+    post:
+      operationId: createImport
+      summary: Create an import job
+      tags: [Imports]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [objectType, fileName, mappings]
+              properties:
+                objectType:
+                  type: string
+                  enum: [contacts, opportunities, companies]
+                fileName:
+                  type: string
+                fileUrl:
+                  type: string
+                  format: uri
+                importMode:
+                  type: string
+                  enum: [create_and_update, create_only, update_only]
+                  default: create_and_update
+                mappings:
+                  type: object
+                  description: "CSV column to Conduyt field mapping"
+                removeDuplicates:
+                  type: boolean
+                  default: false
+                duplicateCheckFields:
+                  type: array
+                  items:
+                    type: string
+                smartListId:
+                  type: string
+                  format: uuid
+                tagIds:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+      responses:
+        "201":
+          description: Import job created
+
+  /imports/upload:
+    post:
+      operationId: uploadImportFile
+      summary: Upload a CSV file for import
+      tags: [Imports]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: File uploaded with preview data
+
+  /imports/{id}:
+    get:
+      operationId: getImport
+      summary: Get import job status
+      tags: [Imports]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Import job details with progress stats
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /imports/{id}/process:
+    post:
+      operationId: processImport
+      summary: Start processing an import job
+      tags: [Imports]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Import processing started
+
+  # ──────────────────────────────────────────────
+  # Smart Lists
+  # ──────────────────────────────────────────────
+  /smart-lists:
+    get:
+      operationId: listSmartLists
+      summary: List smart lists (static contact lists)
+      tags: [Smart Lists]
+      responses:
+        "200":
+          description: Smart lists
+    post:
+      operationId: createSmartList
+      summary: Create a smart list
+      tags: [Smart Lists]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name:
+                  type: string
+      responses:
+        "201":
+          description: Smart list created
+
+  /smart-lists/{id}:
+    patch:
+      operationId: updateSmartList
+      summary: Update a smart list
+      tags: [Smart Lists]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Smart list updated
+
+  # ──────────────────────────────────────────────
+  # Scoring Rules
+  # ──────────────────────────────────────────────
+  /scoring-rules:
+    get:
+      operationId: listScoringRules
+      summary: List lead scoring rules
+      tags: [Scoring Rules]
+      responses:
+        "200":
+          description: All scoring rules
+    post:
+      operationId: createScoringRule
+      summary: Create a scoring rule
+      tags: [Scoring Rules]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, points, condition]
+              properties:
+                name:
+                  type: string
+                points:
+                  type: integer
+                condition:
+                  type: object
+                  description: "Rule condition: { field, operator, value }"
+                isActive:
+                  type: boolean
+                  default: true
+      responses:
+        "201":
+          description: Scoring rule created
+
+  /scoring-rules/{id}:
+    patch:
+      operationId: updateScoringRule
+      summary: Update a scoring rule
+      tags: [Scoring Rules]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Rule updated
+    delete:
+      operationId: deleteScoringRule
+      summary: Delete a scoring rule
+      tags: [Scoring Rules]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Rule deleted
+
+  /scoring-rules/recalculate:
+    post:
+      operationId: recalculateScores
+      summary: Recalculate all contact scores
+      tags: [Scoring Rules]
+      responses:
+        "200":
+          description: Recalculation initiated
+
+  # ──────────────────────────────────────────────
+  # Document Templates
+  # ──────────────────────────────────────────────
+  /document-templates:
+    get:
+      operationId: listDocumentTemplates
+      summary: List document templates
+      tags: [Document Templates]
+      responses:
+        "200":
+          description: All document templates
+    post:
+      operationId: createDocumentTemplate
+      summary: Create a document template
+      tags: [Document Templates]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, bodyHtml]
+              properties:
+                name:
+                  type: string
+                category:
+                  type: string
+                bodyHtml:
+                  type: string
+                mergeFields:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      key:
+                        type: string
+                      label:
+                        type: string
+      responses:
+        "201":
+          description: Template created
+
+  /document-templates/{id}:
+    get:
+      operationId: getDocumentTemplate
+      summary: Get a document template by ID
+      tags: [Document Templates]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Template details
+    patch:
+      operationId: updateDocumentTemplate
+      summary: Update a document template
+      tags: [Document Templates]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Template updated
+    delete:
+      operationId: deleteDocumentTemplate
+      summary: Delete a document template
+      tags: [Document Templates]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Template deleted
+
+  # ──────────────────────────────────────────────
+  # Dialer
+  # ──────────────────────────────────────────────
+  /dialer/token:
+    post:
+      operationId: getDialerToken
+      summary: Get a Twilio browser token for click-to-call
+      tags: [Dialer]
+      responses:
+        "200":
+          description: Twilio client token
+
+  /dialer/call:
+    post:
+      operationId: initiateCall
+      summary: Initiate an outbound call
+      tags: [Dialer]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [toNumber]
+              properties:
+                toNumber:
+                  type: string
+                contactId:
+                  type: string
+                  format: uuid
+      responses:
+        "200":
+          description: Call initiated
+
+  /dialer/history:
+    get:
+      operationId: getDialerHistory
+      summary: Get recent call history
+      tags: [Dialer]
+      responses:
+        "200":
+          description: Recent calls
+
+  # ──────────────────────────────────────────────
+  # Calls
+  # ──────────────────────────────────────────────
+  /calls:
+    get:
+      operationId: listCalls
+      summary: List call records
+      tags: [Calls]
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PerPageParam"
+      responses:
+        "200":
+          description: Paginated calls
+    post:
+      operationId: createCallRecord
+      summary: Create a call record
+      tags: [Calls]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [direction, fromNumber, toNumber]
+              properties:
+                direction:
+                  type: string
+                  enum: [inbound, outbound]
+                fromNumber:
+                  type: string
+                toNumber:
+                  type: string
+                contactId:
+                  type: string
+                  format: uuid
+                duration:
+                  type: integer
+                recordingUrl:
+                  type: string
+                  format: uri
+                notes:
+                  type: string
+      responses:
+        "201":
+          description: Call record created
+
+  /calls/{id}:
+    get:
+      operationId: getCall
+      summary: Get a call by ID
+      tags: [Calls]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Call details
+    patch:
+      operationId: updateCall
+      summary: Update a call record (e.g., add notes)
+      tags: [Calls]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                notes:
+                  type: string
+                duration:
+                  type: integer
+      responses:
+        "200":
+          description: Call updated
+
+  # ──────────────────────────────────────────────
+  # Chat (Internal Team)
+  # ──────────────────────────────────────────────
+  /chat/channels:
+    get:
+      operationId: listChatChannels
+      summary: List chat channels
+      tags: [Chat]
+      responses:
+        "200":
+          description: Channels the user is a member of
+    post:
+      operationId: createChatChannel
+      summary: Create a chat channel
+      tags: [Chat]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name:
+                  type: string
+                kind:
+                  type: string
+                  enum: [general, deal, contact, alerts]
+                  default: general
+                dealId:
+                  type: string
+                  format: uuid
+                contactId:
+                  type: string
+                  format: uuid
+      responses:
+        "201":
+          description: Channel created
+
+  /chat/channels/{id}/messages:
+    get:
+      operationId: listChatMessages
+      summary: List messages in a channel
+      tags: [Chat]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/PerPageParam"
+      responses:
+        "200":
+          description: Paginated chat messages
+    post:
+      operationId: sendChatMessage
+      summary: Send a message in a channel
+      tags: [Chat]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [body]
+              properties:
+                body:
+                  type: string
+                kind:
+                  type: string
+                  enum: [text, system, alert, automation]
+                  default: text
+                parentId:
+                  type: string
+                  format: uuid
+                  description: Parent message ID for threads
+      responses:
+        "201":
+          description: Message sent
+
+  /chat/channels/{id}/messages/{messageId}:
+    get:
+      operationId: getChatMessage
+      summary: Get a chat message by ID
+      tags: [Chat]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+        - name: messageId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Message details
+    patch:
+      operationId: editChatMessage
+      summary: Edit a chat message
+      tags: [Chat]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+        - name: messageId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [body]
+              properties:
+                body:
+                  type: string
+      responses:
+        "200":
+          description: Message edited
+    delete:
+      operationId: deleteChatMessage
+      summary: Delete a chat message
+      tags: [Chat]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+        - name: messageId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Message deleted
+
+  /chat/channels/{id}/messages/{messageId}/reactions:
+    post:
+      operationId: addReaction
+      summary: Add a reaction to a message
+      tags: [Chat]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+        - name: messageId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [emoji]
+              properties:
+                emoji:
+                  type: string
+      responses:
+        "200":
+          description: Reaction added
+    delete:
+      operationId: removeReaction
+      summary: Remove a reaction from a message
+      tags: [Chat]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+        - name: messageId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Reaction removed
+
+  /chat/channels/{id}/members:
+    post:
+      operationId: addChatMember
+      summary: Add a member to a channel
+      tags: [Chat]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userId]
+              properties:
+                userId:
+                  type: string
+                  format: uuid
+                role:
+                  type: string
+                  enum: [admin, member]
+                  default: member
+      responses:
+        "200":
+          description: Member added
+    delete:
+      operationId: removeChatMember
+      summary: Remove a member from a channel
+      tags: [Chat]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [userId]
+              properties:
+                userId:
+                  type: string
+                  format: uuid
+      responses:
+        "200":
+          description: Member removed
+
+  /chat/channels/{id}/typing:
+    post:
+      operationId: sendTypingIndicator
+      summary: Send a typing indicator
+      tags: [Chat]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Typing indicator sent
+    get:
+      operationId: getTypingStatus
+      summary: Get who is currently typing
+      tags: [Chat]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Currently typing users
+
+  /chat/channels/{id}/upload:
+    post:
+      operationId: uploadChatFile
+      summary: Upload a file to a channel
+      tags: [Chat]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: File uploaded
+
+  # ──────────────────────────────────────────────
+  # Push Notifications
+  # ──────────────────────────────────────────────
+  /push/public-key:
+    get:
+      operationId: getPushPublicKey
+      summary: Get VAPID public key for web push
+      tags: [Push Notifications]
+      responses:
+        "200":
+          description: VAPID public key
+
+  /push/subscribe:
+    post:
+      operationId: subscribePush
+      summary: Subscribe to web push notifications
+      tags: [Push Notifications]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [endpoint, keys]
+              properties:
+                endpoint:
+                  type: string
+                  format: uri
+                keys:
+                  type: object
+                  required: [p256dh, auth]
+                  properties:
+                    p256dh:
+                      type: string
+                    auth:
+                      type: string
+      responses:
+        "200":
+          description: Subscription registered
+
+  /push/unsubscribe:
+    post:
+      operationId: unsubscribePush
+      summary: Unsubscribe from web push
+      tags: [Push Notifications]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [endpoint]
+              properties:
+                endpoint:
+                  type: string
+                  format: uri
+      responses:
+        "200":
+          description: Subscription removed
+
+  # ──────────────────────────────────────────────
+  # Dashboard
+  # ──────────────────────────────────────────────
+  /dashboard:
+    get:
+      operationId: getDashboard
+      summary: Get dashboard summary metrics
+      tags: [Dashboard]
+      responses:
+        "200":
+          description: Dashboard data (contacts count, deals, revenue, tasks, etc.)
+
+  # ──────────────────────────────────────────────
+  # AI Features
+  # ──────────────────────────────────────────────
+  /ai/chat:
+    post:
+      operationId: aiChat
+      summary: AI chat assistant
+      tags: [AI]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [message]
+              properties:
+                message:
+                  type: string
+                context:
+                  type: object
+      responses:
+        "200":
+          description: AI response
+
+  /ai/compose-email:
+    post:
+      operationId: aiComposeEmail
+      summary: AI-assisted email composition
+      tags: [AI]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [prompt]
+              properties:
+                prompt:
+                  type: string
+                contactId:
+                  type: string
+                  format: uuid
+                tone:
+                  type: string
+      responses:
+        "200":
+          description: Generated email draft
+
+  /ai/improve-email:
+    post:
+      operationId: aiImproveEmail
+      summary: AI-assisted email improvement
+      tags: [AI]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [body]
+              properties:
+                body:
+                  type: string
+                instruction:
+                  type: string
+      responses:
+        "200":
+          description: Improved email draft
+
+  /ai/summarize-contact:
+    post:
+      operationId: aiSummarizeContact
+      summary: AI-generated contact summary
+      tags: [AI]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [contactId]
+              properties:
+                contactId:
+                  type: string
+                  format: uuid
+      responses:
+        "200":
+          description: Contact summary
+
+  /ai/enrich-contact:
+    post:
+      operationId: aiEnrichContact
+      summary: AI-powered contact data enrichment
+      tags: [AI]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [contactId]
+              properties:
+                contactId:
+                  type: string
+                  format: uuid
+      responses:
+        "200":
+          description: Enriched contact data
+
+  /ai/deal-insights:
+    post:
+      operationId: aiDealInsights
+      summary: AI-generated deal insights and recommendations
+      tags: [AI]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [dealId]
+              properties:
+                dealId:
+                  type: string
+                  format: uuid
+      responses:
+        "200":
+          description: Deal insights
+
+  # ──────────────────────────────────────────────
+  # Admin (super-admin only)
+  # ──────────────────────────────────────────────
+  /admin/accounts:
+    get:
+      operationId: adminListAccounts
+      summary: List all accounts (super-admin)
+      tags: [Admin]
+      responses:
+        "200":
+          description: All accounts
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /admin/accounts/{id}/comp:
+    patch:
+      operationId: adminToggleComp
+      summary: Toggle comp (free) status for an account
+      tags: [Admin]
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [isComp]
+              properties:
+                isComp:
+                  type: boolean
+      responses:
+        "200":
+          description: Comp status toggled
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /admin/impersonate:
+    post:
+      operationId: adminImpersonate
+      summary: Impersonate a user (super-admin)
+      tags: [Admin]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [accountId]
+              properties:
+                accountId:
+                  type: string
+                  format: uuid
+      responses:
+        "200":
+          description: Impersonation started
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /admin/impersonate/stop:
+    post:
+      operationId: adminStopImpersonate
+      summary: Stop impersonating
+      tags: [Admin]
+      responses:
+        "200":
+          description: Impersonation ended
+
+  /admin/clean-test-data:
+    post:
+      operationId: adminCleanTestData
+      summary: Clean test data from the system
+      tags: [Admin]
+      responses:
+        "200":
+          description: Test data cleaned
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /admin/clean-test-accounts:
+    delete:
+      operationId: adminCleanTestAccounts
+      summary: Delete test accounts
+      tags: [Admin]
+      responses:
+        "200":
+          description: Test accounts deleted
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  # ──────────────────────────────────────────────
+  # Public Endpoints (no auth)
+  # ──────────────────────────────────────────────
+  /public/booking/{slug}:
+    get:
+      operationId: getPublicBookingPage
+      summary: Get a public booking page by slug
+      tags: [Public]
+      security: []
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Booking page details with availability
+        "404":
+          $ref: "#/components/responses/NotFound"
+    post:
+      operationId: bookAppointment
+      summary: Book an appointment via public page
+      tags: [Public]
+      security: []
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [startTime, name, email]
+              properties:
+                startTime:
+                  type: string
+                  format: date-time
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                phone:
+                  type: string
+                answers:
+                  type: object
+      responses:
+        "201":
+          description: Appointment booked
+
+  /public/booking/{slug}/slots:
+    get:
+      operationId: getPublicBookingSlots
+      summary: Get available time slots for a booking page
+      tags: [Public]
+      security: []
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: date
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Date to check availability for
+      responses:
+        "200":
+          description: Available time slots
+
+  # ──────────────────────────────────────────────
+  # Inbound Webhooks (external systems pushing data in)
+  # ──────────────────────────────────────────────
+  /webhooks:
+    get:
+      operationId: listWebhookEndpoints
+      summary: List configured webhook endpoints
+      tags: [Webhooks]
+      responses:
+        "200":
+          description: Webhook endpoints
+    post:
+      operationId: receiveWebhook
+      summary: Receive an inbound webhook payload
+      tags: [Webhooks]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        "200":
+          description: Webhook processed
+
+  /webhooks/inbound/contacts:
+    post:
+      operationId: webhookInboundContact
+      summary: Inbound webhook for contact data
+      tags: [Webhooks]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        "200":
+          description: Contact webhook processed
+
+  /webhooks/inbound/deals:
+    post:
+      operationId: webhookInboundDeal
+      summary: Inbound webhook for deal data
+      tags: [Webhooks]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        "200":
+          description: Deal webhook processed
+
+  /webhooks/messages:
+    post:
+      operationId: webhookMessages
+      summary: Inbound webhook for message events
+      tags: [Webhooks]
+      security: []
+      responses:
+        "200":
+          description: Message webhook processed
+
+  /webhooks/sms/inbound:
+    post:
+      operationId: webhookSmsInbound
+      summary: Twilio inbound SMS webhook
+      tags: [Webhooks]
+      security: []
+      responses:
+        "200":
+          description: SMS processed
+
+  /webhooks/sms/status:
+    post:
+      operationId: webhookSmsStatus
+      summary: Twilio SMS status callback
+      tags: [Webhooks]
+      security: []
+      responses:
+        "200":
+          description: Status updated
+
+  /webhooks/voice/inbound:
+    post:
+      operationId: webhookVoiceInbound
+      summary: Twilio inbound voice webhook
+      tags: [Webhooks]
+      security: []
+      responses:
+        "200":
+          description: Voice call processed
+
+  /webhooks/voice/status:
+    post:
+      operationId: webhookVoiceStatus
+      summary: Twilio voice status callback
+      tags: [Webhooks]
+      security: []
+      responses:
+        "200":
+          description: Status updated
+
+  /webhooks/voice/recording:
+    post:
+      operationId: webhookVoiceRecording
+      summary: Twilio recording callback
+      tags: [Webhooks]
+      security: []
+      responses:
+        "200":
+          description: Recording processed
+
+  /webhooks/voice/voicemail:
+    post:
+      operationId: webhookVoiceVoicemail
+      summary: Twilio voicemail callback
+      tags: [Webhooks]
+      security: []
+      responses:
+        "200":
+          description: Voicemail processed
+
+  /webhooks/stripe-invoice:
+    post:
+      operationId: webhookStripeInvoice
+      summary: Stripe invoice webhook
+      tags: [Webhooks]
+      security: []
+      responses:
+        "200":
+          description: Stripe event processed
+
+  /billing/webhook:
+    post:
+      operationId: webhookStripeBilling
+      summary: Stripe billing webhook
+      tags: [Billing]
+      security: []
+      responses:
+        "200":
+          description: Stripe billing event processed
+
+  /calendar/webhooks/google:
+    post:
+      operationId: webhookGoogleCalendar
+      summary: Google Calendar push notification webhook
+      tags: [Calendar Connections]
+      security: []
+      responses:
+        "200":
+          description: Notification processed
+
+  /calendar/webhooks/microsoft:
+    post:
+      operationId: webhookMicrosoftCalendar
+      summary: Microsoft Calendar webhook
+      tags: [Calendar Connections]
+      security: []
+      responses:
+        "200":
+          description: Notification processed
+
+# ──────────────────────────────────────────────────
+# Components
+# ──────────────────────────────────────────────────
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      description: |
+        API key authentication. Generate keys in Settings > API Keys.
+        Keys use the `cdy_` prefix.
+
+        Example: `Authorization: Bearer cdy_a1b2c3d4e5f6...`
+
+  parameters:
+    IdParam:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: Resource UUID
+    PageParam:
+      name: page
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+      description: Page number
+    PerPageParam:
+      name: per_page
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 200
+        default: 50
+      description: Items per page (max 200)
+    SearchParam:
+      name: search
+      in: query
+      schema:
+        type: string
+      description: Full-text search query
+
+  responses:
+    BadRequest:
+      description: Bad request — validation error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    Forbidden:
+      description: Insufficient permissions
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    RateLimited:
+      description: Too many requests
+      headers:
+        Retry-After:
+          schema:
+            type: integer
+          description: Seconds until next allowed request
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+  schemas:
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+        code:
+          type: string
+          description: Machine-readable error code (e.g., TRIAL_EXPIRED, PLAN_LIMIT_REACHED)
+
+    DataEnvelope:
+      type: object
+      properties:
+        data:
+          description: Response payload (shape varies by endpoint)
+
+    PaginatedResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            data:
+              type: array
+              items: {}
+            meta:
+              $ref: "#/components/schemas/PaginationMeta"
+
+    PaginationMeta:
+      type: object
+      properties:
+        page:
+          type: integer
+        per_page:
+          type: integer
+        total:
+          type: integer
+
+    AuthResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            user:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                email:
+                  type: string
+                  format: email
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+            account:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                name:
+                  type: string
+                slug:
+                  type: string
+                plan:
+                  type: string
+            role:
+              type: string
+            accounts:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  name:
+                    type: string
+                  slug:
+                    type: string
+                  plan:
+                    type: string
+                  role:
+                    type: string
+
+    # ── Core Entity Schemas ──
+
+    Contact:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        firstName:
+          type: string
+          maxLength: 100
+        lastName:
+          type: string
+          maxLength: 100
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        phone:
+          type: string
+          maxLength: 30
+        company:
+          type: string
+          maxLength: 200
+        companyId:
+          type: string
+          format: uuid
+        jobTitle:
+          type: string
+          maxLength: 150
+        addressLine1:
+          type: string
+        addressLine2:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        zip:
+          type: string
+        country:
+          type: string
+          default: US
+        avatarUrl:
+          type: string
+          format: uri
+        source:
+          type: string
+        customFields:
+          type: object
+        metadata:
+          type: object
+        leadScore:
+          type: integer
+          default: 0
+        optedOutSms:
+          type: boolean
+          default: false
+        optedOutEmail:
+          type: boolean
+          default: false
+        lastContactedAt:
+          type: string
+          format: date-time
+        assignedTo:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ContactCreate:
+      type: object
+      properties:
+        firstName:
+          type: string
+          maxLength: 100
+        lastName:
+          type: string
+          maxLength: 100
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        phone:
+          type: string
+          maxLength: 30
+        company:
+          type: string
+          maxLength: 200
+        companyId:
+          type: string
+          format: uuid
+        jobTitle:
+          type: string
+          maxLength: 150
+        source:
+          type: string
+          maxLength: 100
+        addressLine1:
+          type: string
+          maxLength: 200
+        addressLine2:
+          type: string
+          maxLength: 200
+        city:
+          type: string
+          maxLength: 100
+        state:
+          type: string
+          maxLength: 100
+        zip:
+          type: string
+          maxLength: 20
+        country:
+          type: string
+          maxLength: 2
+        assignedTo:
+          type: string
+          format: uuid
+        tags:
+          type: array
+          items:
+            type: string
+          maxItems: 100
+        customFields:
+          type: object
+          description: Key-value pairs for custom fields. Max 100KB.
+
+    ContactUpdate:
+      allOf:
+        - $ref: "#/components/schemas/ContactCreate"
+        - type: object
+          properties:
+            avatarUrl:
+              type: string
+              format: uri
+              maxLength: 2048
+            optedOutSms:
+              type: boolean
+            optedOutEmail:
+              type: boolean
+            metadata:
+              type: object
+
+    Company:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        domain:
+          type: string
+        industry:
+          type: string
+        size:
+          type: string
+          enum: ["1-10", "11-50", "51-200", "201-500", "501-1000", "1001+"]
+        website:
+          type: string
+          format: uri
+        phone:
+          type: string
+        address:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        zip:
+          type: string
+        country:
+          type: string
+          default: US
+        description:
+          type: string
+        customFields:
+          type: object
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CompanyCreate:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+        domain:
+          type: string
+        industry:
+          type: string
+        size:
+          type: string
+          enum: ["1-10", "11-50", "51-200", "201-500", "501-1000", "1001+"]
+        website:
+          type: string
+          format: uri
+        phone:
+          type: string
+        address:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        zip:
+          type: string
+        country:
+          type: string
+        description:
+          type: string
+        customFields:
+          type: object
+
+    Deal:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        contactId:
+          type: string
+          format: uuid
+        companyId:
+          type: string
+          format: uuid
+        pipelineId:
+          type: string
+          format: uuid
+        stageId:
+          type: string
+          format: uuid
+        title:
+          type: string
+        value:
+          type: number
+          format: double
+          description: Deal value as decimal
+        currency:
+          type: string
+          default: USD
+        status:
+          type: string
+          enum: [open, won, lost]
+          default: open
+        priority:
+          type: string
+          enum: [low, medium, high, urgent]
+          default: medium
+        expectedCloseDate:
+          type: string
+          format: date-time
+        assignedTo:
+          type: string
+          format: uuid
+        customFields:
+          type: object
+        lostReason:
+          type: string
+        wonAt:
+          type: string
+          format: date-time
+        lostAt:
+          type: string
+          format: date-time
+        sortOrder:
+          type: integer
+          description: Kanban column sort position
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    DealCreate:
+      type: object
+      required: [title, pipelineId, stageId]
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        contactId:
+          type: string
+          format: uuid
+        pipelineId:
+          type: string
+          format: uuid
+        stageId:
+          type: string
+          format: uuid
+        value:
+          oneOf:
+            - type: number
+            - type: string
+        currency:
+          type: string
+          maxLength: 10
+        status:
+          type: string
+          maxLength: 30
+        priority:
+          type: string
+          maxLength: 30
+        expectedCloseDate:
+          type: string
+          format: date-time
+        assignedTo:
+          type: string
+          format: uuid
+        customFields:
+          type: object
+
+    DealUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        contactId:
+          type: string
+          format: uuid
+        stageId:
+          type: string
+          format: uuid
+        value:
+          oneOf:
+            - type: number
+            - type: string
+        currency:
+          type: string
+        status:
+          type: string
+        priority:
+          type: string
+        expectedCloseDate:
+          type: string
+          format: date-time
+        assignedTo:
+          type: string
+          format: uuid
+        lostReason:
+          type: string
+          maxLength: 500
+        customFields:
+          type: object
+        sortOrder:
+          type: integer
+          description: Kanban column sort position
+
+    Pipeline:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        isDefault:
+          type: boolean
+        sortOrder:
+          type: integer
+        stages:
+          type: array
+          items:
+            $ref: "#/components/schemas/PipelineStage"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    PipelineStage:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        pipelineId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        color:
+          type: string
+          default: "#3B82F6"
+        sortOrder:
+          type: integer
+        isWon:
+          type: boolean
+        isLost:
+          type: boolean
+
+    PipelineStageCreate:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+        color:
+          type: string
+        sortOrder:
+          type: integer
+        isWon:
+          type: boolean
+        isLost:
+          type: boolean
+
+    Task:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+          enum: [todo, in_progress, done]
+        priority:
+          type: string
+          enum: [low, medium, high, urgent]
+        dueDate:
+          type: string
+          format: date-time
+        assignedTo:
+          type: string
+          format: uuid
+        contactId:
+          type: string
+          format: uuid
+        dealId:
+          type: string
+          format: uuid
+        completedAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    TaskCreate:
+      type: object
+      required: [title]
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+          enum: [todo, in_progress, done]
+          default: todo
+        priority:
+          type: string
+          enum: [low, medium, high, urgent]
+          default: medium
+        dueDate:
+          type: string
+          format: date-time
+        assignedTo:
+          type: string
+          format: uuid
+        contactId:
+          type: string
+          format: uuid
+        dealId:
+          type: string
+          format: uuid
+
+    Note:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        body:
+          type: string
+        isPinned:
+          type: boolean
+        contactId:
+          type: string
+          format: uuid
+        dealId:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    NoteCreate:
+      type: object
+      required: [body]
+      properties:
+        body:
+          type: string
+          description: Note body text (max 50KB)
+        contactId:
+          type: string
+          format: uuid
+        dealId:
+          type: string
+          format: uuid
+        isPinned:
+          type: boolean
+          default: false
+
+    Tag:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        color:
+          type: string
+          default: "#6B7280"
+        createdAt:
+          type: string
+          format: date-time
+
+    MessageCreate:
+      type: object
+      required: [contactId, channel, direction, body]
+      properties:
+        contactId:
+          type: string
+          format: uuid
+        channel:
+          type: string
+          enum: [sms, email]
+        direction:
+          type: string
+          enum: [inbound, outbound]
+        body:
+          type: string
+          description: Message body (max 100KB)
+        subject:
+          type: string
+          maxLength: 500
+        fromNumber:
+          type: string
+          maxLength: 30
+        toNumber:
+          type: string
+          maxLength: 30
+        fromEmail:
+          type: string
+          format: email
+        toEmail:
+          type: string
+          format: email
+        provider:
+          type: string
+        providerId:
+          type: string
+        status:
+          type: string
+        scheduledAt:
+          type: string
+          format: date-time
+
+    Message:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        contactId:
+          type: string
+          format: uuid
+        direction:
+          type: string
+          enum: [inbound, outbound]
+        channel:
+          type: string
+          enum: [sms, email]
+        subject:
+          type: string
+        body:
+          type: string
+        bodyHtml:
+          type: string
+        fromNumber:
+          type: string
+        toNumber:
+          type: string
+        fromEmail:
+          type: string
+        toEmail:
+          type: string
+        status:
+          type: string
+        deliveredAt:
+          type: string
+          format: date-time
+        openedAt:
+          type: string
+          format: date-time
+        clickedAt:
+          type: string
+          format: date-time
+        openCount:
+          type: integer
+        clickCount:
+          type: integer
+        scheduledAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+
+    EmailTemplateCreate:
+      type: object
+      required: [name, channel, body]
+      properties:
+        name:
+          type: string
+        channel:
+          type: string
+          enum: [sms, email]
+        subject:
+          type: string
+        body:
+          type: string
+        bodyHtml:
+          type: string
+        category:
+          type: string
+        isActive:
+          type: boolean
+          default: true
+
+    AutomationCreate:
+      type: object
+      required: [name, triggerEvent]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        kind:
+          type: string
+          enum: [native, n8n]
+          default: n8n
+        triggerEvent:
+          type: string
+          description: "Event that triggers this automation (e.g., contact.created, deal.stage_changed)"
+        triggerConditions:
+          type: object
+        actions:
+          description: Linear array of actions (v1) or graph object (v2)
+        graphVersion:
+          type: integer
+          enum: [1, 2]
+          default: 1
+        isActive:
+          type: boolean
+          default: true
+        n8nWorkflowId:
+          type: string
+        n8nWebhookUrl:
+          type: string
+          format: uri
+        schedule:
+          type: string
+          description: "Cron expression (5-field, UTC) for scheduled automations"
+        scheduleTimezone:
+          type: string
+        reenrollmentRule:
+          type: string
+          enum: [every_time, once, cooldown]
+          default: every_time
+        cooldownDays:
+          type: integer
+        executionTimezone:
+          type: string
+        executionWindowStart:
+          type: integer
+          description: Hour (0-23) to start executing
+        executionWindowEnd:
+          type: integer
+          description: Hour (0-23) to stop executing
+        stopOnResponse:
+          type: boolean
+          default: false
+
+    Automation:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        kind:
+          type: string
+          enum: [native, n8n]
+        triggerEvent:
+          type: string
+        triggerConditions:
+          type: object
+        actions: {}
+        graphVersion:
+          type: integer
+        isActive:
+          type: boolean
+        triggerCount:
+          type: integer
+        lastTriggeredAt:
+          type: string
+          format: date-time
+        publishedAt:
+          type: string
+          format: date-time
+        reenrollmentRule:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    AppointmentCreate:
+      type: object
+      required: [title, startTime, endTime]
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        location:
+          type: string
+        status:
+          type: string
+          enum: [scheduled, confirmed, completed, cancelled, no_show]
+          default: scheduled
+        contactId:
+          type: string
+          format: uuid
+        assignedTo:
+          type: string
+          format: uuid
+        calendarId:
+          type: string
+          format: uuid
+
+    InvoiceCreate:
+      type: object
+      required: [invoiceNumber]
+      properties:
+        invoiceNumber:
+          type: string
+        contactId:
+          type: string
+          format: uuid
+        companyId:
+          type: string
+          format: uuid
+        dealId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [draft, sent, viewed, paid, overdue, void]
+          default: draft
+        issueDate:
+          type: string
+          format: date-time
+        dueDate:
+          type: string
+          format: date-time
+        taxRate:
+          type: number
+          format: double
+        currency:
+          type: string
+          default: USD
+        notes:
+          type: string
+        terms:
+          type: string
+        items:
+          type: array
+          items:
+            type: object
+            required: [description, quantity, unitPrice]
+            properties:
+              productId:
+                type: string
+                format: uuid
+              description:
+                type: string
+              quantity:
+                type: number
+              unitPrice:
+                type: number
+
+    Invoice:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        invoiceNumber:
+          type: string
+        status:
+          type: string
+        issueDate:
+          type: string
+          format: date-time
+        dueDate:
+          type: string
+          format: date-time
+        subtotal:
+          type: number
+          format: double
+        taxRate:
+          type: number
+        taxAmount:
+          type: number
+        total:
+          type: number
+          format: double
+        amountPaid:
+          type: number
+          format: double
+        currency:
+          type: string
+        paidAt:
+          type: string
+          format: date-time
+        sentAt:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+
+    ProductCreate:
+      type: object
+      required: [name, price]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        sku:
+          type: string
+        price:
+          type: number
+          format: double
+        currency:
+          type: string
+          default: USD
+        unit:
+          type: string
+          default: unit
+        taxable:
+          type: boolean
+          default: true
+        isActive:
+          type: boolean
+          default: true
+        metadata:
+          type: object
+
+    Product:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        sku:
+          type: string
+        price:
+          type: number
+          format: double
+        currency:
+          type: string
+        unit:
+          type: string
+        taxable:
+          type: boolean
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+
+    CustomFieldCreate:
+      type: object
+      required: [entityType, fieldKey, label, fieldType]
+      properties:
+        entityType:
+          type: string
+          enum: [contact, deal]
+        fieldKey:
+          type: string
+          description: Machine-readable key (e.g., "industry_vertical")
+        label:
+          type: string
+          description: Human-readable label (e.g., "Industry Vertical")
+        fieldType:
+          type: string
+          enum: [text, number, date, select, multiselect, boolean]
+        options:
+          type: array
+          items:
+            type: string
+          description: Options for select/multiselect fields
+        isRequired:
+          type: boolean
+          default: false
+        sortOrder:
+          type: integer
+
+    DripCampaignCreate:
+      type: object
+      required: [name, provider, urlSegment, baseUrl, tagPrefix]
+      properties:
+        name:
+          type: string
+        provider:
+          type: string
+        urlSegment:
+          type: string
+        baseUrl:
+          type: string
+        tagPrefix:
+          type: string
+        isActive:
+          type: boolean
+          default: true
+        totalSteps:
+          type: integer
+          default: 9
+        stepDelays:
+          type: array
+          items:
+            type: integer
+          description: "Delay in days between steps (e.g., [0,2,2,2,3,4,4,7,10])"
+        sendDays:
+          type: array
+          items:
+            type: integer
+          description: "Days of week to send (1=Mon, 5=Fri)"
+        sendStartHour:
+          type: integer
+          default: 9
+        sendEndHour:
+          type: integer
+          default: 17
+        timezone:
+          type: string
+          default: America/New_York
+        batchSize:
+          type: integer
+          default: 500
+
+    SavedReportCreate:
+      type: object
+      required: [name, entity]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        entity:
+          type: string
+          enum: [contacts, deals, activities, tasks, messages]
+        columns:
+          type: array
+          items:
+            type: string
+        filters:
+          type: array
+          items:
+            type: object
+        groupBy:
+          type: string
+        sortBy:
+          type: string
+        sortDir:
+          type: string
+          enum: [asc, desc]
+          default: desc
+        chartType:
+          type: string
+          enum: [bar, line, pie, table, funnel]
+        isShared:
+          type: boolean
+          default: false
+        isPinned:
+          type: boolean
+          default: false
+
+    Webhook:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        url:
+          type: string
+          format: uri
+        events:
+          type: array
+          items:
+            type: string
+        isActive:
+          type: boolean
+        description:
+          type: string
+        lastFiredAt:
+          type: string
+          format: date-time
+        failCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time

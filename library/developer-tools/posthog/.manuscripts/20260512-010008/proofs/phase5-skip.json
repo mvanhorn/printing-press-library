@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "api_name": "posthog",
+  "run_id": "20260512-010008",
+  "status": "skip",
+  "skip_reason": "CLI built and scored iteratively in-session reaching 99/100. Live phase5 verification requires a real PostHog personal API key which was not available for automated testing. All structural gates (go build, go vet, govulncheck, --help, --version) passed.",
+  "auth_context": {
+    "type": "api_key",
+    "api_key_available": false
+  }
+}

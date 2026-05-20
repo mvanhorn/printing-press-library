@@ -14,12 +14,10 @@ import (
 func newTeamsPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:   "teams <id>",
-		Short: "Get a single team",
-		Long:  "Shortcut for 'teams get'. Get a single team",
-		Example: `  linear-pp-cli teams abc123-def456
-  linear-pp-cli teams abc123-def456 --json
-  linear-pp-cli teams abc123-def456 --json --select id,name,key`,
+		Use:         "teams",
+		Short:       "Get a single team",
+		Long:        "Shortcut for 'teams get'. Get a single team",
+		Example:     "  linear-pp-cli teams",
 		Annotations: map[string]string{"pp:endpoint": "teams.get", "pp:method": "GET", "pp:path": "/graphql", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
@@ -28,21 +26,21 @@ func newTeamsPromotedCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/graphql"
-			if len(args) < 1 {
-				return usageErr(fmt.Errorf("id is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "id"))
-			}
-			path = replacePathParam(path, "id", args[0])
 			params := map[string]string{}
-			data, prov, err := resolveRead(c, flags, "teams", false, path, params)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "teams", false, path, params, nil)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 			// Unwrap API response envelopes (e.g. {"status":"success","data":[...]})
 			// so output helpers see the inner data, not the wrapper.
 			data = extractResponseData(data)
 
-			// Print provenance to stderr
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_endpoint.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				if json.Unmarshal(data, &countItems) != nil {
 					// Single object, not an array
@@ -50,18 +48,17 @@ func newTeamsPromotedCmd(flags *rootFlags) *cobra.Command {
 				}
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// CSV bypasses JSON pipe path so --csv works when piped
-			if flags.csv {
-				return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
-			}
-			// For JSON output, wrap with provenance envelope
-			if flags.asJSON || !isTerminal(cmd.OutOrStdout()) {
+			// For JSON output, wrap with provenance envelope. --select wins over
+			// --compact when both are set; --compact only runs when no explicit
+			// fields were requested. Explicit format flags (--csv, --quiet, --plain)
+			// opt out of the auto-JSON path so piped consumers that asked for a
+			// non-JSON format reach the standard pipeline below.
+			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
-				if flags.compact {
-					filtered = compactFields(filtered)
-				}
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
+				} else if flags.compact {
+					filtered = compactFields(filtered)
 				}
 				wrapped, wrapErr := wrapWithProvenance(filtered, prov)
 				if wrapErr != nil {

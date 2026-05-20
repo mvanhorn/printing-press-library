@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "american-reindustrialization",
+  "run_id": "20260519-002038",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 111,
+  "tests_passed": 111,
+  "tests_skipped": 58,
+  "auth_context": {
+    "type": "none"
+  }
+}

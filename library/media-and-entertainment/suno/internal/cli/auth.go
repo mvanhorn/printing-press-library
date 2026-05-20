@@ -192,6 +192,26 @@ profile by name when the installed backend supports it.`,
 				composed = strings.ReplaceAll(composed, "{"+name+"}", cookieMap[name])
 			}
 
+			// PATCH(suno-jwt-staleness-check): Refuse to save a __session cookie
+			// whose embedded Clerk JWT is already expired. Chrome keeps the
+			// cookie row long after the JWT inside it expires (default 1h
+			// lifetime), so a long-idle Suno tab leaves a stale value sitting
+			// on disk. Without this check the CLI silently saves the stale
+			// token, the read-side validation endpoint accepts it (lenient
+			// auth check), but every write endpoint returns HTTP 401 with no
+			// signal that points back at the cookie. Tell the user to refresh
+			// suno.com so Chrome rotates the cookie, then re-run login.
+			if exp, ok := config.JWTExpiry(composed); ok {
+				if exp.Before(time.Now()) {
+					age := time.Since(exp).Round(time.Second)
+					fmt.Fprintln(w, red("Chrome's __session cookie carries an expired Clerk JWT (expired "+age.String()+" ago)."))
+					fmt.Fprintln(w, "")
+					fmt.Fprintln(w, "Open https://suno.com in Chrome (any page) so the cookie refreshes, then re-run:")
+					fmt.Fprintf(w, "\n  suno-pp-cli auth login --chrome\n")
+					return authErr(fmt.Errorf("stored __session JWT expired %s ago", age))
+				}
+			}
+
 			cfg, err := config.Load(flags.configPath)
 			if err != nil {
 				return configErr(err)
@@ -456,6 +476,16 @@ func refreshStoredBrowserCookies(cfg *config.Config, w io.Writer) error {
 	composed := "Bearer {__session}"
 	for _, name := range requiredCookies {
 		composed = strings.ReplaceAll(composed, "{"+name+"}", cookieMap[name])
+	}
+	// PATCH(suno-jwt-staleness-check): see auth login --chrome above. The
+	// refresh path reads the same Chrome cookie store, so the same expired-
+	// JWT trap applies; surface it loudly here instead of overwriting the
+	// stored token with the same stale value.
+	if exp, ok := config.JWTExpiry(composed); ok {
+		if exp.Before(time.Now()) {
+			age := time.Since(exp).Round(time.Second)
+			return fmt.Errorf("Chrome's __session cookie carries an expired Clerk JWT (expired %s ago); open https://suno.com in Chrome to refresh it, then re-run auth refresh", age)
+		}
 	}
 	if err := cfg.SaveTokens("", "", composed, "", time.Time{}); err != nil {
 		return configErr(fmt.Errorf("saving auth: %w", err))

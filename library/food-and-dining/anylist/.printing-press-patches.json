@@ -1,0 +1,157 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-18",
+  "base_run_id": "20260514-120439",
+  "base_printing_press_version": "4.6.1",
+  "patches": [
+    {
+      "id": "review-auth-and-sync-fixes",
+      "summary": "Addressed PR review findings in AnyList auth, client identifier persistence, response body handling, and store grouping.",
+      "reason": "The published AnyList CLI exposed a plaintext password flag, generated client identifiers were not persisted until successful login, retry response body handling was unclear, and store grouping matched JSON store IDs by substring.",
+      "files": [
+        "internal/cli/auth.go",
+        "internal/config/config.go",
+        "internal/anylist/client.go",
+        "internal/store/store.go"
+      ],
+      "validated_outcome": "Added regression coverage for the removed password flag, persisted client identifiers, and exact store ID matching."
+    },
+    {
+      "id": "review-meal-and-rate-limit-fixes",
+      "summary": "Routed meal-plan list writes through the typed AnyList ingredient path and tightened request, import, MCP, and limiter safeguards.",
+      "reason": "The published AnyList CLI used the generic JSON client for a protobuf shopping-list write endpoint, generic HTTP calls did not inherit command cancellation, imported recipe bodies were unbounded, MCP could disable rate limiting, and concurrent limiter callers could reserve the same request slot.",
+      "files": [
+        "internal/anylist/client.go",
+        "internal/cli/collections_add.go",
+        "internal/cli/collections_create.go",
+        "internal/cli/collections_delete.go",
+        "internal/cli/collections_remove.go",
+        "internal/cli/folders_create.go",
+        "internal/cli/folders_delete.go",
+        "internal/cli/items_check.go",
+        "internal/cli/items_uncheck.go",
+        "internal/cli/lists_reset.go",
+        "internal/cli/meal_add-to-list.go",
+        "internal/cli/local_anylist.go",
+        "internal/cli/root.go",
+        "internal/cli/recipes_to_list.go",
+        "internal/client/client.go",
+        "internal/cliutil/ratelimit.go",
+        "internal/mcp/cobratree/shellout.go",
+        "internal/store/store.go"
+      ],
+      "validated_outcome": "Added regression coverage for meal event recipe-ID resolution, context cancellation, MCP rate-limit blocking, recipe lookup by ID, and concurrent limiter spacing; local validation covers list reset and item check cache refresh paths."
+    },
+    {
+      "id": "review-usability-polish",
+      "summary": "Addressed follow-up usability review findings in terminal detection, recipe dedup flags, and sync help.",
+      "reason": "Greptile noted that terminal detection failed open on stat errors, recipe add-to-list deduplication could not be disabled by either flag alone, and sync exposed a no-op --force flag.",
+      "files": [
+        "README.md",
+        "internal/cli/helpers.go",
+        "internal/cli/recipes_add-to-list.go",
+        "internal/cli/sync.go"
+      ],
+      "validated_outcome": "Local validation rerun covers tests, vet, govulncheck, verify-skill, publish validate, publish-package verifier, attribution guard, generated-artifact guard, and diff hygiene."
+    },
+    {
+      "id": "review-meal-dry-run-json",
+      "summary": "Corrected meal add-to-list dry-run JSON so recipe rows report writes that would occur.",
+      "reason": "Greptile noted that dry-run previews inverted the per-recipe would_write field, causing agents to read every recipe row as not planned for writing.",
+      "files": [
+        "internal/cli/meal_add-to-list.go",
+        "internal/cli/root_test.go"
+      ],
+      "validated_outcome": "Targeted validation confirms the dry-run JSON reports would_write=true for planned recipe writes."
+    },
+    {
+      "id": "review-agent-json-pagination",
+      "summary": "Kept list reset dry-run output structured for JSON callers and made flat-array pagination behavior explicit.",
+      "reason": "Greptile noted that lists reset returned text before checking JSON mode during dry runs and that paginatedGet's flat-array branch looked like an accidental first-page-only exit.",
+      "files": [
+        "internal/cli/lists_reset.go",
+        "internal/cli/helpers.go",
+        "internal/cli/root_test.go"
+      ],
+      "validated_outcome": "Added regression coverage for list reset dry-run JSON output and flat-array pagination termination."
+    },
+    {
+      "id": "review-reset-auth-safety",
+      "summary": "Required list reset targets during dry-runs and removed plaintext password fallback after terminal read failures.",
+      "reason": "Greptile noted that dry-run reset without a list could preview an arbitrary list and that auth login could echo passwords if terminal password capture failed.",
+      "files": [
+        "internal/cli/lists_reset.go",
+        "internal/cli/auth.go",
+        "internal/cli/root_test.go"
+      ],
+      "validated_outcome": "Added regressions for dry-run reset name validation and terminal password read failure handling."
+    },
+    {
+      "id": "review-webhook-context-timeout",
+      "summary": "Passed command cancellation and timeout through webhook delivery.",
+      "reason": "Greptile noted that webhook delivery used a hardcoded HTTP timeout and ignored the command context after command execution completed.",
+      "files": [
+        "internal/cli/deliver.go",
+        "internal/cli/root.go",
+        "internal/cli/root_test.go"
+      ],
+      "validated_outcome": "Added regression coverage proving canceled contexts abort webhook delivery before the POST is sent."
+    },
+    {
+      "id": "review-meal-summary-week-flag",
+      "summary": "Wired meal summary's week flag into date-range selection.",
+      "reason": "Greptile noted that meal summary registered --week but ignored explicit --week=false when no alternate range mode was provided.",
+      "files": [
+        "internal/cli/meal_summary.go",
+        "internal/cli/root_test.go"
+      ],
+      "validated_outcome": "Added regression coverage for --week=false requiring --month or an explicit date range."
+    },
+    {
+      "id": "review-meal-summary-date-and-recipe-flags",
+      "summary": "Validated explicit meal-summary date ranges and removed the duplicate recipe dedup flag.",
+      "reason": "Greptile noted that invalid explicit meal summary dates could produce enormous output and that recipes add-to-list exposed two flags for the same deduplication behavior.",
+      "files": [
+        "internal/cli/meal_summary.go",
+        "internal/cli/recipes_add-to-list.go",
+        "internal/cli/root_test.go"
+      ],
+      "validated_outcome": "Added regressions for invalid explicit meal-summary dates and for exposing only the documented recipe --merge flag."
+    },
+    {
+      "id": "review-meal-sync-staleness",
+      "summary": "Cleared meal events and calendar labels before full calendar re-sync.",
+      "reason": "Greptile noted that deleted AnyList meal events and labels persisted in the SQLite cache because sync only upserted current rows.",
+      "files": [
+        "internal/store/store.go",
+        "internal/store/store_test.go"
+      ],
+      "validated_outcome": "Added regression coverage that a second full calendar sync removes stale meal events and labels."
+    },
+    {
+      "id": "review-mcp-bool-and-meal-date-validation",
+      "summary": "Preserved explicit false MCP boolean flags and validated meal date ranges shared by meal commands.",
+      "reason": "Greptile noted that MCP callers could not disable true-defaulting flags and that meal add/show accepted invalid explicit date ranges.",
+      "files": [
+        "internal/mcp/cobratree/shellout.go",
+        "internal/mcp/cobratree/shellout_test.go",
+        "internal/cli/local_anylist.go",
+        "internal/cli/root_test.go"
+      ],
+      "validated_outcome": "Added regressions for MCP false flag forwarding and invalid explicit date ranges in meal add-to-list and meal show."
+    },
+    {
+      "id": "review-cache-permissions-and-meal-dry-run-counts",
+      "summary": "Made HTTP cache files private and reported dry-run meal ingredient counts.",
+      "reason": "Greptile noted that cached AnyList responses were world-readable and that meal add-to-list dry-run JSON hid per-recipe ingredient counts.",
+      "files": [
+        "internal/client/client.go",
+        "internal/client/client_test.go",
+        "internal/cli/meal_add-to-list.go",
+        "internal/cli/recipes_to_list.go",
+        "internal/cli/root_test.go"
+      ],
+      "validated_outcome": "Added regressions for cache directory/file permissions and dry-run would_add counts."
+    }
+  ]
+}
