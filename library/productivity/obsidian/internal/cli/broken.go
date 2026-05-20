@@ -46,6 +46,15 @@ whether to create the missing note or fix the link.`,
 				return err
 			}
 
+			// Wikilink resolution matches the orphans command: target_path
+			// may equal the full path, the path with `.md` stripped, the
+			// title, OR the basename with both folder prefix and `.md`
+			// stripped. The basename clause matters in vaults with nested
+			// notes — `[[foo]]` written in any folder resolves to
+			// `notes/foo.md` if that's the only note named `foo`. Without
+			// it, broken would flag every short-form wikilink to a nested
+			// note as broken and `health.integrity` would be artificially
+			// low.
 			rows, err := db.DB().Query(`
 				SELECT n.path AS source_path, n.title AS source_title, l.target_path
 				FROM obsidian_links l
@@ -55,6 +64,7 @@ whether to create the missing note or fix the link.`,
 					SELECT 1 FROM notes t
 					WHERE t.path = l.target_path
 					   OR replace(t.path, '.md', '') = l.target_path
+					   OR replace(replace(t.path, rtrim(t.path, replace(t.path, '/', '')), ''), '.md', '') = l.target_path
 					   OR t.title = l.target_path
 				  )
 				ORDER BY l.target_path, n.path

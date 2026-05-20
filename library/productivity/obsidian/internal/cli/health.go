@@ -86,6 +86,11 @@ Returns a single 0..100 percentage plus the per-axis breakdown. Pass
 			staleCutoff := time.Now().AddDate(0, 0, -staleDays).UTC().Format(time.RFC3339)
 			staleN := scalarInt(dbi, `SELECT COUNT(*) FROM notes WHERE modified_at < ?`, staleCutoff)
 			wikilinks := scalarInt(dbi, `SELECT COUNT(*) FROM obsidian_links WHERE link_type='wikilink'`)
+			// Mirror the resolution rules used by `orphans` and `broken`
+			// so the integrity sub-score doesn't get artificially deflated
+			// by short-form wikilinks into nested notes (where the
+			// target_path is just `foo` but the note lives at
+			// `notes/foo.md`).
 			brokenLinks := scalarInt(dbi, `
 				SELECT COUNT(*) FROM obsidian_links l
 				WHERE l.link_type='wikilink'
@@ -93,6 +98,7 @@ Returns a single 0..100 percentage plus the per-axis breakdown. Pass
 					SELECT 1 FROM notes n
 					WHERE n.path = l.target_path
 					   OR replace(n.path, '.md', '') = l.target_path
+					   OR replace(replace(n.path, rtrim(n.path, replace(n.path, '/', '')), ''), '.md', '') = l.target_path
 					   OR n.title = l.target_path
 				  )`)
 			// Frontmatter "drift" is approximated as the share of notes
