@@ -309,6 +309,43 @@ func loadRankingsFixtureForCLI_named(t *testing.T, name string) []byte {
 	return nil
 }
 
+func TestRankings_TotalFailureSuggestsSchemaCheckNotFlagBump(t *testing.T) {
+	// When every entry fails to decode (SkipRatio = 1.0), no
+	// --max-skip-ratio value can recover (1.0 >= 1.0 still trips).
+	// The error message must point at the schema instead of
+	// suggesting a flag value that would be silently useless.
+	//
+	// Synthesize 100% failure by serving an emerging wrapper whose
+	// entries are all type-mismatched (rank as string -> Unmarshal
+	// fails on every row).
+	failureHTML := `<!DOCTYPE html><html><body><script>
+self.__next_f.push([1,"3a:[\"$\",\"$L39\",null,{\"direction\":\"emerging\",\"entries\":[` +
+		`{\"rank\":\"oops\",\"target_x_id\":\"x1\",\"username\":\"u1\",\"followed_by_count\":1,\"followers_count\":1,\"score\":0},` +
+		`{\"rank\":\"oops\",\"target_x_id\":\"x2\",\"username\":\"u2\",\"followed_by_count\":1,\"followers_count\":1,\"score\":0}` +
+		`]}]"])
+</script></body></html>`
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _ = io.WriteString(w, failureHTML)
+	}))
+	t.Cleanup(srv.Close)
+	prev := rankingsCompaniesURL
+	rankingsCompaniesURL = srv.URL
+	t.Cleanup(func() { rankingsCompaniesURL = prev })
+
+	_, _, err := runCLI(t,
+		"rankings", "emerging", "--json", "--no-color", "--yes", "--no-input",
+	)
+	if err == nil {
+		t.Fatal("expected error on 100%% drift, got nil")
+	}
+	if !strings.Contains(err.Error(), "every entry failed") {
+		t.Errorf("error didn't note 100%% failure: %q", err.Error())
+	}
+	if strings.Contains(err.Error(), "--max-skip-ratio") {
+		t.Errorf("error suggested --max-skip-ratio at 100%% failure (no value would help): %q", err.Error())
+	}
+}
+
 func TestRankingsList_PageShapeChangedReturnsTypedError(t *testing.T) {
 	// Serve HTML with NO RSC pushes — simulates upstream removing the
 	// data layer. The list command should exit non-zero with a clear

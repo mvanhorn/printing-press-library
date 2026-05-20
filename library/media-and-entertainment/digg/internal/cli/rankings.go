@@ -109,10 +109,19 @@ func reportDriftOrEmit(cmd *cobra.Command, section string, stats diggparse.Parse
 	if err := stats.Threshold(maxSkip); err != nil {
 		var te *diggparse.ThresholdError
 		if errors.As(err, &te) {
-			// Suggest a ratio strictly greater than the observed so
-			// retrying with the suggestion clears the threshold. Cap at
-			// 1.0; if drift is total, scraper is broken and no --max-
-			// skip-ratio value will help.
+			// At 100% failure no --max-skip-ratio value rescues the
+			// caller (the gate trips at SkipRatio >= maxRatio and 1.0
+			// is the ceiling — 1.0 >= 1.0 still trips). Suggesting a
+			// flag value would be actively misleading; just point at
+			// the schema.
+			if te.Stats.SkipRatio() >= 1.0 {
+				return fmt.Errorf(
+					"%s: %w — every entry failed to decode; check digg.com for schema changes",
+					section, te)
+			}
+			// Otherwise suggest a ratio strictly greater than the
+			// observed so retrying with the suggestion clears the
+			// threshold. +0.05 chosen as a small but visible bump.
 			relaxTo := te.Stats.SkipRatio() + 0.05
 			if relaxTo > 1.0 {
 				relaxTo = 1.0
