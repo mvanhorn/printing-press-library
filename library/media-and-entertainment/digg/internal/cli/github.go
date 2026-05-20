@@ -159,7 +159,9 @@ first 10 raw rows then filtered).`,
 	cmd.Flags().IntVar(&minStarrers, "min-starrers", 0,
 		"Keep only repos starred by >= N distinct Digg-tracked accounts. "+
 			"Reads .repo.distinct_starrers (falls back to len .repo.starrers). "+
-			"Applied BEFORE --limit. 0 = no filter; must be >= 0.")
+			"Applied BEFORE --limit. 0 and 1 are no-ops (every repo on the "+
+			"stars feed has >= 1 starrer by construction); pass 2+ to filter. "+
+			"Must be >= 0.")
 	return cmd
 }
 

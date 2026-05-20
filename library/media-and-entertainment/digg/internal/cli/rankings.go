@@ -38,10 +38,10 @@ var rankingsCompaniesURL = "https://di.gg/ai/x/rankings/companies"
 const defaultMaxSkipRatio = 0.10
 
 func newRankingsCmd(flags *rootFlags) *cobra.Command {
-	// One fetcher per command tree. Within a single CLI invocation
-	// only one subcommand runs so the cache rarely matters; but
-	// callers that build the tree once and dispatch multiple commands
-	// (the MCP server does this) benefit from the dedup.
+	// One fetcher per command tree. The fetcher itself no longer
+	// caches across calls (see rankingsFetcher comment) so this is
+	// scoped per-tree for isolation, not deduplication: each subcommand
+	// dispatched on this tree issues its own HTTP fetch.
 	fetcher := &rankingsFetcher{}
 
 	cmd := &cobra.Command{
