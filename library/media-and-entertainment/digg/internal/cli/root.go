@@ -184,6 +184,8 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newFeedCmd(flags))
 	// PATCH(digg-rename-and-github-feeds): wire up the four /ai/github/* feed commands.
 	rootCmd.AddCommand(newGithubCmd(flags))
+	// PATCH(digg-rankings-and-min-starrers): expose the /ai/x/rankings/companies sub-views.
+	rootCmd.AddCommand(newRankingsCmd(flags))
 	rootCmd.AddCommand(newDoctorCmd(flags))
 	rootCmd.AddCommand(newAgentContextCmd(rootCmd))
 	rootCmd.AddCommand(newProfileCmd(flags))
