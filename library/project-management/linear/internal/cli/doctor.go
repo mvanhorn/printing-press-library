@@ -217,6 +217,14 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 							// debug without skewing exit codes.
 							if probeErr != nil {
 								fmt.Fprintf(cmd.ErrOrStderr(), "  doctor: credential probe inconclusive: %s\n", cliutil.SanitizeErrorBody(probeErr.Error()))
+							} else {
+								// No transport or GraphQL error, yet viewer.ID is
+								// empty — a well-formed but unreadable envelope
+								// ({"data":null} or an empty viewer object).
+								// Distinguish it from a network failure so the
+								// operator knows the probe completed and the
+								// likely cause is an API shape change.
+								fmt.Fprintln(cmd.ErrOrStderr(), "  doctor: credential probe returned an empty viewer; possible API shape change")
 							}
 							report["credentials"] = "INFO present, probe inconclusive. Run `linear-pp-cli me` to confirm the token works end-to-end."
 						}
