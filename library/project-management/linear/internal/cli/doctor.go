@@ -15,6 +15,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/project-management/linear/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/project-management/linear/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/project-management/linear/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/project-management/linear/internal/store"
 )
@@ -176,13 +177,49 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 					}
 
 					// Step 2: Validate credentials with an authenticated probe.
+					// PATCH(doctor-credential-verify): see .printing-press-patches.json.
 					authHeader := cfg.AuthHeader()
-					if authHeader == "" {
-						// No auth configured — skip credential validation
-					} else if reachErr != nil && !errors.As(reachErr, &reachAPIErr) {
+					switch {
+					case authHeader == "":
+						// No auth configured — skip credential validation.
+					case reachErr != nil && !errors.As(reachErr, &reachAPIErr):
 						report["credentials"] = "skipped (API unreachable)"
-					} else {
-						report["credentials"] = "present (not verified — set auth.verify_path in spec for an API acceptance check)"
+					default:
+						var viewer struct {
+							Viewer struct {
+								ID          string `json:"id"`
+								DisplayName string `json:"displayName"`
+							} `json:"viewer"`
+						}
+						probeErr := c.QueryInto(client.ViewerQuery, nil, &viewer)
+						switch {
+						case probeErr == nil && viewer.Viewer.ID != "":
+							who := viewer.Viewer.DisplayName
+							if who == "" {
+								who = viewer.Viewer.ID
+							}
+							report["credentials"] = fmt.Sprintf("verified (viewer: %s)", who)
+						case probeErr != nil && isAuthRejection(probeErr):
+							// "ERROR" prefix drives the FAIL indicator;
+							// "invalid" keyword trips --fail-on=error
+							// (see doctorExitForFailOn's keyword set).
+							report["credentials"] = "ERROR invalid credentials: " + cliutil.SanitizeErrorBody(probeErr.Error())
+						default:
+							// Probe ran but didn't decisively verify or reject —
+							// 5xx, transient transport error, or unexpected shape.
+							// Keep the report string free of the substrings
+							// doctorExitForFailOn treats as error-class
+							// ("error", "invalid", "unreachable", "missing");
+							// a raw probeErr.Error() embedded here would
+							// silently trip --fail-on=error on what is
+							// explicitly an INFO state. Sanitized probe detail
+							// goes to stderr instead so the operator can still
+							// debug without skewing exit codes.
+							if probeErr != nil {
+								fmt.Fprintf(cmd.ErrOrStderr(), "  doctor: credential probe inconclusive: %s\n", cliutil.SanitizeErrorBody(probeErr.Error()))
+							}
+							report["credentials"] = "INFO present, probe inconclusive. Run `linear-pp-cli me` to confirm the token works end-to-end."
+						}
 					}
 				}
 			} else if cfg != nil && cfg.BaseURL == "" {
@@ -261,6 +298,39 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&failOn, "fail-on", "", "Exit non-zero when a health level is reached: stale, error. Default is never.")
 	return cmd
+}
+
+// isAuthRejection reports whether err is a 401/403 APIError or a GraphQL
+// error message that looks auth-related. Linear returns HTTP 200 with an
+// authentication-flavored errors[] payload for bad tokens, so the HTTP
+// status alone isn't enough — graphql.go converts that into a non-APIError
+// wrapped via fmt.Errorf("graphql: ..."), which is the case we run keyword
+// detection against.
+//
+// We deliberately do NOT run keyword detection on 5xx APIErrors. A vendor
+// 5xx page can incidentally mention "token", "key", "credential", or
+// "authentication" (rate-limit prose, internal-service error blurbs, etc.)
+// and would be misclassified as invalid credentials — shifting the doctor's
+// wrongness from "WARN with bad hint" (the pre-patch behavior) to "FAIL
+// with wrong cause" (worse). 5xx falls through to the INFO probe-failed
+// branch instead, which is honest about the ambiguity.
+func isAuthRejection(err error) bool {
+	if err == nil {
+		return false
+	}
+	var apiErr *client.APIError
+	if errors.As(err, &apiErr) {
+		switch {
+		case apiErr.StatusCode == 401 || apiErr.StatusCode == 403:
+			return true
+		case apiErr.StatusCode >= 500:
+			// Server-side failure; don't keyword-grep the body.
+			return false
+		}
+		// Other 4xx: fall through to keyword check on a 4xx that wasn't
+		// 401/403 (some APIs return 400 with an auth-error envelope).
+	}
+	return cliutil.LooksLikeAuthError(err.Error())
 }
 
 // doctorExitForFailOn returns a non-nil error when the report's worst
