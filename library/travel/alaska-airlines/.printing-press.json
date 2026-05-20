@@ -10,6 +10,11 @@
       "name": "Field selection on deep JSON",
       "command": "flights search --select",
       "description": "Generic --select flag narrows the ~50KB search/results JSON to just the fields the agent needs."
+    },
+    {
+      "name": "Cash vs award comparison with TPG valuation",
+      "command": "flights value-compare",
+      "description": "Runs paired cash + award searches for the same itinerary and applies a cents-per-point valuation (default: Alaska/Atmos from thepointsguy.com, cached 30 days). Returns effective cpp, TPG multiple, and TPG-valued dollar cost of the points option."
     }
   ],
   "printer": "mvanhorn",

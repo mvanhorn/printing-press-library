@@ -70,6 +70,17 @@ These capabilities aren't available in any other tool for this API.
 
   Built on the same `/search/results/__data.json` endpoint the cash search uses; the `--award` flag (or `flights award-search`) toggles `ShoppingMethod=onlineaward`.
 
+### Cash vs. points value comparator with TPG valuation
+- **`flights value-compare --origin FCO --destination SEA --depart 2026-08-30`** — Runs paired cash + award searches for the same itinerary and applies a cents-per-point baseline (default: Alaska/Atmos from The Points Guy's monthly valuations page, scraped on first use and cached locally for 30 days). Returns effective cpp, TPG multiple, and TPG-valued dollar cost of paying with points.
+
+  _Answers "is this redemption actually a good deal?" in one read instead of running two searches and a calculator._
+
+  ```bash
+  alaska-airlines-pp-cli flights value-compare --origin FCO --destination SEA --depart 2026-08-30 --cabin economy --max-stops 0 --json
+  ```
+
+  Use `--cpp 1.2` to override the baseline (e.g. NerdWallet's number) or `--no-valuation-cache` to force a fresh TPG scrape. Soft-fallback chain: override → fresh cache → live TPG → stale cache → constant. Never hard-fails on a valuation lookup issue; surfaces the source in `meta.cpp_baseline_source` (`tpg-live`, `tpg-cached`, `override`, `fallback-stale`, `fallback-constant`).
+
 ## HTTP Transport
 
 This CLI uses Chrome-compatible HTTP transport for browser-facing endpoints. It does not require a resident browser process for normal API calls.
@@ -104,6 +115,7 @@ This CLI uses Chrome-compatible HTTP transport for browser-facing endpoints. It 
 - `alaska-airlines-pp-cli flights shoulder-dates` — Flexible-date pricing matrix - get fares for dates near your target
 - `alaska-airlines-pp-cli flights award-search` — Single-date award fare matrix (miles + cash). Thin alias over `flights search --award`.
 - `alaska-airlines-pp-cli flights award-cheapest` — Lowest-miles-in-a-month planner. Fans out across destinations and (depart, return) pairs in parallel; returns the cheapest round-trip in miles.
+- `alaska-airlines-pp-cli flights value-compare` — Cash vs. points comparator with TPG cents-per-point valuation. Runs paired searches for the same itinerary and emits effective cpp, TPG multiple, and TPG-valued dollar cost of paying with points. Pass `--cpp <float>` to override the baseline.
 
 
 ### Finding the right command
@@ -158,6 +170,20 @@ alaska-airlines-pp-cli flights award-cheapest --origin SFO --destination-region 
 ```
 
 Iterates every (depart, return) pair in August across 8 Japan airports in parallel and returns the top-5 cheapest round-trips by miles. Use `--min-nights` and `--max-nights` to bound the trip length (default 5-21 nights). Use `--top-n` to control result count, `--concurrency` to tune fan-out, and `--save <path>` to persist the full result set, not just the top-N.
+
+### Cash vs. points comparison with TPG valuation
+
+```bash
+alaska-airlines-pp-cli flights value-compare --origin FCO --destination SEA --depart 2026-08-30 --cabin economy --max-stops 0 --json
+```
+
+Runs paired cash and award searches against the same itinerary, scrapes TPG's monthly Alaska/Atmos cents-per-point on first use (cached 30 days), and emits an apples-to-apples comparison. Output meta surfaces `cpp_baseline_source` (`tpg-live`, `tpg-cached`, `override`, `fallback-stale`, `fallback-constant`) so the agent can audit baseline freshness.
+
+Override TPG with another source's valuation:
+
+```bash
+alaska-airlines-pp-cli flights value-compare --origin FCO --destination SEA --depart 2026-08-30 --cpp 1.2 --json
+```
 
 ### Atmos Rewards balance
 

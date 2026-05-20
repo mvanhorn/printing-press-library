@@ -445,111 +445,35 @@ type lowestAwardPrice struct {
 	Stops   int
 }
 
-// extractLowestAwardPrice walks the SvelteKit __data.json response and
-// picks the cheapest miles+cash combo. The response stores values in a
-// flat array indexed by key dictionaries, so a tolerant walker over the
-// raw JSON tree finds numeric runs that match the miles/cash pattern.
-// When maxStops >= 0, itineraries with more stops are skipped.
+// extractLowestAwardPrice hydrates the SvelteKit __data.json response
+// and returns the cheapest miles+taxes combo. Delegates to
+// extractLowestFare (see flights_fare_extract.go) for the underlying
+// hydration and walk; this wrapper preserves the legacy type so
+// award-cheapest's call sites stay unchanged.
 //
-// This is deliberately best-effort: a richer parser belongs in a
-// dedicated helper file once we have more example payloads. Returns
+// When maxStops >= 0, itineraries with more stops are skipped. Returns
 // lowestAwardPrice with Miles=nil when no usable miles total is found.
 func extractLowestAwardPrice(data json.RawMessage, maxStops int) lowestAwardPrice {
-	var doc any
-	if err := json.Unmarshal(data, &doc); err != nil {
+	fare := extractLowestFare(data, fareModeAward, "", maxStops)
+	if fare.Miles == nil {
 		return lowestAwardPrice{}
 	}
-
-	var best *lowestAwardPrice
-	walkAwardJSON(doc, func(miles int, cash float64, carrier, cabin string, stops int) {
-		if maxStops >= 0 && stops > maxStops {
-			return
-		}
-		if best == nil || miles < *best.Miles {
-			m := miles
-			lp := lowestAwardPrice{Miles: &m, CashUSD: cash, Carrier: carrier, Cabin: cabin, Stops: stops}
-			best = &lp
-		}
-	})
-
-	if best == nil {
-		return lowestAwardPrice{}
-	}
-	return *best
-}
-
-// walkAwardJSON recursively walks the deflated SvelteKit JSON looking for
-// objects that carry both a "milesAmount" (or "pricePts") and a "cash"
-// (or "fees") field — those are fare-class records. The walker is
-// tolerant: missing fields default to zero and unknown shapes are
-// skipped.
-func walkAwardJSON(v any, emit func(miles int, cash float64, carrier, cabin string, stops int)) {
-	switch x := v.(type) {
-	case map[string]any:
-		miles, hasMiles := readIntField(x, "milesAmount", "pricePts", "pricePtsAmount", "milesPerPax", "displayMiles")
-		cash, _ := readFloatField(x, "cashAmount", "totalCashAmount", "paxCashTotal", "feeAmount", "feeTotal")
-		carrier, _ := readStringField(x, "carrier", "operatingCarrier", "marketingCarrier", "airlineCode")
-		cabin, _ := readStringField(x, "cabin", "cabinClass", "fareName", "displayCabin")
-		stops, _ := readIntField(x, "stops", "stopCount", "numStops")
-		if hasMiles && miles > 0 {
-			emit(miles, cash, carrier, cabin, stops)
-		}
-		for _, vv := range x {
-			walkAwardJSON(vv, emit)
-		}
-	case []any:
-		for _, vv := range x {
-			walkAwardJSON(vv, emit)
-		}
+	return lowestAwardPrice{
+		Miles:   fare.Miles,
+		CashUSD: fare.CashUSD,
+		Carrier: fare.Carrier,
+		Cabin:   fare.Cabin,
+		Stops:   fare.Stops,
 	}
 }
 
-func readIntField(m map[string]any, keys ...string) (int, bool) {
-	for _, k := range keys {
-		if raw, ok := m[k]; ok {
-			switch v := raw.(type) {
-			case float64:
-				return int(v), true
-			case int:
-				return v, true
-			case json.Number:
-				if i, err := v.Int64(); err == nil {
-					return int(i), true
-				}
-			}
-		}
-	}
-	return 0, false
-}
-
-func readFloatField(m map[string]any, keys ...string) (float64, bool) {
-	for _, k := range keys {
-		if raw, ok := m[k]; ok {
-			switch v := raw.(type) {
-			case float64:
-				return v, true
-			case int:
-				return float64(v), true
-			case json.Number:
-				if f, err := v.Float64(); err == nil {
-					return f, true
-				}
-			}
-		}
-	}
-	return 0, false
-}
-
-func readStringField(m map[string]any, keys ...string) (string, bool) {
-	for _, k := range keys {
-		if raw, ok := m[k]; ok {
-			if s, ok := raw.(string); ok {
-				return s, true
-			}
-		}
-	}
-	return "", false
-}
+// Note: the legacy walkAwardJSON / readIntField / readFloatField /
+// readStringField helpers were removed in the 2026-05-20 value-compare
+// amend. They emitted on JSON keys (milesAmount, cashAmount) that the
+// live SvelteKit response does not produce. extractLowestAwardPrice now
+// delegates to extractLowestFare in flights_fare_extract.go, which
+// walks the actual rows[].solutions.<CABIN> shape after hydrating the
+// SvelteKit positional encoding.
 
 // printAwardCheapestDryRun emits a structured preview of the work that would
 // be done. No network calls.

@@ -23,5 +23,9 @@ func newFlightsCmd(flags *rootFlags) *cobra.Command {
 	// commands added by /printing-press-amend.
 	cmd.AddCommand(newFlightsAwardSearchCmd(flags))
 	cmd.AddCommand(newFlightsAwardCheapestCmd(flags))
+	// PATCH(amend-2026-05-20: value-compare) — cash-vs-points comparator
+	// with TPG cents-per-point valuation. See .printing-press-patches.json
+	// entry "value-compare".
+	cmd.AddCommand(newFlightsValueCompareCmd(flags))
 	return cmd
 }

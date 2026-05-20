@@ -165,15 +165,21 @@ func TestExtractLowestAwardPrice_NoData(t *testing.T) {
 }
 
 func TestExtractLowestAwardPrice_FindsLowest(t *testing.T) {
-	// Synthetic SvelteKit-shaped doc with two fare records — one cheaper.
-	doc := `{
-		"trip": [
-			{"milesAmount": 145000, "cashAmount": 55.0, "carrier": "AS", "cabin": "Main", "stops": 1},
-			{"milesAmount": 120000, "cashAmount": 55.0, "carrier": "AS", "cabin": "Main", "stops": 1},
-			{"milesAmount": 450000, "cashAmount": 55.0, "carrier": "AS", "cabin": "Business", "stops": 1}
-		]
-	}`
-	got := extractLowestAwardPrice(json.RawMessage(doc), -1)
+	// SvelteKit-shaped fixture: a nonstop AS row and a 1-stop JX row,
+	// each with multiple cabins. extractLowestAwardPrice should pick
+	// the lowest atmosPoints across all rows/cabins.
+	root := map[string]any{
+		"rows": []any{
+			makeRow(segments("AS"), map[string]any{
+				"REFUNDABLE_MAIN":     map[string]any{"atmosPoints": float64(145000), "grandTotal": float64(55.0)},
+				"REFUNDABLE_BUSINESS": map[string]any{"atmosPoints": float64(450000), "grandTotal": float64(55.0)},
+			}),
+			makeRow(segments("JX", "JX"), map[string]any{
+				"REFUNDABLE_MAIN": map[string]any{"atmosPoints": float64(120000), "grandTotal": float64(55.0)},
+			}),
+		},
+	}
+	got := extractLowestAwardPrice(json.RawMessage(buildSvelteKitFixture(root)), -1)
 	if got.Miles == nil {
 		t.Fatalf("expected miles extracted, got %+v", got)
 	}
@@ -183,11 +189,19 @@ func TestExtractLowestAwardPrice_FindsLowest(t *testing.T) {
 }
 
 func TestExtractLowestAwardPrice_MaxStopsFilter(t *testing.T) {
-	doc := `[
-		{"milesAmount": 80000, "stops": 3},
-		{"milesAmount": 120000, "stops": 1}
-	]`
-	got := extractLowestAwardPrice(json.RawMessage(doc), 1)
+	// 3-stop fare with the lowest miles must be excluded when
+	// max-stops=1.
+	root := map[string]any{
+		"rows": []any{
+			makeRow(segments("AS", "BA", "JL", "AS"), map[string]any{
+				"REFUNDABLE_MAIN": map[string]any{"atmosPoints": float64(80000), "grandTotal": float64(5.6)},
+			}),
+			makeRow(segments("AS", "JX"), map[string]any{
+				"REFUNDABLE_MAIN": map[string]any{"atmosPoints": float64(120000), "grandTotal": float64(5.6)},
+			}),
+		},
+	}
+	got := extractLowestAwardPrice(json.RawMessage(buildSvelteKitFixture(root)), 1)
 	if got.Miles == nil {
 		t.Fatalf("expected at least one match within max-stops=1")
 	}
