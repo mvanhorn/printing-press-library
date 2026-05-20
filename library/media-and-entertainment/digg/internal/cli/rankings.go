@@ -151,7 +151,8 @@ func validateMaxSkipRatio(ratio float64) error {
 // commands. Centralized so help stays consistent if we tune defaults.
 const maxSkipRatioFlagHelp = "Fraction of entries that may fail to decode before the command exits non-zero. " +
 	"Schema-drift detector — if upstream renames a key, every row registers as Skipped and SkipRatio becomes 1.0. " +
-	"Default 0.10 (10%) tolerates one bad entry in ten. Range [0, 1]; 0 means \"no tolerance\" and 1 disables the check."
+	"Default 0.10 (10%) tolerates one bad entry in ten. Range [0, 1]; 0 means \"no tolerance\" (any skip trips) " +
+	"and 1 only trips when every entry fails to decode."
 
 func newRankingsEmergingCmd(flags *rootFlags, fetcher *rankingsFetcher) *cobra.Command {
 	maxSkip := defaultMaxSkipRatio

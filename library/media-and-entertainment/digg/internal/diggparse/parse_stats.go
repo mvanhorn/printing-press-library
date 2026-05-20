@@ -70,19 +70,25 @@ func (s ParseStats) SkipRatio() float64 {
 
 // Threshold returns a *ThresholdError when the skip ratio meets or
 // exceeds maxRatio AND the parser attempted at least one object.
-// maxRatio is a fraction in (0, 1]; values outside that range disable
-// the check (a caller misconfiguration shouldn't silently fail every
-// run, and a 0% tolerance would fire on any single skip in a large
-// batch — pass maxRatio explicitly if that's desired).
+// maxRatio is a fraction in [0, 1]:
+//
+//   - 0 means "no tolerance" — any single Skipped entry trips the gate.
+//   - 1 means "only fail when every entry fails" — useful as a
+//     near-disable (a 99% skip rate still passes; the gate only trips
+//     when 100% of attempts were Skipped).
+//   - Values outside [0, 1] disable the check entirely; a caller
+//     misconfiguration shouldn't silently fail every run.
 //
 // Empty inputs (Attempted == 0) never trip the threshold — that's
 // for the caller to interpret separately (e.g., "page shape changed,
 // no objects found at all" is a distinct error class).
 func (s ParseStats) Threshold(maxRatio float64) error {
-	if s.Attempted == 0 {
+	if s.Attempted == 0 || s.Skipped == 0 {
+		// A clean parse never trips — even at zero tolerance, the
+		// presence of zero failures isn't a failure.
 		return nil
 	}
-	if maxRatio <= 0 || maxRatio > 1 {
+	if maxRatio < 0 || maxRatio > 1 {
 		return nil
 	}
 	if s.SkipRatio() < maxRatio {

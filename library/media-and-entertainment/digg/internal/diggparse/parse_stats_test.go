@@ -102,10 +102,46 @@ func TestParseStats_Threshold(t *testing.T) {
 
 	t.Run("disabled when maxRatio out of range", func(t *testing.T) {
 		s := ParseStats{Attempted: 10, Decoded: 0, Skipped: 10}
-		for _, r := range []float64{-0.1, 0, 1.5, 2.0} {
+		for _, r := range []float64{-0.1, 1.5, 2.0} {
 			if err := s.Threshold(r); err != nil {
 				t.Errorf("Threshold(%v) on out-of-range = %v, want nil (disabled)", r, err)
 			}
+		}
+	})
+
+	t.Run("zero ratio = zero tolerance", func(t *testing.T) {
+		// 0 is in-range and means "any skip trips" — distinct from
+		// negative-or-out-of-range which disables the gate.
+		oneSkip := ParseStats{Attempted: 10, Decoded: 9, Skipped: 1,
+			Errors: []error{errors.New("one skip")}}
+		if err := oneSkip.Threshold(0); err == nil {
+			t.Error("Threshold(0) with one skip = nil, want ThresholdError (zero tolerance)")
+		}
+		// Empty stats still don't trip — Attempted==0 short-circuit
+		// applies even at zero tolerance.
+		empty := ParseStats{}
+		if err := empty.Threshold(0); err != nil {
+			t.Errorf("Threshold(0) on empty = %v, want nil", err)
+		}
+		// Clean parse (zero skips) doesn't trip even at zero tolerance.
+		clean := ParseStats{Attempted: 10, Decoded: 10, Skipped: 0}
+		if err := clean.Threshold(0); err != nil {
+			t.Errorf("Threshold(0) with zero skips = %v, want nil", err)
+		}
+	})
+
+	t.Run("ratio of 1 only trips at total failure", func(t *testing.T) {
+		// 99% failure rate is below threshold of 1.0 — the gate only
+		// trips when SkipRatio() >= maxRatio, and we never reach 1.0
+		// without total failure.
+		ninetyNine := ParseStats{Attempted: 100, Decoded: 1, Skipped: 99}
+		if err := ninetyNine.Threshold(1.0); err != nil {
+			t.Errorf("Threshold(1.0) at 99%% skip = %v, want nil (only trips at 100%%)", err)
+		}
+		total := ParseStats{Attempted: 10, Decoded: 0, Skipped: 10,
+			Errors: []error{errors.New("total")}}
+		if err := total.Threshold(1.0); err == nil {
+			t.Error("Threshold(1.0) at 100%% skip = nil, want ThresholdError")
 		}
 	})
 

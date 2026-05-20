@@ -105,6 +105,9 @@ func emitGithub(cmd *cobra.Command, flags *rootFlags, items any, limit int) erro
 
 func newGithubStarsCmd(flags *rootFlags) *cobra.Command {
 	var limit int
+	// PATCH(digg-rankings-and-min-starrers): smart-money-convergence
+	// filter on the existing stars feed; counts distinct AI-builder
+	// accounts that starred each repo.
 	var minStarrers int
 	cmd := &cobra.Command{
 		Use:         "stars",
@@ -124,6 +127,9 @@ the length of .repo.starrers when distinct_starrers is absent. The
 filter is applied BEFORE --limit, so 'stars --min-starrers 2 --limit
 10' returns up to 10 repos that all satisfy the threshold (not the
 first 10 raw rows then filtered).`,
+		// PATCH(digg-rankings-and-min-starrers): validate --min-starrers
+		// before fetching; negatives are meaningless and shouldn't burn
+		// a network roundtrip.
 		PreRunE: func(cmd *cobra.Command, args []string) error {
 			if minStarrers < 0 {
 				return fmt.Errorf("--min-starrers must be >= 0, got %d", minStarrers)
@@ -142,11 +148,14 @@ first 10 raw rows then filtered).`,
 			if err != nil {
 				return fmt.Errorf("parsing /ai/github/stars: %w", err)
 			}
+			// PATCH(digg-rankings-and-min-starrers): apply convergence filter
+			// before emit so --limit caps the post-filter result.
 			repos = filterByMinStarrers(repos, minStarrers)
 			return emitGithub(cmd, flags, repos, limit)
 		},
 	}
 	cmd.Flags().IntVar(&limit, "limit", 0, "Max rows to return (0 = all)")
+	// PATCH(digg-rankings-and-min-starrers): expose the convergence filter.
 	cmd.Flags().IntVar(&minStarrers, "min-starrers", 0,
 		"Keep only repos starred by >= N distinct Digg-tracked accounts. "+
 			"Reads .repo.distinct_starrers (falls back to len .repo.starrers). "+
@@ -154,6 +163,7 @@ first 10 raw rows then filtered).`,
 	return cmd
 }
 
+// PATCH(digg-rankings-and-min-starrers):
 // filterByMinStarrers drops repos whose distinct-starrer count is
 // below threshold. Threshold semantics:
 //
