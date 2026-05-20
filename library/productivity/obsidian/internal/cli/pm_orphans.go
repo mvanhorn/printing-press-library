@@ -132,12 +132,17 @@ func mirrorOrphans(db *store.Store, limit int, oldest bool) ([]map[string]any, b
 	if oldest {
 		order = "modified_at ASC"
 	}
+	// Resolution mirrors broken/health/stale: full path, basename with
+	// folder prefix + `.md` stripped, or frontmatter title. The title
+	// clause matters for vaults that wikilink by display name rather
+	// than filename; without it those notes would falsely flag here.
 	q := fmt.Sprintf(`
 		SELECT n.path, n.title, n.modified_at, n.word_count
 		FROM notes n
 		LEFT JOIN obsidian_links l
 		       ON l.target_path = n.path
 		       OR l.target_path = replace(replace(n.path, rtrim(n.path, replace(n.path, '/', '')), ''), '.md', '')
+		       OR l.target_path = n.title
 		WHERE l.target_path IS NULL
 		ORDER BY %s
 		LIMIT ?

@@ -70,17 +70,19 @@ Returns a single 0..100 percentage plus the per-axis breakdown. Pass
 			if notes == 0 {
 				return fmt.Errorf("mirror empty; run 'obsidian-pp-cli sync' first")
 			}
-			// Match the wikilink resolution used by `pm_orphans` and
-			// `broken`/integrity below — exact path OR basename with
-			// folder prefix + `.md` stripped — so connectivity doesn't
-			// over-count orphans for vaults that use short-form wikilinks
-			// to nested notes.
+			// Match the wikilink resolution used by `pm_orphans`,
+			// `broken`, and `pm_stale` — exact path, basename with folder
+			// prefix + `.md` stripped, OR frontmatter title — so all four
+			// commands report coherent counts (a note linked only via
+			// `[[Some Title]]` against its frontmatter `title:` is
+			// resolved everywhere, not just in `broken`).
 			orphans := scalarInt(dbi, `
 				SELECT COUNT(*) FROM notes n
 				WHERE NOT EXISTS (
 					SELECT 1 FROM obsidian_links l
 					WHERE l.target_path = n.path
 					   OR l.target_path = replace(replace(n.path, rtrim(n.path, replace(n.path, '/', '')), ''), '.md', '')
+					   OR l.target_path = n.title
 				)`)
 			// modified_at is stored as RFC3339 ("2026-05-21T12:00:00Z"), but
 			// SQLite's datetime('now','-N days') returns "2026-05-21 12:00:00"

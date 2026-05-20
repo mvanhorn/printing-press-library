@@ -65,17 +65,19 @@ Pass --include-orphans to also include notes with zero incoming links
 			dbi := db.DB()
 			var q string
 			// Incoming-link resolution mirrors `pm_orphans` / `broken` /
-			// `health` — match a note via full path OR basename with
-			// folder prefix + `.md` stripped — so the "still being linked"
-			// gate doesn't under-count short-form wikilinks to nested
-			// notes. The expression appears three times below; SQLite has
-			// no parameterized subquery reuse, so the cost is repetition.
+			// `health` — match a note via full path, basename with
+			// folder prefix + `.md` stripped, OR frontmatter title — so
+			// the "still being linked" gate stays coherent with the other
+			// Tier-3 counts. The expression appears three times below;
+			// SQLite has no parameterized subquery reuse, so the cost is
+			// repetition.
 			if includeOrphans {
 				q = `
 					SELECT n.path, n.title, n.modified_at, n.word_count,
 					       COALESCE((SELECT COUNT(*) FROM obsidian_links l
 					                 WHERE l.target_path = n.path
-					                    OR l.target_path = replace(replace(n.path, rtrim(n.path, replace(n.path, '/', '')), ''), '.md', '')), 0) AS incoming
+					                    OR l.target_path = replace(replace(n.path, rtrim(n.path, replace(n.path, '/', '')), ''), '.md', '')
+					                    OR l.target_path = n.title), 0) AS incoming
 					FROM notes n
 					WHERE n.modified_at < ?
 					ORDER BY n.modified_at ASC
@@ -85,13 +87,15 @@ Pass --include-orphans to also include notes with zero incoming links
 					SELECT n.path, n.title, n.modified_at, n.word_count,
 					       (SELECT COUNT(*) FROM obsidian_links l
 					        WHERE l.target_path = n.path
-					           OR l.target_path = replace(replace(n.path, rtrim(n.path, replace(n.path, '/', '')), ''), '.md', '')) AS incoming
+					           OR l.target_path = replace(replace(n.path, rtrim(n.path, replace(n.path, '/', '')), ''), '.md', '')
+					           OR l.target_path = n.title) AS incoming
 					FROM notes n
 					WHERE n.modified_at < ?
 					  AND EXISTS (
 					        SELECT 1 FROM obsidian_links l
 					        WHERE l.target_path = n.path
-					           OR l.target_path = replace(replace(n.path, rtrim(n.path, replace(n.path, '/', '')), ''), '.md', ''))
+					           OR l.target_path = replace(replace(n.path, rtrim(n.path, replace(n.path, '/', '')), ''), '.md', '')
+					           OR l.target_path = n.title)
 					ORDER BY n.modified_at ASC
 					LIMIT ?`
 			}
