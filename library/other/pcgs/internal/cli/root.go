@@ -483,5 +483,5 @@ func stdoutIsTerminal() bool {
 	// On a real TTY the mode has the os.ModeCharDevice bit set AND is not
 	// a regular file. Pipes report os.ModeNamedPipe; redirected files
 	// report mode.IsRegular().
-	return (fi.Mode()&os.ModeCharDevice) != 0 && !fi.Mode().IsRegular()
+	return (fi.Mode() & os.ModeCharDevice) != 0
 }
