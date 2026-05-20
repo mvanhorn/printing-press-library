@@ -453,8 +453,11 @@ func historyToStats(rows []store.ActorRunRecord) []cost.RunStats {
 	out := make([]cost.RunStats, len(rows))
 	for i, r := range rows {
 		out[i] = cost.RunStats{
-			RunID:           r.RunID,
-			ActorID:         r.ActorID,
+			RunID: r.RunID,
+			// cost.Project and cost.Rollup match/group on the caller-supplied
+			// Actor slug, which is stored in actor_name — not the opaque
+			// Apify-internal actor_id.
+			ActorID:         r.ActorName,
 			ComputeUnits:    r.ComputeUnits,
 			MemoryAvgMBytes: r.MemoryMbytes,
 			DurationSecs:    r.DurationSecs,

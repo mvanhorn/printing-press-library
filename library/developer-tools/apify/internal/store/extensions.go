@@ -175,7 +175,10 @@ func (s *Store) LoadActorRunHistory(ctx context.Context, actorID string, limit i
 	      FROM pp_actor_run_history`
 	args := []any{}
 	if actorID != "" {
-		q += ` WHERE actor_id = ?`
+		// Callers pass the human-readable Actor slug (e.g. apidojo/twitter-
+		// scraper-lite), which is stored in actor_name. actor_id holds the
+		// opaque Apify-internal ID, which callers never have on hand.
+		q += ` WHERE actor_name = ?`
 		args = append(args, actorID)
 	}
 	q += ` ORDER BY started_at DESC`
