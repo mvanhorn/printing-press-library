@@ -1,4 +1,4 @@
-import { execFile } from "node:child_process";
+import spawn from "cross-spawn";
 
 export interface RunResult {
   code: number;
@@ -8,33 +8,33 @@ export interface RunResult {
 
 export interface RunOptions {
   env?: NodeJS.ProcessEnv;
-  shell?: boolean;
 }
 
 export type Runner = (command: string, args: string[], options?: RunOptions) => Promise<RunResult>;
 
 export const execFileRunner: Runner = (command, args, options = {}) => {
   return new Promise((resolve) => {
-    execFile(
-      command,
-      args,
-      {
-        env: options.env ? { ...process.env, ...options.env } : process.env,
-        shell: options.shell ?? false,
-      },
-      (error, stdout, stderr) => {
-        if (error && "code" in error && error.code === "ENOENT") {
-          resolve({ code: 127, stdout, stderr });
-          return;
-        }
-
-        resolve({
-          code: typeof error?.code === "number" ? error.code : 0,
-          stdout,
-          stderr,
-        });
-      },
-    );
+    const child = spawn(command, args, {
+      env: options.env ? { ...process.env, ...options.env } : process.env,
+    });
+    let stdout = "";
+    let stderr = "";
+    child.stdout?.on("data", (chunk: Buffer) => {
+      stdout += chunk.toString();
+    });
+    child.stderr?.on("data", (chunk: Buffer) => {
+      stderr += chunk.toString();
+    });
+    child.on("error", (error: NodeJS.ErrnoException) => {
+      if (error.code === "ENOENT") {
+        resolve({ code: 127, stdout, stderr });
+        return;
+      }
+      resolve({ code: 0, stdout, stderr });
+    });
+    child.on("close", (code) => {
+      resolve({ code: code ?? 0, stdout, stderr });
+    });
   });
 };
 

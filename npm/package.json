@@ -51,7 +51,11 @@
     "provenance": true
   },
   "devDependencies": {
+    "@types/cross-spawn": "^6.0.6",
     "@types/node": "^20.19.39",
     "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "cross-spawn": "^7.0.6"
   }
 }

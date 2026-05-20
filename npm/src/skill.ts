@@ -21,7 +21,7 @@ export function skillsAddArgs(skillName: string, options: InstallSkillOptions = 
 
 export async function installSkill(skillName: string, options: InstallSkillOptions = {}) {
   const runner = options.runner ?? execFileRunner;
-  return runner("npx", skillsAddArgs(skillName, options), { shell: process.platform === "win32" });
+  return runner("npx", skillsAddArgs(skillName, options));
 }
 
 export function skillsRemoveArgs(skillName: string, options: InstallSkillOptions = {}): string[] {
@@ -34,5 +34,5 @@ export function skillsRemoveArgs(skillName: string, options: InstallSkillOptions
 
 export async function removeSkill(skillName: string, options: InstallSkillOptions = {}) {
   const runner = options.runner ?? execFileRunner;
-  return runner("npx", skillsRemoveArgs(skillName, options), { shell: process.platform === "win32" });
+  return runner("npx", skillsRemoveArgs(skillName, options));
 }
