@@ -1,0 +1,51 @@
+version: 2
+project_name: hotel-tonight-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: hotel-tonight-pp-cli
+    main: ./cmd/hotel-tonight-pp-cli
+    binary: hotel-tonight-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/travel/hotel-tonight/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: hotel-tonight-pp-mcp
+    main: ./cmd/hotel-tonight-pp-mcp
+    binary: hotel-tonight-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: hotel-tonight-pp-cli
+    repository:
+      owner: trevin-chow
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Last-minute hotel deals with a local price-history database no HotelTonight client has — snapshot deals over time,..."
+    install: |
+      bin.install "hotel-tonight-pp-cli"
+      bin.install "hotel-tonight-pp-mcp"
