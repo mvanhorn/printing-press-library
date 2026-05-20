@@ -336,6 +336,10 @@ func syncResource(c interface {
 		}
 		pagesFetched := 0
 		lastNextCursor := ""
+		// capHit records whether the page loop below stopped because it hit
+		// the --max-pages cap (more data remains) rather than draining the
+		// resource. It gates the end-of-target cursor clear.
+		capHit := false
 
 		// PATCH(pp-library#433-p1): seed page-style pagination at startPage
 		// when no resume cursor exists. Stored cursor (when resuming) is
@@ -513,6 +517,7 @@ func syncResource(c interface {
 				} else {
 					fmt.Fprintf(os.Stdout, `{"event":"sync_warning","resource":"%s","reason":"max_pages_cap_hit","message":"reached --max-pages cap of %d; data may be truncated. Re-run with --max-pages 0 (unlimited) or higher to verify."}`+"\n", resource, maxPages)
 				}
+				capHit = true
 				break
 			}
 
@@ -540,8 +545,15 @@ func syncResource(c interface {
 			cursor = nextCursor
 		}
 
-		// Per-target final state: clear cursor (this target is fully drained).
-		_ = db.SaveSyncState(ckey, "", totalCount)
+		// PATCH(pp-library#433): per-target final state. A natural exhaustion
+		// clears the cursor so the next run re-scans this target from the head.
+		// A --max-pages cap-hit must NOT clear it: the cursor saved after the
+		// last page (above) is the resume point — clearing it would make every
+		// run re-fetch the same first maxPages pages, leaving records deeper
+		// than maxPages × pageLimit permanently unreachable across runs.
+		if !capHit {
+			_ = db.SaveSyncState(ckey, "", totalCount)
+		}
 	}
 
 	// F4b symptom probe: if items were consumed and successfully
