@@ -111,10 +111,13 @@ Returns a single 0..100 percentage plus the per-axis breakdown. Pass
 					   OR n.title = l.target_path
 				  )`)
 			// Frontmatter "drift" is approximated as the share of notes
-			// that DON'T share the most-common (key-set) schema. V1
-			// computes this at the vault level for simplicity; per-folder
-			// drift is what `reconcile <dir>` reports.
-			drift := frontmatterDriftCount(dbi, notes)
+			// WITH frontmatter that don't share the most-common (key-set)
+			// schema. notesWithFM is the denominator so vaults where most
+			// notes have no frontmatter aren't credited with a tall
+			// consistency score for free. V1 computes this at the vault
+			// level for simplicity; per-folder drift is what
+			// `reconcile <dir>` reports.
+			drift, notesWithFM := frontmatterDriftCount(dbi)
 
 			connectivity := 1 - safeRatio(orphans, notes)
 			freshness := 1 - safeRatio(staleN, notes)
@@ -122,7 +125,10 @@ Returns a single 0..100 percentage plus the per-axis breakdown. Pass
 			if wikilinks > 0 {
 				integrity = 1 - safeRatio(brokenLinks, wikilinks)
 			}
-			consistency := 1 - safeRatio(drift, notes)
+			consistency := 1.0
+			if notesWithFM > 0 {
+				consistency = 1 - safeRatio(drift, notesWithFM)
+			}
 			score := 100 * (connectivity + freshness + integrity + consistency) / 4
 
 			out := map[string]any{
@@ -138,18 +144,19 @@ Returns a single 0..100 percentage plus the per-axis breakdown. Pass
 				out["explain"] = map[string]any{
 					"formula": "score = 100 * (connectivity + freshness + integrity + consistency) / 4",
 					"inputs": map[string]int{
-						"notes":         notes,
-						"orphans":       orphans,
-						"stale_notes":   staleN,
-						"wikilinks":     wikilinks,
-						"broken_links":  brokenLinks,
-						"drift_notes":   drift,
-						"stale_days":    staleDays,
+						"notes":             notes,
+						"orphans":           orphans,
+						"stale_notes":       staleN,
+						"wikilinks":         wikilinks,
+						"broken_links":      brokenLinks,
+						"drift_notes":       drift,
+						"notes_with_frontmatter": notesWithFM,
+						"stale_days":        staleDays,
 					},
 					"connectivity_formula": "1 - orphans/notes",
 					"freshness_formula":    fmt.Sprintf("1 - stale_notes/notes (modified < %d days ago)", staleDays),
 					"integrity_formula":    "1 - broken_links/wikilinks (or 1 if wikilinks=0)",
-					"consistency_formula":  "1 - drift_notes/notes",
+					"consistency_formula":  "1 - drift_notes/notes_with_frontmatter (or 1 if no notes carry frontmatter)",
 				}
 			}
 
@@ -167,8 +174,8 @@ Returns a single 0..100 percentage plus the per-axis breakdown. Pass
 			fmt.Fprintf(cmd.OutOrStdout(), "  consistency:  %.3f\n", consistency)
 			if explain {
 				fmt.Fprintf(cmd.OutOrStdout(),
-					"\nInputs: notes=%d, orphans=%d, stale(%dd)=%d, wikilinks=%d, broken=%d, drift=%d\n",
-					notes, orphans, staleDays, staleN, wikilinks, brokenLinks, drift)
+					"\nInputs: notes=%d, orphans=%d, stale(%dd)=%d, wikilinks=%d, broken=%d, drift=%d (of %d w/ frontmatter)\n",
+					notes, orphans, staleDays, staleN, wikilinks, brokenLinks, drift, notesWithFM)
 			}
 			return nil
 		},
@@ -196,17 +203,20 @@ func safeRatio(num, denom int) float64 {
 func round2(v float64) float64 { return float64(int(v*100+0.5)) / 100 }
 func round4(v float64) float64 { return float64(int(v*10000+0.5)) / 10000 }
 
-// frontmatterDriftCount returns the number of notes whose frontmatter
-// key-set differs from the most-common key-set across the vault. Notes
-// with no frontmatter are excluded from both numerator and denominator —
-// "no frontmatter" is a valid choice, not a drift.
-func frontmatterDriftCount(db *sql.DB, totalNotes int) int {
+// frontmatterDriftCount returns (drift, notesWithFrontmatter) — the
+// number of notes whose frontmatter key-set differs from the
+// most-common key-set across the vault, AND the count of notes that
+// actually carry frontmatter. The caller divides drift by
+// notesWithFrontmatter (not by total notes) so vaults where most notes
+// have no frontmatter don't get an artificially-inflated consistency
+// score. "No frontmatter" is a valid choice, not a drift.
+func frontmatterDriftCount(db *sql.DB) (int, int) {
 	rows, err := db.Query(`
 		SELECT frontmatter_json FROM notes
 		WHERE frontmatter_json IS NOT NULL AND frontmatter_json != '{}' AND frontmatter_json != ''
 	`)
 	if err != nil {
-		return 0
+		return 0, 0
 	}
 	defer rows.Close()
 	keySetCounts := map[string]int{}
@@ -232,7 +242,7 @@ func frontmatterDriftCount(db *sql.DB, totalNotes int) int {
 		noteKeySets = append(noteKeySets, sig)
 	}
 	if len(noteKeySets) == 0 {
-		return 0
+		return 0, 0
 	}
 	bestKey := ""
 	bestN := -1
@@ -248,7 +258,7 @@ func frontmatterDriftCount(db *sql.DB, totalNotes int) int {
 			drift++
 		}
 	}
-	return drift
+	return drift, len(noteKeySets)
 }
 
 // Local helpers (avoiding "sort"+"strings" imports here since this file
