@@ -639,9 +639,7 @@ func sanitizeCookieJar(jar string) string {
 		switch {
 		case strings.HasPrefix(kv, "auth_token="):
 			val := strings.TrimPrefix(kv, "auth_token=")
-			if utf8.ValidString(val) && jwtPattern.MatchString(val) {
-				authToken = jwtPattern.FindString(val)
-			} else if jwt := jwtPattern.FindString(val); jwt != "" {
+			if jwt := jwtPattern.FindString(val); jwt != "" {
 				authToken = jwt
 			}
 		case strings.HasPrefix(kv, "client_id="):
