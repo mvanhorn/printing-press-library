@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/fs"
 	"os"
 	"sort"
 	"strings"
@@ -46,12 +47,22 @@ type issuerRecord struct {
 // 200 covers Numista's ~250 top-level issuers comfortably and 12k including
 // subdivisions — see crawl_issuer.go for the full crawl pattern.
 func loadIssuersFromCache() ([]issuerRecord, error) {
-	s, err := store.OpenReadOnly(defaultDBPath("numista-pp-cli"))
+	dbPath := defaultDBPath("numista-pp-cli")
+	// Distinguish "DB file genuinely missing" (cache not warm — return empty
+	// so the caller can render the warm-the-cache message) from "DB file
+	// exists but unreadable" (permissions, disk error, corruption — must
+	// surface so the user doesn't follow the warm-the-cache advice, spend a
+	// quota call on `numista-pp-cli issuers`, and loop). Same fix as PR #688
+	// applied to loadCataloguesFromCache; flagged there as Greptile P1.
+	if _, err := os.Stat(dbPath); err != nil {
+		if errors.Is(err, fs.ErrNotExist) {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("checking issuers cache file %s: %w", dbPath, err)
+	}
+	s, err := store.OpenReadOnly(dbPath)
 	if err != nil {
-		// A missing or unopenable cache is functionally an empty cache from
-		// the discovery surface's perspective — neither find nor the
-		// suggestion path should fail noisily on a fresh install.
-		return nil, nil
+		return nil, fmt.Errorf("opening issuers cache: %w", err)
 	}
 	defer s.Close()
 	// Pull a big batch — Numista returns ~12K issuers across all levels.
@@ -165,8 +176,15 @@ func scoreIssuer(rec issuerRecord, qNorm string) int {
 		}
 	}
 	if strings.Contains(slugNorm, qNorm) || strings.Contains(labelNorm, qNorm) {
-		// Longer matches against shorter labels score higher.
-		return 1000 + len(qNorm) - len(rec.Label)/10
+		// Longer matches against shorter labels score higher. Floor at 1 so
+		// a pathological-length label never collapses a valid substring
+		// match to 0 (which fuzzyFindIssuers filters out). Same fix as PR
+		// #688 applied to scoreCatalogue; flagged there as Greptile P2.
+		s := 1000 + len(qNorm) - len(rec.Label)/10
+		if s < 1 {
+			s = 1
+		}
+		return s
 	}
 	return 0
 }
@@ -305,7 +323,11 @@ func renderIssuersFind(cmd *cobra.Command, flags *rootFlags, matches []issuerRec
 	}
 	// Human table
 	if len(matches) == 0 {
-		fmt.Fprintln(os.Stderr, "no matches.")
+		// Use cmd.ErrOrStderr() not os.Stderr — every other diagnostic in
+		// this CLI goes through the command's error writer, and Cobra-based
+		// tests can only capture output that flows through it. Same fix as
+		// PR #688 applied to catalogues find; flagged there as Greptile P2.
+		fmt.Fprintln(cmd.ErrOrStderr(), "no matches.")
 		return nil
 	}
 	tw := newTabWriter(out)
