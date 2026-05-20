@@ -210,6 +210,14 @@ func runWorkflow(cmd *cobra.Command, flags *rootFlags, wf *WorkflowFile) error {
 		result.Status = "partial"
 	}
 
+	// A workflow run hydrates the local store from every step; record sync
+	// state so doctor and external tooling see when fresh data last landed.
+	totalItems := 0
+	for _, r := range result.StepResults {
+		totalItems += r.ItemsTotal
+	}
+	writeSyncState(wf.Name, allOK, totalItems)
+
 	// Persist
 	resJSON, _ := json.Marshal(result)
 	_, _ = db.DB().ExecContext(ctx, `

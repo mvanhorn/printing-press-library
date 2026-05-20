@@ -47,7 +47,7 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   apify-pp run trudax/reddit-scraper --input @sub-list.json --only-new --format markdown
   ```
-- **`search`** — Full-text search across every cached dataset from every Actor, normalized into a common schema.
+- **`search items`** — Full-text search across every cached dataset from every Actor, normalized into a common schema.
 
   _Use this when you want 'what did anyone say about X this week' without juggling 8 dataset IDs._
 
@@ -102,7 +102,7 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ### GitOps
-- **`schedule apply`** — Declarative cron + Actor input bundle with terraform-style plan/apply/diff against the live Apify schedule API.
+- **`schedules apply`** — Declarative cron + Actor input bundle with terraform-style plan/apply/diff against the live Apify schedule API.
 
   _Reach for this when the user manages 3+ schedules and wants them version-controlled._
 

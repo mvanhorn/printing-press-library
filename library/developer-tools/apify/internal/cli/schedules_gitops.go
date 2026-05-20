@@ -243,7 +243,10 @@ func scheduleSpecEqual(a, b ScheduleSpec) bool {
 	if a.Name != b.Name || a.Cron != b.Cron || a.Actor != b.Actor || a.Enabled != b.Enabled {
 		return false
 	}
-	if a.Timezone != b.Timezone && (a.Timezone != "" && b.Timezone != "") {
+	// Timezones differ AND at least one side has it set => real drift.
+	// Using || (not &&) here so a local spec missing the timezone while the
+	// remote schedule has one set is still reported as drift, not NoOp.
+	if a.Timezone != b.Timezone && (a.Timezone != "" || b.Timezone != "") {
 		return false
 	}
 	// Compare inputs by JSON canonical form

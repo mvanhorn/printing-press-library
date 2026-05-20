@@ -26,7 +26,24 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/apify/internal/cost"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/apify/internal/normalize"
 	"github.com/mvanhorn/printing-press-library/library/developer-tools/apify/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/apify/internal/syncstate"
 )
+
+// writeSyncState records that a run or workflow hydrated the local store.
+// doctor and external tooling read ~/.local/share/apify-pp-cli/sync_state.json
+// to see when fresh data last landed. Best-effort — never fails the command.
+func writeSyncState(actor string, ok bool, itemsHydrated int) {
+	st := &syncstate.State{
+		LastAttemptedAt: time.Now().UTC(),
+		OK:              ok,
+		ItemsHydrated:   itemsHydrated,
+		TokenSource:     "env:APIFY_TOKEN",
+	}
+	if ok {
+		st.LastSyncedAt = st.LastAttemptedAt
+	}
+	_ = syncstate.Save("", st)
+}
 
 // newRunCmd returns the top-level `run` command.
 func newRunCmd(flags *rootFlags) *cobra.Command {
@@ -38,7 +55,6 @@ func newRunCmd(flags *rootFlags) *cobra.Command {
 		onlyNew        bool
 		format         string
 		maxCost        float64
-		maxCU          int
 		noProjection   bool
 		preset         string
 		buildTag       string
@@ -75,6 +91,16 @@ Examples:
 			}
 			actor := args[0]
 
+			// --only-new can only diff items once the run has produced a
+			// dataset, which requires waiting for terminal status. Without
+			// --wait the item-fetch branch is skipped and the user sees an
+			// empty list indistinguishable from "all items already seen".
+			// Fail loudly instead of silently no-opping.
+			if onlyNew && !wait {
+				return usageErr(fmt.Errorf(
+					"--only-new requires --wait: novelty diffing needs the run to finish so its dataset items can be compared"))
+			}
+
 			// Verify probes call with --dry-run; short-circuit silently
 			if dryRunOK(flags) {
 				fmt.Fprintf(cmd.OutOrStdout(),
@@ -94,18 +120,30 @@ Examples:
 				return configErr(fmt.Errorf("ensuring extension tables: %w", err))
 			}
 
-			// 2) Cost projection (unless suppressed)
-			if !noProjection && !flags.agent && !flags.compact {
+			// 2) Cost projection + budget enforcement.
+			// The projection LINE is suppressed under --agent/--compact/--no-projection,
+			// but --max-cost ENFORCEMENT always runs when the cap is set — an
+			// agent invoking `run --agent --max-cost` must still be capped.
+			showProjection := !noProjection && !flags.agent && !flags.compact
+			if showProjection || maxCost > 0 {
 				history, err := db.LoadActorRunHistory(ctx, actor, 50)
 				if err == nil {
 					stats := historyToStats(history)
 					proj := cost.Project(actor, stats)
-					fmt.Fprintln(cmd.ErrOrStderr(), cost.FormatProjection(proj, maxCost))
-					if cost.ExceedsBudget(proj, maxCost) {
-						return apiErr(fmt.Errorf(
-							"projected cost $%.2f exceeds --max-cost $%.2f; "+
-								"pass --no-projection to override or raise --max-cost",
-							proj.P50USD, maxCost))
+					if showProjection {
+						fmt.Fprintln(cmd.ErrOrStderr(), cost.FormatProjection(proj, maxCost))
+					}
+					if maxCost > 0 {
+						if cost.ExceedsBudget(proj, maxCost) {
+							return apiErr(fmt.Errorf(
+								"projected cost $%.2f exceeds --max-cost $%.2f; raise the cap or omit --max-cost to run uncapped",
+								proj.P50USD, maxCost))
+						}
+						if !cost.CanEnforce(proj, maxCost) {
+							fmt.Fprintf(cmd.ErrOrStderr(),
+								"WARNING: --max-cost $%.2f cannot be enforced — no prior runs of %q are cached; the run will proceed uncapped\n",
+								maxCost, actor)
+						}
 					}
 				}
 			}
@@ -231,6 +269,11 @@ Examples:
 				}
 			}
 
+			// 11b) Record sync state — a successful run hydrates the local
+			// store, so doctor and external tooling can read sync_state.json
+			// to see when data last landed.
+			writeSyncState(actor, run.Status == "SUCCEEDED", len(items))
+
 			// 12) Render output
 			return renderRunOutput(cmd, flags, run, items, format)
 		},
@@ -243,7 +286,6 @@ Examples:
 	cmd.Flags().BoolVar(&onlyNew, "only-new", false, "Emit only items not seen in prior runs of this Actor (requires --wait + SUCCEEDED)")
 	cmd.Flags().StringVar(&format, "format", "json", "Output format: json | markdown | raw")
 	cmd.Flags().Float64Var(&maxCost, "max-cost", 0, "Refuse to start run if p50 cost projection exceeds this USD amount")
-	cmd.Flags().IntVar(&maxCU, "max-cu", 0, "Soft cap on compute units (reserved for future Apify limit-enforcement)")
 	cmd.Flags().BoolVar(&noProjection, "no-projection", false, "Skip cost projection output")
 	cmd.Flags().StringVar(&preset, "preset", "", "Load saved input from a preset (overridden by --input)")
 	cmd.Flags().StringVar(&buildTag, "build", "", "Actor build tag (e.g. latest, beta, 0.1.5)")

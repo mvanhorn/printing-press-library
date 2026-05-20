@@ -14,6 +14,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -95,10 +96,23 @@ Examples:
 			}
 			reg, _ := normalize.NewRegistry()
 
-			// Run both in sequence (parallel would be nicer but sequential keeps
-			// the code simple and rate-limit friendly).
-			resA := abRunOne(ctx, c, db, reg, actorA, inputBytes, wait)
-			resB := abRunOne(ctx, c, db, reg, actorB, inputBytes, wait)
+			// Run both Actors concurrently so the comparison is fair: a
+			// sequential second run would face different live conditions and
+			// double the wall-clock time. The store serializes writes via its
+			// internal mutex and the normalize registry is read-only after
+			// construction, so concurrent abRunOne calls are safe.
+			var resA, resB abResult
+			var wg sync.WaitGroup
+			wg.Add(2)
+			go func() {
+				defer wg.Done()
+				resA = abRunOne(ctx, c, db, reg, actorA, inputBytes, wait)
+			}()
+			go func() {
+				defer wg.Done()
+				resB = abRunOne(ctx, c, db, reg, actorB, inputBytes, wait)
+			}()
+			wg.Wait()
 
 			// Compute overlap by URL set
 			urlSetA := map[string]bool{}

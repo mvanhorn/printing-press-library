@@ -1,6 +1,6 @@
 {
-  "dir": "\u003ccli-dir\u003e/apify-pp-cli",
-  "spec_path": "\u003crunstate\u003e/apify-openapi.yaml",
+  "dir": "\u003ccli-dir\u003e/apify",
+  "spec_path": "\u003ccli-dir\u003e/spec.yaml",
   "verdict": "FAIL",
   "path_check": {
     "tested": 5,

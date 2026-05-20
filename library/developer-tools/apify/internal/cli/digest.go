@@ -122,6 +122,16 @@ Examples:
 				ranked = ranked[:limit]
 			}
 
+			// --offline asserts the digest must come from cached data. If the
+			// local store has nothing for this topic, fail fast with an
+			// actionable message instead of rendering an empty digest that
+			// looks like a successful (but blank) result.
+			if offline && len(ranked) == 0 {
+				return notFoundErr(fmt.Errorf(
+					"--offline: no cached items match topic %q in the last %s; run `apify-pp-cli run <actor>` or `apify-pp-cli sync` to populate the local store first",
+					topic, prettyDuration(sinceDur)))
+			}
+
 			// JSON output: emit the structured items + meta
 			if flags.asJSON {
 				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
@@ -147,8 +157,7 @@ Examples:
 	cmd.Flags().StringVar(&templateFile, "template-file", "", "Path to a Go text/template file (overrides --template)")
 	cmd.Flags().StringVar(&actorCSV, "actors", "", "Restrict to a CSV of source actors")
 	cmd.Flags().IntVar(&limit, "limit", 20, "Max items in the digest")
-	cmd.Flags().BoolVar(&offline, "offline", false, "Local store only — no API calls (default true; flag kept for clarity)")
-	_ = offline // digest is always local; flag exists for documentation
+	cmd.Flags().BoolVar(&offline, "offline", false, "Require cached data: fail fast if the local store has no items for the topic (digest never calls the API regardless)")
 	return cmd
 }
 

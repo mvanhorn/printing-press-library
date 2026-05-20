@@ -44,6 +44,15 @@ func (s *Store) EnsureExtensions(ctx context.Context) error {
 		`CREATE TRIGGER IF NOT EXISTS pp_dataset_items_ad AFTER DELETE ON pp_dataset_items BEGIN
 			DELETE FROM pp_dataset_items_fts WHERE rowid = old.rowid;
 		END`,
+		// UPDATE trigger: an FTS5 external-content table needs all three of
+		// INSERT/UPDATE/DELETE maintained. UpsertNormalizedItem uses
+		// INSERT OR REPLACE today (DELETE+INSERT, covered above), but a direct
+		// UPDATE on pp_dataset_items would otherwise leave the index stale.
+		`CREATE TRIGGER IF NOT EXISTS pp_dataset_items_au AFTER UPDATE ON pp_dataset_items BEGIN
+			DELETE FROM pp_dataset_items_fts WHERE rowid = old.rowid;
+			INSERT INTO pp_dataset_items_fts(rowid, hash, url, title, body, author, source_actor)
+			VALUES (new.rowid, new.hash, new.url, new.title, new.body, new.author, new.source_actor);
+		END`,
 		`CREATE TABLE IF NOT EXISTS pp_actor_run_history (
 			run_id TEXT PRIMARY KEY,
 			actor_id TEXT NOT NULL,

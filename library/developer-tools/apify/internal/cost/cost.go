@@ -57,7 +57,10 @@ func (r *RunStats) Estimate() float64 {
 
 // Project returns a p50/p90 USD estimate for a future run of `actorID`
 // based on the prior runs for that Actor. Returns a zero-confidence
-// projection when sample size is too small (n < 3).
+// projection. A projection is produced for any sample of at least one run;
+// samples of 1-2 are flagged low-confidence but still enforce --max-cost so
+// the cap is never silently bypassed. Only a zero-sample Actor yields no
+// projection — the caller must surface that explicitly.
 func Project(actorID string, history []RunStats) Projection {
 	costs := make([]float64, 0, len(history))
 	for _, r := range history {
@@ -67,25 +70,34 @@ func Project(actorID string, history []RunStats) Projection {
 		costs = append(costs, r.Estimate())
 	}
 	p := Projection{ActorID: actorID, SampleSize: len(costs)}
-	if len(costs) < 3 {
-		p.NoteOnSize = fmt.Sprintf("low confidence — only %d prior runs cached", len(costs))
+	if len(costs) == 0 {
+		p.NoteOnSize = "no prior runs cached"
 		return p
 	}
 	sort.Float64s(costs)
 	p.P50USD = percentile(costs, 50)
 	p.P90USD = percentile(costs, 90)
-	p.NoteOnSize = fmt.Sprintf("from %d prior runs", len(costs))
+	if len(costs) < 3 {
+		p.NoteOnSize = fmt.Sprintf("low confidence — only %d prior run(s) cached", len(costs))
+	} else {
+		p.NoteOnSize = fmt.Sprintf("from %d prior runs", len(costs))
+	}
 	return p
 }
 
-// FormatProjection emits the one-line cost summary used by `run`:
-//   "projected ~$0.12 (p50 over 8 prior runs); p90 ~$0.31"
-// or, when sample is too small:
-//   "no projection available (low confidence — only 1 prior run cached); pass --max-cost to cap"
+// CanEnforce reports whether --max-cost can be enforced for this projection.
+// Enforcement needs a cap and at least one prior run to project against.
+func CanEnforce(p Projection, maxCost float64) bool {
+	return maxCost > 0 && p.SampleSize >= 1
+}
+
+// FormatProjection emits the one-line cost summary used by `run`.
 func FormatProjection(p Projection, maxCost float64) string {
-	if p.SampleSize < 3 {
+	if p.SampleSize == 0 {
 		base := fmt.Sprintf("projected ~?? (%s)", p.NoteOnSize)
-		if maxCost == 0 {
+		if maxCost > 0 {
+			base += fmt.Sprintf("; --max-cost $%.2f cannot be enforced without run history", maxCost)
+		} else {
 			base += "; pass --max-cost to cap"
 		}
 		return base
@@ -104,8 +116,10 @@ func FormatProjection(p Projection, maxCost float64) string {
 
 // ExceedsBudget returns true when the projection's p50 is above the cap.
 // Caller uses this to abort runs pre-flight when --max-cost is set.
+// Enforces for any sample of at least one run; a zero-sample Actor cannot
+// be projected, so the caller must warn that the cap is unenforced.
 func ExceedsBudget(p Projection, maxCost float64) bool {
-	if maxCost <= 0 || p.SampleSize < 3 {
+	if !CanEnforce(p, maxCost) {
 		return false
 	}
 	return p.P50USD > maxCost

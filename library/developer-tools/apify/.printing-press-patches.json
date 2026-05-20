@@ -13,9 +13,16 @@
     },
     {
       "id": "syncstate-package",
-      "summary": "New internal/syncstate package: persists last-sync state to ~/.local/share/apify-pp-cli/sync_state.json (atomic tmp+rename) so doctor can report sync status without re-invoking sync. Captures last_synced_at, ok flag, error_class, token_source, and per-resource hydration counts.",
-      "rationale": "Doctor must distinguish never-synced / synced-ok / synced-failed without a fresh API call. Pattern adopted from the granola printed CLI's post-print patch set.",
-      "files": ["internal/syncstate/syncstate.go"],
+      "summary": "New internal/syncstate package: persists last-sync state to ~/.local/share/apify-pp-cli/sync_state.json (atomic tmp+rename). The run and workflow run commands write a record after they hydrate the local store (last_synced_at, ok flag, items hydrated, token source); the file is consumable by doctor and external tooling without a fresh API call.",
+      "rationale": "Surfacing when fresh data last landed without re-invoking sync. Pattern adopted from the granola printed CLI's post-print patch set.",
+      "files": ["internal/syncstate/syncstate.go", "internal/cli/run.go", "internal/cli/workflow_run.go"],
+      "upstream_issue": ""
+    },
+    {
+      "id": "greptile-review-fixes",
+      "summary": "Resolved five findings from the library PR's Greptile review: (1) scheduleSpecEqual timezone guard used && where || was needed, masking drift when one side omits the timezone; (2) run --only-new without --wait now fails fast instead of silently emitting an empty list; (3) added the missing FTS5 UPDATE trigger on pp_dataset_items so a direct row UPDATE keeps the search index in sync; (4) ab run launches both Actors concurrently via goroutines + WaitGroup instead of sequentially, for a fair comparison; (5) --max-cost is now enforced for any sample of at least one prior run (was silently bypassed below three), and enforcement was moved out of the --agent/--compact projection-display guard so agent invocations are still capped; a zero-history Actor prints an explicit unenforced-cap warning. Also removed the dead --max-cu flag and gave --offline real fail-fast-on-empty-store behavior.",
+      "rationale": "Greptile P1/P2 findings on the novel-feature layer plus dead-code cleanup surfaced during pre-publish audit.",
+      "files": ["internal/cli/schedules_gitops.go", "internal/cli/run.go", "internal/store/extensions.go", "internal/cli/ab.go", "internal/cost/cost.go", "internal/cli/digest.go"],
       "upstream_issue": ""
     },
     {
