@@ -110,6 +110,29 @@
       }
     },
     {
+      "name": "amazon-orders",
+      "category": "commerce",
+      "api": "Amazon Orders",
+      "description": "Walk your Amazon order history offline — every order, item, shipment, and dollar in a local SQLite store no other...",
+      "path": "library/commerce/amazon-orders",
+      "printer": "bwishan",
+      "printer_name": "Brian Wishan",
+      "mcp": {
+        "binary": "amazon-orders-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 6,
+        "public_tool_count": 0,
+        "auth_type": "cookie",
+        "env_vars": [
+          "AMAZON_COOKIES"
+        ],
+        "mcp_ready": "partial",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "amazon-seller",
       "category": "commerce",
       "api": "Amazon Seller",
@@ -130,6 +153,52 @@
           "SP_API_LWA_CLIENT_ID",
           "SP_API_LWA_CLIENT_SECRET",
           "SP_API_REFRESH_TOKEN"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
+      "name": "american-reindustrialization",
+      "category": "other",
+      "api": "American Reindustrialization",
+      "description": "Browse, slice, and analyze the curated American Reindustrialization directory — with diffs, geo clusters, sector...",
+      "path": "library/other/american-reindustrialization",
+      "printer": "tmchow",
+      "printer_name": "Trevin Chow",
+      "mcp": {
+        "binary": "american-reindustrialization-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 18,
+        "public_tool_count": 18,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
+      "name": "anylist",
+      "category": "food-and-dining",
+      "api": "AnyList",
+      "description": "Every AnyList feature in your terminal — plus offline search, store routing, and cron-safe automations no mobile...",
+      "path": "library/food-and-dining/anylist",
+      "printer": "jeeves",
+      "printer_name": "Jeeves",
+      "mcp": {
+        "binary": "anylist-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 43,
+        "public_tool_count": 0,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "ANYLIST_ACCESS_TOKEN"
         ],
         "mcp_ready": "full",
         "spec_format": "internal"
@@ -1235,6 +1304,29 @@
       }
     },
     {
+      "name": "kit",
+      "category": "marketing",
+      "api": "Kit",
+      "description": "Printing Press CLI for Kit.",
+      "path": "library/marketing/kit",
+      "printer": "cathrynlavery",
+      "printer_name": "Cathryn Lavery",
+      "mcp": {
+        "binary": "kit-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 72,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "KIT_API_KEY"
+        ],
+        "mcp_ready": "full"
+      }
+    },
+    {
       "name": "klaviyo",
       "category": "marketing",
       "api": "Klaviyo",
@@ -1277,7 +1369,8 @@
       "mcp": {
         "binary": "linear-pp-mcp",
         "transports": [
-          "stdio"
+          "stdio",
+          "http"
         ],
         "tool_count": 28,
         "public_tool_count": 0,
@@ -1472,6 +1565,28 @@
       }
     },
     {
+      "name": "nasa-images",
+      "category": "media-and-entertainment",
+      "api": "NASA Image and Video Library",
+      "description": "Every NASA Image and Video Library endpoint, plus a local SQLite mirror, FTS search, resumable bulk download,...",
+      "path": "library/media-and-entertainment/nasa-images",
+      "printer": "tmchow",
+      "printer_name": "Trevin Chow",
+      "mcp": {
+        "binary": "nasa-images-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 5,
+        "public_tool_count": 5,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "notion",
       "category": "productivity",
       "api": "Notion",
@@ -1543,6 +1658,30 @@
         "public_tool_count": 2,
         "auth_type": "none",
         "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "nylas",
+      "category": "productivity",
+      "api": "Nylas",
+      "description": "Every Nylas API, plus a local SQLite mirror, cross-grant search, and confirm-by-hash sending no other Nylas tool has.",
+      "path": "library/productivity/nylas",
+      "printer": "natekettles",
+      "printer_name": "Nathan Kettles",
+      "mcp": {
+        "binary": "nylas-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 211,
+        "public_tool_count": 1,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "NYLAS_API_KEY"
+        ],
         "mcp_ready": "full",
         "spec_format": "openapi3"
       }
@@ -2131,6 +2270,30 @@
       }
     },
     {
+      "name": "sendgrid",
+      "category": "productivity",
+      "api": "Twilio Sendgrid",
+      "description": "Every Twilio SendGrid endpoint, plus offline suppression diffs, stats time-series rollups, and a template-variable...",
+      "path": "library/productivity/sendgrid",
+      "printer": "natekettles",
+      "printer_name": "Nathan Kettles",
+      "mcp": {
+        "binary": "sendgrid-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 391,
+        "public_tool_count": 0,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "SENDGRID_API_KEY"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
       "name": "sentry",
       "category": "monitoring",
       "api": "Sentry",
@@ -2628,6 +2791,27 @@
       }
     },
     {
+      "name": "trendhunter",
+      "category": "marketing",
+      "api": "Trend Hunter",
+      "description": "Every Trend Hunter feature, plus a local SQLite corpus, FTS5 search, FAQ Q&A extraction, and agent-native JSON no...",
+      "path": "library/marketing/trendhunter",
+      "printer": "mvanhorn",
+      "printer_name": "Matt Van Horn",
+      "mcp": {
+        "binary": "trendhunter-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 9,
+        "public_tool_count": 9,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "trigger-dev",
       "category": "developer-tools",
       "api": "Trigger.dev",
@@ -2711,6 +2895,28 @@
         ],
         "tool_count": 4,
         "public_tool_count": 4,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
+      "name": "usgs-earthquakes",
+      "category": "other",
+      "api": "USGS Earthquakes",
+      "description": "Every USGS earthquake feed and event query in one terminal, with offline SQLite cache, agent-native output, and a...",
+      "path": "library/other/usgs-earthquakes",
+      "printer": "tmchow",
+      "printer_name": "Trevin Chow",
+      "mcp": {
+        "binary": "usgs-earthquakes-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 7,
+        "public_tool_count": 7,
         "auth_type": "none",
         "env_vars": [],
         "mcp_ready": "full",

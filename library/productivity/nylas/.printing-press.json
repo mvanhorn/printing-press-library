@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-18T16:23:21.198024Z",
+  "printing_press_version": "4.8.0",
+  "api_name": "nylas",
+  "display_name": "Nylas",
+  "cli_name": "nylas-pp-cli",
+  "owner": "nathan-kettles",
+  "printer": "natekettles",
+  "printer_name": "Nathan Kettles",
+  "spec_path": "https://developer.nylas.com/_spec-files/nylas-api.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:5fcd862b41389eb24b2546483ecef73bc9975cb483313eb7823ad3ad0569f72d",
+  "run_id": "20260518-164045",
+  "mcp_binary": "nylas-pp-mcp",
+  "mcp_tool_count": 211,
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "full",
+  "api_version": "v3",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "NYLAS_API_KEY"
+  ],
+  "auth_key_url": "https://dashboard-v3.nylas.com",
+  "novel_features": [
+    {
+      "name": "Local sync",
+      "command": "sync",
+      "description": "Pull messages, events, threads, and contacts for one or all grants into a local SQLite mirror with per-(grant, resource) cursors so re-runs are incremental."
+    },
+    {
+      "name": "Since-window query",
+      "command": "since",
+      "description": "Query the local mirror for resources changed in the last N (e.g. 2h, 24h) across all grants in one shot."
+    },
+    {
+      "name": "Cross-grant FTS search",
+      "command": "search",
+      "description": "FTS5 search over messages, threads, events, and contacts spanning every connected grant in a single query (use --type to filter by resource)."
+    },
+    {
+      "name": "Export",
+      "command": "export",
+      "description": "Stream the local mirror (or a filtered slice) to NDJSON for downstream analytics tools like DuckDB or notebooks."
+    },
+    {
+      "name": "Contact gravity",
+      "command": "gravity",
+      "description": "Rank contacts by cross-grant interaction weight (sent + received + meeting-attended), unified by email address."
+    },
+    {
+      "name": "Response-time analytics",
+      "command": "response-time",
+      "description": "Compute median and p90 first-response latency on threads where the grant-holder replied, sliced by grant or counterparty domain."
+    },
+    {
+      "name": "Webhook replay",
+      "command": "webhook-replay",
+      "description": "Re-fire any past webhook delivery from the local store into a local handler URL, optionally filtered by trigger or grant."
+    },
+    {
+      "name": "Send-preview confirm-by-hash",
+      "command": "grants messages send",
+      "description": "Use --dry-run to print the exact wire payload for any grants messages send call; pair with --yes (or --agent) to bypass interactive confirmation only when you've reviewed the preview."
+    },
+    {
+      "name": "Idempotent send",
+      "command": "grants messages send",
+      "description": "Pass the global --idempotent flag so an already-existing create result is treated as a successful no-op, making the send safe to retry inside an agent loop."
+    },
+    {
+      "name": "Grants doctor",
+      "command": "grants doctor",
+      "description": "Health-check every grant: token expiry, missing scopes for advertised features, recent webhook failures, sync lag."
+    },
+    {
+      "name": "SQL escape hatch",
+      "command": "sql",
+      "description": "Read-only SQL query against the local mirror with --json output."
+    },
+    {
+      "name": "Agent mode",
+      "command": "--agent (global flag)",
+      "description": "Single flag that forces --json --compact --no-input --no-color --yes defaults so any read command is LLM-safe in one switch."
+    }
+  ]
+}

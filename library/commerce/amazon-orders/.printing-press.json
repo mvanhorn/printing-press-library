@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-10T18:53:40.19295Z",
+  "printing_press_version": "4.2.2",
+  "api_name": "amazon-orders",
+  "display_name": "Amazon Orders",
+  "cli_name": "amazon-orders-pp-cli",
+  "owner": "brian-wishan",
+  "printer": "bwishan",
+  "printer_name": "Brian Wishan",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:ed1fb3924925e83f05249dd18f0b026f08ba63a62a076d81486fb290e3ae6587",
+  "run_id": "20260510-105710",
+  "category": "commerce",
+  "description": "Sync your Amazon order history into a local SQLite store, then ask cross-cutting questions offline: which deliveries are slipping, what did I spend last quarter, when did I order that thing, where is my stuff right now.",
+  "mcp_binary": "amazon-orders-pp-mcp",
+  "mcp_tool_count": 6,
+  "mcp_ready": "partial",
+  "api_version": "0.1.0",
+  "auth_type": "cookie",
+  "auth_env_vars": [
+    "AMAZON_COOKIES"
+  ],
+  "auth_title": "Amazon buyer session",
+  "auth_description": "Amazon does not publish a buyer-side API for order history. This CLI imports\ncookies from your logged-in Chrome / Firefox / Safari / Brave browser session,\nthen makes authenticated HTTPS GETs to the same HTML pages you see on\namazon.com. Log in to amazon.com in your browser, then run:\n\n  amazon-orders-pp-cli auth login --chrome\n\nCookies live under the .amazon.com domain. The CLI persists them locally and\nrefreshes the session-id cookie automatically when amazon.com rotates it.\n",
+  "novel_features": [
+    {
+      "name": "Where Is My Stuff",
+      "command": "where-is-my-stuff",
+      "description": "All in-flight Amazon shipments with their current status and ETA in one view."
+    },
+    {
+      "name": "Delivery Slips Detector",
+      "command": "delivery-slips",
+      "description": "Orders whose actual delivery date slipped more than N days from the original estimate."
+    },
+    {
+      "name": "Spend Rollup",
+      "command": "spend",
+      "description": "Spending broken down by month, year, category, seller, or payment method."
+    },
+    {
+      "name": "Top Items",
+      "command": "top-items",
+      "description": "Most-ordered items by frequency or by total spend, ASIN-grouped across all history."
+    },
+    {
+      "name": "Subscribe \u0026 Save Detector",
+      "command": "subscribe-and-save",
+      "description": "Recurring purchases inferred from order history (same ASIN ordered on a regular cadence)."
+    },
+    {
+      "name": "Find That Thing",
+      "command": "find",
+      "description": "FTS5 search across orders, items, sellers, and tracking notes."
+    },
+    {
+      "name": "Arriving Soon",
+      "command": "arriving-soon",
+      "description": "Shipments arriving in the next N days, sorted by ETA."
+    },
+    {
+      "name": "Late Shipments",
+      "command": "late",
+      "description": "Active shipments past their original estimated delivery date."
+    }
+  ]
+}

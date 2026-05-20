@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-13T21:54:29.46543Z",
+  "printing_press_version": "4.5.1",
+  "api_name": "trendhunter",
+  "display_name": "Trend Hunter",
+  "cli_name": "trendhunter-pp-cli",
+  "owner": "mvanhorn",
+  "printer": "mvanhorn",
+  "printer_name": "Matt Van Horn",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:ecd520ba94ad0a7e70579a3c221c60c007bc6b4bb0bee6f8a7cc0e4158700cf5",
+  "run_id": "20260513-134344",
+  "category": "marketing",
+  "description": "Search, sync, and explore TrendHunter trends from the terminal - offline FTS, agent-native JSON, FAQ Q&A extraction, no API key.",
+  "mcp_binary": "trendhunter-pp-mcp",
+  "mcp_tool_count": 9,
+  "mcp_public_tool_count": 9,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Trend digest",
+      "command": "digest",
+      "description": "Generate a week-over-week digest of new vs repeat trends in a category with top rising keywords."
+    },
+    {
+      "name": "Category watch",
+      "command": "watch",
+      "description": "Per-category new-only feed - fills the gap that TrendHunter's RSS is global-only."
+    },
+    {
+      "name": "FAQ extraction",
+      "command": "faq",
+      "description": "Extract the FAQPage JSON-LD from a trend page into structured Q&A."
+    },
+    {
+      "name": "Rising clusters",
+      "command": "cluster",
+      "description": "Surface rising keyword clusters via FTS5 co-occurrence with a rising-vs-prior-window delta."
+    },
+    {
+      "name": "Author velocity",
+      "command": "authors",
+      "description": "Rank TrendHunter authors and futurists by time-windowed publish rate, not lifetime count."
+    },
+    {
+      "name": "Megatrend map",
+      "command": "megatrend-map",
+      "description": "Walk the related-trend graph two levels deep from a starting slug, returning depth-1 and depth-2 related slugs."
+    },
+    {
+      "name": "Agent brief",
+      "command": "brief",
+      "description": "One-shot agent brief: top-N ranked trends in a category, each with FAQ Q&A and keywords, rendered as JSON or markdown."
+    },
+    {
+      "name": "Inbox cursor",
+      "command": "inbox",
+      "description": "Show trends seen since the last invocation of `inbox` - a per-machine cursor table."
+    },
+    {
+      "name": "Business scout",
+      "command": "scout",
+      "description": "Pull top trends in a category, score each by relevance to a business profile, optionally route the scoring through a local LLM."
+    }
+  ]
+}

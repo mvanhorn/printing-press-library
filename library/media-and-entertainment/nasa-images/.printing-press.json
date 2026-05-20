@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-19T08:32:26.163786Z",
+  "printing_press_version": "4.9.0",
+  "api_name": "nasa-images",
+  "display_name": "NASA Image and Video Library",
+  "cli_name": "nasa-images-pp-cli",
+  "owner": "trevin-chow",
+  "printer": "tmchow",
+  "printer_name": "Trevin Chow",
+  "spec_path": "/Users/tmchow/printing-press/.runstate/harmonic-exploring-wreath-4f2f0724/runs/20260519-001814/research/nasa-images-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:01b97fbbc37c8c02626998ec7d3b39b954c78be6c7d5dd177fe703bc24800982",
+  "run_id": "20260519-001814",
+  "mcp_binary": "nasa-images-pp-mcp",
+  "mcp_tool_count": 5,
+  "mcp_public_tool_count": 5,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Resumable album bulk download",
+      "command": "download album",
+      "description": "Bulk-download every asset in a curated NASA album with byte-range resume — re-runs pick up exactly where the last failed transfer left off."
+    },
+    {
+      "name": "Caption text fetch",
+      "command": "captions fetch",
+      "description": "Returns the captions file CONTENT (.srt or .vtt), not just the URL — with an optional `--format text` mode that strips cue numbers and timecodes for readable transcripts."
+    },
+    {
+      "name": "Metadata sidecar with leak-field filter",
+      "command": "metadata fetch",
+      "description": "Follows the /metadata/{id} indirection, fetches the metadata.json sidecar, flattens AVAIL:* and EXIF fields, and drops internal-path leak fields (SourceFile, File:Directory, AVAIL:Owner)."
+    },
+    {
+      "name": "Deterministic best-variant picker",
+      "command": "assets best",
+      "description": "Parses an asset's rendition manifest, classifies each file by variant (orig/large/medium/small/thumb), applies a caller preference order with optional byte ceiling, and prints exactly one URL."
+    },
+    {
+      "name": "Local chronological FTS search (recent)",
+      "command": "recent",
+      "description": "FTS5 search over the synced local mirror (title, description, description_508, keywords, album), with chronological sort the upstream API doesn't expose."
+    },
+    {
+      "name": "NASA center profile",
+      "command": "center profile",
+      "description": "Local aggregation over the synced cache: counts by media_type, year-bucket histogram, top keywords, and top photographers for one of the 11 NASA centers."
+    },
+    {
+      "name": "Unused-in-album anti-join",
+      "command": "unused-in",
+      "description": "Lists nasa_ids in a curated album that haven't been downloaded yet locally — anti-join against the downloads ledger."
+    },
+    {
+      "name": "Topic timeline histogram",
+      "command": "timeline",
+      "description": "Local GROUP BY strftime('%Y-%m', date_created) over FTS-matched rows; prints month-bucket counts showing when a topic got coverage."
+    },
+    {
+      "name": "Citation string generator",
+      "command": "citation",
+      "description": "Generates a ready-to-paste citation string (APA / MLA / Chicago) from cached metadata (photographer, date, center, nasa_id, URL)."
+    }
+  ]
+}

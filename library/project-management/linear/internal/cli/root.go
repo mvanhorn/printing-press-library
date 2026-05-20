@@ -4,15 +4,13 @@
 package cli
 
 import (
-	"encoding/json"
+	"bytes"
 	"fmt"
+	"io"
+	"os"
 	"strings"
 	"text/tabwriter"
 	"time"
-
-	"bytes"
-	"io"
-	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/project-management/linear/internal/client"
@@ -22,27 +20,46 @@ import (
 var version = "1.0.0"
 
 type rootFlags struct {
-	asJSON       bool
-	compact      bool
-	csv          bool
-	plain        bool
-	quiet        bool
-	dryRun       bool
-	noCache      bool
-	noInput      bool
-	yes          bool
-	agent        bool
-	selectFields string
-	configPath   string
-	timeout      time.Duration
-	rateLimit    float64
-	dataSource   string
-	profileName  string
-	deliverSpec  string
-	deliverBuf   *bytes.Buffer
-	deliverSink  DeliverSink
-	trustMode    string
-	ppSession    string
+	asJSON        bool
+	compact       bool
+	csv           bool
+	plain         bool
+	quiet         bool
+	dryRun        bool
+	noCache       bool
+	noInput       bool
+	idempotent    bool
+	ignoreMissing bool
+	yes           bool
+	agent         bool
+	// allowPartialFailure downgrades a detected response-body partial-failure
+	// (e.g. Google Ads `partialFailureError`) from a non-zero exit to a
+	// stderr warning. Default false so silent partial successes surface as
+	// failures by default.
+	allowPartialFailure bool
+	selectFields        string
+	configPath          string
+	profileName         string
+	deliverSpec         string
+	timeout             time.Duration
+	rateLimit           float64
+	dataSource          string
+	freshnessMeta       any
+
+	// deliverBuf captures command output when --deliver is set to a
+	// non-stdout sink. Flushed to the sink after Execute returns.
+	deliverBuf  *bytes.Buffer
+	deliverSink DeliverSink
+
+	trustMode string
+	ppSession string
+
+	// maxAge is the freshness threshold for local-store-backed reads. When
+	// a read returns data older than maxAge, the CLI emits a stderr hint
+	// suggesting `linear-pp-cli sync --incremental`. Default 30 minutes,
+	// tuned for active workspaces; set --max-age 6h for archival mode or
+	// --max-age 0 to disable the warning.
+	maxAge time.Duration
 }
 
 // RootCmd returns the Cobra command tree without executing it. The MCP server
@@ -64,7 +81,14 @@ func Execute() error {
 		if idx := strings.Index(msg, "unknown flag: "); idx >= 0 {
 			flagStr := strings.TrimSpace(msg[idx+len("unknown flag: "):])
 			if suggestion := suggestFlag(flagStr, rootCmd); suggestion != "" {
-				return fmt.Errorf("%w\nhint: did you mean --%s?", err, suggestion)
+				// Cobra already printed `Error: unknown flag: --foob` before
+				// returning; the wrap below attaches the hint to err.Error()
+				// for downstream consumers and exit-code classification, but
+				// would never reach stderr now that main.go no longer prints
+				// err. Emit the hint explicitly so the suggestion still
+				// shows up under Cobra's error line.
+				fmt.Fprintf(os.Stderr, "hint: did you mean --%s?\n", suggestion)
+				err = fmt.Errorf("%w\nhint: did you mean --%s?", err, suggestion)
 			}
 		}
 	}
@@ -74,16 +98,85 @@ func Execute() error {
 			return derr
 		}
 	}
+	if err != nil && isCobraUsageError(err) {
+		// Cobra/pflag pre-RunE errors (unknown flag, unknown command,
+		// missing required, etc.) never flow through usageErr() because
+		// they originate inside rootCmd.Execute() before any user RunE
+		// runs. Without this wrap, ExitCode() falls through to the
+		// default and emits 1 — clobbering the conventional code-2 for
+		// usage errors that the helpers.go contract already promises.
+		return usageErr(err)
+	}
 	return err
+}
+
+// isCobraUsageError reports whether err matches one of Cobra/pflag's
+// pre-RunE usage-error shapes. Detection is by message prefix to match
+// the same approach the unknown-flag hint path uses above; neither
+// Cobra nor pflag exports typed sentinels for these.
+//
+// Patterns are anchored to the literal punctuation Cobra and pflag
+// emit so an application's own RunE error that happens to contain the
+// substring "required flag" or "invalid argument" doesn't get
+// misclassified as a usage error.
+//
+// Patterns covered (Cobra v1.x + pflag v1.x as of 2026-05):
+//   - "unknown flag: --foo"                            (pflag)
+//   - "unknown shorthand flag: 'x' in -x"              (pflag)
+//   - "unknown command \"foo\" for ..."                (Cobra)
+//   - "required flag \"foo\" not set"                  (Cobra, single missing)
+//   - "required flag(s) \"foo\" not set"               (Cobra, multiple missing)
+//   - "flag needs an argument: --foo"                  (pflag, missing value)
+//   - "invalid argument \"x\" for \"--y\" flag: ..."   (pflag, parse failure)
+//
+// Cobra emits the singular form ("required flag") when exactly one
+// MarkFlagRequired flag is missing, and the plural form ("required
+// flag(s)") only when multiple are missing on the same command. Both
+// shapes must be anchored to avoid matching app-level errors that
+// happen to mention "required flag" as prose; the trailing space + quote
+// (`required flag "`) is the literal punctuation cobra emits.
+//
+// Returns false for nil err.
+func isCobraUsageError(err error) bool {
+	if err == nil {
+		return false
+	}
+	msg := err.Error()
+	return strings.HasPrefix(msg, "unknown flag") ||
+		strings.HasPrefix(msg, "unknown shorthand flag") ||
+		strings.HasPrefix(msg, "unknown command") ||
+		strings.HasPrefix(msg, `required flag "`) ||
+		strings.HasPrefix(msg, `required flag(s) "`) ||
+		strings.HasPrefix(msg, "flag needs an argument:") ||
+		strings.HasPrefix(msg, `invalid argument "`)
 }
 
 func newRootCmd(flags *rootFlags) *cobra.Command {
 	rootCmd := &cobra.Command{
-		Use:           "linear-pp-cli",
-		Short:         "Manage issues, projects, cycles, and teams via the Linear API with offline search and analytics",
-		SilenceUsage:  true,
-		SilenceErrors: true,
-		Version:       version,
+		Use:   "linear-pp-cli",
+		Short: `Linear CLI — Offline-capable, agent-native Linear CLI with SQLite-backed sync, FTS5 search, cross-cycle comparison, project burndown…`,
+		Long: `Linear CLI — Offline-capable, agent-native Linear CLI with SQLite-backed sync, FTS5 search, cross-cycle comparison, project burndown…
+
+Highlights (not in the official API docs):
+  • today   See all of your assigned issues across every team for today, ranked by priority and cycle deadline.
+  • bottleneck   See which team members are overloaded and which issues are blocked before sprint planning.
+  • projects burndown   Project a project's landing date by linear-regressing remaining estimate against the team's measured velocity.
+  • cycles compare   Side-by-side metrics between any two cycles: completion %, scope added, scope cut, carryover, average cycle time.
+  • stale   Find issues that haven't been touched in N days, grouped by team and project.
+  • slipped   Show what carried over from last cycle into this cycle, grouped by team and reason heuristic.
+  • blocking   Show issues you are blocking — sorted by downstream impact (downstream count × downstream priority).
+  • similar   Find issues that look like duplicates of a query string using offline FTS5 fuzzy matching.
+  • velocity   Track sprint completion rates over the last N cycles to spot productivity trends.
+  • initiatives health   Rolled-up portfolio view per initiative: child project progress, milestone target-vs-projected dates, slippage flags.
+  • milestones at-risk   List portfolio milestones whose projected landing date has slipped past their target, ranked by slip magnitude.
+  • pp-test list   List Linear issues this CLI created in the current or named session, then archive them with pp-cleanup.
+  • issues create --trust-mode strict   Refuse mutations on Linear issues not in the local pp_created ledger when --trust-mode strict is set; works on create and any future mutation surface.
+
+Agent mode: add --agent to any command for JSON output + non-interactive mode.
+Health check: run 'linear-pp-cli doctor' to verify auth and connectivity.
+See README.md or the bundled SKILL.md for recipes.`,
+		SilenceUsage: true,
+		Version:      version,
 	}
 	rootCmd.SetVersionTemplate("linear-pp-cli {{ .Version }}\n")
 
@@ -97,18 +190,19 @@ func newRootCmd(flags *rootFlags) *cobra.Command {
 	rootCmd.PersistentFlags().BoolVar(&flags.dryRun, "dry-run", false, "Show request without sending")
 	rootCmd.PersistentFlags().BoolVar(&flags.noCache, "no-cache", false, "Bypass response cache")
 	rootCmd.PersistentFlags().BoolVar(&flags.noInput, "no-input", false, "Disable all interactive prompts (for CI/agents)")
+	rootCmd.PersistentFlags().BoolVar(&flags.idempotent, "idempotent", false, "Treat already-existing create results as a successful no-op")
+	rootCmd.PersistentFlags().BoolVar(&flags.ignoreMissing, "ignore-missing", false, "Treat missing delete targets as a successful no-op")
 	rootCmd.PersistentFlags().StringVar(&flags.selectFields, "select", "", "Comma-separated fields to include in output (e.g. --select id,name,status)")
 	rootCmd.PersistentFlags().BoolVar(&flags.yes, "yes", false, "Skip confirmation prompts (for agents and scripts)")
 	rootCmd.PersistentFlags().BoolVar(&noColor, "no-color", false, "Disable colored output")
 	rootCmd.PersistentFlags().BoolVar(&humanFriendly, "human-friendly", false, "Enable colored output and rich formatting")
 	rootCmd.PersistentFlags().BoolVar(&flags.agent, "agent", false, "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)")
+	rootCmd.PersistentFlags().BoolVar(&flags.allowPartialFailure, "allow-partial-failure", false, "Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit")
 	rootCmd.PersistentFlags().StringVar(&flags.dataSource, "data-source", "auto", "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only)")
-	rootCmd.PersistentFlags().Float64Var(&flags.rateLimit, "rate-limit", 0, "Max requests per second (0 to disable)")
-
-	rootCmd.PersistentFlags().StringVar(&flags.profileName, "profile", "", "Apply values from a saved profile")
+	rootCmd.PersistentFlags().DurationVar(&flags.maxAge, "max-age", defaultMaxAge, "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables")
+	rootCmd.PersistentFlags().StringVar(&flags.profileName, "profile", "", "Apply values from a saved profile (see 'linear-pp-cli profile list')")
 	rootCmd.PersistentFlags().StringVar(&flags.deliverSpec, "deliver", "", "Route output to a sink: stdout (default), file:<path>, webhook:<url>")
-	rootCmd.PersistentFlags().StringVar(&flags.trustMode, "trust-mode", "", "Mutation guard: 'strict' refuses to mutate Linear issues not in the local pp_created table. Defaults to config trust_mode or 'normal'.")
-	rootCmd.PersistentFlags().StringVar(&flags.ppSession, "pp-session", "", "Session tag for issues this CLI creates (defaults to PP_SESSION env or current run timestamp)")
+	rootCmd.PersistentFlags().Float64Var(&flags.rateLimit, "rate-limit", 0, "Max requests per second (0 to disable)")
 
 	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
 		if flags.deliverSpec != "" {
@@ -128,7 +222,11 @@ func newRootCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			if profile == nil {
-				return fmt.Errorf("profile %q not found", flags.profileName)
+				available := ListProfileNames()
+				if len(available) == 0 {
+					return fmt.Errorf("profile %q not found (no profiles saved yet; run '%s profile save <name> --<flag> <value>')", flags.profileName, cmd.Root().Name())
+				}
+				return fmt.Errorf("profile %q not found; available: %s", flags.profileName, strings.Join(available, ", "))
 			}
 			if err := ApplyProfileToFlags(cmd, profile); err != nil {
 				return err
@@ -159,74 +257,70 @@ func newRootCmd(flags *rootFlags) *cobra.Command {
 		}
 		return nil
 	}
+	rootCmd.AddCommand(newIntegrationsCmd(flags))
 	rootCmd.AddCommand(newDoctorCmd(flags))
 	rootCmd.AddCommand(newAuthCmd(flags))
-	rootCmd.AddCommand(newExportCmd(flags))
+	rootCmd.AddCommand(newAgentContextCmd(rootCmd))
+	rootCmd.AddCommand(newProfileCmd(flags))
+	rootCmd.AddCommand(newFeedbackCmd(flags))
+	rootCmd.AddCommand(newWhichCmd(flags))
 	rootCmd.AddCommand(newImportCmd(flags))
 	rootCmd.AddCommand(newSyncCmd(flags))
 	rootCmd.AddCommand(newTailCmd(flags))
 	rootCmd.AddCommand(newAnalyticsCmd(flags))
-	rootCmd.AddCommand(newWorkflowCmd(flags))
 	rootCmd.AddCommand(newStaleCmd(flags))
 	rootCmd.AddCommand(newOrphansCmd(flags))
 	rootCmd.AddCommand(newLoadCmd(flags))
 	rootCmd.AddCommand(newAPICmd(flags))
-	rootCmd.AddCommand(newCustomersPromotedCmd(flags))
-	rootCmd.AddCommand(newInitiativesPromotedCmd(flags))
-	rootCmd.AddCommand(newProjectRelationsPromotedCmd(flags))
-	rootCmd.AddCommand(newProjectLabelsPromotedCmd(flags))
-	rootCmd.AddCommand(newIssueLabelsPromotedCmd(flags))
-	rootCmd.AddCommand(newIssueRelationsPromotedCmd(flags))
-	rootCmd.AddCommand(newReleasesPromotedCmd(flags))
 	rootCmd.AddCommand(newAttachmentsPromotedCmd(flags))
-	rootCmd.AddCommand(newAuthenticationSessionResponsesPromotedCmd(flags))
-	rootCmd.AddCommand(newFavoritesPromotedCmd(flags))
-	rootCmd.AddCommand(newIntegrationsPromotedCmd(flags))
-	rootCmd.AddCommand(newReleaseStagesPromotedCmd(flags))
-	rootCmd.AddCommand(newTeamsPromotedCmd(flags))
-	rootCmd.AddCommand(newProjectMilestonesPromotedCmd(flags))
-	rootCmd.AddCommand(newProjectStatusesPromotedCmd(flags))
-	rootCmd.AddCommand(newReleasePipelinesPromotedCmd(flags))
-	rootCmd.AddCommand(newAuthResolverResponsesPromotedCmd(flags))
-	rootCmd.AddCommand(newIssuesCmd(flags))
-	rootCmd.AddCommand(newIssueToReleasesPromotedCmd(flags))
-	rootCmd.AddCommand(newTemplatesPromotedCmd(flags))
-	rootCmd.AddCommand(newWorkflowStatesPromotedCmd(flags))
-	rootCmd.AddCommand(newCustomerStatusesPromotedCmd(flags))
-	rootCmd.AddCommand(newCustomerTiersPromotedCmd(flags))
-	rootCmd.AddCommand(newEmailIntakeAddressesPromotedCmd(flags))
-	rootCmd.AddCommand(newEntityExternalLinksPromotedCmd(flags))
-	rootCmd.AddCommand(newIssuePriorityValuesPromotedCmd(flags))
-	rootCmd.AddCommand(newOrganizationMetasPromotedCmd(flags))
-	rootCmd.AddCommand(newRoadmapsPromotedCmd(flags))
-	rootCmd.AddCommand(newIntegrationTemplatesPromotedCmd(flags))
-	rootCmd.AddCommand(newIntegrationsSettingsesPromotedCmd(flags))
 	rootCmd.AddCommand(newAuditEntryTypesPromotedCmd(flags))
-	rootCmd.AddCommand(newCyclesPromotedCmd(flags))
-	rootCmd.AddCommand(newDocumentsPromotedCmd(flags))
+	rootCmd.AddCommand(newAuthResolverResponsesPromotedCmd(flags))
+	rootCmd.AddCommand(newAuthenticationSessionResponsesPromotedCmd(flags))
+	rootCmd.AddCommand(newEmailIntakeAddressesPromotedCmd(flags))
+	rootCmd.AddCommand(newFavoritesPromotedCmd(flags))
+	rootCmd.AddCommand(newInitiativeRelationsPromotedCmd(flags))
 	rootCmd.AddCommand(newInitiativeToProjectsPromotedCmd(flags))
-	rootCmd.AddCommand(newProjectsPromotedCmd(flags))
-	rootCmd.AddCommand(newUserSettingsesPromotedCmd(flags))
-	rootCmd.AddCommand(newCustomViewsPromotedCmd(flags))
+	rootCmd.AddCommand(newIssuePriorityValuesPromotedCmd(flags))
 	rootCmd.AddCommand(newOrganizationsPromotedCmd(flags))
+	rootCmd.AddCommand(newProjectLabelsPromotedCmd(flags))
+	rootCmd.AddCommand(newProjectMilestonesPromotedCmd(flags))
+	rootCmd.AddCommand(newProjectRelationsPromotedCmd(flags))
+	rootCmd.AddCommand(newProjectStatusesPromotedCmd(flags))
+	rootCmd.AddCommand(newReleaseNotesPromotedCmd(flags))
+	rootCmd.AddCommand(newReleasePipelinesPromotedCmd(flags))
+	rootCmd.AddCommand(newReleaseStagesPromotedCmd(flags))
+	rootCmd.AddCommand(newReleasesPromotedCmd(flags))
 	rootCmd.AddCommand(newRoadmapToProjectsPromotedCmd(flags))
+	rootCmd.AddCommand(newRoadmapsPromotedCmd(flags))
+	rootCmd.AddCommand(newTeamsPromotedCmd(flags))
+	rootCmd.AddCommand(newTemplatesPromotedCmd(flags))
+	rootCmd.AddCommand(newUserSettingsesPromotedCmd(flags))
 	rootCmd.AddCommand(newUsersPromotedCmd(flags))
-	rootCmd.AddCommand(newOrganizationInvitesPromotedCmd(flags))
-	rootCmd.AddCommand(newTeamMembershipsPromotedCmd(flags))
-	rootCmd.AddCommand(newTodayCmd(flags))
-	rootCmd.AddCommand(newBottleneckCmd(flags))
-	rootCmd.AddCommand(newSimilarCmd(flags))
-	rootCmd.AddCommand(newVelocityCmd(flags))
-	rootCmd.AddCommand(newMeCmd(flags))
-	rootCmd.AddCommand(newSQLCmd(flags))
-	rootCmd.AddCommand(newPPTestCmd(flags))
-	rootCmd.AddCommand(newPPCleanupCmd(flags))
-	rootCmd.AddCommand(newSlippedCmd(flags))
-	rootCmd.AddCommand(newBlockingCmd(flags))
 	rootCmd.AddCommand(newVersionCliCmd())
 
-	rootCmd.AddCommand(newProfileCmd(flags))
-	rootCmd.AddCommand(newFeedbackCmd(flags))
+	// Linear-specific groupings (ported from v3 reprint + new milestones-at-risk)
+	rootCmd.AddCommand(newProjectsGroupCmd(flags))
+	rootCmd.AddCommand(newCyclesGroupCmd(flags))
+	rootCmd.AddCommand(newInitiativesGroupCmd(flags))
+	rootCmd.AddCommand(newMilestonesCmd(flags))
+
+	// v3-ported top-level commands
+	rootCmd.AddCommand(newIssuesCmd(flags))
+	rootCmd.AddCommand(newMeCmd(flags))
+	rootCmd.AddCommand(newTodayCmd(flags))
+	rootCmd.AddCommand(newBottleneckCmd(flags))
+	rootCmd.AddCommand(newBlockingCmd(flags))
+	rootCmd.AddCommand(newSimilarCmd(flags))
+	rootCmd.AddCommand(newVelocityCmd(flags))
+	rootCmd.AddCommand(newSlippedCmd(flags))
+	rootCmd.AddCommand(newPPTestCmd(flags))
+	rootCmd.AddCommand(newPPCleanupCmd(flags))
+	rootCmd.AddCommand(newSQLCmd(flags))
+	rootCmd.AddCommand(newExportCmd(flags))
+
+	// v3-ported persistent flags
+	rootCmd.PersistentFlags().StringVar(&flags.trustMode, "trust-mode", "", "Mutation guard: 'strict' refuses to mutate Linear issues not in the local pp_created table.")
+	rootCmd.PersistentFlags().StringVar(&flags.ppSession, "pp-session", "", "Session tag for issues this CLI creates (defaults to PP_SESSION env or run timestamp)")
 
 	return rootCmd
 }
@@ -250,13 +344,8 @@ func (f *rootFlags) newClient() (*client.Client, error) {
 	return c, nil
 }
 
-// printJSON emits v as plain indented JSON. Prefer printJSONFiltered for
-// novel-feature handlers that should honor --select / --compact / --csv
-// / --quiet; this method is retained for legacy call sites that opt out.
 func (f *rootFlags) printJSON(w *cobra.Command, v any) error {
-	enc := json.NewEncoder(w.OutOrStdout())
-	enc.SetIndent("", "  ")
-	return enc.Encode(v)
+	return printJSONFiltered(w.OutOrStdout(), v, f)
 }
 
 func (f *rootFlags) printTable(w *cobra.Command, headers []string, rows [][]string) error {

@@ -1,0 +1,51 @@
+version: 2
+project_name: amazon-orders-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: amazon-orders-pp-cli
+    main: ./cmd/amazon-orders-pp-cli
+    binary: amazon-orders-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/commerce/amazon-orders/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: amazon-orders-pp-mcp
+    main: ./cmd/amazon-orders-pp-mcp
+    binary: amazon-orders-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: amazon-orders-pp-cli
+    repository:
+      owner: brian-wishan
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Walk your Amazon order history offline — every order, item, shipment, and dollar in a local SQLite store no other..."
+    install: |
+      bin.install "amazon-orders-pp-cli"
+      bin.install "amazon-orders-pp-mcp"

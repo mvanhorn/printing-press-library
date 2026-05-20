@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-18",
+  "base_run_id": "20260518-164045",
+  "base_printing_press_version": "4.8.0",
+  "patches": [
+    {
+      "id": "gravity-rows-err",
+      "summary": "Check rows.Err() after both row iterations in gravity.go so query interruption surfaces an error instead of silently producing partial weights.",
+      "reason": "Greptile P1 review finding on PR #676: a context cancellation mid-iteration would return false from rows.Next() and the partially populated counters map would be used to compute gravity, masking the failure.",
+      "files": ["internal/cli/gravity.go"]
+    },
+    {
+      "id": "response-time-rows-err",
+      "summary": "Check rows.Err() after the message-iteration loop in response_time.go before computing per-thread intervals.",
+      "reason": "Greptile P1 review finding on PR #676: an interrupted query would yield a truncated byThread map and report systematically under-counted latencies with no error indication.",
+      "files": ["internal/cli/response_time.go"]
+    },
+    {
+      "id": "webhook-replay-loopback-guard",
+      "summary": "Require http/https scheme and loopback host on --to by default; add --allow-remote escape hatch.",
+      "reason": "Greptile P2 security finding on PR #676: url.Parse only validates syntax, so agent-loop driven --to values could replay payloads to arbitrary external or internal-metadata endpoints (SSRF). Loopback-only default matches the documented 'local handler URL' intent.",
+      "files": ["internal/cli/webhook_replay.go"]
+    },
+    {
+      "id": "send-interactive-confirm",
+      "summary": "Add interactive confirmation in grants_messages_send.go before the outbound POST; --yes / --agent / --no-input / --dry-run all bypass.",
+      "reason": "Greptile P1 review finding on PR #676: the PR description promises an interactive confirmation that --yes (or --agent) bypasses, but the generated send command dispatched the API call immediately with no guard. Non-interactive shells without --yes now fail explicitly instead of either prompting blindly or sending silently.",
+      "files": ["internal/cli/grants_messages_send.go"]
+    },
+    {
+      "id": "sql-mutation-string-literal-strip",
+      "summary": "Strip single-quoted string literals before the sqlMutationRE keyword check so legitimate read-only queries that mention mutation keywords inside LIKE patterns are not falsely rejected.",
+      "reason": "Greptile P2 review finding on PR #676: queries like `SELECT body FROM grants_messages WHERE body LIKE '%insert%'` were rejected by the defence-in-depth regex even though OpenReadOnly's mode=ro is the real write barrier and the query is harmless. The strip handles SQL-standard '' escaping for embedded quotes.",
+      "files": ["internal/cli/sql.go"]
+    },
+    {
+      "id": "http-client-context-propagation",
+      "summary": "Plumb cobra command context through the HTTP client: client.Client gains a Ctx field, client.do() switches from http.NewRequest to http.NewRequestWithContext, flags.newClient() takes a context argument, and all 218 call sites in internal/cli/*.go pass cmd.Context().",
+      "reason": "Greptile P1 review finding on PR #676: long-running operations (sync, bulk paginated GETs) were unresponsive to Ctrl+C because in-flight HTTP requests didn't honour the command context. The fix is broad but mechanical — each call site changes from flags.newClient() to flags.newClient(cmd.Context()).",
+      "files": ["internal/client/client.go", "internal/cli/root.go", "internal/cli/*.go"]
+    },
+    {
+      "id": "since-export-webhook-replay-rows-err",
+      "summary": "Check rows.Err() after the rows.Next() loop in since.go, export.go, and the second loop in webhook_replay.go so an interrupted query surfaces an error instead of silently returning a truncated result set.",
+      "reason": "Greptile P1 review finding on PR #676 (third pass): the same rows.Err() gap previously fixed in gravity/response_time recurred in these three commands. since returns a partial JSON list, export writes a truncated NDJSON file with nil return, webhook-replay silently drops deliveries beyond the interruption point.",
+      "files": ["internal/cli/since.go", "internal/cli/export.go", "internal/cli/webhook_replay.go"]
+    },
+    {
+      "id": "tail-follow-false-honoured",
+      "summary": "Honour --follow=false in tail.go by returning after the initial fetch instead of dropping into the infinite ticker loop.",
+      "reason": "Greptile P1 review finding on PR #676 (fourth pass): the follow flag was declared and bound but never read, so --follow=false silently behaved like the default and ran the poll loop until SIGTERM/SIGINT. Any script or agent relying on --follow=false for single-poll-then-exit would hang.",
+      "files": ["internal/cli/tail.go"]
+    },
+    {
+      "id": "send-confirm-checks-stdin-tty",
+      "summary": "Refuse send without --yes whenever stdin is non-TTY OR --stdin was passed (which drains stdin for the body), so the confirmation prompt can never silently EOF-cancel a send.",
+      "reason": "Greptile P1 findings on PR #676, fifth and sixth passes: (1) `cat body.json | … --stdin` — stdout was still a TTY but stdin was a pipe at EOF, so the old stdout-based check let Fscanln read empty and cancel silently. (2) Interactive TTY + `--stdin` — even with a terminal, io.ReadAll(os.Stdin) drains the body, leaving Fscanln nothing to read. The combined check (stdinBody || !stdinIsTTY → require --yes) covers both vectors with one actionable error.",
+      "files": ["internal/cli/grants_messages_send.go"]
+    },
+    {
+      "id": "client-retry-ctx-aware",
+      "summary": "Replace `time.Sleep(wait)` in 429 and 5xx retry paths with `select { case <-ctx.Done(): ...; case <-time.After(wait): }` so Ctrl+C is responsive during backoff waits.",
+      "reason": "Greptile P2 review finding on PR #676 (fifth pass summary): Retry-After backoffs can be tens of seconds; bare time.Sleep ignores cmd.Context() cancellation, so Ctrl+C would not interrupt a long rate-limit wait. The context plumbing from the third-pass patch is already wired into do(); this completes the chain by honouring it during backoff as well as during the in-flight request.",
+      "files": ["internal/client/client.go"]
+    },
+    {
+      "id": "sql-limit-subquery-wrap-and-strip-comments-idents",
+      "summary": "Wrap SELECT/WITH queries in `SELECT * FROM (<query>) LIMIT N` when --limit is appended so trailing line/block comments can't comment out the LIMIT; extend stripSQLStringLiterals to also skip `\"…\"` identifiers, `--` line comments, and `/* … */` block comments before the mutation-keyword check.",
+      "reason": "Greptile P2 review findings on PR #676 (sixth pass summary, 5/5 confidence): (1) `--limit N` appended via Sprintf was silently swallowed when the user's query ended with a trailing comment, yielding unbounded rows with no error; subquery-wrap makes the LIMIT non-bypassable. (2) The mutation-keyword regex still false-positived on `SELECT \"create\" FROM messages` (double-quoted identifier) and `SELECT /* update later */ id FROM messages` (block comment) because stripSQLStringLiterals only handled single-quoted strings. Both are now stripped before the keyword scan. Driver-level mode=ro remains the real write barrier; these are usability fixes to the defence-in-depth layer.",
+      "files": ["internal/cli/sql.go"]
+    },
+    {
+      "id": "doctor-split-reachability-from-credentials",
+      "summary": "Split the doctor probe into two independent checks: reachability hits GET / (any HTTP response = reachable, including Nylas's documented 401 at the root) and credentials hit GET /v3/grants?limit=1 (200 = valid, 401 = invalid, 403 = scoped). Previously both probes targeted /v3/grants/me, which requires a grant-scoped token and returned 401 for API-key (admin/account-level) auth even when the key was fully valid.",
+      "reason": "Direct user report (amend run, 2026-05-19): every new user running `nylas-pp-cli doctor` with a valid API-key hit a false `FAIL Credentials: invalid (HTTP 401)` because /v3/grants/me requires a grant-scoped token, not an API-key, while all other commands (`grants get-all`, etc.) succeeded with the same key. Reproduces on first install, leads users into credential-rotation rabbit holes when nothing is wrong. The fix uses an API-key-compatible authenticated endpoint (/v3/grants list) for the credential verdict and isolates the transport-only reachability probe.",
+      "files": ["internal/cli/doctor.go"]
+    }
+  ]
+}
