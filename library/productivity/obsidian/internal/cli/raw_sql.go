@@ -116,6 +116,12 @@ The mirror schema:
 				items = append(items, row)
 				counter++
 			}
+			// rows.Err surfaces driver-level errors that happen after the
+			// last successful Next() — without this check, a truncated
+			// stream silently looks like a complete short result set.
+			if err := rows.Err(); err != nil {
+				return fmt.Errorf("iterating rows: %w", err)
+			}
 
 			// Reuse the already-open read-only handle for the staleness
 			// hint. The prior approach opened a second `*store.Store` via
@@ -159,9 +165,29 @@ The mirror schema:
 // The driver-level read-only mode would already reject writes, but
 // failing early at the CLI gives a cleaner error message and protects
 // against odd corner cases (e.g., PRAGMA writes, ATTACH DATABASE).
+//
+// Accepts the keyword followed by any non-identifier character (space,
+// tab, newline, `(`, `*`, `"`) so compact forms like `SELECT*FROM ...`
+// and CTE shapes like `WITH(...)` aren't rejected at the gate.
 func looksLikeSelect(q string) bool {
 	lower := strings.ToLower(strings.TrimSpace(q))
-	return strings.HasPrefix(lower, "select ") || strings.HasPrefix(lower, "with ")
+	for _, prefix := range []string{"select", "with"} {
+		if !strings.HasPrefix(lower, prefix) {
+			continue
+		}
+		rest := lower[len(prefix):]
+		if rest == "" {
+			continue
+		}
+		r := rest[0]
+		// Any non-[a-z0-9_] after the keyword means we're past the
+		// identifier and into the rest of the query.
+		isIdent := (r >= 'a' && r <= 'z') || (r >= '0' && r <= '9') || r == '_'
+		if !isIdent {
+			return true
+		}
+	}
+	return false
 }
 
 // normalizeScanned converts driver-returned raw column values into
