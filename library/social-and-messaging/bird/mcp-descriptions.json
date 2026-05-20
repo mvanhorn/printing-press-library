@@ -1,0 +1,6 @@
+{
+  "descriptions": {
+    "workspace_antispam_get": "Fetch the workspace's anti-spam classification setting. Returns an AntispamSetting object with the boolean `enabled` flag indicating whether incoming-message anti-spam screening is active. No parameters. Use this before calling workspace_antispam_update to confirm current state, or as part of tenant readiness checks.",
+    "workspace_rules_delete": "Permanently remove an allow/block rule from the workspace by ID. Required: rule_id (the rule's UUID, obtained from workspace_rules_list or workspace_rules_create). Destructive — returns 204 No Content on success and the rule is gone immediately; there is no soft-delete. Use workspace_rules_get first if you need to confirm what's about to be removed."
+  }
+}

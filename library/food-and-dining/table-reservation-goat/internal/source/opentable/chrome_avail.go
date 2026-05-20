@@ -43,6 +43,24 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/source/auth"
 )
 
+// chromeAvailPageURL builds the navigation URL chromedp visits to
+// trigger the page's own RestaurantsAvailability XHR. When restSlug
+// is populated (named-path callers) it uses the canonical /r/<slug>
+// route. When restSlug is empty (numeric-ID callers, e.g.
+// `availability check 3688` where Autocomplete was skipped) it falls
+// back to /restaurant/profile/<id> — Akamai treats both routes as
+// legitimate browser traffic, so the fallback URL is equivalent for
+// WAF acceptance. Pinned by chrome_avail_url_test.go.
+func chromeAvailPageURL(restID int, restSlug string, partySize int, date, hhmm string) string {
+	if restSlug == "" {
+		return fmt.Sprintf("https://www.opentable.com/restaurant/profile/%d?covers=%d&dateTime=%sT%s",
+			restID, partySize, date, hhmm)
+	}
+	return fmt.Sprintf("https://www.opentable.com/r/%s?covers=%d&dateTime=%sT%s",
+		url.PathEscape(strings.TrimPrefix(restSlug, "/")),
+		partySize, date, hhmm)
+}
+
 // ChromeAvailability spawns a headless Chrome to fetch slots that Akamai
 // blocks on the direct Surf path. Returns the same slice shape as
 // RestaurantsAvailability so callers can swap fallback in transparently.
@@ -79,18 +97,8 @@ func (c *Client) ChromeAvailability(
 	// Build the target URL the page expects. `?covers=N&dateTime=YYYY-MM-DDTHH:MM`
 	// is the page's hydration shape; the SPA reads these params and the
 	// embedded availability XHR uses them to populate forwardDays from
-	// SSR initial state. We intentionally use the slug-route (`/r/<slug>`)
-	// because it's the canonical user URL — Akamai treats it as legitimate
-	// browser traffic just like /restaurant/profile/<id>.
-	pageURL := fmt.Sprintf("https://www.opentable.com/r/%s?covers=%d&dateTime=%sT%s",
-		url.PathEscape(strings.TrimPrefix(restSlug, "/")),
-		partySize, date, hhmm,
-	)
-	if restSlug == "" {
-		pageURL = fmt.Sprintf("https://www.opentable.com/restaurant/profile/%d?covers=%d&dateTime=%sT%s",
-			restID, partySize, date, hhmm,
-		)
-	}
+	// SSR initial state.
+	pageURL := chromeAvailPageURL(restID, restSlug, partySize, date, hhmm)
 
 	// Akamai's JS sensor reliably detects spawned chromedp instances even with
 	// stealth shims — `navigator.webdriver`, plugin tweaks, UA override, and

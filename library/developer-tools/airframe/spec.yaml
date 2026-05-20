@@ -1,0 +1,45 @@
+name: airframe
+display_name: "airframe"
+description: "Aircraft forensics from FAA Aircraft Registry + NTSB CAROL — joined on tail number and composable with flight-goat. Offline-first SQLite, no API key required."
+cli_description: "Aircraft forensics from FAA Aircraft Registry + NTSB CAROL — joined on tail number and composable with flight-goat."
+version: "0.1.0"
+category: "developer-tools"
+tier: "community"
+
+# airframe ingests two bulk-download public datasets directly; it is not a
+# wrapper around a single API spec. The press's catalog uses spec_url for
+# discoverability, but this entry intentionally omits one (bulk-data CLI).
+source_kind: "bulk"
+sources:
+  - name: "FAA Releasable Aircraft Database"
+    url: "https://registry.faa.gov/database/ReleasableAircraft.zip"
+    cadence: "daily 23:30 CT"
+    license: "U.S. government work (public domain)"
+  - name: "NTSB CAROL avall.zip"
+    url: "https://data.ntsb.gov/avdata/FileDirectory/DownloadFile?fileID=C%3A%5Cavdata%5Cavall.zip"
+    cadence: "monthly + weekly incrementals"
+    license: "U.S. government work (public domain)"
+
+# No auth in v1: every data source is open public download. flight-goat
+# composition (for the `flight` subcommand) requires FLIGHT_GOAT_API_KEY_AUTH
+# to be set in the user's shell, but airframe itself never sees that key.
+auth:
+  type: none
+
+config:
+  format: env
+  db_path: "~/.local/share/airframe-pp-cli/data.db"
+
+system_dependencies:
+  - name: "mdbtools"
+    binary: "mdb-export"
+    purpose: "Extract NTSB Access MDB tables. Required only for `sync --source ntsb`."
+    install_hints:
+      darwin: "brew install mdbtools"
+      debian: "apt install mdbtools"
+      arch: "yay -S mdbtools (from AUR)"
+
+optional_compositions:
+  - cli: "flight-goat-pp-cli"
+    purpose: "Resolve commercial flight idents (e.g. UA1234) to tail numbers, then enrich locally"
+    env_vars: ["FLIGHT_GOAT_API_KEY_AUTH"]

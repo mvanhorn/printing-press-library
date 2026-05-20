@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-10T02:49:37.783002Z",
+  "printing_press_version": "4.2.0",
+  "api_name": "figma",
+  "display_name": "Figma",
+  "cli_name": "figma-pp-cli",
+  "owner": "giuliano-giacaglia",
+  "printer": "giacaglia",
+  "printer_name": "Giuliano Giacaglia",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:d5342e278a2d8e7c4a2128dd61fc24a6a0fc67def38c2509ef51e5016fd5b628",
+  "run_id": "20260509-190854",
+  "mcp_binary": "figma-pp-mcp",
+  "mcp_tool_count": 48,
+  "mcp_ready": "full",
+  "api_version": "0.38.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "FIGMA_OAUTH2"
+  ],
+  "auth_key_url": "https://developers.figma.com/docs/rest-api/",
+  "novel_features": [
+    {
+      "name": "Compaction-aware frame extract for codegen prompts",
+      "command": "frame extract",
+      "description": "Extract a single frame as a compact codegen-ready payload that fuses simplified node tree, in-scope variables, dev resources, and Code Connect mappings."
+    },
+    {
+      "name": "Dev-mode resource bundle for a single node",
+      "command": "dev-mode dump",
+      "description": "Emit a portable Markdown bundle that fuses dev-resource links, variables in scope, render permalink, and Code Connect mapping for one node."
+    },
+    {
+      "name": "Cross-file unresolved comments audit",
+      "command": "comments-audit",
+      "description": "Aggregate unresolved comments across every synced team file with age and group-by filters."
+    },
+    {
+      "name": "Stale component, style, and variable orphans finder",
+      "command": "orphans",
+      "description": "Find published library entities (components, styles, variables) with zero usage over a window by joining team-library publish list with library-analytics usage data."
+    },
+    {
+      "name": "Semantic tokens diff between file versions",
+      "command": "tokens diff",
+      "description": "Diff Figma variables across two file versions with mode-awareness; emits a Markdown or JSON change set."
+    },
+    {
+      "name": "Deterministic file fingerprint for CI contract",
+      "command": "fingerprint",
+      "description": "Stable hash of a Figma file's token + component + style surface; exits non-zero if --expect doesn't match."
+    },
+    {
+      "name": "Webhook delivery replay against new target",
+      "command": "webhooks test",
+      "description": "Pull Figma's webhook request log and replay stored payloads (with original headers and HMAC) against an arbitrary target URL."
+    },
+    {
+      "name": "Variable usage tracer",
+      "command": "variables explain",
+      "description": "Flat list of every node and component that references a given variable across a file."
+    }
+  ],
+  "category": "productivity",
+  "owner_name": "Giuliano Giacaglia"
+}

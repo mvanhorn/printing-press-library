@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-18T13:23:56.682815Z",
+  "printing_press_version": "4.9.0",
+  "api_name": "pop",
+  "display_name": "POP",
+  "cli_name": "pop-pp-cli",
+  "owner": "mirco-babini",
+  "printer": "mircobabini",
+  "printer_name": "Mirco Babini",
+  "spec_path": "/Users/mircobabini/Desktop/Workspace/cli-printing-press/catalog/specs/pop-spec.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:ba65198dabc8e260fdfc4e0633b5348a5e8da37d393dd4aeaee0c530464ab4b1",
+  "run_id": "20260518-132356",
+  "catalog_entry": "pop",
+  "category": "payments",
+  "description": "European electronic invoicing API for compliant XML, PEPPOL, PDF, validation, status tracking, and archival workflows.",
+  "mcp_binary": "pop-pp-mcp",
+  "mcp_tool_count": 8,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "POP_API_KEY"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "POP_API_KEY",
+      "kind": "per_call",
+      "required": false,
+      "sensitive": true
+    }
+  ],
+  "auth_key_url": "https://popapi.io/en/prices/",
+  "novel_features": [
+    {
+      "name": "JSON invoice passthrough",
+      "command": "create-xml",
+      "description": "Send full POP invoice payloads through one top-level command to generate FatturaPA XML and optionally submit it to SdI."
+    },
+    {
+      "name": "PEPPOL retrieval shortcut",
+      "command": "peppol",
+      "description": "Fetch PEPPOL documents from a promoted command without traversing the raw API path tree."
+    },
+    {
+      "name": "Grouped SdI lifecycle",
+      "command": "sdi-via-pop get-invoice-status",
+      "description": "Track, verify, retrieve, and preserve SdI documents from one grouped command surface."
+    }
+  ]
+}

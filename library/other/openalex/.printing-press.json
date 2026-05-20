@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-11T05:24:13.319007Z",
+  "printing_press_version": "4.2.2",
+  "api_name": "openalex",
+  "display_name": "OpenAlex",
+  "cli_name": "openalex-pp-cli",
+  "owner": "hiten-shah",
+  "printer": "hiten-shah",
+  "printer_name": "Hiten Shah",
+  "spec_url": "https://developers.openalex.org/api-reference/openapi.json",
+  "run_id": "20260511-052407",
+  "mcp_binary": "openalex-pp-mcp",
+  "mcp_tool_count": 43,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "OPENALEX_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Agent-ready works search",
+      "command": "works list",
+      "description": "Search scholarly works with compact JSON, field selection, filters, sorting, and live API fallback."
+    },
+    {
+      "name": "Author discovery",
+      "command": "authors list",
+      "description": "Search authors and retrieve canonical OpenAlex author records for citation and collaborator research."
+    },
+    {
+      "name": "Institution discovery",
+      "command": "institutions list",
+      "description": "Search institutions with country/type metadata for affiliation and ecosystem analysis."
+    },
+    {
+      "name": "Source discovery",
+      "command": "sources list",
+      "description": "Search journals, repositories, and venues with compact agent-oriented output."
+    },
+    {
+      "name": "Topic taxonomy lookup",
+      "command": "topics list",
+      "description": "Explore OpenAlex topics for research-area discovery and downstream filtering."
+    }
+  ],
+  "category": "other",
+  "description": "Free scholarly graph API for works, authors, sources, institutions, topics, funders, and citation-aware research intelligence."
+}

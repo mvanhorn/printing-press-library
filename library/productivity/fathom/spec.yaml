@@ -1,0 +1,176 @@
+name: fathom
+display_name: Fathom
+description: "Sync, search, and analyze your Fathom meeting recordings — transcripts, summaries, and action items — offline and at scale."
+version: v1
+base_url: https://api.fathom.ai/external/v1
+
+auth:
+  type: api_key
+  in: header
+  header: X-Api-Key
+  env_vars:
+    - FATHOM_PP_CLI_API_KEY
+
+category: productivity
+
+pagination:
+  style: cursor
+  cursor_param: cursor
+  next_cursor_field: next_cursor
+
+resources:
+  meetings:
+    description: "Meeting recordings with transcripts, summaries, and action items"
+    endpoints:
+      list:
+        method: GET
+        path: /meetings
+        description: "List meetings with optional filters and included data"
+        params:
+          - name: calendar_invitees_domains
+            in: query
+            type: string[]
+            description: "Filter by participant email domains"
+          - name: calendar_invitees_domains_type
+            in: query
+            type: string
+            description: "Domain filter type: all, only_internal, one_or_more_external"
+          - name: created_after
+            in: query
+            type: string
+            description: "Filter meetings created after this ISO 8601 timestamp"
+          - name: created_before
+            in: query
+            type: string
+            description: "Filter meetings created before this ISO 8601 timestamp"
+          - name: recorded_by
+            in: query
+            type: string[]
+            description: "Filter by recorder email addresses"
+          - name: teams
+            in: query
+            type: string[]
+            description: "Filter by team names"
+          - name: include_action_items
+            in: query
+            type: boolean
+            description: "Include action items in each meeting"
+          - name: include_crm_matches
+            in: query
+            type: boolean
+            description: "Include CRM contact/company/deal matches"
+          - name: include_summary
+            in: query
+            type: boolean
+            description: "Include AI-generated summary"
+          - name: include_transcript
+            in: query
+            type: boolean
+            description: "Include full transcript with speaker attribution"
+          - name: cursor
+            in: query
+            type: string
+            description: "Pagination cursor from previous response"
+
+  recordings:
+    description: "Individual recording data: transcripts and summaries"
+    endpoints:
+      get-transcript:
+        method: GET
+        path: /recordings/{recording_id}/transcript
+        description: "Get full transcript for a recording with speaker attribution and timestamps"
+        params:
+          - name: recording_id
+            in: path
+            type: integer
+            required: true
+            description: "Numeric recording ID from meeting list"
+          - name: destination_url
+            in: query
+            type: string
+            description: "Webhook URL for async delivery (optional)"
+
+      get-summary:
+        method: GET
+        path: /recordings/{recording_id}/summary
+        description: "Get AI-generated meeting summary in markdown format"
+        params:
+          - name: recording_id
+            in: path
+            type: integer
+            required: true
+            description: "Numeric recording ID from meeting list"
+          - name: destination_url
+            in: query
+            type: string
+            description: "Webhook URL for async delivery (optional)"
+
+  teams:
+    description: "Teams your account has access to"
+    endpoints:
+      list:
+        method: GET
+        path: /teams
+        description: "List all teams accessible to your account"
+        params:
+          - name: cursor
+            in: query
+            type: string
+            description: "Pagination cursor"
+
+  team-members:
+    description: "Members of your teams"
+    endpoints:
+      list:
+        method: GET
+        path: /team_members
+        description: "List team members, optionally filtered by team name"
+        params:
+          - name: team
+            in: query
+            type: string
+            description: "Filter by team name"
+          - name: cursor
+            in: query
+            type: string
+            description: "Pagination cursor"
+
+  webhooks:
+    description: "Webhooks for async meeting completion notifications"
+    endpoints:
+      create:
+        method: POST
+        path: /webhooks
+        description: "Create a webhook to receive meeting data on completion"
+        body:
+          - name: destination_url
+            type: string
+            required: true
+            description: "URL to POST meeting data to when triggered"
+          - name: triggered_for
+            type: string[]
+            required: true
+            description: "Scopes: my_recordings, shared_external_recordings, my_shared_with_team_recordings, shared_team_recordings"
+          - name: include_action_items
+            type: boolean
+            description: "Include action items in webhook payload"
+          - name: include_crm_matches
+            type: boolean
+            description: "Include CRM matches in webhook payload"
+          - name: include_summary
+            type: boolean
+            description: "Include AI summary in webhook payload"
+          - name: include_transcript
+            type: boolean
+            description: "Include full transcript in webhook payload"
+
+      delete:
+        method: DELETE
+        path: /webhooks/{id}
+        description: "Delete a webhook by ID"
+        params:
+          - name: id
+            in: path
+            type: string
+            required: true
+            description: "Webhook ID to delete"

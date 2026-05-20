@@ -21,11 +21,16 @@ import (
 const (
 	NetworkOpenTable = "opentable"
 	NetworkTock      = "tock"
+	// NetworkResy is the third reservation network supported by the CLI.
+	// Resy's auth model is token-based (not cookie-based), so the on-disk
+	// session carries a ResyAuth struct instead of a cookie slice.
+	NetworkResy = "resy"
 
 	OpenTableHost   = "www.opentable.com"
 	OpenTableDomain = ".opentable.com"
 	TockHost        = "www.exploretock.com"
 	TockDomain      = ".exploretock.com"
+	ResyHost        = "resy.com"
 )
 
 // Cookie is the on-disk shape of a stored cookie. It mirrors the subset of
@@ -40,17 +45,33 @@ type Cookie struct {
 	Expires time.Time `json:"expires,omitempty"`
 }
 
-// Session is the on-disk authentication state for both networks.
+// ResyAuth carries the per-user Resy credentials persisted on disk. Resy's
+// auth model is token-based: a shared public APIKey (the same value for
+// every browser visiting resy.com) plus a per-user JWT obtained from
+// POST /3/auth/password. The password itself is never persisted.
+type ResyAuth struct {
+	APIKey    string `json:"api_key,omitempty"`
+	AuthToken string `json:"auth_token,omitempty"`
+	Email     string `json:"email,omitempty"`
+	FirstName string `json:"first_name,omitempty"`
+	UserID    int64  `json:"user_id,omitempty"`
+}
+
+// Session is the on-disk authentication state for all reservation networks.
+// OpenTable and Tock use cookie-session auth; Resy uses a bearer-style
+// token. Storing both in one file keeps `auth status` a single read.
 type Session struct {
 	Version          int       `json:"version"`
 	UpdatedAt        time.Time `json:"updated_at"`
 	OpenTableCookies []Cookie  `json:"opentable_cookies,omitempty"`
 	TockCookies      []Cookie  `json:"tock_cookies,omitempty"`
+	Resy             *ResyAuth `json:"resy,omitempty"`
 }
 
 // LoggedIn returns true when the network has at least one non-expired session
-// cookie. The caller is responsible for distinguishing OT's `authCke` cookie
-// from Tock's session cookie when a stricter check is needed.
+// cookie (OT/Tock) or a stored auth token (Resy). The caller is responsible
+// for distinguishing OT's `authCke` cookie from Tock's session cookie when a
+// stricter check is needed.
 func (s *Session) LoggedIn(network string) bool {
 	now := time.Now()
 	var cookies []Cookie
@@ -71,6 +92,11 @@ func (s *Session) LoggedIn(network string) bool {
 			}
 		}
 		return false
+	case NetworkResy:
+		// Resy's token has no expiration field — Resy rotates it on the
+		// server side. Presence of a non-empty AuthToken is the auth
+		// signal; the next call's 401 surfaces a stale token.
+		return s.Resy != nil && s.Resy.AuthToken != ""
 	}
 	return false
 }
@@ -259,7 +285,8 @@ func Clear() error {
 }
 
 // CookieURLFor returns a stable URL pointing at a network's host so callers
-// can attach cookies to a `net/http/cookiejar` keyed by URL.
+// can attach cookies to a `net/http/cookiejar` keyed by URL. Resy is omitted
+// — token-based auth doesn't ride on a cookie jar.
 func CookieURLFor(network string) (*url.URL, error) {
 	switch strings.ToLower(network) {
 	case NetworkOpenTable:

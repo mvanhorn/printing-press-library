@@ -1,0 +1,758 @@
+name: outlook-calendar
+description: "Outlook Calendar CLI for personal Microsoft 365 accounts via Microsoft Graph"
+version: "0.1.0"
+base_url: "https://graph.microsoft.com/v1.0"
+health_check_path: "/me"
+
+auth:
+  type: bearer_token
+  header: "Authorization"
+  format: "Bearer {token}"
+  env_vars:
+    - OUTLOOK_CALENDAR_TOKEN
+
+config:
+  format: toml
+  path: "~/.config/outlook-calendar-pp-cli/config.toml"
+
+required_headers:
+  - name: User-Agent
+    value: "outlook-calendar-pp-cli/0.1"
+
+cli_description: "Drive your personal Microsoft 365 calendar from agentic workflows: read, write, sync, and run offline analytics like conflicts, freetime, and recurring-drift that no Graph endpoint exposes."
+
+resources:
+
+  events:
+    description: "Outlook calendar events on your default or named calendar"
+    endpoints:
+      list:
+        method: GET
+        path: "/me/events"
+        description: "List events on the default calendar"
+        params:
+          - name: $top
+            flag_name: top
+            type: int
+            default: 50
+            description: "Maximum number of events to return (1-1000)"
+          - name: $skip
+            flag_name: skip
+            type: int
+            description: "Number of events to skip (offset pagination)"
+          - name: $orderby
+            flag_name: orderby
+            type: string
+            default: "start/dateTime"
+            description: "OData order-by expression (e.g. 'start/dateTime', 'subject')"
+          - name: $filter
+            flag_name: filter
+            type: string
+            description: "OData filter expression"
+          - name: $select
+            flag_name: select-fields
+            type: string
+            description: "Comma-separated OData fields to return on the wire"
+        response:
+          type: array
+          item: Event
+        pagination:
+          type: cursor
+          cursor_field: "@odata.nextLink"
+
+      range:
+        method: GET
+        path: "/me/calendarView"
+        description: "List events occurring within a date range (calendarView; expands recurring instances)"
+        params:
+          - name: startDateTime
+            flag_name: from
+            type: string
+            required: true
+            description: "Start of the window (ISO 8601, e.g. 2026-05-10T00:00:00)"
+          - name: endDateTime
+            flag_name: to
+            type: string
+            required: true
+            description: "End of the window (ISO 8601, e.g. 2026-05-17T00:00:00)"
+          - name: $top
+            flag_name: top
+            type: int
+            default: 100
+            description: "Maximum events to return"
+          - name: $orderby
+            flag_name: orderby
+            type: string
+            default: "start/dateTime"
+            description: "OData order-by expression"
+          - name: $select
+            flag_name: select-fields
+            type: string
+            description: "Comma-separated OData fields to return on the wire"
+        response:
+          type: array
+          item: Event
+        pagination:
+          type: cursor
+          cursor_field: "@odata.nextLink"
+
+      get:
+        method: GET
+        path: "/me/events/{event_id}"
+        description: "Get a single event by id"
+        params:
+          - name: event_id
+            type: string
+            required: true
+            positional: true
+            description: "Event id"
+          - name: $select
+            flag_name: select-fields
+            type: string
+            description: "Comma-separated OData fields to return on the wire"
+        response:
+          type: object
+          item: Event
+
+      create:
+        method: POST
+        path: "/me/events"
+        description: "Create a new event on the default calendar"
+        body:
+          - name: subject
+            type: string
+            required: true
+            description: "Event title"
+          - name: body
+            type: string
+            description: "Event body text (plain or HTML; pass content directly)"
+          - name: start
+            type: string
+            required: true
+            description: "Start dateTime (ISO 8601, e.g. 2026-05-10T14:00:00)"
+          - name: end
+            type: string
+            required: true
+            description: "End dateTime (ISO 8601, e.g. 2026-05-10T15:00:00)"
+          - name: timeZone
+            type: string
+            default: "UTC"
+            description: "IANA time zone applied to start and end (e.g. America/New_York)"
+          - name: location
+            type: string
+            description: "Display name for the event location"
+          - name: attendees
+            type: string
+            description: "Comma-separated attendee email addresses"
+          - name: isOnlineMeeting
+            type: bool
+            description: "Create as a Microsoft Teams online meeting"
+          - name: categories
+            type: string
+            description: "Comma-separated master-category names to apply"
+        response:
+          type: object
+          item: Event
+
+      update:
+        method: PATCH
+        path: "/me/events/{event_id}"
+        description: "Update fields on an existing event (subject, body, time, location, attendees)"
+        params:
+          - name: event_id
+            type: string
+            required: true
+            positional: true
+            description: "Event id"
+        body:
+          - name: subject
+            type: string
+            description: "New event title"
+          - name: body
+            type: string
+            description: "New event body text"
+          - name: start
+            type: string
+            description: "New start dateTime (ISO 8601)"
+          - name: end
+            type: string
+            description: "New end dateTime (ISO 8601)"
+          - name: timeZone
+            type: string
+            description: "IANA time zone applied to start and end"
+          - name: location
+            type: string
+            description: "New location display name"
+          - name: isOnlineMeeting
+            type: bool
+            description: "Toggle Microsoft Teams online meeting"
+        response:
+          type: object
+          item: Event
+
+      delete:
+        method: DELETE
+        path: "/me/events/{event_id}"
+        description: "Delete an event by id"
+        params:
+          - name: event_id
+            type: string
+            required: true
+            positional: true
+            description: "Event id"
+
+      accept:
+        method: POST
+        path: "/me/events/{event_id}/accept"
+        description: "Accept a meeting invite"
+        params:
+          - name: event_id
+            type: string
+            required: true
+            positional: true
+            description: "Event id"
+        body:
+          - name: comment
+            type: string
+            description: "Optional response comment to the organizer"
+          - name: sendResponse
+            type: bool
+            default: true
+            description: "Whether to send a response back to the organizer"
+
+      decline:
+        method: POST
+        path: "/me/events/{event_id}/decline"
+        description: "Decline a meeting invite"
+        params:
+          - name: event_id
+            type: string
+            required: true
+            positional: true
+            description: "Event id"
+        body:
+          - name: comment
+            type: string
+            description: "Optional response comment to the organizer"
+          - name: sendResponse
+            type: bool
+            default: true
+            description: "Whether to send a response back to the organizer"
+
+      tentative:
+        method: POST
+        path: "/me/events/{event_id}/tentativelyAccept"
+        description: "Tentatively accept a meeting invite"
+        params:
+          - name: event_id
+            type: string
+            required: true
+            positional: true
+            description: "Event id"
+        body:
+          - name: comment
+            type: string
+            description: "Optional response comment to the organizer"
+          - name: sendResponse
+            type: bool
+            default: true
+            description: "Whether to send a response back to the organizer"
+
+      forward:
+        method: POST
+        path: "/me/events/{event_id}/forward"
+        description: "Forward an event to additional attendees"
+        params:
+          - name: event_id
+            type: string
+            required: true
+            positional: true
+            description: "Event id"
+        body:
+          - name: comment
+            type: string
+            description: "Optional comment included in the forwarded invite"
+          - name: toRecipients
+            type: string
+            required: true
+            description: "Comma-separated recipient email addresses"
+
+      cancel:
+        method: POST
+        path: "/me/events/{event_id}/cancel"
+        description: "Cancel an event you organized (notifies attendees)"
+        params:
+          - name: event_id
+            type: string
+            required: true
+            positional: true
+            description: "Event id"
+        body:
+          - name: comment
+            type: string
+            description: "Optional cancellation message to attendees"
+
+      snooze:
+        method: POST
+        path: "/me/events/{event_id}/snoozeReminder"
+        description: "Snooze the reminder for an event until a specific time"
+        params:
+          - name: event_id
+            type: string
+            required: true
+            positional: true
+            description: "Event id"
+        body:
+          - name: newReminderTime
+            type: string
+            required: true
+            description: "New reminder ISO 8601 dateTime (e.g. 2026-05-10T13:50:00)"
+          - name: timeZone
+            type: string
+            default: "UTC"
+            description: "IANA time zone for the new reminder time"
+
+      dismiss:
+        method: POST
+        path: "/me/events/{event_id}/dismissReminder"
+        description: "Dismiss the reminder for an event"
+        params:
+          - name: event_id
+            type: string
+            required: true
+            positional: true
+            description: "Event id"
+
+      instances:
+        method: GET
+        path: "/me/events/{event_id}/instances"
+        description: "List occurrences of a recurring event in a date range"
+        params:
+          - name: event_id
+            type: string
+            required: true
+            positional: true
+            description: "Series-master event id"
+          - name: startDateTime
+            flag_name: from
+            type: string
+            required: true
+            description: "Start of the window (ISO 8601)"
+          - name: endDateTime
+            flag_name: to
+            type: string
+            required: true
+            description: "End of the window (ISO 8601)"
+          - name: $top
+            flag_name: top
+            type: int
+            default: 100
+            description: "Maximum instances to return"
+        response:
+          type: array
+          item: Event
+        pagination:
+          type: cursor
+          cursor_field: "@odata.nextLink"
+
+      search:
+        method: GET
+        path: "/me/events"
+        description: "Server-side search across events ($search query)"
+        params:
+          - name: $search
+            flag_name: query
+            type: string
+            required: true
+            description: "Search query string (matches subject and body)"
+          - name: $top
+            flag_name: top
+            type: int
+            default: 25
+            description: "Maximum events to return (server-side $search caps low)"
+        response:
+          type: array
+          item: Event
+        pagination:
+          type: cursor
+          cursor_field: "@odata.nextLink"
+
+  calendars:
+    description: "Manage Outlook calendars on your account"
+    endpoints:
+      list:
+        method: GET
+        path: "/me/calendars"
+        description: "List all calendars on the account"
+        params:
+          - name: $top
+            flag_name: top
+            type: int
+            default: 50
+            description: "Maximum calendars to return"
+          - name: $select
+            flag_name: select-fields
+            type: string
+            description: "Comma-separated OData fields to return on the wire"
+        response:
+          type: array
+          item: Calendar
+        pagination:
+          type: cursor
+          cursor_field: "@odata.nextLink"
+
+      default:
+        method: GET
+        path: "/me/calendar"
+        description: "Get the user's default calendar"
+        response:
+          type: object
+          item: Calendar
+
+      get:
+        method: GET
+        path: "/me/calendars/{calendar_id}"
+        description: "Get a calendar by id"
+        params:
+          - name: calendar_id
+            type: string
+            required: true
+            positional: true
+            description: "Calendar id"
+        response:
+          type: object
+          item: Calendar
+
+      create:
+        method: POST
+        path: "/me/calendars"
+        description: "Create a new calendar"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "Calendar name"
+          - name: color
+            type: string
+            description: "Predefined color name (lightBlue, lightGreen, lightOrange, ...)"
+            enum:
+              - auto
+              - lightBlue
+              - lightGreen
+              - lightOrange
+              - lightGray
+              - lightYellow
+              - lightTeal
+              - lightPink
+              - lightBrown
+              - lightRed
+              - maxColor
+        response:
+          type: object
+          item: Calendar
+
+      update:
+        method: PATCH
+        path: "/me/calendars/{calendar_id}"
+        description: "Update a calendar"
+        params:
+          - name: calendar_id
+            type: string
+            required: true
+            positional: true
+            description: "Calendar id"
+        body:
+          - name: name
+            type: string
+            description: "New calendar name"
+          - name: color
+            type: string
+            description: "Predefined color name"
+          - name: hexColor
+            type: string
+            description: "Custom hex color (e.g. #2563eb)"
+        response:
+          type: object
+          item: Calendar
+
+      delete:
+        method: DELETE
+        path: "/me/calendars/{calendar_id}"
+        description: "Delete a calendar"
+        params:
+          - name: calendar_id
+            type: string
+            required: true
+            positional: true
+            description: "Calendar id"
+
+  attachments:
+    description: "Manage event attachments"
+    endpoints:
+      list:
+        method: GET
+        path: "/me/events/{event_id}/attachments"
+        description: "List attachments on an event"
+        params:
+          - name: event_id
+            type: string
+            required: true
+            positional: true
+            description: "Event id"
+        response:
+          type: array
+          item: Attachment
+
+      get:
+        method: GET
+        path: "/me/events/{event_id}/attachments/{attachment_id}"
+        description: "Get a specific attachment by id"
+        params:
+          - name: event_id
+            type: string
+            required: true
+            positional: true
+            description: "Event id"
+          - name: attachment_id
+            type: string
+            required: true
+            positional: true
+            description: "Attachment id"
+        response:
+          type: object
+          item: Attachment
+
+      delete:
+        method: DELETE
+        path: "/me/events/{event_id}/attachments/{attachment_id}"
+        description: "Delete an attachment"
+        params:
+          - name: event_id
+            type: string
+            required: true
+            positional: true
+            description: "Event id"
+          - name: attachment_id
+            type: string
+            required: true
+            positional: true
+            description: "Attachment id"
+
+  categories:
+    description: "Manage Outlook master categories used to tag events"
+    endpoints:
+      list:
+        method: GET
+        path: "/me/outlook/masterCategories"
+        description: "List master categories"
+        response:
+          type: array
+          item: Category
+
+      create:
+        method: POST
+        path: "/me/outlook/masterCategories"
+        description: "Create a new master category"
+        body:
+          - name: displayName
+            type: string
+            required: true
+            description: "Category display name"
+          - name: color
+            type: string
+            description: "Preset color (preset0..preset24, or none)"
+        response:
+          type: object
+          item: Category
+
+      delete:
+        method: DELETE
+        path: "/me/outlook/masterCategories/{category_id}"
+        description: "Delete a master category"
+        params:
+          - name: category_id
+            type: string
+            required: true
+            positional: true
+            description: "Category id"
+
+  availability:
+    description: "Free/busy and meeting-time intelligence (degraded on personal Microsoft accounts; prefer freetime for self-only queries)"
+    endpoints:
+      schedule:
+        method: POST
+        path: "/me/calendar/getSchedule"
+        description: "Get free/busy schedule for a list of users (limited on personal Microsoft accounts)"
+        body:
+          - name: schedules
+            type: string
+            required: true
+            description: "Comma-separated email addresses to query"
+          - name: startTime
+            type: string
+            required: true
+            description: "Window start (ISO 8601)"
+          - name: endTime
+            type: string
+            required: true
+            description: "Window end (ISO 8601)"
+          - name: timeZone
+            type: string
+            default: "UTC"
+            description: "IANA time zone for the window"
+          - name: availabilityViewInterval
+            type: int
+            default: 60
+            description: "Bucket size in minutes (15..1440)"
+
+      find:
+        method: POST
+        path: "/me/findMeetingTimes"
+        description: "Suggest meeting times based on attendee availability and constraints"
+        body:
+          - name: attendees
+            type: string
+            description: "Comma-separated attendee email addresses (omit for self-only)"
+          - name: meetingDurationMinutes
+            type: int
+            default: 30
+            description: "Required meeting duration in minutes"
+          - name: maxCandidates
+            type: int
+            default: 10
+            description: "Maximum meeting-time suggestions to return"
+          - name: startTime
+            type: string
+            description: "Earliest acceptable start (ISO 8601)"
+          - name: endTime
+            type: string
+            description: "Latest acceptable end (ISO 8601)"
+          - name: timeZone
+            type: string
+            default: "UTC"
+            description: "IANA time zone applied to the window"
+
+  delta:
+    description: "Incremental delta-sync of events into the local SQLite store"
+    endpoints:
+      events:
+        method: GET
+        path: "/me/events/delta"
+        description: "Pull incremental event changes since the last delta token"
+        params:
+          - name: $deltatoken
+            flag_name: delta-token
+            type: string
+            description: "Delta token from a previous sync (optional; empty starts a fresh sync)"
+          - name: $top
+            flag_name: top
+            type: int
+            default: 200
+            description: "Page size"
+        response:
+          type: array
+          item: Event
+        pagination:
+          type: cursor
+          cursor_field: "@odata.nextLink"
+
+      view:
+        method: GET
+        path: "/me/calendarView/delta"
+        description: "Pull incremental calendar-view changes within a window"
+        params:
+          - name: startDateTime
+            flag_name: from
+            type: string
+            description: "Window start (ISO 8601, only used on initial sync)"
+          - name: endDateTime
+            flag_name: to
+            type: string
+            description: "Window end (ISO 8601, only used on initial sync)"
+          - name: $deltatoken
+            flag_name: delta-token
+            type: string
+            description: "Delta token from a previous sync"
+        response:
+          type: array
+          item: Event
+        pagination:
+          type: cursor
+          cursor_field: "@odata.nextLink"
+
+types:
+  Event:
+    fields:
+      - name: id
+        type: string
+      - name: subject
+        type: string
+      - name: bodyPreview
+        type: string
+      - name: importance
+        type: string
+      - name: sensitivity
+        type: string
+      - name: showAs
+        type: string
+      - name: isCancelled
+        type: bool
+      - name: isOrganizer
+        type: bool
+      - name: isAllDay
+        type: bool
+      - name: isOnlineMeeting
+        type: bool
+      - name: type
+        type: string
+      - name: webLink
+        type: string
+      - name: onlineMeetingProvider
+        type: string
+      - name: createdDateTime
+        type: string
+      - name: lastModifiedDateTime
+        type: string
+
+  Calendar:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: color
+        type: string
+      - name: hexColor
+        type: string
+      - name: isDefaultCalendar
+        type: bool
+      - name: canEdit
+        type: bool
+      - name: canShare
+        type: bool
+      - name: canViewPrivateItems
+        type: bool
+
+  Attachment:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: contentType
+        type: string
+      - name: size
+        type: int
+      - name: isInline
+        type: bool
+      - name: lastModifiedDateTime
+        type: string
+
+  Category:
+    fields:
+      - name: id
+        type: string
+      - name: displayName
+        type: string
+      - name: color
+        type: string

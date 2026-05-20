@@ -1,0 +1,406 @@
+{
+  "api_name": "outlook-email",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "msgcli",
+      "url": "https://github.com/skylarbpayne/msgcli",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 17,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "outpost",
+      "url": "https://github.com/signalclaude/outpost",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "outlook-mcp (sajadghawami)",
+      "url": "https://github.com/sajadghawami/outlook-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 14,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "outlook-mcp (XenoXilus)",
+      "url": "https://github.com/XenoXilus/outlook-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "outlook-mcp (ryaker)",
+      "url": "https://github.com/ryaker/outlook-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 10,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "OutlookMCPServer",
+      "url": "https://github.com/Norcim133/OutlookMCPServer",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "cowork-outlook-plugin",
+      "url": "https://github.com/brendanerofeev/cowork-outlook-plugin",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "outlook-cli (mhattingpete)",
+      "url": "https://github.com/mhattingpete/outlook-cli",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-12T17:35:00Z",
+  "novel_features": [
+    {
+      "name": "Unanswered sent mail",
+      "command": "followup",
+      "description": "List emails you sent more than N days ago that the recipient never replied to — close the loops you forgot about.",
+      "rationale": "Joins local sent-mail against later received-mail by conversation_id and recipient address; Microsoft Graph exposes no such endpoint.",
+      "example": "outlook-email-pp-cli followup --days 7 --agent",
+      "why_it_matters": "Sales, PM, and recruiting workflows live and die on follow-up timing. Reach for this when an agent needs to surface stalled threads.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Sender volume rollup",
+      "command": "senders",
+      "description": "Group your inbox by sender over a window: count, unread, last-received, dominant folder — see who's drowning your inbox.",
+      "rationale": "SQL GROUP BY over the synced local store; Outlook UI groups by date, not by sender volume.",
+      "example": "outlook-email-pp-cli senders --window 30d --min 5 --agent --select sender,count,unread,last_received",
+      "why_it_matters": "Use as the input to bulk-archive or to drive inbox-rule decisions. Agents pruning a flooded inbox start here.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "What arrived since",
+      "command": "since",
+      "description": "Show what landed since a timestamp, grouped by focused/other, sender, and folder. Perfect for 'what did I miss while I was heads-down'.",
+      "rationale": "received_at filter against the local delta-synced store. Graph's per-call filters can't reach across folders without N round-trips.",
+      "example": "outlook-email-pp-cli since 2h --agent",
+      "why_it_matters": "The first command an agent should run when joining a session to catch up. Cheap, structured, agent-shaped.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Open flagged todos",
+      "command": "flagged",
+      "description": "List flagged messages with open due dates, days-overdue, age. The inbox-zero work list Outlook never aggregates.",
+      "rationale": "Filter on flag_status with due-date diff over the local store; Graph returns flag fields but no aggregate todo view.",
+      "example": "outlook-email-pp-cli flagged --overdue --agent",
+      "why_it_matters": "An agent's todo list. Pair with reply/forward to actually close the items.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Stale unread report",
+      "command": "stale-unread",
+      "description": "Unread messages older than N days, grouped by folder. Surfaces the unread debt hiding in subfolders.",
+      "rationale": "is_read filter + age window grouped by parent_folder_id over local store.",
+      "example": "outlook-email-pp-cli stale-unread --days 14 --agent",
+      "why_it_matters": "Different from `senders` (volume) — answers 'where is unread piling up' so an agent can route folders to bulk-mark-read.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Waiting-on-me conversations",
+      "command": "waiting",
+      "description": "Conversations where the last message is not from you and is unread or unanswered for N days. The 'someone's waiting on you' work list.",
+      "rationale": "Window function partitioned by conversation_id over local messages selects the last message and filters from_email != me AND unread.",
+      "example": "outlook-email-pp-cli waiting --days 3 --agent",
+      "why_it_matters": "Symmetric to followup. Pair both at start-of-day to see your half and their half of every open thread.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Top conversations",
+      "command": "conversations",
+      "description": "Conversations ranked by message count, participants, and unread tail. Find the threads burning your attention budget.",
+      "rationale": "GROUP BY conversation_id over local store with count + unread-tail aggregates; no Graph endpoint aggregates conversations.",
+      "example": "outlook-email-pp-cli conversations --top 20 --window 30d --agent",
+      "why_it_matters": "Helps an agent decide which thread to summarize or mute next.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Quiet senders",
+      "command": "quiet",
+      "description": "Senders you used to hear from but who've gone silent for N days. Useful for relationship lapse detection.",
+      "rationale": "Self-join over local messages: ≥K messages in a baseline window, 0 in trailing window.",
+      "example": "outlook-email-pp-cli quiet --baseline 90d --silent 30d --agent",
+      "why_it_matters": "Sales/PM use case: surface customers or vendors who used to engage and don't anymore.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Daily digest",
+      "command": "digest",
+      "description": "One-shot daily summary: received/sent/unread/flagged counts, top senders, top conversations, focused/other ratio.",
+      "rationale": "Aggregations over the local store for a single calendar date; rolled-up structure agents can deliver as a morning brief.",
+      "example": "outlook-email-pp-cli digest --date 2026-05-12 --agent",
+      "why_it_matters": "Run this from a cron or skill loop to produce a Slack-shaped daily summary without making 10+ Graph calls.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Stale attachments",
+      "command": "attachments-stale",
+      "description": "Attachments older than N days and over a size threshold, sortable by size. The mailbox-quota rescue plan.",
+      "rationale": "Joins attachment metadata (captured during sync) with message.received_at; Outlook web UI buries sort-by-size per folder.",
+      "example": "outlook-email-pp-cli attachments-stale --days 90 --min-mb 1 --agent --select sender,received_at,size_mb,name",
+      "why_it_matters": "When the mailbox is near quota, agents need the largest oldest attachments first; this command is that list.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Likely duplicates",
+      "command": "dedup",
+      "description": "Find probable duplicate threads or messages by conversation_id, internet_message_id, or normalized (subject, from, to).",
+      "rationale": "GROUP BY with HAVING COUNT(*)\u003e1 over the local store; no Graph endpoint clusters duplicates.",
+      "example": "outlook-email-pp-cli dedup --by subject-sender --agent",
+      "why_it_matters": "Surfaces newsletter duplicates and cross-folder copies before bulk-archive runs.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Plan-then-execute bulk archive",
+      "command": "bulk-archive",
+      "description": "Read a sender list or query, print a move plan, optionally execute it. Safe by default, no surprises.",
+      "rationale": "Resolves matching message IDs locally, prints the move plan; --execute calls POST /me/messages/{id}/move per id. Side-effect command: print by default, short-circuits under PRINTING_PRESS_VERIFY=1.",
+      "example": "outlook-email-pp-cli bulk-archive --from-senders senders.txt --to-folder Archive --execute",
+      "why_it_matters": "Pair with `senders` or `quiet` for end-to-end inbox triage; agents can audit the plan before opting in to --execute.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Unanswered sent mail",
+      "command": "followup",
+      "description": "List emails you sent more than N days ago that the recipient never replied to — close the loops you forgot about.",
+      "rationale": "Joins local sent-mail against later received-mail by conversation_id and recipient address; Microsoft Graph exposes no such endpoint.",
+      "example": "outlook-email-pp-cli followup --days 7 --agent",
+      "why_it_matters": "Sales, PM, and recruiting workflows live and die on follow-up timing. Reach for this when an agent needs to surface stalled threads.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Sender volume rollup",
+      "command": "senders",
+      "description": "Group your inbox by sender over a window: count, unread, last-received, dominant folder — see who's drowning your inbox.",
+      "rationale": "SQL GROUP BY over the synced local store; Outlook UI groups by date, not by sender volume.",
+      "example": "outlook-email-pp-cli senders --window 30d --min 5 --agent --select sender,count,unread,last_received",
+      "why_it_matters": "Use as the input to bulk-archive or to drive inbox-rule decisions. Agents pruning a flooded inbox start here.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "What arrived since",
+      "command": "since",
+      "description": "Show what landed since a timestamp, grouped by focused/other, sender, and folder. Perfect for 'what did I miss while I was heads-down'.",
+      "rationale": "received_at filter against the local delta-synced store. Graph's per-call filters can't reach across folders without N round-trips.",
+      "example": "outlook-email-pp-cli since 2h --agent",
+      "why_it_matters": "The first command an agent should run when joining a session to catch up. Cheap, structured, agent-shaped.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Open flagged todos",
+      "command": "flagged",
+      "description": "List flagged messages with open due dates, days-overdue, age. The inbox-zero work list Outlook never aggregates.",
+      "rationale": "Filter on flag_status with due-date diff over the local store; Graph returns flag fields but no aggregate todo view.",
+      "example": "outlook-email-pp-cli flagged --overdue --agent",
+      "why_it_matters": "An agent's todo list. Pair with reply/forward to actually close the items.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Stale unread report",
+      "command": "stale-unread",
+      "description": "Unread messages older than N days, grouped by folder. Surfaces the unread debt hiding in subfolders.",
+      "rationale": "is_read filter + age window grouped by parent_folder_id over local store.",
+      "example": "outlook-email-pp-cli stale-unread --days 14 --agent",
+      "why_it_matters": "Different from `senders` (volume) — answers 'where is unread piling up' so an agent can route folders to bulk-mark-read.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Waiting-on-me conversations",
+      "command": "waiting",
+      "description": "Conversations where the last message is not from you and is unread or unanswered for N days. The 'someone's waiting on you' work list.",
+      "rationale": "Window function partitioned by conversation_id over local messages selects the last message and filters from_email != me AND unread.",
+      "example": "outlook-email-pp-cli waiting --days 3 --agent",
+      "why_it_matters": "Symmetric to followup. Pair both at start-of-day to see your half and their half of every open thread.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Top conversations",
+      "command": "conversations",
+      "description": "Conversations ranked by message count, participants, and unread tail. Find the threads burning your attention budget.",
+      "rationale": "GROUP BY conversation_id over local store with count + unread-tail aggregates; no Graph endpoint aggregates conversations.",
+      "example": "outlook-email-pp-cli conversations --top 20 --window 30d --agent",
+      "why_it_matters": "Helps an agent decide which thread to summarize or mute next.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Quiet senders",
+      "command": "quiet",
+      "description": "Senders you used to hear from but who've gone silent for N days. Useful for relationship lapse detection.",
+      "rationale": "Self-join over local messages: ≥K messages in a baseline window, 0 in trailing window.",
+      "example": "outlook-email-pp-cli quiet --baseline 90d --silent 30d --agent",
+      "why_it_matters": "Sales/PM use case: surface customers or vendors who used to engage and don't anymore.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Daily digest",
+      "command": "digest",
+      "description": "One-shot daily summary: received/sent/unread/flagged counts, top senders, top conversations, focused/other ratio.",
+      "rationale": "Aggregations over the local store for a single calendar date; rolled-up structure agents can deliver as a morning brief.",
+      "example": "outlook-email-pp-cli digest --date 2026-05-12 --agent",
+      "why_it_matters": "Run this from a cron or skill loop to produce a Slack-shaped daily summary without making 10+ Graph calls.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Stale attachments",
+      "command": "attachments-stale",
+      "description": "Attachments older than N days and over a size threshold, sortable by size. The mailbox-quota rescue plan.",
+      "rationale": "Joins attachment metadata (captured during sync) with message.received_at; Outlook web UI buries sort-by-size per folder.",
+      "example": "outlook-email-pp-cli attachments-stale --days 90 --min-mb 1 --agent --select sender,received_at,size_mb,name",
+      "why_it_matters": "When the mailbox is near quota, agents need the largest oldest attachments first; this command is that list.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Likely duplicates",
+      "command": "dedup",
+      "description": "Find probable duplicate threads or messages by conversation_id, internet_message_id, or normalized (subject, from, to).",
+      "rationale": "GROUP BY with HAVING COUNT(*)\u003e1 over the local store; no Graph endpoint clusters duplicates.",
+      "example": "outlook-email-pp-cli dedup --by subject-sender --agent",
+      "why_it_matters": "Surfaces newsletter duplicates and cross-folder copies before bulk-archive runs.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Plan-then-execute bulk archive",
+      "command": "bulk-archive",
+      "description": "Read a sender list or query, print a move plan, optionally execute it. Safe by default, no surprises.",
+      "rationale": "Resolves matching message IDs locally, prints the move plan; --execute calls POST /me/messages/{id}/move per id. Side-effect command: print by default, short-circuits under PRINTING_PRESS_VERIFY=1.",
+      "example": "outlook-email-pp-cli bulk-archive --from-senders senders.txt --to-folder Archive --execute",
+      "why_it_matters": "Pair with `senders` or `quiet` for end-to-end inbox triage; agents can audit the plan before opting in to --execute.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "narrative": {
+    "display_name": "Outlook Email",
+    "headline": "Drive your personal Microsoft 365 inbox from agents — read, send, sync, and run offline triage analytics that Outlook's own UI never exposes.",
+    "value_prop": "Personal MSA support via OAuth 2.0 device-code against /common. A local SQLite store synced through messages/delta unlocks `followup`, `senders`, `since`, `waiting`, `digest`, `stale-unread`, and `bulk-archive` — workflows no other Outlook CLI exposes because they require persisted state. Companion to outlook-calendar with the same auth playbook.",
+    "auth_narrative": "OAuth 2.0 device-code flow against `https://login.microsoftonline.com/common`. Personal MSAs (Outlook.com, Hotmail, Live) work alongside work/school accounts. Default client id is the Microsoft Graph PowerShell app, so no Azure tenant is needed. BYO Azure AD app via `--client-id`. Refresh tokens persisted at `~/.config/outlook-email-pp-cli/config.toml`; run `auth refresh` or let commands auto-rotate.",
+    "quickstart": [
+      {
+        "command": "outlook-email-pp-cli auth login --device-code --launch",
+        "comment": "One-time: sign in with a personal MSA via device-code flow."
+      },
+      {
+        "command": "outlook-email-pp-cli sync --full",
+        "comment": "Pull the full mailbox into the local SQLite store. Subsequent syncs are delta."
+      },
+      {
+        "command": "outlook-email-pp-cli since 2h --agent",
+        "comment": "Catch up on what arrived since last check, grouped by focused/other and sender."
+      },
+      {
+        "command": "outlook-email-pp-cli followup --days 7 --agent --select sender,subject,sent_at,days_quiet",
+        "comment": "Surface emails you sent that nobody replied to."
+      },
+      {
+        "command": "outlook-email-pp-cli senders --window 30d --min 5 --agent",
+        "comment": "See who's drowning your inbox — input to bulk-archive."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized after auth login",
+        "fix": "Run `outlook-email-pp-cli auth refresh`. If still failing, `auth status` shows scope and expiry."
+      },
+      {
+        "symptom": "`InvalidAuthenticationToken` mid-sync",
+        "fix": "Refresh token expired (\u003e90 days). Run `auth login --device-code` again."
+      },
+      {
+        "symptom": "Mailbox not enabled for personal MSA",
+        "fix": "Open Outlook.com once with the account to provision the Exchange mailbox; then retry sync."
+      },
+      {
+        "symptom": "Sync stalls on a folder",
+        "fix": "Run `sync --folder Inbox --reset` to drop the delta token and re-pull the folder."
+      },
+      {
+        "symptom": "Search returns nothing but inbox has matches",
+        "fix": "Local search reads the SQLite FTS5 index — run `sync` first. Use `--server` to force `$search` against Graph."
+      }
+    ],
+    "when_to_use": "Reach for this CLI when an agent needs to triage a personal Microsoft 365 inbox at scale, surface follow-ups, or compose mail without a Copilot license. It is the right choice over generic HTTP because the offline store unlocks cross-folder/cross-time queries (followup, senders, waiting, digest) that require persisted state.",
+    "recipes": [
+      {
+        "title": "Morning catchup",
+        "command": "outlook-email-pp-cli sync \u0026\u0026 outlook-email-pp-cli since 12h --agent --select sender,subject,inference_classification,received_at",
+        "explanation": "Delta-sync the mailbox, then surface only what landed overnight, grouped for an agent to summarize."
+      },
+      {
+        "title": "Follow-up sweep",
+        "command": "outlook-email-pp-cli followup --days 7 --agent --select recipient,subject,sent_at,days_quiet",
+        "explanation": "Emails you sent more than a week ago with no reply — the loops you owe yourself to close."
+      },
+      {
+        "title": "Top noisy senders",
+        "command": "outlook-email-pp-cli senders --window 30d --min 10 --agent",
+        "explanation": "Highest-volume senders over the last 30 days. Feed the output to `bulk-archive` to plan the prune."
+      },
+      {
+        "title": "Reply with selected fields only",
+        "command": "outlook-email-pp-cli messages get AAMkAGI2... --agent --select subject,from,body_preview,received_at",
+        "explanation": "Narrow a deeply-nested message payload to the four fields an agent actually needs before composing a reply."
+      },
+      {
+        "title": "Plan an inbox cleanup",
+        "command": "outlook-email-pp-cli bulk-archive --from-senders senders.txt --to-folder Archive --agent",
+        "explanation": "Reads a sender list from senders.txt (one address per line), resolves matching messages in the local store, and prints the move plan. Pass --execute to actually call POST /me/messages/{id}/move per id."
+      }
+    ],
+    "trigger_phrases": [
+      "what's in my inbox",
+      "find emails from X",
+      "send an outlook email",
+      "follow up on email I sent",
+      "stale unread in outlook",
+      "who's emailing me most",
+      "use outlook-email",
+      "run outlook-email"
+    ]
+  }
+}

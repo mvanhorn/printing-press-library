@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "hotel-tonight-pp-mcp",
+  "display_name": "HotelTonight",
+  "version": "4.9.0",
+  "description": "Last-minute hotel deals with a local price-history database no HotelTonight client has: snapshot deals over time, watch a city for drops, and rank by real % off.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/hotel-tonight-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/hotel-tonight-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

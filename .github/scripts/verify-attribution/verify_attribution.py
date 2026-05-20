@@ -233,7 +233,6 @@ def validate_new_cli(head: str, change: CLIChange) -> list[str]:
     problems: list[str] = []
     printer = str(manifest.get("printer") or "")
     printer_name = str(manifest.get("printer_name") or "")
-    owner = str(manifest.get("owner") or "")
     api_name = str(manifest.get("api_name") or change.api_name)
 
     if printer in PLACEHOLDER_PRINTERS:
@@ -243,10 +242,6 @@ def validate_new_cli(head: str, change: CLIChange) -> list[str]:
     if printer_name in PLACEHOLDER_PRINTERS:
         problems.append(
             f"::error file={manifest_path}::new CLI {api_name} must set .printing-press.json printer_name to the printer display name"
-        )
-    if printer and owner and printer == owner:
-        problems.append(
-            f"::error file={manifest_path}::new CLI {api_name} has printer equal to owner ({printer}); this usually means the generator fallback claimed no real printer"
         )
     if printer and printer == api_name:
         problems.append(

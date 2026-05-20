@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "techmeme-pp-mcp",
+  "display_name": "Techmeme",
+  "version": "4.0.3",
+  "description": "Techmeme API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/techmeme-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/techmeme-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

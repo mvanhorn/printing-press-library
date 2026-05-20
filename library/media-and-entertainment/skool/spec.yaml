@@ -1,0 +1,345 @@
+name: skool
+display_name: Skool
+description: Community + course platform (skool.com). No public API — reverse-engineered from www.skool.com Next.js data routes (reads) and api2.skool.com REST (writes), authenticated via the auth_token JWT cookie.
+cli_description: Every Skool community feature, plus a local SQLite mirror, FTS, and cross-community ops no other Skool tool ships.
+version: "0.1.0"
+spec_source: agent-curated
+
+base_url: "https://www.skool.com"
+endpoint_template_vars:
+  - community
+  - buildId
+
+auth:
+  type: cookie
+  header: Cookie
+  cookie_domain: ".skool.com"
+  cookies:
+    - auth_token
+  key_url: "https://www.skool.com/login"
+
+config:
+  format: toml
+  path: "~/.config/skool-pp-cli/config.toml"
+
+cache:
+  enabled: true
+  stale_after: "1h"
+  refresh_timeout: "20s"
+  env_opt_out: SKOOL_NO_AUTO_REFRESH
+
+mcp:
+  transport: [stdio, http]
+
+resources:
+  community:
+    description: Community feed, settings, and metadata
+    endpoints:
+      info:
+        method: GET
+        path: "/_next/data/{buildId}/{community}.json"
+        description: Get the community feed (posts, leaderboard summary, upcoming events, settings)
+        params:
+          - name: community
+            type: string
+            required: true
+            description: Community slug (e.g., bewarethedefault)
+          - name: g
+            type: string
+            description: Community slug query param (defaults to community)
+          - name: t
+            flag_name: tab
+            type: string
+            description: Tab to render — "members" or "leaderboard" for those views
+          - name: c
+            flag_name: category
+            type: string
+            description: Filter posts to a category id
+          - name: p
+            flag_name: page
+            type: int
+            description: Page number for posts (1-indexed)
+
+      members-tab:
+        method: GET
+        path: "/_next/data/{buildId}/{community}.json"
+        description: Members tab data (community page rendered with t=members)
+        params:
+          - name: community
+            type: string
+            required: true
+          - name: g
+            type: string
+          - name: t
+            type: string
+            default: members
+
+      leaderboard-tab:
+        method: GET
+        path: "/_next/data/{buildId}/{community}.json"
+        description: Leaderboard tab (community page rendered with t=leaderboard)
+        params:
+          - name: community
+            type: string
+            required: true
+          - name: g
+            type: string
+          - name: t
+            type: string
+            default: leaderboard
+
+      about:
+        method: GET
+        path: "/_next/data/{buildId}/{community}/about.json"
+        description: About page (rules, owner, member count)
+        params:
+          - name: community
+            type: string
+            required: true
+          - name: g
+            type: string
+
+  posts:
+    description: Posts (forum threads) inside a community
+    endpoints:
+      get:
+        method: GET
+        path: "/_next/data/{buildId}/{community}/{post_name}.json"
+        description: Get a post detail page including comment tree
+        params:
+          - name: community
+            type: string
+            required: true
+          - name: post_name
+            flag_name: slug
+            type: string
+            required: true
+            description: Post slug (URL fragment)
+          - name: g
+            type: string
+          - name: p
+            flag_name: name-q
+            type: string
+
+      create:
+        base_url: "https://api2.skool.com"
+        method: POST
+        path: "/posts"
+        description: Create a new post (body = TipTap JSON; use --md to convert markdown)
+        body:
+          - name: groupId
+            type: string
+            required: true
+            description: Community group id
+          - name: content
+            type: string
+            required: true
+            description: Post body as TipTap JSON
+          - name: name
+            type: string
+            description: Optional post title
+          - name: postType
+            type: string
+            default: post
+
+      update:
+        base_url: "https://api2.skool.com"
+        method: PUT
+        path: "/posts/{post_id}"
+        description: Update an existing post
+        params:
+          - name: post_id
+            type: string
+            required: true
+            positional: true
+        body:
+          - name: content
+            type: string
+            required: true
+
+      delete:
+        base_url: "https://api2.skool.com"
+        method: DELETE
+        path: "/posts/{post_id}"
+        description: Delete a post
+        params:
+          - name: post_id
+            type: string
+            required: true
+            positional: true
+
+      comment:
+        base_url: "https://api2.skool.com"
+        method: POST
+        path: "/posts/{post_id}/comments"
+        description: Add a comment to a post
+        params:
+          - name: post_id
+            type: string
+            required: true
+            positional: true
+        body:
+          - name: content
+            type: string
+            required: true
+            description: Comment body (TipTap JSON; use --md to convert)
+
+      like:
+        base_url: "https://api2.skool.com"
+        method: POST
+        path: "/posts/{post_id}/upvotes"
+        description: Like (upvote) a post
+        params:
+          - name: post_id
+            type: string
+            required: true
+            positional: true
+
+      unlike:
+        base_url: "https://api2.skool.com"
+        method: DELETE
+        path: "/posts/{post_id}/upvotes"
+        description: Unlike a post
+        params:
+          - name: post_id
+            type: string
+            required: true
+            positional: true
+
+  members:
+    description: Community members and moderation
+    endpoints:
+      pending:
+        base_url: "https://api2.skool.com"
+        method: GET
+        path: "/groups/{group_id}/members/pending"
+        description: List pending member join requests
+        params:
+          - name: group_id
+            type: string
+            required: true
+
+      approve:
+        base_url: "https://api2.skool.com"
+        method: PUT
+        path: "/group-members/{group_member_id}"
+        description: Approve a pending member request
+        params:
+          - name: group_member_id
+            type: string
+            required: true
+            positional: true
+        body:
+          - name: status
+            type: string
+            default: approved
+
+      reject:
+        base_url: "https://api2.skool.com"
+        method: PUT
+        path: "/group-members/{group_member_id}"
+        description: Reject a pending member request
+        params:
+          - name: group_member_id
+            type: string
+            required: true
+            positional: true
+        body:
+          - name: status
+            type: string
+            default: rejected
+
+      ban:
+        base_url: "https://api2.skool.com"
+        method: PUT
+        path: "/group-members/{group_member_id}"
+        description: Ban a member from the community
+        params:
+          - name: group_member_id
+            type: string
+            required: true
+            positional: true
+        body:
+          - name: status
+            type: string
+            default: banned
+
+  classroom:
+    description: Classroom (courses, modules, lessons) for a community
+    endpoints:
+      list:
+        method: GET
+        path: "/_next/data/{buildId}/{community}/classroom.json"
+        description: List all courses in a community
+        params:
+          - name: community
+            type: string
+            required: true
+          - name: g
+            type: string
+
+      get-course:
+        method: GET
+        path: "/_next/data/{buildId}/{community}/classroom/{course_slug}.json"
+        description: Get a single course with its modules and lessons
+        params:
+          - name: community
+            type: string
+            required: true
+          - name: course_slug
+            flag_name: course
+            type: string
+            required: true
+          - name: g
+            type: string
+          - name: md
+            flag_name: module
+            type: string
+
+  calendar:
+    description: Community calendar events
+    endpoints:
+      list:
+        method: GET
+        path: "/_next/data/{buildId}/{community}/calendar.json"
+        description: List upcoming and recent calendar events
+        params:
+          - name: community
+            type: string
+            required: true
+          - name: g
+            type: string
+
+  notifications:
+    description: User notifications
+    endpoints:
+      list:
+        base_url: "https://api2.skool.com"
+        method: GET
+        path: "/notifications"
+        description: List notifications for the authenticated user
+        params:
+          - name: limit
+            type: int
+            default: 50
+          - name: unread
+            type: bool
+            description: Only return unread notifications
+
+      mark-read:
+        base_url: "https://api2.skool.com"
+        method: POST
+        path: "/notifications/read"
+        description: Mark notifications as read (empty ids = mark all)
+        body:
+          - name: ids
+            type: string
+            description: Comma-separated notification ids; empty = mark all
+
+  me:
+    description: Current authenticated user dashboard
+    endpoints:
+      get:
+        method: GET
+        path: "/_next/data/{buildId}/index.json"
+        description: Get current user, joined communities, and dashboard state

@@ -1,0 +1,51 @@
+version: 2
+project_name: jimmy-johns-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: jimmy-johns-pp-cli
+    main: ./cmd/jimmy-johns-pp-cli
+    binary: jimmy-johns-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X jimmy-johns-pp-cli/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: jimmy-johns-pp-mcp
+    main: ./cmd/jimmy-johns-pp-mcp
+    binary: jimmy-johns-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: jimmy-johns-pp-cli
+    repository:
+      owner: omar-shahine
+      name: homebrew-tap
+    homepage: "https://github.com/omar-shahine/jimmy-johns-pp-cli"
+    description: "First terminal CLI for Jimmy John's ordering — local Unwich conversion, agent-native JSON, every endpoint typed."
+    install: |
+      bin.install "jimmy-johns-pp-cli"
+      bin.install "jimmy-johns-pp-mcp"

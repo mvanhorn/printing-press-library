@@ -1,0 +1,51 @@
+version: 2
+project_name: openalex-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: openalex-pp-cli
+    main: ./cmd/openalex-pp-cli
+    binary: openalex-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/other/openalex/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: openalex-pp-mcp
+    main: ./cmd/openalex-pp-mcp
+    binary: openalex-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: openalex-pp-cli
+    repository:
+      owner: hiten-shah
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "The OpenAlex API provides access to a comprehensive catalog of scholarly works, authors, sources, institutions,..."
+    install: |
+      bin.install "openalex-pp-cli"
+      bin.install "openalex-pp-mcp"

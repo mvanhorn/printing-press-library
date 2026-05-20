@@ -1,0 +1,243 @@
+{
+  "api_name": "pop",
+  "base_url": "https://popapi.io/wp-json/api/v2",
+  "description": "POP API for European electronic invoicing workflows.\n\nThis Printing Press blueprint intentionally exposes only the documented\n8-operation surface used by the POP MCP README at\ngetpopapi/pop-mcp@07a4a19ad5e657fa94d16fe617b8288e5046c489:\n\n  - create-xml\n  - create-ubl\n  - create-pdf\n  - sdi-via-pop/document-notifications\n  - peppol/document-get\n  - sdi-via-pop/document-get\n  - sdi-via-pop/document-verify\n  - sdi-via-pop/document-preserve\n\nThe `data` payloads are intentionally modeled as free-form JSON objects so\nthe CLI can pass through the full POP invoice structure without freezing a\nbrittle nested schema in this catalog spec.\n\nUpstream POP MCP changes should be reviewed periodically and intentionally\nsynced into this print when the documented public surface evolves.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "X-API-Key",
+    "in": "header",
+    "env_vars": [
+      "POP_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "POP_API_KEY",
+        "kind": "per_call",
+        "required": false,
+        "sensitive": true
+      }
+    ],
+    "key_url": "https://popapi.io/en/prices/"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "create-pdf_invoice",
+      "description": "Generate a branded PDF invoice. Depending on account setup and payload, POP may return a direct file, a URL, or a JSON response. Required: data. Optional: integration, plugin_version, send_email (default: false) (plus 2 more). Returns the new DocumentResponse.",
+      "method": "POST",
+      "path": "/create-pdf",
+      "params": [
+        {
+          "name": "data",
+          "type": "object",
+          "location": "body",
+          "description": "Full POP invoice payload.",
+          "required": true
+        },
+        {
+          "name": "integration",
+          "type": "object",
+          "location": "body",
+          "description": "POP integration override object."
+        },
+        {
+          "name": "plugin_version",
+          "type": "string",
+          "location": "body",
+          "description": "Plugin version"
+        },
+        {
+          "name": "send_email",
+          "type": "bool",
+          "location": "body",
+          "description": "Send the generated PDF using the email settings inside `data`."
+        },
+        {
+          "name": "site_title",
+          "type": "string",
+          "location": "body",
+          "description": "Site title"
+        },
+        {
+          "name": "site_url",
+          "type": "string",
+          "location": "body",
+          "description": "Site url"
+        }
+      ]
+    },
+    {
+      "name": "create-ubl_invoice",
+      "description": "Generate a PEPPOL BIS / UBL invoice and optionally submit it through POP's PEPPOL integration. Required: data. Optional: integration, plugin_version, site_title (plus 2 more). Returns the new DocumentResponse.",
+      "method": "POST",
+      "path": "/create-ubl",
+      "params": [
+        {
+          "name": "data",
+          "type": "object",
+          "location": "body",
+          "description": "Full POP invoice payload.",
+          "required": true
+        },
+        {
+          "name": "integration",
+          "type": "object",
+          "location": "body",
+          "description": "POP integration override object."
+        },
+        {
+          "name": "plugin_version",
+          "type": "string",
+          "location": "body",
+          "description": "Plugin version"
+        },
+        {
+          "name": "site_title",
+          "type": "string",
+          "location": "body",
+          "description": "Site title"
+        },
+        {
+          "name": "site_url",
+          "type": "string",
+          "location": "body",
+          "description": "Site url"
+        },
+        {
+          "name": "submit_to_peppol",
+          "type": "bool",
+          "location": "body",
+          "description": "Submit to the PEPPOL network after generating UBL."
+        }
+      ]
+    },
+    {
+      "name": "create-xml_invoice",
+      "description": "Generate an Italian FatturaPA XML document and optionally submit it to SdI. The `data` object must follow POP's invoice structure. Required: data. Optional: integration, plugin_version, site_title (plus 2 more). Returns the new DocumentResponse.",
+      "method": "POST",
+      "path": "/create-xml",
+      "params": [
+        {
+          "name": "data",
+          "type": "object",
+          "location": "body",
+          "description": "Full POP invoice payload.",
+          "required": true
+        },
+        {
+          "name": "integration",
+          "type": "object",
+          "location": "body",
+          "description": "POP integration override object."
+        },
+        {
+          "name": "plugin_version",
+          "type": "string",
+          "location": "body",
+          "description": "Plugin version"
+        },
+        {
+          "name": "site_title",
+          "type": "string",
+          "location": "body",
+          "description": "Site title"
+        },
+        {
+          "name": "site_url",
+          "type": "string",
+          "location": "body",
+          "description": "Site url"
+        },
+        {
+          "name": "submit_to_sdi",
+          "type": "bool",
+          "location": "body",
+          "description": "Submit to the Italian SdI after generating XML."
+        }
+      ]
+    },
+    {
+      "name": "peppol_get-document",
+      "description": "Retrieve a PEPPOL document from POP by UUID and optional zone. Required: integration. Returns the new GenericResponse.",
+      "method": "POST",
+      "path": "/peppol/document-get",
+      "params": [
+        {
+          "name": "integration",
+          "type": "object",
+          "location": "body",
+          "description": "Integration",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sdi-via-pop_get-invoice-status",
+      "description": "Read POP's recorded SdI notifications for a submitted invoice UUID. Required: integration. Returns array of SdiViaPopGetInvoiceStatusItem.",
+      "method": "POST",
+      "path": "/sdi-via-pop/document-notifications",
+      "params": [
+        {
+          "name": "integration",
+          "type": "object",
+          "location": "body",
+          "description": "Integration",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sdi-via-pop_get-sdi-document",
+      "description": "Retrieve a stored SdI document by UUID. Required: integration. Returns the new GenericResponse.",
+      "method": "POST",
+      "path": "/sdi-via-pop/document-get",
+      "params": [
+        {
+          "name": "integration",
+          "type": "object",
+          "location": "body",
+          "description": "Integration",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sdi-via-pop_preserve-sdi-document",
+      "description": "Archive an accepted SdI document in POP's long-term storage. Required: integration. Returns the new GenericResponse.",
+      "method": "POST",
+      "path": "/sdi-via-pop/document-preserve",
+      "params": [
+        {
+          "name": "integration",
+          "type": "object",
+          "location": "body",
+          "description": "Integration",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sdi-via-pop_verify-sdi-document",
+      "description": "Validate a Base64-encoded SdI XML document before submission. Required: integration. Optional: skip_business_check (default: true). Returns the new GenericResponse.",
+      "method": "POST",
+      "path": "/sdi-via-pop/document-verify",
+      "params": [
+        {
+          "name": "integration",
+          "type": "object",
+          "location": "body",
+          "description": "Integration",
+          "required": true
+        },
+        {
+          "name": "skip_business_check",
+          "type": "bool",
+          "location": "body",
+          "description": "Skip business check"
+        }
+      ]
+    }
+  ]
+}

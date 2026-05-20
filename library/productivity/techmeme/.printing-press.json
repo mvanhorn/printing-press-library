@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-10T03:07:13.253155Z",
+  "printing_press_version": "4.0.3",
+  "api_name": "techmeme",
+  "display_name": "Techmeme",
+  "cli_name": "techmeme-pp-cli",
+  "printer": "davemorin",
+  "printer_name": "Dave Morin",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:8e0822f8bea5497762a65814a3f615c441f3c408b4652c7799d5c6c6121b8163",
+  "mcp_binary": "techmeme-pp-mcp",
+  "mcp_tool_count": 5,
+  "mcp_public_tool_count": 5,
+  "mcp_ready": "full",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "What Did I Miss",
+      "command": "since",
+      "description": "See every tech headline from the last N hours \u2014 the perfect catch-up when you've been away"
+    },
+    {
+      "name": "Topic Tracker",
+      "command": "track",
+      "description": "Save topics and get alerts when they hit Techmeme \u2014 persistent monitoring without browser tabs"
+    },
+    {
+      "name": "Source Rankings",
+      "command": "sources",
+      "description": "See which publications dominate Techmeme and track source frequency over time"
+    },
+    {
+      "name": "Trending Topics",
+      "command": "trending",
+      "description": "Extract the hottest topics from recent headlines using frequency analysis on cached data"
+    },
+    {
+      "name": "Daily Digest",
+      "command": "digest",
+      "description": "Get a day's tech news grouped by topic \u2014 the briefing you'd write if you had time"
+    },
+    {
+      "name": "Story Velocity",
+      "command": "velocity",
+      "description": "Find stories that are blowing up \u2014 multiple sources covering the same topic in a short window"
+    },
+    {
+      "name": "Author Spotlight",
+      "command": "author",
+      "description": "Find all Techmeme headlines by a specific journalist across the cached archive"
+    }
+  ],
+  "run_id": "20260509-193944",
+  "category": "productivity"
+}

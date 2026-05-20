@@ -1,0 +1,891 @@
+{
+  "api_name": "openfda",
+  "base_url": "https://api.fda.gov",
+  "description": "The FDA safety data terminal. Every drug adverse event, device recall, food contamination, and product label the FDA publishes — synced locally, searchable offline, with trend analysis no other tool offers.\n",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "api_key",
+    "in": "query",
+    "env_vars": [
+      "FDA_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "FDA_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "animal-events_list",
+      "description": "Search animal adverse event reports. Optional: animal, breed, drug.",
+      "method": "GET",
+      "path": "/animalandveterinary/event.json",
+      "params": [
+        {
+          "name": "animal",
+          "type": "string",
+          "location": "query",
+          "description": "Animal species"
+        },
+        {
+          "name": "breed",
+          "type": "string",
+          "location": "query",
+          "description": "Animal breed"
+        },
+        {
+          "name": "drug",
+          "type": "string",
+          "location": "query",
+          "description": "Drug name"
+        }
+      ]
+    },
+    {
+      "name": "device-510k_list",
+      "description": "Search 510(k) clearance records. Optional: device, applicant, code (plus 3 more).",
+      "method": "GET",
+      "path": "/device/510k.json",
+      "params": [
+        {
+          "name": "device",
+          "wire_name": "device_name",
+          "type": "string",
+          "location": "query",
+          "description": "Device name"
+        },
+        {
+          "name": "applicant",
+          "type": "string",
+          "location": "query",
+          "description": "Applicant/company name"
+        },
+        {
+          "name": "code",
+          "wire_name": "product_code",
+          "type": "string",
+          "location": "query",
+          "description": "Product code"
+        },
+        {
+          "name": "type",
+          "wire_name": "clearance_type",
+          "type": "string",
+          "location": "query",
+          "description": "Clearance type (Traditional, Special, Abbreviated)"
+        },
+        {
+          "name": "from",
+          "wire_name": "decision_date_from",
+          "type": "date_range_start",
+          "location": "query",
+          "description": "Start of decision date range (YYYYMMDD)"
+        },
+        {
+          "name": "to",
+          "wire_name": "decision_date_to",
+          "type": "date_range_end",
+          "location": "query",
+          "description": "End of decision date range (YYYYMMDD)"
+        }
+      ]
+    },
+    {
+      "name": "device-classification_list",
+      "description": "Search device classifications. Optional: device, class, specialty (plus 2 more).",
+      "method": "GET",
+      "path": "/device/classification.json",
+      "params": [
+        {
+          "name": "device",
+          "wire_name": "device_name",
+          "type": "string",
+          "location": "query",
+          "description": "Device name"
+        },
+        {
+          "name": "class",
+          "wire_name": "device_class",
+          "type": "string",
+          "location": "query",
+          "description": "Device class: 1, 2, or 3"
+        },
+        {
+          "name": "specialty",
+          "wire_name": "medical_specialty",
+          "type": "string",
+          "location": "query",
+          "description": "Medical specialty code"
+        },
+        {
+          "name": "code",
+          "wire_name": "product_code",
+          "type": "string",
+          "location": "query",
+          "description": "Product code"
+        },
+        {
+          "name": "regulation",
+          "wire_name": "regulation_number",
+          "type": "string",
+          "location": "query",
+          "description": "CFR regulation number"
+        }
+      ]
+    },
+    {
+      "name": "device-covid19_list",
+      "description": "Search COVID-19 serology test evaluations. Optional: manufacturer, device.",
+      "method": "GET",
+      "path": "/device/covid19serology.json",
+      "params": [
+        {
+          "name": "manufacturer",
+          "type": "string",
+          "location": "query",
+          "description": "Test manufacturer"
+        },
+        {
+          "name": "device",
+          "type": "string",
+          "location": "query",
+          "description": "Test device name"
+        }
+      ]
+    },
+    {
+      "name": "device-events_count",
+      "description": "Count device events by field. Required: field.",
+      "method": "GET",
+      "path": "/device/event.json",
+      "params": [
+        {
+          "name": "field",
+          "type": "string",
+          "location": "query",
+          "description": "Field to count",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "device-events_list",
+      "description": "Search device adverse event reports. Optional: device, manufacturer, code (plus 3 more).",
+      "method": "GET",
+      "path": "/device/event.json",
+      "params": [
+        {
+          "name": "device",
+          "wire_name": "device_name",
+          "type": "string",
+          "location": "query",
+          "description": "Device brand or generic name"
+        },
+        {
+          "name": "manufacturer",
+          "type": "string",
+          "location": "query",
+          "description": "Manufacturer name"
+        },
+        {
+          "name": "code",
+          "wire_name": "product_code",
+          "type": "string",
+          "location": "query",
+          "description": "FDA product code"
+        },
+        {
+          "name": "type",
+          "wire_name": "event_type",
+          "type": "string",
+          "location": "query",
+          "description": "Event type: Injury, Malfunction, Death, Other"
+        },
+        {
+          "name": "from",
+          "wire_name": "date_from",
+          "type": "date_range_start",
+          "location": "query",
+          "description": "Start of date range (YYYYMMDD)"
+        },
+        {
+          "name": "to",
+          "wire_name": "date_to",
+          "type": "date_range_end",
+          "location": "query",
+          "description": "End of date range (YYYYMMDD)"
+        }
+      ]
+    },
+    {
+      "name": "device-pma_list",
+      "description": "Search premarket approval records. Optional: device, applicant, code (plus 1 more).",
+      "method": "GET",
+      "path": "/device/pma.json",
+      "params": [
+        {
+          "name": "device",
+          "wire_name": "trade_name",
+          "type": "string",
+          "location": "query",
+          "description": "Trade/device name"
+        },
+        {
+          "name": "applicant",
+          "type": "string",
+          "location": "query",
+          "description": "Applicant name"
+        },
+        {
+          "name": "code",
+          "wire_name": "product_code",
+          "type": "string",
+          "location": "query",
+          "description": "Product code"
+        },
+        {
+          "name": "decision",
+          "wire_name": "decision_code",
+          "type": "string",
+          "location": "query",
+          "description": "Decision code (APPR, DENY, etc.)"
+        }
+      ]
+    },
+    {
+      "name": "device-recall-detail_list",
+      "description": "Search device recall action details. Optional: product, firm, cause.",
+      "method": "GET",
+      "path": "/device/recall.json",
+      "params": [
+        {
+          "name": "product",
+          "wire_name": "product_description",
+          "type": "string",
+          "location": "query",
+          "description": "Product description"
+        },
+        {
+          "name": "firm",
+          "wire_name": "recalling_firm",
+          "type": "string",
+          "location": "query",
+          "description": "Recalling firm"
+        },
+        {
+          "name": "cause",
+          "wire_name": "root_cause",
+          "type": "string",
+          "location": "query",
+          "description": "Root cause description"
+        }
+      ]
+    },
+    {
+      "name": "device-recalls_list",
+      "description": "Search device recall enforcement reports. Optional: product, firm, class (plus 4 more).",
+      "method": "GET",
+      "path": "/device/enforcement.json",
+      "params": [
+        {
+          "name": "product",
+          "wire_name": "product_description",
+          "type": "string",
+          "location": "query",
+          "description": "Product description"
+        },
+        {
+          "name": "firm",
+          "wire_name": "recalling_firm",
+          "type": "string",
+          "location": "query",
+          "description": "Recalling firm name"
+        },
+        {
+          "name": "class",
+          "wire_name": "classification",
+          "type": "string",
+          "location": "query",
+          "description": "Recall class: Class I, II, III"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Recall status"
+        },
+        {
+          "name": "code",
+          "wire_name": "product_code",
+          "type": "string",
+          "location": "query",
+          "description": "Product code"
+        },
+        {
+          "name": "from",
+          "wire_name": "date_from",
+          "type": "date_range_start",
+          "location": "query",
+          "description": "Start of report date range (YYYYMMDD)"
+        },
+        {
+          "name": "to",
+          "wire_name": "date_to",
+          "type": "date_range_end",
+          "location": "query",
+          "description": "End of report date range (YYYYMMDD)"
+        }
+      ]
+    },
+    {
+      "name": "device-registration_list",
+      "description": "Search device registrations and listings. Optional: type, name.",
+      "method": "GET",
+      "path": "/device/registrationlisting.json",
+      "params": [
+        {
+          "name": "type",
+          "wire_name": "establishment_type",
+          "type": "string",
+          "location": "query",
+          "description": "Establishment type"
+        },
+        {
+          "name": "name",
+          "wire_name": "proprietary_name",
+          "type": "string",
+          "location": "query",
+          "description": "Proprietary name"
+        }
+      ]
+    },
+    {
+      "name": "device-udi_list",
+      "description": "Search unique device identifiers. Optional: brand, company, description.",
+      "method": "GET",
+      "path": "/device/udi.json",
+      "params": [
+        {
+          "name": "brand",
+          "wire_name": "brand_name",
+          "type": "string",
+          "location": "query",
+          "description": "Device brand name"
+        },
+        {
+          "name": "company",
+          "wire_name": "company_name",
+          "type": "string",
+          "location": "query",
+          "description": "Company name"
+        },
+        {
+          "name": "description",
+          "wire_name": "device_description",
+          "type": "string",
+          "location": "query",
+          "description": "Device description"
+        }
+      ]
+    },
+    {
+      "name": "drug-approvals_list",
+      "description": "Search approved drug products. Optional: sponsor, brand, ingredient (plus 3 more).",
+      "method": "GET",
+      "path": "/drug/drugsfda.json",
+      "params": [
+        {
+          "name": "sponsor",
+          "wire_name": "sponsor_name",
+          "type": "string",
+          "location": "query",
+          "description": "Name of the application sponsor"
+        },
+        {
+          "name": "brand",
+          "wire_name": "brand_name",
+          "type": "string",
+          "location": "query",
+          "description": "Brand name"
+        },
+        {
+          "name": "ingredient",
+          "wire_name": "active_ingredient",
+          "type": "string",
+          "location": "query",
+          "description": "Active ingredient(s)"
+        },
+        {
+          "name": "form",
+          "wire_name": "dosage_form",
+          "type": "string",
+          "location": "query",
+          "description": "Dosage form"
+        },
+        {
+          "name": "status",
+          "wire_name": "marketing_status",
+          "type": "string",
+          "location": "query",
+          "description": "Marketing status (Prescription, Over-the-counter, etc.)"
+        },
+        {
+          "name": "app-number",
+          "wire_name": "application_number",
+          "type": "string",
+          "location": "query",
+          "description": "FDA application number (NDA or ANDA)"
+        }
+      ]
+    },
+    {
+      "name": "drug-events_count",
+      "description": "Count adverse events by field. Required: field.",
+      "method": "GET",
+      "path": "/drug/event.json",
+      "params": [
+        {
+          "name": "field",
+          "type": "string",
+          "location": "query",
+          "description": "Field to count (use .exact for whole phrases)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "drug-events_list",
+      "description": "Search drug adverse event reports. Optional: drug, reaction, serious (plus 5 more).",
+      "method": "GET",
+      "path": "/drug/event.json",
+      "params": [
+        {
+          "name": "drug",
+          "type": "string",
+          "location": "query",
+          "description": "Drug name (brand or generic)"
+        },
+        {
+          "name": "reaction",
+          "type": "string",
+          "location": "query",
+          "description": "Adverse reaction term (MedDRA preferred term)"
+        },
+        {
+          "name": "serious",
+          "type": "boolean",
+          "location": "query",
+          "description": "Filter to serious reports only"
+        },
+        {
+          "name": "outcome",
+          "type": "string",
+          "location": "query",
+          "description": "Patient outcome: 1=recovered, 2=recovering, 3=not recovered, 4=recovered with sequelae, 5=fatal, 6=unknown"
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "Country where event occurred (2-letter code)"
+        },
+        {
+          "name": "from",
+          "wire_name": "date_from",
+          "type": "date_range_start",
+          "location": "query",
+          "description": "Start date for receipt date range (YYYYMMDD)"
+        },
+        {
+          "name": "to",
+          "wire_name": "date_to",
+          "type": "date_range_end",
+          "location": "query",
+          "description": "End date for receipt date range (YYYYMMDD)"
+        },
+        {
+          "name": "sex",
+          "type": "string",
+          "location": "query",
+          "description": "Patient sex: 0=unknown, 1=male, 2=female"
+        }
+      ]
+    },
+    {
+      "name": "drug-labels_list",
+      "description": "Search drug product labels. Optional: brand, generic, manufacturer (plus 4 more).",
+      "method": "GET",
+      "path": "/drug/label.json",
+      "params": [
+        {
+          "name": "brand",
+          "wire_name": "brand_name",
+          "type": "string",
+          "location": "query",
+          "description": "Brand name of the drug"
+        },
+        {
+          "name": "generic",
+          "wire_name": "generic_name",
+          "type": "string",
+          "location": "query",
+          "description": "Generic name of the drug"
+        },
+        {
+          "name": "manufacturer",
+          "type": "string",
+          "location": "query",
+          "description": "Manufacturer name"
+        },
+        {
+          "name": "ingredient",
+          "wire_name": "active_ingredient",
+          "type": "string",
+          "location": "query",
+          "description": "Active ingredient"
+        },
+        {
+          "name": "indication",
+          "type": "string",
+          "location": "query",
+          "description": "Search within indications and usage text"
+        },
+        {
+          "name": "route",
+          "type": "string",
+          "location": "query",
+          "description": "Route of administration (oral, topical, etc.)"
+        },
+        {
+          "name": "type",
+          "wire_name": "product_type",
+          "type": "string",
+          "location": "query",
+          "description": "Product type (HUMAN PRESCRIPTION DRUG, HUMAN OTC DRUG, etc.)"
+        }
+      ]
+    },
+    {
+      "name": "drug-ndc_list",
+      "description": "Search NDC directory. Optional: ndc, brand, generic (plus 4 more).",
+      "method": "GET",
+      "path": "/drug/ndc.json",
+      "params": [
+        {
+          "name": "ndc",
+          "wire_name": "product_ndc",
+          "type": "string",
+          "location": "query",
+          "description": "Product NDC code"
+        },
+        {
+          "name": "brand",
+          "wire_name": "brand_name",
+          "type": "string",
+          "location": "query",
+          "description": "Proprietary/brand name"
+        },
+        {
+          "name": "generic",
+          "wire_name": "generic_name",
+          "type": "string",
+          "location": "query",
+          "description": "Non-proprietary/generic name"
+        },
+        {
+          "name": "labeler",
+          "wire_name": "labeler_name",
+          "type": "string",
+          "location": "query",
+          "description": "Labeler (manufacturer) name"
+        },
+        {
+          "name": "form",
+          "wire_name": "dosage_form",
+          "type": "string",
+          "location": "query",
+          "description": "Dosage form (TABLET, CAPSULE, etc.)"
+        },
+        {
+          "name": "route",
+          "type": "string",
+          "location": "query",
+          "description": "Route of administration"
+        },
+        {
+          "name": "substance",
+          "wire_name": "substance_name",
+          "type": "string",
+          "location": "query",
+          "description": "Active substance name"
+        }
+      ]
+    },
+    {
+      "name": "drug-recalls_count",
+      "description": "Count drug recalls by field. Required: field.",
+      "method": "GET",
+      "path": "/drug/enforcement.json",
+      "params": [
+        {
+          "name": "field",
+          "type": "string",
+          "location": "query",
+          "description": "Field to count",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "drug-recalls_list",
+      "description": "Search drug recall enforcement reports. Optional: product, firm, class (plus 5 more).",
+      "method": "GET",
+      "path": "/drug/enforcement.json",
+      "params": [
+        {
+          "name": "product",
+          "wire_name": "product_description",
+          "type": "string",
+          "location": "query",
+          "description": "Description of recalled product"
+        },
+        {
+          "name": "firm",
+          "wire_name": "recalling_firm",
+          "type": "string",
+          "location": "query",
+          "description": "Name of the recalling firm"
+        },
+        {
+          "name": "class",
+          "wire_name": "classification",
+          "type": "string",
+          "location": "query",
+          "description": "Recall classification: Class I (most serious), II, III"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Recall status: Ongoing, Completed, Terminated, Pending"
+        },
+        {
+          "name": "reason",
+          "type": "string",
+          "location": "query",
+          "description": "Reason for the recall"
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "query",
+          "description": "State where recalling firm is located"
+        },
+        {
+          "name": "from",
+          "wire_name": "date_from",
+          "type": "date_range_start",
+          "location": "query",
+          "description": "Start of report date range (YYYYMMDD)"
+        },
+        {
+          "name": "to",
+          "wire_name": "date_to",
+          "type": "date_range_end",
+          "location": "query",
+          "description": "End of report date range (YYYYMMDD)"
+        }
+      ]
+    },
+    {
+      "name": "drug-shortages_list",
+      "description": "Search drug shortages. Optional: product, generic, status (plus 1 more).",
+      "method": "GET",
+      "path": "/drug/shortages.json",
+      "params": [
+        {
+          "name": "product",
+          "wire_name": "product_name",
+          "type": "string",
+          "location": "query",
+          "description": "Product name"
+        },
+        {
+          "name": "generic",
+          "wire_name": "generic_name",
+          "type": "string",
+          "location": "query",
+          "description": "Generic name"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Shortage status (Currently in Shortage, Resolved, etc.)"
+        },
+        {
+          "name": "designation",
+          "type": "string",
+          "location": "query",
+          "description": "Shortage designation"
+        }
+      ]
+    },
+    {
+      "name": "food-events_list",
+      "description": "Search food/supplement adverse event reports. Optional: product, reaction, outcome.",
+      "method": "GET",
+      "path": "/food/event.json",
+      "params": [
+        {
+          "name": "product",
+          "type": "string",
+          "location": "query",
+          "description": "Product name or industry name"
+        },
+        {
+          "name": "reaction",
+          "type": "string",
+          "location": "query",
+          "description": "Reported reaction/symptom"
+        },
+        {
+          "name": "outcome",
+          "type": "string",
+          "location": "query",
+          "description": "Outcome (hospitalization, ER visit, etc.)"
+        }
+      ]
+    },
+    {
+      "name": "food-recalls_count",
+      "description": "Count food recalls by field. Required: field.",
+      "method": "GET",
+      "path": "/food/enforcement.json",
+      "params": [
+        {
+          "name": "field",
+          "type": "string",
+          "location": "query",
+          "description": "Field to count",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "food-recalls_list",
+      "description": "Search food recall enforcement reports. Optional: product, firm, class (plus 4 more).",
+      "method": "GET",
+      "path": "/food/enforcement.json",
+      "params": [
+        {
+          "name": "product",
+          "wire_name": "product_description",
+          "type": "string",
+          "location": "query",
+          "description": "Product description"
+        },
+        {
+          "name": "firm",
+          "wire_name": "recalling_firm",
+          "type": "string",
+          "location": "query",
+          "description": "Recalling firm"
+        },
+        {
+          "name": "class",
+          "wire_name": "classification",
+          "type": "string",
+          "location": "query",
+          "description": "Recall class: Class I, II, III"
+        },
+        {
+          "name": "reason",
+          "type": "string",
+          "location": "query",
+          "description": "Reason for recall"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Recall status"
+        },
+        {
+          "name": "from",
+          "wire_name": "date_from",
+          "type": "date_range_start",
+          "location": "query",
+          "description": "Start of report date range (YYYYMMDD)"
+        },
+        {
+          "name": "to",
+          "wire_name": "date_to",
+          "type": "date_range_end",
+          "location": "query",
+          "description": "End of report date range (YYYYMMDD)"
+        }
+      ]
+    },
+    {
+      "name": "nsde_list",
+      "description": "Search non-standardized drug entities. Optional: name, ndc.",
+      "method": "GET",
+      "path": "/other/nsde.json",
+      "params": [
+        {
+          "name": "name",
+          "wire_name": "proprietary_name",
+          "type": "string",
+          "location": "query",
+          "description": "Proprietary drug name"
+        },
+        {
+          "name": "ndc",
+          "wire_name": "package_ndc",
+          "type": "string",
+          "location": "query",
+          "description": "Package NDC code"
+        }
+      ]
+    },
+    {
+      "name": "substance_list",
+      "description": "Search substance records. Optional: name.",
+      "method": "GET",
+      "path": "/other/substance.json",
+      "params": [
+        {
+          "name": "name",
+          "wire_name": "substance_name",
+          "type": "string",
+          "location": "query",
+          "description": "Substance name"
+        }
+      ]
+    },
+    {
+      "name": "tobacco-problems_list",
+      "description": "Search tobacco problem reports. Optional: type.",
+      "method": "GET",
+      "path": "/tobacco/problem.json",
+      "params": [
+        {
+          "name": "type",
+          "wire_name": "product_type",
+          "type": "string",
+          "location": "query",
+          "description": "Product type (cigarettes, e-cigarettes, etc.)"
+        }
+      ]
+    }
+  ]
+}

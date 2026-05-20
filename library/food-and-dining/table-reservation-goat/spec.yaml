@@ -1,5 +1,5 @@
 name: table-reservation-goat
-description: "One reservation CLI for OpenTable and Tock — search both networks at once, watch for cancellations, book, and track changes from a local store agents can query."
+description: "One reservation CLI for OpenTable, Tock, and Resy — search all three networks at once, watch for cancellations, book + cancel end-to-end, and track changes from a local store agents can query."
 version: "0.1.0"
 base_url: "https://www.opentable.com"
 display_name: "Table Reservation GOAT"
@@ -14,12 +14,12 @@ config:
 
 resources:
   restaurants:
-    description: "Search and inspect restaurants across OpenTable and Tock"
+    description: "Search and inspect restaurants across OpenTable, Tock, and Resy"
     endpoints:
       list:
         method: GET
         path: "/restaurants"
-        description: "List restaurants across OpenTable and Tock; filter by location, cuisine, price band, accolades, and party size"
+        description: "List restaurants across OpenTable, Tock, and Resy; filter by location, cuisine, price band, accolades, and party size"
         params:
           - name: query
             type: string
@@ -75,7 +75,7 @@ resources:
           item: Restaurant
 
   availability:
-    description: "Check open reservation slots across OpenTable and Tock"
+    description: "Check open reservation slots across OpenTable, Tock, and Resy"
     endpoints:
       check:
         method: GET
@@ -140,7 +140,7 @@ resources:
       list:
         method: GET
         path: "/experiences"
-        description: "List experiences (PRIX_FIXE, EXPERIENCE, PACKAGE) across both networks"
+        description: "List experiences (PRIX_FIXE, EXPERIENCE, PACKAGE) across OpenTable + Tock"
         params:
           - name: restaurant
             type: string
@@ -177,7 +177,7 @@ resources:
       list:
         method: GET
         path: "/reservations"
-        description: "List your upcoming and past reservations across both networks"
+        description: "List your upcoming and past reservations across OpenTable + Tock + Resy"
         params:
           - name: state
             type: string

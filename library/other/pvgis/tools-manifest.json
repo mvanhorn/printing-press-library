@@ -1,0 +1,430 @@
+{
+  "api_name": "pvgis",
+  "base_url": "https://re.jrc.ec.europa.eu/api/v5_3",
+  "description": "PVGIS (Photovoltaic Geographical Information System) CLI — the European Commission JRC's solar-radiation and PV-performance service from your terminal. Estimates monthly and hourly PV production, downloads Typical Meteorological Year (TMY) data, fetches horizon profiles, and finds optimal tilt for any point on Earth covered by PVGIS-SARAH3, PVGIS-NSRDB, or PVGIS-ERA5.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "horizon_profile",
+      "description": "Terrain horizon profile (printhorizon) for a site. Returns the horizon height in degrees at 49 azimuth points from -180 to 180 (step 7.5 degrees), derived from the SRTM DEM. Also returns the sun path at winter and summer solstices for solar-availability analysis. Required: lat, lon. Optional: outputformat.",
+      "method": "GET",
+      "path": "/printhorizon",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "lat",
+          "type": "number",
+          "location": "query",
+          "description": "Latitude in WGS84 decimal degrees.",
+          "required": true
+        },
+        {
+          "name": "lon",
+          "type": "number",
+          "location": "query",
+          "description": "Longitude in WGS84 decimal degrees.",
+          "required": true
+        },
+        {
+          "name": "outputformat",
+          "type": "string",
+          "location": "query",
+          "description": "Response format. Forced to 'json'."
+        }
+      ]
+    },
+    {
+      "name": "production_hourly",
+      "description": "Hourly PV production time series (seriescalc) for a fixed-mount system. Returns one row per hour over the requested year range with power P (W), in-plane irradiance G(i), sun height, air temperature, wind speed. Typical response is 8760 rows per year. Required: lat, lon. Optional: pvcalculation, pnom, system-loss (plus 9 more).",
+      "method": "GET",
+      "path": "/seriescalc",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "lat",
+          "type": "number",
+          "location": "query",
+          "description": "Latitude in WGS84 decimal degrees.",
+          "required": true
+        },
+        {
+          "name": "lon",
+          "type": "number",
+          "location": "query",
+          "description": "Longitude in WGS84 decimal degrees.",
+          "required": true
+        },
+        {
+          "name": "pvcalculation",
+          "type": "integer",
+          "location": "query",
+          "description": "Compute PV production (1) or just radiation/weather (0). CLI defaults to 1."
+        },
+        {
+          "name": "pnom",
+          "wire_name": "peakpower",
+          "type": "number",
+          "location": "query",
+          "description": "Nominal peak power in kWp. Required when --pvcalculation=1.",
+          "aliases": [
+            "peakpower"
+          ]
+        },
+        {
+          "name": "system-loss",
+          "wire_name": "loss",
+          "type": "number",
+          "location": "query",
+          "description": "Total system losses in percent.",
+          "aliases": [
+            "loss"
+          ]
+        },
+        {
+          "name": "tilt",
+          "wire_name": "angle",
+          "type": "number",
+          "location": "query",
+          "description": "Surface tilt in degrees.",
+          "aliases": [
+            "angle"
+          ]
+        },
+        {
+          "name": "azimuth",
+          "wire_name": "aspect",
+          "type": "number",
+          "location": "query",
+          "description": "Surface azimuth (PVGIS convention).",
+          "aliases": [
+            "aspect"
+          ]
+        },
+        {
+          "name": "technology",
+          "wire_name": "pvtechchoice",
+          "type": "string",
+          "location": "query",
+          "description": "Module technology: crystSi, CIS, CdTe, Unknown.",
+          "aliases": [
+            "pvtechchoice"
+          ]
+        },
+        {
+          "name": "mounting",
+          "wire_name": "mountingplace",
+          "type": "string",
+          "location": "query",
+          "description": "Mounting type: free, building.",
+          "aliases": [
+            "mountingplace"
+          ]
+        },
+        {
+          "name": "use-horizon",
+          "wire_name": "usehorizon",
+          "type": "integer",
+          "location": "query",
+          "description": "Use terrain horizon. 1 = yes, 0 = no.",
+          "aliases": [
+            "usehorizon"
+          ]
+        },
+        {
+          "name": "startyear",
+          "type": "integer",
+          "location": "query",
+          "description": "First year of the time series."
+        },
+        {
+          "name": "endyear",
+          "type": "integer",
+          "location": "query",
+          "description": "Last year of the time series."
+        },
+        {
+          "name": "raddatabase",
+          "type": "string",
+          "location": "query",
+          "description": "Force a radiation database."
+        },
+        {
+          "name": "outputformat",
+          "type": "string",
+          "location": "query",
+          "description": "Response format. Forced to 'json'."
+        }
+      ]
+    },
+    {
+      "name": "production_monthly",
+      "description": "Monthly and annual PV production (PVcalc) for a fixed-mount system. Returns monthly energy E_m, daily energy E_d, and in-plane irradiation H(i)_m, plus yearly totals E_y. Accounts for module technology, system losses, and optional terrain horizon. Required: lat, lon, pnom, system-loss. Optional: tilt, azimuth, technology (plus 4 more).",
+      "method": "GET",
+      "path": "/PVcalc",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "lat",
+          "type": "number",
+          "location": "query",
+          "description": "Latitude in WGS84 decimal degrees (positive north).",
+          "required": true
+        },
+        {
+          "name": "lon",
+          "type": "number",
+          "location": "query",
+          "description": "Longitude in WGS84 decimal degrees (positive east).",
+          "required": true
+        },
+        {
+          "name": "pnom",
+          "wire_name": "peakpower",
+          "type": "number",
+          "location": "query",
+          "description": "Nominal system peak power in kWp.",
+          "required": true,
+          "aliases": [
+            "peakpower"
+          ]
+        },
+        {
+          "name": "system-loss",
+          "wire_name": "loss",
+          "type": "number",
+          "location": "query",
+          "description": "Total system losses in percent (cables, inverter, soiling, mismatch). Typical 10-15.",
+          "required": true,
+          "aliases": [
+            "loss"
+          ]
+        },
+        {
+          "name": "tilt",
+          "wire_name": "angle",
+          "type": "number",
+          "location": "query",
+          "description": "Surface tilt in degrees (0-90). Default 0.",
+          "aliases": [
+            "angle"
+          ]
+        },
+        {
+          "name": "azimuth",
+          "wire_name": "aspect",
+          "type": "number",
+          "location": "query",
+          "description": "Surface azimuth (PVGIS convention: 0 = south, -90 = east, 90 = west).",
+          "aliases": [
+            "aspect"
+          ]
+        },
+        {
+          "name": "technology",
+          "wire_name": "pvtechchoice",
+          "type": "string",
+          "location": "query",
+          "description": "Module technology: crystSi (default), CIS, CdTe, Unknown.",
+          "aliases": [
+            "pvtechchoice"
+          ]
+        },
+        {
+          "name": "mounting",
+          "wire_name": "mountingplace",
+          "type": "string",
+          "location": "query",
+          "description": "Mounting type: free (free-standing, default), building (BIPV).",
+          "aliases": [
+            "mountingplace"
+          ]
+        },
+        {
+          "name": "use-horizon",
+          "wire_name": "usehorizon",
+          "type": "integer",
+          "location": "query",
+          "description": "Use the DEM-derived terrain horizon profile. 1 = yes (default), 0 = no.",
+          "aliases": [
+            "usehorizon"
+          ]
+        },
+        {
+          "name": "raddatabase",
+          "type": "string",
+          "location": "query",
+          "description": "Force a radiation database: PVGIS-SARAH3, PVGIS-NSRDB, PVGIS-ERA5."
+        },
+        {
+          "name": "outputformat",
+          "type": "string",
+          "location": "query",
+          "description": "Response format. Forced to 'json' by the CLI."
+        }
+      ]
+    },
+    {
+      "name": "radiation_monthly",
+      "description": "Monthly solar radiation (MRcalc) for a site. Returns 12 monthly values on the horizontal plane, the requested tilt, and/or the locally optimal tilt, plus monthly average air temperature. Uses PVGIS-SARAH3 for Europe/Africa/Asia, PVGIS-NSRDB for the Americas, PVGIS-ERA5 elsewhere. Required: lat, lon. Optional: use-horizon, horizontal, tilted (plus 8 more).",
+      "method": "GET",
+      "path": "/MRcalc",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "lat",
+          "type": "number",
+          "location": "query",
+          "description": "Latitude in WGS84 decimal degrees (positive north). PVGIS covers roughly -65 to +65.",
+          "required": true
+        },
+        {
+          "name": "lon",
+          "type": "number",
+          "location": "query",
+          "description": "Longitude in WGS84 decimal degrees (positive east). PVGIS covers -180 to +180.",
+          "required": true
+        },
+        {
+          "name": "use-horizon",
+          "wire_name": "usehorizon",
+          "type": "integer",
+          "location": "query",
+          "description": "Use the DEM-derived terrain horizon profile. 1 = yes (default), 0 = no.",
+          "aliases": [
+            "usehorizon"
+          ]
+        },
+        {
+          "name": "horizontal",
+          "wire_name": "horirrad",
+          "type": "integer",
+          "location": "query",
+          "description": "Include monthly global horizontal irradiation in the output. 1 = yes.",
+          "aliases": [
+            "horirrad"
+          ]
+        },
+        {
+          "name": "tilted",
+          "wire_name": "selectrad",
+          "type": "integer",
+          "location": "query",
+          "description": "Include monthly irradiation on the user-selected tilt/azimuth plane. 1 = yes.",
+          "aliases": [
+            "selectrad"
+          ]
+        },
+        {
+          "name": "tilt",
+          "wire_name": "angle",
+          "type": "number",
+          "location": "query",
+          "description": "Surface tilt in degrees from horizontal (0-90). Used when --tilted is set.",
+          "aliases": [
+            "angle"
+          ]
+        },
+        {
+          "name": "azimuth",
+          "wire_name": "aspect",
+          "type": "number",
+          "location": "query",
+          "description": "Surface azimuth (PVGIS convention: 0 = south, -90 = east, 90 = west).",
+          "aliases": [
+            "aspect"
+          ]
+        },
+        {
+          "name": "optimal",
+          "wire_name": "optrad",
+          "type": "integer",
+          "location": "query",
+          "description": "Include monthly irradiation on the locally optimal tilt. 1 = yes.",
+          "aliases": [
+            "optrad"
+          ]
+        },
+        {
+          "name": "avg-temp",
+          "wire_name": "avtemp",
+          "type": "integer",
+          "location": "query",
+          "description": "Include monthly average 2m air temperature. 1 = yes.",
+          "aliases": [
+            "avtemp"
+          ]
+        },
+        {
+          "name": "raddatabase",
+          "type": "string",
+          "location": "query",
+          "description": "Force a radiation database: PVGIS-SARAH3, PVGIS-NSRDB, PVGIS-ERA5. Default lets PVGIS choose by region."
+        },
+        {
+          "name": "startyear",
+          "type": "integer",
+          "location": "query",
+          "description": "First year of the averaging window. Default is the earliest available."
+        },
+        {
+          "name": "endyear",
+          "type": "integer",
+          "location": "query",
+          "description": "Last year of the averaging window. Default is the latest available."
+        },
+        {
+          "name": "outputformat",
+          "type": "string",
+          "location": "query",
+          "description": "Response format. Forced to 'json' by the CLI."
+        }
+      ]
+    },
+    {
+      "name": "weather_tmy",
+      "description": "Typical Meteorological Year for a site. Returns 8760 hourly rows with air temperature T2m, relative humidity, global horizontal irradiance G(h), beam normal Gb(n), diffuse Gd(h), longwave IR(h), wind speed WS10m, wind direction WD10m, surface pressure SP. Constructed from the long-term record so it represents climate, not a specific year. Required: lat, lon. Optional: startyear, endyear, outputformat.",
+      "method": "GET",
+      "path": "/tmy",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "lat",
+          "type": "number",
+          "location": "query",
+          "description": "Latitude in WGS84 decimal degrees.",
+          "required": true
+        },
+        {
+          "name": "lon",
+          "type": "number",
+          "location": "query",
+          "description": "Longitude in WGS84 decimal degrees.",
+          "required": true
+        },
+        {
+          "name": "startyear",
+          "type": "integer",
+          "location": "query",
+          "description": "First year of source data used to build the TMY (default: earliest available)."
+        },
+        {
+          "name": "endyear",
+          "type": "integer",
+          "location": "query",
+          "description": "Last year of source data (default: latest available)."
+        },
+        {
+          "name": "outputformat",
+          "type": "string",
+          "location": "query",
+          "description": "Response format. Forced to 'json'."
+        }
+      ]
+    }
+  ]
+}

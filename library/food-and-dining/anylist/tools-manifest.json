@@ -1,0 +1,957 @@
+{
+  "api_name": "anylist",
+  "base_url": "https://www.anylist.com",
+  "description": "Every AnyList feature in your terminal — plus offline search, store routing, and cron-safe automations no mobile app can match.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "format": "Bearer {ANYLIST_ACCESS_TOKEN}",
+    "env_vars": [
+      "ANYLIST_ACCESS_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "ANYLIST_ACCESS_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [
+    {
+      "name": "X-AnyLeaf-API-Version",
+      "value": "3"
+    }
+  ],
+  "tools": [
+    {
+      "name": "categories_list",
+      "description": "List all item categories. Returns array of Category.",
+      "method": "POST",
+      "path": "/data/user-data/get",
+      "params": []
+    },
+    {
+      "name": "collections_add",
+      "description": "Add a recipe to a collection. Required: collection, recipe. Returns the new OperationResult.",
+      "method": "POST",
+      "path": "/data/user-recipe-data/update",
+      "params": [
+        {
+          "name": "collection",
+          "type": "string",
+          "location": "body",
+          "description": "Collection name",
+          "required": true
+        },
+        {
+          "name": "recipe",
+          "type": "string",
+          "location": "body",
+          "description": "Recipe name to add",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "collections_create",
+      "description": "Create a new recipe collection. Required: name. Returns the new RecipeCollection.",
+      "method": "POST",
+      "path": "/data/user-recipe-data/update",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Collection name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "collections_delete",
+      "description": "Delete a recipe collection. Required: name. Returns the new OperationResult.",
+      "method": "POST",
+      "path": "/data/user-recipe-data/update",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Collection name to delete",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "collections_list",
+      "description": "List all recipe collections. Returns array of RecipeCollection.",
+      "method": "POST",
+      "path": "/data/user-data/get",
+      "params": []
+    },
+    {
+      "name": "collections_remove",
+      "description": "Remove a recipe from a collection. Required: collection, recipe. Returns the new OperationResult.",
+      "method": "POST",
+      "path": "/data/user-recipe-data/update",
+      "params": [
+        {
+          "name": "collection",
+          "type": "string",
+          "location": "body",
+          "description": "Collection name",
+          "required": true
+        },
+        {
+          "name": "recipe",
+          "type": "string",
+          "location": "body",
+          "description": "Recipe name to remove",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "favorites_list",
+      "description": "List favorite items across all lists. Returns array of ListItem.",
+      "method": "POST",
+      "path": "/data/user-data/get",
+      "params": []
+    },
+    {
+      "name": "folders_create",
+      "description": "Create a new list folder. Required: name. Returns the new ListFolder.",
+      "method": "POST",
+      "path": "/data/list-folders/update",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Folder name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "folders_delete",
+      "description": "Delete a list folder. Required: name. Returns the new OperationResult.",
+      "method": "POST",
+      "path": "/data/list-folders/update",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Folder name to delete",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "folders_list",
+      "description": "List all list folders. Returns array of ListFolder.",
+      "method": "POST",
+      "path": "/data/user-data/get",
+      "params": []
+    },
+    {
+      "name": "items_add",
+      "description": "Add an item to a shopping list. Required: list, item. Optional: quantity, notes, category. Returns the new ListItem.",
+      "method": "POST",
+      "path": "/data/shopping-lists/update",
+      "params": [
+        {
+          "name": "list",
+          "wire_name": "list_name",
+          "type": "string",
+          "location": "body",
+          "description": "Target list name",
+          "required": true
+        },
+        {
+          "name": "item",
+          "wire_name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Item name to add",
+          "required": true
+        },
+        {
+          "name": "quantity",
+          "type": "string",
+          "location": "body",
+          "description": "Quantity (e.g. '2', '1 lb', 'a dozen')"
+        },
+        {
+          "name": "notes",
+          "type": "string",
+          "location": "body",
+          "description": "Item notes or details"
+        },
+        {
+          "name": "category",
+          "type": "string",
+          "location": "body",
+          "description": "Category to assign"
+        }
+      ]
+    },
+    {
+      "name": "items_check",
+      "description": "Mark one or more items as checked (bought). Required: list, item. Optional: all (default: false). Returns the new OperationResult.",
+      "method": "POST",
+      "path": "/data/shopping-lists/update",
+      "params": [
+        {
+          "name": "list",
+          "wire_name": "list_name",
+          "type": "string",
+          "location": "body",
+          "description": "List name",
+          "required": true
+        },
+        {
+          "name": "item",
+          "wire_name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Item name to check",
+          "required": true
+        },
+        {
+          "name": "all",
+          "type": "bool",
+          "location": "body",
+          "description": "Check all items in the list"
+        }
+      ]
+    },
+    {
+      "name": "items_list",
+      "description": "List items in a shopping list. Required: list. Optional: checked (default: false), unchecked (default: false), category. Returns array of ListItem.",
+      "method": "POST",
+      "path": "/data/user-data/get",
+      "params": [
+        {
+          "name": "list",
+          "wire_name": "list_name",
+          "type": "string",
+          "location": "body",
+          "description": "Shopping list name",
+          "required": true
+        },
+        {
+          "name": "checked",
+          "type": "bool",
+          "location": "body",
+          "description": "Show only checked items"
+        },
+        {
+          "name": "unchecked",
+          "type": "bool",
+          "location": "body",
+          "description": "Show only unchecked items (default shows all)"
+        },
+        {
+          "name": "category",
+          "type": "string",
+          "location": "body",
+          "description": "Filter by category name"
+        }
+      ]
+    },
+    {
+      "name": "items_recent",
+      "description": "Show recently added items across all lists. Optional: limit (default: 20). Returns array of ListItem.",
+      "method": "POST",
+      "path": "/data/user-data/get",
+      "params": [
+        {
+          "name": "limit",
+          "type": "integer",
+          "location": "body",
+          "description": "Maximum number of items to return"
+        }
+      ]
+    },
+    {
+      "name": "items_remove",
+      "description": "Remove an item from a shopping list. Required: list, item. Optional: all (default: false). Returns the new OperationResult.",
+      "method": "POST",
+      "path": "/data/shopping-lists/update",
+      "params": [
+        {
+          "name": "list",
+          "wire_name": "list_name",
+          "type": "string",
+          "location": "body",
+          "description": "List name",
+          "required": true
+        },
+        {
+          "name": "item",
+          "wire_name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Item name to remove",
+          "required": true
+        },
+        {
+          "name": "all",
+          "type": "bool",
+          "location": "body",
+          "description": "Remove all checked items"
+        }
+      ]
+    },
+    {
+      "name": "items_search",
+      "description": "Search for items by name across all shopping lists. Required: query. Returns array of ListItem.",
+      "method": "POST",
+      "path": "/data/user-data/get",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "Search query (matched against item names)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "items_uncheck",
+      "description": "Mark one or more items as unchecked. Required: list, item. Optional: all (default: false). Returns the new OperationResult.",
+      "method": "POST",
+      "path": "/data/shopping-lists/update",
+      "params": [
+        {
+          "name": "list",
+          "wire_name": "list_name",
+          "type": "string",
+          "location": "body",
+          "description": "List name",
+          "required": true
+        },
+        {
+          "name": "item",
+          "wire_name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Item name to uncheck",
+          "required": true
+        },
+        {
+          "name": "all",
+          "type": "bool",
+          "location": "body",
+          "description": "Uncheck all items in the list"
+        }
+      ]
+    },
+    {
+      "name": "items_update",
+      "description": "Update an existing item's quantity, notes, or category. Required: list, item. Optional: quantity, notes, category. Returns the new ListItem.",
+      "method": "POST",
+      "path": "/data/shopping-lists/update",
+      "params": [
+        {
+          "name": "list",
+          "wire_name": "list_name",
+          "type": "string",
+          "location": "body",
+          "description": "List name",
+          "required": true
+        },
+        {
+          "name": "item",
+          "wire_name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Item name to update",
+          "required": true
+        },
+        {
+          "name": "quantity",
+          "type": "string",
+          "location": "body",
+          "description": "New quantity"
+        },
+        {
+          "name": "notes",
+          "type": "string",
+          "location": "body",
+          "description": "New notes"
+        },
+        {
+          "name": "category",
+          "type": "string",
+          "location": "body",
+          "description": "New category"
+        }
+      ]
+    },
+    {
+      "name": "lists_by-store",
+      "description": "Display a shopping list grouped by store with aisle ordering. Required: name. Returns array of StoreGroup.",
+      "method": "POST",
+      "path": "/data/user-data/get",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "List name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "lists_create",
+      "description": "Create a new shopping list. Required: name. Returns the new ShoppingList.",
+      "method": "POST",
+      "path": "/data/shopping-lists/update",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name for the new list",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "lists_delete",
+      "description": "Delete a shopping list. Required: name. Returns the new OperationResult.",
+      "method": "POST",
+      "path": "/data/shopping-lists/update",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "List name to delete",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "lists_list",
+      "description": "List all shopping lists. Returns array of ShoppingList.",
+      "method": "POST",
+      "path": "/data/user-data/get",
+      "params": []
+    },
+    {
+      "name": "lists_reset",
+      "description": "Clear all checked items from a list to prepare for the next shopping trip. Required: name. Optional: keep-unchecked (default: false). Returns the new OperationResult.",
+      "method": "POST",
+      "path": "/data/shopping-lists/update",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "List name to reset",
+          "required": true
+        },
+        {
+          "name": "keep-unchecked",
+          "wire_name": "keep_unchecked",
+          "type": "bool",
+          "location": "body",
+          "description": "Keep unchecked items (default: remove checked, keep unchecked)"
+        }
+      ]
+    },
+    {
+      "name": "lists_settings",
+      "description": "View or update settings for a shopping list. Required: name. Returns the new ListSettings.",
+      "method": "POST",
+      "path": "/data/list-settings/update",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "List name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "meal_add",
+      "description": "Add an event to the meal planning calendar. Required: date. Optional: recipe, title, label (plus 1 more). Returns the new MealEvent.",
+      "method": "POST",
+      "path": "/data/meal-planning-calendar/update",
+      "params": [
+        {
+          "name": "date",
+          "type": "string",
+          "location": "body",
+          "description": "Event date (YYYY-MM-DD)",
+          "required": true
+        },
+        {
+          "name": "recipe",
+          "type": "string",
+          "location": "body",
+          "description": "Recipe name to associate"
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Event title (for non-recipe events)"
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "location": "body",
+          "description": "Meal label (Breakfast/Lunch/Dinner/etc.)"
+        },
+        {
+          "name": "details",
+          "type": "string",
+          "location": "body",
+          "description": "Optional event details/notes"
+        }
+      ]
+    },
+    {
+      "name": "meal_add-to-list",
+      "description": "Add all recipe ingredients from the meal plan to a shopping list (idempotent, quantity-merging). Required: list. Optional: week (default: true), from, to (plus 1 more). Returns the new OperationResult.",
+      "method": "POST",
+      "path": "/data/shopping-lists/update",
+      "params": [
+        {
+          "name": "list",
+          "wire_name": "list_name",
+          "type": "string",
+          "location": "body",
+          "description": "Target shopping list name",
+          "required": true
+        },
+        {
+          "name": "week",
+          "type": "bool",
+          "location": "body",
+          "description": "Use current ISO week (Mon–Sun)"
+        },
+        {
+          "name": "from",
+          "type": "string",
+          "location": "body",
+          "description": "Start date override (YYYY-MM-DD)"
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "body",
+          "description": "End date override (YYYY-MM-DD)"
+        },
+        {
+          "name": "dry-run",
+          "wire_name": "dry_run",
+          "type": "bool",
+          "location": "body",
+          "description": "Preview what would be added without writing to the list"
+        }
+      ]
+    },
+    {
+      "name": "meal_delete",
+      "description": "Delete a meal plan event. Required: event-id. Returns the new OperationResult.",
+      "method": "POST",
+      "path": "/data/meal-planning-calendar/update",
+      "params": [
+        {
+          "name": "event-id",
+          "wire_name": "event_id",
+          "type": "string",
+          "location": "body",
+          "description": "Event ID to delete",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "meal_labels",
+      "description": "List meal plan labels (Breakfast, Lunch, Dinner, Snack, etc.). Returns array of MealLabel.",
+      "method": "POST",
+      "path": "/data/user-data/get",
+      "params": []
+    },
+    {
+      "name": "meal_show",
+      "description": "Show meal plan events for a date range (defaults to current week). Optional: from, to. Returns array of MealEvent.",
+      "method": "POST",
+      "path": "/data/user-data/get",
+      "params": [
+        {
+          "name": "from",
+          "type": "string",
+          "location": "body",
+          "description": "Start date (YYYY-MM-DD)"
+        },
+        {
+          "name": "to",
+          "type": "string",
+          "location": "body",
+          "description": "End date (YYYY-MM-DD)"
+        }
+      ]
+    },
+    {
+      "name": "meal_summary",
+      "description": "Display the meal plan as a Mon–Sun grid with Breakfast/Lunch/Dinner labels. Optional: week (default: true), month (default: false), from. Returns the new MealSummary.",
+      "method": "POST",
+      "path": "/data/user-data/get",
+      "params": [
+        {
+          "name": "week",
+          "type": "bool",
+          "location": "body",
+          "description": "Show current week (default)"
+        },
+        {
+          "name": "month",
+          "type": "bool",
+          "location": "body",
+          "description": "Show current month"
+        },
+        {
+          "name": "from",
+          "type": "string",
+          "location": "body",
+          "description": "Start date (YYYY-MM-DD)"
+        }
+      ]
+    },
+    {
+      "name": "recipes_add-to-list",
+      "description": "Add recipe ingredients to a shopping list, merging quantities for duplicates. Required: recipe, list. Optional: scale (default: 0), merge (default: true), dedup (default: true). Returns the new OperationResult.",
+      "method": "POST",
+      "path": "/data/shopping-lists/update",
+      "params": [
+        {
+          "name": "recipe",
+          "type": "string",
+          "location": "body",
+          "description": "Recipe name",
+          "required": true
+        },
+        {
+          "name": "list",
+          "wire_name": "list_name",
+          "type": "string",
+          "location": "body",
+          "description": "Target shopping list name",
+          "required": true
+        },
+        {
+          "name": "scale",
+          "type": "integer",
+          "location": "body",
+          "description": "Scale to this many servings before adding (0 = use recipe default)"
+        },
+        {
+          "name": "merge",
+          "type": "bool",
+          "location": "body",
+          "description": "Sum quantities for ingredients already on the list"
+        },
+        {
+          "name": "dedup",
+          "type": "bool",
+          "location": "body",
+          "description": "Skip ingredients already on the list (when --merge=false)"
+        }
+      ]
+    },
+    {
+      "name": "recipes_batch-add",
+      "description": "Add ingredients from multiple recipes to a list at once. Required: list, recipes. Optional: merge (default: true). Returns the new OperationResult.",
+      "method": "POST",
+      "path": "/data/shopping-lists/update",
+      "params": [
+        {
+          "name": "list",
+          "wire_name": "list_name",
+          "type": "string",
+          "location": "body",
+          "description": "Target shopping list name",
+          "required": true
+        },
+        {
+          "name": "recipes",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated list of recipe names",
+          "required": true
+        },
+        {
+          "name": "merge",
+          "type": "bool",
+          "location": "body",
+          "description": "Sum quantities for duplicate ingredients"
+        }
+      ]
+    },
+    {
+      "name": "recipes_create",
+      "description": "Create a new recipe. Required: name. Optional: source-url, servings (default: 4), prep-time (plus 2 more). Returns the new Recipe.",
+      "method": "POST",
+      "path": "/data/user-recipe-data/update",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Recipe name",
+          "required": true
+        },
+        {
+          "name": "source-url",
+          "wire_name": "source_url",
+          "type": "string",
+          "location": "body",
+          "description": "Source URL for the recipe"
+        },
+        {
+          "name": "servings",
+          "type": "integer",
+          "location": "body",
+          "description": "Number of servings"
+        },
+        {
+          "name": "prep-time",
+          "wire_name": "prep_time",
+          "type": "integer",
+          "location": "body",
+          "description": "Prep time in minutes"
+        },
+        {
+          "name": "cook-time",
+          "wire_name": "cook_time",
+          "type": "integer",
+          "location": "body",
+          "description": "Cook time in minutes"
+        },
+        {
+          "name": "note",
+          "type": "string",
+          "location": "body",
+          "description": "Recipe notes"
+        }
+      ]
+    },
+    {
+      "name": "recipes_delete",
+      "description": "Delete a recipe. Required: name. Returns the new OperationResult.",
+      "method": "POST",
+      "path": "/data/user-recipe-data/update",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Recipe name to delete",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "recipes_filter",
+      "description": "Filter recipes by prep time, rating, servings, and collection. Optional: max-prep, max-cook, min-rating (plus 2 more). Returns array of Recipe.",
+      "method": "POST",
+      "path": "/data/user-data/get",
+      "params": [
+        {
+          "name": "max-prep",
+          "wire_name": "max_prep",
+          "type": "integer",
+          "location": "body",
+          "description": "Maximum prep time in minutes"
+        },
+        {
+          "name": "max-cook",
+          "wire_name": "max_cook",
+          "type": "integer",
+          "location": "body",
+          "description": "Maximum cook time in minutes"
+        },
+        {
+          "name": "min-rating",
+          "wire_name": "min_rating",
+          "type": "integer",
+          "location": "body",
+          "description": "Minimum rating (1-5)"
+        },
+        {
+          "name": "servings",
+          "type": "integer",
+          "location": "body",
+          "description": "Filter by serving count"
+        },
+        {
+          "name": "collection",
+          "type": "string",
+          "location": "body",
+          "description": "Filter by collection name"
+        }
+      ]
+    },
+    {
+      "name": "recipes_import",
+      "description": "Import a recipe from a URL. Required: url. Optional: add-to-list, scale (default: 0). Returns the new Recipe.",
+      "method": "POST",
+      "path": "/data/user-recipe-data/update",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "URL to import recipe from",
+          "required": true
+        },
+        {
+          "name": "add-to-list",
+          "wire_name": "add_to_list",
+          "type": "string",
+          "location": "body",
+          "description": "Add recipe ingredients to this list after import"
+        },
+        {
+          "name": "scale",
+          "type": "integer",
+          "location": "body",
+          "description": "Scale to this many servings (0 = no scaling)"
+        }
+      ]
+    },
+    {
+      "name": "recipes_list",
+      "description": "List all recipes. Optional: limit (default: 0). Returns array of Recipe.",
+      "method": "POST",
+      "path": "/data/user-data/get",
+      "params": [
+        {
+          "name": "limit",
+          "type": "integer",
+          "location": "body",
+          "description": "Maximum recipes to return (0 = all)"
+        }
+      ]
+    },
+    {
+      "name": "recipes_missing",
+      "description": "Show which recipe ingredients are not already on a shopping list. Required: recipe, list. Returns array of Ingredient.",
+      "method": "POST",
+      "path": "/data/user-data/get",
+      "params": [
+        {
+          "name": "recipe",
+          "type": "string",
+          "location": "body",
+          "description": "Recipe name",
+          "required": true
+        },
+        {
+          "name": "list",
+          "wire_name": "list_name",
+          "type": "string",
+          "location": "body",
+          "description": "Shopping list to check against",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "recipes_scale",
+      "description": "Scale a recipe's ingredient quantities to a target serving count. Required: name, servings. Returns the new Recipe.",
+      "method": "POST",
+      "path": "/data/user-data/get",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Recipe name to scale",
+          "required": true
+        },
+        {
+          "name": "servings",
+          "type": "integer",
+          "location": "body",
+          "description": "Target number of servings",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "recipes_search",
+      "description": "Search recipes by name or ingredient (uses local SQLite cache). Required: query. Optional: ingredient (default: false). Returns array of Recipe.",
+      "method": "POST",
+      "path": "/data/user-data/get",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "Search term (name or ingredient)",
+          "required": true
+        },
+        {
+          "name": "ingredient",
+          "type": "bool",
+          "location": "body",
+          "description": "Search by ingredient name instead of recipe name"
+        }
+      ]
+    },
+    {
+      "name": "recipes_show",
+      "description": "Show full recipe details including ingredients and preparation steps. Required: name. Optional: ingredients-only (default: false). Returns the new Recipe.",
+      "method": "POST",
+      "path": "/data/user-data/get",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Recipe name",
+          "required": true
+        },
+        {
+          "name": "ingredients-only",
+          "wire_name": "ingredients_only",
+          "type": "bool",
+          "location": "body",
+          "description": "Show only ingredients"
+        }
+      ]
+    },
+    {
+      "name": "starters_list",
+      "description": "List starter list items. Returns array of ListItem.",
+      "method": "POST",
+      "path": "/data/user-data/get",
+      "params": []
+    },
+    {
+      "name": "stores_list",
+      "description": "List all stores and store filters. Returns array of Store.",
+      "method": "POST",
+      "path": "/data/user-data/get",
+      "params": []
+    }
+  ]
+}

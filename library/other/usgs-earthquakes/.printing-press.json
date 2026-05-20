@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-19T08:43:59.199369Z",
+  "printing_press_version": "4.9.0",
+  "api_name": "usgs-earthquakes",
+  "display_name": "USGS Earthquakes",
+  "cli_name": "usgs-earthquakes-pp-cli",
+  "owner": "trevin-chow",
+  "printer": "tmchow",
+  "printer_name": "Trevin Chow",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:eb918bc9296d26e081e85799bd02f2c2e6acc182795317b5f0eb878efd67081b",
+  "run_id": "20260519-002226",
+  "category": "other",
+  "description": "Every USGS earthquake feed and event query in one terminal, with offline SQLite cache, agent-native output, and a live watch mode.",
+  "mcp_binary": "usgs-earthquakes-pp-mcp",
+  "mcp_tool_count": 7,
+  "mcp_public_tool_count": 7,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Live event watch with dedup + pluggable notifier",
+      "command": "watch",
+      "description": "Long-running poll of a USGS summary feed with deduplication against the local store. Invokes an optional shell hook per new event for custom alerting."
+    },
+    {
+      "name": "Aftershock sequence query",
+      "command": "aftershocks",
+      "description": "Show events within R km and T days after a mainshock, ordered by time. Local SQLite haversine query with FDSN fallback when uncached."
+    },
+    {
+      "name": "Spatial-temporal swarm detection",
+      "command": "swarm-detect",
+      "description": "Detect time-space clusters in the local earthquake store. Grid-bucket clustering finds foreshock/aftershock sequences, volcanic swarms, and induced seismicity hotspots."
+    },
+    {
+      "name": "Region or period comparison",
+      "command": "compare",
+      "description": "Side-by-side comparison of two regions or two time periods. Returns parallel columns with counts, max magnitude, and total seismic energy."
+    },
+    {
+      "name": "Newsroom event briefing",
+      "command": "brief",
+      "description": "Agent-ready briefing for a single earthquake: magnitude, place, PAGER alert, DYFI felt count, ShakeMap MMI, tsunami status, and product inventory."
+    },
+    {
+      "name": "Editorial-rank top events",
+      "command": "top",
+      "description": "Rank recent events by composite editorial score: significance × alert weight × felt count × tsunami flag. Default window 24h, limit 10."
+    },
+    {
+      "name": "Stateful change / revision diff",
+      "command": "changes",
+      "description": "Diff since the last sync: what events appeared, what events had magnitudes/depths/alerts revised, what events were retracted. Tracks USGS solution revisions over time. Returns 'no revisions recorded yet' until at least two sync runs have completed."
+    },
+    {
+      "name": "USGS event ID decoder",
+      "command": "decode-id",
+      "description": "Parse a USGS event ID into its source network code, sequence, and operator name. Joins the cached contributors dictionary for the network display name."
+    }
+  ]
+}

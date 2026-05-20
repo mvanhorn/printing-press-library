@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-05-15T01:36:06.103459Z",
+  "cli_dir": "\u003ccli-dir\u003e\\servicetitan-pricebook-pp-cli",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-05-15T01:30:36.6676192Z"
+  }
+}

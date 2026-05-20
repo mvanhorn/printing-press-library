@@ -31,6 +31,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 	"unicode"
@@ -43,6 +44,7 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/source/auth"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/source/opentable"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/source/resy"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/table-reservation-goat/internal/source/tock"
 )
 
@@ -75,7 +77,7 @@ func newBookCmd(flags *rootFlags) *cobra.Command {
 	)
 	cmd := &cobra.Command{
 		Use:     "book <network>:<slug>",
-		Short:   "Place a reservation on OpenTable or Tock",
+		Short:   "Place a reservation on OpenTable, Tock, or Resy",
 		Long:    "Places a reservation for the given venue at the requested date/time/party. Free reservations only in v0.2; payment-required venues return a typed payment_required error pointing at v0.3.\n\nSafety: live commit fires only when TRG_ALLOW_BOOK=1 is set in the environment AND PRINTING_PRESS_VERIFY is unset (verify-mode floor). Without the env var, returns a dry-run envelope with a hint.",
 		Example: "  TRG_ALLOW_BOOK=1 table-reservation-goat-pp-cli book opentable:water-grill-bellevue --date 2026-05-13 --time 19:00 --party 2 --agent",
 		Args:    cobra.ExactArgs(1),
@@ -177,8 +179,8 @@ func parseNetworkPrefix(s string) (network, slug string, err error) {
 	if slug == "" {
 		return "", "", fmt.Errorf("empty slug in %q", s)
 	}
-	if network != "opentable" && network != "tock" {
-		return "", "", fmt.Errorf("unknown network %q (expected 'opentable' or 'tock')", network)
+	if network != "opentable" && network != "tock" && network != "resy" {
+		return "", "", fmt.Errorf("unknown network %q (expected 'opentable', 'tock', or 'resy')", network)
 	}
 	return network, slug, nil
 }
@@ -250,9 +252,167 @@ func bookOnNetwork(ctx context.Context, session *auth.Session, network, slug, da
 		return bookOnOpenTable(ctx, session, slug, date, hhmm, party, dryRun, out)
 	case "tock":
 		return bookOnTock(ctx, session, slug, date, hhmm, party, dryRun, out)
+	case "resy":
+		return bookOnResy(ctx, session, slug, date, hhmm, party, dryRun, out)
 	}
 	out.Error = "unknown_network"
 	return out, fmt.Errorf("unknown network %q", network)
+}
+
+// bookOnResy mirrors the OT/Tock dispatch shape but talks to Resy's
+// /4/find → /3/details → /3/book chain. The `slug` argument here is Resy's
+// numeric venue id stringified (e.g. "1387") — Resy's URLs use a slug+code
+// pair (`/cities/<cityCode>/<slug>`) that is not a stable booking key.
+// Agents looking up venues should use `search` or `goat --network resy`,
+// then feed the numeric `id` field into book.
+func bookOnResy(ctx context.Context, session *auth.Session, venueID, date, hhmm string, party int, dryRun bool, out bookResult) (bookResult, error) {
+	// Validate the venue id BEFORE the auth check so a malformed call
+	// gets a "fix your input" error regardless of session state. Resy
+	// venues are addressed by numeric id (Resy's `id` field from
+	// search). Slug-shaped inputs (`book resy:le-bernardin`) used to
+	// yield a successful dry-run envelope but live booking later failed
+	// with an opaque "invalid venue_id" from Resy. earliest/watch/drift
+	// already validate this; book now matches.
+	if _, err := strconv.Atoi(venueID); err != nil {
+		out.Error = "malformed_argument"
+		out.Hint = fmt.Sprintf("resy: %q is not a numeric venue id; use the `id` field from `goat <name> --network resy` output (e.g. resy:1387)", venueID)
+		return out, fmt.Errorf("resy venue id not numeric: %q", venueID)
+	}
+	if session == nil || session.Resy == nil || session.Resy.AuthToken == "" {
+		out.Error = "auth_required"
+		out.Hint = "run `auth login --resy --email <you@example.com>` first"
+		return out, fmt.Errorf("resy not authenticated")
+	}
+	client := resy.New(resy.Credentials{
+		APIKey:    session.Resy.APIKey,
+		AuthToken: session.Resy.AuthToken,
+		Email:     session.Resy.Email,
+	})
+
+	// Step 5: idempotency pre-flight via /3/user/reservations.
+	upcoming, listErr := client.ListReservations(ctx)
+	if listErr != nil {
+		switch {
+		case errors.Is(listErr, resy.ErrAuthExpired):
+			out.Error = "auth_expired"
+		case errors.Is(listErr, resy.ErrAuthMissing):
+			out.Error = "auth_required"
+		default:
+			out.Error = "preflight_failed"
+		}
+		out.Hint = listErr.Error()
+		return out, listErr
+	}
+	normTime := normalizeTime(hhmm)
+	for _, r := range upcoming {
+		// Filter terminal-state rows first. /3/user/reservations returns
+		// both active AND historical rows (Completed, Cancelled,
+		// No-show), so matching on (venueID, date, time, party) alone
+		// would let a same-day cancellation silently abort a legitimate
+		// re-booking. We only consider rows whose status is empty OR
+		// indicates "still active" — anything matching a known terminal
+		// label is excluded.
+		if isResyTerminalStatus(r.Status) {
+			continue
+		}
+		if r.PartySize != party || r.Date != date {
+			continue
+		}
+		if normalizeTime(r.Time) != normTime {
+			continue
+		}
+		// Venue ID is REQUIRED for a positive match. Resy's
+		// /3/user/reservations sometimes returns rows with an empty
+		// `venue.id` (the venue name lives in share.generic_message and
+		// the API has been observed omitting the structured venue
+		// object). Treating "empty VenueID + date/time/party match" as
+		// a hit would falsely claim a reservation at a DIFFERENT venue
+		// already exists and silently abort the new booking. Skip
+		// venue-ambiguous rows entirely — better to risk a duplicate
+		// pre-flight match miss (Resy's own /3/book will surface that
+		// as a typed error) than to suppress a legitimate booking.
+		if r.VenueID == "" || r.VenueID != venueID {
+			continue
+		}
+		out.MatchedExisting = true
+		out.Source = "matched_existing"
+		out.ReservationID = r.ID
+		out.ConfirmationNumber = r.ID
+		out.RestaurantName = r.VenueName
+		return out, nil
+	}
+
+	// Step 6: dry-run / commit gate.
+	if dryRun || os.Getenv("TRG_ALLOW_BOOK") != "1" {
+		out.Source = "dry_run"
+		// No BookURL synthesis: Resy URLs are /cities/<cityCode>/<slug>,
+		// but the book command only carries the numeric venue ID. The
+		// previous shape (`/cities/ny/<numericID>`) returned a 404 and
+		// hardcoded NYC for venues elsewhere. Agents wanting a clickable
+		// fallback should call `goat <name> --network resy` which
+		// returns properly-constructed venue URLs.
+		if !dryRun {
+			out.Hint = "set TRG_ALLOW_BOOK=1 to commit via the Resy API"
+		}
+		return out, nil
+	}
+
+	// Step 7: resolve a slot token for the requested (date, time, party).
+	slots, availErr := client.Availability(ctx, resy.AvailabilityParams{
+		VenueID:   venueID,
+		Date:      date,
+		PartySize: party,
+	})
+	if availErr != nil {
+		out.Error = "availability_fetch_failed"
+		out.Hint = availErr.Error()
+		return out, availErr
+	}
+	var slot *resy.Slot
+	for i := range slots {
+		if normalizeTime(slots[i].Time) == normTime {
+			slot = &slots[i]
+			break
+		}
+	}
+	if slot == nil {
+		out.Error = "slot_not_found"
+		out.Hint = fmt.Sprintf("no available Resy slot at %s on %s for party %d at venue %s", hhmm, date, party, venueID)
+		return out, fmt.Errorf("no slot found")
+	}
+
+	// Step 8: fire the two-step book.
+	resp, bookErr := client.Book(ctx, resy.BookRequest{
+		VenueID:   venueID,
+		Date:      date,
+		Time:      hhmm,
+		PartySize: party,
+		SlotToken: slot.Token,
+	})
+	if bookErr != nil {
+		switch {
+		case errors.Is(bookErr, resy.ErrSlotTaken):
+			out.Error = "slot_taken"
+			out.Hint = "the slot was claimed between availability and book — run `earliest` for a fresh slot"
+		case errors.Is(bookErr, resy.ErrNoPaymentMethod):
+			out.Error = "payment_required"
+			out.Hint = "add a payment method at resy.com/account/payment before booking"
+		case errors.Is(bookErr, resy.ErrAuthExpired):
+			out.Error = "auth_expired"
+			out.Hint = "run `auth login --resy --email <you@example.com>` to refresh the token"
+		case errors.Is(bookErr, resy.ErrCanaryUnrecognizedBody):
+			out.Error = "discriminator_drift"
+			out.Hint = "Resy response shape may have changed; please report"
+		default:
+			out.Error = "network_error"
+			out.Hint = bookErr.Error()
+		}
+		return out, bookErr
+	}
+	out.Source = "book"
+	out.ReservationID = resp.ResyToken
+	out.ConfirmationNumber = resp.ResyToken
+	return out, nil
 }
 
 // bookOnOpenTable handles steps 5–8 for OT.
@@ -551,6 +711,62 @@ func matchedExistingOT(r opentable.UpcomingReservation, slug, date, hhmm string,
 // "cafdumonde" instead of "cafedumonde", breaking idempotency match against
 // slug "cafe-du-monde".
 var asciiFold = transform.Chain(norm.NFKD, runes.Remove(runes.In(unicode.Mn)), norm.NFC)
+
+// isResyTerminalStatus reports whether a Resy reservation's Status string
+// indicates the row is no longer a binding live reservation — i.e. it's
+// safe to disregard for idempotency-match purposes.
+//
+// Resy's /3/user/reservations interleaves active and historical rows, so
+// (date, time, party, venue) alone is not a unique key — a cancelled
+// reservation at the same slot would falsely set matched_existing=true
+// and silently abort a legitimate re-booking. We classify here rather than
+// at the parser layer because the parser preserves the wire string
+// faithfully (some callers need that), but the booking pre-flight needs
+// a "is this terminal?" boolean.
+//
+// Known terminal labels (observed across modern + legacy payloads):
+//   - "Cancelled" / "Canceled" (US/UK spellings both appear)
+//   - "Completed"  — parser also emits this when structured `finished: 1`
+//   - "No-show"    — parser also emits this when structured `no_show: 1`
+//
+// An empty Status is treated as ACTIVE (the most common shape for live
+// rows in modern payloads where the parser couldn't fold a structured
+// status into a label).
+func isResyTerminalStatus(status string) bool {
+	if status == "" {
+		return false
+	}
+	lower := strings.ToLower(strings.TrimSpace(status))
+	switch lower {
+	case "cancelled", "canceled", "completed", "no-show", "no show", "noshow":
+		return true
+	}
+	// Defensive: match the past-tense terminal forms followed by a
+	// word boundary so we catch "cancelled by user", "completed (paid)",
+	// "no-show — fee assessed" without misclassifying hypothetical
+	// active states like "cancellable" or "completable". Boundary is
+	// any non-letter rune or end-of-string.
+	for _, prefix := range []string{"cancelled", "canceled", "completed", "no-show", "noshow"} {
+		if !strings.HasPrefix(lower, prefix) {
+			continue
+		}
+		if len(lower) == len(prefix) {
+			return true
+		}
+		next := lower[len(prefix)]
+		if (next >= 'a' && next <= 'z') || (next >= '0' && next <= '9') {
+			// Continued by another letter/digit — different word
+			// (e.g., "cancellable" would not match because the next
+			// char after "cancel" is 'l'... but the past-tense
+			// prefix "cancelled" already has its trailing 'd' so any
+			// continuation past the boundary indicates a longer
+			// non-terminal word).
+			continue
+		}
+		return true
+	}
+	return false
+}
 
 // normalizeForSlugMatch lowercases s, folds non-ASCII letters to their ASCII
 // bases, and strips non-alphanumeric runes so slug tokens can be matched

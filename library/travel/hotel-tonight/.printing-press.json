@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-20T15:02:54.933854Z",
+  "printing_press_version": "4.9.0",
+  "api_name": "hotel-tonight",
+  "display_name": "HotelTonight",
+  "cli_name": "hotel-tonight-pp-cli",
+  "owner": "trevin-chow",
+  "printer": "tmchow",
+  "printer_name": "Trevin Chow",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:31221e417d920d8e9a0bf7fb7577747c65b101427cf09d5d848107e24202a76b",
+  "run_id": "20260519-235715",
+  "category": "travel",
+  "description": "Last-minute hotel deals with a local price-history database no HotelTonight client has: snapshot deals over time, watch a city for drops, and rank by real % off.",
+  "mcp_binary": "hotel-tonight-pp-mcp",
+  "mcp_tool_count": 4,
+  "mcp_public_tool_count": 4,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Price-drop watch",
+      "command": "watch",
+      "description": "Snapshot a location's deals now and get told which rooms dropped below your threshold or fell since you last looked."
+    },
+    {
+      "name": "Price history",
+      "command": "history",
+      "description": "Show the recorded price and % off history for one hotel from the local store."
+    },
+    {
+      "name": "Is-this-a-deal verdict",
+      "command": "verdict",
+      "description": "Classify a hotel's current quoted price against its own observed low/median/high as cheap, typical, or expensive."
+    },
+    {
+      "name": "Neighborhood compare",
+      "command": "compare-neighborhoods",
+      "description": "Group tonight's deals in a metro by neighborhood and rank the neighborhoods by median price or best % off."
+    },
+    {
+      "name": "Date-shift scan",
+      "command": "datescan",
+      "description": "Compare a location's deals across tonight, tomorrow, and the weekend in one ranked side-by-side view."
+    },
+    {
+      "name": "Daily Drop tracker",
+      "command": "daily-drop",
+      "description": "Reveal today's Daily Drop hotel and its real discounted price for a market (the app hides it behind a slide-to-unlock gate), and with --history read the recorded run of past Daily Drops."
+    }
+  ]
+}

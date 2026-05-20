@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "target": "https://www.trustpilot.com",
+  "captured_at": "2026-05-15T15:08:00Z",
+  "tooling": "agent-browser@0.23.4",
+  "reachability": {
+    "mode": "browser_clearance_http",
+    "needs_browser_capture": true,
+    "needs_clearance_cookie": true,
+    "live_page_context_required": false,
+    "transport": "browser-chrome",
+    "verified_replay": true,
+    "notes": "AWS WAF gates initial access. One-shot browser harvests aws-waf-token cookie + Next.js buildId. Subsequent /_next/data/<buildId>/...json calls with cookie + 'x-nextjs-data: 1' header return pure JSON. Verified end-to-end against thriftbooks.com page 2 and stars/language/sort filters."
+  },
+  "build_ids": {
+    "review_pages": "businessunitprofile-consumersite-2.6787.0",
+    "search_pages": "categoriespages-consumersite-2.1231.0",
+    "harvest_strategy": "harvest both at session start; refresh on 404 from JSON API"
+  },
+  "endpoints": [
+    {
+      "name": "review_page_html",
+      "method": "GET",
+      "url_template": "https://www.trustpilot.com/review/{domain}",
+      "purpose": "first-page review fetch + cookie/buildId harvest",
+      "transport": "browser-chrome",
+      "response_format": "html",
+      "extracts": "script#__NEXT_DATA__ JSON",
+      "replayable": false,
+      "notes": "Must hit via browser to clear WAF challenge."
+    },
+    {
+      "name": "review_page_json_api",
+      "method": "GET",
+      "url_template": "https://www.trustpilot.com/_next/data/{review_build_id}/review/{domain}.json",
+      "query_params": {
+        "businessUnit": "{domain}",
+        "page": "1..N",
+        "stars": "1|2|3|4|5",
+        "languages": "en|de|fr|...",
+        "sort": "recency|relevance",
+        "date": "last30days|last3months|last6months|last12months",
+        "verified": "true|false"
+      },
+      "required_headers": {
+        "Cookie": "aws-waf-token=...",
+        "x-nextjs-data": "1",
+        "User-Agent": "Chrome-like",
+        "Referer": "https://www.trustpilot.com/review/{domain}"
+      },
+      "response_format": "json",
+      "response_path": "pageProps.reviews[]",
+      "pagination_path": "pageProps.filters.pagination",
+      "replayable": true
+    },
+    {
+      "name": "search_json_api",
+      "method": "GET",
+      "url_template": "https://www.trustpilot.com/_next/data/{search_build_id}/search.json",
+      "query_params": {
+        "query": "<company name>"
+      },
+      "required_headers": {
+        "Cookie": "aws-waf-token=...",
+        "x-nextjs-data": "1",
+        "User-Agent": "Chrome-like"
+      },
+      "response_format": "json",
+      "response_path": "pageProps.businessUnits[]",
+      "replayable": true
+    },
+    {
+      "name": "search_page_html_fallback",
+      "method": "GET",
+      "url_template": "https://www.trustpilot.com/search",
+      "query_params": {"query": "<company name>"},
+      "transport": "browser-chrome",
+      "response_format": "html",
+      "extracts": "script#__NEXT_DATA__ -> props.pageProps.businessUnits[]",
+      "replayable": false,
+      "notes": "Fallback when search buildId is unknown or stale."
+    }
+  ],
+  "auth": {
+    "type": "cookie",
+    "cookie_name": "aws-waf-token",
+    "harvest_via": "chrome",
+    "lifespan_seconds_min": 300,
+    "lifespan_seconds_max": 900,
+    "refresh_signal": "any 403 OR cookie_age > 240s",
+    "persisted_in": "local SQLite cookies table",
+    "no_login_required": true
+  },
+  "rate_limits": {
+    "documented": false,
+    "observed_safe": "single-digit pages per minute, no proxy",
+    "burst_risk": "high page volume → IP rate-limit kicks in",
+    "mitigation": "exponential backoff on 403/429; no proxy rotation in v1"
+  },
+  "pagination": {
+    "per_page": 20,
+    "page_cutoff_observed": "~200 pages soft cutoff for unfiltered queries",
+    "bust_strategy": "segment by stars=1..5 × languages to multiply effective depth"
+  },
+  "useful_response_keys": {
+    "businessUnit": [
+      "id", "displayName", "identifyingName", "numberOfReviews",
+      "trustScore", "stars", "websiteUrl", "profileImageUrl",
+      "isClaimed", "isCollectingReviews", "categories", "verification", "activity"
+    ],
+    "review": [
+      "id", "rating", "title", "text", "language", "likes",
+      "dates.experiencedDate", "dates.publishedDate", "dates.updatedDate",
+      "consumer.displayName", "consumer.countryCode", "consumer.numberOfReviews",
+      "labels.verification.isVerified",
+      "reply.message", "reply.publishedDate",
+      "source", "filtered", "isPending"
+    ],
+    "aiSummary": ["summary", "modelVersion"],
+    "filters_pagination": ["currentPage", "perPage", "totalCount", "totalPages"]
+  }
+}

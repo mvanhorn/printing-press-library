@@ -1,0 +1,103 @@
+{
+  "version": "1",
+  "summary": {
+    "target_url": "https://www.trendhunter.com/",
+    "captured_at": "2026-05-13T14:10:00Z",
+    "entry_count": 30,
+    "api_entry_count": 11,
+    "noise_entry_count": 19,
+    "host_distribution": {
+      "www.trendhunter.com": 30
+    }
+  },
+  "reachability": {
+    "mode": "standard_http",
+    "confidence": 0.95,
+    "reasons": [
+      "stdlib Go HTTP with Chrome UA + Accept header returns 200 across every endpoint",
+      "probe-reachability returned standard_http (0.95 confidence)",
+      "no Cloudflare/Vercel/AWS-WAF challenge artifacts observed",
+      "no clearance cookie required",
+      "curl 403 was UA + Accept-header filtering only"
+    ]
+  },
+  "protocols": [
+    {
+      "label": "html",
+      "confidence": 1.0,
+      "details": {"note": "server-rendered HTML for every category, trend, and search page"}
+    },
+    {
+      "label": "rss",
+      "confidence": 1.0,
+      "details": {"note": "RSS 2.0 feed at /rss with 30 latest trends; per-category RSS returns empty channel"}
+    }
+  ],
+  "auth": {
+    "candidates": []
+  },
+  "protections": [],
+  "endpoint_clusters": [
+    {
+      "id": "rss",
+      "host": "www.trendhunter.com",
+      "paths": ["/rss"],
+      "methods": ["GET"],
+      "response_kinds": ["rss"],
+      "purpose": "Global RSS feed (30 newest trends)"
+    },
+    {
+      "id": "trend_detail",
+      "host": "www.trendhunter.com",
+      "paths": ["/trends/{slug}"],
+      "methods": ["GET"],
+      "response_kinds": ["html"],
+      "purpose": "Full trend page (title, description, image, keywords, author, related, FAQ JSON-LD)"
+    },
+    {
+      "id": "search",
+      "host": "www.trendhunter.com",
+      "paths": ["/results"],
+      "methods": ["GET"],
+      "response_kinds": ["html"],
+      "purpose": "Site search results with ?search=<term>"
+    },
+    {
+      "id": "category",
+      "host": "www.trendhunter.com",
+      "paths": ["/{category}"],
+      "methods": ["GET"],
+      "response_kinds": ["html"],
+      "purpose": "Category index page (~30 trend cards)"
+    },
+    {
+      "id": "lists",
+      "host": "www.trendhunter.com",
+      "paths": ["/popular", "/scoreboard", "/megatrends", "/trendreports"],
+      "methods": ["GET"],
+      "response_kinds": ["html"],
+      "purpose": "Curated landing/index pages"
+    },
+    {
+      "id": "sitemap",
+      "host": "www.trendhunter.com",
+      "paths": ["/sitemap.xml"],
+      "methods": ["GET"],
+      "response_kinds": ["xml"],
+      "purpose": "Master URL catalog (430+ URLs)"
+    }
+  ],
+  "request_sequences": [],
+  "pagination": [],
+  "candidate_commands": [],
+  "generation_hints": [
+    "Use stdlib HTTP transport (http_transport: standard).",
+    "Default UA must imitate Chrome - curl default UA is blocked.",
+    "Default Accept header must be Chrome-style 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' - bare '*/*' is blocked.",
+    "RSS feed is global only. Per-category RSS returns valid-but-empty channels; do not call them.",
+    "Trend pages occasionally redirect to vertical microsites (cleanthesky.com, etc.). Follow redirects; record the canonical /trends/<slug> URL.",
+    "FAQPage JSON-LD on /trends/<slug> is the highest-density agent-summary surface; extract with the faq command.",
+    "No clearance cookie, no Surf, no browser sidecar."
+  ],
+  "warnings": []
+}

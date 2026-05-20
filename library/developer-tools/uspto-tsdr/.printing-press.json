@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-09T18:07:01.268452Z",
+  "printing_press_version": "4.2.0",
+  "api_name": "uspto-tsdr",
+  "display_name": "Tsdr",
+  "cli_name": "uspto-tsdr-pp-cli",
+  "owner": "h179922",
+  "printer": "H179922",
+  "printer_name": "H179922",
+  "spec_path": "spec.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:e34b1552df12095b868e4a83d5623556e9b083731f8c904c3b728d587dc5ca4d",
+  "run_id": "20260509-135942",
+  "mcp_binary": "uspto-tsdr-pp-mcp",
+  "mcp_tool_count": 24,
+  "mcp_ready": "full",
+  "api_version": "version 1",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "TSDR_APIKEY_HEADER"
+  ],
+  "auth_key_url": "https://account.uspto.gov/api-manager",
+  "novel_features": [
+    {
+      "name": "Trademark One-Look Status",
+      "command": "trademark status",
+      "description": "Full current state of a trademark in one command — mark text, status, owner, classes, filing/registration dates, attorney, and prosecution event count"
+    },
+    {
+      "name": "Prosecution Timeline",
+      "command": "trademark timeline",
+      "description": "Every prosecution event in chronological order — office actions, examiner reviews, publication events, and registration milestones"
+    },
+    {
+      "name": "Deadline Calculator",
+      "command": "trademark deadlines",
+      "description": "Calculate Section 8, 9, and 15 maintenance deadlines with window-open dates and days-away countdown"
+    },
+    {
+      "name": "Portfolio Watch",
+      "command": "trademark watch",
+      "description": "Monitor multiple trademarks for status changes — caches previous statuses locally and flags any changes since last check"
+    },
+    {
+      "name": "Batch Status Check",
+      "command": "trademark batch",
+      "description": "Batch status lookup for multiple trademarks using the multi-case endpoint or individual fallback with rate-limit throttling"
+    },
+    {
+      "name": "Document Listing",
+      "command": "trademark docs",
+      "description": "List all documents in the prosecution file — office actions, responses, specimens, registration certificates — with type and date filtering"
+    }
+  ]
+}

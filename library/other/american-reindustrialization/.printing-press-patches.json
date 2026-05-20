@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-19",
+  "base_run_id": "20260519-002038",
+  "base_printing_press_version": "4.9.0",
+  "patches": [
+    {
+      "id": "workflow-archive-json-stdout-redirect",
+      "summary": "Redirect syncResource NDJSON events to stderr during workflow archive --json so stdout is a single parseable JSON document.",
+      "reason": "Generated syncResource writes per-event NDJSON to os.Stdout; workflow archive --json then appended a final summary object on the same stream, producing dual-format output that neither json.Unmarshal nor a strict NDJSON parser accepts. Patched locally so users piping `--json` into jq get clean JSON; NDJSON progress events still surface on stderr.",
+      "files": ["internal/cli/channel_workflow.go"],
+      "validated_outcome": "After fix, `workflow archive --json > out.txt` produces a 4-key JSON object parseable by python json.load; 47 NDJSON event lines land on stderr.",
+      "upstream_issue": "Generator-level fix needed: syncResource should route events through a writer that switches to stderr when --json is set. Filed as retro candidate for cli-printing-press."
+    },
+    {
+      "id": "rows-err-checks-on-novel-commands",
+      "summary": "Add rows.Err() inspection after every for rows.Next() loop in the 9 novel commands so mid-iteration SQLite errors fail loudly instead of returning truncated results with exit 0.",
+      "reason": "Greptile P2 (initial wave) and P1 (companies_profile.go follow-up) findings on PR #694: without rows.Err() the loop exit is indistinguishable from successful completion when SQLite interrupts (corrupted WAL page, storage error, context cancellation), and commands return partial results with no signal.",
+      "files": [
+        "internal/cli/whats_new.go",
+        "internal/cli/analytics_funding_by_sector.go",
+        "internal/cli/analytics_geo_clusters.go",
+        "internal/cli/analytics_sector_heatmap.go",
+        "internal/cli/companies_cohorts.go",
+        "internal/cli/companies_top_hiring.go",
+        "internal/cli/companies_profile.go",
+        "internal/cli/openings_find.go",
+        "internal/cli/openings_salary_stats.go"
+      ],
+      "validated_outcome": "go build ./... still passes; eleven rows.Err() checks present across the nine files (whats_new.go has two loops; companies_profile.go has two helper functions)."
+    },
+    {
+      "id": "analytics-funding-by-sector-dead-code",
+      "summary": "Remove unused `stages` and `sectors` map allocations in analytics_funding_by_sector.go.",
+      "reason": "Greptile P2 finding on PR #694: the maps were populated inside the aggregation loop but never read; the final output is built entirely from the `cells` map and splitOnce, so the two maps only burned allocations and added reader noise.",
+      "files": ["internal/cli/analytics_funding_by_sector.go"],
+      "validated_outcome": "go build ./... still passes; analytics funding-by-sector output is unchanged."
+    }
+  ]
+}

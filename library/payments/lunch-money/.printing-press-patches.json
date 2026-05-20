@@ -1,0 +1,549 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260513-094903",
+  "base_printing_press_version": "4.5.2",
+  "patches": [
+    {
+      "id": "local-transcendence-commands",
+      "summary": "Added seven read-only local SQLite audit commands for triage, net worth, subscriptions, duplicates, stale accounts, recurring misses, and budget burn.",
+      "reason": "The research manifest lists these novel local-join features as Lunch Money CLI differentiators, but the generator only emitted spec-derived API commands.",
+      "files": [
+        "internal/cli/accounts.go",
+        "internal/cli/budgets.go",
+        "internal/cli/budgets_burn.go",
+        "internal/cli/net-worth.go",
+        "internal/cli/recurring-items.go",
+        "internal/cli/recurring_missing.go",
+        "internal/cli/root.go",
+        "internal/cli/transactions.go",
+        "internal/cli/transactions_duplicates.go",
+        "internal/cli/transactions_subscriptions.go",
+        "internal/cli/transcendence_helpers.go",
+        "internal/cli/transcendence_helpers_test.go",
+        "internal/cli/triage.go"
+      ],
+      "validated_outcome": "go test ./internal/cli and go build ./... passed after adding the commands."
+    },
+    {
+      "id": "transactions-retag",
+      "summary": "Added a transactions retag command that previews local matches and bulk-updates category or tag changes.",
+      "reason": "The generated endpoint commands expose raw transaction updates, but the CLI needs a higher-level local-search workflow for safe bulk retagging.",
+      "files": [
+        "internal/cli/transactions.go",
+        "internal/cli/transactions_retag.go",
+        "internal/cli/transcendence_helpers.go"
+      ],
+      "validated_outcome": "go build ./... && go vet ./... passed; transactions retag --help shows the requested flags."
+    },
+    {
+      "id": "changed-local-triage",
+      "summary": "Added a changed command that lists locally synced records updated since a cutoff.",
+      "reason": "Agents need an offline morning-triage affordance that summarizes what changed in the SQLite store after sync.",
+      "files": [
+        "internal/cli/changed.go",
+        "internal/cli/changed_helpers.go",
+        "internal/cli/changed_test.go",
+        "internal/cli/root.go"
+      ],
+      "validated_outcome": "go test ./... && go build ./... && go vet ./... passed; changed help and JSON smoke checks passed."
+    },
+    {
+      "id": "budget-burn-canonical-transactions",
+      "summary": "Adjusted budget burn spend totals to count Lunch Money's canonical transaction tier only.",
+      "reason": "Expanded local stores can contain both split parents and children or both group parents and children; budget spend should mirror the default API list shape to avoid double-counting.",
+      "files": [
+        "internal/cli/budgets_burn.go",
+        "internal/cli/budgets_burn_test.go"
+      ],
+      "validated_outcome": "go test ./internal/cli passes, including split/group budget-burn tier coverage."
+    },
+    {
+      "id": "triage-review-status-boundary",
+      "summary": "Restricted the triage inbox to transactions whose Lunch Money status is unreviewed.",
+      "reason": "Reviewed or cleared transactions can legitimately remain uncategorized; triage should not show them as pending work solely because category_id is empty.",
+      "files": [
+        "internal/cli/triage.go",
+        "internal/cli/triage_test.go"
+      ],
+      "validated_outcome": "go test ./internal/cli passes, including reviewed/cleared uncategorized exclusions."
+    },
+    {
+      "id": "net-worth-crypto-synced",
+      "summary": "Included crypto-synced accounts when reconstructing historical net worth.",
+      "reason": "Balance-history entries for crypto_synced sources need matching local accounts; otherwise synced exchange positions are dropped from totals.",
+      "files": [
+        "internal/cli/net-worth.go",
+        "internal/cli/net-worth_test.go"
+      ],
+      "validated_outcome": "go test ./internal/cli passes, including crypto-synced balance-history coverage."
+    },
+    {
+      "id": "transactions-updated-at-index",
+      "summary": "Added and indexed a typed transactions.updated_at column for changed-since queries.",
+      "reason": "Filtering transactions with json_extract(data, '$.updated_at') forces a full table scan; an indexed column keeps changed --since bounded by the updated_at index.",
+      "files": [
+        "internal/cli/changed.go",
+        "internal/store/store.go",
+        "internal/store/upsert_batch_test.go"
+      ],
+      "validated_outcome": "go test ./internal/store passes, including query-plan coverage for idx_transactions_updated_at."
+    },
+    {
+      "id": "subscription-cadence-logical-transactions",
+      "summary": "Filtered split and group child rows out of subscription cadence grouping.",
+      "reason": "Split/group children create same-day duplicate merchant rows that distort inter-charge gaps and can hide real subscriptions.",
+      "files": [
+        "internal/cli/transactions_subscriptions.go",
+        "internal/cli/transactions_subscriptions_test.go"
+      ],
+      "validated_outcome": "go test ./internal/cli passes, including split/group child subscription cadence coverage."
+    },
+    {
+      "id": "recurring-missing-linked-transaction-boundary",
+      "summary": "Prevented recurring missing fallback matching from reusing transactions linked to a different recurring item.",
+      "reason": "When two recurring items share identical payee and amount criteria, a transaction already linked to one item should not satisfy the other through fallback matching.",
+      "files": [
+        "internal/cli/recurring_missing.go",
+        "internal/cli/recurring_missing_test.go"
+      ],
+      "validated_outcome": "go test ./internal/cli passes, including linked and unlinked recurring transaction matching coverage."
+    },
+    {
+      "id": "transactions-updated-at-normalized-index",
+      "summary": "Normalized indexed transaction updated_at values to a fixed-width UTC timestamp.",
+      "reason": "SQLite compares TEXT index values lexicographically; mixing RFC3339 and space-separated timestamp formats can silently exclude recent changed-since results.",
+      "files": [
+        "internal/cli/changed.go",
+        "internal/cli/changed_test.go",
+        "internal/store/store.go",
+        "internal/store/upsert_batch_test.go"
+      ],
+      "validated_outcome": "go test ./internal/cli and go test ./internal/store pass, including mixed-format changed-since and v3 migration coverage."
+    },
+    {
+      "id": "duplicates-member-level-handled-filter",
+      "summary": "Filtered split/group transactions out of duplicate clusters at the member level.",
+      "reason": "A handled split or group transaction can share a merchant/date/amount cluster with genuine duplicates; excluding the whole cluster hides the duplicate charges.",
+      "files": [
+        "internal/cli/transactions_duplicates.go",
+        "internal/cli/transactions_duplicates_test.go"
+      ],
+      "validated_outcome": "go test ./internal/cli passes, including duplicate clustering with a handled split member."
+    },
+    {
+      "id": "novel-commands-deliver-output-routing",
+      "summary": "Routed novel command JSON and table output through Cobra's command writer.",
+      "reason": "The --deliver buffer is attached to cmd.OutOrStdout(); direct os.Stdout and fmt.Print calls bypass file and webhook delivery sinks.",
+      "files": [
+        "internal/cli/accounts.go",
+        "internal/cli/budgets_burn.go",
+        "internal/cli/changed.go",
+        "internal/cli/changed_helpers.go",
+        "internal/cli/changed_test.go",
+        "internal/cli/net-worth.go",
+        "internal/cli/recurring_missing.go",
+        "internal/cli/transactions_duplicates.go",
+        "internal/cli/transactions_subscriptions.go",
+        "internal/cli/triage.go"
+      ],
+      "validated_outcome": "go test ./internal/cli passes, including command-output routing coverage for changed --json."
+    },
+    {
+      "id": "retag-and-net-worth-canonical-money-boundaries",
+      "summary": "Filtered retag updates to canonical editable transaction rows and excluded unconverted foreign balances from net-worth totals.",
+      "reason": "Bulk transaction updates should not target split parents or group children, and aggregate net-worth totals must not add raw non-base-currency balances when no to_base conversion is available.",
+      "files": [
+        "internal/cli/net-worth.go",
+        "internal/cli/net-worth_test.go",
+        "internal/cli/transactions_retag_test.go",
+        "internal/cli/transcendence_helpers.go"
+      ],
+      "validated_outcome": "go test ./internal/cli passes, including retag split/group filtering and unconverted foreign-balance net-worth coverage."
+    },
+    {
+      "id": "retag-bulk-update-response-accounting",
+      "summary": "Derived retag updated counts and row errors from the bulk update API response.",
+      "reason": "The retag command should not report every matched transaction as updated when the API returns fewer updated rows or per-row errors.",
+      "files": [
+        "internal/cli/transactions_retag.go",
+        "internal/cli/transactions_retag_test.go",
+        "internal/cli/transcendence_helpers.go"
+      ],
+      "validated_outcome": "go test ./internal/cli passes, including retag response count and error parsing coverage."
+    },
+    {
+      "id": "cache-permissions-and-retag-split-children",
+      "summary": "Restricted HTTP cache permissions and excluded split children from bulk retag updates.",
+      "reason": "Cached Lunch Money API responses contain financial data and should be owner-only, and split children carry deliberate per-split categories that bulk retag should not overwrite.",
+      "files": [
+        "internal/client/client.go",
+        "internal/client/client_test.go",
+        "internal/cli/transactions_retag_test.go",
+        "internal/cli/transcendence_helpers.go"
+      ],
+      "validated_outcome": "go test ./internal/client and go test ./internal/cli pass for cache permission and retag split-child coverage."
+    },
+    {
+      "id": "private-sqlite-store-permissions",
+      "summary": "Created local SQLite store directories and files with owner-only permissions.",
+      "reason": "The local SQLite store contains synced financial data and should not be readable or traversable by other local users.",
+      "files": [
+        "internal/store/store.go",
+        "internal/store/schema_version_test.go"
+      ],
+      "validated_outcome": "go test ./internal/store passes, including store directory and database artifact permission coverage."
+    },
+    {
+      "id": "private-local-output-permissions",
+      "summary": "Created export, deliver, and generated cache files with owner-only permissions.",
+      "reason": "Local command output and cached API responses can include Lunch Money transactions, balances, and account metadata.",
+      "files": [
+        "internal/cache/cache.go",
+        "internal/cache/cache_test.go",
+        "internal/cli/deliver.go",
+        "internal/cli/export.go",
+        "internal/cli/output_permissions_test.go"
+      ],
+      "validated_outcome": "go test ./internal/cache and go test ./internal/cli pass for private cache, export, and deliver file permissions."
+    },
+    {
+      "id": "internal-capture-endpoints-20260514",
+      "summary": "Wired captured internal Plaid fetch, budget write, CSV import, import-config, and multipart transaction helper endpoints.",
+      "reason": "The generated public OpenAPI surface misses or cannot authenticate several web-UI internal endpoints needed for CLI parity.",
+      "files": [
+        "internal/cli/internal_extras.go",
+        "internal/cli/internal_more.go",
+        "internal/internalapi/README.md",
+        "internal/internalapi/captures/INVENTORY.md",
+        "internal/internalapi/captures/accounts.md",
+        "internal/internalapi/captures/budgets.md",
+        "internal/internalapi/captures/categories.md",
+        "internal/internalapi/captures/settings-profile-export-probes.md",
+        "internal/internalapi/client.go",
+        "internal/internalapi/endpoints.go",
+        "internal/internalapi/endpoints_test.go"
+      ],
+      "validated_outcome": "go test ./internal/internalapi and go test ./internal/cli pass for captured paths and command wiring."
+    },
+    {
+      "id": "rules-apply-serialize-criteria",
+      "summary": "Serialized multi-rule apply calls so each criteria_id is sent to /rules/apply in its own request.",
+      "reason": "The internal backend can misapply batched commit requests by routing all matched transactions through the final rule's action.",
+      "files": [
+        "internal/cli/rules.go",
+        "internal/internalapi/captures/rules.md",
+        "internal/internalapi/endpoints_test.go",
+        "internal/internalapi/rules.go"
+      ],
+      "validated_outcome": "go test ./... passes, including a regression test for serialized ApplyRules calls."
+    },
+    {
+      "id": "agent-json-error-streams",
+      "summary": "Kept --agent and machine-format command streams parseable by rendering process errors as JSON and suppressing dry-run previews.",
+      "reason": "Generated endpoint commands returned human stderr on API failures and dry-runs, breaking common `2>&1 | jq` agent pipelines.",
+      "files": [
+        "internal/client/client.go",
+        "internal/cli/helpers.go",
+        "internal/cli/root.go",
+        "internal/cli/root_test.go"
+      ],
+      "validated_outcome": "go test ./... passes, and bad category create plus dry-run pipelines both parse through jq."
+    },
+    {
+      "id": "rules-update-preserve-existing",
+      "summary": "Made rules update preserve existing rule fields when only action flags are supplied.",
+      "reason": "The internal PUT endpoint requires a full rule body, but CLI callers naturally expect action-only updates such as category and notes edits to keep the existing payee/match condition.",
+      "files": [
+        "internal/cli/rules.go",
+        "internal/cli/rules_test.go",
+        "internal/internalapi/captures/rules.md",
+        "internal/internalapi/rules.go",
+        "internal/internalapi/rules_test.go"
+      ],
+      "validated_outcome": "go test ./... passes, including command-level coverage that rules update preserves payee/match while changing category and notes."
+    },
+    {
+      "id": "piped-json-error-streams",
+      "summary": "Rendered errors as JSON whenever stdout is piped, even without --agent.",
+      "reason": "Generated commands auto-select JSON for piped success output, but API failures still printed human text and broke `2>&1 | jq` transaction-update pipelines.",
+      "files": [
+        "internal/cli/helpers.go",
+        "internal/cli/root_test.go"
+      ],
+      "validated_outcome": "go test ./... passes, including a transactions update --stdin regression for piped API errors."
+    },
+    {
+      "id": "transactions-retag-notes",
+      "summary": "Allowed transactions retag to set notes while applying local-match bulk updates.",
+      "reason": "Agents were falling back to brittle raw sqlite and hand-built JSON payloads when a category reframing also needed notes.",
+      "files": [
+        "internal/cli/transactions_retag.go",
+        "internal/cli/transactions_retag_test.go",
+        "internal/cli/transcendence_helpers.go"
+      ],
+      "validated_outcome": "go test ./internal/cli passes, including retag payload and dry-run JSON coverage for notes."
+    },
+    {
+      "id": "cli-stability-review-fixes-20260515",
+      "summary": "Fixed mutation safety, generated request fidelity, local cache correctness, pagination, structured dry-runs, and MCP/output hygiene.",
+      "reason": "Review found several CLI paths that could mutate unexpectedly, drop declared parameters, lose explicit clear values, truncate cached data, or emit output that agents could not audit safely.",
+      "files": [
+        ".golangci.yml",
+        "internal/client/client.go",
+        "internal/cli/agent_context.go",
+        "internal/cli/budgets_delete.go",
+        "internal/cli/categories_delete-category.go",
+        "internal/cli/categories_update-category.go",
+        "internal/cli/crypto_delete-manual.go",
+        "internal/cli/data_source.go",
+        "internal/cli/doctor.go",
+        "internal/cli/generated_request_test.go",
+        "internal/cli/helpers.go",
+        "internal/cli/internal.go",
+        "internal/cli/internal_extras.go",
+        "internal/cli/internal_more.go",
+        "internal/cli/internal_tx.go",
+        "internal/cli/local_cache_test.go",
+        "internal/cli/manual-accounts_delete.go",
+        "internal/cli/pagination_test.go",
+        "internal/cli/plaid-accounts_trigger-fetch.go",
+        "internal/cli/root.go",
+        "internal/cli/root_test.go",
+        "internal/cli/rules.go",
+        "internal/cli/rules_test.go",
+        "internal/cli/search.go",
+        "internal/cli/tags_delete.go",
+        "internal/cli/tags_update.go",
+        "internal/cli/transactions_delete.go",
+        "internal/cli/transactions_update-id.go",
+        "internal/mcp/code_orch.go",
+        "internal/mcp/cobratree/shellout.go",
+        "internal/mcp/cobratree/shellout_test.go",
+        "internal/mcp/cobratree/walker.go",
+        "internal/mcp/tools_test.go",
+        "internal/store/store.go",
+        "internal/store/upsert_batch_test.go"
+      ],
+      "validated_outcome": "Targeted regression tests pass for each issue cluster; full-suite verification recorded in the working branch."
+    },
+    {
+      "id": "golangci-lint-clean-20260515",
+      "summary": "Made the repository's golangci-lint v2 configuration and current generated tree pass cleanly.",
+      "reason": "The previous config unintentionally inherited default linters and exposed generated-model noise, stale dead helpers, import-order drift, and small staticcheck issues.",
+      "files": [
+        ".golangci.yml",
+        "cmd/lunch-money-pp-mcp/main.go",
+        "internal/cli/accounts.go",
+        "internal/cli/analytics.go",
+        "internal/cli/auth.go",
+        "internal/cli/balance-history_update-details.go",
+        "internal/cli/budgets_burn.go",
+        "internal/cli/categories_create-category.go",
+        "internal/cli/categories_get-all.go",
+        "internal/cli/categories_update-category.go",
+        "internal/cli/changed.go",
+        "internal/cli/channel_workflow.go",
+        "internal/cli/crypto_refresh-synced.go",
+        "internal/cli/crypto_update-manual.go",
+        "internal/cli/helpers.go",
+        "internal/cli/internal_tx.go",
+        "internal/cli/manual-accounts_create.go",
+        "internal/cli/manual-accounts_update.go",
+        "internal/cli/net-worth.go",
+        "internal/cli/plaid-accounts_trigger-fetch.go",
+        "internal/cli/promoted_summary.go",
+        "internal/cli/recurring-items_get-all-recurring.go",
+        "internal/cli/recurring_missing.go",
+        "internal/cli/root.go",
+        "internal/cli/search.go",
+        "internal/cli/sync.go",
+        "internal/cli/tags_create.go",
+        "internal/cli/tags_update.go",
+        "internal/cli/transactions_create-new.go",
+        "internal/cli/transactions_update-id.go",
+        "internal/cli/transcendence_helpers.go",
+        "internal/config/config.go",
+        "internal/mcp/tools.go",
+        "internal/store/store.go"
+      ],
+      "validated_outcome": "golangci-lint config verify and golangci-lint run pass with 0 issues."
+    },
+    {
+      "id": "non-novel-output-routing-20260515",
+      "summary": "Routed analytics, tail, sync, and idempotent no-op machine output through the CLI delivery path.",
+      "reason": "PR #551 exposed direct stdout writes as a review failure class; local review found the same class outside the novel command set.",
+      "files": [
+        "internal/cli/analytics.go",
+        "internal/cli/channel_workflow.go",
+        "internal/cli/helpers.go",
+        "internal/cli/output_routing_test.go",
+        "internal/cli/sync.go",
+        "internal/cli/tail.go"
+      ],
+      "validated_outcome": "go test ./internal/cli passes, including analytics --deliver, sync writer, and no-op delivery buffer coverage."
+    },
+    {
+      "id": "internal-request-return-errors-20260515",
+      "summary": "Made internal request return typed API errors instead of exiting the process from command code.",
+      "reason": "Commands must let Execute, tests, MCP wrappers, and delivery cleanup observe failures instead of terminating the host process directly.",
+      "files": [
+        "internal/cli/internal.go"
+      ],
+      "validated_outcome": "go test ./... passes; static scan finds no os.Exit calls inside internal/cli."
+    },
+    {
+      "id": "internal-cookie-env-20260516",
+      "summary": "Added LUNCHMONEY_INTERNAL_COOKIE as a non-persistent internal API cookie auth override.",
+      "reason": "CI and short-lived shell sessions need internal API auth without writing browser session cookies into the persisted jar.",
+      "files": [
+        "internal/cli/internal.go",
+        "internal/cli/rules.go",
+        "internal/internalapi/README.md",
+        "internal/internalapi/client.go",
+        "internal/internalapi/client_test.go"
+      ],
+      "validated_outcome": "go test ./internal/internalapi passes, including env-cookie parsing and non-persistence coverage."
+    },
+    {
+      "id": "public-api-env-trim-20260517",
+      "summary": "Collapsed the public-API auth env-var surface to a single canonical LUNCHMONEY_API_KEY and dropped the two operational env vars (LUNCH_MONEY_CONFIG, LUNCH_MONEY_BASE_URL). Trimmed manifest.json user_config to one required field so MCP clients do not demand the token five times.",
+      "reason": "Generator's OR-case auth pattern emitted five aliases (LUNCHMONEY_ACCESS_TOKEN + four ecosystem aliases for lunchable/lunchtui/robshox MCP) for one bearer token, plus two operational env vars. User wanted minimal surface and did not need ecosystem-compat aliases. The four alias env vars and matching Config fields collapse to a single AccessToken field. LUNCH_MONEY_CONFIG was redundant with the existing --config flag. LUNCH_MONEY_BASE_URL was only used by tests for httptest server URLs and by the mock.lunchmoney.dev development path; tests now write base_url to a temp config TOML and pass --config <path> instead. Internal-API LUNCHMONEY_INTERNAL_COOKIE is unrelated and untouched. Closes Greptile finding #1 on PR #624 (5x required: true).",
+      "files": [
+        "internal/config/config.go",
+        "internal/cli/auth.go",
+        "internal/cli/agent_context.go",
+        "internal/cli/doctor.go",
+        "internal/cli/helpers.go",
+        "internal/cli/root_test.go",
+        "internal/cli/generated_request_test.go",
+        "internal/mcp/tools.go",
+        "manifest.json",
+        "SKILL.md",
+        "README.md",
+        ".printing-press.json"
+      ],
+      "validated_outcome": "go build ./... && go vet ./... && go test ./... pass."
+    },
+    {
+      "id": "budget-burn-exclude-status-20260517",
+      "summary": "Filtered status=exclude transactions out of the budget burn-down spent total.",
+      "reason": "Lunch Money excludes status=exclude rows from budget calculations; the local burn-down was inflating spent and the over/under projection by counting them. Closes Greptile finding #2 on PR #624.",
+      "files": [
+        "internal/cli/budgets_burn.go"
+      ],
+      "validated_outcome": "go test ./internal/cli passes."
+    },
+    {
+      "id": "shellout-single-quote-grouping-20260517",
+      "summary": "Taught splitShellArgs to honor POSIX single-quoted grouping, not just double-quoted.",
+      "reason": "MCP callers passing a value containing a space via single quotes (e.g. 'Bob's diner') saw their token silently split into multiple positional arguments. Closes Greptile finding #3 on PR #624.",
+      "files": [
+        "internal/mcp/cobratree/shellout.go",
+        "internal/mcp/cobratree/shellout_test.go"
+      ],
+      "validated_outcome": "go test ./internal/mcp/cobratree passes, including single-quote and mixed-quote regression coverage."
+    },
+    {
+      "id": "fts-rowid-fnv-20260517",
+      "summary": "Replaced ftsRowID polynomial hash with FNV-1a 64-bit; injected a NUL boundary between scope and id.",
+      "reason": "The h*31 polynomial mixed poorly, leaving a measurable collision rate on FTS5 rowids; a collision would cause DELETE WHERE rowid=? before re-insert to delete the wrong resource's FTS entry and silently miss search hits. Closes Greptile finding #4 on PR #624.",
+      "files": [
+        "internal/store/store.go"
+      ],
+      "validated_outcome": "go test ./internal/store passes (existing search/index tests cover the path)."
+    },
+    {
+      "id": "subscription-duplicate-exclude-status-20260517",
+      "summary": "Extended the status=exclude filter to subscriptionCountsTransaction and duplicateCountsTransaction.",
+      "reason": "The earlier budget-burn fix only covered budgets_burn; subscription cadence inference and duplicate clustering still let excluded rows in, so excluded charges polluted those reports. Mirroring the same guard keeps the three novel commands consistent. Closes Greptile re-review on PR #624.",
+      "files": [
+        "internal/cli/transactions_subscriptions.go",
+        "internal/cli/transactions_duplicates.go"
+      ],
+      "validated_outcome": "go test ./internal/cli passes."
+    },
+    {
+      "id": "recurring-missing-unknown-granularity-20260517",
+      "summary": "Guarded recurringExpectedDate against unknown granularity values from the API.",
+      "reason": "addRecurringCadence silently returned the input on an unrecognized granularity string, sending the surrounding loop into 10000 no-op iterations before dropping the recurring item from the report with no signal. Pre-check via isKnownRecurringGranularity so an unknown value short-circuits cleanly. Closes Greptile re-review on PR #624.",
+      "files": [
+        "internal/cli/recurring_missing.go"
+      ],
+      "validated_outcome": "go test ./internal/cli passes; addRecurringCadence default branch becomes unreachable via the guard."
+    },
+    {
+      "id": "retag-recurring-missing-exclude-status-20260517",
+      "summary": "Extended the status=exclude filter to retagCountsTransaction and recurringHasTransaction; added Status to retagTransaction.",
+      "reason": "retag mutates rows via the API, so an excluded row must not be matched by a broad --match regex; recurringHasTransaction must not let an excluded historical match suppress a genuine missed-payment alert. Closes Greptile second re-review on PR #624.",
+      "files": [
+        "internal/cli/transcendence_helpers.go",
+        "internal/cli/recurring_missing.go"
+      ],
+      "validated_outcome": "go test ./internal/cli passes."
+    },
+    {
+      "id": "retag-tag-orphaning-order-20260517",
+      "summary": "Reordered resolveRetagTagIDs to validate --remove-tag names before POSTing any --add-tag tags.",
+      "reason": "Original order ran addSpecs (createMissing=true, POSTs /tags) before removeSpecs (validate-only). A --remove-tag typo after a successful --add-tag created orphan tags in Lunch Money — server-persisted but never associated with any transaction. Closes the remaining Greptile P1 thread on PR #624.",
+      "files": [
+        "internal/cli/transcendence_helpers.go"
+      ],
+      "validated_outcome": "go test ./internal/cli passes."
+    },
+    {
+      "id": "triage-parent-tier-20260517",
+      "summary": "Excluded split parents and group children from isUnreviewedForTriage.",
+      "reason": "Triage was the only counts predicate that did not align with budget burn / subscription / duplicate / retag on the canonical-transaction-tier rule. A single split receipt produced one inbox entry per child plus a duplicate for the parent total, polluting suggested-category confidence. Closes Greptile fourth re-review P1 on PR #624.",
+      "files": [
+        "internal/cli/triage.go"
+      ],
+      "validated_outcome": "go test ./internal/cli passes."
+    },
+    {
+      "id": "retry-non-idempotent-20260517",
+      "summary": "Restricted 5xx retry to idempotent HTTP methods (GET, PUT, DELETE, HEAD, OPTIONS).",
+      "reason": "Original code retried every 5xx regardless of method. createRetagTag POSTs /tags and a 5xx after server-side commit would, on retry, create a duplicate tag. Now POST and PATCH return the 5xx without retry; caller can surface a clean error and the user re-decides. Closes Greptile fourth re-review P1 on PR #624.",
+      "files": [
+        "internal/client/client.go"
+      ],
+      "validated_outcome": "go test ./internal/client passes."
+    },
+    {
+      "id": "networth-empty-primary-currency-20260517",
+      "summary": "buildNetWorth errors out when primaryCurrency is empty instead of silently returning a near-zero total.",
+      "reason": "loadPrimaryCurrency returns (\"\", nil) when the profile resource has not been synced. The downstream netWorthBalance inBase check then never fires for same-currency manual accounts, so result.Total only picks up foreign-currency Plaid accounts with to_base set. The total looked wrong with no signal to the user. Surface the missing sync as a clear error directing the user to run sync. Closes Greptile fifth re-review P1 on PR #624.",
+      "files": [
+        "internal/cli/net-worth.go"
+      ],
+      "validated_outcome": "go test ./internal/cli passes."
+    },
+    {
+      "id": "retry-non-idempotent-internalapi-20260517",
+      "summary": "Internal-API 401 token-refresh retry gated on idempotent methods, mirroring the public-client 5xx gate.",
+      "reason": "doWithEncodedBody used to retry the original request after a 401-triggered token refresh regardless of method. 401s typically fire before body processing, so a POST retry is normally safe, but a token expiring mid-handler could leave a successful POST followed by a 401, and the retry would double-commit. Limit auto-retry to GET/PUT/DELETE/HEAD/OPTIONS; non-idempotent callers surface the 401 and re-run if appropriate. Pre-emptive fix for the pattern Greptile would likely flag on its next pass.",
+      "files": [
+        "internal/internalapi/client.go"
+      ],
+      "validated_outcome": "go test ./internal/internalapi passes."
+    },
+    {
+      "id": "triage-retag-group-parent-filter-20260520",
+      "summary": "Excluded synthetic group-parent transactions from triage and bulk retag selection.",
+      "reason": "Group parents have no group_parent_id, so child-only filters let aggregate rows into triage voting and bulk-retag API updates. Mirroring the canonical transaction-tier rule keeps synthetic totals out of user-facing mutation and review workflows. Closes Greptile P1 threads on PR #624.",
+      "files": [
+        "internal/cli/triage.go",
+        "internal/cli/triage_test.go",
+        "internal/cli/transcendence_helpers.go",
+        "internal/cli/transactions_retag_test.go"
+      ],
+      "validated_outcome": "go test ./internal/cli passes, including group-parent exclusions for triage and retag."
+    }
+  ],
+  "deferred_to_upstream": [
+    {
+      "topic": "Generator OR-case alias absorption should be opt-in, not default",
+      "note": "The generator's research/absorb phase added env-var aliases for neighbor tools (lunchable, lunchtui, robshox MCP) without user opt-in. Consider a manifest knob (e.g. auth_compat: minimal | ecosystem) so future prints pick the surface explicitly instead of forcing a post-generation trim."
+    }
+  ]
+}

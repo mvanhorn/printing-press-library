@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-09T07:36:16.779657Z",
+  "printing_press_version": "4.0.6",
+  "api_name": "fathom",
+  "display_name": "Fathom",
+  "cli_name": "fathom-pp-cli",
+  "owner": "nikica-jokic",
+  "printer": "neektza",
+  "printer_name": "Nikica Jokic",
+  "spec_path": "/Users/neektza/printing-press/.runstate/cli-printing-press-c22e9309/runs/20260509-090403/research/fathom-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:3749a04da19bd7f8f077ebd26582712e8a1b5673aba0bb5e7ad9d731ed1aa1a6",
+  "run_id": "20260509-090403",
+  "category": "productivity",
+  "mcp_binary": "fathom-pp-mcp",
+  "mcp_tool_count": 7,
+  "mcp_ready": "full",
+  "api_version": "v1",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "FATHOM_PP_CLI_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Cross-Meeting Commitment Tracker",
+      "command": "commitments",
+      "description": "See every open action item you promised across all calls — grouped by meeting, assignee, and date — without opening a single recording."
+    },
+    {
+      "name": "Topic Frequency Tracker",
+      "command": "topics",
+      "description": "Find out how often 'pricing,' 'onboarding,' or any keyword has surfaced in your meetings over the past N weeks — with week-over-week trend."
+    },
+    {
+      "name": "Pre-Call Account Brief",
+      "command": "brief",
+      "description": "Get a chronological history of every meeting with a specific person or company — past topics, open action items, last contact date — before you join a call."
+    },
+    {
+      "name": "Engagement Velocity Tracker",
+      "command": "velocity",
+      "description": "Track whether your meeting cadence with a key account is accelerating, stable, or stalling — month by month."
+    },
+    {
+      "name": "Team Meeting Workload",
+      "command": "workload",
+      "description": "See which team members are spending the most hours in meetings per week and whether the load is worsening."
+    },
+    {
+      "name": "Account Relationship History",
+      "command": "account",
+      "description": "View a complete, domain-keyed history with any company: every meeting, topics discussed, action items, and cadence — in one structured output."
+    },
+    {
+      "name": "Stale Recording Detector",
+      "command": "stale",
+      "description": "Find recordings that were captured but have no transcript, summary, or action items synced — useful for operators debugging pipeline gaps."
+    },
+    {
+      "name": "CRM Gap Audit",
+      "command": "crm-gaps",
+      "description": "Surface CRM-matched meetings where no action items were logged — calls that touched active deals but left no paper trail."
+    },
+    {
+      "name": "Recording Coverage Report",
+      "command": "coverage",
+      "description": "Track how reliably a recurring meeting (weekly planning, standup, 1:1) is being recorded over time."
+    }
+  ]
+}

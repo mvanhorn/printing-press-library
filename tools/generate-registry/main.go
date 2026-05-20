@@ -116,6 +116,7 @@ type MCPBlock struct {
 type printingPressManifest struct {
 	APIName            string   `json:"api_name"`
 	DisplayName        string   `json:"display_name"`
+	Description        string   `json:"description"`
 	Printer            string   `json:"printer"`
 	PrinterName        string   `json:"printer_name"`
 	MCPBinary          string   `json:"mcp_binary"`
@@ -139,7 +140,32 @@ var brewsDescriptionRE = regexp.MustCompile(`^\s+description:\s*"?(.*?)"?\s*$`)
 func main() {
 	check := flag.Bool("check", false, "exit non-zero if generated outputs differ from on-disk registry.json or README.md sentinel regions")
 	printOnly := flag.Bool("print", false, "print generated registry to stdout instead of writing")
+	validate := flag.Bool("validate", false, "exit non-zero if any entry would have an empty required field after fallback resolution (sources only — ignores prior registry.json curated values). Designed for the PR-time CI gate.")
 	flag.Parse()
+
+	// --validate runs before the normal flow so it never depends on the
+	// current on-disk registry.json. It builds entries from sources alone
+	// (empty existing map) and fails when any required field would land
+	// empty — catching the lawhub-shape regression where a curated value
+	// in registry.json masks a missing source description.
+	if *validate {
+		sourceEntries, err := buildEntries(libraryDir, map[string]RegistryEntry{})
+		if err != nil {
+			log.Fatalf("building entries for validation: %v", err)
+		}
+		if errs := validateEntries(sourceEntries); len(errs) > 0 {
+			fmt.Fprintln(os.Stderr, "Registry validation failed:")
+			for _, e := range errs {
+				fmt.Fprintln(os.Stderr, "  - "+e)
+			}
+			fmt.Fprintln(os.Stderr, "\nFix the source files:")
+			fmt.Fprintln(os.Stderr, "  - description: populate .printing-press.json's `description` or the `.goreleaser.yaml` brews `description` for the affected CLI(s).")
+			fmt.Fprintln(os.Stderr, "  - mcp.*:       populate .printing-press.json's `mcp_binary`, `auth_type`, and related fields for any CLI advertising an MCP block.")
+			os.Exit(2)
+		}
+		fmt.Fprintf(os.Stderr, "Registry validation passed (%d entries).\n", len(sourceEntries))
+		return
+	}
 
 	existing := loadExistingEntries(registryPath)
 
@@ -309,12 +335,24 @@ func buildEntry(dir, category, slug string, existing map[string]RegistryEntry) (
 	}
 
 	// Description preference: existing registry value (curated) > goreleaser
-	// brew description (homebrew tap one-liner) > empty. Curated descriptions
-	// in registry.json are the documented surface and shouldn't be clobbered.
-	// Exception: an old generator bug let bare Markdown headings like
-	// "# Introduction" land as descriptions. Those are not real curated copy,
-	// so allow the source one-liner to repair them on the next regen.
-	entry.Description = registryDescription(prior.Description, readGoreleaserDescription(filepath.Join(dir, ".goreleaser.yaml")))
+	// brew description (homebrew tap one-liner) > .printing-press.json
+	// description (modern printed CLIs populate this from the publish-skill's
+	// narrative.headline) > empty. Curated descriptions in registry.json are
+	// the documented surface and shouldn't be clobbered. Exception: an old
+	// generator bug let bare Markdown headings like "# Introduction" land as
+	// descriptions. Those are not real curated copy, so allow the source
+	// one-liner to repair them on the next regen.
+	//
+	// The .printing-press.json fallback was added after the lawhub incident
+	// (registry shipped description="" because its .goreleaser.yaml brews
+	// block was empty and no prior curated value existed). Modern printed
+	// CLIs always carry a narrative description in .printing-press.json,
+	// so this fallback fires when both prior tiers come back empty.
+	entry.Description = registryDescription(
+		prior.Description,
+		readGoreleaserDescription(filepath.Join(dir, ".goreleaser.yaml")),
+		pp.Description,
+	)
 
 	// MCP block preference: derive from .printing-press.json when it
 	// declares mcp_binary (the modern, authoritative source) > preserve
@@ -338,11 +376,85 @@ func buildEntry(dir, category, slug string, existing map[string]RegistryEntry) (
 	return &entry, nil
 }
 
-func registryDescription(prior, fallback string) string {
+// registryDescription picks the final description for a registry entry from
+// three tiers in preference order: prior curated value > goreleaser brews
+// description > .printing-press.json description. The bare-markdown-heading
+// exception applies only to the prior tier — that's the only tier with the
+// legacy "# Introduction" bug history. The two source tiers are author-written
+// one-liners and don't need the exception.
+//
+// Returns "" only when every tier is empty. The --validate mode treats that
+// as a fail-stop; the regular write path lets it through so first-time runs
+// of new CLIs that intentionally have no description can complete (validation
+// is a separate concern from generation).
+func registryDescription(prior, goreleaser, ppDescription string) string {
 	if prior != "" && !isBareMarkdownHeading(prior) {
 		return prior
 	}
-	return fallback
+	if goreleaser != "" {
+		return goreleaser
+	}
+	return ppDescription
+}
+
+// validateEntries returns one human-readable error per missing required
+// field across the given entries. The required-field set mirrors the npm
+// installer's parseRegistry contract (every field it calls requiredString
+// on, plus the MCP-block fields it calls requiredString / requiredStringArray
+// on when the mcp object is present). A registry whose generation passes this
+// check round-trips through the npm parser without per-entry errors.
+//
+// Returns an empty slice when every entry validates. Caller decides how to
+// surface the result (the --validate flag prints them and exits 2).
+func validateEntries(entries []RegistryEntry) []string {
+	// isBlank matches the npm installer's requiredString semantics
+	// (`.trim() === ""`). Using == "" here would let an all-whitespace
+	// value pass validation but still throw inside parseRegistryEntry,
+	// defeating the gate. Centralizing the check keeps the Go and TS
+	// acceptance criteria byte-for-byte aligned.
+	isBlank := func(s string) bool {
+		return strings.TrimSpace(s) == ""
+	}
+
+	var errs []string
+	for _, e := range entries {
+		slug := strings.TrimSpace(e.Name)
+		if slug == "" {
+			slug = "(unnamed)"
+		}
+		if isBlank(e.Name) {
+			errs = append(errs, fmt.Sprintf("%s: name is empty", slug))
+		}
+		if isBlank(e.Category) {
+			errs = append(errs, fmt.Sprintf("%s: category is empty", slug))
+		}
+		if isBlank(e.API) {
+			errs = append(errs, fmt.Sprintf("%s: api is empty", slug))
+		}
+		if isBlank(e.Path) {
+			errs = append(errs, fmt.Sprintf("%s: path is empty", slug))
+		}
+		if isBlank(e.Description) {
+			// Source order mirrors the resolution chain in registryDescription:
+			// goreleaser brews is the second tier, .printing-press.json description
+			// is the third. Listing them in resolution order helps a contributor
+			// reading this error understand which file would take precedence if
+			// they populated both.
+			errs = append(errs, fmt.Sprintf("%s: description is empty (sources checked: .goreleaser.yaml brews description, .printing-press.json description)", slug))
+		}
+		if e.MCP != nil {
+			if isBlank(e.MCP.Binary) {
+				errs = append(errs, fmt.Sprintf("%s: mcp.binary is empty", slug))
+			}
+			if len(e.MCP.Transports) == 0 {
+				errs = append(errs, fmt.Sprintf("%s: mcp.transports is empty", slug))
+			}
+			if isBlank(e.MCP.AuthType) {
+				errs = append(errs, fmt.Sprintf("%s: mcp.auth_type is empty", slug))
+			}
+		}
+	}
+	return errs
 }
 
 func isBareMarkdownHeading(s string) bool {

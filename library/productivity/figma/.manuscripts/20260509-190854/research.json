@@ -1,0 +1,340 @@
+{
+  "api_name": "figma",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "GLips/Figma-Context-MCP",
+      "url": "https://github.com/GLips/Figma-Context-MCP",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 14689,
+      "last_updated": "",
+      "command_count": 2,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "vkhanhqui/figma-mcp-go",
+      "url": "https://github.com/vkhanhqui/figma-mcp-go",
+      "language": "Go",
+      "install_method": "",
+      "stars": 816,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "mikaelvesavuori/figmagic",
+      "url": "https://github.com/mikaelvesavuori/figmagic",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 858,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "RedMadRobot/figma-export",
+      "url": "https://github.com/RedMadRobot/figma-export",
+      "language": "Swift",
+      "install_method": "",
+      "stars": 811,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "marcomontalbano/figma-export",
+      "url": "https://github.com/marcomontalbano/figma-export",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 341,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "figma/rest-api-spec",
+      "url": "https://github.com/figma/rest-api-spec",
+      "language": "YAML",
+      "install_method": "",
+      "stars": 209,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "didoo/figma-api",
+      "url": "https://github.com/didoo/figma-api",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "tokens-studio/figma-plugin",
+      "url": "https://github.com/tokens-studio/figma-plugin",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-09T19:21:00Z",
+  "novel_features": [
+    {
+      "name": "Compaction-aware frame extract for codegen prompts",
+      "command": "frame extract",
+      "description": "Extract a single frame as a compact codegen-ready payload that fuses simplified node tree, in-scope variables, dev resources, and Code Connect mappings.",
+      "rationale": "GLips's compaction pipeline ships only as a Node MCP. No surveyed tool fuses node tree + variables + dev-resources + Code Connect into one payload, accepts both 1234:5678 and 1234-5678, and resolves instance-override chains like I5666:180910;1:10515.",
+      "example": "figma-pp-cli frame extract abc123 --ids 1234-5678 --depth 4 --include variables,dev-resources --json",
+      "why_it_matters": "First call when an AI agent needs Figma frame context for code generation — returns a compact payload that fits in the context window instead of the raw 10MB file response.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Dev-mode resource bundle for a single node",
+      "command": "dev-mode dump",
+      "description": "Emit a portable Markdown bundle that fuses dev-resource links, variables in scope, render permalink, and Code Connect mapping for one node.",
+      "rationale": "Official Dev Mode MCP is closed-source and Desktop-bound. No surveyed tool emits a portable bundle for a single node from the REST surface.",
+      "example": "figma-pp-cli dev-mode dump abc123 --node 1234-5678 --format md",
+      "why_it_matters": "Use when an agent or engineer needs the full Dev Mode context for one frame as a single Markdown blob — no Desktop pairing required.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Cross-file unresolved comments audit",
+      "command": "comments-audit",
+      "description": "Aggregate unresolved comments across every synced team file with age and group-by filters.",
+      "rationale": "figma comments list is per-file. No surveyed tool aggregates across team files, and resolution-via-API doesn't exist server-side.",
+      "example": "figma-pp-cli comments-audit --older-than 14d --group-by file,author --json",
+      "why_it_matters": "Run this on Monday morning before design review — surfaces every stale unresolved thread across the team.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Stale component, style, and variable orphans finder",
+      "command": "orphans",
+      "description": "Find published library entities (components, styles, variables) with zero usage over a window by joining team-library publish list with library-analytics usage data.",
+      "rationale": "Library analytics is per-entity-per-file in the UI. No surveyed tool joins the publish list with usage data across an entire team library.",
+      "example": "figma-pp-cli orphans 12345 --kind component,style,variable --window 30d --json",
+      "why_it_matters": "First command for the quarterly design-system cleanup — returns the list of entities safe to deprecate.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Semantic tokens diff between file versions",
+      "command": "tokens diff",
+      "description": "Diff Figma variables across two file versions with mode-awareness; emits a Markdown or JSON change set.",
+      "rationale": "figmagic and figmage emit current state only. Tokens Studio diffs Git, not Figma. No surveyed tool diffs variables across file versions.",
+      "example": "figma-pp-cli tokens diff abc123 --from v1.0.0 --to HEAD --format md",
+      "why_it_matters": "Run before merging a design-tokens PR to see what actually changed in Figma since the last release.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Deterministic file fingerprint for CI contract",
+      "command": "fingerprint",
+      "description": "Stable hash of a Figma file's token + component + style surface; exits non-zero if --expect doesn't match.",
+      "rationale": "No surveyed tool offers a deterministic contract-check fingerprint. figmagic emits artifacts but not an exit code suitable for CI gating.",
+      "example": "figma-pp-cli fingerprint abc123 --expect sha256:a1b2c3...",
+      "why_it_matters": "Wire this into CI to fail builds when the upstream Figma file's design-system surface drifts from the committed snapshot.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Webhook delivery replay against new target",
+      "command": "webhooks test",
+      "description": "Pull Figma's webhook request log and replay stored payloads (with original headers and HMAC) against an arbitrary target URL.",
+      "rationale": "No surveyed tool replays Figma webhook deliveries. Brief identifies this as Persona D's #1 pain point.",
+      "example": "figma-pp-cli webhooks test wh_abc --replay-failed --target-url https://localhost:3000/figma",
+      "why_it_matters": "Use when iterating on a new webhook handler — replay yesterday's failed deliveries against your local server without re-triggering upstream events.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Variable usage tracer",
+      "command": "variables explain",
+      "description": "Flat list of every node and component that references a given variable across a file.",
+      "rationale": "Figma's UI shows variable references per-node modally. No surveyed tool emits a flat cross-file list.",
+      "example": "figma-pp-cli variables explain abc123 --variable color/brand/primary --json",
+      "why_it_matters": "First call when planning a variable rename or deprecation — shows the blast radius before you touch anything.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Compaction-aware frame extract for codegen prompts",
+      "command": "frame extract",
+      "description": "Extract a single frame as a compact codegen-ready payload that fuses simplified node tree, in-scope variables, dev resources, and Code Connect mappings.",
+      "rationale": "GLips's compaction pipeline ships only as a Node MCP. No surveyed tool fuses node tree + variables + dev-resources + Code Connect into one payload, accepts both 1234:5678 and 1234-5678, and resolves instance-override chains like I5666:180910;1:10515.",
+      "example": "figma-pp-cli frame extract abc123 --ids 1234-5678 --depth 4 --include variables,dev-resources --json",
+      "why_it_matters": "First call when an AI agent needs Figma frame context for code generation — returns a compact payload that fits in the context window instead of the raw 10MB file response.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Dev-mode resource bundle for a single node",
+      "command": "dev-mode dump",
+      "description": "Emit a portable Markdown bundle that fuses dev-resource links, variables in scope, render permalink, and Code Connect mapping for one node.",
+      "rationale": "Official Dev Mode MCP is closed-source and Desktop-bound. No surveyed tool emits a portable bundle for a single node from the REST surface.",
+      "example": "figma-pp-cli dev-mode dump abc123 --node 1234-5678 --format md",
+      "why_it_matters": "Use when an agent or engineer needs the full Dev Mode context for one frame as a single Markdown blob — no Desktop pairing required.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Cross-file unresolved comments audit",
+      "command": "comments-audit",
+      "description": "Aggregate unresolved comments across every synced team file with age and group-by filters.",
+      "rationale": "figma comments list is per-file. No surveyed tool aggregates across team files, and resolution-via-API doesn't exist server-side.",
+      "example": "figma-pp-cli comments-audit --older-than 14d --group-by file,author --json",
+      "why_it_matters": "Run this on Monday morning before design review — surfaces every stale unresolved thread across the team.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Stale component, style, and variable orphans finder",
+      "command": "orphans",
+      "description": "Find published library entities (components, styles, variables) with zero usage over a window by joining team-library publish list with library-analytics usage data.",
+      "rationale": "Library analytics is per-entity-per-file in the UI. No surveyed tool joins the publish list with usage data across an entire team library.",
+      "example": "figma-pp-cli orphans 12345 --kind component,style,variable --window 30d --json",
+      "why_it_matters": "First command for the quarterly design-system cleanup — returns the list of entities safe to deprecate.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Semantic tokens diff between file versions",
+      "command": "tokens diff",
+      "description": "Diff Figma variables across two file versions with mode-awareness; emits a Markdown or JSON change set.",
+      "rationale": "figmagic and figmage emit current state only. Tokens Studio diffs Git, not Figma. No surveyed tool diffs variables across file versions.",
+      "example": "figma-pp-cli tokens diff abc123 --from v1.0.0 --to HEAD --format md",
+      "why_it_matters": "Run before merging a design-tokens PR to see what actually changed in Figma since the last release.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Deterministic file fingerprint for CI contract",
+      "command": "fingerprint",
+      "description": "Stable hash of a Figma file's token + component + style surface; exits non-zero if --expect doesn't match.",
+      "rationale": "No surveyed tool offers a deterministic contract-check fingerprint. figmagic emits artifacts but not an exit code suitable for CI gating.",
+      "example": "figma-pp-cli fingerprint abc123 --expect sha256:a1b2c3...",
+      "why_it_matters": "Wire this into CI to fail builds when the upstream Figma file's design-system surface drifts from the committed snapshot.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Webhook delivery replay against new target",
+      "command": "webhooks test",
+      "description": "Pull Figma's webhook request log and replay stored payloads (with original headers and HMAC) against an arbitrary target URL.",
+      "rationale": "No surveyed tool replays Figma webhook deliveries. Brief identifies this as Persona D's #1 pain point.",
+      "example": "figma-pp-cli webhooks test wh_abc --replay-failed --target-url https://localhost:3000/figma",
+      "why_it_matters": "Use when iterating on a new webhook handler — replay yesterday's failed deliveries against your local server without re-triggering upstream events.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Variable usage tracer",
+      "command": "variables explain",
+      "description": "Flat list of every node and component that references a given variable across a file.",
+      "rationale": "Figma's UI shows variable references per-node modally. No surveyed tool emits a flat cross-file list.",
+      "example": "figma-pp-cli variables explain abc123 --variable color/brand/primary --json",
+      "why_it_matters": "First call when planning a variable rename or deprecation — shows the blast radius before you touch anything.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "Figma",
+    "headline": "Every Figma endpoint, plus codegen-ready frame extracts, comments audit, orphans finder, tokens diff, and webhook replay no other Figma tool ships.",
+    "value_prop": "This CLI is the offline-first, agent-native Figma operator. It absorbs every REST endpoint as one Cobra command, ports GLips's compaction pipeline so frame extracts fit in an LLM context window, and adds the analytical primitives no other tool unifies: cross-file comments audit, stale-component orphans finder, semantic tokens diff between file versions, deterministic file fingerprint for CI, and webhook delivery replay.",
+    "auth_narrative": "Figma supports two auth modes: Personal Access Token (header X-Figma-Token, prefix figd_) for personal/automation use, and OAuth 2.0 (Authorization: Bearer) for /v1/me, /v1/activity_logs, and /v1/developer_logs. Set FIGMA_API_TOKEN (PAT) or FIGMA_OAUTH2 (OAuth Bearer); the CLI auto-routes to the right header. Run `figma-pp-cli auth login` for OAuth, or save a PAT to the config file via `figma-pp-cli auth set-token`. Doctor surfaces X-Figma-Plan-Tier and X-Figma-Rate-Limit-Type from response headers.",
+    "quickstart": [
+      {
+        "command": "figma-pp-cli auth status",
+        "comment": "Check what auth is currently active. Set FIGMA_API_TOKEN=figd_... for PAT, or run `figma-pp-cli auth login --client-id \u003cid\u003e` for OAuth."
+      },
+      {
+        "command": "figma-pp-cli doctor",
+        "comment": "Confirm auth + reachability + plan tier; warns on Enterprise endpoints when only PAT is available."
+      },
+      {
+        "command": "figma-pp-cli files get-file abc123",
+        "comment": "Smoke-check that auth works against a real file key."
+      },
+      {
+        "command": "figma-pp-cli sync files components comments",
+        "comment": "Populate the local SQLite store so cross-file commands work offline."
+      },
+      {
+        "command": "figma-pp-cli frame extract abc123 --ids 1234-5678 --depth 4 --json",
+        "comment": "Killer command — emits compact prompt-ready frame context for codegen agents."
+      },
+      {
+        "command": "figma-pp-cli comments-audit --older-than 14d --group-by file,author",
+        "comment": "Find every unresolved comment older than two weeks across your synced files."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "403 on /v1/me with my PAT",
+        "fix": "PATs require the `current_user:read` scope on /v1/me; the auto-routing client uses your PAT for file/comment endpoints (which work) and warns when /v1/me is requested. For full /me coverage run `figma-pp-cli auth login` (OAuth)."
+      },
+      {
+        "symptom": "Multi-day Retry-After lockout on /v1/files calls",
+        "fix": "Tier-1 endpoints (files/images/nodes) have strict per-plan-tier limits. Use `figma-pp-cli files meta get-file` (Tier-1-light) for routine checks; reserve full file fetches for `sync` runs that respect Retry-After."
+      },
+      {
+        "symptom": "Image URLs from /v1/files/{key}/images are 403ing after a week",
+        "fix": "Image-fill URLs expire 14 days after generation; rendered-node URLs expire 30 days. Re-run `figma-pp-cli files images get-fills` to refresh."
+      },
+      {
+        "symptom": "Activity logs returns 403 even with admin PAT",
+        "fix": "/v1/activity_logs is OAuth-only and Enterprise-tier. Set FIGMA_OAUTH2 to your OAuth Bearer token and ensure your account is on Enterprise."
+      },
+      {
+        "symptom": "frame extract output is still huge",
+        "fix": "Drop --depth (default 4) to a smaller number, or restrict --ids to the specific node you need. The compaction pipeline reports `simplifiedNodeCount` so you can see compression."
+      }
+    ],
+    "when_to_use": "Use figma-pp-cli when an agent or engineer needs to reason about a Figma file as data — not pixels. It shines for codegen prompt context (`frame extract`, `dev-mode dump`), design-system ops (`orphans`, `tokens diff`, `fingerprint`), comment hygiene (`comments audit`), and webhook iteration (`webhooks test`). For interactive design work, the Figma desktop app is fine — figma-pp-cli covers everything Figma's REST API exposes and adds the cross-file analytical commands the dashboard hides.",
+    "recipes": [
+      {
+        "title": "Extract a frame for an AI codegen prompt",
+        "command": "figma-pp-cli frame extract abc123 --ids 1234-5678 --depth 4 --include variables,dev-resources --json --select 'simplifiedNodeCount,nodes,variables,devResources'",
+        "explanation": "The killer command. Returns a compact JSON with the simplified node tree, every variable in scope, every dev-resource link, and a node count showing the compression ratio — paste it directly into Claude or Cursor."
+      },
+      {
+        "title": "Find unresolved comments older than two weeks",
+        "command": "figma-pp-cli comments-audit --older-than 14d --group-by file,author --json --select 'file,author,count,oldest_at'",
+        "explanation": "After sync, walks the comments table and aggregates by file and author. Pipe through jq for Slack-ready Markdown."
+      },
+      {
+        "title": "Cleanup orphans across a team library",
+        "command": "figma-pp-cli orphans 12345 --kind component,style,variable --window 30d --json",
+        "explanation": "Joins team-library publish list with 30-day usage analytics; emits the list of entities published but with zero usages — your deprecation candidates. Enterprise-tier required."
+      },
+      {
+        "title": "Diff design tokens between two file versions",
+        "command": "figma-pp-cli tokens diff abc123 --from v1.0.0 --to HEAD --format md",
+        "explanation": "Resolves the version ids, snapshots variables at each, and emits a Markdown change-set listing added/removed/renamed/value-changed tokens. Run before merging a design-tokens PR."
+      },
+      {
+        "title": "Replay failed webhook deliveries against a local server",
+        "command": "figma-pp-cli webhooks test wh_abc --replay-failed --target-url http://localhost:3000/figma",
+        "explanation": "Fetches the request log via /v2/webhooks/{id}/requests, filters status \u003e= 400, and replays each delivery against your local URL with the captured payload and original headers. (HMAC re-signing is not yet wired — your handler must accept unsigned replays for testing.)"
+      }
+    ],
+    "trigger_phrases": [
+      "extract a figma frame for codegen",
+      "compact figma file context for AI",
+      "find unresolved figma comments",
+      "figma stale components",
+      "diff figma design tokens",
+      "figma file fingerprint for CI",
+      "replay figma webhook deliveries",
+      "where is this figma variable used",
+      "use figma",
+      "run figma-pp-cli"
+    ]
+  }
+}

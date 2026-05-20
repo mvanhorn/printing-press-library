@@ -1,0 +1,99 @@
+{
+  "dir": "/Users/giu/printing-press/.runstate/cli-printing-press-eeffaa17/runs/20260509-190854/working/figma-pp-cli",
+  "binary": "/Users/giu/printing-press/.runstate/cli-printing-press-eeffaa17/runs/20260509-190854/working/figma-pp-cli/figma-pp-cli",
+  "level": "quick",
+  "verdict": "FAIL",
+  "matrix_size": 6,
+  "passed": 4,
+  "failed": 2,
+  "skipped": 2,
+  "commands": [
+    "activity-logs",
+    "analytics"
+  ],
+  "tests": [
+    {
+      "command": "activity-logs",
+      "kind": "help",
+      "args": [
+        "activity-logs",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Shortcut for 'activity-logs get'. Returns a list of activity log events\n\nUsage:\n  figma-pp-cli activity-logs [flags]\n\nExamples:\n  figma-pp-cli activity-logs\n\nFlags:\n      --all                Fetch all pages\n      --end-time float     Unix timestamp of the most recent event to include. This param defaults to the current timestamp if unspecified.\n      --events string      Event type(s) to include in the response. Can have multiple values separated by comma. All events are returned by...\n  -h, --help               help for activity-logs\n      --limit float        Maximum number of events to return. This param defaults to 1000 if unspecified.\n      --order string       Event order by timestamp. This param can be either 'asc' (default) or 'desc'. (one of: asc, desc) (default \"asc\")\n      --start-time float   Unix timestamp of the least recent event to include. This param defaults to one year ago if unspecified.\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'figma-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "activity-logs",
+      "kind": "happy_path",
+      "args": [
+        "activity-logs"
+      ],
+      "status": "fail",
+      "exit_code": 4,
+      "reason": "exit 4",
+      "output_sample": "Error: GET /v1/activity_logs returned HTTP 401: {\"error\":true,\"status\":401,\"message\":\"OAuth token is not passed in the Bearer authorization header.\"}\nhint: check your token. Set it with: figma-pp-cli auth set-token \u003ctoken\u003e\n      or: export FIGMA_OAUTH2=\u003cyour-token\u003e\n      Get a key at: https://developers.figma.com/docs/rest-api/\n      Run 'figma-pp-cli doctor' to check auth status.\nGET /v1/activity_logs returned HTTP 401: {\"error\":true,\"status\":401,\"message\":\"OAuth token is not passed in the Bearer authorization header.\"}\nhint: check your token. Set it with: figma-pp-cli auth set-token \u003ctoken\u003e\n      or: export FIGMA_OAUTH2=\u003cyour-token\u003e\n      Get a key at: https://developers.figma.com/docs/rest-api/\n      Run 'figma-pp-cli doctor' to check auth status.\n"
+    },
+    {
+      "command": "activity-logs",
+      "kind": "json_fidelity",
+      "args": [
+        "activity-logs",
+        "--json"
+      ],
+      "status": "fail",
+      "exit_code": 4,
+      "reason": "exit 4",
+      "output_sample": "Error: GET /v1/activity_logs returned HTTP 401: {\"error\":true,\"status\":401,\"message\":\"OAuth token is not passed in the Bearer authorization header.\"}\nhint: check your token. Set it with: figma-pp-cli auth set-token \u003ctoken\u003e\n      or: export FIGMA_OAUTH2=\u003cyour-token\u003e\n      Get a key at: https://developers.figma.com/docs/rest-api/\n      Run 'figma-pp-cli doctor' to check auth status.\nGET /v1/activity_logs returned HTTP 401: {\"error\":true,\"status\":401,\"message\":\"OAuth token is not passed in the Bearer authorization header.\"}\nhint: check your token. Set it with: figma-pp-cli auth set-token \u003ctoken\u003e\n      or: export FIGMA_OAUTH2=\u003cyour-token\u003e\n      Get a key at: https://developers.figma.com/docs/rest-api/\n      Run 'figma-pp-cli doctor' to check auth status.\n"
+    },
+    {
+      "command": "activity-logs",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "analytics",
+      "kind": "help",
+      "args": [
+        "analytics",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Analyze locally synced data with count, group-by, and summary operations.\nData must be synced first with the sync command.\n\nUsage:\n  figma-pp-cli analytics [flags]\n\nExamples:\n  # Count records by type\n  figma-pp-cli analytics --type messages\n\n  # Group by a field\n  figma-pp-cli analytics --type messages --group-by author_id\n\n  # Top 10 most frequent values\n  figma-pp-cli analytics --type messages --group-by channel_id --limit 10 --json\n\nFlags:\n      --db string         Database path\n      --group-by string   Field to group by\n  -h, --help              help for analytics\n      --limit int         Max groups to show (default 25)\n      --type string       Resource type to analyze\n\nGlobal Flags:\n      --agent                Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --compact              Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string        Config file path\n      --csv                  Output as CSV (table and array responses)\n      --data-source string   Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string       Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run              Show request without sending\n      --human-friendly       Enable colored output and rich formatting\n      --idempotent           Treat already-existing create results as a successful no-op\n      --ignore-missing       Treat missing delete targets as a successful no-op\n      --json                 Output as JSON\n      --no-cache             Bypass response cache\n      --no-color             Disable colored output\n      --no-input             Disable all interactive prompts (for CI/agents)\n      --plain                Output as plain tab-separated text\n      --profile string       Apply values from a saved profile (see 'figma-pp-cli profile list')\n      --quiet                Bare output, one value per line\n      --rate-limit float     Max requests per second (0 to disable)\n      --select string        Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration     Request timeout (default 30s)\n      --yes                  Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "happy_path",
+      "args": [
+        "analytics",
+        "--type",
+        "messages"
+      ],
+      "status": "pass",
+      "output_sample": "messages: 0 records\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "json_fidelity",
+      "args": [
+        "analytics",
+        "--type",
+        "messages",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"count\": 0,\n  \"resource_type\": \"messages\"\n}\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-05-10T02:48:48.412188Z"
+}
+Error: live dogfood failed: 2/6 tests failed
+live dogfood failed: 2/6 tests failed

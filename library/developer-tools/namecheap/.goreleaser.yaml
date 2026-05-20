@@ -1,0 +1,55 @@
+version: 2
+project_name: namecheap-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: namecheap-pp-cli
+    main: ./cmd/namecheap-pp-cli
+    binary: namecheap-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X namecheap-pp-cli/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: namecheap-pp-mcp
+    main: ./cmd/namecheap-pp-mcp
+    binary: namecheap-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: namecheap-pp-cli
+    repository:
+      owner: cathryn-lavery
+      name: homebrew-tap
+    homepage: "https://github.com/cathryn-lavery/namecheap-pp-cli"
+    description: "Curated OpenAPI description for Namecheap's XML API. The real API uses a single
+endpoint (`/xml.response`) with a `Command` query parameter plus Namecheap's
+query-string authentication parameters (`ApiUser`, `ApiKey`, `UserName`, `ClientIp`).
+Generation uses command-shaped pseudo paths that are normalized back to `/xml.response`
+by the Namecheap printed CLI patch layer."
+    install: |
+      bin.install "namecheap-pp-cli"
+      bin.install "namecheap-pp-mcp"

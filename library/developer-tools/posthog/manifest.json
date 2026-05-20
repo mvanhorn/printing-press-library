@@ -1,0 +1,42 @@
+{
+  "manifest_version": "0.3",
+  "name": "posthog-pp-mcp",
+  "display_name": "PostHog",
+  "version": "1.0.0",
+  "description": "Every PostHog resource in one CLI — with offline search, agent-native output, and cross-resource analytics no dashboard exposes.",
+  "long_description": "posthog-pp-mcp exposes the full PostHog API surface to agents as two intent-grouped tools: posthog_search (offline or live resource lookup) and posthog_execute (any CLI command with structured JSON output). Built-in compound analytics commands cover flag blast-radius, rollout health, LLM cost attribution, persons at-risk, event property drift, experiment pre-check, stale flags, and dashboard health.",
+  "author": {
+    "name": "riteshtiwari",
+    "url": "https://github.com/riteshtiwari"
+  },
+  "license": "Apache-2.0",
+  "keywords": ["posthog", "analytics", "feature-flags", "experiments", "llm", "observability"],
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/posthog-pp-mcp",
+    "command": "posthog-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/posthog-pp-mcp",
+      "args": [],
+      "env": {
+        "POSTHOG_PERSONAL_APIKEY_AUTH": "${user_config.POSTHOG_PERSONAL_APIKEY_AUTH}"
+      }
+    }
+  },
+  "user_config": {
+    "POSTHOG_PERSONAL_APIKEY_AUTH": {
+      "type": "string",
+      "description": "PostHog personal API key (phx_...). Get yours at https://app.posthog.com/settings/user-api-keys",
+      "required": true,
+      "sensitive": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

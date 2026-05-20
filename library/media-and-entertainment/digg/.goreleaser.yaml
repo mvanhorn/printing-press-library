@@ -45,7 +45,7 @@ brews:
       owner: matt-van-horn
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Tail the Digg AI 1000's news cycle from the terminal — read-only, with the full pipeline event stream and..."
+    description: "Tail Digg's news cycle, GitHub feeds, and pipeline events from the terminal — read-only, with rank-history nobody else surfaces."
     install: |
       bin.install "digg-pp-cli"
       bin.install "digg-pp-mcp"

@@ -1,0 +1,93 @@
+{
+  "dir": "/Users/omarshahine/printing-press/.runstate/printing-press-library-23ffc216/runs/20260511-051647/working/ticketmaster-pp-cli",
+  "spec_path": "/Users/omarshahine/printing-press/.runstate/printing-press-library-23ffc216/runs/20260511-051647/research/ticketmaster-discovery-v2.json",
+  "verdict": "FAIL",
+  "path_check": {
+    "tested": 4,
+    "valid": 4,
+    "valid_pct": 100
+  },
+  "auth_check": {
+    "spec_scheme": "",
+    "generated_format": "unknown",
+    "match": true,
+    "detail": "spec not provided or no bot/bearer/basic scheme detected"
+  },
+  "browser_session_check": {
+    "required": false,
+    "pass": true,
+    "detail": "browser-session auth not required"
+  },
+  "dead_flags": {
+    "total": 18,
+    "dead": 0
+  },
+  "dead_functions": {
+    "total": 53,
+    "dead": 0
+  },
+  "pipeline_check": {
+    "sync_calls_domain": true,
+    "search_calls_domain": true,
+    "domain_tables": 3,
+    "detail": "sync uses domain-specific Upsert methods; search uses domain-specific Search methods; 3 domain tables found"
+  },
+  "example_check": {
+    "tested": 10,
+    "with_examples": 10,
+    "valid_examples": 10,
+    "detail": "10/10 commands have examples"
+  },
+  "wiring_check": {
+    "command_tree": {
+      "defined": 57,
+      "registered": 57
+    },
+    "config_consistency": {
+      "consistent": true
+    },
+    "workflow_completeness": {
+      "skipped": true,
+      "total_steps": 0,
+      "mapped_steps": 0,
+      "detail": "no workflow_verify.yaml found"
+    }
+  },
+  "novel_features_check": {
+    "planned": 9,
+    "found": 9
+  },
+  "mcp_surface_parity": {
+    "state": "runtime_walking",
+    "pass": true,
+    "detail": "MCP surface mirrors the Cobra tree at runtime"
+  },
+  "reimplementation_check": {
+    "checked": 9,
+    "exempted_via_store": 9
+  },
+  "source_client_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "print_json_filtered_check": {
+    "checked": 45
+  },
+  "test_presence": {
+    "checked": 0
+  },
+  "naming_check": {
+    "checked": 45,
+    "violations": [
+      {
+        "file": "internal/cli/events_watchlist.go",
+        "banned": "ls",
+        "preferred": "list",
+        "category": "verb"
+      }
+    ]
+  },
+  "issues": [
+    "1 naming violations: verb ls→list in internal/cli/events_watchlist.go"
+  ]
+}

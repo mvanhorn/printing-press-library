@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-12T01:00:08Z",
+  "printing_press_version": "4.5.0",
+  "api_name": "posthog",
+  "display_name": "PostHog",
+  "cli_name": "posthog-pp-cli",
+  "owner": "riteshtiwari",
+  "printer": "riteshtiwari",
+  "printer_name": "riteshtiwari",
+  "spec_url": "https://app.posthog.com/api/schema",
+  "spec_format": "openapi3",
+  "run_id": "20260512-010008",
+  "category": "developer-tools",
+  "description": "Every PostHog resource in one CLI — with offline search, agent-native output, and cross-resource analytics no dashboard exposes.",
+  "mcp_binary": "posthog-pp-mcp",
+  "mcp_tool_count": 2,
+  "mcp_public_tool_count": 2,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "POSTHOG_PERSONAL_APIKEY_AUTH"
+  ],
+  "novel_features": [
+    {
+      "name": "Flag Blast Radius",
+      "command": "flags blast-radius",
+      "description": "Find every insight, dashboard, experiment, and survey that references a flag before you archive or rename it."
+    },
+    {
+      "name": "Flag Rollout Health",
+      "command": "flags rollout-health",
+      "description": "Go/no-go confidence for a flag ramp — error rate and key metric movement correlated with flag exposure."
+    },
+    {
+      "name": "LLM Cost Attribution",
+      "command": "llm cost-attribution",
+      "description": "Break down LLM spend by feature flag variant — see whether the expensive model variant pays for itself."
+    },
+    {
+      "name": "Persons At-Risk",
+      "command": "persons at-risk",
+      "description": "Surface which users in a cohort are going quiet and recently hit errors — before they churn."
+    },
+    {
+      "name": "Event Property Drift",
+      "command": "events property-drift",
+      "description": "Catch tracking regressions — properties that silently disappeared from an event between two time windows."
+    },
+    {
+      "name": "Experiment Pre-Check",
+      "command": "experiments pre-check",
+      "description": "Know today whether an experiment will reach significance this sprint, or needs traffic adjustment now."
+    },
+    {
+      "name": "Flag Stale Finder",
+      "command": "flags stale",
+      "description": "List flags that haven't been evaluated in N days — cleanup candidates before they accumulate."
+    },
+    {
+      "name": "Dashboard Health",
+      "command": "dashboard health",
+      "description": "Find broken dashboards before a stakeholder meeting does — stale data, deleted cohorts, archived flags."
+    }
+  ]
+}

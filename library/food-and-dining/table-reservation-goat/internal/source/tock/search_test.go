@@ -329,3 +329,83 @@ func TestSearchCity_HTTPError(t *testing.T) {
 		t.Fatal("expected error on HTTP 500; got nil")
 	}
 }
+
+// TestExtractMetroAreas_HappyPath verifies the parser pulls the
+// metroArea array out of a state map matching Tock's actual SSR shape.
+// Issue #406 deferred TODO: replaces the CLI's 20-entry static fallback
+// with the 253-metro live list.
+func TestExtractMetroAreas_HappyPath(t *testing.T) {
+	state := map[string]any{
+		"app": map[string]any{
+			"config": map[string]any{
+				"metroArea": []map[string]any{
+					{"slug": "seattle", "name": "Seattle", "lat": 47.6062, "lng": -122.3321, "businessCount": 120},
+					{"slug": "bellevue", "name": "Bellevue", "lat": 47.6101, "lng": -122.2015, "businessCount": 38},
+					{"slug": "new-york-city", "name": "New York City", "lat": 40.7589, "lng": -73.9851, "businessCount": 412},
+				},
+			},
+		},
+	}
+	got, err := extractMetroAreas(state)
+	if err != nil {
+		t.Fatalf("extractMetroAreas: %v", err)
+	}
+	if len(got) != 3 {
+		t.Fatalf("got %d metros; want 3", len(got))
+	}
+	if got[1].Slug != "bellevue" || got[1].Name != "Bellevue" || got[1].BusinessCount != 38 {
+		t.Errorf("bellevue entry off: %+v", got[1])
+	}
+	if got[1].Lat != 47.6101 || got[1].Lng != -122.2015 {
+		t.Errorf("bellevue centroid wrong: %v,%v", got[1].Lat, got[1].Lng)
+	}
+}
+
+// TestExtractMetroAreas_FiltersInvalidEntries verifies entries with
+// empty slug/name or zero centroid are dropped — they'd be useless for
+// geo math even if Tock emits them.
+func TestExtractMetroAreas_FiltersInvalidEntries(t *testing.T) {
+	state := map[string]any{
+		"app": map[string]any{
+			"config": map[string]any{
+				"metroArea": []map[string]any{
+					{"slug": "seattle", "name": "Seattle", "lat": 47.6, "lng": -122.3},
+					{"slug": "", "name": "No slug", "lat": 1.0, "lng": 2.0},       // dropped
+					{"slug": "no-name", "name": "", "lat": 3.0, "lng": 4.0},       // dropped
+					{"slug": "zero-centroid", "name": "Zero", "lat": 0, "lng": 0}, // dropped
+					{"slug": "bellevue", "name": "Bellevue", "lat": 47.6, "lng": -122.2},
+				},
+			},
+		},
+	}
+	got, _ := extractMetroAreas(state)
+	if len(got) != 2 {
+		t.Fatalf("got %d valid metros; want 2 (seattle + bellevue), filter not aggressive enough", len(got))
+	}
+}
+
+// TestExtractMetroAreas_ShapeErrors covers the typed errors emitted
+// when Tock's SPA refactors the config tree. Each layer of the path
+// has its own sentinel so debug output points at the right level.
+func TestExtractMetroAreas_ShapeErrors(t *testing.T) {
+	cases := []struct {
+		name  string
+		state map[string]any
+		want  string
+	}{
+		{"missing app", map[string]any{}, "state.app missing"},
+		{"missing app.config", map[string]any{"app": map[string]any{}}, "state.app.config missing"},
+		{"missing metroArea key", map[string]any{"app": map[string]any{"config": map[string]any{}}}, "state.app.config.metroArea absent"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			_, err := extractMetroAreas(tc.state)
+			if err == nil {
+				t.Fatalf("expected error for %q; got nil", tc.name)
+			}
+			if !strings.Contains(err.Error(), tc.want) {
+				t.Errorf("error %q missing substring %q", err.Error(), tc.want)
+			}
+		})
+	}
+}

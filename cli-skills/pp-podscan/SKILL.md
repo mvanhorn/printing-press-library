@@ -1,6 +1,6 @@
 ---
 name: pp-podscan
-description: "Printing Press CLI for Podscan. Podscan REST API — search 51M+ podcast episodes and 4.4M+ podcasts. Full transcripts, AI-extracted entities,..."
+description: "Search 51M+ podcast episodes and 4.4M+ podcasts via Podscan — full transcripts, AI-extracted entities, mentions, and brand-safety analysis. Trigger phrases: `search podcast transcripts`, `find podcasts mentioning`, `who's talked about <topic> on podcasts`, `use podscan`."
 author: "Greg Van Horn"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
@@ -11,6 +11,11 @@ metadata:
       bins:
         - podscan-pp-cli
 ---
+<!-- GENERATED FILE — DO NOT EDIT.
+     This file is a verbatim mirror of library/media-and-entertainment/podscan/SKILL.md,
+     regenerated post-merge by tools/generate-skills/. Hand-edits here are
+     silently overwritten on the next regen. Edit the library/ source instead.
+     See AGENTS.md "Generated artifacts: registry.json, cli-skills/". -->
 
 # Podscan — Printing Press CLI
 

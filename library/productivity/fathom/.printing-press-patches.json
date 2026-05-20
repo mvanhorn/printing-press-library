@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-09",
+  "base_run_id": "20260509-090403",
+  "base_printing_press_version": "4.0.6",
+  "patches": [
+    {
+      "id": "recording-id-primary-key",
+      "summary": "Added 'meetings': 'recording_id' to resourceIDFieldOverrides in internal/store/store.go.",
+      "reason": "Fathom uses 'recording_id' (integer) as the meeting primary key; the generic fallback list only checks 'id', 'ID', 'name', 'uuid', etc. Without this, sync stored 0 meetings.",
+      "files": ["internal/store/store.go"],
+      "validated_outcome": "Full sync fetches 20+ meetings across 2 pages with all rich fields (transcript, action_items, summary, crm_matches)."
+    },
+    {
+      "id": "cursor-pagination",
+      "summary": "Four fixes in sync.go: (1) treat non-empty next_cursor as hasMore=true; (2) cursorParam 'after' → 'cursor'; (3) sinceParam 'since' → 'created_after'; (4) incremental sync clears cursor and uses created_after filter instead of resuming from positional cursor.",
+      "reason": "Fathom's cursor is positional (descending order) not temporal — resuming it on incremental sync re-fetches old meetings rather than new ones. The correct incremental approach is to start from page 1 filtered by created_after=last_synced_at.",
+      "files": ["internal/cli/sync.go"],
+      "validated_outcome": "Full sync fetches all 3,366 meetings; incremental sync completes in ~3 seconds fetching only 1 new record."
+    },
+    {
+      "id": "meetings-include-flags",
+      "summary": "Sync command adds include_action_items, include_summary, include_transcript, include_crm_matches params for the meetings resource.",
+      "reason": "Fathom's /meetings endpoint omits these fields by default. Novel commands (commitments, topics, brief, crm-gaps) require them. Without this, all novel commands return empty results.",
+      "files": ["internal/cli/sync.go"],
+      "validated_outcome": "After sync, meetings have 5-15 action items and 300-500 transcript segments per meeting."
+    },
+    {
+      "id": "search-command-fix",
+      "summary": "Fixed search.go: case '' branch never called db.Search(); added FTS snippet extraction with clean text output.",
+      "reason": "Generated search command's empty-resourceType case created a 'seen' map and returned nil results. Also added cleanSnippet() to strip JSON field noise from FTS snippet() output so context is human-readable.",
+      "files": ["internal/cli/search.go"],
+      "validated_outcome": "'fathom-pp-cli search \"data pipeline clearpack\"' returns ranked meetings with clean highlighted snippets."
+    },
+    {
+      "id": "db-export-restore",
+      "summary": "Added 'db export' and 'db restore' commands for local store backup and transfer without API calls.",
+      "reason": "Built-in export hits the live API and returns paginated envelopes — not suitable for dumping all synced data. db export writes one JSONL record per line from local SQLite; db restore loads it back. Also supports SQLite file format via --format sqlite.",
+      "files": ["internal/cli/db_ff.go"],
+      "validated_outcome": "db export of 3,366 meetings produces 3,366-line JSONL (300MB); db restore into a fresh DB recovers all 3,366 rows."
+    },
+    {
+      "id": "created-at-guard",
+      "summary": "Guarded m.CreatedAt[:10] slices in crm_gaps_ff.go, brief_ff.go, account_ff.go, and stale_ff.go against empty/short strings.",
+      "reason": "Fathom meetings with missing created_at fields caused a runtime slice-bounds panic. search.go already had the len >= 10 guard; this propagates the same fix to the four remaining sites.",
+      "files": [
+        "internal/cli/crm_gaps_ff.go",
+        "internal/cli/brief_ff.go",
+        "internal/cli/account_ff.go",
+        "internal/cli/stale_ff.go"
+      ],
+      "validated_outcome": "go build ./... passes cleanly after the fix."
+    },
+    {
+      "id": "db-sqlite-restore-validate",
+      "summary": "Added isSQLiteFile() guard before clear/copyFile in the sqlite restore path.",
+      "reason": "Without validation, passing a non-SQLite file with --format sqlite (and optionally --clear) silently destroys the live database with no recovery path. isSQLiteFile() was already defined in the file but never called.",
+      "files": ["internal/cli/db_ff.go"]
+    },
+    {
+      "id": "ratelimit-race",
+      "summary": "Fixed AdaptiveLimiter.Wait() to serialize concurrent callers by holding the mutex through the sleep.",
+      "reason": "Releasing the lock before time.Sleep allowed all concurrent sync workers to read the same lastRequest, sleep the same duration, then fire simultaneously — delivering concurrency×rate req/s instead of the configured rate.",
+      "files": ["internal/cliutil/ratelimit.go"]
+    },
+    {
+      "id": "resolve-by-name-injection",
+      "summary": "Added isSafeIdentifier() allowlist guard before fmt.Sprintf field interpolation in ResolveByName.",
+      "reason": "Field names were interpolated directly into SQL. While current callers pass hardcoded values, a future caller passing a user-derived field name would be a SQL injection vector.",
+      "files": ["internal/store/store.go"]
+    },
+    {
+      "id": "topics-bar-utf8",
+      "summary": "Fixed bar chart truncation in topics_ff.go to not cut mid-codepoint on the 3-byte █ character.",
+      "reason": "bar[:40] sliced at byte 40, which lands inside the 14th █ codepoint (3 bytes each), producing invalid UTF-8 for any term appearing ≥14 times. Fixed by capping the repeat count at 40 runes instead of slicing bytes.",
+      "files": ["internal/cli/topics_ff.go"]
+    },
+    {
+      "id": "coverage-gap-weeks",
+      "summary": "Fixed coverage_ff.go to enumerate all weeks in range (not just recorded ones) and render gap weeks with ✗ status.",
+      "reason": "Only weeks present in weekRecorded were added to allWeeks, so gap weeks were silently omitted from both JSON and human output — defeating the command's primary purpose. Now iterates all weeks in range and marks gaps with Recorded:false.",
+      "files": ["internal/cli/coverage_ff.go"]
+    },
+    {
+      "id": "db-resource-type-escape",
+      "summary": "Fixed db_ff.go JSONL envelope to use json.Marshal(rt) instead of raw string concatenation for resource_type.",
+      "reason": "Raw concatenation of rt into a JSON string literal produces malformed JSON if rt contains backslashes or quotes (e.g. from a restored JSONL with unusual resource type names).",
+      "files": ["internal/cli/db_ff.go"]
+    },
+    {
+      "id": "novel-commands",
+      "summary": "Added 9 novel commands not available in any Fathom MCP server: commitments, topics, brief, velocity, workload, account, stale, crm-gaps, coverage.",
+      "reason": "Fathom API has no aggregation endpoints. All novel commands read from the local SQLite store populated by sync.",
+      "files": [
+        "internal/cli/commitments_ff.go",
+        "internal/cli/topics_ff.go",
+        "internal/cli/brief_ff.go",
+        "internal/cli/velocity_ff.go",
+        "internal/cli/workload_ff.go",
+        "internal/cli/account_ff.go",
+        "internal/cli/stale_ff.go",
+        "internal/cli/crm_gaps_ff.go",
+        "internal/cli/coverage_ff.go",
+        "internal/cli/fathom_types.go",
+        "internal/cli/fathom_helpers.go"
+      ]
+    }
+  ]
+}

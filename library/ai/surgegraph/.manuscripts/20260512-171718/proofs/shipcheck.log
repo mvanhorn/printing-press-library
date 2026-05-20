@@ -1,0 +1,334 @@
+
+=== dogfood ===
+warning: skipping GET "/v1": could not derive resource name
+dogfood: synced .printing-press.json (novel_features) from novel_features_built
+dogfood: synced README.md (Unique Features) from novel_features_built
+dogfood: synced SKILL.md (Unique Capabilities) from novel_features_built
+Dogfood Report: surgegraph-pp-cli
+================================
+
+Path Validity:     3/3 valid (PASS)
+
+Auth Protocol:     MATCH
+  Spec: bearer token format (expects "Bearer " prefix)
+  Generated: Uses "Bearer" prefix
+  Detail: spec and generated client both use "Bearer"
+
+Dead Flags:        0 dead (PASS)
+
+Dead Functions:    4 dead (WARN)
+  - extractPaginatedItems (defined, never called)
+  - extractResponseData (defined, never called)
+  - paginatedGet (defined, never called)
+  - rawAtPath (defined, never called)
+
+Data Pipeline:     PARTIAL
+  Sync: calls domain-specific Upsert methods (GOOD)
+  Search: uses generic Search only or direct SQL
+  Domain tables: 13
+
+Examples:          10/10 commands have examples (PASS)
+
+Novel Features:    14/14 survived (PASS)
+
+MCP Surface:       PASS (MCP surface mirrors the Cobra tree at runtime)
+
+Verdict: WARN
+  - 4 dead helper functions found
+  - 1 source client file(s) without rate-limit handling: internal/oauth/oauth.go — outbound HTTP without rate limiter or typed 429 handling
+
+=== verify ===
+warning: skipping GET "/v1": could not derive resource name
+
+Verification verdict WARN (pass rate 100%, threshold 80%). Running fix loop (max 3 iterations)...
+
+2026/05/12 17:51:03 fix loop: execution failure for create-ai-visibility-prompt requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for create-ai-visibility-prompt: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for create-api-key requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for create-api-key: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for create-bulk-documents requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for create-bulk-documents: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for create-document requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for create-document: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for create-domain-research requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for create-domain-research: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for create-image requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for create-image: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for create-knowledge-library requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for create-knowledge-library: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for create-knowledge-library-document requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for create-knowledge-library-document: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for create-optimized-document requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for create-optimized-document: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for create-topic-research requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for create-topic-research: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for create-topic-research-expansion requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for create-topic-research-expansion: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for delete-ai-visibility-prompt requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for delete-ai-visibility-prompt: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for delete-api-key requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for delete-api-key: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for delete-document requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for delete-document: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for delete-knowledge-library requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for delete-knowledge-library: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for delete-knowledge-library-document requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for delete-knowledge-library-document: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for get-ai-visibility-citation-domain requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for get-ai-visibility-citation-domain: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for get-ai-visibility-citation-own-domain requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for get-ai-visibility-citation-own-domain: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for get-ai-visibility-citations requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for get-ai-visibility-citations: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for get-ai-visibility-config requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for get-ai-visibility-config: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for get-ai-visibility-emerging-topics requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for get-ai-visibility-emerging-topics: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for get-ai-visibility-metadata requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for get-ai-visibility-metadata: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for get-ai-visibility-opportunities requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for get-ai-visibility-opportunities: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for get-ai-visibility-overview requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for get-ai-visibility-overview: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for get-ai-visibility-prompt-detail requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for get-ai-visibility-prompt-detail: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for get-ai-visibility-prompt-response requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for get-ai-visibility-prompt-response: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for get-ai-visibility-prompts requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for get-ai-visibility-prompts: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for get-ai-visibility-response-structure requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for get-ai-visibility-response-structure: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for get-ai-visibility-sentiment requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for get-ai-visibility-sentiment: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for get-ai-visibility-topic-gaps requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for get-ai-visibility-topic-gaps: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for get-ai-visibility-topics requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for get-ai-visibility-topics: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for get-ai-visibility-traffic-pages requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for get-ai-visibility-traffic-pages: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for get-ai-visibility-traffic-summary requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for get-ai-visibility-traffic-summary: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for get-ai-visibility-trend requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for get-ai-visibility-trend: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for get-author-brand requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for get-author-brand: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for get-authors requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for get-authors: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for get-content-vision-gallery requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for get-content-vision-gallery: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for get-content-vision-settings requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for get-content-vision-settings: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for get-document requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for get-document: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for get-domain-research requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for get-domain-research: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for get-knowledge-libraries requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for get-knowledge-libraries: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for get-knowledge-library-documents requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for get-knowledge-library-documents: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for get-optimized-documents requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for get-optimized-documents: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for get-project-cms-integration requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for get-project-cms-integration: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for get-topic-map requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for get-topic-map: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for get-topic-research requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for get-topic-research: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for get-wordpress-authors requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for get-wordpress-authors: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for get-wordpress-categories requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for get-wordpress-categories: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for get-writer-documents requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for get-writer-documents: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for list-domain-researches requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for list-domain-researches: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for list-topic-researches requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for list-topic-researches: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for publish-document-to-cms requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for publish-document-to-cms: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for update-ai-visibility-prompt requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for update-ai-visibility-prompt: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for update-api-key requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for update-api-key: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for update-document requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for update-document: manual execution fix required
+2026/05/12 17:51:03 fix loop: execution failure for update-project-cms-integration requires manual fix
+2026/05/12 17:51:03 fix loop: skip exec_fail for update-project-cms-integration: manual execution fix required
+Runtime Verification: ~/printing-press/.runstate/cli-printing-press-b0232eee/runs/20260512-171718/working/surgegraph-pp-cli/surgegraph-pp-cli
+Mode: mock
+
+COMMAND                        KIND         HELP   DRY-RUN  EXEC     SCORE
+account                        read         PASS   PASS     PASS     3/3
+agent-context                  read         PASS   PASS     PASS     3/3
+api                            local        PASS   PASS     PASS     3/3
+auth                           local        PASS   PASS     PASS     3/3
+context                        read         PASS   PASS     PASS     3/3
+create-ai-visibility-prompt    read         PASS   PASS     FAIL     2/3
+create-api-key                 read         PASS   PASS     FAIL     2/3
+create-bulk-documents          read         PASS   PASS     FAIL     2/3
+create-document                read         PASS   PASS     FAIL     2/3
+create-domain-research         read         PASS   PASS     FAIL     2/3
+create-image                   read         PASS   PASS     FAIL     2/3
+create-knowledge-library       read         PASS   PASS     FAIL     2/3
+create-knowledge-library-do... read         PASS   PASS     FAIL     2/3
+create-optimized-document      read         PASS   PASS     FAIL     2/3
+create-topic-research          read         PASS   PASS     FAIL     2/3
+create-topic-research-expan... read         PASS   PASS     FAIL     2/3
+delete-ai-visibility-prompt    read         PASS   PASS     FAIL     2/3
+delete-api-key                 read         PASS   PASS     FAIL     2/3
+delete-document                read         PASS   PASS     FAIL     2/3
+delete-knowledge-library       read         PASS   PASS     FAIL     2/3
+delete-knowledge-library-do... read         PASS   PASS     FAIL     2/3
+docs                           read         PASS   PASS     PASS     3/3
+doctor                         local        PASS   PASS     PASS     3/3
+feedback                       read         PASS   PASS     PASS     3/3
+get-ai-visibility-citation-... read         PASS   PASS     FAIL     2/3
+get-ai-visibility-citation-... read         PASS   PASS     FAIL     2/3
+get-ai-visibility-citations    read         PASS   PASS     FAIL     2/3
+get-ai-visibility-config       read         PASS   PASS     FAIL     2/3
+get-ai-visibility-emerging-... read         PASS   PASS     FAIL     2/3
+get-ai-visibility-metadata     read         PASS   PASS     FAIL     2/3
+get-ai-visibility-opportuni... read         PASS   PASS     FAIL     2/3
+get-ai-visibility-overview     read         PASS   PASS     FAIL     2/3
+get-ai-visibility-prompt-de... read         PASS   PASS     FAIL     2/3
+get-ai-visibility-prompt-re... read         PASS   PASS     FAIL     2/3
+get-ai-visibility-prompts      read         PASS   PASS     FAIL     2/3
+get-ai-visibility-response-... read         PASS   PASS     FAIL     2/3
+get-ai-visibility-sentiment    read         PASS   PASS     FAIL     2/3
+get-ai-visibility-topic-gaps   read         PASS   PASS     FAIL     2/3
+get-ai-visibility-topics       read         PASS   PASS     FAIL     2/3
+get-ai-visibility-traffic-p... read         PASS   PASS     FAIL     2/3
+get-ai-visibility-traffic-s... read         PASS   PASS     FAIL     2/3
+get-ai-visibility-trend        read         PASS   PASS     FAIL     2/3
+get-anthropic-keys             read         PASS   PASS     PASS     3/3
+get-author-brand               read         PASS   PASS     FAIL     2/3
+get-authors                    read         PASS   PASS     FAIL     2/3
+get-brand-mentions             read         PASS   PASS     PASS     3/3
+get-content-vision-gallery     read         PASS   PASS     FAIL     2/3
+get-content-vision-settings    read         PASS   PASS     FAIL     2/3
+get-document                   read         PASS   PASS     FAIL     2/3
+get-domain-research            read         PASS   PASS     FAIL     2/3
+get-gemini-keys                read         PASS   PASS     PASS     3/3
+get-knowledge-libraries        read         PASS   PASS     FAIL     2/3
+get-knowledge-library-docum... read         PASS   PASS     FAIL     2/3
+get-languages                  read         PASS   PASS     PASS     3/3
+get-locations                  read         PASS   PASS     PASS     3/3
+get-openai-keys                read         PASS   PASS     PASS     3/3
+get-optimized-documents        read         PASS   PASS     FAIL     2/3
+get-organization-cms-integr... read         PASS   PASS     PASS     3/3
+get-project-cms-integration    read         PASS   PASS     FAIL     2/3
+get-projects                   read         PASS   PASS     PASS     3/3
+get-team                       read         PASS   PASS     PASS     3/3
+get-topic-map                  read         PASS   PASS     FAIL     2/3
+get-topic-research             read         PASS   PASS     FAIL     2/3
+get-usage                      read         PASS   PASS     PASS     3/3
+get-wordpress-authors          read         PASS   PASS     FAIL     2/3
+get-wordpress-categories       read         PASS   PASS     FAIL     2/3
+get-wordpress-integrations     read         PASS   PASS     PASS     3/3
+get-writer-documents           read         PASS   PASS     FAIL     2/3
+get-writer-models              read         PASS   PASS     PASS     3/3
+import                         data-layer   PASS   PASS     PASS     3/3
+knowledge                      read         PASS   PASS     PASS     3/3
+list-domain-researches         read         PASS   PASS     FAIL     2/3
+list-topic-researches          read         PASS   PASS     FAIL     2/3
+profile                        read         PASS   PASS     PASS     3/3
+publish-document-to-cms        read         PASS   PASS     FAIL     2/3
+research                       read         PASS   PASS     PASS     3/3
+search                         data-layer   PASS   PASS     PASS     3/3
+sync                           data-layer   PASS   PASS     PASS     3/3
+update-ai-visibility-prompt    read         PASS   PASS     FAIL     2/3
+update-api-key                 read         PASS   PASS     FAIL     2/3
+update-document                read         PASS   PASS     FAIL     2/3
+update-project-cms-integration read         PASS   PASS     FAIL     2/3
+visibility                     read         PASS   PASS     PASS     3/3
+which                          read         PASS   PASS     PASS     3/3
+
+Data Pipeline: FAIL: sync crashed
+Pass Rate: 100% (84/84 passed, 0 critical)
+Verdict: WARN
+
+Fix Loop: 1 iterations, improved: false
+  Iteration 1: 100% -> 100% (+0%), 56 fixes applied
+
+=== workflow-verify ===
+Workflow Verification: surgegraph-pp-cli
+================================
+
+Overall Verdict: workflow-pass
+  - no workflow manifest found, skipping
+
+=== verify-skill ===
+=== surgegraph-pp-cli ===
+  ✘ 2 error(s), 1 likely false-positive(s)
+    [flag-names] surgegraph-pp-cli search: --regex is referenced in SKILL.md but not declared in any internal/cli/*.go
+    [flag-commands] surgegraph-pp-cli search: --regex is not declared anywhere
+    [positional-args] surgegraph-pp-cli visibility: got 1 positional args; Use: "visibility" expects 0–0  [likely false positive]
+      evidence: citations
+  ✓ canonical-sections passed
+
+=== validate-narrative ===
+FAILED [quickstart]: surgegraph-pp-cli auth login --browser → full example failed: ~/printing-press/.runstate/cli-printing-press-b0232eee/runs/20260512-171718/working/surgegraph-pp-cli/surgegraph-pp-cli auth login --browser --dry-run: exit status 1: Error: unknown flag: --browser
+unknown flag: --browser
+MISSING [quickstart]: surgegraph-pp-cli projects list --agent → projects list
+FAILED [quickstart]: surgegraph-pp-cli sync --project proj_abc123 → full example failed: ~/printing-press/.runstate/cli-printing-press-b0232eee/runs/20260512-171718/working/surgegraph-pp-cli/surgegraph-pp-cli sync --project proj_abc123 --dry-run: exit status 1: POST https://mcp.surgegraph.io/v1/get_projects
+  Body:
+{}
+
+(dry run - no request sent)
+Error: project "proj_abc123" not found (try `surgegraph-pp-cli get-projects --json | jq` to list)
+project "proj_abc123" not found (try `surgegraph-pp-cli get-projects --json | jq` to list)
+DONE: 8 ok, 1 missing, 0 empty-words, 2 failed-examples, 0 unsupported
+narrative validation failed
+
+=== scorecard ===
+Quality Scorecard: surgegraph
+
+  Output Modes         10/10
+  Auth                 10/10
+  Error Handling       10/10
+  Terminal UX          9/10
+  README               6/10
+  Doctor               10/10
+  Agent Native         10/10
+  MCP Quality          7/10
+  MCP Desc Quality     N/A
+  MCP Token Efficiency N/A
+  MCP Remote Transport 10/10
+  MCP Tool Design      10/10
+  MCP Surface Strategy 10/10
+  Local Cache          10/10
+  Cache Freshness      0/10
+  Breadth              10/10
+  Vision               5/10
+  Workflows            6/10
+  Insight              2/10
+  Agent Workflow       9/10
+
+  Domain Correctness
+  Path Validity           10/10
+  Auth Protocol           8/10
+  Data Pipeline Integrity 7/10
+  Sync Correctness        2/10
+  Live API Verification   N/A
+  Type Fidelity           3/5
+  Dead Code               3/5
+
+  Total: 73/100 - Grade B
+  Note: omitted from denominator: mcp_description_quality, mcp_token_efficiency, live_api_verification
+
+Gaps:
+  - insight scored 2/10 - needs improvement
+  - sync_correctness scored 2/10 - needs improvement
+  - MCP: 68 tools (0 public, 68 auth-required) — readiness: full
+
+Shipcheck Summary
+=================
+  LEG               RESULT  EXIT      ELAPSED
+  dogfood           PASS    0         2.13s
+  verify            PASS    0         11.889s
+  workflow-verify   PASS    0         17ms
+  verify-skill      FAIL    1         293ms
+  validate-narrative  FAIL    1         247ms
+  scorecard         PASS    0         84ms
+
+Verdict: FAIL (2/6 legs failed)

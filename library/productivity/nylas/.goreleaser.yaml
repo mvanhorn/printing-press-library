@@ -1,0 +1,51 @@
+version: 2
+project_name: nylas-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: nylas-pp-cli
+    main: ./cmd/nylas-pp-cli
+    binary: nylas-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/productivity/nylas/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: nylas-pp-mcp
+    main: ./cmd/nylas-pp-mcp
+    binary: nylas-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: nylas-pp-cli
+    repository:
+      owner: nathan-kettles
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every Nylas API, plus a local SQLite mirror, cross-grant search, and confirm-by-hash sending no other Nylas tool has."
+    install: |
+      bin.install "nylas-pp-cli"
+      bin.install "nylas-pp-mcp"

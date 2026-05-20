@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-13",
+  "base_run_id": "20260513-115144",
+  "base_printing_press_version": "4.3.0",
+  "patches": [
+    {
+      "id": "phase5-auth-header-placeholder",
+      "summary": "Resolve {email}/{token}/{pp_contact_email}/{COMPANY_PP_CONTACT_EMAIL} placeholders in AuthHeader to the configured COMPANY_PP_CONTACT_EMAIL value.",
+      "reason": "Generator emitted the literal placeholder when the format string used aliases other than {token}; SEC fair-access requires a real contact email in User-Agent or every request 403s.",
+      "files": ["internal/config/config.go"]
+    },
+    {
+      "id": "phase5-gzip-header-removal",
+      "summary": "Drop explicit Accept-Encoding header so net/http auto-decodes gzip responses.",
+      "reason": "Setting Accept-Encoding manually disables Go's transparent gzip decoding, leaving callers with raw compressed bytes (first surfaced on company_tickers.json).",
+      "files": ["internal/cli/edgar_helpers.go"]
+    },
+    {
+      "id": "phase5-form4-index-json-fallback",
+      "summary": "When primaryDocument points at an XSL HTML wrapper, fall back to the accession's index.json to locate the actual Form 4 XML.",
+      "reason": "SEC's submissions index increasingly returns wrapper paths (xslF345X05/wf-form4_*.xml) instead of the raw XML; without the fallback, every modern Form 4 ingests as a parse failure.",
+      "files": ["internal/cli/edgar_helpers.go"]
+    },
+    {
+      "id": "phase5-sections-html-strip-pre-pass",
+      "summary": "Pre-strip HTML tags before running the ITEM-header regex in extractSections.",
+      "reason": "SEC 10-K bodies embed ITEM headers inside font/span/b tags; without the strip pass the boundary regex matches nothing and every sections call returns boundary_unverifiable.",
+      "files": ["internal/cli/edgar_helpers.go"]
+    },
+    {
+      "id": "phase5-sections-v1.1-disambiguation",
+      "summary": "When multiple substantial candidate boundaries exist for the same Item, prefer the latest candidate iff it is >3x larger than every earlier substantial candidate; otherwise return boundary_unverifiable.",
+      "reason": "Modern SEC 10-Ks ship a TOC entry for Item X followed by the body for Item X; the v1 parser couldn't tell them apart and bailed. v1.1 heuristic preserves boundary safety while recovering the common case.",
+      "files": ["internal/cli/edgar_helpers.go"]
+    },
+    {
+      "id": "greptile-insider-followthrough-ordering",
+      "summary": "Pick the chronologically earliest material 8-K after each insider sale, not the most recent.",
+      "reason": "ListEdgarFilings returns rows ORDER BY filed_at DESC; the original forward-iterate-and-break matched the latest material 8-K in the 90-day window, contradicting the command's documented semantics. Loop now iterates ascending via a new findEarliestMaterial8K helper covered by insider_followthrough_test.go.",
+      "files": [
+        "internal/cli/insider_followthrough.go",
+        "internal/cli/insider_followthrough_test.go"
+      ],
+      "validated_outcome": "insider_followthrough_test.go::TestFindEarliestMaterial8K_PicksChronologicallyFirst exercises a DESC-sorted set with three material 8-Ks and asserts the earliest is selected."
+    },
+    {
+      "id": "greptile-adaptive-limiter-exposure",
+      "summary": "Route fetchAbsoluteRaw (and therefore fetchSubmissions / refreshTickerCache / fetchFilingBody / fetchForm4XML) through a new client.DoRaw method that wraps the AdaptiveLimiter.",
+      "reason": "fetchAbsoluteRaw previously called c.HTTPClient.Do directly, bypassing the limiter that c.do() honors. Every hand-rolled SEC fetch ignored fair-access pacing.",
+      "files": [
+        "internal/client/client.go",
+        "internal/cli/edgar_helpers.go"
+      ]
+    },
+    {
+      "id": "greptile-insider-summary-write-errors",
+      "summary": "Surface UpsertEdgarInsiderTransaction failures in Form4SkipReport instead of discarding them.",
+      "reason": "The previous `_ = db.UpsertEdgarInsiderTransaction(...)` swallowed write errors so silently-missing transactions had no diagnostic in the skip report — same loud-skip discipline now applies to writes.",
+      "files": ["internal/cli/insider_summary.go"]
+    },
+    {
+      "id": "greptile-config-dead-check",
+      "summary": "Drop redundant second `c.CompanyPpContactEmail == \"\"` check in AuthHeader (token already aliases the field; earlier guard returned).",
+      "reason": "Dead-code cleanup flagged by Greptile review.",
+      "files": ["internal/config/config.go"]
+    },
+    {
+      "id": "greptile-edgar-helpers-unreachable-block",
+      "summary": "Remove unreachable `if err == nil { _ = cached }` nested inside `if err != nil` in resolveTickerToCIK.",
+      "reason": "Dead-code cleanup flagged by Greptile review; the `_ = cached` was suppressing a lint warning that would otherwise surface the dead block. Stale-cache fallback below is preserved.",
+      "files": ["internal/cli/edgar_helpers.go"]
+    },
+    {
+      "id": "greptile-store-table-name-allowlist",
+      "summary": "Gate the fmt.Sprintf table-name interpolation in ListIDs behind a {companies, filings} allowlist; unknown names fall through to the generic resources table.",
+      "reason": "Defensive fix flagged by Greptile review — interpolating a caller-provided string into a SELECT is a latent SQL-injection surface even though current callers pass our own table names.",
+      "files": ["internal/store/store.go"]
+    },
+    {
+      "id": "greptile-form4-limit-truncation-signal",
+      "summary": "Surface explicit truncation when the Form 4 ingest cap clips older filings; expose via --max-form4 flag and form4_truncated + form4_total_in_window JSON fields on insider-summary, insider-followthrough, and primary-sources.",
+      "reason": "The previous hard `LIMIT 200` in ingestForm4ForCIK silently dropped the oldest 200+ Form 4s for high-volume filers (large biotechs, late-stage offerings) and reported form4_skipped_count: 0 — a false clean-bill. The cap stays as a DB/API pressure rail but is now configurable and reports truncation in-band plus a stderr WARN. Added store.CountEdgarFilings + planForm4Ingest helpers so the truncation decision is independently testable.",
+      "files": [
+        "internal/store/edgar_schema.go",
+        "internal/cli/insider_summary.go",
+        "internal/cli/insider_summary_test.go",
+        "internal/cli/insider_followthrough.go",
+        "internal/cli/primary_sources.go",
+        "README.md",
+        "SKILL.md"
+      ],
+      "validated_outcome": "insider_summary_test.go::TestPlanForm4Ingest_TruncatesWhenAboveCap seeds 250 Form 4 filings for a stub CIK and asserts Truncated=true + TotalInWindow=250 under the default --max-form4 200; companion tests cover the clean-bill (50 filings) and cap-disabled (max-form4=0) branches."
+    }
+  ]
+}

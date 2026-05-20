@@ -1,5 +1,5 @@
 {
-  "dir": "/Users/tmchow/printing-press/library/linear",
+  "dir": "\u003ccli-dir\u003e/linear",
   "workflows": null,
   "verdict": "workflow-pass",
   "issues": [

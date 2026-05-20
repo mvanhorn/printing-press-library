@@ -11,14 +11,55 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
+	"sync"
 	"time"
 
+	"github.com/enetx/surf"
 	"github.com/spf13/cobra"
 
 	"github.com/mvanhorn/printing-press-library/library/productivity/myfitnesspal/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/productivity/myfitnesspal/internal/parser"
 )
+
+// PATCH(local): share the Surf-backed *http.Client across diary fetches via sync.Once.
+// Previously fetchAuthenticatedHTML allocated a fresh Surf client (and its TLS
+// connection pool) on every call, costing a full TLS handshake per date when
+// reading multiple days. The shared client mirrors how internal/client/client.go's
+// newHTTPClient builds its client: extract only Surf's Transport (which carries
+// the Chrome TLS fingerprint) and wrap it in a fresh *http.Client without a Jar.
+// A jar would accumulate Set-Cookie responses from MFP and re-send them alongside
+// the manually-set Cookie: <session> header on the next request, producing
+// duplicate/conflicting cookies for the rest of the process lifetime.
+var (
+	diaryHTTPClient     *http.Client
+	diaryHTTPClientOnce sync.Once
+)
+
+func sharedDiaryHTTPClient() *http.Client {
+	diaryHTTPClientOnce.Do(func() {
+		surfClient := surf.NewClient().Builder().Impersonate().Chrome().Timeout(30 * time.Second).Build().Unwrap()
+		surfStd := surfClient.Std()
+		surfTransport := surfStd.Transport
+		if surfTransport == nil {
+			// PATCH(local): fail loud instead of silently degrading. Mirrors the
+			// nil-transport guard in internal/client/client.go's newHTTPClient. A nil
+			// transport here means Surf's API changed shape — falling back to
+			// http.DefaultTransport would drop the Chrome TLS fingerprint and every
+			// diary scrape would hit MFP's anti-bot wall with no visible cause.
+			fmt.Fprintln(os.Stderr, "WARNING: Surf transport is nil — Chrome TLS fingerprint unavailable. "+
+				"MFP diary requests will likely be rejected by anti-bot. Falling back to stdlib transport; "+
+				"check the enetx/surf version.")
+			surfTransport = http.DefaultTransport
+		}
+		diaryHTTPClient = &http.Client{
+			Timeout:   30 * time.Second,
+			Transport: surfTransport,
+		}
+	})
+	return diaryHTTPClient
+}
 
 func newDiaryGetDayCmd(flags *rootFlags) *cobra.Command {
 	var flagUsername string
@@ -93,9 +134,15 @@ func buildDiaryURL(date, username string) (string, error) {
 	return u.String(), nil
 }
 
+// PATCH(upstream cli-printing-press#787, fix #822): use Surf with Chrome impersonation
+// instead of stdlib net/http for the diary scrape. MFP's anti-bot routes plain
+// stdlib User-Agent strings to the login redirect; Surf's TLS fingerprint matches
+// a real Chrome and clears the challenge. Cookie + Accept headers stay; Surf
+// sets User-Agent itself via Impersonate().Chrome().
+
 // fetchAuthenticatedHTML issues a GET with the user's session cookies attached
-// via the Cookie header from config.AuthHeader(). Bypasses the JSON-decoding
-// shared client.
+// via the Cookie header from config.AuthHeader(). Routes through Surf so MFP's
+// browser-fingerprint check accepts the request.
 func fetchAuthenticatedHTML(cfg *config.Config, target string) (string, error) {
 	cookieHeader := cfg.AuthHeader()
 	if cookieHeader == "" {
@@ -107,10 +154,9 @@ func fetchAuthenticatedHTML(cfg *config.Config, target string) (string, error) {
 	}
 	req.Header.Set("Cookie", cookieHeader)
 	req.Header.Set("Accept", "text/html,application/xhtml+xml")
-	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36")
+	// User-Agent set by Surf's Impersonate().Chrome(); do not override here.
 
-	httpClient := &http.Client{Timeout: 30 * time.Second}
-	resp, err := httpClient.Do(req)
+	resp, err := sharedDiaryHTTPClient().Do(req)
 	if err != nil {
 		return "", fmt.Errorf("GET %s: %w", target, err)
 	}

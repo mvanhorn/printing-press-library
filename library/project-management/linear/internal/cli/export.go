@@ -64,7 +64,7 @@ large datasets as it has no memory pressure.`,
 
 			data, err := c.Get(path, nil)
 			if err != nil {
-				return classifyAPIError(err)
+				return classifyAPIError(err, flags)
 			}
 
 			switch format {

@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "tella",
+  "run_id": "20260509-180956",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 167,
+  "tests_passed": 167,
+  "tests_skipped": 165,
+  "auth_context": {
+    "type": "bearer_token"
+  }
+}

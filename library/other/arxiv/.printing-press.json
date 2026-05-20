@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-11T05:32:50.490502Z",
+  "printing_press_version": "4.2.2",
+  "api_name": "arxiv",
+  "display_name": "arXiv",
+  "cli_name": "arxiv-pp-cli",
+  "owner": "hiten-shah",
+  "printer": "hnshah",
+  "printer_name": "Hiten Shah",
+  "spec_url": "https://info.arxiv.org/help/api/index.html",
+  "spec_path": "/Users/bobshah/printing-press/.runstate/cli-printing-press-arxiv-main-bb1f6bb3/runs/20260511-053009/arxiv-openapi.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:1f16af35b6812fb080db2b9f5948e843c1147fcad0c47fc97232a793e7ded60a",
+  "run_id": "20260511-053009",
+  "mcp_binary": "arxiv-pp-mcp",
+  "mcp_tool_count": 1,
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Paper search",
+      "command": "query",
+      "description": "Search arXiv with documented query expressions and agent-friendly output controls."
+    },
+    {
+      "name": "Latest category tracking",
+      "command": "query",
+      "description": "Fetch recent papers by category using submitted-date sorting and bounded result counts."
+    },
+    {
+      "name": "ID lookup",
+      "command": "query",
+      "description": "Fetch exact papers by arXiv ID or versioned arXiv ID."
+    }
+  ],
+  "category": "other",
+  "description": "Free public arXiv paper search and metadata CLI with Atom-to-JSON output for agents and scripts."
+}

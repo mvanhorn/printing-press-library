@@ -7,6 +7,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 	"io"
 	"os"
 	"path/filepath"
@@ -15,8 +17,6 @@ import (
 	"text/tabwriter"
 	"time"
 	"unicode"
-	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
 )
 
 var As = errors.As
@@ -90,11 +90,11 @@ type cliError struct {
 func (e *cliError) Error() string { return e.err.Error() }
 func (e *cliError) Unwrap() error { return e.err }
 
-func usageErr(err error) error    { return &cliError{code: 2, err: err} }
-func notFoundErr(err error) error { return &cliError{code: 3, err: err} }
-func authErr(err error) error     { return &cliError{code: 4, err: err} }
-func apiErr(err error) error      { return &cliError{code: 5, err: err} }
-func configErr(err error) error   { return &cliError{code: 10, err: err} }
+func usageErr(err error) error     { return &cliError{code: 2, err: err} }
+func notFoundErr(err error) error  { return &cliError{code: 3, err: err} }
+func authErr(err error) error      { return &cliError{code: 4, err: err} }
+func apiErr(err error) error       { return &cliError{code: 5, err: err} }
+func configErr(err error) error    { return &cliError{code: 10, err: err} }
 func rateLimitErr(err error) error { return &cliError{code: 7, err: err} }
 
 // dryRunOK reports whether the command should short-circuit without doing any
@@ -182,6 +182,7 @@ func classifyAPIError(err error, flags *rootFlags) error {
 		return apiErr(err)
 	}
 }
+
 // classifyDeleteError maps DELETE errors and supports explicit idempotent no-op handling.
 func classifyDeleteError(err error, flags *rootFlags) error {
 	msg := err.Error()
@@ -451,6 +452,56 @@ func camelToKebab(s string) string {
 	return b.String()
 }
 
+// safetyFieldKeys are the load-bearing response keys that --select must
+// never strip. The disambiguation envelope (needs_clarification,
+// error_kind, what_was_asked, candidates, agent_guidance) is the agent's
+// recovery contract; the location decorators (location_resolved,
+// location_warning) carry the resolved-pick signal an agent needs to
+// catch wrong-region picks. If --select asks only for `results.name`
+// and the response carries one of these keys, filtering it out would
+// silently re-introduce the wrong-region UX the redesign is supposed
+// to prevent. Keep this in sync with DisambiguationEnvelope (confidence.go)
+// and the *Field annotation types.
+var safetyFieldKeys = []string{
+	"needs_clarification",
+	"error_kind",
+	"what_was_asked",
+	"candidates",
+	"agent_guidance",
+	"location_resolved",
+	"location_warning",
+}
+
+// preserveSafetyFields re-injects the safety-field keys from the
+// original payload after --select has filtered the rest of the tree.
+// Only fires on top-level JSON objects (envelope shape); array
+// responses pass through unchanged because the safety contract is a
+// top-level property, not a per-element one.
+func preserveSafetyFields(original, filtered json.RawMessage) json.RawMessage {
+	var origObj map[string]json.RawMessage
+	if err := json.Unmarshal(original, &origObj); err != nil {
+		return filtered
+	}
+	var filtObj map[string]json.RawMessage
+	if err := json.Unmarshal(filtered, &filtObj); err != nil {
+		// Filtered output isn't an object (e.g., array, scalar); skip.
+		return filtered
+	}
+	if filtObj == nil {
+		filtObj = map[string]json.RawMessage{}
+	}
+	for _, key := range safetyFieldKeys {
+		if raw, ok := origObj[key]; ok {
+			filtObj[key] = raw
+		}
+	}
+	out, err := json.Marshal(filtObj)
+	if err != nil {
+		return filtered
+	}
+	return out
+}
+
 // printOutputWithFlags routes output through the right format based on flags.
 func printOutputWithFlags(w io.Writer, data json.RawMessage, flags *rootFlags) error {
 	// --select wins over --compact when both are set: an explicit field list
@@ -459,7 +510,12 @@ func printOutputWithFlags(w io.Writer, data json.RawMessage, flags *rootFlags) e
 	// only --compact is set (e.g., --agent without --select), the allow-list
 	// still runs.
 	if flags.selectFields != "" {
-		data = filterFields(data, flags.selectFields)
+		filtered := filterFields(data, flags.selectFields)
+		// Safety-field preservation: --select may not strip the load-bearing
+		// envelope/decorator keys (needs_clarification, error_kind,
+		// what_was_asked, candidates, agent_guidance, location_resolved,
+		// location_warning). Re-inject from the original after filtering.
+		data = preserveSafetyFields(data, filtered)
 	} else if flags.compact {
 		data = compactFields(data)
 	}
@@ -1101,12 +1157,13 @@ func findField(obj map[string]any, names ...string) string {
 	}
 	return ""
 }
+
 // DataProvenance describes where data came from and when it was last synced.
 type DataProvenance struct {
 	Source       string     `json:"source"`                  // "live" or "local"
-	SyncedAt    *time.Time `json:"synced_at,omitempty"`     // when local data was last synced
-	Reason      string     `json:"reason,omitempty"`        // why local was used: "user_requested", "api_unreachable", "no_search_endpoint"
-	ResourceType string    `json:"resource_type,omitempty"` // which resource type was queried
+	SyncedAt     *time.Time `json:"synced_at,omitempty"`     // when local data was last synced
+	Reason       string     `json:"reason,omitempty"`        // why local was used: "user_requested", "api_unreachable", "no_search_endpoint"
+	ResourceType string     `json:"resource_type,omitempty"` // which resource type was queried
 	Freshness    any        `json:"freshness,omitempty"`     // optional machine-owned freshness metadata for covered command paths
 }
 

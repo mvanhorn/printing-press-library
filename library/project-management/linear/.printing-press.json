@@ -1,14 +1,15 @@
 {
-  "schema_version": 0,
-  "generated_at": "2026-05-07T08:00:01Z",
-  "printing_press_version": "3.10.0",
+  "schema_version": 1,
+  "generated_at": "2026-05-19T07:28:32.03494Z",
+  "printing_press_version": "4.9.0",
   "api_name": "linear",
   "display_name": "Linear",
   "cli_name": "linear-pp-cli",
+  "owner": null,
   "printer": "mvanhorn",
   "printer_name": "Matt Van Horn",
-  "spec_url": "https://github.com/linear/linear/blob/master/packages/sdk/src/schema.graphql",
-  "run_id": "20260507-000328",
+  "spec_path": "/Users/tmchow/printing-press/.runstate/idempotent-tickling-volcano-46b0c9c2/runs/20260518-232543/research/linear-schema.graphql",
+  "run_id": "20260518-232543",
   "mcp_binary": "linear-pp-mcp",
   "mcp_tool_count": 28,
   "mcp_ready": "full",
@@ -20,7 +21,7 @@
     {
       "name": "Today View",
       "command": "today",
-      "description": "See all your issues for today across every team, ranked by priority and cycle deadline."
+      "description": "See all of your assigned issues across every team for today, ranked by priority and cycle deadline."
     },
     {
       "name": "Bottleneck Detection",
@@ -50,7 +51,7 @@
     {
       "name": "Blocking Queue",
       "command": "blocking",
-      "description": "Show issues you are blocking — sorted by impact (downstream count and priority)."
+      "description": "Show issues you are blocking — sorted by downstream impact (downstream count × downstream priority)."
     },
     {
       "name": "Duplicate Detection",
@@ -68,14 +69,19 @@
       "description": "Rolled-up portfolio view per initiative: child project progress, milestone target-vs-projected dates, slippage flags."
     },
     {
+      "name": "At-Risk Milestones",
+      "command": "milestones at-risk",
+      "description": "List portfolio milestones whose projected landing date has slipped past their target, ranked by slip magnitude."
+    },
+    {
       "name": "Test Fixture Lifecycle",
       "command": "pp-test list",
       "description": "List Linear issues this CLI created in the current or named session, then archive them with pp-cleanup."
     },
     {
       "name": "Trust Mode Mutation Guard",
-      "command": "issues create",
-      "description": "Refuse mutations on Linear issues not in the local pp_created ledger when --trust-mode strict is set; works on the create command and any future mutation surfaces."
+      "command": "issues create --trust-mode strict",
+      "description": "Refuse mutations on Linear issues not in the local pp_created ledger when --trust-mode strict is set; works on create and any future mutation surface."
     }
   ]
 }

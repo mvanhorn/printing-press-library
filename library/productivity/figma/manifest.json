@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "figma-pp-mcp",
+  "display_name": "Figma",
+  "version": "4.2.0",
+  "description": "Figma API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/figma-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/figma-pp-mcp",
+      "args": [],
+      "env": {
+        "FIGMA_OAUTH2": "${user_config.figma_oauth2}"
+      }
+    }
+  },
+  "user_config": {
+    "figma_oauth2": {
+      "type": "string",
+      "title": "FIGMA_OAUTH2",
+      "description": "Sets FIGMA_OAUTH2 for the Figma MCP server. Get a credential from https://developers.figma.com/docs/rest-api/.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

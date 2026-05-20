@@ -33,12 +33,48 @@ import (
 	"time"
 )
 
+// BotDetectionKind enumerates the recovery shapes for an anti-bot
+// block. The CLI-layer JSON encoder surfaces this verbatim so agents
+// can branch on it without parsing free-text Reason strings (issue
+// #406 failure 5).
+//
+//	BotKindSessionBlocked — session-wide block (Bootstrap 403, all
+//	  downstream ops will fail). Recovery: `auth login --chrome` to
+//	  refresh Akamai cookies. The CLI sets a disk-persisted cooldown
+//	  so subsequent invocations fast-fail rather than re-hitting the
+//	  wall.
+//
+//	BotKindOperationBlocked — single-opname WAF rule (e.g. Akamai
+//	  specifically blocks `opname=RestaurantsAvailability`). Sibling
+//	  ops on the same session still work. Recovery: pass a numeric
+//	  OpenTable ID instead (bypasses Autocomplete entirely), use the
+//	  chromedp escape hatch, or surface the venue URL so the user
+//	  can click through.
+type BotDetectionKind string
+
+const (
+	// BotKindSessionBlocked: the entire OT session is shadow-banned.
+	// All ops will fail until cookies are refreshed.
+	BotKindSessionBlocked BotDetectionKind = "session_blocked"
+
+	// BotKindOperationBlocked: a single GraphQL opname is blocked at
+	// the WAF tier. Other ops on the same session work fine.
+	BotKindOperationBlocked BotDetectionKind = "operation_blocked"
+)
+
 // BotDetectionError signals a persistent anti-bot block (403 from the home
 // page or another well-known endpoint). Distinct from `cliutil.RateLimitError`
 // because the remediation is different: rate-limit recovery is "back off
 // briefly," bot-detection recovery is "wait minutes-to-hours and possibly
 // rotate the fingerprint."
+//
+// The Kind field discriminates between session-wide and operation-
+// specific blocks so agents can branch on the recovery strategy
+// without parsing Reason. Issue #406 failure 5: prior versions buried
+// this distinction in Reason text only — agents that didn't parse it
+// couldn't tell whether to refresh cookies or pivot to a different op.
 type BotDetectionError struct {
+	Kind   BotDetectionKind
 	URL    string
 	Status int
 	Until  time.Time // when the cached cooldown expires; zero means "now"
@@ -51,8 +87,15 @@ func (e *BotDetectionError) Error() string {
 	if wait < 0 {
 		wait = 0
 	}
-	return fmt.Sprintf("opentable: anti-bot cooldown (status=%d, streak=%d) — retry after %s (%s); reason: %s; recovery: close Chrome briefly and run `auth login --chrome` to refresh Akamai cookies",
-		e.Status, e.Streak, wait, e.Until.Format(time.RFC3339), e.Reason)
+	switch e.Kind {
+	case BotKindOperationBlocked:
+		return fmt.Sprintf("opentable: operation blocked by Akamai WAF (status=%d) — the specific GraphQL opname is on a blocklist, but sibling ops still work; reason: %s; recovery: use a numeric restaurant ID via `restaurants list` to bypass Autocomplete, or use the chromedp escape hatch (set TABLE_RESERVATION_GOAT_OT_CHROME_DEBUG_URL)",
+			e.Status, e.Reason)
+	default:
+		// Default and BotKindSessionBlocked: full session cooldown.
+		return fmt.Sprintf("opentable: anti-bot cooldown (kind=session_blocked, status=%d, streak=%d) — retry after %s (%s); reason: %s; recovery: close Chrome briefly and run `auth login --chrome` to refresh Akamai cookies",
+			e.Status, e.Streak, wait, e.Until.Format(time.RFC3339), e.Reason)
+	}
 }
 
 // cooldownState is the on-disk shape. Persisted to a per-user cache file so
@@ -102,6 +145,7 @@ func loadActiveCooldown() *BotDetectionError {
 		return nil
 	}
 	return &BotDetectionError{
+		Kind:   BotKindSessionBlocked,
 		URL:    Origin + "/",
 		Status: 403,
 		Until:  s.Until,
@@ -153,6 +197,7 @@ func setCooldown(reason string) (*BotDetectionError, error) {
 		return nil, fmt.Errorf("renaming cooldown file: %w", err)
 	}
 	return &BotDetectionError{
+		Kind:   BotKindSessionBlocked,
 		URL:    Origin + "/",
 		Status: 403,
 		Until:  until,

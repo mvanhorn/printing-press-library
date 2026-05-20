@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-15T01:37:45.8954179Z",
+  "printing_press_version": "4.6.1",
+  "api_name": "servicetitan-pricebook",
+  "display_name": "Pricebook",
+  "cli_name": "servicetitan-pricebook-pp-cli",
+  "owner": "user",
+  "printer": "pierc",
+  "printer_name": "Pierce",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:cbf190ab7a881134a21c57dd2bb6d7e18d73ef39b0aa6eb4ab21f3ff2a2ea298",
+  "run_id": "20260514-073613",
+  "mcp_binary": "servicetitan-pricebook-pp-mcp",
+  "mcp_tool_count": 40,
+  "mcp_ready": "full",
+  "api_version": "1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "ST_CLIENT_ID",
+    "ST_CLIENT_SECRET"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "ST_CLIENT_ID",
+      "kind": "auth_flow_input",
+      "required": true,
+      "sensitive": true,
+      "description": "ServiceTitan OAuth2 client_id for the integration. Used by the auth login flow to exchange for a bearer token at https://auth.servicetitan.io/connect/token. Whitespace is stripped defensively."
+    },
+    {
+      "name": "ST_CLIENT_SECRET",
+      "kind": "auth_flow_input",
+      "required": true,
+      "sensitive": true,
+      "description": "ServiceTitan OAuth2 client_secret paired with ST_CLIENT_ID. Whitespace is stripped defensively (a known JKA env gotcha that produced opaque invalid_client 400s)."
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Markup drift audit",
+      "command": "markup-audit",
+      "description": "Find every material and equipment SKU whose actual markup has drifted off the materials-markup tier ladder."
+    },
+    {
+      "name": "Cost-drift report",
+      "command": "cost-drift",
+      "description": "Show every SKU whose cost moved since a given date, with old and new cost, old and new price, and whether the price followed."
+    },
+    {
+      "name": "Missing vendor-part audit",
+      "command": "vendor-part-gaps",
+      "description": "List materials and equipment whose primary vendor part number is empty — the missing 2M Part # sweep."
+    },
+    {
+      "name": "Warranty attribution lint",
+      "command": "warranty-lint",
+      "description": "Flag equipment whose warranty text is not prefixed Manufacturer's, or that is missing JKA's 1-year parts \u0026 labor line."
+    },
+    {
+      "name": "Orphan SKU finder",
+      "command": "orphan-skus",
+      "description": "List materials, equipment, and services assigned to inactive or non-existent categories."
+    },
+    {
+      "name": "Vendor quote reconcile",
+      "command": "quote-reconcile",
+      "description": "Match a vendor cost file against synced SKUs by vendor part number and print a no-write diff of proposed cost changes; accepts CSV or Claude-extracted JSON from a quote, order confirmation, or invoice PDF."
+    },
+    {
+      "name": "Hold-markup repricer",
+      "command": "reprice",
+      "description": "Compute the tier-correct price for markup-drifted SKUs and emit the exact update payloads; preview by default, --apply to write."
+    },
+    {
+      "name": "Pricebook health summary",
+      "command": "health",
+      "description": "One compact rollup of markup-drift, vendor-part-gap, warranty-lint, cost-drift, orphan-SKU, duplicate, and weak-copy counts."
+    },
+    {
+      "name": "Bulk-write planner",
+      "command": "bulk-plan",
+      "description": "Turn a reviewed cost or copy change file into a single pricebook bulk-update payload instead of N individual update calls."
+    },
+    {
+      "name": "Duplicate-SKU detector",
+      "command": "dedupe",
+      "description": "Cluster near-duplicate materials and equipment so excess pricebook growth can be collapsed."
+    },
+    {
+      "name": "Sales-copy description audit",
+      "command": "copy-audit",
+      "description": "Flag SKUs whose display name or description is empty, too short, ALL-CAPS, a bare part number, or otherwise not customer-facing."
+    },
+    {
+      "name": "Natural-language part finder",
+      "command": "find",
+      "description": "Forgiving ranked search over synced SKUs tuned for describing a part you do not know the code for."
+    }
+  ]
+}

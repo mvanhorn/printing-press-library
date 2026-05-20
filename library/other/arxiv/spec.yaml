@@ -1,0 +1,54 @@
+openapi: 3.0.3
+info:
+  title: arXiv API
+  version: "1.0.0"
+  description: Public Atom API for searching and fetching arXiv e-print metadata.
+servers:
+  - url: https://export.arxiv.org
+paths:
+  /api/query:
+    get:
+      operationId: queryPapers
+      summary: Query arXiv papers
+      description: Search arXiv papers or fetch specific arXiv IDs. Returns an Atom XML feed containing matching paper entries.
+      parameters:
+        - name: search_query
+          in: query
+          schema: { type: string }
+          description: Search expression such as all:electron, ti:"large language model", au:"smith", or cat:cs.AI.
+        - name: id_list
+          in: query
+          schema: { type: string }
+          description: Comma-delimited arXiv IDs to fetch, such as 1706.03762 or 1706.03762v7.
+        - name: start
+          in: query
+          schema: { type: integer, minimum: 0, default: 0 }
+          description: Zero-based result offset.
+        - name: max_results
+          in: query
+          schema: { type: integer, minimum: 0, maximum: 2000, default: 10 }
+          description: Maximum number of results to return. arXiv asks clients to make no more than one request every three seconds and avoid large requests.
+        - name: sortBy
+          in: query
+          schema: { type: string, enum: [relevance, lastUpdatedDate, submittedDate] }
+          description: Sort field for search results.
+        - name: sortOrder
+          in: query
+          schema: { type: string, enum: [ascending, descending] }
+          description: Sort order for search results.
+      responses:
+        "200":
+          description: Atom feed containing arXiv paper entries.
+          content:
+            application/atom+xml:
+              schema:
+                type: string
+            application/xml:
+              schema:
+                type: string
+        "400":
+          description: Invalid query.
+          content:
+            application/atom+xml:
+              schema:
+                type: string

@@ -1,0 +1,254 @@
+name: jimmy-johns
+display_name: Jimmy John's
+description: |-
+  CLI for the Jimmy John's ordering API. Browse stores, menus, and product
+  modifiers; manage your cart; place orders; view rewards and saved payments.
+  Backed by Jimmy John's proprietary API at www.jimmyjohns.com/api and
+  authenticated via cookies imported from a logged-in Chrome session
+  (PerimeterX clearance + JJ session cookies).
+version: "0.1.0"
+cli_description: "Order Jimmy John's from the terminal — Freaky Fast Rewards stacking, half-order builder, and one-shot reorder."
+base_url: https://www.jimmyjohns.com/api
+
+# JJ uses cookie-based session auth behind a PerimeterX bot-protection layer.
+# `browser-chrome` transport tells the generator to emit Surf-backed Chrome HTTP
+# (clears PerimeterX) plus a Chrome cookie import flow (auth login --chrome).
+http_transport: browser-chrome
+
+required_headers:
+  - name: User-Agent
+    value: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+  - name: Accept
+    value: "application/json, text/plain, */*"
+
+auth:
+  type: cookie
+  cookie_domain: jimmyjohns.com
+  cookies:
+    - "_px3"          # PerimeterX device cookie
+    - "PXGHzDhy7F_px" # PerimeterX session cookie (JJ-specific app id)
+    - "JJ_SESSION"    # JJ session cookie (placeholder; actual name discovered at login)
+
+# Cache configuration: machine-owned freshness for read commands.
+# Menu changes seasonally (cache OK), stores rarely change.
+cache:
+  enabled: true
+  default_ttl_seconds: 600
+
+# MCP surface: dual-transport (stdio for local Claude Desktop, http for remote
+# managed agents) with hidden raw endpoint mirrors. The orchestration model
+# exposes a thin search+execute pair that covers the full surface compactly.
+mcp:
+  transport:
+    - stdio
+    - http
+  orchestration: code
+  endpoint_tools: hidden
+
+config:
+  format: toml
+  path: "~/.config/jimmy-johns-pp-cli/config.toml"
+
+# Endpoints discovered via authenticated browser-sniff on 2026-05-11.
+# Session: user logged in, navigated home -> menu -> store search -> cart -> checkout.
+# Response schemas inferred from typical fast-food ordering API patterns; refine after first real responses.
+resources:
+
+  system:
+    description: System utilities (Google Maps signing for store finder)
+    endpoints:
+      sign_map_url:
+        method: GET
+        path: /maps/signUrl
+        no_auth: true
+        description: Sign a Google Maps URL for client-side use (used internally by store finder)
+        params:
+          - name: url
+            type: string
+            required: true
+            description: Map URL to sign
+
+  stores:
+    description: Jimmy John's store locations and operating info
+    endpoints:
+      list:
+        method: GET
+        path: /stores
+        no_auth: true
+        description: List stores. Accepts an address search or filter; returns stores with hours, distance, pickup/delivery flags.
+        params:
+          - name: addressSearch
+            flag_name: address
+            aliases: [address-search]
+            type: string
+            description: Free-form address, city/state, or ZIP code (e.g. "98112", "Seattle, WA").
+          - name: filter
+            type: string
+            description: Filter mode (delivery|pickup; empty = both)
+        response:
+          type: array
+          item: Store
+
+      get_disclaimers:
+        method: GET
+        path: /stores/{storeId}/disclaimers
+        no_auth: true
+        description: Get store-specific disclaimers (delivery zone caveats, hours warnings).
+        params:
+          - name: storeId
+            type: string
+            positional: true
+            required: true
+            description: Numeric store ID from `stores list`.
+
+  menu:
+    description: Menu products, filters, and modifier options
+    endpoints:
+      products:
+        method: GET
+        path: /products
+        no_auth: true
+        description: List menu products for the current store (subs, sides, drinks, cookies, catering).
+        response:
+          type: array
+          item: Product
+
+      product_filters:
+        method: GET
+        path: /products/filters
+        no_auth: true
+        description: List available menu filter dimensions (categories, dietary tags, allergens).
+
+      product_modifiers:
+        method: GET
+        path: /products/{productId}/modifiers
+        no_auth: true
+        description: List modifier groups (bread, toppings, add-ons) for a specific product.
+        params:
+          - name: productId
+            type: string
+            positional: true
+            required: true
+            description: Numeric product ID from `menu products`.
+
+  account:
+    description: User account, profile, addresses, and saved payments
+    endpoints:
+      login:
+        method: POST
+        path: /login
+        no_auth: true
+        description: Authenticate with email + password. Sets JJ session cookies.
+        body:
+          - name: email
+            type: string
+            required: true
+            description: Account email
+          - name: password
+            type: string
+            required: true
+            description: Account password
+
+      web_token:
+        method: POST
+        path: /webToken
+        no_auth: true
+        description: Refresh the web session token (called internally by the SPA).
+
+      current:
+        method: GET
+        path: /users/current
+        description: Get the authenticated user's profile (name, email, preferences).
+
+      saved_payments:
+        method: GET
+        path: /users/current/savedPayments
+        description: List the authenticated user's saved payment methods.
+
+      delivery_addresses:
+        method: GET
+        path: /users/current/deliveryAddresses
+        description: List the authenticated user's saved delivery addresses.
+
+  rewards:
+    description: Freaky Fast Rewards points balance and catalog
+    endpoints:
+      summary:
+        method: GET
+        path: /users/current/rewards
+        description: Get the authenticated user's rewards points balance and recent activity.
+
+      catalog:
+        method: GET
+        path: /users/current/rewards/catalog
+        description: List available reward redemptions for the current points balance.
+
+  order:
+    description: Cart and order management
+    endpoints:
+      current:
+        method: GET
+        path: /order
+        description: Get the current in-progress order/cart.
+
+      add_items:
+        method: POST
+        path: /order/batchItems
+        description: Add one or more items to the current cart in a single call.
+        body:
+          - name: items
+            type: string
+            required: true
+            description: JSON array of items with productId, modifiers, and quantity.
+
+      upsell:
+        method: GET
+        path: /order/upsell
+        description: Get upsell suggestions for the current cart (sides, drinks, cookies).
+
+types:
+  Store:
+    fields:
+      - name: id
+        type: int
+      - name: storeNumber
+        type: string
+      - name: name
+        type: string
+      - name: address
+        type: string
+      - name: city
+        type: string
+      - name: state
+        type: string
+      - name: zip
+        type: string
+      - name: phone
+        type: string
+      - name: latitude
+        type: float
+      - name: longitude
+        type: float
+      - name: deliveryAvailable
+        type: bool
+      - name: pickupAvailable
+        type: bool
+      - name: distance
+        type: float
+
+  Product:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: description
+        type: string
+      - name: category
+        type: string
+      - name: price
+        type: float
+      - name: calories
+        type: int
+      - name: imageUrl
+        type: string

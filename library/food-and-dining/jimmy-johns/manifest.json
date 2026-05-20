@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "jimmy-johns-pp-mcp",
+  "display_name": "Jimmy John's",
+  "version": "4.2.2",
+  "description": "Order Jimmy John's from the terminal — Freaky Fast Rewards stacking, half-order builder, and one-shot reorder.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/jimmy-johns-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/jimmy-johns-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

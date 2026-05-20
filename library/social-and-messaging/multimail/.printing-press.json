@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-09T18:09:29.310416Z",
+  "printing_press_version": "4.2.0",
+  "api_name": "multimail",
+  "display_name": "Multimail",
+  "cli_name": "multimail-pp-cli",
+  "owner": "h179922",
+  "printer": "H179922",
+  "printer_name": "H179922",
+  "spec_path": "/tmp/multimail-openapi.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:1ef613e9984cecb7aed2292701ba4f4a7733ed36cd23e81df7708c92cd430e31",
+  "run_id": "20260507-194146",
+  "category": "social-and-messaging",
+  "mcp_binary": "multimail-pp-mcp",
+  "mcp_tool_count": 77,
+  "mcp_ready": "full",
+  "api_version": "2.0.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "MULTIMAIL_BEARER_AUTH"
+  ],
+  "novel_features": [
+    {
+      "name": "Inbox health composite score",
+      "command": "mm health",
+      "description": "Compute a 0-100 inbox health score from local SQLite, factoring in unread count, stale thread ratio, bounce rate, spam score, and quota utilization."
+    },
+    {
+      "name": "Stale thread detection",
+      "command": "mm stale",
+      "description": "Scan synced mailboxes for threads with unanswered inbound messages older than a configurable threshold (default 48h)."
+    },
+    {
+      "name": "Oversight dashboard",
+      "command": "mm oversight summary",
+      "description": "Display a summary of pending oversight approvals across all mailboxes, grouped by direction and mailbox."
+    },
+    {
+      "name": "Trust ladder status",
+      "command": "mm trust status",
+      "description": "Show the current trust ladder position for each mailbox with upgrade eligibility and operator approval flow status."
+    },
+    {
+      "name": "Quota forecast",
+      "command": "mm quota forecast",
+      "description": "Project email quota usage for the remainder of the billing period based on the current send rate."
+    },
+    {
+      "name": "Send analytics",
+      "command": "mm stats",
+      "description": "Display send/receive analytics for the current billing period from the /v1/usage endpoint."
+    },
+    {
+      "name": "Offline email search",
+      "command": "mm search",
+      "description": "Full-text search across locally synced emails by subject, sender, or body content without making API calls."
+    },
+    {
+      "name": "Incremental sync",
+      "command": "mm sync",
+      "description": "Pull new and updated emails from the API into the local SQLite cache using cursor-based pagination."
+    }
+  ]
+}

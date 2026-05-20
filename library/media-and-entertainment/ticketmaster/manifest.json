@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "ticketmaster-pp-mcp",
+  "display_name": "Ticketmaster",
+  "version": "4.2.2",
+  "description": "Ticketmaster API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/ticketmaster-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/ticketmaster-pp-mcp",
+      "args": [],
+      "env": {
+        "TICKETMASTER_API_KEY": "${user_config.ticketmaster_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "ticketmaster_api_key": {
+      "type": "string",
+      "title": "TICKETMASTER_API_KEY",
+      "description": "Ticketmaster Discovery API consumer key (32-char alphanumeric).",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

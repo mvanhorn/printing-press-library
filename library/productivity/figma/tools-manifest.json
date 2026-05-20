@@ -1,0 +1,1370 @@
+{
+  "api_name": "figma",
+  "base_url": "https://api.figma.com",
+  "description": "This is the OpenAPI specification for the [Figma REST API](https://developers.figma.com/docs/rest-api/).\n\nNote: we are releasing the OpenAPI specification as a beta given the large surface area and complexity of the REST API. If you notice any inaccuracies with the specification, please [file an issue](https://github.com/figma/rest-api-spec/issues).",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "FIGMA_OAUTH2"
+    ],
+    "env_var_specs": [
+      {
+        "name": "FIGMA_OAUTH2",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "key_url": "https://developers.figma.com/docs/rest-api/"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "activity-logs_get",
+      "description": "Returns a list of activity log events. Optional: events, start_time, end_time (plus 2 more).",
+      "method": "GET",
+      "path": "/v1/activity_logs",
+      "params": [
+        {
+          "name": "events",
+          "type": "string",
+          "location": "query",
+          "description": "Event type(s) to include in the response. Can have multiple values separated by comma. All events are returned by default."
+        },
+        {
+          "name": "start_time",
+          "type": "float",
+          "location": "query",
+          "description": "Unix timestamp of the least recent event to include. This param defaults to one year ago if unspecified."
+        },
+        {
+          "name": "end_time",
+          "type": "float",
+          "location": "query",
+          "description": "Unix timestamp of the most recent event to include. This param defaults to the current timestamp if unspecified."
+        },
+        {
+          "name": "limit",
+          "type": "float",
+          "location": "query",
+          "description": "Maximum number of events to return. This param defaults to 1000 if unspecified."
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Event order by timestamp. This param can be either 'asc' (default) or 'desc'."
+        }
+      ]
+    },
+    {
+      "name": "component-sets_get",
+      "description": "Get metadata on a published component set by key. Required: key. Returns the ComponentSetsGetResponse.",
+      "method": "GET",
+      "path": "/v1/component_sets/{key}",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "path",
+          "description": "The unique identifier of the component set.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "components_get",
+      "description": "Get metadata on a component by key. Required: key. Returns the ComponentsGetResponse.",
+      "method": "GET",
+      "path": "/v1/components/{key}",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "path",
+          "description": "The unique identifier of the component.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "dev-resources_post",
+      "description": "Bulk create dev resources across multiple files. Dev resources that are successfully created will show up in the links_created array in the response. If there are any dev resources that cannot be created, you may still get a 200 response. These resources will show up in the errors array. Some reasons a dev resource cannot be created include: - Resource points to a `file_key` that cannot be found. - The node already has the maximum of 10 dev resources. - Another dev resource for the node has the same url. Required: dev_resources. Returns the new DevResourcesPostResponse.",
+      "method": "POST",
+      "path": "/v1/dev_resources",
+      "params": [
+        {
+          "name": "dev_resources",
+          "type": "array",
+          "location": "body",
+          "description": "An array of dev resources.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "dev-resources_put",
+      "description": "Bulk update dev resources across multiple files. Ids for dev resources that are successfully updated will show up in the `links_updated` array in the response. If there are any dev resources that cannot be updated, you may still get a 200 response. These resources will show up in the `errors` array. Required: dev_resources. Returns the updated DevResourcesPutResponse.",
+      "method": "PUT",
+      "path": "/v1/dev_resources",
+      "params": [
+        {
+          "name": "dev_resources",
+          "type": "array",
+          "location": "body",
+          "description": "An array of dev resources.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "developer-logs_get",
+      "description": "Returns a list of developer log entries for REST API and MCP server requests made within the organization. This endpoint requires a plan access token with the `org:developer_log_read` scope. Optional: cursor, date_range (default: last_30d), event_source (plus 6 more).",
+      "method": "POST",
+      "path": "/v1/developer_logs",
+      "params": [
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "body",
+          "description": "A cursor returned from a previous request, used for pagination."
+        },
+        {
+          "name": "date_range",
+          "type": "string",
+          "location": "body",
+          "description": "Filter by date range."
+        },
+        {
+          "name": "event_source",
+          "type": "string",
+          "location": "body",
+          "description": "Filter by event source."
+        },
+        {
+          "name": "ip_address",
+          "type": "string",
+          "location": "body",
+          "description": "Filter by IP address prefix(es). Multiple values can be separated by commas."
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "body",
+          "description": "Maximum number of entries to return."
+        },
+        {
+          "name": "token",
+          "type": "string",
+          "location": "body",
+          "description": "Filter by token value(s). Multiple values can be separated by commas."
+        },
+        {
+          "name": "token_name",
+          "type": "string",
+          "location": "body",
+          "description": "Filter by token name prefix(es). Multiple values can be separated by commas."
+        },
+        {
+          "name": "token_type",
+          "type": "string",
+          "location": "body",
+          "description": "Filter by the type of token used for authentication."
+        },
+        {
+          "name": "user_email",
+          "type": "string",
+          "location": "body",
+          "description": "Filter by user email prefix(es). Multiple values can be separated by commas."
+        }
+      ]
+    },
+    {
+      "name": "figma-analytics_get-library-component-actions",
+      "description": "Returns a list of library analytics component actions data broken down by the requested dimension. Required: file_key, group_by. Optional: cursor, start_date, end_date.",
+      "method": "GET",
+      "path": "/v1/analytics/libraries/{file_key}/component/actions",
+      "params": [
+        {
+          "name": "file_key",
+          "type": "string",
+          "location": "path",
+          "description": "File key of the library to fetch analytics data for.",
+          "required": true
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor indicating what page of data to fetch. Obtained from prior API call."
+        },
+        {
+          "name": "group_by",
+          "type": "string",
+          "location": "query",
+          "description": "A dimension to group returned analytics data by.",
+          "required": true
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "ISO 8601 date string (YYYY-MM-DD) of the earliest week to include."
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "ISO 8601 date string (YYYY-MM-DD) of the latest week to include."
+        }
+      ]
+    },
+    {
+      "name": "figma-analytics_get-library-component-usages",
+      "description": "Returns a list of library analytics component usage data broken down by the requested dimension. Required: file_key, group_by. Optional: cursor.",
+      "method": "GET",
+      "path": "/v1/analytics/libraries/{file_key}/component/usages",
+      "params": [
+        {
+          "name": "file_key",
+          "type": "string",
+          "location": "path",
+          "description": "File key of the library to fetch analytics data for.",
+          "required": true
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor indicating what page of data to fetch. Obtained from prior API call."
+        },
+        {
+          "name": "group_by",
+          "type": "string",
+          "location": "query",
+          "description": "A dimension to group returned analytics data by.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "figma-analytics_get-library-style-actions",
+      "description": "Returns a list of library analytics style actions data broken down by the requested dimension. Required: file_key, group_by. Optional: cursor, start_date, end_date.",
+      "method": "GET",
+      "path": "/v1/analytics/libraries/{file_key}/style/actions",
+      "params": [
+        {
+          "name": "file_key",
+          "type": "string",
+          "location": "path",
+          "description": "File key of the library to fetch analytics data for.",
+          "required": true
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor indicating what page of data to fetch. Obtained from prior API call."
+        },
+        {
+          "name": "group_by",
+          "type": "string",
+          "location": "query",
+          "description": "A dimension to group returned analytics data by.",
+          "required": true
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "ISO 8601 date string (YYYY-MM-DD) of the earliest week to include."
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "ISO 8601 date string (YYYY-MM-DD) of the latest week to include."
+        }
+      ]
+    },
+    {
+      "name": "figma-analytics_get-library-style-usages",
+      "description": "Returns a list of library analytics style usage data broken down by the requested dimension. Required: file_key, group_by. Optional: cursor.",
+      "method": "GET",
+      "path": "/v1/analytics/libraries/{file_key}/style/usages",
+      "params": [
+        {
+          "name": "file_key",
+          "type": "string",
+          "location": "path",
+          "description": "File key of the library to fetch analytics data for.",
+          "required": true
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor indicating what page of data to fetch. Obtained from prior API call."
+        },
+        {
+          "name": "group_by",
+          "type": "string",
+          "location": "query",
+          "description": "A dimension to group returned analytics data by.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "figma-analytics_get-library-variable-actions",
+      "description": "Returns a list of library analytics variable actions data broken down by the requested dimension. Required: file_key, group_by. Optional: cursor, start_date, end_date.",
+      "method": "GET",
+      "path": "/v1/analytics/libraries/{file_key}/variable/actions",
+      "params": [
+        {
+          "name": "file_key",
+          "type": "string",
+          "location": "path",
+          "description": "File key of the library to fetch analytics data for.",
+          "required": true
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor indicating what page of data to fetch. Obtained from prior API call."
+        },
+        {
+          "name": "group_by",
+          "type": "string",
+          "location": "query",
+          "description": "A dimension to group returned analytics data by.",
+          "required": true
+        },
+        {
+          "name": "start_date",
+          "type": "string",
+          "location": "query",
+          "description": "ISO 8601 date string (YYYY-MM-DD) of the earliest week to include."
+        },
+        {
+          "name": "end_date",
+          "type": "string",
+          "location": "query",
+          "description": "ISO 8601 date string (YYYY-MM-DD) of the latest week to include."
+        }
+      ]
+    },
+    {
+      "name": "figma-analytics_get-library-variable-usages",
+      "description": "Returns a list of library analytics variable usage data broken down by the requested dimension. Required: file_key, group_by. Optional: cursor.",
+      "method": "GET",
+      "path": "/v1/analytics/libraries/{file_key}/variable/usages",
+      "params": [
+        {
+          "name": "file_key",
+          "type": "string",
+          "location": "path",
+          "description": "File key of the library to fetch analytics data for.",
+          "required": true
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor indicating what page of data to fetch. Obtained from prior API call."
+        },
+        {
+          "name": "group_by",
+          "type": "string",
+          "location": "query",
+          "description": "A dimension to group returned analytics data by.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "files_get",
+      "description": "Returns the document identified by `file_key` as a JSON object. The file key can be parsed from any Figma file url: `https://www.figma.com/file/{file_key}/{title}`. The `document` property contains a node of type `DOCUMENT`. The `components` property contains a mapping from node IDs to component metadata. This is to help you determine which components each instance comes from. Required: file_key. Optional: version, ids, depth (plus 3 more).",
+      "method": "GET",
+      "path": "/v1/files/{file_key}",
+      "params": [
+        {
+          "name": "file_key",
+          "type": "string",
+          "location": "path",
+          "description": "File to export JSON from. This can be a file key or branch key. Use `GET /v1/files/:key` with the `branch_data` query param to get the branch key.",
+          "required": true
+        },
+        {
+          "name": "version",
+          "type": "string",
+          "location": "query",
+          "description": "A specific version ID to get. Omitting this will get the current version of the file."
+        },
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "query",
+          "description": "Comma separated list of nodes that you care about in the document. If specified, only a subset of the document will be returned corresponding to the nodes listed, their children, and everything between the root node and the listed nodes. Note: There may be other nodes included in the returned JSON that are outside the ancestor chains of the desired nodes. The response may also include dependencies of anything in the nodes' subtrees. For example, if a node subtree contains an instance of a local component that lives elsewhere in that file, that component and its ancestor chain will also be included. For historical reasons, top-level canvas nodes are always returned, regardless of whether they are listed in the `ids` parameter. This quirk may be removed in a future version of the API."
+        },
+        {
+          "name": "depth",
+          "type": "float",
+          "location": "query",
+          "description": "Positive integer representing how deep into the document tree to traverse. For example, setting this to 1 returns only Pages, setting it to 2 returns Pages and all top level objects on each page. Not setting this parameter returns all nodes."
+        },
+        {
+          "name": "geometry",
+          "type": "string",
+          "location": "query",
+          "description": "Set to 'paths' to export vector data."
+        },
+        {
+          "name": "plugin_data",
+          "type": "string",
+          "location": "query",
+          "description": "A comma separated list of plugin IDs and/or the string 'shared'. Any data present in the document written by those plugins will be included in the result in the `pluginData` and `sharedPluginData` properties."
+        },
+        {
+          "name": "branch_data",
+          "type": "bool",
+          "location": "query",
+          "description": "Returns branch metadata for the requested file. If the file is a branch, the main file's key will be included in the returned response. If the file has branches, their metadata will be included in the returned response. Default: false."
+        }
+      ]
+    },
+    {
+      "name": "files_comments_delete",
+      "description": "Deletes a specific comment. Only the person who made the comment is allowed to delete it. Required: file_key, comment_id. Returns the CommentsDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/files/{file_key}/comments/{comment_id}",
+      "params": [
+        {
+          "name": "file_key",
+          "type": "string",
+          "location": "path",
+          "description": "File to delete comment from. This can be a file key or branch key. Use `GET /v1/files/:key` with the `branch_data` query param to get the branch key.",
+          "required": true
+        },
+        {
+          "name": "comment_id",
+          "type": "string",
+          "location": "path",
+          "description": "Comment id of comment to delete",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "files_comments_delete-reaction",
+      "description": "Deletes a specific comment reaction. Only the person who made the reaction is allowed to delete it. Required: file_key, comment_id, emoji. Returns the CommentsDeleteReactionResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/files/{file_key}/comments/{comment_id}/reactions",
+      "params": [
+        {
+          "name": "file_key",
+          "type": "string",
+          "location": "path",
+          "description": "File to delete comment reaction from. This can be a file key or branch key. Use `GET /v1/files/:key` with the `branch_data` query param to get the branch key.",
+          "required": true
+        },
+        {
+          "name": "comment_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of comment to delete reaction from.",
+          "required": true
+        },
+        {
+          "name": "emoji",
+          "type": "string",
+          "location": "query",
+          "description": "Emoji",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "files_comments_get",
+      "description": "Gets a list of comments left on the file. Required: file_key. Optional: as_md. Returns the CommentsGetResponse.",
+      "method": "GET",
+      "path": "/v1/files/{file_key}/comments",
+      "params": [
+        {
+          "name": "file_key",
+          "type": "string",
+          "location": "path",
+          "description": "File to get comments from. This can be a file key or branch key. Use `GET /v1/files/:key` with the `branch_data` query param to get the branch key.",
+          "required": true
+        },
+        {
+          "name": "as_md",
+          "type": "bool",
+          "location": "query",
+          "description": "If enabled, will return comments as their markdown equivalents when applicable."
+        }
+      ]
+    },
+    {
+      "name": "files_comments_get-reactions",
+      "description": "Gets a paginated list of reactions left on the comment. Required: file_key, comment_id. Optional: cursor. Returns the CommentsGetReactionsResponse.",
+      "method": "GET",
+      "path": "/v1/files/{file_key}/comments/{comment_id}/reactions",
+      "params": [
+        {
+          "name": "file_key",
+          "type": "string",
+          "location": "path",
+          "description": "File to get comment containing reactions from. This can be a file key or branch key. Use `GET /v1/files/:key` with the `branch_data` query param to get the branch key.",
+          "required": true
+        },
+        {
+          "name": "comment_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of comment to get reactions from.",
+          "required": true
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor for pagination, retrieved from the response of the previous call."
+        }
+      ]
+    },
+    {
+      "name": "files_comments_post",
+      "description": "Posts a new comment on the file. Required: file_key, message. Optional: client_meta, comment_id. Returns the new Comment.",
+      "method": "POST",
+      "path": "/v1/files/{file_key}/comments",
+      "params": [
+        {
+          "name": "file_key",
+          "type": "string",
+          "location": "path",
+          "description": "File to add comments in. This can be a file key or branch key. Use `GET /v1/files/:key` with the `branch_data` query param to get the branch key.",
+          "required": true
+        },
+        {
+          "name": "client_meta",
+          "type": "string",
+          "location": "body",
+          "description": "The position where to place the comment."
+        },
+        {
+          "name": "comment_id",
+          "type": "string",
+          "location": "body",
+          "description": "The ID of the comment to reply to, if any. This must be a root comment. You cannot reply to other replies (a comment that has a parent_id)."
+        },
+        {
+          "name": "message",
+          "type": "string",
+          "location": "body",
+          "description": "The text contents of the comment to post.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "files_comments_post-reaction",
+      "description": "Posts a new comment reaction on a file comment. Required: file_key, comment_id, emoji. Returns the new CommentsPostReactionResponse.",
+      "method": "POST",
+      "path": "/v1/files/{file_key}/comments/{comment_id}/reactions",
+      "params": [
+        {
+          "name": "file_key",
+          "type": "string",
+          "location": "path",
+          "description": "File to post comment reactions to. This can be a file key or branch key. Use `GET /v1/files/:key` with the `branch_data` query param to get the branch key.",
+          "required": true
+        },
+        {
+          "name": "comment_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of comment to react to.",
+          "required": true
+        },
+        {
+          "name": "emoji",
+          "type": "string",
+          "location": "body",
+          "description": "The emoji type of reaction as shortcode (e.g. `:heart:`, `:+1::skin-tone-2:`). The list of accepted emoji shortcodes can be found in [this file](https://raw.githubusercontent.com/missive/emoji-mart/main/packages/emoji-mart-data/sets/14/native.json) under the top-level emojis and aliases fields, with optional skin tone modifiers when applicable.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "files_component-sets_get-file",
+      "description": "Get a list of published component sets within a file library. Required: file_key. Returns the ComponentSetsGetFileResponse.",
+      "method": "GET",
+      "path": "/v1/files/{file_key}/component_sets",
+      "params": [
+        {
+          "name": "file_key",
+          "type": "string",
+          "location": "path",
+          "description": "File to list component sets from. This must be a main file key, not a branch key, as it is not possible to publish from branches.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "files_components_get-file",
+      "description": "Get a list of published components within a file library. Required: file_key. Returns the ComponentsGetFileResponse.",
+      "method": "GET",
+      "path": "/v1/files/{file_key}/components",
+      "params": [
+        {
+          "name": "file_key",
+          "type": "string",
+          "location": "path",
+          "description": "File to list components from. This must be a main file key, not a branch key, as it is not possible to publish from branches.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "files_dev-resources_delete",
+      "description": "Delete a dev resource from a file. Required: file_key, dev_resource_id. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/files/{file_key}/dev_resources/{dev_resource_id}",
+      "params": [
+        {
+          "name": "file_key",
+          "type": "string",
+          "location": "path",
+          "description": "The file to delete the dev resource from. This must be a main file key, not a branch key.",
+          "required": true
+        },
+        {
+          "name": "dev_resource_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the dev resource to delete.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "files_dev-resources_get",
+      "description": "Get dev resources in a file. Required: file_key. Optional: node_ids. Returns the DevResourcesGetResponse.",
+      "method": "GET",
+      "path": "/v1/files/{file_key}/dev_resources",
+      "params": [
+        {
+          "name": "file_key",
+          "type": "string",
+          "location": "path",
+          "description": "The file to get the dev resources from. This must be a main file key, not a branch key.",
+          "required": true
+        },
+        {
+          "name": "node_ids",
+          "type": "string",
+          "location": "query",
+          "description": "Comma separated list of nodes that you care about in the document. If specified, only dev resources attached to these nodes will be returned. If not specified, all dev resources in the file will be returned."
+        }
+      ]
+    },
+    {
+      "name": "files_images_get-fills",
+      "description": "Returns download links for all images present in image fills in a document. Image fills are how Figma represents any user supplied images. When you drag an image into Figma, we create a rectangle with a single fill that represents the image, and the user is able to transform the rectangle (and properties on the fill) as they wish. This endpoint returns a mapping from image references to the URLs at which the images may be download. Image URLs will expire after no more than 14 days. Image references are located in the output of the GET files endpoint under the `imageRef` attribute in a `Paint`. Required: file_key.",
+      "method": "GET",
+      "path": "/v1/files/{file_key}/images",
+      "params": [
+        {
+          "name": "file_key",
+          "type": "string",
+          "location": "path",
+          "description": "File to get image URLs from. This can be a file key or branch key. Use `GET /v1/files/:key` with the `branch_data` query param to get the branch key.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "files_meta_get-file",
+      "description": "Get file metadata. Required: file_key. Returns the MetaGetFileResponse.",
+      "method": "GET",
+      "path": "/v1/files/{file_key}/meta",
+      "params": [
+        {
+          "name": "file_key",
+          "type": "string",
+          "location": "path",
+          "description": "File to get metadata for. This can be a file key or branch key. Use `GET /v1/files/:key` with the `branch_data` query param to get the branch key.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "files_nodes_get-file",
+      "description": "Returns the nodes referenced to by `ids` as a JSON object. The nodes are retrieved from the Figma file referenced to by `file_key`. The node ID and file key can be parsed from any Figma node url: `https://www.figma.com/file/{file_key}/{title}?node-id={id}` The `name`, `lastModified`, `thumbnailUrl`, `editorType`, and `version` attributes are all metadata of the specified file. The `linkAccess` field describes the file link share permission level. There are 5 types of permissions a shared link can have: `'inherit'`, `'view'`, `'edit'`, `'org_view'`, and `'org_edit'`. `'inherit'` is the default permission applied to files created in a team project, and will inherit the project's permissions. `'org_view'` and `'org_edit'` restrict the link to org users. The `document` attribute contains a Node of type `DOCUMENT`. The `components` key contains a mapping from node IDs to component metadata. This is to help you determine which components each instance comes from. By default, no vector data is returned. To return vector data, pass the geometry=paths parameter to the endpoint. Each node can also inherit properties from applicable styles. The styles key contains a mapping from style IDs to style metadata. Important: the nodes map may contain values that are `null`. This may be due to the node id not existing within the specified file. Required: file_key, ids. Optional: version, depth, geometry (plus 1 more).",
+      "method": "GET",
+      "path": "/v1/files/{file_key}/nodes",
+      "params": [
+        {
+          "name": "file_key",
+          "type": "string",
+          "location": "path",
+          "description": "File to export JSON from. This can be a file key or branch key. Use `GET /v1/files/:key` with the `branch_data` query param to get the branch key.",
+          "required": true
+        },
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "query",
+          "description": "A comma separated list of node IDs to retrieve and convert.",
+          "required": true
+        },
+        {
+          "name": "version",
+          "type": "string",
+          "location": "query",
+          "description": "A specific version ID to get. Omitting this will get the current version of the file."
+        },
+        {
+          "name": "depth",
+          "type": "float",
+          "location": "query",
+          "description": "Positive integer representing how deep into the node tree to traverse. For example, setting this to 1 will return only the children directly underneath the desired nodes. Not setting this parameter returns all nodes. Note: this parameter behaves differently from the same parameter in the `GET /v1/files/:key` endpoint. In this endpoint, the depth will be counted starting from the desired node rather than the document root node."
+        },
+        {
+          "name": "geometry",
+          "type": "string",
+          "location": "query",
+          "description": "Set to 'paths' to export vector data."
+        },
+        {
+          "name": "plugin_data",
+          "type": "string",
+          "location": "query",
+          "description": "A comma separated list of plugin IDs and/or the string 'shared'. Any data present in the document written by those plugins will be included in the result in the `pluginData` and `sharedPluginData` properties."
+        }
+      ]
+    },
+    {
+      "name": "files_styles_get-file",
+      "description": "Get a list of published styles within a file library. Required: file_key. Returns the StylesGetFileResponse.",
+      "method": "GET",
+      "path": "/v1/files/{file_key}/styles",
+      "params": [
+        {
+          "name": "file_key",
+          "type": "string",
+          "location": "path",
+          "description": "File to list styles from. This must be a main file key, not a branch key, as it is not possible to publish from branches.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "files_variables_get-local",
+      "description": "**This API is available to full members of Enterprise orgs.** The `GET /v1/files/:file_key/variables/local` endpoint lets you enumerate local variables created in the file and remote variables used in the file. Remote variables are referenced by their `subscribed_id`. As a part of the Variables related API additions, the `GET /v1/files/:file_key` endpoint now returns a `boundVariables` property, containing the `variableId` of the bound variable. The `GET /v1/files/:file_key/variables/local` endpoint can be used to get the full variable or variable collection object. Note that `GET /v1/files/:file_key/variables/published` does not return modes. Instead, you will need to use the `GET /v1/files/:file_key/variables/local` endpoint, in the same file, to examine the mode values. Required: file_key.",
+      "method": "GET",
+      "path": "/v1/files/{file_key}/variables/local",
+      "params": [
+        {
+          "name": "file_key",
+          "type": "string",
+          "location": "path",
+          "description": "File to get variables from. This can be a file key or branch key. Use `GET /v1/files/:key` with the `branch_data` query param to get the branch key.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "files_variables_get-published",
+      "description": "**This API is available to full members of Enterprise orgs.** The `GET /v1/files/:file_key/variables/published` endpoint returns the variables that are published from the given file. The response for this endpoint contains some key differences compared to the `GET /v1/files/:file_key/variables/local` endpoint: - Each variable and variable collection contains a `subscribed_id`. - Modes are omitted for published variable collections Published variables have two ids: an id that is assigned in the file where it is created (`id`), and an id that is used by subscribing files (`subscribed_id`). The `id` and `key` are stable over the lifetime of the variable. The `subscribed_id` changes every time the variable is modified and published. The same is true for variable collections. The `updatedAt` fields are ISO 8601 timestamps that indicate the last time that a change to a variable was published. For variable collections, this timestamp will change any time a variable in the collection is changed. Required: file_key.",
+      "method": "GET",
+      "path": "/v1/files/{file_key}/variables/published",
+      "params": [
+        {
+          "name": "file_key",
+          "type": "string",
+          "location": "path",
+          "description": "File to get variables from. This must be a main file key, not a branch key, as it is not possible to publish from branches.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "files_variables_post",
+      "description": "**This API is available to full members of Enterprise orgs with Editor seats.** The `POST /v1/files/:file_key/variables` endpoint lets you bulk create, update, and delete variables and variable collections. The request body supports the following 4 top-level arrays. Changes from these arrays will be applied in the below order, and within each array, by array order. - **variableCollections**: For creating, updating, and deleting variable collections - **variableModes**: For creating, updating, and deleting modes within variable collections - Each collection can have a maximum of 40 modes - Mode names cannot be longer than 40 characters - **variables**: For creating, updating, and deleting variables - Each collection can have a maximum of 5000 variables - Variable names must be unique within a collection and cannot contain certain special characters such as `.{}` - **variableModeValues**: For setting a variable value under a specific mode. - When setting aliases, a variable cannot be aliased to itself or form an alias cycle Temporary ids can be used to reference an object later in the same POST request body. They can be used at create time in the `id` property of variable collections, modes, variables, and in the `initialModeId` property of variable collections. They are scoped to a single request body, and must be unique within the body. The mapping of temporary ids to real ids is returned in the response. This endpoint has the following key behaviors: - The request body must be 4MB or less. - Must include an `action` property for collections, modes, and variables to tell the API whether to create, update, or delete the object. - When creating a collection, mode, or variable, you can include a temporary `id` that can be referenced in dependent objects in the same request. For example, you can create a new collection with the id `'my_new_collection'`. You can then set `variableCollectionId` to `'my_new_collection'` in new modes or variables. Temporary ids must be unique in the request body. - New collections always come with one mode. You can reference this mode by setting `initialModeId` to a temporary id in the request body. This is useful if you want to set values for variables in the mode in the `variableModeValues` array. - The `tempIdToRealId` array returns a mapping of the temporary ids in the request, to the real ids of the newly created objects. - When adding new modes or variables, default variable values will be applied, consistent with what happens in the UI. - Everything to be created, updated, and deleted in the request body is treated as one atomic operation. If there is any validation failure, you will get a 400 status code response, and no changes will be persisted. - You will not be able to update remote variables or variable collections. You can only update variables in the file where they were originally created. Required: file_key. Optional: variableCollections, variableModeValues, variableModes (plus 1 more).",
+      "method": "POST",
+      "path": "/v1/files/{file_key}/variables",
+      "params": [
+        {
+          "name": "file_key",
+          "type": "string",
+          "location": "path",
+          "description": "File to modify variables in. This can be a file key or branch key. Use `GET /v1/files/:key` with the `branch_data` query param to get the branch key.",
+          "required": true
+        },
+        {
+          "name": "variableCollections",
+          "type": "array",
+          "location": "body",
+          "description": "For creating, updating, and deleting variable collections."
+        },
+        {
+          "name": "variableModeValues",
+          "type": "array",
+          "location": "body",
+          "description": "For setting a specific value, given a variable and a mode."
+        },
+        {
+          "name": "variableModes",
+          "type": "array",
+          "location": "body",
+          "description": "For creating, updating, and deleting modes within variable collections."
+        },
+        {
+          "name": "variables",
+          "type": "array",
+          "location": "body",
+          "description": "For creating, updating, and deleting variables."
+        }
+      ]
+    },
+    {
+      "name": "files_versions_get-file",
+      "description": "This endpoint fetches the version history of a file, allowing you to see the progression of a file over time. You can then use this information to render a specific version of the file, via another endpoint. Required: file_key. Optional: page_size, before, after. Returns the VersionsGetFileResponse.",
+      "method": "GET",
+      "path": "/v1/files/{file_key}/versions",
+      "params": [
+        {
+          "name": "file_key",
+          "type": "string",
+          "location": "path",
+          "description": "File to get version history from. This can be a file key or branch key. Use `GET /v1/files/:key` with the `branch_data` query param to get the branch key.",
+          "required": true
+        },
+        {
+          "name": "page_size",
+          "type": "float",
+          "location": "query",
+          "description": "The number of items returned in a page of the response. If not included, `page_size` is `30`."
+        },
+        {
+          "name": "before",
+          "type": "float",
+          "location": "query",
+          "description": "A version ID for one of the versions in the history. Gets versions before this ID. Used for paginating. If the response is not paginated, this link returns the same data in the current response."
+        },
+        {
+          "name": "after",
+          "type": "float",
+          "location": "query",
+          "description": "A version ID for one of the versions in the history. Gets versions after this ID. Used for paginating. If the response is not paginated, this property is not included."
+        }
+      ]
+    },
+    {
+      "name": "images_get",
+      "description": "Renders images from a file. If no error occurs, `'images'` will be populated with a map from node IDs to URLs of the rendered images, and `'status'` will be omitted. The image assets will expire after 30 days. Images up to 32 megapixels can be exported. Any images that are larger will be scaled down. Important: the image map may contain values that are `null`. This indicates that rendering of that specific node has failed. This may be due to the node id not existing, or other reasons such has the node having no renderable components. It is guaranteed that any node that was requested for rendering will be represented in this map whether or not the render succeeded. To render multiple images from the same file, use the `ids` query parameter to specify multiple node ids. ``` GET /v1/images/:key?ids=1:2,1:3,1:4 ```. Required: file_key, ids. Optional: version, scale, format (default: png) (plus 6 more). Returns the ImagesGetResponse.",
+      "method": "GET",
+      "path": "/v1/images/{file_key}",
+      "params": [
+        {
+          "name": "file_key",
+          "type": "string",
+          "location": "path",
+          "description": "File to export images from. This can be a file key or branch key. Use `GET /v1/files/:key` with the `branch_data` query param to get the branch key.",
+          "required": true
+        },
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "query",
+          "description": "A comma separated list of node IDs to render.",
+          "required": true
+        },
+        {
+          "name": "version",
+          "type": "string",
+          "location": "query",
+          "description": "A specific version ID to get. Omitting this will get the current version of the file."
+        },
+        {
+          "name": "scale",
+          "type": "float",
+          "location": "query",
+          "description": "A number between 0.01 and 4, the image scaling factor."
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "A string enum for the image output format."
+        },
+        {
+          "name": "svg_outline_text",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether text elements are rendered as outlines (vector paths) or as `\u003ctext\u003e` elements in SVGs. Rendering text elements as outlines guarantees that the text looks exactly the same in the SVG as it does in the browser/inside Figma. Exporting as `\u003ctext\u003e` allows text to be selectable inside SVGs and generally makes the SVG easier to read. However, this relies on the browser's rendering engine which can vary between browsers and/or operating systems. As such, visual accuracy is not guaranteed as the result could look different than in Figma."
+        },
+        {
+          "name": "svg_include_id",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether to include id attributes for all SVG elements. Adds the layer name to the `id` attribute of an svg element."
+        },
+        {
+          "name": "svg_include_node_id",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether to include node id attributes for all SVG elements. Adds the node id to a `data-node-id` attribute of an svg element."
+        },
+        {
+          "name": "svg_simplify_stroke",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether to simplify inside/outside strokes and use stroke attribute if possible instead of `\u003cmask\u003e`."
+        },
+        {
+          "name": "contents_only",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether content that overlaps the node should be excluded from rendering. Passing false (i.e., rendering overlaps) may increase processing time, since more of the document must be included in rendering."
+        },
+        {
+          "name": "use_absolute_bounds",
+          "type": "bool",
+          "location": "query",
+          "description": "Use the full dimensions of the node regardless of whether or not it is cropped or the space around it is empty. Use this to export text nodes without cropping."
+        }
+      ]
+    },
+    {
+      "name": "me_get",
+      "description": "Returns the user information for the currently authenticated user.",
+      "method": "GET",
+      "path": "/v1/me",
+      "params": []
+    },
+    {
+      "name": "oembed_get",
+      "description": "Returns oEmbed data for a Figma file or published Make site URL, following the [oEmbed specification](https://oembed.com/). Required: url. Optional: maxwidth (default: 800), maxheight (default: 450).",
+      "method": "GET",
+      "path": "/v1/oembed",
+      "params": [
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "The URL of the Figma file or published Make site to retrieve oEmbed data for.",
+          "required": true
+        },
+        {
+          "name": "maxwidth",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum width of the embed in pixels. Defaults to 800. The response width will be adjusted to maintain a 16:9 aspect ratio with maxheight."
+        },
+        {
+          "name": "maxheight",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum height of the embed in pixels. Defaults to 450. The response height will be adjusted to maintain a 16:9 aspect ratio with maxwidth."
+        }
+      ]
+    },
+    {
+      "name": "payments_get",
+      "description": "There are two methods to query for a user's payment information on a plugin, widget, or Community file. The first method, using plugin payment tokens, is typically used when making queries from a plugin's or widget's code. The second method, providing a user ID and resource ID, is typically used when making queries from anywhere else. Note that you can only query for resources that you own. In most cases, this means that you can only query resources that you originally created. Optional: plugin_payment_token, user_id, community_file_id (plus 2 more). Returns the PaymentsGetResponse.",
+      "method": "GET",
+      "path": "/v1/payments",
+      "params": [
+        {
+          "name": "plugin_payment_token",
+          "type": "string",
+          "location": "query",
+          "description": "Short-lived token returned from 'getPluginPaymentTokenAsync' in the plugin payments API and used to authenticate to this endpoint. Read more about generating this token through 'Calling the Payments REST API from a plugin or widget' below."
+        },
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "query",
+          "description": "The ID of the user to query payment information about. You can get the user ID by having the user OAuth2 to the Figma REST API."
+        },
+        {
+          "name": "community_file_id",
+          "type": "string",
+          "location": "query",
+          "description": "The ID of the Community file to query a user's payment information on. You can get the Community file ID from the file's Community page (look for the number after 'file/' in the URL). Provide exactly one of 'community_file_id', 'plugin_id', or 'widget_id'."
+        },
+        {
+          "name": "plugin_id",
+          "type": "string",
+          "location": "query",
+          "description": "The ID of the plugin to query a user's payment information on. You can get the plugin ID from the plugin's manifest, or from the plugin's Community page (look for the number after 'plugin/' in the URL). Provide exactly one of 'community_file_id', 'plugin_id', or 'widget_id'."
+        },
+        {
+          "name": "widget_id",
+          "type": "string",
+          "location": "query",
+          "description": "The ID of the widget to query a user's payment information on. You can get the widget ID from the widget's manifest, or from the widget's Community page (look for the number after 'widget/' in the URL). Provide exactly one of 'community_file_id', 'plugin_id', or 'widget_id'."
+        }
+      ]
+    },
+    {
+      "name": "projects_files_get-project",
+      "description": "Get a list of all the Files within the specified project. Required: project_id. Optional: branch_data (default: false). Returns the FilesGetProjectResponse.",
+      "method": "GET",
+      "path": "/v1/projects/{project_id}/files",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the project to list files from",
+          "required": true
+        },
+        {
+          "name": "branch_data",
+          "type": "bool",
+          "location": "query",
+          "description": "Returns branch metadata in the response for each main file with a branch inside the project."
+        }
+      ]
+    },
+    {
+      "name": "styles_get",
+      "description": "Get metadata on a style by key. Required: key. Returns the StylesGetResponse.",
+      "method": "GET",
+      "path": "/v1/styles/{key}",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "path",
+          "description": "The unique identifier of the style.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "teams_component-sets_get-team",
+      "description": "Get a paginated list of published component sets within a team library. Required: team_id. Optional: page_size (default: 30), after, before. Returns the ComponentSetsGetTeamResponse.",
+      "method": "GET",
+      "path": "/v1/teams/{team_id}/component_sets",
+      "params": [
+        {
+          "name": "team_id",
+          "type": "string",
+          "location": "path",
+          "description": "Id of the team to list component sets from.",
+          "required": true
+        },
+        {
+          "name": "page_size",
+          "type": "float",
+          "location": "query",
+          "description": "Number of items to return in a paged list of results. Defaults to 30."
+        },
+        {
+          "name": "after",
+          "type": "float",
+          "location": "query",
+          "description": "Cursor indicating which id after which to start retrieving component sets for. Exclusive with before. The cursor value is an internally tracked integer that doesn't correspond to any Ids."
+        },
+        {
+          "name": "before",
+          "type": "float",
+          "location": "query",
+          "description": "Cursor indicating which id before which to start retrieving component sets for. Exclusive with after. The cursor value is an internally tracked integer that doesn't correspond to any Ids."
+        }
+      ]
+    },
+    {
+      "name": "teams_components_get-team",
+      "description": "Get a paginated list of published components within a team library. Required: team_id. Optional: page_size (default: 30), after, before. Returns the ComponentsGetTeamResponse.",
+      "method": "GET",
+      "path": "/v1/teams/{team_id}/components",
+      "params": [
+        {
+          "name": "team_id",
+          "type": "string",
+          "location": "path",
+          "description": "Id of the team to list components from.",
+          "required": true
+        },
+        {
+          "name": "page_size",
+          "type": "float",
+          "location": "query",
+          "description": "Number of items to return in a paged list of results. Defaults to 30. Maximum of 1000."
+        },
+        {
+          "name": "after",
+          "type": "float",
+          "location": "query",
+          "description": "Cursor indicating which id after which to start retrieving components for. Exclusive with before. The cursor value is an internally tracked integer that doesn't correspond to any Ids."
+        },
+        {
+          "name": "before",
+          "type": "float",
+          "location": "query",
+          "description": "Cursor indicating which id before which to start retrieving components for. Exclusive with after. The cursor value is an internally tracked integer that doesn't correspond to any Ids."
+        }
+      ]
+    },
+    {
+      "name": "teams_projects_get-team",
+      "description": "You can use this endpoint to get a list of all the Projects within the specified team. This will only return projects visible to the authenticated user or owner of the developer token. Note: it is not currently possible to programmatically obtain the team id of a user just from a token. To obtain a team id, navigate to a team page of a team you are a part of. The team id will be present in the URL after the word team and before your team name. Required: team_id. Returns the ProjectsGetTeamResponse.",
+      "method": "GET",
+      "path": "/v1/teams/{team_id}/projects",
+      "params": [
+        {
+          "name": "team_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of the team to list projects from",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "teams_styles_get-team",
+      "description": "Get a paginated list of published styles within a team library. Required: team_id. Optional: page_size (default: 30), after, before. Returns the StylesGetTeamResponse.",
+      "method": "GET",
+      "path": "/v1/teams/{team_id}/styles",
+      "params": [
+        {
+          "name": "team_id",
+          "type": "string",
+          "location": "path",
+          "description": "Id of the team to list styles from.",
+          "required": true
+        },
+        {
+          "name": "page_size",
+          "type": "float",
+          "location": "query",
+          "description": "Number of items to return in a paged list of results. Defaults to 30."
+        },
+        {
+          "name": "after",
+          "type": "float",
+          "location": "query",
+          "description": "Cursor indicating which id after which to start retrieving styles for. Exclusive with before. The cursor value is an internally tracked integer that doesn't correspond to any Ids."
+        },
+        {
+          "name": "before",
+          "type": "float",
+          "location": "query",
+          "description": "Cursor indicating which id before which to start retrieving styles for. Exclusive with after. The cursor value is an internally tracked integer that doesn't correspond to any Ids."
+        }
+      ]
+    },
+    {
+      "name": "teams_webhooks_get-team",
+      "description": "Returns all webhooks registered under the specified team. Required: team_id.",
+      "method": "GET",
+      "path": "/v2/teams/{team_id}/webhooks",
+      "params": [
+        {
+          "name": "team_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of team to get webhooks for",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_delete",
+      "description": "Deletes the specified webhook. This operation cannot be reversed. Required: webhook_id. Returns the WebhookV2. Destructive.",
+      "method": "DELETE",
+      "path": "/v2/webhooks/{webhook_id}",
+      "params": [
+        {
+          "name": "webhook_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of webhook to delete",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_get",
+      "description": "Returns a list of webhooks corresponding to the context or plan provided, if they exist. For plan, the webhooks for all contexts that you have access to will be returned, and theresponse is paginated. Optional: context, context_id, plan_api_id (plus 1 more).",
+      "method": "GET",
+      "path": "/v2/webhooks",
+      "params": [
+        {
+          "name": "context",
+          "type": "string",
+          "location": "query",
+          "description": "Context to create the resource on. Should be 'team', 'project', or 'file'."
+        },
+        {
+          "name": "context_id",
+          "type": "string",
+          "location": "query",
+          "description": "The id of the context that you want to get attached webhooks for. If you're using context_id, you cannot use plan_api_id."
+        },
+        {
+          "name": "plan_api_id",
+          "type": "string",
+          "location": "query",
+          "description": "The id of your plan. Use this to get all webhooks for all contexts you have access to. If you're using plan_api_id, you cannot use context or context_id. When you use plan_api_id, the response is paginated."
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "If you're using plan_api_id, this is the cursor to use for pagination. If you're using context or context_id, this parameter is ignored. Provide the next_page or prev_page value from the previous response to get the next or previous page of results."
+        }
+      ]
+    },
+    {
+      "name": "webhooks_get-webhookid",
+      "description": "Get a webhook by ID. Required: webhook_id. Returns the WebhookV2.",
+      "method": "GET",
+      "path": "/v2/webhooks/{webhook_id}",
+      "params": [
+        {
+          "name": "webhook_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of webhook to get",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_post",
+      "description": "Create a new webhook which will call the specified endpoint when the event triggers. By default, this webhook will automatically send a PING event to the endpoint when it is created. If this behavior is not desired, you can create the webhook and set the status to PAUSED and reactivate it later. Required: context, context_id, endpoint, event_type, passcode. Optional: description, status, team_id. Returns the new WebhookV2.",
+      "method": "POST",
+      "path": "/v2/webhooks",
+      "params": [
+        {
+          "name": "context",
+          "type": "string",
+          "location": "body",
+          "description": "Context to create the webhook for. Must be 'team', 'project', or 'file'.",
+          "required": true
+        },
+        {
+          "name": "context_id",
+          "type": "string",
+          "location": "body",
+          "description": "The id of the context you want to receive updates about.",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "User provided description or name for the webhook. Max length 150 characters."
+        },
+        {
+          "name": "endpoint",
+          "type": "string",
+          "location": "body",
+          "description": "The HTTP endpoint that will receive a POST request when the event triggers. Max length 2048 characters.",
+          "required": true
+        },
+        {
+          "name": "event_type",
+          "type": "string",
+          "location": "body",
+          "description": "An enum representing the possible events that a webhook can subscribe to",
+          "required": true
+        },
+        {
+          "name": "passcode",
+          "type": "string",
+          "location": "body",
+          "description": "String that will be passed back to your webhook endpoint to verify that it is being called by Figma. Max length 100 characters.",
+          "required": true
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "State of the webhook, including any error state it may be in"
+        },
+        {
+          "name": "team_id",
+          "type": "string",
+          "location": "body",
+          "description": "Team id to receive updates about. This is deprecated, use 'context' and 'context_id' instead."
+        }
+      ]
+    },
+    {
+      "name": "webhooks_put",
+      "description": "Update a webhook by ID. Required: webhook_id, endpoint, event_type, passcode. Optional: description, status. Returns the updated WebhookV2.",
+      "method": "PUT",
+      "path": "/v2/webhooks/{webhook_id}",
+      "params": [
+        {
+          "name": "webhook_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID of webhook to update",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "User provided description or name for the webhook. Max length 150 characters."
+        },
+        {
+          "name": "endpoint",
+          "type": "string",
+          "location": "body",
+          "description": "The HTTP endpoint that will receive a POST request when the event triggers. Max length 2048 characters.",
+          "required": true
+        },
+        {
+          "name": "event_type",
+          "type": "string",
+          "location": "body",
+          "description": "An enum representing the possible events that a webhook can subscribe to",
+          "required": true
+        },
+        {
+          "name": "passcode",
+          "type": "string",
+          "location": "body",
+          "description": "String that will be passed back to your webhook endpoint to verify that it is being called by Figma. Max length 100 characters.",
+          "required": true
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "State of the webhook, including any error state it may be in"
+        }
+      ]
+    },
+    {
+      "name": "webhooks_requests_get-webhook",
+      "description": "Returns all webhook requests sent within the last week. Useful for debugging. Required: webhook_id.",
+      "method": "GET",
+      "path": "/v2/webhooks/{webhook_id}/requests",
+      "params": [
+        {
+          "name": "webhook_id",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the webhook subscription you want to see events from",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

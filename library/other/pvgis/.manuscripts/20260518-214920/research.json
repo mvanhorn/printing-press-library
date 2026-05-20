@@ -1,0 +1,202 @@
+{
+  "api_name": "pvgis",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "pvlib-python",
+      "url": "https://github.com/pvlib/pvlib-python",
+      "language": "Python",
+      "install_method": "",
+      "stars": 1100,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "pvgis-mcp (local)",
+      "url": "https://github.com/internal/pvgis-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 7,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-18T21:52:00Z",
+  "novel_features": [
+    {
+      "name": "Multi-site rank",
+      "command": "sites rank",
+      "description": "Rank a CSV of candidate sites by annual yield/kWp under the same system spec.",
+      "rationale": "Requires a local store joining many PVGIS responses with shared system parameters; no PVGIS endpoint returns this in one call.",
+      "example": "pvgis-pp-cli sites rank --input sites.csv --tilt 30 --pnom 5 --system-loss 14 --agent",
+      "why_it_matters": "Use when an agent has a list of candidate roofs/sites and needs to recommend the highest-yield one without N round trips.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Tilt/azimuth heatmap",
+      "command": "production sweep",
+      "description": "Compute a 2D grid of yields across tilt and azimuth, cache it, and serve future point queries from local interpolation.",
+      "rationale": "Requires caching the full grid in SQLite so later --tilt/--azimuth probes are offline.",
+      "example": "pvgis-pp-cli production sweep --lat 45 --lon 9 --pnom 5 --system-loss 14 --tilt-min 0 --tilt-max 60 --azimuth-min -90 --azimuth-max 90 --agent",
+      "why_it_matters": "Use before recommending a fixed-mount orientation when the user can choose tilt and azimuth independently.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Database comparator",
+      "command": "production compare",
+      "description": "Run the same site under PVGIS-SARAH3, PVGIS-NSRDB, and PVGIS-ERA5; report yield deltas.",
+      "rationale": "Requires a local join across parallel PVGIS calls keyed on the radiation database.",
+      "example": "pvgis-pp-cli production compare --lat 45 --lon 9 --pnom 1 --system-loss 14 --tilt 30 --agent",
+      "why_it_matters": "Use when assessing confidence intervals: how much do different databases disagree at this location?",
+      "group": "Cross-database insight"
+    },
+    {
+      "name": "Yield delta vs reference",
+      "command": "sites diff",
+      "description": "Compare annual production at a baseline site against a target site under identical system specs.",
+      "rationale": "Requires both sites cached locally so the diff is computed without re-hitting the API.",
+      "example": "pvgis-pp-cli sites diff --baseline 45.0,9.0 --target 41.9,12.5 --pnom 5 --system-loss 14 --agent",
+      "why_it_matters": "Use to quantify how much a relocation or alternate roof loses or gains.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "TMY climate fingerprint search",
+      "command": "weather similar",
+      "description": "Rank cached TMYs by similarity to a target site's 12-month temperature and GHI signature.",
+      "rationale": "Requires cached TMY data for the candidate sites; PVGIS has no similarity endpoint.",
+      "example": "pvgis-pp-cli weather similar --to 45.0,9.0 --within sites.csv --top 5 --agent",
+      "why_it_matters": "Use to find analog climate sites for transfer-learning yield assumptions.",
+      "group": "Cross-database insight"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Multi-site rank",
+      "command": "sites rank",
+      "description": "Rank a CSV of candidate sites by annual yield/kWp under the same system spec.",
+      "rationale": "Requires a local store joining many PVGIS responses with shared system parameters; no PVGIS endpoint returns this in one call.",
+      "example": "pvgis-pp-cli sites rank --input sites.csv --tilt 30 --pnom 5 --system-loss 14 --agent",
+      "why_it_matters": "Use when an agent has a list of candidate roofs/sites and needs to recommend the highest-yield one without N round trips.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Tilt/azimuth heatmap",
+      "command": "production sweep",
+      "description": "Compute a 2D grid of yields across tilt and azimuth, cache it, and serve future point queries from local interpolation.",
+      "rationale": "Requires caching the full grid in SQLite so later --tilt/--azimuth probes are offline.",
+      "example": "pvgis-pp-cli production sweep --lat 45 --lon 9 --pnom 5 --system-loss 14 --tilt-min 0 --tilt-max 60 --azimuth-min -90 --azimuth-max 90 --agent",
+      "why_it_matters": "Use before recommending a fixed-mount orientation when the user can choose tilt and azimuth independently.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Database comparator",
+      "command": "production compare",
+      "description": "Run the same site under PVGIS-SARAH3, PVGIS-NSRDB, and PVGIS-ERA5; report yield deltas.",
+      "rationale": "Requires a local join across parallel PVGIS calls keyed on the radiation database.",
+      "example": "pvgis-pp-cli production compare --lat 45 --lon 9 --pnom 1 --system-loss 14 --tilt 30 --agent",
+      "why_it_matters": "Use when assessing confidence intervals: how much do different databases disagree at this location?",
+      "group": "Cross-database insight"
+    },
+    {
+      "name": "Yield delta vs reference",
+      "command": "sites diff",
+      "description": "Compare annual production at a baseline site against a target site under identical system specs.",
+      "rationale": "Requires both sites cached locally so the diff is computed without re-hitting the API.",
+      "example": "pvgis-pp-cli sites diff --baseline 45.0,9.0 --target 41.9,12.5 --pnom 5 --system-loss 14 --agent",
+      "why_it_matters": "Use to quantify how much a relocation or alternate roof loses or gains.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "TMY climate fingerprint search",
+      "command": "weather similar",
+      "description": "Rank cached TMYs by similarity to a target site's 12-month temperature and GHI signature.",
+      "rationale": "Requires cached TMY data for the candidate sites; PVGIS has no similarity endpoint.",
+      "example": "pvgis-pp-cli weather similar --to 45.0,9.0 --within sites.csv --top 5 --agent",
+      "why_it_matters": "Use to find analog climate sites for transfer-learning yield assumptions.",
+      "group": "Cross-database insight"
+    }
+  ],
+  "narrative": {
+    "display_name": "PVGIS",
+    "headline": "The free, single-binary PVGIS CLI — JRC solar-radiation and PV-yield estimates with offline cache, multi-site batch, and agent-native JSON.",
+    "value_prop": "Estimates monthly and hourly PV production, downloads Typical Meteorological Year (TMY) weather, fetches DEM-derived horizon profiles, and finds optimal tilt for any point covered by PVGIS-SARAH3, PVGIS-NSRDB, or PVGIS-ERA5. Adds offline SQLite caching, multi-site fan-out (`sites rank`), and a local 2D tilt/azimuth heatmap (`production sweep`) that no PVGIS endpoint returns directly.",
+    "quickstart": [
+      {
+        "command": "pvgis-pp-cli doctor",
+        "comment": "Confirm the JRC API is reachable from this machine."
+      },
+      {
+        "command": "pvgis-pp-cli radiation monthly --lat 45.0 --lon 9.0 --tilt 30 --azimuth 0 --json",
+        "comment": "Monthly irradiance for a Milano-area site, fixed tilt 30 south."
+      },
+      {
+        "command": "pvgis-pp-cli production monthly --lat 45.0 --lon 9.0 --pnom 5 --system-loss 14 --tilt 30 --azimuth 0 --json",
+        "comment": "Annual yield for a 5 kWp crystSi system at the same spot."
+      },
+      {
+        "command": "pvgis-pp-cli production optimal-tilt --lat 45.0 --lon 9.0 --azimuth 0 --json",
+        "comment": "Sweep tilt 0-60 to find the production peak for a south-facing system."
+      },
+      {
+        "command": "pvgis-pp-cli weather tmy --lat 45.0 --lon 9.0 --json --select outputs.tmy_hourly",
+        "comment": "Pull the full 8760-hour TMY; pipe through jq or save for downstream tools."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "All commands hang or return network errors",
+        "fix": "PVGIS occasionally has maintenance windows. Run `pvgis-pp-cli doctor` and retry. Use --base-url to pin to https://re.jrc.ec.europa.eu/api/v5_2 if v5_3 is degraded."
+      },
+      {
+        "symptom": "Response shows `H(i)_m: 0.0` for every month",
+        "fix": "MRcalc requires --tilted=1 (or --selectrad=1) plus --tilt/--azimuth to compute the tilted plane. Without it only the horizontal plane is returned."
+      },
+      {
+        "symptom": "`weather tmy` response is huge",
+        "fix": "TMY returns 8760 hourly rows. Use `--select outputs.tmy_hourly[0]` to inspect one row, or pipe into the local SQLite store via `pvgis weather sync --lat --lon`."
+      }
+    ],
+    "when_to_use": "Reach for pvgis-pp-cli when an agent or pipeline needs ground-truth solar-yield estimates from the JRC PVGIS service without subscribing to commercial APIs. Best when the workflow involves multiple candidate sites, repeated parameter sweeps, or downstream consumers (PVSyst, SAM, custom models) that want clean JSON or CSV.",
+    "recipes": [
+      {
+        "title": "Compare three rooftops under the same system spec",
+        "command": "pvgis-pp-cli sites rank --input rooftops.csv --tilt 30 --pnom 5 --system-loss 14 --json --select rank,site,e_y",
+        "explanation": "rooftops.csv must have lat,lon,label columns. Output ranks them by annual production."
+      },
+      {
+        "title": "Find the best tilt for a south-facing array",
+        "command": "pvgis-pp-cli production optimal-tilt --lat 45 --lon 9 --azimuth 0 --json --select best_tilt,best_e_y",
+        "explanation": "Returns just the winning tilt and its annual production."
+      },
+      {
+        "title": "Dump TMY climate as CSV for PVSyst",
+        "command": "pvgis-pp-cli weather tmy --lat 45 --lon 9 --csv \u003e milano-tmy.csv",
+        "explanation": "PVSyst and SAM consume hourly CSVs of T, GHI, DNI, DHI, wind."
+      },
+      {
+        "title": "Check terrain shading at a hilly site",
+        "command": "pvgis-pp-cli horizon profile --lat 46.2 --lon 11.3 --json --select 'outputs.horizon_profile'",
+        "explanation": "Returns the 49-point DEM horizon in degrees; ingest into pvlib or visualize."
+      },
+      {
+        "title": "Compare databases for a North-American site",
+        "command": "pvgis-pp-cli production compare --lat 40.7 --lon -74 --pnom 1 --system-loss 14 --tilt 30 --json --select results.database,results.e_y",
+        "explanation": "SARAH3 may not cover this longitude; NSRDB will. See how much they disagree where they overlap."
+      }
+    ],
+    "trigger_phrases": [
+      "estimate solar production at",
+      "what's the optimal tilt for",
+      "get TMY weather for",
+      "PVGIS yield",
+      "use pvgis"
+    ]
+  }
+}

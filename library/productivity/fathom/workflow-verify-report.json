@@ -1,0 +1,8 @@
+{
+  "dir": "/Users/neektza/printing-press/.runstate/cli-printing-press-c22e9309/runs/20260509-090403/working/fathom-pp-cli",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

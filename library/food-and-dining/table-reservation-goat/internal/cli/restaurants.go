@@ -10,7 +10,7 @@ import (
 func newRestaurantsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "restaurants",
-		Short: "Search and inspect restaurants across OpenTable and Tock",
+		Short: "Search and inspect restaurants across OpenTable, Tock, and Resy",
 	}
 
 	cmd.AddCommand(newRestaurantsGetCmd(flags))

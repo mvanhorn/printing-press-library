@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-08T12:58:33.218033Z",
+  "printing_press_version": "4.0.6",
+  "api_name": "eu-tenders",
+  "display_name": "EU Tenders",
+  "cli_name": "eu-tenders-pp-cli",
+  "owner": "mathias-michel",
+  "printer": "m91michel",
+  "printer_name": "Mathias Michel",
+  "spec_path": "/Users/m.michel/printing-press/.runstate/cli-printing-press-b0ef89fe/runs/20260508-143927/ted-openapi.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:9824e87b0d15125250048468f737ff14419e563ecc162549ddf74c4a140fcc4d",
+  "run_id": "20260508-143927",
+  "mcp_binary": "eu-tenders-pp-mcp",
+  "mcp_tool_count": 1,
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "full",
+  "category": "sales-and-crm",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Construction Leads",
+      "command": "leads",
+      "description": "Surface recent construction contract award winners as B2B outreach candidates \u2014 company name, project location, contract value, and construction type \u2014 so you can contact winners who need construction machinery."
+    },
+    {
+      "name": "Win Rate Analysis",
+      "command": "win-rate",
+      "description": "See what fraction of contract competitions in a market go to new winners vs. incumbents \u2014 your real odds before writing a proposal."
+    },
+    {
+      "name": "Opportunity Scorer",
+      "command": "score",
+      "description": "Get a ranked shortlist of open tenders scored by deadline urgency, contract value, keyword fit, and market openness \u2014 your morning briefing, prioritized."
+    },
+    {
+      "name": "Market Concentration",
+      "command": "concentration",
+      "description": "Compute which companies capture what share of awarded contract value in a sector and country, with HHI score and year-over-year trend."
+    },
+    {
+      "name": "Procurement Velocity",
+      "command": "velocity",
+      "description": "See whether a procurement market is heating up, cooling off, or spiking \u2014 weekly notice count trends over rolling windows vs. same period last year."
+    },
+    {
+      "name": "Dark Buyers Detector",
+      "command": "dark-buyers",
+      "description": "Surface contracting authorities whose calls-for-tender rarely produce public awards, or whose awards show suspiciously low winner diversity \u2014 a compliance and integrity signal."
+    },
+    {
+      "name": "CPV Drift",
+      "command": "cpv-drift",
+      "description": "See which procurement categories are growing or shrinking in a country's spending mix year-over-year \u2014 essential for platform builders and policy researchers."
+    },
+    {
+      "name": "Buyer Profile",
+      "command": "buyer",
+      "description": "Build a full procurement dossier on any contracting authority: their spending cadence, CPV mix, typical contract values, and repeat winner patterns."
+    },
+    {
+      "name": "Deadline Heat",
+      "command": "deadline-heat",
+      "description": "A ranked calendar of expiring tenders weighted by urgency \u00d7 value / competition density \u2014 your daily prioritized view of what needs attention now."
+    }
+  ]
+}

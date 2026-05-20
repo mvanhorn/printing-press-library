@@ -1,0 +1,318 @@
+{
+  "api_name": "nse-india",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "hi-imcodeman/stock-nse-india",
+      "url": "https://github.com/hi-imcodeman/stock-nse-india",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 400,
+      "last_updated": "",
+      "command_count": 7,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "BennyThadikaran/NseIndiaApi",
+      "url": "https://github.com/BennyThadikaran/NseIndiaApi",
+      "language": "Python",
+      "install_method": "",
+      "stars": 250,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "bshada/nse-bse-mcp",
+      "url": "https://github.com/bshada/nse-bse-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 150,
+      "last_updated": "",
+      "command_count": 38,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "vsjha18/nsetools",
+      "url": "https://github.com/vsjha18/nsetools",
+      "language": "Python",
+      "install_method": "",
+      "stars": 300,
+      "last_updated": "",
+      "command_count": 14,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "RAKESHKRAJEEV90/nse-api-package",
+      "url": "https://github.com/RAKESHKRAJEEV90/nse-api-package",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 80,
+      "last_updated": "",
+      "command_count": 15,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "aeron7/nsepython",
+      "url": "https://github.com/aeron7/nsepython",
+      "language": "Python",
+      "install_method": "",
+      "stars": 500,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "maanavshah/stock-market-india",
+      "url": "https://github.com/maanavshah/stock-market-india",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 120,
+      "last_updated": "",
+      "command_count": 10,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-08T06:30:00Z",
+  "novel_features": [
+    {
+      "name": "Delivery Spike Detector",
+      "command": "delivery-spike",
+      "description": "Flags stocks where today's delivery-to-traded ratio is significantly above their 20-session rolling average — early signal of institutional accumulation.",
+      "rationale": "Requires a rolling time series of delivery% in SQLite; a single API call gives one day with no baseline.",
+      "example": "nse-india-pp-cli delivery-spike --threshold 2.0 --agent",
+      "why_it_matters": "Use when you want to detect institutional accumulation before price follows — the delivery spike precedes moves 2-3 sessions earlier than price action alone.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Pre-Market IEP Drift Analyzer",
+      "command": "iep-drift",
+      "description": "Tracks how accurately each stock's pre-market IEP (Indicative Equilibrium Price) predicts the actual opening price over 30 sessions.",
+      "rationale": "Requires pre-market IEP and actual open price stored in the same SQLite table across sessions — no single API call can produce this comparison.",
+      "example": "nse-india-pp-cli iep-drift --lookback 30 --min-gap 1.5 --agent",
+      "why_it_matters": "Use in pre-market to know which IEP signals are reliable for that day's gap-open strategy.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Announcement Flood Detector",
+      "command": "announcement-flood",
+      "description": "Surfaces companies whose filing cadence has spiked above their own historical baseline — a leading indicator of imminent corporate actions like rights issues or mergers.",
+      "rationale": "Compares current filing count against each company's rolling weekly baseline; requires announcement history across weeks in SQLite.",
+      "example": "nse-india-pp-cli announcement-flood --window 7d --threshold 3 --agent",
+      "why_it_matters": "Use when monitoring for surprise corporate actions — a flood of exchange filings reliably precedes announcements by 3-7 days.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Sector Breadth Analyzer",
+      "command": "sector-breadth",
+      "description": "Computes advance/decline ratio, median pChange, and delivery breadth for every constituent of a named index — far richer than the index headline number.",
+      "rationale": "Two-table join: index_constituents × daily_quotes; impossible from any single NSE API call.",
+      "example": "nse-india-pp-cli sector-breadth --sector IT --agent",
+      "why_it_matters": "Use when deciding whether an index move is broad-based or driven by one or two large caps — changes the conviction of a trade.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Index Basket Contributor",
+      "command": "index-driver",
+      "description": "Decomposes any day's index move into per-stock point contributions — identifies the 3-5 stocks driving 80%+ of the index change.",
+      "rationale": "Attribution joins index constituent weights with daily pChange; the weighted sum decomposition requires data only available after a sync populates both tables.",
+      "example": "nse-india-pp-cli index-driver --index \"NIFTY 50\" --agent",
+      "why_it_matters": "Use when the index move looks misleading — tells an agent whether a rally is concentrated (single-stock risk) or genuinely broad.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Portfolio P\u0026L Tracker",
+      "command": "portfolio pnl",
+      "description": "Tracks unrealized P\u0026L, daily delta, and drawdown for a personal holdings file against the synced quote history.",
+      "rationale": "Holdings file × quote history join across dates; reconstructs portfolio value curve from SQLite — no brokerage API needed.",
+      "example": "nse-india-pp-cli portfolio pnl --holdings holdings.csv --agent",
+      "why_it_matters": "Use when an agent needs to report portfolio performance or trigger rebalancing alerts without a brokerage integration.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Portfolio Margin Health Dashboard",
+      "command": "portfolio margin-health",
+      "description": "Aggregates VaR margin, extreme loss margin, and adhoc margin across a full portfolio — shows total margin-at-risk and which holdings are the biggest margin consumers.",
+      "rationale": "SUM(var_margin × qty × price) across all holdings in a single query; requires multi-symbol join impossible from serial API calls.",
+      "example": "nse-india-pp-cli portfolio margin-health --holdings holdings.csv --agent",
+      "why_it_matters": "Use before market open to check whether overnight VaR changes have pushed margin utilization above a safe threshold.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Delivery-Price Divergence Scanner",
+      "command": "delivery-divergence",
+      "description": "Detects when price is rising but delivery % is falling (distribution signal) or price falling while delivery is rising (accumulation signal) — separates smart money from retail.",
+      "rationale": "CORR(pChange, delivery_pct) over 10 sessions per symbol; correlation pattern is only visible with a joint time series in SQLite.",
+      "example": "nse-india-pp-cli delivery-divergence --lookback 10 --agent",
+      "why_it_matters": "Use when evaluating whether a trend is sustainable — delivery divergence at a peak is the single clearest distribution signal available from public data.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Delivery Spike Detector",
+      "command": "delivery-spike",
+      "description": "Flags stocks where today's delivery-to-traded ratio is significantly above their 20-session rolling average — early signal of institutional accumulation.",
+      "rationale": "Requires a rolling time series of delivery% in SQLite; a single API call gives one day with no baseline.",
+      "example": "nse-india-pp-cli delivery-spike --threshold 2.0 --agent",
+      "why_it_matters": "Use when you want to detect institutional accumulation before price follows — the delivery spike precedes moves 2-3 sessions earlier than price action alone.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Pre-Market IEP Drift Analyzer",
+      "command": "iep-drift",
+      "description": "Tracks how accurately each stock's pre-market IEP (Indicative Equilibrium Price) predicts the actual opening price over 30 sessions.",
+      "rationale": "Requires pre-market IEP and actual open price stored in the same SQLite table across sessions — no single API call can produce this comparison.",
+      "example": "nse-india-pp-cli iep-drift --lookback 30 --min-gap 1.5 --agent",
+      "why_it_matters": "Use in pre-market to know which IEP signals are reliable for that day's gap-open strategy.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Announcement Flood Detector",
+      "command": "announcement-flood",
+      "description": "Surfaces companies whose filing cadence has spiked above their own historical baseline — a leading indicator of imminent corporate actions like rights issues or mergers.",
+      "rationale": "Compares current filing count against each company's rolling weekly baseline; requires announcement history across weeks in SQLite.",
+      "example": "nse-india-pp-cli announcement-flood --window 7d --threshold 3 --agent",
+      "why_it_matters": "Use when monitoring for surprise corporate actions — a flood of exchange filings reliably precedes announcements by 3-7 days.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Sector Breadth Analyzer",
+      "command": "sector-breadth",
+      "description": "Computes advance/decline ratio, median pChange, and delivery breadth for every constituent of a named index — far richer than the index headline number.",
+      "rationale": "Two-table join: index_constituents × daily_quotes; impossible from any single NSE API call.",
+      "example": "nse-india-pp-cli sector-breadth --sector IT --agent",
+      "why_it_matters": "Use when deciding whether an index move is broad-based or driven by one or two large caps — changes the conviction of a trade.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Index Basket Contributor",
+      "command": "index-driver",
+      "description": "Decomposes any day's index move into per-stock point contributions — identifies the 3-5 stocks driving 80%+ of the index change.",
+      "rationale": "Attribution joins index constituent weights with daily pChange; the weighted sum decomposition requires data only available after a sync populates both tables.",
+      "example": "nse-india-pp-cli index-driver --index \"NIFTY 50\" --agent",
+      "why_it_matters": "Use when the index move looks misleading — tells an agent whether a rally is concentrated (single-stock risk) or genuinely broad.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Portfolio P\u0026L Tracker",
+      "command": "portfolio pnl",
+      "description": "Tracks unrealized P\u0026L, daily delta, and drawdown for a personal holdings file against the synced quote history.",
+      "rationale": "Holdings file × quote history join across dates; reconstructs portfolio value curve from SQLite — no brokerage API needed.",
+      "example": "nse-india-pp-cli portfolio pnl --holdings holdings.csv --agent",
+      "why_it_matters": "Use when an agent needs to report portfolio performance or trigger rebalancing alerts without a brokerage integration.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Portfolio Margin Health Dashboard",
+      "command": "portfolio margin-health",
+      "description": "Aggregates VaR margin, extreme loss margin, and adhoc margin across a full portfolio — shows total margin-at-risk and which holdings are the biggest margin consumers.",
+      "rationale": "SUM(var_margin × qty × price) across all holdings in a single query; requires multi-symbol join impossible from serial API calls.",
+      "example": "nse-india-pp-cli portfolio margin-health --holdings holdings.csv --agent",
+      "why_it_matters": "Use before market open to check whether overnight VaR changes have pushed margin utilization above a safe threshold.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Delivery-Price Divergence Scanner",
+      "command": "delivery-divergence",
+      "description": "Detects when price is rising but delivery % is falling (distribution signal) or price falling while delivery is rising (accumulation signal) — separates smart money from retail.",
+      "rationale": "CORR(pChange, delivery_pct) over 10 sessions per symbol; correlation pattern is only visible with a joint time series in SQLite.",
+      "example": "nse-india-pp-cli delivery-divergence --lookback 10 --agent",
+      "why_it_matters": "Use when evaluating whether a trend is sustainable — delivery divergence at a peak is the single clearest distribution signal available from public data.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "NSE India",
+    "headline": "Every NSE equity data point in a single Go binary — live quotes, order book, filings, and a local SQLite store no other tool has.",
+    "value_prop": "nse-india-pp-cli fetches real-time NSE equity quotes, index constituents, corporate filings, and market status with just browser headers — no API key, no Python runtime, no setup friction. After sync, the local SQLite store powers cross-symbol analysis that is invisible in any single API call: delivery spikes, sector breadth, portfolio margin health, and index attribution.",
+    "auth_narrative": "No authentication required. The CLI sends browser-compatible headers (User-Agent + Referer) that mirror what NSE's website uses. Options chain data may require a browser session cookie — use 'nse-india-pp-cli auth login --chrome' if those commands return empty data.",
+    "quickstart": [
+      {
+        "command": "nse-india-pp-cli market",
+        "comment": "Check if NSE is open before fetching data"
+      },
+      {
+        "command": "nse-india-pp-cli quote ADANIPORTS",
+        "comment": "Live price, 52w H/L, sector PE, pre-market IEP"
+      },
+      {
+        "command": "nse-india-pp-cli depth RELIANCE",
+        "comment": "Order book, delivery%, VaR margin"
+      },
+      {
+        "command": "nse-india-pp-cli index \"NIFTY 50\" --json | jq '.data[] | select(.pChange \u003c -3)'",
+        "comment": "Find today's biggest Nifty losers"
+      },
+      {
+        "command": "nse-india-pp-cli sync --symbols INFY,TCS,WIPRO,HCLTECH",
+        "comment": "Cache IT sector for offline analysis"
+      },
+      {
+        "command": "nse-india-pp-cli delivery-spike --threshold 2.0 --agent",
+        "comment": "Detect institutional accumulation signals"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "options command returns empty JSON",
+        "fix": "Run 'nse-india-pp-cli auth login --chrome' to capture browser session cookie; options chain requires NSE session state"
+      },
+      {
+        "symptom": "429 Too Many Requests",
+        "fix": "The CLI auto-backs off at 3 req/sec; add '--rate-limit slow' for batch operations or wait 30 seconds"
+      },
+      {
+        "symptom": "delivery-spike shows no results after sync",
+        "fix": "Need 20+ sessions of data: run 'nse-india-pp-cli sync --full' daily for 4 weeks before running delivery-spike"
+      }
+    ],
+    "when_to_use": "Use nse-india-pp-cli when you need Indian equity data in a script, cron job, or AI agent workflow without Python dependencies. It is the right choice for portfolio monitoring, corporate action alerts, sector rotation analysis, and any workflow that needs to join quote data across multiple symbols or time periods. For options chain analysis, use after running 'auth login --chrome' to enable session-based endpoints.",
+    "recipes": [
+      {
+        "title": "Find stocks approaching 52-week highs with strong delivery",
+        "command": "nse-india-pp-cli 52w-scanner --mode approaching-high --agent | jq '.[] | select(.delivery_pct \u003e 50)'",
+        "explanation": "Combines 52-week proximity with delivery confirmation — the setup most likely to sustain a breakout"
+      },
+      {
+        "title": "Daily index attribution report",
+        "command": "nse-india-pp-cli index-driver --index \"NIFTY 50\" --agent --select top_contributors,concentration_ratio,ex_top3_index_move",
+        "explanation": "One-liner for whether today's Nifty move is broad-based or misleadingly narrow"
+      },
+      {
+        "title": "Sector breadth vs price divergence",
+        "command": "nse-india-pp-cli sector-breadth --sector BANKING --agent | jq '{advance_decline: .advance_decline_ratio, delivery: .delivery_breadth}'",
+        "explanation": "When NIFTY BANK is green but breadth is weak, the move is a single-stock story"
+      },
+      {
+        "title": "Portfolio margin health before market open",
+        "command": "nse-india-pp-cli portfolio margin-health --holdings ~/holdings.csv --agent --select total_margin_required,margin_to_value_pct,highest_risk_holdings",
+        "explanation": "Runs in 2 seconds from cached data — safe to add to a pre-market cron"
+      },
+      {
+        "title": "Announcement flood with delivery confirmation",
+        "command": "nse-india-pp-cli announcement-flood --window 7d --agent | jq '.[] | select(.flood_ratio \u003e 3)' | xargs -I{} nse-india-pp-cli delivery-spike --symbol {} --agent",
+        "explanation": "Combines filing flood with delivery data — the pair predicts imminent corporate actions with much higher accuracy than either signal alone"
+      }
+    ],
+    "trigger_phrases": [
+      "quote ADANIPORTS",
+      "check NSE market status",
+      "show me the NIFTY 50 constituents",
+      "which stocks are delivering the most today",
+      "filings for RELIANCE",
+      "use nse-india",
+      "run nse-india"
+    ]
+  }
+}

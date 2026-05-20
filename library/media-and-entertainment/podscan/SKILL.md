@@ -1,6 +1,6 @@
 ---
 name: pp-podscan
-description: "Printing Press CLI for Podscan. Podscan REST API — search 51M+ podcast episodes and 4.4M+ podcasts. Full transcripts, AI-extracted entities,..."
+description: "Search 51M+ podcast episodes and 4.4M+ podcasts via Podscan — full transcripts, AI-extracted entities, mentions, and brand-safety analysis. Trigger phrases: `search podcast transcripts`, `find podcasts mentioning`, `who's talked about <topic> on podcasts`, `use podscan`."
 author: "Greg Van Horn"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"

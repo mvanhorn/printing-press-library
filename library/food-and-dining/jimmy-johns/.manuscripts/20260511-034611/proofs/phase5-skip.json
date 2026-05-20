@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "api_name": "jimmy-johns",
+  "run_id": "20260511-034611",
+  "status": "skip",
+  "level": "none",
+  "skip_reason": "perimeterx_blocks_replay",
+  "skip_detail": "Captured 33 JJ cookies from authenticated Chrome session via browser-use. Replay via Surf+Chrome impersonation, raw curl, AND fetch-from-live-page all return 403. PerimeterX flagged the session post-automation; the underlying surface is browser_required not browser_clearance_http as the reachability probe predicted. Live smoke testing skipped.",
+  "auth_context": {
+    "type": "cookie",
+    "api_key_available": false,
+    "browser_session_available": true,
+    "browser_session_usable_for_replay": false
+  }
+}

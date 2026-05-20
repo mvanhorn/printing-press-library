@@ -10,6 +10,10 @@ __debug_bin*
 
 # Go build cache
 .cache/
+library/**/.gocache/
+
+# Per-CLI runtime SQLite databases (created by dogfood/verify)
+library/**/.*-pp-cli.db
 
 # Local vulnerability scan reports
 .govulncheck/
@@ -47,3 +51,8 @@ Thumbs.db
 
 # Conductor workspace state
 .conductor/
+
+# Local AI agent instructions (not for sharing)
+CLAUDE.local.md
+AGENTS.override.md
+.claude/settings.local.json

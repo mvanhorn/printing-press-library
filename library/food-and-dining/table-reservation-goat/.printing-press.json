@@ -8,7 +8,7 @@
   "owner": "pejman-pour-moezzi",
   "printer_name": "Pejman Pour-Moezzi",
   "spec_format": "internal",
-  "spec_checksum": "sha256:69b0b2bc0a426d59955ca58ea5d7686ec29bac357b5a1bd2c33ccb76416cade8",
+  "spec_checksum": "sha256:9cb4f92e613609d24cd4760eff978b4c1dcde180c8373bedee49b909d78abc72",
   "run_id": "20260509-110540",
   "mcp_binary": "table-reservation-goat-pp-mcp",
   "mcp_tool_count": 12,
