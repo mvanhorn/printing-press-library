@@ -185,8 +185,14 @@ func computeSchedulePlan(flags *rootFlags, file *ScheduleFile, prune bool) (*Sch
 
 	plan := &SchedulePlan{}
 	desiredNames := map[string]bool{}
+	actorIDCache := map[string]string{}
 	for _, desired := range file.Schedules {
 		desiredNames[desired.Name] = true
+		// The live schedule's actions[].actorId is always the Apify-internal
+		// actor ID. Resolve the YAML's human slug to that same ID so
+		// scheduleSpecEqual compares like-for-like; otherwise every diff/apply
+		// reports permanent false drift.
+		desired.Actor = resolveActorID(c, desired.Actor, actorIDCache)
 		live, exists := liveByName[desired.Name]
 		switch {
 		case !exists:
@@ -209,6 +215,39 @@ func computeSchedulePlan(flags *rootFlags, file *ScheduleFile, prune bool) (*Sch
 		sort.Strings(plan.Delete)
 	}
 	return plan, nil
+}
+
+// resolveActorID maps a human-readable Actor slug (username/name or
+// username~name) to the Apify-internal actor ID via GET /v2/acts/{id}.
+// Results are cached per call to computeSchedulePlan. A value that is
+// already an internal ID (no slash or tilde) is returned unchanged; on any
+// lookup failure the original value is returned so a transient API error
+// degrades to a possible false-drift report rather than a hard failure.
+func resolveActorID(c interface {
+	Get(string, map[string]string) (json.RawMessage, error)
+}, actor string, cache map[string]string) string {
+	if actor == "" || (!strings.Contains(actor, "/") && !strings.Contains(actor, "~")) {
+		return actor
+	}
+	if id, ok := cache[actor]; ok {
+		return id
+	}
+	body, err := c.Get("/v2/acts/"+actorPathSegment(actor), nil)
+	if err != nil {
+		cache[actor] = actor
+		return actor
+	}
+	var resp struct {
+		Data struct {
+			ID string `json:"id"`
+		} `json:"data"`
+	}
+	if json.Unmarshal(body, &resp) == nil && resp.Data.ID != "" {
+		cache[actor] = resp.Data.ID
+		return resp.Data.ID
+	}
+	cache[actor] = actor
+	return actor
 }
 
 func scheduleSpecFromAPI(raw map[string]any) ScheduleSpec {
