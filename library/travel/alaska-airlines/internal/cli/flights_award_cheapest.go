@@ -165,7 +165,7 @@ fan-out polite. For a typical 1-month round-trip search you should expect
 						mu.Unlock()
 						return
 					}
-					low := extractLowestAwardPrice(data, flagMaxStops)
+					low := extractLowestAwardPrice(data, flagCabin, flagMaxStops)
 					if low.Miles == nil {
 						// Could not extract a fare from this response —
 						// either no inventory or unfamiliar shape. Don't
@@ -453,13 +453,19 @@ type lowestAwardPrice struct {
 //
 // When maxStops >= 0, itineraries with more stops are skipped. Returns
 // lowestAwardPrice with Miles=nil when no usable miles total is found.
-func extractLowestAwardPrice(data json.RawMessage, maxStops int) lowestAwardPrice {
+func extractLowestAwardPrice(data json.RawMessage, cabinFilter string, maxStops int) lowestAwardPrice {
 	// award-cheapest ranks across hundreds of itineraries before any
 	// valuation lookup runs, so cpp is not known here. Pass 0 to keep
 	// the legacy "minimum miles" ranking; value-compare passes a real
 	// cpp via extractLowestFare directly so its top pick reflects
 	// total out-of-pocket cost rather than miles only.
-	fare := extractLowestFare(data, fareModeAward, "", maxStops, 0)
+	//
+	// cabinFilter is enforced at extraction time so --cabin actually
+	// constrains the cheapest pick. The API also gets the cabin as a
+	// best-effort SpecFare query param, but that filter is not always
+	// honored — without this enforcement, a user asking for economy
+	// can receive a business-class row as the cheapest result.
+	fare := extractLowestFare(data, fareModeAward, cabinFilter, maxStops, 0)
 	if fare.Miles == nil {
 		return lowestAwardPrice{}
 	}

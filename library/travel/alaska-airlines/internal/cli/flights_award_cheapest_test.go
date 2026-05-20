@@ -158,7 +158,7 @@ func TestEnumerateDatePairs_ReturnOutOfWindow(t *testing.T) {
 }
 
 func TestExtractLowestAwardPrice_NoData(t *testing.T) {
-	got := extractLowestAwardPrice(json.RawMessage(`{}`), -1)
+	got := extractLowestAwardPrice(json.RawMessage(`{}`), "", -1)
 	if got.Miles != nil {
 		t.Errorf("empty doc should yield nil miles, got %+v", got)
 	}
@@ -179,7 +179,7 @@ func TestExtractLowestAwardPrice_FindsLowest(t *testing.T) {
 			}),
 		},
 	}
-	got := extractLowestAwardPrice(json.RawMessage(buildSvelteKitFixture(root)), -1)
+	got := extractLowestAwardPrice(json.RawMessage(buildSvelteKitFixture(root)), "", -1)
 	if got.Miles == nil {
 		t.Fatalf("expected miles extracted, got %+v", got)
 	}
@@ -201,12 +201,36 @@ func TestExtractLowestAwardPrice_MaxStopsFilter(t *testing.T) {
 			}),
 		},
 	}
-	got := extractLowestAwardPrice(json.RawMessage(buildSvelteKitFixture(root)), 1)
+	got := extractLowestAwardPrice(json.RawMessage(buildSvelteKitFixture(root)), "", 1)
 	if got.Miles == nil {
 		t.Fatalf("expected at least one match within max-stops=1")
 	}
 	if *got.Miles != 120000 {
 		t.Errorf("max-stops=1 should exclude the 80k/3-stop offer; got %d", *got.Miles)
+	}
+}
+
+func TestExtractLowestAwardPrice_CabinFilter(t *testing.T) {
+	// A user running award-cheapest with --cabin economy must not get
+	// the cheaper BUSINESS row back. The API's SpecFare hint is
+	// best-effort; the extractor enforces the cabin at hydration time.
+	root := map[string]any{
+		"rows": []any{
+			makeRow(segments("AS"), map[string]any{
+				"REFUNDABLE_MAIN":     map[string]any{"atmosPoints": float64(70000), "grandTotal": float64(5.6)},
+				"REFUNDABLE_BUSINESS": map[string]any{"atmosPoints": float64(60000), "grandTotal": float64(5.6)},
+			}),
+		},
+	}
+	got := extractLowestAwardPrice(json.RawMessage(buildSvelteKitFixture(root)), "economy", -1)
+	if got.Miles == nil {
+		t.Fatalf("expected miles, got nil")
+	}
+	if *got.Miles != 70000 {
+		t.Errorf("--cabin economy should pick MAIN 70000, not the cheaper BUSINESS 60000; got %d", *got.Miles)
+	}
+	if !strings.Contains(strings.ToLower(got.Cabin), "main") {
+		t.Errorf("cabin = %q; want a MAIN slot", got.Cabin)
 	}
 }
 
