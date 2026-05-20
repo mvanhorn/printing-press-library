@@ -51,17 +51,9 @@
       "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/TBD-pagination-per-resource"
     },
     {
-      "id": "workflow-archive-v2-paths",
-      "summary": "Fix `workflow archive` command so it calls `/v2/team` and `/v2/user` instead of `/team` and `/user` (which 404 against the configured base URL).",
-      "reason": "Greptile P1 finding on PR #433. `newWorkflowArchiveCmd` constructed paths as `/`+resource where resource was `team` or `user`. Combined with base URL `https://api.clickup.com/api`, this resolved to `/api/team` and `/api/user` — neither of which exists. Every call returned a 404, making the `workflow archive` command non-functional. Both team and user are v2 endpoints; v3 resources don't flow through this command.",
-      "files": [
-        "internal/cli/channel_workflow.go"
-      ]
-    },
-    {
-      "id": "workflow-archive-envelope-unwrap",
-      "summary": "Use `extractPageItems` in `workflow archive` so envelope-wrapped responses (e.g. `{\"teams\":[...]}`) are unpacked into per-record rows instead of being stored as a single `<resource>-singleton` blob.",
-      "reason": "Greptile P1 finding on PR #433. `workflow archive` did `json.Unmarshal(data, &items)` where items was a `[]json.RawMessage`. ClickUp's `/v2/team` returns `{\"teams\": [...]}` (object envelope), so the unmarshal failed and execution dropped to the singleton path, storing the entire envelope under key `team-singleton`. `workflow status` then showed `team: 1` regardless of how many workspaces existed; `search` couldn't find individual team records by ID. Using `extractPageItems` (already used by main `sync`) correctly unwraps the envelope via the fallback strategy 'any single array-typed key in envelope.' Verified live: 3 individual team rows land (Leadershift, AIpplied Labs, tiktoks) plus 1 user, replacing the prior single `team-singleton` blob.",
+      "id": "workflow-archive-delegates-to-sync-engine",
+      "summary": "Rewrite `workflow archive` to archive every default resource through the shared `syncResource` engine instead of a private team+user fetch loop. Supersedes the earlier workflow-archive-v2-paths and workflow-archive-envelope-unwrap patches, which fixed the now-deleted loop.",
+      "reason": "Greptile finding on PR #433. The hand-written archive loop (a) listed only `team` and `user` while the command advertised \"all syncable resources\", so `workflow archive` followed by `search` for tasks/spaces/docs returned nothing, and (b) paginated v2 list endpoints with a `?after=<id>` cursor ClickUp ignores — an account with exactly 100 workspaces never satisfied the `len(items) < 100` break and re-fetched page one forever. Delegating to `syncResource` makes `workflow archive` honor its contract (all 8 resources, hierarchical parent-first order) and reuses the per-resource pagination (v2 page-number vs v3 cursor) and envelope handling already verified for the main `sync` command. The two prior patches that this replaces — the `/v2/` path prefix fix and the `extractPageItems` envelope unwrap — are now subsumed because the bespoke loop they patched no longer exists; `syncResource` already does both correctly.",
       "files": [
         "internal/cli/channel_workflow.go"
       ]

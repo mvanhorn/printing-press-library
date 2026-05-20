@@ -49,105 +49,67 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 			if dbPath == "" {
 				dbPath = defaultDBPath("clickup-pp-cli")
 			}
-			s, err := store.OpenWithContext(cmd.Context(), dbPath)
+			db, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {
 				return fmt.Errorf("opening store: %w", err)
 			}
-			defer s.Close()
+			defer db.Close()
 
-			resources := []string{"team", "user",  }
+			// PATCH(pp-library#433-p1): archive every default resource through
+			// the shared syncResource engine instead of a private team+user
+			// fetch loop. The old loop (a) listed only `team` and `user` while
+			// this command advertises "all syncable resources", so `workflow
+			// archive` followed by `search` for tasks/spaces/docs returned
+			// nothing, and (b) paginated v2 list endpoints with a `?after=<id>`
+			// cursor ClickUp ignores — an account with exactly 100 workspaces
+			// never satisfied the `len(items) < 100` break and re-fetched page
+			// one forever. syncResource already implements per-resource
+			// pagination (v2 page-number vs v3 cursor) and hierarchical
+			// parent-first traversal, so archive now honors its contract.
+			resources := defaultSyncResources()
+			if hasHierarchicalResource(resources) {
+				// Hierarchical resources (space → folder → list → task, etc.)
+				// must be walked parent-first; run them in dependency order.
+				resources = orderResourcesByDependency(resources)
+			}
+
+			// --full: clear every resume cursor so the archive starts from head.
+			if full {
+				for _, resource := range resources {
+					_ = db.SaveSyncState(resource, "", 0)
+				}
+			}
+
 			totalSynced := 0
-
+			syncedResources := 0
 			for _, resource := range resources {
-				cursor := ""
-				if !full {
-					existing, _, _, err := s.GetSyncState(resource)
-					if err == nil && existing != "" {
-						cursor = existing
-					}
-				}
-
 				fmt.Fprintf(cmd.ErrOrStderr(), "Syncing %s...\n", resource)
-
-				params := map[string]string{"limit": "100"}
-				if cursor != "" {
-					params["after"] = cursor
+				// maxPages 100 matches the `sync` command's default cap.
+				res := syncResource(c, db, resource, "", full, 100)
+				switch {
+				case res.Err != nil:
+					fmt.Fprintf(cmd.ErrOrStderr(), "  warning: %s: %v\n", resource, res.Err)
+				case res.Warn != nil:
+					fmt.Fprintf(cmd.ErrOrStderr(), "  warning: %s: %v\n", resource, res.Warn)
+				default:
+					syncedResources++
+					totalSynced += res.Count
+					fmt.Fprintf(cmd.ErrOrStderr(), "  %s: %d items\n", resource, res.Count)
 				}
-
-				count := 0
-				for {
-					// PATCH(pp-library#433-p1): use /v2/<resource> not /<resource>.
-					// Base URL is https://api.clickup.com/api so /<resource> resolves
-					// to /api/team or /api/user, neither of which exists. ClickUp v2
-					// requires the /v2/ prefix on every resource path. Both `team`
-					// and `user` are v2 endpoints; v3 resources don't flow through
-					// this workflow command.
-					data, fetchErr := c.Get("/v2/"+resource, params)
-					if fetchErr != nil {
-						fmt.Fprintf(cmd.ErrOrStderr(), "  warning: %s: %v\n", resource, fetchErr)
-						break
-					}
-					// PATCH(pp-library#433-p1): use extractPageItems instead of bare
-					// json.Unmarshal(data, &items). ClickUp's /v2/team returns
-					// `{"teams": [...]}` — an object envelope, not a bare array.
-					// The previous code's array unmarshal failed on the envelope
-					// and dropped to the singleton path, storing every team as one
-					// blob under `team-singleton`. extractPageItems' fallback
-					// "any single array-typed key in envelope" correctly unwraps
-					// `teams`, `users`, etc. so each record lands as its own row.
-					// items == nil means the response was a singular object
-					// (e.g. /v2/user returns `{"user": {...}}`); items == [] means
-					// envelope recognized but empty — both handled below.
-					items, _, _ := extractPageItems(data, "after")
-					if items == nil {
-						// Singular response shape — store as singleton
-						if err := s.Upsert(resource, resource+"-singleton", data); err != nil {
-							fmt.Fprintf(cmd.ErrOrStderr(), "  warning: store %s: %v\n", resource, err)
-						}
-						count++
-						break
-					}
-					if len(items) == 0 {
-						break
-					}
-					for _, item := range items {
-						var obj struct{ ID string `json:"id"` }
-						json.Unmarshal(item, &obj)
-						id := obj.ID
-						if id == "" {
-							id = fmt.Sprintf("%s-%d", resource, count)
-						}
-						if err := s.Upsert(resource, id, item); err != nil {
-							fmt.Fprintf(cmd.ErrOrStderr(), "  warning: store %s/%s: %v\n", resource, id, err)
-						}
-						cursor = id
-						count++
-					}
-					if len(items) < 100 {
-						break
-					}
-					params["after"] = cursor
-				}
-
-				if count > 0 {
-					s.SaveSyncState(resource, cursor, count)
-				}
-				totalSynced += count
-				fmt.Fprintf(cmd.ErrOrStderr(), "  %s: %d items\n", resource, count)
 			}
 
 			if flags.asJSON {
 				enc := json.NewEncoder(cmd.OutOrStdout())
 				enc.SetIndent("", "  ")
 				return enc.Encode(map[string]any{
-					"resources_synced": len(resources),
+					"resources_synced": syncedResources,
 					"total_items":      totalSynced,
 					"store_path":       dbPath,
 					"timestamp":        time.Now().UTC().Format(time.RFC3339),
 				})
 			}
 
-			fmt.Fprintf(cmd.OutOrStdout(), "Archived %d items across %d resources to %s\n", totalSynced, len(resources), dbPath)
+			fmt.Fprintf(cmd.OutOrStdout(), "Archived %d items across %d resources to %s\n", totalSynced, syncedResources, dbPath)
 			return nil
 		},
 	}
