@@ -198,7 +198,14 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 							if who == "" {
 								who = viewer.Viewer.ID
 							}
-							report["credentials"] = fmt.Sprintf("verified (viewer: %s)", who)
+							// Keep the status string free of user-controlled
+							// text: a displayName like "invalid-bot" would
+							// otherwise hit the keyword scans in the renderer
+							// and doctorExitForFailOn and turn a successful
+							// probe into a red FAIL / non-zero exit. The viewer
+							// identity rides in a separate display-only field.
+							report["credentials"] = "verified"
+							report["viewer"] = who
 						case probeErr != nil && isAuthRejection(probeErr):
 							// "ERROR" prefix drives the FAIL indicator;
 							// "invalid" keyword trips --fail-on=error
@@ -284,7 +291,13 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				}
 				fmt.Fprintf(w, "  %s %s: %s\n", indicator, ck.label, s)
 			}
-			// Print info keys without status indicator
+			// Identify the verified account directly under Credentials.
+				// Stored separately from the status string so its free-form
+				// text can't skew the indicator or --fail-on logic.
+				if who, ok := report["viewer"].(string); ok && who != "" {
+					fmt.Fprintf(w, "  viewer: %s\n", who)
+				}
+				// Print info keys without status indicator
 			for _, key := range []string{"config_path", "base_url", "auth_source", "version"} {
 				if v, ok := report[key]; ok {
 					fmt.Fprintf(w, "  %s: %v\n", key, v)
@@ -351,19 +364,26 @@ func doctorExitForFailOn(failOn string, report map[string]any) error {
 	}
 	worstError := false
 	worstStale := false
-	for _, v := range report {
-		s, ok := v.(string)
-		if ok {
-			if strings.Contains(s, "error") || strings.Contains(s, "unreachable") || strings.Contains(s, "invalid") || strings.Contains(s, "missing") {
-				worstError = true
-			}
+	// Only the status-bearing keys encode severity in their text. Other
+	// report entries (config_path, base_url, viewer, auth_source, version)
+	// hold free-form or user-controlled values — keyword-scanning them would
+	// let a viewer displayName like "invalid-bot" or a path containing
+	// "error" trip a false failure on an otherwise-healthy report.
+	for _, k := range []string{"config", "auth", "env_vars", "api", "credentials"} {
+		s, ok := report[k].(string)
+		if !ok {
+			continue
 		}
-		if m, ok := v.(map[string]any); ok {
-			if st, _ := m["status"].(string); st == "error" {
-				worstError = true
-			} else if st == "stale" {
-				worstStale = true
-			}
+		if strings.Contains(s, "error") || strings.Contains(s, "unreachable") || strings.Contains(s, "invalid") || strings.Contains(s, "missing") {
+			worstError = true
+		}
+	}
+	// Cache health is a structured map with an explicit status field.
+	if m, ok := report["cache"].(map[string]any); ok {
+		if st, _ := m["status"].(string); st == "error" {
+			worstError = true
+		} else if st == "stale" {
+			worstStale = true
 		}
 	}
 	switch failOn {
