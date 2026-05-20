@@ -132,34 +132,26 @@ func runBatch(cmd *cobra.Command, flags *rootFlags, rows []inputRow, resumable b
 			return usageErr(parseErr)
 		}
 		csvW := csv.NewWriter(cmd.OutOrStdout())
-		// csv.Writer wraps bufio.Writer; a deferred Flush would discard its
-		// error and silently drop buffered rows on a failed underlying write.
-		// Caller flushes explicitly at the success path below and checks
-		// csvW.Error() so partial-file truncation surfaces as a return error.
-		csvFlush = func() error {
-			csvW.Flush()
-			return csvW.Error()
-		}
 		headerWritten := false
-		emit = func(obj map[string]any) error {
-			envelope := envelopeToAnyMap(obj)
-			if !headerWritten {
-				effective := cols
-				if len(effective) == 0 {
-					effective = autoColumnsFromEnvelope(envelope)
-				}
-				// Replace the user-supplied (or auto-discovered) list with
-				// what was actually written for subsequent rows.
-				cols = effective
-				headers := make([]string, len(cols))
-				for i, col := range cols {
-					headers[i] = col.Header
-				}
-				if err := csvW.Write(headers); err != nil {
-					return fmt.Errorf("csv header: %w", err)
-				}
-				headerWritten = true
+		// In auto-discovery mode (--columns omitted), the header has to come
+		// from a row whose envelope actually contains `data`. If we derived
+		// it from a parse-error or cert-validation row that only has cert_no
+		// and _keep.*, every subsequent valid row would silently emit empty
+		// cells for every data.* field. We buffer pre-discovery rows so they
+		// still appear in the output once the schema is settled.
+		var pending []map[string]any
+		writeHeader := func() error {
+			headers := make([]string, len(cols))
+			for i, col := range cols {
+				headers[i] = col.Header
 			}
+			if err := csvW.Write(headers); err != nil {
+				return fmt.Errorf("csv header: %w", err)
+			}
+			headerWritten = true
+			return nil
+		}
+		writeRow := func(envelope map[string]any) error {
 			row := make([]string, len(cols))
 			for i, col := range cols {
 				v, _ := lookupPath(envelope, col.Segments)
@@ -169,6 +161,53 @@ func runBatch(cmd *cobra.Command, flags *rootFlags, rows []inputRow, resumable b
 				return fmt.Errorf("csv row: %w", err)
 			}
 			return nil
+		}
+		emit = func(obj map[string]any) error {
+			envelope := envelopeToAnyMap(obj)
+			if !headerWritten {
+				if len(cols) == 0 {
+					if _, ok := envelope["data"]; !ok {
+						pending = append(pending, envelope)
+						return nil
+					}
+					cols = autoColumnsFromEnvelope(envelope)
+				}
+				if err := writeHeader(); err != nil {
+					return err
+				}
+				for _, p := range pending {
+					if err := writeRow(p); err != nil {
+						return err
+					}
+				}
+				pending = nil
+			}
+			return writeRow(envelope)
+		}
+		// csv.Writer wraps bufio.Writer; a deferred Flush would discard its
+		// error and silently drop buffered rows on a failed underlying write.
+		// Caller flushes explicitly at the success path below and checks
+		// csvW.Error() so partial-file truncation surfaces as a return error.
+		csvFlush = func() error {
+			// All-error-batch fallback: auto mode never saw a row with
+			// `data` (every input row was a parse error or every API call
+			// failed). Derive a schema from whatever did arrive so the CSV
+			// carries cert_no + _keep.* + error columns instead of being
+			// silently empty.
+			if !headerWritten && len(pending) > 0 {
+				cols = autoColumnsFromEnvelope(pending[0])
+				if err := writeHeader(); err != nil {
+					return err
+				}
+				for _, p := range pending {
+					if err := writeRow(p); err != nil {
+						return err
+					}
+				}
+				pending = nil
+			}
+			csvW.Flush()
+			return csvW.Error()
 		}
 	} else {
 		enc := json.NewEncoder(cmd.OutOrStdout())
