@@ -271,37 +271,51 @@ library/travel/airbnb/
 
 ---
 
-### U2. Runtime-scrape three GraphQL persisted-query hashes with constant fallback
+### U2. Fix BookingPrice variables shape to match the real schema
 
-**Goal:** Eliminate the F3 ValidationError and the at-risk wishlist hashes by scraping `bookItHash`, `wishlistIndexHash`, and `wishlistItemsHash` from the airbnb.com SSR HTML at first use, with the current hash baked in as a fallback. Mirror PR #712's API-key pattern verbatim.
+**Goal:** Eliminate the F3 ValidationError by sending the correct GraphQL variables shape for `StaysPdpBookItQuery`. The persisted-query hash is NOT stale — empirically verified during U2 execution by comparing the CLI's outgoing variables against a real captured request in the HAR fixture. The schema validator rejects the CLI's flat `{checkin, checkout, adults}` shape because the operation expects `{dateRange, guestCounts, includeXxxFragment}` objects.
 
-**Requirements:** R1, R7.
+**Pivot from plan-as-written:** The earlier plan called for runtime-scraping hashes from SSR HTML with a sync.Once + regex + fallback. During U2 execution, an empirical check against the live airbnb.com homepage AND a listing detail page showed that NEITHER inlines the GraphQL operation hashes in HTML. Apollo Client loads them from the JS bundle, which a non-JS-executing CLI cannot reach. The runtime-scrape approach is not feasible and is no longer needed: the actual F3 root cause is the variables shape, not the hash. Hash rotation, if it ever happens, becomes a maintenance PR (capture fresh hash via browser DevTools, update the constant).
+
+**Requirements:** R1.
 
 **Dependencies:** U1.
 
 **Files:**
-- `library/travel/airbnb/internal/source/airbnb/graphql.go` (replace 3 const hashes with sync.Once + regex + resolver)
-- `library/travel/airbnb/internal/source/airbnb/graphql_test.go` (add parser tests)
+- `library/travel/airbnb/internal/source/airbnb/graphql.go` (rewrite BookingPrice variables map)
+- `library/travel/airbnb/internal/source/airbnb/graphql_test.go` (add a variables-shape regression test if a test seam exists)
 
 **Approach:**
-- For each of the three hashes, define: `const xHashFallback = "<current value>"`, `var xHashOnce sync.Once`, `var xHashValue string`, `var xHashRe = regexp.MustCompile(...)`, `func parseXHash([]byte) string`, `func resolveXHash(ctx) string`.
-- Update `BookingPrice`, `WishlistList`, `WishlistItems` call sites to read the resolver instead of the constant. The current `graphQLGet` (graphql.go:97) DERIVES the extensions-param hash from the URL path segment, so there is only one occurrence to update per call site — the URL path. `graphQLGet` itself does not need editing.
-- PR #712 does not ship a reusable `fetchHomepage` helper. U2 must build the scrape helper here: a private `fetchSearchSSR(ctx) ([]byte, error)` (or similar) on the airbnb client that hits `airbnbBase + "/s/"` and returns the body. Once built, refactor the existing api-key scrape from PR #712 to share this helper so both resolvers fetch the same SSR page once per process.
-- When fallback fires, emit a one-line warning via the existing structured log channel (do not panic, do not silently use the constant).
+- Rewrite the `variables` map in `BookingPrice` from `{id, checkin, checkout, adults}` to:
+  ```go
+  variables := map[string]any{
+      "id": RelayListingID(listingID),
+      "dateRange": map[string]any{
+          "startDate": checkin,
+          "endDate":   checkout,
+      },
+      "guestCounts": map[string]any{
+          "numberOfAdults": guests,
+      },
+      "includePdpMigrationBookItCalendarSheetFragment": false,
+      "includePdpMigrationBookItFloatingFooterFragment": false,
+      "includePdpMigrationBookItNavFragment": false,
+      "includeOverviewMerchandisingTipsFragment": false,
+  }
+  ```
+- Keep the existing `bookItHash` constant — it is current, not stale.
+- Add a one-line source comment near the variables map explaining the shape was derived from `.manuscripts/20260502-210359/discovery/airbnb/airbnb-capture.har` so future maintainers can reproduce the audit.
+- Wishlist variables shape audit (`WishlistList`, `WishlistItems`): defer to U7 dogfood time. Only audit when those surfaces are exercised and fail. Likely they are also misshapen but they may not be — the call has different ergonomics and was probably less hand-edited.
 
-**Patterns to follow:** PR #712's `apiKeyOnce` / `parseAPIKey` / `resolveAPIKey` in the same file. Memory note: `feedback_check_binary_freshness_before_filing_bug` — verify the live hashes by capturing a fresh SSR response before encoding them as fallback constants.
+**Patterns to follow:** Existing variables shapes inside the airbnb codebase that already work (e.g., the search SSR scrape's request structure). The HAR fixture at `.manuscripts/20260502-210359/discovery/airbnb/airbnb-capture.har` is the source of truth for shape audits.
 
-**Execution note:** Capture a fresh `airbnb.com/s/` HTML response before writing the regex, and verify the regex matches it. Do not write the regex from memory.
+**Execution note:** none. The fix is a struct rewrite based on captured ground truth.
 
 **Test scenarios:**
-- `parseBookItHash` returns the captured hash from a fixture HTML containing the full Niobe payload
-- `parseBookItHash` returns empty string on HTML that does not contain `StaysPdpBookItQuery`
-- `parseBookItHash` returns empty string on truncated HTML where the regex matches partially
-- Same three scenarios for `parseWishlistIndexHash` and `parseWishlistItemsHash`
-- `resolveBookItHash` falls back to the constant when `fetchHomepage` returns an error (integration-style test with a stub client)
-- `resolveBookItHash` is goroutine-safe (call from N goroutines, assert single fetch happens via call-count assertion on stub)
+- A unit test calling `BookingPrice` with a stubbed graphQLGet that captures the variables map; assertion: variables contains keys `id`, `dateRange`, `guestCounts`, and the four `include*Fragment` booleans; `dateRange.startDate` and `dateRange.endDate` are the strings passed in; `guestCounts.numberOfAdults` is the int passed in.
+- A regression-style test that fails if the variables shape drifts back to the flat `{checkin, checkout, adults}` form.
 
-**Verification:** Live run `airbnb-pp-cli airbnb-listing get 18413186 --checkin 2026-05-26 --checkout 2026-05-29 --adults 1` returns a non-null `price_breakdown.total`. Same for at least one wishlist-bearing test account.
+**Verification:** Live run `airbnb-pp-cli airbnb-listing get 18413186 --checkin 2026-05-26 --checkout 2026-05-29 --adults 1` returns a non-null `price_breakdown.total`. (Reproducible because the plan's known-good listing 18413186 was previously listed and is anonymously accessible.)
 
 ---
 

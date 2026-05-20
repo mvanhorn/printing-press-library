@@ -107,11 +107,29 @@ func WishlistItems(ctx context.Context, listingIDs []string) ([]WishlistItem, er
 }
 
 func BookingPrice(ctx context.Context, listingID, checkin, checkout string, guests int) (*PriceBreakdown, error) {
+	// Variables shape derived from a real captured browser request in
+	// .manuscripts/20260502-210359/discovery/airbnb/airbnb-capture.har.
+	// The earlier flat shape {id, checkin, checkout, adults} tripped a
+	// ValidationError because StaysPdpBookItQuery expects dateRange +
+	// guestCounts objects plus four includeFragment booleans.
 	variables := map[string]any{
-		"id":       RelayListingID(listingID),
-		"checkin":  checkin,
-		"checkout": checkout,
-		"adults":   guests,
+		"id": RelayListingID(listingID),
+		"dateRange": map[string]any{
+			"startDate": checkin,
+			"endDate":   checkout,
+		},
+		"guestCounts": map[string]any{
+			"numberOfAdults": guests,
+		},
+		// The four include*Fragment booleans gate which sub-fragments of the
+		// query response are returned. The captured HAR had them all false
+		// (skeleton-load path), but in that mode the response contains only
+		// {data: {node: {__typename}}}. Set all true to receive the full
+		// pricing/booking payload that downstream priceBreakdownFromAny parses.
+		"includePdpMigrationBookItCalendarSheetFragment": true,
+		"includePdpMigrationBookItFloatingFooterFragment": true,
+		"includePdpMigrationBookItNavFragment":           true,
+		"includeOverviewMerchandisingTipsFragment":       true,
 	}
 	params := url.Values{}
 	b, _ := json.Marshal(variables)
@@ -169,6 +187,71 @@ func (c *Client) graphQLGet(ctx context.Context, path string, params url.Values,
 
 func priceBreakdownFromAny(root any) *PriceBreakdown {
 	p := &PriceBreakdown{Currency: "USD", Fees: map[string]float64{}, Raw: root}
+
+	// New schema (post-PdpMigrationBookIt): the price lives under
+	// pdpPresentation.bookIt.structuredDisplayPrice as a primaryLine.price
+	// string ("$514") plus explanationData.priceDetails[].items[] objects
+	// with description + priceString pairs. The walker below picks up the
+	// structuredDisplayPrice objects no matter how deep they sit in the
+	// response, so the same logic handles both the listing-page payload
+	// and any future surface that returns the same shape.
+	for _, sdp := range findObjects(root, []string{"structuredDisplayPrice"}) {
+		inner, _ := sdp["structuredDisplayPrice"].(map[string]any)
+		if inner == nil {
+			continue
+		}
+		if line, _ := inner["primaryLine"].(map[string]any); line != nil {
+			if total := amountFromText(firstStringByKeys(line, "price", "accessibilityLabel")); total > 0 && p.Total == 0 {
+				p.Total = total
+			}
+		}
+		exp, _ := inner["explanationData"].(map[string]any)
+		groups, _ := exp["priceDetails"].([]any)
+		for _, g := range groups {
+			gm, _ := g.(map[string]any)
+			items, _ := gm["items"].([]any)
+			for _, it := range items {
+				m, _ := it.(map[string]any)
+				if m == nil {
+					continue
+				}
+				desc := strings.ToLower(firstStringByKeys(m, "description", "title"))
+				amt := amountFromText(firstStringByKeys(m, "priceString", "price", "formattedAmount"))
+				switch {
+				case strings.Contains(desc, "clean"):
+					p.Fees["cleaning"] += amt
+				case strings.Contains(desc, "service"):
+					p.Fees["service"] += amt
+				case strings.Contains(desc, "tax"):
+					p.Fees["tax"] += amt
+				case strings.Contains(desc, "subtotal"):
+					p.Subtotal = amt
+				case strings.Contains(desc, "total"):
+					if amt > 0 && p.Total == 0 {
+						p.Total = amt
+					}
+				case strings.Contains(desc, "x $"), strings.Contains(desc, "night"):
+					// "3 nights x $171.18" or similar per-night lines.
+					// The line-item priceString is the multi-night subtotal,
+					// not the per-night rate, so use it as Subtotal when one
+					// is not already set; PerNight derivation comes from the
+					// "$/night" parse inside the description string.
+					if p.Subtotal == 0 {
+						p.Subtotal = amt
+					}
+					if p.PerNight == 0 {
+						if idx := strings.Index(desc, "x $"); idx >= 0 {
+							p.PerNight = amountFromText(desc[idx+2:])
+						}
+					}
+				}
+			}
+		}
+	}
+
+	// Legacy schema fallback: older endpoints (and possibly future ones)
+	// return {label, amount} fee objects. Keep walking the old way so this
+	// function stays robust when the response carries the legacy shape.
 	for _, obj := range findObjects(root, []string{"label", "amount"}) {
 		label := strings.ToLower(firstStringByKeys(obj, "label", "title", "feeType"))
 		amount := num(firstByKey(obj, "amount"))
@@ -183,9 +266,13 @@ func priceBreakdownFromAny(root any) *PriceBreakdown {
 		case strings.Contains(label, "tax"):
 			p.Fees["tax"] += amount
 		case strings.Contains(label, "total"):
-			p.Total = amount
+			if p.Total == 0 {
+				p.Total = amount
+			}
 		case strings.Contains(label, "subtotal"):
-			p.Subtotal = amount
+			if p.Subtotal == 0 {
+				p.Subtotal = amount
+			}
 		}
 	}
 	if p.Total == 0 {
