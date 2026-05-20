@@ -49,10 +49,13 @@ var nameYearPattern = regexp.MustCompile(`^\s*(?:\(P\)\s*)?(\d{4})`)
 //   - year_mismatch field added when Name year != Year field
 //
 // The function unmarshals into map[string]json.RawMessage so unrelated
-// fields pass through verbatim (no float-precision loss, no field-ordering
-// shuffle that would affect downstream diffs). When the payload is not a
-// JSON object — e.g. an array, null, or non-JSON garbage — the original
-// bytes are returned unchanged.
+// fields pass through verbatim (no float-precision loss). Keys are
+// re-emitted in alphabetical order — Go's encoding/json marshals
+// map[string]X with sorted keys, which differs from the original PCGS
+// response order. Any byte-for-byte diff against a previously-cached
+// payload will flag every field as moved on first read after upgrade.
+// When the payload is not a JSON object — e.g. an array, null, or
+// non-JSON garbage — the original bytes are returned unchanged.
 func applyCoinResponseTransforms(data json.RawMessage) json.RawMessage {
 	if len(data) == 0 {
 		return data

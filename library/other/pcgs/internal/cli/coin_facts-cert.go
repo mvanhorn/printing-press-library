@@ -21,7 +21,7 @@ func newCoinFactsCertCmd(flags *rootFlags) *cobra.Command {
 			"Output shape under --json / --agent is the same flat object that `coin batch` emits per JSONL line:\n\n" +
 			"  {\n" +
 			"    \"cert_no\": \"50483263\",\n" +
-			"    \"data\": { \"Name\": \"1881-S $1\", \"PriceGuideValue\": 425, \"year_mismatch\": null, ... },\n" +
+			"    \"data\": { \"Name\": \"1881-S $1\", \"PriceGuideValue\": 425, ... },\n" +
 			"    \"_keep\": {}\n" +
 			"  }\n\n" +
 			"_keep is always {} for single-cert lookups (it carries non-cert CSV columns through `coin batch`). The same parser works for both surfaces.\n\n" +
