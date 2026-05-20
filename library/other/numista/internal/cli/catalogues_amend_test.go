@@ -70,7 +70,7 @@ func TestFuzzyFindCatalogues(t *testing.T) {
 		{"yeoman locks to id=9 Y (author substring, shortest title wins)", "yeoman", 5, 9, false},
 		{"KM exact code locks to id=3", "KM", 5, 3, false},
 		{"Schön locks to id=24 (exact code match)", "Schön", 5, 24, false},
-		{"schon normalized still locks to id=24 (substring)", "schon", 5, 24, false},
+		{"schon normalized still locks to id=24 (exact code after diacritic fold)", "schon", 5, 24, false},
 		{"empty query returns nil", "", 5, 0, true},
 		{"limit zero falls back to default", "krause", 0, 3, false},
 	}

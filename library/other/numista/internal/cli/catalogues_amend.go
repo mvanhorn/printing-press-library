@@ -5,7 +5,9 @@ package cli
 import (
 	"encoding/csv"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"io/fs"
 	"os"
 	"sort"
 	"strings"
@@ -56,21 +58,27 @@ func (r catalogueRecord) extra() string {
 // warm-the-cache message instead of erroring. Numista has ~3,100 catalogues;
 // the 5000 limit covers the full set with headroom.
 func loadCataloguesFromCache() ([]catalogueRecord, error) {
-	s, err := store.OpenReadOnly(defaultDBPath("numista-pp-cli"))
+	dbPath := defaultDBPath("numista-pp-cli")
+	// Distinguish "DB file genuinely missing" (cache not warm — empty result
+	// is the right answer; caller renders the warm-the-cache message) from
+	// "DB file exists but unreadable" (permissions, disk error, corruption —
+	// must surface so the user doesn't follow the warm-the-cache advice,
+	// spend a quota call on `numista-pp-cli catalogues`, and loop). Greptile
+	// P1 on PR #688 review.
+	if _, err := os.Stat(dbPath); err != nil {
+		if errors.Is(err, fs.ErrNotExist) {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("checking catalogues cache file %s: %w", dbPath, err)
+	}
+	s, err := store.OpenReadOnly(dbPath)
 	if err != nil {
-		// Missing or unopenable cache is functionally empty from the
-		// discovery surface's perspective — neither find nor the suggestion
-		// path should fail noisily on a fresh install.
-		return nil, nil
+		return nil, fmt.Errorf("opening catalogues cache: %w", err)
 	}
 	defer s.Close()
 	raws, err := s.List("catalogues", 5000)
 	if err != nil {
-		// sql.Open is lazy — a missing DB file (fresh install, wrong HOME)
-		// only surfaces when the first query runs. Treat any List error on
-		// a read-only store as "cache not warm" so the find surface degrades
-		// gracefully to the warm-the-cache message rather than a panic.
-		return nil, nil
+		return nil, fmt.Errorf("reading catalogues cache: %w", err)
 	}
 	if len(raws) == 0 {
 		return nil, nil
@@ -249,7 +257,15 @@ func scoreCatalogue(rec catalogueRecord, qNorm string) int {
 		strings.Contains(titleNorm, qNorm) ||
 		strings.Contains(authorNorm, qNorm) ||
 		strings.Contains(publisherNorm, qNorm) {
-		return 1000 + len(qNorm) - len(rec.Title)/10
+		// Floor at 1 so a pathological-length title never collapses a valid
+		// substring match to 0 (which fuzzyFindCatalogues filters out).
+		// Numista titles are short in practice but the formula needs a
+		// guarantee. Greptile P2 on PR #688 review.
+		s := 1000 + len(qNorm) - len(rec.Title)/10
+		if s < 1 {
+			s = 1
+		}
+		return s
 	}
 	return 0
 }
@@ -385,7 +401,11 @@ func renderCataloguesFind(cmd *cobra.Command, flags *rootFlags, matches []catalo
 		return json.NewEncoder(out).Encode(envelope)
 	}
 	if len(matches) == 0 {
-		fmt.Fprintln(os.Stderr, "no matches.")
+		// Use cmd.ErrOrStderr() not os.Stderr — every other diagnostic in
+		// this CLI goes through the command's error writer, and Cobra-based
+		// tests can only capture output that flows through it. Greptile P2
+		// on PR #688 review.
+		fmt.Fprintln(cmd.ErrOrStderr(), "no matches.")
 		return nil
 	}
 	tw := newTabWriter(out)
