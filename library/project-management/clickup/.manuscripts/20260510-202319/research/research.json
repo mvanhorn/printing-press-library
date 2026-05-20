@@ -1,0 +1,181 @@
+{
+  "api_name": "clickup",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "clickup-mcp-server",
+      "url": "https://github.com/TaazKareem/clickup-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "clickrup",
+      "url": "https://github.com/psolymos/clickrup",
+      "language": "R",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [
+    "ClickUp v2 uses workspace/team-rooted hierarchical paths (/team/{team_id}/space, /space/{space_id}/folder)",
+    "ClickUp v3 introduces a flatter /workspaces/{workspace_id}/\u003cresource\u003e shape for chat, docs, audit logs, and ACLs",
+    "Authentication is a single Authorization header value; both pk_... personal tokens and OAuth bearers work without prefixing"
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-09T22:30:00Z",
+  "novel_features": [
+    {
+      "name": "Hierarchical Sync with Parent-ID Traversal",
+      "command": "sync",
+      "description": "Walks the full ClickUp hierarchy in dependency order (teams → spaces → folders → lists → tasks; teams → docs; teams → channels) and lands every record in the local SQLite store. Every parent-child relationship in the API is traversed automatically.",
+      "rationale": "ClickUp's API requires a parent ID for almost every list operation. The default printing-press sync layer assumes global list endpoints (/users, /repos), which fail on hierarchical APIs. The parent-traversal handler reads parent IDs from the local store, templates child paths, supports unionTargets for resources living under multiple parents (lists under both folders and spaces), and forces sequential execution so children never sync before parents.",
+      "example": "clickup-pp-cli sync --json --profile default",
+      "why_it_matters": "Reach for this when you want offline search, analytics, or any compound query across a ClickUp workspace's full structure. One command populates the entire tree.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Empty-Envelope Sync Fix",
+      "command": "sync",
+      "description": "Distinguishes \"recognized envelope with empty array\" from \"unrecognized response shape\" so tenants with zero records of a resource type sync cleanly instead of crashing. ClickUp returns {\"spaces\":[]} for workspaces with no spaces; the original framework treated this as a singular response and tried to upsert the wrapper as a single record, failing with \"missing id for space\".",
+      "rationale": "Generic to any hierarchical API where some tenants legitimately have zero of a resource type. Returns an empty-but-non-nil items slice when the envelope is recognized but empty, distinct from a nil slice for genuine singular responses.",
+      "example": "clickup-pp-cli sync --resources space --profile default --json",
+      "why_it_matters": "Without this, sync silently fails for any workspace with empty resource collections, leaving the local store partially populated.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Ergonomic v3 Aliases (docs + chat)",
+      "command": "docs",
+      "description": "Top-level `docs` and `chat` commands with idiomatic verbs (search, get, pages, page, listing, create, edit, send, react, reply, members, followers, messages) replacing the spec-derived workspaces/docs/\u003cverb\u003e-public and workspaces/chat/get-channels paths. ~22 aliases total. Original verbs kept as Cobra aliases for back-compat.",
+      "rationale": "The generator names commands after API operationIds, which preserves a 1:1 mapping back to the spec but is rough on humans. ClickUp's v3 docs and chat surfaces are reachable via short, memorable verbs without losing the original paths.",
+      "aliases": [
+        "chat"
+      ],
+      "example": "clickup-pp-cli docs search 9017321407 --json --profile default",
+      "why_it_matters": "Reach for `docs search`, `chat list`, `chat send` directly instead of remembering the deeply-nested workspaces tree. Especially useful when scripting against v3 endpoints.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Hierarchical Sync with Parent-ID Traversal",
+      "command": "sync",
+      "description": "Walks the full ClickUp hierarchy in dependency order (teams → spaces → folders → lists → tasks; teams → docs; teams → channels) and lands every record in the local SQLite store. Every parent-child relationship in the API is traversed automatically.",
+      "rationale": "ClickUp's API requires a parent ID for almost every list operation. The default printing-press sync layer assumes global list endpoints (/users, /repos), which fail on hierarchical APIs. The parent-traversal handler reads parent IDs from the local store, templates child paths, supports unionTargets for resources living under multiple parents (lists under both folders and spaces), and forces sequential execution so children never sync before parents.",
+      "example": "clickup-pp-cli sync --json --profile default",
+      "why_it_matters": "Reach for this when you want offline search, analytics, or any compound query across a ClickUp workspace's full structure. One command populates the entire tree.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Empty-Envelope Sync Fix",
+      "command": "sync",
+      "description": "Distinguishes \"recognized envelope with empty array\" from \"unrecognized response shape\" so tenants with zero records of a resource type sync cleanly instead of crashing. ClickUp returns {\"spaces\":[]} for workspaces with no spaces; the original framework treated this as a singular response and tried to upsert the wrapper as a single record, failing with \"missing id for space\".",
+      "rationale": "Generic to any hierarchical API where some tenants legitimately have zero of a resource type. Returns an empty-but-non-nil items slice when the envelope is recognized but empty, distinct from a nil slice for genuine singular responses.",
+      "example": "clickup-pp-cli sync --resources space --profile default --json",
+      "why_it_matters": "Without this, sync silently fails for any workspace with empty resource collections, leaving the local store partially populated.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Ergonomic v3 Aliases (docs + chat)",
+      "command": "docs",
+      "description": "Top-level `docs` and `chat` commands with idiomatic verbs (search, get, pages, page, listing, create, edit, send, react, reply, members, followers, messages) replacing the spec-derived workspaces/docs/\u003cverb\u003e-public and workspaces/chat/get-channels paths. ~22 aliases total. Original verbs kept as Cobra aliases for back-compat.",
+      "rationale": "The generator names commands after API operationIds, which preserves a 1:1 mapping back to the spec but is rough on humans. ClickUp's v3 docs and chat surfaces are reachable via short, memorable verbs without losing the original paths.",
+      "aliases": [
+        "chat"
+      ],
+      "example": "clickup-pp-cli docs search 9017321407 --json --profile default",
+      "why_it_matters": "Reach for `docs search`, `chat list`, `chat send` directly instead of remembering the deeply-nested workspaces tree. Especially useful when scripting against v3 endpoints.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "narrative": {
+    "display_name": "ClickUp",
+    "headline": "Every ClickUp v2 + v3 endpoint as a typed CLI plus offline sync, search, and ergonomic chat/docs aliases.",
+    "value_prop": "172 endpoints across the v2 reference (Tasks, Spaces, Folders, Lists, Goals, Time Tracking, Webhooks, Comments, Custom Fields, Members, Templates, Views) and the v3 public API (Chat, Docs, Audit Logs, ACLs). Hierarchical sync walks the full workspace tree into local SQLite for offline search and analytics. Top-level `docs` and `chat` commands give you idiomatic verbs without remembering the workspaces/\u003cverb\u003e-public spec path.",
+    "auth_narrative": "ClickUp accepts both personal API tokens (pk_...) and OAuth bearer tokens via the Authorization header. Set CLICKUP_AUTHORIZATION_TOKEN in your shell or in ~/.config/clickup-pp-cli/config.toml. Run `clickup-pp-cli doctor` to verify auth and API reachability.",
+    "quickstart": [
+      {
+        "command": "clickup-pp-cli doctor",
+        "comment": "Confirm auth, API reachability, and config path before any command."
+      },
+      {
+        "command": "clickup-pp-cli team --json",
+        "comment": "List your workspaces. v2 calls these \"teams\" for legacy reasons."
+      },
+      {
+        "command": "clickup-pp-cli sync --json --profile default",
+        "comment": "Hydrate the local SQLite store with the full hierarchy. Parent-ID traversal walks teams → spaces → folders → lists → tasks plus teams → docs and teams → channels in one command."
+      },
+      {
+        "command": "clickup-pp-cli search \"sprint planning\" --profile default --data-source local",
+        "comment": "Full-text search across every synced record, no API call required."
+      },
+      {
+        "command": "clickup-pp-cli docs search \u003cteam_id\u003e --json --profile default",
+        "comment": "Use the v3 docs alias instead of the spec-derived `workspaces docs search-public`."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "doctor reports API reachable (HTTP 404 at /)",
+        "fix": "Expected. ClickUp returns 404 on the root path; doctor confirms reachability via the response, not the status code."
+      },
+      {
+        "symptom": "sync errors with \"with_message_since must be a number string\" on v3 chat",
+        "fix": "ClickUp's v3 chat expects a Unix epoch number, not the ISO timestamp the framework sends on incremental sync. Run `sync --full` to clear the cursor and avoid the since parameter."
+      },
+      {
+        "symptom": "sync writes records under the wrong resource_type after a previous run with different naming",
+        "fix": "The resources table primary key is `id` alone, not (id, resource_type). Delete stale rows: sqlite3 ~/.local/share/clickup-pp-cli/data.db \"DELETE FROM resources WHERE resource_type='\u003cold-name\u003e';\" then re-sync."
+      },
+      {
+        "symptom": "chat react returns 400 \"The reaction \u003cname\u003e is not supported\"",
+        "fix": "ClickUp's reaction emoji name format is undocumented. \"thumbsup\" and similar plain names fail; the supported set may require Slack-style :name: or raw unicode."
+      },
+      {
+        "symptom": "Sync fan-out hits ClickUp's 100 req/min rate limit",
+        "fix": "Use the default profile's --rate-limit 1.5 (clickup-pp-cli profile save default --rate-limit 1.5 --idempotent) so the limiter stays under the cap."
+      }
+    ],
+    "when_to_use": "Use clickup-pp-cli when you need to script against the full ClickUp v2 + v3 surface, populate a local SQLite store for offline analytics across a workspace's full hierarchy, or expose ClickUp as an MCP server to an agent. Particularly useful for time-tracking aggregation, sprint reporting, and bulk task operations that the web UI doesn't surface.",
+    "recipes": [
+      {
+        "title": "Drill from workspace to tasks",
+        "command": "clickup-pp-cli team space get \u003cteam_id\u003e --json --profile default",
+        "explanation": "Get every space ID under a workspace. Pipe into space folder get / space list get-folderless to descend further."
+      },
+      {
+        "title": "Compact JSON for agent context",
+        "command": "clickup-pp-cli task get \u003ctask_id\u003e --select id,name,status.status,assignees --profile default --agent",
+        "explanation": "--agent enables JSON+compact+no-input+no-color+yes for one flag. --select narrows to high-gravity fields, keeping the response under 1KB even on rich tasks."
+      },
+      {
+        "title": "Send a chat message via the v3 alias",
+        "command": "clickup-pp-cli workspaces chat create-message \u003cteam_id\u003e \u003cchannel_id\u003e --type message --content \"shipped: rate-limit fix\" --json --profile default",
+        "explanation": "The unambiguous full path. The shorter `chat send` alias maps to this same endpoint. ClickUp returns the new message id under .data.id for use in chat react / chat reply."
+      },
+      {
+        "title": "Local analytics on synced tasks",
+        "command": "clickup-pp-cli analytics --type task --json --profile default",
+        "explanation": "Aggregates against the local SQLite store. After sync, no API call is needed. Counts and basic group-by work; nested-path group-by (status.status) is a known framework limitation."
+      }
+    ],
+    "trigger_phrases": [
+      "list my clickup workspaces",
+      "sync clickup tasks to local",
+      "search clickup for \u003cterm\u003e",
+      "send a clickup chat message",
+      "use clickup",
+      "run clickup-pp-cli"
+    ]
+  }
+}
