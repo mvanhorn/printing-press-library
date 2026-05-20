@@ -1,4 +1,4 @@
-// Copyright 2026 drdriftwood. Licensed under MIT. See LICENSE.
+// Copyright 2026 drdriftwood. Licensed under Apache-2.0. See LICENSE.
 
 // Sync replaces the generic Printing Press REST-walker with an
 // obsidian-specific vault crawler. It iterates every markdown file in
@@ -12,6 +12,7 @@
 package cli
 
 import (
+	"context"
 	"crypto/sha256"
 	"database/sql"
 	"encoding/hex"
@@ -306,8 +307,26 @@ func syncOneNote(db *store.Store, relPath, absPath string, info os.FileInfo) err
 	}
 	modifiedAt := info.ModTime().UTC().Format(time.RFC3339)
 
-	dbi := db.DB()
-	_, err = dbi.Exec(`
+	// All writes for one note go through a single transaction so a
+	// mid-flight error (constraint violation on a tag/link, disk hiccup)
+	// rolls back the DELETEs of child rows. Without the transaction, the
+	// parent loop's per-note errorCount path would leave the note record
+	// with empty obsidian_tags / obsidian_links / frontmatter_kv tables
+	// and the next incremental sync would skip the note (mtime unchanged
+	// vs vault_sync_state.last_sync_at), so Tier-3 commands would silently
+	// report wrong results until --full reseeded.
+	tx, err := db.DB().BeginTx(context.Background(), nil)
+	if err != nil {
+		return fmt.Errorf("begin tx: %w", err)
+	}
+	committed := false
+	defer func() {
+		if !committed {
+			_ = tx.Rollback()
+		}
+	}()
+
+	if _, err := tx.Exec(`
 		INSERT INTO notes (path, title, created_at, modified_at, word_count, content_hash, frontmatter_json)
 		VALUES (?, ?, ?, ?, ?, ?, ?)
 		ON CONFLICT(path) DO UPDATE SET
@@ -317,35 +336,34 @@ func syncOneNote(db *store.Store, relPath, absPath string, info os.FileInfo) err
 			word_count       = excluded.word_count,
 			content_hash     = excluded.content_hash,
 			frontmatter_json = excluded.frontmatter_json
-	`, relPath, title, createdAt, modifiedAt, wordCount, contentHash, string(frontmatterJSON))
-	if err != nil {
+	`, relPath, title, createdAt, modifiedAt, wordCount, contentHash, string(frontmatterJSON)); err != nil {
 		return fmt.Errorf("upserting note: %w", err)
 	}
 	var noteID int64
-	row := dbi.QueryRow(`SELECT id FROM notes WHERE path = ?`, relPath)
+	row := tx.QueryRow(`SELECT id FROM notes WHERE path = ?`, relPath)
 	if err := row.Scan(&noteID); err != nil {
 		return fmt.Errorf("looking up note id: %w", err)
 	}
 
 	// Refresh per-note child rows (cheaper than diff for V1's data sizes).
-	if _, err := dbi.Exec(`DELETE FROM obsidian_tags WHERE note_id = ?`, noteID); err != nil {
+	if _, err := tx.Exec(`DELETE FROM obsidian_tags WHERE note_id = ?`, noteID); err != nil {
 		return err
 	}
-	if _, err := dbi.Exec(`DELETE FROM obsidian_links WHERE source_id = ?`, noteID); err != nil {
+	if _, err := tx.Exec(`DELETE FROM obsidian_links WHERE source_id = ?`, noteID); err != nil {
 		return err
 	}
-	if _, err := dbi.Exec(`DELETE FROM frontmatter_kv WHERE note_id = ?`, noteID); err != nil {
+	if _, err := tx.Exec(`DELETE FROM frontmatter_kv WHERE note_id = ?`, noteID); err != nil {
 		return err
 	}
 
 	for _, t := range extractTags(body, frontmatter) {
-		if _, err := dbi.Exec(`INSERT OR IGNORE INTO obsidian_tags (note_id, tag) VALUES (?, ?)`, noteID, t); err != nil {
+		if _, err := tx.Exec(`INSERT OR IGNORE INTO obsidian_tags (note_id, tag) VALUES (?, ?)`, noteID, t); err != nil {
 			return err
 		}
 	}
 
 	for _, l := range extractLinks(body) {
-		if _, err := dbi.Exec(
+		if _, err := tx.Exec(
 			`INSERT INTO obsidian_links (source_id, target_path, link_type, resolved) VALUES (?, ?, ?, ?)`,
 			noteID, l.target, l.linkType, l.resolved,
 		); err != nil {
@@ -355,7 +373,7 @@ func syncOneNote(db *store.Store, relPath, absPath string, info os.FileInfo) err
 
 	for k, v := range frontmatter {
 		valueStr := frontmatterValueToString(v)
-		if _, err := dbi.Exec(
+		if _, err := tx.Exec(
 			`INSERT INTO frontmatter_kv (note_id, key, value) VALUES (?, ?, ?)`,
 			noteID, k, valueStr,
 		); err != nil {
@@ -363,6 +381,10 @@ func syncOneNote(db *store.Store, relPath, absPath string, info os.FileInfo) err
 		}
 	}
 
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("commit tx: %w", err)
+	}
+	committed = true
 	return nil
 }
 

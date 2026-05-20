@@ -11,20 +11,20 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newObsidianCliVirtualSearchSearchCmd(flags *rootFlags) *cobra.Command {
+func newLiveSearchContextCmd(flags *rootFlags) *cobra.Command {
 	var flagQuery string
 	var flagPath string
 	var flagLimit int
-	var flagTotal bool
 	var flagCase bool
 	var flagFormat string
 	var flagAll bool
 
 	cmd := &cobra.Command{
-		Use:         "search",
-		Short:       "Wraps `obsidian search query=<text>`. limit= bounds output (addresses the v3.6.1 4.6M-char overflow).",
-		Example:     "  obsidian-pp-cli obsidian-cli-virtual-search search --query example-value",
-		Annotations: map[string]string{"pp:endpoint": "obsidian-cli-virtual-search.search", "pp:method": "GET", "pp:path": "/search", "mcp:read-only": "true"},
+		Use:         "context",
+		Aliases:     []string{"list"},
+		Short:       "Wraps `obsidian search:context query=<text>` — body-text search with surrounding lines for each hit.",
+		Example:     "  obsidian-pp-cli live-search context --query example-value",
+		Annotations: map[string]string{"pp:endpoint": "live-search.context", "pp:method": "GET", "pp:path": "/live-search/context", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("query") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "query")
@@ -47,12 +47,11 @@ func newObsidianCliVirtualSearchSearchCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "/search"
-			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "obsidian-cli-virtual-search", path, map[string]string{
+			path := "/live-search/context"
+			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "live-search", path, map[string]string{
 				"query":  fmt.Sprintf("%v", flagQuery),
 				"path":   fmt.Sprintf("%v", flagPath),
 				"limit":  fmt.Sprintf("%v", flagLimit),
-				"total":  fmt.Sprintf("%v", flagTotal),
 				"case":   fmt.Sprintf("%v", flagCase),
 				"format": fmt.Sprintf("%v", flagFormat),
 			}, nil, flagAll, "", "", "")
@@ -106,8 +105,7 @@ func newObsidianCliVirtualSearchSearchCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagQuery, "query", "", "Query")
 	cmd.Flags().StringVar(&flagPath, "path", "", "Limit to folder")
 	cmd.Flags().IntVar(&flagLimit, "limit", 0, "Limit")
-	cmd.Flags().BoolVar(&flagTotal, "total", false, "Return match count only")
-	cmd.Flags().BoolVar(&flagCase, "case", false, "Case sensitive")
+	cmd.Flags().BoolVar(&flagCase, "case", false, "Case")
 	cmd.Flags().StringVar(&flagFormat, "format", "text", "Output format (one of: text, json)")
 	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 

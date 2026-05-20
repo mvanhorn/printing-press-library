@@ -1,4 +1,4 @@
-// Copyright 2026 drdriftwood. Licensed under MIT. See LICENSE.
+// Copyright 2026 drdriftwood. Licensed under Apache-2.0. See LICENSE.
 
 // Package obsidian provides runtime detection helpers for the Obsidian
 // desktop app. The Local REST API plugin (when installed and enabled)

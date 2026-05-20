@@ -1,7 +1,7 @@
 ---
 name: pp-obsidian
 description: "Read-only Obsidian vault analytics CLI. Wraps the official `obsidian` binary (v1.12+) for live reads and maintains a local SQLite mirror for offline compound analytics (health score, orphans with age ranking, stale notes, broken wikilinks with source context, raw SQL). V1 is read-only by design — writes wait on the upstream markdown-patch frontmatter-corruption fix."
-author: "Driftwood"
+author: "LARGE FORMAT"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
@@ -64,18 +64,14 @@ This CLI uses Chrome-compatible HTTP transport for browser-facing endpoints. It 
 
 - `obsidian-pp-cli folders` — Wraps `obsidian folders`.
 
+**live-search** — Manage live search
+
+- `obsidian-pp-cli live-search context` — Wraps `obsidian search:context query=<text>` — body-text search with surrounding lines for each hit.
+- `obsidian-pp-cli live-search live-search` — Wraps `obsidian search query=<text>` — dials the running Obsidian process for body-text search. Distinct from the...
+
 **notes** — Single-note read operations
 
 - `obsidian-pp-cli notes <name>` — Wraps `obsidian read file={name}` (or path= for exact paths). Returns raw file contents.
-
-**obsidian-cli-virtual-orphans** — Manage obsidian cli virtual orphans
-
-- `obsidian-pp-cli obsidian-cli-virtual-orphans` — Wraps `obsidian orphans`. Tier-3 `orphans` ENHANCES this with age ranking + link context; this Tier-1 endpoint is...
-
-**obsidian-cli-virtual-search** — Manage obsidian cli virtual search
-
-- `obsidian-pp-cli obsidian-cli-virtual-search context` — Wraps `obsidian search:context query=<text>`.
-- `obsidian-pp-cli obsidian-cli-virtual-search search` — Wraps `obsidian search query=<text>`. limit= bounds output (addresses the v3.6.1 4.6M-char overflow).
 
 **tags** — Manage tags
 

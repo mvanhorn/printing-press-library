@@ -7,15 +7,15 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newObsidianCliVirtualSearchCmd(flags *rootFlags) *cobra.Command {
+func newLiveSearchCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:    "obsidian-cli-virtual-search",
-		Short:  "Manage obsidian cli virtual search",
+		Use:    "live-search",
+		Short:  "Manage live search",
 		Hidden: true,
 		RunE:   parentNoSubcommandRunE(flags),
 	}
 
-	cmd.AddCommand(newObsidianCliVirtualSearchContextCmd(flags))
-	cmd.AddCommand(newObsidianCliVirtualSearchSearchCmd(flags))
+	cmd.AddCommand(newLiveSearchContextCmd(flags))
+	cmd.AddCommand(newLiveSearchLiveSearchCmd(flags))
 	return cmd
 }

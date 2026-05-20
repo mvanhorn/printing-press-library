@@ -1,4 +1,4 @@
-// Copyright 2026 drdriftwood. Licensed under MIT. See LICENSE.
+// Copyright 2026 drdriftwood. Licensed under Apache-2.0. See LICENSE.
 
 package obsidian
 

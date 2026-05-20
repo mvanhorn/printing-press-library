@@ -1,4 +1,4 @@
-// Copyright 2026 drdriftwood. Licensed under MIT. See LICENSE.
+// Copyright 2026 drdriftwood. Licensed under Apache-2.0. See LICENSE.
 
 // Workflow subcommands. The generic Printing Press emits these for SaaS
 // APIs that benefit from "archive everything then search offline"

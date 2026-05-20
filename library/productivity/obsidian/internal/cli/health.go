@@ -1,4 +1,4 @@
-// Copyright 2026 drdriftwood. Licensed under MIT. See LICENSE.
+// Copyright 2026 drdriftwood. Licensed under Apache-2.0. See LICENSE.
 
 // `obsidian-pp-cli health` — composite vault-health score. Combines four
 // independent sub-scores (each 0..1) into a single percentage so an
@@ -21,6 +21,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/productivity/obsidian/internal/store"
@@ -74,9 +75,16 @@ Returns a single 0..100 percentage plus the per-axis breakdown. Pass
 				WHERE NOT EXISTS (
 					SELECT 1 FROM obsidian_links l WHERE l.target_path = n.path
 				)`)
-			staleCutoffSQL := fmt.Sprintf("datetime('now','-%d days')", staleDays)
-			staleN := scalarInt(dbi, fmt.Sprintf(
-				`SELECT COUNT(*) FROM notes WHERE modified_at < %s`, staleCutoffSQL))
+			// modified_at is stored as RFC3339 ("2026-05-21T12:00:00Z"), but
+			// SQLite's datetime('now','-N days') returns "2026-05-21 12:00:00"
+			// (space separator). Because ASCII 'T'(84) > ' '(32), a string
+			// compare against the datetime() form would treat any note
+			// modified on the exact cutoff date as newer-than-cutoff and miss
+			// it, inflating the freshness sub-score. Compute the cutoff in Go
+			// and bind it as the RFC3339 string the column actually holds —
+			// same approach pm_stale.go takes.
+			staleCutoff := time.Now().AddDate(0, 0, -staleDays).UTC().Format(time.RFC3339)
+			staleN := scalarInt(dbi, `SELECT COUNT(*) FROM notes WHERE modified_at < ?`, staleCutoff)
 			wikilinks := scalarInt(dbi, `SELECT COUNT(*) FROM obsidian_links WHERE link_type='wikilink'`)
 			brokenLinks := scalarInt(dbi, `
 				SELECT COUNT(*) FROM obsidian_links l

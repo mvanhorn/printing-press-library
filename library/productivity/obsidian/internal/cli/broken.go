@@ -1,4 +1,4 @@
-// Copyright 2026 drdriftwood. Licensed under MIT. See LICENSE.
+// Copyright 2026 drdriftwood. Licensed under Apache-2.0. See LICENSE.
 
 // `obsidian-pp-cli broken` — list unresolved wikilinks with their source
 // note context. Builds on the live `obsidian unresolved` subcommand by

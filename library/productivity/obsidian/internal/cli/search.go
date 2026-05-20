@@ -111,13 +111,13 @@ In local mode: searches locally synced data only.`,
 				return cmd.Help()
 			}
 			query := args[0]
-			// This API has a search endpoint: GET /search
+			// This API has a search endpoint: GET /live-search
 			if flags.dataSource != "local" {
 				c, err := flags.newClient()
 				if err != nil {
 					return err
 				}
-				data, getErr := c.Get("/search", map[string]string{
+				data, getErr := c.Get("/live-search", map[string]string{
 					"query": query,
 				})
 				if getErr == nil {

@@ -215,11 +215,11 @@ func (s *Store) ensureColumn(ctx context.Context, conn *sql.Conn, table, column,
 // word.
 func (s *Store) backfillColumns(ctx context.Context, conn *sql.Conn) error {
 	for _, c := range []struct{ table, column, decl string }{
+		{table: "live_search", column: "matches", decl: "INTEGER"},
+		{table: "live_search", column: "path", decl: "TEXT"},
 		{table: "backlinks", column: "notes_id", decl: "TEXT"},
 		{table: "links", column: "notes_id", decl: "TEXT"},
 		{table: "properties", column: "notes_id", decl: "TEXT"},
-		{table: "obsidian_cli_virtual_search", column: "matches", decl: "INTEGER"},
-		{table: "obsidian_cli_virtual_search", column: "path", decl: "TEXT"},
 		{table: "sync_state", column: "last_cursor", decl: "TEXT"},
 		{table: "sync_state", column: "last_synced_at", decl: "DATETIME"},
 		{table: "sync_state", column: "total_count", decl: "INTEGER DEFAULT 0"},
@@ -271,6 +271,13 @@ func (s *Store) migrate(ctx context.Context) error {
 			total_count INTEGER DEFAULT 0
 		)`,
 		resourcesFTSCreateSQL,
+		`CREATE TABLE IF NOT EXISTS "live_search" (
+			"id" TEXT PRIMARY KEY,
+			"data" JSON NOT NULL,
+			"synced_at" DATETIME DEFAULT CURRENT_TIMESTAMP,
+			"matches" INTEGER,
+			"path" TEXT
+		)`,
 		`CREATE TABLE IF NOT EXISTS "backlinks" (
 			"id" TEXT PRIMARY KEY,
 			"notes_id" TEXT NOT NULL,
@@ -292,13 +299,6 @@ func (s *Store) migrate(ctx context.Context) error {
 			"synced_at" DATETIME DEFAULT CURRENT_TIMESTAMP
 		)`,
 		`CREATE INDEX IF NOT EXISTS "idx_properties_notes_id" ON "properties"("notes_id")`,
-		`CREATE TABLE IF NOT EXISTS "obsidian_cli_virtual_search" (
-			"id" TEXT PRIMARY KEY,
-			"data" JSON NOT NULL,
-			"synced_at" DATETIME DEFAULT CURRENT_TIMESTAMP,
-			"matches" INTEGER,
-			"path" TEXT
-		)`,
 	}
 
 	// Run every migration — including the column backfill and the
@@ -768,6 +768,58 @@ func lookupFieldValue(obj map[string]any, snakeKey string) any {
 	return LookupFieldValue(obj, snakeKey)
 }
 
+// upsertLiveSearchTx writes the typed-table portion of a live_search upsert
+// inside an existing transaction. The caller is responsible for the generic
+// resources insert (via upsertGenericResourceTx) and for committing the tx.
+// Splitting this out lets UpsertBatch dispatch typed inserts per item without
+// opening a per-item transaction.
+func (s *Store) upsertLiveSearchTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
+	if _, err := tx.Exec(
+		`INSERT INTO "live_search" ("id", "data", "synced_at", "matches", "path")
+		 VALUES (?, ?, ?, ?, ?)
+		 ON CONFLICT("id") DO UPDATE SET "data" = excluded."data", "synced_at" = excluded."synced_at", "matches" = excluded."matches", "path" = excluded."path"`,
+		id,
+		string(data),
+		time.Now(),
+		lookupFieldValue(obj, "matches"),
+		lookupFieldValue(obj, "path"),
+	); err != nil {
+		return fmt.Errorf("insert into live_search: %w", err)
+	}
+
+	return nil
+}
+
+// UpsertLiveSearch inserts or updates a live_search record with domain-specific columns.
+func (s *Store) UpsertLiveSearch(data json.RawMessage) error {
+	var obj map[string]any
+	if err := json.Unmarshal(data, &obj); err != nil {
+		return fmt.Errorf("unmarshaling live_search: %w", err)
+	}
+
+	id := extractObjectID(obj)
+	if id == "" {
+		return fmt.Errorf("missing id for live_search")
+	}
+
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if err := s.upsertGenericResourceTx(tx, "live-search", id, data); err != nil {
+		return err
+	}
+	if err := s.upsertLiveSearchTx(tx, id, obj, data); err != nil {
+		return err
+	}
+
+	return tx.Commit()
+}
+
 // upsertBacklinksTx writes the typed-table portion of a backlinks upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -921,58 +973,6 @@ func (s *Store) UpsertProperties(data json.RawMessage) error {
 	return tx.Commit()
 }
 
-// upsertObsidianCliVirtualSearchTx writes the typed-table portion of a obsidian_cli_virtual_search upsert
-// inside an existing transaction. The caller is responsible for the generic
-// resources insert (via upsertGenericResourceTx) and for committing the tx.
-// Splitting this out lets UpsertBatch dispatch typed inserts per item without
-// opening a per-item transaction.
-func (s *Store) upsertObsidianCliVirtualSearchTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
-	if _, err := tx.Exec(
-		`INSERT INTO "obsidian_cli_virtual_search" ("id", "data", "synced_at", "matches", "path")
-		 VALUES (?, ?, ?, ?, ?)
-		 ON CONFLICT("id") DO UPDATE SET "data" = excluded."data", "synced_at" = excluded."synced_at", "matches" = excluded."matches", "path" = excluded."path"`,
-		id,
-		string(data),
-		time.Now(),
-		lookupFieldValue(obj, "matches"),
-		lookupFieldValue(obj, "path"),
-	); err != nil {
-		return fmt.Errorf("insert into obsidian_cli_virtual_search: %w", err)
-	}
-
-	return nil
-}
-
-// UpsertObsidianCliVirtualSearch inserts or updates a obsidian_cli_virtual_search record with domain-specific columns.
-func (s *Store) UpsertObsidianCliVirtualSearch(data json.RawMessage) error {
-	var obj map[string]any
-	if err := json.Unmarshal(data, &obj); err != nil {
-		return fmt.Errorf("unmarshaling obsidian_cli_virtual_search: %w", err)
-	}
-
-	id := extractObjectID(obj)
-	if id == "" {
-		return fmt.Errorf("missing id for obsidian_cli_virtual_search")
-	}
-
-	s.writeMu.Lock()
-	defer s.writeMu.Unlock()
-	tx, err := s.db.Begin()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-
-	if err := s.upsertGenericResourceTx(tx, "obsidian-cli-virtual-search", id, data); err != nil {
-		return err
-	}
-	if err := s.upsertObsidianCliVirtualSearchTx(tx, id, obj, data); err != nil {
-		return err
-	}
-
-	return tx.Commit()
-}
-
 // resourceIDFieldOverrides projects per-resource IDField (set by the profiler
 // from x-resource-id or response-schema fallback) into a runtime lookup map.
 // UpsertBatch consults this first so the templated path wins over the
@@ -1074,14 +1074,14 @@ func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, 
 
 		var typedErr error
 		switch resourceType {
+		case "live-search":
+			typedErr = s.upsertLiveSearchTx(tx, id, obj, item)
 		case "backlinks":
 			typedErr = s.upsertBacklinksTx(tx, id, obj, item)
 		case "links":
 			typedErr = s.upsertLinksTx(tx, id, obj, item)
 		case "properties":
 			typedErr = s.upsertPropertiesTx(tx, id, obj, item)
-		case "obsidian-cli-virtual-search":
-			typedErr = s.upsertObsidianCliVirtualSearchTx(tx, id, obj, item)
 		}
 
 		if typedErr != nil {

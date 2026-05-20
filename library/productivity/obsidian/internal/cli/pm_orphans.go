@@ -1,4 +1,4 @@
-// Copyright 2026 drdriftwood. Licensed under MIT. See LICENSE.
+// Copyright 2026 drdriftwood. Licensed under Apache-2.0. See LICENSE.
 
 // `obsidian-pp-cli orphans` — list vault notes that have no incoming
 // wikilinks. Replaces the Press's generic "items missing assignee/project"
@@ -15,7 +15,6 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
-	"sort"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -167,14 +166,6 @@ func mirrorOrphans(db *store.Store, limit int, oldest bool) ([]map[string]any, b
 		// Stable empty slice so JSON renders [] not null.
 		items = []map[string]any{}
 	}
-	sort.SliceStable(items, func(i, j int) bool {
-		ti, _ := items[i]["modified_at"].(string)
-		tj, _ := items[j]["modified_at"].(string)
-		if oldest {
-			return ti < tj
-		}
-		return ti > tj
-	})
 	return items, true, nil
 }
 

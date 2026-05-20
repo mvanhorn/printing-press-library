@@ -30,7 +30,7 @@ type rootFlags struct {
 	noInput    bool
 	idempotent bool
 	yes        bool
-	agent      bool
+	agent        bool
 	selectFields string
 	configPath          string
 	profileName         string
@@ -222,7 +222,7 @@ Run 'obsidian-pp-cli doctor' to verify auth and connectivity.`,
 		}
 		return nil
 	}
-	rootCmd.AddCommand(newObsidianCliVirtualSearchCmd(flags))
+	rootCmd.AddCommand(newLiveSearchCmd(flags))
 	rootCmd.AddCommand(newDoctorCmd(flags))
 	rootCmd.AddCommand(newAgentContextCmd(rootCmd))
 	rootCmd.AddCommand(newProfileCmd(flags))
@@ -244,7 +244,6 @@ Run 'obsidian-pp-cli doctor' to verify auth and connectivity.`,
 	rootCmd.AddCommand(newFilesPromotedCmd(flags))
 	rootCmd.AddCommand(newFoldersPromotedCmd(flags))
 	rootCmd.AddCommand(newNotesPromotedCmd(flags))
-	rootCmd.AddCommand(newObsidianCliVirtualOrphansPromotedCmd(flags))
 	rootCmd.AddCommand(newTagsPromotedCmd(flags))
 	rootCmd.AddCommand(newTasksPromotedCmd(flags))
 	rootCmd.AddCommand(newUnresolvedPromotedCmd(flags))

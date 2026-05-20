@@ -59,6 +59,35 @@ func RegisterTools(s *server.MCPServer) {
 		makeAPIHandler("GET", "/folders", false, []mcpParamBinding{{PublicName: "folder", WireName: "folder", Location: "query"}, {PublicName: "total", WireName: "total", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
+		mcplib.NewTool("live-search_context",
+			mcplib.WithDescription("Wraps `obsidian search:context query=<text>` — body-text search with surrounding lines for each hit. Required: query. Optional: path, limit, case (plus 1 more). Returns array of LiveSearchContextItem."),
+			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Query")),
+			mcplib.WithString("path", mcplib.Description("Limit to folder")),
+			mcplib.WithNumber("limit", mcplib.Description("Limit")),
+			mcplib.WithBoolean("case", mcplib.Description("Case")),
+			mcplib.WithString("format", mcplib.Description("Output format")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/live-search/context", false, []mcpParamBinding{{PublicName: "query", WireName: "query", Location: "query"}, {PublicName: "path", WireName: "path", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}, {PublicName: "case", WireName: "case", Location: "query"}, {PublicName: "format", WireName: "format", Location: "query"}}, []string{}),
+	)
+	s.AddTool(
+		mcplib.NewTool("live-search_live_search",
+			mcplib.WithDescription("Wraps `obsidian search query=<text>` — dials the running Obsidian process for body-text search. Distinct from the framework `search` command, which queries the local mirror (titles/paths only). limit= bounds output. Required: query. Optional: path, limit, total (plus 2 more). Returns array of LiveSearchLiveSearchItem."),
+			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Query")),
+			mcplib.WithString("path", mcplib.Description("Limit to folder")),
+			mcplib.WithNumber("limit", mcplib.Description("Limit")),
+			mcplib.WithBoolean("total", mcplib.Description("Return match count only")),
+			mcplib.WithBoolean("case", mcplib.Description("Case sensitive")),
+			mcplib.WithString("format", mcplib.Description("Output format")),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/live-search", false, []mcpParamBinding{{PublicName: "query", WireName: "query", Location: "query"}, {PublicName: "path", WireName: "path", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}, {PublicName: "total", WireName: "total", Location: "query"}, {PublicName: "case", WireName: "case", Location: "query"}, {PublicName: "format", WireName: "format", Location: "query"}}, []string{}),
+	)
+	s.AddTool(
 		mcplib.NewTool("notes_read",
 			mcplib.WithDescription("Wraps `obsidian read file={name}` (or path= for exact paths). Returns raw file contents. Required: name. Optional: path."),
 			mcplib.WithString("name", mcplib.Required(), mcplib.Description("Note name (wikilink-style resolution, maps to obsidian `file=`).")),
@@ -106,46 +135,6 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("GET", "/notes/{name}/properties/{property}", false, []mcpParamBinding{{PublicName: "name", WireName: "name", Location: "path"}, {PublicName: "property", WireName: "property", Location: "path"}, {PublicName: "path", WireName: "path", Location: "query"}}, []string{"name", "property"}),
-	)
-	s.AddTool(
-		mcplib.NewTool("obsidian-cli-virtual-orphans_list",
-			mcplib.WithDescription("Wraps `obsidian orphans`. Tier-3 `orphans` ENHANCES this with age ranking + link context; this Tier-1 endpoint is the raw pass-through. Optional: total, all. Returns array of string."),
-			mcplib.WithBoolean("total", mcplib.Description("Total")),
-			mcplib.WithBoolean("all", mcplib.Description("Include non-markdown files")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/orphans", false, []mcpParamBinding{{PublicName: "total", WireName: "total", Location: "query"}, {PublicName: "all", WireName: "all", Location: "query"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("obsidian-cli-virtual-search_context",
-			mcplib.WithDescription("Wraps `obsidian search:context query=<text>`. Required: query. Optional: path, limit, case (plus 1 more). Returns array of ObsidianCliVirtualSearchContextItem."),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Query")),
-			mcplib.WithString("path", mcplib.Description("Limit to folder")),
-			mcplib.WithNumber("limit", mcplib.Description("Limit")),
-			mcplib.WithBoolean("case", mcplib.Description("Case")),
-			mcplib.WithString("format", mcplib.Description("Output format")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/search/context", false, []mcpParamBinding{{PublicName: "query", WireName: "query", Location: "query"}, {PublicName: "path", WireName: "path", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}, {PublicName: "case", WireName: "case", Location: "query"}, {PublicName: "format", WireName: "format", Location: "query"}}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("obsidian-cli-virtual-search_search",
-			mcplib.WithDescription("Wraps `obsidian search query=<text>`. limit= bounds output (addresses the v3.6.1 4.6M-char overflow). Required: query. Optional: path, limit, total (plus 2 more). Returns array of ObsidianCliVirtualSearchSearchItem."),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("Query")),
-			mcplib.WithString("path", mcplib.Description("Limit to folder")),
-			mcplib.WithNumber("limit", mcplib.Description("Limit")),
-			mcplib.WithBoolean("total", mcplib.Description("Return match count only")),
-			mcplib.WithBoolean("case", mcplib.Description("Case sensitive")),
-			mcplib.WithString("format", mcplib.Description("Output format")),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/search", false, []mcpParamBinding{{PublicName: "query", WireName: "query", Location: "query"}, {PublicName: "path", WireName: "path", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}, {PublicName: "total", WireName: "total", Location: "query"}, {PublicName: "case", WireName: "case", Location: "query"}, {PublicName: "format", WireName: "format", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("tags_list",
@@ -551,7 +540,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		"api":         "obsidian",
 		"description": "SYNTHETIC OpenAPI 3.0 spec mapping Obsidian's official command-line interface (v1.12+) to virtual REST endpoints....",
 		"archetype":   "project-management",
-		"tool_count":  14,
+		"tool_count":  13,
 		// tool_surface tells agents which surface a capability lives on.
 		"tool_surface": "MCP exposes typed endpoint tools plus a runtime mirror of user-facing CLI commands. Endpoint tools keep typed schemas; command-mirror tools shell out to the companion obsidian-pp-cli binary.",
 		"resources": []map[string]any{
@@ -576,21 +565,15 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 				"searchable":  true,
 			},
 			{
-				"name":        "notes",
-				"description": "Single-note read operations",
-				"endpoints":   []string{"read"},
+				"name":        "live-search",
+				"description": "Manage live search",
+				"endpoints":   []string{"context", "live_search"},
 				"searchable":  true,
 			},
 			{
-				"name":        "obsidian-cli-virtual-orphans",
-				"description": "Manage obsidian cli virtual orphans",
-				"endpoints":   []string{"list"},
-				"syncable":    true,
-			},
-			{
-				"name":        "obsidian-cli-virtual-search",
-				"description": "Manage obsidian cli virtual search",
-				"endpoints":   []string{"context", "search"},
+				"name":        "notes",
+				"description": "Single-note read operations",
+				"endpoints":   []string{"read"},
 				"searchable":  true,
 			},
 			{

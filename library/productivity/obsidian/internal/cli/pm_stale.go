@@ -1,4 +1,4 @@
-// Copyright 2026 drdriftwood. Licensed under MIT. See LICENSE.
+// Copyright 2026 drdriftwood. Licensed under Apache-2.0. See LICENSE.
 
 // `obsidian-pp-cli stale` — find notes that haven't been modified in N
 // days but still have incoming wikilinks (so they're not orphans, just

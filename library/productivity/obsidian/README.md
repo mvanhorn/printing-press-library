@@ -2,13 +2,13 @@
 
 **Read-only vault analytics for [Obsidian](https://obsidian.md) — works offline against a local SQLite mirror.**
 
-`obsidian-pp-cli` is a Go CLI plus MCP server that wraps Obsidian's official `obsidian` binary (v1.12+) for live reads and maintains a local SQLite mirror for sub-100 ms compound analytics. The 14 live read commands wrap the upstream CLI directly via subprocess; the Tier-3 commands (`health`, `stale`, `orphans`, `broken`, `vault-sql`, `load`) query the mirror so they answer instantly even when Obsidian is closed.
+`obsidian-pp-cli` is a Go CLI plus MCP server that wraps Obsidian's official `obsidian` binary (v1.12+) for live reads and maintains a local SQLite mirror for sub-100 ms compound analytics. The 13 live read commands wrap the upstream CLI directly via subprocess; the Tier-3 commands (`health`, `stale`, `orphans`, `broken`, `vault-sql`, `load`) query the mirror so they answer instantly even when Obsidian is closed.
 
 **V1 is read-only by design.** Write commands (create / delete / append / prepend / move / property:set) are deferred to V2 pending the upstream `markdown-patch` frontmatter-corruption fix. Skipping writes in V1 means zero corruption exposure — every command in this CLI either reads from the live `obsidian` binary or queries a local SQLite copy of your vault.
 
 Run `obsidian-pp-cli sync` with Obsidian open to refresh the mirror; all Tier-3 commands then run offline.
 
-Printed by [@DrDriftwood](https://github.com/DrDriftwood) (Driftwood).
+Printed by [@DrDriftwood](https://github.com/DrDriftwood) (Angelo Pullen).
 
 ## Install
 
@@ -143,7 +143,8 @@ These commands shell out to the official `obsidian` binary and return current va
 - **`obsidian-pp-cli notes <name> backlinks list`** — List backlinks to a note.
 - **`obsidian-pp-cli notes <name> links list`** — List outgoing links from a note.
 - **`obsidian-pp-cli notes <name> properties read-property <property>`** — Read a frontmatter property value.
-- **`obsidian-pp-cli search <query>`** — Search vault text (live with local-FTS fallback when Obsidian is offline).
+- **`obsidian-pp-cli live-search <query>`** — Live full-text search via the running Obsidian process. (Distinct from `search`, which queries the local mirror — titles/paths only.)
+- **`obsidian-pp-cli live-search context <query>`** — Live full-text search with matching line context.
 - **`obsidian-pp-cli tags`** — List tags in the vault.
 - **`obsidian-pp-cli tasks`** — List tasks in the vault.
 - **`obsidian-pp-cli files`** — List files in the vault.
@@ -161,6 +162,7 @@ These commands shell out to the official `obsidian` binary and return current va
 - **`obsidian-pp-cli broken`** — Unresolved wikilinks plus their source notes — answers "where is the broken link?", not just "what is broken?"
 - **`obsidian-pp-cli vault-sql <query>`** — Raw SELECT against the mirror (read-only). Schema: notes, obsidian_tags, obsidian_links, frontmatter_kv.
 - **`obsidian-pp-cli load`** — Quick coverage report (note count, tag count, link count, last sync).
+- **`obsidian-pp-cli search <query>`** — Local-mirror search over note titles and paths (fast, offline). Pair with `live-search` for body-text search via the running Obsidian process.
 - **`obsidian-pp-cli workflow status`** — Verbose mirror coverage report (alias of `load`).
 
 ### Mirror staleness signaling
@@ -215,7 +217,7 @@ Verifies configuration and connectivity to the API.
 
 ## Configuration
 
-Config file: `~/.config/obsidian-cli-virtual-pp-cli/config.toml`
+Config file: `~/.config/obsidian-pp-cli/config.toml`
 
 Static request headers can be configured under `headers`; per-command header overrides take precedence.
 

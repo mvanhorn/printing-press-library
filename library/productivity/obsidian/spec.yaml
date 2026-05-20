@@ -27,7 +27,7 @@ info:
     name: "@DrDriftwood"
     url: https://github.com/DrDriftwood
   license:
-    name: MIT
+    name: Apache-2.0
 
 servers:
   - url: subprocess://obsidian
@@ -114,12 +114,12 @@ paths:
               schema: { type: object, additionalProperties: true }
         "404": { $ref: "#/components/responses/NotFound" }
 
-  /search:
+  /live-search:
     get:
       tags: [search]
-      summary: Search vault for text
-      operationId: search
-      description: "Wraps `obsidian search query=<text>`. limit= bounds output (addresses the v3.6.1 4.6M-char overflow)."
+      summary: Live full-text search across the open vault
+      operationId: liveSearch
+      description: "Wraps `obsidian search query=<text>` — dials the running Obsidian process for body-text search. Distinct from the framework `search` command, which queries the local mirror (titles/paths only). limit= bounds output."
       parameters:
         - { name: query, in: query, required: true, schema: { type: string } }
         - { name: path, in: query, description: Limit to folder, schema: { type: string } }
@@ -130,12 +130,12 @@ paths:
       responses:
         "200": { $ref: "#/components/responses/SearchResult" }
 
-  /search/context:
+  /live-search/context:
     get:
       tags: [search]
-      summary: Search with matching line context
-      operationId: searchContext
-      description: "Wraps `obsidian search:context query=<text>`."
+      summary: Live full-text search with matching line context
+      operationId: liveSearchContext
+      description: "Wraps `obsidian search:context query=<text>` — body-text search with surrounding lines for each hit."
       parameters:
         - { name: query, in: query, required: true, schema: { type: string } }
         - { name: path, in: query, description: Limit to folder, schema: { type: string } }
@@ -175,17 +175,11 @@ paths:
       responses:
         "200": { $ref: "#/components/responses/StringList" }
 
-  /orphans:
-    get:
-      tags: [graph]
-      summary: List notes with no incoming links
-      operationId: listOrphans
-      description: "Wraps `obsidian orphans`. Tier-3 `orphans` ENHANCES this with age ranking + link context; this Tier-1 endpoint is the raw pass-through."
-      parameters:
-        - { name: total, in: query, schema: { type: boolean } }
-        - { name: all, in: query, description: Include non-markdown files, schema: { type: boolean } }
-      responses:
-        "200": { $ref: "#/components/responses/StringList" }
+  # /orphans intentionally absent: the hand-authored Tier-3 `orphans`
+  # command (mirror-ranked with mtime/title/words, live-subprocess fallback)
+  # supersedes the raw pass-through. Including the Tier-1 endpoint here
+  # collides with the Tier-3 command and forces the auto-renamer to emit
+  # `obsidian-cli-virtual-orphans`.
 
   /deadends:
     get:

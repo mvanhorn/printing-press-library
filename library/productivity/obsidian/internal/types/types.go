@@ -15,13 +15,13 @@ type LinksListItem struct {
 	Target string `json:"target"`
 }
 
-type ObsidianCliVirtualSearchContextItem struct {
+type LiveSearchContextItem struct {
 	Context json.RawMessage `json:"context"`
 	Matches int             `json:"matches"`
 	Path    string          `json:"path"`
 }
 
-type ObsidianCliVirtualSearchSearchItem struct {
+type LiveSearchLiveSearchItem struct {
 	Context json.RawMessage `json:"context"`
 	Matches int             `json:"matches"`
 	Path    string          `json:"path"`
