@@ -85,7 +85,15 @@ func Lookup(ctx context.Context, p Program, opts LookupOptions) (Result, error) 
 	}
 
 	// Branch 1: user override.
-	if opts.Override > 0 {
+	//
+	// Negative --cpp is a caller mistake worth surfacing — silently
+	// falling through to the TPG chain would emit cpp_baseline_source
+	// = tpg-live and hide the typo. Override == 0 still means "no
+	// override; look up TPG" per the --cpp flag help string.
+	if opts.Override != 0 {
+		if opts.Override < 0 {
+			return Result{}, fmt.Errorf("invalid override cpp %.4f: must be positive", opts.Override)
+		}
 		return Result{
 			CPPCents:  opts.Override,
 			Source:    SourceOverride,

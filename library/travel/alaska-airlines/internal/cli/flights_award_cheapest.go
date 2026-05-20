@@ -454,7 +454,12 @@ type lowestAwardPrice struct {
 // When maxStops >= 0, itineraries with more stops are skipped. Returns
 // lowestAwardPrice with Miles=nil when no usable miles total is found.
 func extractLowestAwardPrice(data json.RawMessage, maxStops int) lowestAwardPrice {
-	fare := extractLowestFare(data, fareModeAward, "", maxStops)
+	// award-cheapest ranks across hundreds of itineraries before any
+	// valuation lookup runs, so cpp is not known here. Pass 0 to keep
+	// the legacy "minimum miles" ranking; value-compare passes a real
+	// cpp via extractLowestFare directly so its top pick reflects
+	// total out-of-pocket cost rather than miles only.
+	fare := extractLowestFare(data, fareModeAward, "", maxStops, 0)
 	if fare.Miles == nil {
 		return lowestAwardPrice{}
 	}

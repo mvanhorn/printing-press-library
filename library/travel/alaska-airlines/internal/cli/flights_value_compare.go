@@ -22,6 +22,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/travel/alaska-airlines/internal/valuation"
@@ -127,14 +128,51 @@ baseline and surfaces the source in meta.cpp_baseline_source.`,
 				Locale:      flagLocale,
 			})
 
+			// Run cash search, award search, and valuation lookup
+			// concurrently — all three are independent. Cash and
+			// award hit the same alaskaair.com endpoint but the
+			// existing AdaptiveLimiter serializes outbound requests
+			// to that host, so concurrency is polite. Valuation
+			// goes to a different host (or the local cache).
 			path := "/search/results/__data.json"
-			cashData, cashProv, cashErr := resolveRead(cmd.Context(), c, flags, "flights", false, path, cashParams, nil)
+			var (
+				wg       sync.WaitGroup
+				cashData, awardData json.RawMessage
+				cashProv, awardProv DataProvenance
+				cashErr, awardErr   error
+				vRes                valuation.Result
+				vErr                error
+			)
+			wg.Add(3)
+			go func() {
+				defer wg.Done()
+				cashData, cashProv, cashErr = resolveRead(cmd.Context(), c, flags, "flights", false, path, cashParams, nil)
+			}()
+			go func() {
+				defer wg.Done()
+				awardData, awardProv, awardErr = resolveRead(cmd.Context(), c, flags, "flights", false, path, awardParams, nil)
+			}()
+			go func() {
+				defer wg.Done()
+				lookupOpts := valuation.LookupOptions{
+					Override:     flagCPP,
+					ForceRefresh: flagNoValuationCache,
+				}
+				vRes, vErr = valuation.Lookup(cmd.Context(), program, lookupOpts)
+			}()
+			wg.Wait()
+
 			if cashErr != nil {
 				return classifyAPIError(cashErr, flags)
 			}
-			awardData, awardProv, awardErr := resolveRead(cmd.Context(), c, flags, "flights", false, path, awardParams, nil)
 			if awardErr != nil {
 				return classifyAPIError(awardErr, flags)
+			}
+			if vErr != nil {
+				return vErr
+			}
+			if vRes.Warning != nil {
+				fmt.Fprintf(os.Stderr, "warning: valuation lookup degraded to %s: %v\n", vRes.Source, vRes.Warning)
 			}
 
 			// Mirror the existing single-search provenance lines on
@@ -147,21 +185,14 @@ baseline and surfaces the source in meta.cpp_baseline_source.`,
 				printProvenance(cmd, len(n), awardProv)
 			}
 
-			cashFare := extractLowestFare(cashData, fareModeCash, flagCabin, flagMaxStops)
-			awardFare := extractLowestFare(awardData, fareModeAward, flagCabin, flagMaxStops)
-
-			// Valuation lookup with soft-fallback chain.
-			lookupOpts := valuation.LookupOptions{
-				Override:     flagCPP,
-				ForceRefresh: flagNoValuationCache,
-			}
-			vRes, vErr := valuation.Lookup(cmd.Context(), program, lookupOpts)
-			if vErr != nil {
-				return vErr
-			}
-			if vRes.Warning != nil {
-				fmt.Fprintf(os.Stderr, "warning: valuation lookup degraded to %s: %v\n", vRes.Source, vRes.Warning)
-			}
+			// Extract fares. For the award side, pass the resolved
+			// baseline cpp so the ranking minimizes total
+			// out-of-pocket cost (miles*cpp/100 + taxes) rather than
+			// miles only — otherwise a 25k+$500 option would beat a
+			// 30k+$5 option on the miles criterion, but the latter
+			// is dramatically cheaper at any realistic cpp.
+			cashFare := extractLowestFare(cashData, fareModeCash, flagCabin, flagMaxStops, 0)
+			awardFare := extractLowestFare(awardData, fareModeAward, flagCabin, flagMaxStops, vRes.CPPCents)
 
 			// Build the response envelope. Follows the award-cheapest
 			// pattern: custom map[string]any with rich meta + results.

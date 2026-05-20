@@ -7,6 +7,12 @@ import (
 	"testing"
 )
 
+// roundCents is a small helper for tests. Lives in _test.go so it is
+// excluded from the production binary.
+func roundCents(v float64) float64 {
+	return math.Round(v*100) / 100
+}
+
 func TestEffectiveCPP_FCOSEAExample(t *testing.T) {
 	// FCO->SEA Aug 30: cash $1766.23, award 30000 + $64.53. cpp ~= 5.6723.
 	got := EffectiveCPP(1766.23, 64.53, 30000)

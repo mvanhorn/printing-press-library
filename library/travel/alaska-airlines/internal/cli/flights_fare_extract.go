@@ -54,7 +54,18 @@ type lowestFare struct {
 // lowest-priced fare matching the requested mode, cabin filter, and
 // maxStops limit. When cabinFilter is empty, all cabins are eligible.
 // When maxStops < 0, the stops constraint is ignored.
-func extractLowestFare(data json.RawMessage, mode fareMode, cabinFilter string, maxStops int) lowestFare {
+//
+// rankingCPP controls how award candidates are compared (cash mode
+// always ranks by total cash). When rankingCPP > 0, award candidates
+// are ranked by their TPG-valued total cost (miles*cpp/100 + taxes);
+// this is the right criterion for value-compare, where a 30k+$5
+// option strictly beats a 25k+$500 option at any realistic cpp. When
+// rankingCPP == 0 (e.g. award-cheapest, where no cpp is known at
+// extract time), candidates are ranked by miles only — the legacy
+// behavior. Callers that know the cpp before extracting should pass
+// it; callers that don't can pass 0 and the ranking falls back to
+// the miles minimum.
+func extractLowestFare(data json.RawMessage, mode fareMode, cabinFilter string, maxStops int, rankingCPP float64) lowestFare {
 	root, ok := hydrateSearchResponse(data)
 	if !ok {
 		return lowestFare{}
@@ -107,7 +118,7 @@ func extractLowestFare(data json.RawMessage, mode fareMode, cabinFilter string, 
 					Cabin:   cabinKey,
 					Stops:   stops,
 				}
-				if best == nil || *candidate.Miles < *best.Miles {
+				if best == nil || awardCandidateBetter(candidate, *best, rankingCPP) {
 					best = &candidate
 				}
 			case fareModeCash:
@@ -243,6 +254,21 @@ func resolveValue(v any, chunk []any, hyd func(int, int) any, depth int) any {
 		return resolveNode(a, chunk, hyd, depth)
 	}
 	return v
+}
+
+// awardCandidateBetter ranks two award candidates. When cpp > 0, the
+// ranking is by total TPG-valued cost (miles*cpp/100 + taxes); this is
+// what value-compare wants since a 30k+$5 option strictly beats a
+// 25k+$500 option at any realistic cpp. When cpp == 0, fall back to
+// minimum miles — the legacy behavior used by award-cheapest where no
+// baseline cpp is known at extract time.
+func awardCandidateBetter(candidate, best lowestFare, cpp float64) bool {
+	if cpp > 0 {
+		candTotal := float64(*candidate.Miles)*cpp/100 + candidate.CashUSD
+		bestTotal := float64(*best.Miles)*cpp/100 + best.CashUSD
+		return candTotal < bestTotal
+	}
+	return *candidate.Miles < *best.Miles
 }
 
 // primaryCarrier reads the first segment's carrier code. Returns ""

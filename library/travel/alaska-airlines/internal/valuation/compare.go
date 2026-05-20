@@ -5,8 +5,6 @@
 
 package valuation
 
-import "math"
-
 // Comparison is the structured cash-vs-points outcome the CLI surfaces
 // in its results envelope.
 type Comparison struct {
@@ -66,8 +64,3 @@ func Compare(cashUSD float64, miles int, taxesUSD, baselineCPP float64) Comparis
 	}
 }
 
-// roundCents is a small helper for tests; not used in production code,
-// kept here so test files can share it via the package.
-func roundCents(v float64) float64 {
-	return math.Round(v*100) / 100
-}

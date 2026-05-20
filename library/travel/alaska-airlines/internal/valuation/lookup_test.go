@@ -177,6 +177,19 @@ func TestLookup_ForceRefreshSkipsCache(t *testing.T) {
 	}
 }
 
+func TestLookup_NegativeOverrideErrors(t *testing.T) {
+	// Negative --cpp is a caller mistake. Silently falling through to
+	// the TPG lookup would hide the typo behind a tpg-live source
+	// label. Surface as a hard error.
+	_, err := Lookup(context.Background(), ProgramAtmos, LookupOptions{
+		Override: -1.4,
+		CacheDir: t.TempDir(),
+	})
+	if err == nil {
+		t.Errorf("err = nil; want non-nil for negative override")
+	}
+}
+
 func TestLookup_UnknownProgramErrors(t *testing.T) {
 	_, err := Lookup(context.Background(), Program("not-a-program"), LookupOptions{
 		CacheDir: t.TempDir(),

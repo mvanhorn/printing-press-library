@@ -103,7 +103,7 @@ func TestExtractLowestFare_Award_FindsLowest(t *testing.T) {
 		},
 	}
 	fix := buildSvelteKitFixture(root)
-	got := extractLowestFare(json.RawMessage(fix), fareModeAward, "", -1)
+	got := extractLowestFare(json.RawMessage(fix), fareModeAward, "", -1, 0)
 	if got.Miles == nil {
 		t.Fatalf("expected miles extracted, got %+v", got)
 	}
@@ -127,7 +127,7 @@ func TestExtractLowestFare_Award_MaxStopsFilter(t *testing.T) {
 		},
 	}
 	fix := buildSvelteKitFixture(root)
-	got := extractLowestFare(json.RawMessage(fix), fareModeAward, "", 0) // nonstop only
+	got := extractLowestFare(json.RawMessage(fix), fareModeAward, "", 0, 0) // nonstop only
 	if got.Miles == nil {
 		t.Fatalf("expected miles, got nil")
 	}
@@ -149,7 +149,7 @@ func TestExtractLowestFare_Award_CabinFilter(t *testing.T) {
 		},
 	}
 	fix := buildSvelteKitFixture(root)
-	got := extractLowestFare(json.RawMessage(fix), fareModeAward, "business", -1)
+	got := extractLowestFare(json.RawMessage(fix), fareModeAward, "business", -1, 0)
 	if got.Miles == nil {
 		t.Fatalf("expected miles, got nil")
 	}
@@ -179,7 +179,7 @@ func TestExtractLowestFare_Cash_FindsLowest(t *testing.T) {
 		},
 	}
 	fix := buildSvelteKitFixture(root)
-	got := extractLowestFare(json.RawMessage(fix), fareModeCash, "economy", -1)
+	got := extractLowestFare(json.RawMessage(fix), fareModeCash, "economy", -1, 0)
 	// Economy filter accepts MAIN and SAVER. Lowest is SAVER on row 0 = 1626.23.
 	if got.Miles != nil {
 		t.Errorf("cash mode should return nil Miles, got %v", got.Miles)
@@ -201,7 +201,7 @@ func TestExtractLowestFare_Cash_NonstopOnly(t *testing.T) {
 		},
 	}
 	fix := buildSvelteKitFixture(root)
-	got := extractLowestFare(json.RawMessage(fix), fareModeCash, "economy", 0)
+	got := extractLowestFare(json.RawMessage(fix), fareModeCash, "economy", 0, 0)
 	if got.CashUSD != 1766.23 {
 		t.Errorf("nonstop cash = %v; want 1766.23 (the cheaper 900 has 1 stop)", got.CashUSD)
 	}
@@ -221,7 +221,7 @@ func TestExtractLowestFare_Cash_SkipsAwardRows(t *testing.T) {
 		},
 	}
 	fix := buildSvelteKitFixture(root)
-	got := extractLowestFare(json.RawMessage(fix), fareModeCash, "", -1)
+	got := extractLowestFare(json.RawMessage(fix), fareModeCash, "", -1, 0)
 	if got.CashUSD != 0 {
 		t.Errorf("cash mode against award-only data should yield 0; got %v", got.CashUSD)
 	}
@@ -236,14 +236,51 @@ func TestExtractLowestFare_Carrier_FromFirstSegment(t *testing.T) {
 		},
 	}
 	fix := buildSvelteKitFixture(root)
-	got := extractLowestFare(json.RawMessage(fix), fareModeAward, "", -1)
+	got := extractLowestFare(json.RawMessage(fix), fareModeAward, "", -1, 0)
 	if got.Carrier != "AS" {
 		t.Errorf("Carrier = %q; want AS", got.Carrier)
 	}
 }
 
+func TestExtractLowestFare_Award_RankingByMilesOnly(t *testing.T) {
+	// Two options: 25k+$500 (low miles, high taxes) and 30k+$5 (more
+	// miles, lower taxes). With rankingCPP=0, the legacy "minimum
+	// miles" ranking picks 25k. award-cheapest needs this behavior.
+	root := map[string]any{
+		"rows": []any{
+			makeRow(segments("AS"), map[string]any{
+				"REFUNDABLE_MAIN":  map[string]any{"atmosPoints": float64(25000), "grandTotal": float64(500)},
+				"REFUNDABLE_SAVER": map[string]any{"atmosPoints": float64(30000), "grandTotal": float64(5)},
+			}),
+		},
+	}
+	got := extractLowestFare(json.RawMessage(buildSvelteKitFixture(root)), fareModeAward, "", -1, 0)
+	if got.Miles == nil || *got.Miles != 25000 {
+		t.Errorf("with rankingCPP=0, want 25000-mile option; got %+v", got)
+	}
+}
+
+func TestExtractLowestFare_Award_RankingByTotalCost(t *testing.T) {
+	// Same options, but rankingCPP=1.4 means the 30k+$5 option's
+	// total ($420 + $5 = $425) is dramatically cheaper than the
+	// 25k+$500 option ($350 + $500 = $850). value-compare needs this
+	// behavior so the comparison reflects the best real redemption.
+	root := map[string]any{
+		"rows": []any{
+			makeRow(segments("AS"), map[string]any{
+				"REFUNDABLE_MAIN":  map[string]any{"atmosPoints": float64(25000), "grandTotal": float64(500)},
+				"REFUNDABLE_SAVER": map[string]any{"atmosPoints": float64(30000), "grandTotal": float64(5)},
+			}),
+		},
+	}
+	got := extractLowestFare(json.RawMessage(buildSvelteKitFixture(root)), fareModeAward, "", -1, 1.4)
+	if got.Miles == nil || *got.Miles != 30000 {
+		t.Errorf("with rankingCPP=1.4, want 30000-mile option (lower total cost); got %+v", got)
+	}
+}
+
 func TestExtractLowestFare_Empty(t *testing.T) {
-	got := extractLowestFare(json.RawMessage(`{}`), fareModeAward, "", -1)
+	got := extractLowestFare(json.RawMessage(`{}`), fareModeAward, "", -1, 0)
 	if got.Miles != nil || got.CashUSD != 0 {
 		t.Errorf("empty response should yield zero-value fare; got %+v", got)
 	}

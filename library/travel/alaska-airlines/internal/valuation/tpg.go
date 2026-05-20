@@ -71,7 +71,10 @@ func FetchTPGValuation(ctx context.Context, def ProgramDef) (float64, error) {
 	}
 	defer resp.Body.Close()
 
-	body, readErr := io.ReadAll(resp.Body)
+	// Cap the body read at 2 MiB. The TPG monthly-valuations page is
+	// well under 1 MiB today, but a CDN redirect or a runaway page
+	// shouldn't be able to OOM the CLI.
+	body, readErr := io.ReadAll(io.LimitReader(resp.Body, 2<<20))
 	if readErr != nil {
 		return 0, fmt.Errorf("%w: read body: %v", ErrTPGFetch, readErr)
 	}
