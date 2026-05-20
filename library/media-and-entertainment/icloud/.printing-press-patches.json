@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-17",
+  "base_run_id": "hand-written",
+  "base_printing_press_version": "0.1.3",
+  "patches": [
+    {
+      "id": "macos-only-guard",
+      "summary": "photos_db.go returns a structured configErr when GOOS != darwin.",
+      "reason": "iCloud Photos.sqlite lives only on macOS; running on Linux/Windows should fail fast with a clear message rather than a confusing 'file not found' error.",
+      "files": ["internal/cli/photos_db.go"]
+    },
+    {
+      "id": "applescript-delete",
+      "summary": "photos_delete.go drives Photos.app via osascript to move items to Recently Deleted.",
+      "reason": "There is no public iCloud API or CLI for deletion. AppleScript is the only supported path that preserves the 30-day recovery window and keeps iCloud sync intact.",
+      "files": ["internal/cli/photos_delete.go"]
+    },
+    {
+      "id": "doctor-sectioned-output",
+      "summary": "doctor.go emits System / Library / Assets sections with colored pass/fail checks.",
+      "reason": "Agents need to verify macOS, Photos.app, library path, schema, and asset count before running any query. A structured pre-flight keeps error surfaces small.",
+      "files": ["internal/cli/doctor.go"]
+    }
+  ]
+}

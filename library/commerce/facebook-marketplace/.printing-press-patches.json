@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-18",
+  "base_run_id": "20260518-135804",
+  "base_printing_press_version": "4.6.1",
+  "patches": [
+    {
+      "id": "mcpb-cookie-user-config",
+      "summary": "Add the cookie auth env var to the MCPB user configuration.",
+      "reason": "The manifest declared only debug and OS-path settings, so the MCPB manifest verifier rejected the package even though the CLI requires FACEBOOK_MARKET_COOKIES for browser-session auth.",
+      "files": [
+        "manifest.json"
+      ],
+      "validated_outcome": "python3 .github/scripts/verify-manifest/verify_manifest.py passed across the library."
+    },
+    {
+      "id": "greptile-review-readiness",
+      "summary": "Resolve review findings in auth probing, local state paths, title casing, browser-session proof validation, and watch matching.",
+      "reason": "Greptile flagged a macOS-only state path, fragile SQL construction, deprecated title casing, duplicated browser-session proof parsing, stubbed LLM relevance labeling, zero-price min-filter behavior, and the matches --new lifecycle before publish readiness.",
+      "files": [
+        "internal/cli/auth.go",
+        "internal/cli/doctor.go",
+        "internal/cli/draft.go",
+        "internal/cli/local_store.go",
+        "internal/cli/local_store_test.go",
+        "internal/cli/matches.go",
+        "internal/cli/safety.go",
+        "internal/cli/watch.go"
+      ],
+      "validated_outcome": "go fmt ./..., go test ./..., go vet ./..., go build ./..., and printing-press publish validate all passed."
+    },
+    {
+      "id": "seller-write-positioning",
+      "summary": "Replace read-mostly positioning with write-gated seller workflow wording.",
+      "reason": "The package supports write-gated listing creation, photo upload, and seller replies, so the prior read-mostly headline understated the publish/sell workflow.",
+      "files": [
+        ".printing-press.json",
+        "README.md",
+        "SKILL.md",
+        "manifest.json",
+        "spec.yaml",
+        ".manuscripts/20260518-135804/research.json",
+        ".manuscripts/20260518-135804/research/facebook-market-augmented-spec.yaml",
+        "internal/cli/agent_context.go",
+        "internal/cli/root.go",
+        "internal/mcp/tools.go"
+      ],
+      "validated_outcome": "gofmt on touched Go files, go test ./..., verify_manifest.py, and verify_publish_package.py passed."
+    },
+    {
+      "id": "greptile-write-gate-cache-hardening",
+      "summary": "Tighten write-gate API status matching and restrict HTTP cache permissions.",
+      "reason": "Greptile flagged that an unreachable API status contained the reachable substring and that cached Marketplace responses were world-readable on multi-user systems.",
+      "files": [
+        "internal/cli/safety.go",
+        "internal/cli/safety_test.go",
+        "internal/client/client.go",
+        "internal/client/client_test.go"
+      ],
+      "validated_outcome": "gofmt on touched Go files, go test ./..., go vet ./..., go build ./..., verify_manifest.py, and verify_publish_package.py passed."
+    },
+    {
+      "id": "greptile-watch-run-new-count",
+      "summary": "Report only newly inserted watch matches from watch run.",
+      "reason": "Greptile flagged that INSERT OR IGNORE skipped duplicates while the JSON matches count still incremented unconditionally.",
+      "files": [
+        "internal/cli/watch.go",
+        "internal/cli/watch_test.go"
+      ],
+      "validated_outcome": "gofmt on touched Go files, go test ./..., go vet ./..., go build ./..., verify_manifest.py, and verify_publish_package.py passed."
+    },
+    {
+      "id": "greptile-empty-result-arrays",
+      "summary": "Emit empty JSON arrays for empty watches, matches, and stale listing result sets.",
+      "reason": "Greptile flagged that nil slices encode as JSON null, which breaks agent and script consumers that expect iterable arrays.",
+      "files": [
+        "internal/cli/matches.go",
+        "internal/cli/stale.go",
+        "internal/cli/watch.go"
+      ],
+      "validated_outcome": "gofmt on touched Go files, go test ./..., go vet ./..., and go build ./... passed."
+    }
+  ]
+}

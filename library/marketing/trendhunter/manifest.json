@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "trendhunter-pp-mcp",
+  "display_name": "Trend Hunter",
+  "version": "4.5.1",
+  "description": "Search, sync, and explore TrendHunter trends from the terminal - offline FTS, agent-native JSON, FAQ Q&A extraction, no API key.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/trendhunter-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/trendhunter-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

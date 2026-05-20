@@ -67,11 +67,11 @@ func TestFormatDescription(t *testing.T) {
 
 func TestRegistryDescription(t *testing.T) {
 	cases := []struct {
-		name          string
-		prior         string
-		goreleaser    string
-		ppDescription string
-		want          string
+		name           string
+		prior          string
+		goreleaser     string
+		ppDescription  string
+		want           string
 	}{
 		{
 			name:          "curated copy wins over both fallbacks",

@@ -1,0 +1,262 @@
+{
+  "timestamp": "2026-05-18T17:03:10.266503Z",
+  "cli_dir": "\u003ccli-dir\u003e/nylas",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "admin",
+      "file": "admin.go",
+      "line": 11,
+      "evidence": "Manage admin",
+      "status": "accepted",
+      "note": "Hidden parent grouper 'admin' in DO-NOT-EDIT generated file; not registered as MCP tool (not in tools-manifest.json) so no agent UX impact; needs generator-template fix for richer parent Short text."
+    },
+    {
+      "kind": "thin-short",
+      "command": "channels",
+      "file": "channels.go",
+      "line": 11,
+      "evidence": "Manage channels",
+      "status": "accepted",
+      "note": "Hidden parent grouper 'channels' in DO-NOT-EDIT generated file; not registered as MCP tool (not in tools-manifest.json) so no agent UX impact; needs generator-template fix for richer parent Short text."
+    },
+    {
+      "kind": "thin-short",
+      "command": "connect",
+      "file": "connect.go",
+      "line": 11,
+      "evidence": "Manage connect",
+      "status": "accepted",
+      "note": "Hidden parent grouper 'connect' in DO-NOT-EDIT generated file; not registered as MCP tool (not in tools-manifest.json) so no agent UX impact; needs generator-template fix for richer parent Short text."
+    },
+    {
+      "kind": "thin-short",
+      "command": "connectors",
+      "file": "connectors.go",
+      "line": 11,
+      "evidence": "Manage connectors",
+      "status": "accepted",
+      "note": "Hidden parent grouper 'connectors' in DO-NOT-EDIT generated file; not registered as MCP tool (not in tools-manifest.json) so no agent UX impact; needs generator-template fix for richer parent Short text."
+    },
+    {
+      "kind": "thin-short",
+      "command": "creds",
+      "file": "connectors_creds.go",
+      "line": 11,
+      "evidence": "Manage creds",
+      "status": "accepted",
+      "note": "Hidden parent grouper 'creds' in DO-NOT-EDIT generated file; not registered as MCP tool (not in tools-manifest.json) so no agent UX impact; needs generator-template fix for richer parent Short text."
+    },
+    {
+      "kind": "thin-short",
+      "command": "domains",
+      "file": "domains.go",
+      "line": 11,
+      "evidence": "Manage domains",
+      "status": "accepted",
+      "note": "Hidden parent grouper 'domains' in DO-NOT-EDIT generated file; not registered as MCP tool (not in tools-manifest.json) so no agent UX impact; needs generator-template fix for richer parent Short text."
+    },
+    {
+      "kind": "thin-short",
+      "command": "grants",
+      "file": "grants.go",
+      "line": 11,
+      "evidence": "Manage grants",
+      "status": "accepted",
+      "note": "Hidden parent grouper 'grants' in DO-NOT-EDIT generated file; not registered as MCP tool (not in tools-manifest.json) so no agent UX impact; needs generator-template fix for richer parent Short text."
+    },
+    {
+      "kind": "thin-short",
+      "command": "attachment-uploads",
+      "file": "grants_attachment-uploads.go",
+      "line": 11,
+      "evidence": "Manage attachment uploads",
+      "status": "accepted",
+      "note": "Hidden parent grouper 'attachment-uploads' in DO-NOT-EDIT generated file; not registered as MCP tool (not in tools-manifest.json) so no agent UX impact; needs generator-template fix for richer parent Short text."
+    },
+    {
+      "kind": "thin-short",
+      "command": "consolidated-order",
+      "file": "grants_consolidated-order.go",
+      "line": 11,
+      "evidence": "Manage consolidated order",
+      "status": "accepted",
+      "note": "Hidden parent grouper 'consolidated-order' in DO-NOT-EDIT generated file; not registered as MCP tool (not in tools-manifest.json) so no agent UX impact; needs generator-template fix for richer parent Short text."
+    },
+    {
+      "kind": "thin-short",
+      "command": "consolidated-return",
+      "file": "grants_consolidated-return.go",
+      "line": 11,
+      "evidence": "Manage consolidated return",
+      "status": "accepted",
+      "note": "Hidden parent grouper 'consolidated-return' in DO-NOT-EDIT generated file; not registered as MCP tool (not in tools-manifest.json) so no agent UX impact; needs generator-template fix for richer parent Short text."
+    },
+    {
+      "kind": "thin-short",
+      "command": "consolidated-shipment",
+      "file": "grants_consolidated-shipment.go",
+      "line": 11,
+      "evidence": "Manage consolidated shipment",
+      "status": "accepted",
+      "note": "Hidden parent grouper 'consolidated-shipment' in DO-NOT-EDIT generated file; not registered as MCP tool (not in tools-manifest.json) so no agent UX impact; needs generator-template fix for richer parent Short text."
+    },
+    {
+      "kind": "thin-short",
+      "command": "resources",
+      "file": "grants_resources.go",
+      "line": 11,
+      "evidence": "Manage resources",
+      "status": "accepted",
+      "note": "Hidden parent grouper 'resources' in DO-NOT-EDIT generated file; not registered as MCP tool (not in tools-manifest.json) so no agent UX impact; needs generator-template fix for richer parent Short text."
+    },
+    {
+      "kind": "thin-short",
+      "command": "rule-evaluations",
+      "file": "grants_rule-evaluations.go",
+      "line": 11,
+      "evidence": "Manage rule evaluations",
+      "status": "accepted",
+      "note": "Hidden parent grouper 'rule-evaluations' in DO-NOT-EDIT generated file; not registered as MCP tool (not in tools-manifest.json) so no agent UX impact; needs generator-template fix for richer parent Short text."
+    },
+    {
+      "kind": "thin-short",
+      "command": "scheduling",
+      "file": "grants_scheduling.go",
+      "line": 11,
+      "evidence": "Manage scheduling",
+      "status": "accepted",
+      "note": "Hidden parent grouper 'scheduling' in DO-NOT-EDIT generated file; not registered as MCP tool (not in tools-manifest.json) so no agent UX impact; needs generator-template fix for richer parent Short text."
+    },
+    {
+      "kind": "thin-short",
+      "command": "templates",
+      "file": "grants_templates.go",
+      "line": 11,
+      "evidence": "Manage templates",
+      "status": "accepted",
+      "note": "Hidden parent grouper 'templates' in DO-NOT-EDIT generated file; not registered as MCP tool (not in tools-manifest.json) so no agent UX impact; needs generator-template fix for richer parent Short text."
+    },
+    {
+      "kind": "thin-short",
+      "command": "workflows",
+      "file": "grants_workflows.go",
+      "line": 11,
+      "evidence": "Manage workflows",
+      "status": "accepted",
+      "note": "Hidden parent grouper 'workflows' in DO-NOT-EDIT generated file; not registered as MCP tool (not in tools-manifest.json) so no agent UX impact; needs generator-template fix for richer parent Short text."
+    },
+    {
+      "kind": "thin-short",
+      "command": "items",
+      "file": "lists_items.go",
+      "line": 11,
+      "evidence": "Manage items",
+      "status": "accepted",
+      "note": "Hidden parent grouper 'items' in DO-NOT-EDIT generated file; not registered as MCP tool (not in tools-manifest.json) so no agent UX impact; needs generator-template fix for richer parent Short text."
+    },
+    {
+      "kind": "thin-short",
+      "command": "migration-tools",
+      "file": "migration-tools.go",
+      "line": 11,
+      "evidence": "Manage migration tools",
+      "status": "accepted",
+      "note": "Hidden parent grouper 'migration-tools' in DO-NOT-EDIT generated file; not registered as MCP tool (not in tools-manifest.json) so no agent UX impact; needs generator-template fix for richer parent Short text."
+    },
+    {
+      "kind": "thin-short",
+      "command": "cancel",
+      "file": "notetakers_cancel.go",
+      "line": 11,
+      "evidence": "Manage cancel",
+      "status": "accepted",
+      "note": "Hidden parent grouper 'cancel' in DO-NOT-EDIT generated file; not registered as MCP tool (not in tools-manifest.json) so no agent UX impact; needs generator-template fix for richer parent Short text."
+    },
+    {
+      "kind": "thin-short",
+      "command": "history",
+      "file": "notetakers_history.go",
+      "line": 11,
+      "evidence": "Manage history",
+      "status": "accepted",
+      "note": "Hidden parent grouper 'history' in DO-NOT-EDIT generated file; not registered as MCP tool (not in tools-manifest.json) so no agent UX impact; needs generator-template fix for richer parent Short text."
+    },
+    {
+      "kind": "thin-short",
+      "command": "leave",
+      "file": "notetakers_leave.go",
+      "line": 11,
+      "evidence": "Manage leave",
+      "status": "accepted",
+      "note": "Hidden parent grouper 'leave' in DO-NOT-EDIT generated file; not registered as MCP tool (not in tools-manifest.json) so no agent UX impact; needs generator-template fix for richer parent Short text."
+    },
+    {
+      "kind": "thin-short",
+      "command": "media",
+      "file": "notetakers_media.go",
+      "line": 11,
+      "evidence": "Manage media",
+      "status": "accepted",
+      "note": "Hidden parent grouper 'media' in DO-NOT-EDIT generated file; not registered as MCP tool (not in tools-manifest.json) so no agent UX impact; needs generator-template fix for richer parent Short text."
+    },
+    {
+      "kind": "thin-short",
+      "command": "scheduling",
+      "file": "scheduling.go",
+      "line": 11,
+      "evidence": "Manage scheduling",
+      "status": "accepted",
+      "note": "Hidden parent grouper 'scheduling' in DO-NOT-EDIT generated file; not registered as MCP tool (not in tools-manifest.json) so no agent UX impact; needs generator-template fix for richer parent Short text."
+    },
+    {
+      "kind": "thin-short",
+      "command": "templates",
+      "file": "templates.go",
+      "line": 11,
+      "evidence": "Manage templates",
+      "status": "accepted",
+      "note": "Hidden parent grouper 'templates' in DO-NOT-EDIT generated file; not registered as MCP tool (not in tools-manifest.json) so no agent UX impact; needs generator-template fix for richer parent Short text."
+    },
+    {
+      "kind": "thin-short",
+      "command": "render",
+      "file": "templates_render.go",
+      "line": 11,
+      "evidence": "Manage render",
+      "status": "accepted",
+      "note": "Hidden parent grouper 'render' in DO-NOT-EDIT generated file; not registered as MCP tool (not in tools-manifest.json) so no agent UX impact; needs generator-template fix for richer parent Short text."
+    },
+    {
+      "kind": "thin-short",
+      "command": "webhooks",
+      "file": "webhooks.go",
+      "line": 11,
+      "evidence": "Manage webhooks",
+      "status": "accepted",
+      "note": "Hidden parent grouper 'webhooks' in DO-NOT-EDIT generated file; not registered as MCP tool (not in tools-manifest.json) so no agent UX impact; needs generator-template fix for richer parent Short text."
+    },
+    {
+      "kind": "thin-short",
+      "command": "workflows",
+      "file": "workflows.go",
+      "line": 11,
+      "evidence": "Manage workflows",
+      "status": "accepted",
+      "note": "Hidden parent grouper 'workflows' in DO-NOT-EDIT generated file; not registered as MCP tool (not in tools-manifest.json) so no agent UX impact; needs generator-template fix for richer parent Short text."
+    },
+    {
+      "kind": "thin-short",
+      "command": "manual-assign",
+      "file": "workspaces_manual-assign.go",
+      "line": 11,
+      "evidence": "Manage manual assign",
+      "status": "accepted",
+      "note": "Hidden parent grouper 'manual-assign' in DO-NOT-EDIT generated file; not registered as MCP tool (not in tools-manifest.json) so no agent UX impact; needs generator-template fix for richer parent Short text."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 9,
+    "captured": "0001-01-01T00:00:00Z"
+  }
+}

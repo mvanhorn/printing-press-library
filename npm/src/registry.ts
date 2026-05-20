@@ -27,7 +27,23 @@ export interface Registry {
 
 type RegistryFetch = (url: string, init?: RequestInit) => Promise<Response>;
 
-export function parseRegistry(value: unknown): Registry {
+/**
+ * Parse a raw registry payload into a typed Registry.
+ *
+ * Per-entry validation errors are surfaced as warnings to `warn` (defaulting to
+ * stderr) and the offending entry is skipped. The remainder of the registry is
+ * returned intact. This is the defense-in-depth that paired with the library-side
+ * `--validate` gate keeps a single malformed upstream entry from breaking every
+ * installer call (the original lawhub failure mode).
+ *
+ * Registry-level shape failures (non-object payload, unsupported schema_version,
+ * non-array entries) still throw because they signal a wrong-protocol payload
+ * the installer cannot recover from.
+ */
+export function parseRegistry(
+  value: unknown,
+  warn: (message: string) => void = defaultWarn,
+): Registry {
   if (!isRecord(value)) {
     throw new Error("registry payload must be an object");
   }
@@ -38,10 +54,37 @@ export function parseRegistry(value: unknown): Registry {
     throw new Error("registry entries must be an array");
   }
 
+  const entries: RegistryEntry[] = [];
+  let skipped = 0;
+  for (let i = 0; i < value.entries.length; i++) {
+    const raw = value.entries[i];
+    try {
+      entries.push(parseRegistryEntry(raw));
+    } catch (error) {
+      const name =
+        isRecord(raw) && typeof raw.name === "string" && raw.name.trim() !== ""
+          ? raw.name
+          : `(unnamed at index ${i})`;
+      const message = error instanceof Error ? error.message : String(error);
+      warn(`[printing-press] skipping malformed registry entry: ${name}: ${message}`);
+      skipped++;
+    }
+  }
+  if (skipped > 0) {
+    const word = skipped === 1 ? "entry" : "entries";
+    warn(
+      `[printing-press] skipped ${skipped} malformed registry ${word}; install/search may be missing items.`,
+    );
+  }
+
   return {
     schema_version: 2,
-    entries: value.entries.map(parseRegistryEntry),
+    entries,
   };
+}
+
+function defaultWarn(message: string): void {
+  process.stderr.write(message + "\n");
 }
 
 export async function fetchRegistry(

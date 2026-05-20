@@ -110,6 +110,29 @@
       }
     },
     {
+      "name": "amazon-orders",
+      "category": "commerce",
+      "api": "Amazon Orders",
+      "description": "Walk your Amazon order history offline — every order, item, shipment, and dollar in a local SQLite store no other...",
+      "path": "library/commerce/amazon-orders",
+      "printer": "bwishan",
+      "printer_name": "Brian Wishan",
+      "mcp": {
+        "binary": "amazon-orders-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 6,
+        "public_tool_count": 0,
+        "auth_type": "cookie",
+        "env_vars": [
+          "AMAZON_COOKIES"
+        ],
+        "mcp_ready": "partial",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "amazon-seller",
       "category": "commerce",
       "api": "Amazon Seller",
@@ -130,6 +153,52 @@
           "SP_API_LWA_CLIENT_ID",
           "SP_API_LWA_CLIENT_SECRET",
           "SP_API_REFRESH_TOKEN"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
+      "name": "american-reindustrialization",
+      "category": "other",
+      "api": "American Reindustrialization",
+      "description": "Browse, slice, and analyze the curated American Reindustrialization directory — with diffs, geo clusters, sector...",
+      "path": "library/other/american-reindustrialization",
+      "printer": "tmchow",
+      "printer_name": "Trevin Chow",
+      "mcp": {
+        "binary": "american-reindustrialization-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 18,
+        "public_tool_count": 18,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
+      "name": "anylist",
+      "category": "food-and-dining",
+      "api": "AnyList",
+      "description": "Every AnyList feature in your terminal — plus offline search, store routing, and cron-safe automations no mobile...",
+      "path": "library/food-and-dining/anylist",
+      "printer": "jeeves",
+      "printer_name": "Jeeves",
+      "mcp": {
+        "binary": "anylist-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 43,
+        "public_tool_count": 0,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "ANYLIST_ACCESS_TOKEN"
         ],
         "mcp_ready": "full",
         "spec_format": "internal"
@@ -239,6 +308,30 @@
         ],
         "mcp_ready": "full",
         "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "bird",
+      "category": "social-and-messaging",
+      "api": "Bird",
+      "description": "A terminal-native CLI for Bird's Conversations and SMS APIs, with offline search, batch reconcile, and a local...",
+      "path": "library/social-and-messaging/bird",
+      "printer": "CleverAI-ZH",
+      "printer_name": "Stephan Stoeber",
+      "mcp": {
+        "binary": "bird-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 42,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "BIRD_API_KEY"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
       }
     },
     {
@@ -374,6 +467,30 @@
         "env_vars": [],
         "mcp_ready": "full",
         "spec_format": "internal"
+      }
+    },
+    {
+      "name": "conduyt-crm",
+      "category": "sales-and-crm",
+      "api": "conduyt-crm",
+      "description": "The Conduyt CRM API provides programmatic access to your CRM data including contacts, companies, deals, pipelines,...",
+      "path": "library/sales-and-crm/conduyt-crm",
+      "printer": "ptaramona",
+      "printer_name": "Conduyt",
+      "mcp": {
+        "binary": "conduyt-crm-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 0,
+        "public_tool_count": 0,
+        "auth_type": "bearer",
+        "env_vars": [
+          "CONDUYT_CRM_TOKEN"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
       }
     },
     {
@@ -559,6 +676,31 @@
       }
     },
     {
+      "name": "dreo",
+      "category": "devices",
+      "api": "Dreo",
+      "description": "The only standalone CLI for Dreo smart-home devices — bulk control, live sensor streams, and a local history every...",
+      "path": "library/devices/dreo",
+      "printer": "tmchow",
+      "printer_name": "Trevin Chow",
+      "mcp": {
+        "binary": "dreo-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 5,
+        "public_tool_count": 0,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "DREO_USERNAME",
+          "DREO_PASSWORD"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "dub",
       "category": "marketing",
       "api": "Dub",
@@ -676,6 +818,72 @@
         "auth_type": "none",
         "env_vars": [],
         "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
+      "name": "etherpad",
+      "category": "productivity",
+      "api": "Etherpad",
+      "description": "Etherpad is a real-time collaborative editor scalable to thousands of simultaneous real time users. It provides full...",
+      "path": "library/productivity/etherpad",
+      "printer": "JohnMcLear",
+      "printer_name": "John McLear",
+      "mcp": {
+        "binary": "etherpad-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 50,
+        "public_tool_count": 0,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "ETHERPAD_OPENID"
+        ],
+        "mcp_ready": "full"
+      }
+    },
+    {
+      "name": "eu-tenders",
+      "category": "sales-and-crm",
+      "api": "EU Tenders",
+      "description": "The entire EU public procurement corpus — €815B/year — searchable offline, with B2B lead generation for...",
+      "path": "library/sales-and-crm/eu-tenders",
+      "printer": "m91michel",
+      "printer_name": "Mathias Michel",
+      "mcp": {
+        "binary": "eu-tenders-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 1,
+        "public_tool_count": 1,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "facebook-marketplace",
+      "category": "commerce",
+      "api": "Facebook Marketplace",
+      "description": "A read-mostly Marketplace CLI with local watches, seller workflow helpers, and explicit write checkpoints.",
+      "path": "library/commerce/facebook-marketplace",
+      "printer": "cathrynlavery",
+      "printer_name": "Cathryn Lavery",
+      "mcp": {
+        "binary": "facebook-marketplace-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 16,
+        "public_tool_count": 0,
+        "auth_type": "cookie",
+        "env_vars": [
+          "FACEBOOK_MARKET_COOKIES"
+        ],
+        "mcp_ready": "partial",
         "spec_format": "internal"
       }
     },
@@ -1057,6 +1265,15 @@
       }
     },
     {
+      "name": "icloud",
+      "category": "media-and-entertainment",
+      "api": "iCloud",
+      "description": "Query iCloud data stored locally on macOS — Photos library storage analysis, with Contacts and more coming. All reads hit local SQLite databases directly; no network calls or iCloud API token required.",
+      "path": "library/media-and-entertainment/icloud",
+      "printer": "matysanchez",
+      "printer_name": "Matias Sanchez Moises"
+    },
+    {
       "name": "instacart",
       "category": "commerce",
       "api": "Instacart",
@@ -1120,6 +1337,29 @@
       }
     },
     {
+      "name": "kit",
+      "category": "marketing",
+      "api": "Kit",
+      "description": "Printing Press CLI for Kit.",
+      "path": "library/marketing/kit",
+      "printer": "cathrynlavery",
+      "printer_name": "Cathryn Lavery",
+      "mcp": {
+        "binary": "kit-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 72,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "KIT_API_KEY"
+        ],
+        "mcp_ready": "full"
+      }
+    },
+    {
       "name": "klaviyo",
       "category": "marketing",
       "api": "Klaviyo",
@@ -1146,7 +1386,7 @@
       "name": "lawhub",
       "category": "education",
       "api": "LawHub",
-      "description": "",
+      "description": "Local-first LSAT practice analytics from authenticated LawHub score metadata, with SQLite, weakness reports, question notes, and safe review links back to LawHub.",
       "path": "library/education/lawhub",
       "printer": "nolan",
       "printer_name": "Nolan McCafferty"
@@ -1162,7 +1402,8 @@
       "mcp": {
         "binary": "linear-pp-mcp",
         "transports": [
-          "stdio"
+          "stdio",
+          "http"
         ],
         "tool_count": 28,
         "public_tool_count": 0,
@@ -1357,6 +1598,28 @@
       }
     },
     {
+      "name": "nasa-images",
+      "category": "media-and-entertainment",
+      "api": "NASA Image and Video Library",
+      "description": "Every NASA Image and Video Library endpoint, plus a local SQLite mirror, FTS search, resumable bulk download,...",
+      "path": "library/media-and-entertainment/nasa-images",
+      "printer": "tmchow",
+      "printer_name": "Trevin Chow",
+      "mcp": {
+        "binary": "nasa-images-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 5,
+        "public_tool_count": 5,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "notion",
       "category": "productivity",
       "api": "Notion",
@@ -1428,6 +1691,30 @@
         "public_tool_count": 2,
         "auth_type": "none",
         "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "nylas",
+      "category": "productivity",
+      "api": "Nylas",
+      "description": "Every Nylas API, plus a local SQLite mirror, cross-grant search, and confirm-by-hash sending no other Nylas tool has.",
+      "path": "library/productivity/nylas",
+      "printer": "natekettles",
+      "printer_name": "Nathan Kettles",
+      "mcp": {
+        "binary": "nylas-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 211,
+        "public_tool_count": 1,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "NYLAS_API_KEY"
+        ],
         "mcp_ready": "full",
         "spec_format": "openapi3"
       }
@@ -1746,6 +2033,53 @@
       }
     },
     {
+      "name": "pop",
+      "category": "payments",
+      "api": "POP",
+      "description": "POP API for European electronic invoicing workflows. This Printing Press blueprint intentionally exposes only the...",
+      "path": "library/payments/pop",
+      "printer": "mircobabini",
+      "printer_name": "Mirco Babini",
+      "mcp": {
+        "binary": "pop-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 8,
+        "public_tool_count": 0,
+        "auth_type": "api_key",
+        "env_vars": [
+          "POP_API_KEY"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
+      "name": "posthog",
+      "category": "developer-tools",
+      "api": "PostHog",
+      "description": "Every PostHog resource in one CLI — with offline search, agent-native output, and cross-resource analytics no...",
+      "path": "library/developer-tools/posthog",
+      "printer": "riteshtiwari",
+      "printer_name": "riteshtiwari",
+      "mcp": {
+        "binary": "posthog-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 2,
+        "public_tool_count": 2,
+        "auth_type": "api_key",
+        "env_vars": [
+          "POSTHOG_PERSONAL_APIKEY_AUTH"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
+      }
+    },
+    {
       "name": "postman-explore",
       "category": "developer-tools",
       "api": "Postman Explore",
@@ -1805,6 +2139,27 @@
         ],
         "tool_count": 26,
         "public_tool_count": 26,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
+      "name": "pvgis",
+      "category": "other",
+      "api": "Pvgis",
+      "description": "The free, single-binary PVGIS CLI — JRC solar-radiation and PV-yield estimates with offline cache, multi-site...",
+      "path": "library/other/pvgis",
+      "printer": "robertobissanti",
+      "printer_name": "Roberto Bissanti",
+      "mcp": {
+        "binary": "pvgis-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 5,
+        "public_tool_count": 5,
         "auth_type": "none",
         "env_vars": [],
         "mcp_ready": "full",
@@ -2013,6 +2368,30 @@
         ],
         "mcp_ready": "full",
         "spec_format": "internal"
+      }
+    },
+    {
+      "name": "sendgrid",
+      "category": "productivity",
+      "api": "Twilio Sendgrid",
+      "description": "Every Twilio SendGrid endpoint, plus offline suppression diffs, stats time-series rollups, and a template-variable...",
+      "path": "library/productivity/sendgrid",
+      "printer": "natekettles",
+      "printer_name": "Nathan Kettles",
+      "mcp": {
+        "binary": "sendgrid-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 391,
+        "public_tool_count": 0,
+        "auth_type": "bearer_token",
+        "env_vars": [
+          "SENDGRID_API_KEY"
+        ],
+        "mcp_ready": "full",
+        "spec_format": "openapi3"
       }
     },
     {
@@ -2513,6 +2892,27 @@
       }
     },
     {
+      "name": "trendhunter",
+      "category": "marketing",
+      "api": "Trend Hunter",
+      "description": "Every Trend Hunter feature, plus a local SQLite corpus, FTS5 search, FAQ Q&A extraction, and agent-native JSON no...",
+      "path": "library/marketing/trendhunter",
+      "printer": "mvanhorn",
+      "printer_name": "Matt Van Horn",
+      "mcp": {
+        "binary": "trendhunter-pp-mcp",
+        "transports": [
+          "stdio"
+        ],
+        "tool_count": 9,
+        "public_tool_count": 9,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
       "name": "trigger-dev",
       "category": "developer-tools",
       "api": "Trigger.dev",
@@ -2596,6 +2996,28 @@
         ],
         "tool_count": 4,
         "public_tool_count": 4,
+        "auth_type": "none",
+        "env_vars": [],
+        "mcp_ready": "full",
+        "spec_format": "internal"
+      }
+    },
+    {
+      "name": "usgs-earthquakes",
+      "category": "other",
+      "api": "USGS Earthquakes",
+      "description": "Every USGS earthquake feed and event query in one terminal, with offline SQLite cache, agent-native output, and a...",
+      "path": "library/other/usgs-earthquakes",
+      "printer": "tmchow",
+      "printer_name": "Trevin Chow",
+      "mcp": {
+        "binary": "usgs-earthquakes-pp-mcp",
+        "transports": [
+          "stdio",
+          "http"
+        ],
+        "tool_count": 7,
+        "public_tool_count": 7,
         "auth_type": "none",
         "env_vars": [],
         "mcp_ready": "full",

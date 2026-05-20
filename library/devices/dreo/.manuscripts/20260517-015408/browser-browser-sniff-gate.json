@@ -1,0 +1,11 @@
+{
+  "run_id": "20260517-015408",
+  "sources": [
+    {
+      "source_name": "dreo",
+      "decision": "skip-silent",
+      "reason": "spec-complete: three independently reverse-engineered clients (hass-dreo, homebridge-dreo, dreo-team/pydreo-client) converge on the same endpoint inventory, request shapes, WebSocket protocol, and capability matrix. Phase 1 research read those source files directly; no endpoint gap remains that a browser-sniff would close.",
+      "asked_at": "2026-05-17T09:00:52Z"
+    }
+  ]
+}

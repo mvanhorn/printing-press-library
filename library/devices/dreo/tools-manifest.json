@@ -1,0 +1,108 @@
+{
+  "api_name": "dreo",
+  "base_url": "https://app-api-us.dreo-tech.com",
+  "description": "Standalone CLI for Dreo smart-home devices — bulk control, live sensor streams, and local history every other Dreo tool throws away.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "in": "header",
+    "env_vars": [
+      "DREO_USERNAME",
+      "DREO_PASSWORD"
+    ],
+    "env_var_specs": [
+      {
+        "name": "DREO_USERNAME",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      },
+      {
+        "name": "DREO_PASSWORD",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "devices_list",
+      "description": "List every Dreo device on your account. Returns array of Device.",
+      "method": "GET",
+      "path": "/api/v2/user-device/device/list",
+      "params": []
+    },
+    {
+      "name": "devices_state",
+      "description": "Read the current state snapshot for one device. Required: deviceSn. Returns the DeviceState.",
+      "method": "GET",
+      "path": "/api/user-device/device/state",
+      "params": [
+        {
+          "name": "deviceSn",
+          "type": "string",
+          "location": "query",
+          "description": "Device serial number (from `devices list`)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "firmware_check",
+      "description": "Check whether a firmware update is available for a device. Required: deviceSn. Returns the new FirmwareCheckResult.",
+      "method": "POST",
+      "path": "/api/upgrade/device/check",
+      "params": [
+        {
+          "name": "deviceSn",
+          "type": "string",
+          "location": "body",
+          "description": "Device serial number",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "settings_get",
+      "description": "Get persistent settings for a device. Required: deviceSn. Returns the DeviceSettings.",
+      "method": "GET",
+      "path": "/api/user-device/setting",
+      "params": [
+        {
+          "name": "deviceSn",
+          "type": "string",
+          "location": "query",
+          "description": "Device serial number",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "settings_update",
+      "description": "Update persistent settings for a device. Required: deviceSn. Optional: settings. Returns the updated DeviceSettings.",
+      "method": "PUT",
+      "path": "/api/user-device/setting",
+      "params": [
+        {
+          "name": "deviceSn",
+          "type": "string",
+          "location": "body",
+          "description": "Device serial number",
+          "required": true
+        },
+        {
+          "name": "settings",
+          "type": "object",
+          "location": "body",
+          "description": "Settings JSON blob to update (model-specific shape)"
+        }
+      ]
+    }
+  ]
+}
