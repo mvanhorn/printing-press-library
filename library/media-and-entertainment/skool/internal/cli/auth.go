@@ -610,7 +610,7 @@ var jwtPattern = regexp.MustCompile(`eyJ[A-Za-z0-9_-]{8,}\.eyJ[A-Za-z0-9_-]{8,}\
 // PATCH(amend-2026-05-20: paid-community-auth): clientIDPattern matches
 // the Skool client_id cookie value — a UUID-ish identifier emitted by
 // Skool's frontend tracker. Pattern is intentionally permissive (hex
-// chars, dashes, underscores) but length-bounded and ASCII-only so it
+// chars, dots, dashes, underscores) but length-bounded and ASCII-only so it
 // won't accept Chrome's raw encrypted_value bytes if pycookiecheat
 // returns the encrypted blob unchanged on macOS.
 var clientIDPattern = regexp.MustCompile(`^[A-Za-z0-9._-]{8,128}$`)
