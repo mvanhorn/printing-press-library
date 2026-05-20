@@ -40,12 +40,12 @@ func TestLoadRetagTransactionsFiltersHandledRows(t *testing.T) {
 	for _, tx := range txs {
 		got[tx.ID] = true
 	}
-	for _, id := range []int{101, 105} {
+	for _, id := range []int{101} {
 		if !got[id] {
 			t.Fatalf("loaded ids = %v, missing canonical id %d", got, id)
 		}
 	}
-	for _, id := range []int{102, 103, 104} {
+	for _, id := range []int{102, 103, 104, 105} {
 		if got[id] {
 			t.Fatalf("loaded ids = %v, want handled id %d filtered", got, id)
 		}

@@ -28,6 +28,21 @@ func TestIsUnreviewedForTriageOnlyUsesStatus(t *testing.T) {
 			tx:   localTransaction{Status: "cleared", CategoryID: ""},
 			want: false,
 		},
+		{
+			name: "unreviewed split parent stays out of triage",
+			tx:   localTransaction{Status: "unreviewed", IsSplitParent: true},
+			want: false,
+		},
+		{
+			name: "unreviewed group parent stays out of triage",
+			tx:   localTransaction{Status: "unreviewed", IsGroupParent: true},
+			want: false,
+		},
+		{
+			name: "unreviewed group child stays out of triage",
+			tx:   localTransaction{Status: "unreviewed", GroupParentID: "105"},
+			want: false,
+		},
 	}
 
 	for _, tc := range cases {

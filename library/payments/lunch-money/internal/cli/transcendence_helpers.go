@@ -149,7 +149,7 @@ func retagCountsTransaction(tx retagTransaction) bool {
 	if strings.EqualFold(tx.Status, "exclude") || strings.EqualFold(tx.Status, "excluded") {
 		return false
 	}
-	return tx.GroupParentID == "" && tx.SplitParentID == "" && !tx.IsSplitParent
+	return tx.GroupParentID == "" && tx.SplitParentID == "" && !tx.IsSplitParent && !tx.IsGroupParent
 }
 
 func selectRetagTransactions(txs []retagTransaction, ids, match string, start, end time.Time, limit int) ([]retagTransaction, error) {

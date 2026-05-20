@@ -111,10 +111,11 @@ func buildTriageResults(txs []localTransaction, categoryNames map[string]string,
 func isUnreviewedForTriage(tx localTransaction) bool {
 	// PATCH(triage-parent-tier): align with the other counts predicates
 	// (budget burn, subscription, duplicate, retag) by excluding split
-	// parents and group children. Without this gate a single split receipt
-	// shows up once per child row plus a duplicate for the parent total,
-	// polluting the inbox and skewing suggested-category confidence.
-	if tx.IsSplitParent || tx.GroupParentID != "" {
+	// parents, group parents, and group children. Without this gate a
+	// single split or group receipt shows up once per child row plus a
+	// duplicate for the parent total, polluting the inbox and skewing
+	// suggested-category confidence.
+	if tx.IsSplitParent || tx.IsGroupParent || tx.GroupParentID != "" {
 		return false
 	}
 	return strings.EqualFold(tx.Status, "unreviewed")
