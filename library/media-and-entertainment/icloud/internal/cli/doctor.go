@@ -40,6 +40,15 @@ database schema, and asset count.`,
 				}
 			}
 
+			// warn prints a yellow ⚠ without affecting allOK — used for optional
+			// features that are unavailable on this library but don't block core commands.
+			warn := func(label, hint string) {
+				fmt.Fprintf(out, "  %s %s\n", yellow(f, out, "⚠"), label)
+				if hint != "" {
+					fmt.Fprintf(out, "      %s\n", hint)
+				}
+			}
+
 			// ── System ────────────────────────────────────────────────
 			fmt.Fprintln(out, bold(f, out, "System"))
 
@@ -90,9 +99,18 @@ database schema, and asset count.`,
 			}
 			defer db.Close()
 
-			schemaOK := checkSchema(db)
-			check("Schema valid (ZASSET + ZADDITIONALASSETATTRIBUTES)",
+			schemaOK := checkCoreSchema(db)
+			check("Core schema valid (ZASSET + ZADDITIONALASSETATTRIBUTES)",
 				"Unexpected schema — may be an unsupported Photos version.", schemaOK)
+
+			// Optional: ML sensitivity column — only needed by photos download --sensitive.
+			// Absent on macOS 12 or earlier; does not block core commands.
+			if checkSensitiveColumn(db) {
+				fmt.Fprintf(out, "  %s %s\n", green(f, out, "✓"), "ML analysis column present (photos download --sensitive available)")
+			} else {
+				warn("ML analysis column absent — photos download --sensitive unavailable",
+					"Column ZSCREENTIMEDEVICEIMAGESENSITIVITY not found; requires macOS 13 or later.")
+			}
 
 			// ── Assets ────────────────────────────────────────────────
 			fmt.Fprintln(out)
@@ -148,8 +166,9 @@ func macOSVersion() string {
 	return strings.TrimSpace(string(b))
 }
 
-func checkSchema(db *sql.DB) bool {
-	for _, table := range []string{"ZASSET", "ZADDITIONALASSETATTRIBUTES", "ZMEDIAANALYSISASSETATTRIBUTES"} {
+// checkCoreSchema verifies the two tables required by every command.
+func checkCoreSchema(db *sql.DB) bool {
+	for _, table := range []string{"ZASSET", "ZADDITIONALASSETATTRIBUTES"} {
 		var name string
 		if err := db.QueryRow(
 			"SELECT name FROM sqlite_master WHERE type='table' AND name=?", table,
@@ -157,8 +176,19 @@ func checkSchema(db *sql.DB) bool {
 			return false
 		}
 	}
-	// Verify the nudity-detection column used by --sensitive exists in the ML table.
-	// Older Photos libraries have the table but may predate the column.
+	return true
+}
+
+// checkSensitiveColumn verifies that ZMEDIAANALYSISASSETATTRIBUTES exists and
+// contains the ZSCREENTIMEDEVICEIMAGESENSITIVITY column used by --sensitive.
+// This is optional: absent on macOS 12 or earlier; only blocks photos download --sensitive.
+func checkSensitiveColumn(db *sql.DB) bool {
+	var name string
+	if err := db.QueryRow(
+		"SELECT name FROM sqlite_master WHERE type='table' AND name='ZMEDIAANALYSISASSETATTRIBUTES'",
+	).Scan(&name); err != nil {
+		return false
+	}
 	var colCount int
 	if err := db.QueryRow(
 		"SELECT COUNT(*) FROM pragma_table_info('ZMEDIAANALYSISASSETATTRIBUTES') WHERE name='ZSCREENTIMEDEVICEIMAGESENSITIVITY'",
