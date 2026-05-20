@@ -93,9 +93,17 @@ jobs:
           # have since been relaxed and missing checks that have since
           # been added. It's also the right security default: fork PRs
           # shouldn't be able to ship their own modified verifier.
+          #
+          # tools/generate-registry is overlaid for the same reason: the
+          # "Validate registry source descriptions" step below runs it in
+          # --validate mode, so it is a verifier too. A PR branched before
+          # the --validate flag existed otherwise runs its own stale tool
+          # and dies with "flag provided but not defined: -validate"
+          # instead of a real validation message (or a pass).
           git checkout "${BASE_REMOTE_REF}" -- \
             .github/scripts/verify-attribution \
-            .github/scripts/verify-publish-package
+            .github/scripts/verify-publish-package \
+            tools/generate-registry
 
       - name: Fail on changes to generated artifacts
         if: github.event_name == 'pull_request'
@@ -225,6 +233,10 @@ jobs:
         # by walking up from the source file. The package-path form
         # (./tools/generate-registry) fails with "go.mod not found" from the
         # repo root. Matches the invocation in generate-registry.yml.
+        #
+        # The tool is overlaid from base in "Overlay verifier scripts from
+        # base" above, so this always runs the current validator even on a
+        # stale-base PR; only the library data being validated is the PR's.
         run: |
           set -euo pipefail
           go run ./tools/generate-registry/main.go --validate
