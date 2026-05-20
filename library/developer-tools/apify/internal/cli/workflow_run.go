@@ -132,6 +132,7 @@ type WorkflowResult struct {
 	StepResults []WorkflowStepResult   `json:"steps"`
 	DigestPath  string                 `json:"digest_path,omitempty"`
 	DigestBytes int                    `json:"digest_bytes,omitempty"`
+	DigestError string                 `json:"digest_error,omitempty"`
 	Meta        map[string]any         `json:"meta,omitempty"`
 }
 
@@ -178,17 +179,25 @@ func runWorkflow(cmd *cobra.Command, flags *rootFlags, wf *WorkflowFile) error {
 		if since == 0 {
 			since = 7 * 24 * time.Hour
 		}
+		// Each digest error is captured into result.DigestError so a failed
+		// digest is never silently reported as a successful workflow.
 		items, err := loadDigestItems(ctx, db, wf.Topic, since, nil, wf.Digest.Limit)
-		if err == nil {
+		if err != nil {
+			result.DigestError = fmt.Sprintf("loading items: %v", err)
+		} else {
 			ranked := dedupeAndRank(items)
 			if wf.Digest.Limit > 0 && len(ranked) > wf.Digest.Limit {
 				ranked = ranked[:wf.Digest.Limit]
 			}
 			tmplStr, terr := resolveDigestTemplate(wf.Digest.Template, wf.Digest.TemplateFile)
-			if terr == nil {
+			if terr != nil {
+				result.DigestError = fmt.Sprintf("resolving template: %v", terr)
+			} else {
 				path, bytes, derr := writeDigestOutput(wf.Digest.Output,
 					tmplStr, wf.Topic, since, ranked, len(items))
-				if derr == nil {
+				if derr != nil {
+					result.DigestError = fmt.Sprintf("writing digest: %v", derr)
+				} else {
 					result.DigestPath = path
 					result.DigestBytes = bytes
 				}
@@ -197,7 +206,7 @@ func runWorkflow(cmd *cobra.Command, flags *rootFlags, wf *WorkflowFile) error {
 	}
 
 	result.FinishedAt = time.Now().UTC()
-	allOK := true
+	allOK := result.DigestError == ""
 	for _, r := range result.StepResults {
 		if r.Error != "" {
 			allOK = false
