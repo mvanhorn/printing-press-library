@@ -148,10 +148,20 @@ func main() {
 	// (empty existing map) and fails when any required field would land
 	// empty — catching the lawhub-shape regression where a curated value
 	// in registry.json masks a missing source description.
+	//
+	// Positional args restrict validation to a set of CLI slugs. The
+	// PR-time CI gate passes the slugs whose registry-source files the PR
+	// actually adds or modifies, so a stale PR is never failed for an
+	// unrelated CLI that is already correct on main (merging the PR won't
+	// change that CLI). With no args, every entry is validated — the mode
+	// the post-merge full-library check uses.
 	if *validate {
 		sourceEntries, err := buildEntries(libraryDir, map[string]RegistryEntry{})
 		if err != nil {
 			log.Fatalf("building entries for validation: %v", err)
+		}
+		if restrict := flag.Args(); len(restrict) > 0 {
+			sourceEntries = filterEntriesBySlug(sourceEntries, restrict)
 		}
 		if errs := validateEntries(sourceEntries); len(errs) > 0 {
 			fmt.Fprintln(os.Stderr, "Registry validation failed:")
@@ -455,6 +465,28 @@ func validateEntries(entries []RegistryEntry) []string {
 		}
 	}
 	return errs
+}
+
+// filterEntriesBySlug returns the subset of entries whose Name is in slugs.
+// Used by --validate to scope the PR-time gate to the CLIs a PR actually
+// touched: validation runs against the PR's whole tree, but a stale PR that
+// doesn't modify an already-correct CLI shouldn't be failed for it. Entry
+// Name is the directory basename (see buildEntries), which matches the slug
+// a caller derives from a changed library/<cat>/<slug>/ path. Slugs that
+// match no entry are ignored — they describe a deleted or renamed CLI, which
+// has nothing left to validate.
+func filterEntriesBySlug(entries []RegistryEntry, slugs []string) []RegistryEntry {
+	want := make(map[string]bool, len(slugs))
+	for _, s := range slugs {
+		want[strings.TrimSpace(s)] = true
+	}
+	var out []RegistryEntry
+	for _, e := range entries {
+		if want[e.Name] {
+			out = append(out, e)
+		}
+	}
+	return out
 }
 
 func isBareMarkdownHeading(s string) bool {

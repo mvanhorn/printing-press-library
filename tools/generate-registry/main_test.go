@@ -288,6 +288,55 @@ func TestValidateEntries_IgnoresPriorCuratedValue(t *testing.T) {
 	}
 }
 
+// TestFilterEntriesBySlug pins the scoping the PR-time --validate gate
+// relies on: only the named CLIs are validated, so a stale PR that doesn't
+// touch an already-correct CLI is never failed for it (the agent-capture /
+// tiktok-shop false-failure on PRs branched before those descriptions
+// landed). Unmatched slugs are dropped silently (deleted/renamed CLIs).
+func TestFilterEntriesBySlug(t *testing.T) {
+	entries := []RegistryEntry{
+		{Name: "agent-capture", Category: "developer-tools", API: "Agent Capture", Path: "library/developer-tools/agent-capture", Description: ""},
+		{Name: "tiktok-shop", Category: "commerce", API: "TikTok Shop", Path: "library/commerce/tiktok-shop", Description: ""},
+		{Name: "exchangerate-api", Category: "finance", API: "ExchangeRate-API", Path: "library/finance/exchangerate-api", Description: "Currency conversion."},
+	}
+
+	t.Run("restricts to named slugs and excludes the rest", func(t *testing.T) {
+		got := filterEntriesBySlug(entries, []string{"exchangerate-api"})
+		if len(got) != 1 || got[0].Name != "exchangerate-api" {
+			t.Fatalf("want only exchangerate-api, got %+v", got)
+		}
+		// The dropped agent-capture/tiktok-shop entries (empty description)
+		// must not reach validateEntries, so a PR touching only
+		// exchangerate-api validates clean.
+		if errs := validateEntries(got); len(errs) != 0 {
+			t.Errorf("want no errors for scoped clean entry, got: %v", errs)
+		}
+	})
+
+	t.Run("a changed CLI with an empty description still fails", func(t *testing.T) {
+		got := filterEntriesBySlug(entries, []string{"agent-capture"})
+		if len(got) != 1 {
+			t.Fatalf("want agent-capture in scope, got %+v", got)
+		}
+		if errs := validateEntries(got); len(errs) == 0 {
+			t.Error("want failure for in-scope empty description, got none")
+		}
+	})
+
+	t.Run("unmatched slug is ignored", func(t *testing.T) {
+		if got := filterEntriesBySlug(entries, []string{"deleted-cli"}); len(got) != 0 {
+			t.Fatalf("want empty for unmatched slug, got %+v", got)
+		}
+	})
+
+	t.Run("whitespace around a slug is trimmed", func(t *testing.T) {
+		got := filterEntriesBySlug(entries, []string{"  exchangerate-api  "})
+		if len(got) != 1 || got[0].Name != "exchangerate-api" {
+			t.Fatalf("want exchangerate-api matched after trim, got %+v", got)
+		}
+	})
+}
+
 // TestRenderCatalogCounts checks both pluralization branches and the
 // happy multi-entry / multi-category path. The pluralization matters
 // because the rendered string lands in human-readable prose; "1 CLIs

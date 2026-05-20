@@ -228,6 +228,18 @@ jobs:
         # entry. See tools/generate-registry/main.go validateEntries() for the
         # exact field set.
         #
+        # Scope to the CLIs this PR actually changes. --validate runs against
+        # the PR's whole tree, but a stale PR shouldn't be failed for an
+        # unrelated CLI that is already correct on main — merging the PR won't
+        # change that CLI's manifest, so its in-tree copy never reaches the
+        # post-merge registry. (A PR branched before a CLI's description landed
+        # carries the old description-less manifest for that untouched CLI and
+        # was failing here for agent-capture / tiktok-shop.) We pass the slugs
+        # of CLIs whose registry-source files this PR adds or modifies vs base;
+        # with none, there's nothing to validate. The full-tree invariant still
+        # holds: every CLI is validated by the PR that introduces or edits it.
+        # workflow_dispatch keeps the unscoped whole-library run.
+        #
         # The file-path form (./tools/generate-registry/main.go) is required
         # because the repo root has no go.mod — Go locates the tool's go.mod
         # by walking up from the source file. The package-path form
@@ -235,8 +247,27 @@ jobs:
         # repo root. Matches the invocation in generate-registry.yml.
         #
         # The tool is overlaid from base in "Overlay verifier scripts from
-        # base" above, so this always runs the current validator even on a
-        # stale-base PR; only the library data being validated is the PR's.
+        # base" above, so this always runs the current validator (including
+        # the slug-scoping arg) even on a stale-base PR; only the library
+        # data being validated is the PR's.
+        env:
+          BASE_REMOTE_REF: ${{ steps.base.outputs.ref }}
         run: |
           set -euo pipefail
-          go run ./tools/generate-registry/main.go --validate
+          if [ "${GITHUB_EVENT_NAME}" != "pull_request" ]; then
+            go run ./tools/generate-registry/main.go --validate
+            exit 0
+          fi
+          # --diff-filter=d drops deletions: a CLI the PR removes has nothing
+          # to validate. $3 of library/<cat>/<slug>/<file> is the slug, which
+          # equals the registry entry Name the validator keys its errors on.
+          mapfile -t slugs < <(
+            git diff --name-only --diff-filter=d "${BASE_REMOTE_REF}" HEAD \
+              -- 'library/*/*/.printing-press.json' 'library/*/*/.goreleaser.yaml' \
+            | awk -F/ 'NF>=3 {print $3}' | sort -u)
+          if [ "${#slugs[@]}" -eq 0 ]; then
+            echo "No CLI registry-source files changed in this PR. Nothing to validate."
+            exit 0
+          fi
+          echo "Validating changed CLIs: ${slugs[*]}"
+          go run ./tools/generate-registry/main.go --validate "${slugs[@]}"
