@@ -1,0 +1,38 @@
+{
+  "manifest_version": "0.3",
+  "name": "zulip-pp-mcp",
+  "display_name": "Zulip",
+  "version": "4.9.0",
+  "description": "Zulip API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/zulip-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/zulip-pp-mcp",
+      "args": [],
+      "env": {
+        "ZULIP_SUBDOMAIN": "${user_config.zulip_subdomain}"
+      }
+    }
+  },
+  "user_config": {
+    "zulip_subdomain": {
+      "type": "string",
+      "title": "ZULIP_SUBDOMAIN",
+      "description": "Sets ZULIP_SUBDOMAIN for the endpoint template variable {subdomain}.",
+      "default": "example"
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

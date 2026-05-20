@@ -1,0 +1,286 @@
+{
+  "timestamp": "2026-05-20T08:40:34.247203771Z",
+  "cli_dir": "\u003ccli-dir\u003e/zulip",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "attachments",
+      "file": "attachments.go",
+      "line": 11,
+      "evidence": "Manage attachments"
+    },
+    {
+      "kind": "thin-short",
+      "command": "bot-storage",
+      "file": "bot-storage.go",
+      "line": 11,
+      "evidence": "Manage bot storage"
+    },
+    {
+      "kind": "thin-short",
+      "command": "bots",
+      "file": "bots.go",
+      "line": 11,
+      "evidence": "Manage bots"
+    },
+    {
+      "kind": "thin-short",
+      "command": "api-key",
+      "file": "bots_api-key.go",
+      "line": 11,
+      "evidence": "Manage api key"
+    },
+    {
+      "kind": "thin-short",
+      "command": "calls",
+      "file": "calls.go",
+      "line": 11,
+      "evidence": "Manage calls"
+    },
+    {
+      "kind": "thin-short",
+      "command": "channel-folders",
+      "file": "channel-folders.go",
+      "line": 11,
+      "evidence": "Manage channel folders"
+    },
+    {
+      "kind": "thin-short",
+      "command": "default-streams",
+      "file": "default-streams.go",
+      "line": 11,
+      "evidence": "Manage default streams"
+    },
+    {
+      "kind": "thin-short",
+      "command": "drafts",
+      "file": "drafts.go",
+      "line": 11,
+      "evidence": "Manage drafts"
+    },
+    {
+      "kind": "thin-short",
+      "command": "events",
+      "file": "events.go",
+      "line": 11,
+      "evidence": "Manage events"
+    },
+    {
+      "kind": "thin-short",
+      "command": "invites",
+      "file": "invites.go",
+      "line": 11,
+      "evidence": "Manage invites"
+    },
+    {
+      "kind": "thin-short",
+      "command": "resend",
+      "file": "invites_resend.go",
+      "line": 11,
+      "evidence": "Manage resend"
+    },
+    {
+      "kind": "thin-short",
+      "command": "messages",
+      "file": "messages.go",
+      "line": 11,
+      "evidence": "Manage messages"
+    },
+    {
+      "kind": "thin-short",
+      "command": "history",
+      "file": "messages_history.go",
+      "line": 11,
+      "evidence": "Manage history"
+    },
+    {
+      "kind": "thin-short",
+      "command": "reactions",
+      "file": "messages_reactions.go",
+      "line": 11,
+      "evidence": "Manage reactions"
+    },
+    {
+      "kind": "thin-short",
+      "command": "read-receipts",
+      "file": "messages_read-receipts.go",
+      "line": 11,
+      "evidence": "Manage read receipts"
+    },
+    {
+      "kind": "thin-short",
+      "command": "report",
+      "file": "messages_report.go",
+      "line": 11,
+      "evidence": "Manage report"
+    },
+    {
+      "kind": "missing-read-only",
+      "command": "report",
+      "file": "messages_report.go",
+      "line": 11,
+      "evidence": "name matches read heuristic; no mcp:read-only annotation"
+    },
+    {
+      "kind": "thin-short",
+      "command": "typing",
+      "file": "messages_typing.go",
+      "line": 11,
+      "evidence": "Manage typing"
+    },
+    {
+      "kind": "thin-short",
+      "command": "mobile-push",
+      "file": "mobile-push.go",
+      "line": 11,
+      "evidence": "Manage mobile push"
+    },
+    {
+      "kind": "thin-short",
+      "command": "navigation-views",
+      "file": "navigation-views.go",
+      "line": 11,
+      "evidence": "Manage navigation views"
+    },
+    {
+      "kind": "thin-short",
+      "command": "realm",
+      "file": "realm.go",
+      "line": 11,
+      "evidence": "Manage realm"
+    },
+    {
+      "kind": "thin-short",
+      "command": "reminders",
+      "file": "reminders.go",
+      "line": 11,
+      "evidence": "Manage reminders"
+    },
+    {
+      "kind": "thin-short",
+      "command": "saved-snippets",
+      "file": "saved-snippets.go",
+      "line": 11,
+      "evidence": "Manage saved snippets"
+    },
+    {
+      "kind": "thin-short",
+      "command": "scheduled-messages",
+      "file": "scheduled-messages.go",
+      "line": 11,
+      "evidence": "Manage scheduled messages"
+    },
+    {
+      "kind": "thin-short",
+      "command": "streams",
+      "file": "streams.go",
+      "line": 11,
+      "evidence": "Manage streams"
+    },
+    {
+      "kind": "thin-short",
+      "command": "delete-topic",
+      "file": "streams_delete-topic.go",
+      "line": 11,
+      "evidence": "Manage delete topic"
+    },
+    {
+      "kind": "thin-short",
+      "command": "email-address",
+      "file": "streams_email-address.go",
+      "line": 11,
+      "evidence": "Manage email address"
+    },
+    {
+      "kind": "thin-short",
+      "command": "members",
+      "file": "streams_members.go",
+      "line": 11,
+      "evidence": "Manage members"
+    },
+    {
+      "kind": "thin-short",
+      "command": "user-groups",
+      "file": "user-groups.go",
+      "line": 11,
+      "evidence": "Manage user groups"
+    },
+    {
+      "kind": "thin-short",
+      "command": "deactivate",
+      "file": "user-groups_deactivate.go",
+      "line": 11,
+      "evidence": "Manage deactivate"
+    },
+    {
+      "kind": "thin-short",
+      "command": "members",
+      "file": "user-groups_members.go",
+      "line": 11,
+      "evidence": "Manage members"
+    },
+    {
+      "kind": "thin-short",
+      "command": "subgroups",
+      "file": "user-groups_subgroups.go",
+      "line": 11,
+      "evidence": "Manage subgroups"
+    },
+    {
+      "kind": "thin-short",
+      "command": "user-uploads",
+      "file": "user-uploads.go",
+      "line": 11,
+      "evidence": "Manage user uploads"
+    },
+    {
+      "kind": "thin-short",
+      "command": "users",
+      "file": "users.go",
+      "line": 11,
+      "evidence": "Manage users"
+    },
+    {
+      "kind": "thin-short",
+      "command": "channels",
+      "file": "users_channels.go",
+      "line": 11,
+      "evidence": "Manage channels"
+    },
+    {
+      "kind": "thin-short",
+      "command": "presence",
+      "file": "users_presence.go",
+      "line": 11,
+      "evidence": "Manage presence"
+    },
+    {
+      "kind": "thin-short",
+      "command": "reactivate",
+      "file": "users_reactivate.go",
+      "line": 11,
+      "evidence": "Manage reactivate"
+    },
+    {
+      "kind": "thin-short",
+      "command": "status",
+      "file": "users_status.go",
+      "line": 11,
+      "evidence": "Manage status"
+    },
+    {
+      "kind": "thin-short",
+      "command": "subscriptions",
+      "file": "users_subscriptions.go",
+      "line": 11,
+      "evidence": "Manage subscriptions"
+    },
+    {
+      "kind": "thin-short",
+      "command": "zulip-export",
+      "file": "zulip-export.go",
+      "line": 11,
+      "evidence": "Manage zulip export"
+    }
+  ]
+}

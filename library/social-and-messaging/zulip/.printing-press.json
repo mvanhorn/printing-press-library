@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-20T09:19:20.484273244Z",
+  "printing_press_version": "4.9.0",
+  "api_name": "zulip",
+  "display_name": "Zulip",
+  "cli_name": "zulip-pp-cli",
+  "owner": "haqiramadhani",
+  "printer": "haqiramadhani",
+  "printer_name": "Haqi Ramadhani",
+  "spec_url": "https://raw.githubusercontent.com/zulip/zulip/main/zerver/openapi/zulip.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:867f6d5508183040ccfc24debc5151cf86a1dc9266c070275af4fca0e106e2cd",
+  "run_id": "20260520-091920",
+  "mcp_binary": "zulip-pp-mcp",
+  "mcp_tool_count": 161,
+  "mcp_public_tool_count": 161,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "none",
+  "endpoint_template_vars": [
+    "subdomain"
+  ],
+  "endpoint_template_var_defaults": {
+    "subdomain": "example"
+  },
+  "novel_features": [
+    {
+      "name": "Unread-first message fetching",
+      "command": "zulip-pp-cli messages get --anchor first_unread",
+      "description": "Fetch unread messages starting from first_unread anchor, enabling notification-style combined feed views"
+    },
+    {
+      "name": "Local SQLite sync",
+      "command": "zulip-pp-cli sync",
+      "description": "Offline-capable local cache of Zulip data (users, streams, messages) in SQLite for fast search and analytics"
+    },
+    {
+      "name": "Bulk mark-as-read",
+      "command": "zulip-pp-cli mark-all-as-read",
+      "description": "Mark all unread messages as read in one command"
+    }
+  ]
+}
