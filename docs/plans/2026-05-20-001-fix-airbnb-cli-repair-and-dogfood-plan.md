@@ -319,10 +319,11 @@ library/travel/airbnb/
 - `library/travel/airbnb/internal/source/airbnb/client_test.go` (test for SetRate effect on limiter)
 
 **Approach:**
-- Add `func SetRate(rps float64)` to `internal/source/airbnb`. When called, it reassigns or reconfigures the limiter held by `defaultClient`. Thread-safe via existing mutex or sync.Once-protected reassignment.
+- Add `SetRate(rps float64)` METHOD on `cliutil.AdaptiveLimiter`. It mutates `l.rate` (and `l.floor` if applicable) under the existing `l.mu`. No pointer swap on `defaultClient.limiter`, no atomic.Pointer, no new mutex on the airbnb client. The limiter instance stays put; only its rate changes.
+- Add `func SetRate(rps float64)` to `internal/source/airbnb` as a thin pass-through that calls `defaultClient.limiter.SetRate(rps)`.
 - `rps == 0` means "disable" (drain limiter); any positive float sets that as the per-second cap.
-- Update `rootCmd.PersistentPreRunE` at `internal/cli/root.go:124` (or wherever the rate flag is currently read) to also call `airbnb.SetRate(rateLimit)` after it sets the generated client's rate.
-- Document the new behavior in SKILL.md (handled in U8).
+- Update `rootCmd.PersistentPreRunE` to call `airbnb.SetRate(rateLimit)` ONLY when the user explicitly passed the flag (`cmd.Flags().Changed("rate-limit")`). When the flag is unset, the existing hardcoded 0.5 rps baseline in `defaultClient` is preserved. This is the non-regressive path: today's behavior continues for users who don't touch the flag.
+- Document the new behavior in SKILL.md (handled in U8): "`--rate-limit N` overrides the default 0.5 rps baseline for scrape and GraphQL traffic. Default (flag unset) is 0.5 rps. Pass `--rate-limit 0` to disable."
 
 **Patterns to follow:** existing `cliutil.AdaptiveLimiter` semantics. `internal/client/client.go:53-64,166-286` shows how the same flag is honored on the generated-client side.
 
@@ -332,8 +333,9 @@ library/travel/airbnb/
 - `SetRate(2.0)` followed by 10 sequential `do()` calls completes in approximately 5 seconds plus overhead (rate of 2 rps observed)
 - `SetRate(0.5)` produces approximately 20 seconds for 10 calls (matches former hardcoded behavior)
 - `SetRate(0)` produces approximately zero wait between calls
-- `SetRate` called concurrently from 3 goroutines does not race (run with `-race`)
-- A `do()` call in flight while `SetRate` runs does not panic (last-writer-wins is acceptable; race detector must not fire)
+- `SetRate` called concurrently from 3 goroutines does not race (run with `-race`); rate value is updated under the limiter's own `l.mu`, not by pointer swap
+- A `do()` call in flight while `SetRate` runs does not panic and does not lose the limiter's `OnRateLimit`/`OnSuccess` history — the limiter instance is preserved across the rate change (no pointer swap means no history loss)
+- Default invocation (no `--rate-limit` flag passed) keeps the existing 0.5 rps baseline. Verified by checking `cmd.Flags().Changed("rate-limit")` before calling `airbnb.SetRate`.
 
 **Verification:** `airbnb-pp-cli airbnb-listing search "Mercer-Island--Washington--United-States" --checkin 2026-05-26 --checkout 2026-05-29 --rate-limit 2.0 --agent` completes its scrape in noticeably less wall-clock time than the same call with `--rate-limit 0.5`. Measured by timestamp diff between first and last network request in `read_network_requests` capture, or by wall-clock of the full invocation.
 
@@ -513,10 +515,15 @@ library/travel/airbnb/
 - Document the dogfood matrix in README: how to run it, what the artifact says, when to re-run.
 - Update `.printing-press-patches.json` with amend entries naming the four bug-fix units.
 
-**Approach (delete fork):**
-- Confirm with the user before deleting (one-line ask: "Tier-1 failed at X / Y / Z. Confirm deletion?").
-- After confirmation: remove the directory, update the registry, write the post-mortem entry in docs/solutions/.
-- Open a PR titled `chore(airbnb): remove from library; deferred to chrome-tier rewrite` with the dogfood-results.json link in the body as evidence.
+**Approach (Tier-1 failure fork — three-option modal):**
+
+When U7 surfaces a Tier-1 failure (specifically: `cheapest` returns null/error on a known-good listing for reasons rooted in this plan's work), present the user with a three-option blocking modal:
+
+1. **Delete from library.** Remove the directory, update `registry.json`, remove from `library/README.md`, deregister the skill, write a post-mortem entry in `docs/solutions/`. Open a PR titled `chore(airbnb): remove from library; deferred to chrome-tier rewrite` with the dogfood-results.json link as evidence.
+2. **Quarantine via `--experimental`.** Keep the source on disk. Gate the broken Tier-1 commands behind a `--experimental` flag (mirrors the 2026-04-30 ebay honest-capabilities pattern). Update `agent-context.json` to mark affected commands as experimental. Update SKILL.md "Known Limitations" section with the dogfood-results.json evidence. PR title: `chore(airbnb): quarantine broken commands behind --experimental flag`.
+3. **Keep shipping with documented caveat.** Update SKILL.md and README to document the Tier-1 limitation prominently. No code gate, but the user must read about the failure before invoking. PR title: `docs(airbnb): document <command> regression`.
+
+The modal is the ONLY visible interface for this decision (per the "modal-is-the-only-visible-thing" memory rule). Do not present the choices in prose ABOVE the modal — every option must be a clickable modal option. Prose context can appear within the modal question stem or option descriptions.
 
 **Patterns to follow:** the 2026-04-30 ebay honest-capabilities plan (chose hide-not-delete; this plan chose strict-bar delete per user direction). Memory notes `feedback_no_process_in_pr_body`, `feedback_evidence_every_pr`.
 
@@ -604,11 +611,7 @@ Rejected.
 
 ### Alternative D: Hide the broken commands behind `--experimental` flag (mirrors the 2026-04-30 ebay honest-capabilities plan)
 
-Pros: no need to delete; preserves the CLI for future restoration.
-
-Cons: user explicitly named the binary choice: prove it works or delete. Hiding commands does not satisfy R6.
-
-Rejected for THIS plan. If U7 triggers the delete fork but the user changes their mind at the confirmation gate, this alternative is the natural fallback.
+Originally framed as "rejected; natural fallback if user changes mind." Upgraded after doc-review feedback (P-3): the user-confirmation modal in U8 now offers this path as one of three first-class options, not as an implicit fallback. The plan still names "prove or delete" as the headline framing, but the modal lets the user pick a middle path at decision time without backing out and re-running the workflow.
 
 ---
 
