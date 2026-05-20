@@ -1,0 +1,132 @@
+version: 2
+project_name: setlist-fm-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: setlist-fm-pp-cli
+    main: ./cmd/setlist-fm-pp-cli
+    binary: setlist-fm-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/media-and-entertainment/setlist-fm/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: setlist-fm-pp-mcp
+    main: ./cmd/setlist-fm-pp-mcp
+    binary: setlist-fm-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: setlist-fm-pp-cli
+    repository:
+      owner: dave-morin
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "<p>
+The setlist.fm API has been designed to give you easy access to setlist data in order to build fancy websites and
+other applications. Before starting to use the API, be sure to ...
+<ol>
+<li>... understand how setlist.fm works (the <a href="https://www.setlist.fm/faq">FAQ</a> and the
+<a href="https://www.setlist.fm/guidelines">Guidelines</a> are a good starting point),</li>
+<li>... read this documentation carefully and</li>
+<li>... <a href="https://www.setlist.fm/settings/api">apply for an API key</a> (link for logged in users only) - if
+you're no registered user yet, then <a href="https://www.setlist.fm/signup">register first</a> (it's free).</li>
+</ol>
+</p>
+<p>
+If this documentation isn't enough or if you've got other things you'd like to tell us about the API, visit the
+<a href="https://www.setlist.fm/forum/setlistfm/setlistfm-api">API Forum</a>.
+</p>
+<p>
+Note that the setlist.fm API is, according to the <a href="https://www.setlist.fm/help/api-terms">API terms of
+service</a>, only free for non-commercial projects. If you're interested in using the API for commercial purposes,
+<a href="https://www.setlist.fm/contact">contact us</a>.
+</p>
+
+<h2>About this Service</h2>
+<p>
+This service provides methods to get both setlists and components of setlists such as artists, cities, countries or
+venues.
+</p>
+
+<h2>Supported Content Types</h2>
+<p>
+The REST service currently supports XML (default) and JSON content.
+</p>
+<p>
+To receive a JSON response, set the <code>Accept</code>
+<a href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.1">header</a> to <em>application/json</em>.
+</p>
+
+<h2>Internationalization</h2>
+<p>
+<small>(Please note that this is an experimental feature and does not work for all cities!)</small>
+</p>
+<p>
+Most of the featured methods honor the <code>Accept-Language</code>
+<a href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.4">header</a>. This header is used for
+localizing cities and countries. The default language is English (en), but you can provide any of the languages
+Spanish (es), French (fr), German (de), Portuguese (pt), Turkish (tr), Italian (it) or Polish (pl).
+</p>
+<p>
+E.g. if you search a setlist for a concert that took place in Vienna and you pass &quot;de&quot; as header, you'll
+get <em>&quot;Wien, &Ouml;sterreich&quot;</em> instead of <em>&quot;Vienna, Austria&quot;</em>.<br/>
+This also works if you use a different language than the country's native language.
+</p>
+<p>
+E.g. for a concert in New York, you'll get <em>&quot;Nueva York, Estados Unidos&quot;</em> instead of <em>&quot;New
+York, United States&quot;</em> if you pass &quot;es&quot; as language.
+</p>
+
+<h2>API Keys</h2>
+
+API keys (<a href="https://www.setlist.fm/settings/api">application form</a>) must be included in the request with
+the <code>x-api-key</code> header.
+
+<h2>Version History</h2>
+<table class="table table-bordered table-versions">
+<thead>
+<tr>
+<th>Version</th>
+<th>Docs</th>
+<th>End of Service</th>
+</tr>
+</thead> <tbody>
+<tr>
+<td><strong>1.0</strong></td>
+<td><a href="/docs/1.0">Docs</a></td>
+<td>-</li>
+</tr>
+<tr>
+<td><strong>0.1</strong></td>
+<td></td>
+<td>December 31, 2017</li>
+</tr>
+</tbody>
+</table>"
+    install: |
+      bin.install "setlist-fm-pp-cli"
+      bin.install "setlist-fm-pp-mcp"
