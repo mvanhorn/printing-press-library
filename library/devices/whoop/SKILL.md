@@ -121,6 +121,48 @@ Commands that read from the local store or the API wrap output in a provenance e
 
 Parse `.results` for data and `.meta.source` to know whether it's live or local. A human-readable `N results (live)` summary is printed to stderr only when stdout is a terminal — piped/agent consumers get pure JSON on stdout.
 
+## Fast Local Sleep Lookup
+
+For sleep-summary requests like "how did I sleep?", "tell me about my WHOOP sleep", or "latest sleep", query the local SQLite cache before calling the live API. Some synced cache versions store scored sleep records in the `activity` table even when the dedicated `sleep` table is empty.
+
+Use this query first:
+
+```bash
+sqlite3 -json "$HOME/.local/share/whoop-pp-cli/data.db" "
+  select
+    id,
+    start,
+    \"end\",
+    timezone_offset,
+    nap,
+    score_state,
+    json_extract(data,'$.score.sleep_performance_percentage') as sleep_performance_percentage,
+    json_extract(data,'$.score.sleep_consistency_percentage') as sleep_consistency_percentage,
+    json_extract(data,'$.score.sleep_efficiency_percentage') as sleep_efficiency_percentage,
+    json_extract(data,'$.score.respiratory_rate') as respiratory_rate,
+    json_extract(data,'$.score.sleep_needed.baseline_milli') as baseline_sleep_need_milli,
+    json_extract(data,'$.score.sleep_needed.need_from_recent_strain_milli') as strain_sleep_need_milli,
+    json_extract(data,'$.score.sleep_needed.need_from_sleep_debt_milli') as sleep_debt_need_milli,
+    json_extract(data,'$.score.sleep_needed.need_from_recent_nap_milli') as nap_sleep_need_milli,
+    json_extract(data,'$.score.stage_summary.total_in_bed_time_milli') as total_in_bed_time_milli,
+    json_extract(data,'$.score.stage_summary.total_awake_time_milli') as total_awake_time_milli,
+    json_extract(data,'$.score.stage_summary.total_light_sleep_time_milli') as total_light_sleep_time_milli,
+    json_extract(data,'$.score.stage_summary.total_slow_wave_sleep_time_milli') as total_slow_wave_sleep_time_milli,
+    json_extract(data,'$.score.stage_summary.total_rem_sleep_time_milli') as total_rem_sleep_time_milli,
+    json_extract(data,'$.score.stage_summary.sleep_cycle_count') as sleep_cycle_count,
+    json_extract(data,'$.score.stage_summary.disturbance_count') as disturbance_count
+  from activity
+  where json_extract(data,'$.score.stage_summary.total_in_bed_time_milli') is not null
+    and coalesce(nap, json_extract(data,'$.nap'), 0) = 0
+  order by \"end\" desc
+  limit 1;
+"
+```
+
+Treat `total_light_sleep_time_milli + total_slow_wave_sleep_time_milli + total_rem_sleep_time_milli` as total asleep time. Convert `start` and `end` to the user's local timezone when summarizing; use `timezone_offset` from the record if present.
+
+Only fall back to `whoop-pp-cli activity get-sleep-collection --limit 5 --data-source live --agent` when the local query returns no rows, the database is missing, or the latest local row is not scored.
+
 ## Agent Feedback
 
 When you (or the agent) notice something off about this CLI, record it:
@@ -195,9 +237,10 @@ Verify: `claude mcp list`
 
 1. Check if installed: `which whoop-pp-cli`
    If not found, offer to install (see Prerequisites at the top of this skill).
-2. Match the user query to the best command from the Unique Capabilities and Command Reference above.
-3. Execute with the `--agent` flag:
+2. For sleep-summary requests, use the Fast Local Sleep Lookup above first.
+3. Match other user queries to the best command from the Unique Capabilities and Command Reference above.
+4. Execute CLI commands with the `--agent` flag:
    ```bash
    whoop-pp-cli <command> [subcommand] [args] --agent
    ```
-4. If ambiguous, drill into subcommand help: `whoop-pp-cli <command> --help`.
+5. If ambiguous, drill into subcommand help: `whoop-pp-cli <command> --help`.
