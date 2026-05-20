@@ -182,10 +182,16 @@ This CLI uses Chrome-compatible HTTP transport for browser-facing endpoints. It 
 
 **github** — GitHub feeds Digg surfaces alongside the X-account leaderboard
 
-- `digg-pp-cli github stars` — Top AI repos ranked by starring activity from Digg-tracked accounts. Returns repo_full_name, language, stargazers_count, recent starrers, breakout/novel/ai_related scores, and the model's one-sentence classification. Flag: `--limit`.
+- `digg-pp-cli github stars` — Top AI repos ranked by starring activity from Digg-tracked accounts. Returns repo_full_name, language, stargazers_count, recent starrers, breakout/novel/ai_related scores, and the model's one-sentence classification. Flags: `--limit`, `--min-starrers N` (keep only repos with >= N distinct starrers — smart-money convergence; applied BEFORE --limit).
 - `digg-pp-cli github new` — Recently first-seen repos with the Digg-tracked creator/starrer who first put them on Digg's radar (event_id, event_created_at, repo_full_name, creator). Flag: `--limit`.
 - `digg-pp-cli github activity` — Top GitHub contributor leaderboard: per-author rank, contribution count, and distinct repos count over Digg's tracking window. Flag: `--limit`.
 - `digg-pp-cli github recent` — Live activity feed: per-event entries with the GitHub URL and the user who acted. Flag: `--limit`.
+
+**rankings** — Sub-views of the /ai/x/rankings/companies snapshot
+
+- `digg-pp-cli rankings emerging` — Curated list of small AI companies (the "EMERGING STARTUPS — CURATED THIS SNAPSHOT" section). ~10 rows per snapshot. Each row carries `isEmergingStartup` (AI-judge verdict) and `emergingReasoning` (curator text). Flag: `--max-skip-ratio` (schema-drift tolerance; default 0.10).
+- `digg-pp-cli rankings movers` — Companies whose follower count shifted most since the last snapshot. Flags: `--direction up|down|both` (default both; direction stamped per row), `--max-skip-ratio`.
+- `digg-pp-cli rankings list` — Full company ranking (the "Companies followed by the AI 2K" section). Server-paginated; returns the initial-HTML slice. Flags: `--limit`, `--max-skip-ratio`.
 
 **search** — Topic search across the full Digg window
 

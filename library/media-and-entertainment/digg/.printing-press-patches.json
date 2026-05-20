@@ -24,7 +24,7 @@
         "internal/diggstore/store.go"
       ],
       "validated_outcome": "agent-context, --help, and SKILL.md frontmatter all now read 'Digg' and reference the four GitHub feeds.",
-      "scope_note": "Internal code identifiers (roster_1000.go, the /ai/1000 endpoint path, ai_1000_fixture.html) are left alone — they describe the upstream endpoint, not user-facing prose."
+      "scope_note": "Internal code identifiers (roster_1000.go, the /ai/1000 endpoint path, ai_1000_fixture.html) are left alone \u2014 they describe the upstream endpoint, not user-facing prose."
     },
     {
       "id": "digg-github-feeds-stars-new-activity-recent",
@@ -44,6 +44,35 @@
         "internal/mcp/tools.go"
       ],
       "validated_outcome": "go build / go vet / go test all green; each of the four commands returns live structured records when dogfooded (stars: nested {repo,judgment}; new: flat event records; activity: contributor leaderboard with rank/contributions/repos; recent: per-user events paired with github.com URLs)."
+    },
+    {
+      "id": "digg-rankings-and-min-starrers",
+      "summary": "Add a `rankings` parent command with three subcommands (emerging, movers, list) backed by an RSC parser for /ai/x/rankings/companies, plus a `--min-starrers N` flag on `github stars` for smart-money-convergence filtering. Adds a ParseStats type + --max-skip-ratio schema-drift gate shared by the new commands.",
+      "reason": "Two high-signal UI surfaces on digg.com weren't exposed by the CLI. (1) /ai/x/rankings/companies has a curated 'EMERGING STARTUPS' list and follower-velocity Movers section that map directly to VC deal-sourcing use cases; the CLI only had the AI 1000 leaderboard at /ai/1000. (2) The github stars feed surfaces a right-rail multi-starrer rollup on the website which is just the same feed filtered by distinct_starrers >= 2; users have no way to get that slice from the CLI without post-processing. Both gaps are addressed by reading existing fields out of the same RSC payloads \u2014 no new endpoints, no breaking changes.",
+      "files": [
+        "spec.yaml",
+        "manifest.json",
+        ".printing-press.json",
+        ".printing-press-patches.json",
+        "tools-manifest.json",
+        "README.md",
+        "SKILL.md",
+        "internal/cli/root.go",
+        "internal/cli/rankings.go",
+        "internal/cli/rankings_test.go",
+        "internal/cli/github.go",
+        "internal/cli/github_test.go",
+        "internal/cli/which.go",
+        "internal/diggparse/parse_stats.go",
+        "internal/diggparse/parse_stats_test.go",
+        "internal/diggparse/rankings_companies.go",
+        "internal/diggparse/rankings_companies_test.go",
+        "testdata/rankings-companies-fixture.html",
+        "testdata/rankings-companies-dirty-fixture.html",
+        "testdata/rankings-companies-empty-fixture.html"
+      ],
+      "validated_outcome": "Live smoke against digg.com at PR time: 'rankings emerging' returns 10 entries (Inspired Cognition, Evolving Programs, Shadow Robot, Tavus, etc.); 'rankings movers --direction up' returns 10 gainers (rank 76 aclanthology, rank 4 GoogleAI...); 'rankings list --limit 3' returns OpenAI(#1), GoogleDeepMind(#2), AnthropicAI(#3); 'github stars --min-starrers 2' narrows 114 unfiltered rows to 6 with distinct_starrers >= 2.",
+      "scope_note": "Rankings leaf commands intentionally OMIT the pp:endpoint annotation. The MCP cobratree walker treats pp:endpoint-tagged commands as 'covered by a typed MCP tool' and skips registering a shell-out tool; until a typed rankings tool ships, the rankings commands need shell-out MCP exposure. The existing github stars/new/activity/recent commands have the same annotation/MCP-skip behavior as a known issue, not as precedent."
     }
   ]
 }
