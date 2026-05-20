@@ -73,13 +73,6 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 				resources = orderResourcesByDependency(resources)
 			}
 
-			// --full: clear every resume cursor so the archive starts from head.
-			if full {
-				for _, resource := range resources {
-					_ = db.SaveSyncState(resource, "", 0)
-				}
-			}
-
 			totalSynced := 0
 			syncedResources := 0
 			for _, resource := range resources {

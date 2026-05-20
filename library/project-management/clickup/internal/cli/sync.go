@@ -106,13 +106,6 @@ Exit codes & warnings:
 				}
 			}
 
-			// --full: clear all sync cursors before starting
-			if full {
-				for _, resource := range resources {
-					_ = db.SaveSyncState(resource, "", 0)
-				}
-			}
-
 			// --latest-only narrows to the first page of each resource
 			// ignoring the historical resume cursor. We cap maxPages at 1
 			// here rather than re-interpreting it downstream so the rest
@@ -339,7 +332,15 @@ func syncResource(c interface {
 			effectiveSince = lastSynced.Format(time.RFC3339)
 		}
 
+		// PATCH(pp-library#433): --full restarts every target from the head.
+		// Resume cursors are keyed per (resource, parentID) as `resource:parentID`,
+		// so a top-level clear in the caller cannot reach the per-parent keys
+		// hierarchical targets resume from. Honoring `full` at the point of use
+		// covers every target — global and per-parent alike.
 		cursor := existingCursor
+		if full {
+			cursor = ""
+		}
 		pagesFetched := 0
 		lastNextCursor := ""
 

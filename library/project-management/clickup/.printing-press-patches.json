@@ -57,6 +57,15 @@
       "files": [
         "internal/cli/channel_workflow.go"
       ]
+    },
+    {
+      "id": "full-resets-per-parent-cursors",
+      "summary": "Make `--full` restart hierarchical resources from the head. `syncResource` now ignores the stored resume cursor whenever full=true, instead of relying on a caller-side clearing loop that only zeroed top-level sync_state keys.",
+      "reason": "Greptile finding on PR #433. The hierarchical-sync-traversal patch keys resume cursors per (resource, parentID) as `resource:parentID`. The `--full` clearing loop in `newSyncCmd` (and the copy in `newWorkflowArchiveCmd`) only called SaveSyncState on the bare `resource` key, never the per-parent keys. If a prior hierarchical sync was interrupted mid-resource, `--full` left those `resource:parentID` cursors intact and `syncResource` resumed affected lists from page N instead of page 0, contradicting `--full`'s documented 'ignore previous checkpoint'. Fixed at the point of use: `syncResource` zeroes the cursor whenever full=true, covering every target — global and per-parent alike. The now-redundant and incomplete caller-side clearing loops are removed.",
+      "files": [
+        "internal/cli/sync.go",
+        "internal/cli/channel_workflow.go"
+      ]
     }
   ]
 }
