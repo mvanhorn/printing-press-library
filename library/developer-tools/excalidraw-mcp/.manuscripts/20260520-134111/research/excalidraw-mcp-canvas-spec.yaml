@@ -1,0 +1,331 @@
+name: excalidraw-mcp
+display_name: Excalidraw Canvas
+base_url: http://127.0.0.1:3000
+version: "1.0"
+cli_description: "Control the Excalidraw canvas server and Excalidraw Plus cloud from the command line."
+
+auth:
+  type: none
+
+tiers:
+  canvas:
+    auth:
+      type: none
+    base_url: http://127.0.0.1:3000
+  cloud:
+    auth:
+      type: bearer_token
+      header: Authorization
+      in: header
+      env_vars:
+        - EXCALIDRAW_API_KEY
+
+tier_routing:
+  default_tier: canvas
+  tiers:
+    canvas:
+      auth: {type: none}
+    cloud:
+      auth:
+        type: bearer_token
+        in: header
+        header: Authorization
+        env_vars: [EXCALIDRAW_API_KEY]
+
+resources:
+  elements:
+    tier: canvas
+    description: "Canvas elements (shapes, text, arrows, images)"
+    endpoints:
+      list:
+        method: GET
+        path: /api/elements
+        description: "List all elements on the canvas"
+        no_auth: true
+      get:
+        method: GET
+        path: /api/elements/{id}
+        description: "Get a specific element by ID"
+        no_auth: true
+      search:
+        method: GET
+        path: /api/elements/search
+        description: "Search/filter elements by type or bounding box"
+        no_auth: true
+        params:
+          - name: type
+            in: query
+            description: "Element type filter (rectangle, ellipse, diamond, arrow, text, line)"
+          - name: x_min
+            in: query
+            description: "Minimum X coordinate"
+          - name: x_max
+            in: query
+            description: "Maximum X coordinate"
+          - name: y_min
+            in: query
+            description: "Minimum Y coordinate"
+          - name: y_max
+            in: query
+            description: "Maximum Y coordinate"
+      create:
+        method: POST
+        path: /api/elements
+        description: "Create a new element on the canvas"
+        no_auth: true
+        body:
+          type: "string (rectangle|ellipse|diamond|arrow|text|line)"
+          x: "number"
+          y: "number"
+          width: "number"
+          height: "number"
+          strokeColor: "string (hex color)"
+          backgroundColor: "string (hex color)"
+          fillStyle: "string (hachure|cross-hatch|solid)"
+          strokeWidth: "number"
+          roughness: "number (0-2)"
+          opacity: "number (0-100)"
+          text: "string (for text elements)"
+          label: "string"
+      batch_create:
+        method: POST
+        path: /api/elements/batch
+        description: "Create multiple elements in one operation"
+        no_auth: true
+      update:
+        method: PUT
+        path: /api/elements/{id}
+        description: "Update element properties"
+        no_auth: true
+      delete:
+        method: DELETE
+        path: /api/elements/{id}
+        description: "Remove an element from the canvas"
+        no_auth: true
+      clear:
+        method: DELETE
+        path: /api/elements/clear
+        description: "Clear all elements from the canvas"
+        no_auth: true
+      from_mermaid:
+        method: POST
+        path: /api/elements/from-mermaid
+        description: "Convert Mermaid diagram syntax to Excalidraw elements"
+        no_auth: true
+        body:
+          mermaidDiagram: "string (Mermaid syntax)"
+          config: "object (optional layout config)"
+      sync:
+        method: POST
+        path: /api/elements/sync
+        description: "Sync a set of elements to the canvas (replace all)"
+        no_auth: true
+
+  snapshots:
+    tier: canvas
+    description: "Named canvas checkpoints for version history"
+    endpoints:
+      list:
+        method: GET
+        path: /api/snapshots
+        description: "List all saved snapshots"
+        no_auth: true
+      get:
+        method: GET
+        path: /api/snapshots/{name}
+        description: "Get a specific snapshot by name"
+        no_auth: true
+      create:
+        method: POST
+        path: /api/snapshots
+        description: "Save current canvas state as a named snapshot"
+        no_auth: true
+        body:
+          name: "string (snapshot identifier)"
+
+  export:
+    tier: canvas
+    description: "Export canvas to PNG or SVG"
+    endpoints:
+      image:
+        method: POST
+        path: /api/export/image
+        description: "Export canvas as PNG or SVG (async — requires browser canvas open)"
+        no_auth: true
+        body:
+          format: "string (png|svg)"
+          background: "boolean"
+
+  viewport:
+    tier: canvas
+    description: "Control canvas pan and zoom"
+    endpoints:
+      set:
+        method: POST
+        path: /api/viewport
+        description: "Adjust viewport: zoom level, pan position, or scroll to content"
+        no_auth: true
+        body:
+          scrollToContent: "boolean"
+          scrollToElementId: "string"
+          zoom: "number"
+          offsetX: "number"
+          offsetY: "number"
+
+  health:
+    tier: canvas
+    description: "Canvas server health and status"
+    endpoints:
+      check:
+        method: GET
+        path: /health
+        description: "Canvas server health check"
+        no_auth: true
+      sync_status:
+        method: GET
+        path: /api/sync/status
+        description: "Canvas sync status with memory usage and WebSocket client count"
+        no_auth: true
+
+  files:
+    tier: canvas
+    description: "Image file management for the canvas"
+    endpoints:
+      list:
+        method: GET
+        path: /api/files
+        description: "List all image files"
+        no_auth: true
+      create:
+        method: POST
+        path: /api/files
+        description: "Upload image files"
+        no_auth: true
+      delete:
+        method: DELETE
+        path: /api/files/{id}
+        description: "Delete an image file"
+        no_auth: true
+
+  scenes:
+    tier: cloud
+    description: "Excalidraw Plus cloud scenes"
+    endpoints:
+      list:
+        method: GET
+        path: /api/v1/scenes
+        description: "List all scenes in the workspace"
+      get:
+        method: GET
+        path: /api/v1/scenes/{sceneId}
+        description: "Get scene metadata"
+      get_content:
+        method: GET
+        path: /api/v1/scenes/{sceneId}/content
+        description: "Get full scene content in Excalidraw format"
+      create:
+        method: POST
+        path: /api/v1/scenes
+        description: "Create a new cloud scene"
+      update:
+        method: PATCH
+        path: /api/v1/scenes/{sceneId}
+        description: "Update scene metadata"
+      update_content:
+        method: PATCH
+        path: /api/v1/scenes/{sceneId}/content
+        description: "Merge-update scene content"
+      replace_content:
+        method: PUT
+        path: /api/v1/scenes/{sceneId}/content
+        description: "Replace full scene content"
+      delete:
+        method: DELETE
+        path: /api/v1/scenes/{sceneId}
+        description: "Delete a cloud scene"
+
+  collections:
+    tier: cloud
+    description: "Excalidraw Plus scene collections"
+    endpoints:
+      list:
+        method: GET
+        path: /api/v1/collections
+        description: "List all collections"
+      get:
+        method: GET
+        path: /api/v1/collections/{collectionId}
+        description: "Get collection metadata"
+      list_scenes:
+        method: GET
+        path: /api/v1/collections/{collectionId}/scenes
+        description: "List scenes in a collection"
+      create:
+        method: POST
+        path: /api/v1/collections
+        description: "Create a new collection"
+      add_scene:
+        method: POST
+        path: /api/v1/collections/{collectionId}/scenes
+        description: "Add a scene to a collection"
+      update:
+        method: PATCH
+        path: /api/v1/collections/{collectionId}
+        description: "Update collection metadata"
+      delete:
+        method: DELETE
+        path: /api/v1/collections/{collectionId}
+        description: "Delete a collection"
+
+  workspace:
+    tier: cloud
+    description: "Excalidraw Plus workspace management"
+    endpoints:
+      get:
+        method: GET
+        path: /api/v1/workspace
+        description: "Get workspace metadata"
+      update:
+        method: PATCH
+        path: /api/v1/workspace
+        description: "Update workspace settings"
+      list_users:
+        method: GET
+        path: /api/v1/workspace/users
+        description: "List workspace members"
+      get_user:
+        method: GET
+        path: /api/v1/workspace/users/{userId}
+        description: "Get workspace member details"
+      update_user:
+        method: PATCH
+        path: /api/v1/workspace/users/{userId}
+        description: "Update workspace member role or settings"
+      remove_user:
+        method: DELETE
+        path: /api/v1/workspace/users/{userId}
+        description: "Remove a member from the workspace"
+      list_invites:
+        method: GET
+        path: /api/v1/invites
+        description: "List pending workspace invitations"
+      create_invite:
+        method: POST
+        path: /api/v1/invites
+        description: "Send a workspace invitation"
+      get_invite:
+        method: GET
+        path: /api/v1/invites/{inviteId}
+        description: "Get invitation details"
+      update_invite:
+        method: PATCH
+        path: /api/v1/invites/{inviteId}
+        description: "Update an invitation"
+      delete_invite:
+        method: DELETE
+        path: /api/v1/invites/{inviteId}
+        description: "Cancel an invitation"
+      list_logs:
+        method: GET
+        path: /api/v1/logs
+        description: "Retrieve workspace audit logs"

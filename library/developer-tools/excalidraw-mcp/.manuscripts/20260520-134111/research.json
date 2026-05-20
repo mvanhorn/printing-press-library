@@ -1,0 +1,247 @@
+{
+  "api_name": "excalidraw-mcp",
+  "novelty_score": 82,
+  "alternatives": [
+    {
+      "name": "yctimlin/mcp_excalidraw",
+      "url": "https://github.com/yctimlin/mcp_excalidraw",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 1900,
+      "last_updated": "",
+      "command_count": 26,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "f/mcptools",
+      "url": "https://github.com/f/mcptools",
+      "language": "Go",
+      "install_method": "",
+      "stars": 1600,
+      "last_updated": "",
+      "command_count": 10,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "excalidraw/excalidraw-mcp",
+      "url": "https://github.com/excalidraw/excalidraw-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 4500,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ahmadawais/excalidraw-cli",
+      "url": "https://github.com/ahmadawais/excalidraw-cli",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "swiftlysingh/excalidraw-cli",
+      "url": "https://www.npmjs.com/package/@swiftlysingh/excalidraw-cli",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-20T04:41:11Z",
+  "novel_features": [
+    {
+      "name": "Snapshot Diff",
+      "command": "diff",
+      "description": "Compare two canvas snapshots and see exactly which elements were added, removed, or moved.",
+      "rationale": "Requires local SQLite snapshot history — no existing tool tracks element-level deltas between named saves.",
+      "example": "excalidraw-mcp-pp-cli diff v1 v2 --json",
+      "why_it_matters": "Use when you need to audit diagram changes, review what an AI agent drew, or verify a refactoring didn't break diagram structure.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "One-step Mermaid to PNG",
+      "command": "convert",
+      "description": "Convert a Mermaid diagram file to a PNG or SVG in one command — no separate steps needed.",
+      "rationale": "Wraps three API calls (from-mermaid + snapshot + export-image) transparently in a single invocation.",
+      "example": "excalidraw-mcp-pp-cli convert --input flow.mmd --output diagram.png",
+      "why_it_matters": "Use in CI/CD pipelines to turn Mermaid specs into diagram images without manual canvas interaction.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Canvas Stats",
+      "command": "stats",
+      "description": "See element type distribution, color palette in use, and bounding box summary for the current canvas.",
+      "rationale": "Aggregates across element types and properties — only possible via local store or live API scan.",
+      "example": "excalidraw-mcp-pp-cli stats --json --agent",
+      "why_it_matters": "Use to understand canvas composition before asking an AI to modify or extend a diagram.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Stale Diagram Check",
+      "command": "stale",
+      "description": "Walk a directory for .excalidraw files and flag diagrams that haven't been updated in N days.",
+      "rationale": "Correlates .excalidraw file modification dates with a configurable threshold; no other tool does this.",
+      "example": "excalidraw-mcp-pp-cli stale --dir ./docs --since 90d --json",
+      "why_it_matters": "Use in CI to catch documentation diagrams that may be out of date with the codebase they describe.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Agent Context Dump",
+      "command": "agent-canvas-context",
+      "description": "Emit a compact canvas summary (element count, type histogram, bounding box) sized for agent context windows.",
+      "rationale": "Optimized for agent consumption: --compact strips verbose fields, --select allows field narrowing.",
+      "example": "excalidraw-mcp-pp-cli agent-canvas-context --agent --compact",
+      "why_it_matters": "Use at the start of any agent task that involves the canvas so the agent knows current state without reading all elements.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Snapshot Diff",
+      "command": "diff",
+      "description": "Compare two canvas snapshots and see exactly which elements were added, removed, or moved.",
+      "rationale": "Requires local SQLite snapshot history — no existing tool tracks element-level deltas between named saves.",
+      "example": "excalidraw-mcp-pp-cli diff v1 v2 --json",
+      "why_it_matters": "Use when you need to audit diagram changes, review what an AI agent drew, or verify a refactoring didn't break diagram structure.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "One-step Mermaid to PNG",
+      "command": "convert",
+      "description": "Convert a Mermaid diagram file to a PNG or SVG in one command — no separate steps needed.",
+      "rationale": "Wraps three API calls (from-mermaid + snapshot + export-image) transparently in a single invocation.",
+      "example": "excalidraw-mcp-pp-cli convert --input flow.mmd --output diagram.png",
+      "why_it_matters": "Use in CI/CD pipelines to turn Mermaid specs into diagram images without manual canvas interaction.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Canvas Stats",
+      "command": "stats",
+      "description": "See element type distribution, color palette in use, and bounding box summary for the current canvas.",
+      "rationale": "Aggregates across element types and properties — only possible via local store or live API scan.",
+      "example": "excalidraw-mcp-pp-cli stats --json --agent",
+      "why_it_matters": "Use to understand canvas composition before asking an AI to modify or extend a diagram.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Stale Diagram Check",
+      "command": "stale",
+      "description": "Walk a directory for .excalidraw files and flag diagrams that haven't been updated in N days.",
+      "rationale": "Correlates .excalidraw file modification dates with a configurable threshold; no other tool does this.",
+      "example": "excalidraw-mcp-pp-cli stale --dir ./docs --since 90d --json",
+      "why_it_matters": "Use in CI to catch documentation diagrams that may be out of date with the codebase they describe.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Agent Context Dump",
+      "command": "agent-canvas-context",
+      "description": "Emit a compact canvas summary (element count, type histogram, bounding box) sized for agent context windows.",
+      "rationale": "Optimized for agent consumption: --compact strips verbose fields, --select allows field narrowing.",
+      "example": "excalidraw-mcp-pp-cli agent-canvas-context --agent --compact",
+      "why_it_matters": "Use at the start of any agent task that involves the canvas so the agent knows current state without reading all elements.",
+      "group": "Agent-native plumbing"
+    }
+  ],
+  "narrative": {
+    "display_name": "Excalidraw",
+    "headline": "The only Go CLI for Excalidraw — control your canvas, convert Mermaid, diff snapshots, and manage cloud scenes from one binary.",
+    "value_prop": "excalidraw-mcp-pp-cli drives the Excalidraw canvas server REST API and Excalidraw Plus cloud in one Go binary. Every command supports --json and --agent for scripting and AI pipelines. Snapshot versioning, one-step Mermaid→PNG conversion, and diagram stale-checks are built in.",
+    "auth_narrative": "Canvas commands (elements, snapshots, viewport, convert) need no auth — they talk to the local canvas server at http://127.0.0.1:3000. Cloud commands (scenes, collections, workspace) require EXCALIDRAW_API_KEY from your Excalidraw Plus workspace settings.",
+    "quickstart": [
+      {
+        "command": "excalidraw-mcp-pp-cli doctor",
+        "comment": "Verify canvas server is reachable and (optionally) cloud API key is valid"
+      },
+      {
+        "command": "excalidraw-mcp-pp-cli elements list --json",
+        "comment": "See all elements currently on the canvas"
+      },
+      {
+        "command": "excalidraw-mcp-pp-cli elements create --type rectangle --x 100 --y 100 --width 200 --height 120 --text 'API Gateway'",
+        "comment": "Add a labelled box to the canvas"
+      },
+      {
+        "command": "excalidraw-mcp-pp-cli convert --input architecture.mmd --output architecture.png",
+        "comment": "Convert a Mermaid diagram to PNG in one step"
+      },
+      {
+        "command": "excalidraw-mcp-pp-cli snapshots create v1",
+        "comment": "Save the current canvas state before making changes"
+      },
+      {
+        "command": "excalidraw-mcp-pp-cli diff v1 v2 --json",
+        "comment": "Compare two snapshots to see what changed"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "connection refused to 127.0.0.1:3000",
+        "fix": "Start the canvas server: docker run -p 3000:3000 ghcr.io/yctimlin/mcp_excalidraw-canvas:latest"
+      },
+      {
+        "symptom": "export image returns 503",
+        "fix": "The Excalidraw browser tab must be open at http://127.0.0.1:3000 for PNG/SVG export"
+      },
+      {
+        "symptom": "EXCALIDRAW_API_KEY: missing or invalid",
+        "fix": "Set export EXCALIDRAW_API_KEY=\u003ckey\u003e — get your key from plus.excalidraw.com workspace settings"
+      },
+      {
+        "symptom": "mermaid conversion returns empty elements",
+        "fix": "Check that the canvas server version supports from-mermaid (v0.7.0+); restart with latest Docker image"
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent needs to create, inspect, or export Excalidraw diagrams programmatically. It excels at CI/CD diagram generation, converting Mermaid specs to PNG, auditing canvas state before an AI makes changes, and syncing local diagrams to Excalidraw Plus cloud.",
+    "recipes": [
+      {
+        "title": "List all arrow elements",
+        "command": "excalidraw-mcp-pp-cli elements search --type arrow --json --select id,type,text",
+        "explanation": "Find all connector arrows and their labels in the current canvas"
+      },
+      {
+        "title": "Batch create a simple service diagram",
+        "command": "excalidraw-mcp-pp-cli elements batch --elements '[{\"type\":\"rectangle\",\"x\":0,\"y\":0,\"width\":200,\"height\":100,\"text\":\"Service\"}]'",
+        "explanation": "Upload a JSON array of elements to build a multi-service diagram in one call using --elements"
+      },
+      {
+        "title": "Convert Mermaid to PNG for docs",
+        "command": "excalidraw-mcp-pp-cli convert --input flow.mmd --output docs/flow.png",
+        "explanation": "Turn any Mermaid file into a PNG diagram without opening a browser"
+      },
+      {
+        "title": "Snapshot before AI edits",
+        "command": "excalidraw-mcp-pp-cli snapshots create pre-ai \u0026\u0026 excalidraw-mcp-pp-cli diff pre-ai post-ai --json --agent",
+        "explanation": "Save state before an agent modifies the canvas, then diff to review changes"
+      },
+      {
+        "title": "Agent context with field narrowing",
+        "command": "excalidraw-mcp-pp-cli agent-canvas-context --agent --select elementCount,types,boundingBox",
+        "explanation": "Get a compact canvas summary optimized for agent context windows using --select"
+      }
+    ],
+    "trigger_phrases": [
+      "create a diagram in excalidraw",
+      "add shapes to the canvas",
+      "convert mermaid to png",
+      "export the excalidraw canvas",
+      "list canvas elements",
+      "save canvas snapshot",
+      "use excalidraw",
+      "excalidraw cli"
+    ]
+  }
+}

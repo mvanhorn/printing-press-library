@@ -1,0 +1,429 @@
+openapi: "3.0.0"
+info:
+  title: Excalidraw Canvas & Cloud
+  version: "1.0"
+  description: "Control the Excalidraw canvas server (local, no auth) and Excalidraw Plus cloud (API key). The canvas server runs at http://127.0.0.1:3000 and is started via Docker or npm. The cloud API requires an Excalidraw Plus subscription."
+servers:
+  - url: "http://127.0.0.1:3000"
+    description: "Local Excalidraw canvas server"
+components:
+  securitySchemes:
+    cloudApiKey:
+      type: http
+      scheme: bearer
+      x-auth-vars:
+        - name: EXCALIDRAW_API_KEY
+          kind: per_call
+          required: false
+          sensitive: true
+          description: "Excalidraw Plus API key (required for cloud/* commands only). Get from your workspace settings at plus.excalidraw.com."
+  schemas:
+    Element:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum: [rectangle, ellipse, diamond, arrow, text, line, image, freedraw]
+        x:
+          type: number
+        y:
+          type: number
+        width:
+          type: number
+        height:
+          type: number
+        strokeColor:
+          type: string
+        backgroundColor:
+          type: string
+        fillStyle:
+          type: string
+        strokeWidth:
+          type: number
+        roughness:
+          type: integer
+        opacity:
+          type: number
+        text:
+          type: string
+        groupIds:
+          type: array
+          items:
+            type: string
+        isDeleted:
+          type: boolean
+paths:
+  /api/elements:
+    get:
+      operationId: elements_list
+      summary: List all canvas elements
+      description: "Returns every element currently on the Excalidraw canvas."
+      tags: [elements]
+      responses:
+        "200":
+          description: "Canvas elements"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  elements:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Element'
+                  count:
+                    type: integer
+    post:
+      operationId: elements_create
+      summary: Create a new canvas element
+      description: "Add a new shape, text, or arrow to the Excalidraw canvas."
+      tags: [elements]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [type]
+              properties:
+                type:
+                  type: string
+                  enum: [rectangle, ellipse, diamond, arrow, text, line]
+                x:
+                  type: number
+                  description: "X coordinate in canvas units"
+                y:
+                  type: number
+                  description: "Y coordinate in canvas units"
+                width:
+                  type: number
+                height:
+                  type: number
+                strokeColor:
+                  type: string
+                  description: "Hex color for the stroke (e.g. #1971c2)"
+                backgroundColor:
+                  type: string
+                  description: "Hex fill color (e.g. #a5d8ff)"
+                fillStyle:
+                  type: string
+                  enum: [hachure, cross-hatch, solid, zigzag, dots, dashed]
+                strokeWidth:
+                  type: number
+                roughness:
+                  type: integer
+                  minimum: 0
+                  maximum: 2
+                opacity:
+                  type: number
+                  minimum: 0
+                  maximum: 100
+                text:
+                  type: string
+                  description: "Label text (for text and arrow elements)"
+      responses:
+        "200":
+          description: "Created element"
+
+  /api/elements/search:
+    get:
+      operationId: elements_search
+      summary: Search elements by type or bounding box
+      description: "Filter canvas elements by type, position, or bounding box coordinates."
+      tags: [elements]
+      parameters:
+        - name: type
+          in: query
+          description: "Filter by element type (rectangle, ellipse, text, arrow, line, diamond)"
+          schema:
+            type: string
+        - name: x_min
+          in: query
+          description: "Minimum X boundary"
+          schema:
+            type: number
+        - name: x_max
+          in: query
+          description: "Maximum X boundary"
+          schema:
+            type: number
+        - name: y_min
+          in: query
+          description: "Minimum Y boundary"
+          schema:
+            type: number
+        - name: y_max
+          in: query
+          description: "Maximum Y boundary"
+          schema:
+            type: number
+      responses:
+        "200":
+          description: "Matching elements"
+
+  /api/elements/batch:
+    post:
+      operationId: elements_batch
+      summary: Create multiple elements in one operation
+      description: "Add an array of elements to the canvas in a single request. Preserves IDs when provided."
+      tags: [elements]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                elements:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Element'
+      responses:
+        "200":
+          description: "Created elements"
+
+  /api/elements/clear:
+    delete:
+      operationId: elements_clear
+      summary: Clear all canvas elements
+      description: "Remove every element from the canvas. Irreversible unless a snapshot was saved first."
+      tags: [elements]
+      responses:
+        "200":
+          description: "Canvas cleared"
+
+  /api/elements/from-mermaid:
+    post:
+      operationId: elements_from_mermaid
+      summary: Convert Mermaid diagram to canvas elements
+      description: "Parse Mermaid diagram syntax and place the resulting elements on the canvas."
+      tags: [elements]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [mermaidDiagram]
+              properties:
+                mermaidDiagram:
+                  type: string
+                  description: "Mermaid diagram code (flowchart, sequenceDiagram, erDiagram, etc.)"
+                config:
+                  type: object
+                  description: "Optional layout configuration"
+      responses:
+        "200":
+          description: "Mermaid converted to canvas elements"
+
+  /api/elements/{id}:
+    get:
+      operationId: elements_get
+      summary: Get element by ID
+      tags: [elements]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "Element details"
+    put:
+      operationId: elements_update
+      summary: Update element properties
+      description: "Modify any property of an existing canvas element."
+      tags: [elements]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Element'
+      responses:
+        "200":
+          description: "Updated element"
+    delete:
+      operationId: elements_delete
+      summary: Delete a canvas element
+      tags: [elements]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "Element deleted"
+
+  /api/snapshots:
+    get:
+      operationId: snapshots_list
+      summary: List all canvas snapshots
+      description: "Returns all saved canvas checkpoints with name, element count, and creation time."
+      tags: [snapshots]
+      responses:
+        "200":
+          description: "Snapshot list"
+    post:
+      operationId: snapshots_create
+      summary: Save canvas state as a named snapshot
+      description: "Capture the current canvas state. Use before destructive operations or to mark versions."
+      tags: [snapshots]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name:
+                  type: string
+                  description: "Snapshot identifier (e.g. v1, before-refactor, 2026-05-20)"
+      responses:
+        "200":
+          description: "Snapshot saved"
+
+  /api/snapshots/{name}:
+    get:
+      operationId: snapshots_get
+      summary: Get snapshot by name
+      tags: [snapshots]
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "Snapshot details"
+
+  /api/export/image:
+    post:
+      operationId: canvas_export
+      summary: Export canvas as PNG or SVG
+      description: "Render the current canvas to a PNG or SVG file. Requires the browser canvas to be open. Returns base64-encoded image data."
+      tags: [canvas]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [format]
+              properties:
+                format:
+                  type: string
+                  enum: [png, svg]
+                background:
+                  type: boolean
+                  description: "Include white background (default true for PNG)"
+      responses:
+        "200":
+          description: "Exported image (base64)"
+
+  /api/viewport:
+    post:
+      operationId: canvas_viewport
+      summary: Set canvas viewport zoom and pan
+      description: "Adjust the visible area: zoom level, pan position, or auto-fit all elements."
+      tags: [canvas]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                scrollToContent:
+                  type: boolean
+                  description: "Auto-fit all elements in view"
+                scrollToElementId:
+                  type: string
+                  description: "Scroll to a specific element"
+                zoom:
+                  type: number
+                  description: "Zoom level (1.0 = 100%)"
+                offsetX:
+                  type: number
+                offsetY:
+                  type: number
+      responses:
+        "200":
+          description: "Viewport updated"
+
+  /health:
+    get:
+      operationId: server_health
+      summary: Canvas server health check
+      description: "Check if the canvas server is running and return element count and WebSocket status."
+      tags: [server]
+      responses:
+        "200":
+          description: "Server health"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  timestamp:
+                    type: string
+                  elements_count:
+                    type: integer
+                  websocket_clients:
+                    type: integer
+
+  /api/sync/status:
+    get:
+      operationId: server_sync_status
+      summary: Canvas sync status and memory usage
+      tags: [server]
+      responses:
+        "200":
+          description: "Sync status"
+
+  /api/files:
+    get:
+      operationId: files_list
+      summary: List image files on the canvas
+      tags: [files]
+      responses:
+        "200":
+          description: "Files"
+    post:
+      operationId: files_upload
+      summary: Upload image files to the canvas
+      tags: [files]
+      responses:
+        "200":
+          description: "Files uploaded"
+
+  /api/files/{id}:
+    delete:
+      operationId: files_delete
+      summary: Delete an image file
+      tags: [files]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "File deleted"

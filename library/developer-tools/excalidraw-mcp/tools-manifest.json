@@ -1,0 +1,797 @@
+{
+  "api_name": "excalidraw-mcp",
+  "base_url": "http://127.0.0.1:3000",
+  "description": "Combined CLI for multiple API services",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "EXCALIDRAW_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "EXCALIDRAW_API_KEY",
+        "kind": "per_call",
+        "required": false,
+        "sensitive": true,
+        "description": "Excalidraw Plus API key (required for cloud/* commands only). Get from your workspace settings at plus.excalidraw.com."
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "collections_cloud-create",
+      "description": "Create a scene collection. Optional: name.",
+      "method": "POST",
+      "path": "/api/v1/collections",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        }
+      ]
+    },
+    {
+      "name": "collections_cloud-delete",
+      "description": "Delete a collection. Required: collectionId. Destructive.",
+      "method": "DELETE",
+      "path": "/api/v1/collections/{collectionId}",
+      "params": [
+        {
+          "name": "collectionId",
+          "type": "string",
+          "location": "path",
+          "description": "Collection id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "collections_cloud-get",
+      "description": "Get collection metadata. Required: collectionId.",
+      "method": "GET",
+      "path": "/api/v1/collections/{collectionId}",
+      "params": [
+        {
+          "name": "collectionId",
+          "type": "string",
+          "location": "path",
+          "description": "Collection id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "collections_cloud-list",
+      "description": "List scene collections.",
+      "method": "GET",
+      "path": "/api/v1/collections",
+      "params": []
+    },
+    {
+      "name": "collections_cloud-update",
+      "description": "Update collection metadata. Required: collectionId. Optional: name. Partial update.",
+      "method": "PATCH",
+      "path": "/api/v1/collections/{collectionId}",
+      "params": [
+        {
+          "name": "collectionId",
+          "type": "string",
+          "location": "path",
+          "description": "Collection id",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        }
+      ]
+    },
+    {
+      "name": "collections_scenes_cloud-collections-add",
+      "description": "Add a scene to a collection. Required: collectionId. Optional: sceneId.",
+      "method": "POST",
+      "path": "/api/v1/collections/{collectionId}/scenes",
+      "params": [
+        {
+          "name": "collectionId",
+          "type": "string",
+          "location": "path",
+          "description": "Collection id",
+          "required": true
+        },
+        {
+          "name": "sceneId",
+          "type": "string",
+          "location": "body",
+          "description": "Scene id"
+        }
+      ]
+    },
+    {
+      "name": "collections_scenes_cloud-collections-list",
+      "description": "List scenes in a collection. Required: collectionId.",
+      "method": "GET",
+      "path": "/api/v1/collections/{collectionId}/scenes",
+      "params": [
+        {
+          "name": "collectionId",
+          "type": "string",
+          "location": "path",
+          "description": "Collection id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "elements_batch",
+      "description": "Add an array of elements to the canvas in a single request. Preserves IDs when provided. Optional: elements.",
+      "method": "POST",
+      "path": "/api/elements/batch",
+      "params": [
+        {
+          "name": "elements",
+          "type": "array",
+          "location": "body",
+          "description": "Elements"
+        }
+      ]
+    },
+    {
+      "name": "elements_clear",
+      "description": "Remove every element from the canvas. Irreversible unless a snapshot was saved first. Destructive.",
+      "method": "DELETE",
+      "path": "/api/elements/clear",
+      "params": []
+    },
+    {
+      "name": "elements_create",
+      "description": "Add a new shape, text, or arrow to the Excalidraw canvas. Required: type. Optional: backgroundColor, fillStyle, height (plus 8 more).",
+      "method": "POST",
+      "path": "/api/elements",
+      "params": [
+        {
+          "name": "backgroundColor",
+          "type": "string",
+          "location": "body",
+          "description": "Hex fill color (e.g. #a5d8ff)"
+        },
+        {
+          "name": "fillStyle",
+          "type": "string",
+          "location": "body",
+          "description": "Fill style"
+        },
+        {
+          "name": "height",
+          "type": "float",
+          "location": "body",
+          "description": "Height"
+        },
+        {
+          "name": "opacity",
+          "type": "float",
+          "location": "body",
+          "description": "Opacity"
+        },
+        {
+          "name": "roughness",
+          "type": "int",
+          "location": "body",
+          "description": "Roughness"
+        },
+        {
+          "name": "strokeColor",
+          "type": "string",
+          "location": "body",
+          "description": "Hex color for the stroke (e.g. #1971c2)"
+        },
+        {
+          "name": "strokeWidth",
+          "type": "float",
+          "location": "body",
+          "description": "Stroke width"
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "Label text (for text and arrow elements)"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type",
+          "required": true
+        },
+        {
+          "name": "width",
+          "type": "float",
+          "location": "body",
+          "description": "Width"
+        },
+        {
+          "name": "x",
+          "type": "float",
+          "location": "body",
+          "description": "X coordinate in canvas units"
+        },
+        {
+          "name": "y",
+          "type": "float",
+          "location": "body",
+          "description": "Y coordinate in canvas units"
+        }
+      ]
+    },
+    {
+      "name": "elements_delete",
+      "description": "Delete a canvas element. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/api/elements/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "elements_from-mermaid",
+      "description": "Parse Mermaid diagram syntax and place the resulting elements on the canvas. Required: mermaidDiagram. Optional: config.",
+      "method": "POST",
+      "path": "/api/elements/from-mermaid",
+      "params": [
+        {
+          "name": "config",
+          "type": "object",
+          "location": "body",
+          "description": "Optional layout configuration"
+        },
+        {
+          "name": "mermaidDiagram",
+          "type": "string",
+          "location": "body",
+          "description": "Mermaid diagram code (flowchart, sequenceDiagram, erDiagram, etc.)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "elements_get",
+      "description": "Get element by ID. Required: id.",
+      "method": "GET",
+      "path": "/api/elements/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "elements_list",
+      "description": "Returns every element currently on the Excalidraw canvas.",
+      "method": "GET",
+      "path": "/api/elements",
+      "params": []
+    },
+    {
+      "name": "elements_search",
+      "description": "Filter canvas elements by type, position, or bounding box coordinates. Optional: type, x_min, x_max (plus 2 more).",
+      "method": "GET",
+      "path": "/api/elements/search",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by element type (rectangle, ellipse, text, arrow, line, diamond)"
+        },
+        {
+          "name": "x_min",
+          "type": "float",
+          "location": "query",
+          "description": "Minimum X boundary"
+        },
+        {
+          "name": "x_max",
+          "type": "float",
+          "location": "query",
+          "description": "Maximum X boundary"
+        },
+        {
+          "name": "y_min",
+          "type": "float",
+          "location": "query",
+          "description": "Minimum Y boundary"
+        },
+        {
+          "name": "y_max",
+          "type": "float",
+          "location": "query",
+          "description": "Maximum Y boundary"
+        }
+      ]
+    },
+    {
+      "name": "elements_update",
+      "description": "Modify any property of an existing canvas element. Required: id. Optional: backgroundColor, fillStyle, groupIds (plus 11 more).",
+      "method": "PUT",
+      "path": "/api/elements/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "backgroundColor",
+          "type": "string",
+          "location": "body",
+          "description": "Background color"
+        },
+        {
+          "name": "fillStyle",
+          "type": "string",
+          "location": "body",
+          "description": "Fill style"
+        },
+        {
+          "name": "groupIds",
+          "type": "array",
+          "location": "body",
+          "description": "Group ids"
+        },
+        {
+          "name": "height",
+          "type": "float",
+          "location": "body",
+          "description": "Height"
+        },
+        {
+          "name": "isDeleted",
+          "type": "bool",
+          "location": "body",
+          "description": "Is deleted"
+        },
+        {
+          "name": "opacity",
+          "type": "float",
+          "location": "body",
+          "description": "Opacity"
+        },
+        {
+          "name": "roughness",
+          "type": "int",
+          "location": "body",
+          "description": "Roughness"
+        },
+        {
+          "name": "strokeColor",
+          "type": "string",
+          "location": "body",
+          "description": "Stroke color"
+        },
+        {
+          "name": "strokeWidth",
+          "type": "float",
+          "location": "body",
+          "description": "Stroke width"
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "Text"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type"
+        },
+        {
+          "name": "width",
+          "type": "float",
+          "location": "body",
+          "description": "Width"
+        },
+        {
+          "name": "x",
+          "type": "float",
+          "location": "body",
+          "description": "X"
+        },
+        {
+          "name": "y",
+          "type": "float",
+          "location": "body",
+          "description": "Y"
+        }
+      ]
+    },
+    {
+      "name": "excalidraw-canvas-cloud-export_canvas",
+      "description": "Render the current canvas to a PNG or SVG file. Requires the browser canvas to be open. Returns base64-encoded image data. Required: format. Optional: background.",
+      "method": "POST",
+      "path": "/api/export/image",
+      "params": [
+        {
+          "name": "background",
+          "type": "bool",
+          "location": "body",
+          "description": "Include white background (default true for PNG)"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "body",
+          "description": "Format",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "excalidraw-canvas-cloud-health_server",
+      "description": "Check if the canvas server is running and return element count and WebSocket status. Returns the ExcalidrawCanvasCloudHealthServerResponse.",
+      "method": "GET",
+      "path": "/health",
+      "params": []
+    },
+    {
+      "name": "excalidraw-canvas-cloud-sync_server-status",
+      "description": "Canvas sync status and memory usage.",
+      "method": "GET",
+      "path": "/api/sync/status",
+      "params": []
+    },
+    {
+      "name": "files_delete",
+      "description": "Delete an image file. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/api/files/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "files_list",
+      "description": "List image files on the canvas.",
+      "method": "GET",
+      "path": "/api/files",
+      "params": []
+    },
+    {
+      "name": "files_upload",
+      "description": "Upload image files to the canvas.",
+      "method": "POST",
+      "path": "/api/files",
+      "params": []
+    },
+    {
+      "name": "invites_cloud-create",
+      "description": "Send a workspace invitation. Optional: email, role.",
+      "method": "POST",
+      "path": "/api/v1/invites",
+      "params": [
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Email"
+        },
+        {
+          "name": "role",
+          "type": "string",
+          "location": "body",
+          "description": "Role"
+        }
+      ]
+    },
+    {
+      "name": "invites_cloud-delete",
+      "description": "Cancel an invitation. Required: inviteId. Destructive.",
+      "method": "DELETE",
+      "path": "/api/v1/invites/{inviteId}",
+      "params": [
+        {
+          "name": "inviteId",
+          "type": "string",
+          "location": "path",
+          "description": "Invite id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "invites_cloud-list",
+      "description": "List pending workspace invitations.",
+      "method": "GET",
+      "path": "/api/v1/invites",
+      "params": []
+    },
+    {
+      "name": "logs_cloud-workspace",
+      "description": "Retrieve workspace audit logs. Optional: limit, offset.",
+      "method": "GET",
+      "path": "/api/v1/logs",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    },
+    {
+      "name": "scenes_cloud-create",
+      "description": "Create a cloud scene. Optional: description, name.",
+      "method": "POST",
+      "path": "/api/v1/scenes",
+      "params": [
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        }
+      ]
+    },
+    {
+      "name": "scenes_cloud-delete",
+      "description": "Delete a cloud scene. Required: sceneId. Destructive.",
+      "method": "DELETE",
+      "path": "/api/v1/scenes/{sceneId}",
+      "params": [
+        {
+          "name": "sceneId",
+          "type": "string",
+          "location": "path",
+          "description": "Scene id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "scenes_cloud-get",
+      "description": "Get cloud scene metadata. Required: sceneId.",
+      "method": "GET",
+      "path": "/api/v1/scenes/{sceneId}",
+      "params": [
+        {
+          "name": "sceneId",
+          "type": "string",
+          "location": "path",
+          "description": "Scene id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "scenes_cloud-list",
+      "description": "List all scenes in your Excalidraw Plus workspace. Optional: limit, offset.",
+      "method": "GET",
+      "path": "/api/v1/scenes",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    },
+    {
+      "name": "scenes_cloud-update",
+      "description": "Update cloud scene metadata. Required: sceneId. Optional: name. Partial update.",
+      "method": "PATCH",
+      "path": "/api/v1/scenes/{sceneId}",
+      "params": [
+        {
+          "name": "sceneId",
+          "type": "string",
+          "location": "path",
+          "description": "Scene id",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        }
+      ]
+    },
+    {
+      "name": "scenes_content_cloud-scenes-get",
+      "description": "Get full scene content in Excalidraw format. Required: sceneId.",
+      "method": "GET",
+      "path": "/api/v1/scenes/{sceneId}/content",
+      "params": [
+        {
+          "name": "sceneId",
+          "type": "string",
+          "location": "path",
+          "description": "Scene id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "scenes_content_cloud-scenes-replace",
+      "description": "Fully replace the scene's elements with the provided Excalidraw JSON. Required: sceneId.",
+      "method": "PUT",
+      "path": "/api/v1/scenes/{sceneId}/content",
+      "params": [
+        {
+          "name": "sceneId",
+          "type": "string",
+          "location": "path",
+          "description": "Scene id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "scenes_content_cloud-scenes-update",
+      "description": "Merge-update scene content. Required: sceneId. Partial update.",
+      "method": "PATCH",
+      "path": "/api/v1/scenes/{sceneId}/content",
+      "params": [
+        {
+          "name": "sceneId",
+          "type": "string",
+          "location": "path",
+          "description": "Scene id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "snapshots_create",
+      "description": "Capture the current canvas state. Use before destructive operations or to mark versions. Required: name.",
+      "method": "POST",
+      "path": "/api/snapshots",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Snapshot identifier (e.g. v1, before-refactor, 2026-05-20)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "snapshots_get",
+      "description": "Get snapshot by name. Required: name.",
+      "method": "GET",
+      "path": "/api/snapshots/{name}",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "path",
+          "description": "Name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "snapshots_list",
+      "description": "Returns all saved canvas checkpoints with name, element count, and creation time.",
+      "method": "GET",
+      "path": "/api/snapshots",
+      "params": []
+    },
+    {
+      "name": "viewport_canvas",
+      "description": "Adjust the visible area: zoom level, pan position, or auto-fit all elements. Optional: offsetX, offsetY, scrollToContent (plus 2 more).",
+      "method": "POST",
+      "path": "/api/viewport",
+      "params": [
+        {
+          "name": "offsetX",
+          "type": "float",
+          "location": "body",
+          "description": "Offset x"
+        },
+        {
+          "name": "offsetY",
+          "type": "float",
+          "location": "body",
+          "description": "Offset y"
+        },
+        {
+          "name": "scrollToContent",
+          "type": "bool",
+          "location": "body",
+          "description": "Auto-fit all elements in view"
+        },
+        {
+          "name": "scrollToElementId",
+          "type": "string",
+          "location": "body",
+          "description": "Scroll to a specific element"
+        },
+        {
+          "name": "zoom",
+          "type": "float",
+          "location": "body",
+          "description": "Zoom level (1.0 = 100%)"
+        }
+      ]
+    },
+    {
+      "name": "workspace_cloud-get",
+      "description": "Get workspace metadata.",
+      "method": "GET",
+      "path": "/api/v1/workspace",
+      "params": []
+    },
+    {
+      "name": "workspace_cloud-list-users",
+      "description": "List workspace members.",
+      "method": "GET",
+      "path": "/api/v1/workspace/users",
+      "params": []
+    },
+    {
+      "name": "workspace_cloud-remove-user",
+      "description": "Remove a member from the workspace. Required: userId. Destructive.",
+      "method": "DELETE",
+      "path": "/api/v1/workspace/users/{userId}",
+      "params": [
+        {
+          "name": "userId",
+          "type": "string",
+          "location": "path",
+          "description": "User id",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

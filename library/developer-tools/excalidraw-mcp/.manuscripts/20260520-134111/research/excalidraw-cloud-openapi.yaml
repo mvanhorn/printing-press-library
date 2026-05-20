@@ -1,0 +1,360 @@
+openapi: "3.0.0"
+info:
+  title: Excalidraw Plus Cloud
+  version: "1.0"
+  description: "Excalidraw Plus cloud API for managing scenes, collections, and workspaces. Requires an active Excalidraw Plus subscription and API key."
+servers:
+  - url: "https://api.excalidraw.com"
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      x-auth-vars:
+        - name: EXCALIDRAW_API_KEY
+          kind: per_call
+          required: false
+          sensitive: true
+          description: "Excalidraw Plus API key. Get from workspace settings at plus.excalidraw.com. Required for all cloud/* commands."
+security:
+  - bearerAuth: []
+paths:
+  /api/v1/scenes:
+    get:
+      operationId: cloud_scenes_list
+      summary: List cloud scenes
+      description: "List all scenes in your Excalidraw Plus workspace."
+      tags: [cloud-scenes]
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Scenes"
+        "401":
+          description: "Missing or invalid API key"
+    post:
+      operationId: cloud_scenes_create
+      summary: Create a cloud scene
+      tags: [cloud-scenes]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+      responses:
+        "200":
+          description: "Scene created"
+
+  /api/v1/scenes/{sceneId}:
+    get:
+      operationId: cloud_scenes_get
+      summary: Get cloud scene metadata
+      tags: [cloud-scenes]
+      parameters:
+        - name: sceneId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "Scene"
+    patch:
+      operationId: cloud_scenes_update
+      summary: Update cloud scene metadata
+      tags: [cloud-scenes]
+      parameters:
+        - name: sceneId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+      responses:
+        "200":
+          description: "Updated scene"
+    delete:
+      operationId: cloud_scenes_delete
+      summary: Delete a cloud scene
+      tags: [cloud-scenes]
+      parameters:
+        - name: sceneId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "Scene deleted"
+
+  /api/v1/scenes/{sceneId}/content:
+    get:
+      operationId: cloud_scenes_get_content
+      summary: Get full scene content in Excalidraw format
+      tags: [cloud-scenes]
+      parameters:
+        - name: sceneId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "Scene content (Excalidraw JSON)"
+    put:
+      operationId: cloud_scenes_replace_content
+      summary: Replace scene content
+      description: "Fully replace the scene's elements with the provided Excalidraw JSON."
+      tags: [cloud-scenes]
+      parameters:
+        - name: sceneId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        "200":
+          description: "Content replaced"
+    patch:
+      operationId: cloud_scenes_update_content
+      summary: Merge-update scene content
+      tags: [cloud-scenes]
+      parameters:
+        - name: sceneId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        "200":
+          description: "Content merged"
+
+  /api/v1/collections:
+    get:
+      operationId: cloud_collections_list
+      summary: List scene collections
+      tags: [cloud-collections]
+      responses:
+        "200":
+          description: "Collections"
+    post:
+      operationId: cloud_collections_create
+      summary: Create a scene collection
+      tags: [cloud-collections]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+      responses:
+        "200":
+          description: "Collection created"
+
+  /api/v1/collections/{collectionId}:
+    get:
+      operationId: cloud_collections_get
+      summary: Get collection metadata
+      tags: [cloud-collections]
+      parameters:
+        - name: collectionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "Collection"
+    patch:
+      operationId: cloud_collections_update
+      summary: Update collection metadata
+      tags: [cloud-collections]
+      parameters:
+        - name: collectionId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+      responses:
+        "200":
+          description: "Updated"
+    delete:
+      operationId: cloud_collections_delete
+      summary: Delete a collection
+      tags: [cloud-collections]
+      parameters:
+        - name: collectionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "Deleted"
+
+  /api/v1/collections/{collectionId}/scenes:
+    get:
+      operationId: cloud_collections_list_scenes
+      summary: List scenes in a collection
+      tags: [cloud-collections]
+      parameters:
+        - name: collectionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "Scenes in collection"
+    post:
+      operationId: cloud_collections_add_scene
+      summary: Add a scene to a collection
+      tags: [cloud-collections]
+      parameters:
+        - name: collectionId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sceneId:
+                  type: string
+      responses:
+        "200":
+          description: "Scene added"
+
+  /api/v1/workspace:
+    get:
+      operationId: cloud_workspace_get
+      summary: Get workspace metadata
+      tags: [cloud-workspace]
+      responses:
+        "200":
+          description: "Workspace"
+
+  /api/v1/workspace/users:
+    get:
+      operationId: cloud_workspace_list_users
+      summary: List workspace members
+      tags: [cloud-workspace]
+      responses:
+        "200":
+          description: "Members"
+
+  /api/v1/workspace/users/{userId}:
+    delete:
+      operationId: cloud_workspace_remove_user
+      summary: Remove a member from the workspace
+      tags: [cloud-workspace]
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "User removed"
+
+  /api/v1/invites:
+    get:
+      operationId: cloud_invites_list
+      summary: List pending workspace invitations
+      tags: [cloud-workspace]
+      responses:
+        "200":
+          description: "Invitations"
+    post:
+      operationId: cloud_invites_create
+      summary: Send a workspace invitation
+      tags: [cloud-workspace]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                role:
+                  type: string
+      responses:
+        "200":
+          description: "Invitation sent"
+
+  /api/v1/invites/{inviteId}:
+    delete:
+      operationId: cloud_invites_delete
+      summary: Cancel an invitation
+      tags: [cloud-workspace]
+      parameters:
+        - name: inviteId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "Invitation cancelled"
+
+  /api/v1/logs:
+    get:
+      operationId: cloud_workspace_logs
+      summary: Retrieve workspace audit logs
+      tags: [cloud-workspace]
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Audit logs"

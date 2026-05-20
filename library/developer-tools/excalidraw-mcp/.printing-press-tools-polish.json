@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-05-20T05:24:03.400368Z",
+  "cli_dir": "\u003ccli-dir\u003e/excalidraw-mcp-pp-cli",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-05-20T05:24:03.40037Z"
+  }
+}

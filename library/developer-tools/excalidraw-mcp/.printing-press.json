@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-20T05:25:36.245592Z",
+  "printing_press_version": "4.9.0",
+  "api_name": "excalidraw-mcp",
+  "display_name": "Excalidraw Mcp",
+  "cli_name": "excalidraw-mcp-pp-cli",
+  "owner": "bk20260126-code",
+  "printer": "bk20260126-code",
+  "printer_name": "bk20260126-code",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:01e1dd2320ad3b06dfae3177af9137e16da9abdc09fc591620d7299b0c2e258e",
+  "run_id": "20260520-134111",
+  "mcp_binary": "excalidraw-mcp-pp-mcp",
+  "mcp_tool_count": 41,
+  "mcp_ready": "full",
+  "api_version": "1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "EXCALIDRAW_API_KEY"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "EXCALIDRAW_API_KEY",
+      "kind": "per_call",
+      "required": false,
+      "sensitive": true,
+      "description": "Excalidraw Plus API key (required for cloud/* commands only). Get from your workspace settings at plus.excalidraw.com."
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Snapshot Diff",
+      "command": "diff",
+      "description": "Compare two canvas snapshots and see exactly which elements were added, removed, or moved."
+    },
+    {
+      "name": "One-step Mermaid to PNG",
+      "command": "convert",
+      "description": "Convert a Mermaid diagram file to a PNG or SVG in one command — no separate steps needed."
+    },
+    {
+      "name": "Canvas Stats",
+      "command": "stats",
+      "description": "See element type distribution, color palette in use, and bounding box summary for the current canvas."
+    },
+    {
+      "name": "Stale Diagram Check",
+      "command": "stale",
+      "description": "Walk a directory for .excalidraw files and flag diagrams that haven't been updated in N days."
+    },
+    {
+      "name": "Agent Context Dump",
+      "command": "agent-canvas-context",
+      "description": "Emit a compact canvas summary (element count, type histogram, bounding box) sized for agent context windows."
+    }
+  ]
+}

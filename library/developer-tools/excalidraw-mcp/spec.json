@@ -1,0 +1,1485 @@
+{
+  "name": "excalidraw-mcp",
+  "description": "Combined CLI for multiple API services",
+  "version": "1.0",
+  "base_url": "http://127.0.0.1:3000",
+  "owner": "bk20260126-code",
+  "owner_name": "bk20260126-code",
+  "printer": "bk20260126-code",
+  "printer_name": "bk20260126-code",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "format": "",
+    "env_vars": [
+      "EXCALIDRAW_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "EXCALIDRAW_API_KEY",
+        "kind": "per_call",
+        "required": false,
+        "sensitive": true,
+        "description": "Excalidraw Plus API key (required for cloud/* commands only). Get from your workspace settings at plus.excalidraw.com."
+      }
+    ],
+    "scheme": "cloudApiKey"
+  },
+  "config": {
+    "format": "toml",
+    "path": "~/.config/excalidraw-mcp-pp-cli/config.toml"
+  },
+  "resources": {
+    "collections": {
+      "description": "Manage collections",
+      "base_url": "https://api.excalidraw.com",
+      "endpoints": {
+        "cloud-create": {
+          "method": "POST",
+          "path": "/api/v1/collections",
+          "description": "Create a scene collection",
+          "params": [],
+          "body": [
+            {
+              "name": "name",
+              "type": "string",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Name",
+              "fields": null
+            }
+          ],
+          "request_content_type": "application/json",
+          "response": {
+            "type": "",
+            "item": ""
+          },
+          "pagination": null
+        },
+        "cloud-delete": {
+          "method": "DELETE",
+          "path": "/api/v1/collections/{collectionId}",
+          "description": "Delete a collection",
+          "params": [
+            {
+              "name": "collectionId",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Collection id",
+              "fields": null
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "",
+            "item": ""
+          },
+          "pagination": null
+        },
+        "cloud-get": {
+          "method": "GET",
+          "path": "/api/v1/collections/{collectionId}",
+          "description": "Get collection metadata",
+          "params": [
+            {
+              "name": "collectionId",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Collection id",
+              "fields": null
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "",
+            "item": ""
+          },
+          "pagination": null
+        },
+        "cloud-list": {
+          "method": "GET",
+          "path": "/api/v1/collections",
+          "description": "List scene collections",
+          "params": [],
+          "body": [],
+          "response": {
+            "type": "",
+            "item": ""
+          },
+          "pagination": null
+        },
+        "cloud-update": {
+          "method": "PATCH",
+          "path": "/api/v1/collections/{collectionId}",
+          "description": "Update collection metadata",
+          "params": [
+            {
+              "name": "collectionId",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Collection id",
+              "fields": null
+            }
+          ],
+          "body": [
+            {
+              "name": "name",
+              "type": "string",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Name",
+              "fields": null
+            }
+          ],
+          "request_content_type": "application/json",
+          "response": {
+            "type": "",
+            "item": ""
+          },
+          "pagination": null
+        }
+      },
+      "sub_resources": {
+        "scenes": {
+          "description": "Manage scenes",
+          "base_url": "https://api.excalidraw.com",
+          "endpoints": {
+            "cloud-collections-add": {
+              "method": "POST",
+              "path": "/api/v1/collections/{collectionId}/scenes",
+              "description": "Add a scene to a collection",
+              "params": [
+                {
+                  "name": "collectionId",
+                  "type": "string",
+                  "required": true,
+                  "positional": true,
+                  "path_param": true,
+                  "default": null,
+                  "description": "Collection id",
+                  "fields": null
+                }
+              ],
+              "body": [
+                {
+                  "name": "sceneId",
+                  "type": "string",
+                  "required": false,
+                  "positional": false,
+                  "default": null,
+                  "description": "Scene id",
+                  "fields": null
+                }
+              ],
+              "request_content_type": "application/json",
+              "response": {
+                "type": "",
+                "item": ""
+              },
+              "pagination": null
+            },
+            "cloud-collections-list": {
+              "method": "GET",
+              "path": "/api/v1/collections/{collectionId}/scenes",
+              "description": "List scenes in a collection",
+              "params": [
+                {
+                  "name": "collectionId",
+                  "type": "string",
+                  "required": true,
+                  "positional": true,
+                  "path_param": true,
+                  "default": null,
+                  "description": "Collection id",
+                  "fields": null
+                }
+              ],
+              "body": [],
+              "response": {
+                "type": "",
+                "item": ""
+              },
+              "pagination": null
+            }
+          }
+        }
+      }
+    },
+    "elements": {
+      "description": "Manage elements",
+      "endpoints": {
+        "batch": {
+          "method": "POST",
+          "path": "/api/elements/batch",
+          "description": "Add an array of elements to the canvas in a single request. Preserves IDs when provided.",
+          "params": [],
+          "body": [
+            {
+              "name": "elements",
+              "type": "array",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Elements",
+              "fields": null
+            }
+          ],
+          "body_required": true,
+          "request_content_type": "application/json",
+          "response": {
+            "type": "",
+            "item": ""
+          },
+          "pagination": null
+        },
+        "clear": {
+          "method": "DELETE",
+          "path": "/api/elements/clear",
+          "description": "Remove every element from the canvas. Irreversible unless a snapshot was saved first.",
+          "params": [],
+          "body": [],
+          "response": {
+            "type": "",
+            "item": ""
+          },
+          "pagination": null
+        },
+        "create": {
+          "method": "POST",
+          "path": "/api/elements",
+          "description": "Add a new shape, text, or arrow to the Excalidraw canvas.",
+          "params": [],
+          "body": [
+            {
+              "name": "backgroundColor",
+              "type": "string",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Hex fill color (e.g. #a5d8ff)",
+              "fields": null
+            },
+            {
+              "name": "fillStyle",
+              "type": "string",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Fill style",
+              "fields": null,
+              "enum": [
+                "hachure",
+                "cross-hatch",
+                "solid",
+                "zigzag",
+                "dots",
+                "dashed"
+              ]
+            },
+            {
+              "name": "height",
+              "type": "float",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Height",
+              "fields": null
+            },
+            {
+              "name": "opacity",
+              "type": "float",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Opacity",
+              "fields": null
+            },
+            {
+              "name": "roughness",
+              "type": "int",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Roughness",
+              "fields": null
+            },
+            {
+              "name": "strokeColor",
+              "type": "string",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Hex color for the stroke (e.g. #1971c2)",
+              "fields": null
+            },
+            {
+              "name": "strokeWidth",
+              "type": "float",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Stroke width",
+              "fields": null
+            },
+            {
+              "name": "text",
+              "type": "string",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Label text (for text and arrow elements)",
+              "fields": null
+            },
+            {
+              "name": "type",
+              "type": "string",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "Type",
+              "fields": null,
+              "enum": [
+                "rectangle",
+                "ellipse",
+                "diamond",
+                "arrow",
+                "text",
+                "line"
+              ]
+            },
+            {
+              "name": "width",
+              "type": "float",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Width",
+              "fields": null
+            },
+            {
+              "name": "x",
+              "type": "float",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "X coordinate in canvas units",
+              "fields": null
+            },
+            {
+              "name": "y",
+              "type": "float",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Y coordinate in canvas units",
+              "fields": null
+            }
+          ],
+          "body_required": true,
+          "request_content_type": "application/json",
+          "response": {
+            "type": "",
+            "item": ""
+          },
+          "pagination": null
+        },
+        "delete": {
+          "method": "DELETE",
+          "path": "/api/elements/{id}",
+          "description": "Delete a canvas element",
+          "params": [
+            {
+              "name": "id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Id",
+              "fields": null
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "",
+            "item": ""
+          },
+          "pagination": null
+        },
+        "from-mermaid": {
+          "method": "POST",
+          "path": "/api/elements/from-mermaid",
+          "description": "Parse Mermaid diagram syntax and place the resulting elements on the canvas.",
+          "params": [],
+          "body": [
+            {
+              "name": "config",
+              "type": "object",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Optional layout configuration",
+              "fields": null
+            },
+            {
+              "name": "mermaidDiagram",
+              "type": "string",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "Mermaid diagram code (flowchart, sequenceDiagram, erDiagram, etc.)",
+              "fields": null
+            }
+          ],
+          "body_required": true,
+          "request_content_type": "application/json",
+          "response": {
+            "type": "",
+            "item": ""
+          },
+          "pagination": null
+        },
+        "get": {
+          "method": "GET",
+          "path": "/api/elements/{id}",
+          "description": "Get element by ID",
+          "params": [
+            {
+              "name": "id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Id",
+              "fields": null
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "",
+            "item": ""
+          },
+          "pagination": null
+        },
+        "list": {
+          "method": "GET",
+          "path": "/api/elements",
+          "description": "Returns every element currently on the Excalidraw canvas.",
+          "params": [],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "ElementsListResponse"
+          },
+          "pagination": null,
+          "id_field": "id"
+        },
+        "search": {
+          "method": "GET",
+          "path": "/api/elements/search",
+          "description": "Filter canvas elements by type, position, or bounding box coordinates.",
+          "params": [
+            {
+              "name": "type",
+              "type": "string",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Filter by element type (rectangle, ellipse, text, arrow, line, diamond)",
+              "fields": null
+            },
+            {
+              "name": "x_min",
+              "type": "float",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Minimum X boundary",
+              "fields": null
+            },
+            {
+              "name": "x_max",
+              "type": "float",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Maximum X boundary",
+              "fields": null
+            },
+            {
+              "name": "y_min",
+              "type": "float",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Minimum Y boundary",
+              "fields": null
+            },
+            {
+              "name": "y_max",
+              "type": "float",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Maximum Y boundary",
+              "fields": null
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "",
+            "item": ""
+          },
+          "pagination": null
+        },
+        "update": {
+          "method": "PUT",
+          "path": "/api/elements/{id}",
+          "description": "Modify any property of an existing canvas element.",
+          "params": [
+            {
+              "name": "id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Id",
+              "fields": null
+            }
+          ],
+          "body": [
+            {
+              "name": "backgroundColor",
+              "type": "string",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Background color",
+              "fields": null
+            },
+            {
+              "name": "fillStyle",
+              "type": "string",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Fill style",
+              "fields": null
+            },
+            {
+              "name": "groupIds",
+              "type": "array",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Group ids",
+              "fields": null
+            },
+            {
+              "name": "height",
+              "type": "float",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Height",
+              "fields": null
+            },
+            {
+              "name": "isDeleted",
+              "type": "bool",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Is deleted",
+              "fields": null
+            },
+            {
+              "name": "opacity",
+              "type": "float",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Opacity",
+              "fields": null
+            },
+            {
+              "name": "roughness",
+              "type": "int",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Roughness",
+              "fields": null
+            },
+            {
+              "name": "strokeColor",
+              "type": "string",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Stroke color",
+              "fields": null
+            },
+            {
+              "name": "strokeWidth",
+              "type": "float",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Stroke width",
+              "fields": null
+            },
+            {
+              "name": "text",
+              "type": "string",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Text",
+              "fields": null
+            },
+            {
+              "name": "type",
+              "type": "string",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Type",
+              "fields": null,
+              "enum": [
+                "rectangle",
+                "ellipse",
+                "diamond",
+                "arrow",
+                "text",
+                "line",
+                "image",
+                "freedraw"
+              ]
+            },
+            {
+              "name": "width",
+              "type": "float",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Width",
+              "fields": null
+            },
+            {
+              "name": "x",
+              "type": "float",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "X",
+              "fields": null
+            },
+            {
+              "name": "y",
+              "type": "float",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Y",
+              "fields": null
+            }
+          ],
+          "body_required": true,
+          "request_content_type": "application/json",
+          "response": {
+            "type": "",
+            "item": ""
+          },
+          "pagination": null
+        }
+      }
+    },
+    "excalidraw-canvas-cloud-export": {
+      "description": "Manage excalidraw canvas cloud export",
+      "endpoints": {
+        "canvas": {
+          "method": "POST",
+          "path": "/api/export/image",
+          "description": "Render the current canvas to a PNG or SVG file. Requires the browser canvas to be open. Returns base64-encoded image data.",
+          "params": [],
+          "body": [
+            {
+              "name": "background",
+              "type": "bool",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Include white background (default true for PNG)",
+              "fields": null
+            },
+            {
+              "name": "format",
+              "type": "string",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "Format",
+              "fields": null,
+              "enum": [
+                "png",
+                "svg"
+              ]
+            }
+          ],
+          "body_required": true,
+          "request_content_type": "application/json",
+          "response": {
+            "type": "",
+            "item": ""
+          },
+          "pagination": null
+        }
+      }
+    },
+    "excalidraw-canvas-cloud-health": {
+      "description": "Manage excalidraw canvas cloud health",
+      "endpoints": {
+        "server": {
+          "method": "GET",
+          "path": "/health",
+          "description": "Check if the canvas server is running and return element count and WebSocket status.",
+          "params": [],
+          "body": [],
+          "response": {
+            "type": "object",
+            "item": "ExcalidrawCanvasCloudHealthServerResponse"
+          },
+          "pagination": null
+        }
+      }
+    },
+    "excalidraw-canvas-cloud-sync": {
+      "description": "Manage excalidraw canvas cloud sync",
+      "endpoints": {
+        "server-status": {
+          "method": "GET",
+          "path": "/api/sync/status",
+          "description": "Canvas sync status and memory usage",
+          "params": [],
+          "body": [],
+          "response": {
+            "type": "",
+            "item": ""
+          },
+          "pagination": null
+        }
+      }
+    },
+    "files": {
+      "description": "Manage files",
+      "endpoints": {
+        "delete": {
+          "method": "DELETE",
+          "path": "/api/files/{id}",
+          "description": "Delete an image file",
+          "params": [
+            {
+              "name": "id",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Id",
+              "fields": null
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "",
+            "item": ""
+          },
+          "pagination": null
+        },
+        "list": {
+          "method": "GET",
+          "path": "/api/files",
+          "description": "List image files on the canvas",
+          "params": [],
+          "body": [],
+          "response": {
+            "type": "",
+            "item": ""
+          },
+          "pagination": null
+        },
+        "upload": {
+          "method": "POST",
+          "path": "/api/files",
+          "description": "Upload image files to the canvas",
+          "params": [],
+          "body": [],
+          "response": {
+            "type": "",
+            "item": ""
+          },
+          "pagination": null
+        }
+      }
+    },
+    "invites": {
+      "description": "Manage invites",
+      "base_url": "https://api.excalidraw.com",
+      "endpoints": {
+        "cloud-create": {
+          "method": "POST",
+          "path": "/api/v1/invites",
+          "description": "Send a workspace invitation",
+          "params": [],
+          "body": [
+            {
+              "name": "email",
+              "type": "string",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Email",
+              "fields": null
+            },
+            {
+              "name": "role",
+              "type": "string",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Role",
+              "fields": null
+            }
+          ],
+          "request_content_type": "application/json",
+          "response": {
+            "type": "",
+            "item": ""
+          },
+          "pagination": null
+        },
+        "cloud-delete": {
+          "method": "DELETE",
+          "path": "/api/v1/invites/{inviteId}",
+          "description": "Cancel an invitation",
+          "params": [
+            {
+              "name": "inviteId",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Invite id",
+              "fields": null
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "",
+            "item": ""
+          },
+          "pagination": null
+        },
+        "cloud-list": {
+          "method": "GET",
+          "path": "/api/v1/invites",
+          "description": "List pending workspace invitations",
+          "params": [],
+          "body": [],
+          "response": {
+            "type": "",
+            "item": ""
+          },
+          "pagination": null
+        }
+      }
+    },
+    "logs": {
+      "description": "Manage logs",
+      "base_url": "https://api.excalidraw.com",
+      "endpoints": {
+        "cloud-workspace": {
+          "method": "GET",
+          "path": "/api/v1/logs",
+          "description": "Retrieve workspace audit logs",
+          "params": [
+            {
+              "name": "limit",
+              "type": "int",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Limit",
+              "fields": null
+            },
+            {
+              "name": "offset",
+              "type": "int",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Offset",
+              "fields": null
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "",
+            "item": ""
+          },
+          "pagination": {
+            "type": "offset",
+            "limit_param": "limit",
+            "cursor_param": "offset",
+            "next_cursor_path": "",
+            "has_more_field": ""
+          }
+        }
+      }
+    },
+    "scenes": {
+      "description": "Manage scenes",
+      "base_url": "https://api.excalidraw.com",
+      "endpoints": {
+        "cloud-create": {
+          "method": "POST",
+          "path": "/api/v1/scenes",
+          "description": "Create a cloud scene",
+          "params": [],
+          "body": [
+            {
+              "name": "description",
+              "type": "string",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Description",
+              "fields": null
+            },
+            {
+              "name": "name",
+              "type": "string",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Name",
+              "fields": null
+            }
+          ],
+          "request_content_type": "application/json",
+          "response": {
+            "type": "",
+            "item": ""
+          },
+          "pagination": null
+        },
+        "cloud-delete": {
+          "method": "DELETE",
+          "path": "/api/v1/scenes/{sceneId}",
+          "description": "Delete a cloud scene",
+          "params": [
+            {
+              "name": "sceneId",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Scene id",
+              "fields": null
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "",
+            "item": ""
+          },
+          "pagination": null
+        },
+        "cloud-get": {
+          "method": "GET",
+          "path": "/api/v1/scenes/{sceneId}",
+          "description": "Get cloud scene metadata",
+          "params": [
+            {
+              "name": "sceneId",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Scene id",
+              "fields": null
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "",
+            "item": ""
+          },
+          "pagination": null
+        },
+        "cloud-list": {
+          "method": "GET",
+          "path": "/api/v1/scenes",
+          "description": "List all scenes in your Excalidraw Plus workspace.",
+          "params": [
+            {
+              "name": "limit",
+              "type": "int",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Limit",
+              "fields": null
+            },
+            {
+              "name": "offset",
+              "type": "int",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Offset",
+              "fields": null
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "",
+            "item": ""
+          },
+          "pagination": {
+            "type": "offset",
+            "limit_param": "limit",
+            "cursor_param": "offset",
+            "next_cursor_path": "",
+            "has_more_field": ""
+          }
+        },
+        "cloud-update": {
+          "method": "PATCH",
+          "path": "/api/v1/scenes/{sceneId}",
+          "description": "Update cloud scene metadata",
+          "params": [
+            {
+              "name": "sceneId",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Scene id",
+              "fields": null
+            }
+          ],
+          "body": [
+            {
+              "name": "name",
+              "type": "string",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Name",
+              "fields": null
+            }
+          ],
+          "request_content_type": "application/json",
+          "response": {
+            "type": "",
+            "item": ""
+          },
+          "pagination": null
+        }
+      },
+      "sub_resources": {
+        "content": {
+          "description": "Manage content",
+          "base_url": "https://api.excalidraw.com",
+          "endpoints": {
+            "cloud-scenes-get": {
+              "method": "GET",
+              "path": "/api/v1/scenes/{sceneId}/content",
+              "description": "Get full scene content in Excalidraw format",
+              "params": [
+                {
+                  "name": "sceneId",
+                  "type": "string",
+                  "required": true,
+                  "positional": true,
+                  "path_param": true,
+                  "default": null,
+                  "description": "Scene id",
+                  "fields": null
+                }
+              ],
+              "body": [],
+              "response": {
+                "type": "",
+                "item": ""
+              },
+              "pagination": null
+            },
+            "cloud-scenes-replace": {
+              "method": "PUT",
+              "path": "/api/v1/scenes/{sceneId}/content",
+              "description": "Fully replace the scene's elements with the provided Excalidraw JSON.",
+              "params": [
+                {
+                  "name": "sceneId",
+                  "type": "string",
+                  "required": true,
+                  "positional": true,
+                  "path_param": true,
+                  "default": null,
+                  "description": "Scene id",
+                  "fields": null
+                }
+              ],
+              "body": [],
+              "response": {
+                "type": "",
+                "item": ""
+              },
+              "pagination": null
+            },
+            "cloud-scenes-update": {
+              "method": "PATCH",
+              "path": "/api/v1/scenes/{sceneId}/content",
+              "description": "Merge-update scene content",
+              "params": [
+                {
+                  "name": "sceneId",
+                  "type": "string",
+                  "required": true,
+                  "positional": true,
+                  "path_param": true,
+                  "default": null,
+                  "description": "Scene id",
+                  "fields": null
+                }
+              ],
+              "body": [],
+              "response": {
+                "type": "",
+                "item": ""
+              },
+              "pagination": null
+            }
+          }
+        }
+      }
+    },
+    "snapshots": {
+      "description": "Manage snapshots",
+      "endpoints": {
+        "create": {
+          "method": "POST",
+          "path": "/api/snapshots",
+          "description": "Capture the current canvas state. Use before destructive operations or to mark versions.",
+          "params": [],
+          "body": [
+            {
+              "name": "name",
+              "type": "string",
+              "required": true,
+              "positional": false,
+              "default": null,
+              "description": "Snapshot identifier (e.g. v1, before-refactor, 2026-05-20)",
+              "fields": null
+            }
+          ],
+          "body_required": true,
+          "request_content_type": "application/json",
+          "response": {
+            "type": "",
+            "item": ""
+          },
+          "pagination": null
+        },
+        "get": {
+          "method": "GET",
+          "path": "/api/snapshots/{name}",
+          "description": "Get snapshot by name",
+          "params": [
+            {
+              "name": "name",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "Name",
+              "fields": null
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "",
+            "item": ""
+          },
+          "pagination": null
+        },
+        "list": {
+          "method": "GET",
+          "path": "/api/snapshots",
+          "description": "Returns all saved canvas checkpoints with name, element count, and creation time.",
+          "params": [],
+          "body": [],
+          "response": {
+            "type": "",
+            "item": ""
+          },
+          "pagination": null
+        }
+      }
+    },
+    "viewport": {
+      "description": "Manage viewport",
+      "endpoints": {
+        "canvas": {
+          "method": "POST",
+          "path": "/api/viewport",
+          "description": "Adjust the visible area: zoom level, pan position, or auto-fit all elements.",
+          "params": [],
+          "body": [
+            {
+              "name": "offsetX",
+              "type": "float",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Offset x",
+              "fields": null
+            },
+            {
+              "name": "offsetY",
+              "type": "float",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Offset y",
+              "fields": null
+            },
+            {
+              "name": "scrollToContent",
+              "type": "bool",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Auto-fit all elements in view",
+              "fields": null
+            },
+            {
+              "name": "scrollToElementId",
+              "type": "string",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Scroll to a specific element",
+              "fields": null
+            },
+            {
+              "name": "zoom",
+              "type": "float",
+              "required": false,
+              "positional": false,
+              "default": null,
+              "description": "Zoom level (1.0 = 100%)",
+              "fields": null
+            }
+          ],
+          "request_content_type": "application/json",
+          "response": {
+            "type": "",
+            "item": ""
+          },
+          "pagination": null
+        }
+      }
+    },
+    "workspace": {
+      "description": "Manage workspace",
+      "base_url": "https://api.excalidraw.com",
+      "endpoints": {
+        "cloud-get": {
+          "method": "GET",
+          "path": "/api/v1/workspace",
+          "description": "Get workspace metadata",
+          "params": [],
+          "body": [],
+          "response": {
+            "type": "",
+            "item": ""
+          },
+          "pagination": null
+        },
+        "cloud-list-users": {
+          "method": "GET",
+          "path": "/api/v1/workspace/users",
+          "description": "List workspace members",
+          "params": [],
+          "body": [],
+          "response": {
+            "type": "",
+            "item": ""
+          },
+          "pagination": null
+        },
+        "cloud-remove-user": {
+          "method": "DELETE",
+          "path": "/api/v1/workspace/users/{userId}",
+          "description": "Remove a member from the workspace",
+          "params": [
+            {
+              "name": "userId",
+              "type": "string",
+              "required": true,
+              "positional": true,
+              "path_param": true,
+              "default": null,
+              "description": "User id",
+              "fields": null
+            }
+          ],
+          "body": [],
+          "response": {
+            "type": "",
+            "item": ""
+          },
+          "pagination": null
+        }
+      }
+    }
+  },
+  "types": {
+    "Element": {
+      "fields": [
+        {
+          "name": "backgroundColor",
+          "type": "string"
+        },
+        {
+          "name": "fillStyle",
+          "type": "string"
+        },
+        {
+          "name": "groupIds",
+          "type": "array"
+        },
+        {
+          "name": "height",
+          "type": "float"
+        },
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "isDeleted",
+          "type": "bool"
+        },
+        {
+          "name": "opacity",
+          "type": "float"
+        },
+        {
+          "name": "roughness",
+          "type": "int"
+        },
+        {
+          "name": "strokeColor",
+          "type": "string"
+        },
+        {
+          "name": "strokeWidth",
+          "type": "float"
+        },
+        {
+          "name": "text",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "enum": [
+            "rectangle",
+            "ellipse",
+            "diamond",
+            "arrow",
+            "text",
+            "line",
+            "image",
+            "freedraw"
+          ]
+        },
+        {
+          "name": "width",
+          "type": "float"
+        },
+        {
+          "name": "x",
+          "type": "float"
+        },
+        {
+          "name": "y",
+          "type": "float"
+        }
+      ]
+    },
+    "ElementsListResponse": {
+      "fields": [
+        {
+          "name": "count",
+          "type": "int"
+        },
+        {
+          "name": "elements",
+          "type": "array"
+        },
+        {
+          "name": "success",
+          "type": "bool"
+        }
+      ]
+    },
+    "ExcalidrawCanvasCloudHealthServerResponse": {
+      "fields": [
+        {
+          "name": "elements_count",
+          "type": "int"
+        },
+        {
+          "name": "status",
+          "type": "string"
+        },
+        {
+          "name": "timestamp",
+          "type": "string"
+        },
+        {
+          "name": "websocket_clients",
+          "type": "int"
+        }
+      ]
+    }
+  },
+  "cache": {},
+  "share": {},
+  "mcp": {},
+  "throttling": {}
+}

@@ -1,0 +1,38 @@
+{
+  "manifest_version": "0.3",
+  "name": "excalidraw-mcp-pp-mcp",
+  "display_name": "Excalidraw Mcp",
+  "version": "4.9.0",
+  "description": "Excalidraw Mcp API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/excalidraw-mcp-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/excalidraw-mcp-pp-mcp",
+      "args": [],
+      "env": {
+        "EXCALIDRAW_API_KEY": "${user_config.excalidraw_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "excalidraw_api_key": {
+      "type": "string",
+      "title": "EXCALIDRAW_API_KEY",
+      "description": "Optional. Excalidraw Plus API key (required for cloud/* commands only). Get from your workspace settings at plus.excalidraw.com.",
+      "sensitive": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
