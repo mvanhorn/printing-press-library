@@ -241,6 +241,9 @@ func frontmatterDriftCount(db *sql.DB) (int, int) {
 		keySetCounts[sig]++
 		noteKeySets = append(noteKeySets, sig)
 	}
+	if err := rows.Err(); err != nil {
+		return 0, 0
+	}
 	if len(noteKeySets) == 0 {
 		return 0, 0
 	}

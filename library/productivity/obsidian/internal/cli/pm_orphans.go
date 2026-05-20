@@ -167,6 +167,9 @@ func mirrorOrphans(db *store.Store, limit int, oldest bool) ([]map[string]any, b
 			"word_count":  words,
 		})
 	}
+	if err := rows.Err(); err != nil {
+		return nil, true, fmt.Errorf("iterating orphans: %w", err)
+	}
 	if items == nil {
 		// Stable empty slice so JSON renders [] not null.
 		items = []map[string]any{}

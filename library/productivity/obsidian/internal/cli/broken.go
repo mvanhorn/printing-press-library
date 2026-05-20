@@ -88,6 +88,9 @@ whether to create the missing note or fix the link.`,
 				}
 				items = append(items, b)
 			}
+			if err := rows.Err(); err != nil {
+				return fmt.Errorf("iterating broken links: %w", err)
+			}
 
 			emitStalenessWarning(cmd, db)
 

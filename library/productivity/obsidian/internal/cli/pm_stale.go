@@ -126,6 +126,9 @@ Pass --include-orphans to also include notes with zero incoming links
 				}
 				items = append(items, n)
 			}
+			if err := rows.Err(); err != nil {
+				return fmt.Errorf("iterating stale notes: %w", err)
+			}
 
 			emitStalenessWarning(cmd, db)
 
