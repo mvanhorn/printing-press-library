@@ -213,8 +213,8 @@ func TestRankingsEmerging_DirtyFixtureTripsThresholdAtEquality(t *testing.T) {
 	// Dirty fixture has 1 Emerging entry with rank:"oops" out of 10
 	// total — exactly 10%, which equals the default threshold (0.10).
 	// Threshold uses >= so equality DOES trip an error. This locks in
-	// the boundary behavior of parse_stats.Threshold + the "check
-	// digg.com for schema changes" hint in the error message.
+	// the boundary behavior of parse_stats.Threshold + the suggested
+	// --max-skip-ratio hint in the error message.
 	dirty := loadRankingsFixtureForCLI_named(t, "rankings-companies-dirty-fixture.html")
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -236,6 +236,58 @@ func TestRankingsEmerging_DirtyFixtureTripsThresholdAtEquality(t *testing.T) {
 	}
 	if !strings.Contains(err.Error(), "schema") {
 		t.Errorf("error didn't suggest schema check: %q", err.Error())
+	}
+	if !strings.Contains(err.Error(), "--max-skip-ratio") {
+		t.Errorf("error didn't suggest --max-skip-ratio: %q", err.Error())
+	}
+}
+
+func TestRankingsEmerging_MaxSkipRatioOverrideRelaxes(t *testing.T) {
+	// Same dirty fixture, but pass --max-skip-ratio 0.5 to relax the
+	// gate. The 10% drift is now well below threshold; expect success
+	// AND a stderr warning (Skipped > 0, below threshold = warn path).
+	dirty := loadRankingsFixtureForCLI_named(t, "rankings-companies-dirty-fixture.html")
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		_, _ = w.Write(dirty)
+	}))
+	t.Cleanup(srv.Close)
+	prev := rankingsCompaniesURL
+	rankingsCompaniesURL = srv.URL
+	t.Cleanup(func() { rankingsCompaniesURL = prev })
+
+	stdout, stderr, err := runCLI(t,
+		"rankings", "emerging",
+		"--max-skip-ratio", "0.5",
+		"--json", "--no-color", "--yes", "--no-input",
+	)
+	if err != nil {
+		t.Fatalf("rankings emerging --max-skip-ratio 0.5: %v\nstderr: %s", err, stderr.String())
+	}
+	if len(stdout.Bytes()) == 0 {
+		t.Error("expected partial JSON output when threshold relaxed")
+	}
+	stderrText := stderr.String()
+	if !strings.Contains(stderrText, "warn: rankings.emerging") {
+		t.Errorf("expected stderr warning on partial-parse below threshold; got:\n%s", stderrText)
+	}
+}
+
+func TestRankings_MaxSkipRatioOutOfRangeRejected(t *testing.T) {
+	rankingsTestServer(t)
+	for _, ratio := range []string{"-0.1", "1.5", "2.0"} {
+		t.Run(ratio, func(t *testing.T) {
+			_, _, err := runCLI(t,
+				"rankings", "list", "--max-skip-ratio", ratio,
+				"--json", "--no-color", "--yes", "--no-input",
+			)
+			if err == nil {
+				t.Fatalf("expected error for --max-skip-ratio=%s, got nil", ratio)
+			}
+			if !strings.Contains(err.Error(), "--max-skip-ratio must be in") {
+				t.Errorf("error = %q; expected '--max-skip-ratio must be in' phrase", err.Error())
+			}
+		})
 	}
 }
 

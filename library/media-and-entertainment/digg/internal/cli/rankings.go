@@ -102,19 +102,24 @@ func (f *rankingsFetcher) get(cmd *cobra.Command) (string, error) {
 //   - emits a stderr warning (non-zero Skipped, below threshold), or
 //   - returns a typed error wrapping the threshold violation.
 //
-// Returns nil on the clean path.
-//
-// NOTE: a follow-up commit adds a `--max-skip-ratio` flag so callers
-// can relax the default 10% tolerance from the command line. Until
-// that lands, the error message above stays generic — pointing at a
-// flag that doesn't exist yet would be a worse user experience.
+// Returns nil on the clean path. The error message includes a
+// suggested next-higher --max-skip-ratio value so an operator hit by
+// a transient schema bump can relax the gate from the command line.
 func reportDriftOrEmit(cmd *cobra.Command, section string, stats diggparse.ParseStats, maxSkip float64) error {
 	if err := stats.Threshold(maxSkip); err != nil {
 		var te *diggparse.ThresholdError
 		if errors.As(err, &te) {
+			// Suggest a ratio strictly greater than the observed so
+			// retrying with the suggestion clears the threshold. Cap at
+			// 1.0; if drift is total, scraper is broken and no --max-
+			// skip-ratio value will help.
+			relaxTo := te.Stats.SkipRatio() + 0.05
+			if relaxTo > 1.0 {
+				relaxTo = 1.0
+			}
 			return fmt.Errorf(
-				"%s: %w — check digg.com for schema changes",
-				section, te)
+				"%s: %w — pass --max-skip-ratio %.2f to relax, or check digg.com for schema changes",
+				section, te, relaxTo)
 		}
 		return fmt.Errorf("%s: %w", section, err)
 	}
@@ -130,7 +135,26 @@ func reportDriftOrEmit(cmd *cobra.Command, section string, stats diggparse.Parse
 	return nil
 }
 
+// validateMaxSkipRatio is the PreRunE guard shared by all rankings
+// commands. The flag is a float in [0, 1]; out-of-range values would
+// be silently ignored by ParseStats.Threshold, so we reject them at
+// flag parse time instead of letting the user think the gate is
+// active when it isn't.
+func validateMaxSkipRatio(ratio float64) error {
+	if ratio < 0 || ratio > 1 {
+		return fmt.Errorf("--max-skip-ratio must be in [0, 1], got %v", ratio)
+	}
+	return nil
+}
+
+// maxSkipRatioFlagHelp is the help text shared by all three rankings
+// commands. Centralized so help stays consistent if we tune defaults.
+const maxSkipRatioFlagHelp = "Fraction of entries that may fail to decode before the command exits non-zero. " +
+	"Schema-drift detector — if upstream renames a key, every row registers as Skipped and SkipRatio becomes 1.0. " +
+	"Default 0.10 (10%) tolerates one bad entry in ten. Range [0, 1]; 0 means \"no tolerance\" and 1 disables the check."
+
 func newRankingsEmergingCmd(flags *rootFlags, fetcher *rankingsFetcher) *cobra.Command {
+	maxSkip := defaultMaxSkipRatio
 	cmd := &cobra.Command{
 		Use:   "emerging",
 		Short: "Curated list of small AI companies from the rankings/companies snapshot",
@@ -148,6 +172,9 @@ only the flagged subset can filter on .isEmergingStartup.`,
 		Annotations: map[string]string{
 			"mcp:read-only": "true",
 		},
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			return validateMaxSkipRatio(maxSkip)
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
 				return nil
@@ -160,12 +187,13 @@ only the flagged subset can filter on .isEmergingStartup.`,
 			if err != nil {
 				return fmt.Errorf("emerging: %w", err)
 			}
-			if err := reportDriftOrEmit(cmd, "rankings.emerging", stats, defaultMaxSkipRatio); err != nil {
+			if err := reportDriftOrEmit(cmd, "rankings.emerging", stats, maxSkip); err != nil {
 				return err
 			}
 			return emitGithub(cmd, flags, entries, 0)
 		},
 	}
+	cmd.Flags().Float64Var(&maxSkip, "max-skip-ratio", defaultMaxSkipRatio, maxSkipRatioFlagHelp)
 	return cmd
 }
 
@@ -176,6 +204,7 @@ var validMoverDirections = []string{"up", "down", "both"}
 
 func newRankingsMoversCmd(flags *rootFlags, fetcher *rankingsFetcher) *cobra.Command {
 	var direction string
+	maxSkip := defaultMaxSkipRatio
 	cmd := &cobra.Command{
 		Use:   "movers",
 		Short: "Companies that climbed or fell most since the last rankings/companies snapshot",
@@ -193,6 +222,9 @@ as a "what changed today" view, not an exhaustive delta feed.`,
 			"mcp:read-only": "true",
 		},
 		PreRunE: func(cmd *cobra.Command, args []string) error {
+			if err := validateMaxSkipRatio(maxSkip); err != nil {
+				return err
+			}
 			for _, ok := range validMoverDirections {
 				if direction == ok {
 					return nil
@@ -214,7 +246,7 @@ as a "what changed today" view, not an exhaustive delta feed.`,
 			if err != nil {
 				return fmt.Errorf("movers: %w", err)
 			}
-			if err := reportDriftOrEmit(cmd, "rankings.movers", stats, defaultMaxSkipRatio); err != nil {
+			if err := reportDriftOrEmit(cmd, "rankings.movers", stats, maxSkip); err != nil {
 				return err
 			}
 			var out []diggparse.CompanyEntry
@@ -233,11 +265,13 @@ as a "what changed today" view, not an exhaustive delta feed.`,
 	}
 	cmd.Flags().StringVar(&direction, "direction", "both",
 		"Movers direction: up | down | both")
+	cmd.Flags().Float64Var(&maxSkip, "max-skip-ratio", defaultMaxSkipRatio, maxSkipRatioFlagHelp)
 	return cmd
 }
 
 func newRankingsListCmd(flags *rootFlags, fetcher *rankingsFetcher) *cobra.Command {
 	var limit int
+	maxSkip := defaultMaxSkipRatio
 	cmd := &cobra.Command{
 		Use:   "list",
 		Short: "Full company ranking (initial-HTML slice; paginated server-side)",
@@ -253,6 +287,9 @@ For surface coverage of an account, prefer 'rankings emerging' or
 			// See newRankingsEmergingCmd note on omitting pp:endpoint.
 			"mcp:read-only": "true",
 		},
+		PreRunE: func(cmd *cobra.Command, args []string) error {
+			return validateMaxSkipRatio(maxSkip)
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {
 				return nil
@@ -265,12 +302,13 @@ For surface coverage of an account, prefer 'rankings emerging' or
 			if err != nil {
 				return fmt.Errorf("list: %w", err)
 			}
-			if err := reportDriftOrEmit(cmd, "rankings.list", stats, defaultMaxSkipRatio); err != nil {
+			if err := reportDriftOrEmit(cmd, "rankings.list", stats, maxSkip); err != nil {
 				return err
 			}
 			return emitGithub(cmd, flags, entries, limit)
 		},
 	}
 	cmd.Flags().IntVar(&limit, "limit", 0, "Max rows to return (0 = all rows in the initial-HTML slice)")
+	cmd.Flags().Float64Var(&maxSkip, "max-skip-ratio", defaultMaxSkipRatio, maxSkipRatioFlagHelp)
 	return cmd
 }
