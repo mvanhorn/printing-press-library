@@ -79,6 +79,10 @@ func newWishlistDropsCmd(flags *rootFlags) *cobra.Command {
 					}
 					prices = append(prices, price)
 				}
+				if err := rows.Err(); err != nil {
+					rows.Close()
+					return fmt.Errorf("wishlist drops: iterating price_history for %s: %w", slug, err)
+				}
 				rows.Close()
 				if len(prices) < 2 {
 					continue

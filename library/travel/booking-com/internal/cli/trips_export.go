@@ -31,7 +31,8 @@ func newTripsExportCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return fmt.Errorf("trips export: %w", err)
 			}
-			data, err := c.Get("/mytrips.html", nil)
+			// secure.booking.com hosts authenticated trip data; www.booking.com returns 404.
+			data, err := c.Get("https://secure.booking.com/mytrips.html", nil)
 			if err != nil {
 				return fmt.Errorf("trips export: %w", err)
 			}

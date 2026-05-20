@@ -16,6 +16,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"sort"
 	"strings"
@@ -402,7 +403,21 @@ func readProfileDisplayName(prefsPath string) string {
 
 // countCookiesForDomain copies the Cookies DB (plus WAL/SHM) to temp and counts matching rows.
 // Uses sqlite3 when available; host_key is plaintext so no decryption is needed.
+// hostKeyPatternRE matches Chrome's host_key format: lowercase domain with
+// optional leading dot, optional trailing wildcard. Rejecting anything else
+// keeps this function safe even if a future caller passes user-supplied input.
+var hostKeyPatternRE = regexp.MustCompile(`^\.?[a-z0-9._-]+%?$`)
+
 func countCookiesForDomain(cookiesDB, domainPattern string) int {
+	// Defense in depth: validate before interpolation. Today domainPattern is
+	// hardcoded as ".booking.com", but sqlite3 CLI lacks query parameters in
+	// its single-statement form, so the substitution has to happen in Go.
+	// Pinning to Chrome's host_key alphabet (lowercased domain + optional
+	// LIKE wildcard) makes SQL injection impossible regardless of caller.
+	if !hostKeyPatternRE.MatchString(domainPattern) {
+		return 0
+	}
+
 	tmpFile, err := os.CreateTemp("", "cookies-probe-*.db")
 	if err != nil {
 		return 0
