@@ -237,6 +237,7 @@ func runWorkflow(cmd *cobra.Command, flags *rootFlags, wf *WorkflowFile) error {
 func executeWorkflowStep(ctx context.Context, c interface {
 	PostWithParams(string, map[string]string, any) (json.RawMessage, int, error)
 	Get(string, map[string]string) (json.RawMessage, error)
+	GetNoCache(string, map[string]string) (json.RawMessage, error)
 }, db *store.Store, reg *normalize.Registry, step WorkflowStep) WorkflowStepResult {
 	res := WorkflowStepResult{Actor: step.Actor}
 

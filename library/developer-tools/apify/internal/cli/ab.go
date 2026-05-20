@@ -172,6 +172,7 @@ type abResult struct {
 func abRunOne(ctx context.Context, c interface {
 	PostWithParams(string, map[string]string, any) (json.RawMessage, int, error)
 	Get(string, map[string]string) (json.RawMessage, error)
+	GetNoCache(string, map[string]string) (json.RawMessage, error)
 }, db *store.Store, reg *normalize.Registry,
 	actor string, inputBytes []byte, wait bool) abResult {
 	res := abResult{Actor: actor, Status: "unknown"}

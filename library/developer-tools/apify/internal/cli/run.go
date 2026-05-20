@@ -322,14 +322,17 @@ func isTerminalStatus(s string) bool {
 }
 
 func pollRunUntilTerminal(ctx context.Context, c interface {
-	Get(string, map[string]string) (json.RawMessage, error)
+	GetNoCache(string, map[string]string) (json.RawMessage, error)
 }, runID string, deadline time.Time) (RunData, error) {
 	interval := 5 * time.Second
 	for {
 		if time.Now().After(deadline) {
 			return RunData{}, apiErr(errors.New("polling deadline exceeded; run still in-flight"))
 		}
-		body, err := c.Get(fmt.Sprintf("/v2/actor-runs/%s", escapeSeg(runID)), nil)
+		// GetNoCache, not Get: the response cache would pin the first
+		// non-terminal status for its full TTL, so a run that finishes
+		// inside that window would appear to never reach a terminal state.
+		body, err := c.GetNoCache(fmt.Sprintf("/v2/actor-runs/%s", escapeSeg(runID)), nil)
 		if err != nil {
 			return RunData{}, err
 		}
