@@ -290,5 +290,5 @@ func parseHumanTime(s string, anchor time.Time) (time.Time, error) {
 			return t, nil
 		}
 	}
-	return time.Time{}, errors.New("unrecognised time format (use ISO 8601, today, tomorrow, +Nd, +Nw, -Nh)")
+	return time.Time{}, errors.New("unrecognised time format (use ISO 8601, today, tomorrow, +/-Nd, +/-Nw, +/-Nh, +/-Nm)")
 }
