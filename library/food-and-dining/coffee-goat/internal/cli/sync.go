@@ -318,7 +318,11 @@ func syncYouTube(ctx context.Context, db *store.Store, full bool) (int, string, 
 			return stored, err.Error(), "error"
 		}
 		for _, v := range videos {
-			_, ierr := db.DB().ExecContext(ctx,
+			tx, txErr := db.DB().BeginTx(ctx, nil)
+			if txErr != nil {
+				continue
+			}
+			_, ierr := tx.ExecContext(ctx,
 				`INSERT INTO youtube_reviews (video_id, creator, channel_id, video_title, video_published_at, transcript_text, mentioned_roaster_slugs_json, mentioned_bean_handles_json, last_synced_at)
 				 VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
 				 ON CONFLICT(video_id) DO UPDATE SET
@@ -331,14 +335,21 @@ func syncYouTube(ctx context.Context, db *store.Store, full bool) (int, string, 
 				v.TranscriptText, v.MentionedRoasterSlugsJSON, v.MentionedBeanHandlesJSON,
 			)
 			if ierr != nil {
+				_ = tx.Rollback()
 				continue
 			}
-			// Mirror into FTS5.
-			_, _ = db.DB().ExecContext(ctx,
+			// Mirror into FTS5 atomically with the main row.
+			if _, ftsErr := tx.ExecContext(ctx,
 				`INSERT OR REPLACE INTO youtube_reviews_fts (rowid, video_title, transcript_text)
 				 SELECT rowid, video_title, transcript_text FROM youtube_reviews WHERE video_id=?`,
 				v.VideoID,
-			)
+			); ftsErr != nil {
+				_ = tx.Rollback()
+				continue
+			}
+			if commitErr := tx.Commit(); commitErr != nil {
+				continue
+			}
 			stored++
 		}
 		_ = db.SaveCoffeeSyncState("youtube:"+creator.Slug, "ok", len(videos))
