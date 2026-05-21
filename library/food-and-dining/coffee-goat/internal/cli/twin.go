@@ -110,6 +110,9 @@ func loadTwinCorpus(db *store.Store, input string) (twinFeatures, []twinFeatures
 			ref = f
 		}
 	}
+	if err := rows.Err(); err != nil {
+		return twinFeatures{}, nil, fmt.Errorf("iterate roaster_products rows: %w", err)
+	}
 	if ref.Handle == "" {
 		return twinFeatures{}, nil, nil
 	}

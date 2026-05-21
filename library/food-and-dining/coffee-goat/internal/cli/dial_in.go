@@ -207,6 +207,9 @@ func userBrewStats(db *store.Store, beanID int64, roasterSlug, productSlug, meth
 		}
 		n++
 	}
+	if err := rows.Err(); err != nil {
+		return dialInPoint{}, dialInPoint{}, 0
+	}
 	if n == 0 {
 		return dialInPoint{}, dialInPoint{}, 0
 	}

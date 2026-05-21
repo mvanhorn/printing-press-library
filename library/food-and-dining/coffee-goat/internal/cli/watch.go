@@ -110,6 +110,9 @@ func newWatchListCmd(flags *rootFlags) *cobra.Command {
 				}
 				watches = append(watches, w)
 			}
+			if err := rows.Err(); err != nil {
+				return fmt.Errorf("iterate watchlist rows: %w", err)
+			}
 			if flags.asJSON {
 				return printJSONFiltered(cmd.OutOrStdout(), watches, flags)
 			}
@@ -164,6 +167,9 @@ func newWatchRunCmd(flags *rootFlags) *cobra.Command {
 					w.LastSyncAnchor = &t
 				}
 				watches = append(watches, w)
+			}
+			if err := rows.Err(); err != nil {
+				return fmt.Errorf("iterate watchlist rows: %w", err)
 			}
 			// If the caller asked for a specific watch but no row matched,
 			// surface a typed not-found error so error-path probes exit non-zero.

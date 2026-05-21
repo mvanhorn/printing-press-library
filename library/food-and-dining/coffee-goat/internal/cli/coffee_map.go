@@ -700,6 +700,7 @@ func userProcessRatings(db *store.Store) map[string]float64 {
 			out[process] = avg
 		}
 	}
+	_ = rows.Err()
 	return out
 }
 

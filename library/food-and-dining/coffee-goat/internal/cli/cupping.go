@@ -594,6 +594,9 @@ func newCuppingListCmd(flags *rootFlags) *cobra.Command {
 				s.BlindMode = blindInt == 1
 				out = append(out, s)
 			}
+			if err := rows.Err(); err != nil {
+				return fmt.Errorf("iterate cupping_sessions rows: %w", err)
+			}
 			if flags.asJSON {
 				return printJSONFiltered(cmd.OutOrStdout(), out, flags)
 			}

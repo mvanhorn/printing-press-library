@@ -181,6 +181,7 @@ func userPalateTokens(db *store.Store) map[string]int {
 			out[t]++
 		}
 	}
+	_ = rows.Err()
 	return out
 }
 

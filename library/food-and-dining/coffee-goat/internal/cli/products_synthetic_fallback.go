@@ -88,6 +88,9 @@ func fallbackToRoasterProducts(ctx context.Context, roaster, origin, process str
 		p.InStock = inStock == 1
 		out = append(out, p)
 	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate roaster_products rows: %w", err)
+	}
 	if out == nil {
 		out = []product{}
 	}

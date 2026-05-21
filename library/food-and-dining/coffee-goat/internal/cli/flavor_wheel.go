@@ -94,6 +94,9 @@ func buildFlavorWheelReport(db *store.Store) (*flavorWheelReport, error) {
 		r.TagsLower = strings.ToLower(combined)
 		all = append(all, r)
 	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate brews rows: %w", err)
+	}
 
 	weights := map[string]float64{}
 	touches := map[string]int{}

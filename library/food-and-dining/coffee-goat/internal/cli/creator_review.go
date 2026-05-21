@@ -72,6 +72,9 @@ func newCreatorReviewCmd(flags *rootFlags) *cobra.Command {
 				}
 				clips = append(clips, clip)
 			}
+			if err := rows.Err(); err != nil {
+				return fmt.Errorf("iterate youtube_reviews rows: %w", err)
+			}
 			if len(clips) == 0 {
 				if flags.asJSON {
 					_ = printJSONFiltered(cmd.OutOrStdout(), clips, flags)

@@ -222,6 +222,9 @@ func derivePalateSignature(db *store.Store, name string) (palateSignature, error
 			vec[tok] += w
 		}
 	}
+	if err := rows.Err(); err != nil {
+		return palateSignature{}, fmt.Errorf("iterate brews rows: %w", err)
+	}
 	// Normalise.
 	mag := 0.0
 	for _, v := range vec {
@@ -264,6 +267,9 @@ func rankForPalate(db *store.Store, sig palateSignature, from string, top int) (
 			Similarity: math.Round(score*100) / 100,
 			Rationale:  fmt.Sprintf("matched %d descriptor tokens to %s's palate", overlap(toks, sig.Vector), sig.Name),
 		})
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate roaster_products rows: %w", err)
 	}
 	sort.Slice(out, func(i, j int) bool { return out[i].Similarity > out[j].Similarity })
 	if top < len(out) {
