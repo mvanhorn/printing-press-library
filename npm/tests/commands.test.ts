@@ -67,6 +67,25 @@ test("list command reports installed CLIs with --installed", async () => {
   assert.doesNotMatch(stdout.join("\n"), /dominos/);
 });
 
+test("list command can filter installed CLIs by category", async () => {
+  const stdout: string[] = [];
+  const checkedBinaries: string[] = [];
+  const command = createListCommand({
+    fetchRegistry: async () => registry,
+    commandOnPath: async (binary) => {
+      checkedBinaries.push(binary);
+      return binary === "espn-pp-cli" ? "/bin/espn-pp-cli" : null;
+    },
+    runner: async () => ok("espn-pp-cli version 1.0.0\n"),
+    stdout: (message) => stdout.push(message),
+  });
+
+  assert.equal(await command(["--installed", "--category", "sports"]), 0);
+  assert.deepEqual(checkedBinaries, ["espn-pp-cli"]);
+  assert.match(stdout.join("\n"), /espn-pp-cli/);
+  assert.doesNotMatch(stdout.join("\n"), /dominos/);
+});
+
 test("search command ranks registry matches", async () => {
   const stdout: string[] = [];
   const command = createSearchCommand({

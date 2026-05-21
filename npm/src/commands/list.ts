@@ -61,7 +61,7 @@ export function createListCommand(overrides: Partial<ListDeps> = {}) {
     }
 
     const installed: InstalledEntry[] = [];
-    for (const entry of registry.entries) {
+    for (const entry of filterCatalogEntries(registry.entries, options.category)) {
       const binary = cliBinaryName(entry);
       const binaryPath = await deps.commandOnPath(binary);
       if (!binaryPath) {
@@ -77,7 +77,8 @@ export function createListCommand(overrides: Partial<ListDeps> = {}) {
     }
 
     if (installed.length === 0) {
-      deps.stdout("No Printing Press CLIs installed. Try `printing-press-library search <query>` or `printing-press-library install <name>`.");
+      const suffix = options.category ? ` in category "${options.category}"` : "";
+      deps.stdout(`No Printing Press CLIs installed${suffix}. Try \`printing-press-library search <query>\` or \`printing-press-library install <name>\`.`);
       return 0;
     }
 
