@@ -55,7 +55,7 @@ func newDealsMobileRatesCmd(flags *rootFlags) *cobra.Command {
 				return fmt.Errorf("deals mobile-rates: %w", err)
 			}
 			mobileUA := "Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1"
-			mobileData, err := c.GetWithHeaders("/searchresults.html", params, map[string]string{"User-Agent": mobileUA})
+			mobileData, err := c.GetWithHeadersNoCache("/searchresults.html", params, map[string]string{"User-Agent": mobileUA})
 			if err != nil {
 				return fmt.Errorf("deals mobile-rates: %w", err)
 			}
