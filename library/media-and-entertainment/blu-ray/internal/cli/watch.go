@@ -260,13 +260,20 @@ func newWatchCheckCmd(flags *rootFlags) *cobra.Command {
 				}
 			}
 			if flags.asJSON || flags.selectFields != "" || flags.csv || flags.quiet || flags.plain {
-				if persistenceErrors > 0 {
-					return flags.printJSON(cmd, map[string]any{
-						"alerts":             alerts,
-						"persistence_errors": persistenceErrors,
-					})
+				// PATCH: Always emit the same envelope so downstream consumers
+				// (especially agents in --agent mode) get a stable shape. Empty
+				// alerts becomes [] not null; persistence_errors is always
+				// present (0 when none). Fixes Greptile P1 follow-up on PR #634
+				// — prior code returned a bare array on the success path and an
+				// object only on the error path, with a third null variant when
+				// alerts was nil.
+				if alerts == nil {
+					alerts = []DealRow{}
 				}
-				return flags.printJSON(cmd, alerts)
+				return flags.printJSON(cmd, map[string]any{
+					"alerts":             alerts,
+					"persistence_errors": persistenceErrors,
+				})
 			}
 			if len(alerts) == 0 {
 				fmt.Fprintln(cmd.OutOrStdout(), "No watched releases hit their target price or a new historical low.")
