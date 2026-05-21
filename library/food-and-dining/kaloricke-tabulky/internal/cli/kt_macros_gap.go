@@ -159,8 +159,12 @@ foods that close the protein gap within the remaining energy budget.`,
 					if !ok {
 						continue
 					}
+					label := s.SlotLabel
+					if len(label) > 0 {
+						label = strings.ToUpper(label[:1]) + label[1:]
+					}
 					fmt.Fprintf(w, "  %s (%d entries): %.0f kJ, %.1fg protein, %.1fg carb, %.1fg fat, %.1fg fiber\n",
-						strings.Title(s.SlotLabel), s.EntryCount, s.EnergyKJ, s.ProteinG, s.CarbG, s.FatG, s.FiberG)
+						label, s.EntryCount, s.EnergyKJ, s.ProteinG, s.CarbG, s.FatG, s.FiberG)
 				}
 			}
 			return nil

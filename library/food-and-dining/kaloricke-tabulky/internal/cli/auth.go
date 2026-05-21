@@ -6,12 +6,14 @@ package cli
 import (
 	"bufio"
 	"bytes"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"github.com/spf13/cobra"
 	"io"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/kaloricke-tabulky/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/food-and-dining/kaloricke-tabulky/internal/config"
+	_ "modernc.org/sqlite"
 	"net/http"
 	"os"
 	"os/exec"
@@ -185,7 +187,13 @@ profile by name when the installed backend supports it.`,
 				return configErr(err)
 			}
 
-			if err := cfg.SaveTokens("", "", cookies, "", time.Time{}); err != nil {
+			// Cookie auth: store the raw Cookie-header value in
+			// AuthHeaderVal so client.go sends it verbatim. SaveTokens
+			// routes through AccessToken, and AuthHeader() prepends
+			// "Bearer " to AccessToken values — producing
+			// "Cookie: Bearer JSESSIONID=..." which the server rejects.
+			cfg.AuthHeaderVal = cookies
+			if err := ktSaveConfig(cfg); err != nil {
 				return configErr(fmt.Errorf("saving cookies: %w", err))
 			}
 
@@ -448,14 +456,23 @@ func countCookiesForDomain(cookiesDB, domainPattern string) int {
 	_ = copyFileIfExists(cookiesDB+"-wal", tmpPath+"-wal")
 	_ = copyFileIfExists(cookiesDB+"-shm", tmpPath+"-shm")
 
-	query := fmt.Sprintf("SELECT COUNT(*) FROM cookies WHERE host_key LIKE '%s'", domainPattern)
-	out, err := exec.Command("sqlite3", tmpPath, query).Output()
+	// Open the on-disk Chrome cookies database via the embedded sqlite
+	// driver (already pulled in by internal/store) and parameterize the
+	// LIKE query. Shelling out to the sqlite3 CLI cannot use bound
+	// parameters, so any future caller passing a non-constant domain
+	// pattern would silently expose SQL injection.
+	db, err := sql.Open("sqlite", tmpPath+"?mode=ro&_pragma=query_only(1)")
 	if err != nil {
 		return 0
 	}
-
+	defer db.Close()
 	count := 0
-	fmt.Sscanf(strings.TrimSpace(string(out)), "%d", &count)
+	if err := db.QueryRow(
+		"SELECT COUNT(*) FROM cookies WHERE host_key LIKE ?",
+		domainPattern,
+	).Scan(&count); err != nil {
+		return 0
+	}
 	return count
 }
 

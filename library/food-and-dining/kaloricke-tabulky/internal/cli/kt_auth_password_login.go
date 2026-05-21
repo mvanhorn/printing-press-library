@@ -26,7 +26,6 @@ import (
 // web behavior exactly. Adds a sibling to `auth login --chrome`.
 func newAuthPasswordLoginCmd(flags *rootFlags) *cobra.Command {
 	var email string
-	var passwordFlag string
 	var fromStdin bool
 
 	cmd := &cobra.Command{
@@ -38,10 +37,16 @@ This matches what the AngularJS web app does in your browser. Your
 password is hashed with MD5 before sending; the plaintext never leaves
 this process. The cookie session is saved to your config.
 
+The password is never accepted as a command-line argument — that would
+leak it into the process list (visible via ps / /proc/<pid>/cmdline).
+Supply it interactively (the terminal prompt does not echo) or pipe
+from stdin with --password-stdin.
+
 Examples:
+  # Interactive prompt (recommended):
   kaloricke-tabulky-pp-cli auth password-login --email <your-email>
+  # Read from stdin:
   echo "$PASSWORD" | kaloricke-tabulky-pp-cli auth password-login --email <your-email> --password-stdin
-  kaloricke-tabulky-pp-cli auth password-login --email <your-email> --password "$PASSWORD"
 
 For a no-password flow, use 'auth login --chrome' to import session
 cookies directly from a logged-in Chrome profile.`,
@@ -56,17 +61,16 @@ cookies directly from a logged-in Chrome profile.`,
 			if email == "" {
 				return fmt.Errorf("--email is required")
 			}
-			password := passwordFlag
+			var password string
 			if fromStdin {
 				b, err := io.ReadAll(os.Stdin)
 				if err != nil {
 					return fmt.Errorf("reading password from stdin: %w", err)
 				}
 				password = strings.TrimRight(string(b), "\r\n")
-			}
-			if password == "" {
+			} else {
 				if !term.IsTerminal(int(syscall.Stdin)) {
-					return fmt.Errorf("no password supplied (pass --password, --password-stdin, or run interactively)")
+					return fmt.Errorf("no password supplied: pass --password-stdin, or run interactively")
 				}
 				fmt.Fprint(cmd.OutOrStderr(), "Password: ")
 				pw, err := term.ReadPassword(int(syscall.Stdin))
@@ -85,7 +89,6 @@ cookies directly from a logged-in Chrome profile.`,
 				return err
 			}
 
-			// Persist cookies to the config file.
 			cfg, err := config.Load("")
 			if err != nil {
 				return fmt.Errorf("loading config: %w", err)
@@ -99,7 +102,6 @@ cookies directly from a logged-in Chrome profile.`,
 		},
 	}
 	cmd.Flags().StringVar(&email, "email", "", "Account email")
-	cmd.Flags().StringVar(&passwordFlag, "password", "", "Password (avoid; prefer --password-stdin or interactive prompt)")
 	cmd.Flags().BoolVar(&fromStdin, "password-stdin", false, "Read password from stdin")
 	return cmd
 }
