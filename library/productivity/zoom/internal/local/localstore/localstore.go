@@ -8,8 +8,9 @@
 //   - note_todos — regex-extracted action items
 //
 // The package is hand-authored and sits beside the generated internal/store
-// package; it never touches the generated `resources` table. Lazy-init via
-// sync.Once means commands can call EnsureSchema(db) before any read/write.
+// package; it never touches the generated `resources` table. Every schema
+// statement is idempotent (CREATE ... IF NOT EXISTS), so commands call
+// EnsureSchema(db) before any read/write with no memoization needed.
 package localstore
 
 import (
@@ -18,19 +19,17 @@ import (
 	"errors"
 	"fmt"
 	"strings"
-	"sync"
 	"time"
 )
 
-var (
-	schemaOnce sync.Once
-	schemaErr  error
-)
-
-// EnsureSchema creates all hand-authored tables + FTS5 virtual tables idempotently.
-// Safe to call from every command's RunE — runs once per process.
+// EnsureSchema creates all hand-authored tables + FTS5 virtual tables
+// idempotently. Safe to call from every command's RunE. Every statement is
+// CREATE ... IF NOT EXISTS, so re-running is cheap; we deliberately do NOT
+// memoize with a package-level sync.Once because that would capture the first
+// *sql.DB and silently skip DDL for any later call with a different handle
+// (e.g. a fresh temp DB in tests).
 func EnsureSchema(ctx context.Context, db *sql.DB) error {
-	schemaOnce.Do(func() {
+	{
 		stmts := []string{
 			// Saved meeting bookmarks (T5 + absorb #2).
 			`CREATE TABLE IF NOT EXISTS saved_meetings (
@@ -133,12 +132,11 @@ func EnsureSchema(ctx context.Context, db *sql.DB) error {
 		defer cancel()
 		for _, s := range stmts {
 			if _, err := db.ExecContext(ctx2, s); err != nil {
-				schemaErr = fmt.Errorf("localstore: %s: %w", firstLine(s), err)
-				return
+				return fmt.Errorf("localstore: %s: %w", firstLine(s), err)
 			}
 		}
-	})
-	return schemaErr
+	}
+	return nil
 }
 
 func firstLine(s string) string {

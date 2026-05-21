@@ -116,8 +116,14 @@ func runUnifiedFind(cmd *cobra.Command, flags *rootFlags, query, speaker, since,
 
 func localDeepLink(m localstore.SegmentMatch) string {
 	// vlc shell snippet so users can jump to the exact second of the local mp4.
+	// Single-quote the path and escape any embedded single-quotes so the snippet
+	// is safe to copy-paste even when the recording folder name (derived from the
+	// meeting topic, which can contain arbitrary organiser text like `$(id)`) has
+	// shell metacharacters. Go's %q is a Go string literal, not POSIX shell
+	// quoting, and would let those metacharacters execute when pasted into bash.
 	startSec := m.StartMs / 1000
-	return fmt.Sprintf("vlc %q --start-time=%d", m.RecordingPath, startSec)
+	escaped := strings.ReplaceAll(m.RecordingPath, "'", `'\''`)
+	return fmt.Sprintf("vlc '%s' --start-time=%d", escaped, startSec)
 }
 
 // searchCloudSegments returns matched cloud transcript segments and an
@@ -125,32 +131,16 @@ func localDeepLink(m localstore.SegmentMatch) string {
 // available. The flag lets callers distinguish "cloud searched, empty" from
 // "cloud skipped because nothing is indexed yet".
 func searchCloudSegments(ctx context.Context, db *sql.DB, query, speaker string, since time.Time, limit int) ([]localstore.SegmentMatch, bool, error) {
-	// Cloud transcripts are stored in the generic resources table once
-	// downloaded by `recordings cloud download` (via the spec-emitted
-	// surface). We support a best-effort LIKE search to avoid missing matches
-	// just because nobody ran a cloud FTS migration yet.
-	if err := localstore.EnsureSchema(ctx, db); err != nil {
-		return nil, false, err
-	}
-	q := `SELECT meeting_uuid, COALESCE(topic, ''), start_time FROM cloud_recordings`
-	rows, err := db.QueryContext(ctx, q)
-	if err != nil {
-		return nil, false, err
-	}
-	defer rows.Close()
-	// Without a fully ingested cloud transcript table we return an empty
-	// slice rather than fabricating matches. Honest signal: cloud search
-	// will light up once `recordings cloud download --type transcript` has
-	// landed transcripts and a follow-up indexer (TBD) populates a
-	// cloud_transcript_segments table. Keep the function returning so the
-	// surrounding code stays correct.
-	_ = query
-	_ = speaker
-	_ = since
-	_ = limit
-	var out []localstore.SegmentMatch
-	// No cloud transcript segment index exists yet, so report indexed=false.
-	return out, false, nil
+	// No cloud transcript segment index exists yet. Cloud transcripts land in
+	// the store only after `recordings cloud download --type transcript`, and a
+	// follow-up indexer (TBD) will populate a cloud_transcript_segments table.
+	// Until then this returns indexed=false so callers can label the cloud
+	// portion as not-yet-indexed rather than "searched, nothing found". The
+	// query/speaker/since/limit parameters are carried in the signature so the
+	// filter logic lands here together with that indexer; they are intentionally
+	// unused on this path today.
+	_, _, _, _, _, _ = ctx, db, query, speaker, since, limit
+	return nil, false, nil
 }
 
 func widenContext(ctx context.Context, db *sql.DB, m localstore.SegmentMatch, beforeSec, afterSec int) string {
