@@ -2,12 +2,6 @@ name: Verify SKILL.md
 
 on:
   pull_request:
-    paths:
-      - 'library/**/.printing-press.json'
-      - 'library/**/SKILL.md'
-      - 'library/**/internal/cli/**'
-      - '.github/workflows/verify-skills.yml'
-      - '.github/scripts/verify-skill/**'
   push:
     branches: [main]
     paths:

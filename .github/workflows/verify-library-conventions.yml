@@ -37,16 +37,6 @@ name: Verify library conventions
 
 on:
   pull_request:
-    paths:
-      - 'library/**'
-      - 'cli-skills/**'
-      - 'registry.json'
-      - 'tools/generate-registry/**'
-      - 'tools/generate-skills/**'
-      - 'tools/sweep-canonical/**'
-      - '.github/scripts/verify-attribution/**'
-      - '.github/scripts/verify-publish-package/**'
-      - '.github/workflows/verify-library-conventions.yml'
   workflow_dispatch:
 
 permissions:
