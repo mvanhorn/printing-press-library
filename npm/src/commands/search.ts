@@ -51,6 +51,9 @@ export function createSearchCommand(overrides: Partial<SearchDeps> = {}) {
 
 export const searchCommand = createSearchCommand();
 
+const MIN_MEANINGFUL_QUERY_LENGTH = 2;
+const IGNORED_SEARCH_TERMS = new Set(["pp", "cli"]);
+
 export function searchRegistry(entries: RegistryEntry[], query: string): RegistryEntry[] {
   const terms = searchTerms(query);
   return entries
@@ -61,8 +64,8 @@ export function searchRegistry(entries: RegistryEntry[], query: string): Registr
 }
 
 function scoreEntry(entry: RegistryEntry, terms: string[]): number {
-  const name = normalizeSearchText(entry.name);
-  const binary = normalizeSearchText(cliBinaryName(entry));
+  const name = normalizeCatalogIdentifier(entry.name);
+  const binary = normalizeCatalogIdentifier(cliBinaryName(entry));
   const api = normalizeSearchText(entry.api);
   const category = normalizeSearchText(entry.category);
   const description = normalizeSearchText(entry.description);
@@ -83,19 +86,32 @@ function matchesAnyTerm(value: string, terms: string[]): boolean {
 
 function searchTerms(query: string): string[] {
   const normalized = normalizeSearchText(query);
-  if (normalized === "") {
-    return [];
+  const terms = new Set<string>();
+  addSearchTerm(terms, normalized);
+  return [...terms];
+}
+
+function isMeaningfulSearchTerm(value: string): boolean {
+  const tokens = value.split(/\s+/).filter(Boolean);
+  return tokens.some((token) => token.length >= MIN_MEANINGFUL_QUERY_LENGTH) && !IGNORED_SEARCH_TERMS.has(value);
+}
+
+function addSearchTerm(terms: Set<string>, term: string): void {
+  if (!isMeaningfulSearchTerm(term) || terms.has(term)) {
+    return;
   }
 
-  const terms = new Set([normalized]);
-  const singular = normalized
-    .split(" ")
-    .map((token) => singularizeToken(token))
-    .join(" ");
-  if (singular !== normalized) {
-    terms.add(singular);
+  terms.add(term);
+
+  const identifier = stripCommonBinarySuffix(term);
+  if (identifier !== term) {
+    addSearchTerm(terms, identifier);
   }
-  return [...terms];
+
+  const singular = singularizeTerm(term);
+  if (singular !== term) {
+    addSearchTerm(terms, singular);
+  }
 }
 
 function normalizeSearchText(value: string): string {
@@ -106,10 +122,30 @@ function normalizeSearchText(value: string): string {
     .replace(/\s+/g, " ");
 }
 
+function normalizeCatalogIdentifier(value: string): string {
+  return stripCommonBinarySuffix(normalizeSearchText(value));
+}
+
+function stripCommonBinarySuffix(value: string): string {
+  const suffix = " pp cli";
+  if (!value.endsWith(suffix)) {
+    return value;
+  }
+  const stripped = value.slice(0, -suffix.length).trim();
+  return stripped || value;
+}
+
 function singularizeToken(token: string): string {
   return token.length > 3 && token.endsWith("s") && !token.endsWith("ss")
     ? token.slice(0, -1)
     : token;
+}
+
+function singularizeTerm(term: string): string {
+  return term
+    .split(" ")
+    .map((token) => singularizeToken(token))
+    .join(" ");
 }
 
 function parseSearchArgs(args: string[]):

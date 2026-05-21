@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createListCommand } from "../src/commands/list.js";
-import { createSearchCommand } from "../src/commands/search.js";
+import { createSearchCommand, searchRegistry } from "../src/commands/search.js";
 import { createUninstallCommand } from "../src/commands/uninstall.js";
 import { createUpdateCommand } from "../src/commands/update.js";
 import type { RunResult } from "../src/process.js";
@@ -148,6 +148,17 @@ test("search command normalizes punctuation and plural queries", async () => {
   stdout.length = 0;
   assert.equal(await command(["cal.com"]), 0);
   assert.match(stdout.join("\n"), /cal-com-pp-cli/);
+});
+
+test("search command ignores shared pp-cli binary suffix tokens", async () => {
+  assert.deepEqual(searchRegistry(registry.entries, "a"), []);
+  assert.deepEqual(searchRegistry(registry.entries, "a-b"), []);
+  assert.deepEqual(searchRegistry(registry.entries, "t"), []);
+  assert.deepEqual(searchRegistry(registry.entries, "cli"), []);
+  assert.deepEqual(searchRegistry(registry.entries, "pp"), []);
+  assert.equal(searchRegistry(registry.entries, "cal")[0]?.name, "cal-com");
+  assert.equal(searchRegistry(registry.entries, "dominos-pp-cli")[0]?.name, "dominos-pp-cli");
+  assert.equal(searchRegistry(registry.entries, "hotels-pp-cli")[0]?.name, "hotel-tonight");
 });
 
 test("update command refreshes detected installed CLIs", async () => {

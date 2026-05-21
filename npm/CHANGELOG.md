@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.8
+
+- Avoid treating one-character queries or the shared `-pp-cli` binary suffix as searchable content, so queries like `a`, `t`, `pp`, or `cli` no longer match broad slices of the catalog while full binary-name queries still resolve to the intended CLI.
+
 ## 0.1.7
 
 - Refresh the GitHub and npm README surfaces now that `@mvanhorn/printing-press-library` is live.
