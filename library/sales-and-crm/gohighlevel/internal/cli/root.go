@@ -275,6 +275,8 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newRecruitCmd(flags))
 	rootCmd.AddCommand(newConfigCmd(flags))
 	rootCmd.AddCommand(newConvoCmd(flags))
+	// PATCH(amend-2026-05-20: add email command group — list campaigns + per-campaign v2 stats)
+	rootCmd.AddCommand(newEmailsCmd(flags))
 	addLocationGlobalFlag(rootCmd)
 
 	return rootCmd

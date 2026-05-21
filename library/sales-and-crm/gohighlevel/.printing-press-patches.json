@@ -41,6 +41,20 @@
       ],
       "findings_addressed": ["greptile-715-followup-tags-key", "greptile-715-followup-contacts-tags-partial-failure", "greptile-715-followup-printable-composite-id", "greptile-715-followup-indexed-tag-column", "greptile-715-followup-locations-tags-location-id", "greptile-715-followup-sql-read-only-store", "greptile-715-followup-resource-scoped-location-id", "greptile-715-followup-prune-stale-contact-tags", "greptile-715-followup-env-location-id-post-body", "greptile-715-followup-prune-missing-null-tags"],
       "notes": "Adds tags to pageItemKeys so locations_tags extraction stays deterministic if the envelope gains another array, makes contacts_tags derivation collect all per-tag upsert failures instead of returning on the first failed tag, switches the derived id to a printable URL-escaped tag component, adds an indexed contacts_tags.tag column for tag-name queries, injects the resolved locationId into locations_tags rows before typed upsert, opens the sql command with a read-only SQLite handle, lets locations_tags use its own resource-scoped locationId, replaces each contact's derived contacts_tags set so removed tags are pruned from typed and generic tables even when tags is missing or null, and propagates env-resolved GHL_LOCATION_ID into the contacts POST body."
+    },
+    {
+      "date": "2026-05-20",
+      "amend_run_id": "amend-2026-05-20-email-commands",
+      "summary": "feat(gohighlevel): add email command group with list and stats subcommands",
+      "files": [
+        "internal/cli/emails.go",
+        "internal/cli/emails_list.go",
+        "internal/cli/emails_stats.go",
+        "internal/cli/root.go"
+      ],
+      "findings_addressed": ["F1-email-list", "F2-email-stats"],
+      "patch_count": 4,
+      "notes": "Adds `email list` (GET /emails/schedule?showStats=true) showing delivered/opened/clicked counts with calculated open-rate %, and `email stats <id>` (GET /emails/public/v2/locations/:locationId/campaigns/stats/email-campaigns/:sourceId) for per-campaign openRate/clickRate/unsubscribeRate/bounceRate. The stats endpoint may 403 on PIT tokens — hint surfaces automatically on 403. Both commands resolve locationId from --location-id flag, --location global profile, or active profile."
     }
   ]
 }
