@@ -79,6 +79,15 @@ func newCoinBatchCmd(flags *rootFlags) *cobra.Command {
 }
 
 func runBatch(cmd *cobra.Command, flags *rootFlags, rows []inputRow, resumable bool, checkpoint, keyColumn, columnsSpec string) error {
+	// --columns is meaningful only as a projection over the streaming CSV
+	// emitter. Without --csv, the JSONL output path never references it,
+	// and even malformed specs (e.g. "--columns ,") would slip through
+	// silently. Surface the misconfiguration before any work happens so
+	// the caller doesn't get a full JSONL stream back from what they
+	// expected to be a filtered CSV.
+	if columnsSpec != "" && !flags.csv {
+		return usageErr(fmt.Errorf("--columns requires --csv"))
+	}
 	s, err := store.OpenWithContext(cmd.Context(), defaultDBPath("pcgs-pp-cli"))
 	if err != nil {
 		return fmt.Errorf("open store: %w", err)
