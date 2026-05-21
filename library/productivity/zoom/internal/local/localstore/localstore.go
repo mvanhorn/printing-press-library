@@ -42,7 +42,13 @@ func EnsureSchema(ctx context.Context, db *sql.DB) error {
 				created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 				updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 			)`,
-			`CREATE VIRTUAL TABLE IF NOT EXISTS saved_meetings_fts USING fts5(name, notes, content='saved_meetings', content_rowid='rowid')`,
+			// Note: saved bookmarks are queried with simple SELECT/LIKE in
+			// ListBookmarks/GetBookmark — bookmark counts are tiny (tens, not
+			// thousands), so a full-text index is unnecessary. We deliberately do
+			// NOT declare a saved_meetings_fts external-content table here: an
+			// unpopulated external-content FTS index is dead weight that drifts
+			// from its backing table. Add one (with populate-on-write) only if a
+			// dedicated `saved search` command is ever introduced.
 			// Local recordings (one row per ~/Documents/Zoom/<folder>).
 			`CREATE TABLE IF NOT EXISTS local_recordings (
 				id TEXT PRIMARY KEY,
