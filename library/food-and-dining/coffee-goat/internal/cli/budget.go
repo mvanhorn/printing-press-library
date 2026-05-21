@@ -95,7 +95,7 @@ func newBudgetCmd(flags *rootFlags) *cobra.Command {
 		currency        string
 		includeShipping bool
 		trailing30      bool
-		targetUSD       float64
+		targetAmount    float64
 		sinceISO        string
 	)
 	cmd := &cobra.Command{
@@ -146,7 +146,7 @@ excluded; counts are reported on stderr (and in JSON) so totals never lie.`,
 			if currency != "USD" {
 				fxFactor = curatedFXRates["USD"] / curatedFXRates[currency]
 			}
-			summary := summarizeBudget(attrs, currency, fxFactor, trailing30, targetUSD)
+			summary := summarizeBudget(attrs, currency, fxFactor, trailing30, targetAmount)
 			summary.ExcludedBrews = excludedBrews
 			summary.ExcludedBags = excludedBags
 			summary.IncludeShipping = includeShipping
@@ -180,7 +180,7 @@ excluded; counts are reported on stderr (and in JSON) so totals never lie.`,
 	cmd.Flags().StringVar(&currency, "currency", "USD", "Output currency (USD, EUR, GBP, DKK, JPY, AUD, CAD); rolls up via fx rates")
 	cmd.Flags().BoolVar(&includeShipping, "include-shipping", false, "Add per-bag amortized shipping from fx's curated table (1 bag/order worst-case)")
 	cmd.Flags().BoolVar(&trailing30, "trailing-30", false, "Use a trailing 30-day window instead of YTD")
-	cmd.Flags().Float64Var(&targetUSD, "target", 0, "Monthly spend target in the output currency; output reports over/under for this month")
+	cmd.Flags().Float64Var(&targetAmount, "target", 0, "Monthly spend target in the output currency; output reports over/under for this month")
 	cmd.Flags().StringVar(&sinceISO, "since", "", "Future: restrict to brews after this RFC3339 timestamp")
 	return cmd
 }
@@ -263,7 +263,7 @@ func parseBrewedAt(s string) (time.Time, bool) {
 // summarizeBudget computes the top-level summary fields. fxFactor scales
 // USD-stored cents into the target currency at quote time so the rest
 // of the math stays in integer-friendly cents.
-func summarizeBudget(attrs []brewAttribution, currency string, fxFactor float64, trailing30 bool, targetUSD float64) budgetSummary {
+func summarizeBudget(attrs []brewAttribution, currency string, fxFactor float64, trailing30 bool, targetAmount float64) budgetSummary {
 	now := time.Now()
 	yearStart := time.Date(now.Year(), 1, 1, 0, 0, 0, 0, now.Location())
 	monthStart := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
@@ -329,8 +329,8 @@ func summarizeBudget(attrs []brewAttribution, currency string, fxFactor float64,
 			currencySymbol(currency), lo*fxFactor/100.0,
 			currencySymbol(currency), hi*fxFactor/100.0)
 	}
-	if targetUSD > 0 {
-		summary.TargetCents = int(math.Round(targetUSD * 100.0))
+	if targetAmount > 0 {
+		summary.TargetCents = int(math.Round(targetAmount * 100.0))
 		summary.TargetDeltaCents = summary.ThisMonthSpentCents - summary.TargetCents
 	}
 	return summary

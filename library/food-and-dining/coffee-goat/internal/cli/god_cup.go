@@ -242,7 +242,11 @@ func dialInConfidence(db *store.Store, roaster, handle string) float64 {
 
 func creatorCoverage(db *store.Store, roaster string) float64 {
 	var n int
-	_ = db.DB().QueryRow(`SELECT COUNT(*) FROM youtube_reviews WHERE mentioned_roaster_slugs_json LIKE ?`, "%"+roaster+"%").Scan(&n)
+	// Anchor the LIKE pattern on JSON-string quotes so `"la"` doesn't match
+	// `"la-cabra"`. mentioned_roaster_slugs_json stores values as a JSON array
+	// of strings like `["onyx","sey"]`, so the slug always appears wrapped
+	// in double-quotes — `%"<roaster>"%` matches the full slug token only.
+	_ = db.DB().QueryRow(`SELECT COUNT(*) FROM youtube_reviews WHERE mentioned_roaster_slugs_json LIKE ?`, `%"`+roaster+`"%`).Scan(&n)
 	if n == 0 {
 		return 0
 	}
