@@ -132,6 +132,15 @@ class PressVersionVerifierTest(unittest.TestCase):
         self.assertEqual(1, len(problems))
         self.assertIn("printing_press_version is not set", problems[0].message)
 
+    def test_unparseable_version_reports_invalid_string(self) -> None:
+        cli_dir = self.tmp / "library" / "cloud" / "bad-version"
+        self.write_manifest("library/cloud/bad-version", "4.10")
+
+        problems = verifier.validate_cli_dir(cli_dir)
+
+        self.assertEqual(1, len(problems))
+        self.assertIn("printing_press_version '4.10' is not a valid version string", problems[0].message)
+
 
 if __name__ == "__main__":
     unittest.main()

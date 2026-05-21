@@ -93,6 +93,8 @@ def upgrade_message(actual: object) -> str:
         version_clause = "printing_press_version is not set"
     elif not isinstance(actual, str) or not actual:
         version_clause = f"printing_press_version {actual!r} is not a valid version"
+    elif parse_semver(actual) is None:
+        version_clause = f"printing_press_version {actual!r} is not a valid version string"
     else:
         version_clause = (
             f"printing_press_version {actual!r} is below the required "
