@@ -156,7 +156,8 @@ trailing 7-day moving average.`,
 				EnergyInKJ     float64 `json:"energy_in_kj"`
 				EnergyOutKJ    float64 `json:"energy_out_kj"`
 				NetKJ          float64 `json:"net_kj"`
-				MovingAvgNetKJ float64 `json:"moving_avg_net_kj_7d,omitempty"`
+				MovingAvgNetKJ float64 `json:"moving_avg_net_kj,omitempty"`
+				MovingAvgWindowDays int `json:"moving_avg_window_days,omitempty"`
 			}
 			series := make([]day, 0, days)
 			for offset := days - 1; offset >= 0; offset-- {
@@ -179,8 +180,13 @@ trailing 7-day moving average.`,
 					NetKJ:       dm.EnergyKJ - out,
 				})
 			}
-			// 7-day moving average
+			// Moving average: 7-day window when the series has enough
+			// points, otherwise cap to the series length so a 3-day
+			// window doesn't get labeled as a 7-day average.
 			win := 7
+			if days < win {
+				win = days
+			}
 			for i := range series {
 				lo := i - win + 1
 				if lo < 0 {
@@ -190,7 +196,9 @@ trailing 7-day moving average.`,
 				for j := lo; j <= i; j++ {
 					sum += series[j].NetKJ
 				}
-				series[i].MovingAvgNetKJ = sum / float64(i-lo+1)
+				actualWin := i - lo + 1
+				series[i].MovingAvgNetKJ = sum / float64(actualWin)
+				series[i].MovingAvgWindowDays = actualWin
 			}
 			return ktEmit(cmd.OutOrStdout(), flags, map[string]any{
 				"days":   days,
@@ -427,17 +435,42 @@ actually eat, which is more useful than an LP-optimal exotic meal.`,
 				remainingEnergy = 4000 // sane default
 			}
 
-			// Build the candidate pool: favorite foods + foods eaten in last 30 days.
+			// Build the candidate pool: favorite foods + foods eaten in the
+			// last 30 days. The diary-history half is important because a
+			// new user with an empty favorites list would otherwise see an
+			// empty selection list.
 			type cand struct {
 				Title          string  `json:"title"`
 				URL            string  `json:"slug"`
 				ProteinPer100G float64 `json:"protein_per_100g"`
 				EnergyPer100KJ float64 `json:"energy_per_100g_kj"`
 				ProteinDensity float64 `json:"protein_density_g_per_kj"`
+				Source         string  `json:"source"`
 			}
 			pool := map[string]*cand{}
 
-			// Favorites
+			addCandidate := func(title, url string, proteinPer100G, energyPer100KJ float64, source string) {
+				if url == "" || proteinPer100G <= 0 || energyPer100KJ <= 0 {
+					return
+				}
+				if existing, ok := pool[url]; ok {
+					// Prefer favorites attribution when the same food
+					// shows up in both sources.
+					if existing.Source == "favorite" {
+						return
+					}
+				}
+				pool[url] = &cand{
+					Title:          title,
+					URL:            url,
+					ProteinPer100G: proteinPer100G,
+					EnergyPer100KJ: energyPer100KJ,
+					ProteinDensity: proteinPer100G / energyPer100KJ,
+					Source:         source,
+				}
+			}
+
+			// Favorites — wire values are per 1g, convert to per 100g.
 			favRaw, _ := c.GetNoCache("/user/settings/favorite/foodstuff", map[string]string{"format": "json"})
 			if data, err := ktUnwrapEnvelope(favRaw); err == nil {
 				var favs []map[string]interface{}
@@ -445,23 +478,39 @@ actually eat, which is more useful than an LP-optimal exotic meal.`,
 					for _, f := range favs {
 						title, _ := f["title"].(string)
 						url, _ := f["url"].(string)
-						if url == "" {
-							continue
-						}
 						protein, _ := ktParseCzechNum(fmt.Sprintf("%v", f["protein"]))
 						energy, _ := ktParseCzechNum(fmt.Sprintf("%v", f["energy"]))
-						if energy <= 0 || protein <= 0 {
+						addCandidate(title, url, protein*100, energy*100, "favorite")
+					}
+				}
+			}
+
+			// 30-day diary history — diary entries carry typed numeric
+			// macros per portion AND the chosen `unit`/`multiplier`, so we
+			// can derive per-100g values by dividing macros by the portion
+			// in grams. When multiplier isn't 'g', skip the entry rather
+			// than guess a conversion ratio.
+			anchor := time.Now().Local()
+			for offset := 0; offset < 30; offset++ {
+				d := anchor.AddDate(0, 0, -offset)
+				diary, derr := ktFetchDiaryDay(c, d.Format("02.01.2006"))
+				if derr != nil {
+					continue
+				}
+				for _, slot := range diary.Times {
+					for _, f := range slot.Foodstuff {
+						if f.URL == "" || f.Multiplier <= 0 {
 							continue
 						}
-						protein100 := protein * 100 // wire values are per 1g; convert to per 100g
-						energy100 := energy * 100
-						pool[url] = &cand{
-							Title:          title,
-							URL:            url,
-							ProteinPer100G: protein100,
-							EnergyPer100KJ: energy100,
-							ProteinDensity: protein100 / energy100, // g protein per kJ at the per-100g scale (constant)
+						energyKJ, _ := ktParseCzechNum(f.Energy)
+						if energyKJ <= 0 {
+							continue
 						}
+						// macros are per portion; scale to per 100g.
+						scale := 100.0 / f.Multiplier
+						protein100 := f.Protein * scale
+						energy100 := energyKJ * scale
+						addCandidate(f.Title, f.URL, protein100, energy100, "diary-30d")
 					}
 				}
 			}

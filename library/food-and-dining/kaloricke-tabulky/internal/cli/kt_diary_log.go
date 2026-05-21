@@ -128,7 +128,7 @@ pass --commit. This is a write to your live account.`,
 			// POST
 			body, _ := json.Marshal(payload)
 			req, err := http.NewRequest("POST",
-				"https://www.kaloricketabulky.cz/user/foodstuff/add?format=json&=",
+				"https://www.kaloricketabulky.cz/user/foodstuff/add?format=json",
 				bytes.NewReader(body),
 			)
 			if err != nil {
