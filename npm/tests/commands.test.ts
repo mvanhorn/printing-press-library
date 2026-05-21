@@ -4,7 +4,7 @@ import { createListCommand } from "../src/commands/list.js";
 import { createSearchCommand, searchRegistry } from "../src/commands/search.js";
 import { createUninstallCommand } from "../src/commands/uninstall.js";
 import { createUpdateCommand } from "../src/commands/update.js";
-import { commandPrefixForInvocation, NPX_COMMAND_PREFIX } from "../src/constants.js";
+import { CLI_COMMAND_NAME, commandPrefixForInvocation, NPX_COMMAND_PREFIX } from "../src/constants.js";
 import type { RunResult } from "../src/process.js";
 import type { Registry } from "../src/registry.js";
 
@@ -55,6 +55,7 @@ const ok = (stdout = ""): RunResult => ({ code: 0, stdout, stderr: "" });
 test("list command reports catalog CLIs by default", async () => {
   const stdout: string[] = [];
   const command = createListCommand({
+    commandPrefix: CLI_COMMAND_NAME,
     fetchRegistry: async () => registry,
     stdout: (message) => stdout.push(message),
   });
@@ -113,6 +114,7 @@ test("list command can filter installed CLIs by category", async () => {
 test("list command suggests the current wrapper command when no installed CLIs are detected", async () => {
   const stdout: string[] = [];
   const command = createListCommand({
+    commandPrefix: CLI_COMMAND_NAME,
     fetchRegistry: async () => registry,
     commandOnPath: async () => null,
     stdout: (message) => stdout.push(message),
@@ -126,6 +128,7 @@ test("list command suggests the current wrapper command when no installed CLIs a
 test("search command ranks registry matches", async () => {
   const stdout: string[] = [];
   const command = createSearchCommand({
+    commandPrefix: CLI_COMMAND_NAME,
     fetchRegistry: async () => registry,
     stdout: (message) => stdout.push(message),
   });
@@ -145,6 +148,17 @@ test("catalog hints preserve npx when the wrapper is running through npx", async
 
   assert.equal(await command(["pizza"]), 0);
   assert.match(stdout.join("\n"), /install: npx -y @mvanhorn\/printing-press-library install dominos-pp-cli/);
+});
+
+test("search usage follows the current wrapper command", async () => {
+  const stderr: string[] = [];
+  const command = createSearchCommand({
+    commandPrefix: NPX_COMMAND_PREFIX,
+    stderr: (message) => stderr.push(message),
+  });
+
+  assert.equal(await command([]), 1);
+  assert.match(stderr.join("\n"), /Usage: npx -y @mvanhorn\/printing-press-library search <query> \[--json\]/);
 });
 
 test("command prefix follows the invocation source", () => {

@@ -28,7 +28,7 @@ export function createSearchCommand(overrides: Partial<SearchDeps> = {}) {
     const parsed = parseSearchArgs(args);
     if ("error" in parsed) {
       deps.stderr(parsed.error);
-      deps.stderr("Usage: printing-press-library search <query> [--json]");
+      deps.stderr(`Usage: ${deps.commandPrefix} search <query> [--json]`);
       return 1;
     }
 
