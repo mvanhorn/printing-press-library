@@ -60,11 +60,8 @@ Token). If you see a 403, use a full OAuth token or an Agency API key instead.`,
 			data, prov, err := resolveRead(cmd.Context(), c, flags, "emails", false, path, nil, nil)
 			if err != nil {
 				apiErr := classifyAPIError(err, flags)
-				// Surface a targeted hint for the common PIT-token 403 on this endpoint.
 				if isHTTP403(err) {
-					fmt.Fprintf(cmd.ErrOrStderr(),
-						"hint: The v2 email stats endpoint often returns 403 for PIT tokens.\n"+
-							"      Try an Agency API key or full OAuth token instead.\n")
+					return fmt.Errorf("%w\n      This endpoint often returns 403 for PIT tokens; try an Agency API key or full OAuth token instead.", apiErr)
 				}
 				return apiErr
 			}
