@@ -245,6 +245,15 @@ func (c *Client) do(ctx context.Context, method, target, ua string, body io.Read
 			time.Sleep(base + jitter(base))
 			continue
 		}
+		if challenge, ok := isBotChallenge(resp, data); ok {
+			// Treat bot challenges like 429 for adaptive-rate-cut purposes
+			// (the limiter halves its rate and records the ceiling), but do
+			// NOT retry — bot challenges typically require cookie refresh or
+			// a longer cool-off than the retry window supports.
+			c.limiter.OnRateLimit()
+			challenge.URL = target
+			return nil, &challenge
+		}
 		if resp.StatusCode >= 400 {
 			return nil, fmt.Errorf("GET %s returned HTTP %d: %s", target, resp.StatusCode, truncate(string(data)))
 		}
@@ -252,6 +261,67 @@ func (c *Client) do(ctx context.Context, method, target, ua string, body io.Read
 		return data, nil
 	}
 	return nil, fmt.Errorf("request failed: %s", truncate(string(last)))
+}
+
+// isBotChallenge inspects an HTTP response for datadome or Akamai/Kona
+// bot-defense signatures and returns a typed BotChallengeError describing
+// the challenge type and a remediation hint. Negative returns mean "looks
+// like a regular response, not a challenge" and let the caller fall through
+// to its existing 4xx/2xx branches.
+func isBotChallenge(resp *http.Response, body []byte) (cliutil.BotChallengeError, bool) {
+	if resp == nil {
+		return cliutil.BotChallengeError{}, false
+	}
+	// datadome signatures: a set-cookie:datadome=, a server:dd-* header, or
+	// the captcha-delivery redirect URL inside the body. These are stable
+	// markers documented by datadome and observed across multiple sites.
+	for _, c := range resp.Cookies() {
+		if strings.EqualFold(c.Name, "datadome") {
+			return cliutil.BotChallengeError{
+				ChallengeType:   "datadome",
+				StatusCode:      resp.StatusCode,
+				Remediation:     "wait and retry after a cool-off, or refresh cookies via 'airbnb-pp-cli auth login --chrome'",
+				ResponseSnippet: truncate(string(body)),
+			}, true
+		}
+	}
+	if server := resp.Header.Get("Server"); strings.HasPrefix(strings.ToLower(server), "dd-") {
+		return cliutil.BotChallengeError{
+			ChallengeType:   "datadome",
+			StatusCode:      resp.StatusCode,
+			Remediation:     "wait and retry after a cool-off, or refresh cookies via 'airbnb-pp-cli auth login --chrome'",
+			ResponseSnippet: truncate(string(body)),
+		}, true
+	}
+	lowerBody := strings.ToLower(string(body))
+	if strings.Contains(lowerBody, "geo.captcha-delivery.com") {
+		return cliutil.BotChallengeError{
+			ChallengeType:   "datadome",
+			StatusCode:      resp.StatusCode,
+			Remediation:     "wait and retry after a cool-off, or refresh cookies via 'airbnb-pp-cli auth login --chrome'",
+			ResponseSnippet: truncate(string(body)),
+		}, true
+	}
+	// Akamai / Kona signatures: title contains "bot or not" (Akamai's stock
+	// challenge page), or the body references the captcha-pwa script that
+	// Akamai's challenge ships. Matches the VRBO detector pattern.
+	if strings.Contains(lowerBody, "<title>bot or not") {
+		return cliutil.BotChallengeError{
+			ChallengeType:   "akamai",
+			StatusCode:      resp.StatusCode,
+			Remediation:     "Akamai challenge; wait at least 25 minutes for sensor cooldown, then retry with fresh cookies",
+			ResponseSnippet: truncate(string(body)),
+		}, true
+	}
+	if strings.Contains(lowerBody, "captcha-pwa") {
+		return cliutil.BotChallengeError{
+			ChallengeType:   "akamai",
+			StatusCode:      resp.StatusCode,
+			Remediation:     "Akamai challenge; wait at least 25 minutes for sensor cooldown, then retry with fresh cookies",
+			ResponseSnippet: truncate(string(body)),
+		}, true
+	}
+	return cliutil.BotChallengeError{}, false
 }
 
 func (c *Client) allowedByRobots(ctx context.Context, path string) error {

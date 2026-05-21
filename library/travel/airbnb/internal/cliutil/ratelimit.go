@@ -155,6 +155,30 @@ func (e *RateLimitError) Error() string {
 	return msg
 }
 
+// BotChallengeError signals an upstream returned a bot-defense challenge
+// (datadome, Akamai/Kona, or similar) that cannot be retried automatically.
+// Callers should surface the Remediation hint to the user rather than
+// retry blindly — sustained automated retries against a challenge response
+// can escalate to an IP or account block.
+type BotChallengeError struct {
+	URL             string
+	ChallengeType   string // "datadome", "akamai", or "unknown-403"
+	StatusCode      int
+	Remediation     string
+	ResponseSnippet string // first ~200 chars of body, for debugging only
+}
+
+func (e *BotChallengeError) Error() string {
+	msg := fmt.Sprintf("bot challenge: HTTP %d for %s", e.StatusCode, e.URL)
+	if e.ChallengeType != "" {
+		msg += " (" + e.ChallengeType + ")"
+	}
+	if e.Remediation != "" {
+		msg += "; " + e.Remediation
+	}
+	return msg
+}
+
 // MaxRetryWait caps the wait derived from a Retry-After header so a buggy
 // or hostile upstream cannot pin a CLI for hours.
 const MaxRetryWait = 60 * time.Second
