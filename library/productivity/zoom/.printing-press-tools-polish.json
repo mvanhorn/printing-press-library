@@ -1,0 +1,433 @@
+{
+  "timestamp": "2026-05-21T16:51:20.123583Z",
+  "cli_dir": "\u003ccli-dir\u003e/zoom",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "accounts",
+      "file": "accounts.go",
+      "line": 11,
+      "evidence": "Account operations",
+      "status": "accepted",
+      "note": "Hidden parent-grouper 'accounts' (RunE=parentNoSubcommandRunE) in DO-NOT-EDIT generated file accounts.go; its Short is category-shaped by design and a hand-edit is wiped on regen. Needs generator-template fix to emit richer grouper Shorts."
+    },
+    {
+      "kind": "thin-short",
+      "command": "billing",
+      "file": "accounts_billing.go",
+      "line": 11,
+      "evidence": "Billing operations",
+      "status": "accepted",
+      "note": "Hidden parent-grouper 'billing' (RunE=parentNoSubcommandRunE) in DO-NOT-EDIT generated file accounts_billing.go; its Short is category-shaped by design and a hand-edit is wiped on regen. Needs generator-template fix to emit richer grouper Shorts."
+    },
+    {
+      "kind": "thin-short",
+      "command": "managed-domains",
+      "file": "accounts_managed-domains.go",
+      "line": 11,
+      "evidence": "Manage managed domains",
+      "status": "accepted",
+      "note": "Hidden parent-grouper 'managed-domains' (RunE=parentNoSubcommandRunE) in DO-NOT-EDIT generated file accounts_managed-domains.go; its Short is category-shaped by design and a hand-edit is wiped on regen. Needs generator-template fix to emit richer grouper Shorts."
+    },
+    {
+      "kind": "thin-short",
+      "command": "options",
+      "file": "accounts_options.go",
+      "line": 11,
+      "evidence": "Manage options",
+      "status": "accepted",
+      "note": "Hidden parent-grouper 'options' (RunE=parentNoSubcommandRunE) in DO-NOT-EDIT generated file accounts_options.go; its Short is category-shaped by design and a hand-edit is wiped on regen. Needs generator-template fix to emit richer grouper Shorts."
+    },
+    {
+      "kind": "thin-short",
+      "command": "plans",
+      "file": "accounts_plans.go",
+      "line": 11,
+      "evidence": "Manage plans",
+      "status": "accepted",
+      "note": "Hidden parent-grouper 'plans' (RunE=parentNoSubcommandRunE) in DO-NOT-EDIT generated file accounts_plans.go; its Short is category-shaped by design and a hand-edit is wiped on regen. Needs generator-template fix to emit richer grouper Shorts."
+    },
+    {
+      "kind": "thin-short",
+      "command": "settings",
+      "file": "accounts_settings.go",
+      "line": 11,
+      "evidence": "Manage settings",
+      "status": "accepted",
+      "note": "Hidden parent-grouper 'settings' (RunE=parentNoSubcommandRunE) in DO-NOT-EDIT generated file accounts_settings.go; its Short is category-shaped by design and a hand-edit is wiped on regen. Needs generator-template fix to emit richer grouper Shorts."
+    },
+    {
+      "kind": "thin-short",
+      "command": "groups",
+      "file": "groups.go",
+      "line": 11,
+      "evidence": "Group operations",
+      "status": "accepted",
+      "note": "Hidden parent-grouper 'groups' (RunE=parentNoSubcommandRunE) in DO-NOT-EDIT generated file groups.go; its Short is category-shaped by design and a hand-edit is wiped on regen. Needs generator-template fix to emit richer grouper Shorts."
+    },
+    {
+      "kind": "thin-short",
+      "command": "members",
+      "file": "groups_members.go",
+      "line": 11,
+      "evidence": "Manage members",
+      "status": "accepted",
+      "note": "Hidden parent-grouper 'members' (RunE=parentNoSubcommandRunE) in DO-NOT-EDIT generated file groups_members.go; its Short is category-shaped by design and a hand-edit is wiped on regen. Needs generator-template fix to emit richer grouper Shorts."
+    },
+    {
+      "kind": "thin-short",
+      "command": "h323",
+      "file": "h323.go",
+      "line": 11,
+      "evidence": "Manage h323",
+      "status": "accepted",
+      "note": "Hidden parent-grouper 'h323' (RunE=parentNoSubcommandRunE) in DO-NOT-EDIT generated file h323.go; its Short is category-shaped by design and a hand-edit is wiped on regen. Needs generator-template fix to emit richer grouper Shorts."
+    },
+    {
+      "kind": "thin-short",
+      "command": "im",
+      "file": "im.go",
+      "line": 11,
+      "evidence": "Manage im",
+      "status": "accepted",
+      "note": "Hidden parent-grouper 'im' (RunE=parentNoSubcommandRunE) in DO-NOT-EDIT generated file im.go; its Short is category-shaped by design and a hand-edit is wiped on regen. Needs generator-template fix to emit richer grouper Shorts."
+    },
+    {
+      "kind": "thin-short",
+      "command": "meetings",
+      "file": "meetings.go",
+      "line": 11,
+      "evidence": "Meeting operations",
+      "status": "accepted",
+      "note": "Hidden parent-grouper 'meetings' (RunE=parentNoSubcommandRunE) in DO-NOT-EDIT generated file meetings.go; its Short is category-shaped by design and a hand-edit is wiped on regen. Needs generator-template fix to emit richer grouper Shorts."
+    },
+    {
+      "kind": "thin-short",
+      "command": "invitation",
+      "file": "meetings_invitation.go",
+      "line": 11,
+      "evidence": "Manage invitation",
+      "status": "accepted",
+      "note": "Hidden parent-grouper 'invitation' (RunE=parentNoSubcommandRunE) in DO-NOT-EDIT generated file meetings_invitation.go; its Short is category-shaped by design and a hand-edit is wiped on regen. Needs generator-template fix to emit richer grouper Shorts."
+    },
+    {
+      "kind": "thin-short",
+      "command": "livestream",
+      "file": "meetings_livestream.go",
+      "line": 11,
+      "evidence": "Manage livestream",
+      "status": "accepted",
+      "note": "Hidden parent-grouper 'livestream' (RunE=parentNoSubcommandRunE) in DO-NOT-EDIT generated file meetings_livestream.go; its Short is category-shaped by design and a hand-edit is wiped on regen. Needs generator-template fix to emit richer grouper Shorts."
+    },
+    {
+      "kind": "thin-short",
+      "command": "polls",
+      "file": "meetings_polls.go",
+      "line": 11,
+      "evidence": "Manage polls",
+      "status": "accepted",
+      "note": "Hidden parent-grouper 'polls' (RunE=parentNoSubcommandRunE) in DO-NOT-EDIT generated file meetings_polls.go; its Short is category-shaped by design and a hand-edit is wiped on regen. Needs generator-template fix to emit richer grouper Shorts."
+    },
+    {
+      "kind": "thin-short",
+      "command": "recordings",
+      "file": "meetings_recordings.go",
+      "line": 11,
+      "evidence": "Manage recordings",
+      "status": "accepted",
+      "note": "Hidden parent-grouper 'recordings' (RunE=parentNoSubcommandRunE) in DO-NOT-EDIT generated file meetings_recordings.go; its Short is category-shaped by design and a hand-edit is wiped on regen. Needs generator-template fix to emit richer grouper Shorts."
+    },
+    {
+      "kind": "thin-short",
+      "command": "registrants",
+      "file": "meetings_registrants.go",
+      "line": 11,
+      "evidence": "Manage registrants",
+      "status": "accepted",
+      "note": "Hidden parent-grouper 'registrants' (RunE=parentNoSubcommandRunE) in DO-NOT-EDIT generated file meetings_registrants.go; its Short is category-shaped by design and a hand-edit is wiped on regen. Needs generator-template fix to emit richer grouper Shorts."
+    },
+    {
+      "kind": "thin-short",
+      "command": "status",
+      "file": "meetings_status.go",
+      "line": 11,
+      "evidence": "Manage status",
+      "status": "accepted",
+      "note": "Hidden parent-grouper 'status' (RunE=parentNoSubcommandRunE) in DO-NOT-EDIT generated file meetings_status.go; its Short is category-shaped by design and a hand-edit is wiped on regen. Needs generator-template fix to emit richer grouper Shorts."
+    },
+    {
+      "kind": "thin-short",
+      "command": "metrics",
+      "file": "metrics.go",
+      "line": 11,
+      "evidence": "Manage metrics",
+      "status": "accepted",
+      "note": "Hidden parent-grouper 'metrics' (RunE=parentNoSubcommandRunE) in DO-NOT-EDIT generated file metrics.go; its Short is category-shaped by design and a hand-edit is wiped on regen. Needs generator-template fix to emit richer grouper Shorts."
+    },
+    {
+      "kind": "thin-short",
+      "command": "instances",
+      "file": "past-meetings_instances.go",
+      "line": 11,
+      "evidence": "Manage instances",
+      "status": "accepted",
+      "note": "Hidden parent-grouper 'instances' (RunE=parentNoSubcommandRunE) in DO-NOT-EDIT generated file past-meetings_instances.go; its Short is category-shaped by design and a hand-edit is wiped on regen. Needs generator-template fix to emit richer grouper Shorts."
+    },
+    {
+      "kind": "thin-short",
+      "command": "participants",
+      "file": "past-meetings_participants.go",
+      "line": 11,
+      "evidence": "Manage participants",
+      "status": "accepted",
+      "note": "Hidden parent-grouper 'participants' (RunE=parentNoSubcommandRunE) in DO-NOT-EDIT generated file past-meetings_participants.go; its Short is category-shaped by design and a hand-edit is wiped on regen. Needs generator-template fix to emit richer grouper Shorts."
+    },
+    {
+      "kind": "thin-short",
+      "command": "past-webinars",
+      "file": "past-webinars.go",
+      "line": 11,
+      "evidence": "Manage past webinars",
+      "status": "accepted",
+      "note": "Hidden parent-grouper 'past-webinars' (RunE=parentNoSubcommandRunE) in DO-NOT-EDIT generated file past-webinars.go; its Short is category-shaped by design and a hand-edit is wiped on regen. Needs generator-template fix to emit richer grouper Shorts."
+    },
+    {
+      "kind": "thin-short",
+      "command": "instances",
+      "file": "past-webinars_instances.go",
+      "line": 11,
+      "evidence": "Manage instances",
+      "status": "accepted",
+      "note": "Hidden parent-grouper 'instances' (RunE=parentNoSubcommandRunE) in DO-NOT-EDIT generated file past-webinars_instances.go; its Short is category-shaped by design and a hand-edit is wiped on regen. Needs generator-template fix to emit richer grouper Shorts."
+    },
+    {
+      "kind": "thin-short",
+      "command": "report",
+      "file": "report.go",
+      "line": 11,
+      "evidence": "Report operations",
+      "status": "accepted",
+      "note": "Hidden parent-grouper 'report' (RunE=parentNoSubcommandRunE) in DO-NOT-EDIT generated file report.go; its Short is category-shaped by design and a hand-edit is wiped on regen. Needs generator-template fix to emit richer grouper Shorts."
+    },
+    {
+      "kind": "missing-read-only",
+      "command": "report",
+      "file": "report.go",
+      "line": 11,
+      "evidence": "name matches read heuristic; no mcp:read-only annotation",
+      "status": "accepted",
+      "note": "'report' is a hidden parent grouper (RunE=parentNoSubcommandRunE) that only prints help; it performs no read and exposes no MCP tool, so mcp:read-only does not apply. In DO-NOT-EDIT generated file report.go; name-heuristic false positive."
+    },
+    {
+      "kind": "thin-short",
+      "command": "tracking-fields",
+      "file": "tracking-fields.go",
+      "line": 11,
+      "evidence": "Tracking Field operations",
+      "status": "accepted",
+      "note": "Hidden parent-grouper 'tracking-fields' (RunE=parentNoSubcommandRunE) in DO-NOT-EDIT generated file tracking-fields.go; its Short is category-shaped by design and a hand-edit is wiped on regen. Needs generator-template fix to emit richer grouper Shorts."
+    },
+    {
+      "kind": "thin-short",
+      "command": "tsp",
+      "file": "tsp.go",
+      "line": 11,
+      "evidence": "TSP operations",
+      "status": "accepted",
+      "note": "Hidden parent-grouper 'tsp' (RunE=parentNoSubcommandRunE) in DO-NOT-EDIT generated file tsp.go; its Short is category-shaped by design and a hand-edit is wiped on regen. Needs generator-template fix to emit richer grouper Shorts."
+    },
+    {
+      "kind": "thin-short",
+      "command": "users",
+      "file": "users.go",
+      "line": 11,
+      "evidence": "User operations",
+      "status": "accepted",
+      "note": "Hidden parent-grouper 'users' (RunE=parentNoSubcommandRunE) in DO-NOT-EDIT generated file users.go; its Short is category-shaped by design and a hand-edit is wiped on regen. Needs generator-template fix to emit richer grouper Shorts."
+    },
+    {
+      "kind": "thin-short",
+      "command": "assistants",
+      "file": "users_assistants.go",
+      "line": 11,
+      "evidence": "Manage assistants",
+      "status": "accepted",
+      "note": "Hidden parent-grouper 'assistants' (RunE=parentNoSubcommandRunE) in DO-NOT-EDIT generated file users_assistants.go; its Short is category-shaped by design and a hand-edit is wiped on regen. Needs generator-template fix to emit richer grouper Shorts."
+    },
+    {
+      "kind": "thin-short",
+      "command": "email",
+      "file": "users_email.go",
+      "line": 11,
+      "evidence": "Manage email",
+      "status": "accepted",
+      "note": "Hidden parent-grouper 'email' (RunE=parentNoSubcommandRunE) in DO-NOT-EDIT generated file users_email.go; its Short is category-shaped by design and a hand-edit is wiped on regen. Needs generator-template fix to emit richer grouper Shorts."
+    },
+    {
+      "kind": "thin-short",
+      "command": "meetings",
+      "file": "users_meetings.go",
+      "line": 11,
+      "evidence": "Meeting operations",
+      "status": "accepted",
+      "note": "Hidden parent-grouper 'meetings' (RunE=parentNoSubcommandRunE) in DO-NOT-EDIT generated file users_meetings.go; its Short is category-shaped by design and a hand-edit is wiped on regen. Needs generator-template fix to emit richer grouper Shorts."
+    },
+    {
+      "kind": "thin-short",
+      "command": "pac",
+      "file": "users_pac.go",
+      "line": 11,
+      "evidence": "PAC operations",
+      "status": "accepted",
+      "note": "Hidden parent-grouper 'pac' (RunE=parentNoSubcommandRunE) in DO-NOT-EDIT generated file users_pac.go; its Short is category-shaped by design and a hand-edit is wiped on regen. Needs generator-template fix to emit richer grouper Shorts."
+    },
+    {
+      "kind": "thin-short",
+      "command": "password",
+      "file": "users_password.go",
+      "line": 11,
+      "evidence": "Manage password",
+      "status": "accepted",
+      "note": "Hidden parent-grouper 'password' (RunE=parentNoSubcommandRunE) in DO-NOT-EDIT generated file users_password.go; its Short is category-shaped by design and a hand-edit is wiped on regen. Needs generator-template fix to emit richer grouper Shorts."
+    },
+    {
+      "kind": "thin-short",
+      "command": "permissions",
+      "file": "users_permissions.go",
+      "line": 11,
+      "evidence": "Manage permissions",
+      "status": "accepted",
+      "note": "Hidden parent-grouper 'permissions' (RunE=parentNoSubcommandRunE) in DO-NOT-EDIT generated file users_permissions.go; its Short is category-shaped by design and a hand-edit is wiped on regen. Needs generator-template fix to emit richer grouper Shorts."
+    },
+    {
+      "kind": "thin-short",
+      "command": "picture",
+      "file": "users_picture.go",
+      "line": 11,
+      "evidence": "Manage picture",
+      "status": "accepted",
+      "note": "Hidden parent-grouper 'picture' (RunE=parentNoSubcommandRunE) in DO-NOT-EDIT generated file users_picture.go; its Short is category-shaped by design and a hand-edit is wiped on regen. Needs generator-template fix to emit richer grouper Shorts."
+    },
+    {
+      "kind": "thin-short",
+      "command": "recordings",
+      "file": "users_recordings.go",
+      "line": 11,
+      "evidence": "Manage recordings",
+      "status": "accepted",
+      "note": "Hidden parent-grouper 'recordings' (RunE=parentNoSubcommandRunE) in DO-NOT-EDIT generated file users_recordings.go; its Short is category-shaped by design and a hand-edit is wiped on regen. Needs generator-template fix to emit richer grouper Shorts."
+    },
+    {
+      "kind": "thin-short",
+      "command": "schedulers",
+      "file": "users_schedulers.go",
+      "line": 11,
+      "evidence": "Manage schedulers",
+      "status": "accepted",
+      "note": "Hidden parent-grouper 'schedulers' (RunE=parentNoSubcommandRunE) in DO-NOT-EDIT generated file users_schedulers.go; its Short is category-shaped by design and a hand-edit is wiped on regen. Needs generator-template fix to emit richer grouper Shorts."
+    },
+    {
+      "kind": "thin-short",
+      "command": "settings",
+      "file": "users_settings.go",
+      "line": 11,
+      "evidence": "Manage settings",
+      "status": "accepted",
+      "note": "Hidden parent-grouper 'settings' (RunE=parentNoSubcommandRunE) in DO-NOT-EDIT generated file users_settings.go; its Short is category-shaped by design and a hand-edit is wiped on regen. Needs generator-template fix to emit richer grouper Shorts."
+    },
+    {
+      "kind": "thin-short",
+      "command": "status",
+      "file": "users_status.go",
+      "line": 11,
+      "evidence": "Manage status",
+      "status": "accepted",
+      "note": "Hidden parent-grouper 'status' (RunE=parentNoSubcommandRunE) in DO-NOT-EDIT generated file users_status.go; its Short is category-shaped by design and a hand-edit is wiped on regen. Needs generator-template fix to emit richer grouper Shorts."
+    },
+    {
+      "kind": "thin-short",
+      "command": "token",
+      "file": "users_token.go",
+      "line": 11,
+      "evidence": "Manage token",
+      "status": "accepted",
+      "note": "Hidden parent-grouper 'token' (RunE=parentNoSubcommandRunE) in DO-NOT-EDIT generated file users_token.go; its Short is category-shaped by design and a hand-edit is wiped on regen. Needs generator-template fix to emit richer grouper Shorts."
+    },
+    {
+      "kind": "thin-short",
+      "command": "tsp",
+      "file": "users_tsp.go",
+      "line": 11,
+      "evidence": "TSP operations",
+      "status": "accepted",
+      "note": "Hidden parent-grouper 'tsp' (RunE=parentNoSubcommandRunE) in DO-NOT-EDIT generated file users_tsp.go; its Short is category-shaped by design and a hand-edit is wiped on regen. Needs generator-template fix to emit richer grouper Shorts."
+    },
+    {
+      "kind": "thin-short",
+      "command": "webinars",
+      "file": "users_webinars.go",
+      "line": 11,
+      "evidence": "Webinar operations",
+      "status": "accepted",
+      "note": "Hidden parent-grouper 'webinars' (RunE=parentNoSubcommandRunE) in DO-NOT-EDIT generated file users_webinars.go; its Short is category-shaped by design and a hand-edit is wiped on regen. Needs generator-template fix to emit richer grouper Shorts."
+    },
+    {
+      "kind": "thin-short",
+      "command": "webhooks",
+      "file": "webhooks.go",
+      "line": 11,
+      "evidence": "Webhook operations",
+      "status": "accepted",
+      "note": "Hidden parent-grouper 'webhooks' (RunE=parentNoSubcommandRunE) in DO-NOT-EDIT generated file webhooks.go; its Short is category-shaped by design and a hand-edit is wiped on regen. Needs generator-template fix to emit richer grouper Shorts."
+    },
+    {
+      "kind": "thin-short",
+      "command": "webinars",
+      "file": "webinars.go",
+      "line": 11,
+      "evidence": "Webinar operations",
+      "status": "accepted",
+      "note": "Hidden parent-grouper 'webinars' (RunE=parentNoSubcommandRunE) in DO-NOT-EDIT generated file webinars.go; its Short is category-shaped by design and a hand-edit is wiped on regen. Needs generator-template fix to emit richer grouper Shorts."
+    },
+    {
+      "kind": "thin-short",
+      "command": "panelists",
+      "file": "webinars_panelists.go",
+      "line": 11,
+      "evidence": "Manage panelists",
+      "status": "accepted",
+      "note": "Hidden parent-grouper 'panelists' (RunE=parentNoSubcommandRunE) in DO-NOT-EDIT generated file webinars_panelists.go; its Short is category-shaped by design and a hand-edit is wiped on regen. Needs generator-template fix to emit richer grouper Shorts."
+    },
+    {
+      "kind": "thin-short",
+      "command": "polls",
+      "file": "webinars_polls.go",
+      "line": 11,
+      "evidence": "Manage polls",
+      "status": "accepted",
+      "note": "Hidden parent-grouper 'polls' (RunE=parentNoSubcommandRunE) in DO-NOT-EDIT generated file webinars_polls.go; its Short is category-shaped by design and a hand-edit is wiped on regen. Needs generator-template fix to emit richer grouper Shorts."
+    },
+    {
+      "kind": "thin-short",
+      "command": "registrants",
+      "file": "webinars_registrants.go",
+      "line": 11,
+      "evidence": "Manage registrants",
+      "status": "accepted",
+      "note": "Hidden parent-grouper 'registrants' (RunE=parentNoSubcommandRunE) in DO-NOT-EDIT generated file webinars_registrants.go; its Short is category-shaped by design and a hand-edit is wiped on regen. Needs generator-template fix to emit richer grouper Shorts."
+    },
+    {
+      "kind": "thin-short",
+      "command": "status",
+      "file": "webinars_status.go",
+      "line": 11,
+      "evidence": "Manage status",
+      "status": "accepted",
+      "note": "Hidden parent-grouper 'status' (RunE=parentNoSubcommandRunE) in DO-NOT-EDIT generated file webinars_status.go; its Short is category-shaped by design and a hand-edit is wiped on regen. Needs generator-template fix to emit richer grouper Shorts."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-05-21T16:47:53.961262Z"
+  }
+}
