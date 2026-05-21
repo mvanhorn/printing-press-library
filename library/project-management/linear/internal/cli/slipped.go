@@ -34,6 +34,9 @@ into the active cycle for the team). Groups by reason heuristic:
   linear-pp-cli slipped --team ENG --json`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if flags.dryRun {
+				return nil
+			}
 			if dbPath == "" {
 				dbPath = defaultDBPath("linear-pp-cli")
 			}

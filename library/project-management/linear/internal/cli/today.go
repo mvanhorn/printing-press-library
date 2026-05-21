@@ -84,15 +84,28 @@ func newTodayCmd(flags *rootFlags) *cobra.Command {
 				return active[i].Identifier < active[j].Identifier
 			})
 
+			if len(active) == 0 {
+				if !hintIfUnsynced(cmd, db, "issues") {
+					hintIfStale(cmd, db, "issues", flags.maxAge)
+					if jsonOut {
+						enc := json.NewEncoder(os.Stdout)
+						enc.SetIndent("", "  ")
+						return enc.Encode(active)
+					}
+					fmt.Println("No active issues assigned to you. Nice!")
+				} else if jsonOut {
+					enc := json.NewEncoder(os.Stdout)
+					enc.SetIndent("", "  ")
+					return enc.Encode(active)
+				}
+				return nil
+			}
+			hintIfStale(cmd, db, "issues", flags.maxAge)
+
 			if jsonOut {
 				enc := json.NewEncoder(os.Stdout)
 				enc.SetIndent("", "  ")
 				return enc.Encode(active)
-			}
-
-			if len(active) == 0 {
-				fmt.Println("No active issues assigned to you. Nice!")
-				return nil
 			}
 
 			fmt.Printf("%-12s %-4s %-15s %-10s %s\n", "ID", "PRI", "STATE", "TEAM", "TITLE")

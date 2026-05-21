@@ -1,0 +1,9 @@
+{
+  "descriptions": {
+    "applications_get-callback-uri": "Fetch one OAuth redirect/callback URI registered on this Nylas application by ID. Required: id (the UUID returned when the URI was registered). Returns the RedirectUri object with url, platform, settings, and audit timestamps. Use applications_get-all-callback-uris when you only have the URL string and need to look up its ID.",
+    "lists_get": "Fetch one moderation list (the named set of blocked domains, TLDs, or addresses used by inbound/outbound rules). Required: list_id (UUID). Returns the List object with name, description, type (domain/tld/address), items_count, and timestamps. Use lists_get to inspect a list before editing its items; use lists_get-items to page through the values themselves.",
+    "policies_get-policy": "Fetch one inbox policy (the named bundle of folder defaults and operational limits applied when provisioning agent grants). Required: policy_id (UUID). Returns the Policy object with name, options (additional_folders, use_cidr_aliasing), limits, and audit timestamps. Use this before assigning a policy to a grant to confirm its limits; use policies_list-policies to discover available policies.",
+    "rules_get": "Fetch one mail-flow rule (the named condition+action that runs on inbound or outbound messages). Required: rule_id (UUID). Returns the Rule object with name, description, priority, enabled, trigger (inbound/outbound), conditions, actions, and timestamps. Use this to inspect a rule before editing; rules with trigger=outbound and a block action reject sends with HTTP 403.",
+    "workspaces_get": "Fetch one workspace (the top-level domain-scoped container that groups grants and policies in a Nylas application). Required: workspace_id (UUID). Returns the Workspace object with name, domain, auto_group, application_id, and timestamps. Use this to verify a workspace's auto_group setting before relying on it to attach new grants by email domain."
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-15",
+  "base_run_id": "20260513-091340",
+  "base_printing_press_version": "4.5.2",
+  "patches": [
+    {
+      "id": "csv-eof-vs-error-distinction",
+      "summary": "readBatchCSV distinguishes io.EOF from real CSV parse/read errors so mid-file failures do not silently truncate the batch.",
+      "reason": "Generator-emitted readBatchCSV treated any csv.Reader.Read() error as terminal EOF. A malformed quoted field or OS read failure at row 50 of 1000 would return 49 rows with a nil error, then send those 49 rows as if the batch were complete -- a silent compliance and data-integrity failure for SMS workflows. Surfaced by Greptile P1 in the PR #417 review.",
+      "files": [
+        "internal/cli/sms_send_batch.go"
+      ],
+      "validated_outcome": "go build ./... succeeds; go test ./... passes; go vet clean."
+    },
+    {
+      "id": "batch-id-collision-resolution",
+      "summary": "newBatchID suffixes 4 random hex bytes so concurrent send-batch invocations within the same second produce distinct batch IDs.",
+      "reason": "Generator-emitted newBatchID used seconds-resolution timestamps only. Two send-batch invocations starting within the same second (CI jobs, scripts, fast retries) would produce identical IDs; persistBatch then silently overwrites the earlier batch, leaving the first unrecoverable by sms reconcile. Surfaced by Greptile P2 in the PR #417 review.",
+      "files": [
+        "internal/cli/sms_send_batch.go"
+      ],
+      "validated_outcome": "go build ./... succeeds; go test ./... passes."
+    },
+    {
+      "id": "sms-reconcile-retry-flag-guard-persist-and-error-clear",
+      "summary": "sms reconcile --retry-failed guards on the same population the retry loop iterates over, persists retried rows back into the stored batch, and clears the original Error field on successful retry.",
+      "reason": "The previous guard `result.Failed > 0` gated on Bird-side delivery failures (from runAudit), while the loop body matched rows where `row.Status == \"failed\" || row.Error != \"\"` (HTTP send failures). The two populations are disjoint, so --retry-failed silently no-op'd in the two most common scenarios: (1) all POSTs succeeded but Bird rejected delivery -- guard passed, retries stayed empty; (2) all POSTs failed -- result.Failed stayed at zero, guard never fired. The flag's help text reads 'Re-send rows whose original send failed', so guarding on send-failure rows aligns the implementation with the documented contract. A second-order bug surfaced after the first guard fix: retried rows received new MessageIDs from sendOneRow but were only updated in memory; the persisted batch still held the original `MessageID == \"\"` entries, so a follow-up `sms reconcile <batch-id>` skipped the retried rows on line 90 (`if row.MessageID == \"\" { continue }`) and could not audit their delivery. A third-order bug surfaced after the persist fix: `retry := row` shallow-copied the original Error string, sendOneRow only writes MessageID + Status on success, so a successful retry persisted with `Status == \"retried\" && Error != \"\"`. The next --retry-failed pass then re-retried an already-delivered row indefinitely (Bird's idempotency keys suppress duplicate delivery, but the stored state stays incorrect). Fix: clear retry.Error in the success branch. Surfaced by Greptile P1 in the PR #417 second, third, and eighth review passes.",
+      "files": [
+        "internal/cli/sms_reconcile.go"
+      ],
+      "validated_outcome": "go build ./... succeeds; go test ./... passes; go vet clean."
+    },
+    {
+      "id": "compliance-auto-block-since-filter-hardening",
+      "summary": "compliance auto-block scanOptOuts now excludes messages with missing or unparseable createdAt from the --since window, instead of silently including them.",
+      "reason": "The previous filter only skipped messages where createdAt parsed AND fell before the cutoff, so messages without createdAt (or with malformed timestamps) bypassed the window entirely and were always treated as opt-out candidates. With --apply, that could bulk-block phone numbers based on arbitrarily old STOP messages -- a compliance-critical mutation gated on a window that wasn't actually enforced. Fix: drop the row if createdAt is empty or doesn't parse; otherwise require it to be at or after cutoff. Surfaced by Greptile P1 in the PR #417 review.",
+      "files": [
+        "internal/cli/compliance_auto_block.go"
+      ],
+      "validated_outcome": "go build ./... succeeds; go test ./... passes; go vet clean."
+    },
+    {
+      "id": "compliance-auto-block-word-boundary-keyword-match",
+      "summary": "compliance auto-block keyword detection now matches STOP-style keywords only as standalone words, not as prefixes of unrelated tokens.",
+      "reason": "The previous matcher OR-ed strings.EqualFold(body, kw), strings.Contains(body, \" KW \"), and strings.HasPrefix(body, KW). The HasPrefix arm matched any message that started with a keyword character sequence regardless of the next character, so a body like \"STOPPER SERVICE\" matched the \"stop\" keyword. Under --apply, the matched recipient was submitted to Bird's bulk-block endpoint -- a false-positive compliance mutation against innocent senders. Fix: replace the three string heuristics with a pre-compiled case-insensitive regex `(?i)\\b(stop|stopall|unsubscribe|cancel|end|quit|optout|opt-out)\\b` that anchors each keyword between word boundaries. Surfaced by Greptile P1 in the PR #417 fourth review pass.",
+      "files": [
+        "internal/cli/compliance_auto_block.go"
+      ],
+      "validated_outcome": "go build ./... succeeds; go test ./... passes; go vet clean."
+    },
+    {
+      "id": "sms-search-from-to-intersection",
+      "summary": "sms search --from and --to are now intersected when both are supplied, instead of silently dropping --from.",
+      "reason": "The previous identifier resolution was `identifier := to; if identifier == \"\" { identifier = from }`, which meant that `sms search \"X\" --from +A --to +B` silently discarded --from and only restricted to conversations involving +B. Callers expecting the natural intersection (conversations involving BOTH numbers) got a quietly broader result set. Fix: a three-case switch -- both flags -> intersect the two participant sets; single flag -> filter on that one; no flag -> no participant restriction. Direction-aware filtering (--from for outgoing, --to for incoming) is left as a follow-up because the synced message rows don't expose a uniform direction field. Surfaced by Greptile P1 in the PR #417 fifth review pass.",
+      "files": [
+        "internal/cli/sms_search.go"
+      ],
+      "validated_outcome": "go build ./... succeeds; go test ./... passes; go vet clean."
+    },
+    {
+      "id": "messages-failures-since-filter-hardening",
+      "summary": "messages failures --since now skips messages whose timestamp can't be resolved, instead of silently including them.",
+      "reason": "Same pattern as the earlier compliance_auto_block fix: the guard `!t.IsZero() && t.Before(cutoff)` evaluated false for zero times (when both `timestamp` and `created_at` were NULL or non-RFC3339), so undated messages bypassed the --since window entirely. With --group-by reason, this silently inflated counts with arbitrarily old failures. Fix: invert the polarity to `t.IsZero() || t.Before(cutoff) -> continue`, dropping any row whose timestamp cannot be resolved. Surfaced by Greptile P1 in the PR #417 sixth review pass.",
+      "files": [
+        "internal/cli/messages_failures.go"
+      ],
+      "validated_outcome": "go build ./... succeeds; go test ./... passes; go vet clean."
+    },
+    {
+      "id": "db-rows-err-audit-after-scan-loops",
+      "summary": "Every `for rows.Next()` loop now ends with a `rows.Err()` check so mid-iteration query failures surface instead of silently truncating downstream results.",
+      "reason": "Go's database/sql contract is that `rows.Next()` returns false on both result-set exhaustion AND on internal scan error; the only way to distinguish the two is to call `rows.Err()` after the loop. Greptile flagged three call sites (scanOptOuts in compliance_auto_block.go, conversationsForIdentifier in sms_search.go, queryCustomerMessages in messages_from.go) where the missing check would silently produce a truncated candidate list -- with `compliance auto-block --apply`, that meant bulk-blocking some phone numbers while skipping others, with no indication that the scan was incomplete. Audited the rest of the printed CLI in the same pass and added the same check to scanForBody (sms_search.go), queryFailures (messages_failures.go), the sync_state scan in doctor.go, the participants + messages scans in conversations_timeline.go, and the MCP sql tool's scan loop in internal/mcp/tools.go. Surfaced by Greptile P1 in the PR #417 ninth review pass; pre-emptive fixes added in the same patch so the next pass doesn't surface them one-by-one.",
+      "files": [
+        "internal/cli/compliance_auto_block.go",
+        "internal/cli/sms_search.go",
+        "internal/cli/messages_from.go",
+        "internal/cli/messages_failures.go",
+        "internal/cli/doctor.go",
+        "internal/cli/conversations_timeline.go",
+        "internal/mcp/tools.go"
+      ],
+      "validated_outcome": "go build ./... succeeds; go test ./... passes; go vet clean; ratio of rows.Next() loops to rows.Err() checks is now 22:23 (one extra check, no gaps)."
+    }
+  ]
+}

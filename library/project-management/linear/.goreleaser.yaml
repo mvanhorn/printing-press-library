@@ -45,7 +45,7 @@ brews:
       owner: matt-van-horn
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Generated from GraphQL schema"
+    description: "Offline-capable, agent-native Linear CLI with SQLite-backed sync, FTS5 search, cross-cycle comparison, project..."
     install: |
       bin.install "linear-pp-cli"
       bin.install "linear-pp-mcp"

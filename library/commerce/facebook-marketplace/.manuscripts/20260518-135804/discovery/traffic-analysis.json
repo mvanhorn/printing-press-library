@@ -1,0 +1,3889 @@
+{
+  "version": "1",
+  "summary": {
+    "target_url": "https://www.facebook.com/ajax/relay-ef/",
+    "entry_count": 1544,
+    "api_entry_count": 0,
+    "noise_entry_count": 1544,
+    "host_distribution": {
+      "external-dfw6-1.xx.fbcdn.net": 7,
+      "gateway.facebook.com": 1,
+      "scontent-dfw5-1.xx.fbcdn.net": 227,
+      "scontent-dfw5-2.xx.fbcdn.net": 235,
+      "scontent-dfw6-1.xx.fbcdn.net": 228,
+      "scontent.faus1-1.fna.fbcdn.net": 50,
+      "static.xx.fbcdn.net": 400,
+      "upload.facebook.com": 4,
+      "video-dfw5-1.xx.fbcdn.net": 16,
+      "video-dfw5-2.xx.fbcdn.net": 5,
+      "video-dfw6-1.xx.fbcdn.net": 23,
+      "video.faus1-1.fna.fbcdn.net": 13,
+      "www.facebook.com": 335
+    },
+    "time_start": "2026-05-18T18:44:12.851Z",
+    "time_end": "2026-05-18T18:48:24.387Z"
+  },
+  "reachability": {
+    "mode": "browser_required",
+    "confidence": 0.9,
+    "reasons": [
+      "CAPTCHA challenge observed"
+    ],
+    "evidence": [
+      {
+        "entry_index": 1326,
+        "method": "GET",
+        "host": "www.facebook.com",
+        "path": "/ads/ad_preview_generator_iframe/",
+        "status": 200,
+        "content_type": "text/html",
+        "reason": "CAPTCHA marker"
+      },
+      {
+        "entry_index": 1417,
+        "method": "GET",
+        "host": "static.xx.fbcdn.net",
+        "path": "/rsrc.php/v4ie0_4/y_/l/en_GB-j/zL-tK2zRF4U.js",
+        "status": 200,
+        "content_type": "application/x-javascript",
+        "reason": "CAPTCHA marker"
+      },
+      {
+        "entry_index": 1029,
+        "method": "GET",
+        "host": "video-dfw5-1.xx.fbcdn.net",
+        "path": "/o1/v/t2/f2/m367/AQOgwYsOnhP7Q9P_6-tp9VvQ3Y6jIqp_ejeDnjBCoVzIYXIQouCZmOB8jHqJXMcZe9XCW06POueUX6WEzXR-2MR6MuXgUq09iG1v7hc.mp4",
+        "status": 200,
+        "content_type": "video/mp4",
+        "reason": "AWS WAF challenge marker"
+      },
+      {
+        "entry_index": 1,
+        "method": "GET",
+        "host": "static.xx.fbcdn.net",
+        "path": "/rsrc.php/v4ipGX4/yr/l/en_GB-j/ZgOeyjHojXD.js",
+        "status": 200,
+        "content_type": "application/x-javascript",
+        "reason": "PerimeterX marker"
+      },
+      {
+        "entry_index": 21,
+        "method": "POST",
+        "host": "www.facebook.com",
+        "path": "/api/graphql/",
+        "status": 200,
+        "content_type": "text/html",
+        "reason": "PerimeterX marker"
+      },
+      {
+        "entry_index": 28,
+        "method": "POST",
+        "host": "www.facebook.com",
+        "path": "/ajax/bulk-route-definitions/",
+        "status": 200,
+        "content_type": "text/javascript",
+        "reason": "PerimeterX marker"
+      },
+      {
+        "entry_index": 29,
+        "method": "POST",
+        "host": "www.facebook.com",
+        "path": "/ajax/bulk-route-definitions/",
+        "status": 200,
+        "content_type": "text/javascript",
+        "reason": "PerimeterX marker"
+      },
+      {
+        "entry_index": 30,
+        "method": "GET",
+        "host": "static.xx.fbcdn.net",
+        "path": "/rsrc.php/v4/y8/r/uL6E-rAzHLZ.js",
+        "status": 200,
+        "content_type": "application/x-javascript",
+        "reason": "PerimeterX marker"
+      },
+      {
+        "entry_index": 1446,
+        "method": "GET",
+        "host": "static.xx.fbcdn.net",
+        "path": "/rsrc.php/v4iJQN4/y_/l/en_GB-j/yHy3h2aMqHZ.js",
+        "status": 200,
+        "content_type": "application/x-javascript",
+        "reason": "Akamai header or body marker"
+      }
+    ]
+  },
+  "protocols": [
+    {
+      "label": "websocket",
+      "confidence": 0.95,
+      "evidence": [
+        {
+          "entry_index": 1482,
+          "method": "GET",
+          "host": "gateway.facebook.com",
+          "path": "/ws/realtime",
+          "status": 101,
+          "content_type": "x-unknown",
+          "reason": "websocket upgrade"
+        }
+      ]
+    },
+    {
+      "label": "graphql",
+      "confidence": 0.92,
+      "evidence": [
+        {
+          "entry_index": 19,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 20,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 21,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 22,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 23,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 55,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 62,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 69,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 70,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 72,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 73,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 74,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 75,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 94,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 95,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 132,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 176,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 177,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 207,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 234,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 261,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 288,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 315,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 487,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 488,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 489,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 500,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 501,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 502,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 508,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 534,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 535,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 536,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 537,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 538,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 539,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 540,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 541,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 542,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 543,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 549,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 550,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 551,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 574,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 575,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 576,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 661,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 663,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 664,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 665,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 666,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 667,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 668,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 669,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 675,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 676,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 677,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 682,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 683,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 684,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 693,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 702,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 708,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 710,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 711,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 728,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 729,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 730,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 747,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 748,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 749,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 759,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 782,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 784,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 790,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 791,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 792,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 793,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 803,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 804,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 809,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 810,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 829,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 831,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 873,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 874,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 875,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 890,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 891,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 892,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 897,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 898,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 899,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 900,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 901,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 902,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 903,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 913,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 916,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 917,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 918,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 919,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 920,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 921,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 922,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 924,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 927,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 928,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 929,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 935,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 945,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 946,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 947,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 948,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 949,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 950,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 951,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 979,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1054,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1065,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1066,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1118,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1133,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1170,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1172,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1176,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1177,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1178,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1185,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1190,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1191,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1198,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1200,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1201,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1202,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1209,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1212,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1213,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1230,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1262,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1263,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1267,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1268,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1270,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1271,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1272,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1273,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1276,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1279,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1280,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1281,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1287,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1290,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1295,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1312,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1316,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1324,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1343,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1344,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1346,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1472,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1483,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1485,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1486,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1492,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1493,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1494,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1495,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1496,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1497,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1498,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1508,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1510,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1517,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1528,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1532,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1536,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1537,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1539,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        },
+        {
+          "entry_index": 1543,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "graphql path or operation body"
+        }
+      ]
+    },
+    {
+      "label": "rpc_envelope",
+      "confidence": 0.8,
+      "evidence": [
+        {
+          "entry_index": 1435,
+          "method": "GET",
+          "host": "static.xx.fbcdn.net",
+          "path": "/rsrc.php/v4il5S4/yN/l/en_GB-j/x4jLYpWvqDY.js",
+          "status": 200,
+          "content_type": "application/x-javascript",
+          "reason": "RPC envelope markers"
+        },
+        {
+          "entry_index": 1463,
+          "method": "GET",
+          "host": "static.xx.fbcdn.net",
+          "path": "/rsrc.php/v4idhc4/yd/l/en_GB-j/VYjSyttbgRK.js",
+          "status": 200,
+          "content_type": "application/x-javascript",
+          "reason": "RPC envelope markers"
+        }
+      ]
+    },
+    {
+      "label": "rest_json",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 64,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/ajax/route-definition/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 65,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/ajax/route-definition/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 66,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/ajax/route-definition/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 67,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/ajax/route-definition/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 68,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/ajax/route-definition/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 76,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/ajax/route-definition/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 786,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/ajax/route-definition/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 787,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/ajax/route-definition/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 788,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/ajax/route-definition/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 789,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/ajax/route-definition/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 811,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/ajax/route-definition/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        },
+        {
+          "entry_index": 1234,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/ajax/route-definition/",
+          "status": 200,
+          "content_type": "application/json",
+          "reason": "JSON HTTP request/response without specialized protocol markers"
+        }
+      ]
+    },
+    {
+      "label": "html_scrape",
+      "confidence": 0.55,
+      "evidence": [
+        {
+          "entry_index": 19,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 20,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 21,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 22,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 23,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 55,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 62,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 69,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 70,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 72,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 73,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 74,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 75,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 94,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 95,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 132,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 176,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 177,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 207,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 234,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 261,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 288,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 315,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 487,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 488,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 489,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 500,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 501,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 502,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 508,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 534,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 535,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 536,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 537,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 538,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 539,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 540,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 541,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 542,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 543,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 549,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 550,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 551,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 574,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 575,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 576,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 661,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 663,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 664,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 665,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 666,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 667,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 668,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 669,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 675,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 676,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 677,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 682,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 683,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 684,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 693,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 702,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 708,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 710,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 711,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 728,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 729,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 730,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 747,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 748,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 749,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 759,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 782,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 784,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 790,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 791,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 792,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 793,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 803,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 804,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 809,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 810,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 829,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 831,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 873,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 874,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 875,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 890,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 891,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 892,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 897,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 898,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 899,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 900,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 901,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 902,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 903,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 913,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 916,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 917,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 918,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 919,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 920,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 921,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 922,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 924,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 927,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 928,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 929,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 935,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 945,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 946,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 947,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 948,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 949,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 950,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 951,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 979,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1054,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1065,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1066,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1118,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1133,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1170,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1172,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1176,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1177,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1178,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1185,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1190,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1191,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1198,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1200,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1201,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1202,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1209,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1212,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1213,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1230,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1262,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1263,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1267,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1268,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1270,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1271,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1272,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1273,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1276,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1279,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1280,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1281,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1287,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1290,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1295,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1312,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1316,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1324,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1326,
+          "method": "GET",
+          "host": "www.facebook.com",
+          "path": "/ads/ad_preview_generator_iframe/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1343,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1344,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1346,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1472,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1483,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1485,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1486,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1492,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1493,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1494,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1495,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1496,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1497,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1498,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1508,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1510,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1517,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1528,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1532,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1536,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1537,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1539,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        },
+        {
+          "entry_index": 1543,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML response observed"
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "candidates": [
+      {
+        "type": "api_key",
+        "confidence": 0.7,
+        "query_names": [
+          "cquick_token",
+          "x-dgw-authtype"
+        ],
+        "evidence": [
+          {
+            "entry_index": 1326,
+            "method": "GET",
+            "host": "www.facebook.com",
+            "path": "/ads/ad_preview_generator_iframe/",
+            "status": 200,
+            "content_type": "text/html",
+            "reason": "auth-like query parameter"
+          },
+          {
+            "entry_index": 1482,
+            "method": "GET",
+            "host": "gateway.facebook.com",
+            "path": "/ws/realtime",
+            "status": 101,
+            "content_type": "x-unknown",
+            "reason": "auth-like query parameter"
+          },
+          {
+            "entry_index": 1538,
+            "method": "POST",
+            "host": "www.facebook.com",
+            "path": "/ajax/bz",
+            "content_type": "x-unknown",
+            "reason": "auth-like query parameter"
+          }
+        ]
+      }
+    ]
+  },
+  "protections": [
+    {
+      "label": "aws_waf",
+      "confidence": 0.9,
+      "evidence": [
+        {
+          "entry_index": 1029,
+          "method": "GET",
+          "host": "video-dfw5-1.xx.fbcdn.net",
+          "path": "/o1/v/t2/f2/m367/AQOgwYsOnhP7Q9P_6-tp9VvQ3Y6jIqp_ejeDnjBCoVzIYXIQouCZmOB8jHqJXMcZe9XCW06POueUX6WEzXR-2MR6MuXgUq09iG1v7hc.mp4",
+          "status": 200,
+          "content_type": "video/mp4",
+          "reason": "AWS WAF challenge marker"
+        }
+      ],
+      "notes": [
+        "requires browser clearance"
+      ]
+    },
+    {
+      "label": "cloudflare",
+      "confidence": 0.9,
+      "evidence": [
+        {
+          "entry_index": 1326,
+          "method": "GET",
+          "host": "www.facebook.com",
+          "path": "/ads/ad_preview_generator_iframe/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "Cloudflare header or challenge marker"
+        }
+      ]
+    },
+    {
+      "label": "captcha",
+      "confidence": 0.85,
+      "evidence": [
+        {
+          "entry_index": 1326,
+          "method": "GET",
+          "host": "www.facebook.com",
+          "path": "/ads/ad_preview_generator_iframe/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "CAPTCHA marker"
+        },
+        {
+          "entry_index": 1417,
+          "method": "GET",
+          "host": "static.xx.fbcdn.net",
+          "path": "/rsrc.php/v4ie0_4/y_/l/en_GB-j/zL-tK2zRF4U.js",
+          "status": 200,
+          "content_type": "application/x-javascript",
+          "reason": "CAPTCHA marker"
+        }
+      ]
+    },
+    {
+      "label": "perimeterx",
+      "confidence": 0.8,
+      "evidence": [
+        {
+          "entry_index": 1,
+          "method": "GET",
+          "host": "static.xx.fbcdn.net",
+          "path": "/rsrc.php/v4ipGX4/yr/l/en_GB-j/ZgOeyjHojXD.js",
+          "status": 200,
+          "content_type": "application/x-javascript",
+          "reason": "PerimeterX marker"
+        },
+        {
+          "entry_index": 21,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "PerimeterX marker"
+        },
+        {
+          "entry_index": 28,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/ajax/bulk-route-definitions/",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "PerimeterX marker"
+        },
+        {
+          "entry_index": 29,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/ajax/bulk-route-definitions/",
+          "status": 200,
+          "content_type": "text/javascript",
+          "reason": "PerimeterX marker"
+        },
+        {
+          "entry_index": 30,
+          "method": "GET",
+          "host": "static.xx.fbcdn.net",
+          "path": "/rsrc.php/v4/y8/r/uL6E-rAzHLZ.js",
+          "status": 200,
+          "content_type": "application/x-javascript",
+          "reason": "PerimeterX marker"
+        },
+        {
+          "entry_index": 535,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "PerimeterX marker"
+        },
+        {
+          "entry_index": 542,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "PerimeterX marker"
+        },
+        {
+          "entry_index": 831,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "PerimeterX marker"
+        },
+        {
+          "entry_index": 919,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "PerimeterX marker"
+        },
+        {
+          "entry_index": 1397,
+          "method": "GET",
+          "host": "static.xx.fbcdn.net",
+          "path": "/rsrc.php/v4ihIp4/yB/l/en_GB-j/TWf4hCk6XZx.js",
+          "status": 200,
+          "content_type": "application/x-javascript",
+          "reason": "PerimeterX marker"
+        },
+        {
+          "entry_index": 1435,
+          "method": "GET",
+          "host": "static.xx.fbcdn.net",
+          "path": "/rsrc.php/v4il5S4/yN/l/en_GB-j/x4jLYpWvqDY.js",
+          "status": 200,
+          "content_type": "application/x-javascript",
+          "reason": "PerimeterX marker"
+        },
+        {
+          "entry_index": 1498,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "PerimeterX marker"
+        }
+      ]
+    },
+    {
+      "label": "akamai",
+      "confidence": 0.75,
+      "evidence": [
+        {
+          "entry_index": 1446,
+          "method": "GET",
+          "host": "static.xx.fbcdn.net",
+          "path": "/rsrc.php/v4iJQN4/y_/l/en_GB-j/yHy3h2aMqHZ.js",
+          "status": 200,
+          "content_type": "application/x-javascript",
+          "reason": "Akamai header or body marker"
+        },
+        {
+          "entry_index": 1450,
+          "method": "GET",
+          "host": "static.xx.fbcdn.net",
+          "path": "/rsrc.php/v4/y2/r/EzBXaD2me3q.js",
+          "status": 200,
+          "content_type": "application/x-javascript",
+          "reason": "Akamai header or body marker"
+        }
+      ]
+    }
+  ],
+  "endpoint_clusters": [],
+  "generation_hints": [
+    "has_rpc_envelope",
+    "requires_page_context",
+    "requires_protected_client"
+  ],
+  "warnings": [
+    {
+      "type": "html_challenge_page",
+      "message": "API-looking request returned an HTML login, challenge, or access-denied page.",
+      "confidence": 0.82,
+      "evidence": [
+        {
+          "entry_index": 1066,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML challenge from API-looking request"
+        }
+      ]
+    },
+    {
+      "type": "html_challenge_page",
+      "message": "API-looking request returned an HTML login, challenge, or access-denied page.",
+      "confidence": 0.82,
+      "evidence": [
+        {
+          "entry_index": 542,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML challenge from API-looking request"
+        }
+      ]
+    },
+    {
+      "type": "html_challenge_page",
+      "message": "API-looking request returned an HTML login, challenge, or access-denied page.",
+      "confidence": 0.82,
+      "evidence": [
+        {
+          "entry_index": 669,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML challenge from API-looking request"
+        }
+      ]
+    },
+    {
+      "type": "html_challenge_page",
+      "message": "API-looking request returned an HTML login, challenge, or access-denied page.",
+      "confidence": 0.82,
+      "evidence": [
+        {
+          "entry_index": 903,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML challenge from API-looking request"
+        }
+      ]
+    },
+    {
+      "type": "html_challenge_page",
+      "message": "API-looking request returned an HTML login, challenge, or access-denied page.",
+      "confidence": 0.82,
+      "evidence": [
+        {
+          "entry_index": 922,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML challenge from API-looking request"
+        }
+      ]
+    },
+    {
+      "type": "html_challenge_page",
+      "message": "API-looking request returned an HTML login, challenge, or access-denied page.",
+      "confidence": 0.82,
+      "evidence": [
+        {
+          "entry_index": 935,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML challenge from API-looking request"
+        }
+      ]
+    },
+    {
+      "type": "html_challenge_page",
+      "message": "API-looking request returned an HTML login, challenge, or access-denied page.",
+      "confidence": 0.82,
+      "evidence": [
+        {
+          "entry_index": 951,
+          "method": "POST",
+          "host": "www.facebook.com",
+          "path": "/api/graphql/",
+          "status": 200,
+          "content_type": "text/html",
+          "reason": "HTML challenge from API-looking request"
+        }
+      ]
+    }
+  ]
+}

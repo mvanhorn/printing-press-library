@@ -47,7 +47,14 @@
       "method": "GET",
       "path": "/ai/github/stars",
       "no_auth": true,
-      "params": []
+      "params": [
+        {
+          "name": "min-starrers",
+          "type": "int",
+          "required": false,
+          "description": "Keep only repos starred by >= N distinct Digg-tracked accounts (reads .repo.distinct_starrers; falls back to len(.repo.starrers) when absent). Applied BEFORE --limit. 0 = no filter; must be >= 0."
+        }
+      ]
     },
     {
       "name": "github_new",
@@ -72,6 +79,63 @@
       "path": "/ai/github/recent",
       "no_auth": true,
       "params": []
+    },
+    {
+      "name": "rankings_emerging",
+      "description": "Curated list of small AI companies from /ai/x/rankings/companies (the 'EMERGING STARTUPS \u2014 CURATED THIS SNAPSHOT' section). ~10 rows per snapshot, refreshed daily. Mixes IsEmergingStartup-flagged accounts with adjacent new entrants. Returns RawHTML; CLI extracts structured CompanyEntry rows.",
+      "method": "GET",
+      "path": "/ai/x/rankings/companies",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "max-skip-ratio",
+          "type": "float",
+          "required": false,
+          "description": "Schema-drift tolerance: fraction of entries that may fail to decode before the command exits non-zero. Default 0.10. Range [0, 1]."
+        }
+      ]
+    },
+    {
+      "name": "rankings_movers",
+      "description": "Companies whose follower count shifted most since the last rankings/companies snapshot. Two halves: --direction up = gainers, down = losers, both = both (default; direction stamped per row). Curated to ~10 entries per side.",
+      "method": "GET",
+      "path": "/ai/x/rankings/companies",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "direction",
+          "type": "string",
+          "required": false,
+          "description": "Movers direction: up | down | both (default both)."
+        },
+        {
+          "name": "max-skip-ratio",
+          "type": "float",
+          "required": false,
+          "description": "Schema-drift tolerance (see rankings_emerging)."
+        }
+      ]
+    },
+    {
+      "name": "rankings_list",
+      "description": "Full company ranking \u2014 the 'Companies followed by the AI 2K' section of /ai/x/rankings/companies. Server-paginated; returns the initial-HTML slice (typically 50-200 entries). Pass --limit to cap.",
+      "method": "GET",
+      "path": "/ai/x/rankings/companies",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "required": false,
+          "description": "Max rows to return from the initial-HTML slice (0 = all)."
+        },
+        {
+          "name": "max-skip-ratio",
+          "type": "float",
+          "required": false,
+          "description": "Schema-drift tolerance (see rankings_emerging)."
+        }
+      ]
     }
   ]
 }

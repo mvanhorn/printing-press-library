@@ -1,0 +1,581 @@
+name: facebook-marketplace
+display_name: Facebook Marketplace
+description: Browser-captured Facebook Marketplace GraphQL surface from the prepared HAR.
+cli_description: Search, publish, mirror, and manage Facebook Marketplace seller workflows with explicit write checkpoints.
+version: 0.1.0
+base_url: https://www.facebook.com
+spec_source: sniffed
+http_transport: browser-chrome-h3
+auth:
+  type: cookie
+  header: Cookie
+  in: cookie
+  cookie_domain: .facebook.com
+  env_vars:
+    - FACEBOOK_MARKET_COOKIES
+  env_var_specs:
+    - name: FACEBOOK_MARKET_COOKIES
+      kind: harvested
+      required: true
+      sensitive: true
+      description: Browser session cookies captured from Chrome for facebook.com.
+  verify_path: /marketplace/
+  requires_browser_session: true
+  browser_session_reason: Facebook Marketplace is an authenticated browser surface; the session cookie is the credential.
+  browser_session_validation_path: /marketplace/
+  browser_session_validation_method: GET
+config:
+  format: toml
+  path: ~/.config/facebook-marketplace-pp-cli/config.toml
+resources:
+  marketplace:
+    description: Marketplace browse and location operations.
+    endpoints:
+      browse_feed:
+        method: POST
+        path: /api/graphql/
+        description: Fetch Marketplace browse feed results.
+        request_content_type: application/x-www-form-urlencoded
+        body:
+          - name: fb_api_req_friendly_name
+            type: string
+            required: true
+            default: MarketplaceCometBrowseFeedLightContainerQuery
+            description: Captured Relay operation name.
+          - name: doc_id
+            type: string
+            required: true
+            default: "35872535772359937"
+            description: Captured Relay document id.
+          - name: variables
+            type: object
+            required: true
+            default:
+              buyLocation:
+                latitude: 30.27544
+                longitude: -97.68786
+              count: 24
+              cursor: null
+              imageWidth: 256
+              mediaType: image/jpeg
+              radius: 65000
+              scale: 2
+              sizing: cover-fill-cropped
+              useSDFPath: true
+              __relay_internal__pv__GHLShouldChangeMarketplaceSponsoredDataFieldNamerelayprovider: false
+              __relay_internal__pv__MarketplaceCometAdmodulerelayprovider: true
+            description: JSON Relay variables captured from the Marketplace browse feed.
+        response:
+          type: object
+      set_buy_location:
+        method: POST
+        path: /api/graphql/
+        description: Set Marketplace buying location.
+        request_content_type: application/x-www-form-urlencoded
+        body:
+          - name: fb_api_req_friendly_name
+            type: string
+            required: true
+            default: CometMarketplaceSetBuyLocationMutation
+            description: Captured Relay operation name.
+          - name: doc_id
+            type: string
+            required: true
+            default: "9720911724632894"
+            description: Captured Relay document id.
+          - name: variables
+            type: object
+            required: true
+            default:
+              input:
+                latitude: 30.27544
+                longitude: -97.68786
+                actor_id: ""
+                client_mutation_id: "1"
+            description: JSON Relay variables. Fill actor_id from the authenticated session before writing.
+        response:
+          type: object
+      set_browse_radius:
+        method: POST
+        path: /api/graphql/
+        description: Set Marketplace browse radius.
+        request_content_type: application/x-www-form-urlencoded
+        body:
+          - name: fb_api_req_friendly_name
+            type: string
+            required: true
+            default: CometMarketplaceSetBrowseRadiusMutation
+            description: Captured Relay operation name.
+          - name: doc_id
+            type: string
+            required: true
+            default: "9063859207046783"
+            description: Captured Relay document id.
+          - name: variables
+            type: object
+            required: true
+            default:
+              input:
+                browse_radius: 97
+                actor_id: ""
+                client_mutation_id: "1"
+            description: JSON Relay variables. Fill actor_id from the authenticated session before writing.
+        response:
+          type: object
+  marketplace_search:
+    description: Marketplace search operations.
+    endpoints:
+      content:
+        method: POST
+        path: /api/graphql/
+        description: Search Marketplace listings.
+        request_content_type: application/x-www-form-urlencoded
+        body:
+          - name: fb_api_req_friendly_name
+            type: string
+            required: true
+            default: CometMarketplaceSearchContentPaginationQuery
+            description: Captured Relay operation name.
+          - name: doc_id
+            type: string
+            required: true
+            default: "27390875580496846"
+            description: Captured Relay document id.
+          - name: variables
+            type: object
+            required: true
+            default:
+              count: 24
+              cursor: null
+              params:
+                bqf:
+                  callsite: COMMERCE_MKTPLACE_WWW
+                  query: couch
+                browse_request_params:
+                  commerce_enable_local_pickup: true
+                  commerce_enable_shipping: true
+                  commerce_search_and_rp_available: true
+                  commerce_search_and_rp_category_id: []
+                  commerce_search_and_rp_condition: null
+                  commerce_search_and_rp_ctime_days: null
+                  filter_location_latitude: 30.27544
+                  filter_location_longitude: -97.68786
+                  filter_price_lower_bound: 0
+                  filter_price_upper_bound: 214748364700
+                  filter_radius_km: 65
+                custom_request_params:
+                  browse_context: null
+                  contextual_filters: []
+                  referral_code: null
+                  referral_ui_component: null
+                  saved_search_strid: null
+                  search_vertical: C2C
+                  seo_url: null
+                  serp_landing_settings:
+                    virtual_category_id: ""
+                  surface: SEARCH
+                  virtual_contextual_filters: []
+              scale: 2
+              __relay_internal__pv__GHLShouldChangeMarketplaceSponsoredDataFieldNamerelayprovider: false
+            description: JSON Relay variables. Change query, price bounds, radius, and cursor for searches.
+        response:
+          type: object
+  listing:
+    description: Listing detail and sell-side listing operations.
+    endpoints:
+      get:
+        method: POST
+        path: /api/graphql/
+        description: Fetch a Marketplace listing detail page payload.
+        request_content_type: application/x-www-form-urlencoded
+        body:
+          - name: fb_api_req_friendly_name
+            type: string
+            required: true
+            default: MarketplacePDPContainerQuery
+            description: Captured Relay operation name.
+          - name: doc_id
+            type: string
+            required: true
+            default: "26961742460186917"
+            description: Captured Relay document id.
+          - name: variables
+            type: object
+            required: true
+            default:
+              enableJobEmployerActionBar: true
+              enableJobSeekerActionBar: true
+              feedbackSource: 56
+              feedLocation: MARKETPLACE_MEGAMALL
+              referralCode: "null"
+              referralSurfaceString: search
+              scale: 2
+              targetId: ""
+              useDefaultActor: false
+            description: JSON Relay variables. Set targetId to the Marketplace listing id.
+        response:
+          type: object
+      media:
+        method: POST
+        path: /api/graphql/
+        description: Fetch Marketplace listing media payload.
+        request_content_type: application/x-www-form-urlencoded
+        body:
+          - name: fb_api_req_friendly_name
+            type: string
+            required: true
+            default: MarketplacePDPC2CMediaViewerWithImagesQuery
+            description: Captured Relay operation name.
+          - name: doc_id
+            type: string
+            required: true
+            default: "10059604367394414"
+            description: Captured Relay document id.
+          - name: variables
+            type: object
+            required: true
+            default:
+              targetId: ""
+            description: JSON Relay variables. Set targetId to the Marketplace listing id.
+        response:
+          type: object
+      create:
+        method: POST
+        path: /api/graphql/
+        description: Create a Marketplace listing from a prepared composer payload.
+        request_content_type: application/x-www-form-urlencoded
+        body:
+          - name: fb_api_req_friendly_name
+            type: string
+            required: true
+            default: useCometMarketplaceListingCreateMutation
+            description: Captured Relay operation name.
+          - name: doc_id
+            type: string
+            required: true
+            default: "9551550371629242"
+            description: Captured Relay document id.
+          - name: variables
+            type: object
+            required: true
+            default:
+              input:
+                actor_id: ""
+                client_mutation_id: "1"
+                audience:
+                  marketplace:
+                    marketplace_id: ""
+                data:
+                  common:
+                    attribute_data_json: "{\"condition\":\"new\"}"
+                    category_id: ""
+                    delivery_types:
+                      - IN_PERSON
+                      - PUBLIC_MEETUP
+                    description:
+                      text: ""
+                    hidden_from_friends_visibility: VISIBLE_TO_EVERYONE
+                    is_photo_order_set_by_seller: false
+                    is_preview: false
+                    item_price:
+                      currency: USD
+                      price: "0"
+                    latitude: 0
+                    longitude: 0
+                    photo_ids: []
+                    shipping_offered: false
+                    source_type: composer_listing_type_selector
+                    surface: composer
+                    title: ""
+                    variants: []
+                    video_ids: []
+                    comments_disabled: false
+            description: JSON Relay variables built from the captured create-listing mutation.
+        response:
+          type: object
+      change_availability:
+        method: POST
+        path: /api/graphql/
+        description: Change a Marketplace listing availability state.
+        request_content_type: application/x-www-form-urlencoded
+        body:
+          - name: fb_api_req_friendly_name
+            type: string
+            required: true
+            default: CometProductItemChangeAvailabilityMutation
+            description: Captured Relay operation name.
+          - name: doc_id
+            type: string
+            required: true
+            default: "25224612400502051"
+            description: Captured Relay document id.
+          - name: variables
+            type: object
+            required: true
+            default:
+              input:
+                actor_id: ""
+                client_mutation_id: "1"
+                marketplace_referral_surface: COMPOSER_LISTING_TYPE_SELECTOR
+                marketplace_surface: MARKETPLACE_PAGE_SELLING
+                product_availability: PENDING
+                story_id: ""
+            description: JSON Relay variables. Set story_id and product_availability.
+        response:
+          type: object
+      delete:
+        method: POST
+        path: /api/graphql/
+        description: Delete a Marketplace for-sale item.
+        request_content_type: application/x-www-form-urlencoded
+        body:
+          - name: fb_api_req_friendly_name
+            type: string
+            required: true
+            default: useCometMarketplaceForSaleItemDeleteMutation
+            description: Captured Relay operation name.
+          - name: doc_id
+            type: string
+            required: true
+            default: "30073389588942699"
+            description: Captured Relay document id.
+          - name: variables
+            type: object
+            required: true
+            default:
+              input:
+                actor_id: ""
+                client_mutation_id: "1"
+                batch_delete_variants: true
+                for_sale_item_id: ""
+                referral_surface: EDIT_COMPOSER
+                surface: MARKETPLACE_PAGE_SELLING
+            description: JSON Relay variables. Set for_sale_item_id before writing.
+        response:
+          type: object
+  composer:
+    description: Sell-side composer helper operations.
+    endpoints:
+      root:
+        method: POST
+        path: /api/graphql/
+        description: Fetch Marketplace listing composer metadata.
+        request_content_type: application/x-www-form-urlencoded
+        body:
+          - name: fb_api_req_friendly_name
+            type: string
+            required: true
+            default: CometMarketplaceComposerRootComponentQuery
+            description: Captured Relay operation name.
+          - name: doc_id
+            type: string
+            required: true
+            default: "26772780729017313"
+            description: Captured Relay document id.
+          - name: variables
+            type: object
+            required: true
+            default:
+              category_id: "0"
+              composer_mode: CREATE
+              delivery_types:
+                - in_person
+              has_prefetched_category: false
+              is_edit: false
+              listingId: "0"
+              scale: 2
+              should_prefill_b2c_jobs_address: false
+              should_prefill_c2c_jobs_address: true
+              use_attributes_fragment: true
+            description: JSON Relay variables captured from listing composer.
+        response:
+          type: object
+      price_prediction:
+        method: POST
+        path: /api/graphql/
+        description: Fetch Marketplace composer price prediction.
+        request_content_type: application/x-www-form-urlencoded
+        body:
+          - name: fb_api_req_friendly_name
+            type: string
+            required: true
+            default: useMarketplaceComposerPricePredictionQuery
+            description: Captured Relay operation name.
+          - name: doc_id
+            type: string
+            required: true
+            default: "9566914303429765"
+            description: Captured Relay document id.
+          - name: variables
+            type: object
+            required: true
+            default:
+              params:
+                category_id: ""
+                currency: USD
+                photo_id: ""
+                title: ""
+            description: JSON Relay variables. Fill title, category_id, and photo_id.
+        response:
+          type: object
+      shipping_options:
+        method: POST
+        path: /api/graphql/
+        description: Fetch calculated shipping options for a draft listing.
+        request_content_type: application/x-www-form-urlencoded
+        body:
+          - name: fb_api_req_friendly_name
+            type: string
+            required: true
+            default: useMarketplaceComposerCalculatedShippingOptionsQuery
+            description: Captured Relay operation name.
+          - name: doc_id
+            type: string
+            required: true
+            default: "9997961413588402"
+            description: Captured Relay document id.
+          - name: variables
+            type: object
+            required: true
+            default:
+              params:
+                eligibility_params:
+                  category_id: ""
+                  item_price:
+                    currency: USD
+                    price: "0"
+                label_rate_type: CALCULATED_ON_FLAT_RATE
+                shipping_package_weight:
+                  big_weight:
+                    unit: POUND
+                    value: 0
+                  small_weight:
+                    unit: OUNCE
+                    value: 0
+            description: JSON Relay variables.
+        response:
+          type: object
+  inbox:
+    description: Marketplace inbox and messaging operations.
+    endpoints:
+      list:
+        method: POST
+        path: /api/graphql/
+        description: Fetch Marketplace inbox overview.
+        request_content_type: application/x-www-form-urlencoded
+        body:
+          - name: fb_api_req_friendly_name
+            type: string
+            required: true
+            default: CometMarketplaceInboxContentContainerQuery
+            description: Captured Relay operation name.
+          - name: doc_id
+            type: string
+            required: true
+            default: "8816823481754272"
+            description: Captured Relay document id.
+          - name: variables
+            type: object
+            required: true
+            default: {}
+            description: JSON Relay variables.
+        response:
+          type: object
+      seller_threads:
+        method: POST
+        path: /api/graphql/
+        description: Fetch Marketplace seller inbox threads.
+        request_content_type: application/x-www-form-urlencoded
+        body:
+          - name: fb_api_req_friendly_name
+            type: string
+            required: true
+            default: CometMarketplaceInboxSellerTabThreadViewContainerQuery
+            description: Captured Relay operation name.
+          - name: doc_id
+            type: string
+            required: true
+            default: "26018704387747906"
+            description: Captured Relay document id.
+          - name: variables
+            type: object
+            required: true
+            default:
+              filterLabels: null
+              lookBackInDays: null
+            description: JSON Relay variables.
+        response:
+          type: object
+      seller_threads_page:
+        method: POST
+        path: /api/graphql/
+        description: Fetch a page of Marketplace seller inbox threads.
+        request_content_type: application/x-www-form-urlencoded
+        body:
+          - name: fb_api_req_friendly_name
+            type: string
+            required: true
+            default: CometMarketplaceInboxSellerTabThreadViewPaginationQuery
+            description: Captured Relay operation name.
+          - name: doc_id
+            type: string
+            required: true
+            default: "25940357548956156"
+            description: Captured Relay document id.
+          - name: variables
+            type: object
+            required: true
+            default:
+              count: 12
+              cursor: null
+              filterLabels: null
+              lookBackInDays: null
+            description: JSON Relay variables.
+        response:
+          type: object
+      message_seller:
+        method: POST
+        path: /api/graphql/
+        description: Send a Marketplace seller message.
+        request_content_type: application/x-www-form-urlencoded
+        body:
+          - name: fb_api_req_friendly_name
+            type: string
+            required: true
+            default: CometMarketplaceMessageSellerMutation
+            description: Captured Relay operation name.
+          - name: doc_id
+            type: string
+            required: true
+            default: "29483122031334726"
+            description: Captured Relay document id.
+          - name: variables
+            type: object
+            required: true
+            default:
+              input:
+                attribution_id_v2: ""
+                is_customized_message: false
+                listing_id: ""
+                message: ""
+                referral_surface: search
+                surface: product_details
+                tracking: ""
+                ui_component: contact_seller_button
+                actor_id: ""
+                client_mutation_id: "1"
+            description: JSON Relay variables. Set listing_id and message before writing.
+        response:
+          type: object
+types: {}
+extra_commands:
+  - name: draft
+    description: AI listing drafter from photos and notes.
+  - name: watch
+    description: Buy-side deterministic watcher commands.
+  - name: matches
+    description: Show watcher matches after deterministic filtering.
+  - name: stale
+    description: Show local listings older than seven days with no engagement.
+  - name: reply
+    description: Write-gated sell-side message reply helper.

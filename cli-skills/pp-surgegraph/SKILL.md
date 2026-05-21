@@ -1,6 +1,6 @@
 ---
 name: pp-surgegraph
-description: "Every SurgeGraph workflow — research, write, publish, monitor — from the terminal or any agent, with a local... Trigger phrases: `what changed in SurgeGraph this week`, `AI Visibility for my project`, `which prompts lost AI citations`, `publish gap articles from a topic research`, `what knowledge libraries actually show up in citations`, `use surgegraph`, `run surgegraph`."
+description: "SurgeGraph is the Answer Engine Optimization (AEO) platform that tracks AI citations, scores pages for citation readiness, and one-click fixes the gaps — now every workflow runs from the terminal or any agent. Trigger phrases: `what changed in SurgeGraph this week`, `AI Visibility for my project`, `which prompts lost AI citations`, `publish gap articles from a topic research`, `what knowledge libraries actually show up in citations`, `use surgegraph`, `run surgegraph`."
 author: "SurgeGraph Team"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"

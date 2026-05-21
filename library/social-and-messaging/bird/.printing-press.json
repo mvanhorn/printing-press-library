@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-13T07:45:26.250159Z",
+  "printing_press_version": "4.5.2",
+  "api_name": "bird",
+  "display_name": "Bird",
+  "cli_name": "bird-pp-cli",
+  "owner": "cleverai-zh",
+  "printer": "CleverAI-ZH",
+  "printer_name": "Stephan Stoeber",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:7ab82b7c0d82d6dbbf008f4c349f120f3bdf13e7d093ca78e68949a55f4b28ab",
+  "run_id": "20260513-091340",
+  "category": "social-and-messaging",
+  "description": "A terminal-native CLI for Bird's Conversations and SMS APIs, with offline search, batch reconcile, and a local SQLite mirror nobody else ships.",
+  "mcp_binary": "bird-pp-mcp",
+  "mcp_tool_count": 42,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "BIRD_API_KEY"
+  ],
+  "endpoint_template_vars": [
+    "workspace_id"
+  ],
+  "auth_key_url": "https://app.bird.com/settings/security/access-keys",
+  "auth_description": "Bird uses an Access Key passed in the Authorization header. Generate one at\nhttps://app.bird.com/settings/security/access-keys and export it as BIRD_API_KEY.\n",
+  "novel_features": [
+    {
+      "name": "Delivery audit",
+      "command": "messages audit",
+      "description": "Fold a message and its interactions into a chronological delivery timeline; exit non-zero on terminal failure."
+    },
+    {
+      "name": "Failure cluster",
+      "command": "messages failures",
+      "description": "Aggregate recent message-interaction failures grouped by reason code."
+    },
+    {
+      "name": "SMS search",
+      "command": "sms search",
+      "description": "Full-text search over message bodies, optionally filtered by sender or recipient phone number."
+    },
+    {
+      "name": "CSV bulk dispatch",
+      "command": "sms send-batch",
+      "description": "Send a batch of SMS messages from a CSV with per-row idempotency keys, persisting the batch in the local store for later reconcile."
+    },
+    {
+      "name": "Batch reconcile",
+      "command": "sms reconcile",
+      "description": "Re-fetch delivery interactions for every message in a batch, group failures by reason, and optionally retry."
+    },
+    {
+      "name": "Conversation timeline",
+      "command": "conversations timeline",
+      "description": "Render a conversation's messages, participants, and delivery interactions in canonical chronological order."
+    },
+    {
+      "name": "Cross-channel customer history",
+      "command": "messages from",
+      "description": "List every message exchanged with one phone number across all conversations."
+    },
+    {
+      "name": "Tenant readiness check",
+      "command": "tenant doctor",
+      "description": "Run an SMS-tenant readiness checklist across channels, channel-config, anti-spam, compliance keywords, and messageability with a single exit code."
+    },
+    {
+      "name": "Auto-block from STOP fires",
+      "command": "compliance auto-block",
+      "description": "Scan local inbound messages for STOP-keyword fires within a time window; emit a CSV ready for bulk-add (or apply directly)."
+    }
+  ]
+}

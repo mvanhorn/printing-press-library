@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-19T08:17:50.23939Z",
+  "printing_press_version": "4.9.0",
+  "api_name": "american-reindustrialization",
+  "display_name": "American Reindustrialization",
+  "cli_name": "american-reindustrialization-pp-cli",
+  "owner": "trevin-chow",
+  "printer": "tmchow",
+  "printer_name": "Trevin Chow",
+  "spec_path": "/Users/tmchow/printing-press/.runstate/precious-questing-harp-35c7af99/runs/20260519-002038/research/american-reindustrialization-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:3d5074b050f6be2c2fe4860daa0fb3e4c9fec5c1f6bbe8bef1238ab320907814",
+  "run_id": "20260519-002038",
+  "description": "Browse, slice, and analyze the curated American Reindustrialization directory — with diffs, geo clusters, sector heatmaps, and offline SQL no website view shows.",
+  "mcp_binary": "american-reindustrialization-pp-mcp",
+  "mcp_tool_count": 18,
+  "mcp_public_tool_count": 18,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Diff since last sync",
+      "command": "whats-new",
+      "description": "Show companies and jobs added or updated since a date you provide, so a weekly sweep takes one command instead of an eyeball-the-list session."
+    },
+    {
+      "name": "Composed jobs filter",
+      "command": "openings find",
+      "description": "Filter the jobs board by work_mode, experience_level, salary floor, state, company size, sector, and posted-since in a single query — combinations the website's UI cannot express."
+    },
+    {
+      "name": "Sector-by-state heatmap",
+      "command": "analytics sector-heatmap",
+      "description": "Crosstab of primary_sector × HQ state with company counts (optionally weighted by jobs_count or filtered by funding_stage), revealing the geographic shape of each sector."
+    },
+    {
+      "name": "Funding × sector breakdown",
+      "command": "analytics funding-by-sector",
+      "description": "Crosstab of funding_stage × primary_sector with company counts and median employee_range, exposing where capital is concentrating."
+    },
+    {
+      "name": "Top hiring companies",
+      "command": "companies top-hiring",
+      "description": "Rank companies by jobs_count descending, with optional filters by sector, state, or funding_stage — the site has no ranking view."
+    },
+    {
+      "name": "Company profile sheet",
+      "command": "companies profile",
+      "description": "Single-shot rich profile for one company: full fields plus that company's open jobs plus similar companies (same primary_sector and employee_range bucket)."
+    },
+    {
+      "name": "Geographic clusters",
+      "command": "analytics geo-clusters",
+      "description": "Grid-bucket companies by lat/lon (default 50km cells) and emit cluster centroid, member count, member companies, and the dominant sector per cluster."
+    },
+    {
+      "name": "Salary distribution",
+      "command": "openings salary-stats",
+      "description": "p25 / p50 / p75 of midpoint salary across filtered jobs, with null-salary count reported separately so missing data is honest."
+    },
+    {
+      "name": "Founded-year cohorts",
+      "command": "companies cohorts",
+      "description": "Bucket companies by founded_year (default 5-year buckets) with company counts and the top-3 sectors per cohort."
+    }
+  ]
+}

@@ -1,9 +1,15 @@
 {
-  "timestamp": "2026-05-07T08:22:31.610635Z",
-  "cli_dir": "/Users/tmchow/printing-press/library/linear",
-  "findings": null,
-  "scorecard_before": {
-    "mcp_description_quality": 10,
-    "captured": "2026-05-07T08:18:32.981626Z"
-  }
+  "timestamp": "2026-05-19T07:27:20.042742Z",
+  "cli_dir": "\u003ccli-dir\u003e/linear-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "integrations",
+      "file": "integrations.go",
+      "line": 11,
+      "evidence": "Manage integrations",
+      "status": "accepted",
+      "note": "Hidden:true parent grouper in DO-NOT-EDIT generated file; not surfaced to users via --help and only its visible subcommands (integrations_create, integrations_delete) appear in the MCP tool catalog. Generator-template fix candidate for retro: emit verb-led Short on parent groupers."
+    }
+  ]
 }

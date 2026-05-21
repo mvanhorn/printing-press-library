@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-18T21:19:07.290593Z",
+  "printing_press_version": "4.8.0",
+  "api_name": "pvgis",
+  "display_name": "Pvgis",
+  "cli_name": "pvgis-pp-cli",
+  "owner": "roberto-bissanti",
+  "printer": "robertobissanti",
+  "printer_name": "Roberto Bissanti",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:13f149ed86ac61139c57a0e4b5b7a0c4f4a749db57d6003c5bb880b877bafb7f",
+  "run_id": "20260518-214920",
+  "description": "The free, single-binary PVGIS CLI — fetch JRC solar-radiation and PV-yield estimates with offline cache, multi-site batch, and agent-native JSON.",
+  "mcp_binary": "pvgis-pp-mcp",
+  "mcp_tool_count": 5,
+  "mcp_public_tool_count": 5,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Multi-site rank",
+      "command": "sites rank",
+      "description": "Rank a CSV of candidate sites by annual yield/kWp under the same system spec."
+    },
+    {
+      "name": "Tilt/azimuth heatmap",
+      "command": "production sweep",
+      "description": "Compute a 2D grid of yields across tilt and azimuth, cache it, and serve future point queries from local interpolation."
+    },
+    {
+      "name": "Database comparator",
+      "command": "production compare",
+      "description": "Run the same site under PVGIS-SARAH3, PVGIS-NSRDB, and PVGIS-ERA5; report yield deltas."
+    },
+    {
+      "name": "Yield delta vs reference",
+      "command": "sites diff",
+      "description": "Compare annual production at a baseline site against a target site under identical system specs."
+    },
+    {
+      "name": "TMY climate fingerprint search",
+      "command": "weather similar",
+      "description": "Rank cached TMYs by similarity to a target site's 12-month temperature and GHI signature."
+    }
+  ]
+}

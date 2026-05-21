@@ -29,12 +29,13 @@ person. Helps identify overloaded team members and unbalanced workload.`,
 
   # Output as JSON
   linear-pp-cli load --json`,
+		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dbPath == "" {
 				dbPath = defaultDBPath("linear-pp-cli")
 			}
 
-			db, err := store.Open(dbPath)
+			db, err := store.OpenWithContext(cmd.Context(), dbPath)
 			if err != nil {
 				return fmt.Errorf("opening local database: %w\nRun 'linear-pp-cli sync' first.", err)
 			}

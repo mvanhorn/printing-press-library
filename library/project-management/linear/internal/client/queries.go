@@ -83,6 +83,9 @@ const ProjectsQuery = `query($first: Int!, $after: String) {
       lead { id name }
       members { nodes { id name } }
       teams { nodes { id name key } }
+      projectMilestones(first: 50) {
+        nodes { id name targetDate sortOrder }
+      }
     }
     pageInfo { hasNextPage endCursor }
   }

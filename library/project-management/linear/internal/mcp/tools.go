@@ -5,6 +5,7 @@ package mcp
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -32,16 +33,16 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/graphql", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "query"}}, []string{"id"}),
+		makeAPIHandler("GET", "/graphql", false, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "query"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("audit-entry-types_get",
-			mcplib.WithDescription("Fetch the catalog of audit log entry types Linear supports (e.g. user authentication, permission change, data export, setting modification). Returns each type's `type` slug and human-readable `description`. Use to enumerate the kinds of audited actions before filtering an `AuditEntry` query, not to fetch the audit entries themselves."),
+			mcplib.WithDescription("Get a single auditentrytype. Returns the AuditEntryType."),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/graphql", []mcpParamBinding{}, []string{}),
+		makeAPIHandler("GET", "/graphql", false, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("auth-resolver-responses_get",
@@ -50,7 +51,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/graphql", []mcpParamBinding{}, []string{}),
+		makeAPIHandler("GET", "/graphql", false, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("authentication-session-responses_get",
@@ -59,7 +60,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/graphql", []mcpParamBinding{}, []string{}),
+		makeAPIHandler("GET", "/graphql", false, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("email-intake-addresses_get",
@@ -69,7 +70,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/graphql", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "query"}}, []string{"id"}),
+		makeAPIHandler("GET", "/graphql", false, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "query"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("favorites_get",
@@ -79,7 +80,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/graphql", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "query"}}, []string{"id"}),
+		makeAPIHandler("GET", "/graphql", false, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "query"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("initiative-relations_get",
@@ -89,7 +90,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/graphql", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "query"}}, []string{"id"}),
+		makeAPIHandler("GET", "/graphql", false, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "query"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("initiative-to-projects_get",
@@ -99,7 +100,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/graphql", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "query"}}, []string{"id"}),
+		makeAPIHandler("GET", "/graphql", false, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "query"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("initiatives_get",
@@ -109,23 +110,23 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/graphql", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "query"}}, []string{"id"}),
+		makeAPIHandler("GET", "/graphql", false, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "query"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("integrations_create",
-			mcplib.WithDescription("Create a Linear integration via the issueCreate-style mutation pipeline. Required: a `service` slug identifying the integration provider (e.g. `slack`, `github`) plus the OAuth/API config payload that service expects. Returns the new Integration's id, service, and connection state. Most users wire integrations through Linear's web UI; reach for this only when scripting workspace setup or migrating across orgs."),
+			mcplib.WithDescription("Create a integration. Returns the new Integration."),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/graphql", []mcpParamBinding{}, []string{}),
+		makeAPIHandler("POST", "/graphql", false, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("integrations_delete",
-			mcplib.WithDescription("Delete an existing Linear integration by id. Required: `id`. Optional: pass a flag to skip uninstalling the connection on the external service side (leave the third-party app installed even after Linear forgets it). Returns the removed Integration. Destructive — disables any automation or webhooks the integration was driving."),
+			mcplib.WithDescription("Delete a integration. Returns the Integration. Destructive."),
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/graphql", []mcpParamBinding{}, []string{}),
+		makeAPIHandler("DELETE", "/graphql", false, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("issue-priority-values_get",
@@ -134,16 +135,16 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/graphql", []mcpParamBinding{}, []string{}),
+		makeAPIHandler("GET", "/graphql", false, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("organizations_get",
-			mcplib.WithDescription("Fetch the authenticated workspace (Linear `Organization`). No id needed — Linear scopes this to the workspace the API key belongs to. Returns workspace-level metadata: `id`, `name`, `urlKey`, plan/feature flags, member count, and policy settings. Use to detect plan tier, urlKey, or feature availability before calling features that are plan-gated."),
+			mcplib.WithDescription("Get a single organization. Returns the Organization."),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/graphql", []mcpParamBinding{}, []string{}),
+		makeAPIHandler("GET", "/graphql", false, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("project-labels_get",
@@ -153,7 +154,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/graphql", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "query"}}, []string{"id"}),
+		makeAPIHandler("GET", "/graphql", false, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "query"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("project-milestones_get",
@@ -163,7 +164,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/graphql", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "query"}}, []string{"id"}),
+		makeAPIHandler("GET", "/graphql", false, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "query"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("project-relations_get",
@@ -173,7 +174,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/graphql", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "query"}}, []string{"id"}),
+		makeAPIHandler("GET", "/graphql", false, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "query"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("project-statuses_get",
@@ -183,7 +184,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/graphql", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "query"}}, []string{"id"}),
+		makeAPIHandler("GET", "/graphql", false, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "query"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("projects_get",
@@ -193,7 +194,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/graphql", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "query"}}, []string{"id"}),
+		makeAPIHandler("GET", "/graphql", false, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "query"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("release-notes_get",
@@ -203,16 +204,16 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/graphql", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "query"}}, []string{"id"}),
+		makeAPIHandler("GET", "/graphql", false, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "query"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("release-pipelines_get",
-			mcplib.WithDescription("Fetch a single release pipeline by id. Required: `id` (the pipeline's UUID). Returns the pipeline's name, slug, color, owning team, and `approximateReleaseCount`. Use after `release-pipelines_list` (or a search) to load pipeline details before listing the releases inside it."),
+			mcplib.WithDescription("Get a single releasepipeline. Returns the ReleasePipeline."),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/graphql", []mcpParamBinding{}, []string{}),
+		makeAPIHandler("GET", "/graphql", false, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("release-stages_get",
@@ -222,7 +223,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/graphql", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "query"}}, []string{"id"}),
+		makeAPIHandler("GET", "/graphql", false, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "query"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("releases_get",
@@ -232,7 +233,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/graphql", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "query"}}, []string{"id"}),
+		makeAPIHandler("GET", "/graphql", false, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "query"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("roadmap-to-projects_get",
@@ -242,7 +243,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/graphql", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "query"}}, []string{"id"}),
+		makeAPIHandler("GET", "/graphql", false, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "query"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("roadmaps_get",
@@ -252,49 +253,49 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/graphql", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "query"}}, []string{"id"}),
+		makeAPIHandler("GET", "/graphql", false, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "query"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("teams_get",
-			mcplib.WithDescription("Fetch a single team by id. Required: `id` (team UUID — the team `key` like `ENG` does not work here; resolve key→UUID via `teams_list` or the local store first). Returns the Team object with id, key, name, color, owning organization, and references to the active cycle, default state, and feature flags. Use when you already have a UUID; for lookups by key or name, prefer `teams_list` with a filter."),
+			mcplib.WithDescription("Get a single team. Returns the Team."),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/graphql", []mcpParamBinding{}, []string{}),
+		makeAPIHandler("GET", "/graphql", false, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("templates_get",
-			mcplib.WithDescription("Fetch a single issue or document template by id. Required: `id`. Returns the template's name, type (issue / document / project), team scope, color, and the body / template data agents can apply when creating new entities. Use to render a template before substituting into an `issueCreate` or `documentCreate` mutation."),
+			mcplib.WithDescription("Get a single template. Returns the Template."),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/graphql", []mcpParamBinding{}, []string{}),
+		makeAPIHandler("GET", "/graphql", false, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("user-settingses_get",
-			mcplib.WithDescription("Fetch a UserSettings record by id (one settings row per user; UserSettings.id != User.id). Returns the user's notification preferences, calendar prefs, and `autoAssignToSelf` default. Use this when an agent needs to read a teammate's preferences before honoring them; for the authenticated user's own settings, the `viewer` query is the simpler path."),
+			mcplib.WithDescription("Get a single usersettings. Returns the UserSettings."),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/graphql", []mcpParamBinding{}, []string{}),
+		makeAPIHandler("GET", "/graphql", false, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("users_get",
-			mcplib.WithDescription("Fetch a single Linear workspace user by id. Required: `id` (user UUID — `me` is NOT accepted here; use the `viewer` query for the authenticated user). Returns the User object with name, displayName, email, active flag, admin flag, avatarUrl, and team memberships. Use after resolving an email or display name through `users_list`."),
+			mcplib.WithDescription("Get a single user. Returns the User."),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/graphql", []mcpParamBinding{}, []string{}),
+		makeAPIHandler("GET", "/graphql", false, []mcpParamBinding{}, []string{}),
 	)
 	// SQL tool — ad-hoc analysis on synced data without API calls
 	s.AddTool(
 		mcplib.NewTool("sql",
 			mcplib.WithDescription("Run read-only SQL against local database. Use for ad-hoc analysis, aggregations, and joins across synced resources. Requires sync first."),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT only). Tables match resource names.")),
+			mcplib.WithString("query", mcplib.Required(), mcplib.Description("SQL query (SELECT or WITH...SELECT). Tables match resource names.")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 		),
@@ -324,7 +325,7 @@ type mcpParamBinding struct {
 }
 
 // makeAPIHandler creates a generic MCP tool handler for an API endpoint.
-func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, positionalParams []string) server.ToolHandlerFunc {
+func makeAPIHandler(method, pathTemplate string, binaryResponse bool, bindings []mcpParamBinding, positionalParams []string) server.ToolHandlerFunc {
 	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 		c, err := newMCPClient()
 		if err != nil {
@@ -344,6 +345,10 @@ func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, pos
 		pathParams := make(map[string]bool, len(positionalParams))
 		params := make(map[string]string)
 		bodyArgs := make(map[string]any)
+		var headers map[string]string
+		if binaryResponse {
+			headers = map[string]string{client.BinaryResponseHeader: "true"}
+		}
 		for _, binding := range bindings {
 			knownArgs[binding.PublicName] = true
 			v, ok := args[binding.PublicName]
@@ -387,18 +392,35 @@ func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, pos
 		var data json.RawMessage
 		switch method {
 		case "GET":
+			if binaryResponse {
+				data, err = c.GetWithHeaders(path, params, headers)
+				break
+			}
 			data, err = c.Get(path, params)
 		case "POST":
-			body, _ := json.Marshal(bodyArgs)
-			data, _, err = c.Post(path, body)
+			if binaryResponse {
+				data, _, err = c.PostWithParamsAndHeaders(path, params, bodyArgs, headers)
+				break
+			}
+			data, _, err = c.PostWithParams(path, params, bodyArgs)
 		case "PUT":
-			body, _ := json.Marshal(bodyArgs)
-			data, _, err = c.Put(path, body)
+			if binaryResponse {
+				data, _, err = c.PutWithParamsAndHeaders(path, params, bodyArgs, headers)
+				break
+			}
+			data, _, err = c.PutWithParams(path, params, bodyArgs)
 		case "PATCH":
-			body, _ := json.Marshal(bodyArgs)
-			data, _, err = c.Patch(path, body)
+			if binaryResponse {
+				data, _, err = c.PatchWithParamsAndHeaders(path, params, bodyArgs, headers)
+				break
+			}
+			data, _, err = c.PatchWithParams(path, params, bodyArgs)
 		case "DELETE":
-			data, _, err = c.Delete(path)
+			if binaryResponse {
+				data, _, err = c.DeleteWithParamsAndHeaders(path, params, headers)
+				break
+			}
+			data, _, err = c.DeleteWithParams(path, params)
 		default:
 			return mcplib.NewToolResultError("unsupported method: " + method), nil
 		}
@@ -450,6 +472,14 @@ func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, pos
 				}
 			}
 		}
+		if binaryResponse {
+			out, _ := json.Marshal(map[string]any{
+				"content_encoding": "base64",
+				"data_base64":      base64.StdEncoding.EncodeToString(data),
+				"byte_count":       len(data),
+			})
+			return mcplib.NewToolResultText(string(out)), nil
+		}
 		return mcplib.NewToolResultText(string(data)), nil
 	}
 }
@@ -479,6 +509,60 @@ func dbPath() string {
 // Note: MCP tools use their own dbPath() because they are in a separate package (main, not cli).
 // The CLI's defaultDBPath() in the cli package uses the same canonical path.
 
+// validateReadOnlyQuery gates the MCP sql tool. The agent contract advertised
+// to the host is ReadOnlyHintAnnotation(true); a false annotation on a
+// mutating tool lets MCP hosts auto-approve writes and is treated as a real
+// bug per the project's agent-native security model.
+//
+// The gate is an allowlist (SELECT or WITH only) applied AFTER stripping the
+// leading whitespace, line comments, block comments, and semicolons that
+// SQLite itself ignores before parsing. A naive HasPrefix check on a
+// keyword blocklist is bypassable by prefixing the dangerous statement with
+// "/* x */" or "-- x\n" — TrimSpace strips outer whitespace but does not
+// understand SQL comment syntax. Combined with the empirical fact that
+// modernc.org/sqlite's mode=ro does NOT block VACUUM INTO (writes a snapshot
+// to a new file) or ATTACH DATABASE (opens a separate writable handle),
+// such a bypass produces silent exfiltration to an attacker-chosen path.
+//
+// SELECT and WITH are the only allowed leading keywords. WITH supports
+// SELECT-form CTEs; CTE-wrapped writes ("WITH x AS (...) INSERT ...") are
+// caught by OpenReadOnly's mode=ro one layer down. PRAGMA, ATTACH, VACUUM,
+// and every other DDL/DML keyword fail at this gate before reaching SQLite.
+func validateReadOnlyQuery(query string) error {
+	upper := strings.ToUpper(stripLeadingSQLNoise(query))
+	if !strings.HasPrefix(upper, "SELECT") && !strings.HasPrefix(upper, "WITH") {
+		return fmt.Errorf("only SELECT queries are allowed")
+	}
+	return nil
+}
+
+// stripLeadingSQLNoise removes leading whitespace, SQL line comments
+// (-- to end of line), block comments (/* ... */), and statement
+// separators (;) from query. SQLite skips these before parsing the first
+// keyword, so a security gate that does not strip them mismatches what the
+// driver actually executes.
+func stripLeadingSQLNoise(query string) string {
+	for {
+		query = strings.TrimLeft(query, " \t\r\n;")
+		switch {
+		case strings.HasPrefix(query, "--"):
+			if idx := strings.IndexByte(query, '\n'); idx >= 0 {
+				query = query[idx+1:]
+				continue
+			}
+			return ""
+		case strings.HasPrefix(query, "/*"):
+			if idx := strings.Index(query[2:], "*/"); idx >= 0 {
+				query = query[2+idx+2:]
+				continue
+			}
+			return ""
+		default:
+			return query
+		}
+	}
+}
+
 func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	args := req.GetArguments()
 	query, ok := args["query"].(string)
@@ -486,15 +570,11 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 		return mcplib.NewToolResultError("query is required"), nil
 	}
 
-	// Block write operations
-	upper := strings.ToUpper(strings.TrimSpace(query))
-	for _, prefix := range []string{"INSERT", "UPDATE", "DELETE", "DROP", "ALTER", "CREATE"} {
-		if strings.HasPrefix(upper, prefix) {
-			return mcplib.NewToolResultError("only SELECT queries are allowed"), nil
-		}
+	if err := validateReadOnlyQuery(query); err != nil {
+		return mcplib.NewToolResultError(err.Error()), nil
 	}
 
-	db, err := store.OpenWithContext(ctx, dbPath())
+	db, err := store.OpenReadOnly(dbPath())
 	if err != nil {
 		return mcplib.NewToolResultError(fmt.Sprintf("opening database: %v", err)), nil
 	}
@@ -711,18 +791,19 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		// Command-mirror capabilities are exposed through MCP by shelling out
 		// to the companion CLI binary.
 		"command_mirror_capabilities": []map[string]string{
-			{"name": "Today View", "command": "today", "description": "See all your issues for today across every team, ranked by priority and cycle deadline.", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Today View", "command": "today", "description": "See all of your assigned issues across every team for today, ranked by priority and cycle deadline.", "rationale": "", "via": "mcp-command-mirror"},
 			{"name": "Bottleneck Detection", "command": "bottleneck", "description": "See which team members are overloaded and which issues are blocked before sprint planning.", "rationale": "", "via": "mcp-command-mirror"},
 			{"name": "Project Burndown", "command": "projects burndown", "description": "Project a project's landing date by linear-regressing remaining estimate against the team's measured velocity.", "rationale": "", "via": "mcp-command-mirror"},
 			{"name": "Cycle Comparison", "command": "cycles compare", "description": "Side-by-side metrics between any two cycles: completion %, scope added, scope cut, carryover, average cycle time.", "rationale": "", "via": "mcp-command-mirror"},
 			{"name": "Stale Issue Radar", "command": "stale", "description": "Find issues that haven't been touched in N days, grouped by team and project.", "rationale": "", "via": "mcp-command-mirror"},
 			{"name": "Slipped Issues", "command": "slipped", "description": "Show what carried over from last cycle into this cycle, grouped by team and reason heuristic.", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "Blocking Queue", "command": "blocking", "description": "Show issues you are blocking — sorted by impact (downstream count and priority).", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Blocking Queue", "command": "blocking", "description": "Show issues you are blocking — sorted by downstream impact (downstream count × downstream priority).", "rationale": "", "via": "mcp-command-mirror"},
 			{"name": "Duplicate Detection", "command": "similar", "description": "Find issues that look like duplicates of a query string using offline FTS5 fuzzy matching.", "rationale": "", "via": "mcp-command-mirror"},
 			{"name": "Velocity Trends", "command": "velocity", "description": "Track sprint completion rates over the last N cycles to spot productivity trends.", "rationale": "", "via": "mcp-command-mirror"},
 			{"name": "Initiatives Health", "command": "initiatives health", "description": "Rolled-up portfolio view per initiative: child project progress, milestone target-vs-projected dates, slippage flags.", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "At-Risk Milestones", "command": "milestones at-risk", "description": "List portfolio milestones whose projected landing date has slipped past their target, ranked by slip magnitude.", "rationale": "", "via": "mcp-command-mirror"},
 			{"name": "Test Fixture Lifecycle", "command": "pp-test list", "description": "List Linear issues this CLI created in the current or named session, then archive them with pp-cleanup.", "rationale": "", "via": "mcp-command-mirror"},
-			{"name": "Trust Mode Mutation Guard", "command": "issues create", "description": "Refuse mutations on Linear issues not in the local pp_created ledger when --trust-mode strict is set; works on the...", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Trust Mode Mutation Guard", "command": "issues create --trust-mode strict", "description": "Refuse mutations on Linear issues not in the local pp_created ledger when --trust-mode strict is set; works on...", "rationale": "", "via": "mcp-command-mirror"},
 		},
 		"playbook": []map[string]string{
 			{"topic": "Today View", "insight": ""},
@@ -735,6 +816,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			{"topic": "Duplicate Detection", "insight": ""},
 			{"topic": "Velocity Trends", "insight": ""},
 			{"topic": "Initiatives Health", "insight": ""},
+			{"topic": "At-Risk Milestones", "insight": ""},
 			{"topic": "Test Fixture Lifecycle", "insight": ""},
 			{"topic": "Trust Mode Mutation Guard", "insight": ""},
 			{"topic": "Finding stale work", "insight": "Use the stale command or sql query to find items not updated recently. More reliable than scanning list results manually."},
