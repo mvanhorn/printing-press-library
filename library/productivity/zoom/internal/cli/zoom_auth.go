@@ -233,10 +233,11 @@ func exchangeS2SToken(ctx context.Context, accountID, clientID, clientSecret str
 	if raw.AccessToken == "" {
 		return nil, fmt.Errorf("token response missing access_token: %s", string(body))
 	}
-	exp := time.Now().Add(time.Duration(raw.ExpiresIn) * time.Second)
-	if raw.ExpiresIn == 0 {
-		exp = time.Now().Add(1 * time.Hour)
+	expiresIn := raw.ExpiresIn
+	if expiresIn == 0 {
+		expiresIn = 3600
 	}
+	exp := time.Now().Add(time.Duration(expiresIn) * time.Second)
 	return &config.TokenCache{
 		AccessToken: raw.AccessToken,
 		TokenType:   raw.TokenType,

@@ -52,7 +52,32 @@ func UpsertSegment(ctx context.Context, db *sql.DB, recordingID string, cue reco
 	if err := EnsureSchema(ctx, db); err != nil {
 		return err
 	}
-	_, err := db.ExecContext(ctx, `
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	// Capture the prior text (if any) before the upsert. For an FTS5
+	// external-content table, MATCH scans the FTS term index, not the source
+	// table — so a re-sync that only updates the source row leaves the term
+	// index stale, and corrected VTT text silently fails to match. The FTS5
+	// 'delete' command needs the OLD column values, hence the read-first.
+	var existingID int64
+	var oldText string
+	var hadRow bool
+	switch scanErr := tx.QueryRowContext(ctx,
+		`SELECT id, text FROM local_transcript_segments WHERE recording_id = ? AND cue_index = ?`,
+		recordingID, cue.Index).Scan(&existingID, &oldText); scanErr {
+	case nil:
+		hadRow = true
+	case sql.ErrNoRows:
+		hadRow = false
+	default:
+		return scanErr
+	}
+
+	if _, err := tx.ExecContext(ctx, `
 		INSERT INTO local_transcript_segments(recording_id, cue_index, start_ms, end_ms, speaker, text)
 		VALUES(?,?,?,?,?,?)
 		ON CONFLICT(recording_id, cue_index) DO UPDATE SET
@@ -60,17 +85,38 @@ func UpsertSegment(ctx context.Context, db *sql.DB, recordingID string, cue reco
 			end_ms=excluded.end_ms,
 			speaker=excluded.speaker,
 			text=excluded.text
-	`, recordingID, cue.Index, cue.Start.Milliseconds(), cue.End.Milliseconds(), nullableString(cue.Speaker), cue.Text)
-	if err != nil {
+	`, recordingID, cue.Index, cue.Start.Milliseconds(), cue.End.Milliseconds(), nullableString(cue.Speaker), cue.Text); err != nil {
 		return err
 	}
-	// Keep FTS in sync.
-	_, err = db.ExecContext(ctx, `INSERT INTO local_transcript_segments_fts(rowid, text)
-		SELECT id, text FROM local_transcript_segments
-		WHERE recording_id = ? AND cue_index = ?
-		AND NOT EXISTS(SELECT 1 FROM local_transcript_segments_fts WHERE rowid = (SELECT id FROM local_transcript_segments WHERE recording_id = ? AND cue_index = ?))`,
-		recordingID, cue.Index, recordingID, cue.Index)
-	return err
+
+	// Resolve the (stable) row id.
+	id := existingID
+	if !hadRow {
+		if err := tx.QueryRowContext(ctx,
+			`SELECT id FROM local_transcript_segments WHERE recording_id = ? AND cue_index = ?`,
+			recordingID, cue.Index).Scan(&id); err != nil {
+			return err
+		}
+	}
+
+	// Refresh the external-content FTS index: delete the old term entry (using
+	// the OLD text) when one existed, then insert the new text. This is the
+	// canonical FTS5 external-content update pattern — without the delete, the
+	// re-sync path keeps matching stale terms.
+	if hadRow {
+		if _, err := tx.ExecContext(ctx,
+			`INSERT INTO local_transcript_segments_fts(local_transcript_segments_fts, rowid, text) VALUES('delete', ?, ?)`,
+			id, oldText); err != nil {
+			return err
+		}
+	}
+	if _, err := tx.ExecContext(ctx,
+		`INSERT INTO local_transcript_segments_fts(rowid, text) VALUES(?, ?)`,
+		id, cue.Text); err != nil {
+		return err
+	}
+
+	return tx.Commit()
 }
 
 // ListLocalRecordings returns rows ordered by start desc, optionally filtered.

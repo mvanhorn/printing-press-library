@@ -1,6 +1,8 @@
 package cli
 
 import (
+	"context"
+	"database/sql"
 	"fmt"
 	"io"
 	"os"
@@ -577,35 +579,13 @@ func newRecordingsExportCmd(flags *rootFlags) *cobra.Command {
 				copied = append(copied, dst)
 			}
 
-			// Generate INDEX.md from cues.
+			// Generate INDEX.md from cues. writeIndex buffers the document and
+			// surfaces any os.Create/write/close failure so a truncated index
+			// is reported as an error rather than a false "exported" success.
 			indexPath := filepath.Join(out, "INDEX.md")
-			f, err := os.Create(indexPath)
-			if err == nil {
-				defer f.Close()
-				fmt.Fprintf(f, "# %s\n\n", strings.TrimSpace(topic))
-				fmt.Fprintf(f, "Source recording: %s\n\n", path)
-				fmt.Fprintf(f, "## Files\n")
-				for _, c := range copied {
-					fmt.Fprintf(f, "- %s\n", filepath.Base(c))
-				}
-				fmt.Fprintf(f, "\n## Timestamped Table of Contents\n\n")
-				rows, _ := db.QueryContext(cmd.Context(),
-					`SELECT start_ms, COALESCE(speaker, ''), text FROM local_transcript_segments WHERE recording_id = ? ORDER BY cue_index`, id)
-				if rows != nil {
-					defer rows.Close()
-					for rows.Next() {
-						var ms int64
-						var sp, txt string
-						if err := rows.Scan(&ms, &sp, &txt); err == nil {
-							ts := formatHHMMSS(ms)
-							if sp != "" {
-								fmt.Fprintf(f, "- **%s** _%s_: %s\n", ts, sp, txt)
-							} else {
-								fmt.Fprintf(f, "- **%s**: %s\n", ts, txt)
-							}
-						}
-					}
-				}
+			indexErr := writeExportIndex(cmd.Context(), db, indexPath, topic, path, id, copied)
+			if indexErr != nil {
+				return fmt.Errorf("recordings export: copied %d media file(s) to %s but INDEX.md write failed: %w", len(copied), out, indexErr)
 			}
 			return flags.printJSON(cmd, map[string]any{
 				"status":     "exported",
@@ -620,6 +600,40 @@ func newRecordingsExportCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().BoolVar(&withChat, "with-chat", false, "Include the meeting_saved_chat.txt file")
 	cmd.Flags().BoolVar(&withTranscript, "with-transcript", false, "Include the .vtt transcript")
 	return cmd
+}
+
+// writeExportIndex builds INDEX.md in a buffer (so a mid-document failure can
+// be detected before the file is declared complete), writes it atomically, and
+// returns any create/write/close error. Callers must treat a non-nil return as
+// a failed export.
+func writeExportIndex(ctx context.Context, db *sql.DB, indexPath, topic, srcPath, recordingID string, copied []string) error {
+	var b strings.Builder
+	fmt.Fprintf(&b, "# %s\n\n", strings.TrimSpace(topic))
+	fmt.Fprintf(&b, "Source recording: %s\n\n", srcPath)
+	fmt.Fprintf(&b, "## Files\n")
+	for _, c := range copied {
+		fmt.Fprintf(&b, "- %s\n", filepath.Base(c))
+	}
+	fmt.Fprintf(&b, "\n## Timestamped Table of Contents\n\n")
+	rows, err := db.QueryContext(ctx,
+		`SELECT start_ms, COALESCE(speaker, ''), text FROM local_transcript_segments WHERE recording_id = ? ORDER BY cue_index`, recordingID)
+	if err == nil {
+		defer rows.Close()
+		for rows.Next() {
+			var ms int64
+			var sp, txt string
+			if scanErr := rows.Scan(&ms, &sp, &txt); scanErr == nil {
+				ts := formatHHMMSS(ms)
+				if sp != "" {
+					fmt.Fprintf(&b, "- **%s** _%s_: %s\n", ts, sp, txt)
+				} else {
+					fmt.Fprintf(&b, "- **%s**: %s\n", ts, txt)
+				}
+			}
+		}
+	}
+	// Single atomic write; os.WriteFile reports create + write errors together.
+	return os.WriteFile(indexPath, []byte(b.String()), 0o644)
 }
 
 // helpers
