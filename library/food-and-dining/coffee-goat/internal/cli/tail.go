@@ -171,6 +171,9 @@ func queryTailRows(ctx context.Context, db *sql.DB, q string, args ...any) ([]ta
 		}
 		out = append(out, r)
 	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate tail rows: %w", err)
+	}
 	return out, nil
 }
 

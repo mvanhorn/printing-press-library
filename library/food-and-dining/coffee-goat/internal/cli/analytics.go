@@ -67,6 +67,9 @@ func newAnalyticsOriginsCmd(flags *rootFlags) *cobra.Command {
 				}
 				data = append(data, r)
 			}
+			if err := rows.Err(); err != nil {
+				return fmt.Errorf("iterate origins rows: %w", err)
+			}
 			if flags.asJSON {
 				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"origins": data, "count": len(data)}, flags)
 			}
@@ -120,6 +123,9 @@ func newAnalyticsRoastersCmd(flags *rootFlags) *cobra.Command {
 					continue
 				}
 				data = append(data, r)
+			}
+			if err := rows.Err(); err != nil {
+				return fmt.Errorf("iterate roasters rows: %w", err)
 			}
 			if flags.asJSON {
 				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"roasters": data, "count": len(data)}, flags)
@@ -178,6 +184,9 @@ func newAnalyticsDescriptorsCmd(flags *rootFlags) *cobra.Command {
 				}
 				data = append(data, r)
 			}
+			if err := rows.Err(); err != nil {
+				return fmt.Errorf("iterate descriptors rows: %w", err)
+			}
 			if flags.asJSON {
 				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"descriptors": data, "count": len(data)}, flags)
 			}
@@ -228,6 +237,9 @@ func newAnalyticsBrewsByMonthCmd(flags *rootFlags) *cobra.Command {
 					continue
 				}
 				data = append(data, r)
+			}
+			if err := rows.Err(); err != nil {
+				return fmt.Errorf("iterate brews-by-month rows: %w", err)
 			}
 			if flags.asJSON {
 				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{"months": data, "count": len(data)}, flags)

@@ -116,6 +116,9 @@ func buildGodCupReport(db *store.Store, method string) (godCupReport, error) {
 		}
 		shelf = append(shelf, s)
 	}
+	if err := rows.Err(); err != nil {
+		return report, fmt.Errorf("iterate shelf rows: %w", err)
+	}
 
 	// Need at least 5 brews to enable god-cup.
 	var brewCount int
@@ -182,6 +185,9 @@ func buildGodCupReport(db *store.Store, method string) (godCupReport, error) {
 				Rationale: fmt.Sprintf("review=%.0f, creator-mentions=%v", revScore, creator > 0),
 				Factors:   factors,
 			})
+		}
+		if err := mrows.Err(); err != nil {
+			return report, fmt.Errorf("iterate buy-pick rows: %w", err)
 		}
 		sort.Slice(picks, func(i, j int) bool { return picks[i].Score > picks[j].Score })
 		if len(picks) > 0 {

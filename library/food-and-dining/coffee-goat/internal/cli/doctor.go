@@ -302,6 +302,11 @@ func collectCacheReport(ctx context.Context, staleAfterSpec string) map[string]a
 		}
 		resources = append(resources, r)
 	}
+	if err := rows.Err(); err != nil {
+		report["status"] = "error"
+		report["error"] = fmt.Sprintf("iterate sync_state rows: %v", err)
+		return report
+	}
 	report["resources"] = resources
 	if staleAfterSpec != "" {
 		if d, derr := time.ParseDuration(staleAfterSpec); derr == nil {
@@ -335,7 +340,7 @@ func probeShopifyEndpoint(ctx context.Context) doctorCheck {
 	if err != nil {
 		return doctorCheck{Name: "Roaster reachability", Status: "FAIL", Detail: err.Error()}
 	}
-	req.Header.Set("User-Agent", "coffee-goat-pp-cli/"+version+" (+https://github.com/mvanhorn/printing-press-library)")
+	req.Header.Set("User-Agent", "coffee-goat-pp-cli/"+version+" (+https://github.com/justinwfu/coffee-goat-pp-cli)")
 	resp, err := c.Do(req)
 	elapsed := time.Since(started)
 	if err != nil {

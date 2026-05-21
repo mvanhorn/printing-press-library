@@ -319,6 +319,9 @@ func matchChampionToCorpus(db *sql.DB, r *championRecipe, inStockOnly bool, limi
 			results = append(results, m)
 		}
 	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate roaster_products rows: %w", err)
+	}
 	sort.Slice(results, func(i, j int) bool { return results[i].Score > results[j].Score })
 	if limit > 0 && len(results) > limit {
 		results = results[:limit]
