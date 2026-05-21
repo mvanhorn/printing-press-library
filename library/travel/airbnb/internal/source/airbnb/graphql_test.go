@@ -8,6 +8,39 @@ import (
 	"testing"
 )
 
+func TestBuildCookieHeader_Multiple(t *testing.T) {
+	cookies := []*http.Cookie{
+		{Name: "session", Value: "abc"},
+		{Name: "csrf", Value: "xyz"},
+	}
+	got := buildCookieHeader(cookies)
+	want := "session=abc; csrf=xyz"
+	if got != want {
+		t.Errorf("buildCookieHeader = %q, want %q", got, want)
+	}
+}
+
+func TestBuildCookieHeader_Empty(t *testing.T) {
+	if got := buildCookieHeader(nil); got != "" {
+		t.Errorf("buildCookieHeader(nil) = %q, want empty", got)
+	}
+	if got := buildCookieHeader([]*http.Cookie{}); got != "" {
+		t.Errorf("buildCookieHeader([]) = %q, want empty", got)
+	}
+}
+
+func TestBuildCookieHeader_SkipsNilAndEmptyName(t *testing.T) {
+	cookies := []*http.Cookie{
+		nil,
+		{Name: "", Value: "ignored"},
+		{Name: "ok", Value: "v"},
+	}
+	got := buildCookieHeader(cookies)
+	if !strings.Contains(got, "ok=v") || strings.Contains(got, "ignored") {
+		t.Errorf("buildCookieHeader = %q, want only ok=v", got)
+	}
+}
+
 // TestParseAPIKeyFromSSR confirms the regex extracts the api_config key
 // embedded in airbnb.com SSR HTML.
 func TestParseAPIKeyFromSSR(t *testing.T) {

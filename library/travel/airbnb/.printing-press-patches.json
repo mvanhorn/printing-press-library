@@ -5,6 +5,16 @@
   "base_printing_press_version": "3.6.1",
   "patches": [
     {
+      "id": "graphql-cookie-header-no-jar-swap",
+      "summary": "Replace c.http.Jar swap in graphQLGet with a per-request Cookie header. Eliminates the data race on the shared client field flagged by Greptile on PR #740.",
+      "reason": "graphQLGet previously did `old := c.http.Jar; c.http.Jar = jar; defer ... = old`. With defaultClient as a package-global, any concurrent graphQLGet caller would race on the .Jar field. Race detector currently passes only because no test exercises concurrent paths. Building the Cookie header per-request and passing it via the existing headers map produces the identical wire result (Cookie: header on the outbound request) without shared mutable state. buildCookieHeader is a pure helper covered by three unit tests.",
+      "files": [
+        "internal/source/airbnb/graphql.go",
+        "internal/source/airbnb/graphql_test.go"
+      ],
+      "validated_outcome": "162 tests / 21 packages green with -race (added TestBuildCookieHeader_Multiple, _Empty, _SkipsNilAndEmptyName). Live `airbnb-listing get` still returns total=$514 / per_night=$171.18."
+    },
+    {
       "id": "bot-challenge-detector-and-sentinel",
       "summary": "Detect datadome and Akamai bot-defense responses; return a typed cliutil.BotChallengeError with a remediation hint. Previously, any 4xx other than 429 collapsed into a raw HTTP-status string with a 300-char body truncation, so a datadome challenge looked indistinguishable from a generic forbidden.",
       "reason": "The CLI's source/airbnb path had no awareness of Airbnb's (or any other site's) bot-defense layer. A datadome 403 with a JSON {url: 'https://geo.captcha-delivery.com/captcha/...'} body would surface to the user as 'GET https://www.airbnb.com/api/v3/X returned HTTP 403: {url:\\\"https...\"'. Adding a typed sentinel lets callers errors.As-route on it, lets the limiter halve its adaptive rate on bot challenges (treating them like 429 for ramp purposes), and lets us print a remediation hint pointing at 'auth login --chrome'. Detector matches three datadome signatures (Set-Cookie: datadome=, Server: dd-*, geo.captcha-delivery.com in body) and two Akamai signatures (<title>Bot or Not, captcha-pwa script reference), mirroring the existing VRBO detector pattern.",
