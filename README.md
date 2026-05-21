@@ -19,7 +19,7 @@ Three to try first:
 The fastest way to start — install four hand-picked CLIs and skills in one command:
 
 ```bash
-npx -y @mvanhorn/printing-press-library install starter-pack
+npx -y @mvanhorn/printing-press install starter-pack
 ```
 
 The starter pack: [`espn`](library/media-and-entertainment/espn/) (live sports), [`flight-goat`](library/travel/flightgoat/) (flight search), [`movie-goat`](library/media-and-entertainment/movie-goat/) (movie discovery), [`recipe-goat`](library/food-and-dining/recipe-goat/) (recipe ranking).
@@ -29,14 +29,14 @@ Every install pulls the Go binary **and** the focused skill in one shot. Pass `-
 One tool:
 
 ```bash
-npx -y @mvanhorn/printing-press-library install espn
+npx -y @mvanhorn/printing-press install espn
 ```
 
 Several at once (bundles and CLI names mix freely):
 
 ```bash
-npx -y @mvanhorn/printing-press-library install espn sentry dub
-npx -y @mvanhorn/printing-press-library install starter-pack cal-com
+npx -y @mvanhorn/printing-press install espn sentry dub
+npx -y @mvanhorn/printing-press install starter-pack cal-com
 ```
 
 Under the hood: the npm package is a thin orchestrator that reads the live catalog in `registry.json`, resolves each CLI's Go module path, runs `go install`, and installs the matching skill from `cli-skills/pp-<name>`.
@@ -44,15 +44,13 @@ Under the hood: the npm package is a thin orchestrator that reads the live catal
 Useful commands:
 
 ```bash
-npx -y @mvanhorn/printing-press-library list
-npx -y @mvanhorn/printing-press-library search sports
-npx -y @mvanhorn/printing-press-library list --category travel
-npx -y @mvanhorn/printing-press-library list --installed
-npx -y @mvanhorn/printing-press-library update espn
-npx -y @mvanhorn/printing-press-library uninstall espn --yes
+npx -y @mvanhorn/printing-press search sports
+npx -y @mvanhorn/printing-press list
+npx -y @mvanhorn/printing-press update espn
+npx -y @mvanhorn/printing-press uninstall espn --yes
 ```
 
-The older `@mvanhorn/printing-press` npm package is the legacy catalog installer name. New docs use `@mvanhorn/printing-press-library` and its `printing-press-library` command to avoid ambiguity with the generator repo.
+The npm installer package is being renamed to `@mvanhorn/printing-press-library` to avoid ambiguity with the generator repo. Until that package is published, this README keeps the currently published `@mvanhorn/printing-press` commands.
 
 While the catalog repository is private, live installer use requires `GITHUB_TOKEN` or `GH_TOKEN` for catalog and skill fetches, plus working private Go module access for `go install`.
 
