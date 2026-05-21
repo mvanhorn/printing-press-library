@@ -89,9 +89,17 @@ pass --commit. This is a write to your live account.`,
 			}
 			chosen := hits[idx]
 
+			// guidType is the entity-class discriminator the AngularJS
+			// form sends ("foodstuff" for items from /autocomplete/foodstuff).
+			// chosen.Clazz holds that value verbatim. Setting it to chosen.ID
+			// (a hex string) made the server reject the POST.
+			guidType := chosen.Clazz
+			if guidType == "" {
+				guidType = "foodstuff"
+			}
 			payload := map[string]interface{}{
 				"guid":          chosen.ID,
-				"guidType":      chosen.ID,
+				"guidType":      guidType,
 				"title":         chosen.Title,
 				"url":           chosen.URL,
 				"multiplier":    grams,

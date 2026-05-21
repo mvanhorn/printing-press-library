@@ -506,6 +506,16 @@ actually eat, which is more useful than an LP-optimal exotic meal.`,
 						if energyKJ <= 0 {
 							continue
 						}
+						// Skip non-gram units. The diary unit field is free
+						// text the user picked at log time — "60 x 1 g",
+						// "ml", "ks" (Czech for "pieces"), etc. Only the
+						// canonical "g" lets us safely scale to per-100g.
+						// Treating "ks" as grams would inflate protein
+						// density by the per-piece weight and skew the
+						// greedy selection.
+						if f.Unit != "g" {
+							continue
+						}
 						// macros are per portion; scale to per 100g.
 						scale := 100.0 / f.Multiplier
 						protein100 := f.Protein * scale
