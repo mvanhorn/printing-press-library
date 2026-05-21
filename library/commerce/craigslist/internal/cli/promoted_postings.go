@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/mvanhorn/printing-press-library/library/commerce/craigslist/internal/source/craigslist"
 	"github.com/spf13/cobra"
 )
 
@@ -22,6 +23,7 @@ func newPostingsPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagHasPic int
 	var flagPostal string
 	var flagSearchDistance int
+	var flagSite string
 	var flagSrchType string
 	var flagSort string
 
@@ -68,6 +70,20 @@ func newPostingsPromotedCmd(flags *rootFlags) *cobra.Command {
 			}
 			if flagSearchDistance != 0 {
 				params["search_distance"] = fmt.Sprintf("%v", flagSearchDistance)
+			}
+			if flagSite != "" && flagPostal == "" {
+				area, ok, err := craigslist.New(1.0).ResolveArea(cmd.Context(), flagSite)
+				if err != nil {
+					return fmt.Errorf("resolve craigslist site %q: %w", flagSite, err)
+				}
+				if !ok {
+					return fmt.Errorf("unknown craigslist site %q", flagSite)
+				}
+				params["lat"] = fmt.Sprintf("%v", area.Latitude)
+				params["lon"] = fmt.Sprintf("%v", area.Longitude)
+				if _, ok := params["search_distance"]; !ok {
+					params["search_distance"] = "60"
+				}
 			}
 			if flagSrchType != "" {
 				params["srchType"] = fmt.Sprintf("%v", flagSrchType)
@@ -137,6 +153,7 @@ func newPostingsPromotedCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().IntVar(&flagHasPic, "has-pic", 0, "Set to 1 to require listings with a picture")
 	cmd.Flags().StringVar(&flagPostal, "postal", "", "ZIP / postal code to anchor distance filtering")
 	cmd.Flags().IntVar(&flagSearchDistance, "search-distance", 0, "Distance in miles from postal code")
+	cmd.Flags().StringVar(&flagSite, "site", "", "Craigslist site hostname or abbreviation to anchor the search")
 	cmd.Flags().StringVar(&flagSrchType, "srch-type", "", "Set to T to search titles only")
 	cmd.Flags().StringVar(&flagSort, "sort", "", "Sort order: date, rel, priceasc, pricedsc")
 

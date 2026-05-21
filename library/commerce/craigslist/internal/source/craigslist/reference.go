@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 )
 
 // Category is one entry from reference.craigslist.org/Categories. 178 entries as of 2026.
@@ -45,6 +46,30 @@ func (c *Client) GetCategories(ctx context.Context) ([]Category, error) {
 		})
 	}
 	return out, nil
+}
+
+func (c *Client) cachedCategoryAbbrs(ctx context.Context) (map[int]string, error) {
+	c.cacheMu.Lock()
+	if c.categoriesLoaded {
+		defer c.cacheMu.Unlock()
+		return c.categoryAbbrs, nil
+	}
+	c.cacheMu.Unlock()
+
+	cats, err := c.GetCategories(ctx)
+	if err != nil {
+		return nil, err
+	}
+	abbrs := make(map[int]string, len(cats))
+	for _, cat := range cats {
+		abbrs[cat.CategoryID] = cat.Abbreviation
+	}
+
+	c.cacheMu.Lock()
+	c.categoryAbbrs = abbrs
+	c.categoriesLoaded = true
+	c.cacheMu.Unlock()
+	return abbrs, nil
 }
 
 // Area is one entry from reference.craigslist.org/Areas. 707 entries as of 2026.
@@ -127,4 +152,52 @@ func (c *Client) GetAreas(ctx context.Context) ([]Area, error) {
 		out = append(out, a)
 	}
 	return out, nil
+}
+
+func (c *Client) cachedAreas(ctx context.Context) ([]Area, error) {
+	c.cacheMu.Lock()
+	if c.areasLoaded {
+		defer c.cacheMu.Unlock()
+		return c.areas, nil
+	}
+	c.cacheMu.Unlock()
+
+	areas, err := c.GetAreas(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	c.cacheMu.Lock()
+	c.areas = areas
+	c.areasLoaded = true
+	c.cacheMu.Unlock()
+	return areas, nil
+}
+
+// ResolveArea finds a Craigslist area by hostname or abbreviation. Common user
+// inputs include hostnames ("sfbay", "portland") and abbreviations ("nyc").
+func (c *Client) ResolveArea(ctx context.Context, site string) (Area, bool, error) {
+	key := normalizeSiteKey(site)
+	if key == "" {
+		return Area{}, false, nil
+	}
+	areas, err := c.cachedAreas(ctx)
+	if err != nil {
+		return Area{}, false, err
+	}
+	for _, area := range areas {
+		if normalizeSiteKey(area.Hostname) == key || strings.ToLower(area.Abbreviation) == key {
+			return area, true, nil
+		}
+	}
+	return Area{}, false, nil
+}
+
+func normalizeSiteKey(site string) string {
+	key := strings.ToLower(strings.TrimSpace(site))
+	key = strings.TrimPrefix(key, "https://")
+	key = strings.TrimPrefix(key, "http://")
+	key = strings.TrimSuffix(key, "/")
+	key = strings.TrimSuffix(key, ".craigslist.org")
+	return key
 }
