@@ -181,9 +181,6 @@ func runAuthLoginChrome(cmd *cobra.Command, flags *rootFlags, cookieJarPath stri
 	if cfg.CrawlStatsCookieJar != "" {
 		fmt.Fprintf(w, "\nCurrent cookie jar path in config: %s\n", cfg.CrawlStatsCookieJar)
 	}
-	// strings is imported elsewhere in this file; reference it so the
-	// unused-import linter doesn't complain if it's only used by login proper.
-	_ = strings.ToLower
 	return nil
 }
 

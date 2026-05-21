@@ -37,24 +37,24 @@ var fileTypeCodes = map[string]int{
 // responseCodes maps --response-code values to integer codes (1-7, 9-13,
 // 15-20 per the discovery report; 8 and 14 are not valid).
 var responseCodes = map[string]int{
-	"ok":                  1,
-	"not-found":           2,
-	"unauthorized":        3,
-	"other-4xx":           4,
-	"dns-error":           5,
-	"fetch-error":         6,
-	"robots-blocked":      7,
-	"server-error":        9,
-	"dns-unresponsive":    10,
-	"robots-unavailable":  11,
-	"page-unreachable":    12,
-	"page-timeout":        13,
-	"redirect-error":      15,
-	"other-fetch-error":   16,
-	"moved-permanently":   17,
-	"moved-temporarily":   18,
-	"moved-other":         19,
-	"not-modified":        20,
+	"ok":                 1,
+	"not-found":          2,
+	"unauthorized":       3,
+	"other-4xx":          4,
+	"dns-error":          5,
+	"fetch-error":        6,
+	"robots-blocked":     7,
+	"server-error":       9,
+	"dns-unresponsive":   10,
+	"robots-unavailable": 11,
+	"page-unreachable":   12,
+	"page-timeout":       13,
+	"redirect-error":     15,
+	"other-fetch-error":  16,
+	"moved-permanently":  17,
+	"moved-temporarily":  18,
+	"moved-other":        19,
+	"not-modified":       20,
 }
 
 // googlebotCodes maps --googlebot values to integer codes (1-9).
@@ -130,13 +130,13 @@ SQLite store to give you the unioned URL set across every poll.`,
 
 // crawlStatsCommonFlags carries the flag set every subcommand reuses.
 type crawlStatsCommonFlags struct {
-	top         int
-	noPersist   bool
-	xsrfToken   string
-	buildLabel  string
-	sessionID   string
-	cookieJar   string
-	requestSeq  int
+	top        int
+	noPersist  bool
+	xsrfToken  string
+	buildLabel string
+	sessionID  string
+	cookieJar  string
+	requestSeq int
 }
 
 func attachCommonCrawlStatsFlags(c *cobra.Command, f *crawlStatsCommonFlags) {
@@ -355,12 +355,6 @@ the only way to build a corpus larger than any single snapshot.`,
 // subcommands. dimLabel is the human-readable filter value (e.g. "css") used
 // for SQLite persistence and JSON output; pass "" when dim is DimensionNone.
 func runCrawlStats(cobraCmd *cobra.Command, flags *rootFlags, common *crawlStatsCommonFlags, property string, dim client.Dimension, filterCode int, dimLabel string) error {
-	if dryRunOK(flags) {
-		// dryRunOK short-circuits when --dry-run is set; the client itself
-		// still builds the full request and returns the wire body for
-		// preview. Fall through so the user sees that body.
-	}
-
 	cfg, err := config.Load(flags.configPath)
 	if err != nil {
 		return configErr(err)
@@ -493,13 +487,13 @@ func persistCrawlStatsPoll(ctx context.Context, resp *client.CrawlStatsResponse,
 	// Samples — encode dim into the row so subsequent --file-type/--googlebot
 	// filters on `union` work without re-derivation.
 	sampleRows := make([]store.CrawlStatsSampleRow, 0, len(resp.Samples))
-	for _, s := range resp.Samples {
+	for _, sample := range resp.Samples {
 		row := store.CrawlStatsSampleRow{
 			SiteURL:    resp.Property,
-			SampleURL:  s.URL,
-			FetchedAt:  s.FetchedAt,
-			SizeBytes:  s.SizeBytes,
-			ResponseMs: s.ResponseMs,
+			SampleURL:  sample.URL,
+			FetchedAt:  sample.FetchedAt,
+			SizeBytes:  sample.SizeBytes,
+			ResponseMs: sample.ResponseMs,
 			PollAt:     pollAt,
 		}
 		switch dim {
@@ -510,11 +504,11 @@ func persistCrawlStatsPoll(ctx context.Context, resp *client.CrawlStatsResponse,
 		case client.DimensionGooglebotType:
 			row.GooglebotType = dimLabel
 		}
-		if s.ResponseCode > 0 {
-			row.ResponseCode = s.ResponseCode
+		if sample.ResponseCode > 0 {
+			row.ResponseCode = sample.ResponseCode
 		}
 		// Best-effort raw payload preservation.
-		if b, err := json.Marshal(s); err == nil {
+		if b, err := json.Marshal(sample); err == nil {
 			row.RawJSON = string(b)
 		}
 		sampleRows = append(sampleRows, row)
