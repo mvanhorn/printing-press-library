@@ -1,7 +1,9 @@
 package airbnb
 
 import (
+	"context"
 	"errors"
+	"io"
 	"net/http"
 	"strings"
 	"testing"
@@ -147,6 +149,34 @@ func TestIsBotChallenge_200WithDdServerHeader(t *testing.T) {
 	_, ok := isBotChallenge(resp, []byte(body))
 	if ok {
 		t.Fatal("200 OK with `Server: dd-*` should NOT trigger detection (regression test for Greptile finding on PR #740)")
+	}
+}
+
+func TestDoReturnsBotChallengeOnFinal429Challenge(t *testing.T) {
+	attempts := 0
+	body := `{"url":"https://geo.captcha-delivery.com/captcha/..."}`
+	c := &Client{
+		http: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+			attempts++
+			return &http.Response{
+				StatusCode: 429,
+				Header:     make(http.Header),
+				Body:       io.NopCloser(strings.NewReader(body)),
+				Request:    req,
+			}, nil
+		})},
+	}
+
+	_, err := c.do(context.Background(), "GET", "https://example.com/api", airbnbUA, nil, nil)
+	var challenge *cliutil.BotChallengeError
+	if !errors.As(err, &challenge) {
+		t.Fatalf("error = %v, want BotChallengeError", err)
+	}
+	if challenge.ChallengeType != "datadome" {
+		t.Fatalf("ChallengeType = %q, want datadome", challenge.ChallengeType)
+	}
+	if attempts != 4 {
+		t.Fatalf("attempts = %d, want initial try plus 3 retries", attempts)
 	}
 }
 

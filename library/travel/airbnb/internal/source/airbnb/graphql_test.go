@@ -41,6 +41,40 @@ func TestBuildCookieHeader_SkipsNilAndEmptyName(t *testing.T) {
 	}
 }
 
+func TestPriceBreakdownFromAnySkipsLegacyFeesWhenStructuredFeesExist(t *testing.T) {
+	root := map[string]any{
+		"pdpPresentation": map[string]any{
+			"bookIt": map[string]any{
+				"structuredDisplayPrice": map[string]any{
+					"primaryLine": map[string]any{"price": "$200"},
+					"explanationData": map[string]any{
+						"priceDetails": []any{
+							map[string]any{
+								"items": []any{
+									map[string]any{"description": "Cleaning fee", "priceString": "$25"},
+									map[string]any{"description": "Service fee", "priceString": "$30"},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		"legacyFees": []any{
+			map[string]any{"label": "Cleaning fee", "amount": float64(25)},
+			map[string]any{"label": "Service fee", "amount": float64(30)},
+		},
+	}
+
+	got := priceBreakdownFromAny(root)
+	if got.Fees["cleaning"] != 25 {
+		t.Fatalf("cleaning fee = %v, want structured fee only", got.Fees["cleaning"])
+	}
+	if got.Fees["service"] != 30 {
+		t.Fatalf("service fee = %v, want structured fee only", got.Fees["service"])
+	}
+}
+
 // TestParseAPIKeyFromSSR confirms the regex extracts the api_config key
 // embedded in airbnb.com SSR HTML.
 func TestParseAPIKeyFromSSR(t *testing.T) {

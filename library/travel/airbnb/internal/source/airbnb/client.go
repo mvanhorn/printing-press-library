@@ -233,6 +233,10 @@ func (c *Client) do(ctx context.Context, method, target, ua string, body io.Read
 		if resp.StatusCode == 429 {
 			c.limiter.OnRateLimit()
 			if attempt == retries {
+				if challenge, ok := isBotChallenge(resp, data); ok {
+					challenge.URL = target
+					return nil, &challenge
+				}
 				return nil, &cliutil.RateLimitError{URL: target, RetryAfter: cliutil.RetryAfter(resp), Body: string(last)}
 			}
 			// PATCH: server-stated Retry-After + Backoff fallback + jitter.

@@ -271,27 +271,31 @@ func priceBreakdownFromAny(root any) *PriceBreakdown {
 
 	// Legacy schema fallback: older endpoints (and possibly future ones)
 	// return {label, amount} fee objects. Keep walking the old way so this
-	// function stays robust when the response carries the legacy shape.
-	for _, obj := range findObjects(root, []string{"label", "amount"}) {
-		label := strings.ToLower(firstStringByKeys(obj, "label", "title", "feeType"))
-		amount := num(firstByKey(obj, "amount"))
-		if amount == 0 {
-			amount = amountFromText(firstStringByKeys(obj, "price", "formattedAmount"))
-		}
-		switch {
-		case strings.Contains(label, "clean"):
-			p.Fees["cleaning"] += amount
-		case strings.Contains(label, "service"):
-			p.Fees["service"] += amount
-		case strings.Contains(label, "tax"):
-			p.Fees["tax"] += amount
-		case strings.Contains(label, "total"):
-			if p.Total == 0 {
-				p.Total = amount
+	// function stays robust when the response carries the legacy shape. If
+	// structuredDisplayPrice already populated fees, skip this pass so a
+	// migration response containing both shapes does not double-count fees.
+	if len(p.Fees) == 0 {
+		for _, obj := range findObjects(root, []string{"label", "amount"}) {
+			label := strings.ToLower(firstStringByKeys(obj, "label", "title", "feeType"))
+			amount := num(firstByKey(obj, "amount"))
+			if amount == 0 {
+				amount = amountFromText(firstStringByKeys(obj, "price", "formattedAmount"))
 			}
-		case strings.Contains(label, "subtotal"):
-			if p.Subtotal == 0 {
-				p.Subtotal = amount
+			switch {
+			case strings.Contains(label, "clean"):
+				p.Fees["cleaning"] += amount
+			case strings.Contains(label, "service"):
+				p.Fees["service"] += amount
+			case strings.Contains(label, "tax"):
+				p.Fees["tax"] += amount
+			case strings.Contains(label, "total"):
+				if p.Total == 0 {
+					p.Total = amount
+				}
+			case strings.Contains(label, "subtotal"):
+				if p.Subtotal == 0 {
+					p.Subtotal = amount
+				}
 			}
 		}
 	}
