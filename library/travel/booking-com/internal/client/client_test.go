@@ -70,3 +70,25 @@ func TestTruncateBody_UTF8RuneAtBoundary(t *testing.T) {
 		t.Fatalf("len = %d, want %d (partial rune should be dropped, not replaced)", len(got), want)
 	}
 }
+
+func TestCacheKeyIncludesHeaders(t *testing.T) {
+	t.Parallel()
+
+	c := &Client{BaseURL: "https://example.com"}
+	params := map[string]string{"checkin": "2026-06-01"}
+
+	desktopKey := c.cacheKey("/searchresults.html", params, nil)
+	mobileKey := c.cacheKey("/searchresults.html", params, map[string]string{"User-Agent": "mobile"})
+	desktopHeaderKey := c.cacheKey("/searchresults.html", params, map[string]string{"User-Agent": "desktop"})
+	mobileHeaderCaseKey := c.cacheKey("/searchresults.html", params, map[string]string{"user-agent": "mobile"})
+
+	if desktopKey == mobileKey {
+		t.Fatal("cacheKey did not separate header-bearing request from default request")
+	}
+	if mobileKey == desktopHeaderKey {
+		t.Fatal("cacheKey did not separate different header values")
+	}
+	if mobileKey != mobileHeaderCaseKey {
+		t.Fatal("cacheKey should normalize header names case-insensitively")
+	}
+}

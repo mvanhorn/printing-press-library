@@ -76,6 +76,16 @@
         "internal/cli/trip_plan_test.go"
       ],
       "validated_outcome": "go test ./internal/cli -run 'TestChoosePlan|TestValidatePlanSearchSpace' succeeded."
+    },
+    {
+      "id": "header-aware-http-cache",
+      "summary": "Included custom request headers in the Booking.com HTTP cache key.",
+      "reason": "The mobile-rates deal comparison fetches the same search URL with desktop and mobile user agents; sharing one cache entry made the mobile response reuse desktop HTML.",
+      "files": [
+        "internal/client/client.go",
+        "internal/client/client_test.go"
+      ],
+      "validated_outcome": "go test ./internal/client -run TestCacheKeyIncludesHeaders succeeded."
     }
   ]
 }
