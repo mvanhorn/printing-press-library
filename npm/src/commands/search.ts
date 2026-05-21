@@ -52,7 +52,7 @@ export function createSearchCommand(overrides: Partial<SearchDeps> = {}) {
 export const searchCommand = createSearchCommand();
 
 const MIN_MEANINGFUL_QUERY_LENGTH = 2;
-const IGNORED_SEARCH_TERMS = new Set(["pp", "cli"]);
+const IGNORED_SEARCH_TERMS = new Set(["pp", "cli", "pp cli"]);
 
 export function searchRegistry(entries: RegistryEntry[], query: string): RegistryEntry[] {
   const terms = searchTerms(query);

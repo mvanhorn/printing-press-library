@@ -156,6 +156,7 @@ test("search command ignores shared pp-cli binary suffix tokens", async () => {
   assert.deepEqual(searchRegistry(registry.entries, "t"), []);
   assert.deepEqual(searchRegistry(registry.entries, "cli"), []);
   assert.deepEqual(searchRegistry(registry.entries, "pp"), []);
+  assert.deepEqual(searchRegistry(registry.entries, "pp-cli"), []);
   assert.equal(searchRegistry(registry.entries, "cal")[0]?.name, "cal-com");
   assert.equal(searchRegistry(registry.entries, "dominos-pp-cli")[0]?.name, "dominos-pp-cli");
   assert.equal(searchRegistry(registry.entries, "hotels-pp-cli")[0]?.name, "hotel-tonight");
