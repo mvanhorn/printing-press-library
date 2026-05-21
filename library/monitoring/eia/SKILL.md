@@ -25,10 +25,13 @@ This skill drives the `eia-pp-cli` binary. **You must verify the CLI is installe
 2. Verify: `eia-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+If the `npx` install fails (no Node, offline, etc.), fall back to cloning and building from source (requires Go 1.26.3 or newer):
 
 ```bash
-go install github.com/mvanhorn/printing-press-library/library/monitoring/eia/cmd/eia-pp-cli@latest
+git clone --depth 1 https://github.com/mvanhorn/printing-press-library.git /tmp/pp-library
+cd /tmp/pp-library/library/monitoring/eia
+go build -o "$HOME/go/bin/eia-pp-cli" ./cmd/eia-pp-cli
+go build -o "$HOME/go/bin/eia-pp-mcp" ./cmd/eia-pp-mcp
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
