@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"fmt"
 	"math"
+	"os"
 	"strconv"
 	"strings"
 
@@ -182,9 +183,6 @@ func userBrewStats(db *store.Store, beanID int64, roasterSlug, productSlug, meth
 	var sumDose, sumYield, sumTime, sumTemp float64
 	var n int
 	var best dialInPoint
-	for rows.Next() {
-		var p dialInPoint
-		if err := rows.Scan(&p.DoseG, &p.YieldG, &p.TimeS, &p.TemperatureC, &p.Rating); err != nil {
 	for rows.Next() {
 		var p dialInPoint
 		if err := rows.Scan(&p.DoseG, &p.YieldG, &p.TimeS, &p.TemperatureC, &p.Rating); err != nil {
