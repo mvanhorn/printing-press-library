@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -106,7 +107,7 @@ func newZoomScheduleCmd(flags *rootFlags) *cobra.Command {
 			if saveAs != "" {
 				bm := localstore.SavedMeeting{
 					Name:         saveAs,
-					MeetingID:    fmt.Sprintf("%v", meeting["id"]),
+					MeetingID:    numericField(meeting, "id"),
 					Pwd:          stringField(meeting, "password"),
 					URL:          stringField(meeting, "join_url"),
 					Notes:        agenda,
@@ -186,4 +187,31 @@ func stringField(m map[string]any, k string) string {
 		return fmt.Sprintf("%v", v)
 	}
 	return ""
+}
+
+// numericField formats an ID-like field as an integer string. Zoom meeting IDs
+// arrive as JSON numbers, which json.Unmarshal into map[string]any decodes as
+// float64 — and fmt.Sprintf("%v", float64(85123456789)) yields scientific
+// notation ("8.5123456789e+10"), which would corrupt the saved bookmark's
+// meeting_id and break every later `saved join`. Format float64/json.Number
+// with no exponent and no fractional digits; pass strings through verbatim.
+func numericField(m map[string]any, k string) string {
+	v, ok := m[k]
+	if !ok || v == nil {
+		return ""
+	}
+	switch n := v.(type) {
+	case string:
+		return n
+	case float64:
+		return strconv.FormatFloat(n, 'f', -1, 64)
+	case json.Number:
+		return n.String()
+	case int:
+		return strconv.Itoa(n)
+	case int64:
+		return strconv.FormatInt(n, 10)
+	default:
+		return fmt.Sprintf("%v", v)
+	}
 }

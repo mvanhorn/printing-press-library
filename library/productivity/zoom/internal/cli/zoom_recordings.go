@@ -555,8 +555,13 @@ func newRecordingsExportCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			// Copy all .mp4 files.
-			entries, _ := os.ReadDir(path)
+			// Copy all .mp4 files. A ReadDir failure (folder deleted from disk
+			// while its SQLite row survives, or a permissions error) must be a
+			// hard error — otherwise the export reports success with zero files.
+			entries, err := os.ReadDir(path)
+			if err != nil {
+				return fmt.Errorf("recordings export: cannot read recording folder %s: %w (the folder may have been deleted; run `recordings local sync` to refresh the index)", path, err)
+			}
 			var copied []string
 			for _, e := range entries {
 				lower := strings.ToLower(e.Name())
