@@ -1,0 +1,378 @@
+{
+  "timestamp": "2026-05-21T04:22:41.0864426Z",
+  "cli_dir": "\u003ccli-dir\u003e\\clockify-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "addons",
+      "file": "addons.go",
+      "line": 11,
+      "evidence": "Manage addons",
+      "status": "accepted",
+      "note": "Hidden parent grouper for addon-webhook subcommands; DO-NOT-EDIT generated file. Dispatch node, not a directly-invoked MCP tool."
+    },
+    {
+      "kind": "thin-short",
+      "command": "webhooks",
+      "file": "addons_webhooks.go",
+      "line": 11,
+      "evidence": "Manage webhooks",
+      "status": "accepted",
+      "note": "Hidden parent grouper for addon/account webhook subcommands; DO-NOT-EDIT generated file. Navigation node, not an agent-callable tool."
+    },
+    {
+      "kind": "thin-short",
+      "command": "approval-requests",
+      "file": "approval-requests.go",
+      "line": 11,
+      "evidence": "Manage approval requests",
+      "status": "accepted",
+      "note": "Hidden parent grouper for approval-request subcommands; DO-NOT-EDIT generated file. Routes to leaf verbs only."
+    },
+    {
+      "kind": "thin-short",
+      "command": "clients",
+      "file": "clients.go",
+      "line": 11,
+      "evidence": "Manage clients",
+      "status": "accepted",
+      "note": "Hidden parent grouper for client CRUD subcommands; DO-NOT-EDIT generated file. Agents call clients \u003cverb\u003e, never the grouper."
+    },
+    {
+      "kind": "thin-short",
+      "command": "custom-fields",
+      "file": "custom-fields.go",
+      "line": 11,
+      "evidence": "Manage custom fields",
+      "status": "accepted",
+      "note": "Hidden parent grouper for workspace custom-field subcommands; DO-NOT-EDIT generated file. Dispatch-only node."
+    },
+    {
+      "kind": "thin-short",
+      "command": "entities",
+      "file": "entities.go",
+      "line": 11,
+      "evidence": "Manage entities",
+      "status": "accepted",
+      "note": "Hidden parent grouper for entity subcommands; DO-NOT-EDIT generated file. Navigation node with no own action."
+    },
+    {
+      "kind": "thin-short",
+      "command": "expenses",
+      "file": "expenses.go",
+      "line": 11,
+      "evidence": "Manage expenses",
+      "status": "accepted",
+      "note": "Hidden parent grouper for expense subcommands; DO-NOT-EDIT generated file. Routes to expense leaf verbs."
+    },
+    {
+      "kind": "thin-short",
+      "command": "files",
+      "file": "expenses_files.go",
+      "line": 11,
+      "evidence": "Manage files",
+      "status": "accepted",
+      "note": "Hidden parent grouper for expense-file subcommands; DO-NOT-EDIT generated file. Routes to file leaf verbs."
+    },
+    {
+      "kind": "thin-short",
+      "command": "holidays",
+      "file": "holidays.go",
+      "line": 11,
+      "evidence": "Manage holidays",
+      "status": "accepted",
+      "note": "Hidden parent grouper for holiday subcommands; DO-NOT-EDIT generated file. Dispatch-only, not an MCP tool."
+    },
+    {
+      "kind": "thin-short",
+      "command": "invoices",
+      "file": "invoices.go",
+      "line": 11,
+      "evidence": "Manage invoices",
+      "status": "accepted",
+      "note": "Hidden parent grouper for invoice subcommands; DO-NOT-EDIT generated file. Agents invoke invoices \u003cverb\u003e."
+    },
+    {
+      "kind": "thin-short",
+      "command": "duplicate",
+      "file": "invoices_duplicate.go",
+      "line": 11,
+      "evidence": "Manage duplicate",
+      "status": "accepted",
+      "note": "Hidden parent grouper for invoice-duplicate subcommands; DO-NOT-EDIT generated file. Navigation node only."
+    },
+    {
+      "kind": "thin-short",
+      "command": "export",
+      "file": "invoices_export.go",
+      "line": 11,
+      "evidence": "Manage export",
+      "status": "accepted",
+      "note": "Hidden parent grouper for invoice-export subcommands; DO-NOT-EDIT generated file. Routes to export leaf verbs."
+    },
+    {
+      "kind": "thin-short",
+      "command": "items",
+      "file": "invoices_items.go",
+      "line": 11,
+      "evidence": "Manage items",
+      "status": "accepted",
+      "note": "Hidden parent grouper for invoice-item subcommands; DO-NOT-EDIT generated file. Dispatch-only node."
+    },
+    {
+      "kind": "thin-short",
+      "command": "payments",
+      "file": "invoices_payments.go",
+      "line": 11,
+      "evidence": "Manage payments",
+      "status": "accepted",
+      "note": "Hidden parent grouper for invoice-payment subcommands; DO-NOT-EDIT generated file. Navigation node, no own RunE action."
+    },
+    {
+      "kind": "thin-short",
+      "command": "status",
+      "file": "invoices_status.go",
+      "line": 11,
+      "evidence": "Manage status",
+      "status": "accepted",
+      "note": "Hidden parent grouper for invoice-status subcommands; DO-NOT-EDIT generated file. Routes to status leaf verbs."
+    },
+    {
+      "kind": "thin-short",
+      "command": "member-profile",
+      "file": "member-profile.go",
+      "line": 11,
+      "evidence": "Manage member profile",
+      "status": "accepted",
+      "note": "Hidden parent grouper for member-profile subcommands; DO-NOT-EDIT generated file. Dispatch-only node."
+    },
+    {
+      "kind": "thin-short",
+      "command": "projects",
+      "file": "projects.go",
+      "line": 11,
+      "evidence": "Manage projects",
+      "status": "accepted",
+      "note": "Hidden parent grouper for project subcommands; DO-NOT-EDIT generated file. Agents invoke projects \u003cverb\u003e."
+    },
+    {
+      "kind": "thin-short",
+      "command": "custom-fields",
+      "file": "projects_custom-fields.go",
+      "line": 11,
+      "evidence": "Manage custom fields",
+      "status": "accepted",
+      "note": "Hidden parent grouper for workspace custom-field subcommands; DO-NOT-EDIT generated file. Dispatch-only node."
+    },
+    {
+      "kind": "thin-short",
+      "command": "estimate",
+      "file": "projects_estimate.go",
+      "line": 11,
+      "evidence": "Manage estimate",
+      "status": "accepted",
+      "note": "Hidden parent grouper for project-estimate subcommands; DO-NOT-EDIT generated file. Routes to estimate leaf verbs."
+    },
+    {
+      "kind": "thin-short",
+      "command": "memberships",
+      "file": "projects_memberships.go",
+      "line": 11,
+      "evidence": "Manage memberships",
+      "status": "accepted",
+      "note": "Hidden parent grouper for project-membership subcommands; DO-NOT-EDIT generated file. Dispatch-only node."
+    },
+    {
+      "kind": "thin-short",
+      "command": "tasks",
+      "file": "projects_tasks.go",
+      "line": 11,
+      "evidence": "Manage tasks",
+      "status": "accepted",
+      "note": "Hidden parent grouper for project-task subcommands; DO-NOT-EDIT generated file. Navigation node, no own action."
+    },
+    {
+      "kind": "thin-short",
+      "command": "template",
+      "file": "projects_template.go",
+      "line": 11,
+      "evidence": "Manage template",
+      "status": "accepted",
+      "note": "Hidden parent grouper for project-template subcommands; DO-NOT-EDIT generated file. Routes to template leaf verbs."
+    },
+    {
+      "kind": "thin-short",
+      "command": "users",
+      "file": "projects_users.go",
+      "line": 11,
+      "evidence": "Manage users",
+      "status": "accepted",
+      "note": "Hidden parent grouper for project-user subcommands; DO-NOT-EDIT generated file. Dispatch-only node."
+    },
+    {
+      "kind": "thin-short",
+      "command": "scheduling",
+      "file": "scheduling.go",
+      "line": 11,
+      "evidence": "Manage scheduling",
+      "status": "accepted",
+      "note": "Hidden parent grouper for scheduling subcommands; DO-NOT-EDIT generated file. Navigation node only."
+    },
+    {
+      "kind": "thin-short",
+      "command": "tags",
+      "file": "tags.go",
+      "line": 11,
+      "evidence": "Manage tags",
+      "status": "accepted",
+      "note": "Hidden parent grouper for tag CRUD subcommands; DO-NOT-EDIT generated file. Agents invoke tags \u003cverb\u003e."
+    },
+    {
+      "kind": "thin-short",
+      "command": "templates",
+      "file": "templates.go",
+      "line": 11,
+      "evidence": "Manage templates",
+      "status": "accepted",
+      "note": "Hidden parent grouper for workspace-template subcommands; DO-NOT-EDIT generated file. Dispatch-only node."
+    },
+    {
+      "kind": "thin-short",
+      "command": "time-entries",
+      "file": "time-entries.go",
+      "line": 11,
+      "evidence": "Manage time entries",
+      "status": "accepted",
+      "note": "Hidden parent grouper for time-entry subcommands; DO-NOT-EDIT generated file. Navigation node, not agent-callable."
+    },
+    {
+      "kind": "thin-short",
+      "command": "time-off",
+      "file": "time-off.go",
+      "line": 11,
+      "evidence": "Manage time off",
+      "status": "accepted",
+      "note": "Hidden parent grouper for time-off subcommands; DO-NOT-EDIT generated file. Routes to time-off leaf verbs."
+    },
+    {
+      "kind": "thin-short",
+      "command": "user-groups",
+      "file": "user-groups.go",
+      "line": 11,
+      "evidence": "Manage user groups",
+      "status": "accepted",
+      "note": "Hidden parent grouper for user-group subcommands; DO-NOT-EDIT generated file. Dispatch-only node."
+    },
+    {
+      "kind": "thin-short",
+      "command": "users",
+      "file": "user-groups_users.go",
+      "line": 11,
+      "evidence": "Manage users",
+      "status": "accepted",
+      "note": "Hidden parent grouper for user-group-user subcommands; DO-NOT-EDIT generated file. Navigation node only."
+    },
+    {
+      "kind": "thin-short",
+      "command": "time-entries",
+      "file": "user_time-entries.go",
+      "line": 11,
+      "evidence": "Manage time entries",
+      "status": "accepted",
+      "note": "Hidden parent grouper for user time-entry subcommands; DO-NOT-EDIT generated file. Dispatch-only node."
+    },
+    {
+      "kind": "thin-short",
+      "command": "users",
+      "file": "users.go",
+      "line": 11,
+      "evidence": "Manage users",
+      "status": "accepted",
+      "note": "Hidden parent grouper for workspace-user subcommands; DO-NOT-EDIT generated file. Agents invoke users \u003cverb\u003e."
+    },
+    {
+      "kind": "thin-short",
+      "command": "cost-rate",
+      "file": "users_cost-rate.go",
+      "line": 11,
+      "evidence": "Manage cost rate",
+      "status": "accepted",
+      "note": "Hidden parent grouper for user cost-rate subcommands; DO-NOT-EDIT generated file. Navigation node only."
+    },
+    {
+      "kind": "thin-short",
+      "command": "custom-field",
+      "file": "users_custom-field.go",
+      "line": 11,
+      "evidence": "Manage custom field",
+      "status": "accepted",
+      "note": "Hidden parent grouper for user custom-field subcommands; DO-NOT-EDIT generated file. Routes to leaf verbs."
+    },
+    {
+      "kind": "thin-short",
+      "command": "hourly-rate",
+      "file": "users_hourly-rate.go",
+      "line": 11,
+      "evidence": "Manage hourly rate",
+      "status": "accepted",
+      "note": "Hidden parent grouper for user hourly-rate subcommands; DO-NOT-EDIT generated file. Dispatch-only node."
+    },
+    {
+      "kind": "thin-short",
+      "command": "managers",
+      "file": "users_managers.go",
+      "line": 11,
+      "evidence": "Manage managers",
+      "status": "accepted",
+      "note": "Hidden parent grouper for user-manager subcommands; DO-NOT-EDIT generated file. Navigation node, no own action."
+    },
+    {
+      "kind": "thin-short",
+      "command": "roles",
+      "file": "users_roles.go",
+      "line": 11,
+      "evidence": "Manage roles",
+      "status": "accepted",
+      "note": "Hidden parent grouper for user-role subcommands; DO-NOT-EDIT generated file. Routes to role leaf verbs."
+    },
+    {
+      "kind": "thin-short",
+      "command": "webhooks",
+      "file": "webhooks.go",
+      "line": 11,
+      "evidence": "Manage webhooks",
+      "status": "accepted",
+      "note": "Hidden parent grouper for addon/account webhook subcommands; DO-NOT-EDIT generated file. Navigation node, not an agent-callable tool."
+    },
+    {
+      "kind": "thin-short",
+      "command": "logs",
+      "file": "webhooks_logs.go",
+      "line": 11,
+      "evidence": "Manage logs",
+      "status": "accepted",
+      "note": "Hidden parent grouper for webhook-log subcommands; DO-NOT-EDIT generated file. Dispatch-only node."
+    },
+    {
+      "kind": "thin-short",
+      "command": "token",
+      "file": "webhooks_token.go",
+      "line": 11,
+      "evidence": "Manage token",
+      "status": "accepted",
+      "note": "Hidden parent grouper for webhook-token subcommands; DO-NOT-EDIT generated file. Navigation node only."
+    },
+    {
+      "kind": "thin-short",
+      "command": "workspaces",
+      "file": "workspaces.go",
+      "line": 11,
+      "evidence": "Manage workspaces",
+      "status": "accepted",
+      "note": "Hidden parent grouper for workspace subcommands; DO-NOT-EDIT generated file. Agents invoke workspaces \u003cverb\u003e."
+    }
+  ],
+  "progress": {
+    "last_processed_finding_id": "workspaces.go:11"
+  }
+}
