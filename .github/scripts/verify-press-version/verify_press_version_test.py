@@ -93,7 +93,7 @@ class PressVersionVerifierTest(unittest.TestCase):
 
         self.assertEqual(1, self.run_quiet(base))
 
-    def test_touched_cli_with_current_press_version_passes(self) -> None:
+    def test_new_cli_with_current_press_version_passes(self) -> None:
         base = self.commit_base()
         self.git("switch", "-c", "feature")
         self.write_manifest("library/cloud/new", "4.10.0")
@@ -122,6 +122,15 @@ class PressVersionVerifierTest(unittest.TestCase):
         self.assertEqual(1, len(problems))
         self.assertIn("go install github.com/mvanhorn/cli-printing-press/v4/cmd/cli-printing-press@latest", problems[0].message)
         self.assertIn("/cli-printing-press-publish", problems[0].message)
+
+    def test_absent_version_key_reports_not_set(self) -> None:
+        cli_dir = self.tmp / "library" / "cloud" / "missing-key"
+        self.write("library/cloud/missing-key/.printing-press.json", json.dumps({"api_name": "missing-key"}))
+
+        problems = verifier.validate_cli_dir(cli_dir)
+
+        self.assertEqual(1, len(problems))
+        self.assertIn("printing_press_version is not set", problems[0].message)
 
 
 if __name__ == "__main__":

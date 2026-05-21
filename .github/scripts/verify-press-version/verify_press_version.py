@@ -89,10 +89,17 @@ def parse_semver(value: object) -> tuple[int, int, int] | None:
 
 
 def upgrade_message(actual: object) -> str:
-    actual_display = actual if isinstance(actual, str) and actual else "missing"
+    if actual is None:
+        version_clause = "printing_press_version is not set"
+    elif not isinstance(actual, str) or not actual:
+        version_clause = f"printing_press_version {actual!r} is not a valid version"
+    else:
+        version_clause = (
+            f"printing_press_version {actual!r} is below the required "
+            f"cli-printing-press version v{MIN_PRESS_VERSION}"
+        )
     return (
-        f"printing_press_version {actual_display!r} is below the required cli-printing-press "
-        f"version v{MIN_PRESS_VERSION}. Upgrade the generator checkout and installed tooling, then "
+        f"{version_clause}. Upgrade the generator checkout and installed tooling, then "
         "re-run the print/publish step so this manifest records the new version. Required steps: "
         "git -C <cli-printing-press checkout> pull --ff-only; "
         "go install github.com/mvanhorn/cli-printing-press/v4/cmd/cli-printing-press@latest; "
