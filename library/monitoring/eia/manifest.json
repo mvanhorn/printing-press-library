@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "eia-pp-mcp",
+  "display_name": "Eia",
+  "version": "4.9.0",
+  "description": "Eia API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/eia-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/eia-pp-mcp",
+      "args": [],
+      "env": {
+        "EIA_API_KEY_QUERY": "${user_config.eia_api_key_query}"
+      }
+    }
+  },
+  "user_config": {
+    "eia_api_key_query": {
+      "type": "string",
+      "title": "EIA_API_KEY_QUERY",
+      "description": "Sets EIA_API_KEY_QUERY for the Eia MCP server. Get a credential from https://www.eia.gov/opendata/register.php.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

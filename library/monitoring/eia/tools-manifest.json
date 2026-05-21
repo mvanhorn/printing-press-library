@@ -1,0 +1,268 @@
+{
+  "api_name": "eia",
+  "base_url": "https://api.eia.gov/v2",
+  "description": "U.S. Energy Information Administration Open Data APIv2.\n\nDiscovery: GET /v2/{path}/ returns child routes, frequencies, facets,\nand data column metadata. Data fetch: GET /v2/{path}/data/ with\nfrequency, data[], facets[\u003cid\u003e][], start, end, sort, offset, length.\n\nAll data values are returned as strings since v2.1.6. The CLI handles\nthe conversion client-side.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "api_key",
+    "in": "query",
+    "env_vars": [
+      "EIA_API_KEY_QUERY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "EIA_API_KEY_QUERY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "key_url": "https://www.eia.gov/opendata/register.php"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "electricity_get-electric-power-operational-data",
+      "description": "Monthly/annual net generation, fuel consumption, stocks. Optional: facets[location], facets[sectorid], facets[fueltypeid]. Returns the DataEnvelope.",
+      "method": "GET",
+      "path": "/electricity/electric-power-operational-data/data/",
+      "params": [
+        {
+          "name": "facets[location]",
+          "type": "array",
+          "location": "query",
+          "description": "Facets location"
+        },
+        {
+          "name": "facets[sectorid]",
+          "type": "array",
+          "location": "query",
+          "description": "Facets sectorid"
+        },
+        {
+          "name": "facets[fueltypeid]",
+          "type": "array",
+          "location": "query",
+          "description": "Facets fueltypeid"
+        }
+      ]
+    },
+    {
+      "name": "electricity_get-retail-sales",
+      "description": "Electricity sales to ultimate customer by state and sector. Source: Forms EIA-826, EIA-861, EIA-861M. Default frequency monthly. Optional: facets[stateid], facets[sectorid], sort[0][column] (plus 1 more). Returns the DataEnvelope.",
+      "method": "GET",
+      "path": "/electricity/retail-sales/data/",
+      "params": [
+        {
+          "name": "facets[stateid]",
+          "type": "array",
+          "location": "query",
+          "description": "Facets stateid"
+        },
+        {
+          "name": "facets[sectorid]",
+          "type": "array",
+          "location": "query",
+          "description": "Facets sectorid"
+        },
+        {
+          "name": "sort[0][column]",
+          "type": "string",
+          "location": "query",
+          "description": "Sort 0 column"
+        },
+        {
+          "name": "sort[0][direction]",
+          "type": "string",
+          "location": "query",
+          "description": "Sort 0 direction"
+        }
+      ]
+    },
+    {
+      "name": "electricity_get-rto-fuel-type-data",
+      "description": "Hourly net generation by BA and fuel type. Optional: facets[respondent], facets[fueltype], sort[0][column] (plus 1 more). Returns the DataEnvelope.",
+      "method": "GET",
+      "path": "/electricity/rto/fuel-type-data/data/",
+      "params": [
+        {
+          "name": "facets[respondent]",
+          "type": "array",
+          "location": "query",
+          "description": "Facets respondent"
+        },
+        {
+          "name": "facets[fueltype]",
+          "type": "array",
+          "location": "query",
+          "description": "Facets fueltype"
+        },
+        {
+          "name": "sort[0][column]",
+          "type": "string",
+          "location": "query",
+          "description": "Sort 0 column"
+        },
+        {
+          "name": "sort[0][direction]",
+          "type": "string",
+          "location": "query",
+          "description": "Sort 0 direction"
+        }
+      ]
+    },
+    {
+      "name": "electricity_get-rto-region-data",
+      "description": "Hourly demand, net generation, interchange by BA. Optional: facets[respondent], facets[type]. Returns the DataEnvelope.",
+      "method": "GET",
+      "path": "/electricity/rto/region-data/data/",
+      "params": [
+        {
+          "name": "facets[respondent]",
+          "type": "array",
+          "location": "query",
+          "description": "Facets respondent"
+        },
+        {
+          "name": "facets[type]",
+          "type": "array",
+          "location": "query",
+          "description": "Facets type"
+        }
+      ]
+    },
+    {
+      "name": "natural-gas_get-futures-prices",
+      "description": "Natural gas futures and spot (Henry Hub) prices. Optional: facets[duoarea], facets[product], facets[process] (plus 1 more). Returns the DataEnvelope.",
+      "method": "GET",
+      "path": "/natural-gas/pri/fut/data/",
+      "params": [
+        {
+          "name": "facets[duoarea]",
+          "type": "array",
+          "location": "query",
+          "description": "Facets duoarea"
+        },
+        {
+          "name": "facets[product]",
+          "type": "array",
+          "location": "query",
+          "description": "Facets product"
+        },
+        {
+          "name": "facets[process]",
+          "type": "array",
+          "location": "query",
+          "description": "Facets process"
+        },
+        {
+          "name": "facets[series]",
+          "type": "array",
+          "location": "query",
+          "description": "Facets series"
+        }
+      ]
+    },
+    {
+      "name": "natural-gas_get-price-summary",
+      "description": "Natural gas price summary (citygate, residential, commercial, industrial, electric power). Optional: facets[duoarea], facets[product], facets[process] (plus 1 more). Returns the DataEnvelope.",
+      "method": "GET",
+      "path": "/natural-gas/pri/sum/data/",
+      "params": [
+        {
+          "name": "facets[duoarea]",
+          "type": "array",
+          "location": "query",
+          "description": "Facets duoarea"
+        },
+        {
+          "name": "facets[product]",
+          "type": "array",
+          "location": "query",
+          "description": "Facets product"
+        },
+        {
+          "name": "facets[process]",
+          "type": "array",
+          "location": "query",
+          "description": "Facets process"
+        },
+        {
+          "name": "facets[series]",
+          "type": "array",
+          "location": "query",
+          "description": "Facets series"
+        }
+      ]
+    },
+    {
+      "name": "petroleum_get-spot-prices",
+      "description": "Petroleum spot prices (WTI crude, Brent, RBOB, distillate). Optional: facets[duoarea], facets[product], facets[process] (plus 1 more). Returns the DataEnvelope.",
+      "method": "GET",
+      "path": "/petroleum/pri/spt/data/",
+      "params": [
+        {
+          "name": "facets[duoarea]",
+          "type": "array",
+          "location": "query",
+          "description": "Facets duoarea"
+        },
+        {
+          "name": "facets[product]",
+          "type": "array",
+          "location": "query",
+          "description": "Facets product"
+        },
+        {
+          "name": "facets[process]",
+          "type": "array",
+          "location": "query",
+          "description": "Facets process"
+        },
+        {
+          "name": "facets[series]",
+          "type": "array",
+          "location": "query",
+          "description": "Facets series"
+        }
+      ]
+    },
+    {
+      "name": "seds_get",
+      "description": "State Energy Data System (annual energy and CO2 by state). Optional: facets[seriesId], facets[stateId]. Returns the DataEnvelope.",
+      "method": "GET",
+      "path": "/seds/data/",
+      "params": [
+        {
+          "name": "facets[seriesId]",
+          "type": "array",
+          "location": "query",
+          "description": "Facets series id"
+        },
+        {
+          "name": "facets[stateId]",
+          "type": "array",
+          "location": "query",
+          "description": "Facets state id"
+        }
+      ]
+    },
+    {
+      "name": "steo_get",
+      "description": "Short Term Energy Outlook forecast series. Optional: facets[seriesId]. Returns the DataEnvelope.",
+      "method": "GET",
+      "path": "/steo/data/",
+      "params": [
+        {
+          "name": "facets[seriesId]",
+          "type": "array",
+          "location": "query",
+          "description": "Facets series id"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-21T02:27:20.450319Z",
+  "printing_press_version": "4.9.0",
+  "api_name": "eia",
+  "display_name": "Eia",
+  "cli_name": "eia-pp-cli",
+  "owner": "synota",
+  "printer": "synotaai",
+  "printer_name": "Hermes Bot",
+  "spec_path": "/Users/synota/printing-press/.runstate/printing-press-ae1f15eb/runs/20260520-221754/research/eia-openapi.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:61395fc5eadfaf99da76b1438d0a558712e1f867fa2ea52766cd298b8608e5f3",
+  "run_id": "20260520-221754",
+  "category": "monitoring",
+  "mcp_binary": "eia-pp-mcp",
+  "mcp_tool_count": 9,
+  "mcp_ready": "full",
+  "api_version": "2.1.12",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "EIA_API_KEY_QUERY"
+  ],
+  "auth_key_url": "https://www.eia.gov/opendata/register.php",
+  "novel_features": [
+    {
+      "name": "",
+      "command": "electricity retail-price",
+      "description": "Latest retail electricity price for a state, optionally pinned to a sector (residential/commercial/industrial/transportation)."
+    },
+    {
+      "name": "",
+      "command": "electricity rto",
+      "description": "BA-level operations: hourly demand/generation/interchange, or aggregated fuel-mix snapshot with --fuel-mix."
+    },
+    {
+      "name": "",
+      "command": "electricity generation",
+      "description": "Monthly net generation by state, optionally filtered by fuel type."
+    },
+    {
+      "name": "",
+      "command": "natgas price henry-hub",
+      "description": "Henry Hub natural gas spot price history."
+    },
+    {
+      "name": "",
+      "command": "natgas price spot",
+      "description": "State citygate / sector natural gas price."
+    },
+    {
+      "name": "",
+      "command": "petroleum price crude wti",
+      "description": "WTI Cushing crude oil spot price."
+    },
+    {
+      "name": "",
+      "command": "petroleum price crude brent",
+      "description": "Brent crude oil spot price."
+    },
+    {
+      "name": "",
+      "command": "steo forecast",
+      "description": "STEO forecast with friendly series aliases (natgas, oil, electricity, etc.)."
+    },
+    {
+      "name": "",
+      "command": "co2",
+      "description": "State CO2 emissions in million metric tons, aggregated across fuels within a sector."
+    },
+    {
+      "name": "",
+      "command": "series sync",
+      "description": "Walk priority EIA routes, populate local SQLite mirror of metadata + recent points."
+    },
+    {
+      "name": "",
+      "command": "series search",
+      "description": "FTS5 search across synced series metadata."
+    },
+    {
+      "name": "",
+      "command": "series list",
+      "description": "List synced series metadata."
+    }
+  ]
+}

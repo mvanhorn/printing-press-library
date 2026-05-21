@@ -1,0 +1,552 @@
+openapi: 3.0.3
+info:
+  title: EIA
+  version: "2.1.12"
+  description: |
+    U.S. Energy Information Administration Open Data APIv2.
+
+    Discovery: GET /v2/{path}/ returns child routes, frequencies, facets,
+    and data column metadata. Data fetch: GET /v2/{path}/data/ with
+    frequency, data[], facets[<id>][], start, end, sort, offset, length.
+
+    All data values are returned as strings since v2.1.6. The CLI handles
+    the conversion client-side.
+  contact:
+    name: EIA OpenData
+    url: https://www.eia.gov/opendata/
+servers:
+  - url: https://api.eia.gov/v2
+    description: Production
+security:
+  - apiKeyQuery: []
+components:
+  securitySchemes:
+    apiKeyQuery:
+      type: apiKey
+      in: query
+      name: api_key
+      description: |
+        Register for a free API key at https://www.eia.gov/opendata/register.php
+        and set PRINTING_PRESS_EIA_API_KEY in your environment.
+  schemas:
+    Frequency:
+      type: object
+      properties:
+        id: { type: string }
+        alias: { type: string }
+        description: { type: string }
+        query: { type: string }
+        format: { type: string }
+    Facet:
+      type: object
+      properties:
+        id: { type: string }
+        description: { type: string }
+    Route:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        description: { type: string }
+    DataPoint:
+      type: object
+      additionalProperties: true
+      properties:
+        period: { type: string }
+        value: { type: string }
+        units: { type: string }
+    DataEnvelope:
+      type: object
+      properties:
+        response:
+          type: object
+          properties:
+            warnings: { type: array, items: { type: string } }
+            total: { type: integer }
+            dateFormat: { type: string }
+            frequency: { type: string }
+            data:
+              type: array
+              items: { $ref: '#/components/schemas/DataPoint' }
+        request:
+          type: object
+        apiVersion: { type: string }
+    MetadataEnvelope:
+      type: object
+      properties:
+        response:
+          type: object
+          properties:
+            id: { type: string }
+            name: { type: string }
+            description: { type: string }
+            routes:
+              type: array
+              items: { $ref: '#/components/schemas/Route' }
+            frequency:
+              type: array
+              items: { $ref: '#/components/schemas/Frequency' }
+            facets:
+              type: array
+              items: { $ref: '#/components/schemas/Facet' }
+            startPeriod: { type: string }
+            endPeriod: { type: string }
+            defaultFrequency: { type: string }
+        apiVersion: { type: string }
+paths:
+  /:
+    get:
+      operationId: listRoutes
+      summary: List top-level routes
+      tags: [discover]
+      responses:
+        '200':
+          description: Top-level routes
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MetadataEnvelope' }
+  /{route}/:
+    get:
+      operationId: describeRoute
+      summary: Describe a route (frequencies, facets, data columns)
+      tags: [discover]
+      parameters:
+        - in: path
+          name: route
+          required: true
+          schema: { type: string }
+          description: Route path, e.g. electricity, electricity/retail-sales, natural-gas/pri/sum
+      responses:
+        '200':
+          description: Route metadata
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MetadataEnvelope' }
+  /electricity/retail-sales/data/:
+    get:
+      operationId: getElectricityRetailSales
+      summary: Retail electricity sales (price, sales, revenue, customers)
+      description: |
+        Electricity sales to ultimate customer by state and sector. Source:
+        Forms EIA-826, EIA-861, EIA-861M. Default frequency monthly.
+      tags: [electricity]
+      parameters:
+        - in: query
+          name: frequency
+          schema: { type: string, enum: [monthly, quarterly, annual] }
+        - in: query
+          name: data
+          style: form
+          explode: true
+          schema:
+            type: array
+            items: { type: string, enum: [revenue, sales, price, customers] }
+        - in: query
+          name: facets[stateid]
+          style: form
+          explode: true
+          schema: { type: array, items: { type: string } }
+        - in: query
+          name: facets[sectorid]
+          style: form
+          explode: true
+          schema: { type: array, items: { type: string } }
+        - in: query
+          name: start
+          schema: { type: string }
+        - in: query
+          name: end
+          schema: { type: string }
+        - in: query
+          name: sort[0][column]
+          schema: { type: string }
+        - in: query
+          name: sort[0][direction]
+          schema: { type: string, enum: [asc, desc] }
+        - in: query
+          name: offset
+          schema: { type: integer, minimum: 0 }
+        - in: query
+          name: length
+          schema: { type: integer, minimum: 1, maximum: 5000 }
+      responses:
+        '200':
+          description: Time series
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DataEnvelope' }
+  /electricity/rto/fuel-type-data/data/:
+    get:
+      operationId: getElectricityRtoFuelTypeData
+      summary: Hourly net generation by BA and fuel type
+      tags: [electricity]
+      parameters:
+        - in: query
+          name: frequency
+          schema: { type: string, enum: [hourly, local-hourly] }
+        - in: query
+          name: data
+          style: form
+          explode: true
+          schema: { type: array, items: { type: string, enum: [value] } }
+        - in: query
+          name: facets[respondent]
+          style: form
+          explode: true
+          schema: { type: array, items: { type: string } }
+        - in: query
+          name: facets[fueltype]
+          style: form
+          explode: true
+          schema: { type: array, items: { type: string } }
+        - in: query
+          name: start
+          schema: { type: string }
+        - in: query
+          name: end
+          schema: { type: string }
+        - in: query
+          name: sort[0][column]
+          schema: { type: string }
+        - in: query
+          name: sort[0][direction]
+          schema: { type: string, enum: [asc, desc] }
+        - in: query
+          name: offset
+          schema: { type: integer, minimum: 0 }
+        - in: query
+          name: length
+          schema: { type: integer, minimum: 1, maximum: 5000 }
+      responses:
+        '200':
+          description: Time series
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DataEnvelope' }
+  /electricity/rto/region-data/data/:
+    get:
+      operationId: getElectricityRtoRegionData
+      summary: Hourly demand, net generation, interchange by BA
+      tags: [electricity]
+      parameters:
+        - in: query
+          name: frequency
+          schema: { type: string, enum: [hourly, local-hourly] }
+        - in: query
+          name: data
+          style: form
+          explode: true
+          schema: { type: array, items: { type: string, enum: [value] } }
+        - in: query
+          name: facets[respondent]
+          style: form
+          explode: true
+          schema: { type: array, items: { type: string } }
+        - in: query
+          name: facets[type]
+          style: form
+          explode: true
+          schema:
+            type: array
+            items: { type: string, enum: [D, DF, NG, TI] }
+            description: D demand, DF day-ahead forecast, NG net generation, TI interchange
+        - in: query
+          name: start
+          schema: { type: string }
+        - in: query
+          name: end
+          schema: { type: string }
+        - in: query
+          name: offset
+          schema: { type: integer, minimum: 0 }
+        - in: query
+          name: length
+          schema: { type: integer, minimum: 1, maximum: 5000 }
+      responses:
+        '200':
+          description: Time series
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DataEnvelope' }
+  /electricity/electric-power-operational-data/data/:
+    get:
+      operationId: getElectricityElectricPowerOperationalData
+      summary: Monthly/annual net generation, fuel consumption, stocks
+      tags: [electricity]
+      parameters:
+        - in: query
+          name: frequency
+          schema: { type: string, enum: [monthly, quarterly, annual] }
+        - in: query
+          name: data
+          style: form
+          explode: true
+          schema: { type: array, items: { type: string } }
+        - in: query
+          name: facets[location]
+          style: form
+          explode: true
+          schema: { type: array, items: { type: string } }
+        - in: query
+          name: facets[sectorid]
+          style: form
+          explode: true
+          schema: { type: array, items: { type: string } }
+        - in: query
+          name: facets[fueltypeid]
+          style: form
+          explode: true
+          schema: { type: array, items: { type: string } }
+        - in: query
+          name: start
+          schema: { type: string }
+        - in: query
+          name: end
+          schema: { type: string }
+        - in: query
+          name: offset
+          schema: { type: integer, minimum: 0 }
+        - in: query
+          name: length
+          schema: { type: integer, minimum: 1, maximum: 5000 }
+      responses:
+        '200':
+          description: Time series
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DataEnvelope' }
+  /natural-gas/pri/sum/data/:
+    get:
+      operationId: getNaturalGasPriceSummary
+      summary: Natural gas price summary (citygate, residential, commercial, industrial, electric power)
+      tags: [natural-gas]
+      parameters:
+        - in: query
+          name: frequency
+          schema: { type: string, enum: [monthly, annual] }
+        - in: query
+          name: data
+          style: form
+          explode: true
+          schema: { type: array, items: { type: string, enum: [value] } }
+        - in: query
+          name: facets[duoarea]
+          style: form
+          explode: true
+          schema: { type: array, items: { type: string } }
+        - in: query
+          name: facets[product]
+          style: form
+          explode: true
+          schema: { type: array, items: { type: string } }
+        - in: query
+          name: facets[process]
+          style: form
+          explode: true
+          schema: { type: array, items: { type: string } }
+        - in: query
+          name: facets[series]
+          style: form
+          explode: true
+          schema: { type: array, items: { type: string } }
+        - in: query
+          name: start
+          schema: { type: string }
+        - in: query
+          name: end
+          schema: { type: string }
+        - in: query
+          name: offset
+          schema: { type: integer, minimum: 0 }
+        - in: query
+          name: length
+          schema: { type: integer, minimum: 1, maximum: 5000 }
+      responses:
+        '200':
+          description: Time series
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DataEnvelope' }
+  /natural-gas/pri/fut/data/:
+    get:
+      operationId: getNaturalGasFuturesPrices
+      summary: Natural gas futures and spot (Henry Hub) prices
+      tags: [natural-gas]
+      parameters:
+        - in: query
+          name: frequency
+          schema: { type: string, enum: [daily, weekly, monthly, annual] }
+        - in: query
+          name: data
+          style: form
+          explode: true
+          schema: { type: array, items: { type: string, enum: [value] } }
+        - in: query
+          name: facets[duoarea]
+          style: form
+          explode: true
+          schema: { type: array, items: { type: string } }
+        - in: query
+          name: facets[product]
+          style: form
+          explode: true
+          schema: { type: array, items: { type: string } }
+        - in: query
+          name: facets[process]
+          style: form
+          explode: true
+          schema: { type: array, items: { type: string } }
+        - in: query
+          name: facets[series]
+          style: form
+          explode: true
+          schema: { type: array, items: { type: string } }
+        - in: query
+          name: start
+          schema: { type: string }
+        - in: query
+          name: end
+          schema: { type: string }
+        - in: query
+          name: offset
+          schema: { type: integer, minimum: 0 }
+        - in: query
+          name: length
+          schema: { type: integer, minimum: 1, maximum: 5000 }
+      responses:
+        '200':
+          description: Time series
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DataEnvelope' }
+  /petroleum/pri/spt/data/:
+    get:
+      operationId: getPetroleumSpotPrices
+      summary: Petroleum spot prices (WTI crude, Brent, RBOB, distillate)
+      tags: [petroleum]
+      parameters:
+        - in: query
+          name: frequency
+          schema: { type: string, enum: [daily, weekly, monthly, annual] }
+        - in: query
+          name: data
+          style: form
+          explode: true
+          schema: { type: array, items: { type: string, enum: [value] } }
+        - in: query
+          name: facets[duoarea]
+          style: form
+          explode: true
+          schema: { type: array, items: { type: string } }
+        - in: query
+          name: facets[product]
+          style: form
+          explode: true
+          schema: { type: array, items: { type: string } }
+        - in: query
+          name: facets[process]
+          style: form
+          explode: true
+          schema: { type: array, items: { type: string } }
+        - in: query
+          name: facets[series]
+          style: form
+          explode: true
+          schema: { type: array, items: { type: string } }
+        - in: query
+          name: start
+          schema: { type: string }
+        - in: query
+          name: end
+          schema: { type: string }
+        - in: query
+          name: offset
+          schema: { type: integer, minimum: 0 }
+        - in: query
+          name: length
+          schema: { type: integer, minimum: 1, maximum: 5000 }
+      responses:
+        '200':
+          description: Time series
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DataEnvelope' }
+  /steo/data/:
+    get:
+      operationId: getSteo
+      summary: Short Term Energy Outlook forecast series
+      tags: [steo]
+      parameters:
+        - in: query
+          name: frequency
+          schema: { type: string, enum: [monthly, quarterly, annual] }
+        - in: query
+          name: data
+          style: form
+          explode: true
+          schema: { type: array, items: { type: string, enum: [value] } }
+        - in: query
+          name: facets[seriesId]
+          style: form
+          explode: true
+          schema: { type: array, items: { type: string } }
+        - in: query
+          name: start
+          schema: { type: string }
+        - in: query
+          name: end
+          schema: { type: string }
+        - in: query
+          name: offset
+          schema: { type: integer, minimum: 0 }
+        - in: query
+          name: length
+          schema: { type: integer, minimum: 1, maximum: 5000 }
+      responses:
+        '200':
+          description: STEO forecast
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DataEnvelope' }
+  /seds/data/:
+    get:
+      operationId: getSeds
+      summary: State Energy Data System (annual energy and CO2 by state)
+      tags: [seds]
+      parameters:
+        - in: query
+          name: frequency
+          schema: { type: string, enum: [annual] }
+        - in: query
+          name: data
+          style: form
+          explode: true
+          schema: { type: array, items: { type: string, enum: [value] } }
+        - in: query
+          name: facets[seriesId]
+          style: form
+          explode: true
+          schema: { type: array, items: { type: string } }
+        - in: query
+          name: facets[stateId]
+          style: form
+          explode: true
+          schema: { type: array, items: { type: string } }
+        - in: query
+          name: start
+          schema: { type: string }
+        - in: query
+          name: end
+          schema: { type: string }
+        - in: query
+          name: offset
+          schema: { type: integer, minimum: 0 }
+        - in: query
+          name: length
+          schema: { type: integer, minimum: 1, maximum: 5000 }
+      responses:
+        '200':
+          description: Annual SEDS data
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DataEnvelope' }
