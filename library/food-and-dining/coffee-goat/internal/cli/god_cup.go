@@ -163,44 +163,45 @@ func buildGodCupReport(db *store.Store, method string) (godCupReport, error) {
 		 FROM roaster_products rp
 		 WHERE rp.in_stock = 1`,
 	)
-	if err == nil {
-		defer mrows.Close()
-		var picks []godCupPick
-		for mrows.Next() {
-			var r, h, title, origin string
-			var inStock int
-			if err := mrows.Scan(&r, &h, &title, &origin, &inStock); err != nil {
-				continue
-			}
-			factors := map[string]float64{}
-			revScore := coffeeReviewScore(db, r, title)
-			creator := creatorCoverage(db, r)
-			factors["coffee_review_score"] = revScore / 100.0
-			factors["creator_coverage"] = creator
-			factors["novelty"] = 0.5 // weak prior
-			score := 0.15*(revScore/100.0) + 0.15*creator + 0.10*0.5
-			picks = append(picks, godCupPick{
-				Roaster: r, Handle: h, Title: title,
-				Score: score, Method: method,
-				Rationale: fmt.Sprintf("review=%.0f, creator-mentions=%v", revScore, creator > 0),
-				Factors:   factors,
-			})
+	if err != nil {
+		return report, fmt.Errorf("query buy-pick candidates: %w", err)
+	}
+	defer mrows.Close()
+	var picks []godCupPick
+	for mrows.Next() {
+		var r, h, title, origin string
+		var inStock int
+		if err := mrows.Scan(&r, &h, &title, &origin, &inStock); err != nil {
+			continue
 		}
-		if err := mrows.Err(); err != nil {
-			return report, fmt.Errorf("iterate buy-pick rows: %w", err)
-		}
-		sort.Slice(picks, func(i, j int) bool { return picks[i].Score > picks[j].Score })
-		if len(picks) > 0 {
-			top := picks[0]
-			// Suppress buy_pick when every real-signal factor is zero. With
-			// no Coffee Review score and no creator coverage, the surviving
-			// score is driven entirely by the constant novelty prior and a
-			// "recommendation" is not informative — let the notes field
-			// (e.g., "log 5+ brews to enable god-cup") carry the empty
-			// state alone, mirroring brew_pick: null.
-			if top.Factors["coffee_review_score"] > 0 || top.Factors["creator_coverage"] > 0 {
-				report.BuyPick = &top
-			}
+		factors := map[string]float64{}
+		revScore := coffeeReviewScore(db, r, title)
+		creator := creatorCoverage(db, r)
+		factors["coffee_review_score"] = revScore / 100.0
+		factors["creator_coverage"] = creator
+		factors["novelty"] = 0.5 // weak prior
+		score := 0.15*(revScore/100.0) + 0.15*creator + 0.10*0.5
+		picks = append(picks, godCupPick{
+			Roaster: r, Handle: h, Title: title,
+			Score: score, Method: method,
+			Rationale: fmt.Sprintf("review=%.0f, creator-mentions=%v", revScore, creator > 0),
+			Factors:   factors,
+		})
+	}
+	if err := mrows.Err(); err != nil {
+		return report, fmt.Errorf("iterate buy-pick rows: %w", err)
+	}
+	sort.Slice(picks, func(i, j int) bool { return picks[i].Score > picks[j].Score })
+	if len(picks) > 0 {
+		top := picks[0]
+		// Suppress buy_pick when every real-signal factor is zero. With
+		// no Coffee Review score and no creator coverage, the surviving
+		// score is driven entirely by the constant novelty prior and a
+		// "recommendation" is not informative — let the notes field
+		// (e.g., "log 5+ brews to enable god-cup") carry the empty
+		// state alone, mirroring brew_pick: null.
+		if top.Factors["coffee_review_score"] > 0 || top.Factors["creator_coverage"] > 0 {
+			report.BuyPick = &top
 		}
 	}
 

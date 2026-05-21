@@ -235,13 +235,27 @@ func newPredictRatingCalibrationCmd(flags *rootFlags) *cobra.Command {
 func predictForBean(db *store.Store, beanRef, method string) (predictedRating, error) {
 	method = strings.ToLower(strings.TrimSpace(method))
 	roaster, handle := splitRoasterHandle(beanRef)
-	// Load target feature row for similarity scoring.
-	ref, others, err := loadTwinCorpus(db, beanRef)
+	// loadTwinCorpus matches on plain handle / title / roaster slug — it does
+	// not understand the "roaster/handle" composite form. Pass the handle
+	// component when the caller gave us roaster/handle so the match can
+	// actually fire.
+	lookup := beanRef
+	if handle != "" {
+		lookup = handle
+	}
+	ref, others, err := loadTwinCorpus(db, lookup)
 	if err != nil {
 		return predictedRating{}, err
 	}
 	if ref.Handle == "" {
 		return predictedRating{}, notFoundErr(fmt.Errorf("predict-rating: bean %q not found in roaster_products", beanRef))
+	}
+	// When the caller named a specific roaster (the slash form), require the
+	// matched ref to come from that roaster. Otherwise an ambiguous handle
+	// shared across roasters would silently resolve to whichever row came
+	// first in the corpus scan.
+	if roaster != "" && !strings.EqualFold(ref.Roaster, roaster) {
+		return predictedRating{}, notFoundErr(fmt.Errorf("predict-rating: bean %q not found in roaster_products (handle %q exists but not under roaster %q)", beanRef, handle, roaster))
 	}
 	// Find which of `others` you've brewed and pull their ratings + methods.
 	brewedByHandle, err := loadUserBrewedByHandle(db, method)
