@@ -48,6 +48,17 @@ func Geocode(ctx context.Context, location string) (*Bbox, error) {
 	return defaultClient.Geocode(ctx, location)
 }
 
+// SetRate adjusts the rate-limit cap on the package-global default client.
+// rps <= 0 disables rate limiting. Any positive value sets the new cap and
+// resets the adaptive-ramp state. Safe to call concurrently with in-flight
+// requests; the limiter instance is preserved across the rate change so the
+// OnRateLimit / OnSuccess history is not lost. Intended to be wired from
+// rootCmd.PersistentPreRunE when the user explicitly passes --rate-limit;
+// when the flag is unset, the existing 0.5 rps baseline is kept.
+func SetRate(rps float64) {
+	defaultClient.limiter.SetRate(rps)
+}
+
 func (c *Client) Search(ctx context.Context, params SearchParams) ([]Listing, *Pagination, error) {
 	slug := params.Slug
 	if slug == "" {
