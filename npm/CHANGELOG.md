@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.6
+
+- Rename the npm package and command to `@mvanhorn/printing-press-library` / `printing-press-library` so the public catalog installer is unambiguous and does not collide with the Printing Press generator concept.
+- Make `printing-press-library list` a public catalog discovery command by default, showing every available CLI with its category, binary name, and description. The previous installed-only view remains available as `printing-press-library list --installed`.
+- Add `printing-press-library list --category <category>` for quick category browsing.
+
 ## 0.1.5
 
 - Survive malformed upstream registry entries instead of aborting the whole parse. `parseRegistry` now skips entries that fail per-entry validation, writes a one-line warning to stderr naming the offending slug + field, and returns the rest of the catalog intact. Registry-level shape failures (wrong `schema_version`, non-array `entries`) still throw. This is the defense-in-depth pair for the library-side `--validate` gate (see `tools/generate-registry --validate` and `verify-library-conventions.yml`) so a single broken upstream entry — lawhub-shape — can never wedge every `install` / `search` / `list` / `update` call again.

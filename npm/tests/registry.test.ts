@@ -43,6 +43,7 @@ test("lookupByName matches normalized CLI and API names", () => {
   });
 
   assert.equal(lookupByName(registry, "yahoo-finance")?.path, "library/finance/yahoo-finance");
+  assert.equal(lookupByName(registry, "yahoo-finance-pp-cli")?.path, "library/finance/yahoo-finance");
   assert.equal(lookupByName(registry, "pp-yahoo-finance")?.path, "library/finance/yahoo-finance");
   assert.equal(lookupByName(registry, "Yahoo Finance")?.path, "library/finance/yahoo-finance");
   assert.equal(lookupByName(registry, "missing"), null);

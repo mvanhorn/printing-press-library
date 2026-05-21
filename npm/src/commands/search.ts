@@ -1,4 +1,5 @@
 import { DEFAULT_REGISTRY_URL, fetchRegistry, type Registry, type RegistryEntry } from "../registry.js";
+import { renderCatalogEntries } from "../format.js";
 
 interface SearchDeps {
   fetchRegistry: (url: string) => Promise<Registry>;
@@ -18,7 +19,7 @@ export function createSearchCommand(overrides: Partial<SearchDeps> = {}) {
     const parsed = parseSearchArgs(args);
     if ("error" in parsed) {
       deps.stderr(parsed.error);
-      deps.stderr("Usage: pp search <query> [--json]");
+      deps.stderr("Usage: printing-press-library search <query> [--json]");
       return 1;
     }
 
@@ -35,8 +36,8 @@ export function createSearchCommand(overrides: Partial<SearchDeps> = {}) {
       return 0;
     }
 
-    for (const entry of matches) {
-      deps.stdout(`${entry.name}\t${entry.category}\t${entry.description}`);
+    for (const line of renderCatalogEntries(matches)) {
+      deps.stdout(line);
     }
     return 0;
   };

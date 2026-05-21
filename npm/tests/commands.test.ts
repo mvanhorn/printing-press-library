@@ -29,7 +29,31 @@ const registry: Registry = {
 
 const ok = (stdout = ""): RunResult => ({ code: 0, stdout, stderr: "" });
 
-test("list command reports installed CLIs", async () => {
+test("list command reports catalog CLIs by default", async () => {
+  const stdout: string[] = [];
+  const command = createListCommand({
+    fetchRegistry: async () => registry,
+    stdout: (message) => stdout.push(message),
+  });
+
+  assert.equal(await command([]), 0);
+  assert.match(stdout.join("\n"), /espn-pp-cli/);
+  assert.match(stdout.join("\n"), /dominos-pp-cli/);
+});
+
+test("list command can filter catalog CLIs by category", async () => {
+  const stdout: string[] = [];
+  const command = createListCommand({
+    fetchRegistry: async () => registry,
+    stdout: (message) => stdout.push(message),
+  });
+
+  assert.equal(await command(["--category", "sports"]), 0);
+  assert.match(stdout.join("\n"), /espn-pp-cli/);
+  assert.doesNotMatch(stdout.join("\n"), /dominos/);
+});
+
+test("list command reports installed CLIs with --installed", async () => {
   const stdout: string[] = [];
   const command = createListCommand({
     fetchRegistry: async () => registry,
@@ -38,7 +62,7 @@ test("list command reports installed CLIs", async () => {
     stdout: (message) => stdout.push(message),
   });
 
-  assert.equal(await command([]), 0);
+  assert.equal(await command(["--installed"]), 0);
   assert.match(stdout.join("\n"), /espn-pp-cli/);
   assert.doesNotMatch(stdout.join("\n"), /dominos/);
 });

@@ -77,7 +77,7 @@ export function createInstallCommand(overrides: Partial<InstallDeps> = {}) {
     const parsed = parseInstallArgs(args);
     if ("error" in parsed) {
       deps.stderr(parsed.error);
-      deps.stderr("Usage: printing-press install <name|bundle>... [--agent <agent>...] [--json]");
+      deps.stderr("Usage: printing-press-library install <name|bundle>... [--agent <agent>...] [--json]");
       return 1;
     }
 
@@ -117,7 +117,7 @@ async function installOne(
 ): Promise<InstallOutcome> {
   const entry = lookupByName(registry, name);
   if (!entry) {
-    deps.stderr(`No Printing Press CLI found for "${name}". Try \`printing-press search ${name}\`.`);
+    deps.stderr(`No Printing Press CLI found for "${name}". Try \`printing-press-library search ${name}\`.`);
     return { ok: false, name, error: "not in catalog" };
   }
 

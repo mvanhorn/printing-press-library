@@ -66,14 +66,14 @@ export function parseRegistry(
           ? raw.name
           : `(unnamed at index ${i})`;
       const message = error instanceof Error ? error.message : String(error);
-      warn(`[printing-press] skipping malformed registry entry: ${name}: ${message}`);
+      warn(`[printing-press-library] skipping malformed registry entry: ${name}: ${message}`);
       skipped++;
     }
   }
   if (skipped > 0) {
     const word = skipped === 1 ? "entry" : "entries";
     warn(
-      `[printing-press] skipped ${skipped} malformed registry ${word}; install/search may be missing items.`,
+      `[printing-press-library] skipped ${skipped} malformed registry ${word}; install/search may be missing items.`,
     );
   }
 
