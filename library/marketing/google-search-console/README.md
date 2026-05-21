@@ -277,6 +277,41 @@ These capabilities aren't available in any other tool for this API.
   google-search-console-pp-cli new-queries sc-domain:example.com --since 28d --min-imps 50 --top 100 --json
   ```
 
+### Crawl Stats (URL samples, time-series, totals)
+
+The Crawl Stats report (Settings > Crawl stats in the GSC web UI) exposes
+per-URL sample lists, time-series, and aggregate stats broken down by
+file type, response code, Googlebot crawler, and purpose. **None of this is
+in the public Search Console v1 API** — the CLI calls a private internal
+`batchexecute` endpoint reverse-engineered from a logged-in Chrome session.
+
+Auth is **separate** from the OAuth flow used by every other command in
+this CLI. You point the CLI at a Netscape-format cookie jar exported from
+your Chrome profile. Run `auth login --chrome` for export instructions.
+
+- **`crawl-stats list`** — overview view (no drill-down filter).
+- **`crawl-stats by-type --file-type <html|css|js|image|video|pdf|other|unknown>`** — drill down by file type.
+- **`crawl-stats by-response --response-code <ok|not-found|server-error|...>`** — drill down by Googlebot response code (18 values).
+- **`crawl-stats by-googlebot --googlebot <smartphone|desktop|image|adsbot|...>`** — drill down by crawler type.
+- **`crawl-stats by-purpose --purpose <discovery|refresh>`** — drill down by purpose.
+- **`crawl-stats union`** — read the deduplicated union of all polled samples from the local SQLite store. Each live poll caps at ~1000 URLs (Google's limit), so unioning across polls is the only way to build a larger corpus.
+
+  ```bash
+  # One-time setup
+  google-search-console-pp-cli auth login --chrome --cookie-jar-path ~/gsc-cookies.txt
+  export GSC_XSRF_TOKEN=<the `at=` field from a GSC batchexecute POST>
+
+  # Poll CSS samples and persist to local store
+  google-search-console-pp-cli crawl-stats by-type sc-domain:example.com \
+    --file-type css --json --top 1000
+
+  # Read the unioned set across all polls (no network call)
+  google-search-console-pp-cli crawl-stats union sc-domain:example.com --file-type css --json
+  ```
+
+  Cookies typically expire every ~2 weeks. When a crawl-stats command
+  returns HTTP 401/403, re-export the jar and re-point `GSC_COOKIE_JAR`.
+
 ## Cookbook
 
 End-to-end recipes that combine multiple commands. Every flag below is verified against the running CLI -- no guessed names.

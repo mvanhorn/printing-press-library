@@ -10,11 +10,20 @@ package cli
 import (
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/marketing/google-search-console/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/marketing/google-search-console/internal/config"
 	"github.com/spf13/cobra"
 )
+
+// PATCH(crawl-stats): one-line shim so the auth-status cookie-jar helper
+// doesn't need to import the client package directly at every call site.
+// Kept here (not in helpers.go) because it's auth-surface-specific.
+func clientLoadJar(path string) (*client.CookieJarFile, error) {
+	return client.LoadNetscapeCookieJar(path)
+}
 
 func newAuthCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
@@ -63,6 +72,25 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 				}
 			}
 
+			// PATCH(crawl-stats): surface cookie-jar state alongside the OAuth
+			// state so users can tell at a glance whether the crawl-stats
+			// surface is configured. The two paths are independent.
+			cookieJarPath := cfg.CrawlStatsCookieJar
+			cookieJarStatus := "not configured"
+			cookieJarMissing := []string{}
+			if cookieJarPath != "" {
+				if jar, jerr := loadCrawlStatsCookieJarStatus(cookieJarPath); jerr == nil {
+					cookieJarMissing = jar
+					if len(jar) == 0 {
+						cookieJarStatus = "complete"
+					} else {
+						cookieJarStatus = fmt.Sprintf("incomplete (%d cookies missing)", len(jar))
+					}
+				} else {
+					cookieJarStatus = "unreadable: " + jerr.Error()
+				}
+			}
+
 			if flags.asJSON {
 				out := map[string]any{
 					"authenticated":       authed,
@@ -72,6 +100,13 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 					"has_refresh_token":   cfg.RefreshToken != "",
 					"access_token_expiry": expiryStr,
 					"expires_in":          expiresIn,
+					// PATCH(crawl-stats): independent auth surface for the
+					// Crawl Stats UI endpoints. OAuth is sufficient for the
+					// public Search Console v1 API, but the private Crawl
+					// Stats endpoints need cookie-jar auth instead.
+					"crawl_stats_cookie_jar":         cookieJarPath,
+					"crawl_stats_cookie_jar_status":  cookieJarStatus,
+					"crawl_stats_cookie_jar_missing": cookieJarMissing,
 				}
 				if printErr := printJSONFiltered(w, out, flags); printErr != nil {
 					return printErr
@@ -101,6 +136,20 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 			if expiryStr != "" {
 				fmt.Fprintf(w, "  Token expiry:     %s (%s)\n", expiryStr, expiresIn)
 			}
+			// PATCH(crawl-stats): render the separate cookie-jar surface so
+			// users immediately know whether Crawl Stats commands will work.
+			fmt.Fprintln(w, "")
+			fmt.Fprintln(w, bold("Crawl Stats cookie-jar surface (separate from OAuth):"))
+			if cookieJarPath == "" {
+				fmt.Fprintln(w, "  Path:             "+yellow("not configured"))
+				fmt.Fprintln(w, "  Status:           run `auth login --chrome` to set up")
+			} else {
+				fmt.Fprintf(w, "  Path:             %s\n", cookieJarPath)
+				fmt.Fprintf(w, "  Status:           %s\n", cookieJarStatus)
+				if len(cookieJarMissing) > 0 {
+					fmt.Fprintf(w, "  Missing cookies:  %s\n", strings.Join(cookieJarMissing, ", "))
+				}
+			}
 			if cfg.AuthSource == "env:GSC_ACCESS_TOKEN" && cfg.RefreshToken == "" {
 				fmt.Fprintln(w, "")
 				fmt.Fprintln(w, yellow("Note: GSC_ACCESS_TOKEN is set but there's no refresh token, so the next call will fail when this token expires."))
@@ -109,6 +158,18 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 			return nil
 		},
 	}
+}
+
+// PATCH(crawl-stats): helper that loads a cookie jar and returns the list of
+// missing required cookies (empty when the jar is complete). Returns an error
+// when the jar file is unreadable. Used by `auth status` to summarize the
+// crawl-stats auth surface without printing cookie values themselves.
+func loadCrawlStatsCookieJarStatus(path string) ([]string, error) {
+	jar, err := clientLoadJar(path)
+	if err != nil {
+		return nil, err
+	}
+	return jar.MissingCookies(), nil
 }
 
 func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {

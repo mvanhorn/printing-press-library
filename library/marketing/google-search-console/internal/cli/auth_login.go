@@ -50,9 +50,11 @@ const loginTimeout = 5 * time.Minute
 
 func newAuthLoginCmd(flags *rootFlags) *cobra.Command {
 	var (
-		scope     string
-		noBrowser bool
-		port      int
+		scope         string
+		noBrowser     bool
+		port          int
+		chromeMode    bool
+		cookieJarPath string
 	)
 	cmd := &cobra.Command{
 		Use:   "login",
@@ -67,7 +69,12 @@ when it expires.
 
 Prerequisite: run ` + "`gsc auth set-client <client_id> <client_secret>`" + ` once
 to register your Google Cloud OAuth client. See README.md for the 5-minute
-Google Cloud Console setup walkthrough.`,
+Google Cloud Console setup walkthrough.
+
+CRAWL STATS NOTE: the OAuth flow above does NOT authenticate against the
+private Crawl Stats endpoints (Settings > Crawl stats). Those need Google
+web session cookies. Run ` + "`auth login --chrome`" + ` to set up that path —
+the OAuth surface and the cookie-jar surface coexist; you can run both.`,
 		Example: `  # Default (readonly scope)
   google-search-console-pp-cli auth login
 
@@ -75,15 +82,109 @@ Google Cloud Console setup walkthrough.`,
   google-search-console-pp-cli auth login --scope write
 
   # SSH/headless: print URL, don't try to open a browser
-  google-search-console-pp-cli auth login --no-browser`,
+  google-search-console-pp-cli auth login --no-browser
+
+  # Crawl Stats cookie-jar setup (prints export instructions)
+  google-search-console-pp-cli auth login --chrome
+
+  # Crawl Stats cookie-jar setup (record a jar path you already exported)
+  google-search-console-pp-cli auth login --chrome --cookie-jar-path ~/cookies.txt`,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// PATCH(crawl-stats): --chrome flag short-circuits the OAuth flow
+			// and configures the cookie-jar path used by the crawl-stats
+			// command surface. The two auth paths are independent — calling
+			// `auth login` later with no flags still runs OAuth as before.
+			if chromeMode {
+				return runAuthLoginChrome(cmd, flags, cookieJarPath)
+			}
 			return runAuthLogin(cmd, flags, scope, noBrowser, port)
 		},
 	}
 	cmd.Flags().StringVar(&scope, "scope", "readonly", "Scope to request: readonly | write")
 	cmd.Flags().BoolVar(&noBrowser, "no-browser", false, "Don't try to open the browser — print the URL only")
 	cmd.Flags().IntVar(&port, "port", 0, "Loopback port (0 = OS-assigned, recommended)")
+	// PATCH(crawl-stats): chrome cookie-jar setup mode (separate auth surface).
+	cmd.Flags().BoolVar(&chromeMode, "chrome", false, "Set up cookie-jar auth for the Crawl Stats surface (prints export instructions; pair with --cookie-jar-path to persist a jar path)")
+	cmd.Flags().StringVar(&cookieJarPath, "cookie-jar-path", "", "Path to a Netscape-format cookie jar (used with --chrome to persist the path in config)")
 	return cmd
+}
+
+// PATCH(crawl-stats): runAuthLoginChrome configures the cookie-jar auth path
+// used by the `crawl-stats` command tree. The OAuth flow does NOT
+// authenticate against the private SearchConsoleAggReportUi endpoints; this
+// command documents the manual cookie export from Chrome and (optionally)
+// persists a jar path to config. Manual capture is required for v0.2;
+// in-process Chrome driving is deferred to v0.3.
+func runAuthLoginChrome(cmd *cobra.Command, flags *rootFlags, cookieJarPath string) error {
+	cfg, err := config.Load(flags.configPath)
+	if err != nil {
+		return configErr(err)
+	}
+
+	if cookieJarPath != "" {
+		cfg.CrawlStatsCookieJar = cookieJarPath
+		if err := cfg.SaveClient(cfg.ClientID, cfg.ClientSecret); err != nil {
+			// SaveClient just writes the entire config; the OAuth-flavored
+			// name is incidental. Use it as the simplest persistence path.
+			return configErr(fmt.Errorf("persisting cookie jar path to config: %w", err))
+		}
+		fmt.Fprintf(cmd.OutOrStdout(),
+			"Cookie jar path saved to %s.\n  crawl_stats_cookie_jar = %q\n\n"+
+				"Verify with: google-search-console-pp-cli auth status\n",
+			cfg.Path, cookieJarPath)
+		return nil
+	}
+
+	w := cmd.OutOrStdout()
+	fmt.Fprintln(w, "Crawl Stats cookie-jar auth setup (manual capture, v0.2)")
+	fmt.Fprintln(w, "")
+	fmt.Fprintln(w, "The public Search Console v1 API does NOT expose the Crawl Stats")
+	fmt.Fprintln(w, "report's URL samples. The CLI calls Google's private internal")
+	fmt.Fprintln(w, "endpoint at search.google.com/_/SearchConsoleAggReportUi/data/batchexecute,")
+	fmt.Fprintln(w, "which requires the seven Google web session cookies:")
+	fmt.Fprintln(w, "")
+	fmt.Fprintln(w, "  SAPISID, __Secure-1PSID, __Secure-3PSID,")
+	fmt.Fprintln(w, "  SID, HSID, SSID, APISID")
+	fmt.Fprintln(w, "")
+	fmt.Fprintln(w, "How to capture them (one-time, takes ~2 minutes):")
+	fmt.Fprintln(w, "")
+	fmt.Fprintln(w, "  1. In Chrome, install the \"Get cookies.txt LOCALLY\" extension")
+	fmt.Fprintln(w, "     (or any Netscape-format cookie exporter you trust).")
+	fmt.Fprintln(w, "  2. Sign in to https://search.google.com/search-console with the")
+	fmt.Fprintln(w, "     Google account that owns the property you want crawl-stats for.")
+	fmt.Fprintln(w, "  3. With that tab focused, click the extension and export cookies")
+	fmt.Fprintln(w, "     filtered to .google.com to a file (e.g. ~/gsc-cookies.txt).")
+	fmt.Fprintln(w, "  4. Tell the CLI where the file lives:")
+	fmt.Fprintln(w, "")
+	fmt.Fprintln(w, "       google-search-console-pp-cli auth login --chrome \\")
+	fmt.Fprintln(w, "         --cookie-jar-path ~/gsc-cookies.txt")
+	fmt.Fprintln(w, "")
+	fmt.Fprintln(w, "     ...or set GSC_COOKIE_JAR=~/gsc-cookies.txt in your shell.")
+	fmt.Fprintln(w, "")
+	fmt.Fprintln(w, "  5. You also need the XSRF token (the `at=` form field) from the")
+	fmt.Fprintln(w, "     GSC HTML on first call. Open DevTools > Network > any")
+	fmt.Fprintln(w, "     batchexecute POST > Payload, copy the `at` value, then:")
+	fmt.Fprintln(w, "")
+	fmt.Fprintln(w, "       export GSC_XSRF_TOKEN=<value>")
+	fmt.Fprintln(w, "")
+	fmt.Fprintln(w, "  6. Verify with:")
+	fmt.Fprintln(w, "")
+	fmt.Fprintln(w, "       google-search-console-pp-cli crawl-stats list \\")
+	fmt.Fprintln(w, "         sc-domain:your-property.com --dry-run")
+	fmt.Fprintln(w, "")
+	fmt.Fprintln(w, "Cookies expire roughly every ~2 weeks; you'll know they're stale")
+	fmt.Fprintln(w, "when a crawl-stats command returns HTTP 401/403. Re-export and")
+	fmt.Fprintln(w, "re-point GSC_COOKIE_JAR at the new file.")
+	fmt.Fprintln(w, "")
+	fmt.Fprintln(w, "Automated cookie capture (Chrome-driven) is on the roadmap for")
+	fmt.Fprintln(w, "v0.3 of this CLI.")
+	if cfg.CrawlStatsCookieJar != "" {
+		fmt.Fprintf(w, "\nCurrent cookie jar path in config: %s\n", cfg.CrawlStatsCookieJar)
+	}
+	// strings is imported elsewhere in this file; reference it so the
+	// unused-import linter doesn't complain if it's only used by login proper.
+	_ = strings.ToLower
+	return nil
 }
 
 func runAuthLogin(cmd *cobra.Command, flags *rootFlags, scopeArg string, noBrowser bool, port int) error {

@@ -25,6 +25,13 @@ type Config struct {
 	ClientID      string            `toml:"client_id"`
 	ClientSecret  string            `toml:"client_secret"`
 	Path          string            `toml:"-"`
+
+	// PATCH(crawl-stats): path to a Netscape-format cookie jar carrying
+	// the seven Google session cookies needed by the private
+	// SearchConsoleAggReportUi.batchexecute endpoint. The Crawl Stats
+	// surface auth-checks against cookies, not the OAuth bearer token;
+	// the two surfaces coexist. Override via GSC_COOKIE_JAR env var.
+	CrawlStatsCookieJar string `toml:"crawl_stats_cookie_jar"`
 }
 
 func Load(configPath string) (*Config, error) {
@@ -77,6 +84,13 @@ func Load(configPath string) (*Config, error) {
 	// Base URL override (used by printing-press verify to point at mock/test servers)
 	if v := os.Getenv("GOOGLE_SEARCH_CONSOLE_BASE_URL"); v != "" {
 		cfg.BaseURL = v
+	}
+
+	// PATCH(crawl-stats): env override for the cookie-jar path. Env wins so
+	// CI/agent environments can drop a jar at /tmp/cookies.txt without
+	// touching the persisted config file.
+	if v := os.Getenv("GSC_COOKIE_JAR"); v != "" {
+		cfg.CrawlStatsCookieJar = v
 	}
 	return cfg, nil
 }

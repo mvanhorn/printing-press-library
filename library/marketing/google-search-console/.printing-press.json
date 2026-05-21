@@ -65,6 +65,11 @@
       "name": "New queries arriving",
       "command": "new-queries",
       "description": "Queries that started showing up with impressions in the last N days but didn't exist in the corpus before -- emerging demand."
+    },
+    {
+      "name": "Crawl Stats (URL samples + drill-down)",
+      "command": "crawl-stats",
+      "description": "Pull URL samples, time-series, and totals from the GSC Crawl Stats UI (Settings > Crawl stats) -- not in the public Search Console v1 API. Drill down by file type, response code, Googlebot crawler, or purpose; union samples across multiple polls in local SQLite to escape the ~1000-sample-per-poll cap."
     }
   ],
   "printer": "bossriceshark",

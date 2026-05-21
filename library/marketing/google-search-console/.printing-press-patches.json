@@ -46,6 +46,32 @@
         "internal/client/client.go"
       ],
       "validated_outcome": "After fix: 21-day sync persists 23,250 rows, quick-wins/cliff/compare/historical all return real data. Response cache .json files now live in `~/.cache/<cli>/responses/` while store.db lives at `~/.cache/<cli>/store.db`. POST requests safely invalidate only response JSON."
+    },
+    {
+      "id": "crawl-stats",
+      "date": "2026-05-21",
+      "amend_run_id": "amend-2026-05-21T1402",
+      "summary": "Add the `crawl-stats` command tree wrapping Google Search Console's Crawl Stats UI (URL samples, time-series, totals). Calls the private SearchConsoleAggReportUi.batchexecute endpoint reverse-engineered via chrome-MCP capture; not in the public Search Console v1 API.",
+      "reason": "The Crawl Stats UI under Settings > Crawl stats exposes per-URL sample lists, time-series, and totals that are NOT in the public Search Console v1 API. The endpoint behind that UI is reachable from outside the browser as long as the caller supplies the seven Google web session cookies plus the SAPISIDHASH header. This patch adds: a Cobra command tree (list/by-type/by-response/by-googlebot/by-purpose/union); an HTTP client that builds the batchexecute payload from typed dimension+code inputs; a SAPISIDHASH primitive and a Netscape cookie-jar reader; SQLite tables for samples/totals/time-series so the user can union URL samples across multiple ~1000-cap polls; an `auth login --chrome` setup path that prints export instructions and persists the jar path; cookie-jar surface state surfaced via `auth status`. The two auth surfaces (existing OAuth bearer token + new cookie jar) coexist.",
+      "files": [
+        "internal/cli/crawl_stats.go",
+        "internal/cli/root.go",
+        "internal/cli/auth.go",
+        "internal/cli/auth_login.go",
+        "internal/client/crawlstats.go",
+        "internal/client/sapisidhash.go",
+        "internal/client/sapisidhash_test.go",
+        "internal/client/cookiejar.go",
+        "internal/store/crawl_stats.go",
+        "internal/store/store.go",
+        "internal/config/config.go",
+        "README.md",
+        ".printing-press.json",
+        ".printing-press-patches.json"
+      ],
+      "findings_addressed": ["F1", "F2", "F3", "F4", "F6", "F7", "F8", "F9", "F10"],
+      "patch_count": 12,
+      "validated_outcome": "go build ./..., go vet ./... clean. New `client/sapisidhash_test.go` passes against canonical SHA1 reference value. `crawl-stats by-type ... --dry-run --json` prints the constructed batchexecute payload matching the discovery-report shape byte-for-byte (file_type=css yields filter code 5 at envelope index 8). `auth status --json` reports the new `crawl_stats_cookie_jar` + `crawl_stats_cookie_jar_status` fields. `cli-printing-press publish validate` PASSES every check except (a) `verify-skill` SKILL.md install-section drift, which is pre-existing on main (verified by re-running the same check on a clean main checkout — fails identically). Live testing is deferred to post-merge since it requires the user's authenticated Google session cookies."
     }
   ]
 }

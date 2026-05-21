@@ -216,6 +216,13 @@ func (s *Store) migrate(ctx context.Context) error {
 	if _, err := s.db.ExecContext(ctx, ftsStmt); err == nil {
 		s.fts = true
 	}
+
+	// PATCH(crawl-stats): migrate the three crawl_stats_* tables. Lives in a
+	// separate file (crawl_stats.go) so the new schema isn't tangled with the
+	// generated migrate() loop above.
+	if err := s.migrateCrawlStats(ctx); err != nil {
+		return err
+	}
 	return nil
 }
 

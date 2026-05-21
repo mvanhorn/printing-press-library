@@ -215,6 +215,12 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newDecayingCmd(flags))
 	rootCmd.AddCommand(newNewQueriesCmd(flags))
 
+	// PATCH(crawl-stats): private GSC Crawl Stats UI surface (URL samples,
+	// time series, totals broken down by file_type / response / googlebot /
+	// purpose). Calls the SearchConsoleAggReportUi.batchexecute endpoint
+	// reverse-engineered via chrome-MCP. See internal/cli/crawl_stats.go.
+	rootCmd.AddCommand(newCrawlStatsCmd(flags))
+
 	return rootCmd
 }
 
