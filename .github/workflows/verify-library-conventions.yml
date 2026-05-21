@@ -262,7 +262,7 @@ jobs:
           # to validate. $3 of library/<cat>/<slug>/<file> is the slug, which
           # equals the registry entry Name the validator keys its errors on.
           mapfile -t slugs < <(
-            git diff --name-only --diff-filter=d "${BASE_REMOTE_REF}" HEAD \
+            git diff --name-only --diff-filter=d "${BASE_REMOTE_REF}...HEAD" \
               -- 'library/*/*/.printing-press.json' 'library/*/*/.goreleaser.yaml' \
             | awk -F/ 'NF>=3 {print $3}' | sort -u)
           if [ "${#slugs[@]}" -eq 0 ]; then
