@@ -163,7 +163,7 @@ func envelopeToAnyMap(obj map[string]any) map[string]any {
 //  1. cert_no (always first when present)
 //  2. _keep.<key> for every top-level key inside _keep, alphabetically sorted
 //  3. data.<key> for every top-level key inside data, alphabetically sorted
-//  4. error (last when present)
+//  4. error (always emitted, even when the trigger envelope has no error key)
 //
 // Map-key sort (see sortedMapKeys) is what makes the auto-header stable across
 // runs given Go's randomised map iteration; it does NOT preserve the original
@@ -172,11 +172,14 @@ func envelopeToAnyMap(obj map[string]any) map[string]any {
 // nesting (e.g. AuctionList arrays) would explode the column count beyond
 // utility.
 //
-// runBatch only calls this on an envelope that contains `data` (the auto-mode
-// header write is deferred until the first such row arrives, see emit closure
-// in coin_batch.go), with a fallback that uses the first error-row envelope
-// when every input row failed before producing data — hence the `error`
-// column at the tail.
+// runBatch derives the schema from the first envelope that contains `data`
+// (a success row by definition), so a conditional `error` column would never
+// fire in the normal mixed-success/failure case. The `error` column is
+// always present so a later failure row in the same batch has somewhere to
+// write its error text instead of emitting an all-empty row indistinguishable
+// from a missing-data cert. In the rare all-success batch this surfaces as
+// a single trailing empty column — small cost for ensuring no error text
+// is ever silently dropped.
 func autoColumnsFromEnvelope(envelope map[string]any) []csvColumnSpec {
 	out := []csvColumnSpec{}
 	if _, ok := envelope["cert_no"]; ok {
@@ -196,9 +199,7 @@ func autoColumnsFromEnvelope(envelope map[string]any) []csvColumnSpec {
 			out = append(out, csvColumnSpec{Path: path, Header: path, Segments: []string{"data", k}})
 		}
 	}
-	if _, ok := envelope["error"]; ok {
-		out = append(out, csvColumnSpec{Path: "error", Header: "error", Segments: []string{"error"}})
-	}
+	out = append(out, csvColumnSpec{Path: "error", Header: "error", Segments: []string{"error"}})
 	return out
 }
 
