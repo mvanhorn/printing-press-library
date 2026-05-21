@@ -248,6 +248,16 @@ func newWatchCheckCmd(flags *rootFlags) *cobra.Command {
 						fmt.Fprintf(cmd.ErrOrStderr(), "warning: failed to persist alerted_at for release %d: %v\n", d.ReleaseID, err)
 					}
 				}
+				// PATCH: Update the in-memory snapshot so the next deal row for this
+				// same release (e.g. another retailer) compares against the running
+				// low for this scan, not the pre-scan baseline. Fixes Greptile P1
+				// follow-up on PR #634 — without this, prevLow=$20 + rows at $18
+				// then $19 would fire two new-low alerts; the $19 row should not.
+				if !entry.hasPrevLow || d.SalePrice < entry.prevLow {
+					entry.prevLow = d.SalePrice
+					entry.hasPrevLow = true
+					watched[d.ReleaseID] = entry
+				}
 			}
 			if flags.asJSON || flags.selectFields != "" || flags.csv || flags.quiet || flags.plain {
 				if persistenceErrors > 0 {
