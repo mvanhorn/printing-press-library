@@ -53,7 +53,7 @@ Accepts either an artist name (resolved via search) or a MusicBrainz MBID.`,
 			}
 			defer db.Close()
 
-			return syncArtistSetlists(c, db, args[0])
+			return syncArtistSetlists(c, db, args[0], maxPages)
 		},
 	}
 
@@ -153,7 +153,7 @@ func countChar(s string, c byte) int {
 
 // syncArtistSetlists paginates through all setlists for an artist and stores
 // them with full hydration into dedicated tables.
-func syncArtistSetlists(c *client.Client, db *store.Store, nameOrMBID string) error {
+func syncArtistSetlists(c *client.Client, db *store.Store, nameOrMBID string, maxPages int) error {
 	mbid, name, err := resolveArtistMBID(c, nameOrMBID)
 	if err != nil {
 		return err
@@ -211,7 +211,10 @@ func syncArtistSetlists(c *client.Client, db *store.Store, nameOrMBID string) er
 		}
 		fmt.Fprintf(os.Stderr, "  Page %d/%d: %d setlists (%d songs)\n", page, totalPages, len(resp.Setlist), pageSongs)
 
-		if page*resp.ItemsPerPage >= resp.Total {
+		if maxPages > 0 && page >= maxPages {
+			break
+		}
+		if page >= totalPages {
 			break
 		}
 		page++
@@ -431,7 +434,7 @@ func syncUserAttended(c *client.Client, db *store.Store, userID string) error {
 		}
 		fmt.Fprintf(os.Stderr, "  Page %d/%d: %d setlists\n", page, totalPages, len(resp.Setlist))
 
-		if page*resp.ItemsPerPage >= resp.Total {
+		if page >= totalPages {
 			break
 		}
 		page++

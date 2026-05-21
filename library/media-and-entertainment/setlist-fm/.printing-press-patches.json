@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-20",
+  "base_run_id": "20260520-142155",
+  "base_printing_press_version": "4.0.3",
+  "patches": [
+    {
+      "id": "greptile-review-feedback",
+      "summary": "Stabilize HTTP cache keys and harden setlist sync/store helpers.",
+      "reason": "Greptile flagged nondeterministic cache keys, unquoted typed-table lookup for resource 1_0, a non-atomic song delete-plus-insert sequence, an ignored --max-pages flag, unsafe JSON field interpolation in ResolveByName, and dead timestamp validation in since.",
+      "files": [
+        "internal/cli/since.go",
+        "internal/cli/since_test.go",
+        "internal/cli/sync_hydrate.go",
+        "internal/cli/sync_hydrate_test.go",
+        "internal/client/client.go",
+        "internal/client/client_test.go",
+        "internal/store/store.go",
+        "internal/store/upsert_batch_test.go"
+      ],
+      "validated_outcome": "go test ./... passed for the generated Setlist.fm module."
+    }
+  ]
+}

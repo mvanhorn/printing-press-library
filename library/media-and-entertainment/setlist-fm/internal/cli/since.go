@@ -28,17 +28,9 @@ on or after the given ISO timestamp. Useful for delta refresh workflows.`,
 			}
 			defer db.Close()
 
-			// Parse the timestamp
-			ts := args[0]
-			// Try multiple formats
-			for _, layout := range []string{
-				time.RFC3339,
-				"2006-01-02T15:04:05",
-				"2006-01-02",
-			} {
-				if _, err := time.Parse(layout, ts); err == nil {
-					break
-				}
+			ts, err := parseSinceTimestamp(args[0])
+			if err != nil {
+				return err
 			}
 
 			// Resolve artist filter if provided
@@ -107,4 +99,17 @@ on or after the given ISO timestamp. Useful for delta refresh workflows.`,
 
 	cmd.Flags().StringVar(&artistFilter, "artist", "", "Filter by artist name or MBID")
 	return cmd
+}
+
+func parseSinceTimestamp(raw string) (string, error) {
+	for _, layout := range []string{
+		time.RFC3339,
+		"2006-01-02T15:04:05",
+		"2006-01-02",
+	} {
+		if parsed, err := time.Parse(layout, raw); err == nil {
+			return parsed.UTC().Format(time.RFC3339), nil
+		}
+	}
+	return "", fmt.Errorf("invalid timestamp %q: expected RFC3339, \"2006-01-02T15:04:05\", or \"2006-01-02\"", raw)
 }

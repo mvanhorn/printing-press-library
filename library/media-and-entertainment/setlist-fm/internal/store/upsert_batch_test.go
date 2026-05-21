@@ -299,3 +299,74 @@ func TestUpsertBatch_PopulatesV10Table(t *testing.T) {
 		t.Fatalf("1_0 count = %d, want %d (typed table not populated by UpsertBatch)", typed, len(items))
 	}
 }
+
+func TestListIDsReadsQuotedV10Table(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	if _, err := s.DB().Exec(`INSERT INTO "1_0" (id, data, synced_at) VALUES (?, ?, CURRENT_TIMESTAMP)`, "typed-only", `{}`); err != nil {
+		t.Fatalf("insert typed row: %v", err)
+	}
+
+	ids, err := s.ListIDs("1_0")
+	if err != nil {
+		t.Fatalf("ListIDs: %v", err)
+	}
+	if len(ids) != 1 || ids[0] != "typed-only" {
+		t.Fatalf("ListIDs = %#v, want typed-table id", ids)
+	}
+}
+
+func TestUpsertSongRollsBackDeleteWhenInsertFails(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	if err := s.UpsertSong("setlist-1", 1, 1, "Old Song", "", false, "", "", "", "", false, false); err != nil {
+		t.Fatalf("seed song: %v", err)
+	}
+	if _, err := s.DB().Exec(`CREATE TRIGGER reject_song_insert BEFORE INSERT ON songs BEGIN SELECT RAISE(ABORT, 'reject song insert'); END`); err != nil {
+		t.Fatalf("create trigger: %v", err)
+	}
+
+	err = s.UpsertSong("setlist-1", 1, 1, "New Song", "", false, "", "", "", "", false, false)
+	if err == nil {
+		t.Fatalf("expected trigger to reject song insert")
+	}
+
+	var name string
+	if err := s.DB().QueryRow(`SELECT name FROM songs WHERE setlist_id=? AND set_number=? AND position=?`, "setlist-1", 1, 1).Scan(&name); err != nil {
+		t.Fatalf("query existing song: %v", err)
+	}
+	if name != "Old Song" {
+		t.Fatalf("song name = %q, want original row after rollback", name)
+	}
+}
+
+func TestResolveByNameSkipsUnsafeMatchFields(t *testing.T) {
+	dbPath := filepath.Join(t.TempDir(), "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open: %v", err)
+	}
+	defer s.Close()
+
+	if _, _, err := s.UpsertBatch("artists", []json.RawMessage{json.RawMessage(`{"id":"artist-1","name":"Radiohead"}`)}); err != nil {
+		t.Fatalf("seed resource: %v", err)
+	}
+
+	id, err := s.ResolveByName("artists", "Radiohead", "name') OR 1=1 --", "name")
+	if err != nil {
+		t.Fatalf("ResolveByName: %v", err)
+	}
+	if id != "artist-1" {
+		t.Fatalf("ResolveByName = %q, want artist-1", id)
+	}
+}

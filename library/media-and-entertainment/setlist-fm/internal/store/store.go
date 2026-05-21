@@ -22,6 +22,7 @@ import (
 )
 
 var uuidPattern = regexp.MustCompile(`^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$`)
+var jsonFieldPattern = regexp.MustCompile(`^[A-Za-z_][A-Za-z0-9_]*$`)
 
 // IsUUID returns true if the input looks like a UUID.
 func IsUUID(s string) bool {
@@ -929,7 +930,7 @@ func (s *Store) GetSyncCursor(resourceType string) string {
 // resources table if no domain table exists. Used by dependent sync to iterate parents.
 func (s *Store) ListIDs(resourceType string) ([]string, error) {
 	// Try domain table first (tables are named after the resource type)
-	query := fmt.Sprintf("SELECT id FROM %s", resourceType)
+	query := fmt.Sprintf("SELECT id FROM %s", quoteIdentifier(resourceType))
 	rows, err := s.db.Query(query)
 	if err != nil {
 		// Fall back to generic resources table
@@ -949,6 +950,10 @@ func (s *Store) ListIDs(resourceType string) ([]string, error) {
 		ids = append(ids, id)
 	}
 	return ids, rows.Err()
+}
+
+func quoteIdentifier(identifier string) string {
+	return `"` + strings.ReplaceAll(identifier, `"`, `""`) + `"`
 }
 
 // GetLastSyncedAt returns the last sync timestamp for a resource type.
@@ -1134,16 +1139,25 @@ func (s *Store) UpsertSong(setlistID string, setNumber, position int, name, info
 		return 0
 	}
 	// Delete any existing song at this position to handle re-syncs
-	_, _ = s.db.Exec(`DELETE FROM songs WHERE setlist_id=? AND set_number=? AND position=?`, setlistID, setNumber, position)
-	_, err := s.db.Exec(
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	if _, err := tx.Exec(`DELETE FROM songs WHERE setlist_id=? AND set_number=? AND position=?`, setlistID, setNumber, position); err != nil {
+		return err
+	}
+	if _, err := tx.Exec(
 		`INSERT INTO songs (setlist_id, set_number, position, name, info, is_cover, cover_artist_name, cover_artist_mbid, with_artist_name, with_artist_mbid, is_tape, is_encore)
 		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		setlistID, setNumber, position, name, info,
 		boolToInt(isCover), coverArtistName, coverArtistMBID,
 		withArtistName, withArtistMBID,
 		boolToInt(isTape), boolToInt(isEncore),
-	)
-	return err
+	); err != nil {
+		return err
+	}
+	return tx.Commit()
 }
 
 // UpsertAttended records a user's attendance at a setlist.
@@ -1408,11 +1422,13 @@ func (s *Store) ResolveByName(resourceType string, input string, matchFields ...
 
 	var matches []string
 	for _, field := range matchFields {
-		query := fmt.Sprintf(
-			`SELECT id FROM resources WHERE resource_type = ? AND LOWER(json_extract(data, '$.%s')) = LOWER(?)`,
-			field,
+		if !jsonFieldPattern.MatchString(field) {
+			continue
+		}
+		rows, err := s.db.Query(
+			`SELECT id FROM resources WHERE resource_type = ? AND LOWER(json_extract(data, ?)) = LOWER(?)`,
+			resourceType, "$."+field, input,
 		)
-		rows, err := s.db.Query(query, resourceType, input)
 		if err != nil {
 			continue
 		}
