@@ -77,7 +77,7 @@ client — the "what can I invoice right now" number.`,
 					}
 					continue
 				}
-				if !e.Start.IsZero() && (e.Start.Before(start) || !e.Start.Before(end)) {
+				if e.Start.IsZero() || e.Start.Before(start) || !e.Start.Before(end) {
 					continue
 				}
 				if workspace != "" && e.WorkspaceID != workspace {

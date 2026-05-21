@@ -140,7 +140,11 @@ func loadRaw(db *store.Store, typedTables, resourceTypeGuesses []string) ([]json
 			}
 			out = append(out, json.RawMessage(data))
 		}
+		rowsErr := rows.Err()
 		rows.Close()
+		if rowsErr != nil {
+			return nil, fmt.Errorf("scanning %q: %w", t, rowsErr)
+		}
 	}
 	if len(out) > 0 {
 		return out, nil
@@ -157,7 +161,11 @@ func loadRaw(db *store.Store, typedTables, resourceTypeGuesses []string) ([]json
 			}
 			out = append(out, json.RawMessage(data))
 		}
+		rowsErr := rows.Err()
 		rows.Close()
+		if rowsErr != nil {
+			return nil, fmt.Errorf("scanning resources %q: %w", rt, rowsErr)
+		}
 	}
 	return out, nil
 }

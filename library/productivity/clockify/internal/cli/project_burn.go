@@ -44,7 +44,10 @@ Reads the local store; run 'clockify-pp-cli sync' first.`,
 
 			projects := loadProjects(db)
 			clients := loadClientNames(db)
-			entries, err := ensureTimeEntries(db, flags, time.Now().AddDate(-1, 0, 0), time.Now().AddDate(0, 0, 1), workspace)
+			// Burn is a project-lifetime metric, so fetch the full history
+			// (the [zero, now+100y] window matches resolveRange("all"))
+			// rather than capping a cold/live fetch at the last year.
+			entries, err := ensureTimeEntries(db, flags, time.Time{}, time.Now().AddDate(100, 0, 0), workspace)
 			if err != nil {
 				return fmt.Errorf("loading time entries: %w", err)
 			}
