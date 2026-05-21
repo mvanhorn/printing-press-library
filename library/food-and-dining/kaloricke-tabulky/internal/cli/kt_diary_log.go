@@ -146,6 +146,9 @@ pass --commit. This is a write to your live account.`,
 			req.Header.Set("Accept", "application/json")
 			req.Header.Set("Cookie", cfg.AuthHeader())
 			req.Header.Set("User-Agent", "kaloricke-tabulky-pp-cli/1.0")
+			for k, v := range ktXHRHeaders() {
+				req.Header.Set(k, v)
+			}
 			httpClient := &http.Client{Timeout: 30 * time.Second}
 			resp, err := httpClient.Do(req)
 			if err != nil {

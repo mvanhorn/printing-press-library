@@ -365,6 +365,9 @@ deletes.`,
 			req.Header.Set("Accept", "application/json")
 			req.Header.Set("Cookie", cfg.AuthHeader())
 			req.Header.Set("User-Agent", "kaloricke-tabulky-pp-cli/1.0")
+			for k, v := range ktXHRHeaders() {
+				req.Header.Set(k, v)
+			}
 			httpClient := &http.Client{Timeout: 30 * time.Second}
 			resp, err := httpClient.Do(req)
 			if err != nil {
@@ -480,7 +483,7 @@ actually eat, which is more useful than an LP-optimal exotic meal.`,
 			}
 
 			// Favorites — wire values are per 1g, convert to per 100g.
-			favRaw, _ := c.GetNoCache("/user/settings/favorite/foodstuff", map[string]string{"format": "json"})
+			favRaw, _ := c.GetWithHeadersNoCache("/user/settings/favorite/foodstuff", map[string]string{"format": "json"}, ktXHRHeaders())
 			if data, err := ktUnwrapEnvelope(favRaw); err == nil {
 				var favs []map[string]interface{}
 				if err := json.Unmarshal(data, &favs); err == nil {

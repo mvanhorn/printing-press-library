@@ -48,7 +48,19 @@ func (e *APIError) Error() string {
 }
 
 func newHTTPClient(timeout time.Duration, jar http.CookieJar) *http.Client {
-	return &http.Client{Timeout: timeout, Jar: jar}
+	// DisableCompression=true so Go's transport does not auto-set
+	// Accept-Encoding: gzip on requests. kaloricketabulky.cz's 5xx error
+	// path is buggy: it adds `Content-Encoding: gzip` to the response
+	// headers even when the body is plain HTML, which Go's transport
+	// then tries to gzip-decode and fails with "gzip: invalid header"
+	// at io.ReadAll(resp.Body) time, masking the real status (a 500
+	// caused by bad input like an unparseable date). With compression
+	// disabled the server falls back to plain encoding, the body reads
+	// cleanly, and our existing status-classifier surfaces the real
+	// error.
+	transport := http.DefaultTransport.(*http.Transport).Clone()
+	transport.DisableCompression = true
+	return &http.Client{Timeout: timeout, Jar: jar, Transport: transport}
 }
 
 func New(cfg *config.Config, timeout time.Duration, rateLimit float64) *Client {

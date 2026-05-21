@@ -94,6 +94,19 @@ cookies directly from a logged-in Chrome profile.`,
 				return fmt.Errorf("loading config: %w", err)
 			}
 			cfg.AuthHeaderVal = cookieHeader
+			// Clear any stale OAuth/bearer fields that might have been
+			// left by a prior `auth login --chrome` from an older build
+			// of this CLI (commits before ca05f4a4 wrote cookies into
+			// AccessToken). With AccessToken non-empty, AuthHeader()'s
+			// fallback path would prepend "Bearer " to the cookies on
+			// future calls — except AuthHeaderVal wins first; the real
+			// risk is the doctor surface showing "browser session" and
+			// confusing operators. Clearing is safe: anyone who needs
+			// the OAuth path re-runs the appropriate auth command.
+			cfg.AccessToken = ""
+			cfg.RefreshToken = ""
+			cfg.TokenExpiry = time.Time{}
+			cfg.AuthSource = "config"
 			if err := ktSaveConfig(cfg); err != nil {
 				return fmt.Errorf("saving config: %w", err)
 			}

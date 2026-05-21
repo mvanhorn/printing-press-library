@@ -142,12 +142,33 @@ func ktParseCzechNum(s string) (float64, bool) {
 	return v, true
 }
 
+// ktXHRHeaders returns the headers the AngularJS web app sends with every
+// authenticated XHR. Spring Security on kaloricketabulky.cz distinguishes
+// XHR from browser navigation by these headers and redirects the latter to
+// /login — which manifests as the 10-redirect loop reported on a Linux host
+// where the headers happened to be missing.
+//
+// Accept-Encoding: identity disables Go's automatic gzip negotiation. The
+// site's 500 error path includes a stale `Content-Encoding: gzip` header
+// on a body that is actually plain HTML, which Go's transport then tries
+// to gzip-decode and fails with "gzip: invalid header". Telling the server
+// we don't accept gzip sidesteps the bug entirely; bandwidth cost is
+// negligible since most responses are small JSON envelopes.
+func ktXHRHeaders() map[string]string {
+	return map[string]string{
+		"X-Requested-With": "XMLHttpRequest",
+		"Referer":          "https://www.kaloricketabulky.cz/user/diary",
+		"Origin":           "https://www.kaloricketabulky.cz",
+		"Accept-Encoding":  "identity",
+	}
+}
+
 // ktFetchDiaryDay calls /user/diary/<date>/get and returns the typed diary.
 func ktFetchDiaryDay(c *client.Client, ddmmyyyy string) (*ktDiaryDay, error) {
 	raw, err := c.GetWithHeadersNoCache(
 		"/user/diary/"+ddmmyyyy+"/get",
 		map[string]string{"format": "json"},
-		nil,
+		ktXHRHeaders(),
 	)
 	if err != nil {
 		return nil, fmt.Errorf("fetching diary for %s: %w", ddmmyyyy, err)
@@ -168,7 +189,7 @@ func ktFetchSummaryDay(c *client.Client, ddmmyyyy string) (*ktSummaryDay, error)
 	raw, err := c.GetWithHeadersNoCache(
 		"/statistic/summary/"+ddmmyyyy+"/get",
 		map[string]string{"format": "json"},
-		nil,
+		ktXHRHeaders(),
 	)
 	if err != nil {
 		return nil, fmt.Errorf("fetching summary for %s: %w", ddmmyyyy, err)
