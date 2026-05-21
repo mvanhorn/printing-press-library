@@ -1,0 +1,2035 @@
+openapi: 3.0.3
+
+info:
+  title: Bloomest Laundry Manager API
+  version: "1.22.0"
+  description: |
+    Mapping non-ufficiale dell'API consumata dal gestionale web
+    `www.bloomestlaundry.app/bloomest/` (v1.22.0 in produzione 2026-05-14).
+
+    **Fonte**: reverse engineering dei service.js + controller.js AngularJS
+    snapshot 2026-05-13 (v1.20.0) + 2026-05-14 (v1.22.0).
+    JS byte-identici tra v1.20 e v1.22 (versione bumped lato server, non lato bundle).
+    Ogni operationId include `x-source: file:linea` per tracciabilita'.
+
+    Questa spec NON e' fornita da Bloomest. E' costruita per:
+    - Documentare il contratto effettivo osservato lato webapp
+    - Servire da contract da implementare nel facade adapter
+      Django -> Bloomest API
+    - Permettere validazione automatica delle integrazioni
+  contact:
+    name: Andrea Tagliazucchi (Bloomest Filottrano)
+  x-source-bundle: _analisi-bloomest-app/bloomest-webapp/
+
+servers:
+  - url: https://www.bloomestlaundry.app/bloomest
+    description: |
+      Produzione. Notare il prefisso `www.` — l'host `bloomestlaundry.app`
+      (senza www) risolve a un IP che non risponde sul 443 (timeout).
+      Verificato 2026-05-14: GET /version → 200 `{"version":"1.22.0","code":53}`
+
+tags:
+  - name: auth
+    description: Login / logout / sessione utente
+  - name: app
+    description: Versione applicazione + policy
+  - name: laundries
+    description: Lavanderie e dispositivi (macchine)
+  - name: automation
+    description: Domotica / IoT (interruttori, sensori)
+  - name: dispenser
+    description: Configurazione dispenser detersivi
+  - name: lockers
+    description: Cassetti / locker
+  - name: cashbox
+    description: Aggiornamenti firmware cassa POS
+  - name: actions
+    description: Coda azioni cassa (ricariche, sconti) per medias
+  - name: users
+    description: Utenti finali (clienti) + gruppi + card
+  - name: accesses
+    description: |
+      Utenti del gestionale web (login back-office). NON sono i clienti
+      finali (vedi tag `users`). Hanno userLevel 1-11.
+  - name: loyalties
+    description: Promozioni / fidelizzazione
+  - name: registrationBonus
+    description: Bonus di benvenuto nuova registrazione
+  - name: contacts
+    description: Rubrica contatti aziendali
+  - name: alarms
+    description: Allarmi e contatti di escalation
+  - name: payments
+    description: Configurazione gateway pagamento (Satispay, Argentea)
+  - name: messages
+    description: Messaggi push a clienti (broadcast)
+  - name: notifications
+    description: Notifiche calendar event-based
+  - name: comments
+    description: Community / commenti clienti
+  - name: profile
+    description: Profilo utente gestionale corrente
+  - name: statistics
+    description: |
+      Statistiche aggregate (allarmi, corrispettivo Agenzia Entrate,
+      card-report, movimenti, cicli, summaries, sales by device).
+      9 sub-tipi via PUT discriminator `?type=X`.
+  - name: training
+    description: Materiale formativo / knowledge base
+  - name: tickets
+    description: Ticket assistenza clienti
+  - name: reservations
+    description: Prenotazioni macchine
+  - name: websocket
+    description: Stream real-time
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: JSESSIONID
+      description: |
+        Sessione server-side post-login. Login flow:
+        1. POST /login con `user`, `passwd` (SHA1 hex), `source=1` in querystring
+        2. Backend setta cookie sessione
+        3. Tutte le richieste successive autenticate via cookie
+        4. DELETE /login invalida sessione (preceduto da TERM_SIGN su websocket)
+
+  parameters:
+    IdLCSQuery:
+      name: idLCS
+      in: query
+      required: true
+      schema:
+        type: string
+      description: Serial number LCS (Laundry Control System)
+    IdLaundryQuery:
+      name: laundry
+      in: query
+      required: true
+      schema:
+        type: integer
+      description: idLaundry
+    TimezoneQuery:
+      name: timezone
+      in: query
+      required: false
+      schema:
+        type: string
+
+  responses:
+    EmptyOK:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Empty'
+
+  schemas:
+    User:
+      type: object
+      description: Cliente finale (card holder). Riferimento ANALISI.md sezione 2.
+      properties:
+        idUser:
+          type: integer
+        alias:
+          type: string
+          description: Nome visualizzato dal cliente
+        blacklisted:
+          type: boolean
+        discountPercentage:
+          type: number
+          format: float
+          description: Sconto piattaforma % (sommato a sconto card)
+        priceTable:
+          type: integer
+          enum: [0, 1, 2]
+          description: 0=Card standard, 1=Sconto Card 1, 2=Sconto Card 2
+        sendInsertNotification:
+          type: boolean
+        lastMovement:
+          type: string
+          format: date-time
+        activation:
+          type: string
+          format: date-time
+        user:
+          type: object
+          properties:
+            registrationDay:
+              type: string
+              format: date
+            email:
+              type: string
+              format: email
+            phone:
+              type: string
+            dateOfBirth:
+              type: string
+              format: date
+            language:
+              type: string
+              enum: [it, en, es, fr, de, pt, pl]
+        media:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserMedia'
+
+    UserMedia:
+      type: object
+      description: Card/RFID di un utente
+      properties:
+        idUserMedia:
+          type: integer
+        serialNumber:
+          type: string
+        blacklisted:
+          type: boolean
+
+    UserGroup:
+      type: object
+      properties:
+        idGroup:
+          type: integer
+        description:
+          type: string
+        isDeleted:
+          type: boolean
+        isSelected:
+          type: boolean
+
+    Laundry:
+      type: object
+      description: Lavanderia (sede). Contiene devices + automation + lockers.
+      properties:
+        idLaundry:
+          type: integer
+        name:
+          type: string
+        address:
+          type: string
+        city:
+          type: string
+        idLCS:
+          type: string
+          description: Serial number LCS (Laundry Control System)
+        configuration:
+          type: object
+        devices:
+          type: array
+          items:
+            $ref: '#/components/schemas/Device'
+        catUser:
+          type: object
+        managerUser:
+          type: object
+        lavapiuLaundryIdentifier:
+          type: string
+
+    Device:
+      type: object
+      description: Lavatrice/asciugatrice. Riferimento ANALISI.md sezione 3.
+      properties:
+        idDevice:
+          type: integer
+        serialNumber:
+          type: string
+        type:
+          type: string
+          enum: [washing_machine, dryer, ironer, dispenser]
+        model:
+          type: string
+        state:
+          type: integer
+          description: Stato operativo macchina
+        operationDetails:
+          type: object
+          properties:
+            startDate:
+              type: string
+              format: date-time
+            duration:
+              type: integer
+              description: Minuti
+        pricesConfiguration:
+          type: array
+          items:
+            $ref: '#/components/schemas/PriceSlot'
+
+    PriceSlot:
+      type: object
+      description: Slot di prezzo (per asciugatrice = un duration tier)
+      properties:
+        baseMinutes:
+          type: integer
+        price:
+          type: number
+          format: float
+        discount1:
+          type: number
+          format: float
+          description: "% sconto Card 1"
+        discount2:
+          type: number
+          format: float
+          description: "% sconto Card 2"
+        quantity:
+          type: integer
+
+    Loyalty:
+      type: object
+      description: Promo / loyalty. Riferimento ANALISI.md sezione 4.
+      properties:
+        idLoyalty:
+          type: integer
+        name:
+          type: string
+        laundries:
+          type: array
+          items:
+            type: integer
+            description: idLaundry
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+        type:
+          type: integer
+          description: Tipo loyalty (1-4 secondo ANALISI § 4)
+        threshold:
+          type: number
+        service:
+          type: object
+        target:
+          type: object
+        award:
+          type: object
+        amount:
+          type: number
+        daysOfAward:
+          type: integer
+        erogationAtTheEnd:
+          type: boolean
+        notifications:
+          type: array
+          items:
+            type: object
+        isEnabled:
+          type: boolean
+        targetUserGroups:
+          type: array
+          items:
+            type: integer
+
+    Action:
+      type: object
+      description: Movimento queue verso cassa. Riferimento ANALISI.md sezione 5.
+      properties:
+        idAction:
+          type: integer
+        saveDate:
+          type: string
+          format: date-time
+        sendDate:
+          type: string
+          format: date-time
+          nullable: true
+        lastMovement:
+          type: string
+          format: date-time
+        loyalty:
+          type: object
+          nullable: true
+        finalUser:
+          type: object
+          nullable: true
+        media:
+          type: integer
+          description: idUserMedia
+
+    Alarm:
+      type: object
+      description: Allarme configurato. Riferimento ANALISI.md sezione 6.
+      properties:
+        idLaundry:
+          type: integer
+        alarms:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: integer
+                enum: [1, 2, 3, 4, 5, 6, 7, 8]
+                description: |
+                  1=POWER_OUTAGE, 2=DEVICE_OFFLINE, 3=PAYMENT_FAILURE,
+                  4=CASHBOX_FULL, 5=DOOR_OPEN, 6=DETERGENT_LOW,
+                  7=FILTER_CLOG, 8=GENERIC
+              contacts:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    idContact:
+                      type: integer
+              notes:
+                type: string
+              isModified:
+                type: boolean
+
+    Contact:
+      type: object
+      description: Contatto aziendale (rubrica per escalation allarmi).
+      properties:
+        idContact:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        role:
+          type: string
+        isRemoved:
+          type: boolean
+
+    Access:
+      type: object
+      description: Utente del gestionale web (login back-office)
+      properties:
+        idUser:
+          type: integer
+        name:
+          type: string
+        userLevel:
+          type: integer
+          enum: [1, 2, 3, 6, 7, 9, 10, 11]
+          description: |
+            1=ADM, 2=CAT, 3=GES, 6=GES_EXE, 7=LCS_MOBILE,
+            9=OEM, 10=GES_OPERATOR, 11=PERFORMANCE
+        disabled:
+          type: boolean
+        laundries:
+          type: array
+          items:
+            type: object
+            properties:
+              idLaundry:
+                type: integer
+              isSelected:
+                type: boolean
+              configuration:
+                type: object
+
+    Reservation:
+      type: object
+      description: Prenotazione di una macchina (lavatrice/asciugatrice).
+      properties:
+        idReservation:
+          type: integer
+        device:
+          type: integer
+        startDate:
+          type: string
+          format: date-time
+        updateDate:
+          type: string
+          format: date-time
+        status:
+          type: integer
+          enum: [1, 2, 3, 4]
+          description: 1=NEW, 2=PURCHASED, 3=NOT_PURCHASED, 4=DELETED
+
+    Ticket:
+      type: object
+      description: Ticket assistenza aperto da un cliente.
+      properties:
+        idTicket:
+          type: integer
+        creationDate:
+          type: string
+          format: date-time
+        updateDate:
+          type: string
+          format: date-time
+          nullable: true
+        pickupDate:
+          type: string
+          format: date-time
+          nullable: true
+        status:
+          type: string
+
+    Comment:
+      type: object
+      description: Commento/feedback community lasciato da un cliente.
+      properties:
+        idComment:
+          type: integer
+        creationDate:
+          type: string
+          format: date-time
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        feedback:
+          type: array
+          items:
+            type: object
+            properties:
+              liked:
+                type: boolean
+
+    Notification:
+      type: object
+      description: Notifica calendar-based con title traductions multilingua.
+      properties:
+        idEvent:
+          type: integer
+        startsAt:
+          type: string
+          format: date-time
+        endsAt:
+          type: string
+          format: date-time
+        actions:
+          type: array
+          items:
+            type: object
+        titleTraductions:
+          type: array
+          items:
+            type: object
+
+    PaymentsConfig:
+      type: object
+      description: Configurazione gateway pagamento (Satispay, Argentea).
+      properties:
+        satispay:
+          type: object
+          properties:
+            token:
+              type: string
+        argentea:
+          type: object
+          properties:
+            terminalId:
+              type: string
+            terminalKey:
+              type: string
+
+    StatisticsRequest:
+      type: object
+      description: |
+        Body comune ai 9 sub-tipi di `PUT /statistics?type=X`.
+        Costruito client-side da `statisticsService.getRequestObject()`.
+        I campi modality (`laundry`/`device`/`user`/`groupOfUsers`) sono
+        mutuamente esclusivi.
+      required: [start, end]
+      properties:
+        start:
+          type: string
+          description: '"YYYY-MM-DD HH:mm:ss"'
+        end:
+          type: string
+          description: '"YYYY-MM-DD HH:mm:ss"'
+        laundry:
+          type: integer
+          description: idLaundry (modality LAUNDRY)
+        device:
+          type: integer
+          description: idDevice (modality DEVICE)
+        user:
+          type: integer
+          description: idMedia (modality USER)
+        groupOfUsers:
+          type: array
+          items:
+            type: integer
+          description: idGroup[] (modality GROUP_OF_USERS)
+
+    RegistrationBonus:
+      type: object
+      description: Bonus credito alla registrazione di nuovi clienti.
+      properties:
+        amount:
+          type: number
+        currency:
+          type: string
+        isEnabled:
+          type: boolean
+
+    Empty:
+      type: object
+      description: Risposta vuota / success generico
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+
+security:
+  - cookieAuth: []
+
+paths:
+
+  # ============================================================
+  # AUTH / SESSIONE
+  # ============================================================
+
+  /login:
+    get:
+      operationId: loginCheck
+      summary: Verifica stato login corrente
+      tags: [auth]
+      security: []
+      x-source: services/loginService.js:56
+      responses:
+        '200':
+          description: Sessione attiva
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Access'
+        '401':
+          description: Non autenticato
+    post:
+      operationId: loginPost
+      summary: Autentica utente con credenziali SHA1
+      tags: [auth]
+      security: []
+      x-source: services/loginService.js:76
+      parameters:
+        - name: user
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: passwd
+          in: query
+          required: true
+          schema:
+            type: string
+            description: SHA1 hex della password in chiaro
+        - name: source
+          in: query
+          required: true
+          schema:
+            type: integer
+            default: 1
+      responses:
+        '200':
+          description: Login OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Access'
+        '401':
+          description: Credenziali errate
+    delete:
+      operationId: loginDelete
+      summary: Logout (terminazione sessione)
+      tags: [auth]
+      x-source: services/loginService.js:94
+      x-notes: |
+        Il client invia TERM_SIGN (messageType=4) via WebSocket
+        prima di chiamare questo endpoint.
+      responses:
+        '200':
+          description: Logout OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Empty'
+
+  # ============================================================
+  # APP / POLICY
+  # ============================================================
+
+  /version:
+    get:
+      operationId: versionGet
+      summary: Versione applicazione
+      tags: [app]
+      security: []
+      x-source: services/versionsService.js:10
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  version:
+                    type: string
+                  code:
+                    type: integer
+
+  /policy:
+    get:
+      operationId: policyGet
+      summary: Versione corrente policy (privacy/terms)
+      tags: [app]
+      security: []
+      x-source: services/policiesService.js:44
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  version:
+                    type: integer
+    put:
+      operationId: policyAccept
+      summary: Registra accettazione privacy + terms
+      tags: [app]
+      x-source: services/policiesService.js:111
+      parameters:
+        - name: version
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: privacy
+          in: query
+          required: true
+          schema:
+            type: boolean
+        - name: terms
+          in: query
+          required: true
+          schema:
+            type: boolean
+      responses:
+        '200':
+          $ref: '#/components/responses/EmptyOK'
+
+  # ============================================================
+  # LAUNDRIES / DEVICES
+  # ============================================================
+
+  /laundries:
+    get:
+      operationId: laundriesGet
+      summary: Lista lavanderie con devices
+      tags: [laundries]
+      x-source: services/devicesService.js:70
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Laundry'
+    post:
+      operationId: laundriesSave
+      summary: Crea o aggiorna lavanderia
+      tags: [laundries]
+      x-source: services/devicesService.js:416
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Laundry'
+      responses:
+        '200':
+          $ref: '#/components/responses/EmptyOK'
+    put:
+      operationId: laundryPricesSave
+      summary: Salva prezzi/configurazione device intero
+      tags: [laundries, dispenser]
+      x-source: controllers/pricesController.js:50
+      x-notes: |
+        Endpoint anomalo: PUT /laundries usato dal pricesController
+        per salvare pricesConfiguration di un device.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                idDevice:
+                  type: integer
+                idLaundry:
+                  type: integer
+                pricesConfiguration:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/PriceSlot'
+      responses:
+        '200':
+          $ref: '#/components/responses/EmptyOK'
+    delete:
+      operationId: laundriesDelete
+      summary: Elimina device o lavanderia (discriminator type)
+      tags: [laundries]
+      x-source: services/devicesService.js:459
+      parameters:
+        - name: type
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [device, laundry]
+        - name: device
+          in: query
+          required: false
+          schema:
+            type: integer
+            description: Required se type=device
+        - name: laundry
+          in: query
+          required: false
+          schema:
+            type: integer
+            description: Required se type=laundry
+      responses:
+        '200':
+          $ref: '#/components/responses/EmptyOK'
+
+  /updates:
+    get:
+      operationId: updatesGet
+      summary: Lista device aggiornati per LCS (eventualmente filtrato per device)
+      tags: [laundries]
+      x-source: services/devicesService.js:110
+      parameters:
+        - $ref: '#/components/parameters/IdLCSQuery'
+        - name: idDevice
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Device'
+    put:
+      operationId: updatesPut
+      summary: Aggiorna firmware o configurazione device
+      tags: [laundries]
+      x-source: controllers/dashboardController.js:60
+      parameters:
+        - $ref: '#/components/parameters/IdLCSQuery'
+        - name: key
+          in: query
+          required: true
+          schema:
+            type: string
+            description: Password LCS
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                operationDetails:
+                  type: object
+                firmware:
+                  type: integer
+                  nullable: true
+      responses:
+        '200':
+          $ref: '#/components/responses/EmptyOK'
+
+  /automation:
+    get:
+      operationId: automationGet
+      summary: Configurazione domotica per LCS
+      tags: [automation]
+      x-source: services/devicesService.js:184
+      parameters:
+        - $ref: '#/components/parameters/IdLCSQuery'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+                description: Map idDomotica -> config
+    put:
+      operationId: automationUpdate
+      summary: Cambia stato automazione (isOn / isManual / reboot)
+      tags: [automation]
+      x-source: controllers/dashboardController.js:139
+      x-notes: |
+        Tre varianti distinte sullo stesso path identificate da query:
+        - isOn=bool -> accende/spegne
+        - isManual=bool -> entra/esce modalita' manuale
+        - key=string (senza isOn/isManual) -> reboot LCS
+      parameters:
+        - $ref: '#/components/parameters/IdLCSQuery'
+        - name: idAutomation
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: isOn
+          in: query
+          required: false
+          schema:
+            type: boolean
+        - name: isManual
+          in: query
+          required: false
+          schema:
+            type: boolean
+        - name: key
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/EmptyOK'
+
+  /reboot:
+    post:
+      operationId: rebootCashbox
+      summary: Reboot remoto cassa POS
+      tags: [laundries]
+      x-source: controllers/dashboardController.js:233
+      parameters:
+        - $ref: '#/components/parameters/IdLaundryQuery'
+      responses:
+        '200':
+          $ref: '#/components/responses/EmptyOK'
+
+  /dispenser:
+    get:
+      operationId: dispenserGet
+      summary: Configurazione dispenser per lavanderia
+      tags: [dispenser]
+      x-source: services/devicesService.js:663
+      parameters:
+        - $ref: '#/components/parameters/IdLaundryQuery'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+    post:
+      operationId: dispenserSave
+      summary: Salva configurazione dispenser
+      tags: [dispenser]
+      x-source: controllers/dispenserController.js:16
+      parameters:
+        - $ref: '#/components/parameters/IdLaundryQuery'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+      responses:
+        '200':
+          $ref: '#/components/responses/EmptyOK'
+
+  /lockers:
+    get:
+      operationId: lockersGet
+      summary: Lista locker/cassetti per LCS
+      tags: [lockers]
+      x-source: services/devicesService.js:695
+      parameters:
+        - $ref: '#/components/parameters/IdLCSQuery'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    size:
+                      type: string
+                      enum: [S, L]
+                    state:
+                      type: integer
+                      enum: [1, 2, 3]
+
+  # ============================================================
+  # CASHBOX UPDATES
+  # ============================================================
+
+  /cashboxUpdates:
+    get:
+      operationId: cashboxUpdatesGet
+      summary: Lista firmware cassa + configurazioni pianificate
+      tags: [cashbox]
+      x-source: services/cashboxUpdatesService.js:14
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  updates:
+                    type: array
+                    items:
+                      type: object
+                  configurations:
+                    type: array
+                    items:
+                      type: object
+    post:
+      operationId: cashboxUpdateSchedule
+      summary: Pianifica aggiornamento firmware cassa
+      tags: [cashbox]
+      x-source: services/cashboxUpdatesService.js:46
+      parameters:
+        - $ref: '#/components/parameters/IdLaundryQuery'
+        - name: startDate
+          in: query
+          required: true
+          schema:
+            type: string
+            description: "YYYY-MM-DD HH:mm:ss"
+        - name: firmware
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          $ref: '#/components/responses/EmptyOK'
+    delete:
+      operationId: cashboxUpdateCancel
+      summary: Cancella aggiornamento firmware pianificato
+      tags: [cashbox]
+      x-source: services/cashboxUpdatesService.js:61
+      parameters:
+        - name: configuration
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: firmware
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          $ref: '#/components/responses/EmptyOK'
+
+  # ============================================================
+  # ACTIONS (queue cassa)
+  # ============================================================
+
+  /actions:
+    put:
+      operationId: actionsSearch
+      summary: Query coda azioni cassa per medias + intervallo date
+      tags: [actions]
+      x-source: services/actionsService.js:45
+      x-notes: |
+        PUT anomalo per query (avrebbe dovuto essere GET).
+        Le actions sono operazioni in coda da inviare alla cassa POS:
+        ricariche, sconti, sostituzioni card, bonus.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                startDate:
+                  type: string
+                  description: "YYYY-MM-DD HH:mm:ss"
+                endDate:
+                  type: string
+                  description: "YYYY-MM-DD HH:mm:ss"
+                medias:
+                  type: array
+                  items:
+                    type: integer
+                    description: idUserMedia
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Action'
+
+  # ============================================================
+  # USERS (clienti finali) — pattern ?type=X discriminator
+  # ============================================================
+
+  /users:
+    get:
+      operationId: usersGetList
+      summary: Lista clienti (default) o gruppi (type=groups)
+      tags: [users]
+      x-source: services/usersService.js:69
+      parameters:
+        - name: type
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [groups]
+            description: Se omesso = lista utenti; se "groups" = lista gruppi
+      responses:
+        '200':
+          description: OK (clienti o gruppi a seconda di type)
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+                  - type: array
+                    items:
+                      $ref: '#/components/schemas/UserGroup'
+    post:
+      operationId: usersAddGroup
+      summary: Crea nuovo gruppo utenti
+      tags: [users]
+      x-source: services/usersService.js:206
+      parameters:
+        - name: description
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserGroup'
+    put:
+      operationId: usersPutMultiplex
+      summary: Mutazioni utente — discriminator query ?type=X
+      tags: [users]
+      x-source: services/usersService.js:165
+      x-notes: |
+        UN solo path PUT /users con 8+ varianti distinte via query ?type=X:
+          - modifyUser (singolo + ricarica)
+          - modifyUsers (bulk media on/off)
+          - changeSerialNumber (sostituzione card)
+          - updateUserInformations (anagrafica)
+          - sendConfirmEMail (re-invio email)
+          - createLaundriesGroups (auto-genera gruppi)
+          - groupsChanges (CRUD gruppi)
+          - usersGroupsChange (assegnazione utenti-gruppi)
+      parameters:
+        - name: type
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - modifyUser
+              - modifyUsers
+              - changeSerialNumber
+              - updateUserInformations
+              - sendConfirmEMail
+              - createLaundriesGroups
+              - groupsChanges
+              - usersGroupsChange
+        - name: rechargeValue
+          in: query
+          required: false
+          schema:
+            type: number
+            description: Required se type=modifyUser
+        - name: media
+          in: query
+          required: false
+          schema:
+            type: integer
+            description: Required se type=changeSerialNumber (idUserMedia)
+        - name: serialNumber
+          in: query
+          required: false
+          schema:
+            type: string
+            description: Required se type=changeSerialNumber
+        - name: user
+          in: query
+          required: false
+          schema:
+            type: integer
+            description: Required se type=sendConfirmEMail (idUser)
+        - name: language
+          in: query
+          required: false
+          schema:
+            type: string
+            description: Required se type=sendConfirmEMail
+        - $ref: '#/components/parameters/TimezoneQuery'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/User'
+                - type: array
+                  items:
+                    $ref: '#/components/schemas/User'
+                - type: array
+                  items:
+                    $ref: '#/components/schemas/UserGroup'
+                - type: object
+                  properties:
+                    userIds:
+                      type: array
+                      items:
+                        type: integer
+                    groupIds:
+                      type: array
+                      items:
+                        type: integer
+                    action:
+                      type: string
+      responses:
+        '200':
+          description: OK (shape dipende da type)
+          content:
+            application/json:
+              schema:
+                type: object
+    delete:
+      operationId: usersDelete
+      summary: Cancella utente
+      tags: [users]
+      x-source: services/usersService.js:271
+      parameters:
+        - name: user
+          in: query
+          required: true
+          schema:
+            type: integer
+            description: idUser
+      responses:
+        '200':
+          $ref: '#/components/responses/EmptyOK'
+
+  /messages:
+    post:
+      operationId: usersSendEmail
+      summary: Invia email a clienti selezionati
+      tags: [users, messages]
+      x-source: controllers/usersController.js:377
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                recipients:
+                  type: array
+                  items:
+                    type: integer
+                subject:
+                  type: string
+                body:
+                  type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/EmptyOK'
+
+  /message:
+    get:
+      operationId: messagesGet
+      summary: Lista messaggi push pianificati
+      tags: [messages]
+      x-source: controllers/messageController.js:69
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    startDate:
+                      type: string
+                      format: date-time
+                    endDate:
+                      type: string
+                      format: date-time
+                    content:
+                      type: string
+                    laundries:
+                      type: array
+                      items:
+                        type: integer
+    post:
+      operationId: messagesSend
+      summary: Crea messaggio push (broadcast su laundries)
+      tags: [messages]
+      x-source: controllers/messageController.js:117
+      x-notes: |
+        Body e' SEMPRE array (anche per singolo messaggio: [m]).
+        Esistono due chiamate quasi identiche (line 117 e 157) — la seconda
+        invia gruppi di messaggi quando sono presenti laundries multiple.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  content:
+                    type: string
+                  laundries:
+                    type: array
+                    items:
+                      type: integer
+                  period:
+                    type: object
+                    properties:
+                      startDate:
+                        type: string
+                      endDate:
+                        type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/EmptyOK'
+
+  # ============================================================
+  # LOYALTIES / REGISTRATION BONUS
+  # ============================================================
+
+  /loyalties:
+    get:
+      operationId: loyaltiesList
+      summary: Lista promozioni (attive con ?now=, storiche con ?start=)
+      tags: [loyalties]
+      x-source: services/loyaltiesService.js:65
+      parameters:
+        - name: now
+          in: query
+          required: false
+          schema:
+            type: string
+            description: ISO timestamp; usato per filtrare attive
+        - name: start
+          in: query
+          required: false
+          schema:
+            type: string
+            description: ISO timestamp; storico
+        - $ref: '#/components/parameters/TimezoneQuery'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Loyalty'
+    post:
+      operationId: loyaltyCreate
+      summary: Crea / aggiorna promozione
+      tags: [loyalties]
+      x-source: controllers/loyaltyController.js:377
+      parameters:
+        - name: start
+          in: query
+          required: false
+          schema:
+            type: boolean
+            description: Se true, attiva subito
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Loyalty'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    description: 0=success, 1=timezone error
+    delete:
+      operationId: loyaltyDelete
+      summary: Cancella promozione
+      tags: [loyalties]
+      x-source: controllers/loyaltyController.js:407
+      parameters:
+        - name: idLoyalty
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          $ref: '#/components/responses/EmptyOK'
+
+  /registrationBonus:
+    get:
+      operationId: registrationBonusGet
+      summary: Configurazione bonus di registrazione
+      tags: [registrationBonus]
+      x-source: controllers/registrationBonusController.js:10
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegistrationBonus'
+    post:
+      operationId: registrationBonusSave
+      summary: Salva configurazione bonus di registrazione
+      tags: [registrationBonus]
+      x-source: controllers/registrationBonusController.js:38
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegistrationBonus'
+      responses:
+        '200':
+          $ref: '#/components/responses/EmptyOK'
+
+  # ============================================================
+  # CONTACTS / ALARMS
+  # ============================================================
+
+  /contacts:
+    get:
+      operationId: contactsList
+      summary: Lista contatti aziendali
+      tags: [contacts]
+      x-source: services/contactsService.js:7
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Contact'
+    post:
+      operationId: contactsSave
+      summary: Salva intera lista contatti (CRUD bulk, filtra isRemoved client-side)
+      tags: [contacts]
+      x-source: services/contactsService.js:30
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Contact'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Contact'
+
+  /alarms:
+    get:
+      operationId: alarmsGet
+      summary: Configurazione allarmi per tutte le lavanderie
+      tags: [alarms]
+      x-source: controllers/alarmsController.js:77
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Alarm'
+    post:
+      operationId: alarmsSave
+      summary: Salva configurazione allarmi
+      tags: [alarms]
+      x-source: controllers/alarmsController.js:162
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Alarm'
+      responses:
+        '200':
+          $ref: '#/components/responses/EmptyOK'
+
+  # ============================================================
+  # PAYMENTS
+  # ============================================================
+
+  /payments:
+    get:
+      operationId: paymentsGet
+      summary: Configurazione gateway pagamento
+      tags: [payments]
+      x-source: controllers/paymentsController.js:31
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentsConfig'
+    post:
+      operationId: paymentsSave
+      summary: Salva configurazione gateway pagamento
+      tags: [payments]
+      x-source: controllers/paymentsController.js:62
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentsConfig'
+      responses:
+        '200':
+          $ref: '#/components/responses/EmptyOK'
+        '400':
+          description: Validazione fallita
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  satispay:
+                    type: integer
+                    enum: [400, 403, 404]
+                  argentea:
+                    type: integer
+                    enum: [1]
+
+  # ============================================================
+  # ACCESSES (utenti gestionale)
+  # ============================================================
+
+  /accesses:
+    get:
+      operationId: accessesList
+      summary: Lista utenti gestionale
+      tags: [accesses]
+      x-source: controllers/accessesController.js:175
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Access'
+    post:
+      operationId: accessSave
+      summary: Crea / aggiorna utente gestionale
+      tags: [accesses]
+      x-source: controllers/accessesController.js:118
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/Access'
+                - type: object
+                  properties:
+                    password:
+                      type: string
+                      description: SHA1 hex
+      responses:
+        '200':
+          $ref: '#/components/responses/EmptyOK'
+        '400':
+          description: Errore validazione (es. username gia' in uso)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      operationId: accessDelete
+      summary: Cancella utente gestionale
+      tags: [accesses]
+      x-source: controllers/accessesController.js:191
+      parameters:
+        - name: user
+          in: query
+          required: true
+          schema:
+            type: integer
+            description: idUser
+      responses:
+        '200':
+          $ref: '#/components/responses/EmptyOK'
+
+  # ============================================================
+  # NOTIFICATIONS (calendar events)
+  # ============================================================
+
+  /notifications:
+    get:
+      operationId: notificationsList
+      summary: Lista notifiche pianificate
+      tags: [notifications]
+      x-source: controllers/notificationsController.js:137
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Notification'
+    put:
+      operationId: notificationSave
+      summary: Crea / modifica notifica calendar event
+      tags: [notifications]
+      x-source: controllers/newNotificationController.js:132
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Notification'
+      responses:
+        '200':
+          $ref: '#/components/responses/EmptyOK'
+    delete:
+      operationId: notificationDelete
+      summary: Cancella notifica
+      tags: [notifications]
+      x-source: controllers/notificationsController.js:97
+      parameters:
+        - name: id_event
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          $ref: '#/components/responses/EmptyOK'
+
+  # ============================================================
+  # COMMUNITY (comments)
+  # ============================================================
+
+  /comments:
+    get:
+      operationId: commentsList
+      summary: Lista commenti clienti
+      tags: [comments]
+      x-source: controllers/communityController.js:21
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Comment'
+    delete:
+      operationId: commentDelete
+      summary: Cancella commento
+      tags: [comments]
+      x-source: controllers/communityController.js:57
+      parameters:
+        - name: comment
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          $ref: '#/components/responses/EmptyOK'
+
+  # ============================================================
+  # PROFILE
+  # ============================================================
+
+  /profile:
+    put:
+      operationId: profileChangePassword
+      summary: Cambia password utente gestionale corrente
+      tags: [profile]
+      x-source: controllers/profileController.js:12
+      parameters:
+        - name: username
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: change
+          in: query
+          required: true
+          schema:
+            type: string
+            description: SHA1 hex della nuova password
+      responses:
+        '200':
+          $ref: '#/components/responses/EmptyOK'
+
+  # ============================================================
+  # RESERVATIONS
+  # ============================================================
+
+  /reservations:
+    get:
+      operationId: reservationsList
+      summary: Lista prenotazioni per lavanderia
+      tags: [reservations]
+      x-source: controllers/reservationsController.js:25
+      parameters:
+        - $ref: '#/components/parameters/IdLaundryQuery'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Reservation'
+    put:
+      operationId: reservationCancel
+      summary: Cancella prenotazione device
+      tags: [reservations]
+      x-source: services/devicesService.js:766
+      x-notes: PUT anomalo per delete logico
+      parameters:
+        - name: device
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          $ref: '#/components/responses/EmptyOK'
+
+  /reservationsconf:
+    get:
+      operationId: reservationsConfigGet
+      summary: Configurazione prenotazioni
+      tags: [reservations]
+      x-source: controllers/reservationsConfigurationController.js:36
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+    post:
+      operationId: reservationsConfigSave
+      summary: Salva configurazione prenotazioni
+      tags: [reservations]
+      x-source: controllers/reservationsConfigurationController.js:20
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          $ref: '#/components/responses/EmptyOK'
+
+  # ============================================================
+  # TICKETS
+  # ============================================================
+
+  /tickets:
+    get:
+      operationId: ticketsList
+      summary: Lista ticket assistenza clienti per lavanderia
+      tags: [tickets]
+      x-source: controllers/ticketsController.js:29
+      parameters:
+        - $ref: '#/components/parameters/IdLaundryQuery'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Ticket'
+
+  # ============================================================
+  # TRAINING (knowledge base)
+  # ============================================================
+
+  /training:
+    get:
+      operationId: trainingList
+      summary: Lista sezioni training per lingua
+      tags: [training]
+      x-source: services/trainingServices.js:34
+      parameters:
+        - name: language
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sections:
+                    type: array
+                    items:
+                      type: object
+                  tags:
+                    type: array
+                    items:
+                      type: object
+    post:
+      operationId: trainingPostMultiplex
+      summary: Crea sezione o carica file (discriminator ?type=)
+      tags: [training]
+      x-source: services/trainingServices.js:49
+      parameters:
+        - name: type
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [section, file]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          $ref: '#/components/responses/EmptyOK'
+    put:
+      operationId: trainingPutMultiplex
+      summary: Mutazioni training (modify / delete / deleteFiles / download)
+      tags: [training]
+      x-source: services/trainingServices.js:64
+      parameters:
+        - name: type
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [modify, delete, deleteFiles, download]
+        - name: file
+          in: query
+          required: false
+          schema:
+            type: integer
+            description: Required se type=download (idFile)
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/Empty'
+                  - type: object
+                    description: Per type=download
+                    properties:
+                      base64:
+                        type: string
+                      type:
+                        type: string
+
+  # ============================================================
+  # STATISTICS (9 sub-tipi via ?type= multiplex)
+  # ============================================================
+
+  /statistics:
+    put:
+      operationId: statisticsQuery
+      summary: Query statistiche aggregate (discriminator ?type=X)
+      tags: [statistics]
+      x-source: controllers/statisticsControllers/*.js
+      x-notes: |
+        PUT anomalo per query (avrebbe dovuto essere GET). 9 sub-tipi mappati
+        ciascuno a un controller dedicato in `controllers/statisticsControllers/`:
+        - type=alarms          → alarmsStatController.js:17
+        - type=corrispettivo   → agenziaDelleEntrateController.js:17 (Agenzia Entrate)
+        - type=card-report     → cardReportController.js:40
+        - type=all_movements   → allMovementsController.js:165
+        - type=cycles_report   → cyclesReportStatController.js:29
+        - type=laundry_summaries        → laundrySummariesController.js:26
+        - type=summaries_by_currency    → summariesByCurrencyController.js:29
+        - type=summaries_hopper_currency → summariesHopperCurrencyController.js:23
+        - type=sales_by_device          → salesByDeviceController.js:29
+      parameters:
+        - name: type
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - alarms
+              - corrispettivo
+              - card-report
+              - all_movements
+              - cycles_report
+              - laundry_summaries
+              - summaries_by_currency
+              - summaries_hopper_currency
+              - sales_by_device
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StatisticsRequest'
+      responses:
+        '200':
+          description: |
+            Shape risposta varia per `type`. Esempi noti:
+            - alarms → array di eventi con `date` parsato in moment
+            - corrispettivo → oggetto con `dataInvioPrecedente` + dati Agenzia Entrate
+            - card-report → array per card
+            - all_movements → array movimenti
+            - cycles_report → array cicli
+            - sales_by_device → array per device
+            - laundry_summaries / summaries_by_currency / summaries_hopper_currency → array aggregati
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: array
+                    items:
+                      type: object
+                  - type: object
+
+  /research:
+    post:
+      operationId: researchLog
+      summary: Log query di ricerca training
+      tags: [training]
+      x-source: controllers/trainingController.js:108
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                querySearch:
+                  type: string
+                filesResult:
+                  type: array
+                  items:
+                    type: integer
+                    description: idFile array
+      responses:
+        '200':
+          $ref: '#/components/responses/EmptyOK'
+
+# ============================================================
+# WEBSOCKET (out-of-band — non parte di OpenAPI standard)
+# ============================================================
+
+x-websocket:
+  url: wss://o90feoupj8.execute-api.eu-west-1.amazonaws.com/bloomest
+  source: services/websocketService.js:30
+  description: |
+    Stream real-time bidirezionale. Auto-reconnect su close/error.
+    Handshake post-connect: sendMessage con WHO_AM_I.
+  handshake:
+    action: sendMessage
+    data:
+      messageType: 2
+      idLCS: array<string>
+      machineSN: array
+      whoAmI: 1
+  messageTypes:
+    1: UPDATE_REQUEST
+    2: WHO_AM_I
+    4: TERM_SIGN
+    5: UPDATE_HINT_AUTOMATION
+    6: UPDATE_HINT_LOCKER
+  notes: |
+    sendTermSign() invia messageType=4 prima della chiusura.
+    UPDATE_HINT_AUTOMATION / UPDATE_HINT_LOCKER triggherano refetch
+    su GET /automation e GET /lockers rispettivamente.
+
+# ============================================================
+# GAP ANALYSIS (endpoint citati in ANALISI.md ma non trovati)
+# ============================================================
+
+x-gaps:
+  mediasActions:
+    expected: endpoint dedicato medias_actions
+    found: nessuna chiamata diretta da mediasActionsController
+    note: Probabilmente delega a actionsService PUT /actions.

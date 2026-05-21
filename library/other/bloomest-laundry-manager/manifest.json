@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "bloomest-laundry-manager-pp-mcp",
+  "display_name": "Bloomest Laundry Manager",
+  "version": "4.6.1",
+  "description": "Bloomest Laundry Manager API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/bloomest-laundry-manager-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/bloomest-laundry-manager-pp-mcp",
+      "args": [],
+      "env": {
+        "BLOOMEST_LAUNDRY_MANAGER_COOKIE_AUTH": "${user_config.bloomest_laundry_manager_cookie_auth}"
+      }
+    }
+  },
+  "user_config": {
+    "bloomest_laundry_manager_cookie_auth": {
+      "type": "string",
+      "title": "BLOOMEST_LAUNDRY_MANAGER_COOKIE_AUTH",
+      "description": "Sets BLOOMEST_LAUNDRY_MANAGER_COOKIE_AUTH for the Bloomest Laundry Manager MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

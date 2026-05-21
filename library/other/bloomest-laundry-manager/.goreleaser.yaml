@@ -1,0 +1,51 @@
+version: 2
+project_name: bloomest-laundry-manager-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: bloomest-laundry-manager-pp-cli
+    main: ./cmd/bloomest-laundry-manager-pp-cli
+    binary: bloomest-laundry-manager-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X bloomest-laundry-manager-pp-cli/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: bloomest-laundry-manager-pp-mcp
+    main: ./cmd/bloomest-laundry-manager-pp-mcp
+    binary: bloomest-laundry-manager-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: bloomest-laundry-manager-pp-cli
+    repository:
+      owner: andrea-tagliazucchi
+      name: homebrew-tap
+    homepage: "https://github.com/andrea-tagliazucchi/bloomest-laundry-manager-pp-cli"
+    description: "Mapping non-ufficiale dell'API consumata dal gestionale web `www.bloomestlaundry.app/bloomest/` (v1.22.0 in..."
+    install: |
+      bin.install "bloomest-laundry-manager-pp-cli"
+      bin.install "bloomest-laundry-manager-pp-mcp"

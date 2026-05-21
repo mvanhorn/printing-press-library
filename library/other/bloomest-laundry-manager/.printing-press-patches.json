@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "patches": [
+    {
+      "date": "2026-05-21",
+      "amend_run_id": "amend-2026-05-21T1950",
+      "summary": "feat(bloomest-laundry-manager): add 7 interfaces / 15 methods (reboot.cashbox, research.log-search, account.change-password, tickets.list, messages.send, statistics.* x9, actions.query)",
+      "files": [
+        "internal/cli/reboot.go",
+        "internal/cli/reboot_cashbox.go",
+        "internal/cli/research.go",
+        "internal/cli/research_log-search.go",
+        "internal/cli/account.go",
+        "internal/cli/account_change-password.go",
+        "internal/cli/tickets.go",
+        "internal/cli/tickets_list.go",
+        "internal/cli/messages.go",
+        "internal/cli/messages_send.go",
+        "internal/cli/statistics.go",
+        "internal/cli/statistics_helper.go",
+        "internal/cli/statistics_corrispettivo.go",
+        "internal/cli/statistics_all-movements.go",
+        "internal/cli/statistics_card-report.go",
+        "internal/cli/statistics_cycles-report.go",
+        "internal/cli/statistics_laundry-summaries.go",
+        "internal/cli/statistics_sales-by-device.go",
+        "internal/cli/statistics_summaries-by-currency.go",
+        "internal/cli/statistics_summaries-hopper-currency.go",
+        "internal/cli/statistics_alarms.go",
+        "internal/cli/actions.go",
+        "internal/cli/actions_query.go",
+        "internal/cli/root.go"
+      ],
+      "findings_addressed": [
+        "F-reboot: POST /reboot?laundry=<id> not exposed (was promoted flat shortcut without --yes/--dry-run gate)",
+        "F-research: POST /research not exposed at all",
+        "F-account: PUT /profile?username=&change=<SHA1> not exposed; F11 security warning required",
+        "F-tickets: GET /tickets?laundry=<id> not exposed (was promoted flat shortcut)",
+        "F-messages: POST /messages (single-user email) not exposed with structured flags",
+        "F-statistics: 9 discriminator-based reports (corrispettivo, all_movements, card-report, cycles_report, laundry_summaries, sales_by_device, summaries_by_currency, summaries_hopper_currency, alarms) not exposed individually",
+        "F-actions: PUT /actions (PUT-as-query quirk) not exposed with date-filter flags"
+      ],
+      "patch_count": 25,
+      "notes": "Six existing promoted_*.go shortcut commands de-registered in root.go to avoid Cobra name collision with the new full-interface roots. The promoted source files themselves are intoccati. Three non-colliding promoted entries (lockers, *-profile, *-version) stay registered. Refactor B (post-checkpoint-2): extracted runStatisticsReport + normalizeISODate into internal/cli/statistics_helper.go so all 9 statistics_*.go method files are now thin (~30 LOC each, identical shape)."
+    }
+  ]
+}

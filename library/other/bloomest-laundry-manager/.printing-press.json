@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-14T19:05:28.203369Z",
+  "printing_press_version": "4.6.1",
+  "api_name": "bloomest-laundry-manager",
+  "display_name": "Bloomest Laundry Manager",
+  "cli_name": "bloomest-laundry-manager-pp-cli",
+  "owner": "andrea-tagliazucchi",
+  "printer_name": "Andrea Tagliazucchi",
+  "spec_path": "spec.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:d5473bb8bbf05693d5f06e1764b59b76c05aa2fb850bc37d028878234cf1eee1",
+  "mcp_binary": "bloomest-laundry-manager-pp-mcp",
+  "mcp_tool_count": 59,
+  "mcp_public_tool_count": 4,
+  "mcp_ready": "full",
+  "api_version": "1.22.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "BLOOMEST_LAUNDRY_MANAGER_COOKIE_AUTH"
+  ]
+}
