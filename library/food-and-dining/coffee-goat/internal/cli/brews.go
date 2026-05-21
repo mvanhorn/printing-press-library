@@ -247,21 +247,19 @@ func newBrewsShowCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			defer db.Close()
-			rows, err := queryBrews(db, 0, "", "", 0)
+			r, err := getBrewByID(db, id)
 			if err != nil {
 				return err
 			}
-			for _, r := range rows {
-				if r.ID == id {
-					if flags.asJSON {
-						return printJSONFiltered(cmd.OutOrStdout(), r, flags)
-					}
-					fmt.Fprintf(cmd.OutOrStdout(), "brew #%d\n  bean: %s\n  method: %s\n  grind: %s\n  dose: %.1fg\n  yield: %.1fg\n  time: %ds\n  temp: %.1fC\n  tds: %d ppm\n  rating: %d\n  notes: %s\n  brewed_at: %s\n",
-						r.ID, r.BeanLabel, r.Method, r.Grind, r.DoseG, r.YieldG, r.TimeS, r.TemperatureC, r.WaterTDSPPM, r.Rating, r.Notes, r.BrewedAt)
-					return nil
-				}
+			if r == nil {
+				return notFoundErr(fmt.Errorf("brew #%d not found", id))
 			}
-			return notFoundErr(fmt.Errorf("brew #%d not found", id))
+			if flags.asJSON {
+				return printJSONFiltered(cmd.OutOrStdout(), *r, flags)
+			}
+			fmt.Fprintf(cmd.OutOrStdout(), "brew #%d\n  bean: %s\n  method: %s\n  grind: %s\n  dose: %.1fg\n  yield: %.1fg\n  time: %ds\n  temp: %.1fC\n  tds: %d ppm\n  rating: %d\n  notes: %s\n  brewed_at: %s\n",
+				r.ID, r.BeanLabel, r.Method, r.Grind, r.DoseG, r.YieldG, r.TimeS, r.TemperatureC, r.WaterTDSPPM, r.Rating, r.Notes, r.BrewedAt)
+			return nil
 		},
 	}
 	return cmd
@@ -367,6 +365,46 @@ func queryBrews(db *store.Store, beanID int64, method, since string, limit int) 
 		return nil, err
 	}
 	return out, nil
+}
+
+// getBrewByID returns a single brew by primary key via an indexed lookup.
+// Used by `brews show` so the read does not scan the full table.
+func getBrewByID(db *store.Store, id int64) (*brewRow, error) {
+	row := db.DB().QueryRow(
+		`SELECT b.id, COALESCE(b.bean_id,0), COALESCE(b.method,''), COALESCE(b.grind,''),
+		        COALESCE(b.dose_g,0), COALESCE(b.yield_g,0), COALESCE(b.time_s,0),
+		        COALESCE(b.temperature_c,0), COALESCE(b.water_tds_ppm,0),
+		        COALESCE(b.rating,0), COALESCE(b.notes,''), COALESCE(b.descriptors_json,''),
+		        COALESCE(b.brewed_at,''),
+		        COALESCE(bn.roaster_slug,''), COALESCE(bn.product_slug,'')
+		 FROM brews b
+		 LEFT JOIN beans bn ON b.bean_id = bn.id
+		 WHERE b.id = ?`,
+		id,
+	)
+	var r brewRow
+	var roasterSlug, productSlug, descriptorsJSON string
+	err := row.Scan(
+		&r.ID, &r.BeanID, &r.Method, &r.Grind,
+		&r.DoseG, &r.YieldG, &r.TimeS,
+		&r.TemperatureC, &r.WaterTDSPPM,
+		&r.Rating, &r.Notes, &descriptorsJSON,
+		&r.BrewedAt,
+		&roasterSlug, &productSlug,
+	)
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	if roasterSlug != "" && productSlug != "" {
+		r.BeanLabel = roasterSlug + "/" + productSlug
+	}
+	if descriptorsJSON != "" {
+		_ = json.Unmarshal([]byte(descriptorsJSON), &r.Descriptors)
+	}
+	return &r, nil
 }
 
 func nullableString(s string) any {

@@ -160,14 +160,20 @@ func (f *Fetcher) Fetch(ctx context.Context, r roasters.Roaster) ([]RoasterProdu
 		}
 
 		for _, p := range parsed.Products {
+			// Advance the since_id cursor for every product on the page,
+			// not just those that pass the filter. A merch-only page with
+			// every product filtered out would otherwise leave sinceID
+			// unchanged, the next request would re-fetch the same page,
+			// and pagination would stall until the maxPages cap silently
+			// drops every coffee product that follows.
+			if p.ID > sinceID {
+				sinceID = p.ID
+			}
 			if !passesFilters(p, r.Filters) {
 				continue
 			}
 			rp := normalise(r, p)
 			all = append(all, rp)
-			if p.ID > sinceID {
-				sinceID = p.ID
-			}
 		}
 
 		if len(parsed.Products) < pageLimit {
