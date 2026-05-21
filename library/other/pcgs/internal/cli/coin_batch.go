@@ -133,7 +133,16 @@ func runBatch(cmd *cobra.Command, flags *rootFlags, rows []inputRow, resumable b
 	// header so a downstream importer never has to handle the "first row is
 	// data" case; when --columns is omitted, the header is auto-discovered
 	// from the first emitted row (see autoColumnsFromEnvelope).
-	var emit func(obj map[string]any) error
+	// emit takes the row envelope plus the cert number to checkpoint after a
+	// successful row write (empty when the row should not be checkpointed —
+	// parse-error rows, or non-resumable runs). Coupling checkpoint writes
+	// to actual row emission inside emit is what keeps the checkpoint and
+	// CSV file consistent in --csv --resumable auto-discovery mode: rows
+	// buffered while waiting for the schema must NOT be checkpointed yet,
+	// otherwise a crash between the checkpoint write and the eventual
+	// pending flush would mark the cert complete while its row never made
+	// it to the output file (next run would silently skip it).
+	var emit func(obj map[string]any, checkpointCertNo string) error
 	var csvFlush func() error
 	if flags.csv {
 		cols, parseErr := parseColumnSpec(columnsSpec)
@@ -147,8 +156,15 @@ func runBatch(cmd *cobra.Command, flags *rootFlags, rows []inputRow, resumable b
 		// it from a parse-error or cert-validation row that only has cert_no
 		// and _keep.*, every subsequent valid row would silently emit empty
 		// cells for every data.* field. We buffer pre-discovery rows so they
-		// still appear in the output once the schema is settled.
-		var pending []map[string]any
+		// still appear in the output once the schema is settled. Each entry
+		// carries the cert number to checkpoint at flush time (empty when no
+		// checkpoint is needed) so the checkpoint file stays in lockstep
+		// with what actually reached the CSV.
+		type pendingRow struct {
+			envelope         map[string]any
+			checkpointCertNo string
+		}
+		var pending []pendingRow
 		writeHeader := func() error {
 			headers := make([]string, len(cols))
 			for i, col := range cols {
@@ -171,12 +187,26 @@ func runBatch(cmd *cobra.Command, flags *rootFlags, rows []inputRow, resumable b
 			}
 			return nil
 		}
-		emit = func(obj map[string]any) error {
+		flushPending := func() error {
+			for _, p := range pending {
+				if err := writeRow(p.envelope); err != nil {
+					return err
+				}
+				if p.checkpointCertNo != "" {
+					if err := appendCheckpoint(checkpoint, p.checkpointCertNo); err != nil {
+						return err
+					}
+				}
+			}
+			pending = nil
+			return nil
+		}
+		emit = func(obj map[string]any, checkpointCertNo string) error {
 			envelope := envelopeToAnyMap(obj)
 			if !headerWritten {
 				if len(cols) == 0 {
 					if _, ok := envelope["data"]; !ok {
-						pending = append(pending, envelope)
+						pending = append(pending, pendingRow{envelope, checkpointCertNo})
 						return nil
 					}
 					cols = autoColumnsFromEnvelope(envelope)
@@ -184,14 +214,17 @@ func runBatch(cmd *cobra.Command, flags *rootFlags, rows []inputRow, resumable b
 				if err := writeHeader(); err != nil {
 					return err
 				}
-				for _, p := range pending {
-					if err := writeRow(p); err != nil {
-						return err
-					}
+				if err := flushPending(); err != nil {
+					return err
 				}
-				pending = nil
 			}
-			return writeRow(envelope)
+			if err := writeRow(envelope); err != nil {
+				return err
+			}
+			if checkpointCertNo != "" {
+				return appendCheckpoint(checkpoint, checkpointCertNo)
+			}
+			return nil
 		}
 		// csv.Writer wraps bufio.Writer; a deferred Flush would discard its
 		// error and silently drop buffered rows on a failed underlying write.
@@ -202,27 +235,28 @@ func runBatch(cmd *cobra.Command, flags *rootFlags, rows []inputRow, resumable b
 			// `data` (every input row was a parse error or every API call
 			// failed). Derive a schema from whatever did arrive so the CSV
 			// carries cert_no + _keep.* + error columns instead of being
-			// silently empty.
+			// silently empty. flushPending writes the deferred checkpoints
+			// in lockstep with the rows.
 			if !headerWritten && len(pending) > 0 {
-				cols = autoColumnsFromEnvelope(pending[0])
+				cols = autoColumnsFromEnvelope(pending[0].envelope)
 				if err := writeHeader(); err != nil {
 					return err
 				}
-				for _, p := range pending {
-					if err := writeRow(p); err != nil {
-						return err
-					}
+				if err := flushPending(); err != nil {
+					return err
 				}
-				pending = nil
 			}
 			csvW.Flush()
 			return csvW.Error()
 		}
 	} else {
 		enc := json.NewEncoder(cmd.OutOrStdout())
-		emit = func(obj map[string]any) error {
+		emit = func(obj map[string]any, checkpointCertNo string) error {
 			if err := enc.Encode(obj); err != nil {
 				return fmt.Errorf("encode output: %w", err)
+			}
+			if checkpointCertNo != "" {
+				return appendCheckpoint(checkpoint, checkpointCertNo)
 			}
 			return nil
 		}
@@ -237,7 +271,7 @@ func runBatch(cmd *cobra.Command, flags *rootFlags, rows []inputRow, resumable b
 		}
 		obj := rowBase(r, keyColumn)
 		if r.Err != "" || r.CertNo == "" {
-			if err := emit(obj); err != nil {
+			if err := emit(obj, ""); err != nil {
 				return err
 			}
 			continue
@@ -274,13 +308,12 @@ func runBatch(cmd *cobra.Command, flags *rootFlags, rows []inputRow, resumable b
 				obj["data"] = applyCoinResponseTransforms(json.RawMessage(data))
 			}
 		}
-		if err := emit(obj); err != nil {
-			return err
-		}
+		checkpointCertNo := ""
 		if resumable {
-			if err := appendCheckpoint(checkpoint, r.CertNo); err != nil {
-				return err
-			}
+			checkpointCertNo = r.CertNo
+		}
+		if err := emit(obj, checkpointCertNo); err != nil {
+			return err
 		}
 	}
 	if csvFlush != nil {
