@@ -11,6 +11,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const maxTripPlanCombinations = 1_000_000
+
 type planPick struct {
 	Leg          string  `json:"leg"`
 	PropertyName string  `json:"property_name"`
@@ -71,7 +73,10 @@ func newTripPlanCmd(flags *rootFlags) *cobra.Command {
 				}
 				options = append(options, picks)
 			}
-			best := choosePlan(options, budget)
+			best, err := choosePlan(options, budget)
+			if err != nil {
+				return fmt.Errorf("trip plan: %w", err)
+			}
 			return flags.printJSON(cmd, best)
 		},
 	}
@@ -94,11 +99,14 @@ func parseLeg(s string) (string, time.Time, time.Time, error) {
 	return parts[0], in, out, err
 }
 
-func choosePlan(options [][]planPick, budget float64) []planPick {
+func choosePlan(options [][]planPick, budget float64) ([]planPick, error) {
+	if err := validatePlanSearchSpace(options); err != nil {
+		return nil, err
+	}
 	best := make([]planPick, 0)
 	var bestSum float64
-	var dfs func(int, float64, []planPick)
-	dfs = func(i int, sum float64, cur []planPick) {
+	var dfs func(int, float64, string, []planPick)
+	dfs = func(i int, sum float64, currency string, cur []planPick) {
 		if sum > budget {
 			return
 		}
@@ -109,12 +117,37 @@ func choosePlan(options [][]planPick, budget float64) []planPick {
 			return
 		}
 		for _, p := range options[i] {
-			dfs(i+1, sum+p.Price, append(cur, p))
+			if p.Currency == "" {
+				continue
+			}
+			nextCurrency := currency
+			if nextCurrency == "" {
+				nextCurrency = p.Currency
+			}
+			if p.Currency != nextCurrency {
+				continue
+			}
+			dfs(i+1, sum+p.Price, nextCurrency, append(cur, p))
 		}
 	}
-	dfs(0, 0, nil)
+	dfs(0, 0, "", nil)
 	if best == nil {
-		return make([]planPick, 0)
+		return make([]planPick, 0), nil
 	}
-	return best
+	return best, nil
+}
+
+func validatePlanSearchSpace(options [][]planPick) error {
+	combinations := 1
+	for _, picks := range options {
+		if len(picks) == 0 {
+			return nil
+		}
+		nextCombinations := combinations * len(picks)
+		if nextCombinations > maxTripPlanCombinations {
+			return fmt.Errorf("too many plan combinations (%d > %d); add filters or reduce --leg count", nextCombinations, maxTripPlanCombinations)
+		}
+		combinations = nextCombinations
+	}
+	return nil
 }
