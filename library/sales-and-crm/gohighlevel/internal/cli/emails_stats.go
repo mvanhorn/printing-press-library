@@ -49,8 +49,13 @@ Token). If you see a 403, use a full OAuth token or an Agency API key instead.`,
 				return err
 			}
 
-			path := fmt.Sprintf("/emails/public/v2/locations/%s/campaigns/stats/email-campaigns/%s",
-				flagLocationId, sourceID)
+			path := replacePathParam(
+				replacePathParam(
+					"/emails/public/v2/locations/{locationId}/campaigns/stats/email-campaigns/{sourceId}",
+					"locationId", flagLocationId,
+				),
+				"sourceId", sourceID,
+			)
 
 			data, prov, err := resolveRead(cmd.Context(), c, flags, "emails", false, path, nil, nil)
 			if err != nil {
