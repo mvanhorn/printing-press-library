@@ -68,7 +68,7 @@ func newWatchAddCmd(flags *rootFlags) *cobra.Command {
 			return nil
 		},
 	}
-	cmd.Flags().Float64Var(&target, "target-price", 0, "Alert when a deal is at or below this price.")
+	cmd.Flags().Float64Var(&target, "target-price", 0, "Alert when a deal is at or below this price. If unset, alerts fire on a new historical low instead.")
 	return cmd
 }
 
@@ -163,13 +163,28 @@ func newWatchCheckCmd(flags *rootFlags) *cobra.Command {
 			if err := s.MigrateBluRayCatalog(); err != nil {
 				return err
 			}
-			watched := map[int]float64{}
+			// PATCH: Snapshot both target and the previously-stored historical low
+			// so we can fire alerts on a *new* historical low even when no
+			// --target-price was set. Fixes Greptile P1 on PR #634 — without
+			// this, releases added via `watch add <id>` (target=0) never alerted
+			// because the prior code only checked `target > 0 && sale <= target`.
+			type watchEntry struct {
+				target    float64
+				prevLow   float64
+				hasPrevLow bool
+			}
+			watched := map[int]watchEntry{}
 			watchRows, err := s.ListWatchlist(cmd.Context())
 			if err != nil {
 				return err
 			}
 			for _, row := range watchRows {
-				watched[row.ReleaseID] = row.TargetPrice
+				e := watchEntry{target: row.TargetPrice}
+				if row.LowSeen.Valid {
+					e.prevLow = row.LowSeen.Float64
+					e.hasPrevLow = true
+				}
+				watched[row.ReleaseID] = e
 			}
 			if len(watched) == 0 {
 				// PATCH: Keep --json output parseable even for an empty watchlist.
@@ -213,7 +228,7 @@ func newWatchCheckCmd(flags *rootFlags) *cobra.Command {
 				if retailerID > 0 && d.RetailerID != retailerID {
 					continue
 				}
-				target, ok := watched[d.ReleaseID]
+				entry, ok := watched[d.ReleaseID]
 				if !ok {
 					continue
 				}
@@ -224,7 +239,9 @@ func newWatchCheckCmd(flags *rootFlags) *cobra.Command {
 					persistenceErrors++
 					fmt.Fprintf(cmd.ErrOrStderr(), "warning: failed to persist low_seen for release %d: %v\n", d.ReleaseID, err)
 				}
-				if target > 0 && d.SalePrice <= target {
+				hitTarget := entry.target > 0 && d.SalePrice <= entry.target
+				newLow := entry.hasPrevLow && d.SalePrice < entry.prevLow
+				if hitTarget || newLow {
 					alerts = append(alerts, d)
 					if err := s.MarkWatchlistAlerted(cmd.Context(), d.ReleaseID, d.SalePrice); err != nil {
 						persistenceErrors++
@@ -242,7 +259,7 @@ func newWatchCheckCmd(flags *rootFlags) *cobra.Command {
 				return flags.printJSON(cmd, alerts)
 			}
 			if len(alerts) == 0 {
-				fmt.Fprintln(cmd.OutOrStdout(), "No watched releases hit their target price.")
+				fmt.Fprintln(cmd.OutOrStdout(), "No watched releases hit their target price or a new historical low.")
 				if persistenceErrors > 0 {
 					fmt.Fprintf(cmd.OutOrStdout(), "Persistence errors: %d\n", persistenceErrors)
 				}
