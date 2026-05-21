@@ -81,6 +81,23 @@ func lnOpenStore(flags *rootFlags) (*store.Store, error) {
 	return st, nil
 }
 
+// lnOpenStoreRO opens the local store read-only, for query-only commands.
+// mode=ro enforces read-only at the SQLite driver level — a guarantee no
+// query-text screen can make. The store file is created by 'sync'; if it
+// does not exist yet, callers get a clear "run sync first" error.
+func lnOpenStoreRO() (*store.Store, error) {
+	path := defaultDBPath("loopnet-pp-cli")
+	if _, err := os.Stat(path); err != nil {
+		return nil, notFoundErr(fmt.Errorf(
+			"no local store yet — run 'loopnet-pp-cli sync <location>' first"))
+	}
+	st, err := store.OpenReadOnly(path)
+	if err != nil {
+		return nil, configErr(fmt.Errorf("opening local store: %w", err))
+	}
+	return st, nil
+}
+
 // recordObservations appends one observation row per listing for this sync.
 func recordObservations(db *sql.DB, obs []lnObservation) error {
 	tx, err := db.Begin()

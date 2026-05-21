@@ -205,13 +205,31 @@ func parseBrowserUseCookies(raw string) string {
 		}
 	}
 	if len(pairs) == 0 {
-		// Fallback: regex name/value pairs straight from the repr.
-		re := regexp.MustCompile(`'name':\s*'([^']*)',\s*'value':\s*'([^']*)'`)
-		for _, m := range re.FindAllStringSubmatch(body, -1) {
-			pairs = append(pairs, m[1]+"="+m[2])
+		// Fallback: pull each cookie dict from the repr and apply the same
+		// loopnet-domain filter the JSON path uses, so a shared browser
+		// profile's third-party session cookies are never forwarded.
+		objRE := regexp.MustCompile(`\{[^{}]*\}`)
+		nameRE := regexp.MustCompile(`'name':\s*'([^']*)'`)
+		valueRE := regexp.MustCompile(`'value':\s*'([^']*)'`)
+		domainRE := regexp.MustCompile(`'domain':\s*'([^']*)'`)
+		for _, obj := range objRE.FindAllString(body, -1) {
+			name := firstSubmatch(nameRE, obj)
+			domain := firstSubmatch(domainRE, obj)
+			if name == "" || !strings.Contains(domain, "loopnet") {
+				continue
+			}
+			pairs = append(pairs, name+"="+firstSubmatch(valueRE, obj))
 		}
 	}
 	return strings.Join(pairs, "; ")
+}
+
+// firstSubmatch returns the first capture group of re in s, or "" if no match.
+func firstSubmatch(re *regexp.Regexp, s string) string {
+	if m := re.FindStringSubmatch(s); m != nil {
+		return m[1]
+	}
+	return ""
 }
 
 func lnTruncate(s string, n int) string {

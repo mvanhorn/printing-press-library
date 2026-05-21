@@ -85,7 +85,7 @@ Only SELECT / WITH queries are permitted.`,
 			if err := assertReadOnlySQL(query); err != nil {
 				return usageErr(err)
 			}
-			st, err := lnOpenStore(flags)
+			st, err := lnOpenStoreRO()
 			if err != nil {
 				return err
 			}

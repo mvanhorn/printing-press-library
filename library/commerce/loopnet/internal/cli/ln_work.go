@@ -56,6 +56,9 @@ later to build the history.`,
 				return lnNoData(location)
 			}
 			times, _ := lnSyncTimes(st.DB(), location, market.propertyType, market.listingType)
+			if len(times) == 0 {
+				return lnNoData(location)
+			}
 
 			latest := listingsAtSync(obs, times[0])
 			first := map[string]time.Time{}
