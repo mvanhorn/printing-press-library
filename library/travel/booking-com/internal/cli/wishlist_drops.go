@@ -65,7 +65,7 @@ func newWishlistDropsCmd(flags *rootFlags) *cobra.Command {
 			cutoff := time.Now().Add(-since)
 			out := make([]wishlistDrop, 0)
 			for slug, item := range names {
-				rows, err := st.DB().QueryContext(cmd.Context(), `SELECT price,currency,observed_at FROM price_history WHERE slug=? ORDER BY observed_at DESC LIMIT 2`, slug)
+				rows, err := st.DB().QueryContext(cmd.Context(), `SELECT price,currency,observed_at FROM price_history WHERE slug=? AND checkin='' AND checkout='' AND group_adults=0 ORDER BY observed_at DESC LIMIT 2`, slug)
 				if err != nil {
 					return fmt.Errorf("wishlist drops: %w", err)
 				}
