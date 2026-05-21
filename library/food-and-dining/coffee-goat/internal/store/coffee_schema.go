@@ -239,14 +239,27 @@ func (s *Store) UpsertRoasterProduct(roasterSlug, handle string, fields map[stri
 		 ON CONFLICT(roaster_slug, handle) DO UPDATE SET %s`,
 		joinSimple(cols), joinSimple(placeholders), joinSimple(updates),
 	)
-	if _, err := s.db.Exec(q, vals...); err != nil {
+	// Wrap the upsert + FTS DELETE + FTS INSERT in a single transaction.
+	// Without this, a failure between FTS DELETE and FTS INSERT (e.g.
+	// SQLITE_FULL on disk pressure) would leave the product row present
+	// in roaster_products but absent from roaster_products_fts, and
+	// subsequent search/watch queries would silently miss it until the
+	// next sync of that roaster overwrites the gap. The whole flow has
+	// to commit atomically or roll back.
+	tx, err := s.db.Begin()
+	if err != nil {
+		return fmt.Errorf("upsert roaster_product %s/%s begin: %w", roasterSlug, handle, err)
+	}
+	defer func() {
+		_ = tx.Rollback() // No-op after a successful Commit.
+	}()
+	if _, err := tx.Exec(q, vals...); err != nil {
 		return fmt.Errorf("upsert roaster_product %s/%s: %w", roasterSlug, handle, err)
 	}
-
 	// Mirror into FTS5. roaster_products_fts is content-less (no
 	// content=table binding), so we DELETE+INSERT to keep it in sync
 	// after upserts.
-	if _, err := s.db.Exec(
+	if _, err := tx.Exec(
 		`DELETE FROM roaster_products_fts WHERE rowid IN (
 			SELECT rowid FROM roaster_products WHERE roaster_slug=? AND handle=?
 		)`,
@@ -254,13 +267,16 @@ func (s *Store) UpsertRoasterProduct(roasterSlug, handle string, fields map[stri
 	); err != nil {
 		return fmt.Errorf("roaster_products_fts cleanup: %w", err)
 	}
-	if _, err := s.db.Exec(
+	if _, err := tx.Exec(
 		`INSERT INTO roaster_products_fts (rowid, title, body_text, origin, producer, varietal, tags_json)
 		 SELECT rowid, title, body_text, origin, producer, varietal, tags_json
 		 FROM roaster_products WHERE roaster_slug=? AND handle=?`,
 		roasterSlug, handle,
 	); err != nil {
 		return fmt.Errorf("roaster_products_fts insert: %w", err)
+	}
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("upsert roaster_product %s/%s commit: %w", roasterSlug, handle, err)
 	}
 	return nil
 }

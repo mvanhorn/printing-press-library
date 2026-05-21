@@ -120,7 +120,7 @@ back-test residuals). 'predict-rating calibration' is read-only.`,
 			if err != nil {
 				return err
 			}
-			if err := persistPrediction(db, pred); err != nil {
+			if err := persistPrediction(db, &pred); err != nil {
 				return err
 			}
 			if !showNeighbors {
@@ -172,7 +172,7 @@ func newPredictRatingCellarCmd(flags *rootFlags) *cobra.Command {
 				if err != nil {
 					continue
 				}
-				if err := persistPrediction(db, pred); err != nil {
+				if err := persistPrediction(db, &pred); err != nil {
 					return err
 				}
 				if !showNeighbors {
@@ -432,7 +432,7 @@ func confidenceBucket(n int, sigma float64) (string, string) {
 }
 
 // persistPrediction inserts the prediction row.
-func persistPrediction(db *store.Store, p predictedRating) error {
+func persistPrediction(db *store.Store, p *predictedRating) error {
 	neighborsJSON := ""
 	if len(p.NeighborRows) > 0 {
 		b, _ := json.Marshal(p.NeighborRows)
