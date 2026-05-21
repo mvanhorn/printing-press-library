@@ -119,7 +119,16 @@ foods that close the protein gap within the remaining energy budget.`,
 				if err != nil {
 					return fmt.Errorf("summary fetch for %s: %w", dd, err)
 				}
+				// summary.TodayEnergyTarget is returned in the user's
+				// configured display unit (kJ or kcal), per
+				// summary.EnergyUnitCode. result.EnergyTargetKJ accumulates
+				// in kJ to match result.EnergyKJ (which ktAggregateDay
+				// normalizes to kJ). Convert kcal → kJ here so the gap
+				// arithmetic is unit-consistent for kcal users too.
 				if t, ok := ktParseCzechNum(summary.TodayEnergyTarget); ok {
+					if strings.EqualFold(summary.EnergyUnitCode, "kcal") {
+						t = t * 4.184
+					}
 					result.EnergyTargetKJ += t
 				}
 			}

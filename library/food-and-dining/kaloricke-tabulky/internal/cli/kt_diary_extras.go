@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -172,12 +173,20 @@ trailing 7-day moving average.`,
 					continue
 				}
 				dm := ktAggregateDay(diary, d.Format("2006-01-02"))
-				out, _ := ktParseCzechNum(summary.TodayActivity)
+				// summary.TodayActivity comes back in the user's configured
+				// display unit (kJ or kcal), described by EnergyUnitCode.
+				// dm.EnergyKJ is always kJ. Convert kcal → kJ before
+				// subtracting so net is always in kJ for any user setting.
+				outRaw, _ := ktParseCzechNum(summary.TodayActivity)
+				outKJ := outRaw
+				if strings.EqualFold(summary.EnergyUnitCode, "kcal") {
+					outKJ = outRaw * 4.184
+				}
 				series = append(series, day{
 					Date:        d.Format("2006-01-02"),
 					EnergyInKJ:  dm.EnergyKJ,
-					EnergyOutKJ: out,
-					NetKJ:       dm.EnergyKJ - out,
+					EnergyOutKJ: outKJ,
+					NetKJ:       dm.EnergyKJ - outKJ,
 				})
 			}
 			// Moving average: 7-day window when the series has enough
