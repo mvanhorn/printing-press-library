@@ -75,6 +75,23 @@ func TestPriceBreakdownFromAnySkipsLegacyFeesWhenStructuredFeesExist(t *testing.
 	}
 }
 
+func TestPriceBreakdownFromAnyLegacySubtotalDoesNotSetTotal(t *testing.T) {
+	root := map[string]any{
+		"legacyFees": []any{
+			map[string]any{"label": "Subtotal", "amount": float64(120)},
+			map[string]any{"label": "Total", "amount": float64(150)},
+		},
+	}
+
+	got := priceBreakdownFromAny(root)
+	if got.Subtotal != 120 {
+		t.Fatalf("Subtotal = %v, want 120", got.Subtotal)
+	}
+	if got.Total != 150 {
+		t.Fatalf("Total = %v, want 150", got.Total)
+	}
+}
+
 // TestParseAPIKeyFromSSR confirms the regex extracts the api_config key
 // embedded in airbnb.com SSR HTML.
 func TestParseAPIKeyFromSSR(t *testing.T) {

@@ -288,13 +288,13 @@ func priceBreakdownFromAny(root any) *PriceBreakdown {
 				p.Fees["service"] += amount
 			case strings.Contains(label, "tax"):
 				p.Fees["tax"] += amount
-			case strings.Contains(label, "total"):
-				if p.Total == 0 {
-					p.Total = amount
-				}
 			case strings.Contains(label, "subtotal"):
 				if p.Subtotal == 0 {
 					p.Subtotal = amount
+				}
+			case strings.Contains(label, "total"):
+				if p.Total == 0 {
+					p.Total = amount
 				}
 			}
 		}
