@@ -265,9 +265,10 @@ Single rule: **bump `npm/package.json`'s `version` field in your release PR.** E
 When a PR that bumps the version merges to `main`:
 
 1. `.github/workflows/auto-tag-npm.yml` detects the version change and pushes a matching `npm-v<version>` tag.
-2. `.github/workflows/npm-publish.yml` triggers on the tag push, runs tests + build, and publishes via OIDC Trusted Publishing with a provenance attestation.
+2. The same auto-tag workflow dispatches `.github/workflows/npm-publish.yml` for that tag. Tag pushes made by `GITHUB_TOKEN` do not trigger a second workflow run by themselves, so the explicit dispatch is the release handoff.
+3. `.github/workflows/npm-publish.yml` runs tests + build, and publishes via OIDC Trusted Publishing with a provenance attestation.
 
-End-to-end: PR → review → merge → tag → publish, with no manual steps after merge.
+End-to-end: PR → review → merge → tag → dispatched publish, with no manual steps after merge.
 
 **What does NOT trigger a release:**
 
