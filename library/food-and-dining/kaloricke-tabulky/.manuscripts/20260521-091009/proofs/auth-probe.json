@@ -1,0 +1,157 @@
+[
+  {
+    "endpoint": "/user/info?format=json",
+    "status": 404,
+    "snippet": "{\"message\":\"User not found.\",\"internalCode\":\"USER_NOT_FOUND\",\"springMessages\":{\"title\":\"U\u017eivatel nenalezen\",\"message\":\"Zkontroluj, zda je zadan\u00fd spr\u00e1vn\u00fd e-mail nebo identifik\u00e1tor.\"}}"
+  },
+  {
+    "endpoint": "/user/account?format=json",
+    "status": 404,
+    "snippet": "{\"message\":\"User not found.\",\"internalCode\":\"USER_NOT_FOUND\",\"springMessages\":{\"title\":\"U\u017eivatel nenalezen\",\"message\":\"Zkontroluj, zda je zadan\u00fd spr\u00e1vn\u00fd e-mail nebo identifik\u00e1tor.\"}}"
+  },
+  {
+    "endpoint": "/user/profile?format=json",
+    "status": 404,
+    "snippet": "{\"message\":\"User not found.\",\"internalCode\":\"USER_NOT_FOUND\",\"springMessages\":{\"title\":\"U\u017eivatel nenalezen\",\"message\":\"Zkontroluj, zda je zadan\u00fd spr\u00e1vn\u00fd e-mail nebo identifik\u00e1tor.\"}}"
+  },
+  {
+    "endpoint": "/user/profile/get?format=json",
+    "status": 200,
+    "snippet": "\r \r \r \r \r \r \r \r \r \r \r \r \r \r \r \r \r \r \r     \r     \r     \r     \r \r \r <!DOCTYPE html>\r <html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"cs\">\r <head>\r     <link rel=\"preconnect\" href=\"https://connect.faceb"
+  },
+  {
+    "endpoint": "/user/setting?format=json",
+    "status": 404,
+    "snippet": "{\"message\":\"User not found.\",\"internalCode\":\"USER_NOT_FOUND\",\"springMessages\":{\"title\":\"U\u017eivatel nenalezen\",\"message\":\"Zkontroluj, zda je zadan\u00fd spr\u00e1vn\u00fd e-mail nebo identifik\u00e1tor.\"}}"
+  },
+  {
+    "endpoint": "/user/setting/get?format=json",
+    "status": 404,
+    "snippet": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 \u2013 Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, b {color:white;background-color:#525D76;"
+  },
+  {
+    "endpoint": "/user/goal/get?format=json",
+    "status": 404,
+    "snippet": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 \u2013 Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, b {color:white;background-color:#525D76;"
+  },
+  {
+    "endpoint": "/statistic/summary/get?format=json",
+    "status": 404,
+    "snippet": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 \u2013 Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, b {color:white;background-color:#525D76;"
+  },
+  {
+    "endpoint": "/statistic/summary/01.01.2026/get?format=json",
+    "status": 200,
+    "snippet": "{\"requestId\":null,\"code\":0,\"message\":null,\"data\":{\"date\":\"01.01.2026\",\"todayEnergy\":\"0\",\"todayEnergyTarget\":\"8\u00a0417\",\"energyUnit\":\"kJ\",\"energyUnitCode\":\"kj\",\"todayDrink\":\"0\",\"todayDrinkTarget\":\"2,5\",\""
+  },
+  {
+    "endpoint": "/statistic/diary/get?format=json",
+    "status": 404,
+    "snippet": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 \u2013 Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, b {color:white;background-color:#525D76;"
+  },
+  {
+    "endpoint": "/user/diary/get?format=json",
+    "status": 400,
+    "snippet": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 400 \u2013 Bad Request</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, b {color:white;background-color:#525D7"
+  },
+  {
+    "endpoint": "/user/diary?format=json",
+    "status": 200,
+    "snippet": "\r \r \r \r \r \r \r \r \r \r \r \r \r \r \r \r \r \r \r     \r     \r     \r     \r \r \r <!DOCTYPE html>\r <html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"cs\">\r <head>\r     <link rel=\"preconnect\" href=\"https://connect.faceb"
+  },
+  {
+    "endpoint": "/user/diary/01.01.2026/get?format=json",
+    "status": 200,
+    "snippet": "{\"requestId\":null,\"code\":0,\"message\":null,\"data\":{\"date\":1767222000000,\"energyUnit\":\"kj\",\"times\":[{\"id\":\"1\",\"title\":\"Sn\u00eddan\u011b\",\"foodstuff\":[],\"notes\":[],\"templateNotes\":null,\"actions\":false,\"rating\":"
+  },
+  {
+    "endpoint": "/diary/01.01.2026/get?format=json",
+    "status": 404,
+    "snippet": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 \u2013 Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, b {color:white;background-color:#525D76;"
+  },
+  {
+    "endpoint": "/diary/get?format=json",
+    "status": 404,
+    "snippet": "\r \r \r \r \r \r \r \r \r \r \r \r \r \r \r \r \r \r \r     \r     \r     \r     \r \r \r <!DOCTYPE html>\r <html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"cs\">\r <head>\r     <link rel=\"preconnect\" href=\"https://connect.faceb"
+  },
+  {
+    "endpoint": "/user/weight/get?format=json",
+    "status": 404,
+    "snippet": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 \u2013 Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, b {color:white;background-color:#525D76;"
+  },
+  {
+    "endpoint": "/user/weight?format=json",
+    "status": 404,
+    "snippet": "{\"message\":\"User not found.\",\"internalCode\":\"USER_NOT_FOUND\",\"springMessages\":{\"title\":\"U\u017eivatel nenalezen\",\"message\":\"Zkontroluj, zda je zadan\u00fd spr\u00e1vn\u00fd e-mail nebo identifik\u00e1tor.\"}}"
+  },
+  {
+    "endpoint": "/user/weight/list?format=json",
+    "status": 404,
+    "snippet": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 \u2013 Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, b {color:white;background-color:#525D76;"
+  },
+  {
+    "endpoint": "/user/foodstuff?format=json",
+    "status": 404,
+    "snippet": "{\"message\":\"User not found.\",\"internalCode\":\"USER_NOT_FOUND\",\"springMessages\":{\"title\":\"U\u017eivatel nenalezen\",\"message\":\"Zkontroluj, zda je zadan\u00fd spr\u00e1vn\u00fd e-mail nebo identifik\u00e1tor.\"}}"
+  },
+  {
+    "endpoint": "/user/foodstuff/list?format=json",
+    "status": 404,
+    "snippet": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 \u2013 Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, b {color:white;background-color:#525D76;"
+  },
+  {
+    "endpoint": "/user/recipe?format=json",
+    "status": 404,
+    "snippet": "{\"message\":\"User not found.\",\"internalCode\":\"USER_NOT_FOUND\",\"springMessages\":{\"title\":\"U\u017eivatel nenalezen\",\"message\":\"Zkontroluj, zda je zadan\u00fd spr\u00e1vn\u00fd e-mail nebo identifik\u00e1tor.\"}}"
+  },
+  {
+    "endpoint": "/user/favorite?format=json",
+    "status": 404,
+    "snippet": "{\"message\":\"User not found.\",\"internalCode\":\"USER_NOT_FOUND\",\"springMessages\":{\"title\":\"U\u017eivatel nenalezen\",\"message\":\"Zkontroluj, zda je zadan\u00fd spr\u00e1vn\u00fd e-mail nebo identifik\u00e1tor.\"}}"
+  },
+  {
+    "endpoint": "/user/favorite/foodstuff?format=json",
+    "status": 404,
+    "snippet": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 \u2013 Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, b {color:white;background-color:#525D76;"
+  },
+  {
+    "endpoint": "/user/water/get?format=json",
+    "status": 404,
+    "snippet": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 \u2013 Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, b {color:white;background-color:#525D76;"
+  },
+  {
+    "endpoint": "/user/menu/get?format=json",
+    "status": 404,
+    "snippet": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 \u2013 Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, b {color:white;background-color:#525D76;"
+  },
+  {
+    "endpoint": "/user/plan?format=json",
+    "status": 404,
+    "snippet": "{\"message\":\"User not found.\",\"internalCode\":\"USER_NOT_FOUND\",\"springMessages\":{\"title\":\"U\u017eivatel nenalezen\",\"message\":\"Zkontroluj, zda je zadan\u00fd spr\u00e1vn\u00fd e-mail nebo identifik\u00e1tor.\"}}"
+  },
+  {
+    "endpoint": "/user/plan/get?format=json",
+    "status": 404,
+    "snippet": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 \u2013 Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, b {color:white;background-color:#525D76;"
+  },
+  {
+    "endpoint": "/user/measure?format=json",
+    "status": 404,
+    "snippet": "{\"message\":\"User not found.\",\"internalCode\":\"USER_NOT_FOUND\",\"springMessages\":{\"title\":\"U\u017eivatel nenalezen\",\"message\":\"Zkontroluj, zda je zadan\u00fd spr\u00e1vn\u00fd e-mail nebo identifik\u00e1tor.\"}}"
+  },
+  {
+    "endpoint": "/user/menu?format=json",
+    "status": 404,
+    "snippet": "{\"message\":\"User not found.\",\"internalCode\":\"USER_NOT_FOUND\",\"springMessages\":{\"title\":\"U\u017eivatel nenalezen\",\"message\":\"Zkontroluj, zda je zadan\u00fd spr\u00e1vn\u00fd e-mail nebo identifik\u00e1tor.\"}}"
+  },
+  {
+    "endpoint": "/notification?format=json",
+    "status": 404,
+    "snippet": "\r \r \r \r \r \r \r \r \r \r \r \r \r \r \r \r \r \r \r     \r     \r     \r     \r \r \r <!DOCTYPE html>\r <html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"cs\">\r <head>\r     <link rel=\"preconnect\" href=\"https://connect.faceb"
+  },
+  {
+    "endpoint": "/user/notification?format=json",
+    "status": 404,
+    "snippet": "{\"message\":\"User not found.\",\"internalCode\":\"USER_NOT_FOUND\",\"springMessages\":{\"title\":\"U\u017eivatel nenalezen\",\"message\":\"Zkontroluj, zda je zadan\u00fd spr\u00e1vn\u00fd e-mail nebo identifik\u00e1tor.\"}}"
+  }
+]

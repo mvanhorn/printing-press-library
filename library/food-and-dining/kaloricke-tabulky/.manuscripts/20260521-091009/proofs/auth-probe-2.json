@@ -1,0 +1,237 @@
+[
+  {
+    "endpoint": "/user/userinfo?format=json",
+    "status": 404,
+    "snippet": "{\"message\":\"User not found.\",\"internalCode\":\"USER_NOT_FOUND\",\"springMessages\":{\"title\":\"U\u017eivatel nenalezen\",\"message\":\"Zkontroluj, zda je zadan\u00fd spr\u00e1vn\u00fd e-m"
+  },
+  {
+    "endpoint": "/user/userinfo/get?format=json",
+    "status": 404,
+    "snippet": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 \u2013 Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, "
+  },
+  {
+    "endpoint": "/user/personal/get?format=json",
+    "status": 404,
+    "snippet": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 \u2013 Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, "
+  },
+  {
+    "endpoint": "/user/personal?format=json",
+    "status": 404,
+    "snippet": "{\"message\":\"User not found.\",\"internalCode\":\"USER_NOT_FOUND\",\"springMessages\":{\"title\":\"U\u017eivatel nenalezen\",\"message\":\"Zkontroluj, zda je zadan\u00fd spr\u00e1vn\u00fd e-m"
+  },
+  {
+    "endpoint": "/personal/get?format=json",
+    "status": 404,
+    "snippet": "\r \r \r \r \r \r \r \r \r \r \r \r \r \r \r \r \r \r \r     \r     \r     \r     \r \r \r <!DOCTYPE html>\r <html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"cs\">\r <head>\r     <link rel="
+  },
+  {
+    "endpoint": "/user/setting/general/get?format=json",
+    "status": 404,
+    "snippet": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 \u2013 Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, "
+  },
+  {
+    "endpoint": "/user/setting/macro/get?format=json",
+    "status": 404,
+    "snippet": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 \u2013 Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, "
+  },
+  {
+    "endpoint": "/user/setting/energy/get?format=json",
+    "status": 404,
+    "snippet": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 \u2013 Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, "
+  },
+  {
+    "endpoint": "/user/measure/get?format=json",
+    "status": 404,
+    "snippet": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 \u2013 Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, "
+  },
+  {
+    "endpoint": "/user/measure/weight/get?format=json",
+    "status": 404,
+    "snippet": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 \u2013 Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, "
+  },
+  {
+    "endpoint": "/user/measure/weight?format=json",
+    "status": 404,
+    "snippet": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 \u2013 Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, "
+  },
+  {
+    "endpoint": "/user/measure/weight/list/get?format=json",
+    "status": 404,
+    "snippet": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 \u2013 Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, "
+  },
+  {
+    "endpoint": "/user/diary/today/get?format=json",
+    "status": 500,
+    "snippet": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 500 \u2013 Internal Server Error</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} "
+  },
+  {
+    "endpoint": "/user/diary/list?format=json",
+    "status": 404,
+    "snippet": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 \u2013 Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, "
+  },
+  {
+    "endpoint": "/user/diary/list/get?format=json",
+    "status": 500,
+    "snippet": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 500 \u2013 Internal Server Error</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} "
+  },
+  {
+    "endpoint": "/potraviny/jablko?format=json",
+    "status": 200,
+    "snippet": "\r \r \r \r \r \r \r \r \r \r \r \r \r \r \r \r \r \r \r     \r     \r     \r     \r \r \r <!DOCTYPE html>\r <html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"cs\">\r <head>\r     <link rel="
+  },
+  {
+    "endpoint": "/foodstuff/jablko/get?format=json",
+    "status": 404,
+    "snippet": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 \u2013 Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, "
+  },
+  {
+    "endpoint": "/foodstuff/2c62865228bf748d/get?format=json",
+    "status": 404,
+    "snippet": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 \u2013 Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, "
+  },
+  {
+    "endpoint": "/foodstuff/get/2c62865228bf748d?format=json",
+    "status": 404,
+    "snippet": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 \u2013 Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, "
+  },
+  {
+    "endpoint": "/foodstuff/detail/2c62865228bf748d?format=json",
+    "status": 404,
+    "snippet": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 \u2013 Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, "
+  },
+  {
+    "endpoint": "/foodstuff/info/2c62865228bf748d?format=json",
+    "status": 404,
+    "snippet": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 \u2013 Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, "
+  },
+  {
+    "endpoint": "/foodstuff/getInfo/2c62865228bf748d?format=json",
+    "status": 404,
+    "snippet": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 \u2013 Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, "
+  },
+  {
+    "endpoint": "/recept/avokadova-pomazanka-z-tvarohu?format=json",
+    "status": 404,
+    "snippet": "\r \r \r \r \r \r \r \r \r \r \r \r \r \r \r \r \r \r \r     \r     \r     \r     \r \r \r <!DOCTYPE html>\r <html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"cs\">\r <head>\r     <link rel="
+  },
+  {
+    "endpoint": "/recipe/get/avokadova-pomazanka-z-tvarohu?format=json",
+    "status": 404,
+    "snippet": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 \u2013 Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, "
+  },
+  {
+    "endpoint": "/aktivita/joga?format=json",
+    "status": 200,
+    "snippet": "\r \r \r \r \r \r \r \r \r \r \r \r \r \r \r \r \r \r \r     \r     \r     \r     \r \r \r <!DOCTYPE html>\r <html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"cs\">\r <head>\r     <link rel="
+  },
+  {
+    "endpoint": "/activity/get/joga?format=json",
+    "status": 404,
+    "snippet": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 \u2013 Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, "
+  },
+  {
+    "endpoint": "/activity/get/8d6f498fa9775846?format=json",
+    "status": 404,
+    "snippet": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 \u2013 Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, "
+  },
+  {
+    "endpoint": "/statistic/get?format=json",
+    "status": 404,
+    "snippet": "\r \r \r \r \r \r \r \r \r \r \r \r \r \r \r \r \r \r \r     \r     \r     \r     \r \r \r <!DOCTYPE html>\r <html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"cs\">\r <head>\r     <link rel="
+  },
+  {
+    "endpoint": "/statistic/week/get?format=json",
+    "status": 404,
+    "snippet": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 \u2013 Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, "
+  },
+  {
+    "endpoint": "/statistic/month/get?format=json",
+    "status": 404,
+    "snippet": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 \u2013 Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, "
+  },
+  {
+    "endpoint": "/statistic/month/01.2026/get?format=json",
+    "status": 404,
+    "snippet": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 \u2013 Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, "
+  },
+  {
+    "endpoint": "/statistic/week/01.01.2026/get?format=json",
+    "status": 404,
+    "snippet": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 \u2013 Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, "
+  },
+  {
+    "endpoint": "/statistic/diary/01.01.2026/get?format=json",
+    "status": 404,
+    "snippet": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 \u2013 Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, "
+  },
+  {
+    "endpoint": "/statistic/macro/01.01.2026/get?format=json",
+    "status": 404,
+    "snippet": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 \u2013 Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, "
+  },
+  {
+    "endpoint": "/statistic/macro/today/get?format=json",
+    "status": 404,
+    "snippet": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 \u2013 Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, "
+  },
+  {
+    "endpoint": "/user/diary/header/get?format=json",
+    "status": 500,
+    "snippet": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 500 \u2013 Internal Server Error</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} "
+  },
+  {
+    "endpoint": "/header/get?format=json",
+    "status": 404,
+    "snippet": "\r \r \r \r \r \r \r \r \r \r \r \r \r \r \r \r \r \r \r     \r     \r     \r     \r \r \r <!DOCTYPE html>\r <html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"cs\">\r <head>\r     <link rel="
+  },
+  {
+    "endpoint": "/user/favorite/get?format=json",
+    "status": 404,
+    "snippet": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 \u2013 Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, "
+  },
+  {
+    "endpoint": "/user/favorite/foodstuff/get?format=json",
+    "status": 404,
+    "snippet": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 \u2013 Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, "
+  },
+  {
+    "endpoint": "/user/favorite/recipe/get?format=json",
+    "status": 404,
+    "snippet": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 \u2013 Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, "
+  },
+  {
+    "endpoint": "/user/favorite/activity/get?format=json",
+    "status": 404,
+    "snippet": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 \u2013 Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, "
+  },
+  {
+    "endpoint": "/user/foodstuff/get?format=json",
+    "status": 404,
+    "snippet": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 \u2013 Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, "
+  },
+  {
+    "endpoint": "/user/foodstuff/list/get?format=json",
+    "status": 404,
+    "snippet": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 \u2013 Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, "
+  },
+  {
+    "endpoint": "/user/recipe/get?format=json",
+    "status": 404,
+    "snippet": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 \u2013 Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, "
+  },
+  {
+    "endpoint": "/tip/get?format=json",
+    "status": 404,
+    "snippet": "\r \r \r \r \r \r \r \r \r \r \r \r \r \r \r \r \r \r \r     \r     \r     \r     \r \r \r <!DOCTYPE html>\r <html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"cs\">\r <head>\r     <link rel="
+  },
+  {
+    "endpoint": "/dashboard?format=json",
+    "status": 404,
+    "snippet": "\r \r \r \r \r \r \r \r \r \r \r \r \r \r \r \r \r \r \r     \r     \r     \r     \r \r \r <!DOCTYPE html>\r <html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"cs\">\r <head>\r     <link rel="
+  },
+  {
+    "endpoint": "/dashboard/get?format=json",
+    "status": 404,
+    "snippet": "\r \r \r \r \r \r \r \r \r \r \r \r \r \r \r \r \r \r \r     \r     \r     \r     \r \r \r <!DOCTYPE html>\r <html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"cs\">\r <head>\r     <link rel="
+  }
+]

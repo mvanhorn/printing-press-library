@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-21T08:16:44.48727Z",
+  "printing_press_version": "4.10.0",
+  "api_name": "kaloricke-tabulky",
+  "display_name": "Kaloricke Tabulky",
+  "cli_name": "kaloricke-tabulky-pp-cli",
+  "owner": "vladimir-orany",
+  "printer": "musketyr",
+  "printer_name": "musketyr",
+  "spec_path": "/Users/ladin/printing-press/.runstate/gentle-greeting-piglet-86dae5ae/runs/20260521-091009/research/kaloricke-tabulky.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:2908f722e93b992d3a6ed55c25fd63408a5533235008b5ded29a8c8c83a7ea63",
+  "run_id": "20260521-091009",
+  "mcp_binary": "kaloricke-tabulky-pp-mcp",
+  "mcp_tool_count": 19,
+  "mcp_public_tool_count": 7,
+  "mcp_ready": "partial",
+  "api_version": "0.1.0",
+  "auth_type": "cookie",
+  "novel_features": [
+    {
+      "name": "One-command food logging",
+      "command": "diary log",
+      "description": "Search foods by Czech text and log one to the diary in a single command, with the right meal slot."
+    },
+    {
+      "name": "Macro target gap across window",
+      "command": "macros gap",
+      "description": "Across the last N days, show how much of each macro target remains, optionally grouped by meal slot."
+    },
+    {
+      "name": "Energy-in vs energy-out balance",
+      "command": "energy balance",
+      "description": "Joins per-day diary energy with activity energy from the local store; prints daily series and 7/14-day moving average."
+    },
+    {
+      "name": "Diary frequency analysis",
+      "command": "diary frequency",
+      "description": "Counts how often each foodstuff appears in your diary over a window. Surfaces dietary monotony or staple frequencies."
+    },
+    {
+      "name": "Macro-similar food substitutes",
+      "command": "food substitutes",
+      "description": "Given a foodstuff, find others in the local store with similar macro profile per 100 g; rank by Euclidean distance."
+    },
+    {
+      "name": "Allergen mining from JSON-LD",
+      "command": "food allergens",
+      "description": "Extracts Czech allergen tokens (lepek, laktóza, vejce, ořechy, sója, ryby) from the JSON-LD keywords on a food detail page."
+    },
+    {
+      "name": "Plan a meal to hit a protein target",
+      "command": "diary plan-meal",
+      "description": "Given remaining macro budget for the day, greedy-selects from favorites + most-frequent foods that close the protein gap within an energy ceiling."
+    },
+    {
+      "name": "Weight linear regression with projection",
+      "command": "weight regression",
+      "description": "OLS regression on weight history; reports slope (kg/week), R^2, and days-to-target at current trajectory."
+    },
+    {
+      "name": "Bulk diary export to JSON",
+      "command": "diary export-json",
+      "description": "Pulls N days of diary into one JSON document with typed nutrition totals per day. Agent-friendly bulk format."
+    },
+    {
+      "name": "Undo last diary entry",
+      "command": "diary unlog",
+      "description": "Removes the most recently added diary entry from the cached last-logged record."
+    }
+  ]
+}

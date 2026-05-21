@@ -1,0 +1,51 @@
+version: 2
+project_name: kaloricke-tabulky-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: kaloricke-tabulky-pp-cli
+    main: ./cmd/kaloricke-tabulky-pp-cli
+    binary: kaloricke-tabulky-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/food-and-dining/kaloricke-tabulky/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: kaloricke-tabulky-pp-mcp
+    main: ./cmd/kaloricke-tabulky-pp-mcp
+    binary: kaloricke-tabulky-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: kaloricke-tabulky-pp-cli
+    repository:
+      owner: vladimir-orany
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every Kalorické Tabulky feature plus offline FTS5 search, macro-gap windowing, and weight regression —..."
+    install: |
+      bin.install "kaloricke-tabulky-pp-cli"
+      bin.install "kaloricke-tabulky-pp-mcp"

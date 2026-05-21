@@ -1,0 +1,169 @@
+{
+  "api_name": "kaloricke-tabulky",
+  "base_url": "https://www.kaloricketabulky.cz",
+  "description": "Czech-language nutrition tracking from kaloricketabulky.cz: food/activity/recipe search with full macro breakdown, daily diary, weight log, and 10 transcendence features powered by a local SQLite cache.",
+  "mcp_ready": "partial",
+  "http_transport": "standard",
+  "auth": {
+    "type": "cookie",
+    "header": "Cookie",
+    "cookie_domain": ".kaloricketabulky.cz",
+    "cookies": [
+      "JSESSIONID",
+      "kaloricketabulky_token"
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "activity_search",
+      "description": "Search activities by text (e.g. 'běh', 'plavání', 'joga'). Required: query. Optional: page, format (default: json). Returns array of ActivityMatch.",
+      "method": "GET",
+      "path": "/autocomplete/activity",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Search query",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "find_all",
+      "description": "One search across all entity types. Required: query. Optional: page, format (default: json). Returns array of SearchHit.",
+      "method": "GET",
+      "path": "/autocomplete/foodstuff-activity-meal",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Search query",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "food_search",
+      "description": "Search foods by Czech text (diacritics-tolerant on server). Required: query. Optional: page, format (default: json). Returns array of FoodstuffMatch.",
+      "method": "GET",
+      "path": "/autocomplete/foodstuff",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Search query (Czech name like 'jablko', 'tvaroh'); minimum 3 chars",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination page number (1-indexed)"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "recipe_search",
+      "description": "Search recipes by text. Required: query. Optional: page, format (default: json). Returns array of RecipeMatch.",
+      "method": "GET",
+      "path": "/autocomplete/meal",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Search query",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "stats_diary_count",
+      "description": "Total diary entries across all users. Optional: format (default: json). Returns the CountEnvelope.",
+      "method": "GET",
+      "path": "/home/diary/count",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "stats_foodstuff_count",
+      "description": "Total foods in the catalog. Optional: format (default: json). Returns the CountEnvelope.",
+      "method": "GET",
+      "path": "/home/foodstuff/count",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query"
+        }
+      ]
+    },
+    {
+      "name": "stats_user_count",
+      "description": "Total registered users. Optional: format (default: json). Returns the CountEnvelope.",
+      "method": "GET",
+      "path": "/home/user/count",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query"
+        }
+      ]
+    }
+  ]
+}

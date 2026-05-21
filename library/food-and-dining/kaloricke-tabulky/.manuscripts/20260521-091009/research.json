@@ -1,0 +1,335 @@
+{
+  "api_name": "kaloricke-tabulky",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "TomasHubelbauer/kaloricke-tabulky-api",
+      "url": "https://github.com/TomasHubelbauer/kaloricke-tabulky-api",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "aquilax/hranoprovod-cli",
+      "url": "https://github.com/aquilax/hranoprovod-cli",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "zupzup/calories",
+      "url": "https://github.com/zupzup/calories",
+      "language": "Rust",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "peterkeen/calorific",
+      "url": "https://github.com/peterkeen/calorific",
+      "language": "Ruby",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "pfirsich/welo",
+      "url": "https://github.com/pfirsich/welo",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-21T09:30:00Z",
+  "novel_features": [
+    {
+      "name": "One-command food logging",
+      "command": "diary log",
+      "description": "Search foods by Czech text and log one to the diary in a single command, with the right meal slot.",
+      "rationale": "Only possible because the local FTS5 store caches autocomplete results; the upstream web requires five clicks per food.",
+      "example": "kaloricke-tabulky-pp-cli diary log 'tvaroh' --grams 150 --meal lunch",
+      "why_it_matters": "Choose this when an agent or user wants to log a known food without first looking up its id.",
+      "group": "Logging without the click-cost"
+    },
+    {
+      "name": "Macro target gap across window",
+      "command": "macros gap",
+      "description": "Across the last N days, show how much of each macro target remains, optionally grouped by meal slot.",
+      "rationale": "Requires cached daily summaries joined with diary entries — no single endpoint produces this windowed view.",
+      "example": "kaloricke-tabulky-pp-cli macros gap --days 7 --by-meal --json",
+      "why_it_matters": "Reach for this when an agent needs to reason about meal planning that hits weekly targets, not single-day totals.",
+      "group": "Cross-day diet analytics"
+    },
+    {
+      "name": "Energy-in vs energy-out balance",
+      "command": "energy balance",
+      "description": "Joins per-day diary energy with activity energy from the local store; prints daily series and 7/14-day moving average.",
+      "rationale": "Combines diary + activity tables in SQLite; the web UI never joins them.",
+      "example": "kaloricke-tabulky-pp-cli energy balance --days 14 --json --select date,energy_in_kj,energy_out_kj,net_kj",
+      "why_it_matters": "Use this for athletes whose fuelling depends on day-to-day training load.",
+      "group": "Cross-day diet analytics"
+    },
+    {
+      "name": "Diary frequency analysis",
+      "command": "diary frequency",
+      "description": "Counts how often each foodstuff appears in your diary over a window. Surfaces dietary monotony or staple frequencies.",
+      "rationale": "Pure SQLite GROUP BY over cached diary entries; web UI shows one day at a time.",
+      "example": "kaloricke-tabulky-pp-cli diary frequency --days 30 --min 5 --meal dinner --json",
+      "why_it_matters": "Pick this when you need 'what does this user actually eat?' rather than 'what's documented for one day'.",
+      "group": "Cross-day diet analytics"
+    },
+    {
+      "name": "Macro-similar food substitutes",
+      "command": "food substitutes",
+      "description": "Given a foodstuff, find others in the local store with similar macro profile per 100 g; rank by Euclidean distance.",
+      "rationale": "Only works because JSON-LD on every food detail page is parsed into typed nutrition; web UI has no similar-foods view.",
+      "example": "kaloricke-tabulky-pp-cli food substitutes jablko --by protein --limit 10 --json",
+      "why_it_matters": "Use this to swap a food for one that hits a different macro target without changing the calorie ballpark.",
+      "group": "Czech-food intelligence"
+    },
+    {
+      "name": "Allergen mining from JSON-LD",
+      "command": "food allergens",
+      "description": "Extracts Czech allergen tokens (lepek, laktóza, vejce, ořechy, sója, ryby) from the JSON-LD keywords on a food detail page.",
+      "rationale": "Allergens are not in any API field — they're scattered through the JSON-LD `keywords` array and the prose description; nobody else extracts them.",
+      "example": "kaloricke-tabulky-pp-cli food allergens jablko --json",
+      "why_it_matters": "Reach for this when filtering foods for a user with dietary restrictions, before the web UI would ever surface that data.",
+      "group": "Czech-food intelligence"
+    },
+    {
+      "name": "Plan a meal to hit a protein target",
+      "command": "diary plan-meal",
+      "description": "Given remaining macro budget for the day, greedy-selects from favorites + most-frequent foods that close the protein gap within an energy ceiling.",
+      "rationale": "Joins today's summary + favorites + frequency analysis; no single API call does this.",
+      "example": "kaloricke-tabulky-pp-cli diary plan-meal --target-protein 40 --remaining-energy 2500 --meal dinner --json",
+      "why_it_matters": "Use this when an agent needs to suggest 'what should this person eat next' grounded in foods they actually like.",
+      "group": "Logging without the click-cost"
+    },
+    {
+      "name": "Weight linear regression with projection",
+      "command": "weight regression",
+      "description": "OLS regression on weight history; reports slope (kg/week), R^2, and days-to-target at current trajectory.",
+      "rationale": "Math over `monthWeight[]` from the summary endpoint; web UI shows a chart but no slope or projection.",
+      "example": "kaloricke-tabulky-pp-cli weight regression --days 90 --target-kg 75 --json",
+      "why_it_matters": "Use this for coaching conversations grounded in 'you're losing 0.4 kg/week' rather than chart-eyeball.",
+      "group": "Coaching-grade outputs"
+    },
+    {
+      "name": "Bulk diary export to JSON",
+      "command": "diary export-json",
+      "description": "Pulls N days of diary into one JSON document with typed nutrition totals per day. Agent-friendly bulk format.",
+      "rationale": "Iterates cached daily diary; the web UI only exports per-day PDF/XLS.",
+      "example": "kaloricke-tabulky-pp-cli diary export-json --from 2026-04-01 --to 2026-05-21",
+      "why_it_matters": "Use this when an agent needs to load a coaching client's diary into a pandas DataFrame or pipe it through analytics.",
+      "group": "Coaching-grade outputs"
+    },
+    {
+      "name": "Undo last diary entry",
+      "command": "diary unlog",
+      "description": "Removes the most recently added diary entry from the cached last-logged record.",
+      "rationale": "Cached last-added entry id makes the delete endpoint addressable; the web UI requires finding the row visually.",
+      "example": "kaloricke-tabulky-pp-cli diary unlog --last",
+      "why_it_matters": "Use this to recover from a misclicked log without hunting through the day's meal slots.",
+      "group": "Logging without the click-cost"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "One-command food logging",
+      "command": "diary log",
+      "description": "Search foods by Czech text and log one to the diary in a single command, with the right meal slot.",
+      "rationale": "Only possible because the local FTS5 store caches autocomplete results; the upstream web requires five clicks per food.",
+      "example": "kaloricke-tabulky-pp-cli diary log 'tvaroh' --grams 150 --meal lunch",
+      "why_it_matters": "Choose this when an agent or user wants to log a known food without first looking up its id.",
+      "group": "Logging without the click-cost"
+    },
+    {
+      "name": "Macro target gap across window",
+      "command": "macros gap",
+      "description": "Across the last N days, show how much of each macro target remains, optionally grouped by meal slot.",
+      "rationale": "Requires cached daily summaries joined with diary entries — no single endpoint produces this windowed view.",
+      "example": "kaloricke-tabulky-pp-cli macros gap --days 7 --by-meal --json",
+      "why_it_matters": "Reach for this when an agent needs to reason about meal planning that hits weekly targets, not single-day totals.",
+      "group": "Cross-day diet analytics"
+    },
+    {
+      "name": "Energy-in vs energy-out balance",
+      "command": "energy balance",
+      "description": "Joins per-day diary energy with activity energy from the local store; prints daily series and 7/14-day moving average.",
+      "rationale": "Combines diary + activity tables in SQLite; the web UI never joins them.",
+      "example": "kaloricke-tabulky-pp-cli energy balance --days 14 --json --select date,energy_in_kj,energy_out_kj,net_kj",
+      "why_it_matters": "Use this for athletes whose fuelling depends on day-to-day training load.",
+      "group": "Cross-day diet analytics"
+    },
+    {
+      "name": "Diary frequency analysis",
+      "command": "diary frequency",
+      "description": "Counts how often each foodstuff appears in your diary over a window. Surfaces dietary monotony or staple frequencies.",
+      "rationale": "Pure SQLite GROUP BY over cached diary entries; web UI shows one day at a time.",
+      "example": "kaloricke-tabulky-pp-cli diary frequency --days 30 --min 5 --meal dinner --json",
+      "why_it_matters": "Pick this when you need 'what does this user actually eat?' rather than 'what's documented for one day'.",
+      "group": "Cross-day diet analytics"
+    },
+    {
+      "name": "Macro-similar food substitutes",
+      "command": "food substitutes",
+      "description": "Given a foodstuff, find others in the local store with similar macro profile per 100 g; rank by Euclidean distance.",
+      "rationale": "Only works because JSON-LD on every food detail page is parsed into typed nutrition; web UI has no similar-foods view.",
+      "example": "kaloricke-tabulky-pp-cli food substitutes jablko --by protein --limit 10 --json",
+      "why_it_matters": "Use this to swap a food for one that hits a different macro target without changing the calorie ballpark.",
+      "group": "Czech-food intelligence"
+    },
+    {
+      "name": "Allergen mining from JSON-LD",
+      "command": "food allergens",
+      "description": "Extracts Czech allergen tokens (lepek, laktóza, vejce, ořechy, sója, ryby) from the JSON-LD keywords on a food detail page.",
+      "rationale": "Allergens are not in any API field — they're scattered through the JSON-LD `keywords` array and the prose description; nobody else extracts them.",
+      "example": "kaloricke-tabulky-pp-cli food allergens jablko --json",
+      "why_it_matters": "Reach for this when filtering foods for a user with dietary restrictions, before the web UI would ever surface that data.",
+      "group": "Czech-food intelligence"
+    },
+    {
+      "name": "Plan a meal to hit a protein target",
+      "command": "diary plan-meal",
+      "description": "Given remaining macro budget for the day, greedy-selects from favorites + most-frequent foods that close the protein gap within an energy ceiling.",
+      "rationale": "Joins today's summary + favorites + frequency analysis; no single API call does this.",
+      "example": "kaloricke-tabulky-pp-cli diary plan-meal --target-protein 40 --remaining-energy 2500 --meal dinner --json",
+      "why_it_matters": "Use this when an agent needs to suggest 'what should this person eat next' grounded in foods they actually like.",
+      "group": "Logging without the click-cost"
+    },
+    {
+      "name": "Weight linear regression with projection",
+      "command": "weight regression",
+      "description": "OLS regression on weight history; reports slope (kg/week), R^2, and days-to-target at current trajectory.",
+      "rationale": "Math over `monthWeight[]` from the summary endpoint; web UI shows a chart but no slope or projection.",
+      "example": "kaloricke-tabulky-pp-cli weight regression --days 90 --target-kg 75 --json",
+      "why_it_matters": "Use this for coaching conversations grounded in 'you're losing 0.4 kg/week' rather than chart-eyeball.",
+      "group": "Coaching-grade outputs"
+    },
+    {
+      "name": "Bulk diary export to JSON",
+      "command": "diary export-json",
+      "description": "Pulls N days of diary into one JSON document with typed nutrition totals per day. Agent-friendly bulk format.",
+      "rationale": "Iterates cached daily diary; the web UI only exports per-day PDF/XLS.",
+      "example": "kaloricke-tabulky-pp-cli diary export-json --from 2026-04-01 --to 2026-05-21",
+      "why_it_matters": "Use this when an agent needs to load a coaching client's diary into a pandas DataFrame or pipe it through analytics.",
+      "group": "Coaching-grade outputs"
+    },
+    {
+      "name": "Undo last diary entry",
+      "command": "diary unlog",
+      "description": "Removes the most recently added diary entry from the cached last-logged record.",
+      "rationale": "Cached last-added entry id makes the delete endpoint addressable; the web UI requires finding the row visually.",
+      "example": "kaloricke-tabulky-pp-cli diary unlog --last",
+      "why_it_matters": "Use this to recover from a misclicked log without hunting through the day's meal slots.",
+      "group": "Logging without the click-cost"
+    }
+  ],
+  "narrative": {
+    "display_name": "Kalorické Tabulky",
+    "headline": "Every Kalorické Tabulky feature plus offline FTS5 search, macro-gap windowing, and weight regression — agent-ready Czech nutrition tracking.",
+    "value_prop": "Czech-language nutrition CLI for kaloricketabulky.cz. Search 244 000 foods with diacritics-tolerant FTS5, log meals in one command via local food cache, compute macro gaps across weeks, regress weight, mine allergens — every endpoint the web app uses, plus 10 transcendence features the web app refuses to expose.",
+    "auth_narrative": "Authenticate with `auth login --email \u003cyou\u003e` (password read from stdin, MD5-hashed before sending, then discarded). The cookie session is stored at `~/.config/kaloricke-tabulky/session`. To avoid a password on disk, use `auth login --chrome` to import the session cookies directly from a logged-in Chrome profile. Run `auth refresh` to extend the session.",
+    "quickstart": [
+      {
+        "command": "kaloricke-tabulky-pp-cli auth password-login --email \u003cyour-email\u003e",
+        "comment": "Authenticate once; password is MD5-hashed locally before sending and never written to disk."
+      },
+      {
+        "command": "kaloricke-tabulky-pp-cli food --query 'tvaroh'",
+        "comment": "Czech-language food search; results come from the live autocomplete API or local FTS5 cache."
+      },
+      {
+        "command": "kaloricke-tabulky-pp-cli diary log 'tvaroh nízkotučný' --grams 150 --meal lunch",
+        "comment": "Resolve the food by name and log it in one command."
+      },
+      {
+        "command": "kaloricke-tabulky-pp-cli summary today --json --select todayEnergy,todayEnergyTarget,todayDrink",
+        "comment": "Daily summary trimmed to the fields you care about."
+      },
+      {
+        "command": "kaloricke-tabulky-pp-cli weight add 78.4",
+        "comment": "Record today's weight."
+      },
+      {
+        "command": "kaloricke-tabulky-pp-cli macros gap --days 7 --by-meal",
+        "comment": "Where this week's macros fell short, by meal slot."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "auth login returns code 0 but later calls 401",
+        "fix": "Check that you're not behind a corporate proxy that strips Set-Cookie. Try `auth login --chrome` instead."
+      },
+      {
+        "symptom": "Czech food search returns no results",
+        "fix": "Search uses diacritics-folded match; if your input has unusual punctuation, try plain ASCII (e.g. 'tvaroh' instead of 'Tvaroh měkký')."
+      },
+      {
+        "symptom": "diary log says food not found",
+        "fix": "Run `food search \u003ctext\u003e` first to verify a match; if FTS5 cache is stale, run `sync foodstuffs` to repopulate."
+      },
+      {
+        "symptom": "weight regression complains 'not enough data points'",
+        "fix": "Regression needs at least 3 weight entries within the window. Lower `--days` or log more weights."
+      }
+    ],
+    "when_to_use": "Reach for this CLI when you need automated or agentic access to Kalorické Tabulky data — bulk diary exports, multi-day macro analytics, weight trend regression, allergen filtering, or quick food logging. It is Czech-language-aware (diacritics-folded search) and handles the kJ/kcal duality natively. Not the right tool for ad-hoc browser-only sessions where the web UI is faster.",
+    "recipes": [
+      {
+        "title": "Find Czech protein-dense foods I've actually eaten",
+        "command": "kaloricke-tabulky-pp-cli diary frequency --days 60 --json | jq '.[] | select(.foodstuff.protein_g_per_100g \u003e 20)'",
+        "explanation": "Frequency analysis surfaces what you actually log; jq filters by typed nutrition."
+      },
+      {
+        "title": "Energy-balance check for an ultrarunner",
+        "command": "kaloricke-tabulky-pp-cli energy balance --days 14 --json --select date,energy_in_kj,energy_out_kj,net_kj",
+        "explanation": "Joins diary energy and activity energy across a 14-day window with deeply-nested fields trimmed via --select for compact agent context."
+      },
+      {
+        "title": "Daily macro gap for meal planning",
+        "command": "kaloricke-tabulky-pp-cli macros gap --by-meal --json",
+        "explanation": "Per-meal-slot view of today's macro targets vs actual, so an agent can recommend dinner that closes the protein gap."
+      },
+      {
+        "title": "Substitute one food for a leaner alternative",
+        "command": "kaloricke-tabulky-pp-cli food substitutes jablko --by energy --limit 5",
+        "explanation": "Ranks foods by Euclidean distance on energy density; useful for swapping snacks within a calorie ceiling."
+      },
+      {
+        "title": "Coach-grade weight report",
+        "command": "kaloricke-tabulky-pp-cli weight regression --days 90 --target-kg 75 --json",
+        "explanation": "Linear regression slope, R^2, and days-to-target — the chart math the web UI hides."
+      }
+    ],
+    "trigger_phrases": [
+      "log my breakfast on kalorické tabulky",
+      "what's my macro gap for the week",
+      "search Czech food nutrition",
+      "track my weight in kalorické tabulky",
+      "use kaloricke-tabulky",
+      "run kaloricke-tabulky"
+    ]
+  }
+}
