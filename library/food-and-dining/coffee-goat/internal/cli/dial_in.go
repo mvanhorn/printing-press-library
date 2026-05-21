@@ -185,6 +185,9 @@ func userBrewStats(db *store.Store, beanID int64, roasterSlug, productSlug, meth
 	for rows.Next() {
 		var p dialInPoint
 		if err := rows.Scan(&p.DoseG, &p.YieldG, &p.TimeS, &p.TemperatureC, &p.Rating); err != nil {
+	for rows.Next() {
+		var p dialInPoint
+		if err := rows.Scan(&p.DoseG, &p.YieldG, &p.TimeS, &p.TemperatureC, &p.Rating); err != nil {
 			continue
 		}
 		if p.DoseG > 0 {
@@ -208,7 +211,7 @@ func userBrewStats(db *store.Store, beanID int64, roasterSlug, productSlug, meth
 		n++
 	}
 	if err := rows.Err(); err != nil {
-		return dialInPoint{}, dialInPoint{}, 0
+		fmt.Fprintf(os.Stderr, "warning: userBrewStats iteration error: %v\n", err)
 	}
 	if n == 0 {
 		return dialInPoint{}, dialInPoint{}, 0
