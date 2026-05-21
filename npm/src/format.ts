@@ -1,15 +1,14 @@
 import { cliBinaryName, type RegistryEntry } from "./registry.js";
-import { NPX_COMMAND_PREFIX } from "./constants.js";
 
 const DEFAULT_WIDTH = 88;
 const BODY_INDENT = "  ";
 
-export function renderCatalogEntries(entries: RegistryEntry[]): string[] {
+export function renderCatalogEntries(entries: RegistryEntry[], commandPrefix: string): string[] {
   return entries.flatMap((entry, index) => {
     const lines = [
       `${entry.name} (${entry.category}) - ${cliBinaryName(entry)}`,
       ...wrapText(entry.description, DEFAULT_WIDTH, BODY_INDENT),
-      `${BODY_INDENT}install: ${NPX_COMMAND_PREFIX} install ${entry.name}`,
+      `${BODY_INDENT}install: ${commandPrefix} install ${entry.name}`,
     ];
     return index === entries.length - 1 ? lines : [...lines, ""];
   });

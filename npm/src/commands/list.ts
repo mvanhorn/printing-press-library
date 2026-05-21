@@ -7,7 +7,7 @@ import {
   type RegistryEntry,
 } from "../registry.js";
 import { renderCatalogEntries, renderInstalledEntries } from "../format.js";
-import { NPX_COMMAND_PREFIX } from "../constants.js";
+import { commandPrefixForInvocation } from "../constants.js";
 
 interface ListDeps {
   fetchRegistry: (url: string) => Promise<Registry>;
@@ -15,6 +15,7 @@ interface ListDeps {
   runner: Runner;
   stdout: (message: string) => void;
   stderr: (message: string) => void;
+  commandPrefix: string;
 }
 
 interface InstalledEntry {
@@ -31,6 +32,7 @@ export function createListCommand(overrides: Partial<ListDeps> = {}) {
     runner: execFileRunner,
     stdout: (message) => console.log(message),
     stderr: (message) => console.error(message),
+    commandPrefix: commandPrefixForInvocation(),
     ...overrides,
   };
 
@@ -55,7 +57,7 @@ export function createListCommand(overrides: Partial<ListDeps> = {}) {
         return 0;
       }
 
-      for (const line of renderCatalogEntries(entries)) {
+      for (const line of renderCatalogEntries(entries, deps.commandPrefix)) {
         deps.stdout(line);
       }
       return 0;
@@ -79,7 +81,7 @@ export function createListCommand(overrides: Partial<ListDeps> = {}) {
 
     if (installed.length === 0) {
       const suffix = options.category ? ` in category "${options.category}"` : "";
-      deps.stdout(`No Printing Press CLIs installed${suffix}. Try \`${NPX_COMMAND_PREFIX} search <query>\` or \`${NPX_COMMAND_PREFIX} install <name>\`.`);
+      deps.stdout(`No Printing Press CLIs installed${suffix}. Try \`${deps.commandPrefix} search <query>\` or \`${deps.commandPrefix} install <name>\`.`);
       return 0;
     }
 

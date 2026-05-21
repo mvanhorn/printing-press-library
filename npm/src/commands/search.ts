@@ -6,11 +6,13 @@ import {
   type RegistryEntry,
 } from "../registry.js";
 import { renderCatalogEntries } from "../format.js";
+import { commandPrefixForInvocation } from "../constants.js";
 
 interface SearchDeps {
   fetchRegistry: (url: string) => Promise<Registry>;
   stdout: (message: string) => void;
   stderr: (message: string) => void;
+  commandPrefix: string;
 }
 
 export function createSearchCommand(overrides: Partial<SearchDeps> = {}) {
@@ -18,6 +20,7 @@ export function createSearchCommand(overrides: Partial<SearchDeps> = {}) {
     fetchRegistry: (url) => fetchRegistry(url),
     stdout: (message) => console.log(message),
     stderr: (message) => console.error(message),
+    commandPrefix: commandPrefixForInvocation(),
     ...overrides,
   };
 
@@ -42,7 +45,7 @@ export function createSearchCommand(overrides: Partial<SearchDeps> = {}) {
       return 0;
     }
 
-    for (const line of renderCatalogEntries(matches)) {
+    for (const line of renderCatalogEntries(matches, deps.commandPrefix)) {
       deps.stdout(line);
     }
     return 0;

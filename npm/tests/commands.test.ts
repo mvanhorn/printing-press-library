@@ -4,6 +4,7 @@ import { createListCommand } from "../src/commands/list.js";
 import { createSearchCommand, searchRegistry } from "../src/commands/search.js";
 import { createUninstallCommand } from "../src/commands/uninstall.js";
 import { createUpdateCommand } from "../src/commands/update.js";
+import { commandPrefixForInvocation, NPX_COMMAND_PREFIX } from "../src/constants.js";
 import type { RunResult } from "../src/process.js";
 import type { Registry } from "../src/registry.js";
 
@@ -61,7 +62,7 @@ test("list command reports catalog CLIs by default", async () => {
   assert.equal(await command([]), 0);
   assert.match(stdout.join("\n"), /espn-pp-cli/);
   assert.match(stdout.join("\n"), /dominos-pp-cli/);
-  assert.match(stdout.join("\n"), /install: npx -y @mvanhorn\/printing-press-library install espn/);
+  assert.match(stdout.join("\n"), /install: printing-press-library install espn/);
 });
 
 test("list command can filter catalog CLIs by category", async () => {
@@ -109,7 +110,7 @@ test("list command can filter installed CLIs by category", async () => {
   assert.doesNotMatch(stdout.join("\n"), /dominos/);
 });
 
-test("list command suggests npx commands when no installed CLIs are detected", async () => {
+test("list command suggests the current wrapper command when no installed CLIs are detected", async () => {
   const stdout: string[] = [];
   const command = createListCommand({
     fetchRegistry: async () => registry,
@@ -118,8 +119,8 @@ test("list command suggests npx commands when no installed CLIs are detected", a
   });
 
   assert.equal(await command(["--installed"]), 0);
-  assert.match(stdout.join("\n"), /npx -y @mvanhorn\/printing-press-library search <query>/);
-  assert.match(stdout.join("\n"), /npx -y @mvanhorn\/printing-press-library install <name>/);
+  assert.match(stdout.join("\n"), /printing-press-library search <query>/);
+  assert.match(stdout.join("\n"), /printing-press-library install <name>/);
 });
 
 test("search command ranks registry matches", async () => {
@@ -131,7 +132,28 @@ test("search command ranks registry matches", async () => {
 
   assert.equal(await command(["pizza"]), 0);
   assert.match(stdout.join("\n"), /dominos-pp-cli/);
+  assert.match(stdout.join("\n"), /install: printing-press-library install dominos-pp-cli/);
+});
+
+test("catalog hints preserve npx when the wrapper is running through npx", async () => {
+  const stdout: string[] = [];
+  const command = createSearchCommand({
+    commandPrefix: NPX_COMMAND_PREFIX,
+    fetchRegistry: async () => registry,
+    stdout: (message) => stdout.push(message),
+  });
+
+  assert.equal(await command(["pizza"]), 0);
   assert.match(stdout.join("\n"), /install: npx -y @mvanhorn\/printing-press-library install dominos-pp-cli/);
+});
+
+test("command prefix follows the invocation source", () => {
+  assert.equal(commandPrefixForInvocation("/opt/homebrew/bin/printing-press-library", {}), "printing-press-library");
+  assert.equal(
+    commandPrefixForInvocation("/Users/me/.npm/_npx/123/node_modules/.bin/printing-press-library", {}),
+    NPX_COMMAND_PREFIX,
+  );
+  assert.equal(commandPrefixForInvocation("/tmp/printing-press-library", { npm_command: "exec" }), NPX_COMMAND_PREFIX);
 });
 
 test("search command normalizes punctuation and plural queries", async () => {
