@@ -353,7 +353,12 @@ func newCataloguesFindCmd(flags *rootFlags) *cobra.Command {
 				return apiErr(err)
 			}
 			if len(records) == 0 {
-				return usageErr(fmt.Errorf(
+				// apiErr (exit 5) rather than usageErr (exit 2): empty cache
+				// is a precondition-not-met / data-state error, not a wrong-
+				// flag error — usageErr is conventionally reserved for the
+				// latter. Same fix applied to issuers find in PR #684 after
+				// Greptile P2 review.
+				return apiErr(fmt.Errorf(
 					"local catalogues cache is empty. Run 'numista-pp-cli catalogues' to populate it (one API call), " +
 						"then re-run 'catalogues find'"))
 			}
@@ -371,7 +376,6 @@ func newCataloguesFindCmd(flags *rootFlags) *cobra.Command {
 // read command in this CLI.
 func renderCataloguesFind(cmd *cobra.Command, flags *rootFlags, matches []catalogueRecord) error {
 	out := cmd.OutOrStdout()
-	asJSON := flags.asJSON || (!isTerminal(out) && !flags.csv && !flags.quiet && !flags.plain)
 	if flags.csv {
 		w := csv.NewWriter(out)
 		_ = w.Write([]string{"id", "code", "title", "author", "publisher"})
@@ -381,7 +385,12 @@ func renderCataloguesFind(cmd *cobra.Command, flags *rootFlags, matches []catalo
 		w.Flush()
 		return w.Error()
 	}
-	if asJSON {
+	// Route JSON through the standard output pipeline so --select and
+	// --compact behave identically to every other read command. Previously
+	// wrote the envelope directly via json.NewEncoder, which silently
+	// bypassed filterFields / compactFields — same fix applied to issuers
+	// find in PR #684 after Greptile P2 review.
+	if flags.asJSON || (!isTerminal(out) && !flags.csv && !flags.quiet && !flags.plain) {
 		items := make([]map[string]any, len(matches))
 		for i, m := range matches {
 			items[i] = map[string]any{
@@ -392,13 +401,20 @@ func renderCataloguesFind(cmd *cobra.Command, flags *rootFlags, matches []catalo
 				"publisher": m.Publisher,
 			}
 		}
-		// Wrap with the standard {meta, results} envelope so --select and
-		// downstream parsers behave identically to other read commands.
 		envelope := map[string]any{
 			"meta":    map[string]any{"source": "local", "resource_type": "catalogues"},
 			"results": items,
 		}
-		return json.NewEncoder(out).Encode(envelope)
+		data, err := json.Marshal(envelope)
+		if err != nil {
+			return fmt.Errorf("marshal catalogues find envelope: %w", err)
+		}
+		if flags.selectFields != "" {
+			data = filterFields(data, flags.selectFields)
+		} else if flags.compact {
+			data = compactFields(data)
+		}
+		return printOutput(out, data, true)
 	}
 	if len(matches) == 0 {
 		// Use cmd.ErrOrStderr() not os.Stderr — every other diagnostic in
