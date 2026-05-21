@@ -4,13 +4,10 @@
 package cli
 
 import (
-	"github.com/mvanhorn/printing-press-library/library/travel/booking-com/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/travel/booking-com/internal/config"
 	"bufio"
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/spf13/cobra"
 	"io"
 	"net/http"
 	"os"
@@ -21,6 +18,10 @@ import (
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/mvanhorn/printing-press-library/library/travel/booking-com/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/travel/booking-com/internal/config"
+	"github.com/spf13/cobra"
 )
 
 func newAuthCmd(flags *rootFlags) *cobra.Command {
@@ -403,17 +404,18 @@ func readProfileDisplayName(prefsPath string) string {
 
 // countCookiesForDomain copies the Cookies DB (plus WAL/SHM) to temp and counts matching rows.
 // Uses sqlite3 when available; host_key is plaintext so no decryption is needed.
-// hostKeyPatternRE matches Chrome's host_key format: lowercase domain with
-// optional leading dot, optional trailing wildcard. Rejecting anything else
-// keeps this function safe even if a future caller passes user-supplied input.
-var hostKeyPatternRE = regexp.MustCompile(`^\.?[a-z0-9._-]+%?$`)
+// hostKeyPatternRE matches the constrained LIKE patterns we build for Chrome's
+// host_key values: lowercase domain, optional leading dot, and optional edge
+// wildcards. Rejecting anything else keeps interpolation safe even if a future
+// caller passes user-supplied input.
+var hostKeyPatternRE = regexp.MustCompile(`^%?\.?[a-z0-9._-]+%?$`)
 
 func countCookiesForDomain(cookiesDB, domainPattern string) int {
-	// Defense in depth: validate before interpolation. Today domainPattern is
-	// hardcoded as ".booking.com", but sqlite3 CLI lacks query parameters in
-	// its single-statement form, so the substitution has to happen in Go.
-	// Pinning to Chrome's host_key alphabet (lowercased domain + optional
-	// LIKE wildcard) makes SQL injection impossible regardless of caller.
+	// Defense in depth: validate before interpolation. The caller builds
+	// domainPattern from ".booking.com" as "%booking.com%", but sqlite3 CLI
+	// lacks query parameters in its single-statement form, so the substitution
+	// has to happen in Go. Pinning to Chrome's host_key alphabet with optional
+	// edge LIKE wildcards makes SQL injection impossible regardless of caller.
 	if !hostKeyPatternRE.MatchString(domainPattern) {
 		return 0
 	}
