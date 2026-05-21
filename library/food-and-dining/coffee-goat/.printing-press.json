@@ -1,0 +1,161 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-20T19:46:13.58805Z",
+  "printing_press_version": "4.8.0",
+  "api_name": "coffee-goat",
+  "cli_name": "coffee-goat-pp-cli",
+  "category": "food-and-dining",
+  "description": "The third-wave coffee terminal — every elite roaster, every YouTube creator review, your brews, the SCA cupping form, and the God cup recommender in one no-auth local SQLite corpus.",
+  "owner": "justinwfu",
+  "printer": "justinwfu",
+  "printer_name": "Justin Fu",
+  "run_id": "20260520-110818",
+  "novel_features": [
+    {
+      "name": "The God cup recommender",
+      "command": "god-cup",
+      "description": "Integrates your shelf, brew history, Coffee Review scores, Hoffmann/Hedrick coverage, and champion recipes to produce one brew-now pick and one buy-next pick."
+    },
+    {
+      "name": "Cross-roaster FTS search",
+      "command": "search",
+      "description": "Search every elite specialty roaster's catalog at once — Ethiopian naturals across the curated shelf in one query."
+    },
+    {
+      "name": "Persisted query diff feed",
+      "command": "watch",
+      "description": "Saved search emits only new matches on each sync — silent when nothing changed, cron-safe."
+    },
+    {
+      "name": "Closest twin across roasters",
+      "command": "twin",
+      "description": "Given a bean you loved, find the closest current match across the curated shelf via origin/varietal/process/altitude/descriptor similarity."
+    },
+    {
+      "name": "Multi-bean compare",
+      "command": "compare",
+      "description": "Side-by-side bean table with origin/process/altitude/$/oz/score deltas; works across roasters."
+    },
+    {
+      "name": "Producer tracking across roasters",
+      "command": "producer",
+      "description": "Track a producer or farm (Diego Bermudez, Wush Wush, El Paraiso) across every roaster sync — multi-year lineage view."
+    },
+    {
+      "name": "FX-normalized landed cost",
+      "command": "fx",
+      "description": "Live ECB FX rates normalize $/oz across continents; curated shipping table adds ship-to landed cost."
+    },
+    {
+      "name": "Bayesian dial-in recommender",
+      "command": "dial-in",
+      "description": "Suggest grind/dose/yield/time for a new bean using your brew history of similar beans (origin/process/varietal/altitude clusters)."
+    },
+    {
+      "name": "Cellar with freshness windows",
+      "command": "shelf",
+      "description": "What's on your shelf today, sorted by freshness with per-method peak windows (espresso 8–21d, filter 5–28d)."
+    },
+    {
+      "name": "Recommend what to drink next",
+      "command": "whats-next",
+      "description": "Joins shelf freshness × dial-in confidence × user palate signature to pick one bag from your shelf for tomorrow morning."
+    },
+    {
+      "name": "Brew-rating drift diagnostic",
+      "command": "drift",
+      "description": "Detect grinder/water/technique drift via fixed-effects OLS on rating-vs-day across multiple beans; partitions variance by method."
+    },
+    {
+      "name": "Refill plan with ranked replacements",
+      "command": "refill-plan",
+      "description": "Combines consumption rate from your brews + shelf depletion + cross-roaster twin similarity to recommend 3 replacement picks."
+    },
+    {
+      "name": "Blind cupping with palate calibration",
+      "command": "blind-cup",
+      "description": "Blind cupping session with hashed cup IDs; reveal at end and report Spearman correlation against Coffee Review's scores."
+    },
+    {
+      "name": "Personal palate map",
+      "command": "palate-map",
+      "description": "Aggregate your 8+ rated brews into an origin/process/varietal weight signature, then rank current shelf and restock candidates by signature match."
+    },
+    {
+      "name": "Bag lifecycle",
+      "command": "bag-life",
+      "description": "For one bag, plot daily ratings vs days-since-roast and call peak / decline / dead."
+    },
+    {
+      "name": "Friend-pick (palate sharing)",
+      "command": "friend-pick",
+      "description": "Recommend a bag for a friend whose palate profile you've imported — pick from your shelf or current market, ranked against their descriptor signature instead of yours."
+    },
+    {
+      "name": "SCA Flavor Wheel mapping",
+      "command": "flavor-wheel",
+      "description": "Maps your brew ratings onto the official SCA Coffee Tasters' Flavor Wheel hierarchy (fruity → berry → blackberry, floral → tea-like → black tea, etc.) and shows which sections you actually prefer."
+    },
+    {
+      "name": "Creator review lookup",
+      "command": "creator-review",
+      "description": "Find every Hoffmann or Hedrick clip that mentions a bean or roaster, with transcript excerpt and timestamp."
+    },
+    {
+      "name": "Transcript search",
+      "command": "transcript-search",
+      "description": "Local FTS5 search across all synced Hoffmann + Hedrick transcripts with timestamp + video link."
+    },
+    {
+      "name": "Personal brew log + cellar",
+      "command": "brews",
+      "description": "Brew log (log/list/show/delete) and local cellar (cellar add/list/show/update/remove) — the input feed for every personal-history command."
+    },
+    {
+      "name": "Curated V60 recipe library",
+      "command": "recipe-replay",
+      "description": "Hardcoded library of 10 canonical V60 recipes (Hoffmann 2018/2023, Tetsu 4:6 light/dark, Lance Pulse, WBrC 2020-2024 champions) with structured 5-tuple + technique markdown."
+    },
+    {
+      "name": "Coffee spend + cost-per-cup",
+      "command": "budget",
+      "description": "Dose-grams attribution (dose_g / bag_size_g × bag_price). YTD + projection range (linear + trailing-3-mo × 12). Pivot --by month|roaster|bag|method. --include-shipping uses fx's curated table."
+    },
+    {
+      "name": "Origin coverage + gap-filler",
+      "command": "coffee-map",
+      "description": "Country-primary coverage with tiered depth labels (unexplored/tasted/explored/deep). Synced corpus default; --world adds curated specialty origins. --fill suggests bags inline; `coffee-map fill` ranks across all gaps by CR score + process tiebreak."
+    },
+    {
+      "name": "K-NN twin prediction + back-test",
+      "command": "predict-rating",
+      "description": "Predicts YOUR rating for a (bean, method) pair via K=5 nearest twins from your brew log. Subcommand split: `predict-rating [bean]` and `predict-rating cellar` write to predicted_ratings; `predict-rating calibration` is mcp:read-only and reports MAE+bias sliced by method/origin/process."
+    },
+    {
+      "name": "SCA cupping sessions",
+      "command": "cupping",
+      "description": "Full 10-attribute SCA form, multi-cupper sessions (auto-creates palate_profiles), open default + --blind slot labels. 7 verbs: start/score/finalize/abandon/show/list/log. Finalize bridges cupper=self scores to the brews table as method='cupping'."
+    },
+    {
+      "name": "Championship-style recipe matcher",
+      "command": "champion-replay",
+      "description": "Curated scaffold of WBC / WBrC-inspired brewing recipes. `list` and `show` browse the library; `shop <slug>` matches each recipe's bean (by origin, process, varietal) against currently in-stock lots in the synced roaster_products corpus. Entries are best-effort reconstructions from public coverage, not verified records."
+    },
+    {
+      "name": "Corpus aggregations",
+      "command": "analytics",
+      "description": "Roll-up read-only aggregations across the synced corpus and personal brew log. Subcommands: `origins` (top origins by product count + in-stock share), `roasters` (top roasters with avg price and in-stock share), `descriptors` (most common flavor descriptors from reviews via json_each), `brews-by-month` (personal brew count and average rating per month)."
+    },
+    {
+      "name": "Recently-synced rows",
+      "command": "tail",
+      "description": "Show the newest entries in each resource table after a sync — products, reviews, videos. Filter with --since (e.g. 24h, 7d) or --resource <name> to scope to one table. Helpful for confirming what arrived on the last sync without re-scanning the full corpus."
+    },
+    {
+      "name": "Multi-source sync history",
+      "command": "jobs",
+      "description": "Inspect recent multi-source sync runs from coffee_sync_state. `list` shows per-source last status, item count, and last-synced timestamp; `show <source>` zooms one source (shopify, coffee-review, youtube). Useful for diagnosing 'why is search returning stale data' before re-running sync."
+    }
+  ],
+  "owner_name": "Justin Fu"
+}

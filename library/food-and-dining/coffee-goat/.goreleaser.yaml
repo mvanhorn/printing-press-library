@@ -1,0 +1,51 @@
+version: 2
+project_name: coffee-goat-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: coffee-goat-pp-cli
+    main: ./cmd/coffee-goat-pp-cli
+    binary: coffee-goat-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/food-and-dining/coffee-goat/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: coffee-goat-pp-mcp
+    main: ./cmd/coffee-goat-pp-mcp
+    binary: coffee-goat-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: coffee-goat-pp-cli
+    repository:
+      owner: justinwfu
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "The third-wave coffee terminal — every elite roaster, every YouTube creator review, your brews, and the God cup."
+    install: |
+      bin.install "coffee-goat-pp-cli"
+      bin.install "coffee-goat-pp-mcp"
