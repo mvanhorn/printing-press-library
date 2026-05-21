@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math/rand"
 	"net/http"
 	"net/url"
 	"os"
@@ -16,6 +17,16 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/mvanhorn/printing-press-library/library/travel/airbnb/internal/cliutil"
 )
+
+// jitter returns a random duration in [0, base/4). Used to spread retry
+// sleeps across the fleet so a thundering herd does not synchronize.
+// Returns 0 when base is too small for a useful jitter window.
+func jitter(base time.Duration) time.Duration {
+	if base < 4*time.Nanosecond {
+		return 0
+	}
+	return time.Duration(rand.Int63n(int64(base / 4)))
+}
 
 const (
 	airbnbBase = "https://www.airbnb.com"
@@ -220,7 +231,18 @@ func (c *Client) do(ctx context.Context, method, target, ua string, body io.Read
 			if attempt == retries {
 				return nil, &cliutil.RateLimitError{URL: target, RetryAfter: cliutil.RetryAfter(resp), Body: string(last)}
 			}
-			time.Sleep(cliutil.RetryAfter(resp))
+			// Prefer the server-stated Retry-After header when present;
+			// fall back to exponential Backoff(attempt) when absent so
+			// subsequent retries actually grow instead of re-sleeping
+			// the same 5s default. 25% jitter on top of the base wait
+			// prevents a fleet of retrying clients from synchronizing.
+			var base time.Duration
+			if resp.Header.Get("Retry-After") != "" {
+				base = cliutil.RetryAfter(resp)
+			} else {
+				base = cliutil.Backoff(attempt)
+			}
+			time.Sleep(base + jitter(base))
 			continue
 		}
 		if resp.StatusCode >= 400 {
