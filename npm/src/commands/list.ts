@@ -7,6 +7,7 @@ import {
   type RegistryEntry,
 } from "../registry.js";
 import { renderCatalogEntries, renderInstalledEntries } from "../format.js";
+import { NPX_COMMAND_PREFIX } from "../constants.js";
 
 interface ListDeps {
   fetchRegistry: (url: string) => Promise<Registry>;
@@ -78,7 +79,7 @@ export function createListCommand(overrides: Partial<ListDeps> = {}) {
 
     if (installed.length === 0) {
       const suffix = options.category ? ` in category "${options.category}"` : "";
-      deps.stdout(`No Printing Press CLIs installed${suffix}. Try \`printing-press-library search <query>\` or \`printing-press-library install <name>\`.`);
+      deps.stdout(`No Printing Press CLIs installed${suffix}. Try \`${NPX_COMMAND_PREFIX} search <query>\` or \`${NPX_COMMAND_PREFIX} install <name>\`.`);
       return 0;
     }
 

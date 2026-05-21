@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.7
+
+- Refresh the GitHub and npm README surfaces now that `@mvanhorn/printing-press-library` is live.
+- Document catalog discovery flows for `list`, `search`, category filtering, installed-only listing, and JSON output.
+- Normalize search punctuation and simple plurals so queries like `cal.com`, `cal-com`, and `hotels` find the expected catalog entries.
+- Add generated registry `search_terms` sourced from manifest descriptions, auth notes, and novel features so concise result descriptions can stay readable without weakening discovery.
+- Document the optional global uninstall step for the older `@mvanhorn/printing-press` package.
+- Show `npx -y @mvanhorn/printing-press-library install <name>` in discovery output so copy-paste installs work before the package is globally installed.
+
 ## 0.1.6
 
 - Rename the npm package and command to `@mvanhorn/printing-press-library` / `printing-press-library` so the public catalog installer is unambiguous and does not collide with the Printing Press generator concept.

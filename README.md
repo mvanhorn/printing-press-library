@@ -14,13 +14,15 @@ Three to try first:
 - flight-goat (Kayak nonstop search plus sniffed Google Flights). _"Non-stop flights over 8 hours from Seattle for 4 people, Dec 24 to Jan 1, cheapest first."_ Two sources, one query.
 - sentry-pp-cli (local SQLite mirror, SQL across orgs and projects). _"Every issue first seen in the last release whose error rate is climbing across two projects."_ Compound queries the Sentry API can't answer.
 
-## Install
+## Discover and install
 
 The fastest way to start — install four hand-picked CLIs and skills in one command:
 
 ```bash
-npx -y @mvanhorn/printing-press install starter-pack
+npx -y @mvanhorn/printing-press-library install starter-pack
 ```
+
+The `-y` flag only tells `npx` to run the installer package without an interactive npm prompt; discovery commands like `list` and `search` do not install catalog CLIs.
 
 The starter pack: [`espn`](library/media-and-entertainment/espn/) (live sports), [`flight-goat`](library/travel/flightgoat/) (flight search), [`movie-goat`](library/media-and-entertainment/movie-goat/) (movie discovery), [`recipe-goat`](library/food-and-dining/recipe-goat/) (recipe ranking).
 
@@ -29,14 +31,14 @@ Every install pulls the Go binary **and** the focused skill in one shot. Pass `-
 One tool:
 
 ```bash
-npx -y @mvanhorn/printing-press install espn
+npx -y @mvanhorn/printing-press-library install espn
 ```
 
 Several at once (bundles and CLI names mix freely):
 
 ```bash
-npx -y @mvanhorn/printing-press install espn sentry dub
-npx -y @mvanhorn/printing-press install starter-pack cal-com
+npx -y @mvanhorn/printing-press-library install espn sentry dub
+npx -y @mvanhorn/printing-press-library install starter-pack cal-com
 ```
 
 Under the hood: the npm package is a thin orchestrator that reads the live catalog in `registry.json`, resolves each CLI's Go module path, runs `go install`, and installs the matching skill from `cli-skills/pp-<name>`.
@@ -44,15 +46,24 @@ Under the hood: the npm package is a thin orchestrator that reads the live catal
 Useful commands:
 
 ```bash
-npx -y @mvanhorn/printing-press search sports
-npx -y @mvanhorn/printing-press list
-npx -y @mvanhorn/printing-press update espn
-npx -y @mvanhorn/printing-press uninstall espn --yes
+npx -y @mvanhorn/printing-press-library list
+npx -y @mvanhorn/printing-press-library search flights
+npx -y @mvanhorn/printing-press-library list --category travel
+npx -y @mvanhorn/printing-press-library list --installed
+npx -y @mvanhorn/printing-press-library update espn
+npx -y @mvanhorn/printing-press-library uninstall espn --yes
 ```
 
-The npm installer package is being renamed to `@mvanhorn/printing-press-library` to avoid ambiguity with the generator repo. Until that package is published, this README keeps the currently published `@mvanhorn/printing-press` commands.
+`@mvanhorn/printing-press-library` replaces the older `@mvanhorn/printing-press` npm package. The unambiguous `printing-press-library` binary is the catalog installer: use it to browse available CLIs, search by keyword, install the matching Go binary plus focused agent skill, and keep installed tools fresh.
 
-While the catalog repository is private, live installer use requires `GITHUB_TOKEN` or `GH_TOKEN` for catalog and skill fetches, plus working private Go module access for `go install`.
+Install accepts catalog slugs and generated binary names, so both `airbnb` and `airbnb-pp-cli` resolve to the Airbnb tool.
+
+Discovery commands print human-readable cards by default and support `--json` for scripts and agents:
+
+```bash
+npx -y @mvanhorn/printing-press-library search flights --json
+npx -y @mvanhorn/printing-press-library list --category food-and-dining --json
+```
 
 ## Focused skills
 

@@ -24,6 +24,28 @@ const registry: Registry = {
       description: "Pizza ordering",
       path: "library/commerce/dominos",
     },
+    {
+      name: "hotel-tonight",
+      category: "travel",
+      api: "HotelTonight",
+      description: "Last-minute hotel deals",
+      path: "library/travel/hotel-tonight",
+    },
+    {
+      name: "cal-com",
+      category: "productivity",
+      api: "Cal.com",
+      description: "Scheduling and booking links",
+      path: "library/productivity/cal-com",
+    },
+    {
+      name: "booking-com",
+      category: "travel",
+      api: "Booking.com",
+      description: "Every Booking.com workflow",
+      search_terms: ["Search Booking.com hotels, scrape details and reviews, watch prices over time."],
+      path: "library/travel/booking-com",
+    },
   ],
 };
 
@@ -39,6 +61,7 @@ test("list command reports catalog CLIs by default", async () => {
   assert.equal(await command([]), 0);
   assert.match(stdout.join("\n"), /espn-pp-cli/);
   assert.match(stdout.join("\n"), /dominos-pp-cli/);
+  assert.match(stdout.join("\n"), /install: npx -y @mvanhorn\/printing-press-library install espn/);
 });
 
 test("list command can filter catalog CLIs by category", async () => {
@@ -86,6 +109,19 @@ test("list command can filter installed CLIs by category", async () => {
   assert.doesNotMatch(stdout.join("\n"), /dominos/);
 });
 
+test("list command suggests npx commands when no installed CLIs are detected", async () => {
+  const stdout: string[] = [];
+  const command = createListCommand({
+    fetchRegistry: async () => registry,
+    commandOnPath: async () => null,
+    stdout: (message) => stdout.push(message),
+  });
+
+  assert.equal(await command(["--installed"]), 0);
+  assert.match(stdout.join("\n"), /npx -y @mvanhorn\/printing-press-library search <query>/);
+  assert.match(stdout.join("\n"), /npx -y @mvanhorn\/printing-press-library install <name>/);
+});
+
 test("search command ranks registry matches", async () => {
   const stdout: string[] = [];
   const command = createSearchCommand({
@@ -95,6 +131,23 @@ test("search command ranks registry matches", async () => {
 
   assert.equal(await command(["pizza"]), 0);
   assert.match(stdout.join("\n"), /dominos-pp-cli/);
+  assert.match(stdout.join("\n"), /install: npx -y @mvanhorn\/printing-press-library install dominos-pp-cli/);
+});
+
+test("search command normalizes punctuation and plural queries", async () => {
+  const stdout: string[] = [];
+  const command = createSearchCommand({
+    fetchRegistry: async () => registry,
+    stdout: (message) => stdout.push(message),
+  });
+
+  assert.equal(await command(["hotels"]), 0);
+  assert.match(stdout.join("\n"), /hotel-tonight-pp-cli/);
+  assert.match(stdout.join("\n"), /booking-com-pp-cli/);
+
+  stdout.length = 0;
+  assert.equal(await command(["cal.com"]), 0);
+  assert.match(stdout.join("\n"), /cal-com-pp-cli/);
 });
 
 test("update command refreshes detected installed CLIs", async () => {

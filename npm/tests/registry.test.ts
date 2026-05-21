@@ -19,6 +19,7 @@ test("parseRegistry validates and returns registry entries", () => {
         category: "sports",
         api: "ESPN",
         description: "Sports scores",
+        search_terms: ["NBA scores", "sports standings"],
         path: "library/sports/espn",
       },
     ],
@@ -26,6 +27,26 @@ test("parseRegistry validates and returns registry entries", () => {
 
   assert.equal(registry.entries.length, 1);
   assert.equal(registry.entries[0]?.name, "espn");
+  assert.deepEqual(registry.entries[0]?.search_terms, ["NBA scores", "sports standings"]);
+});
+
+test("parseRegistry treats null optional search_terms as absent", () => {
+  const registry = parseRegistry({
+    schema_version: 2,
+    entries: [
+      {
+        name: "espn",
+        category: "sports",
+        api: "ESPN",
+        description: "Sports scores",
+        search_terms: null,
+        path: "library/sports/espn",
+      },
+    ],
+  });
+
+  assert.equal(registry.entries.length, 1);
+  assert.equal(registry.entries[0]?.search_terms, undefined);
 });
 
 test("lookupByName matches normalized CLI and API names", () => {

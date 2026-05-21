@@ -67,11 +67,11 @@ func TestFormatDescription(t *testing.T) {
 
 func TestRegistryDescription(t *testing.T) {
 	cases := []struct {
-		name           string
-		prior          string
-		goreleaser     string
-		ppDescription  string
-		want           string
+		name          string
+		prior         string
+		goreleaser    string
+		ppDescription string
+		want          string
 	}{
 		{
 			name:          "curated copy wins over both fallbacks",
@@ -123,6 +123,44 @@ func TestRegistryDescription(t *testing.T) {
 					tc.prior, tc.goreleaser, tc.ppDescription, got, tc.want)
 			}
 		})
+	}
+}
+
+func TestSearchTerms(t *testing.T) {
+	got := searchTerms(printingPressManifest{
+		APIName:         "booking-com",
+		DisplayName:     "Booking.com",
+		CLIName:         "booking-com-pp-cli",
+		Description:     "Search Booking.com hotels, scrape details and reviews.",
+		AuthDescription: "Authenticated trips use cookie import.",
+		NovelFeatures: []struct {
+			Name        string `json:"name"`
+			Command     string `json:"command"`
+			Description string `json:"description"`
+			Rationale   string `json:"rationale"`
+		}{
+			{
+				Name:        "Compare two hotels side-by-side",
+				Command:     "compare",
+				Description: "Fetches detail and reviews for two hotels in parallel.",
+				Rationale:   "Useful for lodging decisions.",
+			},
+		},
+	})
+
+	want := []string{
+		"booking-com",
+		"Booking.com",
+		"booking-com-pp-cli",
+		"Search Booking.com hotels, scrape details and reviews.",
+		"Authenticated trips use cookie import.",
+		"Compare two hotels side-by-side",
+		"compare",
+		"Fetches detail and reviews for two hotels in parallel.",
+		"Useful for lodging decisions.",
+	}
+	if strings.Join(got, "\n") != strings.Join(want, "\n") {
+		t.Fatalf("searchTerms mismatch\nwant: %#v\ngot:  %#v", want, got)
 	}
 }
 

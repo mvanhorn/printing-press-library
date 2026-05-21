@@ -66,11 +66,12 @@ type Registry struct {
 }
 
 type RegistryEntry struct {
-	Name        string `json:"name"`
-	Category    string `json:"category"`
-	API         string `json:"api"`
-	Description string `json:"description"`
-	Path        string `json:"path"`
+	Name        string   `json:"name"`
+	Category    string   `json:"category"`
+	API         string   `json:"api"`
+	Description string   `json:"description"`
+	SearchTerms []string `json:"search_terms,omitempty"`
+	Path        string   `json:"path"`
 	// Printer is the GitHub @handle of the human who originally ran the
 	// press for this CLI. Sourced verbatim from .printing-press.json's
 	// `printer` field; never derived from operator git config or curated
@@ -119,6 +120,8 @@ type printingPressManifest struct {
 	Description        string   `json:"description"`
 	Printer            string   `json:"printer"`
 	PrinterName        string   `json:"printer_name"`
+	CLIName            string   `json:"cli_name"`
+	AuthDescription    string   `json:"auth_description"`
 	MCPBinary          string   `json:"mcp_binary"`
 	MCPToolCount       int      `json:"mcp_tool_count"`
 	MCPPublicToolCount *int     `json:"mcp_public_tool_count"`
@@ -126,6 +129,12 @@ type printingPressManifest struct {
 	AuthType           string   `json:"auth_type"`
 	AuthEnvVars        []string `json:"auth_env_vars"`
 	SpecFormat         string   `json:"spec_format"`
+	NovelFeatures      []struct {
+		Name        string `json:"name"`
+		Command     string `json:"command"`
+		Description string `json:"description"`
+		Rationale   string `json:"rationale"`
+	} `json:"novel_features"`
 }
 
 // brewsDescriptionRE matches a `description:` line nested under `brews:` in
@@ -363,6 +372,7 @@ func buildEntry(dir, category, slug string, existing map[string]RegistryEntry) (
 		readGoreleaserDescription(filepath.Join(dir, ".goreleaser.yaml")),
 		pp.Description,
 	)
+	entry.SearchTerms = searchTerms(pp)
 
 	// MCP block preference: derive from .printing-press.json when it
 	// declares mcp_binary (the modern, authoritative source) > preserve
@@ -405,6 +415,46 @@ func registryDescription(prior, goreleaser, ppDescription string) string {
 		return goreleaser
 	}
 	return ppDescription
+}
+
+func searchTerms(pp printingPressManifest) []string {
+	var terms []string
+	add := func(value string) {
+		value = strings.TrimSpace(value)
+		if value != "" {
+			terms = append(terms, value)
+		}
+	}
+
+	add(pp.APIName)
+	add(pp.DisplayName)
+	add(pp.CLIName)
+	add(pp.Description)
+	add(pp.AuthDescription)
+	for _, feature := range pp.NovelFeatures {
+		add(feature.Name)
+		add(feature.Command)
+		add(feature.Description)
+		add(feature.Rationale)
+	}
+	return dedupeStrings(terms)
+}
+
+func dedupeStrings(values []string) []string {
+	seen := make(map[string]struct{}, len(values))
+	var out []string
+	for _, value := range values {
+		key := strings.ToLower(strings.TrimSpace(value))
+		if key == "" {
+			continue
+		}
+		if _, ok := seen[key]; ok {
+			continue
+		}
+		seen[key] = struct{}{}
+		out = append(out, value)
+	}
+	return out
 }
 
 // validateEntries returns one human-readable error per missing required

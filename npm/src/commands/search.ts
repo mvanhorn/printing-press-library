@@ -1,4 +1,10 @@
-import { DEFAULT_REGISTRY_URL, fetchRegistry, type Registry, type RegistryEntry } from "../registry.js";
+import {
+  DEFAULT_REGISTRY_URL,
+  cliBinaryName,
+  fetchRegistry,
+  type Registry,
+  type RegistryEntry,
+} from "../registry.js";
 import { renderCatalogEntries } from "../format.js";
 
 interface SearchDeps {
@@ -46,25 +52,64 @@ export function createSearchCommand(overrides: Partial<SearchDeps> = {}) {
 export const searchCommand = createSearchCommand();
 
 export function searchRegistry(entries: RegistryEntry[], query: string): RegistryEntry[] {
-  const q = query.toLowerCase();
+  const terms = searchTerms(query);
   return entries
-    .map((entry) => ({ entry, score: scoreEntry(entry, q) }))
+    .map((entry) => ({ entry, score: scoreEntry(entry, terms) }))
     .filter((result) => result.score > 0)
     .sort((a, b) => b.score - a.score || a.entry.name.localeCompare(b.entry.name))
     .map((result) => result.entry);
 }
 
-function scoreEntry(entry: RegistryEntry, query: string): number {
-  const name = entry.name.toLowerCase();
-  const api = entry.api.toLowerCase();
-  const category = entry.category.toLowerCase();
-  const description = entry.description.toLowerCase();
-  if (name === query || api === query) return 100;
-  if (name.includes(query)) return 80;
-  if (api.includes(query)) return 70;
-  if (category.includes(query)) return 50;
-  if (description.includes(query)) return 30;
+function scoreEntry(entry: RegistryEntry, terms: string[]): number {
+  const name = normalizeSearchText(entry.name);
+  const binary = normalizeSearchText(cliBinaryName(entry));
+  const api = normalizeSearchText(entry.api);
+  const category = normalizeSearchText(entry.category);
+  const description = normalizeSearchText(entry.description);
+  const indexText = normalizeSearchText(entry.search_terms?.join(" ") ?? "");
+  if (terms.some((term) => name === term || api === term)) return 100;
+  if (matchesAnyTerm(name, terms)) return 80;
+  if (matchesAnyTerm(binary, terms)) return 80;
+  if (matchesAnyTerm(api, terms)) return 70;
+  if (matchesAnyTerm(category, terms)) return 50;
+  if (matchesAnyTerm(description, terms)) return 30;
+  if (matchesAnyTerm(indexText, terms)) return 25;
   return 0;
+}
+
+function matchesAnyTerm(value: string, terms: string[]): boolean {
+  return terms.some((term) => value.includes(term));
+}
+
+function searchTerms(query: string): string[] {
+  const normalized = normalizeSearchText(query);
+  if (normalized === "") {
+    return [];
+  }
+
+  const terms = new Set([normalized]);
+  const singular = normalized
+    .split(" ")
+    .map((token) => singularizeToken(token))
+    .join(" ");
+  if (singular !== normalized) {
+    terms.add(singular);
+  }
+  return [...terms];
+}
+
+function normalizeSearchText(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim()
+    .replace(/\s+/g, " ");
+}
+
+function singularizeToken(token: string): string {
+  return token.length > 3 && token.endsWith("s") && !token.endsWith("ss")
+    ? token.slice(0, -1)
+    : token;
 }
 
 function parseSearchArgs(args: string[]):
