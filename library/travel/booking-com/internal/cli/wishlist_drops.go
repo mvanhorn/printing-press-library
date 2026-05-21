@@ -70,12 +70,17 @@ func newWishlistDropsCmd(flags *rootFlags) *cobra.Command {
 					return fmt.Errorf("wishlist drops: %w", err)
 				}
 				var prices []float64
-				var currency, observed string
+				var latestCurrency, latestObserved string
 				for rows.Next() {
 					var price float64
+					var currency, observed string
 					if err := rows.Scan(&price, &currency, &observed); err != nil {
 						rows.Close()
 						return fmt.Errorf("wishlist drops: %w", err)
+					}
+					if len(prices) == 0 {
+						latestCurrency = currency
+						latestObserved = observed
 					}
 					prices = append(prices, price)
 				}
@@ -87,10 +92,10 @@ func newWishlistDropsCmd(flags *rootFlags) *cobra.Command {
 				if len(prices) < 2 {
 					continue
 				}
-				seenAt, _ := time.Parse(time.RFC3339, observed)
+				seenAt, _ := time.Parse(time.RFC3339, latestObserved)
 				drop := (prices[1] - prices[0]) / prices[1] * 100
 				if !seenAt.Before(cutoff) && drop >= minPct {
-					out = append(out, wishlistDrop{PropertyName: item.PropertyName, PropertySlug: slug, Country: item.Country, LatestPrice: prices[0], PreviousPrice: prices[1], DropPct: drop, Currency: currency, ObservedAt: observed})
+					out = append(out, wishlistDrop{PropertyName: item.PropertyName, PropertySlug: slug, Country: item.Country, LatestPrice: prices[0], PreviousPrice: prices[1], DropPct: drop, Currency: latestCurrency, ObservedAt: latestObserved})
 				}
 			}
 			return flags.printJSON(cmd, out)
