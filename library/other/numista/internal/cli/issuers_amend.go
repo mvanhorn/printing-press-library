@@ -42,10 +42,9 @@ type issuerRecord struct {
 
 // loadIssuersFromCache reads every issuer the local store knows about. Returns
 // (nil, nil) when the cache is empty so callers can render the warm-the-cache
-// message instead of erroring. The (-1) limit asks store.List for unlimited
-// rows; List enforces a default of 200 when given a non-positive limit, but
-// 200 covers Numista's ~250 top-level issuers comfortably and 12k including
-// subdivisions — see crawl_issuer.go for the full crawl pattern.
+// message instead of erroring. The 50000 limit is a generous ceiling well
+// above Numista's ~12K issuers across all levels (~250 top-level countries +
+// subdivisions); see crawl_issuer.go for the full crawl pattern.
 func loadIssuersFromCache() ([]issuerRecord, error) {
 	dbPath := defaultDBPath("numista-pp-cli")
 	// Distinguish "DB file genuinely missing" (cache not warm — return empty
@@ -280,7 +279,11 @@ func newIssuersFindCmd(flags *rootFlags) *cobra.Command {
 				return apiErr(err)
 			}
 			if len(records) == 0 {
-				return usageErr(fmt.Errorf(
+				// apiErr (exit 5) rather than usageErr (exit 2): empty cache
+				// is a precondition-not-met / data-state error, not a wrong-
+				// flag error — usageErr is conventionally reserved for the
+				// latter. Greptile P2 on PR #684 review.
+				return apiErr(fmt.Errorf(
 					"local issuers cache is empty. Run 'numista-pp-cli issuers' to populate it (one API call), " +
 						"then re-run 'issuers find'"))
 			}
@@ -298,7 +301,6 @@ func newIssuersFindCmd(flags *rootFlags) *cobra.Command {
 // this CLI.
 func renderIssuersFind(cmd *cobra.Command, flags *rootFlags, matches []issuerRecord) error {
 	out := cmd.OutOrStdout()
-	asJSON := flags.asJSON || (!isTerminal(out) && !flags.csv && !flags.quiet && !flags.plain)
 	if flags.csv {
 		w := csv.NewWriter(out)
 		_ = w.Write([]string{"slug", "label", "parent"})
@@ -308,18 +310,30 @@ func renderIssuersFind(cmd *cobra.Command, flags *rootFlags, matches []issuerRec
 		w.Flush()
 		return w.Error()
 	}
-	if asJSON {
+	// Route JSON through the standard output pipeline so --select and
+	// --compact behave identically to every other read command. Previously
+	// wrote the envelope directly via json.NewEncoder, which silently
+	// bypassed filterFields / compactFields — Greptile P2 on PR #684
+	// review.
+	if flags.asJSON || (!isTerminal(out) && !flags.csv && !flags.quiet && !flags.plain) {
 		items := make([]map[string]any, len(matches))
 		for i, m := range matches {
 			items[i] = map[string]any{"slug": m.Slug, "label": m.Label, "parent": m.Parent}
 		}
-		// Wrap with the same {meta, results} envelope every other read
-		// command uses so --select and downstream parsers behave the same.
 		envelope := map[string]any{
 			"meta":    map[string]any{"source": "local", "resource_type": "issuers"},
 			"results": items,
 		}
-		return json.NewEncoder(out).Encode(envelope)
+		data, err := json.Marshal(envelope)
+		if err != nil {
+			return fmt.Errorf("marshal issuers find envelope: %w", err)
+		}
+		if flags.selectFields != "" {
+			data = filterFields(data, flags.selectFields)
+		} else if flags.compact {
+			data = compactFields(data)
+		}
+		return printOutput(out, data, true)
 	}
 	// Human table
 	if len(matches) == 0 {
