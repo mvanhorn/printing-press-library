@@ -13,7 +13,7 @@ from pathlib import Path, PurePosixPath
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 MIN_PRESS_VERSION = "4.10.0"
-MIN_VERSION_PARTS = (4, 10, 0)
+MIN_VERSION_PARTS = tuple(int(part) for part in MIN_PRESS_VERSION.split("."))
 
 
 @dataclass(frozen=True)
@@ -98,7 +98,7 @@ def upgrade_message(actual: object) -> str:
         "go install github.com/mvanhorn/cli-printing-press/v4/cmd/cli-printing-press@latest; "
         "cli-printing-press --version; "
         "install/update the latest cli-printing-press skills from mvanhorn/cli-printing-press; "
-        "then re-run /printing-press or /printing-press-publish."
+        "then re-run /cli-printing-press or /cli-printing-press-publish."
     )
 
 

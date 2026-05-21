@@ -121,7 +121,7 @@ class PressVersionVerifierTest(unittest.TestCase):
 
         self.assertEqual(1, len(problems))
         self.assertIn("go install github.com/mvanhorn/cli-printing-press/v4/cmd/cli-printing-press@latest", problems[0].message)
-        self.assertIn("/printing-press-publish", problems[0].message)
+        self.assertIn("/cli-printing-press-publish", problems[0].message)
 
 
 if __name__ == "__main__":
