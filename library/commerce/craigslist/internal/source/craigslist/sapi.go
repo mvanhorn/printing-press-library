@@ -11,6 +11,13 @@ import (
 
 const defaultSiteSearchDistanceMi = 60
 
+// QueryParams is the small query-parameter surface needed to apply Craigslist
+// site scoping to both url.Values and generated command parameter maps.
+type QueryParams interface {
+	Get(string) string
+	Set(string, string)
+}
+
 // SearchResults is the typed shape we extract from a sapi response. The wire format
 // is positional arrays plus shared decode tables; we expand into these structs so
 // commands and the local store work with named fields.
@@ -98,12 +105,12 @@ func (d *rawDecode) UnmarshalJSON(body []byte) error {
 // Search hits sapi.craigslist.org/web/v8/postings/search/full and returns typed results.
 // site is the area hostname or abbreviation (e.g. "sfbay", "portland", "nyc").
 func (c *Client) Search(ctx context.Context, site string, q SearchQuery) (*SearchResults, error) {
+	params := q.values()
 	var err error
-	q, site, err = c.applySiteScope(ctx, site, q)
+	site, err = c.ApplySiteScopeParams(ctx, site, params)
 	if err != nil {
 		return nil, err
 	}
-	params := q.values()
 	body, err := c.RawGet(ctx, HostSAPI, "/postings/search/full", params)
 	if err != nil {
 		return nil, err
@@ -189,26 +196,26 @@ func (q SearchQuery) values() url.Values {
 	return v
 }
 
-func (c *Client) applySiteScope(ctx context.Context, site string, q SearchQuery) (SearchQuery, string, error) {
+func (c *Client) ApplySiteScopeParams(ctx context.Context, site string, params QueryParams) (string, error) {
 	site = strings.TrimSpace(site)
 	if site == "" {
-		return q, site, nil
+		return site, nil
 	}
 	area, ok, err := c.ResolveArea(ctx, site)
 	if err != nil {
-		return q, site, fmt.Errorf("resolve craigslist site %q: %w", site, err)
+		return site, fmt.Errorf("resolve craigslist site %q: %w", site, err)
 	}
 	if !ok {
-		return q, site, fmt.Errorf("unknown craigslist site %q", site)
+		return site, fmt.Errorf("unknown craigslist site %q", site)
 	}
-	if q.Postal == "" && q.Latitude == 0 && q.Longitude == 0 {
-		q.Latitude = area.Latitude
-		q.Longitude = area.Longitude
-		if q.SearchDistance == 0 {
-			q.SearchDistance = defaultSiteSearchDistanceMi
+	if params.Get("postal") == "" && (params.Get("lat") == "" || params.Get("lon") == "") {
+		params.Set("lat", strconv.FormatFloat(area.Latitude, 'f', -1, 64))
+		params.Set("lon", strconv.FormatFloat(area.Longitude, 'f', -1, 64))
+		if params.Get("search_distance") == "" {
+			params.Set("search_distance", strconv.Itoa(defaultSiteSearchDistanceMi))
 		}
 	}
-	return q, area.Hostname, nil
+	return area.Hostname, nil
 }
 
 func decodeSearchBody(body []byte, site string) (*SearchResults, error) {

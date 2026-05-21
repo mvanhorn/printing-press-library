@@ -51,13 +51,13 @@ func (c *Client) GetCategories(ctx context.Context) ([]Category, error) {
 func (c *Client) cachedCategoryAbbrs(ctx context.Context) (map[int]string, error) {
 	c.cacheMu.Lock()
 	if c.categoriesLoaded {
-		defer c.cacheMu.Unlock()
-		return c.categoryAbbrs, nil
+		abbrs := c.categoryAbbrs
+		c.cacheMu.Unlock()
+		return abbrs, nil
 	}
-	c.cacheMu.Unlock()
-
 	cats, err := c.GetCategories(ctx)
 	if err != nil {
+		c.cacheMu.Unlock()
 		return nil, err
 	}
 	abbrs := make(map[int]string, len(cats))
@@ -65,7 +65,6 @@ func (c *Client) cachedCategoryAbbrs(ctx context.Context) (map[int]string, error
 		abbrs[cat.CategoryID] = cat.Abbreviation
 	}
 
-	c.cacheMu.Lock()
 	c.categoryAbbrs = abbrs
 	c.categoriesLoaded = true
 	c.cacheMu.Unlock()
@@ -154,24 +153,28 @@ func (c *Client) GetAreas(ctx context.Context) ([]Area, error) {
 	return out, nil
 }
 
-func (c *Client) cachedAreas(ctx context.Context) ([]Area, error) {
+func (c *Client) cachedAreaIndex(ctx context.Context) (map[string]Area, error) {
 	c.cacheMu.Lock()
 	if c.areasLoaded {
-		defer c.cacheMu.Unlock()
-		return c.areas, nil
+		areaByKey := c.areaByKey
+		c.cacheMu.Unlock()
+		return areaByKey, nil
 	}
-	c.cacheMu.Unlock()
-
 	areas, err := c.GetAreas(ctx)
 	if err != nil {
+		c.cacheMu.Unlock()
 		return nil, err
 	}
+	areaByKey := make(map[string]Area, len(areas)*2)
+	for _, area := range areas {
+		areaByKey[normalizeSiteKey(area.Hostname)] = area
+		areaByKey[strings.ToLower(area.Abbreviation)] = area
+	}
 
-	c.cacheMu.Lock()
-	c.areas = areas
+	c.areaByKey = areaByKey
 	c.areasLoaded = true
 	c.cacheMu.Unlock()
-	return areas, nil
+	return areaByKey, nil
 }
 
 // ResolveArea finds a Craigslist area by hostname or abbreviation. Common user
@@ -181,16 +184,15 @@ func (c *Client) ResolveArea(ctx context.Context, site string) (Area, bool, erro
 	if key == "" {
 		return Area{}, false, nil
 	}
-	areas, err := c.cachedAreas(ctx)
+	areaByKey, err := c.cachedAreaIndex(ctx)
 	if err != nil {
 		return Area{}, false, err
 	}
-	for _, area := range areas {
-		if normalizeSiteKey(area.Hostname) == key || strings.ToLower(area.Abbreviation) == key {
-			return area, true, nil
-		}
+	area, ok := areaByKey[key]
+	if !ok {
+		return Area{}, false, nil
 	}
-	return Area{}, false, nil
+	return area, true, nil
 }
 
 func normalizeSiteKey(site string) string {

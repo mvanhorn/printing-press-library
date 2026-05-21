@@ -51,7 +51,7 @@ type Client struct {
 
 	cacheMu          sync.Mutex
 	areasLoaded      bool
-	areas            []Area
+	areaByKey        map[string]Area
 	categoriesLoaded bool
 	categoryAbbrs    map[int]string
 }

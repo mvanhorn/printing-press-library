@@ -12,6 +12,16 @@ import (
 	"github.com/spf13/cobra"
 )
 
+type stringParams map[string]string
+
+func (p stringParams) Get(key string) string {
+	return p[key]
+}
+
+func (p stringParams) Set(key, value string) {
+	p[key] = value
+}
+
 func newPostingsPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagQuery string
 	var flagSearchPath string
@@ -40,7 +50,7 @@ func newPostingsPromotedCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/postings/search/full"
-			params := map[string]string{}
+			params := stringParams{}
 			if flagQuery != "" {
 				params["query"] = fmt.Sprintf("%v", flagQuery)
 			}
@@ -71,18 +81,10 @@ func newPostingsPromotedCmd(flags *rootFlags) *cobra.Command {
 			if flagSearchDistance != 0 {
 				params["search_distance"] = fmt.Sprintf("%v", flagSearchDistance)
 			}
-			if flagSite != "" && flagPostal == "" {
-				area, ok, err := craigslist.New(1.0).ResolveArea(cmd.Context(), flagSite)
+			if flagSite != "" {
+				_, err := craigslist.New(1.0).ApplySiteScopeParams(cmd.Context(), flagSite, params)
 				if err != nil {
-					return fmt.Errorf("resolve craigslist site %q: %w", flagSite, err)
-				}
-				if !ok {
-					return fmt.Errorf("unknown craigslist site %q", flagSite)
-				}
-				params["lat"] = fmt.Sprintf("%v", area.Latitude)
-				params["lon"] = fmt.Sprintf("%v", area.Longitude)
-				if _, ok := params["search_distance"]; !ok {
-					params["search_distance"] = "60"
+					return err
 				}
 			}
 			if flagSrchType != "" {
@@ -91,7 +93,7 @@ func newPostingsPromotedCmd(flags *rootFlags) *cobra.Command {
 			if flagSort != "" {
 				params["sort"] = fmt.Sprintf("%v", flagSort)
 			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "postings", false, path, params, nil)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "postings", false, path, map[string]string(params), nil)
 			if err != nil {
 				return classifyAPIError(err)
 			}
