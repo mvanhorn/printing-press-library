@@ -95,6 +95,9 @@ func newWatchListCmd(flags *rootFlags) *cobra.Command {
 				}
 				out = append(out, w)
 			}
+			if err := rows.Err(); err != nil {
+				return fmt.Errorf("watch list: %w", err)
+			}
 			return flags.printJSON(cmd, out)
 		},
 	}

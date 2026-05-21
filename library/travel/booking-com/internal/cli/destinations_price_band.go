@@ -52,6 +52,9 @@ func newDestinationsPriceBandCmd(flags *rootFlags) *cobra.Command {
 				}
 				byMonth[month] = append(byMonth[month], price)
 			}
+			if err := rows.Err(); err != nil {
+				return fmt.Errorf("destinations price-band: %w", err)
+			}
 			out := make([]priceBand, 0)
 			for month, vals := range byMonth {
 				sort.Float64s(vals)
