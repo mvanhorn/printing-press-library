@@ -275,6 +275,7 @@ func syncCoffeeReview(ctx context.Context, db *store.Store) (int, string, string
 		return 0, err.Error(), "error"
 	}
 	stored := 0
+	failed := 0
 	for _, rv := range reviews {
 		_, ierr := db.DB().ExecContext(ctx,
 			`INSERT INTO reviews (id, source, source_url, roaster_name, bean_name, score, descriptors_json, published_at, reviewer, raw_json)
@@ -289,18 +290,29 @@ func syncCoffeeReview(ctx context.Context, db *store.Store) (int, string, string
 			rv.ID, rv.SourceURL, rv.RoasterName, rv.BeanName, rv.Score, "", rv.PublishedAt, rv.Reviewer, rv.RawJSON,
 		)
 		if ierr != nil {
+			failed++
 			continue
 		}
 		stored++
 	}
-	_ = db.SaveCoffeeSyncState("coffee-review", "ok", stored)
+	status := "ok"
+	msg := ""
+	if failed > 0 {
+		status = "partial"
+		msg = fmt.Sprintf("%d reviews failed to persist", failed)
+		if stored == 0 {
+			status = "error"
+		}
+	}
+	_ = db.SaveCoffeeSyncState("coffee-review", status, stored)
 	_ = db.SaveSyncState("reviews", "", stored)
-	return stored, "", "ok"
+	return stored, msg, status
 }
 
 func syncYouTube(ctx context.Context, db *store.Store, full bool) (int, string, string) {
 	fetcher := youtube.New()
 	stored := 0
+	failed := 0
 	for _, creator := range youtube.TrackedCreators {
 		lastSyncedAt := time.Time{}
 		if !full {
@@ -320,6 +332,7 @@ func syncYouTube(ctx context.Context, db *store.Store, full bool) (int, string, 
 		for _, v := range videos {
 			tx, txErr := db.DB().BeginTx(ctx, nil)
 			if txErr != nil {
+				failed++
 				continue
 			}
 			_, ierr := tx.ExecContext(ctx,
@@ -336,6 +349,7 @@ func syncYouTube(ctx context.Context, db *store.Store, full bool) (int, string, 
 			)
 			if ierr != nil {
 				_ = tx.Rollback()
+				failed++
 				continue
 			}
 			// Mirror into FTS5 atomically with the main row.
@@ -345,18 +359,29 @@ func syncYouTube(ctx context.Context, db *store.Store, full bool) (int, string, 
 				v.VideoID,
 			); ftsErr != nil {
 				_ = tx.Rollback()
+				failed++
 				continue
 			}
 			if commitErr := tx.Commit(); commitErr != nil {
+				failed++
 				continue
 			}
 			stored++
 		}
 		_ = db.SaveCoffeeSyncState("youtube:"+creator.Slug, "ok", len(videos))
 	}
-	_ = db.SaveCoffeeSyncState("youtube", "ok", stored)
+	status := "ok"
+	msg := ""
+	if failed > 0 {
+		status = "partial"
+		msg = fmt.Sprintf("%d videos failed to persist", failed)
+		if stored == 0 {
+			status = "error"
+		}
+	}
+	_ = db.SaveCoffeeSyncState("youtube", status, stored)
 	_ = db.SaveSyncState("videos", "", stored)
-	return stored, "", "ok"
+	return stored, msg, status
 }
 
 func boolToInt(b bool) int {
