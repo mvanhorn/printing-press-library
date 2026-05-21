@@ -44,7 +44,48 @@ func IngestNote(ctx context.Context, db *sql.DB, note IngestedNote) (int64, erro
 	}
 	defer tx.Rollback()
 
-	// Delete any existing note + cascading children.
+	// Delete any existing note + cascading children. note_segments_fts is an
+	// FTS5 external-content table, so SQLite does NOT propagate the cascade
+	// delete into the FTS term index — we must issue explicit 'delete' commands
+	// (with the OLD column values, in declared order text, heading) for every
+	// existing segment first, or zombie entries accumulate at stale rowids on
+	// each re-ingest (unbounded index growth, corrupted BM25 stats, failing
+	// integrity-check).
+	ftsRows, err := tx.QueryContext(ctx, `
+		SELECT ns.id, ns.text, COALESCE(ns.heading, '')
+		FROM note_segments ns
+		JOIN notes n ON n.id = ns.note_id
+		WHERE n.source_file = ?`, note.SourceFile)
+	if err != nil {
+		return 0, err
+	}
+	type ftsEntry struct {
+		id      int64
+		text    string
+		heading string
+	}
+	var stale []ftsEntry
+	for ftsRows.Next() {
+		var e ftsEntry
+		if scanErr := ftsRows.Scan(&e.id, &e.text, &e.heading); scanErr != nil {
+			ftsRows.Close()
+			return 0, scanErr
+		}
+		stale = append(stale, e)
+	}
+	ftsRows.Close()
+	if err := ftsRows.Err(); err != nil {
+		return 0, err
+	}
+	for _, e := range stale {
+		if _, err := tx.ExecContext(ctx,
+			`INSERT INTO note_segments_fts(note_segments_fts, rowid, text, heading) VALUES('delete', ?, ?, ?)`,
+			e.id, e.text, e.heading); err != nil {
+			return 0, err
+		}
+	}
+
+	// Now delete the note row (cascades to note_segments + note_todos).
 	if _, err := tx.ExecContext(ctx, `DELETE FROM notes WHERE source_file = ?`, note.SourceFile); err != nil {
 		return 0, err
 	}

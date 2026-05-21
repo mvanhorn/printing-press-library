@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"runtime"
 	"strings"
 	"time"
@@ -94,7 +95,10 @@ func newNotesSummaryCmd(flags *rootFlags) *cobra.Command {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
-			return runCloudGET(cmd, flags, "/meetings/"+args[0]+"/meeting_summary")
+			// Zoom meeting UUIDs are base64 and commonly contain '/' and '=';
+			// PathEscape keeps the UUID a single path segment instead of
+			// splitting it into extra path components.
+			return runCloudGET(cmd, flags, "/meetings/"+url.PathEscape(args[0])+"/meeting_summary")
 		},
 	}
 	return cmd
@@ -114,7 +118,9 @@ func newNotesTranscriptCmd(flags *rootFlags) *cobra.Command {
 			if len(args) == 0 {
 				return cmd.Help()
 			}
-			return runCloudGET(cmd, flags, "/meetings/"+args[0]+"/transcript")
+			// PathEscape so base64 UUIDs containing '/' or '=' stay a single
+			// path segment.
+			return runCloudGET(cmd, flags, "/meetings/"+url.PathEscape(args[0])+"/transcript")
 		},
 	}
 	return cmd
