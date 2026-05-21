@@ -113,6 +113,9 @@ func choosePlan(options [][]planPick, budget float64) ([]planPick, error) {
 	if err := validatePlanSearchSpace(options); err != nil {
 		return nil, err
 	}
+	if len(options) > 0 && len(commonPlanCurrencies(options)) == 0 {
+		return nil, fmt.Errorf("no common currency across trip legs; split the plan by currency or adjust --filters")
+	}
 	best := make([]planPick, 0)
 	var bestSum float64
 	var dfs func(int, float64, string, []planPick)
@@ -147,11 +150,33 @@ func choosePlan(options [][]planPick, budget float64) ([]planPick, error) {
 	return best, nil
 }
 
+func commonPlanCurrencies(options [][]planPick) map[string]struct{} {
+	common := make(map[string]struct{})
+	for i, picks := range options {
+		legCurrencies := make(map[string]struct{})
+		for _, pick := range picks {
+			if pick.Currency != "" {
+				legCurrencies[pick.Currency] = struct{}{}
+			}
+		}
+		if i == 0 {
+			common = legCurrencies
+			continue
+		}
+		for currency := range common {
+			if _, ok := legCurrencies[currency]; !ok {
+				delete(common, currency)
+			}
+		}
+	}
+	return common
+}
+
 func validatePlanSearchSpace(options [][]planPick) error {
 	combinations := 1
 	for _, picks := range options {
 		if len(picks) == 0 {
-			return nil
+			continue
 		}
 		nextCombinations := combinations * len(picks)
 		if nextCombinations > maxTripPlanCombinations {

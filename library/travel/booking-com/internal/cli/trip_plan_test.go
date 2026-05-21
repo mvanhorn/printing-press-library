@@ -35,18 +35,18 @@ func TestChoosePlanRequiresSingleCurrency(t *testing.T) {
 	}
 }
 
-func TestChoosePlanReturnsEmptyWhenNoCommonCurrency(t *testing.T) {
+func TestChoosePlanRejectsNoCommonCurrency(t *testing.T) {
 	t.Parallel()
 
-	got, err := choosePlan([][]planPick{
+	_, err := choosePlan([][]planPick{
 		{{Leg: "Paris:2026-06-01:2026-06-03", Price: 80, Currency: "EUR"}},
 		{{Leg: "London:2026-06-03:2026-06-05", Price: 70, Currency: "GBP"}},
 	}, 250)
-	if err != nil {
-		t.Fatalf("choosePlan returned error: %v", err)
+	if err == nil {
+		t.Fatal("choosePlan returned nil error for legs with no common currency")
 	}
-	if len(got) != 0 {
-		t.Fatalf("choosePlan returned mixed-currency plan, want empty: %+v", got)
+	if !strings.Contains(err.Error(), "no common currency") {
+		t.Fatalf("choosePlan error = %q, want common-currency diagnostic", err)
 	}
 }
 
@@ -66,6 +66,25 @@ func TestChoosePlanRejectsOversizedSearchSpace(t *testing.T) {
 	}
 	if !strings.Contains(err.Error(), "too many plan combinations") {
 		t.Fatalf("choosePlan error = %q, want search-space cap error", err)
+	}
+}
+
+func TestValidatePlanSearchSpaceChecksAfterEmptyLeg(t *testing.T) {
+	t.Parallel()
+
+	options := make([][]planPick, 8)
+	for i := 1; i < len(options); i++ {
+		for j := 0; j < 10; j++ {
+			options[i] = append(options[i], planPick{Leg: "leg", Price: float64(j + 1), Currency: "USD"})
+		}
+	}
+
+	err := validatePlanSearchSpace(options)
+	if err == nil {
+		t.Fatal("validatePlanSearchSpace returned nil error for oversized search space after empty leg")
+	}
+	if !strings.Contains(err.Error(), "too many plan combinations") {
+		t.Fatalf("validatePlanSearchSpace error = %q, want search-space cap error", err)
 	}
 }
 
