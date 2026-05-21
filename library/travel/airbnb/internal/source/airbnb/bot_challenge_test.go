@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/travel/airbnb/internal/cliutil"
 )
@@ -154,6 +155,7 @@ func TestIsBotChallenge_200WithDdServerHeader(t *testing.T) {
 
 func TestDoReturnsBotChallengeOnFinal429Challenge(t *testing.T) {
 	attempts := 0
+	sleeps := 0
 	body := `{"url":"https://geo.captcha-delivery.com/captcha/..."}`
 	c := &Client{
 		http: &http.Client{Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
@@ -165,6 +167,9 @@ func TestDoReturnsBotChallengeOnFinal429Challenge(t *testing.T) {
 				Request:    req,
 			}, nil
 		})},
+		sleep: func(time.Duration) {
+			sleeps++
+		},
 	}
 
 	_, err := c.do(context.Background(), "GET", "https://example.com/api", airbnbUA, nil, nil)
@@ -177,6 +182,9 @@ func TestDoReturnsBotChallengeOnFinal429Challenge(t *testing.T) {
 	}
 	if attempts != 4 {
 		t.Fatalf("attempts = %d, want initial try plus 3 retries", attempts)
+	}
+	if sleeps != 3 {
+		t.Fatalf("sleeps = %d, want one sleep before each retry", sleeps)
 	}
 }
 

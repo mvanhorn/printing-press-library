@@ -40,6 +40,7 @@ var defaultClient = &Client{
 	http:    &http.Client{Timeout: 30 * time.Second},
 	limiter: cliutil.NewAdaptiveLimiter(0.5),
 	robots:  map[string]bool{},
+	sleep:   time.Sleep,
 }
 
 type Client struct {
@@ -47,6 +48,7 @@ type Client struct {
 	limiter *cliutil.AdaptiveLimiter
 	mu      sync.Mutex
 	robots  map[string]bool
+	sleep   func(time.Duration)
 }
 
 func Search(ctx context.Context, params SearchParams) ([]Listing, *Pagination, error) {
@@ -251,7 +253,11 @@ func (c *Client) do(ctx context.Context, method, target, ua string, body io.Read
 			} else {
 				base = cliutil.Backoff(attempt)
 			}
-			time.Sleep(base + jitter(base))
+			if c.sleep != nil {
+				c.sleep(base + jitter(base))
+			} else {
+				time.Sleep(base + jitter(base))
+			}
 			continue
 		}
 		// PATCH: bot-challenge branch added before the generic >=400 fallthrough.
