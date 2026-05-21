@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-15T21:29:53.843658Z",
+  "printing_press_version": "4.6.1",
+  "api_name": "ori",
+  "display_name": "Ori",
+  "cli_name": "ori-pp-cli",
+  "owner": "error",
+  "printer": "error2",
+  "printer_name": "error",
+  "category": "developer-tools",
+  "spec_path": "/Users/i347208/dev/ori-cli-spec/openapi.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:1d14870031929f24d35b359c8dea55e5889ecb5e37dfddcc0d3aa31ae8a6192a",
+  "run_id": "20260515-230110",
+  "mcp_binary": "ori-pp-mcp",
+  "mcp_tool_count": 10,
+  "mcp_public_tool_count": 10,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Stack doctor",
+      "command": "doctor",
+      "description": "Run every openclaw stack health check in one verb: launchd a2a-server status, /healthz reachability, both agents responding, agents.toml valid, plugin cache env vars commented in compose, codex OAuth fresh, gateway WS tunnel reachable."
+    },
+    {
+      "name": "Bridge kickstart",
+      "command": "kickstart",
+      "description": "Restart the launchd a2a-server bridge and poll /healthz until ready. Wraps the post-compose-down/up recovery ritual into one command."
+    },
+    {
+      "name": "Local task sync",
+      "command": "sync",
+      "description": "Paginate ListTasks across all configured agents, upsert into the local SQLite mirror, refresh approvals. Foundation for offline search and historical queries."
+    },
+    {
+      "name": "FTS5 task search",
+      "command": "tasks search",
+      "description": "Full-text search across cached agent response text. Filters: --agent, --since, --state. Returns task_id, agent, state, first matching line."
+    },
+    {
+      "name": "Conversation contexts",
+      "command": "contexts list",
+      "description": "Group cached tasks by context_id and surface conversations: first task, last task, task count, peek of the first user message."
+    },
+    {
+      "name": "Live state watcher",
+      "command": "watch",
+      "description": "Poll ListTasks at an interval and print state transitions live: 'ori task abc123: running → input_required at 23:01'."
+    },
+    {
+      "name": "Server logs tail",
+      "command": "logs tail",
+      "description": "Tail ~/Library/Logs/openclaw-a2a-server/{stdout,stderr}.log via --stream switching. Hides the path."
+    },
+    {
+      "name": "Cross-agent approval queue",
+      "command": "approvals pending",
+      "description": "Aggregate approvals across all agents, with --watch for live polling. Single pane replacing two separate MCP bridge tools."
+    }
+  ]
+}

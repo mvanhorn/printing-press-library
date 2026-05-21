@@ -1,0 +1,487 @@
+openapi: 3.0.3
+info:
+  title: Ori
+  version: 0.1.0
+  x-cli-description: "Unified ops CLI for the openclaw A2A bridge: chat, tasks, approvals, service kickstart, and FTS5 search across cached task history."
+  description: |
+    Ori is a local operations CLI for the openclaw-a2a-server (the launchd-managed
+    A2A protocol bridge running on localhost:8788). It replaces the per-agent MCP
+    tool sprawl from mcp-a2a-bridge (`chat_ori`, `chat_adam`, `resume_ori`, ...)
+    with one cohesive CLI that has:
+
+    - A local SQLite mirror of task history with FTS5 search across past
+      conversations and accumulated agent responses.
+    - One verb per operation across all agents (`ori chat ori "..."`,
+      `ori tasks list --agent adam --since 24h`).
+    - A `doctor` command that bundles the recurring openclaw-stack diagnostics
+      (launchd bridge alive, A2A server reachable on :8788, agent cards
+      discoverable, plugin cache env vars commented in compose).
+    - A `kickstart` command for the post-`compose-down/up` ritual that otherwise
+      requires remembering the `launchctl kickstart -k
+      gui/$(id -u)/dev.error2.openclaw-a2a-server` incantation.
+
+    Backend is the A2A JSON-RPC server on :8788. This OpenAPI document re-shapes
+    that JSON-RPC surface into REST-style resources so the generated CLI has
+    natural verb-noun ergonomics — the generated client package translates
+    REST calls into the underlying JSON-RPC dispatch (SendMessage, GetTask,
+    ListTasks, CancelTask, SubscribeToTask).
+
+    No authentication required by default — the A2A server is loopback-only.
+    Bearer auth (A2A_AUTH_TOKEN_FILE) is supported but not the standard local
+    config.
+
+servers:
+  - url: http://localhost:8788
+    description: "openclaw-a2a-server (launchd dev.error2.openclaw-a2a-server)"
+
+security: []
+
+tags:
+  - name: agents
+    description: Agent discovery and capability cards
+  - name: tasks
+    description: A2A task lifecycle (chat, list, resume, cancel)
+  - name: approvals
+    description: Approval requests waiting on user decision
+  - name: health
+    description: A2A server liveness probe
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: |
+        Optional bearer token. Required only when the server has
+        A2A_AUTH_TOKEN_FILE configured. Loopback installations leave this off.
+      x-auth-env-vars:
+        - OPENCLAW_A2A_TOKEN
+
+  schemas:
+    Agent:
+      type: object
+      description: A2A agent card with capability flags
+      properties:
+        name:
+          type: string
+          example: ori
+        version:
+          type: string
+        description:
+          type: string
+        capabilities:
+          type: object
+          properties:
+            streaming:
+              type: boolean
+              description: Agent emits incremental SSE chunks
+            input_required:
+              type: boolean
+              description: Agent can pause and request user input mid-task
+            push_notifications:
+              type: boolean
+            approvals:
+              type: boolean
+              description: Agent supports approval gates
+      required: [name]
+
+    AgentList:
+      type: object
+      properties:
+        agents:
+          type: array
+          items:
+            type: string
+          example: [ori, adam]
+      required: [agents]
+
+    TaskState:
+      type: string
+      enum: [pending, running, input_required, completed, failed, canceled]
+
+    Task:
+      type: object
+      description: A2A task snapshot
+      properties:
+        task_id:
+          type: string
+          description: Server-issued task identifier
+        context_id:
+          type: string
+          description: Conversation context this task belongs to
+        agent:
+          type: string
+          description: Agent name (ori, adam, etc.)
+        state:
+          $ref: '#/components/schemas/TaskState'
+        text:
+          type: string
+          description: Accumulated agent response text
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        turn_count:
+          type: integer
+          description: Number of message exchanges in this task
+      required: [task_id, state]
+
+    TaskList:
+      type: object
+      properties:
+        tasks:
+          type: array
+          items:
+            $ref: '#/components/schemas/Task'
+        next_page_token:
+          type: string
+      required: [tasks]
+
+    SendMessageRequest:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Message text to send to the agent
+        context_id:
+          type: string
+          description: |
+            Optional context id. Provide to continue an existing conversation;
+            omit to start a new context.
+        wait:
+          type: boolean
+          default: true
+          description: |
+            If true (default), wait for the task to reach a terminal state and
+            return accumulated text. If false, return immediately with the
+            initial task id; poll via GET /a2a/{agent}/tasks/{task_id}.
+      required: [message]
+
+    Approval:
+      type: object
+      properties:
+        approval_id:
+          type: string
+        task_id:
+          type: string
+        summary:
+          type: string
+          description: Human-readable summary of what's being requested
+        requested_at:
+          type: string
+          format: date-time
+        context:
+          type: object
+          additionalProperties: true
+          description: Arbitrary context payload from the agent
+      required: [approval_id, summary]
+
+    ApprovalList:
+      type: object
+      properties:
+        approvals:
+          type: array
+          items:
+            $ref: '#/components/schemas/Approval'
+      required: [approvals]
+
+    ApprovalDecision:
+      type: object
+      properties:
+        decision:
+          type: string
+          enum: [approve, deny]
+        reason:
+          type: string
+          description: Optional rationale shown to the agent
+      required: [decision]
+
+    Health:
+      type: object
+      properties:
+        ok:
+          type: boolean
+      required: [ok]
+
+paths:
+  /healthz:
+    get:
+      summary: A2A server liveness
+      operationId: health
+      tags: [health]
+      description: |
+        Returns 200 with `{ok: true}` when the launchd-managed a2a-server is
+        responding. The most common failure mode is the bridge being wedged after
+        a `compose down/up` — in that case, `ori service kickstart` (a hand-built
+        compound command, not in this spec) re-runs the
+        `launchctl kickstart -k gui/$(id -u)/dev.error2.openclaw-a2a-server`
+        recovery.
+      responses:
+        '200':
+          description: server is alive
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+
+  /.well-known/agents.json:
+    get:
+      summary: List configured agents
+      operationId: listAgents
+      tags: [agents]
+      description: |
+        Returns the agent name list configured via OPENCLAW_AGENTS_CONFIG
+        (~/.openclaw/agents.toml). Typically returns ["ori", "adam"].
+      responses:
+        '200':
+          description: agent name list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentList'
+
+  /.well-known/{agent}/agent-card.json:
+    get:
+      summary: Get agent card
+      operationId: getAgent
+      tags: [agents]
+      description: |
+        Returns the full A2A agent card including capabilities flags (streaming,
+        input_required, push_notifications, approvals). Use this to discover
+        whether an agent supports a particular feature before invoking it.
+      parameters:
+        - name: agent
+          in: path
+          required: true
+          schema:
+            type: string
+          example: ori
+      responses:
+        '200':
+          description: agent card with capabilities
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Agent'
+
+  /a2a/{agent}/tasks:
+    get:
+      summary: List tasks for an agent
+      operationId: listTasks
+      tags: [tasks]
+      description: |
+        Wraps the A2A JSON-RPC `ListTasks` method. Returns all tasks the agent
+        knows about (in-flight + recently terminal). For long-running ops, this
+        is the source of truth for "what is ori actually doing right now".
+      parameters:
+        - name: agent
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: context_id
+          in: query
+          schema:
+            type: string
+          description: Filter to a single conversation context
+        - name: page_size
+          in: query
+          schema:
+            type: integer
+            default: 50
+            maximum: 200
+        - name: page_token
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: tasks for this agent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskList'
+
+    post:
+      summary: Send a new message to an agent
+      operationId: sendMessage
+      tags: [tasks]
+      description: |
+        Wraps the A2A JSON-RPC `SendMessage` method. Streams chunks back via SSE
+        if the agent advertises `streaming: true` in its card; the CLI client
+        will accumulate text and return on terminal state.
+      parameters:
+        - name: agent
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendMessageRequest'
+      responses:
+        '200':
+          description: task created (or completed for fast agents)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+
+  /a2a/{agent}/tasks/{task_id}:
+    get:
+      summary: Get task snapshot
+      operationId: getTask
+      tags: [tasks]
+      description: |
+        Wraps the A2A JSON-RPC `GetTask` method. Returns current state and
+        accumulated text for a specific task. Useful for polling when
+        `sendMessage` was called with `wait: false`.
+      parameters:
+        - name: agent
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: task_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: context_id
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: current task state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+
+    delete:
+      summary: Cancel an in-flight task
+      operationId: cancelTask
+      tags: [tasks]
+      description: |
+        Wraps the A2A JSON-RPC `CancelTask` method. Idempotent on already-terminal
+        tasks (returns the terminal state). Use this when an agent is wedged
+        and you want to free up its slot without restarting the bridge.
+      parameters:
+        - name: agent
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: task_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: terminal canceled state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+
+  /a2a/{agent}/tasks/{task_id}/resume:
+    post:
+      summary: Resume (reattach to) a task
+      operationId: resumeTask
+      tags: [tasks]
+      description: |
+        Fetches the current state + accumulated artifacts of an existing task
+        by id (snapshot, not a stream). Useful after a dispatch returned a
+        transport-level `failed` to discover whether the work actually
+        completed server-side. Internally a thin alias for GetTask — the
+        A2A protocol's `SubscribeToTask` returns a server-streaming RPC
+        that emits SSE chunks, which a single-response client can't
+        consume; for the realistic "did this task finish, what did it
+        produce" use case, GetTask provides the same observable result
+        without the streaming-protocol mismatch. For wait-until-terminal
+        semantics, poll this or use send-message with wait=true.
+      parameters:
+        - name: agent
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: task_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: current accumulated state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+
+  /a2a/{agent}/approvals:
+    get:
+      summary: List pending approvals
+      operationId: listApprovals
+      tags: [approvals]
+      description: |
+        Lists approval requests this agent has emitted that are still waiting on
+        a user decision. Returns the approval id, a human summary, requested_at
+        timestamp, and any context payload the agent attached.
+      parameters:
+        - name: agent
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: pending approvals
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApprovalList'
+
+  /a2a/{agent}/approvals/{approval_id}/respond:
+    post:
+      summary: Respond to an approval request
+      operationId: respondApproval
+      tags: [approvals]
+      description: |
+        Approve or deny a pending approval. Optional `reason` is passed back to
+        the agent verbatim.
+      parameters:
+        - name: agent
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: approval_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApprovalDecision'
+      responses:
+        '200':
+          description: decision recorded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: object
+                    additionalProperties: true

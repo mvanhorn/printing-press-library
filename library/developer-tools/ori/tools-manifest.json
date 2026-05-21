@@ -1,0 +1,241 @@
+{
+  "api_name": "ori",
+  "base_url": "http://localhost:8788",
+  "description": "Ori is a local operations CLI for the openclaw-a2a-server (the launchd-managed\nA2A protocol bridge running on localhost:8788). It replaces the per-agent MCP\ntool sprawl from mcp-a2a-bridge (`chat_ori`, `chat_adam`, `resume_ori`, ...)\nwith one cohesive CLI that has:\n\n- A local SQLite mirror of task history with FTS5 search across past\n  conversations and accumulated agent responses.\n- One verb per operation across all agents (`ori chat ori \"...\"`,\n  `ori tasks list --agent adam --since 24h`).\n- A `doctor` command that bundles the recurring openclaw-stack diagnostics\n  (launchd bridge alive, A2A server reachable on :8788, agent cards\n  discoverable, plugin cache env vars commented in compose).\n- A `kickstart` command for the post-`compose-down/up` ritual that otherwise\n  requires remembering the `launchctl kickstart -k\n  gui/$(id -u)/dev.error2.openclaw-a2a-server` incantation.\n\nBackend is the A2A JSON-RPC server on :8788. This OpenAPI document re-shapes\nthat JSON-RPC surface into REST-style resources so the generated CLI has\nnatural verb-noun ergonomics — the generated client package translates\nREST calls into the underlying JSON-RPC dispatch (SendMessage, GetTask,\nListTasks, CancelTask, SubscribeToTask).\n\nNo authentication required by default — the A2A server is loopback-only.\nBearer auth (A2A_AUTH_TOKEN_FILE) is supported but not the standard local\nconfig.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "a2a_approvals_list",
+      "description": "Lists approval requests this agent has emitted that are still waiting on a user decision. Returns the approval id, a human summary, requested_at timestamp, and any context payload the agent attached. Required: agent.",
+      "method": "GET",
+      "path": "/a2a/{agent}/approvals",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "agent",
+          "type": "string",
+          "location": "path",
+          "description": "Agent",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "a2a_approvals_respond",
+      "description": "Approve or deny a pending approval. Optional `reason` is passed back to the agent verbatim. Required: agent, approval_id, decision. Optional: reason. Returns the new ApprovalsRespondResponse.",
+      "method": "POST",
+      "path": "/a2a/{agent}/approvals/{approval_id}/respond",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "agent",
+          "type": "string",
+          "location": "path",
+          "description": "Agent",
+          "required": true
+        },
+        {
+          "name": "approval_id",
+          "type": "string",
+          "location": "path",
+          "description": "Approval id",
+          "required": true
+        },
+        {
+          "name": "decision",
+          "type": "string",
+          "location": "body",
+          "description": "Decision",
+          "required": true
+        },
+        {
+          "name": "reason",
+          "type": "string",
+          "location": "body",
+          "description": "Optional rationale shown to the agent"
+        }
+      ]
+    },
+    {
+      "name": "a2a_tasks_cancel",
+      "description": "Wraps the A2A JSON-RPC `CancelTask` method. Idempotent on already-terminal tasks (returns the terminal state). Use this when an agent is wedged and you want to free up its slot without restarting the bridge. Required: agent, task_id. Destructive.",
+      "method": "DELETE",
+      "path": "/a2a/{agent}/tasks/{task_id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "agent",
+          "type": "string",
+          "location": "path",
+          "description": "Agent",
+          "required": true
+        },
+        {
+          "name": "task_id",
+          "type": "string",
+          "location": "path",
+          "description": "Task id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "a2a_tasks_get",
+      "description": "Wraps the A2A JSON-RPC `GetTask` method. Returns current state and accumulated text for a specific task. Useful for polling when `sendMessage` was called with `wait: false`. Required: agent, task_id. Optional: context_id.",
+      "method": "GET",
+      "path": "/a2a/{agent}/tasks/{task_id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "agent",
+          "type": "string",
+          "location": "path",
+          "description": "Agent",
+          "required": true
+        },
+        {
+          "name": "task_id",
+          "type": "string",
+          "location": "path",
+          "description": "Task id",
+          "required": true
+        },
+        {
+          "name": "context_id",
+          "type": "string",
+          "location": "query",
+          "description": "Context id"
+        }
+      ]
+    },
+    {
+      "name": "a2a_tasks_list",
+      "description": "Wraps the A2A JSON-RPC `ListTasks` method. Returns all tasks the agent knows about (in-flight + recently terminal). For long-running ops, this is the source of truth for 'what is ori actually doing right now'. Required: agent. Optional: context_id, page_size (default: 50), page_token.",
+      "method": "GET",
+      "path": "/a2a/{agent}/tasks",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "agent",
+          "type": "string",
+          "location": "path",
+          "description": "Agent",
+          "required": true
+        },
+        {
+          "name": "context_id",
+          "type": "string",
+          "location": "query",
+          "description": "Filter to a single conversation context"
+        },
+        {
+          "name": "page_size",
+          "type": "int",
+          "location": "query",
+          "description": "Page size"
+        },
+        {
+          "name": "page_token",
+          "type": "string",
+          "location": "query",
+          "description": "Page token"
+        }
+      ]
+    },
+    {
+      "name": "a2a_tasks_resume",
+      "description": "Fetches the current state + accumulated artifacts of an existing task by id (snapshot, not a stream). Useful after a dispatch returned a transport-level `failed` to discover whether the work actually completed server-side. Internally a thin alias for GetTask; for wait-until-terminal semantics, poll this or use send-message with wait=true. Required: agent, task_id. Returns the Task.",
+      "method": "POST",
+      "path": "/a2a/{agent}/tasks/{task_id}/resume",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "agent",
+          "type": "string",
+          "location": "path",
+          "description": "Agent",
+          "required": true
+        },
+        {
+          "name": "task_id",
+          "type": "string",
+          "location": "path",
+          "description": "Task id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "a2a_tasks_send-message",
+      "description": "Wraps the A2A JSON-RPC `SendMessage` method. Streams chunks back via SSE if the agent advertises `streaming: true` in its card; the CLI client will accumulate text and return on terminal state. Required: agent, message. Optional: context_id, wait (default: true). Returns the new Task.",
+      "method": "POST",
+      "path": "/a2a/{agent}/tasks",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "agent",
+          "type": "string",
+          "location": "path",
+          "description": "Agent",
+          "required": true
+        },
+        {
+          "name": "context_id",
+          "type": "string",
+          "location": "body",
+          "description": "Optional context id. Provide to continue an existing conversation; omit to start a new context."
+        },
+        {
+          "name": "message",
+          "type": "string",
+          "location": "body",
+          "description": "Message text to send to the agent",
+          "required": true
+        },
+        {
+          "name": "wait",
+          "type": "bool",
+          "location": "body",
+          "description": "If true (default), wait for the task to reach a terminal state and return accumulated text. If false, return immediately with the initial task id; poll via GET /a2a/{agent}/tasks/{task_id}."
+        }
+      ]
+    },
+    {
+      "name": "healthz_health",
+      "description": "Returns 200 with `{ok: true}` when the launchd-managed a2a-server is responding. The most common failure mode is the bridge being wedged after a `compose down/up` — in that case, `ori service kickstart` (a hand-built compound command, not in this spec) re-runs the `launchctl kickstart -k gui/$(id -u)/dev.error2.openclaw-a2a-server` recovery.",
+      "method": "GET",
+      "path": "/healthz",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "well-known_list-agents",
+      "description": "Returns the agent name list configured via OPENCLAW_AGENTS_CONFIG (~/.openclaw/agents.toml). Typically returns ['ori', 'adam'].",
+      "method": "GET",
+      "path": "/.well-known/agents.json",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "well-known_agent-card-json_get-agent",
+      "description": "Returns the full A2A agent card including capabilities flags (streaming, input_required, push_notifications, approvals). Use this to discover whether an agent supports a particular feature before invoking it. Required: agent.",
+      "method": "GET",
+      "path": "/.well-known/{agent}/agent-card.json",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "agent",
+          "type": "string",
+          "location": "path",
+          "description": "Agent",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "ori-pp-mcp",
+  "display_name": "Ori",
+  "version": "4.6.2",
+  "description": "Ori API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/ori-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/ori-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

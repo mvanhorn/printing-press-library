@@ -1,0 +1,246 @@
+{
+  "api_name": "ori",
+  "novelty_score": 8,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-15T23:01:10Z",
+  "novel_features": [
+    {
+      "name": "Stack doctor",
+      "command": "doctor",
+      "description": "Run every openclaw stack health check in one verb: launchd a2a-server status, /healthz reachability, both agents responding, agents.toml valid, plugin cache env vars commented in compose, codex OAuth fresh, gateway WS tunnel reachable.",
+      "rationale": "Requires correlating launchd state, HTTP probes, file inspection, and OAuth refresh state — none of which the MCP bridge can see. The bridge knows only its own JSON-RPC dispatch.",
+      "example": "ori doctor --json",
+      "why_it_matters": "When ori chat returns empty failed, this is the one verb that finds the cause across launchd, plugin cache, OAuth, and gateway state.",
+      "group": "Operational rescue"
+    },
+    {
+      "name": "Bridge kickstart",
+      "command": "kickstart",
+      "description": "Restart the launchd a2a-server bridge and poll /healthz until ready. Wraps the post-compose-down/up recovery ritual into one command.",
+      "rationale": "launchctl kickstart is an OS-level operation outside any A2A protocol surface. Only a shell-level CLI can wrap it.",
+      "example": "ori kickstart --wait",
+      "why_it_matters": "After every NAS compose down/up the bridge needs this dance or chat returns empty failed; replaces a memorized 2-step incantation.",
+      "group": "Operational rescue"
+    },
+    {
+      "name": "Local task sync",
+      "command": "sync",
+      "description": "Paginate ListTasks across all configured agents, upsert into the local SQLite mirror, refresh approvals. Foundation for offline search and historical queries.",
+      "rationale": "The bridge has no persistence. The A2A server keeps tasks but offers no aggregate/historical query — only ListTasks and GetTask one at a time.",
+      "example": "ori sync --full",
+      "why_it_matters": "Run this before any tasks search or contexts list to ensure the local store reflects current bridge state.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "FTS5 task search",
+      "command": "tasks search",
+      "description": "Full-text search across cached agent response text. Filters: --agent, --since, --state. Returns task_id, agent, state, first matching line.",
+      "rationale": "Requires SQLite FTS5 over accumulated text the bridge does not persist anywhere queryable.",
+      "example": "ori tasks search 'kanban hygiene' --since 7d --agent ori",
+      "why_it_matters": "Answers 'what did I have ori work on related to X' — a question the bridge cannot answer at all.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Conversation contexts",
+      "command": "contexts list",
+      "description": "Group cached tasks by context_id and surface conversations: first task, last task, task count, peek of the first user message.",
+      "rationale": "Requires aggregation across persisted tasks. The bridge exposes context_id on individual tasks but offers no aggregate view.",
+      "example": "ori contexts list --agent ori --since 24h",
+      "why_it_matters": "Resume a forgotten thread by context rather than memorizing a task_id from earlier.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Live state watcher",
+      "command": "watch",
+      "description": "Poll ListTasks at an interval and print state transitions live: 'ori task abc123: running → input_required at 23:01'.",
+      "rationale": "The bridge MCP tools are single-shot. A continuous watcher requires CLI-level state-diff logic across polls.",
+      "example": "ori watch --agent ori --interval 5s",
+      "why_it_matters": "Check whether ori is still working without paying for a Claude Code turn.",
+      "group": "Operational visibility"
+    },
+    {
+      "name": "Server logs tail",
+      "command": "logs tail",
+      "description": "Tail ~/Library/Logs/openclaw-a2a-server/{stdout,stderr}.log via --stream switching. Hides the path.",
+      "rationale": "Log files live outside the A2A protocol surface; only a shell CLI can reach them.",
+      "example": "ori logs tail --stream stderr --lines 100",
+      "why_it_matters": "Surface a2a-server stderr instantly during a wedged-bridge incident; no path memorization.",
+      "group": "Operational visibility"
+    },
+    {
+      "name": "Cross-agent approval queue",
+      "command": "approvals pending",
+      "description": "Aggregate approvals across all agents, with --watch for live polling. Single pane replacing two separate MCP bridge tools.",
+      "rationale": "The bridge exposes approvals_list per agent only. Cross-agent aggregation requires CLI-level fan-out and merge.",
+      "example": "ori approvals pending --watch",
+      "why_it_matters": "See and decide approvals from both ori and adam in one stream rather than alternating bridge tools.",
+      "group": "Operational visibility"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Stack doctor",
+      "command": "doctor",
+      "description": "Run every openclaw stack health check in one verb: launchd a2a-server status, /healthz reachability, both agents responding, agents.toml valid, plugin cache env vars commented in compose, codex OAuth fresh, gateway WS tunnel reachable.",
+      "rationale": "Requires correlating launchd state, HTTP probes, file inspection, and OAuth refresh state — none of which the MCP bridge can see. The bridge knows only its own JSON-RPC dispatch.",
+      "example": "ori doctor --json",
+      "why_it_matters": "When ori chat returns empty failed, this is the one verb that finds the cause across launchd, plugin cache, OAuth, and gateway state.",
+      "group": "Operational rescue"
+    },
+    {
+      "name": "Bridge kickstart",
+      "command": "kickstart",
+      "description": "Restart the launchd a2a-server bridge and poll /healthz until ready. Wraps the post-compose-down/up recovery ritual into one command.",
+      "rationale": "launchctl kickstart is an OS-level operation outside any A2A protocol surface. Only a shell-level CLI can wrap it.",
+      "example": "ori kickstart --wait",
+      "why_it_matters": "After every NAS compose down/up the bridge needs this dance or chat returns empty failed; replaces a memorized 2-step incantation.",
+      "group": "Operational rescue"
+    },
+    {
+      "name": "Local task sync",
+      "command": "sync",
+      "description": "Paginate ListTasks across all configured agents, upsert into the local SQLite mirror, refresh approvals. Foundation for offline search and historical queries.",
+      "rationale": "The bridge has no persistence. The A2A server keeps tasks but offers no aggregate/historical query — only ListTasks and GetTask one at a time.",
+      "example": "ori sync --full",
+      "why_it_matters": "Run this before any tasks search or contexts list to ensure the local store reflects current bridge state.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "FTS5 task search",
+      "command": "tasks search",
+      "description": "Full-text search across cached agent response text. Filters: --agent, --since, --state. Returns task_id, agent, state, first matching line.",
+      "rationale": "Requires SQLite FTS5 over accumulated text the bridge does not persist anywhere queryable.",
+      "example": "ori tasks search 'kanban hygiene' --since 7d --agent ori",
+      "why_it_matters": "Answers 'what did I have ori work on related to X' — a question the bridge cannot answer at all.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Conversation contexts",
+      "command": "contexts list",
+      "description": "Group cached tasks by context_id and surface conversations: first task, last task, task count, peek of the first user message.",
+      "rationale": "Requires aggregation across persisted tasks. The bridge exposes context_id on individual tasks but offers no aggregate view.",
+      "example": "ori contexts list --agent ori --since 24h",
+      "why_it_matters": "Resume a forgotten thread by context rather than memorizing a task_id from earlier.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Live state watcher",
+      "command": "watch",
+      "description": "Poll ListTasks at an interval and print state transitions live: 'ori task abc123: running → input_required at 23:01'.",
+      "rationale": "The bridge MCP tools are single-shot. A continuous watcher requires CLI-level state-diff logic across polls.",
+      "example": "ori watch --agent ori --interval 5s",
+      "why_it_matters": "Check whether ori is still working without paying for a Claude Code turn.",
+      "group": "Operational visibility"
+    },
+    {
+      "name": "Server logs tail",
+      "command": "logs tail",
+      "description": "Tail ~/Library/Logs/openclaw-a2a-server/{stdout,stderr}.log via --stream switching. Hides the path.",
+      "rationale": "Log files live outside the A2A protocol surface; only a shell CLI can reach them.",
+      "example": "ori logs tail --stream stderr --lines 100",
+      "why_it_matters": "Surface a2a-server stderr instantly during a wedged-bridge incident; no path memorization.",
+      "group": "Operational visibility"
+    },
+    {
+      "name": "Cross-agent approval queue",
+      "command": "approvals pending",
+      "description": "Aggregate approvals across all agents, with --watch for live polling. Single pane replacing two separate MCP bridge tools.",
+      "rationale": "The bridge exposes approvals_list per agent only. Cross-agent aggregation requires CLI-level fan-out and merge.",
+      "example": "ori approvals pending --watch",
+      "why_it_matters": "See and decide approvals from both ori and adam in one stream rather than alternating bridge tools.",
+      "group": "Operational visibility"
+    }
+  ],
+  "narrative": {
+    "display_name": "Ori",
+    "headline": "Unified ops CLI for the openclaw A2A bridge: chat, tasks, approvals, service kickstart, and FTS5 search across cached task history.",
+    "value_prop": "Replaces the per-agent MCP tool sprawl (chat_ori, chat_adam, resume_ori, ...) with one cohesive CLI that has a local SQLite mirror, FTS5 search, and a doctor/kickstart pair that bundles the recurring openclaw-stack diagnostic and recovery rituals. Targets a single home-lab operator; loopback only.",
+    "auth_narrative": "Localhost loopback only. No authentication required by default. If the server is configured with A2A_AUTH_TOKEN_FILE, set OPENCLAW_A2A_TOKEN in the environment.",
+    "quickstart": [
+      {
+        "command": "ori doctor",
+        "comment": "Confirm the launchd bridge is alive, /healthz responds, both agents are reachable, and plugin cache env vars are commented."
+      },
+      {
+        "command": "ori sync",
+        "comment": "Pull tasks and approvals from both agents into the local SQLite mirror — needed before tasks search and contexts list."
+      },
+      {
+        "command": "ori-pp-cli a2a tasks list ori --json",
+        "comment": "List current tasks for ori (translated to JSON-RPC ListTasks under the hood)."
+      },
+      {
+        "command": "ori-pp-cli tasks search 'kanban hygiene' --since 168h",
+        "comment": "Full-text search across cached task transcripts; the bridge cannot answer this. Go duration: 168h = 7d."
+      },
+      {
+        "command": "ori-pp-cli contexts list --since 24h",
+        "comment": "Group cached tasks by conversation context with first/last activity, task count, and a peek of the first message."
+      },
+      {
+        "command": "ori-pp-cli watch",
+        "comment": "Poll both agents and print state transitions live. Check whether ori is still working without paying for a Claude Code turn."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "ori chat returns empty failed",
+        "fix": "Run `ori kickstart --wait`. The launchd bridge wedges after every `compose down/up`; this restarts it and polls /healthz until ready."
+      },
+      {
+        "symptom": "ori doctor flags codex OAuth as stale",
+        "fix": "Run `openclaw configure` inside the openclaw-gateway container on the NAS, then re-run `ori doctor` to confirm. Empty Ori bubbles plus 100% isError on openai-codex = dead OAuth refresh token."
+      },
+      {
+        "symptom": "ori doctor flags plugin cache env vars set",
+        "fix": "Comment OPENCLAW_PLUGIN_DISCOVERY_CACHE_MS and OPENCLAW_PLUGIN_MANIFEST_CACHE_MS in the NAS compose file. Setting them to 300000 reproduces the upstream bind-mount dispatch deadlock."
+      },
+      {
+        "symptom": "ori tasks search returns no results despite recent activity",
+        "fix": "Run `ori sync --full` first. Search reads the local SQLite mirror; new tasks only appear after a sync."
+      }
+    ],
+    "when_to_use": "Reach for ori when you want shell-level access to the openclaw A2A agents without going through Claude Code's MCP tools, when you need to answer historical questions about agent activity (search, contexts, watch), or when something is wrong with the bridge and you want one verb that diagnoses or repairs it.",
+    "recipes": [
+      {
+        "title": "Narrow ListTasks output with --select",
+        "command": "ori-pp-cli a2a tasks list ori --json --select id,contextId,status",
+        "explanation": "Dotted --select narrows the response to the three fields an agent or pipeline actually needs; A2A's full Task can carry kilobytes of artifact history."
+      },
+      {
+        "title": "One-shot health check",
+        "command": "ori-pp-cli doctor --fail-on fail",
+        "explanation": "Exits non-zero if any diagnostic fails, 0 if all green. Drop straight into cron without a jq pipe."
+      },
+      {
+        "title": "Find conversations by recency",
+        "command": "ori-pp-cli contexts list --agent ori --since 1h --limit 5 --json",
+        "explanation": "When the main Claude context overflowed and you lost the task_id, list recent contexts and read off last_at + first_text_peek to identify the right one to resume."
+      },
+      {
+        "title": "Live state watcher bounded to N polls",
+        "command": "ori-pp-cli watch --iterations 3 --interval 5s --json",
+        "explanation": "Three polls across both agents at 5s intervals; emits one JSON document per poll with state transitions. Useful for short scripted checks without an infinite loop."
+      },
+      {
+        "title": "Tail stderr during a bridge incident",
+        "command": "ori-pp-cli logs tail --stream stderr --lines 200",
+        "explanation": "Hides the ~/Library/Logs/openclaw-a2a-server/stderr.log path; one verb during a wedge."
+      }
+    ],
+    "trigger_phrases": [
+      "send a message to ori",
+      "what is ori working on right now",
+      "search past ori tasks for",
+      "kickstart the openclaw bridge",
+      "check the openclaw stack health",
+      "list pending approvals across agents",
+      "resume the wedged ori task",
+      "use ori",
+      "run ori"
+    ]
+  }
+}

@@ -1,0 +1,51 @@
+version: 2
+project_name: ori-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: ori-pp-cli
+    main: ./cmd/ori-pp-cli
+    binary: ori-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/developer-tools/ori/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: ori-pp-mcp
+    main: ./cmd/ori-pp-mcp
+    binary: ori-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: ori-pp-cli
+    repository:
+      owner: error
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Unified ops CLI for the openclaw A2A bridge: chat, tasks, approvals, service kickstart, and FTS5 search across..."
+    install: |
+      bin.install "ori-pp-cli"
+      bin.install "ori-pp-mcp"
