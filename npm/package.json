@@ -28,7 +28,7 @@
     "installer"
   ],
   "bin": {
-    "printing-press-library": "./bin/printing-press-library.mjs"
+    "printing-press-library": "bin/printing-press-library.mjs"
   },
   "files": [
     "bin/",
