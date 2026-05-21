@@ -568,15 +568,22 @@ func newRecordingsExportCmd(flags *rootFlags) *cobra.Command {
 					copied = append(copied, dst)
 				}
 			}
+			var copyErrors []string
 			if withTranscript && transcript != "" {
 				dst := filepath.Join(out, filepath.Base(transcript))
-				_ = copyFile(transcript, dst)
-				copied = append(copied, dst)
+				if err := copyFile(transcript, dst); err == nil {
+					copied = append(copied, dst)
+				} else {
+					copyErrors = append(copyErrors, fmt.Sprintf("transcript %s: %v", transcript, err))
+				}
 			}
 			if withChat && chat != "" {
 				dst := filepath.Join(out, filepath.Base(chat))
-				_ = copyFile(chat, dst)
-				copied = append(copied, dst)
+				if err := copyFile(chat, dst); err == nil {
+					copied = append(copied, dst)
+				} else {
+					copyErrors = append(copyErrors, fmt.Sprintf("chat %s: %v", chat, err))
+				}
 			}
 
 			// Generate INDEX.md from cues. writeIndex buffers the document and
@@ -586,6 +593,13 @@ func newRecordingsExportCmd(flags *rootFlags) *cobra.Command {
 			indexErr := writeExportIndex(cmd.Context(), db, indexPath, topic, path, id, copied)
 			if indexErr != nil {
 				return fmt.Errorf("recordings export: copied %d media file(s) to %s but INDEX.md write failed: %w", len(copied), out, indexErr)
+			}
+			// A requested transcript/chat copy that failed is a partial export —
+			// surface it as an error so the caller can't mistake a truncated
+			// bundle for a complete one.
+			if len(copyErrors) > 0 {
+				return fmt.Errorf("recordings export: exported %d file(s) to %s but %d requested file(s) failed to copy: %s",
+					len(copied), out, len(copyErrors), strings.Join(copyErrors, "; "))
 			}
 			return flags.printJSON(cmd, map[string]any{
 				"status":     "exported",
