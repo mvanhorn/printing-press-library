@@ -46,6 +46,26 @@
         "internal/cli/trip_plan_test.go"
       ],
       "validated_outcome": "go test ./internal/cli -run TestChoosePlan succeeded."
+    },
+    {
+      "id": "compare-coordinate-distance",
+      "summary": "Computed compare distance output from hotel coordinates instead of emitting a permanently zero delta.",
+      "reason": "Booking hotel detail pages provide latitude and longitude, but no search-center distance value; using the coordinates makes the comparison distance field meaningful.",
+      "files": [
+        "internal/cli/compare.go",
+        "internal/cli/compare_test.go"
+      ],
+      "validated_outcome": "go test ./internal/cli -run TestHotelDistanceKM succeeded."
+    },
+    {
+      "id": "trip-plan-empty-price-leg-warning",
+      "summary": "Skipped trip legs with no parseable prices after warning instead of adding empty DFS option buckets.",
+      "reason": "A successful HTTP response with no parseable prices should not silently make the whole trip plan appear impossible.",
+      "files": [
+        "internal/cli/trip_plan.go",
+        "internal/cli/trip_plan_test.go"
+      ],
+      "validated_outcome": "go test ./internal/cli -run TestPlanPicksForLeg succeeded."
     }
   ]
 }

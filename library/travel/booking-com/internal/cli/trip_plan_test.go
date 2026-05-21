@@ -5,6 +5,8 @@ package cli
 import (
 	"strings"
 	"testing"
+
+	"github.com/mvanhorn/printing-press-library/library/travel/booking-com/internal/booking"
 )
 
 func TestChoosePlanRequiresSingleCurrency(t *testing.T) {
@@ -64,5 +66,33 @@ func TestChoosePlanRejectsOversizedSearchSpace(t *testing.T) {
 	}
 	if !strings.Contains(err.Error(), "too many plan combinations") {
 		t.Fatalf("choosePlan error = %q, want search-space cap error", err)
+	}
+}
+
+func TestPlanPicksForLegDropsUnpricedCards(t *testing.T) {
+	t.Parallel()
+
+	got := planPicksForLeg("Paris:2026-06-01:2026-06-03", []booking.PropertyCard{
+		{Name: "No parse", Slug: "no-parse", Price: 0, Currency: "EUR"},
+		{Name: "Higher", Slug: "higher", Price: 200, Currency: "EUR"},
+		{Name: "Lower", Slug: "lower", Price: 100, Currency: "EUR"},
+	})
+
+	if len(got) != 2 {
+		t.Fatalf("planPicksForLeg returned %d picks, want 2: %+v", len(got), got)
+	}
+	if got[0].Slug != "lower" || got[1].Slug != "higher" {
+		t.Fatalf("planPicksForLeg did not sort by price: %+v", got)
+	}
+}
+
+func TestPlanPicksForLegReturnsEmptyForNoParseablePrices(t *testing.T) {
+	t.Parallel()
+
+	got := planPicksForLeg("Paris:2026-06-01:2026-06-03", []booking.PropertyCard{
+		{Name: "No parse", Slug: "no-parse", Price: 0, Currency: "EUR"},
+	})
+	if len(got) != 0 {
+		t.Fatalf("planPicksForLeg returned priced picks for unpriced cards: %+v", got)
 	}
 }

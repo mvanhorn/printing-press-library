@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mvanhorn/printing-press-library/library/travel/booking-com/internal/booking"
 	"github.com/spf13/cobra"
 )
 
@@ -61,15 +62,10 @@ func newTripPlanCmd(flags *rootFlags) *cobra.Command {
 				if err != nil {
 					return fmt.Errorf("trip plan: %w", err)
 				}
-				picks := make([]planPick, 0)
-				for _, card := range cards {
-					if card.Price > 0 {
-						picks = append(picks, planPick{Leg: leg, PropertyName: card.Name, Slug: card.Slug, Price: card.Price, Currency: card.Currency})
-					}
-				}
-				sort.Slice(picks, func(i, j int) bool { return picks[i].Price < picks[j].Price })
-				if len(picks) > 10 {
-					picks = picks[:10]
+				picks := planPicksForLeg(leg, cards)
+				if len(picks) == 0 {
+					fmt.Fprintf(cmd.ErrOrStderr(), "warning: leg %s had no parseable prices\n", leg)
+					continue
 				}
 				options = append(options, picks)
 			}
@@ -84,6 +80,20 @@ func newTripPlanCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().Float64Var(&budget, "budget", 0, "Total budget")
 	cmd.Flags().StringVar(&filters, "filters", "", "Extra query filters as key=value,key=value")
 	return cmd
+}
+
+func planPicksForLeg(leg string, cards []booking.PropertyCard) []planPick {
+	picks := make([]planPick, 0)
+	for _, card := range cards {
+		if card.Price > 0 {
+			picks = append(picks, planPick{Leg: leg, PropertyName: card.Name, Slug: card.Slug, Price: card.Price, Currency: card.Currency})
+		}
+	}
+	sort.Slice(picks, func(i, j int) bool { return picks[i].Price < picks[j].Price })
+	if len(picks) > 10 {
+		picks = picks[:10]
+	}
+	return picks
 }
 
 func parseLeg(s string) (string, time.Time, time.Time, error) {

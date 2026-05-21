@@ -5,6 +5,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"sync"
 	"time"
 
@@ -19,7 +20,8 @@ type compareHotel struct {
 	Price       float64  `json:"price"`
 	Currency    string   `json:"currency"`
 	Score       float64  `json:"score"`
-	DistanceKM  float64  `json:"distance_km,omitempty"`
+	Latitude    float64  `json:"latitude,omitempty"`
+	Longitude   float64  `json:"longitude,omitempty"`
 	Amenities   []string `json:"amenities"`
 	HighReviews int      `json:"high_reviews"`
 	LowReviews  int      `json:"low_reviews"`
@@ -83,7 +85,7 @@ func newCompareCmd(flags *rootFlags) *cobra.Command {
 				}
 			}
 			h1, h2 := results[0].hotel, results[1].hotel
-			out := compareResult{Hotel1: h1, Hotel2: h2, AmenityDelta: amenityDelta(h1.Amenities, h2.Amenities), DistanceDelta: h1.DistanceKM - h2.DistanceKM, PriceDelta: h1.Price - h2.Price, ScoreDelta: h1.Score - h2.Score, RecentReviewCounts: map[string]int{"hotel1_high": h1.HighReviews, "hotel1_low": h1.LowReviews, "hotel2_high": h2.HighReviews, "hotel2_low": h2.LowReviews}}
+			out := compareResult{Hotel1: h1, Hotel2: h2, AmenityDelta: amenityDelta(h1.Amenities, h2.Amenities), DistanceDelta: hotelDistanceKM(h1, h2), PriceDelta: h1.Price - h2.Price, ScoreDelta: h1.Score - h2.Score, RecentReviewCounts: map[string]int{"hotel1_high": h1.HighReviews, "hotel1_low": h1.LowReviews, "hotel2_high": h2.HighReviews, "hotel2_low": h2.LowReviews}}
 			return flags.printJSON(cmd, out)
 		},
 	}
@@ -112,7 +114,7 @@ func fetchCompareHotel(c getter, slug, country string, checkin, checkout time.Ti
 	parsed, _ := booking.ParseReviewList(reviews)
 	items := make([]booking.Review, 0)
 	_ = json.Unmarshal(parsed, &items)
-	h := compareHotel{Name: prop.Name, Slug: slug, Country: country, Price: price, Currency: currency, Score: prop.ReviewScore, Amenities: prop.Facilities}
+	h := compareHotel{Name: prop.Name, Slug: slug, Country: country, Price: price, Currency: currency, Score: prop.ReviewScore, Latitude: prop.Latitude, Longitude: prop.Longitude, Amenities: prop.Facilities}
 	for _, r := range items {
 		if r.Score > 8 {
 			h.HighReviews++
@@ -139,4 +141,27 @@ func amenityDelta(a, b []string) []string {
 		}
 	}
 	return out
+}
+
+func hotelDistanceKM(a, b compareHotel) float64 {
+	if missingCoordinates(a) || missingCoordinates(b) {
+		return 0
+	}
+	const earthRadiusKM = 6371.0
+	lat1 := degreesToRadians(a.Latitude)
+	lat2 := degreesToRadians(b.Latitude)
+	dLat := degreesToRadians(b.Latitude - a.Latitude)
+	dLon := degreesToRadians(b.Longitude - a.Longitude)
+	sinLat := math.Sin(dLat / 2)
+	sinLon := math.Sin(dLon / 2)
+	h := sinLat*sinLat + math.Cos(lat1)*math.Cos(lat2)*sinLon*sinLon
+	return earthRadiusKM * 2 * math.Atan2(math.Sqrt(h), math.Sqrt(1-h))
+}
+
+func missingCoordinates(h compareHotel) bool {
+	return h.Latitude == 0 && h.Longitude == 0
+}
+
+func degreesToRadians(degrees float64) float64 {
+	return degrees * math.Pi / 180
 }
