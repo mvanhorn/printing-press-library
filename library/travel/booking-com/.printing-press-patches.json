@@ -86,6 +86,16 @@
         "internal/client/client_test.go"
       ],
       "validated_outcome": "go test ./internal/client -run TestCacheKeyIncludesHeaders succeeded."
+    },
+    {
+      "id": "trips-deadline-window-filter",
+      "summary": "Skipped trips with unknown cancellation deadlines when applying the deadlines window.",
+      "reason": "The deadlines command promises trips whose cancellation deadline is within --within; including unknown-deadline trips made the filtered output over-inclusive.",
+      "files": [
+        "internal/cli/trips_deadlines.go",
+        "internal/cli/trips_deadlines_test.go"
+      ],
+      "validated_outcome": "go test ./internal/cli -run TestTripsWithinDeadlineWindow succeeded."
     }
   ]
 }

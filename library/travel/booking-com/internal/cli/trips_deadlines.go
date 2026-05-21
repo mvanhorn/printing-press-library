@@ -9,8 +9,8 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/mvanhorn/printing-press-library/library/travel/booking-com/internal/booking"
 	"github.com/PuerkitoBio/goquery"
+	"github.com/mvanhorn/printing-press-library/library/travel/booking-com/internal/booking"
 	"github.com/spf13/cobra"
 )
 
@@ -56,34 +56,37 @@ func newTripsDeadlinesCmd(flags *rootFlags) *cobra.Command {
 			// terms. Per-trip detail fetches would be more accurate but
 			// would require a per-trip URL pattern the browser-sniff didn't
 			// capture (the printer's account had no upcoming trips), so we
-			// scope to per-card text and surface "cancellation deadline
-			// unavailable" honestly when a card has no deadline text.
+			// scope to per-card text and skip trips with no deadline text so
+			// --within remains a strict deadline-window filter.
 			perTripDeadline := perTripCardDeadlines(data)
 
-			cutoff := time.Now().Add(within)
-			out := make([]tripDeadline, 0)
-			for _, trip := range trips {
-				deadline := perTripDeadline[trip.ConfirmationNumber]
-				if deadline == "" {
-					out = append(out, tripDeadline{Trip: trip, Note: "cancellation deadline unavailable"})
-					continue
-				}
-				if t, ok := parseLooseDate(deadline); ok && t.After(time.Now()) && t.Before(cutoff) {
-					out = append(out, tripDeadline{Trip: trip, FreeCancellationUntil: t.Format(dateOnly)})
-				}
-			}
-			return flags.printJSON(cmd, out)
+			return flags.printJSON(cmd, tripsWithinDeadlineWindow(trips, perTripDeadline, time.Now(), within))
 		},
 	}
 	cmd.Flags().DurationVar(&within, "within", 14*24*time.Hour, "Deadline window duration")
 	return cmd
 }
 
+func tripsWithinDeadlineWindow(trips []booking.Trip, perTripDeadline map[string]string, now time.Time, within time.Duration) []tripDeadline {
+	cutoff := now.Add(within)
+	out := make([]tripDeadline, 0)
+	for _, trip := range trips {
+		deadline := perTripDeadline[trip.ConfirmationNumber]
+		if deadline == "" {
+			continue
+		}
+		if t, ok := parseLooseDate(deadline); ok && t.After(now) && t.Before(cutoff) {
+			out = append(out, tripDeadline{Trip: trip, FreeCancellationUntil: t.Format(dateOnly)})
+		}
+	}
+	return out
+}
+
 // perTripCardDeadlines walks /mytrips.html and returns a confirmation-number
 // keyed map of per-card cancellation-deadline strings (empty when the card
 // has no deadline text). The selector matches booking.ParseTrips so the two
 // loops stay aligned. Returns an empty map if the HTML can't be parsed; the
-// caller falls through to "cancellation deadline unavailable" per trip.
+// caller skips unknown-deadline trips so --within remains a strict filter.
 func perTripCardDeadlines(data []byte) map[string]string {
 	out := map[string]string{}
 	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(data))
