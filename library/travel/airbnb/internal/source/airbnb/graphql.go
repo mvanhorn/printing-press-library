@@ -106,6 +106,9 @@ func WishlistItems(ctx context.Context, listingIDs []string) ([]WishlistItem, er
 	return out, nil
 }
 
+// PATCH: BookingPrice variables shape rewritten from flat
+// {id, checkin, checkout, adults} to the schema-correct
+// {id, dateRange, guestCounts, 4 includeFragment booleans} form.
 func BookingPrice(ctx context.Context, listingID, checkin, checkout string, guests int) (*PriceBreakdown, error) {
 	// Variables shape derived from a real captured browser request in
 	// .manuscripts/20260502-210359/discovery/airbnb/airbnb-capture.har.
@@ -185,6 +188,7 @@ func (c *Client) graphQLGet(ctx context.Context, path string, params url.Values,
 	return nil
 }
 
+// PATCH: priceBreakdownFromAny gains a structuredDisplayPrice walker.
 func priceBreakdownFromAny(root any) *PriceBreakdown {
 	p := &PriceBreakdown{Currency: "USD", Fees: map[string]float64{}, Raw: root}
 

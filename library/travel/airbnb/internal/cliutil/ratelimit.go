@@ -22,6 +22,7 @@ import (
 // Starts at a floor rate, ramps up after consecutive successes, halves on 429
 // and records a ceiling. Per-session only — not persisted. Methods are safe
 // to call on a nil receiver.
+// PATCH: AdaptiveLimiter gains a `disabled` field (set by SetRate(0)).
 type AdaptiveLimiter struct {
 	mu          sync.Mutex
 	rate        float64
@@ -70,6 +71,8 @@ func (l *AdaptiveLimiter) Wait() {
 	l.mu.Unlock()
 }
 
+// PATCH: SetRate method for in-place rate change without pointer swap.
+//
 // SetRate adjusts the limiter's per-second cap in place under the existing
 // mutex. Passing rps <= 0 disables rate limiting (Wait returns immediately).
 // Any positive value sets it as the new floor and current rate, and clears
@@ -155,6 +158,8 @@ func (e *RateLimitError) Error() string {
 	return msg
 }
 
+// PATCH: BotChallengeError sentinel for datadome / Akamai responses.
+//
 // BotChallengeError signals an upstream returned a bot-defense challenge
 // (datadome, Akamai/Kona, or similar) that cannot be retried automatically.
 // Callers should surface the Remediation hint to the user rather than

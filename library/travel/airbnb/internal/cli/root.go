@@ -126,6 +126,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 
 	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
 		MigrateLegacy(cmd.ErrOrStderr())
+		// PATCH: thread --rate-limit into the source/airbnb scrape client.
 		// Thread --rate-limit into the source/airbnb scrape + GraphQL path
 		// only when the user explicitly passed the flag. When unset, the
 		// hardcoded 0.5 rps baseline in source/airbnb's defaultClient is

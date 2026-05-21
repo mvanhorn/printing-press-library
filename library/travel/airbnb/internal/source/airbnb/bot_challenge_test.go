@@ -125,6 +125,31 @@ func TestIsBotChallenge_HappyPath200(t *testing.T) {
 	}
 }
 
+func TestIsBotChallenge_200WithDatadomeCookie(t *testing.T) {
+	// Datadome's CDN-side pass-through sets a `Set-Cookie: datadome=...`
+	// header on legitimate 200 responses (the cookie is a session token
+	// for the Datadome layer, not a challenge marker). The detector must
+	// NOT classify these as bot challenges or every Airbnb response would
+	// silently break.
+	body := `{"data":{"price":514}}`
+	resp := mkRespWithCookie(200, []*http.Cookie{{Name: "datadome", Value: "session-token-abc"}}, body)
+	_, ok := isBotChallenge(resp, []byte(body))
+	if ok {
+		t.Fatal("200 OK with datadome cookie should NOT trigger detection (regression test for Greptile finding on PR #740)")
+	}
+}
+
+func TestIsBotChallenge_200WithDdServerHeader(t *testing.T) {
+	// Same concern: a 200 from a Datadome-fronted origin will carry a
+	// `Server: dd-<version>` header. The detector must NOT fire on these.
+	body := `{"results":[]}`
+	resp := mkResp(200, map[string]string{"Server": "dd-13"}, body)
+	_, ok := isBotChallenge(resp, []byte(body))
+	if ok {
+		t.Fatal("200 OK with `Server: dd-*` should NOT trigger detection (regression test for Greptile finding on PR #740)")
+	}
+}
+
 func TestIsBotChallenge_NilResp(t *testing.T) {
 	_, ok := isBotChallenge(nil, []byte(""))
 	if ok {

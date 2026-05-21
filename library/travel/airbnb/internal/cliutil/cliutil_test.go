@@ -739,12 +739,12 @@ func TestAdaptiveLimiter_SetRateNegativeDisables(t *testing.T) {
 
 func TestAdaptiveLimiter_SetRateReenablesAfterDisable(t *testing.T) {
 	l := NewAdaptiveLimiter(0.5)
-	l.SetRate(0)
-	l.Wait() // primes lastRequest while disabled, but disabled = true
+	l.SetRate(0) // disables the limiter
+	l.Wait()     // no-op while disabled; does NOT update lastRequest
 	l.SetRate(10.0)
-	l.Wait()
+	l.Wait() // first call after re-enable: lastRequest is still zero, returns immediately
 	start := time.Now()
-	l.Wait()
+	l.Wait() // second call: enforces 100ms pacing at 10 rps
 	elapsed := time.Since(start)
 	if elapsed < 80*time.Millisecond {
 		t.Errorf("re-enabled Wait() took %v, want >= 80ms (10rps pacing)", elapsed)
