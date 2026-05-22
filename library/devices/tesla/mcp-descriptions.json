@@ -1,0 +1,6 @@
+{
+  "descriptions": {
+    "diagnostics_get_diagnostics": "Fetch the authenticated account's vehicle diagnostic feature flags via GET /api/1/diagnostics. No parameters; reads bearer token from the configured auth. Returns the diagnostics object: per-feature config flags Tesla uses to gate diagnostic instrumentation on the user's vehicles. Prefer this when you need to know what diagnostic surfaces the account has enabled; use vehicles_get_data_vehicle_data for per-vehicle live telemetry instead.",
+    "users_get_feature_config": "Fetch account-level feature gating via GET /api/1/users/feature_config. No parameters; reads bearer token from the configured auth. Returns the feature_config object: the flag bundle Tesla's mobile app uses to decide which UI surfaces and capabilities are available to this account. Useful for detecting whether features like Supercharger Voucher, Premium Connectivity, or new owner workflows are enabled. Distinct from vehicle-level diagnostics (diagnostics_get_diagnostics)."
+  }
+}
