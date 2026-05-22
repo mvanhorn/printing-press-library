@@ -1,0 +1,1827 @@
+name: reddit
+description: "Every Reddit feature absorbed across PRAW, snoowrap, and four MCP servers, plus offline FTS5 search, mod-queue triage primitives, and cross-sub aggregation no other tool has."
+version: "0.1.0"
+base_url: "https://oauth.reddit.com"
+health_check_path: "/api/v1/me"
+
+required_headers:
+  - name: User-Agent
+    value: "${REDDIT_USER_AGENT}"
+
+auth:
+  type: bearer_token
+  header: "Authorization"
+  format: "Bearer {token}"
+  env_vars:
+    - REDDIT_ACCESS_TOKEN
+    - REDDIT_CLIENT_ID
+    - REDDIT_CLIENT_SECRET
+    - REDDIT_USERNAME
+    - REDDIT_PASSWORD
+    - REDDIT_REFRESH_TOKEN
+    - REDDIT_USER_AGENT
+
+config:
+  format: toml
+  path: "~/.config/reddit-pp-cli/config.toml"
+
+mcp:
+  transport: [stdio, http]
+  orchestration: code
+  endpoint_tools: hidden
+
+resources:
+  account:
+    description: "Authenticated user account info, karma, prefs, friends, blocked, trophies"
+    endpoints:
+      me:
+        method: GET
+        path: "/api/v1/me"
+        description: "Get the authenticated user's profile"
+        response:
+          type: object
+          item: Account
+      karma:
+        method: GET
+        path: "/api/v1/me/karma"
+        description: "Get per-subreddit karma breakdown for the authenticated user"
+        response:
+          type: array
+          item: KarmaEntry
+      trophies:
+        method: GET
+        path: "/api/v1/me/trophies"
+        description: "Get trophies for the authenticated user"
+        response:
+          type: object
+          item: TrophyList
+      prefs:
+        method: GET
+        path: "/api/v1/me/prefs"
+        description: "Get the authenticated user's preferences"
+        response:
+          type: object
+          item: Prefs
+      blocked:
+        method: GET
+        path: "/prefs/blocked"
+        description: "List users blocked by the authenticated user"
+        response:
+          type: object
+          item: UserList
+      friends:
+        method: GET
+        path: "/prefs/friends"
+        description: "List users friended by the authenticated user"
+        response:
+          type: object
+          item: UserList
+
+  listings:
+    description: "Reddit listings: frontpage, subreddit feeds, sort variants"
+    endpoints:
+      frontpage_hot:
+        method: GET
+        path: "/hot"
+        description: "Get hot posts from the front page"
+        params:
+          - name: limit
+            type: int
+            default: 25
+            description: "Number of posts to return (max 100)"
+          - name: after
+            type: string
+            description: "Pagination cursor (fullname of last seen, e.g. t3_abc123)"
+          - name: before
+            type: string
+            description: "Pagination cursor for previous page"
+        response:
+          type: object
+          item: SubmissionListing
+      frontpage_new:
+        method: GET
+        path: "/new"
+        description: "Get newest posts from the front page"
+        params:
+          - name: limit
+            type: int
+            default: 25
+            description: "Number of posts to return (max 100)"
+          - name: after
+            type: string
+            description: "Pagination cursor"
+        response:
+          type: object
+          item: SubmissionListing
+      frontpage_top:
+        method: GET
+        path: "/top"
+        description: "Get top posts from the front page"
+        params:
+          - name: t
+            flag_name: time
+            aliases: [t]
+            type: string
+            default: "day"
+            enum: [hour, day, week, month, year, all]
+            description: "Time window: hour|day|week|month|year|all"
+          - name: limit
+            type: int
+            default: 25
+            description: "Number of posts to return (max 100)"
+          - name: after
+            type: string
+            description: "Pagination cursor"
+        response:
+          type: object
+          item: SubmissionListing
+      frontpage_rising:
+        method: GET
+        path: "/rising"
+        description: "Get rising posts from the front page"
+        params:
+          - name: limit
+            type: int
+            default: 25
+            description: "Number of posts to return"
+        response:
+          type: object
+          item: SubmissionListing
+      sub_hot:
+        method: GET
+        path: "/r/{subreddit}/hot"
+        description: "Get hot posts from a specific subreddit"
+        params:
+          - name: subreddit
+            type: string
+            required: true
+            positional: true
+            description: "Subreddit name (without r/ prefix)"
+          - name: limit
+            type: int
+            default: 25
+            description: "Number of posts to return (max 100)"
+          - name: after
+            type: string
+            description: "Pagination cursor"
+        response:
+          type: object
+          item: SubmissionListing
+      sub_new:
+        method: GET
+        path: "/r/{subreddit}/new"
+        description: "Get newest posts from a specific subreddit"
+        params:
+          - name: subreddit
+            type: string
+            required: true
+            positional: true
+            description: "Subreddit name"
+          - name: limit
+            type: int
+            default: 25
+            description: "Number of posts to return"
+          - name: after
+            type: string
+            description: "Pagination cursor"
+        response:
+          type: object
+          item: SubmissionListing
+      sub_top:
+        method: GET
+        path: "/r/{subreddit}/top"
+        description: "Get top posts from a specific subreddit"
+        params:
+          - name: subreddit
+            type: string
+            required: true
+            positional: true
+            description: "Subreddit name"
+          - name: t
+            flag_name: time
+            aliases: [t]
+            type: string
+            default: "day"
+            enum: [hour, day, week, month, year, all]
+            description: "Time window"
+          - name: limit
+            type: int
+            default: 25
+            description: "Number of posts to return"
+          - name: after
+            type: string
+            description: "Pagination cursor"
+        response:
+          type: object
+          item: SubmissionListing
+      sub_rising:
+        method: GET
+        path: "/r/{subreddit}/rising"
+        description: "Get rising posts from a specific subreddit"
+        params:
+          - name: subreddit
+            type: string
+            required: true
+            positional: true
+            description: "Subreddit name"
+          - name: limit
+            type: int
+            default: 25
+            description: "Number of posts to return"
+        response:
+          type: object
+          item: SubmissionListing
+      sub_controversial:
+        method: GET
+        path: "/r/{subreddit}/controversial"
+        description: "Get controversial posts from a specific subreddit"
+        params:
+          - name: subreddit
+            type: string
+            required: true
+            positional: true
+            description: "Subreddit name"
+          - name: t
+            flag_name: time
+            aliases: [t]
+            type: string
+            default: "all"
+            enum: [hour, day, week, month, year, all]
+            description: "Time window"
+          - name: limit
+            type: int
+            default: 25
+            description: "Number of posts to return"
+        response:
+          type: object
+          item: SubmissionListing
+
+  submissions:
+    description: "Get, submit, edit, delete posts; vote, save, hide"
+    endpoints:
+      get:
+        method: GET
+        path: "/comments/{article}"
+        description: "Get a submission by ID, with its comments tree"
+        params:
+          - name: article
+            type: string
+            required: true
+            positional: true
+            description: "Submission ID (e.g. abc123 or t3_abc123)"
+          - name: limit
+            type: int
+            default: 50
+            description: "Max comments to return"
+          - name: depth
+            type: int
+            description: "Max comment depth"
+          - name: sort
+            type: string
+            default: "confidence"
+            enum: [confidence, top, new, controversial, old, qa]
+            description: "Comment sort order"
+        response:
+          type: array
+          item: SubmissionWithComments
+      submit:
+        method: POST
+        path: "/api/submit"
+        description: "Submit a new post (link or self-text)"
+        body:
+          - name: sr
+            type: string
+            required: true
+            description: "Target subreddit name (without r/)"
+          - name: title
+            type: string
+            required: true
+            description: "Post title"
+          - name: kind
+            type: string
+            required: true
+            default: "self"
+            enum: [link, self, image, video, videogif, crosspost]
+            description: "Post type"
+          - name: text
+            type: string
+            description: "Body text (for self posts)"
+          - name: url
+            type: string
+            description: "Link URL (for link posts)"
+          - name: nsfw
+            type: bool
+            default: false
+            description: "Mark as NSFW"
+          - name: spoiler
+            type: bool
+            default: false
+            description: "Mark as spoiler"
+          - name: sendreplies
+            type: bool
+            default: true
+            description: "Send inbox replies"
+          - name: flair_id
+            type: string
+            description: "Link flair template ID"
+          - name: flair_text
+            type: string
+            description: "Custom flair text"
+          - name: original_content
+            type: bool
+            default: false
+            description: "Mark as original content (OC)"
+          - name: api_type
+            type: string
+            default: "json"
+            description: "Response format"
+        response:
+          type: object
+          item: SubmitResponse
+      edit:
+        method: POST
+        path: "/api/editusertext"
+        description: "Edit your own post or comment body (self/comment text only)"
+        body:
+          - name: thing_id
+            type: string
+            required: true
+            description: "Thing ID to edit (t1_ or t3_)"
+          - name: text
+            type: string
+            required: true
+            description: "New body text"
+          - name: api_type
+            type: string
+            default: "json"
+            description: "Response format"
+        response:
+          type: object
+          item: EditResponse
+      delete:
+        method: POST
+        path: "/api/del"
+        description: "Delete your own post or comment"
+        body:
+          - name: id
+            type: string
+            required: true
+            description: "Thing ID to delete (t1_ or t3_)"
+        response:
+          type: object
+          item: EmptyResponse
+      vote:
+        method: POST
+        path: "/api/vote"
+        description: "Cast or clear a vote on a submission or comment"
+        body:
+          - name: id
+            type: string
+            required: true
+            description: "Thing ID to vote on (t1_ or t3_)"
+          - name: dir
+            type: int
+            required: true
+            enum: ["1", "0", "-1"]
+            description: "Direction: 1=upvote, 0=clear, -1=downvote"
+        response:
+          type: object
+          item: EmptyResponse
+      save:
+        method: POST
+        path: "/api/save"
+        description: "Save a submission or comment"
+        body:
+          - name: id
+            type: string
+            required: true
+            description: "Thing ID to save"
+          - name: category
+            type: string
+            description: "Optional save category"
+        response:
+          type: object
+          item: EmptyResponse
+      unsave:
+        method: POST
+        path: "/api/unsave"
+        description: "Unsave a previously saved submission or comment"
+        body:
+          - name: id
+            type: string
+            required: true
+            description: "Thing ID to unsave"
+        response:
+          type: object
+          item: EmptyResponse
+      hide:
+        method: POST
+        path: "/api/hide"
+        description: "Hide a submission from your listings"
+        body:
+          - name: id
+            type: string
+            required: true
+            description: "Submission ID (t3_)"
+        response:
+          type: object
+          item: EmptyResponse
+      unhide:
+        method: POST
+        path: "/api/unhide"
+        description: "Unhide a previously hidden submission"
+        body:
+          - name: id
+            type: string
+            required: true
+            description: "Submission ID (t3_)"
+        response:
+          type: object
+          item: EmptyResponse
+      reply:
+        method: POST
+        path: "/api/comment"
+        description: "Reply to a submission or comment"
+        body:
+          - name: parent
+            type: string
+            required: true
+            description: "Parent thing ID (t1_ or t3_)"
+          - name: text
+            type: string
+            required: true
+            description: "Reply body"
+          - name: api_type
+            type: string
+            default: "json"
+            description: "Response format"
+        response:
+          type: object
+          item: CommentResponse
+      morechildren:
+        method: GET
+        path: "/api/morechildren"
+        description: "Expand a MoreComments placeholder into actual comments"
+        params:
+          - name: link_id
+            type: string
+            required: true
+            description: "Submission fullname (t3_)"
+          - name: children
+            type: string
+            required: true
+            description: "Comma-separated comment IDs to expand"
+          - name: api_type
+            type: string
+            default: "json"
+            description: "Response format"
+        response:
+          type: object
+          item: MoreCommentsResponse
+
+  query:
+    description: "Search submissions, comments, users, subreddits (cross-Reddit and per-subreddit)"
+    endpoints:
+      reddit:
+        method: GET
+        path: "/search"
+        description: "Search across all of Reddit"
+        params:
+          - name: q
+            flag_name: query
+            aliases: [q]
+            type: string
+            required: true
+            description: "Search query"
+          - name: sort
+            type: string
+            default: "relevance"
+            enum: [relevance, hot, top, new, comments]
+            description: "Sort order"
+          - name: t
+            flag_name: time
+            aliases: [t]
+            type: string
+            default: "all"
+            enum: [hour, day, week, month, year, all]
+            description: "Time window"
+          - name: type
+            type: string
+            enum: [link, comment, user, sr]
+            description: "Result type filter"
+          - name: limit
+            type: int
+            default: 25
+            description: "Number of results"
+          - name: after
+            type: string
+            description: "Pagination cursor"
+        response:
+          type: object
+          item: SearchResults
+      subreddit:
+        method: GET
+        path: "/r/{subreddit}/search"
+        description: "Search within a specific subreddit"
+        params:
+          - name: subreddit
+            type: string
+            required: true
+            positional: true
+            description: "Subreddit name"
+          - name: q
+            flag_name: query
+            aliases: [q]
+            type: string
+            required: true
+            description: "Search query"
+          - name: restrict_sr
+            type: bool
+            default: true
+            description: "Restrict to this subreddit"
+          - name: sort
+            type: string
+            default: "relevance"
+            description: "Sort order"
+          - name: t
+            flag_name: time
+            aliases: [t]
+            type: string
+            default: "all"
+            description: "Time window"
+          - name: limit
+            type: int
+            default: 25
+            description: "Number of results"
+        response:
+          type: object
+          item: SearchResults
+
+  user:
+    description: "User profile, submissions, comments, history"
+    endpoints:
+      about:
+        method: GET
+        path: "/user/{username}/about"
+        description: "Get a Redditor's public profile"
+        params:
+          - name: username
+            type: string
+            required: true
+            positional: true
+            description: "Reddit username (without u/ prefix)"
+        response:
+          type: object
+          item: UserAbout
+      submitted:
+        method: GET
+        path: "/user/{username}/submitted"
+        description: "Get a user's submitted posts"
+        params:
+          - name: username
+            type: string
+            required: true
+            positional: true
+            description: "Reddit username"
+          - name: sort
+            type: string
+            default: "new"
+            enum: [new, top, hot, controversial]
+            description: "Sort order"
+          - name: t
+            flag_name: time
+            aliases: [t]
+            type: string
+            default: "all"
+            description: "Time window"
+          - name: limit
+            type: int
+            default: 25
+            description: "Number of posts"
+          - name: after
+            type: string
+            description: "Pagination cursor"
+        response:
+          type: object
+          item: SubmissionListing
+      comments:
+        method: GET
+        path: "/user/{username}/comments"
+        description: "Get a user's comment history"
+        params:
+          - name: username
+            type: string
+            required: true
+            positional: true
+            description: "Reddit username"
+          - name: sort
+            type: string
+            default: "new"
+            description: "Sort order"
+          - name: t
+            flag_name: time
+            aliases: [t]
+            type: string
+            default: "all"
+            description: "Time window"
+          - name: limit
+            type: int
+            default: 25
+            description: "Number of comments"
+          - name: after
+            type: string
+            description: "Pagination cursor"
+        response:
+          type: object
+          item: CommentListing
+      gilded:
+        method: GET
+        path: "/user/{username}/gilded"
+        description: "Get a user's gilded posts and comments"
+        params:
+          - name: username
+            type: string
+            required: true
+            positional: true
+            description: "Reddit username"
+          - name: limit
+            type: int
+            default: 25
+            description: "Number of results"
+        response:
+          type: object
+          item: MixedListing
+      trophies:
+        method: GET
+        path: "/api/v1/user/{username}/trophies"
+        description: "Get a user's trophies"
+        params:
+          - name: username
+            type: string
+            required: true
+            positional: true
+            description: "Reddit username"
+        response:
+          type: object
+          item: TrophyList
+
+  subreddit:
+    description: "Subreddit info, rules, traffic, sticky posts"
+    endpoints:
+      about:
+        method: GET
+        path: "/r/{subreddit}/about"
+        description: "Get a subreddit's metadata"
+        params:
+          - name: subreddit
+            type: string
+            required: true
+            positional: true
+            description: "Subreddit name"
+        response:
+          type: object
+          item: SubredditAbout
+      rules:
+        method: GET
+        path: "/r/{subreddit}/about/rules"
+        description: "Get a subreddit's rules"
+        params:
+          - name: subreddit
+            type: string
+            required: true
+            positional: true
+            description: "Subreddit name"
+        response:
+          type: object
+          item: RulesResponse
+      traffic:
+        method: GET
+        path: "/r/{subreddit}/about/traffic"
+        description: "Get traffic stats for a subreddit (mod only)"
+        params:
+          - name: subreddit
+            type: string
+            required: true
+            positional: true
+            description: "Subreddit name"
+        response:
+          type: object
+          item: TrafficStats
+      moderators:
+        method: GET
+        path: "/r/{subreddit}/about/moderators"
+        description: "List a subreddit's moderators"
+        params:
+          - name: subreddit
+            type: string
+            required: true
+            positional: true
+            description: "Subreddit name"
+        response:
+          type: object
+          item: UserList
+      subscribe:
+        method: POST
+        path: "/api/subscribe"
+        description: "Subscribe to a subreddit"
+        body:
+          - name: sr_name
+            type: string
+            required: true
+            description: "Subreddit name to subscribe to"
+          - name: action
+            type: string
+            default: "sub"
+            enum: [sub, unsub]
+            description: "Action: sub or unsub"
+        response:
+          type: object
+          item: EmptyResponse
+
+  subreddits:
+    description: "Discover, search, and list subreddits"
+    endpoints:
+      popular:
+        method: GET
+        path: "/subreddits/popular"
+        description: "List popular subreddits"
+        params:
+          - name: limit
+            type: int
+            default: 25
+            description: "Number of subreddits"
+          - name: after
+            type: string
+            description: "Pagination cursor"
+        response:
+          type: object
+          item: SubredditListing
+      new:
+        method: GET
+        path: "/subreddits/new"
+        description: "List recently created subreddits"
+        params:
+          - name: limit
+            type: int
+            default: 25
+            description: "Number of subreddits"
+          - name: after
+            type: string
+            description: "Pagination cursor"
+        response:
+          type: object
+          item: SubredditListing
+      default:
+        method: GET
+        path: "/subreddits/default"
+        description: "List Reddit's default subreddits"
+        params:
+          - name: limit
+            type: int
+            default: 25
+            description: "Number of subreddits"
+        response:
+          type: object
+          item: SubredditListing
+      search:
+        method: GET
+        path: "/subreddits/search"
+        description: "Search subreddits by name and description"
+        params:
+          - name: q
+            flag_name: query
+            aliases: [q]
+            type: string
+            required: true
+            description: "Search query"
+          - name: sort
+            type: string
+            default: "relevance"
+            enum: [relevance, activity]
+            description: "Sort order"
+          - name: limit
+            type: int
+            default: 25
+            description: "Number of results"
+        response:
+          type: object
+          item: SubredditListing
+      mine:
+        method: GET
+        path: "/subreddits/mine/subscriber"
+        description: "List subreddits the authenticated user is subscribed to"
+        params:
+          - name: limit
+            type: int
+            default: 100
+            description: "Number of subreddits"
+          - name: after
+            type: string
+            description: "Pagination cursor"
+        response:
+          type: object
+          item: SubredditListing
+
+  inbox:
+    description: "Inbox, unread, mentions, sent messages, modmail"
+    endpoints:
+      all:
+        method: GET
+        path: "/message/inbox"
+        description: "Get inbox items (comments, replies, mentions, messages)"
+        params:
+          - name: limit
+            type: int
+            default: 25
+            description: "Number of items"
+        response:
+          type: object
+          item: InboxListing
+      unread:
+        method: GET
+        path: "/message/unread"
+        description: "Get unread inbox items"
+        params:
+          - name: limit
+            type: int
+            default: 25
+            description: "Number of items"
+        response:
+          type: object
+          item: InboxListing
+      mentions:
+        method: GET
+        path: "/message/mentions"
+        description: "Get username mentions in comments"
+        params:
+          - name: limit
+            type: int
+            default: 25
+            description: "Number of items"
+        response:
+          type: object
+          item: InboxListing
+      messages:
+        method: GET
+        path: "/message/messages"
+        description: "Get private messages (excluding comment replies)"
+        params:
+          - name: limit
+            type: int
+            default: 25
+            description: "Number of messages"
+        response:
+          type: object
+          item: InboxListing
+      sent:
+        method: GET
+        path: "/message/sent"
+        description: "Get messages you have sent"
+        params:
+          - name: limit
+            type: int
+            default: 25
+            description: "Number of messages"
+        response:
+          type: object
+          item: InboxListing
+      mark_read:
+        method: POST
+        path: "/api/read_message"
+        description: "Mark inbox items as read"
+        body:
+          - name: id
+            type: string
+            required: true
+            description: "Comma-separated thing IDs to mark read"
+        response:
+          type: object
+          item: EmptyResponse
+      mark_unread:
+        method: POST
+        path: "/api/unread_message"
+        description: "Mark inbox items as unread"
+        body:
+          - name: id
+            type: string
+            required: true
+            description: "Comma-separated thing IDs to mark unread"
+        response:
+          type: object
+          item: EmptyResponse
+      mark_all_read:
+        method: POST
+        path: "/api/read_all_messages"
+        description: "Mark all inbox items as read"
+        response:
+          type: object
+          item: EmptyResponse
+      compose:
+        method: POST
+        path: "/api/compose"
+        description: "Send a private message to a user"
+        body:
+          - name: to
+            type: string
+            required: true
+            description: "Recipient username"
+          - name: subject
+            type: string
+            required: true
+            description: "Message subject"
+          - name: text
+            type: string
+            required: true
+            description: "Message body (markdown)"
+          - name: api_type
+            type: string
+            default: "json"
+            description: "Response format"
+        response:
+          type: object
+          item: ComposeResponse
+
+  moderation:
+    description: "Moderation: modqueue, reports, spam, edited, approve, remove, distinguish, ban, mute, modlog"
+    endpoints:
+      modqueue:
+        method: GET
+        path: "/r/{subreddit}/about/modqueue"
+        description: "Get items in the modqueue for a subreddit"
+        params:
+          - name: subreddit
+            type: string
+            required: true
+            positional: true
+            description: "Subreddit name"
+          - name: only
+            type: string
+            enum: [links, comments]
+            description: "Filter by type"
+          - name: limit
+            type: int
+            default: 25
+            description: "Number of items"
+          - name: after
+            type: string
+            description: "Pagination cursor"
+        response:
+          type: object
+          item: ModListing
+      reports:
+        method: GET
+        path: "/r/{subreddit}/about/reports"
+        description: "Get reported items in a subreddit"
+        params:
+          - name: subreddit
+            type: string
+            required: true
+            positional: true
+            description: "Subreddit name"
+          - name: only
+            type: string
+            enum: [links, comments]
+            description: "Filter by type"
+          - name: limit
+            type: int
+            default: 25
+            description: "Number of items"
+        response:
+          type: object
+          item: ModListing
+      spam:
+        method: GET
+        path: "/r/{subreddit}/about/spam"
+        description: "Get spam-filtered items in a subreddit"
+        params:
+          - name: subreddit
+            type: string
+            required: true
+            positional: true
+            description: "Subreddit name"
+          - name: limit
+            type: int
+            default: 25
+            description: "Number of items"
+        response:
+          type: object
+          item: ModListing
+      edited:
+        method: GET
+        path: "/r/{subreddit}/about/edited"
+        description: "Get edited items in a subreddit"
+        params:
+          - name: subreddit
+            type: string
+            required: true
+            positional: true
+            description: "Subreddit name"
+          - name: limit
+            type: int
+            default: 25
+            description: "Number of items"
+        response:
+          type: object
+          item: ModListing
+      modlog:
+        method: GET
+        path: "/r/{subreddit}/about/log"
+        description: "Get the moderation log for a subreddit"
+        params:
+          - name: subreddit
+            type: string
+            required: true
+            positional: true
+            description: "Subreddit name"
+          - name: type
+            type: string
+            description: "Action type filter (e.g. removelink, approvelink, banuser)"
+          - name: mod
+            type: string
+            description: "Filter by moderator username"
+          - name: limit
+            type: int
+            default: 50
+            description: "Number of entries"
+          - name: after
+            type: string
+            description: "Pagination cursor"
+        response:
+          type: object
+          item: ModLogListing
+      approve:
+        method: POST
+        path: "/api/approve"
+        description: "Approve a submission or comment"
+        body:
+          - name: id
+            type: string
+            required: true
+            description: "Thing ID to approve (t1_ or t3_)"
+        response:
+          type: object
+          item: EmptyResponse
+      remove:
+        method: POST
+        path: "/api/remove"
+        description: "Remove a submission or comment (mark spam=true to send to spam)"
+        body:
+          - name: id
+            type: string
+            required: true
+            description: "Thing ID to remove"
+          - name: spam
+            type: bool
+            default: false
+            description: "Mark as spam (sends to spam filter)"
+        response:
+          type: object
+          item: EmptyResponse
+      distinguish:
+        method: POST
+        path: "/api/distinguish"
+        description: "Distinguish a comment or post as mod/admin (with optional sticky for comments)"
+        body:
+          - name: id
+            type: string
+            required: true
+            description: "Thing ID"
+          - name: how
+            type: string
+            default: "yes"
+            enum: [yes, "no", admin, special]
+            description: "Distinguish type"
+          - name: sticky
+            type: bool
+            default: false
+            description: "Sticky the distinguished comment"
+        response:
+          type: object
+          item: EmptyResponse
+      lock:
+        method: POST
+        path: "/api/lock"
+        description: "Lock a submission or comment (no new replies)"
+        body:
+          - name: id
+            type: string
+            required: true
+            description: "Thing ID to lock"
+        response:
+          type: object
+          item: EmptyResponse
+      unlock:
+        method: POST
+        path: "/api/unlock"
+        description: "Unlock a previously locked submission or comment"
+        body:
+          - name: id
+            type: string
+            required: true
+            description: "Thing ID to unlock"
+        response:
+          type: object
+          item: EmptyResponse
+      sticky:
+        method: POST
+        path: "/api/set_subreddit_sticky"
+        description: "Sticky a submission to the top of a subreddit"
+        body:
+          - name: id
+            type: string
+            required: true
+            description: "Submission ID (t3_)"
+          - name: state
+            type: bool
+            default: true
+            description: "true to sticky, false to unsticky"
+          - name: num
+            type: int
+            description: "Sticky slot (1 or 2)"
+        response:
+          type: object
+          item: EmptyResponse
+      banned:
+        method: GET
+        path: "/r/{subreddit}/about/banned"
+        description: "List banned users in a subreddit"
+        params:
+          - name: subreddit
+            type: string
+            required: true
+            positional: true
+            description: "Subreddit name"
+          - name: user
+            type: string
+            description: "Filter to a specific user"
+          - name: limit
+            type: int
+            default: 25
+            description: "Number of entries"
+        response:
+          type: object
+          item: BannedListing
+      ban:
+        method: POST
+        path: "/r/{subreddit}/api/friend"
+        description: "Ban a user from a subreddit"
+        body:
+          - name: subreddit
+            type: string
+            required: true
+            description: "Subreddit name"
+          - name: name
+            type: string
+            required: true
+            description: "Username to ban"
+          - name: type
+            type: string
+            default: "banned"
+            description: "Relationship type (always 'banned' for bans)"
+          - name: ban_reason
+            type: string
+            description: "Short reason (visible to other mods)"
+          - name: ban_message
+            type: string
+            description: "Message sent to the banned user"
+          - name: note
+            type: string
+            description: "Internal mod note"
+          - name: duration
+            type: int
+            description: "Ban duration in days (omit for permanent)"
+        response:
+          type: object
+          item: EmptyResponse
+      unban:
+        method: POST
+        path: "/r/{subreddit}/api/unfriend"
+        description: "Unban a user from a subreddit"
+        body:
+          - name: subreddit
+            type: string
+            required: true
+            description: "Subreddit name"
+          - name: name
+            type: string
+            required: true
+            description: "Username to unban"
+          - name: type
+            type: string
+            default: "banned"
+            description: "Relationship type"
+        response:
+          type: object
+          item: EmptyResponse
+
+  flair:
+    description: "Flair templates and assignment"
+    endpoints:
+      link_templates:
+        method: GET
+        path: "/r/{subreddit}/api/link_flair_v2"
+        description: "List link flair templates for a subreddit"
+        params:
+          - name: subreddit
+            type: string
+            required: true
+            positional: true
+            description: "Subreddit name"
+        response:
+          type: array
+          item: FlairTemplate
+      user_templates:
+        method: GET
+        path: "/r/{subreddit}/api/user_flair_v2"
+        description: "List user flair templates for a subreddit"
+        params:
+          - name: subreddit
+            type: string
+            required: true
+            positional: true
+            description: "Subreddit name"
+        response:
+          type: array
+          item: FlairTemplate
+      select_link:
+        method: POST
+        path: "/r/{subreddit}/api/selectflair"
+        description: "Set a link's flair using a template"
+        body:
+          - name: subreddit
+            type: string
+            required: true
+            description: "Subreddit name"
+          - name: link
+            type: string
+            required: true
+            description: "Submission fullname (t3_)"
+          - name: flair_template_id
+            type: string
+            description: "Flair template ID"
+          - name: text
+            type: string
+            description: "Optional custom flair text"
+        response:
+          type: object
+          item: EmptyResponse
+      set_user:
+        method: POST
+        path: "/r/{subreddit}/api/flair"
+        description: "Set a user's flair in a subreddit (mod-only)"
+        body:
+          - name: subreddit
+            type: string
+            required: true
+            description: "Subreddit name"
+          - name: name
+            type: string
+            required: true
+            description: "Username"
+          - name: text
+            type: string
+            description: "Flair text"
+          - name: css_class
+            type: string
+            description: "Flair CSS class"
+        response:
+          type: object
+          item: EmptyResponse
+
+  multi:
+    description: "Multireddits: list, get, create, update, delete"
+    endpoints:
+      mine:
+        method: GET
+        path: "/api/multi/mine"
+        description: "List your multireddits"
+        response:
+          type: array
+          item: Multireddit
+      get:
+        method: GET
+        path: "/api/multi/user/{username}/m/{multiname}"
+        description: "Get a specific multireddit"
+        params:
+          - name: username
+            type: string
+            required: true
+            positional: true
+            description: "Multireddit owner username"
+          - name: multiname
+            type: string
+            required: true
+            positional: true
+            description: "Multireddit name"
+        response:
+          type: object
+          item: Multireddit
+      create:
+        method: POST
+        path: "/api/multi/user/{username}/m/{multiname}"
+        description: "Create a new multireddit"
+        params:
+          - name: username
+            type: string
+            required: true
+            positional: true
+            description: "Owner username (typically your own)"
+          - name: multiname
+            type: string
+            required: true
+            positional: true
+            description: "Multireddit name"
+        body:
+          - name: model
+            type: string
+            required: true
+            description: "JSON-encoded multireddit definition (subreddits, visibility, description)"
+        response:
+          type: object
+          item: Multireddit
+      delete:
+        method: DELETE
+        path: "/api/multi/user/{username}/m/{multiname}"
+        description: "Delete a multireddit"
+        params:
+          - name: username
+            type: string
+            required: true
+            positional: true
+            description: "Owner username"
+          - name: multiname
+            type: string
+            required: true
+            positional: true
+            description: "Multireddit name"
+        response:
+          type: object
+          item: EmptyResponse
+
+  wiki:
+    description: "Wiki pages: get, list, edit, revisions"
+    endpoints:
+      page:
+        method: GET
+        path: "/r/{subreddit}/wiki/{page}"
+        description: "Get a wiki page"
+        params:
+          - name: subreddit
+            type: string
+            required: true
+            positional: true
+            description: "Subreddit name"
+          - name: page
+            type: string
+            required: true
+            positional: true
+            description: "Page name (e.g. 'index', 'rules')"
+        response:
+          type: object
+          item: WikiPage
+      pages:
+        method: GET
+        path: "/r/{subreddit}/wiki/pages"
+        description: "List all wiki pages in a subreddit"
+        params:
+          - name: subreddit
+            type: string
+            required: true
+            positional: true
+            description: "Subreddit name"
+        response:
+          type: array
+          item: WikiPageList
+      revisions:
+        method: GET
+        path: "/r/{subreddit}/wiki/revisions/{page}"
+        description: "Get the revision history of a wiki page"
+        params:
+          - name: subreddit
+            type: string
+            required: true
+            positional: true
+            description: "Subreddit name"
+          - name: page
+            type: string
+            required: true
+            positional: true
+            description: "Page name"
+          - name: limit
+            type: int
+            default: 25
+            description: "Number of revisions"
+        response:
+          type: object
+          item: RevisionListing
+      edit:
+        method: POST
+        path: "/r/{subreddit}/api/wiki/edit"
+        description: "Edit a wiki page"
+        body:
+          - name: subreddit
+            type: string
+            required: true
+            description: "Subreddit name"
+          - name: page
+            type: string
+            required: true
+            description: "Page name"
+          - name: content
+            type: string
+            required: true
+            description: "New page content (markdown)"
+          - name: reason
+            type: string
+            description: "Edit reason"
+        response:
+          type: object
+          item: EmptyResponse
+
+  me_listings:
+    description: "Personal history: saved, upvoted, downvoted, hidden"
+    endpoints:
+      saved:
+        method: GET
+        path: "/user/{username}/saved"
+        description: "Get items saved by a user (yourself unless mod)"
+        params:
+          - name: username
+            type: string
+            required: true
+            positional: true
+            description: "Username (usually your own)"
+          - name: type
+            type: string
+            enum: [links, comments]
+            description: "Filter by type"
+          - name: limit
+            type: int
+            default: 25
+            description: "Number of items"
+          - name: after
+            type: string
+            description: "Pagination cursor"
+        response:
+          type: object
+          item: MixedListing
+      upvoted:
+        method: GET
+        path: "/user/{username}/upvoted"
+        description: "Get items upvoted by you (own account only)"
+        params:
+          - name: username
+            type: string
+            required: true
+            positional: true
+            description: "Your own username"
+          - name: limit
+            type: int
+            default: 25
+            description: "Number of items"
+        response:
+          type: object
+          item: MixedListing
+      downvoted:
+        method: GET
+        path: "/user/{username}/downvoted"
+        description: "Get items downvoted by you (own account only)"
+        params:
+          - name: username
+            type: string
+            required: true
+            positional: true
+            description: "Your own username"
+          - name: limit
+            type: int
+            default: 25
+            description: "Number of items"
+        response:
+          type: object
+          item: MixedListing
+      hidden:
+        method: GET
+        path: "/user/{username}/hidden"
+        description: "Get items hidden by you"
+        params:
+          - name: username
+            type: string
+            required: true
+            positional: true
+            description: "Your own username"
+          - name: limit
+            type: int
+            default: 25
+            description: "Number of items"
+        response:
+          type: object
+          item: MixedListing
+
+  friends:
+    description: "Friend / unfriend / block / unblock users"
+    endpoints:
+      add:
+        method: PUT
+        path: "/api/v1/me/friends/{username}"
+        description: "Add a Redditor as a friend"
+        params:
+          - name: username
+            type: string
+            required: true
+            positional: true
+            description: "Username to friend"
+        body:
+          - name: name
+            type: string
+            description: "Username (auto-derived from path; sent in body too)"
+          - name: note
+            type: string
+            description: "Optional note (Reddit Premium feature)"
+        response:
+          type: object
+          item: FriendResponse
+      remove:
+        method: DELETE
+        path: "/api/v1/me/friends/{username}"
+        description: "Remove a Redditor from friends"
+        params:
+          - name: username
+            type: string
+            required: true
+            positional: true
+            description: "Username to unfriend"
+        response:
+          type: object
+          item: EmptyResponse
+
+types:
+  Account:
+    fields:
+      - name: name
+        type: string
+      - name: id
+        type: string
+      - name: created_utc
+        type: float
+      - name: link_karma
+        type: int
+      - name: comment_karma
+        type: int
+      - name: total_karma
+        type: int
+      - name: is_mod
+        type: bool
+      - name: is_gold
+        type: bool
+      - name: has_mail
+        type: bool
+      - name: inbox_count
+        type: int
+  KarmaEntry:
+    fields:
+      - name: sr
+        type: string
+      - name: comment_karma
+        type: int
+      - name: link_karma
+        type: int
+  TrophyList:
+    fields:
+      - name: data
+        type: string
+  Prefs:
+    fields:
+      - name: country_code
+        type: string
+      - name: hide_from_robots
+        type: bool
+      - name: hide_ups
+        type: bool
+      - name: nightmode
+        type: bool
+      - name: lang
+        type: string
+  UserList:
+    fields:
+      - name: kind
+        type: string
+      - name: data
+        type: string
+  SubmissionListing:
+    fields:
+      - name: kind
+        type: string
+      - name: data
+        type: string
+  SubmissionWithComments:
+    fields:
+      - name: kind
+        type: string
+      - name: data
+        type: string
+  Submission:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: title
+        type: string
+      - name: author
+        type: string
+      - name: subreddit
+        type: string
+      - name: url
+        type: string
+      - name: selftext
+        type: string
+      - name: score
+        type: int
+      - name: num_comments
+        type: int
+      - name: created_utc
+        type: float
+      - name: permalink
+        type: string
+      - name: over_18
+        type: bool
+      - name: spoiler
+        type: bool
+      - name: stickied
+        type: bool
+      - name: locked
+        type: bool
+      - name: link_flair_text
+        type: string
+      - name: distinguished
+        type: string
+  Comment:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: parent_id
+        type: string
+      - name: link_id
+        type: string
+      - name: author
+        type: string
+      - name: body
+        type: string
+      - name: score
+        type: int
+      - name: created_utc
+        type: float
+      - name: permalink
+        type: string
+      - name: distinguished
+        type: string
+  CommentListing:
+    fields:
+      - name: kind
+        type: string
+      - name: data
+        type: string
+  MixedListing:
+    fields:
+      - name: kind
+        type: string
+      - name: data
+        type: string
+  SubmitResponse:
+    fields:
+      - name: json
+        type: string
+  EditResponse:
+    fields:
+      - name: json
+        type: string
+  CommentResponse:
+    fields:
+      - name: json
+        type: string
+  MoreCommentsResponse:
+    fields:
+      - name: json
+        type: string
+  ComposeResponse:
+    fields:
+      - name: json
+        type: string
+  EmptyResponse:
+    fields:
+      - name: ok
+        type: bool
+  SearchResults:
+    fields:
+      - name: kind
+        type: string
+      - name: data
+        type: string
+  UserAbout:
+    fields:
+      - name: kind
+        type: string
+      - name: data
+        type: string
+  SubredditAbout:
+    fields:
+      - name: kind
+        type: string
+      - name: data
+        type: string
+  SubredditListing:
+    fields:
+      - name: kind
+        type: string
+      - name: data
+        type: string
+  RulesResponse:
+    fields:
+      - name: rules
+        type: string
+      - name: site_rules
+        type: string
+      - name: site_rules_flow
+        type: string
+  TrafficStats:
+    fields:
+      - name: hour
+        type: string
+      - name: day
+        type: string
+      - name: month
+        type: string
+  InboxListing:
+    fields:
+      - name: kind
+        type: string
+      - name: data
+        type: string
+  ModListing:
+    fields:
+      - name: kind
+        type: string
+      - name: data
+        type: string
+  ModLogListing:
+    fields:
+      - name: kind
+        type: string
+      - name: data
+        type: string
+  BannedListing:
+    fields:
+      - name: kind
+        type: string
+      - name: data
+        type: string
+  FlairTemplate:
+    fields:
+      - name: id
+        type: string
+      - name: text
+        type: string
+      - name: text_editable
+        type: bool
+      - name: css_class
+        type: string
+      - name: type
+        type: string
+  Multireddit:
+    fields:
+      - name: kind
+        type: string
+      - name: data
+        type: string
+  WikiPage:
+    fields:
+      - name: content_md
+        type: string
+      - name: content_html
+        type: string
+      - name: revision_date
+        type: float
+      - name: revision_by
+        type: string
+      - name: may_revise
+        type: bool
+  WikiPageList:
+    fields:
+      - name: pages
+        type: string
+  RevisionListing:
+    fields:
+      - name: kind
+        type: string
+      - name: data
+        type: string
+  FriendResponse:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: date
+        type: float

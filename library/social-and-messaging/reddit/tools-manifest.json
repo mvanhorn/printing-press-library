@@ -1,0 +1,2014 @@
+{
+  "api_name": "reddit",
+  "base_url": "https://oauth.reddit.com",
+  "description": "Every Reddit feature absorbed across PRAW, snoowrap, and four MCP servers, plus offline FTS5 search, mod-queue triage primitives, and cross-sub aggregation no other tool has.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "format": "Bearer {REDDIT_ACCESS_TOKEN}",
+    "env_vars": [
+      "REDDIT_ACCESS_TOKEN",
+      "REDDIT_CLIENT_ID",
+      "REDDIT_CLIENT_SECRET",
+      "REDDIT_USERNAME",
+      "REDDIT_PASSWORD",
+      "REDDIT_REFRESH_TOKEN",
+      "REDDIT_USER_AGENT"
+    ],
+    "env_var_specs": [
+      {
+        "name": "REDDIT_ACCESS_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      },
+      {
+        "name": "REDDIT_CLIENT_ID",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      },
+      {
+        "name": "REDDIT_CLIENT_SECRET",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      },
+      {
+        "name": "REDDIT_USERNAME",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      },
+      {
+        "name": "REDDIT_PASSWORD",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      },
+      {
+        "name": "REDDIT_REFRESH_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      },
+      {
+        "name": "REDDIT_USER_AGENT",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "${REDDIT_USER_AGENT}"
+    }
+  ],
+  "tools": [
+    {
+      "name": "account_blocked",
+      "description": "List users blocked by the authenticated user. Returns the UserList.",
+      "method": "GET",
+      "path": "/prefs/blocked",
+      "params": []
+    },
+    {
+      "name": "account_friends",
+      "description": "List users friended by the authenticated user. Returns the UserList.",
+      "method": "GET",
+      "path": "/prefs/friends",
+      "params": []
+    },
+    {
+      "name": "account_karma",
+      "description": "Get per-subreddit karma breakdown for the authenticated user. Returns array of KarmaEntry.",
+      "method": "GET",
+      "path": "/api/v1/me/karma",
+      "params": []
+    },
+    {
+      "name": "account_me",
+      "description": "Get the authenticated user's profile. Returns the Account.",
+      "method": "GET",
+      "path": "/api/v1/me",
+      "params": []
+    },
+    {
+      "name": "account_prefs",
+      "description": "Get the authenticated user's preferences. Returns the Prefs.",
+      "method": "GET",
+      "path": "/api/v1/me/prefs",
+      "params": []
+    },
+    {
+      "name": "account_trophies",
+      "description": "Get trophies for the authenticated user. Returns the TrophyList.",
+      "method": "GET",
+      "path": "/api/v1/me/trophies",
+      "params": []
+    },
+    {
+      "name": "flair_link_templates",
+      "description": "List link flair templates for a subreddit. Required: subreddit. Returns array of FlairTemplate.",
+      "method": "GET",
+      "path": "/r/{subreddit}/api/link_flair_v2",
+      "params": [
+        {
+          "name": "subreddit",
+          "type": "string",
+          "location": "path",
+          "description": "Subreddit name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "flair_select_link",
+      "description": "Set a link's flair using a template. Required: subreddit, link. Optional: flair_template_id, text. Returns the new EmptyResponse.",
+      "method": "POST",
+      "path": "/r/{subreddit}/api/selectflair",
+      "params": [
+        {
+          "name": "subreddit",
+          "type": "string",
+          "location": "body",
+          "description": "Subreddit name",
+          "required": true
+        },
+        {
+          "name": "link",
+          "type": "string",
+          "location": "body",
+          "description": "Submission fullname (t3_)",
+          "required": true
+        },
+        {
+          "name": "flair_template_id",
+          "type": "string",
+          "location": "body",
+          "description": "Flair template ID"
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "Optional custom flair text"
+        }
+      ]
+    },
+    {
+      "name": "flair_set_user",
+      "description": "Set a user's flair in a subreddit (mod-only). Required: subreddit, name. Optional: text, css_class. Returns the new EmptyResponse.",
+      "method": "POST",
+      "path": "/r/{subreddit}/api/flair",
+      "params": [
+        {
+          "name": "subreddit",
+          "type": "string",
+          "location": "body",
+          "description": "Subreddit name",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Username",
+          "required": true
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "Flair text"
+        },
+        {
+          "name": "css_class",
+          "type": "string",
+          "location": "body",
+          "description": "Flair CSS class"
+        }
+      ]
+    },
+    {
+      "name": "flair_user_templates",
+      "description": "List user flair templates for a subreddit. Required: subreddit. Returns array of FlairTemplate.",
+      "method": "GET",
+      "path": "/r/{subreddit}/api/user_flair_v2",
+      "params": [
+        {
+          "name": "subreddit",
+          "type": "string",
+          "location": "path",
+          "description": "Subreddit name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "friends_add",
+      "description": "Add a Redditor as a friend. Required: username. Optional: name, note. Returns the updated FriendResponse.",
+      "method": "PUT",
+      "path": "/api/v1/me/friends/{username}",
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "description": "Username to friend",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Username (auto-derived from path; sent in body too)"
+        },
+        {
+          "name": "note",
+          "type": "string",
+          "location": "body",
+          "description": "Optional note (Reddit Premium feature)"
+        }
+      ]
+    },
+    {
+      "name": "friends_remove",
+      "description": "Remove a Redditor from friends. Required: username. Returns the EmptyResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/api/v1/me/friends/{username}",
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "description": "Username to unfriend",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "inbox_all",
+      "description": "Get inbox items (comments, replies, mentions, messages). Optional: limit (default: 25). Returns the InboxListing.",
+      "method": "GET",
+      "path": "/message/inbox",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items"
+        }
+      ]
+    },
+    {
+      "name": "inbox_compose",
+      "description": "Send a private message to a user. Required: to, subject, text. Optional: api_type (default: json). Returns the new ComposeResponse.",
+      "method": "POST",
+      "path": "/api/compose",
+      "params": [
+        {
+          "name": "to",
+          "type": "string",
+          "location": "body",
+          "description": "Recipient username",
+          "required": true
+        },
+        {
+          "name": "subject",
+          "type": "string",
+          "location": "body",
+          "description": "Message subject",
+          "required": true
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "Message body (markdown)",
+          "required": true
+        },
+        {
+          "name": "api_type",
+          "type": "string",
+          "location": "body",
+          "description": "Response format"
+        }
+      ]
+    },
+    {
+      "name": "inbox_mark_all_read",
+      "description": "Mark all inbox items as read. Returns the new EmptyResponse.",
+      "method": "POST",
+      "path": "/api/read_all_messages",
+      "params": []
+    },
+    {
+      "name": "inbox_mark_read",
+      "description": "Mark inbox items as read. Required: id. Returns the new EmptyResponse.",
+      "method": "POST",
+      "path": "/api/read_message",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated thing IDs to mark read",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "inbox_mark_unread",
+      "description": "Mark inbox items as unread. Required: id. Returns the new EmptyResponse.",
+      "method": "POST",
+      "path": "/api/unread_message",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated thing IDs to mark unread",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "inbox_mentions",
+      "description": "Get username mentions in comments. Optional: limit (default: 25). Returns the InboxListing.",
+      "method": "GET",
+      "path": "/message/mentions",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items"
+        }
+      ]
+    },
+    {
+      "name": "inbox_messages",
+      "description": "Get private messages (excluding comment replies). Optional: limit (default: 25). Returns the InboxListing.",
+      "method": "GET",
+      "path": "/message/messages",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of messages"
+        }
+      ]
+    },
+    {
+      "name": "inbox_sent",
+      "description": "Get messages you have sent. Optional: limit (default: 25). Returns the InboxListing.",
+      "method": "GET",
+      "path": "/message/sent",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of messages"
+        }
+      ]
+    },
+    {
+      "name": "inbox_unread",
+      "description": "Get unread inbox items. Optional: limit (default: 25). Returns the InboxListing.",
+      "method": "GET",
+      "path": "/message/unread",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items"
+        }
+      ]
+    },
+    {
+      "name": "listings_frontpage_hot",
+      "description": "Get hot posts from the front page. Optional: limit (default: 25), after, before. Returns the SubmissionListing.",
+      "method": "GET",
+      "path": "/hot",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of posts to return (max 100)"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor (fullname of last seen, e.g. t3_abc123)"
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor for previous page"
+        }
+      ]
+    },
+    {
+      "name": "listings_frontpage_new",
+      "description": "Get newest posts from the front page. Optional: limit (default: 25), after. Returns the SubmissionListing.",
+      "method": "GET",
+      "path": "/new",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of posts to return (max 100)"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "listings_frontpage_rising",
+      "description": "Get rising posts from the front page. Optional: limit (default: 25). Returns the SubmissionListing.",
+      "method": "GET",
+      "path": "/rising",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of posts to return"
+        }
+      ]
+    },
+    {
+      "name": "listings_frontpage_top",
+      "description": "Get top posts from the front page. Optional: time (default: day), limit (default: 25), after. Returns the SubmissionListing.",
+      "method": "GET",
+      "path": "/top",
+      "params": [
+        {
+          "name": "time",
+          "wire_name": "t",
+          "type": "string",
+          "location": "query",
+          "description": "Time window: hour|day|week|month|year|all",
+          "aliases": [
+            "t"
+          ]
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of posts to return (max 100)"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "listings_sub_controversial",
+      "description": "Get controversial posts from a specific subreddit. Required: subreddit. Optional: time (default: all), limit (default: 25). Returns the SubmissionListing.",
+      "method": "GET",
+      "path": "/r/{subreddit}/controversial",
+      "params": [
+        {
+          "name": "subreddit",
+          "type": "string",
+          "location": "path",
+          "description": "Subreddit name",
+          "required": true
+        },
+        {
+          "name": "time",
+          "wire_name": "t",
+          "type": "string",
+          "location": "query",
+          "description": "Time window",
+          "aliases": [
+            "t"
+          ]
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of posts to return"
+        }
+      ]
+    },
+    {
+      "name": "listings_sub_hot",
+      "description": "Get hot posts from a specific subreddit. Required: subreddit. Optional: limit (default: 25), after. Returns the SubmissionListing.",
+      "method": "GET",
+      "path": "/r/{subreddit}/hot",
+      "params": [
+        {
+          "name": "subreddit",
+          "type": "string",
+          "location": "path",
+          "description": "Subreddit name (without r/ prefix)",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of posts to return (max 100)"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "listings_sub_new",
+      "description": "Get newest posts from a specific subreddit. Required: subreddit. Optional: limit (default: 25), after. Returns the SubmissionListing.",
+      "method": "GET",
+      "path": "/r/{subreddit}/new",
+      "params": [
+        {
+          "name": "subreddit",
+          "type": "string",
+          "location": "path",
+          "description": "Subreddit name",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of posts to return"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "listings_sub_rising",
+      "description": "Get rising posts from a specific subreddit. Required: subreddit. Optional: limit (default: 25). Returns the SubmissionListing.",
+      "method": "GET",
+      "path": "/r/{subreddit}/rising",
+      "params": [
+        {
+          "name": "subreddit",
+          "type": "string",
+          "location": "path",
+          "description": "Subreddit name",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of posts to return"
+        }
+      ]
+    },
+    {
+      "name": "listings_sub_top",
+      "description": "Get top posts from a specific subreddit. Required: subreddit. Optional: time (default: day), limit (default: 25), after. Returns the SubmissionListing.",
+      "method": "GET",
+      "path": "/r/{subreddit}/top",
+      "params": [
+        {
+          "name": "subreddit",
+          "type": "string",
+          "location": "path",
+          "description": "Subreddit name",
+          "required": true
+        },
+        {
+          "name": "time",
+          "wire_name": "t",
+          "type": "string",
+          "location": "query",
+          "description": "Time window",
+          "aliases": [
+            "t"
+          ]
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of posts to return"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "me_listings_downvoted",
+      "description": "Get items downvoted by you (own account only). Required: username. Optional: limit (default: 25). Returns the MixedListing.",
+      "method": "GET",
+      "path": "/user/{username}/downvoted",
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "description": "Your own username",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items"
+        }
+      ]
+    },
+    {
+      "name": "me_listings_hidden",
+      "description": "Get items hidden by you. Required: username. Optional: limit (default: 25). Returns the MixedListing.",
+      "method": "GET",
+      "path": "/user/{username}/hidden",
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "description": "Your own username",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items"
+        }
+      ]
+    },
+    {
+      "name": "me_listings_saved",
+      "description": "Get items saved by a user (yourself unless mod). Required: username. Optional: type, limit (default: 25), after. Returns the MixedListing.",
+      "method": "GET",
+      "path": "/user/{username}/saved",
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "description": "Username (usually your own)",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by type"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "me_listings_upvoted",
+      "description": "Get items upvoted by you (own account only). Required: username. Optional: limit (default: 25). Returns the MixedListing.",
+      "method": "GET",
+      "path": "/user/{username}/upvoted",
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "description": "Your own username",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items"
+        }
+      ]
+    },
+    {
+      "name": "moderation_approve",
+      "description": "Approve a submission or comment. Required: id. Returns the new EmptyResponse.",
+      "method": "POST",
+      "path": "/api/approve",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Thing ID to approve (t1_ or t3_)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "moderation_ban",
+      "description": "Ban a user from a subreddit. Required: subreddit, name. Optional: type (default: banned), ban_reason, ban_message (plus 2 more). Returns the new EmptyResponse.",
+      "method": "POST",
+      "path": "/r/{subreddit}/api/friend",
+      "params": [
+        {
+          "name": "subreddit",
+          "type": "string",
+          "location": "body",
+          "description": "Subreddit name",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Username to ban",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Relationship type (always 'banned' for bans)"
+        },
+        {
+          "name": "ban_reason",
+          "type": "string",
+          "location": "body",
+          "description": "Short reason (visible to other mods)"
+        },
+        {
+          "name": "ban_message",
+          "type": "string",
+          "location": "body",
+          "description": "Message sent to the banned user"
+        },
+        {
+          "name": "note",
+          "type": "string",
+          "location": "body",
+          "description": "Internal mod note"
+        },
+        {
+          "name": "duration",
+          "type": "int",
+          "location": "body",
+          "description": "Ban duration in days (omit for permanent)"
+        }
+      ]
+    },
+    {
+      "name": "moderation_banned",
+      "description": "List banned users in a subreddit. Required: subreddit. Optional: user, limit (default: 25). Returns the BannedListing.",
+      "method": "GET",
+      "path": "/r/{subreddit}/about/banned",
+      "params": [
+        {
+          "name": "subreddit",
+          "type": "string",
+          "location": "path",
+          "description": "Subreddit name",
+          "required": true
+        },
+        {
+          "name": "user",
+          "type": "string",
+          "location": "query",
+          "description": "Filter to a specific user"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of entries"
+        }
+      ]
+    },
+    {
+      "name": "moderation_distinguish",
+      "description": "Distinguish a comment or post as mod/admin (with optional sticky for comments). Required: id. Optional: how (default: yes), sticky (default: false). Returns the new EmptyResponse.",
+      "method": "POST",
+      "path": "/api/distinguish",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Thing ID",
+          "required": true
+        },
+        {
+          "name": "how",
+          "type": "string",
+          "location": "body",
+          "description": "Distinguish type"
+        },
+        {
+          "name": "sticky",
+          "type": "bool",
+          "location": "body",
+          "description": "Sticky the distinguished comment"
+        }
+      ]
+    },
+    {
+      "name": "moderation_edited",
+      "description": "Get edited items in a subreddit. Required: subreddit. Optional: limit (default: 25). Returns the ModListing.",
+      "method": "GET",
+      "path": "/r/{subreddit}/about/edited",
+      "params": [
+        {
+          "name": "subreddit",
+          "type": "string",
+          "location": "path",
+          "description": "Subreddit name",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items"
+        }
+      ]
+    },
+    {
+      "name": "moderation_lock",
+      "description": "Lock a submission or comment (no new replies). Required: id. Returns the new EmptyResponse.",
+      "method": "POST",
+      "path": "/api/lock",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Thing ID to lock",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "moderation_modlog",
+      "description": "Get the moderation log for a subreddit. Required: subreddit. Optional: type, mod, limit (default: 50) (plus 1 more). Returns the ModLogListing.",
+      "method": "GET",
+      "path": "/r/{subreddit}/about/log",
+      "params": [
+        {
+          "name": "subreddit",
+          "type": "string",
+          "location": "path",
+          "description": "Subreddit name",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Action type filter (e.g. removelink, approvelink, banuser)"
+        },
+        {
+          "name": "mod",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by moderator username"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of entries"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "moderation_modqueue",
+      "description": "Get items in the modqueue for a subreddit. Required: subreddit. Optional: only, limit (default: 25), after. Returns the ModListing.",
+      "method": "GET",
+      "path": "/r/{subreddit}/about/modqueue",
+      "params": [
+        {
+          "name": "subreddit",
+          "type": "string",
+          "location": "path",
+          "description": "Subreddit name",
+          "required": true
+        },
+        {
+          "name": "only",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by type"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "moderation_remove",
+      "description": "Remove a submission or comment (mark spam=true to send to spam). Required: id. Optional: spam (default: false). Returns the new EmptyResponse.",
+      "method": "POST",
+      "path": "/api/remove",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Thing ID to remove",
+          "required": true
+        },
+        {
+          "name": "spam",
+          "type": "bool",
+          "location": "body",
+          "description": "Mark as spam (sends to spam filter)"
+        }
+      ]
+    },
+    {
+      "name": "moderation_reports",
+      "description": "Get reported items in a subreddit. Required: subreddit. Optional: only, limit (default: 25). Returns the ModListing.",
+      "method": "GET",
+      "path": "/r/{subreddit}/about/reports",
+      "params": [
+        {
+          "name": "subreddit",
+          "type": "string",
+          "location": "path",
+          "description": "Subreddit name",
+          "required": true
+        },
+        {
+          "name": "only",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by type"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items"
+        }
+      ]
+    },
+    {
+      "name": "moderation_spam",
+      "description": "Get spam-filtered items in a subreddit. Required: subreddit. Optional: limit (default: 25). Returns the ModListing.",
+      "method": "GET",
+      "path": "/r/{subreddit}/about/spam",
+      "params": [
+        {
+          "name": "subreddit",
+          "type": "string",
+          "location": "path",
+          "description": "Subreddit name",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items"
+        }
+      ]
+    },
+    {
+      "name": "moderation_sticky",
+      "description": "Sticky a submission to the top of a subreddit. Required: id. Optional: state (default: true), num. Returns the new EmptyResponse.",
+      "method": "POST",
+      "path": "/api/set_subreddit_sticky",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Submission ID (t3_)",
+          "required": true
+        },
+        {
+          "name": "state",
+          "type": "bool",
+          "location": "body",
+          "description": "true to sticky, false to unsticky"
+        },
+        {
+          "name": "num",
+          "type": "int",
+          "location": "body",
+          "description": "Sticky slot (1 or 2)"
+        }
+      ]
+    },
+    {
+      "name": "moderation_unban",
+      "description": "Unban a user from a subreddit. Required: subreddit, name. Optional: type (default: banned). Returns the new EmptyResponse.",
+      "method": "POST",
+      "path": "/r/{subreddit}/api/unfriend",
+      "params": [
+        {
+          "name": "subreddit",
+          "type": "string",
+          "location": "body",
+          "description": "Subreddit name",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Username to unban",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Relationship type"
+        }
+      ]
+    },
+    {
+      "name": "moderation_unlock",
+      "description": "Unlock a previously locked submission or comment. Required: id. Returns the new EmptyResponse.",
+      "method": "POST",
+      "path": "/api/unlock",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Thing ID to unlock",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "multi_create",
+      "description": "Create a new multireddit. Required: username, multiname, model. Returns the new Multireddit.",
+      "method": "POST",
+      "path": "/api/multi/user/{username}/m/{multiname}",
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "description": "Owner username (typically your own)",
+          "required": true
+        },
+        {
+          "name": "multiname",
+          "type": "string",
+          "location": "path",
+          "description": "Multireddit name",
+          "required": true
+        },
+        {
+          "name": "model",
+          "type": "string",
+          "location": "body",
+          "description": "JSON-encoded multireddit definition (subreddits, visibility, description)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "multi_delete",
+      "description": "Delete a multireddit. Required: username, multiname. Returns the EmptyResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/api/multi/user/{username}/m/{multiname}",
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "description": "Owner username",
+          "required": true
+        },
+        {
+          "name": "multiname",
+          "type": "string",
+          "location": "path",
+          "description": "Multireddit name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "multi_get",
+      "description": "Get a specific multireddit. Required: username, multiname. Returns the Multireddit.",
+      "method": "GET",
+      "path": "/api/multi/user/{username}/m/{multiname}",
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "description": "Multireddit owner username",
+          "required": true
+        },
+        {
+          "name": "multiname",
+          "type": "string",
+          "location": "path",
+          "description": "Multireddit name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "multi_mine",
+      "description": "List your multireddits. Returns array of Multireddit.",
+      "method": "GET",
+      "path": "/api/multi/mine",
+      "params": []
+    },
+    {
+      "name": "query_reddit",
+      "description": "Search across all of Reddit. Required: query. Optional: sort (default: relevance), time (default: all), type (plus 2 more). Returns the SearchResults.",
+      "method": "GET",
+      "path": "/search",
+      "params": [
+        {
+          "name": "query",
+          "wire_name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Search query",
+          "required": true,
+          "aliases": [
+            "q"
+          ]
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order"
+        },
+        {
+          "name": "time",
+          "wire_name": "t",
+          "type": "string",
+          "location": "query",
+          "description": "Time window",
+          "aliases": [
+            "t"
+          ]
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Result type filter"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "query_subreddit",
+      "description": "Search within a specific subreddit. Required: subreddit, query. Optional: restrict_sr (default: true), sort (default: relevance), time (default: all) (plus 1 more). Returns the SearchResults.",
+      "method": "GET",
+      "path": "/r/{subreddit}/search",
+      "params": [
+        {
+          "name": "subreddit",
+          "type": "string",
+          "location": "path",
+          "description": "Subreddit name",
+          "required": true
+        },
+        {
+          "name": "query",
+          "wire_name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Search query",
+          "required": true,
+          "aliases": [
+            "q"
+          ]
+        },
+        {
+          "name": "restrict_sr",
+          "type": "bool",
+          "location": "query",
+          "description": "Restrict to this subreddit"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order"
+        },
+        {
+          "name": "time",
+          "wire_name": "t",
+          "type": "string",
+          "location": "query",
+          "description": "Time window",
+          "aliases": [
+            "t"
+          ]
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results"
+        }
+      ]
+    },
+    {
+      "name": "submissions_delete",
+      "description": "Delete your own post or comment. Required: id. Returns the new EmptyResponse.",
+      "method": "POST",
+      "path": "/api/del",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Thing ID to delete (t1_ or t3_)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "submissions_edit",
+      "description": "Edit your own post or comment body (self/comment text only). Required: thing_id, text. Optional: api_type (default: json). Returns the new EditResponse.",
+      "method": "POST",
+      "path": "/api/editusertext",
+      "params": [
+        {
+          "name": "thing_id",
+          "type": "string",
+          "location": "body",
+          "description": "Thing ID to edit (t1_ or t3_)",
+          "required": true
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "New body text",
+          "required": true
+        },
+        {
+          "name": "api_type",
+          "type": "string",
+          "location": "body",
+          "description": "Response format"
+        }
+      ]
+    },
+    {
+      "name": "submissions_get",
+      "description": "Get a submission by ID, with its comments tree. Required: article. Optional: limit (default: 50), depth, sort (default: confidence). Returns array of SubmissionWithComments.",
+      "method": "GET",
+      "path": "/comments/{article}",
+      "params": [
+        {
+          "name": "article",
+          "type": "string",
+          "location": "path",
+          "description": "Submission ID (e.g. abc123 or t3_abc123)",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max comments to return"
+        },
+        {
+          "name": "depth",
+          "type": "int",
+          "location": "query",
+          "description": "Max comment depth"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Comment sort order"
+        }
+      ]
+    },
+    {
+      "name": "submissions_hide",
+      "description": "Hide a submission from your listings. Required: id. Returns the new EmptyResponse.",
+      "method": "POST",
+      "path": "/api/hide",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Submission ID (t3_)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "submissions_morechildren",
+      "description": "Expand a MoreComments placeholder into actual comments. Required: link_id, children. Optional: api_type (default: json). Returns the MoreCommentsResponse.",
+      "method": "GET",
+      "path": "/api/morechildren",
+      "params": [
+        {
+          "name": "link_id",
+          "type": "string",
+          "location": "query",
+          "description": "Submission fullname (t3_)",
+          "required": true
+        },
+        {
+          "name": "children",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated comment IDs to expand",
+          "required": true
+        },
+        {
+          "name": "api_type",
+          "type": "string",
+          "location": "query",
+          "description": "Response format"
+        }
+      ]
+    },
+    {
+      "name": "submissions_reply",
+      "description": "Reply to a submission or comment. Required: parent, text. Optional: api_type (default: json). Returns the new CommentResponse.",
+      "method": "POST",
+      "path": "/api/comment",
+      "params": [
+        {
+          "name": "parent",
+          "type": "string",
+          "location": "body",
+          "description": "Parent thing ID (t1_ or t3_)",
+          "required": true
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "Reply body",
+          "required": true
+        },
+        {
+          "name": "api_type",
+          "type": "string",
+          "location": "body",
+          "description": "Response format"
+        }
+      ]
+    },
+    {
+      "name": "submissions_save",
+      "description": "Save a submission or comment. Required: id. Optional: category. Returns the new EmptyResponse.",
+      "method": "POST",
+      "path": "/api/save",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Thing ID to save",
+          "required": true
+        },
+        {
+          "name": "category",
+          "type": "string",
+          "location": "body",
+          "description": "Optional save category"
+        }
+      ]
+    },
+    {
+      "name": "submissions_submit",
+      "description": "Submit a new post (link or self-text). Required: sr, title, kind (default: self). Optional: text, url, nsfw (default: false) (plus 6 more). Returns the new SubmitResponse.",
+      "method": "POST",
+      "path": "/api/submit",
+      "params": [
+        {
+          "name": "sr",
+          "type": "string",
+          "location": "body",
+          "description": "Target subreddit name (without r/)",
+          "required": true
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Post title",
+          "required": true
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "Post type",
+          "required": true
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "Body text (for self posts)"
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "Link URL (for link posts)"
+        },
+        {
+          "name": "nsfw",
+          "type": "bool",
+          "location": "body",
+          "description": "Mark as NSFW"
+        },
+        {
+          "name": "spoiler",
+          "type": "bool",
+          "location": "body",
+          "description": "Mark as spoiler"
+        },
+        {
+          "name": "sendreplies",
+          "type": "bool",
+          "location": "body",
+          "description": "Send inbox replies"
+        },
+        {
+          "name": "flair_id",
+          "type": "string",
+          "location": "body",
+          "description": "Link flair template ID"
+        },
+        {
+          "name": "flair_text",
+          "type": "string",
+          "location": "body",
+          "description": "Custom flair text"
+        },
+        {
+          "name": "original_content",
+          "type": "bool",
+          "location": "body",
+          "description": "Mark as original content (OC)"
+        },
+        {
+          "name": "api_type",
+          "type": "string",
+          "location": "body",
+          "description": "Response format"
+        }
+      ]
+    },
+    {
+      "name": "submissions_unhide",
+      "description": "Unhide a previously hidden submission. Required: id. Returns the new EmptyResponse.",
+      "method": "POST",
+      "path": "/api/unhide",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Submission ID (t3_)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "submissions_unsave",
+      "description": "Unsave a previously saved submission or comment. Required: id. Returns the new EmptyResponse.",
+      "method": "POST",
+      "path": "/api/unsave",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Thing ID to unsave",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "submissions_vote",
+      "description": "Cast or clear a vote on a submission or comment. Required: id, dir. Returns the new EmptyResponse.",
+      "method": "POST",
+      "path": "/api/vote",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Thing ID to vote on (t1_ or t3_)",
+          "required": true
+        },
+        {
+          "name": "dir",
+          "type": "int",
+          "location": "body",
+          "description": "Direction: 1=upvote, 0=clear, -1=downvote",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "subreddit_about",
+      "description": "Get a subreddit's metadata. Required: subreddit. Returns the SubredditAbout.",
+      "method": "GET",
+      "path": "/r/{subreddit}/about",
+      "params": [
+        {
+          "name": "subreddit",
+          "type": "string",
+          "location": "path",
+          "description": "Subreddit name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "subreddit_moderators",
+      "description": "List a subreddit's moderators. Required: subreddit. Returns the UserList.",
+      "method": "GET",
+      "path": "/r/{subreddit}/about/moderators",
+      "params": [
+        {
+          "name": "subreddit",
+          "type": "string",
+          "location": "path",
+          "description": "Subreddit name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "subreddit_rules",
+      "description": "Get a subreddit's rules. Required: subreddit. Returns the RulesResponse.",
+      "method": "GET",
+      "path": "/r/{subreddit}/about/rules",
+      "params": [
+        {
+          "name": "subreddit",
+          "type": "string",
+          "location": "path",
+          "description": "Subreddit name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "subreddit_subscribe",
+      "description": "Subscribe to a subreddit. Required: sr_name. Optional: action (default: sub). Returns the new EmptyResponse.",
+      "method": "POST",
+      "path": "/api/subscribe",
+      "params": [
+        {
+          "name": "sr_name",
+          "type": "string",
+          "location": "body",
+          "description": "Subreddit name to subscribe to",
+          "required": true
+        },
+        {
+          "name": "action",
+          "type": "string",
+          "location": "body",
+          "description": "Action: sub or unsub"
+        }
+      ]
+    },
+    {
+      "name": "subreddit_traffic",
+      "description": "Get traffic stats for a subreddit (mod only). Required: subreddit. Returns the TrafficStats.",
+      "method": "GET",
+      "path": "/r/{subreddit}/about/traffic",
+      "params": [
+        {
+          "name": "subreddit",
+          "type": "string",
+          "location": "path",
+          "description": "Subreddit name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "subreddits_default",
+      "description": "List Reddit's default subreddits. Optional: limit (default: 25). Returns the SubredditListing.",
+      "method": "GET",
+      "path": "/subreddits/default",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of subreddits"
+        }
+      ]
+    },
+    {
+      "name": "subreddits_mine",
+      "description": "List subreddits the authenticated user is subscribed to. Optional: limit (default: 100), after. Returns the SubredditListing.",
+      "method": "GET",
+      "path": "/subreddits/mine/subscriber",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of subreddits"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "subreddits_new",
+      "description": "List recently created subreddits. Optional: limit (default: 25), after. Returns the SubredditListing.",
+      "method": "GET",
+      "path": "/subreddits/new",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of subreddits"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "subreddits_popular",
+      "description": "List popular subreddits. Optional: limit (default: 25), after. Returns the SubredditListing.",
+      "method": "GET",
+      "path": "/subreddits/popular",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of subreddits"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "subreddits_search",
+      "description": "Search subreddits by name and description. Required: query. Optional: sort (default: relevance), limit (default: 25). Returns the SubredditListing.",
+      "method": "GET",
+      "path": "/subreddits/search",
+      "params": [
+        {
+          "name": "query",
+          "wire_name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Search query",
+          "required": true,
+          "aliases": [
+            "q"
+          ]
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results"
+        }
+      ]
+    },
+    {
+      "name": "user_about",
+      "description": "Get a Redditor's public profile. Required: username. Returns the UserAbout.",
+      "method": "GET",
+      "path": "/user/{username}/about",
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "description": "Reddit username (without u/ prefix)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "user_comments",
+      "description": "Get a user's comment history. Required: username. Optional: sort (default: new), time (default: all), limit (default: 25) (plus 1 more). Returns the CommentListing.",
+      "method": "GET",
+      "path": "/user/{username}/comments",
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "description": "Reddit username",
+          "required": true
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order"
+        },
+        {
+          "name": "time",
+          "wire_name": "t",
+          "type": "string",
+          "location": "query",
+          "description": "Time window",
+          "aliases": [
+            "t"
+          ]
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of comments"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "user_gilded",
+      "description": "Get a user's gilded posts and comments. Required: username. Optional: limit (default: 25). Returns the MixedListing.",
+      "method": "GET",
+      "path": "/user/{username}/gilded",
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "description": "Reddit username",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of results"
+        }
+      ]
+    },
+    {
+      "name": "user_submitted",
+      "description": "Get a user's submitted posts. Required: username. Optional: sort (default: new), time (default: all), limit (default: 25) (plus 1 more). Returns the SubmissionListing.",
+      "method": "GET",
+      "path": "/user/{username}/submitted",
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "description": "Reddit username",
+          "required": true
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order"
+        },
+        {
+          "name": "time",
+          "wire_name": "t",
+          "type": "string",
+          "location": "query",
+          "description": "Time window",
+          "aliases": [
+            "t"
+          ]
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of posts"
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "user_trophies",
+      "description": "Get a user's trophies. Required: username. Returns the TrophyList.",
+      "method": "GET",
+      "path": "/api/v1/user/{username}/trophies",
+      "params": [
+        {
+          "name": "username",
+          "type": "string",
+          "location": "path",
+          "description": "Reddit username",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "wiki_edit",
+      "description": "Edit a wiki page. Required: subreddit, page, content. Optional: reason. Returns the new EmptyResponse.",
+      "method": "POST",
+      "path": "/r/{subreddit}/api/wiki/edit",
+      "params": [
+        {
+          "name": "subreddit",
+          "type": "string",
+          "location": "body",
+          "description": "Subreddit name",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "string",
+          "location": "body",
+          "description": "Page name",
+          "required": true
+        },
+        {
+          "name": "content",
+          "type": "string",
+          "location": "body",
+          "description": "New page content (markdown)",
+          "required": true
+        },
+        {
+          "name": "reason",
+          "type": "string",
+          "location": "body",
+          "description": "Edit reason"
+        }
+      ]
+    },
+    {
+      "name": "wiki_page",
+      "description": "Get a wiki page. Required: subreddit, page. Returns the WikiPage.",
+      "method": "GET",
+      "path": "/r/{subreddit}/wiki/{page}",
+      "params": [
+        {
+          "name": "subreddit",
+          "type": "string",
+          "location": "path",
+          "description": "Subreddit name",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "string",
+          "location": "path",
+          "description": "Page name (e.g. 'index', 'rules')",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "wiki_pages",
+      "description": "List all wiki pages in a subreddit. Required: subreddit. Returns array of WikiPageList.",
+      "method": "GET",
+      "path": "/r/{subreddit}/wiki/pages",
+      "params": [
+        {
+          "name": "subreddit",
+          "type": "string",
+          "location": "path",
+          "description": "Subreddit name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "wiki_revisions",
+      "description": "Get the revision history of a wiki page. Required: subreddit, page. Optional: limit (default: 25). Returns the RevisionListing.",
+      "method": "GET",
+      "path": "/r/{subreddit}/wiki/revisions/{page}",
+      "params": [
+        {
+          "name": "subreddit",
+          "type": "string",
+          "location": "path",
+          "description": "Subreddit name",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "string",
+          "location": "path",
+          "description": "Page name",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of revisions"
+        }
+      ]
+    }
+  ]
+}

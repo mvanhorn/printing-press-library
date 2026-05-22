@@ -1,0 +1,51 @@
+version: 2
+project_name: reddit-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: reddit-pp-cli
+    main: ./cmd/reddit-pp-cli
+    binary: reddit-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/social-and-messaging/reddit/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: reddit-pp-mcp
+    main: ./cmd/reddit-pp-mcp
+    binary: reddit-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: reddit-pp-cli
+    repository:
+      owner: ahmad-thariq-syauqi
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every Reddit feature absorbed across PRAW, snoowrap, and four MCP servers, plus offline FTS5 search"
+    install: |
+      bin.install "reddit-pp-cli"
+      bin.install "reddit-pp-mcp"

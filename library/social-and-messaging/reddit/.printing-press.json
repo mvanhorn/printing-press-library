@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-22T02:15:45.9507417Z",
+  "printing_press_version": "4.11.0",
+  "api_name": "reddit",
+  "display_name": "Reddit",
+  "cli_name": "reddit-pp-cli",
+  "owner": "ahmad-thariq-syauqi",
+  "printer": "mcsyauqi",
+  "printer_name": "Ahmad Thariq Syauqi",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:fd27c946fe33633d8dd24aa70a59356017ab60b4043fff9e48b8839f955c428a",
+  "run_id": "20260522-081137",
+  "description": "Every Reddit feature absorbed across PRAW, snoowrap, and four MCP servers, plus offline FTS5 search, mod-queue triage primitives, and cross-sub aggregation no other tool has.",
+  "mcp_binary": "reddit-pp-mcp",
+  "mcp_tool_count": 84,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "REDDIT_ACCESS_TOKEN",
+    "REDDIT_CLIENT_ID",
+    "REDDIT_CLIENT_SECRET",
+    "REDDIT_USERNAME",
+    "REDDIT_PASSWORD",
+    "REDDIT_REFRESH_TOKEN",
+    "REDDIT_USER_AGENT"
+  ],
+  "novel_features": [
+    {
+      "name": "Personal FTS5 search over own Reddit history",
+      "command": "me search",
+      "description": "Search your own saved, submitted, upvoted, downvoted, and commented content with full-body FTS5 instead of Reddit's broken native search."
+    },
+    {
+      "name": "Sub-scoped local FTS5 search",
+      "command": "search-local",
+      "description": "After syncing a subreddit, search its submissions and comments via FTS5 instead of Reddit's broken native search."
+    },
+    {
+      "name": "Stale modqueue ranker",
+      "command": "mod queue",
+      "description": "Sort modqueue items by age and filter to ones sitting longer than a threshold. The web UI has no concept of item age."
+    },
+    {
+      "name": "Reporter reputation ledger",
+      "command": "mod reporters",
+      "description": "Per-reporter statistics over a rolling window: reports filed, removal-led %, approval %, no-action %. Identifies trusted reporters and karma-farmer-snitches."
+    },
+    {
+      "name": "Ghost mod-action / split detector",
+      "command": "mod ghost-actions",
+      "description": "Detect actions where one mod approved an item and another later removed it (or vice versa). Surfaces silent disagreements in the mod team."
+    },
+    {
+      "name": "Modqueue remove-batch with templates",
+      "command": "mod remove-batch",
+      "description": "CSV-driven mass removal with per-row removal-reason template, optional ban duration, and modmail note. Idempotent via plan-row hash."
+    },
+    {
+      "name": "Cross-sub user dossier",
+      "command": "dossier",
+      "description": "Aggregate a user's submissions, comments, karma, and mod-actions-against across N subreddits. Answers 'is this a karma farmer or a real contributor?'"
+    },
+    {
+      "name": "Multi-sub brand-mention watch with context",
+      "command": "watch",
+      "description": "Fan-out search across multiple subreddits, dedupe by submission ID, enrich each hit with parent-comment context and OP karma-in-sub."
+    },
+    {
+      "name": "Plan-driven crosspost batch",
+      "command": "crosspost-batch",
+      "description": "YAML plan lists target subreddits with per-sub title overrides, flair-id, send-replies flag, NSFW flag, and OC flag. One command publishes the post to all targets."
+    },
+    {
+      "name": "Best-time-to-post analyzer",
+      "command": "me posting-stats",
+      "description": "Per-sub median and 75th-percentile score by day-of-week and hour-of-day, computed from your own submission history."
+    },
+    {
+      "name": "Comment-velocity radar",
+      "command": "post velocity",
+      "description": "Comments-per-minute over the first 60 minutes since post creation, compared to the sub's median for the same window."
+    },
+    {
+      "name": "Inbox digest by source-sub and thread score",
+      "command": "inbox-digest",
+      "description": "Group inbox items (replies, mentions, modmail) by source-sub and enrich each with the current parent-thread score. Replaces the flat inbox UI."
+    }
+  ],
+  "category": "social-and-messaging",
+  "spec_url": "https://www.reddit.com/dev/api (mapped via PRAW https://praw.readthedocs.io)"
+}

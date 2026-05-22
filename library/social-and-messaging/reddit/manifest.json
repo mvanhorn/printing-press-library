@@ -1,0 +1,87 @@
+{
+  "manifest_version": "0.3",
+  "name": "reddit-pp-mcp",
+  "display_name": "Reddit",
+  "version": "4.11.0",
+  "description": "Every Reddit feature absorbed across PRAW, snoowrap, and four MCP servers, plus offline FTS5 search, mod-queue triage primitives, and cross-sub aggregation no other tool has.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/reddit-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/reddit-pp-mcp",
+      "args": [],
+      "env": {
+        "REDDIT_ACCESS_TOKEN": "${user_config.reddit_access_token}",
+        "REDDIT_CLIENT_ID": "${user_config.reddit_client_id}",
+        "REDDIT_CLIENT_SECRET": "${user_config.reddit_client_secret}",
+        "REDDIT_PASSWORD": "${user_config.reddit_password}",
+        "REDDIT_REFRESH_TOKEN": "${user_config.reddit_refresh_token}",
+        "REDDIT_USERNAME": "${user_config.reddit_username}",
+        "REDDIT_USER_AGENT": "${user_config.reddit_user_agent}"
+      }
+    }
+  },
+  "user_config": {
+    "reddit_access_token": {
+      "type": "string",
+      "title": "REDDIT_ACCESS_TOKEN",
+      "description": "Sets REDDIT_ACCESS_TOKEN for the Reddit MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "reddit_client_id": {
+      "type": "string",
+      "title": "REDDIT_CLIENT_ID",
+      "description": "Sets REDDIT_CLIENT_ID for the Reddit MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "reddit_client_secret": {
+      "type": "string",
+      "title": "REDDIT_CLIENT_SECRET",
+      "description": "Sets REDDIT_CLIENT_SECRET for the Reddit MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "reddit_password": {
+      "type": "string",
+      "title": "REDDIT_PASSWORD",
+      "description": "Sets REDDIT_PASSWORD for the Reddit MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "reddit_refresh_token": {
+      "type": "string",
+      "title": "REDDIT_REFRESH_TOKEN",
+      "description": "Sets REDDIT_REFRESH_TOKEN for the Reddit MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "reddit_user_agent": {
+      "type": "string",
+      "title": "REDDIT_USER_AGENT",
+      "description": "Sets REDDIT_USER_AGENT for the Reddit MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "reddit_username": {
+      "type": "string",
+      "title": "REDDIT_USERNAME",
+      "description": "Sets REDDIT_USERNAME for the Reddit MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

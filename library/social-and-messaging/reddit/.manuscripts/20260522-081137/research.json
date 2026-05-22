@@ -1,0 +1,411 @@
+{
+  "api_name": "reddit",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "adhikasp/mcp-reddit",
+      "url": "https://github.com/adhikasp/mcp-reddit",
+      "language": "Python",
+      "install_method": "",
+      "stars": 401,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Arindam200/reddit-mcp",
+      "url": "https://github.com/Arindam200/reddit-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 286,
+      "last_updated": "",
+      "command_count": 9,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Hawstein/mcp-server-reddit",
+      "url": "https://github.com/Hawstein/mcp-server-reddit",
+      "language": "Python",
+      "install_method": "",
+      "stars": 177,
+      "last_updated": "",
+      "command_count": 7,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "jordanburke/reddit-mcp-server",
+      "url": "https://github.com/jordanburke/reddit-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 100,
+      "last_updated": "",
+      "command_count": 15,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "vartanbeno/go-reddit",
+      "url": "https://github.com/vartanbeno/go-reddit",
+      "language": "Go",
+      "install_method": "",
+      "stars": 331,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "turnage/graw",
+      "url": "https://github.com/turnage/graw",
+      "language": "Go",
+      "install_method": "",
+      "stars": 300,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "praw-dev/praw",
+      "url": "https://github.com/praw-dev/praw",
+      "language": "Python",
+      "install_method": "",
+      "stars": 3500,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "not-an-aardvark/snoowrap",
+      "url": "https://github.com/not-an-aardvark/snoowrap",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 1100,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-22T01:14:30Z",
+  "novel_features": [
+    {
+      "name": "Personal FTS5 search over own Reddit history",
+      "command": "me search",
+      "description": "Search your own saved, submitted, upvoted, downvoted, and commented content with full-body FTS5 instead of Reddit's broken native search.",
+      "rationale": "Reddit's native search has missed ~50% of own-history hits for a decade; this requires an offline SQLite store synced via `sync`.",
+      "example": "reddit-pp-cli me search \"webhooks\" --scope saved,comments --agent",
+      "why_it_matters": "Agents researching what the user previously said or saved cannot rely on Reddit's search API — this is the only way to recover the full corpus.",
+      "group": "Local FTS5 over your Reddit corpus"
+    },
+    {
+      "name": "Sub-scoped local FTS5 search",
+      "command": "search-local",
+      "description": "After syncing a subreddit, search its submissions and comments via FTS5 instead of Reddit's broken native search.",
+      "rationale": "Same FTS5 engine as `me search` but scoped to a synced sub corpus. Replaces the workflow that died with Pushshift in 2023.",
+      "example": "reddit-pp-cli search-local \"webhook auth\" --sub programming --type comments --agent",
+      "why_it_matters": "Researchers and brand-monitoring workflows need reliable text search; native search misses too much.",
+      "group": "Local FTS5 over your Reddit corpus"
+    },
+    {
+      "name": "Stale modqueue ranker",
+      "command": "mod queue",
+      "description": "Sort modqueue items by age and filter to ones sitting longer than a threshold. The web UI has no concept of item age.",
+      "rationale": "Local timestamp math over the modqueue payload; the endpoint returns items but doesn't sort them by age.",
+      "example": "reddit-pp-cli mod queue programming --sort age --older-than 24h --agent",
+      "why_it_matters": "Moderators triaging large subs need to find the \u003e24h backlog without clicking through every item.",
+      "group": "Mod-team primitives"
+    },
+    {
+      "name": "Reporter reputation ledger",
+      "command": "mod reporters",
+      "description": "Per-reporter statistics over a rolling window: reports filed, removal-led %, approval %, no-action %. Identifies trusted reporters and karma-farmer-snitches.",
+      "rationale": "Joins synced mod_actions (modlog) with the reports payload locally; no API endpoint produces this.",
+      "example": "reddit-pp-cli mod reporters programming --window 30d --min-reports 3 --agent",
+      "why_it_matters": "Mod teams need to know which reporters are signal vs noise; this is the metric they actually want.",
+      "group": "Mod-team primitives"
+    },
+    {
+      "name": "Ghost mod-action / split detector",
+      "command": "mod ghost-actions",
+      "description": "Detect actions where one mod approved an item and another later removed it (or vice versa). Surfaces silent disagreements in the mod team.",
+      "rationale": "Local temporal join on (target_id, action, mod) chains in synced modlog data.",
+      "example": "reddit-pp-cli mod ghost-actions programming --since 7d --agent",
+      "why_it_matters": "Mod teams need to find policy splits before they become public disputes.",
+      "group": "Mod-team primitives"
+    },
+    {
+      "name": "Modqueue remove-batch with templates",
+      "command": "mod remove-batch",
+      "description": "CSV-driven mass removal with per-row removal-reason template, optional ban duration, and modmail note. Idempotent via plan-row hash.",
+      "rationale": "Orchestrates the remove + removal-reason + ban + modmail endpoints in one batch with dry-run by default.",
+      "example": "reddit-pp-cli mod remove-batch programming --plan ./removals.csv --dry-run",
+      "why_it_matters": "Mod-queue clear-outs need batch operations; no existing tool batches with removal-reason templates.",
+      "group": "Mod-team primitives"
+    },
+    {
+      "name": "Cross-sub user dossier",
+      "command": "dossier",
+      "description": "Aggregate a user's submissions, comments, karma, and mod-actions-against across N subreddits. Answers 'is this a karma farmer or a real contributor?'",
+      "rationale": "Joins four endpoints (/user/\u003cu\u003e/about + submitted + comments + karma) and groups locally by sub.",
+      "example": "reddit-pp-cli dossier spez --in programming,golang --agent",
+      "why_it_matters": "Vetting users (mod context) and academic research both need a per-sub activity breakdown that no single endpoint returns.",
+      "group": "Cross-entity aggregation"
+    },
+    {
+      "name": "Multi-sub brand-mention watch with context",
+      "command": "watch",
+      "description": "Fan-out search across multiple subreddits, dedupe by submission ID, enrich each hit with parent-comment context and OP karma-in-sub.",
+      "rationale": "Replaces noisy/wasteful Make.com or Zapier polling. Adds context (thread excerpt + OP karma) that bare search results don't have.",
+      "example": "reddit-pp-cli watch \"creativism\" --in entrepreneur,smallbusiness --since 24h --enrich-karma --agent",
+      "why_it_matters": "Brand-monitoring agents need thread context to decide whether a mention is worth replying to.",
+      "group": "Cross-entity aggregation"
+    },
+    {
+      "name": "Plan-driven crosspost batch",
+      "command": "crosspost-batch",
+      "description": "YAML plan lists target subreddits with per-sub title overrides, flair-id, send-replies flag, NSFW flag, and OC flag. One command publishes the post to all targets.",
+      "rationale": "Each sub has different rules and flair requirements; sequential single-target crossposting drops on the floor.",
+      "example": "reddit-pp-cli crosspost-batch t3_abc123 --plan ./targets.yaml --dry-run",
+      "why_it_matters": "Content creators publishing to N subs need per-sub customization in one orchestrated, idempotent call.",
+      "group": "Agent-native workflows"
+    },
+    {
+      "name": "Best-time-to-post analyzer",
+      "command": "me posting-stats",
+      "description": "Per-sub median and 75th-percentile score by day-of-week and hour-of-day, computed from your own submission history.",
+      "rationale": "Local aggregation over synced own-submissions; no Reddit endpoint exposes this.",
+      "example": "reddit-pp-cli me posting-stats --sub programming --by hour --agent",
+      "why_it_matters": "Content creators planning publish times need per-sub timing data based on their own track record.",
+      "group": "Agent-native workflows"
+    },
+    {
+      "name": "Comment-velocity radar",
+      "command": "post velocity",
+      "description": "Comments-per-minute over the first 60 minutes since post creation, compared to the sub's median for the same window.",
+      "rationale": "Combines submission listing data with sub baseline sampling; computed locally.",
+      "example": "reddit-pp-cli post velocity t3_abc123 --baseline-sample 50 --agent",
+      "why_it_matters": "Content creators and brand monitors need to know when a thread is about to go viral.",
+      "group": "Agent-native workflows"
+    },
+    {
+      "name": "Inbox digest by source-sub and thread score",
+      "command": "inbox-digest",
+      "description": "Group inbox items (replies, mentions, modmail) by source-sub and enrich each with the current parent-thread score. Replaces the flat inbox UI.",
+      "rationale": "Joins inbox listing with /api/info for current scores; groups locally by sub.",
+      "example": "reddit-pp-cli inbox-digest --window 24h --agent",
+      "why_it_matters": "Moderators and active users with high inbox volume need grouped triage, not a flat list.",
+      "group": "Agent-native workflows"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Personal FTS5 search over own Reddit history",
+      "command": "me search",
+      "description": "Search your own saved, submitted, upvoted, downvoted, and commented content with full-body FTS5 instead of Reddit's broken native search.",
+      "rationale": "Reddit's native search has missed ~50% of own-history hits for a decade; this requires an offline SQLite store synced via `sync`.",
+      "example": "reddit-pp-cli me search \"webhooks\" --scope saved,comments --agent",
+      "why_it_matters": "Agents researching what the user previously said or saved cannot rely on Reddit's search API — this is the only way to recover the full corpus.",
+      "group": "Local FTS5 over your Reddit corpus"
+    },
+    {
+      "name": "Sub-scoped local FTS5 search",
+      "command": "search-local",
+      "description": "After syncing a subreddit, search its submissions and comments via FTS5 instead of Reddit's broken native search.",
+      "rationale": "Same FTS5 engine as `me search` but scoped to a synced sub corpus. Replaces the workflow that died with Pushshift in 2023.",
+      "example": "reddit-pp-cli search-local \"webhook auth\" --sub programming --type comments --agent",
+      "why_it_matters": "Researchers and brand-monitoring workflows need reliable text search; native search misses too much.",
+      "group": "Local FTS5 over your Reddit corpus"
+    },
+    {
+      "name": "Stale modqueue ranker",
+      "command": "mod queue",
+      "description": "Sort modqueue items by age and filter to ones sitting longer than a threshold. The web UI has no concept of item age.",
+      "rationale": "Local timestamp math over the modqueue payload; the endpoint returns items but doesn't sort them by age.",
+      "example": "reddit-pp-cli mod queue programming --sort age --older-than 24h --agent",
+      "why_it_matters": "Moderators triaging large subs need to find the \u003e24h backlog without clicking through every item.",
+      "group": "Mod-team primitives"
+    },
+    {
+      "name": "Reporter reputation ledger",
+      "command": "mod reporters",
+      "description": "Per-reporter statistics over a rolling window: reports filed, removal-led %, approval %, no-action %. Identifies trusted reporters and karma-farmer-snitches.",
+      "rationale": "Joins synced mod_actions (modlog) with the reports payload locally; no API endpoint produces this.",
+      "example": "reddit-pp-cli mod reporters programming --window 30d --min-reports 3 --agent",
+      "why_it_matters": "Mod teams need to know which reporters are signal vs noise; this is the metric they actually want.",
+      "group": "Mod-team primitives"
+    },
+    {
+      "name": "Ghost mod-action / split detector",
+      "command": "mod ghost-actions",
+      "description": "Detect actions where one mod approved an item and another later removed it (or vice versa). Surfaces silent disagreements in the mod team.",
+      "rationale": "Local temporal join on (target_id, action, mod) chains in synced modlog data.",
+      "example": "reddit-pp-cli mod ghost-actions programming --since 7d --agent",
+      "why_it_matters": "Mod teams need to find policy splits before they become public disputes.",
+      "group": "Mod-team primitives"
+    },
+    {
+      "name": "Modqueue remove-batch with templates",
+      "command": "mod remove-batch",
+      "description": "CSV-driven mass removal with per-row removal-reason template, optional ban duration, and modmail note. Idempotent via plan-row hash.",
+      "rationale": "Orchestrates the remove + removal-reason + ban + modmail endpoints in one batch with dry-run by default.",
+      "example": "reddit-pp-cli mod remove-batch programming --plan ./removals.csv --dry-run",
+      "why_it_matters": "Mod-queue clear-outs need batch operations; no existing tool batches with removal-reason templates.",
+      "group": "Mod-team primitives"
+    },
+    {
+      "name": "Cross-sub user dossier",
+      "command": "dossier",
+      "description": "Aggregate a user's submissions, comments, karma, and mod-actions-against across N subreddits. Answers 'is this a karma farmer or a real contributor?'",
+      "rationale": "Joins four endpoints (/user/\u003cu\u003e/about + submitted + comments + karma) and groups locally by sub.",
+      "example": "reddit-pp-cli dossier spez --in programming,golang --agent",
+      "why_it_matters": "Vetting users (mod context) and academic research both need a per-sub activity breakdown that no single endpoint returns.",
+      "group": "Cross-entity aggregation"
+    },
+    {
+      "name": "Multi-sub brand-mention watch with context",
+      "command": "watch",
+      "description": "Fan-out search across multiple subreddits, dedupe by submission ID, enrich each hit with parent-comment context and OP karma-in-sub.",
+      "rationale": "Replaces noisy/wasteful Make.com or Zapier polling. Adds context (thread excerpt + OP karma) that bare search results don't have.",
+      "example": "reddit-pp-cli watch \"creativism\" --in entrepreneur,smallbusiness --since 24h --enrich-karma --agent",
+      "why_it_matters": "Brand-monitoring agents need thread context to decide whether a mention is worth replying to.",
+      "group": "Cross-entity aggregation"
+    },
+    {
+      "name": "Plan-driven crosspost batch",
+      "command": "crosspost-batch",
+      "description": "YAML plan lists target subreddits with per-sub title overrides, flair-id, send-replies flag, NSFW flag, and OC flag. One command publishes the post to all targets.",
+      "rationale": "Each sub has different rules and flair requirements; sequential single-target crossposting drops on the floor.",
+      "example": "reddit-pp-cli crosspost-batch t3_abc123 --plan ./targets.yaml --dry-run",
+      "why_it_matters": "Content creators publishing to N subs need per-sub customization in one orchestrated, idempotent call.",
+      "group": "Agent-native workflows"
+    },
+    {
+      "name": "Best-time-to-post analyzer",
+      "command": "me posting-stats",
+      "description": "Per-sub median and 75th-percentile score by day-of-week and hour-of-day, computed from your own submission history.",
+      "rationale": "Local aggregation over synced own-submissions; no Reddit endpoint exposes this.",
+      "example": "reddit-pp-cli me posting-stats --sub programming --by hour --agent",
+      "why_it_matters": "Content creators planning publish times need per-sub timing data based on their own track record.",
+      "group": "Agent-native workflows"
+    },
+    {
+      "name": "Comment-velocity radar",
+      "command": "post velocity",
+      "description": "Comments-per-minute over the first 60 minutes since post creation, compared to the sub's median for the same window.",
+      "rationale": "Combines submission listing data with sub baseline sampling; computed locally.",
+      "example": "reddit-pp-cli post velocity t3_abc123 --baseline-sample 50 --agent",
+      "why_it_matters": "Content creators and brand monitors need to know when a thread is about to go viral.",
+      "group": "Agent-native workflows"
+    },
+    {
+      "name": "Inbox digest by source-sub and thread score",
+      "command": "inbox-digest",
+      "description": "Group inbox items (replies, mentions, modmail) by source-sub and enrich each with the current parent-thread score. Replaces the flat inbox UI.",
+      "rationale": "Joins inbox listing with /api/info for current scores; groups locally by sub.",
+      "example": "reddit-pp-cli inbox-digest --window 24h --agent",
+      "why_it_matters": "Moderators and active users with high inbox volume need grouped triage, not a flat list.",
+      "group": "Agent-native workflows"
+    }
+  ],
+  "narrative": {
+    "display_name": "Reddit",
+    "headline": "Every Reddit feature absorbed across PRAW, snoowrap, and four MCP servers, plus offline FTS5 search, mod-queue triage primitives, and cross-sub aggregation no other tool has.",
+    "value_prop": "A Go CLI for Reddit that absorbs every endpoint covered by PRAW, snoowrap, RedditWarp, and the major Reddit MCP servers. It adds an offline SQLite layer with FTS5 search (because Reddit native search misses ~50% of hits), mod-queue triage helpers no existing tool offers, plan-driven crosspost batching, and cross-subreddit user dossiers. All commands are agent-friendly with json, dry-run, select, and typed exit codes.",
+    "auth_narrative": "Reddit OAuth2 has two flavors. Script apps (most common for personal use) need REDDIT_CLIENT_ID, REDDIT_CLIENT_SECRET, REDDIT_USERNAME, and REDDIT_PASSWORD. Web/installed apps use REDDIT_REFRESH_TOKEN instead. Either way you also need REDDIT_USER_AGENT in the form `\u003cproduct\u003e/\u003cversion\u003e by /u/\u003cusername\u003e` — Reddit returns 429 for default Go/curl UAs. The CLI auto-targets `oauth.reddit.com` for authenticated calls and falls back to `old.reddit.com/*.json` for unauthenticated reads.",
+    "quickstart": [
+      {
+        "command": "reddit-pp-cli doctor",
+        "comment": "Verify OAuth, User-Agent, and reachability to oauth.reddit.com."
+      },
+      {
+        "command": "reddit-pp-cli listings sub-hot programming --limit 25 --agent",
+        "comment": "Browse a subreddit's hot listing with compact agent-friendly JSON."
+      },
+      {
+        "command": "reddit-pp-cli me search --help",
+        "comment": "See how local FTS5 search works (run sync first to populate the corpus)."
+      },
+      {
+        "command": "reddit-pp-cli dossier spez --in programming,golang --agent",
+        "comment": "Per-sub activity, karma, and recent posts for any user across N subs in one shot."
+      },
+      {
+        "command": "reddit-pp-cli mod queue programming --sort age --older-than 24h --agent",
+        "comment": "Surface the modqueue backlog the web UI can't sort by age."
+      },
+      {
+        "command": "reddit-pp-cli watch \"creativism\" --in entrepreneur,smallbusiness --since 24h --agent",
+        "comment": "Multi-sub brand-mention watch with thread context and OP karma."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "HTTP 429 on every call",
+        "fix": "Set a Reddit-compliant User-Agent: `export REDDIT_USER_AGENT=\"reddit-pp-cli/0.1 by /u/\u003cyour-username\u003e\"`. Default Go/curl UAs are rate-limited aggressively."
+      },
+      {
+        "symptom": "HTTP 401 'invalid_grant' on auth login",
+        "fix": "Script app username/password is wrong, or 2FA is enabled. Use the refresh-token flow instead: set REDDIT_REFRESH_TOKEN and `auth refresh`."
+      },
+      {
+        "symptom": "www.reddit.com unreachable but oauth.reddit.com works",
+        "fix": "Some ISPs (e.g., Biznet 'SafeSurf') DNS-block www.reddit.com but leave oauth.reddit.com and old.reddit.com alone. The CLI defaults to oauth.reddit.com — no action needed."
+      },
+      {
+        "symptom": "Rate limit exhausted mid-sync",
+        "fix": "Reddit free tier is 100 QPM per OAuth client_id. Resume with `sync sub \u003cname\u003e --resume`; the cursor is persisted in SQLite."
+      },
+      {
+        "symptom": "Comments tree missing nested replies",
+        "fix": "Reddit returns `MoreComments` placeholders for deep threads. Use `post comments \u003cid\u003e --expand-all` to recursively resolve them (32 IDs per `morechildren` call)."
+      }
+    ],
+    "when_to_use": "Reach for reddit-pp-cli when you need to query Reddit from a script, agent, or terminal session and want the answers to be honest. The CLI's local FTS5 layer is the killer feature for own-history search and tracked-sub research. Mod teams should reach for it whenever the web UI's lack of age-sortable modqueue or reporter-reputation views becomes the friction. Content creators should use it for crosspost batches and posting-time analytics.",
+    "recipes": [
+      {
+        "title": "Triage modqueue with reporter context",
+        "command": "reddit-pp-cli mod reporters programming --window 30d --min-reports 3 --agent --select reporter,removed_pct,filed_count",
+        "explanation": "Top reporters by removal-rate over the last 30 days; agents can identify trusted vs spam-reporting accounts."
+      },
+      {
+        "title": "Crosspost a single article to multiple subs with overrides",
+        "command": "reddit-pp-cli crosspost-batch --help",
+        "explanation": "See the YAML plan structure: per-sub title/flair/send-replies/NSFW overrides. Default --dry-run prints the plan; add --confirm to execute."
+      },
+      {
+        "title": "Local search of own saved posts",
+        "command": "reddit-pp-cli me search \"webhook auth\" --scope saved,comments --agent",
+        "explanation": "FTS5 over your synced own-history. Reddit native search misses ~50% of own-history hits."
+      },
+      {
+        "title": "Vet a user before granting mod permissions",
+        "command": "reddit-pp-cli dossier candidate-username --in mysub,relatedsub --agent --select per_sub,recent_top_posts",
+        "explanation": "Aggregates submissions, comments, and karma across the relevant subs so mod teams can see a candidate whole footprint."
+      },
+      {
+        "title": "Find every brand mention in target subs with thread context",
+        "command": "reddit-pp-cli watch \"creativism\" --in entrepreneur,smallbusiness,marketing --since 24h --enrich-karma --agent --select sub,title,context,op_karma_in_sub",
+        "explanation": "One command fans out across 3 subs, dedupes, and enriches with the parent thread excerpt plus OP karma-in-sub."
+      }
+    ],
+    "trigger_phrases": [
+      "search reddit",
+      "post to reddit",
+      "reddit modqueue",
+      "vote on reddit",
+      "subreddit activity",
+      "reddit user history",
+      "crosspost to reddit",
+      "use reddit-pp-cli",
+      "run reddit-pp-cli"
+    ]
+  }
+}
