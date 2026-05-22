@@ -255,7 +255,7 @@ func computeCostWhatIf(ctx context.Context, s *store.Store, since time.Time, onl
 		}
 		isSC := fct.String == "Tesla" || strings.Contains(strings.ToLower(locLabel.String), "supercharger")
 		out.ActualUSD += cost.Float64
-		if isSC && (onlyHome || true) {
+		if isSC && onlyHome {
 			out.WouldHaveBeenUSD += energy.Float64 * homeRate.Float64
 			out.SuperchargerKwh += energy.Float64
 			out.SessionsRepriced++
