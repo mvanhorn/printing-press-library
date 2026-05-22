@@ -223,7 +223,7 @@ This CLI uses Chrome-compatible HTTP transport for browser-facing endpoints. It 
 
 **project** — Framer project management
 
-- `framer-pp-cli project info` — Get project name, ID, and metadata
+- `framer-pp-cli project get` — Get project name, ID, and metadata
 - `framer-pp-cli project user` — Get current authenticated user info
 
 **publish** — Publishing and deployment

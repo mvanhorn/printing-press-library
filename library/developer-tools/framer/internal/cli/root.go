@@ -299,6 +299,33 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newStylesTextCmd(flags))
 	rootCmd.AddCommand(newCmsFieldsPromotedCmd(flags))
 	rootCmd.AddCommand(newFontsPromotedCmd(flags))
+
+	// --- Superseded HTTP commands ---
+	// The bridge-powered commands above took over the canonical names
+	// (sync, doctor, pages, ...). Their original generated-HTTP versions
+	// are kept and registered here as hidden, -http-suffixed commands so
+	// they stay in the Cobra tree (for --help docs and store integration)
+	// without colliding with the bridge commands that replaced them.
+	for _, sc := range []struct {
+		cmd  *cobra.Command
+		name string
+	}{
+		{newAssetsCmd(flags), "assets-http"},
+		{newChangesCmd(flags), "changes-http"},
+		{newCodeCmd(flags), "code-http"},
+		{newComponentsPromotedCmd(flags), "components-http"},
+		{newDoctorCmd(flags), "doctor-http"},
+		{newNodesCmd(flags), "nodes-http"},
+		{newPagesCmd(flags), "pages-http"},
+		{newPublishCmd(flags), "publish-http"},
+		{newRedirectsCmd(flags), "redirects-http"},
+		{newSyncCmd(flags), "sync-http"},
+	} {
+		sc.cmd.Use = sc.name
+		sc.cmd.Hidden = true
+		rootCmd.AddCommand(sc.cmd)
+	}
+
 	rootCmd.AddCommand(newVersionCliCmd())
 
 	return rootCmd

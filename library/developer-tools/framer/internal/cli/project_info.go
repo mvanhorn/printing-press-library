@@ -14,9 +14,9 @@ import (
 func newProjectInfoCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:         "info",
+		Use:         "get",
 		Short:       "Get project name, ID, and metadata",
-		Example:     "  framer-pp-cli project info",
+		Example:     "  framer-pp-cli project get",
 		Annotations: map[string]string{"pp:endpoint": "project.info", "pp:method": "GET", "pp:path": "/project/info", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()

@@ -1,7 +1,8 @@
 {
-  "dir": "\u003ccli-dir\u003e/framer-pp-cli",
-  "spec_path": "\u003crunstate\u003e/framer-spec.yaml",
-  "verdict": "FAIL",
+  "dir": "\u003ccli-dir\u003e/framer",
+  "spec_path": "\u003ccli-dir\u003e/spec.yaml",
+  "spec_source": "bundled",
+  "verdict": "PASS",
   "path_check": {
     "tested": 0,
     "valid": 0,
@@ -13,7 +14,7 @@
     "spec_scheme": "",
     "generated_format": "unknown",
     "match": true,
-    "detail": "spec not provided or no bot/bearer/basic scheme detected"
+    "detail": "no bot/bearer/basic scheme detected"
   },
   "browser_session_check": {
     "required": false,
@@ -32,18 +33,23 @@
     "sync_calls_domain": true,
     "search_calls_domain": false,
     "domain_tables": 1,
+    "sync_file_emitted": true,
+    "sync_resources_present": true,
     "detail": "sync uses domain-specific Upsert methods; search uses generic Search only; 1 domain tables found"
   },
   "example_check": {
     "tested": 10,
-    "with_examples": 10,
-    "valid_examples": 10,
-    "detail": "10/10 commands have examples"
+    "with_examples": 9,
+    "valid_examples": 9,
+    "missing": [
+      "nodes children"
+    ],
+    "detail": "9/10 commands have examples"
   },
   "wiring_check": {
     "command_tree": {
-      "defined": 97,
-      "registered": 97
+      "defined": 122,
+      "registered": 122
     },
     "config_consistency": {
       "consistent": true
@@ -56,8 +62,9 @@
     }
   },
   "novel_features_check": {
-    "planned": 13,
-    "found": 13
+    "planned": 0,
+    "found": 0,
+    "skipped": true
   },
   "mcp_surface_parity": {
     "state": "runtime_walking",
@@ -65,54 +72,22 @@
     "detail": "MCP surface mirrors the Cobra tree at runtime"
   },
   "reimplementation_check": {
-    "checked": 13,
-    "exempted_via_store": 7,
-    "suspicious": [
-      {
-        "command": "migrate-scrape",
-        "file": "migrate_scrape.go",
-        "reason": "hand-rolled response: no API client call, no store access"
-      },
-      {
-        "command": "publish",
-        "file": "publish.go",
-        "reason": "hand-rolled response: no API client call, no store access"
-      },
-      {
-        "command": "i18n-push",
-        "file": "i18n_push.go",
-        "reason": "hand-rolled response: no API client call, no store access"
-      },
-      {
-        "command": "redirects-generate",
-        "file": "redirects_generate.go",
-        "reason": "hand-rolled response: no API client call, no store access"
-      }
-    ]
+    "checked": 0,
+    "exempted_via_store": 0,
+    "skipped": true
   },
   "source_client_check": {
     "checked": 0,
     "skipped": true
   },
   "print_json_filtered_check": {
-    "checked": 88
+    "checked": 99
   },
   "test_presence": {
     "checked": 0
   },
   "naming_check": {
-    "checked": 88,
-    "violations": [
-      {
-        "file": "internal/cli/project_info.go",
-        "banned": "info",
-        "preferred": "get",
-        "category": "verb"
-      }
-    ]
+    "checked": 99
   },
-  "issues": [
-    "4/13 novel features look reimplemented: migrate-scrape (migrate_scrape.go) — hand-rolled response: no API client call, no store access; publish (publish.go) — hand-rolled response: no API client call, no store access; i18n-push (i18n_push.go) — hand-rolled response: no API client call, no store access; redirects-generate (redirects_generate.go) — hand-rolled response: no API client call, no store access",
-    "1 naming violations: verb info→get in internal/cli/project_info.go"
-  ]
+  "issues": null
 }
