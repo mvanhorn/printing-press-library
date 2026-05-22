@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "generated_at": "2026-05-21T15:00:02.017734Z",
-  "printing_press_version": "4.9.0",
+  "printing_press_version": "4.10.0",
   "api_name": "tesla",
   "display_name": "Tesla",
   "cli_name": "tesla-pp-cli",
