@@ -56,13 +56,9 @@ requires FRAMER_API_KEY (not yet implemented).`, "\n"),
 
   # Show what would change (live push not yet implemented)
   framer-pp-cli cms-sync data.csv --collection articles`, "\n"),
-		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
-			}
-			if dryRunOK(flags) {
-				return nil
 			}
 			if collection == "" {
 				return usageErr(fmt.Errorf("--collection is required"))
@@ -91,10 +87,12 @@ requires FRAMER_API_KEY (not yet implemented).`, "\n"),
 			diff := computeCMSDiff(existing, incoming)
 
 			if flags.asJSON {
-				return flags.printJSON(cmd, diff)
+				if err := flags.printJSON(cmd, diff); err != nil {
+					return err
+				}
+			} else {
+				printCMSDiffTable(cmd, diff)
 			}
-
-			printCMSDiffTable(cmd, diff)
 
 			if !flags.dryRun {
 				// Resolve collection name → ID from the local store

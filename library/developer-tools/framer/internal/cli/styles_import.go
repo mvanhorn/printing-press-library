@@ -59,13 +59,9 @@ Live push requires FRAMER_API_KEY to be set.`, "\n"),
 
   # Import JSON design tokens with JSON output
   framer-pp-cli styles-import --from tokens.json --json`, "\n"),
-		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if fromFile == "" {
 				return usageErr(fmt.Errorf("required flag \"from\" not set"))
-			}
-			if dryRunOK(flags) {
-				return nil
 			}
 
 			// Read the source file.
@@ -112,17 +108,18 @@ Live push requires FRAMER_API_KEY to be set.`, "\n"),
 
 			// Output.
 			if flags.asJSON {
-				return flags.printJSON(cmd, tokens)
-			}
-
-			// Table output.
-			headers := []string{"TOKEN NAME", "COLOR VALUE", "STATUS"}
-			rows := make([][]string, len(tokens))
-			for i, t := range tokens {
-				rows[i] = []string{t.Name, t.Value, t.Status}
-			}
-			if err := flags.printTable(cmd, headers, rows); err != nil {
-				return err
+				if err := flags.printJSON(cmd, tokens); err != nil {
+					return err
+				}
+			} else {
+				headers := []string{"TOKEN NAME", "COLOR VALUE", "STATUS"}
+				rows := make([][]string, len(tokens))
+				for i, t := range tokens {
+					rows[i] = []string{t.Name, t.Value, t.Status}
+				}
+				if err := flags.printTable(cmd, headers, rows); err != nil {
+					return err
+				}
 			}
 
 			if flags.dryRun {
@@ -270,18 +267,10 @@ func loadExistingColorStyles(cmd *cobra.Command, dbPath string) map[string]strin
 	}
 	defer db.Close()
 
-	rows, err := db.List("cms-collections", 0)
+	rows, err := db.List("styles-colors", 0)
 	if err != nil {
-		// Try the styles-colors resource type instead.
-		rows, err = db.List("styles-colors", 0)
-		if err != nil {
-			return existing
-		}
+		return existing
 	}
-
-	// Also try styles-colors directly.
-	colorRows, _ := db.List("styles-colors", 0)
-	rows = append(rows, colorRows...)
 
 	for _, raw := range rows {
 		var obj map[string]any
