@@ -22,6 +22,7 @@ func newVehicleCmd(flags *rootFlags) *cobra.Command {
 
 func newVehicleTraceCmd(flags *rootFlags) *cobra.Command {
 	var lineURI, coverage, date string
+	var count int
 
 	cmd := &cobra.Command{
 		Use:   "trace",
@@ -53,10 +54,10 @@ Useful for populating schedule databases or understanding a line's full path.`,
 
 			path := fmt.Sprintf("/coverage/%s/lines/%s/vehicle_journeys", coverage, lineURI)
 			params := map[string]string{
-				"depth":             "2",
-				"count":             "5",
-				"since":             date + "T000000",
-				"until":             date + "T235959",
+				"depth": "2",
+				"count": fmt.Sprintf("%d", count),
+				"since": date + "T000000",
+				"until": date + "T235959",
 			}
 
 			data, _, err := resolveRead(cmd.Context(), c, flags, "vehicle_journeys", true, path, params, nil)
@@ -146,6 +147,7 @@ Useful for populating schedule databases or understanding a line's full path.`,
 	cmd.Flags().StringVar(&lineURI, "line", "", "Line URI (e.g. line:OCE:TGV)")
 	cmd.Flags().StringVar(&coverage, "coverage", "sncf", "Navitia coverage region")
 	cmd.Flags().StringVar(&date, "date", "", "Date in YYYYMMDD format (default: today)")
+	cmd.Flags().IntVar(&count, "count", 100, "Maximum number of vehicle journeys to fetch")
 	return cmd
 }
 
