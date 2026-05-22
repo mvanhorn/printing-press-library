@@ -57,20 +57,17 @@
     "scorecard_score": 90,
     "verify_pct": 100,
     "scope": "publish-ready",
-    "hard_gates": [
-      "manifest",
-      "transcendence",
-      "phase5",
-      "go mod tidy",
-      "govulncheck",
-      "go vet",
-      "go build",
-      "--help",
-      "--version",
-      "verify-skill",
-      "manuscripts"
-    ],
     "all_hard_gates_passed": true
+  },
+  "greptile_review_round_2": {
+    "p1_findings_resolved": [
+      "config.Load empty path in fleet-refresh (threaded cfg through runFleetLoginFlow)",
+      "ctx discarded in fetchProductsList (now select on ctx.Done with goroutine)"
+    ],
+    "p2_findings_resolved": [
+      "Silent InsecureSkipVerify fallback on relay cert parse failure (now returns explicit error)",
+      "GCM additionalData was nil (now binds magic header bytes into the tag)"
+    ]
   },
   "patch_set_snapshot": {
     "new_patches_in_this_publish": [
@@ -82,13 +79,14 @@
       "u3-hermes-relay-management",
       "u4-unified-command-router",
       "u5-discovery-surfaces-schema-v4",
-      "u7-pii-scrub"
+      "u7-pii-scrub",
+      "u9-greptile-round2-fixes"
     ],
     "test_counts": {
       "internal/cli": 148,
       "internal/config": 6,
-      "total_passing_across_packages": 351
+      "total_passing_across_packages": 447
     }
   },
-  "notes": "First-publish shipcheck. The CLI was used end-to-end during the print session against a real Highland Model 3 and a real Model X. Lock/unlock/charge-limit/honk roundtrips all succeeded over their respective signed-command paths."
+  "notes": "First-publish shipcheck. The CLI was used end-to-end during the print session against a real Highland Model 3 and a real Model X. Lock/unlock/charge-limit/honk roundtrips all succeeded over their respective signed-command paths. Round-2 Greptile review identified 2 P1 + 2 P2 findings; all resolved before merge."
 }

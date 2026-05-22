@@ -298,7 +298,7 @@ URI to a different port — but the CLI default expects 8585).`,
 				effAuthURL = base + "/oauth2/v3/authorize"
 				effTokenURL = base + "/oauth2/v3/token"
 			}
-			tok, err := runFleetLoginFlow(cmd, effClientID, effAuthURL, effTokenURL, effAudience, !noOpen)
+			tok, err := runFleetLoginFlow(cmd, cfg, effClientID, effAuthURL, effTokenURL, effAudience, !noOpen)
 			if err != nil {
 				return err
 			}
@@ -461,7 +461,7 @@ refresh token, or client_secret literal.`,
 // the redirect. The handler closure compares state before accepting any code.
 //
 // Patterned after ~/snowflake-bypass/fleet-oauth/main.go.
-func runFleetLoginFlow(cmd *cobra.Command, clientID, authURL, tokenURL, audience string, openBrowserFlag bool) (*fleetTokenResponse, error) {
+func runFleetLoginFlow(cmd *cobra.Command, cfg *config.Config, clientID, authURL, tokenURL, audience string, openBrowserFlag bool) (*fleetTokenResponse, error) {
 	// Pre-flight: refuse to bind if 8585 is already in use. We surface a
 	// clear error rather than try a different port because Tesla enforces
 	// exact-match redirect_uri.
@@ -552,8 +552,10 @@ func runFleetLoginFlow(cmd *cobra.Command, clientID, authURL, tokenURL, audience
 		"redirect_uri": {fleetRedirectURI},
 	}
 	// The reference helper also sends client_secret. Tesla's authorization_code
-	// grant for confidential clients requires it; pull from config if present.
-	if cfg, _ := config.Load(""); cfg != nil && cfg.Fleet.ClientSecret != "" {
+	// grant for confidential clients requires it; use the cfg the caller already
+	// loaded with its --config path (do NOT re-load with config.Load("") — that
+	// silently ignores any --config override and resolves the default path).
+	if cfg != nil && cfg.Fleet.ClientSecret != "" {
 		form.Set("client_secret", cfg.Fleet.ClientSecret)
 	}
 

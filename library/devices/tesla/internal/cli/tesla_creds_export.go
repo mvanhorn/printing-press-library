@@ -438,11 +438,13 @@ func encryptCredsBundle(key, nonce, plaintext []byte) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("gcm: %w", err)
 	}
-	// Seal appends ciphertext+tag to dst (nil here). Additional data is empty
-	// — the magic header is plaintext metadata, not authenticated. If we ever
-	// need to bind the header bytes into the tag, switch this to Seal(nil,
-	// nonce, plaintext, []byte(credsBundleMagic)).
-	return gcm.Seal(nil, nonce, plaintext, nil), nil
+	// Bind the magic header bytes into the GCM tag as additionalData. Without
+	// this, an attacker who obtains a bundle could flip header bytes (e.g.
+	// downgrade the version sentinel) without the auth tag detecting the
+	// change; only the plaintext bytes.Equal check on import would catch it.
+	// With this binding, any header tamper makes Open fail with a generic
+	// decryption error - the same failure mode as wrong-passphrase.
+	return gcm.Seal(nil, nonce, plaintext, []byte(credsBundleMagic)), nil
 }
 
 func writeCredsBundleAtomic(outPath string, salt, nonce, ciphertext []byte) error {
@@ -620,7 +622,9 @@ func decryptCredsBundle(key, nonce, ciphertext []byte) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("gcm: %w", err)
 	}
-	plaintext, err := gcm.Open(nil, nonce, ciphertext, nil)
+	// additionalData must match the seal side (binds the magic header bytes).
+	// See encryptCredsBundle for the rationale.
+	plaintext, err := gcm.Open(nil, nonce, ciphertext, []byte(credsBundleMagic))
 	if err != nil {
 		return nil, fmt.Errorf("decryption failed")
 	}

@@ -401,9 +401,30 @@ func fetchProductsList(ctx context.Context, flags *rootFlags, cfg *config.Config
 	if err != nil {
 		return nil, err
 	}
-	raw, gerr := c.Get("/api/1/products", nil)
-	if gerr != nil {
-		return nil, gerr
+	// client.Get does not take a context, so we dispatch on a goroutine and
+	// honor ctx via select. On ctx cancel, the orphan goroutine still runs to
+	// client.Timeout (default 30s) and writes its result to a buffered channel
+	// the GC reclaims when no one reads it. This bounds the user-visible wait
+	// to the caller's deadline while letting the underlying request complete
+	// cleanly in the background, which avoids leaking sockets.
+	type result struct {
+		raw json.RawMessage
+		err error
+	}
+	ch := make(chan result, 1)
+	go func() {
+		raw, gerr := c.Get("/api/1/products", nil)
+		ch <- result{raw, gerr}
+	}()
+	var raw json.RawMessage
+	select {
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	case r := <-ch:
+		if r.err != nil {
+			return nil, r.err
+		}
+		raw = r.raw
 	}
 	var env struct {
 		Response []productEntry `json:"response"`
@@ -411,11 +432,8 @@ func fetchProductsList(ctx context.Context, flags *rootFlags, cfg *config.Config
 	if err := json.Unmarshal(raw, &env); err != nil {
 		return nil, fmt.Errorf("parse products: %w", err)
 	}
-	// Use cfg in a way the linter doesn't flag; the parameter is plumbed so
-	// future tweaks (e.g. consult cfg.Fleet.PublicKeyDomain for routing
-	// hints) can reach in without changing callers.
+	// cfg is plumbed for future routing tweaks (e.g. consult cfg.Fleet.PublicKeyDomain).
 	_ = cfg
-	_ = ctx
 	return env.Response, nil
 }
 
@@ -755,10 +773,11 @@ func runHermesHTTPClientReal(ctx context.Context, endpoint, bearer string, body 
 }
 
 // buildHermesTLSConfig returns a tls.Config that trusts the relay's
-// self-signed cert. Tries the standard relay cert path; if missing, falls
-// back to insecure-skip-verify so the test override path works against
-// httptest's randomly-issued cert. The caller's endpoint is always
-// localhost so a missed verify here is not an internet-facing risk.
+// self-signed cert. Two cases are valid: cert file absent (intentional test
+// override path or pre-first-relay-start) -> insecure-skip-verify against
+// localhost; cert file present and parses cleanly -> pinned trust. A third
+// case -- cert file present but unparseable -- is a relay config error and
+// returns the error instead of silently degrading to insecure mode.
 func buildHermesTLSConfig() (*tls.Config, error) {
 	paths, err := newRelayPaths()
 	if err != nil {
@@ -772,7 +791,10 @@ func buildHermesTLSConfig() (*tls.Config, error) {
 	}
 	pool := x509.NewCertPool()
 	if !pool.AppendCertsFromPEM(pemBytes) {
-		return &tls.Config{InsecureSkipVerify: true}, nil
+		// Cert file exists but contains no usable PEM blocks. This is a
+		// relay-side configuration error (corrupt/empty cert file), not a
+		// missing-cert case; surface it instead of silently dropping verify.
+		return nil, fmt.Errorf("relay cert at %s exists but contains no valid PEM blocks; remove the file and re-run `tesla relay start` to regenerate", paths.CertPEM)
 	}
 	return &tls.Config{RootCAs: pool}, nil
 }
