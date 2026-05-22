@@ -30,5 +30,3 @@ require (
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.9.1 // indirect
 )
-
-replace golang.org/x/net => golang.org/x/net v0.55.0

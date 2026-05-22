@@ -108,7 +108,10 @@ func stackForDomain(ctx context.Context, db *store.Store, c *client.Client, doma
 		return cached, nil
 	}
 	if c == nil {
-		return nil, nil
+		// --no-fetch and nothing cached: do not return an empty stack, which
+		// would render as a misleading "0 technologies" diff. Surface that the
+		// domain's data is simply unavailable.
+		return nil, usageErr(fmt.Errorf("no cached technology stack for %q; drop --no-fetch to fetch it (spends credits) or run it without --no-fetch first", domain))
 	}
 	// The enrich endpoint requires a filters object even when empty.
 	raw, _, err := c.Post(ctx, "/organizations/enrich", map[string]any{
