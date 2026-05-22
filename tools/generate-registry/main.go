@@ -412,10 +412,11 @@ func buildEntry(dir, category, slug string, existing map[string]RegistryEntry) (
 // is a separate concern from generation).
 func registryDescription(prior, goreleaser, ppDescription string) string {
 	source := firstNonEmpty(goreleaser, ppDescription)
-	if source != "" && isStaleRegistryDescription(prior) {
+	stalePrior := isStaleRegistryDescription(prior)
+	if source != "" && stalePrior {
 		return source
 	}
-	if prior != "" && !isBareMarkdownHeading(prior) {
+	if prior != "" && !isBareMarkdownHeading(prior) && !stalePrior {
 		return prior
 	}
 	return source
@@ -639,7 +640,8 @@ func titleCaseSlug(slug string) string {
 		if part == "" {
 			continue
 		}
-		parts[i] = strings.ToUpper(part[:1]) + strings.ToLower(part[1:])
+		runes := []rune(part)
+		parts[i] = strings.ToUpper(string(runes[:1])) + strings.ToLower(string(runes[1:]))
 	}
 	return strings.Join(parts, " ")
 }

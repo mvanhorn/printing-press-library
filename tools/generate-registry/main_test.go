@@ -109,6 +109,20 @@ func TestRegistryDescription(t *testing.T) {
 			want:          "Search trusted recipe sites, rank results, save a local cookbook, and enrich nutrition data with USDA FoodData Central.",
 		},
 		{
+			name:          "boilerplate prior with no source returns empty for validation",
+			prior:         "Printing Press CLI for Missing.",
+			goreleaser:    "",
+			ppDescription: "",
+			want:          "",
+		},
+		{
+			name:          "raw-html prior with no source returns empty for validation",
+			prior:         "<p>",
+			goreleaser:    "",
+			ppDescription: "",
+			want:          "",
+		},
+		{
 			name:          "bare-heading prior falls through to goreleaser",
 			prior:         "# Introduction",
 			goreleaser:    "Real catalog copy.",
@@ -216,6 +230,20 @@ func TestAPIDisplayName(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			if got := apiDisplayName(tc.pp, tc.prior, tc.slug); got != tc.want {
 				t.Errorf("apiDisplayName(%+v, %+v, %q) = %q, want %q", tc.pp, tc.prior, tc.slug, got, tc.want)
+			}
+		})
+	}
+}
+
+func TestTitleCaseSlug(t *testing.T) {
+	cases := map[string]string{
+		"setlist-fm": "Setlist Fm",
+		"éclair-api": "Éclair Api",
+	}
+	for in, want := range cases {
+		t.Run(in, func(t *testing.T) {
+			if got := titleCaseSlug(in); got != want {
+				t.Errorf("titleCaseSlug(%q) = %q, want %q", in, got, want)
 			}
 		})
 	}
