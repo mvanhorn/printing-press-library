@@ -1,0 +1,8 @@
+{
+  "dir": "/Users/kostaspardalis/printing-press/.runstate/montreal-a09dbbac/runs/20260521-201949/working/sumble-pp-cli",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

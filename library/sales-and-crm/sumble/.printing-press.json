@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-22T04:42:48.702313Z",
+  "printing_press_version": "4.0.6",
+  "api_name": "sumble",
+  "cli_name": "sumble-pp-cli",
+  "novel_features": [
+    {
+      "name": "Pre-call cost estimate",
+      "command": "cost-estimate",
+      "description": "See exactly how many credits a billed Sumble call will cost before you run it.",
+      "rationale": "Multiplies the per-endpoint credit table by the rows you requested and subtracts rows already in the local cache — a preview that neither the API nor the web app offers.",
+      "example": "sumble-pp-cli cost-estimate organizations.find --rows 25",
+      "why_it_matters": "Reach for this before any find/enrich/brief call so you never spend credits blind; the estimate is exact, not heuristic.",
+      "group": "Credit economy"
+    },
+    {
+      "name": "Running credit balance",
+      "command": "balance",
+      "description": "Show remaining Sumble credits and recent burn without spending any.",
+      "rationale": "Sumble's REST API has no balance endpoint; this reads the credits_remaining value persisted from every billed response into the local ledger.",
+      "example": "sumble-pp-cli balance --json",
+      "why_it_matters": "Use this to check headroom before a batch of billed calls — it is the only programmatic way to read the balance.",
+      "group": "Credit economy"
+    },
+    {
+      "name": "Budget ceiling guard",
+      "command": "budget",
+      "description": "Set a credit ceiling so any call whose estimate exceeds it is refused before it dials.",
+      "rationale": "Guards against the expensive footguns (80-credit phone reveals, 50-credit briefs) by gating every billed call on a local budget the API cannot enforce.",
+      "example": "sumble-pp-cli budget set 500",
+      "why_it_matters": "Set this once at the start of an autonomous session; billed commands then self-abort with a nonzero exit instead of overspending.",
+      "group": "Credit economy"
+    },
+    {
+      "name": "Spend report",
+      "command": "spend",
+      "description": "Break down credits spent over time by endpoint and by day.",
+      "rationale": "Aggregates the local credit ledger — impossible without persisting every billed call locally, since the API returns no spend history.",
+      "example": "sumble-pp-cli spend --since 2026-05-01 --by endpoint",
+      "why_it_matters": "Use this to find what is eating credits (usually people enrich and intelligence briefs) and adjust the workflow.",
+      "group": "Credit economy"
+    },
+    {
+      "name": "Stale-cache report",
+      "command": "stale",
+      "description": "List cached organizations, people, and jobs older than Sumble's freshness window.",
+      "rationale": "Sumble data lags ~24h; this flags only the cached entities actually worth re-billing so you do not pay to refresh fresh data.",
+      "example": "sumble-pp-cli stale --older-than 24h --json",
+      "why_it_matters": "Run before a refresh pass to re-bill only stale rows instead of the whole cache.",
+      "group": "Local-cache leverage"
+    },
+    {
+      "name": "Tech-stack diff",
+      "command": "stack-diff",
+      "description": "Compare two cached organizations' technology stacks — shared and unique technologies.",
+      "rationale": "Cross-joins two cached org enrichments in local SQLite for zero credits; there is no API or web equivalent.",
+      "example": "sumble-pp-cli stack-diff stripe.com adyen.com",
+      "why_it_matters": "Use this for competitive teardown or to find a prospect's gaps versus a reference account, without spending credits.",
+      "group": "Local-cache leverage"
+    },
+    {
+      "name": "Free-first reconcile",
+      "command": "reconcile",
+      "description": "Resolve a CSV of company names/URLs to Sumble IDs via the cheap match endpoint, then report which still need a billed enrich.",
+      "rationale": "Runs organizations/match (1 credit matched, unmatched free), caches resolved IDs, and separates the free resolution step from the expensive enrich step.",
+      "example": "sumble-pp-cli reconcile accounts.csv --json",
+      "why_it_matters": "Use this to attach Sumble IDs to a CRM export at minimal cost before deciding which accounts justify a full enrich.",
+      "group": "Cheap-path workflows"
+    }
+  ],
+  "printer": "cpard",
+  "printer_name": "Kostas Pardalis",
+  "category": "sales-and-crm",
+  "run_id": "20260521-201949"
+}
