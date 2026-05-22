@@ -55,7 +55,7 @@ Useful for understanding frequency patterns for commute planning.`,
 			params := map[string]string{
 				"from_datetime":      date + "T000000",
 				"until_datetime":     date + "T235959",
-				"items_per_schedule": "200",
+				"items_per_schedule": "1000",
 				"filter":             "line.uri=" + lineURI,
 			}
 

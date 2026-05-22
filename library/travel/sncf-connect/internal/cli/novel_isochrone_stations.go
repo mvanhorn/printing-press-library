@@ -95,15 +95,18 @@ Requires a prior 'sncf-connect-pp-cli sync' to populate the local store.`,
 				return fmt.Errorf("querying local stops: %w", err)
 			}
 
+			truncated := len(stations) == 1000
+
 			if flags.asJSON {
 				enc := json.NewEncoder(os.Stdout)
 				enc.SetIndent("", "  ")
 				return enc.Encode(map[string]any{
-					"from":           from,
-					"duration_mins":  durationMins,
-					"bbox":           bbox,
-					"station_count":  len(stations),
-					"stations":       stations,
+					"from":          from,
+					"duration_mins": durationMins,
+					"bbox":          bbox,
+					"station_count": len(stations),
+					"truncated":     truncated,
+					"stations":      stations,
 				})
 			}
 
@@ -111,6 +114,9 @@ Requires a prior 'sncf-connect-pp-cli sync' to populate the local store.`,
 			if len(stations) == 0 {
 				fmt.Fprintln(cmd.OutOrStdout(), "  No stations found in local store. Run 'sncf-connect-pp-cli sync' first.")
 				return nil
+			}
+			if truncated {
+				fmt.Fprintln(cmd.ErrOrStderr(), "warning: result capped at 1000 stations; the actual reachable area may contain more.")
 			}
 			for _, st := range stations {
 				fmt.Fprintf(cmd.OutOrStdout(), "  %-50s  %s\n", st["name"], st["id"])
@@ -237,7 +243,7 @@ func queryStopAreasInBbox(ctx context.Context, s *store.Store, bbox geoBbox) ([]
 		 WHERE CAST(json_extract(data,'$.coord.lon') AS REAL) BETWEEN ? AND ?
 		   AND CAST(json_extract(data,'$.coord.lat') AS REAL) BETWEEN ? AND ?
 		 ORDER BY json_extract(data,'$.name')
-		 LIMIT 200`,
+		 LIMIT 1000`,
 		bbox.MinLon, bbox.MaxLon, bbox.MinLat, bbox.MaxLat)
 	if err != nil {
 		return nil, err
