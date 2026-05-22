@@ -45,7 +45,7 @@ brews:
       owner: matt-van-horn
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Sniffed endpoints from happenstance.ai web app (signed-in browser session).
+    description: "Search, enrich, and map warm-introduction paths across LinkedIn, Happenstance, Deepline, and a unified local contacts store."
 Uses Clerk session cookies for auth.
 
 This is DISTINCT from the public Happenstance REST API at api.happenstance.ai/v1 

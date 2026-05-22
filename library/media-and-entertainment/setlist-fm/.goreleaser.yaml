@@ -45,7 +45,7 @@ brews:
       owner: dave-morin
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "<p>
+    description: "Search setlist.fm artists, setlists, venues, cities, and concert histories through the setlist.fm API."
 The setlist.fm API has been designed to give you easy access to setlist data in order to build fancy websites and
 other applications. Before starting to use the API, be sure to ...
 <ol>

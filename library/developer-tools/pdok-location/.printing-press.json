@@ -3,6 +3,8 @@
   "generated_at": "2026-05-20T14:24:27.48513952Z",
   "printing_press_version": "4.9.0",
   "api_name": "pdok-location",
+  "display_name": "PDOK Location",
+  "description": "Geocode Dutch addresses, reverse-geocode coordinates, convert RD/WGS84, and query PDOK location data with offline helpers.",
   "cli_name": "pdok-location-pp-cli",
   "spec_path": "https://api.pdok.nl/bzk/locatieserver/search/v3_1/openapi.json",
   "run_id": "20260520-150244",
