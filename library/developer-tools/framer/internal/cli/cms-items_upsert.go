@@ -26,6 +26,7 @@ func newCmsItemsUpsertCmd(flags *rootFlags) *cobra.Command {
 				return fmt.Errorf("required flag \"%s\" not set", "collection-id")
 			}
 			if !stdinBody {
+				return usageErr(fmt.Errorf("no request body provided; pass --stdin and pipe the JSON request body to this command"))
 			}
 			c, err := flags.newClient()
 			if err != nil {

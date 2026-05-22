@@ -25,10 +25,10 @@ database for offline search, snapshots, and diffing.
 
 Requires FRAMER_PROJECT_URL and FRAMER_API_KEY environment variables.`,
 		Example: `  # Sync all data from your Framer project
-  framer-pp-cli sync-live
+  framer-pp-cli sync
 
   # Sync with JSON progress output
-  framer-pp-cli sync-live --json`,
+  framer-pp-cli sync --json`,
 		Annotations: map[string]string{},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if dryRunOK(flags) {

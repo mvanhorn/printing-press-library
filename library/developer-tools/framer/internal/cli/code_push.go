@@ -158,6 +158,11 @@ command only previews changes.`, "\n"),
 				codeFileID = resolved
 			}
 
+			if codeFileID != "" && diff.Status == "unchanged" {
+				fmt.Fprintf(cmd.OutOrStdout(), "%s is already up to date in Framer (file ID: %s)\n", name, codeFileID)
+				return nil
+			}
+
 			if codeFileID != "" && diff.Status == "modified" {
 				// Update existing file via bridge
 				// The framer-api uses setFileContent on the CodeFile object

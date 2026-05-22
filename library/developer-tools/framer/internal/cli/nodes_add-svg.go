@@ -22,6 +22,7 @@ func newNodesAddSvgCmd(flags *rootFlags) *cobra.Command {
 		Annotations: map[string]string{"pp:endpoint": "nodes.add-svg", "pp:method": "POST", "pp:path": "/nodes/svg"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
+				return usageErr(fmt.Errorf("no request body provided; pass --stdin and pipe the JSON request body to this command"))
 			}
 			c, err := flags.newClient()
 			if err != nil {

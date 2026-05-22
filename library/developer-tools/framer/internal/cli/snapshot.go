@@ -66,13 +66,12 @@ with the 'diff' command to see what changed between two points in time.`,
 			if err != nil {
 				return fmt.Errorf("querying resources: %w", err)
 			}
-			defer rows.Close()
-
 			var resources []map[string]interface{}
 			for rows.Next() {
 				var id, resourceType, data string
 				var syncedAt, updatedAt string
 				if err := rows.Scan(&id, &resourceType, &data, &syncedAt, &updatedAt); err != nil {
+					rows.Close()
 					return fmt.Errorf("scanning resource row: %w", err)
 				}
 
@@ -89,8 +88,13 @@ with the 'diff' command to see what changed between two points in time.`,
 					"updated_at":    updatedAt,
 				})
 			}
-			if err := rows.Err(); err != nil {
-				return fmt.Errorf("iterating resources: %w", err)
+			// Close the read cursor before the INSERT below: SQLite holds a
+			// shared lock for an open cursor, and writing on the same
+			// connection while it is open can fail to commit.
+			rowsErr := rows.Err()
+			rows.Close()
+			if rowsErr != nil {
+				return fmt.Errorf("iterating resources: %w", rowsErr)
 			}
 
 			serialized, err := json.Marshal(resources)

@@ -291,6 +291,16 @@ func loadCMSItems(db *store.Store, collection string) (map[string]map[string]any
 		return nil, err
 	}
 
+	// Synced cms-items carry the collection's Framer UUID in collectionId, not
+	// the human-readable name the user passes on the command line. Resolve the
+	// name to its ID up front so the filter below can match on the UUID; a
+	// resolution failure is non-fatal (the collection may not be synced yet) —
+	// fall back to name/id matching, which simply yields an empty baseline.
+	collectionID := ""
+	if id, resolveErr := resolveCollectionID(db, collection); resolveErr == nil {
+		collectionID = id
+	}
+
 	items := make(map[string]map[string]any)
 	for _, raw := range rows {
 		var obj map[string]any
@@ -303,12 +313,13 @@ func loadCMSItems(db *store.Store, collection string) (map[string]map[string]any
 		if itemCollection == "" {
 			itemCollection, _ = obj["collection"].(string)
 		}
-		// Match by collection name or ID
-		if itemCollection != collection {
-			collName, _ := obj["collectionName"].(string)
-			if collName != collection {
-				continue
-			}
+		// Match on the resolved UUID, the raw identifier (the user may have
+		// passed an ID directly), or the collection name fallback.
+		collName, _ := obj["collectionName"].(string)
+		if itemCollection != collection &&
+			(collectionID == "" || itemCollection != collectionID) &&
+			collName != collection {
+			continue
 		}
 
 		slug, _ := obj["slug"].(string)
@@ -402,7 +413,7 @@ func resolveCollectionID(db *store.Store, collection string) (string, error) {
 			}
 		}
 	}
-	return "", fmt.Errorf("collection %q not found in local store; run 'framer-pp-cli sync-live' first", collection)
+	return "", fmt.Errorf("collection %q not found in local store; run 'framer-pp-cli sync' first", collection)
 }
 
 // refreshLocalStore re-populates CMS data in the local database from a sync-all bridge response.
