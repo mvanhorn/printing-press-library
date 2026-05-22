@@ -4,6 +4,8 @@ package harvard
 
 import (
 	"context"
+	"errors"
+	"net/url"
 	"os"
 	"strings"
 	"testing"
@@ -272,6 +274,42 @@ func TestThumbnailURL(t *testing.T) {
 			t.Errorf("thumbnailURL = %q, want fallback to %q", got, r.PrimaryImageURL)
 		}
 	})
+}
+
+func TestSanitizeTransportError_RedactsAPIKeyFromURL(t *testing.T) {
+	// Go's net/http transport errors come back as *url.Error with the
+	// full request URL embedded — and our endpoint URL carries the
+	// apikey as a query param. sanitizeTransportError must strip the URL
+	// so the key doesn't leak through Sync's error chain.
+	sentinel := "SECRET_KEY_DO_NOT_LEAK_4f2a"
+	raw := &url.Error{
+		Op:  "Get",
+		URL: "https://api.harvardartmuseums.org/object?apikey=" + sentinel + "&hasimage=1",
+		Err: errors.New("dial tcp 127.0.0.1:1: connect: connection refused"),
+	}
+	sanitized := sanitizeTransportError(raw)
+	msg := sanitized.Error()
+	if strings.Contains(msg, sentinel) {
+		t.Errorf("sanitized error leaks apikey value: %s", msg)
+	}
+	if strings.Contains(msg, "apikey=") {
+		t.Errorf("sanitized error still contains 'apikey=' query: %s", msg)
+	}
+	if strings.Contains(msg, "harvardartmuseums.org") {
+		t.Errorf("sanitized error leaks endpoint URL: %s", msg)
+	}
+	// The underlying transport detail should be preserved for debugging.
+	if !strings.Contains(msg, "connection refused") {
+		t.Errorf("sanitized error lost underlying transport detail: %s", msg)
+	}
+}
+
+func TestSanitizeTransportError_NonURLErrorPassesThrough(t *testing.T) {
+	raw := errors.New("some other failure")
+	sanitized := sanitizeTransportError(raw)
+	if sanitized.Error() != raw.Error() {
+		t.Errorf("non-url.Error should pass through unchanged; got %q want %q", sanitized, raw)
+	}
 }
 
 func TestSync_NoAPIKey_FailsFastWithSignupHint(t *testing.T) {

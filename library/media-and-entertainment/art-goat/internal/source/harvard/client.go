@@ -346,6 +346,19 @@ func cultureToRegion(culture string) string {
 	return culture
 }
 
+// sanitizeTransportError strips the request URL from net/http transport
+// errors before they leave the package. *url.Error embeds the full URL
+// in its Error() string; our endpoint URL carries the apikey as a query
+// param, which would otherwise leak into terminal output, CI logs, and
+// any wrapper that prints the error chain.
+func sanitizeTransportError(err error) error {
+	var urlErr *url.Error
+	if errors.As(err, &urlErr) {
+		return fmt.Errorf("%s: %w", urlErr.Op, urlErr.Err)
+	}
+	return err
+}
+
 // fetchWithBackoff hits the Harvard API at endpoint and retries on 429
 // or 503 using the Retry-After header when present, else exponential
 // backoff capped at three attempts.
@@ -362,7 +375,7 @@ func (c *Client) fetchWithBackoff(ctx context.Context, endpoint string, page int
 
 		resp, err := c.http.Do(req)
 		if err != nil {
-			return nil, 0, fmt.Errorf("harvard request page %d: %w", page, err)
+			return nil, 0, fmt.Errorf("harvard request page %d: %w", page, sanitizeTransportError(err))
 		}
 		body, readErr := io.ReadAll(resp.Body)
 		resp.Body.Close()
