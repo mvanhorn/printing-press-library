@@ -154,7 +154,10 @@ Exit codes:
 			depsData, _, depsErr := resolveRead(cmd.Context(), c, flags, "departures", true, depsPath, depsParams, nil)
 
 			disrPath := fmt.Sprintf("/coverage/%s/stop_areas/%s/disruptions", coverage, fromID)
-			disrData, _, _ := resolveRead(cmd.Context(), c, flags, "disruptions", true, disrPath, nil, nil)
+			disrData, _, disrErr := resolveRead(cmd.Context(), c, flags, "disruptions", true, disrPath, nil, nil)
+			if disrErr != nil {
+				fmt.Fprintf(cmd.ErrOrStderr(), "warning: could not fetch disruptions: %v\n", disrErr)
+			}
 
 			hasDisruption := false
 			var disruptions []map[string]any
