@@ -242,7 +242,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 				// interactive UX (bare `numista-pp-cli --quota` in a terminal)
 				// still emits to stdout.
 				w := cmd.OutOrStdout()
-				if isMachineOutputMode(flags) || !stdoutIsTerminal() {
+				if isMachineOutputMode(flags) || !stdoutIsTerminal(cmd) {
 					w = cmd.ErrOrStderr()
 				}
 				fmt.Fprintln(w, cliutil.FormatQuotaLine(q))
@@ -504,17 +504,26 @@ func isMachineOutputMode(f *rootFlags) bool {
 	return false
 }
 
-// stdoutIsTerminal returns true when os.Stdout is attached to a terminal
-// (interactive use), false when it's a pipe, file, or detached. Uses a
-// stdlib-only file-mode check (os.Stat → mode.IsRegular / mode&CharDevice)
-// so we don't pull in golang.org/x/term as a direct dependency.
+// stdoutIsTerminal returns true when the writer Cobra will use for stdout
+// is attached to a terminal (interactive use), false when it's a pipe,
+// file, buffer, or otherwise non-TTY. Inspects cmd.OutOrStdout() rather
+// than os.Stdout directly so callers that redirect output via cmd.SetOut
+// (notably integration tests) see consistent routing — the production
+// binary is unaffected since cmd.OutOrStdout() falls through to os.Stdout.
 //
-// The check is deliberately conservative: any error path returns false,
-// which biases toward stderr emission (the safe choice for machine-mode
-// pipelines). Worst case: interactive users with an unusual stdout setup
-// see the quota line on stderr instead of stdout — annoying but harmless.
-func stdoutIsTerminal() bool {
-	fi, err := os.Stdout.Stat()
+// Uses a stdlib-only file-mode check (os.Stat → mode&CharDevice) so we
+// don't pull in golang.org/x/term as a direct dependency. The check is
+// deliberately conservative: a non-*os.File writer (e.g. bytes.Buffer in
+// tests) and any error path return false, which biases toward stderr
+// emission (the safe choice for machine-mode pipelines). Worst case:
+// interactive users with an unusual stdout setup see the quota line on
+// stderr instead of stdout — annoying but harmless.
+func stdoutIsTerminal(cmd *cobra.Command) bool {
+	f, ok := cmd.OutOrStdout().(*os.File)
+	if !ok || f == nil {
+		return false
+	}
+	fi, err := f.Stat()
 	if err != nil {
 		return false
 	}
