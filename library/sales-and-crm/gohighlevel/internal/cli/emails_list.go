@@ -52,7 +52,7 @@ the global --location flag, or the active profile.`,
 				params["locationId"] = flagLocationId
 			}
 
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "emails", false, path, params, nil)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "emails", true, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
