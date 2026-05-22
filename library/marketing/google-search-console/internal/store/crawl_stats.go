@@ -213,10 +213,16 @@ func (s *Store) QueryCrawlStatsSamplesUnion(ctx context.Context, siteURL, fileTy
 	if siteURL == "" {
 		return nil, errors.New("QueryCrawlStatsSamplesUnion: SiteURL required")
 	}
+	// PATCH: Use a ranked subquery so union metadata comes from the newest poll
+	// for each URL instead of SQLite's arbitrary non-aggregated GROUP BY row.
 	q := `SELECT site_url, sample_url, file_type, response_code, googlebot_type,
 		  fetched_at, size_bytes, response_ms, poll_at, raw_json
-	      FROM crawl_stats_samples
-	      WHERE site_url = ?`
+	      FROM (
+	        SELECT site_url, sample_url, file_type, response_code, googlebot_type,
+		       fetched_at, size_bytes, response_ms, poll_at, raw_json,
+		       ROW_NUMBER() OVER (PARTITION BY sample_url ORDER BY poll_at DESC) AS rn
+	        FROM crawl_stats_samples
+	        WHERE site_url = ?`
 	args := []any{siteURL}
 	if fileType != "" {
 		q += ` AND file_type = ?`
@@ -230,7 +236,10 @@ func (s *Store) QueryCrawlStatsSamplesUnion(ctx context.Context, siteURL, fileTy
 		q += ` AND response_code = ?`
 		args = append(args, responseCode)
 	}
-	q += ` GROUP BY sample_url ORDER BY MAX(poll_at) DESC`
+	q += `
+	      )
+	      WHERE rn = 1
+	      ORDER BY poll_at DESC`
 	if limit > 0 {
 		q += ` LIMIT ?`
 		args = append(args, limit)

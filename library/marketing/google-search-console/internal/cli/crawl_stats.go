@@ -407,16 +407,19 @@ func runCrawlStats(cobraCmd *cobra.Command, flags *rootFlags, common *crawlStats
 		return apiErr(err)
 	}
 
-	// Apply --top to the in-memory sample list before printing / persisting.
-	if common.top > 0 && len(resp.Samples) > common.top {
-		resp.Samples = resp.Samples[:common.top]
-	}
-
 	// Best-effort persistence. --no-persist or --dry-run suppresses.
+	// PATCH: Persist the full crawl-stats sample corpus before display-only --top truncation.
 	if !common.noPersist && !flags.dryRun {
 		if err := persistCrawlStatsPoll(ctx, resp, dim, filterCode, dimLabel); err != nil {
 			fmt.Fprintf(os.Stderr, "warning: persisting crawl-stats poll to local store failed: %v\n", err)
 		}
+	}
+
+	// Apply --top only to printed / JSON output. Persistence above keeps the full
+	// sample list so multi-poll union commands can accumulate every URL returned
+	// by Google, not just the user's display cap.
+	if common.top > 0 && len(resp.Samples) > common.top {
+		resp.Samples = resp.Samples[:common.top]
 	}
 
 	return emitCrawlStats(cobraCmd, flags, resp, dimLabel)

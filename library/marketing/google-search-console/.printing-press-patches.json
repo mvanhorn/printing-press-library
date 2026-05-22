@@ -67,11 +67,24 @@
         "internal/config/config.go",
         "README.md",
         ".printing-press.json",
-        ".printing-press-patches.json"
+        ".printing-press-patches.json",
+        "internal/store/crawl_stats_test.go"
       ],
-      "findings_addressed": ["F1", "F2", "F3", "F4", "F6", "F7", "F8", "F9", "F10"],
+      "findings_addressed": [
+        "F1",
+        "F2",
+        "F3",
+        "F4",
+        "F6",
+        "F7",
+        "F8",
+        "F9",
+        "F10",
+        "Greptile-P1-top-before-persist",
+        "Greptile-P1-union-latest-row"
+      ],
       "patch_count": 12,
-      "validated_outcome": "go build ./..., go vet ./... clean. New `client/sapisidhash_test.go` passes against canonical SHA1 reference value. `crawl-stats by-type ... --dry-run --json` prints the constructed batchexecute payload matching the discovery-report shape byte-for-byte (file_type=css yields filter code 5 at envelope index 8). `auth status --json` reports the new `crawl_stats_cookie_jar` + `crawl_stats_cookie_jar_status` fields. `cli-printing-press publish validate` PASSES every check except (a) `verify-skill` SKILL.md install-section drift, which is pre-existing on main (verified by re-running the same check on a clean main checkout — fails identically). Live testing is deferred to post-merge since it requires the user's authenticated Google session cookies."
+      "validated_outcome": "go build ./..., go vet ./... clean. New `client/sapisidhash_test.go` passes against canonical SHA1 reference value. `crawl-stats by-type ... --dry-run --json` prints the constructed batchexecute payload matching the discovery-report shape byte-for-byte (file_type=css yields filter code 5 at envelope index 8). `auth status --json` reports the new `crawl_stats_cookie_jar` + `crawl_stats_cookie_jar_status` fields. `cli-printing-press publish validate` PASSES every check except (a) `verify-skill` SKILL.md install-section drift, which is pre-existing on main (verified by re-running the same check on a clean main checkout \u2014 fails identically). Live testing is deferred to post-merge since it requires the user's authenticated Google session cookies. Follow-up PR review sweep: `go test ./internal/store` passes for latest-row crawl-stats union regression; `gofmt` and `git diff --check` pass."
     }
   ]
 }
