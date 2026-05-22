@@ -31,8 +31,10 @@ next time. Pass --no-fetch to use only cached stacks and never spend credits.
   sumble-pp-cli stack-diff stripe.com adyen.com
   sumble-pp-cli stack-diff stripe.com adyen.com --no-fetch --json
 `, "\n"),
-		Annotations: map[string]string{"mcp:read-only": "true"},
-		Args:        cobra.MaximumNArgs(2),
+		// No mcp:read-only — without --no-fetch, stack-diff falls back to
+		// organizations/enrich, which spends credits (5 per technology found).
+		// It does not mutate external state, but it is not free.
+		Args: cobra.MaximumNArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) < 2 {
 				if len(args) == 0 {

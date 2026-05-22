@@ -47,11 +47,17 @@ contact-lists.list, contact-lists.get.
 				return usageErr(err)
 			}
 
-			var ceiling int
-			var hasBudget bool
-			if db, derr := openCreditStore(); derr == nil {
-				ceiling, hasBudget, _ = getBudget(db.DB())
-				_ = db.Close()
+			// Read the budget ceiling. Surface a store/read failure rather than
+			// silently treating the call as within-budget — a silent bypass
+			// would defeat the guard exactly when the local state is broken.
+			db, derr := openCreditStore()
+			if derr != nil {
+				return configErr(fmt.Errorf("cannot read budget ceiling: %w", derr))
+			}
+			ceiling, hasBudget, berr := getBudget(db.DB())
+			_ = db.Close()
+			if berr != nil {
+				return apiErr(fmt.Errorf("reading budget ceiling: %w", berr))
 			}
 			withinBudget := !hasBudget || est.EstimatedCredits <= ceiling
 
@@ -87,7 +93,7 @@ contact-lists.list, contact-lists.get.
 		},
 	}
 
-	cmd.Flags().IntVar(&rows, "rows", 1, "Number of rows you expect (e.g. your --limit)")
+	cmd.Flags().IntVar(&rows, "rows", 1, "Number of billable rows you expect (your --limit; for organizations.enrich this is the number of technologies found, not organizations, so a single enrich can cost 5x many)")
 	cmd.Flags().BoolVar(&withDescriptions, "include-descriptions", false, "postings.find: include descriptions (3 credits/job instead of 2)")
 	cmd.Flags().BoolVar(&withEmail, "include-email", false, "people.enrich: reveal email (10 credits/person)")
 	cmd.Flags().BoolVar(&withPhone, "include-phone", false, "people.enrich: reveal phone (80 credits/person)")

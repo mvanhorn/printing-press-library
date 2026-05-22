@@ -40,8 +40,10 @@ columns are used; override with --name-col / --url-col / --location-col.
   sumble-pp-cli reconcile accounts.csv
   sumble-pp-cli reconcile accounts.csv --name-col company --json
 `, "\n"),
-		Annotations: map[string]string{"mcp:read-only": "true"},
-		Args:        cobra.MaximumNArgs(1),
+		// No mcp:read-only — reconcile calls organizations/match, which spends
+		// credits (1 per matched org). It does not mutate external state, but it
+		// is not free, so it should not advertise as a safe read-only tool.
+		Args: cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()
