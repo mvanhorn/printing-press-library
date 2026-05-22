@@ -398,23 +398,47 @@ func buildEntry(dir, category, slug string, existing map[string]RegistryEntry) (
 
 // registryDescription picks the final description for a registry entry from
 // three tiers in preference order: prior curated value > goreleaser brews
-// description > .printing-press.json description. The bare-markdown-heading
-// exception applies only to the prior tier — that's the only tier with the
-// legacy "# Introduction" bug history. The two source tiers are author-written
-// one-liners and don't need the exception.
+// description > .printing-press.json description. Prior values that match
+// known generated-junk shapes (boilerplate, raw HTML, truncation, oversized
+// prose blobs) are not treated as curated; the current source one-liner repairs
+// them on the next regen. The bare-markdown-heading exception applies only to
+// the prior tier — that's the only tier with the legacy "# Introduction" bug
+// history. The two source tiers are author-written one-liners and don't need
+// the exception.
 //
 // Returns "" only when every tier is empty. The --validate mode treats that
 // as a fail-stop; the regular write path lets it through so first-time runs
 // of new CLIs that intentionally have no description can complete (validation
 // is a separate concern from generation).
 func registryDescription(prior, goreleaser, ppDescription string) string {
+	source := firstNonEmpty(goreleaser, ppDescription)
+	if source != "" && isStaleRegistryDescription(prior) {
+		return source
+	}
 	if prior != "" && !isBareMarkdownHeading(prior) {
 		return prior
 	}
-	if goreleaser != "" {
-		return goreleaser
+	return source
+}
+
+func firstNonEmpty(values ...string) string {
+	for _, value := range values {
+		if value != "" {
+			return value
+		}
 	}
-	return ppDescription
+	return ""
+}
+
+func isStaleRegistryDescription(prior string) bool {
+	trimmed := strings.TrimSpace(prior)
+	if trimmed == "" || isBareMarkdownHeading(trimmed) {
+		return false
+	}
+	return strings.HasPrefix(trimmed, "<") ||
+		strings.HasPrefix(trimmed, "Printing Press CLI for ") ||
+		strings.HasSuffix(trimmed, "...") ||
+		len(trimmed) > 240
 }
 
 func searchTerms(pp printingPressManifest) []string {
@@ -551,15 +575,20 @@ func isBareMarkdownHeading(s string) bool {
 // apiDisplayName picks the best human-facing name for the registry's
 // `api` field. Preference order:
 //
-//  1. The current registry.json's existing `api` value, when it differs
+//  1. .printing-press.json's display_name when the prior registry value
+//     matches a known stale generated shape: bare slug echo, naive title-cased
+//     slug ("Setlist Fm"), a long description accidentally stored in `api`, or
+//     a generic suffix such as "Pricebook" when the manifest has the parent
+//     product ("ServiceTitan Pricebook").
+//  2. The current registry.json's existing `api` value, when it differs
 //     from the slug — registry api values are hand-curated (e.g.,
 //     "PokéAPI", "Cal.com", "Product Hunt") and frequently better than
 //     what .printing-press.json's display_name auto-derives. Treating
 //     prior == slug as "not curated" lets the generator replace bare
 //     slug echoes with a proper display name when one shows up.
-//  2. .printing-press.json's display_name (modern-generator best guess).
-//  3. .printing-press.json's api_name (machine slug fallback).
-//  4. The slug itself, last resort.
+//  3. .printing-press.json's display_name (modern-generator best guess).
+//  4. .printing-press.json's api_name (machine slug fallback).
+//  5. The slug itself, last resort.
 //
 // Choosing prior over pp.DisplayName here is deliberate. Several
 // existing registry entries have curated names (PokéAPI, Product Hunt)
@@ -569,6 +598,9 @@ func isBareMarkdownHeading(s string) bool {
 // curated value also won't regress. A future cleanup could lift
 // curated api values back into .printing-press.json explicitly.
 func apiDisplayName(pp printingPressManifest, prior RegistryEntry, slug string) string {
+	if pp.DisplayName != "" && isStaleAPIValue(prior.API, pp.DisplayName, slug) {
+		return pp.DisplayName
+	}
 	if prior.API != "" && prior.API != slug {
 		return prior.API
 	}
@@ -579,6 +611,37 @@ func apiDisplayName(pp printingPressManifest, prior RegistryEntry, slug string) 
 		return pp.APIName
 	}
 	return slug
+}
+
+func isStaleAPIValue(prior, displayName, slug string) bool {
+	prior = strings.TrimSpace(prior)
+	displayName = strings.TrimSpace(displayName)
+	if prior == "" || prior == slug || displayName == "" || prior == displayName {
+		return false
+	}
+	if len(prior) > 80 {
+		return true
+	}
+	if prior == titleCaseSlug(slug) {
+		return true
+	}
+	if strings.HasSuffix(displayName, " "+prior) && !strings.Contains(prior, " ") {
+		return true
+	}
+	return false
+}
+
+func titleCaseSlug(slug string) string {
+	parts := strings.FieldsFunc(slug, func(r rune) bool {
+		return r == '-' || r == '_' || r == ' '
+	})
+	for i, part := range parts {
+		if part == "" {
+			continue
+		}
+		parts[i] = strings.ToUpper(part[:1]) + strings.ToLower(part[1:])
+	}
+	return strings.Join(parts, " ")
 }
 
 // buildMCPBlock constructs an MCP block from a CLI's .printing-press.json
