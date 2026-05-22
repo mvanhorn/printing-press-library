@@ -23,6 +23,15 @@ import (
 
 var uuidPattern = regexp.MustCompile(`^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$`)
 
+// PATCH(store-sql-ident-guard): SQL identifiers (table names, json_extract
+// paths) interpolated via fmt.Sprintf must be validated against this pattern
+// before use, since some originate from user-supplied flags (e.g. --resources).
+var sqlIdentPattern = regexp.MustCompile(`^[A-Za-z_][A-Za-z0-9_]*$`)
+
+func isSafeSQLIdent(s string) bool {
+	return sqlIdentPattern.MatchString(s)
+}
+
 // IsUUID returns true if the input looks like a UUID.
 func IsUUID(s string) bool {
 	return uuidPattern.MatchString(s)
@@ -1272,9 +1281,17 @@ func (s *Store) GetSyncCursor(resourceType string) string {
 // ListIDs returns all IDs from a resource's domain table, or from the generic
 // resources table if no domain table exists. Used by dependent sync to iterate parents.
 func (s *Store) ListIDs(resourceType string) ([]string, error) {
-	// Try domain table first (tables are named after the resource type)
-	query := fmt.Sprintf("SELECT id FROM %s", resourceType)
-	rows, err := s.db.Query(query)
+	// PATCH(store-sql-ident-guard): only interpolate resourceType as a table
+	// name when it is a safe SQL identifier; otherwise use the parameterized
+	// generic-resources query so a hostile --resources value cannot inject SQL.
+	var rows *sql.Rows
+	var err error
+	if isSafeSQLIdent(resourceType) {
+		// Try domain table first (tables are named after the resource type)
+		rows, err = s.db.Query(fmt.Sprintf("SELECT id FROM %s", resourceType))
+	} else {
+		err = fmt.Errorf("unsafe resource type %q", resourceType)
+	}
 	if err != nil {
 		// Fall back to generic resources table
 		rows, err = s.db.Query("SELECT id FROM resources WHERE resource_type = ?", resourceType)
@@ -1359,6 +1376,11 @@ func (s *Store) ResolveByName(resourceType string, input string, matchFields ...
 
 	var matches []string
 	for _, field := range matchFields {
+		// PATCH(store-sql-ident-guard): skip fields that are not safe SQL
+		// identifiers so the json_extract path cannot be used to inject SQL.
+		if !isSafeSQLIdent(field) {
+			continue
+		}
 		query := fmt.Sprintf(
 			`SELECT id FROM resources WHERE resource_type = ? AND LOWER(json_extract(data, '$.%s')) = LOWER(?)`,
 			field,

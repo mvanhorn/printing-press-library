@@ -91,8 +91,16 @@ func (c *Client) ProbeGet(path string) (int, error) {
 
 func (c *Client) cacheKey(path string, params map[string]string) string {
 	key := path
-	for k, v := range params {
-		key += k + "=" + v
+	// PATCH(client-cachekey-deterministic): iterate params in sorted key order
+	// so the cache key is stable across invocations; unsorted map iteration
+	// produced a different key each run, defeating cross-invocation cache hits.
+	keys := make([]string, 0, len(params))
+	for k := range params {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	for _, k := range keys {
+		key += k + "=" + params[k]
 	}
 	h := sha256.Sum256([]byte(key))
 	return hex.EncodeToString(h[:8])
