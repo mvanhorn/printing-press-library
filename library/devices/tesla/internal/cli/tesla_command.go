@@ -375,6 +375,13 @@ func resolveCommandVehicle(ctx context.Context, flags *rootFlags, cfg *config.Co
 		return nil, usageErr(fmt.Errorf("ambiguous --vehicle %q: %s", want, formatAmbiguousCandidates(nameHits)))
 	}
 
+	// No match anywhere. If fetchProductsList failed earlier (e.g. 401, network
+	// error, verify-mode), surface that as the real cause rather than the
+	// generic "not found" message - the products list we matched against was
+	// empty because the fetch died, not because the vehicle is absent.
+	if fetchErr != nil {
+		return nil, usageErr(fmt.Errorf("vehicle %q not resolvable: products fetch failed (%w); run `tesla auth status` to confirm credentials", want, fetchErr))
+	}
 	return nil, usageErr(fmt.Errorf("vehicle %q not found in your products list; run `tesla sync` first or pass the full VIN", want))
 }
 
