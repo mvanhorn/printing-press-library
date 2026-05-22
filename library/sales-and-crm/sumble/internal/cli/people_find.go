@@ -27,10 +27,11 @@ func newPeopleFindCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:         "find",
-		Short:       "Find people at an organization by job function/level/country (1 credit per person)",
-		Example:     "  sumble-pp-cli people find",
-		Annotations: map[string]string{"pp:endpoint": "people.find", "pp:method": "POST", "pp:path": "/people/find", "mcp:read-only": "true"},
+		Use:     "find",
+		Short:   "Find people at an organization by job function/level/country (1 credit per person)",
+		Example: "  sumble-pp-cli people find",
+		// PATCH(billed-endpoints-not-readonly): bills Sumble credits, so not mcp:read-only.
+		Annotations: map[string]string{"pp:endpoint": "people.find", "pp:method": "POST", "pp:path": "/people/find"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
 			}

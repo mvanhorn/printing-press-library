@@ -14,10 +14,11 @@ import (
 func newOrganizationListsGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:         "get <list_id>",
-		Short:       "Get the organizations in a saved list (1 credit per organization returned)",
-		Example:     "  sumble-pp-cli organization-lists get 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "organization-lists.get", "pp:method": "GET", "pp:path": "/organization-lists/{list_id}", "mcp:read-only": "true"},
+		Use:     "get <list_id>",
+		Short:   "Get the organizations in a saved list (1 credit per organization returned)",
+		Example: "  sumble-pp-cli organization-lists get 550e8400-e29b-41d4-a716-446655440000",
+		// PATCH(billed-endpoints-not-readonly): bills Sumble credits, so not mcp:read-only.
+		Annotations: map[string]string{"pp:endpoint": "organization-lists.get", "pp:method": "GET", "pp:path": "/organization-lists/{list_id}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()

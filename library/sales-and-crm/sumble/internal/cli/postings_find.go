@@ -28,10 +28,11 @@ func newPostingsFindCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:         "find",
-		Short:       "Find job postings by technology/category/country (2 credits per job, 3 with descriptions)",
-		Example:     "  sumble-pp-cli postings find",
-		Annotations: map[string]string{"pp:endpoint": "postings.find", "pp:method": "POST", "pp:path": "/jobs/find", "mcp:read-only": "true"},
+		Use:     "find",
+		Short:   "Find job postings by technology/category/country (2 credits per job, 3 with descriptions)",
+		Example: "  sumble-pp-cli postings find",
+		// PATCH(billed-endpoints-not-readonly): bills Sumble credits, so not mcp:read-only.
+		Annotations: map[string]string{"pp:endpoint": "postings.find", "pp:method": "POST", "pp:path": "/jobs/find"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
 			}

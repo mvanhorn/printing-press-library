@@ -14,10 +14,11 @@ import (
 func newContactListsGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:         "get <list_id>",
-		Short:       "Get the people in a saved contact list (1 credit per person returned)",
-		Example:     "  sumble-pp-cli contact-lists get 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "contact-lists.get", "pp:method": "GET", "pp:path": "/contact-lists/{list_id}", "mcp:read-only": "true"},
+		Use:     "get <list_id>",
+		Short:   "Get the people in a saved contact list (1 credit per person returned)",
+		Example: "  sumble-pp-cli contact-lists get 550e8400-e29b-41d4-a716-446655440000",
+		// PATCH(billed-endpoints-not-readonly): bills Sumble credits, so not mcp:read-only.
+		Annotations: map[string]string{"pp:endpoint": "contact-lists.get", "pp:method": "GET", "pp:path": "/contact-lists/{list_id}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()

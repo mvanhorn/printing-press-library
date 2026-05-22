@@ -15,11 +15,12 @@ func newTechnologiesPromotedCmd(flags *rootFlags) *cobra.Command {
 	var bodyQuery string
 
 	cmd := &cobra.Command{
-		Use:         "technologies",
-		Short:       "Search technologies by name; returns canonical slugs (1 credit only if at least one match, else free)",
-		Long:        "Shortcut for 'technologies find'. Search technologies by name; returns canonical slugs (1 credit only if at least one match, else free)",
-		Example:     "  sumble-pp-cli technologies --query example-value",
-		Annotations: map[string]string{"pp:endpoint": "technologies.find", "pp:method": "POST", "pp:path": "/technologies/find", "mcp:read-only": "true"},
+		Use:     "technologies",
+		Short:   "Search technologies by name; returns canonical slugs (1 credit only if at least one match, else free)",
+		Long:    "Shortcut for 'technologies find'. Search technologies by name; returns canonical slugs (1 credit only if at least one match, else free)",
+		Example: "  sumble-pp-cli technologies --query example-value",
+		// PATCH(billed-endpoints-not-readonly): bills Sumble credits, so not mcp:read-only.
+		Annotations: map[string]string{"pp:endpoint": "technologies.find", "pp:method": "POST", "pp:path": "/technologies/find"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("query") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "query")

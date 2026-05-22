@@ -14,10 +14,11 @@ import (
 func newOrganizationListsListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:         "list",
-		Short:       "List your saved organization lists (1 credit per list returned)",
-		Example:     "  sumble-pp-cli organization-lists list",
-		Annotations: map[string]string{"pp:endpoint": "organization-lists.list", "pp:method": "GET", "pp:path": "/organization-lists", "mcp:read-only": "true"},
+		Use:     "list",
+		Short:   "List your saved organization lists (1 credit per list returned)",
+		Example: "  sumble-pp-cli organization-lists list",
+		// PATCH(billed-endpoints-not-readonly): bills Sumble credits, so not mcp:read-only.
+		Annotations: map[string]string{"pp:endpoint": "organization-lists.list", "pp:method": "GET", "pp:path": "/organization-lists"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {

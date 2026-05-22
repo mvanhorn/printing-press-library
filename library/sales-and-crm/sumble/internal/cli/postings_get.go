@@ -14,10 +14,11 @@ import (
 func newPostingsGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:         "get <job_id>",
-		Short:       "Get a single job posting with its full description (1 credit)",
-		Example:     "  sumble-pp-cli postings get 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "postings.get", "pp:method": "GET", "pp:path": "/jobs/{job_id}", "mcp:read-only": "true"},
+		Use:     "get <job_id>",
+		Short:   "Get a single job posting with its full description (1 credit)",
+		Example: "  sumble-pp-cli postings get 550e8400-e29b-41d4-a716-446655440000",
+		// PATCH(billed-endpoints-not-readonly): bills Sumble credits, so not mcp:read-only.
+		Annotations: map[string]string{"pp:endpoint": "postings.get", "pp:method": "GET", "pp:path": "/jobs/{job_id}"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()

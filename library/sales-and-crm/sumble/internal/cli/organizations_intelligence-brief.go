@@ -14,10 +14,11 @@ import (
 func newOrganizationsIntelligenceBriefCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:         "intelligence-brief <organization_id>",
-		Short:       "AI-generated intelligence brief for an organization (50 credits when complete; 202 while pending is free)",
-		Example:     "  sumble-pp-cli organizations intelligence-brief 550e8400-e29b-41d4-a716-446655440000",
-		Annotations: map[string]string{"pp:endpoint": "organizations.intelligence-brief", "pp:method": "GET", "pp:path": "/organizations/{organization_id}/intelligence-brief", "mcp:read-only": "true"},
+		Use:     "intelligence-brief <organization_id>",
+		Short:   "AI-generated intelligence brief for an organization (50 credits when complete; 202 while pending is free)",
+		Example: "  sumble-pp-cli organizations intelligence-brief 550e8400-e29b-41d4-a716-446655440000",
+		// PATCH(billed-endpoints-not-readonly): bills Sumble credits, so not mcp:read-only.
+		Annotations: map[string]string{"pp:endpoint": "organizations.intelligence-brief", "pp:method": "GET", "pp:path": "/organizations/{organization_id}/intelligence-brief"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if len(args) == 0 {
 				return cmd.Help()

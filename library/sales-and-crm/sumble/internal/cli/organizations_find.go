@@ -25,10 +25,11 @@ func newOrganizationsFindCmd(flags *rootFlags) *cobra.Command {
 	var stdinBody bool
 
 	cmd := &cobra.Command{
-		Use:         "find",
-		Short:       "Find organizations matching technology/category/firmographic filters (5 credits per row returned)",
-		Example:     "  sumble-pp-cli organizations find",
-		Annotations: map[string]string{"pp:endpoint": "organizations.find", "pp:method": "POST", "pp:path": "/organizations/find", "mcp:read-only": "true"},
+		Use:     "find",
+		Short:   "Find organizations matching technology/category/firmographic filters (5 credits per row returned)",
+		Example: "  sumble-pp-cli organizations find",
+		// PATCH(billed-endpoints-not-readonly): bills Sumble credits, so not mcp:read-only.
+		Annotations: map[string]string{"pp:endpoint": "organizations.find", "pp:method": "POST", "pp:path": "/organizations/find"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
 			}

@@ -14,10 +14,11 @@ import (
 func newContactListsListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:         "list",
-		Short:       "List your saved contact lists (1 credit per list returned)",
-		Example:     "  sumble-pp-cli contact-lists list",
-		Annotations: map[string]string{"pp:endpoint": "contact-lists.list", "pp:method": "GET", "pp:path": "/contact-lists", "mcp:read-only": "true"},
+		Use:     "list",
+		Short:   "List your saved contact lists (1 credit per list returned)",
+		Example: "  sumble-pp-cli contact-lists list",
+		// PATCH(billed-endpoints-not-readonly): bills Sumble credits, so not mcp:read-only.
+		Annotations: map[string]string{"pp:endpoint": "contact-lists.list", "pp:method": "GET", "pp:path": "/contact-lists"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
