@@ -305,8 +305,18 @@ func cultureToRegion(culture string) string {
 		strings.Contains(lower, "ottoman"), strings.Contains(lower, "turkish"), strings.Contains(lower, "arab"):
 		return "Islamic world"
 	case strings.Contains(lower, "mexican"), strings.Contains(lower, "mesoamerican"), strings.Contains(lower, "mayan"),
-		strings.Contains(lower, "aztec"), strings.Contains(lower, "olmec"), strings.Contains(lower, "peruvian"):
+		strings.Contains(lower, "aztec"), strings.Contains(lower, "olmec"):
 		return "Mesoamerica"
+	// "south american" must come before the bare "american" check below —
+	// strings.Contains is substring match, so "south american" would
+	// otherwise fall into "american" and get bucketed as North America.
+	case strings.Contains(lower, "south american"), strings.Contains(lower, "south america"),
+		strings.Contains(lower, "peruvian"), strings.Contains(lower, "brazilian"),
+		strings.Contains(lower, "argentine"), strings.Contains(lower, "chilean"),
+		strings.Contains(lower, "colombian"), strings.Contains(lower, "venezuelan"),
+		strings.Contains(lower, "ecuadorian"), strings.Contains(lower, "bolivian"),
+		strings.Contains(lower, "andean"), strings.Contains(lower, "inca"):
+		return "South America"
 	case strings.Contains(lower, "american"):
 		return "North America"
 	case strings.Contains(lower, "african"):
