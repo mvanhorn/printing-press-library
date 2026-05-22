@@ -1,7 +1,7 @@
 ---
 name: pp-sumble
-description: "Every Sumble v6 feature, plus the credit-awareness the API itself won't give you: cost estimates before every billed... Trigger phrases: `find companies using a technology on sumble`, `estimate the sumble credit cost`, `check my sumble credit balance`, `enrich a company's tech stack`, `find engineering leaders at a company`, `use sumble`, `run sumble`."
-author: "Kostas Pardalis"
+description: "Every Sumble v6 feature, plus the credit-awareness the API itself won't give you Trigger phrases: `find companies using a technology on sumble`, `estimate the sumble credit cost`, `check my sumble credit balance`, `enrich a company's tech stack`, `find engineering leaders at a company`, `use sumble`, `run sumble`."
+author: "user"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
@@ -10,10 +10,6 @@ metadata:
     requires:
       bins:
         - sumble-pp-cli
-    install:
-      - kind: go
-        bins: [sumble-pp-cli]
-        module: github.com/mvanhorn/printing-press-library/library/sales-and-crm/sumble/cmd/sumble-pp-cli
 ---
 
 # Sumble — Printing Press CLI
@@ -37,7 +33,7 @@ go install github.com/mvanhorn/printing-press-library/library/sales-and-crm/sumb
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
-Sumble is usage-based, and the bare API gives you no way to see a balance, preview a call's cost, or avoid re-billing data you already pulled. This CLI fixes all three: cost-estimate previews spend before you pay, balance and spend track every credit from a local ledger, budget refuses calls over a ceiling, and sync caches organizations, people, jobs, and technologies so search, sql, stack-diff, and stale all run offline for zero credits.
+Sumble is usage-based, and the bare API gives you no way to see a balance, preview a call's cost, or avoid re-billing data you already pulled. This CLI fixes all three: cost-estimate previews spend before you pay, balance and spend track every credit from a local ledger, budget refuses calls over a ceiling, and sync caches organizations, people, postings, and technologies so stack-diff and stale run offline for zero credits.
 
 ## When to Use This CLI
 
@@ -166,7 +162,7 @@ Preview the spend before running the billed 'organizations find'; pair with 'bud
 ### Narrow a verbose org payload for an agent
 
 ```bash
-sumble-pp-cli organizations find --filters '{"technologies":["databricks"]}' --limit 50 --agent --select name,domain,account_score
+sumble-pp-cli organizations find --filters-technologies '["databricks"]' --limit 50 --agent --select name,domain,account_score
 ```
 
 organizations/find returns large rows; --select keeps only the fields the agent needs (the array is unwrapped, so paths are bare field names) and --agent emits compact structured output.
@@ -174,7 +170,7 @@ organizations/find returns large rows; --select keeps only the fields the agent 
 ### Find buying-committee people
 
 ```bash
-sumble-pp-cli people find --organization '{"domain":"stripe.com"}' --filters '{"job_functions":["Engineer"],"job_levels":["VP","Director"]}'
+sumble-pp-cli people find --organization-domain stripe.com --filters-job-functions '["Engineer"]' --filters-job-levels '["VP","Director"]'
 ```
 
 1 credit per person; cost-estimate people.find --rows N previews the spend first.
@@ -197,7 +193,7 @@ Fetches and caches each org's tech stack once via enrich, then diffs shared vs u
 
 ## Auth Setup
 
-Store your access token:
+Run `sumble-pp-cli auth setup` for the URL and steps to obtain a token (add `--launch` to open the URL). Then store it:
 
 ```bash
 sumble-pp-cli auth set-token YOUR_TOKEN_HERE
@@ -233,7 +229,7 @@ Commands that read from the local store or the API wrap output in a provenance e
 }
 ```
 
-Parse `.results` for data and `.meta.source` to know whether it's live or local. A human-readable `N results (live)` summary is printed to stderr only when stdout is a terminal — piped/agent consumers get pure JSON on stdout.
+Parse `.results` for data and `.meta.source` to know whether it's live or local. A human-readable `N results (live)` summary is printed to stderr only when stdout is a terminal AND no machine-format flag (`--json`, `--csv`, `--compact`, `--quiet`, `--plain`, `--select`) is set — piped/agent consumers and explicit-format runs get pure JSON on stdout.
 
 ## Agent Feedback
 
@@ -297,15 +293,13 @@ Parse `$ARGUMENTS`:
 
 ## MCP Server Installation
 
-1. Install the MCP server:
-   ```bash
-   go install github.com/mvanhorn/printing-press-library/library/sales-and-crm/sumble/cmd/sumble-pp-mcp@latest
-   ```
-2. Register with Claude Code:
-   ```bash
-   claude mcp add sumble-pp-mcp -- sumble-pp-mcp
-   ```
-3. Verify: `claude mcp list`
+Install the MCP binary from this CLI's published public-library entry or pre-built release, then register it:
+
+```bash
+claude mcp add sumble-pp-mcp -- sumble-pp-mcp
+```
+
+Verify: `claude mcp list`
 
 ## Direct Use
 

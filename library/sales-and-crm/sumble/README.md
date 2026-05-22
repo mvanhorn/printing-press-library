@@ -2,11 +2,13 @@
 
 **Every Sumble v6 feature, plus the credit-awareness the API itself won't give you: cost estimates before every billed call, a running balance, a budget guard, and a local SQLite cache so you never pay twice.**
 
-Sumble is usage-based, and the bare API gives you no way to see a balance, preview a call's cost, or avoid re-billing data you already pulled. This CLI fixes all three: cost-estimate previews spend before you pay, balance and spend track every credit from a local ledger, budget refuses calls over a ceiling, and sync caches organizations, people, jobs, and technologies so search, sql, stack-diff, and stale all run offline for zero credits.
+Sumble is usage-based, and the bare API gives you no way to see a balance, preview a call's cost, or avoid re-billing data you already pulled. This CLI fixes all three: cost-estimate previews spend before you pay, balance and spend track every credit from a local ledger, budget refuses calls over a ceiling, and sync caches organizations, people, postings, and technologies so stack-diff and stale run offline for zero credits.
+
+Printed by [@cpard](https://github.com/cpard).
 
 ## Install
 
-The recommended path installs both the `sumble-pp-cli` binary and the `pp-sumble` agent skill in one shot:
+The recommended path installs both the `sumble-pp-cli` binary and the `pp-sumble` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
 npx -y @mvanhorn/printing-press install sumble
@@ -18,15 +20,22 @@ For CLI only (no skill):
 npx -y @mvanhorn/printing-press install sumble --cli-only
 ```
 
-### Without Node (Go fallback)
-
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-go install github.com/mvanhorn/printing-press-library/library/sales-and-crm/sumble/cmd/sumble-pp-cli@latest
+npx -y @mvanhorn/printing-press install sumble --skill-only
 ```
 
-This installs the CLI only — no skill.
+To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
+
+```bash
+npx -y @mvanhorn/printing-press install sumble --agent claude-code
+npx -y @mvanhorn/printing-press install sumble --agent claude-code --agent codex
+```
+
+### Without Node
+
+The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
 
 ### Pre-built binary
 
@@ -55,6 +64,43 @@ Tell your OpenClaw agent (copy this):
 Install the pp-sumble skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-sumble. The skill defines how its required CLI can be installed.
 ```
 
+## Use with Claude Desktop
+
+This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
+
+To install:
+
+1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/sumble-current).
+2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
+3. Fill in `SUMBLE_API_KEY` when Claude Desktop prompts you.
+
+Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
+
+<details>
+<summary>Manual JSON config (advanced)</summary>
+
+If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
+
+
+Install the MCP binary from this CLI's published public-library entry or pre-built release.
+
+Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "sumble": {
+      "command": "sumble-pp-mcp",
+      "env": {
+        "SUMBLE_API_KEY": "<your-key>"
+      }
+    }
+  }
+}
+```
+
+</details>
+
 ## Quick Start
 
 ```bash
@@ -63,7 +109,7 @@ sumble-pp-cli doctor
 
 
 # Cheap (1 credit) lookup of the canonical technology slug to filter on.
-sumble-pp-cli technologies find --query kafka
+sumble-pp-cli technologies --query kafka
 
 
 # See the credit cost (~125) before you pay it; run 'budget set <n>' first to hard-cap it.
@@ -71,15 +117,15 @@ sumble-pp-cli cost-estimate organizations.find --rows 25
 
 
 # Billed call (5 credits/row); results are cached locally so reads are free afterward.
-sumble-pp-cli organizations find --filters '{"technologies":["kafka"]}' --limit 25
+sumble-pp-cli organizations find --filters-technologies '["kafka"]' --limit 25
 
 
 # Check remaining credits after the call.
 sumble-pp-cli balance
 
 
-# After 'sync', query the local cache offline for zero credits.
-sumble-pp-cli sql "SELECT name, domain FROM organizations LIMIT 10"
+# List cached entities worth re-billing; runs offline for zero credits.
+sumble-pp-cli stale --older-than 24h
 
 ```
 
@@ -195,7 +241,7 @@ Find job postings and the people behind them — Sumble's hiring-signal layer
 
 Search Sumble's technology taxonomy
 
-- **`sumble-pp-cli technologies find`** - Search technologies by name; returns canonical slugs (1 credit only if at least one match, else free)
+- **`sumble-pp-cli technologies`** - Search technologies by name; returns canonical slugs (1 credit only if at least one match, else free)
 
 
 ## Output Formats
@@ -233,71 +279,6 @@ This CLI is designed for AI agent consumption:
 
 Exit codes: `0` success, `2` usage error, `3` not found, `4` auth error, `5` API error, `7` rate limited, `10` config error.
 
-## Use with Claude Code
-
-Install the focused skill — it auto-installs the CLI on first invocation:
-
-```bash
-npx skills add mvanhorn/printing-press-library/cli-skills/pp-sumble -g
-```
-
-Then invoke `/pp-sumble <query>` in Claude Code. The skill is the most efficient path — Claude Code drives the CLI directly without an MCP server in the middle.
-
-<details>
-<summary>Use as an MCP server in Claude Code (advanced)</summary>
-
-If you'd rather register this CLI as an MCP server in Claude Code, install the MCP binary first:
-
-```bash
-go install github.com/mvanhorn/printing-press-library/library/sales-and-crm/sumble/cmd/sumble-pp-mcp@latest
-```
-
-Then register it:
-
-```bash
-claude mcp add sumble sumble-pp-mcp -e SUMBLE_API_KEY=<your-token>
-```
-
-</details>
-
-## Use with Claude Desktop
-
-This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
-
-To install:
-
-1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/sumble-current).
-2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
-3. Fill in `SUMBLE_API_KEY` when Claude Desktop prompts you.
-
-Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
-
-<details>
-<summary>Manual JSON config (advanced)</summary>
-
-If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
-
-```bash
-go install github.com/mvanhorn/printing-press-library/library/sales-and-crm/sumble/cmd/sumble-pp-mcp@latest
-```
-
-Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "sumble": {
-      "command": "sumble-pp-mcp",
-      "env": {
-        "SUMBLE_API_KEY": "<your-key>"
-      }
-    }
-  }
-}
-```
-
-</details>
-
 ## Health Check
 
 ```bash
@@ -309,6 +290,8 @@ Verifies configuration, credentials, and connectivity to the API.
 ## Configuration
 
 Config file: `~/.config/sumble-cli/config.toml`
+
+Static request headers can be configured under `headers`; per-command header overrides take precedence.
 
 Environment variables:
 
@@ -326,7 +309,7 @@ Environment variables:
 
 ### API-specific
 
-- **Calls fail with HTTP 422 'Field required'** — find/enrich endpoints require a filters object; pass at least one of --technologies, --technology-categories, --query, or the structured people/jobs filters.
+- **Calls fail with HTTP 422 'Field required'** — find/enrich endpoints require a filters object; pass at least one of --filters-technologies, --filters-technology-categories, or --filters-query (array fields take a JSON array, e.g. --filters-technologies '["kafka"]').
 - **HTTP 429 rate limited** — Sumble caps at ~10 requests/second aggregate; the client backs off automatically, but lower --limit or batch fewer commands if it persists.
 - **balance shows a stale or zero value** — balance reads the last billed response; run any cheap billed call (e.g. technologies find) or sync to refresh the ledger.
 - **A call was refused with a budget error** — raise or clear the ceiling with 'budget set <n>' / 'budget clear'.

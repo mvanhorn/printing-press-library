@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -56,11 +57,11 @@ next time. Pass --no-fetch to use only cached stacks and never spend credits.
 				c = cl
 			}
 
-			techA, errA := stackForDomain(db, c, domA, flags)
+			techA, errA := stackForDomain(cmd.Context(), db, c, domA, flags)
 			if errA != nil {
 				return errA
 			}
-			techB, errB := stackForDomain(db, c, domB, flags)
+			techB, errB := stackForDomain(cmd.Context(), db, c, domB, flags)
 			if errB != nil {
 				return errB
 			}
@@ -100,7 +101,7 @@ next time. Pass --no-fetch to use only cached stacks and never spend credits.
 // stackForDomain returns the technology-name set for a domain, reading the
 // local cache first and falling back to a billed enrich when a client is
 // available.
-func stackForDomain(db *store.Store, c *client.Client, domain string, flags *rootFlags) ([]string, error) {
+func stackForDomain(ctx context.Context, db *store.Store, c *client.Client, domain string, flags *rootFlags) ([]string, error) {
 	if cached, ok := readCachedStack(db.DB(), domain); ok {
 		return cached, nil
 	}
@@ -108,7 +109,7 @@ func stackForDomain(db *store.Store, c *client.Client, domain string, flags *roo
 		return nil, nil
 	}
 	// The enrich endpoint requires a filters object even when empty.
-	raw, _, err := c.Post("/organizations/enrich", map[string]any{
+	raw, _, err := c.Post(ctx, "/organizations/enrich", map[string]any{
 		"organization": map[string]any{"domain": domain},
 		"filters":      map[string]any{},
 	})

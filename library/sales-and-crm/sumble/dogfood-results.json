@@ -1,7 +1,8 @@
 {
-  "dir": "/Users/kostaspardalis/printing-press/.runstate/montreal-a09dbbac/runs/20260521-201949/working/sumble-pp-cli",
-  "spec_path": "/Users/kostaspardalis/printing-press/.runstate/montreal-a09dbbac/runs/20260521-201949/research/sumble-v6-spec.yaml",
-  "verdict": "WARN",
+  "dir": "\u003ccli-dir\u003e/sumble-pp-cli-v411",
+  "spec_path": "\u003ccli-dir\u003e/spec.yaml",
+  "spec_source": "bundled",
+  "verdict": "PASS",
   "path_check": {
     "tested": 0,
     "valid": 0,
@@ -21,18 +22,20 @@
     "detail": "browser-session auth not required"
   },
   "dead_flags": {
-    "total": 18,
+    "total": 19,
     "dead": 0
   },
   "dead_functions": {
-    "total": 53,
+    "total": 65,
     "dead": 0
   },
   "pipeline_check": {
     "sync_calls_domain": true,
     "search_calls_domain": false,
-    "domain_tables": 2,
-    "detail": "sync uses domain-specific Upsert methods; search methods not found; 2 domain tables found"
+    "domain_tables": 1,
+    "sync_file_emitted": true,
+    "sync_resources_present": true,
+    "detail": "sync uses domain-specific Upsert methods; search methods not found; 1 domain tables found"
   },
   "example_check": {
     "tested": 10,
@@ -42,8 +45,8 @@
   },
   "wiring_check": {
     "command_tree": {
-      "defined": 59,
-      "registered": 59
+      "defined": 60,
+      "registered": 60
     },
     "config_consistency": {
       "consistent": true
@@ -73,69 +76,7 @@
     "skipped": true
   },
   "print_json_filtered_check": {
-    "checked": 49,
-    "findings": [
-      {
-        "file": "internal/cli/balance.go",
-        "line": 78,
-        "snippet": "return flags.printJSON(cmd, map[string]any{\"balance_known\": false})"
-      },
-      {
-        "file": "internal/cli/balance.go",
-        "line": 88,
-        "snippet": "return flags.printJSON(cmd, map[string]any{"
-      },
-      {
-        "file": "internal/cli/budget.go",
-        "line": 50,
-        "snippet": "return flags.printJSON(cmd, map[string]any{\"budget_ceiling\": n})"
-      },
-      {
-        "file": "internal/cli/budget.go",
-        "line": 78,
-        "snippet": "return flags.printJSON(cmd, out)"
-      },
-      {
-        "file": "internal/cli/budget.go",
-        "line": 104,
-        "snippet": "return flags.printJSON(cmd, map[string]any{\"budget_set\": false})"
-      },
-      {
-        "file": "internal/cli/cost_estimate.go",
-        "line": 67,
-        "snippet": "if err := flags.printJSON(cmd, out); err != nil {"
-      },
-      {
-        "file": "internal/cli/cost_estimate.go",
-        "line": 107,
-        "snippet": "return flags.printJSON(cmd, rows)"
-      },
-      {
-        "file": "internal/cli/reconcile.go",
-        "line": 60,
-        "snippet": "return flags.printJSON(cmd, map[string]any{\"would_match\": len(inputs), \"verify_noop\": true})"
-      },
-      {
-        "file": "internal/cli/reconcile.go",
-        "line": 92,
-        "snippet": "return flags.printJSON(cmd, map[string]any{"
-      },
-      {
-        "file": "internal/cli/spend.go",
-        "line": 81,
-        "snippet": "return flags.printJSON(cmd, map[string]any{"
-      },
-      {
-        "file": "internal/cli/stack_diff.go",
-        "line": 71,
-        "snippet": "return flags.printJSON(cmd, map[string]any{"
-      },
-      {
-        "file": "internal/cli/stale.go",
-        "line": 95,
-        "snippet": "return flags.printJSON(cmd, map[string]any{"
-      }
-    ]
+    "checked": 49
   },
   "test_presence": {
     "checked": 0
@@ -143,7 +84,5 @@
   "naming_check": {
     "checked": 49
   },
-  "issues": [
-    "12 call site(s) using flags.printJSON(cmd, v) — silently drops --select/--compact/--csv/--quiet, switch to printJSONFiltered(cmd.OutOrStdout(), v, flags): internal/cli/balance.go:78; internal/cli/balance.go:88; internal/cli/budget.go:50; internal/cli/budget.go:78; internal/cli/budget.go:104; internal/cli/cost_estimate.go:67; internal/cli/cost_estimate.go:107; internal/cli/reconcile.go:60; internal/cli/reconcile.go:92; internal/cli/spend.go:81; internal/cli/stack_diff.go:71; internal/cli/stale.go:95"
-  ]
+  "issues": null
 }

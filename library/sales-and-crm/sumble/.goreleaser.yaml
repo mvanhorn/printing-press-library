@@ -42,10 +42,10 @@ checksum:
 brews:
   - name: sumble-pp-cli
     repository:
-      owner: kostas-pardalis
+      owner: user
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Every Sumble v6 feature, plus the credit-awareness the API itself won't give you: cost estimates before every billed..."
+    description: "Every Sumble v6 feature, plus the credit-awareness the API itself won't give you"
     install: |
       bin.install "sumble-pp-cli"
       bin.install "sumble-pp-mcp"

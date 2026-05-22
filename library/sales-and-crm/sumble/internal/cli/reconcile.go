@@ -47,20 +47,23 @@ columns are used; override with --name-col / --url-col / --location-col.
 				return cmd.Help()
 			}
 			path := args[0]
+
+			// Short-circuit under the verifier before any file IO or network
+			// call, so verify/dry-run probes don't require the CSV to exist.
+			if cliutil.IsVerifyEnv() {
+				if flags.asJSON {
+					return flags.printJSON(cmd, map[string]any{"verify_noop": true})
+				}
+				fmt.Fprintln(cmd.OutOrStdout(), "verify mode: no match call made")
+				return nil
+			}
+
 			inputs, err := readReconcileCSV(path, nameCol, urlCol, locCol)
 			if err != nil {
 				return usageErr(err)
 			}
 			if len(inputs) == 0 {
 				return usageErr(fmt.Errorf("no rows found in %s", path))
-			}
-
-			if cliutil.IsVerifyEnv() {
-				if flags.asJSON {
-					return flags.printJSON(cmd, map[string]any{"would_match": len(inputs), "verify_noop": true})
-				}
-				fmt.Fprintf(cmd.OutOrStdout(), "would match %d companies (verify mode, no call made)\n", len(inputs))
-				return nil
 			}
 
 			c, cerr := flags.newClient()
@@ -73,7 +76,7 @@ columns are used; override with --name-col / --url-col / --location-col.
 			}
 			defer db.Close()
 
-			raw, _, perr := c.Post("/organizations/match", map[string]any{"organizations": inputs})
+			raw, _, perr := c.Post(cmd.Context(), "/organizations/match", map[string]any{"organizations": inputs})
 			if perr != nil {
 				return classifyAPIError(perr, flags)
 			}

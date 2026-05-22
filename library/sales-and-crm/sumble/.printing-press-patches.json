@@ -1,22 +1,7 @@
 {
   "schema_version": 1,
-  "applied_at": "2026-05-21",
+  "applied_at": "2026-05-22",
   "base_run_id": "20260521-201949",
-  "base_printing_press_version": "4.0.6",
-  "patches": [
-    {
-      "id": "store-sql-ident-guard",
-      "summary": "ListIDs and ResolveByName validate interpolated SQL identifiers against a safe-identifier pattern before use.",
-      "reason": "ListIDs interpolated a user-supplied resource type (--resources flag) directly into 'SELECT id FROM <table>', and ResolveByName interpolated field names into a json_extract path — both reachable SQL-injection paths against the local SQLite DB. Generator template bug present in every printed CLI's internal/store/store.go.",
-      "files": ["internal/store/store.go"],
-      "validated_outcome": "go vet ./... && go build ./..."
-    },
-    {
-      "id": "client-cachekey-deterministic",
-      "summary": "cacheKey iterates request params in sorted key order so the cache key is stable across invocations.",
-      "reason": "Unsorted map iteration produced a different cache key each run, defeating the file-based response cache for any multi-parameter request. Generator template bug present in every printed CLI's internal/client/client.go.",
-      "files": ["internal/client/client.go"],
-      "validated_outcome": "go vet ./... && go build ./..."
-    }
-  ]
+  "base_printing_press_version": "4.11.0",
+  "patches": []
 }

@@ -59,7 +59,7 @@ fresh balance. Pass --no-probe to read only the local ledger.
 				if cerr != nil {
 					return cerr
 				}
-				raw, _, perr := c.Post("/technologies/find", map[string]any{"query": balanceProbeQuery})
+				raw, _, perr := c.Post(cmd.Context(), "/technologies/find", map[string]any{"query": balanceProbeQuery})
 				if perr != nil {
 					if !have {
 						return classifyAPIError(perr, flags)
