@@ -3,6 +3,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -228,8 +229,8 @@ func toFloat(v any) (float64, bool) {
 	return 0, false
 }
 
-func queryStopAreasInBbox(ctx interface{ Done() <-chan struct{} }, s *store.Store, bbox geoBbox) ([]map[string]any, error) {
-	rows, err := s.DB().Query(
+func queryStopAreasInBbox(ctx context.Context, s *store.Store, bbox geoBbox) ([]map[string]any, error) {
+	rows, err := s.DB().QueryContext(ctx,
 		`SELECT json_extract(data,'$.id'), json_extract(data,'$.name'),
 		        json_extract(data,'$.coord.lon'), json_extract(data,'$.coord.lat')
 		 FROM coverage_stop_areas

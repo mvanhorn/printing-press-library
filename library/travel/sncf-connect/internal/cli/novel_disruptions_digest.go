@@ -12,7 +12,7 @@ import (
 )
 
 func newDisruptionsDigestCmd(flags *rootFlags) *cobra.Command {
-	var coverage, lines, dbPath string
+	var coverage, lines string
 	var all bool
 
 	cmd := &cobra.Command{
@@ -39,9 +39,6 @@ By default shows only active disruptions; use --all to include future and past.`
 			path := fmt.Sprintf("/coverage/%s/disruptions", coverage)
 			params := map[string]string{
 				"count": "100",
-			}
-			if !all {
-				params["current_datetime"] = ""
 			}
 
 			data, _, err := resolveRead(cmd.Context(), c, flags, "disruptions", true, path, params, nil)
@@ -134,14 +131,12 @@ By default shows only active disruptions; use --all to include future and past.`
 				}
 				fmt.Fprintf(cmd.OutOrStdout(), "  • %s%s\n", msg, linesStr)
 			}
-			_ = dbPath
 			return nil
 		},
 	}
 	cmd.Flags().StringVar(&coverage, "coverage", "sncf", "Navitia coverage region")
 	cmd.Flags().StringVar(&lines, "lines", "", "Comma-separated line URIs to filter (e.g. line:OCE:TGV)")
 	cmd.Flags().BoolVar(&all, "all", false, "Include future and past disruptions, not just active")
-	cmd.Flags().StringVar(&dbPath, "db", "", "Database path (default: ~/.local/share/sncf-connect-pp-cli/data.db)")
 	return cmd
 }
 

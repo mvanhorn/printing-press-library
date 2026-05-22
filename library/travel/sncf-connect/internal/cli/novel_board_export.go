@@ -145,7 +145,7 @@ Designed for ETL pipelines that need structured data without human-formatted out
 				}
 			}
 
-			if format != "jsonl" && format != "csv" {
+			if !flags.asJSON && format != "jsonl" {
 				fmt.Fprintf(os.Stderr, "Exported %d departures from %s.\n", len(rows), station)
 			}
 			return nil
