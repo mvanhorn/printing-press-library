@@ -96,6 +96,42 @@ func TestHarvardObjectToWork_MediumFallsBackToTechnique(t *testing.T) {
 	}
 }
 
+func TestHarvardObjectToWork_Level1ImagePermissionCapsToThumbnail(t *testing.T) {
+	// Harvard's permission levels forbid surfacing the full primaryimageurl
+	// for level-1 (thumbnail-only) objects. ImageURL must be the IIIF 200px
+	// derivative, not the full-res URL.
+	r := harvardObject{
+		ObjectID:             100,
+		Title:                "Modern Print (thumbnail-only)",
+		PrimaryImageURL:      "https://nrs.harvard.edu/urn-3:HUAM:FULL_dynmc",
+		BaseImageURL:         "https://nrs.harvard.edu/urn-3:HUAM:FULL",
+		ImagePermissionLevel: 1,
+	}
+	w := harvardObjectToWork(r)
+	wantThumb := "https://nrs.harvard.edu/urn-3:HUAM:FULL/full/200,/0/default.jpg"
+	if w.ImageURL != wantThumb {
+		t.Errorf("level-1 ImageURL = %q, want IIIF 200px derivative %q", w.ImageURL, wantThumb)
+	}
+	if w.ImageURL == r.PrimaryImageURL {
+		t.Errorf("level-1 ImageURL must NOT equal full primaryimageurl (%q)", r.PrimaryImageURL)
+	}
+}
+
+func TestHarvardObjectToWork_Level0ImagePermissionKeepsFullImage(t *testing.T) {
+	// Level-0 (display permitted) retains the full primaryimageurl.
+	r := harvardObject{
+		ObjectID:             101,
+		Title:                "Public-domain Painting",
+		PrimaryImageURL:      "https://nrs.harvard.edu/urn-3:HUAM:FULL_dynmc",
+		BaseImageURL:         "https://nrs.harvard.edu/urn-3:HUAM:FULL",
+		ImagePermissionLevel: 0,
+	}
+	w := harvardObjectToWork(r)
+	if w.ImageURL != r.PrimaryImageURL {
+		t.Errorf("level-0 ImageURL = %q, want full primaryimageurl %q", w.ImageURL, r.PrimaryImageURL)
+	}
+}
+
 func TestHarvardObjectToWork_CopyrightOverridesPublicDomainLicense(t *testing.T) {
 	r := harvardObject{
 		ObjectID:        3,

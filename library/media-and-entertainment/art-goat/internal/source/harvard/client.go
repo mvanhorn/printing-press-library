@@ -174,9 +174,16 @@ func (c *Client) Sync(ctx context.Context, opts source.SyncOpts) ([]source.Work,
 			if r.PrimaryImageURL == "" {
 				continue
 			}
-			// imagepermissionlevel: 0=display permitted, 1=thumbnail-only,
-			// 2=no image permitted. Skip 2 even when primaryimageurl is set.
+			// imagepermissionlevel: 0=display permitted (full),
+			// 1=thumbnail-only display permitted, 2=no image display.
+			// Skip 2 entirely. Skip 1 too when baseimageurl is empty —
+			// we can't construct the 200px IIIF derivative without it,
+			// and surfacing primaryimageurl for a level-1 object would
+			// violate Harvard's documented terms.
 			if r.ImagePermissionLevel >= 2 {
+				continue
+			}
+			if r.ImagePermissionLevel == 1 && strings.TrimSpace(r.BaseImageURL) == "" {
 				continue
 			}
 			out = append(out, harvardObjectToWork(r))
@@ -219,6 +226,16 @@ func harvardObjectToWork(r harvardObject) source.Work {
 		license = cp
 	}
 
+	// For level-1 (thumbnail-only) objects, cap the surfaced ImageURL to
+	// the 200px IIIF derivative. Harvard's documented permission levels
+	// forbid displaying the full primaryimageurl for level-1 records; the
+	// Sync filter above already drops level-1 records without a
+	// baseimageurl, so thumbnailURL(r) is guaranteed non-empty here.
+	imageURL := r.PrimaryImageURL
+	if r.ImagePermissionLevel >= 1 {
+		imageURL = thumbnailURL(r)
+	}
+
 	w := source.Work{
 		ID:               "harvard:" + strconv.Itoa(r.ObjectID),
 		Source:           "harvard",
@@ -233,7 +250,7 @@ func harvardObjectToWork(r harvardObject) source.Work {
 		Classification:   strings.TrimSpace(r.Classification),
 		Period:           period,
 		CultureRegion:    cultureToRegion(r.Culture),
-		ImageURL:         r.PrimaryImageURL,
+		ImageURL:         imageURL,
 		ThumbnailURL:     thumbnailURL(r),
 		License:          license,
 		SourceURL:        r.URL,
