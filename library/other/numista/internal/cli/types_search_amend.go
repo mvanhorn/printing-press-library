@@ -5,7 +5,6 @@ package cli
 import (
 	"errors"
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -204,10 +203,15 @@ func emitNarrowingHintIfApplicable(cmd *cobra.Command, flags *rootFlags) {
 	if issuer != "" || year != "" || date != "" || catalogue != 0 {
 		return
 	}
-	fmt.Fprintln(os.Stderr,
+	// Use cmd.ErrOrStderr() not os.Stderr — every other diagnostic in this
+	// CLI goes through the command's error writer (see issuers_amend.go's
+	// renderIssuersFind for the documented rationale), and Cobra-based
+	// tests can only capture output that flows through it.
+	w := cmd.ErrOrStderr()
+	fmt.Fprintln(w,
 		"# tip: --q alone often returns results across many issuers and eras.")
-	fmt.Fprintln(os.Stderr,
+	fmt.Fprintln(w,
 		"#      Narrow with --issuer (e.g. united-states) or --year (e.g. 1878-1921).")
-	fmt.Fprintln(os.Stderr,
+	fmt.Fprintln(w,
 		"#      Run 'numista-pp-cli issuers find <name>' to look up an issuer slug.")
 }
