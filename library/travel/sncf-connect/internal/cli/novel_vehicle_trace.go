@@ -53,8 +53,10 @@ Useful for populating schedule databases or understanding a line's full path.`,
 
 			path := fmt.Sprintf("/coverage/%s/lines/%s/vehicle_journeys", coverage, lineURI)
 			params := map[string]string{
-				"depth": "2",
-				"count": "5",
+				"depth":             "2",
+				"count":             "5",
+				"since":             date + "T000000",
+				"until":             date + "T235959",
 			}
 
 			data, _, err := resolveRead(cmd.Context(), c, flags, "vehicle_journeys", true, path, params, nil)

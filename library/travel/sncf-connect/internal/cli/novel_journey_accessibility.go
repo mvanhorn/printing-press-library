@@ -210,8 +210,8 @@ func parseEquipmentStatus(data json.RawMessage, elevators, escalators *[]string,
 		}
 	}
 
-	*elevOK = true
-	*escalOK = true
+	elevSeen := false
+	escalSeen := false
 
 	for _, rep := range reports {
 		r, _ := rep.(map[string]any)
@@ -232,11 +232,19 @@ func parseEquipmentStatus(data json.RawMessage, elevators, escalators *[]string,
 			switch strings.ToLower(eqType) {
 			case "elevator":
 				*elevators = append(*elevators, name)
+				if !elevSeen {
+					*elevOK = true
+					elevSeen = true
+				}
 				if strings.ToLower(effect) != "available" {
 					*elevOK = false
 				}
 			case "escalator":
 				*escalators = append(*escalators, name)
+				if !escalSeen {
+					*escalOK = true
+					escalSeen = true
+				}
 				if strings.ToLower(effect) != "available" {
 					*escalOK = false
 				}
