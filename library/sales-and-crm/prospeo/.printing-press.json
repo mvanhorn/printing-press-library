@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-22T15:22:46.740573Z",
+  "printing_press_version": "4.11.0",
+  "api_name": "prospeo",
+  "display_name": "Prospeo",
+  "cli_name": "prospeo-pp-cli",
+  "owner": "user",
+  "printer": "riccardovandra",
+  "printer_name": "riccardovandra",
+  "spec_path": "/Users/riccardovandra/printing-press/.runstate/the-crucible-7f81e23e/runs/20260522-161407/research/prospeo-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:da7b39d3ebe5dd3e199a44e502ba0204dcd3c89b1d0438cb294dbbea0f0858b4",
+  "run_id": "20260522-161407",
+  "description": "Every Prospeo endpoint, plus a credit-aware local cache, bulk CSV pipelines, and lookalike search no other Prospeo tool ships.",
+  "mcp_binary": "prospeo-pp-mcp",
+  "mcp_tool_count": 8,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "PROSPEO_API_KEY"
+  ],
+  "auth_key_url": "https://app.prospeo.io/api-keys",
+  "auth_title": "Prospeo API key",
+  "auth_description": "Get your API key from https://app.prospeo.io/api-keys and export it:\n  export PROSPEO_API_KEY=...\nThe CLI sends it as the X-KEY header on every request.\n",
+  "novel_features": [
+    {
+      "name": "Offline FTS over enrichment cache",
+      "command": "find",
+      "description": "Search every contact or company you've previously enriched without spending a credit."
+    },
+    {
+      "name": "Lifetime-dupe-aware cache",
+      "command": "cache predict",
+      "description": "Predict which rows in a CSV would be free Prospeo lifetime-duplicate hits before you spend credits."
+    },
+    {
+      "name": "Credit pre-flight + max-cost guard",
+      "command": "person bulk --max-cost",
+      "description": "Estimate the credit cost of a bulk job and refuse to run if it exceeds the budget or remaining balance."
+    },
+    {
+      "name": "Bulk cost simulator",
+      "command": "person bulk --dry-run",
+      "description": "Show projected credits, dupe-hit ratio, and ETA before sending any rows."
+    },
+    {
+      "name": "Credit burn timeline",
+      "command": "credits burn",
+      "description": "Daily burn rate and projected runway from snapshots of /account-information."
+    },
+    {
+      "name": "Lookalike from seed",
+      "command": "lookalike",
+      "description": "Find companies (or people) similar to a seed by auto-deriving industry, size, tech-stack, and location filters from an enriched seed."
+    },
+    {
+      "name": "Search-then-enrich pipeline",
+      "command": "person funnel",
+      "description": "Run search-person with filters, walk pages, enrich each hit (verified-only), cache everything, write CSV."
+    },
+    {
+      "name": "Dedup-aware CSV merge",
+      "command": "person bulk --merge",
+      "description": "Skip rows already in an existing enriched CSV so re-runs are incremental and cheap."
+    },
+    {
+      "name": "Per-plan rate limiter",
+      "command": "(internal — all commands)",
+      "description": "Plan-aware token bucket that slows down before tripping Prospeo's 429s."
+    },
+    {
+      "name": "ICP fit scorer",
+      "command": "score",
+      "description": "Score every enriched row against a YAML ICP spec (titles, sizes, geos, tech, seniority) and emit a score column with reasons."
+    },
+    {
+      "name": "Spend-attribution ledger",
+      "command": "ledger",
+      "description": "Report spend per CSV source, per campaign tag, or per day from the local enrichments + csv_jobs + account_snapshots ledger."
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "prospeo-pp-mcp",
+  "display_name": "Prospeo",
+  "version": "4.11.0",
+  "description": "Every Prospeo endpoint, plus a credit-aware local cache, bulk CSV pipelines, and lookalike search no other Prospeo tool ships.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/prospeo-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/prospeo-pp-mcp",
+      "args": [],
+      "env": {
+        "PROSPEO_API_KEY": "${user_config.prospeo_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "prospeo_api_key": {
+      "type": "string",
+      "title": "Prospeo API key",
+      "description": "Get your API key from https://app.prospeo.io/api-keys and export it:\n  export PROSPEO_API_KEY=...\nThe CLI sends it as the X-KEY header on every request.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

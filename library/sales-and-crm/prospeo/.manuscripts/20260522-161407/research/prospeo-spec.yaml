@@ -1,0 +1,234 @@
+name: prospeo
+display_name: "Prospeo"
+description: "Prospeo email finder, mobile finder, company and people enrichment, and B2B search with offline credit cache."
+cli_description: "Every Prospeo API endpoint plus offline credit-aware caching, bulk-CSV pipelines, and lookalike search no other Prospeo tool ships."
+version: "0.1.0"
+base_url: "https://api.prospeo.io"
+http_transport: standard
+health_check_path: "/account-information"
+
+auth:
+  type: api_key
+  header: x-key
+  in: header
+  env_vars:
+    - PROSPEO_API_KEY
+  title: "Prospeo API key"
+  description: |
+    Get your API key from https://app.prospeo.io/api-keys and export it:
+      export PROSPEO_API_KEY=...
+    The CLI sends it as the X-KEY header on every request.
+  key_url: "https://app.prospeo.io/api-keys"
+  verify_path: "/account-information"
+
+config:
+  format: toml
+  path: "~/.config/prospeo-pp-cli/config.toml"
+
+mcp:
+  transport: [stdio, http]
+
+resources:
+  account:
+    description: "API key account information and credit balance"
+    endpoints:
+      info:
+        method: GET
+        path: "/account-information"
+        description: "Show current plan, remaining credits, used credits, next quota renewal, and team size. Free, does not consume credits."
+        no_auth: false
+        response:
+          type: object
+          item: AccountInformation
+
+  person:
+    description: "Person enrichment: find email, mobile, and full profile from name, linkedin URL, email, or person ID"
+    endpoints:
+      enrich:
+        method: POST
+        path: "/enrich-person"
+        description: "Enrich a single person. Provide at least one matching path: linkedin_url, email, person_id, or first_name+last_name with a company hint. Costs 1 credit for email or 10 with --mobile."
+        body:
+          - name: first_name
+            flag_name: first-name
+            type: string
+            description: "Person's first name (used with last_name + company)"
+          - name: last_name
+            flag_name: last-name
+            type: string
+            description: "Person's last name (used with first_name + company)"
+          - name: full_name
+            flag_name: full-name
+            type: string
+            description: "Full name (alternative to first_name + last_name)"
+          - name: company
+            type: string
+            description: "Company name, website, or LinkedIn URL"
+          - name: company_name
+            flag_name: company-name
+            type: string
+            description: "Company name hint"
+          - name: company_website
+            flag_name: company-website
+            type: string
+            description: "Company website hint"
+          - name: linkedin_url
+            flag_name: linkedin
+            type: string
+            description: "LinkedIn profile URL (strongest match signal)"
+          - name: email
+            type: string
+            description: "Known email to enrich profile around"
+          - name: person_id
+            flag_name: person-id
+            type: string
+            description: "Prospeo person ID from a prior /search-person hit"
+          - name: only_verified_email
+            flag_name: verified-only
+            type: bool
+            default: false
+            description: "Skip unverified email hits to save credits"
+          - name: enrich_mobile
+            flag_name: mobile
+            type: bool
+            default: false
+            description: "Also resolve mobile phone (10 credits instead of 1)"
+          - name: only_verified_mobile
+            flag_name: verified-mobile-only
+            type: bool
+            default: false
+            description: "Skip unverified mobile hits"
+        response:
+          type: object
+          item: PersonEnrichment
+
+      bulk:
+        method: POST
+        path: "/bulk-enrich-person"
+        description: "Enrich up to 50 person records in one call. Pass --input CSV with first_name/last_name/company columns (or linkedin_url). Auto-chunks into 50-row requests."
+        body:
+          - name: items
+            type: object
+            required: true
+            description: "Array of person records (caller_id + matching fields). Max 50 per request; CLI auto-chunks larger inputs."
+          - name: only_verified_email
+            flag_name: verified-only
+            type: bool
+            default: false
+            description: "Skip unverified email hits"
+          - name: enrich_mobile
+            flag_name: mobile
+            type: bool
+            default: false
+            description: "Also resolve mobile phone (10 credits per record)"
+          - name: only_verified_mobile
+            flag_name: verified-mobile-only
+            type: bool
+            default: false
+            description: "Skip unverified mobile hits"
+        response:
+          type: object
+          item: BulkPersonEnrichment
+
+      search:
+        method: POST
+        path: "/search-person"
+        description: "Search Prospeo's people database with filters (job_title, seniority, department, company, location, ICP signals). Returns up to 25 hits per page; total cap 25,000. Costs 1 credit per page that returns results."
+        body:
+          - name: filters
+            type: object
+            required: true
+            description: "Filter object: include/exclude arrays for person_job_title, person_seniority, person_department, company.websites, company.names, person_location_search, etc. See https://prospeo.io/api-docs/filters-documentation"
+          - name: page
+            type: integer
+            default: 1
+            description: "Page number (1-1000, 25 per page)"
+        response:
+          type: object
+          item: PersonSearch
+
+  company:
+    description: "Company enrichment and search across firmographics, tech stack, funding, location, hiring"
+    endpoints:
+      enrich:
+        method: POST
+        path: "/enrich-company"
+        description: "Enrich a company by website, LinkedIn URL, or Prospeo company_id. 1 credit per match; misses and lifetime duplicates are free."
+        body:
+          - name: company_website
+            flag_name: website
+            type: string
+            description: "Company website domain (strongest match)"
+          - name: linkedin_company_url
+            flag_name: linkedin
+            type: string
+            description: "Company LinkedIn URL"
+          - name: company_name
+            flag_name: name
+            type: string
+            description: "Company name (discouraged alone; combine with location or industry)"
+          - name: company_id
+            flag_name: company-id
+            type: string
+            description: "Prospeo company ID from a prior /search-company hit"
+        response:
+          type: object
+          item: CompanyEnrichment
+
+      bulk:
+        method: POST
+        path: "/bulk-enrich-company"
+        description: "Enrich up to 50 companies in one call. Auto-chunks CSV input into 50-row requests with caller IDs."
+        body:
+          - name: items
+            type: object
+            required: true
+            description: "Array of company records (caller_id + matching fields). Max 50 per request."
+        response:
+          type: object
+          item: BulkCompanyEnrichment
+
+      search:
+        method: POST
+        path: "/search-company"
+        description: "Search companies by industry, size, revenue, funding, tech stack, location, hiring signals (Growth+ for ICP filters). 25 per page, max 25,000 total. 1 credit per page with results."
+        body:
+          - name: filters
+            type: object
+            required: true
+            description: "Filter object. See https://prospeo.io/api-docs/filters-documentation"
+          - name: page
+            type: integer
+            default: 1
+            description: "Page number (1-1000, 25 per page)"
+        response:
+          type: object
+          item: CompanySearch
+
+  suggestions:
+    description: "Search-helper autocomplete endpoints. Free, do not consume credits."
+    endpoints:
+      lookup:
+        method: POST
+        path: "/search-suggestions"
+        description: "Autocomplete for location or job title filters before composing a search. 15 req/s rate limit. Pass exactly one of --location or --job-title."
+        body:
+          - name: location_search
+            flag_name: location
+            type: string
+            description: "Location prefix (min 2 chars). Returns COUNTRY/STATE/CITY/ZONE suggestions."
+          - name: job_title_search
+            flag_name: job-title
+            type: string
+            description: "Job title prefix (min 2 chars). Returns up to 25 suggestions."
+        response:
+          type: object
+          item: Suggestions
+
+extra_commands:
+  - name: lookalike
+    description: "Build a search filter from a seed company or person and find similar contacts. Wraps /search-company or /search-person with industry, size, and ICP filters auto-derived from the seed."
+  - name: credits
+    description: "Show credit balance, daily burn, and projected runway based on recent enrichments. Reads /account-information and the local cache."
+  - name: cache
+    description: "Inspect and prune the local enrichment cache (lifetime-dupe hits are free; cache makes them instant)."

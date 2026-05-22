@@ -1,0 +1,276 @@
+{
+  "api_name": "prospeo",
+  "base_url": "https://api.prospeo.io",
+  "description": "Every Prospeo endpoint, plus a credit-aware local cache, bulk CSV pipelines, and lookalike search no other Prospeo tool ships.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "api_key",
+    "header": "x-key",
+    "in": "header",
+    "env_vars": [
+      "PROSPEO_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "PROSPEO_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "key_url": "https://app.prospeo.io/api-keys"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "account_info",
+      "description": "Show current plan, remaining credits, used credits, next quota renewal, and team size. Free, does not consume credits. Returns the AccountInformation.",
+      "method": "GET",
+      "path": "/account-information",
+      "params": []
+    },
+    {
+      "name": "company_bulk",
+      "description": "Enrich up to 50 companies in one call. Auto-chunks CSV input into 50-row requests with caller IDs. Required: items. Returns the new BulkCompanyEnrichment.",
+      "method": "POST",
+      "path": "/bulk-enrich-company",
+      "params": [
+        {
+          "name": "items",
+          "type": "object",
+          "location": "body",
+          "description": "Array of company records (caller_id + matching fields). Max 50 per request.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "company_enrich",
+      "description": "Enrich a company by website, LinkedIn URL, or Prospeo company_id. 1 credit per match; misses and lifetime duplicates are free. Optional: website, linkedin, name (plus 1 more). Returns the new CompanyEnrichment.",
+      "method": "POST",
+      "path": "/enrich-company",
+      "params": [
+        {
+          "name": "website",
+          "wire_name": "company_website",
+          "type": "string",
+          "location": "body",
+          "description": "Company website domain (strongest match)"
+        },
+        {
+          "name": "linkedin",
+          "wire_name": "linkedin_company_url",
+          "type": "string",
+          "location": "body",
+          "description": "Company LinkedIn URL"
+        },
+        {
+          "name": "name",
+          "wire_name": "company_name",
+          "type": "string",
+          "location": "body",
+          "description": "Company name (discouraged alone; combine with location or industry)"
+        },
+        {
+          "name": "company-id",
+          "wire_name": "company_id",
+          "type": "string",
+          "location": "body",
+          "description": "Prospeo company ID from a prior /search-company hit"
+        }
+      ]
+    },
+    {
+      "name": "company_search",
+      "description": "Search companies by industry, size, revenue, funding, tech stack, location, hiring signals (Growth+ for ICP filters). 25 per page, max 25,000 total. 1 credit per page with results. Required: filters. Optional: page (default: 1). Returns the new CompanySearch.",
+      "method": "POST",
+      "path": "/search-company",
+      "params": [
+        {
+          "name": "filters",
+          "type": "object",
+          "location": "body",
+          "description": "Filter object. See https://prospeo.io/api-docs/filters-documentation",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "integer",
+          "location": "body",
+          "description": "Page number (1-1000, 25 per page)"
+        }
+      ]
+    },
+    {
+      "name": "person_bulk",
+      "description": "Enrich up to 50 person records in one call. Pass --input CSV with first_name/last_name/company columns (or linkedin_url). Auto-chunks into 50-row requests. Required: items. Optional: verified-only (default: false), mobile (default: false), verified-mobile-only (default: false). Returns the new BulkPersonEnrichment.",
+      "method": "POST",
+      "path": "/bulk-enrich-person",
+      "params": [
+        {
+          "name": "items",
+          "type": "object",
+          "location": "body",
+          "description": "Array of person records (caller_id + matching fields). Max 50 per request; CLI auto-chunks larger inputs.",
+          "required": true
+        },
+        {
+          "name": "verified-only",
+          "wire_name": "only_verified_email",
+          "type": "bool",
+          "location": "body",
+          "description": "Skip unverified email hits"
+        },
+        {
+          "name": "mobile",
+          "wire_name": "enrich_mobile",
+          "type": "bool",
+          "location": "body",
+          "description": "Also resolve mobile phone (10 credits per record)"
+        },
+        {
+          "name": "verified-mobile-only",
+          "wire_name": "only_verified_mobile",
+          "type": "bool",
+          "location": "body",
+          "description": "Skip unverified mobile hits"
+        }
+      ]
+    },
+    {
+      "name": "person_enrich",
+      "description": "Enrich a single person. Provide at least one matching path: linkedin_url, email, person_id, or first_name+last_name with a company hint. Costs 1 credit for email or 10 with --mobile. Optional: first-name, last-name, full-name (plus 9 more). Returns the new PersonEnrichment.",
+      "method": "POST",
+      "path": "/enrich-person",
+      "params": [
+        {
+          "name": "first-name",
+          "wire_name": "first_name",
+          "type": "string",
+          "location": "body",
+          "description": "Person's first name (used with last_name + company)"
+        },
+        {
+          "name": "last-name",
+          "wire_name": "last_name",
+          "type": "string",
+          "location": "body",
+          "description": "Person's last name (used with first_name + company)"
+        },
+        {
+          "name": "full-name",
+          "wire_name": "full_name",
+          "type": "string",
+          "location": "body",
+          "description": "Full name (alternative to first_name + last_name)"
+        },
+        {
+          "name": "company",
+          "type": "string",
+          "location": "body",
+          "description": "Company name, website, or LinkedIn URL"
+        },
+        {
+          "name": "company-name",
+          "wire_name": "company_name",
+          "type": "string",
+          "location": "body",
+          "description": "Company name hint"
+        },
+        {
+          "name": "company-website",
+          "wire_name": "company_website",
+          "type": "string",
+          "location": "body",
+          "description": "Company website hint"
+        },
+        {
+          "name": "linkedin",
+          "wire_name": "linkedin_url",
+          "type": "string",
+          "location": "body",
+          "description": "LinkedIn profile URL (strongest match signal)"
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "body",
+          "description": "Known email to enrich profile around"
+        },
+        {
+          "name": "person-id",
+          "wire_name": "person_id",
+          "type": "string",
+          "location": "body",
+          "description": "Prospeo person ID from a prior /search-person hit"
+        },
+        {
+          "name": "verified-only",
+          "wire_name": "only_verified_email",
+          "type": "bool",
+          "location": "body",
+          "description": "Skip unverified email hits to save credits"
+        },
+        {
+          "name": "mobile",
+          "wire_name": "enrich_mobile",
+          "type": "bool",
+          "location": "body",
+          "description": "Also resolve mobile phone (10 credits instead of 1)"
+        },
+        {
+          "name": "verified-mobile-only",
+          "wire_name": "only_verified_mobile",
+          "type": "bool",
+          "location": "body",
+          "description": "Skip unverified mobile hits"
+        }
+      ]
+    },
+    {
+      "name": "person_search",
+      "description": "Search Prospeo's people database with filters (job_title, seniority, department, company, location, ICP signals). Returns up to 25 hits per page; total cap 25,000. Costs 1 credit per page that returns results. Required: filters. Optional: page (default: 1).",
+      "method": "POST",
+      "path": "/search-person",
+      "params": [
+        {
+          "name": "filters",
+          "type": "object",
+          "location": "body",
+          "description": "Filter object: include/exclude arrays for person_job_title, person_seniority, person_department, company.websites, company.names, person_location_search, etc. See https://prospeo.io/api-docs/filters-documentation",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "integer",
+          "location": "body",
+          "description": "Page number (1-1000, 25 per page)"
+        }
+      ]
+    },
+    {
+      "name": "suggestions_lookup",
+      "description": "Autocomplete for location or job title filters before composing a search. 15 req/s rate limit. Pass exactly one of --location or --job-title. Optional: location, job-title. Returns the new Suggestions.",
+      "method": "POST",
+      "path": "/search-suggestions",
+      "params": [
+        {
+          "name": "location",
+          "wire_name": "location_search",
+          "type": "string",
+          "location": "body",
+          "description": "Location prefix (min 2 chars). Returns COUNTRY/STATE/CITY/ZONE suggestions."
+        },
+        {
+          "name": "job-title",
+          "wire_name": "job_title_search",
+          "type": "string",
+          "location": "body",
+          "description": "Job title prefix (min 2 chars). Returns up to 25 suggestions."
+        }
+      ]
+    }
+  ]
+}

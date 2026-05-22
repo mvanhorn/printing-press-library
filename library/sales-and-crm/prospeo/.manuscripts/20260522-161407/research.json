@@ -1,0 +1,307 @@
+{
+  "api_name": "prospeo",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "prospeo-mcp-server",
+      "url": "https://github.com/Meerkats-Ai/prospeo-mcp-server",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-22T14:25:00Z",
+  "novel_features": [
+    {
+      "name": "Offline FTS over enrichment cache",
+      "command": "find",
+      "description": "Search every contact or company you've previously enriched without spending a credit.",
+      "rationale": "Local SQLite FTS5 over the persons + companies cache; Prospeo's API has no free lookup.",
+      "example": "prospeo-pp-cli find 'VP of Sales fintech Berlin' --agent",
+      "why_it_matters": "When the agent already has a contact in cache, re-fetching from Prospeo burns credits. find is zero-cost.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Lifetime-dupe-aware cache",
+      "command": "cache predict",
+      "description": "Predict which rows in a CSV would be free Prospeo lifetime-duplicate hits before you spend credits.",
+      "rationale": "Prospeo returns free_enrichment:true for duplicates; our cache mirrors that semantics so prediction works pre-flight.",
+      "example": "prospeo-pp-cli cache predict --input leads.csv --agent",
+      "why_it_matters": "Cuts bulk-run cost by skipping cold-API trips for guaranteed-free hits.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Credit pre-flight + max-cost guard",
+      "command": "person bulk --max-cost",
+      "description": "Estimate the credit cost of a bulk job and refuse to run if it exceeds the budget or remaining balance.",
+      "rationale": "Joins live account-information with row count × per-row cost; aborts before the spend.",
+      "example": "prospeo-pp-cli person bulk --input leads.csv --max-cost 500 --mobile",
+      "why_it_matters": "Stops accidental 10-credit-per-row mobile bursts that drain the monthly allowance.",
+      "group": "Credit economy controls"
+    },
+    {
+      "name": "Bulk cost simulator",
+      "command": "person bulk --dry-run",
+      "description": "Show projected credits, dupe-hit ratio, and ETA before sending any rows.",
+      "rationale": "Pairs row counting with cache predictions; uses no API calls.",
+      "example": "prospeo-pp-cli person bulk --input leads.csv --dry-run --json --select projected_cost,dupe_hits,api_calls",
+      "why_it_matters": "Agents can decide whether a job is worth running based on cost projection.",
+      "group": "Credit economy controls"
+    },
+    {
+      "name": "Credit burn timeline",
+      "command": "credits burn",
+      "description": "Daily burn rate and projected runway from snapshots of /account-information.",
+      "rationale": "Account snapshots collected on every call build a time series Prospeo's dashboard does not surface.",
+      "example": "prospeo-pp-cli credits burn --days 30 --json",
+      "why_it_matters": "Tells the agent when the user is on track to run out before quota renewal.",
+      "group": "Credit economy controls"
+    },
+    {
+      "name": "Lookalike from seed",
+      "command": "lookalike",
+      "description": "Find companies (or people) similar to a seed by auto-deriving industry, size, tech-stack, and location filters from an enriched seed.",
+      "rationale": "Cross-entity reasoning: one enrich-company response becomes a multi-filter search-company query.",
+      "example": "prospeo-pp-cli lookalike --seed-company stripe.com --employees-min 200 --employees-max 1000 --agent",
+      "why_it_matters": "Turns 'find more like this customer' into one command instead of three.",
+      "group": "Search composition"
+    },
+    {
+      "name": "Search-then-enrich pipeline",
+      "command": "person funnel",
+      "description": "Run search-person with filters, walk pages, enrich each hit (verified-only), cache everything, write CSV.",
+      "rationale": "One command composes two endpoints plus pagination plus cache writes.",
+      "example": "prospeo-pp-cli person funnel --filters search.json --max 25 --output funnel.csv",
+      "why_it_matters": "Replaces 25+ HTTP calls and the glue between them with one invocation.",
+      "group": "Search composition"
+    },
+    {
+      "name": "Dedup-aware CSV merge",
+      "command": "person bulk --merge",
+      "description": "Skip rows already in an existing enriched CSV so re-runs are incremental and cheap.",
+      "rationale": "Cross-source join: input CSV × existing CSV × cache.",
+      "example": "prospeo-pp-cli person bulk --input new.csv --merge existing.csv --output merged.csv",
+      "why_it_matters": "Re-running a campaign on a refreshed lead list only burns credits on net-new rows.",
+      "group": "Credit economy controls"
+    },
+    {
+      "name": "Per-plan rate limiter",
+      "command": "(internal — all commands)",
+      "description": "Plan-aware token bucket that slows down before tripping Prospeo's 429s.",
+      "rationale": "Reads x-daily-request-left and x-minute-request-left response headers; uses cliutil.AdaptiveLimiter.",
+      "example": "prospeo-pp-cli person bulk --input leads.csv --concurrency 5",
+      "why_it_matters": "Avoids burning retries chasing the limit on a Starter or Growth plan.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "ICP fit scorer",
+      "command": "score",
+      "description": "Score every enriched row against a YAML ICP spec (titles, sizes, geos, tech, seniority) and emit a score column with reasons.",
+      "rationale": "Cross-source join: enrichments rows × YAML rules engine.",
+      "example": "prospeo-pp-cli score --icp icp.yaml --input enriched.csv --output scored.csv --json",
+      "why_it_matters": "Lets the agent rank a list for the SDR without paying for a separate ICP-scoring vendor.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Spend-attribution ledger",
+      "command": "ledger",
+      "description": "Report spend per CSV source, per campaign tag, or per day from the local enrichments + csv_jobs + account_snapshots ledger.",
+      "rationale": "Three-table SQLite join Prospeo's dashboard cannot do.",
+      "example": "prospeo-pp-cli ledger by-source --json --select source,credits_spent,rows_enriched",
+      "why_it_matters": "Answers 'which file ate my credits this week' in one command.",
+      "group": "Credit economy controls"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Offline FTS over enrichment cache",
+      "command": "find",
+      "description": "Search every contact or company you've previously enriched without spending a credit.",
+      "rationale": "Local SQLite FTS5 over the persons + companies cache; Prospeo's API has no free lookup.",
+      "example": "prospeo-pp-cli find 'VP of Sales fintech Berlin' --agent",
+      "why_it_matters": "When the agent already has a contact in cache, re-fetching from Prospeo burns credits. find is zero-cost.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Lifetime-dupe-aware cache",
+      "command": "cache predict",
+      "description": "Predict which rows in a CSV would be free Prospeo lifetime-duplicate hits before you spend credits.",
+      "rationale": "Prospeo returns free_enrichment:true for duplicates; our cache mirrors that semantics so prediction works pre-flight.",
+      "example": "prospeo-pp-cli cache predict --input leads.csv --agent",
+      "why_it_matters": "Cuts bulk-run cost by skipping cold-API trips for guaranteed-free hits.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Credit pre-flight + max-cost guard",
+      "command": "person bulk --max-cost",
+      "description": "Estimate the credit cost of a bulk job and refuse to run if it exceeds the budget or remaining balance.",
+      "rationale": "Joins live account-information with row count × per-row cost; aborts before the spend.",
+      "example": "prospeo-pp-cli person bulk --input leads.csv --max-cost 500 --mobile",
+      "why_it_matters": "Stops accidental 10-credit-per-row mobile bursts that drain the monthly allowance.",
+      "group": "Credit economy controls"
+    },
+    {
+      "name": "Bulk cost simulator",
+      "command": "person bulk --dry-run",
+      "description": "Show projected credits, dupe-hit ratio, and ETA before sending any rows.",
+      "rationale": "Pairs row counting with cache predictions; uses no API calls.",
+      "example": "prospeo-pp-cli person bulk --input leads.csv --dry-run --json --select projected_cost,dupe_hits,api_calls",
+      "why_it_matters": "Agents can decide whether a job is worth running based on cost projection.",
+      "group": "Credit economy controls"
+    },
+    {
+      "name": "Credit burn timeline",
+      "command": "credits burn",
+      "description": "Daily burn rate and projected runway from snapshots of /account-information.",
+      "rationale": "Account snapshots collected on every call build a time series Prospeo's dashboard does not surface.",
+      "example": "prospeo-pp-cli credits burn --days 30 --json",
+      "why_it_matters": "Tells the agent when the user is on track to run out before quota renewal.",
+      "group": "Credit economy controls"
+    },
+    {
+      "name": "Lookalike from seed",
+      "command": "lookalike",
+      "description": "Find companies (or people) similar to a seed by auto-deriving industry, size, tech-stack, and location filters from an enriched seed.",
+      "rationale": "Cross-entity reasoning: one enrich-company response becomes a multi-filter search-company query.",
+      "example": "prospeo-pp-cli lookalike --seed-company stripe.com --employees-min 200 --employees-max 1000 --agent",
+      "why_it_matters": "Turns 'find more like this customer' into one command instead of three.",
+      "group": "Search composition"
+    },
+    {
+      "name": "Search-then-enrich pipeline",
+      "command": "person funnel",
+      "description": "Run search-person with filters, walk pages, enrich each hit (verified-only), cache everything, write CSV.",
+      "rationale": "One command composes two endpoints plus pagination plus cache writes.",
+      "example": "prospeo-pp-cli person funnel --filters search.json --max 25 --output funnel.csv",
+      "why_it_matters": "Replaces 25+ HTTP calls and the glue between them with one invocation.",
+      "group": "Search composition"
+    },
+    {
+      "name": "Dedup-aware CSV merge",
+      "command": "person bulk --merge",
+      "description": "Skip rows already in an existing enriched CSV so re-runs are incremental and cheap.",
+      "rationale": "Cross-source join: input CSV × existing CSV × cache.",
+      "example": "prospeo-pp-cli person bulk --input new.csv --merge existing.csv --output merged.csv",
+      "why_it_matters": "Re-running a campaign on a refreshed lead list only burns credits on net-new rows.",
+      "group": "Credit economy controls"
+    },
+    {
+      "name": "Per-plan rate limiter",
+      "command": "(internal — all commands)",
+      "description": "Plan-aware token bucket that slows down before tripping Prospeo's 429s.",
+      "rationale": "Reads x-daily-request-left and x-minute-request-left response headers; uses cliutil.AdaptiveLimiter.",
+      "example": "prospeo-pp-cli person bulk --input leads.csv --concurrency 5",
+      "why_it_matters": "Avoids burning retries chasing the limit on a Starter or Growth plan.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "ICP fit scorer",
+      "command": "score",
+      "description": "Score every enriched row against a YAML ICP spec (titles, sizes, geos, tech, seniority) and emit a score column with reasons.",
+      "rationale": "Cross-source join: enrichments rows × YAML rules engine.",
+      "example": "prospeo-pp-cli score --icp icp.yaml --input enriched.csv --output scored.csv --json",
+      "why_it_matters": "Lets the agent rank a list for the SDR without paying for a separate ICP-scoring vendor.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Spend-attribution ledger",
+      "command": "ledger",
+      "description": "Report spend per CSV source, per campaign tag, or per day from the local enrichments + csv_jobs + account_snapshots ledger.",
+      "rationale": "Three-table SQLite join Prospeo's dashboard cannot do.",
+      "example": "prospeo-pp-cli ledger by-source --json --select source,credits_spent,rows_enriched",
+      "why_it_matters": "Answers 'which file ate my credits this week' in one command.",
+      "group": "Credit economy controls"
+    }
+  ],
+  "narrative": {
+    "display_name": "Prospeo",
+    "headline": "Every Prospeo endpoint, plus a credit-aware local cache, bulk CSV pipelines, and lookalike search no other Prospeo tool ships.",
+    "value_prop": "Wraps the full Prospeo API with an offline SQLite cache that mirrors lifetime-dupe semantics, a credit pre-flight guard, and search-then-enrich pipelines. Designed so a single agent can run a list-build → enrich → score → CSV flow with one command and never overspend.",
+    "auth_narrative": "Set PROSPEO_API_KEY from https://app.prospeo.io/api-keys. The CLI sends it as the X-KEY header on every request. Run `doctor` to verify auth and show your remaining credits.",
+    "quickstart": [
+      {
+        "command": "prospeo-pp-cli doctor",
+        "comment": "Verify your API key and show your current plan, credits, and quota renewal date"
+      },
+      {
+        "command": "prospeo-pp-cli person enrich --linkedin https://www.linkedin.com/in/williamhgates --json",
+        "comment": "Enrich a single person by LinkedIn URL (1 credit, free if you've enriched this person before)"
+      },
+      {
+        "command": "prospeo-pp-cli person bulk --input leads.csv --output enriched.csv --dry-run",
+        "comment": "Project the credit cost and dupe-hit ratio of a bulk job before spending"
+      },
+      {
+        "command": "prospeo-pp-cli person bulk --input leads.csv --output enriched.csv --max-cost 500",
+        "comment": "Run the bulk enrich with a hard budget ceiling — the CLI aborts if the projected cost exceeds 500 credits"
+      },
+      {
+        "command": "prospeo-pp-cli find 'VP of Sales fintech Berlin' --json",
+        "comment": "Search the local cache for anyone you've already enriched matching this query — zero credit cost"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "doctor reports 401 / 'invalid API key'",
+        "fix": "Re-export PROSPEO_API_KEY from https://app.prospeo.io/api-keys and rerun `prospeo-pp-cli doctor`"
+      },
+      {
+        "symptom": "429 / RATE_LIMITED on bulk enrich",
+        "fix": "Lower --concurrency (Starter caps at 5 req/s; Growth 5; Pro 30). The built-in adaptive limiter slows down on `x-minute-request-left` headers."
+      },
+      {
+        "symptom": "INSUFFICIENT_CREDITS error mid-bulk",
+        "fix": "Run `prospeo-pp-cli credits burn --days 14` to see your projected runway; use `--max-cost N` on bulk to fail fast before partial spend."
+      },
+      {
+        "symptom": "Mobile enrichment costs 10x more than expected",
+        "fix": "The --mobile flag opts into the 10-credit mobile finder. Omit it for email-only (1 credit per row)."
+      }
+    ],
+    "when_to_use": "Use prospeo-pp-cli whenever an agent needs to enrich contacts or companies, build a B2B lead list, or look up a person by LinkedIn URL. Prefer it over hand-rolled Python scripts because the local cache makes duplicate enrichments free, the credit pre-flight stops surprise overspend, and the find command answers 'do we already have this contact?' without an API call.",
+    "recipes": [
+      {
+        "title": "End-to-end SDR list build",
+        "command": "prospeo-pp-cli person funnel --filters icp.json --max 100 --verified-only --output sdrs.csv",
+        "explanation": "Searches Prospeo for people matching the ICP filter, walks pages until 100 hits, enriches each with a verified email, and writes a CSV ready for SmartLead."
+      },
+      {
+        "title": "Predict bulk cost before spending",
+        "command": "prospeo-pp-cli person bulk --input new-leads.csv --merge enriched-archive.csv --dry-run --json --select projected_cost,dupe_hits,api_calls,uncached_rows",
+        "explanation": "Counts how many rows are guaranteed-free lifetime dupes vs. cold enrichments. Output JSON is narrowed to the four fields the agent needs."
+      },
+      {
+        "title": "Score a list against ICP and export top hits",
+        "command": "prospeo-pp-cli score --icp icp.yaml --input enriched.csv --output scored.csv --json --select rows.email,rows.score,rows.score_reasons",
+        "explanation": "Reads enriched.csv, applies the YAML rule set, writes scored.csv with a score column, and emits a narrowed JSON view per row for the agent to rank against."
+      },
+      {
+        "title": "Find similar customers to your best logo",
+        "command": "prospeo-pp-cli lookalike --seed-company stripe.com --employees-min 200 --employees-max 2000 --json",
+        "explanation": "Enriches the seed, derives industry + size + tech-stack filters, runs search-company, and returns the top 25 lookalikes ranked by similarity."
+      },
+      {
+        "title": "Credit-spend forensics",
+        "command": "prospeo-pp-cli ledger by-source --days 7 --json --select source,credits_spent,rows_enriched",
+        "explanation": "Joins enrichments × csv_jobs × account_snapshots; answers 'which CSV burned my credits this week' in one command."
+      }
+    ],
+    "trigger_phrases": [
+      "enrich this lead with prospeo",
+      "find an email for this contact",
+      "find emails for this CSV",
+      "build a lookalike list",
+      "score these leads against my ICP",
+      "how many credits do I have left",
+      "use prospeo",
+      "run prospeo"
+    ]
+  }
+}
