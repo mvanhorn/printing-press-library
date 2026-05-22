@@ -22,7 +22,7 @@ This skill drives the `substack-creator-pp-cli` binary. **You must verify the CL
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install substack-creator --cli-only
+   npx -y @mvanhorn/printing-press-library install substack-creator --cli-only
    ```
 2. Verify: `substack-creator-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -34,8 +34,6 @@ go install github.com/mvanhorn/printing-press-library/library/media-and-entertai
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-Manage every Substack you own from one terminal. Sync posts, drafts, notes, comments, and subscribers into a local SQLite store; FTS-search them offline; diff subscriber lists for honest churn reports; spot cross-sell candidates by joining paid and free lists across publications; and twin published posts into a sibling publication as drafts. Built for owners of multiple Substacks — bilingual writers, paid+free tier creators, anyone with more than one newsletter.
 
 ## When to Use This CLI
 

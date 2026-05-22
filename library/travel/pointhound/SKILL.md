@@ -20,16 +20,18 @@ This skill drives the `pointhound-pp-cli` binary. **You must verify the CLI is i
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install pointhound --cli-only
+   npx -y @mvanhorn/printing-press-library install pointhound --cli-only
    ```
 2. Verify: `pointhound-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
 
-If the `npx` install fails before this CLI has a public-library category, install Node or use the category-specific Go fallback after publish.
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/travel/pointhound/cmd/pointhound-pp-cli@latest
+```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-Pointhound's web search is great for one-off lookups but doesn't compound. This CLI lets you batch search 20 routes overnight, ask 'where can I go with the points I actually have' in one call, watch a route and exit-code-2 when a new deal appears, and pivot every snapshot through agent-native --json output.
 
 ## When to Use This CLI
 

@@ -11,31 +11,37 @@ Printed by [@tmchow](https://github.com/tmchow) (Trevin Chow).
 The recommended path installs both the `american-reindustrialization-pp-cli` binary and the `pp-american-reindustrialization` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install american-reindustrialization
+npx -y @mvanhorn/printing-press-library install american-reindustrialization
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install american-reindustrialization --cli-only
+npx -y @mvanhorn/printing-press-library install american-reindustrialization --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install american-reindustrialization --skill-only
+npx -y @mvanhorn/printing-press-library install american-reindustrialization --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install american-reindustrialization --agent claude-code
-npx -y @mvanhorn/printing-press install american-reindustrialization --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install american-reindustrialization --agent claude-code
+npx -y @mvanhorn/printing-press-library install american-reindustrialization --agent claude-code --agent codex
 ```
 
-### Without Node
+### Without Node (Go fallback)
 
-The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/other/american-reindustrialization/cmd/american-reindustrialization-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
 
 ### Pre-built binary
 
@@ -103,18 +109,14 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 # Pull every company, job, category, and tag into local SQLite; all subsequent commands run offline.
 american-reindustrialization-pp-cli sync
 
-
 # Cached list of California companies with full agent-native output.
 american-reindustrialization-pp-cli companies list --state CA --json
-
 
 # Composed multi-axis filter no website view exposes.
 american-reindustrialization-pp-cli openings find --work-mode remote --experience senior --salary-min 150000
 
-
 # Sector × state crosstab weighted by job openings — pure local SQL.
 american-reindustrialization-pp-cli analytics sector-heatmap --weight jobs
-
 
 # Diff against the prior sync snapshot — companies and jobs that appeared or changed.
 american-reindustrialization-pp-cli whats-new --since 2026-05-12
@@ -242,7 +244,6 @@ Typed tags (tag_type = tech, sector, focus area, etc.)
 - **`american-reindustrialization-pp-cli tags get`** - Get one tag by slug
 - **`american-reindustrialization-pp-cli tags list`** - List every tag (bare array)
 - **`american-reindustrialization-pp-cli tags search`** - Search tags by query string
-
 
 ## Output Formats
 

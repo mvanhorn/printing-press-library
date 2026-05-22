@@ -10,22 +10,40 @@ Printed by [@bobeglz](https://github.com/bobeglz) (bobe).
 
 ## Install
 
-The recommended path installs both the `rappi-pp-cli` binary and the `pp-rappi` agent skill in one shot:
+The recommended path installs both the `rappi-pp-cli` binary and the `pp-rappi` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install rappi
+npx -y @mvanhorn/printing-press-library install rappi
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install rappi --cli-only
+npx -y @mvanhorn/printing-press-library install rappi --cli-only
 ```
 
+For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
-### Without Node
+```bash
+npx -y @mvanhorn/printing-press-library install rappi --skill-only
+```
 
-The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
+To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
+
+```bash
+npx -y @mvanhorn/printing-press-library install rappi --agent claude-code
+npx -y @mvanhorn/printing-press-library install rappi --agent claude-code --agent codex
+```
+
+### Without Node (Go fallback)
+
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/food-and-dining/rappi/cmd/rappi-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
 
 ### Pre-built binary
 
@@ -54,6 +72,39 @@ Tell your OpenClaw agent (copy this):
 Install the pp-rappi skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-rappi. The skill defines how its required CLI can be installed.
 ```
 
+## Use with Claude Desktop
+
+This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
+
+To install:
+
+1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/rappi-current).
+2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
+
+Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
+
+<details>
+<summary>Manual JSON config (advanced)</summary>
+
+If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
+
+
+Install the MCP binary from this CLI's published public-library entry or pre-built release.
+
+Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "rappi": {
+      "command": "rappi-pp-mcp"
+    }
+  }
+}
+```
+
+</details>
+
 ## Authentication
 
 No login or API key required. The CLI reads only public catalog pages (restaurants, stores, categories, promotions). Cart, orders, and account features are out of scope by design and not exposed in this CLI.
@@ -64,18 +115,14 @@ No login or API key required. The CLI reads only public catalog pages (restauran
 # Confirm the CLI can reach rappi.com.mx and write to its config path.
 rappi-pp-cli doctor
 
-
 # Snapshot the CDMX restaurant + store catalog into the local SQLite store. Takes about a minute.
 rappi-pp-cli sync
-
 
 # The listicle-grade filter Rappi UI hides — pick top-rated burgers with a real review-count floor.
 rappi-pp-cli restaurants top --city ciudad-de-mexico --category hamburguesas --min-rating 4.5 --min-reviews 100 --limit 10 --agent
 
-
 # Cross-city coverage matrix across all five store types — the analyst view Rappi has no UI for.
 rappi-pp-cli stores coverage --cities ciudad-de-mexico,guadalajara,monterrey --agent
-
 
 # FTS5 search across the synced catalog with field selection for narrow agent output.
 rappi-pp-cli search "sushi roma" --agent --select id,name,rating,address
@@ -192,7 +239,6 @@ Supermarket, pharmacy, liquor, and convenience store catalog
 
 - **`rappi-pp-cli stores get`** - Fetch a store detail page (name, type, address, branding)
 - **`rappi-pp-cli stores list-by-type`** - List stores by type (market for supermarkets, farmatodo for pharmacy, liquor, express, rappimall-parent)
-
 
 ## Output Formats
 
@@ -312,65 +358,6 @@ This CLI is designed for AI agent consumption:
 - **Agent-safe by default** - no colors or formatting unless `--human-friendly` is set
 
 Exit codes: `0` success, `2` usage error, `3` not found, `5` API error, `7` rate limited, `10` config error.
-
-## Use with Claude Code
-
-Install the focused skill — it auto-installs the CLI on first invocation:
-
-```bash
-npx skills add mvanhorn/printing-press-library/cli-skills/pp-rappi -g
-```
-
-Then invoke `/pp-rappi <query>` in Claude Code. The skill is the most efficient path — Claude Code drives the CLI directly without an MCP server in the middle.
-
-<details>
-<summary>Use as an MCP server in Claude Code (advanced)</summary>
-
-If you'd rather register this CLI as an MCP server in Claude Code, install the MCP binary first:
-
-
-Install the MCP binary from this CLI's published public-library entry or pre-built release.
-
-Then register it:
-
-```bash
-claude mcp add rappi rappi-pp-mcp
-```
-
-</details>
-
-## Use with Claude Desktop
-
-This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
-
-To install:
-
-1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/rappi-current).
-2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
-
-Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
-
-<details>
-<summary>Manual JSON config (advanced)</summary>
-
-If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
-
-
-Install the MCP binary from this CLI's published public-library entry or pre-built release.
-
-Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "rappi": {
-      "command": "rappi-pp-mcp"
-    }
-  }
-}
-```
-
-</details>
 
 ## Health Check
 

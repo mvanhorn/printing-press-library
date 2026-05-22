@@ -13,31 +13,37 @@ Printed by [@Holajack](https://github.com/Holajack) (Jacken).
 The recommended path installs both the `zoom-pp-cli` binary and the `pp-zoom` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install zoom
+npx -y @mvanhorn/printing-press-library install zoom
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install zoom --cli-only
+npx -y @mvanhorn/printing-press-library install zoom --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install zoom --skill-only
+npx -y @mvanhorn/printing-press-library install zoom --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install zoom --agent claude-code
-npx -y @mvanhorn/printing-press install zoom --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install zoom --agent claude-code
+npx -y @mvanhorn/printing-press-library install zoom --agent claude-code --agent codex
 ```
 
-### Without Node
+### Without Node (Go fallback)
 
-The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/productivity/zoom/cmd/zoom-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
 
 ### Pre-built binary
 
@@ -109,26 +115,20 @@ Local commands (start, join, mute, leave, recordings local, search) require no Z
 # Confirms the Zoom app is installed, the URL handler is registered, ~/Documents/Zoom exists, and surfaces macOS accessibility-permission gaps before they bite.
 zoom-pp-cli doctor
 
-
 # Walks ~/Documents/Zoom/, parses every VTT transcript into a local FTS5 index — usually a few seconds.
 zoom-pp-cli recordings local sync
-
 
 # The killer command: searches every local and cloud transcript at once with speaker filter and clickable timestamps.
 zoom-pp-cli find "q2 pricing" --source both --json
 
-
 # Composes your cloud calendar, saved bookmarks, and today's local recordings into one view with conflict detection.
 zoom-pp-cli today --with-recordings --json
-
 
 # Pastes any Zoom URL, opens it directly in the desktop app — no browser interstitial. --dry-run prints the zoommtg:// URL it would launch.
 zoom-pp-cli join "https://zoom.us/j/85123456789?pwd=abc" --dry-run
 
-
 # macOS only — flips mute via the running Zoom app's Meeting menu. Safe no-op if not in a meeting.
 zoom-pp-cli mute toggle
-
 
 # The My Notes pipeline: drop in an exported PDF/DOCX from zoom.us/notes, then extract action items across the last week.
 zoom-pp-cli notes ingest ~/Downloads/zoom-notes-2026-05-12.pdf && zoom-pp-cli notes todos --since 7d --json
@@ -333,7 +333,6 @@ Manage past meetings
 
 Manage past webinars
 
-
 ### report
 
 Report operations
@@ -399,7 +398,6 @@ Webinar operations
 - **`zoom-pp-cli webinars delete`** - Delete a webinar
 - **`zoom-pp-cli webinars update`** - Update a webinar
 - **`zoom-pp-cli webinars webinar`** - Retrieve a webinar
-
 
 ## Output Formats
 

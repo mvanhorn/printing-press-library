@@ -11,31 +11,37 @@ Printed by [@vinnyp](https://github.com/vinnyp) (Vinny Pasceri).
 The recommended path installs both the `exchangerate-api-pp-cli` binary and the `pp-exchangerate-api` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install exchangerate-api
+npx -y @mvanhorn/printing-press-library install exchangerate-api
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install exchangerate-api --cli-only
+npx -y @mvanhorn/printing-press-library install exchangerate-api --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install exchangerate-api --skill-only
+npx -y @mvanhorn/printing-press-library install exchangerate-api --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install exchangerate-api --agent claude-code
-npx -y @mvanhorn/printing-press install exchangerate-api --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install exchangerate-api --agent claude-code
+npx -y @mvanhorn/printing-press-library install exchangerate-api --agent claude-code --agent codex
 ```
 
-### Without Node
+### Without Node (Go fallback)
 
-The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/payments/exchangerate-api/cmd/exchangerate-api-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
 
 ### Pre-built binary
 
@@ -111,22 +117,17 @@ Set `EXCHANGERATE_API_KEY` from your ExchangeRate-API dashboard (https://app.exc
 # Confirms key works and the API is reachable
 exchangerate-api-pp-cli doctor
 
-
 # Pulls latest rates and seeds local snapshots; foundation for offline + history features
 exchangerate-api-pp-cli sync-rates --base USD
-
 
 # Single-pair lookup, the most common request
 exchangerate-api-pp-cli rates pair USD EUR
 
-
 # Multi-target conversion with one API call
 exchangerate-api-pp-cli convert 250 USD EUR,GBP,JPY --json
 
-
 # Cross-rate matrix — N² rates, 1 quota tick
 exchangerate-api-pp-cli matrix USD,EUR,GBP,JPY --base USD --json
-
 
 # How fast you're burning the monthly 1500-call quota
 exchangerate-api-pp-cli quota burn --json
@@ -267,7 +268,6 @@ Live exchange rates and conversions
 - **`exchangerate-api-pp-cli doctor`** - Verify credentials and API reachability
 - **`exchangerate-api-pp-cli open`** - Keyless `open.er-api.com` lookup (rate-limited, attribution required)
 - **`exchangerate-api-pp-cli mcp serve`** - Run as an MCP server for AI agents
-
 
 ## Output Formats
 

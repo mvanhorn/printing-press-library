@@ -9,26 +9,26 @@ Learn more at [Google Photos](https://developers.google.com/photos).
 The recommended path installs both the `google-photos-pp-cli` binary and the `pp-google-photos` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install google-photos
+npx -y @mvanhorn/printing-press-library install google-photos
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install google-photos --cli-only
+npx -y @mvanhorn/printing-press-library install google-photos --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install google-photos --skill-only
+npx -y @mvanhorn/printing-press-library install google-photos --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install google-photos --agent claude-code
-npx -y @mvanhorn/printing-press install google-photos --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install google-photos --agent claude-code
+npx -y @mvanhorn/printing-press-library install google-photos --agent claude-code --agent codex
 ```
 
 ### Without Node (Go fallback)

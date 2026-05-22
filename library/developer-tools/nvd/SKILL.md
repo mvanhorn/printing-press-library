@@ -24,7 +24,7 @@ This skill drives the `nvd-pp-cli` binary. **You must verify the CLI is installe
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install nvd --cli-only
+   npx -y @mvanhorn/printing-press-library install nvd --cli-only
    ```
 2. Verify: `nvd-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.

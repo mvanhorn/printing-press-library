@@ -24,7 +24,7 @@ This skill drives the `myfitnesspal-pp-cli` binary. **You must verify the CLI is
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install myfitnesspal --cli-only
+   npx -y @mvanhorn/printing-press-library install myfitnesspal --cli-only
    ```
 2. Verify: `myfitnesspal-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -32,12 +32,10 @@ This skill drives the `myfitnesspal-pp-cli` binary. **You must verify the CLI is
 If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
 
 ```bash
-go install github.com/mvanhorn/printing-press-library/library/other/myfitnesspal/cmd/myfitnesspal-pp-cli@latest
+go install github.com/mvanhorn/printing-press-library/library/productivity/myfitnesspal/cmd/myfitnesspal-pp-cli@latest
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-MyFitnessPal closed their API, gates per-food export behind premium, and ships per-meal rows even there. This CLI imports your browser session, syncs your diary to local SQLite, and answers questions the official UI never can: which 5 foods drove 80% of your protein this quarter, what's your weekly weight slope vs your deficit, what changed since last sync. Built with agent-native output (`--json`, `--select`, `context`) so Claude can reason over your last 14 days in one tool call.
 
 ## When to Use This CLI
 

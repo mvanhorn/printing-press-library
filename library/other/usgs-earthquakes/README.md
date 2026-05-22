@@ -13,26 +13,26 @@ Printed by [@tmchow](https://github.com/tmchow) (Trevin Chow).
 The recommended path installs both the `usgs-earthquakes-pp-cli` binary and the `pp-usgs-earthquakes` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install usgs-earthquakes
+npx -y @mvanhorn/printing-press-library install usgs-earthquakes
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install usgs-earthquakes --cli-only
+npx -y @mvanhorn/printing-press-library install usgs-earthquakes --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install usgs-earthquakes --skill-only
+npx -y @mvanhorn/printing-press-library install usgs-earthquakes --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install usgs-earthquakes --agent claude-code
-npx -y @mvanhorn/printing-press install usgs-earthquakes --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install usgs-earthquakes --agent claude-code
+npx -y @mvanhorn/printing-press-library install usgs-earthquakes --agent claude-code --agent codex
 ```
 
 ### Without Node (Go fallback)
@@ -117,22 +117,17 @@ No authentication required. USGS earthquake services are fully public; doctor ve
 # List M4.5+ earthquakes in the last 24h. Default for newsroom triage.
 usgs-earthquakes-pp-cli recent --min-magnitude 4.5 --json
 
-
 # Pull the pre-built 'past week, significant' summary feed once.
 usgs-earthquakes-pp-cli feeds get significant_week --json
-
 
 # Populate the local SQLite cache (30 days, M2.5+) so search/sql/aftershocks/top/changes work offline.
 usgs-earthquakes-pp-cli sync
 
-
 # Rank recent events by composite editorial score (sig × alert × felt × tsunami).
 usgs-earthquakes-pp-cli top --window 24h --limit 10 --json
 
-
 # Get a one-event briefing with PAGER, DYFI, tsunami, ShakeMap MMI, and product inventory.
 usgs-earthquakes-pp-cli brief us7000abcd --format markdown
-
 
 # Investigate a mainshock's aftershock sequence from the local store.
 usgs-earthquakes-pp-cli aftershocks us7000abcd --radius-km 100 --days 30 --json
@@ -244,7 +239,6 @@ Pre-built GeoJSON earthquake summary feeds (updated every minute by USGS)
 FDSN Event service metadata: enumerated values for every parameter
 
 - **`usgs-earthquakes-pp-cli metadata`** - Show enum dictionaries for catalogs, contributors, event types, product types, and magnitude types
-
 
 ## Output Formats
 

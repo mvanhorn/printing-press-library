@@ -11,31 +11,37 @@ Printed by [@tmchow](https://github.com/tmchow) (Trevin Chow).
 The recommended path installs both the `dreo-pp-cli` binary and the `pp-dreo` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install dreo
+npx -y @mvanhorn/printing-press-library install dreo
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install dreo --cli-only
+npx -y @mvanhorn/printing-press-library install dreo --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install dreo --skill-only
+npx -y @mvanhorn/printing-press-library install dreo --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install dreo --agent claude-code
-npx -y @mvanhorn/printing-press install dreo --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install dreo --agent claude-code
+npx -y @mvanhorn/printing-press-library install dreo --agent claude-code --agent codex
 ```
 
-### Without Node
+### Without Node (Go fallback)
 
-The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/devices/dreo/cmd/dreo-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
 
 ### Pre-built binary
 
@@ -144,18 +150,14 @@ Treat the file as sensitive: don't commit it to a public repo, don't share it, a
 # Verify credentials and login round-trip against the live API
 dreo-pp-cli doctor
 
-
 # See every device on your Dreo account with model, room, and online status
 dreo-pp-cli devices list
-
 
 # Whole-house temperature, humidity, and PM2.5 in one shot
 dreo-pp-cli sensors --json
 
-
 # Turn off every tower fan in one command — the bedtime ritual
 dreo-pp-cli bulk --action off --type tower-fan
-
 
 # Live WebSocket state stream as JSON lines — the realtime debug surface no other Dreo tool exposes
 dreo-pp-cli watch --all
@@ -253,7 +255,6 @@ Read and write persistent per-device settings
 
 - **`dreo-pp-cli settings get`** - Get persistent settings for a device
 - **`dreo-pp-cli settings update`** - Update persistent settings for a device
-
 
 ## Output Formats
 

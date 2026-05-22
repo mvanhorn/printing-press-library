@@ -13,31 +13,37 @@ Printed by [@natekettles](https://github.com/natekettles) (Nathan Kettles).
 The recommended path installs both the `nylas-pp-cli` binary and the `pp-nylas` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install nylas
+npx -y @mvanhorn/printing-press-library install nylas
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install nylas --cli-only
+npx -y @mvanhorn/printing-press-library install nylas --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install nylas --skill-only
+npx -y @mvanhorn/printing-press-library install nylas --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install nylas --agent claude-code
-npx -y @mvanhorn/printing-press install nylas --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install nylas --agent claude-code
+npx -y @mvanhorn/printing-press-library install nylas --agent claude-code --agent codex
 ```
 
-### Without Node
+### Without Node (Go fallback)
 
-The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/productivity/nylas/cmd/nylas-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
 
 ### Pre-built binary
 
@@ -113,22 +119,17 @@ Nylas V3 uses a bearer API key (Authorization: Bearer <NYLAS_API_KEY>) for appli
 # store the Nylas API key locally (or set NYLAS_API_KEY)
 nylas-pp-cli auth set-token <TOKEN>
 
-
 # verify auth + reachability before any sync
 nylas-pp-cli doctor --agent
-
 
 # list every connected mailbox under your application
 nylas-pp-cli grants get-all --agent
 
-
 # build the local mirror for the last day across every grant
 nylas-pp-cli sync --resources messages,events --since 24h
 
-
 # now answer 'what changed' instantly without an API call
 nylas-pp-cli since 2h --resource messages --agent --select id,subject,from,grant_id
-
 
 # FTS5 search across every grant in one shot
 nylas-pp-cli search "invoice overdue" --type messages --agent
@@ -490,7 +491,6 @@ included in your request. For more information, see
 ### domains
 
 Manage domains
-
 
 ### grants
 
@@ -936,7 +936,6 @@ set. If you don't set any filters, Nylas considers all grants.
 - **`nylas-pp-cli workspaces get-all`** - Returns all workspaces in your Nylas application. The application queried is determined based on
 the API key you use to authorize your request.
 - **`nylas-pp-cli workspaces update`** - Updates the specified workspace.
-
 
 ## Output Formats
 

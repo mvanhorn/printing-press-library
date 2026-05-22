@@ -20,16 +20,18 @@ This skill drives the `american-reindustrialization-pp-cli` binary. **You must v
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install american-reindustrialization --cli-only
+   npx -y @mvanhorn/printing-press-library install american-reindustrialization --cli-only
    ```
 2. Verify: `american-reindustrialization-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
 
-If the `npx` install fails before this CLI has a public-library category, install Node or use the category-specific Go fallback after publish.
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/other/american-reindustrialization/cmd/american-reindustrialization-pp-cli@latest
+```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-A read-only CLI for the company directory and jobs board at americanreindustrialization.com. Sync once, then run cross-entity queries (jobs at robotics companies in TX, sector × state heatmaps, funding × sector crosstabs, week-over-week diffs) entirely offline, with agent-native JSON and a local SQLite surface no view on the website exposes.
 
 ## When to Use This CLI
 

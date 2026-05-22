@@ -11,31 +11,37 @@ Printed by [@tmchow](https://github.com/tmchow) (Trevin Chow).
 The recommended path installs both the `nasa-images-pp-cli` binary and the `pp-nasa-images` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install nasa-images
+npx -y @mvanhorn/printing-press-library install nasa-images
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install nasa-images --cli-only
+npx -y @mvanhorn/printing-press-library install nasa-images --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install nasa-images --skill-only
+npx -y @mvanhorn/printing-press-library install nasa-images --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install nasa-images --agent claude-code
-npx -y @mvanhorn/printing-press install nasa-images --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install nasa-images --agent claude-code
+npx -y @mvanhorn/printing-press-library install nasa-images --agent claude-code --agent codex
 ```
 
-### Without Node
+### Without Node (Go fallback)
 
-The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/nasa-images/cmd/nasa-images-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
 
 ### Pre-built binary
 
@@ -103,22 +109,17 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 # search the live API with all the filters NASA exposes
 nasa-images-pp-cli media --q "perseverance rover" --media-type image --year-start 2024 --json
 
-
 # get exactly one URL for the best variant under a size cap — no manifest parsing
 nasa-images-pp-cli assets best PIA26345 --prefer orig,large --max-bytes 5000000
-
 
 # bulk-download a curated album with byte-range resume; re-runs pick up where they left off
 nasa-images-pp-cli download album Mars-Perseverance --variant orig --resume --out ./mars
 
-
 # populate the local SQLite mirror for offline FTS search and timeline queries
 nasa-images-pp-cli mirror search --q "webb" --year-start 2022
 
-
 # chronologically-sorted FTS search NASA's upstream API doesn't offer
 nasa-images-pp-cli recent --q "deep field" --sort date-desc --limit 10
-
 
 # actual caption text, not the .srt URL every other wrapper stops at
 nasa-images-pp-cli captions fetch jsc2022m000123 --format text
@@ -235,7 +236,6 @@ Search the NASA Image and Video Library catalog by free text and filters
 Retrieve the location URL of an asset's metadata.json sidecar (AVAIL editorial + ExifTool fields)
 
 - **`nasa-images-pp-cli metadata <nasa_id>`** - Return the location URL of the metadata.json sidecar for an asset. Use `metadata fetch` (novel command) to follow the indirection and fetch the cleaned metadata content.
-
 
 ## Output Formats
 

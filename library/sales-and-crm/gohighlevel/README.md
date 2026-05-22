@@ -11,31 +11,37 @@ Printed by [@jenwilliams-eng](https://github.com/jenwilliams-eng).
 The recommended path installs both the `gohighlevel-pp-cli` binary and the `pp-gohighlevel` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install gohighlevel
+npx -y @mvanhorn/printing-press-library install gohighlevel
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install gohighlevel --cli-only
+npx -y @mvanhorn/printing-press-library install gohighlevel --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install gohighlevel --skill-only
+npx -y @mvanhorn/printing-press-library install gohighlevel --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install gohighlevel --agent claude-code
-npx -y @mvanhorn/printing-press install gohighlevel --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install gohighlevel --agent claude-code
+npx -y @mvanhorn/printing-press-library install gohighlevel --agent claude-code --agent codex
 ```
 
-### Without Node
+### Without Node (Go fallback)
 
-The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/sales-and-crm/gohighlevel/cmd/gohighlevel-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
 
 ### Pre-built binary
 
@@ -111,18 +117,14 @@ GoHighLevel uses Private Integration Tokens (PIT). Set GHL_PIT_TOKEN in your env
 # verify your PIT token works and the API is reachable
 gohighlevel-pp-cli doctor
 
-
 # pull contacts, opportunities, pipelines, custom fields, and tags into the local SQLite cache
 gohighlevel-pp-cli sync
-
 
 # stage-by-stage opportunity counts, ready to paste into a Looker sheet
 gohighlevel-pp-cli opp funnel --pipeline "Non-KW" --tsv
 
-
 # opportunities that have not moved in 30 days, derived from local stage-transition history
 gohighlevel-pp-cli opp stale --pipeline "Non-KW" --days 30 --json
-
 
 # any cross-entity query becomes one SQL statement
 gohighlevel-pp-cli sql "SELECT firstName, lastName, email FROM contacts WHERE tags LIKE '%recruit%' LIMIT 20" --json
@@ -295,7 +297,6 @@ Manage users
 Manage workflows
 
 - **`gohighlevel-pp-cli workflows`** - List workflows for a location
-
 
 ## Output Formats
 
