@@ -39,6 +39,12 @@
       "summary": "venues-now and cuisine-bottleneck now dedupe by venue slug across sections of /v1/pages/restaurants.",
       "reason": "Wolt groups the same venue into multiple thematic sections (Featured, Top Rated, cuisine buckets). Without dedup, venues-now could return the same venue multiple times and cuisine-bottleneck would count one venue N times per tag, skewing VenueCount, OpenCount, and AvgETAMin. Verified live against Helsinki: 170 venues returned, 0 duplicate slugs.",
       "files": ["internal/cli/venues_now.go", "internal/cli/cuisine_bottleneck.go"]
+    },
+    {
+      "id": "venues-compare-parallel-fanout",
+      "summary": "venues-compare now fans out per-venue dynamic fetches via cliutil.FanoutRun (default concurrency 4).",
+      "reason": "Sequential N calls scaled linearly with the slug count. Parallelizing caps end-to-end latency at roughly the slowest single call for typical N <= 4. Source-order output is preserved by FanoutRun's slot-based result ordering.",
+      "files": ["internal/cli/venues_compare.go"]
     }
   ],
   "deferred_to_upstream": [
@@ -53,6 +59,12 @@
       "summary": "When --latest-only is combined with --since, sync.go silently ignores --since but emits no structured JSON warning for agent consumers running in --json mode.",
       "reason": "internal/cli/sync.go is generator-emitted shared code present in every printed CLI. Adding an sync_warning event for this flag combination belongs in the generator template so the whole catalog gets it consistently, not patched per-CLI. Greptile classified this finding as a diagnostics gap, not a data-loss or behavioral defect.",
       "files": ["internal/cli/sync.go"]
+    },
+    {
+      "id": "pages-endpoint-zero-coord-drop",
+      "summary": "Generated endpoint wrappers (pages_list-restaurants-near.go, pages_search.go) gate lat/lon params on != 0.0 instead of 'flag was explicitly set', silently dropping coordinates of exactly 0.0 from the request.",
+      "reason": "Generator-emitted code present in every printed CLI that has float64 query/body params. Affects equatorial / prime-meridian coordinates. Not user-affecting for Wolt in practice (Wolt operates in Europe, Israel, Japan — none near 0,0) but the generator template should switch to cmd.Flags().Changed() or distinguish a sentinel from a real zero.",
+      "files": ["internal/cli/pages_list-restaurants-near.go", "internal/cli/pages_search.go"]
     }
   ]
 }

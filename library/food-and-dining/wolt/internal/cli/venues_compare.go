@@ -3,12 +3,14 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/url"
 	"strings"
 
 	"github.com/spf13/cobra"
+	"github.com/mvanhorn/printing-press-library/library/food-and-dining/wolt/internal/cliutil"
 )
 
 type venueCompareRow struct {
@@ -49,23 +51,22 @@ func newVenuesCompareCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			out := struct {
-				DeliveryMethod string            `json:"delivery_method"`
-				Count          int               `json:"count"`
-				Venues         []venueCompareRow `json:"venues"`
-			}{DeliveryMethod: deliveryMethod}
-			for _, slug := range slugs {
+			// PATCH(venues-compare-parallel-fanout): fan out per-venue dynamic
+			// fetches concurrently via cliutil.FanoutRun. Sequential N calls
+			// scaled linearly with the slug count; parallelizing them with
+			// the default concurrency of 4 caps end-to-end latency at roughly
+			// the slowest single call regardless of N (for typical N <= 4).
+			fetchOne := func(ctx context.Context, slug string) (venueCompareRow, error) {
 				row := venueCompareRow{Slug: slug}
 				// PATCH(venues-compare-url-escape): escape slug + delivery method
 				// before building the URL; without this a slug containing %, +, or
 				// other URL-special characters produces a malformed request.
 				path := "https://consumer-api.wolt.com/order-xp/web/v1/venue/slug/" +
 					url.PathEscape(slug) + "/dynamic/?selected_delivery_method=" + url.QueryEscape(deliveryMethod)
-				raw, err := c.Get(cmd.Context(), path, nil)
+				raw, err := c.Get(ctx, path, nil)
 				if err != nil {
 					row.Error = err.Error()
-					out.Venues = append(out.Venues, row)
-					continue
+					return row, nil
 				}
 				var dyn struct {
 					Venue struct {
@@ -82,8 +83,7 @@ func newVenuesCompareCmd(flags *rootFlags) *cobra.Command {
 				}
 				if err := json.Unmarshal(raw, &dyn); err != nil {
 					row.Error = "parse: " + err.Error()
-					out.Venues = append(out.Venues, row)
-					continue
+					return row, nil
 				}
 				if dyn.Venue.DeliveryOpenStatus.IsOpen != nil {
 					row.Open = dyn.Venue.DeliveryOpenStatus.IsOpen
@@ -95,7 +95,21 @@ func newVenuesCompareCmd(flags *rootFlags) *cobra.Command {
 				row.NextOpen = dyn.Venue.DeliveryOpenStatus.NextOpen
 				row.DeliveryConfigCount = len(dyn.Venue.DeliveryConfigs)
 				row.OrderMinimum = dyn.OrderMinimum
-				out.Venues = append(out.Venues, row)
+				return row, nil
+			}
+			results, _ := cliutil.FanoutRun(
+				cmd.Context(),
+				slugs,
+				func(s string) string { return s },
+				fetchOne,
+			)
+			out := struct {
+				DeliveryMethod string            `json:"delivery_method"`
+				Count          int               `json:"count"`
+				Venues         []venueCompareRow `json:"venues"`
+			}{DeliveryMethod: deliveryMethod}
+			for _, r := range results {
+				out.Venues = append(out.Venues, r.Value)
 			}
 			out.Count = len(out.Venues)
 			return printJSONFiltered(cmd.OutOrStdout(), out, flags)
