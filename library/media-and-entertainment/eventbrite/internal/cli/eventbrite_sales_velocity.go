@@ -119,6 +119,11 @@ func newSalesVelocityCmd(flags *rootFlags) *cobra.Command {
 				if o.EventID == "" {
 					continue
 				}
+				// Exclude refunded/cancelled orders so gross and order counts
+				// reflect kept revenue, consistent with org-rollup/top-buyers.
+				if ebOrderRefundedOrCancelled(o.Status) {
+					continue
+				}
 				if hasCutoff {
 					ot, err := time.Parse(time.RFC3339, o.Created)
 					if err == nil && ot.Before(cutoff) {

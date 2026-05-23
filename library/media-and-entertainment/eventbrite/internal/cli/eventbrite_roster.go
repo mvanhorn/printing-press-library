@@ -67,6 +67,12 @@ func newRosterCmd(flags *rootFlags) *cobra.Command {
 				if a.EventID != target {
 					continue
 				}
+				// Door roster lists expected arrivals only — a cancelled or
+				// refunded registrant must not appear as someone still due to
+				// check in, or staff could admit them by mistake.
+				if a.Cancelled || a.Refunded || ebOrderRefundedOrCancelled(a.Status) {
+					continue
+				}
 				if checkedInOnly && !a.CheckedIn {
 					continue
 				}
