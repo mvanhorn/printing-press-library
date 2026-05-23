@@ -31,7 +31,10 @@ func newFlexCmd(flags *rootFlags) *cobra.Command {
 				minTier = "A"
 			}
 			tierRank := map[string]int{"S+": 0, "S": 1, "A": 2, "B": 3, "C": 4, "D": 5}
-			cutoff := tierRank[minTier]
+			cutoff, ok := tierRank[minTier]
+			if !ok {
+				return fmt.Errorf("--min-tier %q is not valid; must be one of: S+, S, A, B, C, D", minTier)
+			}
 			client := moba.NewClient(flags.timeout)
 			// One tier-list fetch carries all roles already.
 			html, err := client.Fetch(moba.TierListPath("", rank, "", ""))

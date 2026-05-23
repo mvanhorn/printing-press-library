@@ -57,7 +57,7 @@ does not expose a flat power-spike field on its HTML pages.`,
 				Slug       string `json:"slug"`
 				Tier       string `json:"tier"`
 				Role       string `json:"role"`
-				CoreTimeMs int    `json:"coreTimeToTarget"`
+				CoreTimeSec int    `json:"coreTimeToTargetSec"`
 				Phase      string `json:"phase"`
 			}
 			out := []entry{}
@@ -93,9 +93,9 @@ does not expose a flat power-spike field on its HTML pages.`,
 				if p != phase {
 					continue
 				}
-				out = append(out, entry{Slug: r.Slug, Tier: r.Tier, Role: r.Role, CoreTimeMs: ttt, Phase: p})
+				out = append(out, entry{Slug: r.Slug, Tier: r.Tier, Role: r.Role, CoreTimeSec: ttt, Phase: p})
 			}
-			sort.SliceStable(out, func(i, j int) bool { return out[i].CoreTimeMs < out[j].CoreTimeMs })
+			sort.SliceStable(out, func(i, j int) bool { return out[i].CoreTimeSec < out[j].CoreTimeSec })
 			if top > 0 && top < len(out) {
 				out = out[:top]
 			}

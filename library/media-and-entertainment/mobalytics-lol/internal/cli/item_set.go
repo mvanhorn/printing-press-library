@@ -16,13 +16,31 @@ import (
 
 // clientItemsetRoot returns the LoL client config root for the current OS,
 // or empty string if unknown.
+//
+// On Windows the install location varies — most users have it under
+// C:\Riot Games\, but it can land under any drive letter or under Program
+// Files. Respect an explicit override via LEAGUE_OF_LEGENDS_PATH first, then
+// LOCALAPPDATA-based fallback, then the default install. On non-default
+// layouts the caller still sees a clear "client not installed" message
+// rather than silently writing to nowhere.
 func clientItemsetRoot() string {
 	home, _ := os.UserHomeDir()
 	switch runtime.GOOS {
 	case "darwin":
 		return filepath.Join(home, "Library", "Application Support", "Riot Games", "League of Legends", "Config", "Champions")
 	case "windows":
-		// Default Riot install on Windows.
+		if override := os.Getenv("LEAGUE_OF_LEGENDS_PATH"); override != "" {
+			return filepath.Join(override, "Config", "Champions")
+		}
+		// LOCALAPPDATA is where Riot's installer records the install root by
+		// default; check there before falling through to C:\Riot Games\.
+		if localApp := os.Getenv("LOCALAPPDATA"); localApp != "" {
+			candidate := filepath.Join(localApp, "Riot Games", "League of Legends", "Config", "Champions")
+			if _, err := os.Stat(candidate); err == nil {
+				return candidate
+			}
+		}
+		// Fall back to the default install root.
 		return `C:\Riot Games\League of Legends\Config\Champions`
 	}
 	return ""

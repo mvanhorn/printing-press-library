@@ -30,7 +30,10 @@ func newCompareCmd(flags *rootFlags) *cobra.Command {
 				if err != nil {
 					return moba.ChampionBuildPage{}, err
 				}
-				cHTML, _ := client.Fetch(moba.ChampionPath(slug, "counters"))
+				cHTML, cErr := client.Fetch(moba.ChampionPath(slug, "counters"))
+				if cErr != nil {
+					fmt.Fprintf(cmd.ErrOrStderr(), "  warning: failed to fetch counters for %s: %v\n", slug, cErr)
+				}
 				counters := moba.ParseCounters(cHTML, slug)
 				moba.SortCountersByDelta(counters, true) // descending = best counters
 				if len(counters) > 3 {
