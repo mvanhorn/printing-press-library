@@ -141,7 +141,8 @@ func attachAuditFlagsAndRun(cmd *cobra.Command, flags *rootFlags) {
 			return emitAuditResult(cmd, flags, result, outputFile)
 		}
 
-		if costCapUSD > 0 {
+		// --reuse-latest consumes zero credits, so the cap doesn't apply.
+		if costCapUSD > 0 && !reuseLatest {
 			if est == nil {
 				return fmt.Errorf("--cost-cap set but cost estimation failed; cannot verify cost is within cap — rerun with --estimate-only to debug")
 			}
