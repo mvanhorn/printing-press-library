@@ -8,27 +8,55 @@
       "id": "expense-untagged-not-read-only",
       "summary": "Remove mcp:read-only annotation from expense-untagged; --auto-fix PUTs to Zoho.",
       "reason": "MCP hosts use the read-only hint to skip per-call confirmation. --auto-fix is a real mutation (PUT /expenses/{id}); leaving the hint on misleads hosts.",
-      "files": ["internal/cli/zoho_expense_untagged.go"]
+      "files": [
+        "internal/cli/zoho_expense_untagged.go"
+      ]
     },
     {
       "id": "gst-paise-invariant",
       "summary": "Round Base first, then derive tax from rounded Base, and split CGST/SGST asymmetrically so sum equals Total.",
       "reason": "Independent rounding of CGST and SGST drifted 1 paise on common amounts (₹100 @ 18% yielded 100.01). India tax filings require Base + CGST + SGST == Total. Patched per Greptile P1.",
-      "files": ["internal/zohotools/gst.go", "internal/zohotools/gst_test.go"],
+      "files": [
+        "internal/zohotools/gst.go",
+        "internal/zohotools/gst_test.go"
+      ],
       "validated_outcome": "New TestComputeSplit_SumEqualsTotal covers ₹100/18%, ₹99.99/12%, ₹1234.56/5%, and inter-state cases."
     },
     {
       "id": "auto-refresh-dead-init",
       "summary": "Collapse the dead 6h initializer; staleAfter is just the 168h literal.",
       "reason": "Template emitted `staleAfter := 6*time.Hour; if d, err := time.ParseDuration(\"168h\"); err == nil { staleAfter = d }` — the literal ParseDuration never errors, so 6h was always overwritten. Patched per Greptile P2.",
-      "files": ["internal/cli/auto_refresh.go"],
+      "files": [
+        "internal/cli/auto_refresh.go"
+      ],
       "upstream_issue": "TODO: file upstream — generator's auto_refresh template should emit the literal directly when the cache stale_after is a constant."
     },
     {
       "id": "close-auto-submit-blocks-processing",
       "summary": "close --auto-submit refuses to run when any unreported expense has autoscan_status=Processing.",
       "reason": "Submitting a report with Processing expenses freezes incomplete line items / merchant_name / category on the submitted report. Users get incorrectly populated reports with no recovery path. Patched per Greptile P2.",
-      "files": ["internal/cli/zoho_close.go"]
+      "files": [
+        "internal/cli/zoho_close.go"
+      ]
+    },
+    {
+      "id": "receipt-hash-toctou-reserve-confirm",
+      "summary": "Replace LookupHash-then-RecordHash with ReserveHash/ConfirmHash/ReleaseHash reservation pattern in invoice ingest to close the parallel-duplicate-content race.",
+      "reason": "Parallel goroutines processing files with identical SHA256 all saw the hash missing, all POSTed to /expenses, all received distinct expense_ids; only the last RecordHash won and the earlier uploads became ghost expenses no future hash gate could catch. Reservation pattern claims the slot atomically (INSERT ... ON CONFLICT DO NOTHING + RowsAffected) before upload; failed uploads release the sentinel; successful uploads confirm with the real expense_id. Filed per Greptile P1.",
+      "files": [
+        "internal/zohotools/receipthash.go",
+        "internal/zohotools/receipthash_reserve_test.go",
+        "internal/cli/zoho_receipt_upload.go"
+      ],
+      "validated_outcome": "TestReserveHash_ParallelDuplicateClaimsExactlyOne spawns 20 goroutines on the same hash; exactly one claims."
+    },
+    {
+      "id": "close-refresh-expenses-before-bundle",
+      "summary": "close calls ensureFreshForResources(\"expenses\") before reading the local store, and --no-cache forces refresh via data-source=live.",
+      "reason": "close queried local SQLite expenses with a 168h stale window and no refresh hook. Any expense reported via the Zoho web UI in the last 7 days still appeared as unreported and got double-bundled into the new monthly report. The --no-cache flag was wired but explicitly zeroed (_ = noCache), making it a no-op. Patched per Greptile P1.",
+      "files": [
+        "internal/cli/zoho_close.go"
+      ]
     }
   ]
 }

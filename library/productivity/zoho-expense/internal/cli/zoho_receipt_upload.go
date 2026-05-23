@@ -93,20 +93,59 @@ func newReceiptUploadCmd(flags *rootFlags) *cobra.Command {
 
 // uploadReceiptOnce runs the full single-receipt pipeline so `invoice ingest`
 // can share it. Returns a result map describing the outcome.
-func uploadReceiptOnce(ctx context.Context, flags *rootFlags, db *sql.DB, path string, force, wait, autoTag bool, timeout time.Duration) (map[string]any, error) {
+//
+// PATCH(2026-05-23): Switched the hash-gate from LookupHash → upload →
+// RecordHash to ReserveHash → upload → ConfirmHash/ReleaseHash. The
+// previous pattern had a TOCTOU race under parallel ingestion: N
+// goroutines processing files with identical content all see the hash
+// missing, all POST /expenses, all get distinct expense_ids, and only
+// the last RecordHash wins — the earlier uploads become ghost expenses
+// that the next run's hash gate can no longer catch. The reservation
+// pattern serializes claim-the-slot across goroutines without
+// serializing the upload itself. Named return values let the
+// failure-path ReleaseHash defer fire cleanly. Filed per Greptile P1.
+func uploadReceiptOnce(ctx context.Context, flags *rootFlags, db *sql.DB, path string, force, wait, autoTag bool, timeout time.Duration) (result map[string]any, retErr error) {
 	hash, err := zohotools.HashFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("hashing %s: %w", path, err)
 	}
+	reserved := false
 	if !force {
-		if existingID, found, err := zohotools.LookupHash(db, hash); err == nil && found {
+		claimed, existingID, err := zohotools.ReserveHash(db, hash, filepath.Base(path))
+		if err != nil {
+			return nil, fmt.Errorf("reserving hash: %w", err)
+		}
+		if !claimed {
+			if existingID != "" {
+				// Real duplicate — earlier upload's expense_id is recorded.
+				return map[string]any{
+					"status":     "duplicate",
+					"expense_id": existingID,
+					"hash":       hash,
+					"file":       filepath.Base(path),
+				}, nil
+			}
+			// Sentinel still present — a sibling goroutine in this batch is
+			// mid-upload of the same content. Skip rather than create a
+			// duplicate Zoho expense; the sibling will record the canonical
+			// expense_id.
 			return map[string]any{
-				"status":     "duplicate",
-				"expense_id": existingID,
-				"hash":       hash,
-				"file":       filepath.Base(path),
+				"status": "race-skipped",
+				"hash":   hash,
+				"file":   filepath.Base(path),
+				"note":   "concurrent upload of identical content in this batch; one sibling will be recorded",
 			}, nil
 		}
+		reserved = true
+		defer func() {
+			// Release the reservation on any error path so the next run can
+			// retry. Successful uploads call ConfirmHash below; this defer
+			// is a no-op for confirmed rows because ReleaseHash only
+			// deletes rows whose expense_id is still the empty sentinel.
+			if retErr != nil && reserved {
+				_ = zohotools.ReleaseHash(db, hash)
+			}
+		}()
 	}
 
 	c, err := flags.newClient()
@@ -125,11 +164,23 @@ func uploadReceiptOnce(ctx context.Context, flags *rootFlags, db *sql.DB, path s
 	if expenseID == "" {
 		return nil, apiErr(fmt.Errorf("upload succeeded but Zoho response had no expense_id; raw: %s", string(postResult.raw)))
 	}
-	if err := zohotools.RecordHash(db, hash, expenseID, filepath.Base(path)); err != nil {
-		fmt.Fprintf(os.Stderr, "warning: %v\n", err)
+	if force {
+		// --force callers skipped reservation entirely; use the legacy
+		// upsert path so a stale row from a prior reservation gets
+		// overwritten with the new expense_id.
+		if err := zohotools.RecordHash(db, hash, expenseID, filepath.Base(path)); err != nil {
+			fmt.Fprintf(os.Stderr, "warning: %v\n", err)
+		}
+	} else {
+		// Confirm the reservation, replacing the empty sentinel with the
+		// real expense_id. After this point the row counts as a recorded
+		// upload and ReleaseHash will not touch it.
+		if err := zohotools.ConfirmHash(db, hash, expenseID); err != nil {
+			fmt.Fprintf(os.Stderr, "warning: %v\n", err)
+		}
 	}
 
-	result := map[string]any{
+	result = map[string]any{
 		"status":     "uploaded",
 		"expense_id": expenseID,
 		"hash":       hash,

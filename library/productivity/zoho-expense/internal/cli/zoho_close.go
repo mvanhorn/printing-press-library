@@ -9,6 +9,15 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// closeStalenessThreshold caps how stale the local expenses table can be
+// before `close` warns or refuses. Independent of the global cache.stale_after
+// (168h for this CLI) because `close` is a higher-consequence read — a stale
+// inventory leads to double-bundling expenses into a second report, which
+// either fails the API call or creates a malformed report. One hour is short
+// enough that a normal weekly close already triggers refresh, but long enough
+// that back-to-back runs in the same session don't re-hit the network.
+const closeStalenessThreshold = 1 * time.Hour
+
 func newCloseCmd(flags *rootFlags) *cobra.Command {
 	var month string
 	var noCache bool
@@ -36,10 +45,33 @@ func newCloseCmd(flags *rootFlags) *cobra.Command {
 			}
 			defer s.Close()
 
-			// Inventory pass from the local store (cheap + fast). --no-cache
-			// is reserved for future "fetch from API" but for now drives
-			// only the dry-run summary.
-			_ = noCache
+			// PATCH(2026-05-23): refresh the expenses table before reading
+			// it. Without this, `close` inventories from data that could be
+			// up to cache.stale_after hours old — any expense reported via
+			// the Zoho web UI in the meantime still appears as unreported
+			// here and gets double-bundled into the new report. --no-cache
+			// forces a refresh regardless of staleness; the default behaviour
+			// honours the freshness hook with a short threshold tuned for
+			// close's higher-consequence reads. Filed per Greptile P1.
+			if noCache {
+				// Force a refresh by overriding the freshness policy: pass
+				// data-source=live for this command so the auto-refresh
+				// hook always runs the network call.
+				prev := flags.dataSource
+				flags.dataSource = "live"
+				meta := ensureFreshForResources(cmd.Context(), flags, "expenses")
+				flags.dataSource = prev
+				if meta.Decision == "stale" || meta.Decision == "refreshed" {
+					if meta.Error != "" {
+						fmt.Fprintf(cmd.ErrOrStderr(), "warning: refresh failed (%s); falling back to local store which may be stale\n", meta.Error)
+					}
+				}
+			} else {
+				meta := ensureFreshForResources(cmd.Context(), flags, "expenses")
+				if meta.Decision != "fresh" && meta.Error != "" {
+					fmt.Fprintf(cmd.ErrOrStderr(), "warning: expenses table refresh hit %s — local data may be stale; re-run with --no-cache to force\n", meta.Error)
+				}
+			}
 
 			rows, err := s.DB().Query(
 				`SELECT COALESCE(expense_id,id), COALESCE(merchant_name,''), COALESCE(amount,total,0),
