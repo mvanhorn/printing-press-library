@@ -43,8 +43,8 @@ func newDiscountPerformanceCmd(flags *rootFlags) *cobra.Command {
 				return printJSONFiltered(cmd.OutOrStdout(), results, flags)
 			}
 			defer s.Close()
-			if !hintIfUnsynced(cmd, s, "discounts") {
-				hintIfStale(cmd, s, "discounts", flags.maxAge)
+			if !hintIfUnsynced(cmd, s, "") {
+				hintIfStale(cmd, s, "", flags.maxAge)
 			}
 
 			db := s.DB()

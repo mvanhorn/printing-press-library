@@ -41,8 +41,8 @@ func newCapacityCmd(flags *rootFlags) *cobra.Command {
 				return printJSONFiltered(cmd.OutOrStdout(), results, flags)
 			}
 			defer s.Close()
-			if !hintIfUnsynced(cmd, s, "events") {
-				hintIfStale(cmd, s, "events", flags.maxAge)
+			if !hintIfUnsynced(cmd, s, "") {
+				hintIfStale(cmd, s, "", flags.maxAge)
 			}
 
 			db := s.DB()

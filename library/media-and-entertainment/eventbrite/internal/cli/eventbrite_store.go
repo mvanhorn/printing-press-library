@@ -310,3 +310,12 @@ func ebIsLiveEvent(status string) bool {
 	}
 	return false
 }
+
+// ebOrderRefundedOrCancelled reports whether an order/attendee status means the
+// money was returned or the record voided. Eventbrite keeps the original
+// costs.gross.value positive on refunded orders, so revenue/spend/participation
+// aggregations must exclude these rather than counting them at face value.
+func ebOrderRefundedOrCancelled(status string) bool {
+	s := strings.ToLower(strings.TrimSpace(status))
+	return strings.Contains(s, "refund") || s == "cancelled" || s == "canceled" || s == "deleted" || s == "voided"
+}

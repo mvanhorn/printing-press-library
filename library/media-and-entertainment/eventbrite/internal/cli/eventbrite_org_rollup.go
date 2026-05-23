@@ -41,8 +41,8 @@ func newOrgRollupCmd(flags *rootFlags) *cobra.Command {
 				return printJSONFiltered(cmd.OutOrStdout(), results, flags)
 			}
 			defer s.Close()
-			if !hintIfUnsynced(cmd, s, "events") {
-				hintIfStale(cmd, s, "events", flags.maxAge)
+			if !hintIfUnsynced(cmd, s, "") {
+				hintIfStale(cmd, s, "", flags.maxAge)
 			}
 
 			db := s.DB()
@@ -95,6 +95,11 @@ func newOrgRollupCmd(flags *rootFlags) *cobra.Command {
 			for _, o := range orders {
 				e, ok := eventByID[o.EventID]
 				if !ok {
+					continue
+				}
+				// Refunded/cancelled orders keep a positive gross value; exclude
+				// them so per-org gross isn't overstated.
+				if ebOrderRefundedOrCancelled(o.Status) {
 					continue
 				}
 				orgID := e.OrgID

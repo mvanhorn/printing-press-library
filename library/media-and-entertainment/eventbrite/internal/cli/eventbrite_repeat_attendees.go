@@ -41,8 +41,8 @@ func newRepeatAttendeesCmd(flags *rootFlags) *cobra.Command {
 				return printJSONFiltered(cmd.OutOrStdout(), results, flags)
 			}
 			defer s.Close()
-			if !hintIfUnsynced(cmd, s, "events_attendees") {
-				hintIfStale(cmd, s, "events_attendees", flags.maxAge)
+			if !hintIfUnsynced(cmd, s, "") {
+				hintIfStale(cmd, s, "", flags.maxAge)
 			}
 
 			db := s.DB()
@@ -60,6 +60,11 @@ func newRepeatAttendeesCmd(flags *rootFlags) *cobra.Command {
 			byEmail := make(map[string]*agg)
 			for _, a := range attendees {
 				if a.Email == "" {
+					continue
+				}
+				// A cancelled or refunded registration is not real attendance —
+				// exclude it so events_count and spend reflect kept tickets only.
+				if a.Cancelled || a.Refunded || ebOrderRefundedOrCancelled(a.Status) {
 					continue
 				}
 				g := byEmail[a.Email]

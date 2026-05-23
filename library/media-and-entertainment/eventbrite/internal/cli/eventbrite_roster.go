@@ -53,8 +53,8 @@ func newRosterCmd(flags *rootFlags) *cobra.Command {
 				return printJSONFiltered(cmd.OutOrStdout(), results, flags)
 			}
 			defer s.Close()
-			if !hintIfUnsynced(cmd, s, "events_attendees") {
-				hintIfStale(cmd, s, "events_attendees", flags.maxAge)
+			if !hintIfUnsynced(cmd, s, "") {
+				hintIfStale(cmd, s, "", flags.maxAge)
 			}
 
 			db := s.DB()

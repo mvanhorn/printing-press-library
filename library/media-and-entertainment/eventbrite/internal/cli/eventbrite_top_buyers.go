@@ -42,8 +42,8 @@ func newTopBuyersCmd(flags *rootFlags) *cobra.Command {
 				return printJSONFiltered(cmd.OutOrStdout(), results, flags)
 			}
 			defer s.Close()
-			if !hintIfUnsynced(cmd, s, "orders") {
-				hintIfStale(cmd, s, "orders", flags.maxAge)
+			if !hintIfUnsynced(cmd, s, "") {
+				hintIfStale(cmd, s, "", flags.maxAge)
 			}
 
 			db := s.DB()
@@ -65,6 +65,11 @@ func newTopBuyersCmd(flags *rootFlags) *cobra.Command {
 					continue
 				}
 				if o.Email == "" {
+					continue
+				}
+				// Exclude refunded/cancelled orders — the money was returned, so
+				// it must not inflate a buyer's total spend.
+				if ebOrderRefundedOrCancelled(o.Status) {
 					continue
 				}
 				a := byEmail[o.Email]

@@ -76,8 +76,8 @@ func newSalesVelocityCmd(flags *rootFlags) *cobra.Command {
 			}
 			defer s.Close()
 
-			if !hintIfUnsynced(cmd, s, "events") {
-				hintIfStale(cmd, s, "events", flags.maxAge)
+			if !hintIfUnsynced(cmd, s, "") {
+				hintIfStale(cmd, s, "", flags.maxAge)
 			}
 
 			cutoff, hasCutoff := parseEBSince(since)
