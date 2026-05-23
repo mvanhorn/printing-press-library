@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-23T23:40:34.459419Z",
+  "printing_press_version": "4.2.0",
+  "api_name": "ollama-cloud",
+  "cli_name": "ollama-cloud-pp-cli",
+  "run_id": "20260524-003533",
+  "novel_features": [
+    {
+      "name": "Model advisor",
+      "command": "advise",
+      "description": "Picks the right Ollama Cloud model for a prompt by combining live catalog, heuristic prompt-feature extraction, curated cost/latency metadata, and an optional cheap meta-LLM tiebreak."
+    },
+    {
+      "name": "Side-by-side comparison",
+      "command": "compare",
+      "description": "Runs the same prompt against N hosted models in parallel and emits side-by-side response, tokens, latency, and cost."
+    },
+    {
+      "name": "Advisor explain",
+      "command": "advise",
+      "description": "With --explain, advise emits the full scoring trace: feature extraction, per-model scores, filter passes, tiebreak rationale."
+    },
+    {
+      "name": "Advisor replay",
+      "command": "advise-replay",
+      "description": "Replays advisor recommendations against a judge LLM scoring whether the picked model handled the prompt better than alternatives. Powers the divergence canary."
+    },
+    {
+      "name": "Budget probe",
+      "command": "budget",
+      "description": "Probes the free-tier weekly cap with a 1-token chat. Parses Ollama Cloud's 429 prose and emits a structured verdict (ok | exhausted | unknown) with the upgrade URL so agents can pre-flight quota before launching long sessions."
+    },
+    {
+      "name": "Cost trace",
+      "command": "cost-trace",
+      "description": "Aggregates advisor-log cost estimates over a time window; compares per-model and per-task-hint spend."
+    }
+  ],
+  "category": "ai",
+  "printer": "rvdlaar"
+}
