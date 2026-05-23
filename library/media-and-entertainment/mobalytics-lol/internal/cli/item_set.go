@@ -112,7 +112,13 @@ per champion.`,
 					}
 					champFolder := strings.ToUpper(slug[:1]) + slug[1:]
 					dir := filepath.Join(root, champFolder, "Recommended")
-					if _, err := os.Stat(filepath.Dir(dir)); err != nil {
+					// Check the Champions/ base dir (created by the installer
+					// and always present), not the per-champion subdir
+					// (only created after the user has loaded that champion).
+					// Probing filepath.Dir(dir) would falsely report "client
+					// not installed" for any champion the user hasn't played
+					// yet, defeating the pre-load use case.
+					if _, err := os.Stat(root); err != nil {
 						r.Skipped = fmt.Sprintf("client not installed at %s", root)
 						r.Itemset = nil
 						results = append(results, r)
