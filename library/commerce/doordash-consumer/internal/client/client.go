@@ -6,11 +6,11 @@ package client
 import (
 	"bytes"
 	"crypto/sha256"
-	"github.com/mvanhorn/printing-press-library/library/commerce/doordash-consumer/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/commerce/doordash-consumer/internal/config"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/mvanhorn/printing-press-library/library/commerce/doordash-consumer/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/commerce/doordash-consumer/internal/config"
 	"io"
 	"math"
 	"net/http"
@@ -111,9 +111,16 @@ func (c *Client) ProbeGet(path string) (int, error) {
 }
 
 func (c *Client) cacheKey(path string, params map[string]string) string {
+	// PATCH: Sort query parameter names so identical GET requests produce stable cache keys.
+	keys := make([]string, 0, len(params))
+	for k := range params {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
 	key := path
-	for k, v := range params {
-		key += k + "=" + v
+	for _, k := range keys {
+		key += k + "=" + params[k]
 	}
 	h := sha256.Sum256([]byte(key))
 	return hex.EncodeToString(h[:8])

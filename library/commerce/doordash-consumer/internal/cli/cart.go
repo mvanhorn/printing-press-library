@@ -4,6 +4,7 @@
 package cli
 
 import (
+	"embed"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -12,6 +13,9 @@ import (
 
 	"github.com/spf13/cobra"
 )
+
+//go:embed queries/checkout.graphql queries/totalFeeTally.graphql
+var cartGraphQLQueryFiles embed.FS
 
 const orderPlacementConfirmationPhrase = "PLACE DOORDASH ORDER"
 
@@ -141,7 +145,8 @@ requires --enable-live-order-placement, --owner-approved, and --confirm %q.
 	cmd.Flags().StringVar(&variables, "variables", "", "GraphQL variables as JSON")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read full GraphQL request body as JSON from stdin")
 	cmd.Flags().BoolVar(&allowLiveOrderPlacement, "enable-live-order-placement", false, "Required live-order safety gate; does not bypass confirmation")
-	cmd.Flags().BoolVar(&ownerApproved, "owner-approved", false, "Affirm that bricenice17 explicitly approved this live order")
+	// PATCH: Keep the approval gate generic for public-library users.
+	cmd.Flags().BoolVar(&ownerApproved, "owner-approved", false, "Affirm that the account owner explicitly approved this live order")
 	cmd.Flags().StringVar(&confirmation, "confirm", "", fmt.Sprintf("Exact confirmation phrase required for live order placement: %q", orderPlacementConfirmationPhrase))
 	return cmd
 }
@@ -494,7 +499,11 @@ func buildGraphQLBody(stdinBody bool, operationName, query, variables string, dr
 		body["operationName"] = operationName
 	}
 	if query != "" {
-		body["query"] = query
+		resolvedQuery, err := resolveGraphQLDocument(query)
+		if err != nil {
+			return nil, err
+		}
+		body["query"] = resolvedQuery
 	}
 	if variables != "" {
 		var parsedVariables any
@@ -504,6 +513,18 @@ func buildGraphQLBody(stdinBody bool, operationName, query, variables string, dr
 		body["variables"] = parsedVariables
 	}
 	return body, nil
+}
+
+func resolveGraphQLDocument(query string) (string, error) {
+	// PATCH: Interpret curated query-file defaults as embedded GraphQL documents instead of sending file paths verbatim.
+	if !strings.HasPrefix(query, "queries/") {
+		return query, nil
+	}
+	data, err := cartGraphQLQueryFiles.ReadFile(query)
+	if err != nil {
+		return "", fmt.Errorf("loading embedded GraphQL document %q: %w", query, err)
+	}
+	return string(data), nil
 }
 
 func printMutationEnvelope(cmd *cobra.Command, flags *rootFlags, resource, path string, statusCode int, data json.RawMessage) error {

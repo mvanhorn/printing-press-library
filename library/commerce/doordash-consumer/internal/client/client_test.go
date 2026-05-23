@@ -70,3 +70,12 @@ func TestTruncateBody_UTF8RuneAtBoundary(t *testing.T) {
 		t.Fatalf("len = %d, want %d (partial rune should be dropped, not replaced)", len(got), want)
 	}
 }
+
+func TestCacheKeySortsParams(t *testing.T) {
+	c := &Client{}
+	left := c.cacheKey("/graphql", map[string]string{"b": "2", "a": "1"})
+	right := c.cacheKey("/graphql", map[string]string{"a": "1", "b": "2"})
+	if left != right {
+		t.Fatalf("cache key should be stable for identical params: %s != %s", left, right)
+	}
+}

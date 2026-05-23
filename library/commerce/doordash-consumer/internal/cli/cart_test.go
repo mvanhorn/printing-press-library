@@ -80,3 +80,17 @@ func TestSummarizeCheckoutPreview_ExtractsLikelyCheckoutFields(t *testing.T) {
 		}
 	}
 }
+
+func TestBuildGraphQLBody_ResolvesEmbeddedQueryDocument(t *testing.T) {
+	body, err := buildGraphQLBody(false, "checkout", "queries/checkout.graphql", `{"orderCartId":"cart_123","includeCompanyPaymentInfo":false,"includeRewardBalanceAvailable":false}`, false)
+	if err != nil {
+		t.Fatalf("buildGraphQLBody returned error: %v", err)
+	}
+	query, ok := body["query"].(string)
+	if !ok {
+		t.Fatalf("query missing or wrong type: %#v", body["query"])
+	}
+	if strings.Contains(query, "queries/checkout.graphql") || !strings.Contains(query, "query checkout") {
+		t.Fatalf("query was not resolved to embedded GraphQL document: %.80q", query)
+	}
+}

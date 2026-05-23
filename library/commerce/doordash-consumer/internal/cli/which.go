@@ -35,7 +35,7 @@ var whichIndex = []whichEntry{
 	{Command: "addresses", Description: "List DoorDash delivery addresses", Group: "read-only"},
 	{Command: "payment-methods", Description: "List DoorDash payment methods without printing full card data", Group: "read-only"},
 	{Command: "cart preview", Description: "Preview checkout, fees, tip, payment, and total without placing an order", Group: "checkout-preview"},
-	{Command: "cart place", Description: "Hard-gated DoorDash order placement; requires bricenice17 approval and exact confirmation", Group: "guarded-mutation"},
+	{Command: "cart place", Description: "Hard-gated DoorDash order placement; requires account-owner approval and exact confirmation", Group: "guarded-mutation"},
 	{Command: "graphql create-add-cart-item", Description: "POST /graphql/addCartItem", Group: "graphql"},
 	{Command: "graphql create-autocompleteFacetFeed", Description: "POST /graphql/autocompleteFacetFeed", Group: "graphql"},
 	{Command: "graphql create-checkout", Description: "POST /graphql/checkout", Group: "graphql"},

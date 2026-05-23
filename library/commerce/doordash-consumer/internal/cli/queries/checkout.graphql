@@ -1,0 +1,1908 @@
+query checkout(
+  $orderCartId: ID!
+  $corporateIndividualOrdersEnabled: Boolean
+  $includeCompanyPaymentInfo: Boolean!
+  $deliveryOptionType: DeliveryOptionType
+  $isCardPayment: Boolean
+  $programId: String
+  $isDashPassUpsellSelected: Boolean
+  $routineReorderItemIds: [String]
+  $selectedBudgetId: String
+  $scheduledTime: String
+  $supplementalPaymentDetailsList: [SupplementalPaymentDetails!]
+  $includeRewardBalanceAvailable: Boolean!
+  $deliveryOptionInfo: DeliveryOptionInfo
+  $landingPageType: LandingPageType
+  $shouldApplyCredits: Boolean
+  $paymentMethodUuid: String
+  $paymentMethodType: PaymentMethodType
+) {
+  orderCart(
+    id: $orderCartId
+    corporateIndividualOrdersEnabled: $corporateIndividualOrdersEnabled
+    deliveryOptionType: $deliveryOptionType
+    isCardPayment: $isCardPayment
+    programId: $programId
+    isDashPassUpsellSelected: $isDashPassUpsellSelected
+    routineReorderItemIds: $routineReorderItemIds
+    selectedBudgetId: $selectedBudgetId
+    scheduledTime: $scheduledTime
+    supplementalPaymentDetailsList: $supplementalPaymentDetailsList
+    includeRewardBalanceAvailable: $includeRewardBalanceAvailable
+    deliveryOptionInfo: $deliveryOptionInfo
+    landingPageType: $landingPageType
+    shouldApplyCredits: $shouldApplyCredits
+    paymentMethodUuid: $paymentMethodUuid
+    paymentMethodType: $paymentMethodType
+  ) {
+    ...CheckoutOrderCartFragment
+    __typename
+  }
+}
+
+fragment CheckoutOrderCartFragment on OrderCart {
+  id
+  recurringDeliveryDetails {
+    recurringDeliveryDiscountDetails {
+      firstDeliveryDiscountPercentage
+      recurringDeliveryDiscountPercentage
+      __typename
+    }
+    recurringDeliveryMessagingDetails {
+      title
+      descriptionLineOne
+      descriptionLineTwo
+      learnMoreLinkUrl
+      __typename
+    }
+    __typename
+  }
+  hasError
+  groupCart
+  groupCartType
+  groupCartSource
+  cartType
+  groupCartPollInterval
+  isCatering
+  isSameStoreCatering
+  cartStatusType
+  cateringInfo {
+    cateringVersion
+    minOrderSize
+    maxOrderSize
+    orderInAdvanceInSeconds
+    cancelOrderInAdvanceInSeconds
+    __typename
+  }
+  containsAlcohol
+  foodAlcoholConstraintCartLevel
+  commissionMessage
+  selectedDeliveryOption {
+    deliveryOptionType
+    scheduledWindow {
+      rangeMinUtc
+      rangeMaxUtc
+      __typename
+    }
+    __typename
+  }
+  scheduledDeliveryAvailable
+  enableNewScheduleAheadUi
+  expandAddressDetails
+  deliveryOptionsUiConfig {
+    enableBeDrivenDeliveryOptions
+    enableDeliveryOptionPersistence
+    enableScheduledDeliveryOptionEtaText
+    __typename
+  }
+  preselectedOptionUpdate {
+    showDeliveryOptionPicker
+    preselectedOptionUpdateTitle
+    preselectedOptionUpdateMessage
+    __typename
+  }
+  urlCode
+  fulfillmentType
+  isConsumerPickup
+  isConvenienceCart
+  isDigitalWalletAllowed
+  isPreTippable
+  hideSalesTax
+  offersDelivery
+  offersPickup
+  paymentProtocol
+  isMerchantShipping
+  merchantShippingDayRangeString
+  merchantShippingDetails {
+    fullDeliveryNote
+    shortDeliveryNote
+    __typename
+  }
+  totalCreditsAvailable {
+    unitAmount
+    currency
+    displayString
+    __typename
+  }
+  creditsApplicableBeforeTip
+  creditsApplicableBeforeTipDetails {
+    unitAmount
+    currency
+    displayString
+    __typename
+  }
+  showAccessibilityCompliance
+  subtotal
+  total
+  totalSavings
+  taxAmount
+  tipAmount
+  merchantTipAmount
+  tipPercentageArgument
+  dasherFee
+  overauthTotal {
+    currency
+    unitAmount
+    __typename
+  }
+  legislativeFeeDetails {
+    label
+    unitAmount
+    displayString
+    message
+    tooltipMessage
+    __typename
+  }
+  deliveryFee
+  deliveryFeeDetails {
+    originalFee {
+      unitAmount
+      __typename
+    }
+    __typename
+  }
+  appliedServiceFee
+  minOrderFee
+  minOrderSubtotal
+  adsVertical
+  asapMinutesRange
+  asapTimeRange
+  asapPickupTimeRange
+  asapNumMinutesUntilClose
+  asapPickupNumMinutesUntilClose
+  extraSosDeliveryFee
+  fulfillsOwnDeliveries
+  maxIndividualCost
+  shortenedUrl
+  serviceRateMessage
+  isOutsideDeliveryRegion
+  asapDeliveryOverrideTitle
+  asapDeliveryOverrideSubtitle
+  asapDeliveryAvailable
+  asapPickupAvailable
+  scheduledDeliveryOptionQuoteMessage
+  isBundle
+  bundleType
+  bundleDetails {
+    bundleStatusMessage
+    __typename
+  }
+  originalBundleOrderCartId
+  deliveryOptions {
+    deliveryOptionType
+    etaMinutesRange
+    optionTitle
+    optionOverrideTitle
+    optionSubtitle
+    optionHighlightedText
+    optionQuoteMessage
+    isScheduleDelivery
+    scheduledDeliveryTime
+    backendStyling {
+      overrideTitleStylized {
+        segments {
+          type
+          text {
+            displayString
+            textColor
+            textStyle
+            __typename
+          }
+          icon {
+            type
+            color
+            __typename
+          }
+          __typename
+        }
+        __typename
+      }
+      title {
+        ...CheckoutBackendStylingFragment
+        __typename
+      }
+      subTitle {
+        ...CheckoutBackendStylingFragment
+        __typename
+      }
+      description {
+        ...CheckoutBackendStylingFragment
+        __typename
+      }
+      subDescription {
+        ...CheckoutBackendStylingFragment
+        __typename
+      }
+      tooltipLayout {
+        displayString
+        leadingIcon
+        __typename
+      }
+      __typename
+    }
+    selectionAction
+    animationDetails {
+      backgroundColor
+      messages {
+        segments {
+          type
+          icon {
+            type
+            color
+            __typename
+          }
+          text {
+            displayString
+            textColor
+            __typename
+          }
+          __typename
+        }
+        __typename
+      }
+      __typename
+    }
+    isOptionSelectable
+    isPreselected
+    preselectedDeliveryWindow {
+      rangeMin
+      rangeMax
+      midpointTimestamp
+      displayString
+      __typename
+    }
+    availableDaysList {
+      dayTimestamp {
+        day
+        month
+        year
+        __typename
+      }
+      timeWindowsList {
+        displayString
+        midpointTimestamp
+        rangeMin
+        rangeMax
+        __typename
+      }
+      __typename
+    }
+    icon {
+      name
+      color
+      size
+      __typename
+    }
+    __typename
+  }
+  currencyCode
+  minAgeRequirement
+  selfDeliveryType
+  selfDeliveryBannerText
+  serviceRateDetails {
+    originalFee {
+      unitAmount
+      __typename
+    }
+    __typename
+  }
+  menu {
+    id
+    hoursToOrderInAdvance
+    name
+    minOrderSize
+    isCatering
+    __typename
+  }
+  creator {
+    id
+    firstName
+    lastName
+    localizedNames {
+      informalName
+      formalName
+      formalNameAbbreviated
+      __typename
+    }
+    __typename
+  }
+  isConvenienceCart
+  isPrescriptionDelivery
+  outOfStockMenuItemIds
+  prescriptionStoreInfo {
+    retailStoreId
+    __typename
+  }
+  deliveries {
+    id
+    quotedDeliveryTime
+    __typename
+  }
+  submittedAt
+  providesExternalCourierTracking
+  orderTimeAvailability {
+    ...CheckoutOrderTimeAvailabilityFragment
+    __typename
+  }
+  tipSuggestions {
+    type
+    defaultIndex
+    values
+    __typename
+  }
+  tipsSuggestionsList {
+    type
+    defaultTipIndex
+    suggestions {
+      label
+      value
+      isDefault
+      __typename
+    }
+    tipMessaging {
+      checkoutTitle
+      checkoutSubtitle
+      splitBillTipSubtitle
+      __typename
+    }
+    tipRecipient
+    __typename
+  }
+  restaurant {
+    id
+    name
+    maxOrderSize
+    coverImgUrl
+    squareCoverImgUrl
+    shouldShowStoreLogo
+    slug
+    bulkSubstitutionPreference
+    isConsumerSubscriptionEligible
+    address {
+      printableAddress
+      street
+      lat
+      lng
+      state
+      country
+      __typename
+    }
+    business {
+      id
+      name
+      __typename
+    }
+    merchantPromotions {
+      minimumOrderCartSubtotal
+      newStoreCustomersOnly
+      deliveryFee
+      __typename
+    }
+    requiresCheckIn
+    offersPackageReturns
+    snapMerchantId
+    orderProtocol
+    idealGroupSize
+    highQualitySubtotalThreshold
+    __typename
+  }
+  routineReorderTimeSlots {
+    startHour
+    endHour
+    __typename
+  }
+  routineReorderWeekIntervals
+  supplementalPaymentEligibleAmountsList {
+    amount {
+      type
+      eligibleAmount {
+        currency
+        displayString
+        decimalPlaces
+        unitAmount
+        sign
+        __typename
+      }
+      __typename
+    }
+    title
+    description
+    __typename
+  }
+  supplementalAuthorizedPaymentDetailsList {
+    type
+    authorizedAmount {
+      currency
+      unitAmount
+      displayString
+      decimalPlaces
+      sign
+      symbol
+      __typename
+    }
+    __typename
+  }
+  orders {
+    id
+    consumer {
+      id
+      firstName
+      lastName
+      localizedNames {
+        informalName
+        formalName
+        formalNameAbbreviated
+        __typename
+      }
+      __typename
+    }
+    isSubCartFinalized
+    splitBillSubcartStatus
+    lineItems {
+      ...lineItemFragment
+      __typename
+    }
+    paymentCard {
+      id
+      stripeId
+      __typename
+    }
+    paymentLineItems {
+      subtotal
+      taxAmount
+      subtotalTaxAmount
+      feesTaxAmount
+      serviceFee
+      __typename
+    }
+    orderItems {
+      id
+      options {
+        id
+        name
+        quantity
+        price
+        nestedOptions
+        __typename
+      }
+      nestedOptions
+      specialInstructions
+      substitutionPreference
+      quantity
+      singlePrice
+      priceOfTotalQuantity
+      priceDisplayString
+      nonDiscountPriceDisplayString
+      continuousQuantity
+      unit
+      purchaseType
+      estimatedPricingDescription
+      isRoutineReorderEligible
+      cartItemStatusType
+      isPrescriptionItem
+      bundleStore {
+        ...OrderItemBundleFragment
+        __typename
+      }
+      increment {
+        decimalPlaces
+        unitAmount
+        __typename
+      }
+      itemLevelDiscount {
+        promoId
+        promoCode
+        externalCampaignId
+        __typename
+      }
+      discounts {
+        ...OrderItemDiscountFragment
+        __typename
+      }
+      item {
+        id
+        restrictionInfo {
+          type
+          rulesList {
+            ruleName
+            intValue
+            stringValue
+            boolValue
+            floatValue
+            __typename
+          }
+          __typename
+        }
+        imageUrl
+        name
+        price
+        minAgeRequirement
+        category {
+          title
+          __typename
+        }
+        extras {
+          id
+          title
+          description
+          __typename
+        }
+        itemTagsList {
+          tagType
+          localizedName
+          shortName
+          id
+          description
+          displayType
+          __typename
+        }
+        storeId
+        businessId
+        __typename
+      }
+      itemLevelDiscountMonetaryFields {
+        currency
+        displayString
+        decimalPlaces
+        unitAmount
+        __typename
+      }
+      giftInfo {
+        ...CartItemGiftInfoFragment
+        __typename
+      }
+      badges {
+        ...BadgeFragment
+        __typename
+      }
+      nudgeList {
+        ...NudgeFragment
+        __typename
+      }
+      promoNudgeList {
+        ...PromoNudgeFragment
+        __typename
+      }
+      itemLimitData {
+        ...ItemLimitDataFragment
+        __typename
+      }
+      __typename
+    }
+    isOrderRoutineReorderEligible
+    __typename
+  }
+  menuOptions {
+    id
+    localizedTitle
+    selection
+    __typename
+  }
+  storeDisclaimers {
+    id
+    disclaimerDetailsLink
+    disclaimerLinkSubstring
+    disclaimerText
+    displayTreatment
+    __typename
+  }
+  storeOrderCarts {
+    id
+    store {
+      id
+      __typename
+    }
+    __typename
+  }
+  consumerPromotion {
+    ...CheckoutConsumerPromotionFragment
+    __typename
+  }
+  allConsumerPromotion {
+    ...CheckoutConsumerPromotionFragment
+    __typename
+  }
+  discountDetails {
+    ...CheckoutDiscountDetailsFragment
+    __typename
+  }
+  expenseOrderOptions {
+    expenseCodeMode
+    allEligibleExpensedMealsBudgets {
+      ...ExpensedMealBudgetFragment
+      __typename
+    }
+    __typename
+  }
+  companyPaymentInfo @include(if: $includeCompanyPaymentInfo) {
+    totalAmount {
+      unitAmount
+      displayString
+      __typename
+    }
+    companyAmount {
+      unitAmount
+      displayString
+      __typename
+    }
+    maxBudgetAmount {
+      unitAmount
+      displayString
+      __typename
+    }
+    individualAmount {
+      unitAmount
+      displayString
+      __typename
+    }
+    creditsApplied {
+      unitAmount
+      displayString
+      __typename
+    }
+    teamOrderInfo {
+      teamId
+      budgetId
+      teamAccountId
+      __typename
+    }
+    budgetPayerName
+    __typename
+  }
+  teamAccount {
+    id
+    name
+    __typename
+  }
+  paymentProfileType
+  creditsBackDetails {
+    creditsbackText
+    creditsbackType
+    totalCreditsbackAmountMonetaryFields {
+      currency
+      displayString
+      decimalPlaces
+      unitAmount
+      __typename
+    }
+    __typename
+  }
+  eligibleSubscription {
+    shouldShowDashpass
+    eligibleSubscriptionSavingDetails {
+      fee {
+        displayString
+        __typename
+      }
+      minimumSubtotal {
+        displayString
+        __typename
+      }
+      refundAmount {
+        displayString
+        unitAmount
+        __typename
+      }
+      recurrenceIntervalUnits
+      recurrenceIntervalType
+      __typename
+    }
+    __typename
+  }
+  isDashpassApplied
+  pricingQuoteId
+  differentialPricingDetails {
+    isEnabled
+    message
+    disclaimerTitle
+    disclaimerMessage
+    __typename
+  }
+  ageRestrictedIdVerificationInfo {
+    ageRestrictedIdVerificationStatus
+    ageRestrictedIdVerificationVendor
+    idPhotoUrl
+    vendorAccountId
+    isBouncerCase
+    __typename
+  }
+  signatureRequired
+  messagesAndBanners {
+    longDistanceReminder {
+      description
+      leadingIcon
+      __typename
+    }
+    loyaltyCard {
+      title
+      shouldShow
+      buttonText
+      description {
+        prefix
+        suffix
+        amount {
+          currency
+          unitAmount
+          sign
+          __typename
+        }
+        __typename
+      }
+      __typename
+    }
+    totalSavingsMessage {
+      title
+      description
+      amount {
+        currency
+        unitAmount
+        sign
+        __typename
+      }
+      __typename
+    }
+    hsaFsaDetails {
+      title
+      acceptText
+      bodyLineItemsList {
+        text {
+          value
+          __typename
+        }
+        __typename
+      }
+      __typename
+    }
+    hsaFsaDetailsV2 {
+      variant
+      title
+      leadingIcon
+      label
+      primaryAction {
+        title
+        __typename
+      }
+      hasRoundedCorners
+      __typename
+    }
+    menuPriceDisclaimer {
+      message
+      __typename
+    }
+    packageReturnsDisclaimer {
+      title
+      description
+      disclaimer
+      acceptText
+      cancelText
+      bodyLineItemsList {
+        title
+        description
+        icon
+        __typename
+      }
+      __typename
+    }
+    deliveryPromiseDetails {
+      deliveryPromiseBanner {
+        action {
+          label
+          type
+          parametersList {
+            key
+            value
+            __typename
+          }
+          __typename
+        }
+        badgeType
+        title
+        sectionsList {
+          badgeUrl
+          text
+          type
+          descriptionList {
+            badgeUrl
+            text
+            type
+            descriptionList {
+              badgeUrl
+              text
+              type
+              __typename
+            }
+            __typename
+          }
+          __typename
+        }
+        __typename
+      }
+      lateOrderCreditUpsell {
+        checkboxTitle
+        checkboxSubtitle
+        upsellType
+        upsellLocation
+        checkboxTermsAndConditions {
+          type
+          value
+          url
+          __typename
+        }
+        upsellConfirmation {
+          headerBadge
+          billingInfo
+          accessoryType
+          title
+          termsAndConditions {
+            type
+            value
+            url
+            __typename
+          }
+          descriptionList {
+            type
+            text
+            badgeUrl
+            descriptionList {
+              type
+              text
+              badgeUrl
+              __typename
+            }
+            __typename
+          }
+          actionsList {
+            label
+            type
+            parametersList {
+              key
+              value
+              __typename
+            }
+            __typename
+          }
+          ...SubscriptionPaymentMethodFragment
+          __typename
+        }
+        __typename
+      }
+      __typename
+    }
+    savingsCelebrationBanner {
+      title
+      subtitle
+      savingsAmount
+      styling {
+        backgroundColor
+        savingsAmountColor
+        __typename
+      }
+      metadata {
+        campaignId
+        padContext
+        __typename
+      }
+      icons {
+        subtitleLeading
+        subtitleTrailing
+        __typename
+      }
+      __typename
+    }
+    cartPageBlockingErrorBanner {
+      text
+      leadingIcon {
+        name
+        color
+        size
+        __typename
+      }
+      backgroundColor
+      foregroundColor
+      __typename
+    }
+    restrictedItemDisclaimer {
+      restrictedItemImageUrls
+      title
+      description
+      subDescription
+      legalAgreement {
+        description
+        userConsents
+        __typename
+      }
+      primaryButton {
+        notFullyScrolled
+        fullyScrolled
+        __typename
+      }
+      secondaryButton
+      __typename
+    }
+    __typename
+  }
+  applicableMxLoyaltyRewards {
+    rewardsList {
+      discountTarget
+      source
+      value {
+        type
+        percentOff
+        flatAmountOff {
+          unitAmount
+          currency
+          displayString
+          decimalPlaces
+          sign
+          symbol
+          __typename
+        }
+        __typename
+      }
+      identifier {
+        id
+        code
+        __typename
+      }
+      name
+      quantity
+      __typename
+    }
+    rewardsTotal
+    __typename
+  }
+  appliedMxLoyaltyRewards {
+    rewardsList {
+      discountTarget
+      source
+      value {
+        type
+        percentOff
+        flatAmountOff {
+          unitAmount
+          currency
+          displayString
+          decimalPlaces
+          sign
+          symbol
+          __typename
+        }
+        __typename
+      }
+      identifier {
+        id
+        code
+        __typename
+      }
+      name
+      quantity
+      __typename
+    }
+    rewardsTotal
+    __typename
+  }
+  applicableExternalGiftCardDetails {
+    externalGiftCardsList {
+      externalGiftCardNumberToken
+      valueToRedeem {
+        unitAmount
+        currency
+        displayString
+        decimalPlaces
+        __typename
+      }
+      __typename
+    }
+    __typename
+  }
+  lineItemTooltipData {
+    lineItem {
+      chargeId
+      label
+      originalMoney {
+        unitAmount
+        displayString
+        __typename
+      }
+      finalMoney {
+        unitAmount
+        displayString
+        __typename
+      }
+      tooltip {
+        title
+        paragraphs {
+          title
+          description
+          __typename
+        }
+        __typename
+      }
+      note
+      labelIcon
+      priceIcon
+      discountIcon
+      highlight
+      __typename
+    }
+    lineItemBottomsheet {
+      ...UiFlowScreenFragment
+      __typename
+    }
+    __typename
+  }
+  discountBannerDetails {
+    discountDetailsMessage
+    discountDetailsMessageTitle
+    discountDetailsMessageDescription
+    isNewDashpassUser
+    minimumSubtotalPercentage
+    requiredAction
+    badgeType
+    promotionId
+    bannerType
+    bannerLocationList
+    discountBannerBottomSheet {
+      ...UiFlowScreenFragment
+      __typename
+    }
+    upsellBannerAction {
+      checkboxTitle
+      checkboxSubtitle
+      upsellType
+      upsellLocation
+      checkboxTermsAndConditions {
+        type
+        value
+        url
+        __typename
+      }
+      upsellConfirmation {
+        billingInfo
+        accessoryType
+        title
+        termsAndConditions {
+          type
+          value
+          url
+          __typename
+        }
+        descriptionList {
+          type
+          text
+          badgeUrl
+          descriptionList {
+            type
+            text
+            badgeUrl
+            __typename
+          }
+          __typename
+        }
+        actionsList {
+          label
+          type
+          parametersList {
+            key
+            value
+            __typename
+          }
+          __typename
+        }
+        ...SubscriptionPaymentMethodFragment
+        __typename
+      }
+      __typename
+    }
+    messageColor
+    backgroundColor
+    __typename
+  }
+  rewardBalanceAvailable @include(if: $includeRewardBalanceAvailable) {
+    monetaryValue {
+      currency
+      displayString
+      unitAmount
+      __typename
+    }
+    transactionAmount {
+      amount
+      conversionRate
+      label
+      __typename
+    }
+    __typename
+  }
+  total
+  totalBeforeDiscountsAndCredits
+  footerDetails {
+    title
+    subtitle
+    __typename
+  }
+  shouldApplyCredits
+  orderQualityInfo {
+    isLoqNudgeAllowed
+    isLoqForceSchedule
+    __typename
+  }
+  ...InvalidItemsFragment
+  ...CheckoutLineItemsFragment
+  ...OrderCartDomainFragment
+  ...CheckoutDashPassUpsellFragment
+  ...CheckoutDropoffOptionsFragment
+  ...BeExperimentFlagsFragment
+  ...LoyaltyPointsSummaryFragment
+  ...CheckoutOrderCartMetadataFragment
+  __typename
+}
+
+fragment InvalidItemsFragment on OrderCart {
+  invalidItems {
+    itemId
+    storeId
+    itemQuantityInfo {
+      discreteQuantity {
+        quantity
+        unit
+        __typename
+      }
+      continuousQuantity {
+        quantity
+        unit
+        __typename
+      }
+      __typename
+    }
+    name
+    itemExtrasList
+    menuId
+    __typename
+  }
+  __typename
+}
+
+fragment CheckoutLineItemsFragment on OrderCart {
+  lineItemsList {
+    chargeId
+    label
+    originalMoney {
+      unitAmount
+      displayString
+      __typename
+    }
+    finalMoney {
+      unitAmount
+      displayString
+      __typename
+    }
+    tooltip {
+      title
+      paragraphs {
+        title
+        description
+        hyperlink
+        hyperlinkTitle
+        __typename
+      }
+      hyperlink
+      hyperlinkTitle
+      __typename
+    }
+    note
+    labelIcon
+    priceIcon
+    discountIcon
+    highlight
+    lineItemCalloutModal {
+      title
+      description
+      type
+      __typename
+    }
+    description
+    __typename
+  }
+  __typename
+}
+
+fragment CheckoutDiscountDetailsFragment on DiscountDetails {
+  message
+  appliedDiscount {
+    displayString
+    unitAmount
+    __typename
+  }
+  requiredAction
+  __typename
+}
+
+fragment CheckoutConsumerPromotionFragment on CheckoutConsumerPromotion {
+  code
+  campaignId
+  adGroupId
+  adId
+  maxApplicableDeliveryCount
+  description
+  title
+  featuredOnApp
+  expiration
+  target
+  disabledDisplaySurface
+  __typename
+}
+
+fragment CheckoutOrderTimeAvailabilityFragment on OrderTimeAvailability {
+  scheduleLongerInAdvanceTime
+  timezone
+  days {
+    year
+    month
+    date
+    times {
+      display
+      timestamp
+      min
+      max
+      displayString
+      displayStringDeliveryWindow
+      displayStringSubtitle
+      __typename
+    }
+    title
+    subtitle
+    isSelected
+    isDisabled
+    __typename
+  }
+  __typename
+}
+
+fragment OrderCartDomainFragment on OrderCart {
+  domain {
+    giftInfo {
+      recipientName
+      recipientGivenName
+      recipientFamilyName
+      recipientPhone
+      recipientEmail
+      cardMessage
+      cardId
+      shouldNotifyTrackingToRecipientOnDasherAssign
+      shouldNotifyRecipientForDasherQuestions
+      senderName
+      shouldRecipientScheduleGift
+      hasGiftIntent
+      __typename
+    }
+    __typename
+  }
+  __typename
+}
+
+fragment CheckoutDashPassUpsellFragment on OrderCart {
+  dashpassUpsell {
+    shouldShowDashpass
+    eligibleSubscriptionSavingDetails {
+      refundAmount {
+        displayString
+        unitAmount
+        __typename
+      }
+      feesAndTaxAfterSubscription {
+        displayString
+        unitAmount
+        __typename
+      }
+      deliveryFeeAfterSubscription {
+        displayString
+        unitAmount
+        __typename
+      }
+      totalAfterSubscription {
+        displayString
+        unitAmount
+        __typename
+      }
+      planDetails {
+        id
+        countryCode
+        upsellDetails {
+          checkboxTitle
+          checkboxSubtitle
+          upsellType
+          upsellLocation
+          checkboxTermsAndConditions {
+            type
+            value
+            url
+            __typename
+          }
+          upsellConfirmation {
+            title
+            termsAndConditions {
+              type
+              value
+              url
+              __typename
+            }
+            descriptionList {
+              type
+              text
+              badgeUrl
+              descriptionList {
+                type
+                text
+                badgeUrl
+                __typename
+              }
+              __typename
+            }
+            actionsList {
+              label
+              type
+              parametersList {
+                key
+                value
+                __typename
+              }
+              __typename
+            }
+            billingInfo
+            accessoryType
+            ...SubscriptionPaymentMethodFragment
+            __typename
+          }
+          upsellBannerDetails {
+            title
+            badgeType
+            bannerType
+            __typename
+          }
+          upsellOfferTypes
+          upsellAudience
+          isPreSelected
+          useGetUpsellDetailsForOrderCart
+          __typename
+        }
+        subscriptionTrialPlansList {
+          id
+          __typename
+        }
+        __typename
+      }
+      __typename
+    }
+    __typename
+  }
+  __typename
+}
+
+fragment SubscriptionPaymentMethodFragment on DashPassUpsellConfirmationDetails {
+  subscriptionPaymentMethod {
+    id
+    stripeId
+    fingerprint
+    last4
+    dynamicLast4
+    expYear
+    expMonth
+    type
+    cardBenefitMembershipLinkStatus
+    membershipType {
+      partnerCardDisplayName
+      partnerCardLast4
+      partnerName
+      __typename
+    }
+    __typename
+  }
+  __typename
+}
+
+fragment CheckoutDropoffOptionsFragment on OrderCart {
+  dropoffOptions {
+    id
+    displayString
+    placeholderText
+    isDefault
+    isEnabled
+    disabledMessage
+    proofOfDeliveryType
+    __typename
+  }
+  __typename
+}
+
+fragment CheckoutBackendStylingFragment on StyledText {
+  displayString
+  textStyle
+  textColor
+  strikethroughOverrideText {
+    displayString
+    textStyle
+    textColor
+    __typename
+  }
+  leadingIcon {
+    type
+    color
+    __typename
+  }
+  __typename
+}
+
+fragment ExpensedMealBudgetFragment on ExpenseOrderBudget {
+  id
+  name
+  budgetAddress {
+    printableAddress
+    __typename
+  }
+  availabilities {
+    startTimeOfDayOfWeek {
+      dayOfWeek
+      timeOfDay {
+        hours
+        minutes
+        __typename
+      }
+      __typename
+    }
+    endTimeOfDayOfWeek {
+      dayOfWeek
+      timeOfDay {
+        hours
+        minutes
+        __typename
+      }
+      __typename
+    }
+    __typename
+  }
+  maximumAmount {
+    currency
+    displayString
+    decimalPlaces
+    unitAmount
+    __typename
+  }
+  remainingAmount {
+    currency
+    displayString
+    decimalPlaces
+    unitAmount
+    __typename
+  }
+  refreshInterval
+  expenseCodeMode
+  isExpenseNoteRequired
+  expireDate
+  budgetAddressList {
+    printableAddress
+    __typename
+  }
+  __typename
+}
+
+fragment UiFlowScreenFragment on UIFlow {
+  screenDisplayType
+  screenIdentifier
+  allowBackNavigation
+  sectionsList {
+    type
+    contentList
+    richContentList {
+      contentList
+      formatStyleList
+      formatColor
+      formatType
+      formatAlignment
+      imageUrl
+      __typename
+    }
+    selectContentList {
+      selectContentId
+      contentList
+      __typename
+    }
+    alignment
+    action {
+      label
+      type
+      screen {
+        screenDisplayType
+        screenIdentifier
+        ...SectionsListFragment
+        actionsList {
+          ...ActionsListFragment
+          screen {
+            screenDisplayType
+            screenIdentifier
+            ...SectionsListFragment
+            actionsList {
+              ...ActionsListFragment
+              __typename
+            }
+            __typename
+          }
+          __typename
+        }
+        __typename
+      }
+      actionDisplayType
+      actionParametersList {
+        key
+        value
+        __typename
+      }
+      postAction
+      postActionParametersList {
+        key
+        value
+        __typename
+      }
+      __typename
+    }
+    __typename
+  }
+  actionsList {
+    ...ActionsListFragment
+    __typename
+  }
+  analytics {
+    metadataList {
+      key
+      value
+      __typename
+    }
+    __typename
+  }
+  __typename
+}
+
+fragment ActionsListFragment on UIFlowAction {
+  label
+  type
+  actionDisplayType
+  actionParametersList {
+    key
+    value
+    __typename
+  }
+  postAction
+  postActionParametersList {
+    key
+    value
+    __typename
+  }
+  __typename
+}
+
+fragment SectionsListFragment on UIFlow {
+  sectionsList {
+    type
+    contentList
+    alignment
+    action {
+      label
+      type
+      __typename
+    }
+    __typename
+  }
+  __typename
+}
+
+fragment OrderItemDiscountFragment on OrderItemDiscount {
+  id
+  finalMoney {
+    ...DiscountMonetaryFieldsFragment
+    __typename
+  }
+  badges {
+    ...BadgeFragment
+    __typename
+  }
+  adsMetadata {
+    ...DiscountAdsMetadataFragment
+    __typename
+  }
+  __typename
+}
+
+fragment DiscountMonetaryFieldsFragment on AmountMonetaryFields {
+  currency
+  displayString
+  decimalPlaces
+  unitAmount
+  sign
+  __typename
+}
+
+fragment BadgeFragment on Badge {
+  isDashpass
+  type
+  text
+  backgroundColor
+  styleType
+  dlsTagSize
+  dlsTextStyle
+  dlsTagStyle
+  dlsTagType
+  placement
+  leadingIcon
+  leadingIconSize
+  trailingIcon
+  trailingIconSize
+  endTime
+  dlsTextColor
+  brandedDecorator {
+    prefixText
+    postfixText
+    postfixTextLeadingIcon
+    __typename
+  }
+  trailingText {
+    copy
+    dlsTextStyle
+    dlsTextColor
+    __typename
+  }
+  onClick
+  __typename
+}
+
+fragment DiscountAdsMetadataFragment on AdsMetadata {
+  campaignId
+  adGroupId
+  auctionId
+  __typename
+}
+
+fragment BeExperimentFlagsFragment on OrderCart {
+  beExperimentFlags {
+    enableNewScheduleAheadUi
+    __typename
+  }
+  __typename
+}
+
+fragment CartItemGiftInfoFragment on CartItemGiftInfo {
+  recipientName
+  recipientPhone
+  recipientEmail
+  cardMessage
+  senderName
+  imageId
+  imageUrl
+  deliveryChannel
+  __typename
+}
+
+fragment LoyaltyPointsSummaryFragment on OrderCart {
+  loyaltyPointsSummary {
+    campaignId
+    adGroupId
+    adId
+    canShowApplyAction
+    userLoyaltyStateType
+    storeLoyaltyProgramData {
+      title
+      subtitle
+      subtitleTextAttributes {
+        color
+        leadingIcon {
+          type
+          color
+          __typename
+        }
+        __typename
+      }
+      actionUrl
+      currentProgressOnScale1
+      viewType
+      __typename
+    }
+    loyaltyProvider
+    loyaltyProgramSummaries {
+      loyaltyPoints
+      programId
+      membershipId
+      storeLoyaltyProgramType
+      loyaltyProvider
+      storeLoyaltyProgramData {
+        title
+        subtitle
+        subtitleTextAttributes {
+          color
+          leadingIcon {
+            type
+            color
+            __typename
+          }
+          __typename
+        }
+        actionUrl
+        currentProgressOnScale1
+        viewType
+        restrictedItems {
+          menuItemId
+          carnivalItemId
+          name
+          __typename
+        }
+        sectionLeadingIcon {
+          type
+          color
+          __typename
+        }
+        __typename
+      }
+      userLoyaltyStateType
+      __typename
+    }
+    __typename
+  }
+  __typename
+}
+
+fragment CheckoutOrderCartMetadataFragment on OrderCart {
+  metadata {
+    claimableBanners {
+      ...BenefitLayoutsListFragment
+      __typename
+    }
+    promoExclusionMessage
+    isDashpassStylingApplied
+    __typename
+  }
+  __typename
+}
+
+fragment BenefitLayoutsListFragment on MessageLayout {
+  title
+  titleColor
+  subtitle
+  subtitleColor
+  iconUrl
+  actionUrl
+  tooltip {
+    title
+    description
+    buttons {
+      text
+      action
+      __typename
+    }
+    image {
+      url
+      photoUuid
+      __typename
+    }
+    __typename
+  }
+  icon {
+    name
+    color
+    size
+    __typename
+  }
+  backgroundColor
+  badge {
+    text
+    type
+    backgroundColor
+    endTime
+    dlsTagStyle
+    dlsTagSize
+    dlsTagType
+    __typename
+  }
+  buttons {
+    text
+    metadata
+    __typename
+  }
+  __typename
+}
+
+fragment NudgeFragment on Nudge {
+  nudgeMessage {
+    text
+    icon
+    color
+    textStyle
+    __typename
+  }
+  progress
+  collectionModalDeeplink
+  __typename
+}
+
+fragment PromoNudgeFragment on PromoNudge {
+  ... on AddItemNudge {
+    nudgeMessage {
+      text
+      icon
+      color
+      __typename
+    }
+    collectionModalDeeplink
+    progress
+    __typename
+  }
+  ... on ClipCouponNudge {
+    nudgeMessage {
+      text
+      icon
+      color
+      __typename
+    }
+    buttonText
+    incentiveId
+    __typename
+  }
+  __typename
+}
+
+fragment OrderItemBundleFragment on OrderItemBundleStore {
+  id
+  name
+  businessId
+  isPrimary
+  isRetail
+  __typename
+}
+
+fragment ItemLimitDataFragment on ItemLimitData {
+  limit
+  __typename
+}
+
+fragment lineItemFragment on LineItem {
+  label
+  labelIcon
+  discountIcon
+  chargeId
+  finalMoney {
+    unitAmount
+    displayString
+    __typename
+  }
+  originalMoney {
+    unitAmount
+    displayString
+    __typename
+  }
+  tooltip {
+    title
+    paragraphs {
+      description
+      __typename
+    }
+    __typename
+  }
+  note
+  __typename
+}
