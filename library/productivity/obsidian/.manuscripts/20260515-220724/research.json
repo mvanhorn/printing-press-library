@@ -1,0 +1,370 @@
+{
+  "api_name": "obsidian",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "Yakitrak/obsidian-cli",
+      "url": "https://github.com/Yakitrak/obsidian-cli",
+      "language": "Go",
+      "install_method": "",
+      "stars": 600,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "coddingtonbear/obsidian-local-rest-api",
+      "url": "https://github.com/coddingtonbear/obsidian-local-rest-api",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 1500,
+      "last_updated": "",
+      "command_count": 14,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "cyanheads/obsidian-mcp-server",
+      "url": "https://github.com/cyanheads/obsidian-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 500,
+      "last_updated": "",
+      "command_count": 14,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "jwhonce/obsidian-cli",
+      "url": "https://github.com/jwhonce/obsidian-cli",
+      "language": "Python",
+      "install_method": "",
+      "stars": 150,
+      "last_updated": "",
+      "command_count": 10,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "davidpp/obsidian-cli",
+      "url": "https://github.com/davidpp/obsidian-cli",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 100,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "mattjoyce/obsave",
+      "url": "https://github.com/mattjoyce/obsave",
+      "language": "Python",
+      "install_method": "",
+      "stars": 80,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "bitbonsai/mcpvault",
+      "url": "https://github.com/bitbonsai/mcpvault",
+      "language": "Go",
+      "install_method": "",
+      "stars": 200,
+      "last_updated": "",
+      "command_count": 14,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "StevenStavrakis/obsidian-mcp",
+      "url": "https://github.com/StevenStavrakis/obsidian-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 400,
+      "last_updated": "",
+      "command_count": 10,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-15T22:15:00Z",
+  "novel_features": [
+    {
+      "name": "Protocol lint",
+      "command": "lint",
+      "description": "Walks the vault and reports frontmatter violations with severity tiers, encoding the three-layer-memory protocol rules used by the UCE pipeline.",
+      "rationale": "Other Obsidian CLIs treat frontmatter as opaque YAML and let you set arbitrary values. Only this one knows which fields are required per type, which enums are legal, and which date format passes downstream extraction.",
+      "example": "obsidian-pp-cli lint --severity error --json",
+      "why_it_matters": "Reach for this before handing the vault to any downstream extractor (cm, search, sync). A protocol error costs hours of silent extraction drift; lint catches them at write time.",
+      "group": "Three-layer protocol enforcement"
+    },
+    {
+      "name": "Auto-migrate violations",
+      "command": "migrate",
+      "description": "Fixes the mechanical subset of lint violations: ISO date coercion, type enum normalization, fill missing description from body.",
+      "rationale": "Migration writes through the same enforcement path as new-note creation, so fixed notes pass lint on the next pass. No other tool can do this because no other tool knows the rules.",
+      "example": "obsidian-pp-cli migrate --rule date-iso --dry-run",
+      "why_it_matters": "Use this after onboarding an old vault or after a manual editing spree. Always start with --dry-run.",
+      "group": "Three-layer protocol enforcement"
+    },
+    {
+      "name": "Three-layer dashboard",
+      "command": "layers stats",
+      "description": "Counts of notes per memory layer (Knowledge Graph / Events / Patterns) with type breakdown, average age, and recent-write velocity.",
+      "rationale": "Aggregates the synced notes table against the layer map. Requires both the layer-to-type mapping AND a local index — no remote API gives you this view.",
+      "example": "obsidian-pp-cli layers stats --json",
+      "why_it_matters": "Run before a triage session to see where the vault is heavy or light: too many Events, no new Patterns, abandoned Knowledge-Graph entities.",
+      "group": "Three-layer protocol enforcement"
+    },
+    {
+      "name": "Fact graduation candidates",
+      "command": "facts graduation-candidates",
+      "description": "Lists entities whose inline fact count is approaching or past the 20-fact threshold for graduation to a TOML sidecar file.",
+      "rationale": "Encodes the protocol's inline-to-TOML rule and runs the threshold check as a single SQL aggregate over the local facts table.",
+      "example": "obsidian-pp-cli facts graduation-candidates --threshold 20 --json",
+      "why_it_matters": "Pick this when a person/project file is starting to feel heavy. Graduating to TOML before 20 keeps frontmatter loadable.",
+      "group": "Fact and decision tracking"
+    },
+    {
+      "name": "Decision-trace tracker",
+      "command": "facts decision-trace",
+      "description": "Given a decision_trace_id, returns every fact across the vault that cites it, ordered by timestamp.",
+      "rationale": "Cross-note SQL join across inline and TOML facts. Impossible with grep because inline facts live in YAML and TOML facts live in sibling files.",
+      "example": "obsidian-pp-cli facts decision-trace DT-2026-0142 --json",
+      "why_it_matters": "Reach for this when auditing how a decision propagated through the vault. Required when reconstructing a decision for a stakeholder or post-mortem.",
+      "group": "Fact and decision tracking"
+    },
+    {
+      "name": "Entity dossier",
+      "command": "entity dossier",
+      "description": "Joins notes + frontmatter + facts + backlinks + tags for one entity into a single agent-readable block.",
+      "rationale": "Single SQL pass across five tables. The token-efficient mode (--layer description) returns just paths and descriptions, so agents pick what to read instead of cat-ing 3KB of YAML.",
+      "example": "obsidian-pp-cli entity dossier '[[Jeff Smith]]' --layer description --json",
+      "why_it_matters": "Use this as the default first read when an agent needs context about a person, company, or project — replaces grep + cat + parse.",
+      "group": "Agent-native reads"
+    },
+    {
+      "name": "cm extraction-readiness audit",
+      "command": "readiness",
+      "description": "Filters lint findings to the rule subset that the downstream cm extraction pipeline depends on (missing description, missing type, bad date format).",
+      "rationale": "cm reads vaults via Tuck filesystem sync and tags them ObsidianImport. Extraction confidence degrades silently on bad frontmatter. This audit surfaces upstream problems before they propagate.",
+      "example": "obsidian-pp-cli readiness --since 2026-04-01 --json",
+      "why_it_matters": "Run before a Tuck sync. Fixing readiness errors here is cheap; debugging them in cm output is expensive.",
+      "group": "Three-layer protocol enforcement"
+    },
+    {
+      "name": "Stale notes by type",
+      "command": "stale",
+      "description": "Lists notes whose mtime predates a threshold, optionally filtered by type.",
+      "rationale": "SQL on notes.mtime + type from the local store. Filesystem walk plus type filter is fast on the indexed copy and slow on a live vault walk.",
+      "example": "obsidian-pp-cli stale --type meeting --older-than 90d --json",
+      "why_it_matters": "Run weekly to find meetings/journals that never got promoted to a Pattern, or active entities that have gone cold.",
+      "group": "Agent-native reads"
+    },
+    {
+      "name": "Provenance audit",
+      "command": "provenance",
+      "description": "Reads source frontmatter on a note plus the source field on every fact in that note; prints a chain showing where each datum came from.",
+      "rationale": "Walks inline and TOML facts together. Required for trusting extraction quality in cm and for answering 'where did this fact come from?' without re-running the transcript.",
+      "example": "obsidian-pp-cli provenance 'People/Jeff Smith.md' --json",
+      "why_it_matters": "Reach for this when a fact looks wrong or disputed. The chain shows whether it came from a transcript, manual edit, or agent.",
+      "group": "Fact and decision tracking"
+    },
+    {
+      "name": "Daily note append",
+      "command": "daily append",
+      "description": "Resolves today's daily-note path, creates it from the periodic-note template (with protocol-compliant frontmatter) if missing, and appends under a named section.",
+      "rationale": "Template materialization runs through the protocol enforcer, so the auto-created note passes lint immediately. Section append is atomic.",
+      "example": "obsidian-pp-cli daily append 'Talked to Mark about Servosity pricing' --section '## Notes'",
+      "why_it_matters": "Default capture path for transcript ingest, journal entries, and any 'remember this' agent task.",
+      "group": "Agent-native reads"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Protocol lint",
+      "command": "lint",
+      "description": "Walks the vault and reports frontmatter violations with severity tiers, encoding the three-layer-memory protocol rules used by the UCE pipeline.",
+      "rationale": "Other Obsidian CLIs treat frontmatter as opaque YAML and let you set arbitrary values. Only this one knows which fields are required per type, which enums are legal, and which date format passes downstream extraction.",
+      "example": "obsidian-pp-cli lint --severity error --json",
+      "why_it_matters": "Reach for this before handing the vault to any downstream extractor (cm, search, sync). A protocol error costs hours of silent extraction drift; lint catches them at write time.",
+      "group": "Three-layer protocol enforcement"
+    },
+    {
+      "name": "Auto-migrate violations",
+      "command": "migrate",
+      "description": "Fixes the mechanical subset of lint violations: ISO date coercion, type enum normalization, fill missing description from body.",
+      "rationale": "Migration writes through the same enforcement path as new-note creation, so fixed notes pass lint on the next pass. No other tool can do this because no other tool knows the rules.",
+      "example": "obsidian-pp-cli migrate --rule date-iso --dry-run",
+      "why_it_matters": "Use this after onboarding an old vault or after a manual editing spree. Always start with --dry-run.",
+      "group": "Three-layer protocol enforcement"
+    },
+    {
+      "name": "Three-layer dashboard",
+      "command": "layers stats",
+      "description": "Counts of notes per memory layer (Knowledge Graph / Events / Patterns) with type breakdown, average age, and recent-write velocity.",
+      "rationale": "Aggregates the synced notes table against the layer map. Requires both the layer-to-type mapping AND a local index — no remote API gives you this view.",
+      "example": "obsidian-pp-cli layers stats --json",
+      "why_it_matters": "Run before a triage session to see where the vault is heavy or light: too many Events, no new Patterns, abandoned Knowledge-Graph entities.",
+      "group": "Three-layer protocol enforcement"
+    },
+    {
+      "name": "Fact graduation candidates",
+      "command": "facts graduation-candidates",
+      "description": "Lists entities whose inline fact count is approaching or past the 20-fact threshold for graduation to a TOML sidecar file.",
+      "rationale": "Encodes the protocol's inline-to-TOML rule and runs the threshold check as a single SQL aggregate over the local facts table.",
+      "example": "obsidian-pp-cli facts graduation-candidates --threshold 20 --json",
+      "why_it_matters": "Pick this when a person/project file is starting to feel heavy. Graduating to TOML before 20 keeps frontmatter loadable.",
+      "group": "Fact and decision tracking"
+    },
+    {
+      "name": "Decision-trace tracker",
+      "command": "facts decision-trace",
+      "description": "Given a decision_trace_id, returns every fact across the vault that cites it, ordered by timestamp.",
+      "rationale": "Cross-note SQL join across inline and TOML facts. Impossible with grep because inline facts live in YAML and TOML facts live in sibling files.",
+      "example": "obsidian-pp-cli facts decision-trace DT-2026-0142 --json",
+      "why_it_matters": "Reach for this when auditing how a decision propagated through the vault. Required when reconstructing a decision for a stakeholder or post-mortem.",
+      "group": "Fact and decision tracking"
+    },
+    {
+      "name": "Entity dossier",
+      "command": "entity dossier",
+      "description": "Joins notes + frontmatter + facts + backlinks + tags for one entity into a single agent-readable block.",
+      "rationale": "Single SQL pass across five tables. The token-efficient mode (--layer description) returns just paths and descriptions, so agents pick what to read instead of cat-ing 3KB of YAML.",
+      "example": "obsidian-pp-cli entity dossier '[[Jeff Smith]]' --layer description --json",
+      "why_it_matters": "Use this as the default first read when an agent needs context about a person, company, or project — replaces grep + cat + parse.",
+      "group": "Agent-native reads"
+    },
+    {
+      "name": "cm extraction-readiness audit",
+      "command": "readiness",
+      "description": "Filters lint findings to the rule subset that the downstream cm extraction pipeline depends on (missing description, missing type, bad date format).",
+      "rationale": "cm reads vaults via Tuck filesystem sync and tags them ObsidianImport. Extraction confidence degrades silently on bad frontmatter. This audit surfaces upstream problems before they propagate.",
+      "example": "obsidian-pp-cli readiness --since 2026-04-01 --json",
+      "why_it_matters": "Run before a Tuck sync. Fixing readiness errors here is cheap; debugging them in cm output is expensive.",
+      "group": "Three-layer protocol enforcement"
+    },
+    {
+      "name": "Stale notes by type",
+      "command": "stale",
+      "description": "Lists notes whose mtime predates a threshold, optionally filtered by type.",
+      "rationale": "SQL on notes.mtime + type from the local store. Filesystem walk plus type filter is fast on the indexed copy and slow on a live vault walk.",
+      "example": "obsidian-pp-cli stale --type meeting --older-than 90d --json",
+      "why_it_matters": "Run weekly to find meetings/journals that never got promoted to a Pattern, or active entities that have gone cold.",
+      "group": "Agent-native reads"
+    },
+    {
+      "name": "Provenance audit",
+      "command": "provenance",
+      "description": "Reads source frontmatter on a note plus the source field on every fact in that note; prints a chain showing where each datum came from.",
+      "rationale": "Walks inline and TOML facts together. Required for trusting extraction quality in cm and for answering 'where did this fact come from?' without re-running the transcript.",
+      "example": "obsidian-pp-cli provenance 'People/Jeff Smith.md' --json",
+      "why_it_matters": "Reach for this when a fact looks wrong or disputed. The chain shows whether it came from a transcript, manual edit, or agent.",
+      "group": "Fact and decision tracking"
+    },
+    {
+      "name": "Daily note append",
+      "command": "daily append",
+      "description": "Resolves today's daily-note path, creates it from the periodic-note template (with protocol-compliant frontmatter) if missing, and appends under a named section.",
+      "rationale": "Template materialization runs through the protocol enforcer, so the auto-created note passes lint immediately. Section append is atomic.",
+      "example": "obsidian-pp-cli daily append 'Talked to Mark about Servosity pricing' --section '## Notes'",
+      "why_it_matters": "Default capture path for transcript ingest, journal entries, and any 'remember this' agent task.",
+      "group": "Agent-native reads"
+    }
+  ],
+  "narrative": {
+    "display_name": "Obsidian",
+    "headline": "Every Obsidian CLI feature, plus protocol-aware frontmatter enforcement, instant offline FTS5 search, and token-efficient agent reads no other Obsidian tool ships.",
+    "value_prop": "A filesystem-direct CLI for Obsidian vaults that enforces the UCE three-layer-memory protocol (Knowledge Graph / Events / Patterns) on every write, indexes the whole vault into a local SQLite store for sub-100ms full-text search and cross-note SQL queries, and emits agent-friendly progressive-disclosure output so an LLM can pick what to read without ingesting full notes. An optional rest subcommand passes through to the coddingtonbear/obsidian-local-rest-api community plugin when Obsidian is running.",
+    "auth_narrative": "No authentication required for filesystem mode — set OBSIDIAN_VAULT_PATH to your vault directory and you're done. Optional --rest mode requires the Obsidian Local REST API plugin and a bearer token (OBSIDIAN_REST_TOKEN).",
+    "quickstart": [
+      {
+        "command": "obsidian-pp-cli doctor",
+        "comment": "Verify the vault path is set and the store is reachable before doing anything else."
+      },
+      {
+        "command": "obsidian-pp-cli sync",
+        "comment": "Walk the vault once to populate the local SQLite index. Subsequent commands query the store, not the filesystem."
+      },
+      {
+        "command": "obsidian-pp-cli lint --severity error --json",
+        "comment": "Run the three-layer protocol lint and see every note that won't pass downstream extraction."
+      },
+      {
+        "command": "obsidian-pp-cli search 'buttermilk' --select path,description --json",
+        "comment": "Sub-100ms FTS5 search returning only path and description, ideal for agents."
+      },
+      {
+        "command": "obsidian-pp-cli entity dossier '[[Jeff Smith]]' --layer description --json",
+        "comment": "Token-efficient entity read: paths and one-line descriptions instead of full notes."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "vault path not set",
+        "fix": "export OBSIDIAN_VAULT_PATH=/absolute/path/to/your/vault — the CLI refuses to operate on a missing path."
+      },
+      {
+        "symptom": "search returns nothing on a known note",
+        "fix": "Run obsidian-pp-cli sync to repopulate the index; sync is incremental on subsequent runs."
+      },
+      {
+        "symptom": "lint reports errors after a manual edit",
+        "fix": "Run obsidian-pp-cli migrate --dry-run to preview mechanical fixes (date format, type enum); rerun without --dry-run to apply."
+      },
+      {
+        "symptom": "--rest commands return connection refused",
+        "fix": "The Obsidian app must be running and the Local REST API community plugin enabled. Token in OBSIDIAN_REST_TOKEN."
+      },
+      {
+        "symptom": "links broken reports many false positives",
+        "fix": "Sync first — broken-link detection requires the link index to be current. Wikilinks to files renamed outside this CLI may also show as broken."
+      }
+    ],
+    "when_to_use": "Pick obsidian-pp-cli when you need to write to an Obsidian vault from an agent and the frontmatter has to pass a strict validator on the first try, when you need sub-100ms search over the vault, or when you want to pull entity dossiers, decision traces, or fact provenance into an agent context without reading full notes. Skip it for in-app workflows (graph view, canvas, plugin UI) — that's the desktop app's job.",
+    "recipes": [
+      {
+        "title": "Capture a meeting note an agent wrote, protocol-enforced",
+        "command": "obsidian-pp-cli note new --type meeting --title '2026-05-15 Servosity Pricing' --body 'Discussed pricing tiers with Jeff'",
+        "explanation": "Creates a new meeting note with protocol-compliant frontmatter. Fails closed if any required field would be missing rather than writing a broken note."
+      },
+      {
+        "title": "Find every fact tied to a decision trace",
+        "command": "obsidian-pp-cli facts decision-trace DT-2026-0142 --json --select fact,source,timestamp",
+        "explanation": "Returns just fact text, source, and timestamp across inline and TOML facts. --select narrows the payload for agent reads."
+      },
+      {
+        "title": "Layer-2 progressive disclosure for an agent",
+        "command": "obsidian-pp-cli disclose People/ --layer description --json",
+        "explanation": "Returns path-to-description pairs for every note in People/. Agent picks what to dossier without reading bodies."
+      },
+      {
+        "title": "Audit cm extraction-readiness before a Tuck sync",
+        "command": "obsidian-pp-cli readiness --since 2026-05-01 --exit-nonzero-on error",
+        "explanation": "Filters lint findings to cm-blocking rules over notes touched since the date. Exit code 2 if any error remains, so you can wire this into a pre-sync gate."
+      },
+      {
+        "title": "SQL query the vault for stale active entities",
+        "command": "obsidian-pp-cli sql 'SELECT path, type, description FROM notes WHERE type=\"person\" AND status=\"active\" LIMIT 10'",
+        "explanation": "Read-only SQLite over the synced store — composable, scriptable, and faster than walking the vault."
+      }
+    ],
+    "trigger_phrases": [
+      "lint my obsidian vault",
+      "check my notes for protocol violations",
+      "find every fact about [[entity]]",
+      "what's in my obsidian vault about \u003ctopic\u003e",
+      "create a meeting note in my vault",
+      "search my notes",
+      "use obsidian",
+      "run obsidian"
+    ]
+  }
+}

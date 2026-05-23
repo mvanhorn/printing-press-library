@@ -1,51 +1,29 @@
-# obsidian-pp-cli
+# Obsidian CLI
 
-**Read-only vault analytics for [Obsidian](https://obsidian.md) — works offline against a local SQLite mirror.**
+**Every Obsidian CLI feature, plus protocol-aware frontmatter enforcement, instant offline FTS5 search, and token-efficient agent reads no other Obsidian tool ships.**
 
-`obsidian-pp-cli` is a Go CLI plus MCP server that wraps Obsidian's official `obsidian` binary (v1.12+) for live reads and maintains a local SQLite mirror for sub-100 ms compound analytics. The 13 live read commands wrap the upstream CLI directly via subprocess; the Tier-3 commands (`health`, `stale`, `orphans`, `broken`, `vault-sql`, `load`) query the mirror so they answer instantly even when Obsidian is closed.
+A filesystem-direct CLI for Obsidian vaults that enforces the UCE three-layer-memory protocol (Knowledge Graph / Events / Patterns) on every write, indexes the whole vault into a local SQLite store for sub-100ms full-text search and cross-note SQL queries, and emits agent-friendly progressive-disclosure output so an LLM can pick what to read without ingesting full notes. An optional rest subcommand passes through to the coddingtonbear/obsidian-local-rest-api community plugin when Obsidian is running.
 
-**V1 is read-only by design.** Write commands (create / delete / append / prepend / move / property:set) are deferred to V2 pending the upstream `markdown-patch` frontmatter-corruption fix. Skipping writes in V1 means zero corruption exposure — every command in this CLI either reads from the live `obsidian` binary or queries a local SQLite copy of your vault.
-
-Run `obsidian-pp-cli sync` with Obsidian open to refresh the mirror; all Tier-3 commands then run offline.
-
-Printed by [@DrDriftwood](https://github.com/DrDriftwood) (Angelo Pullen).
+Printed by [@dstevens](https://github.com/dstevens) (Damien Stevens).
 
 ## Install
 
-The recommended path installs both the `obsidian-pp-cli` binary and the `pp-obsidian` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
+The recommended path installs both the `obsidian-pp-cli` binary and the `pp-obsidian` agent skill in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press-library install obsidian
+npx -y @mvanhorn/printing-press install obsidian
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press-library install obsidian --cli-only
+npx -y @mvanhorn/printing-press install obsidian --cli-only
 ```
 
-For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
-```bash
-npx -y @mvanhorn/printing-press-library install obsidian --skill-only
-```
+### Without Node
 
-To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
-
-```bash
-npx -y @mvanhorn/printing-press-library install obsidian --agent claude-code
-npx -y @mvanhorn/printing-press-library install obsidian --agent claude-code --agent codex
-```
-
-### Without Node (Go fallback)
-
-If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
-
-```bash
-go install github.com/mvanhorn/printing-press-library/library/productivity/obsidian/cmd/obsidian-pp-cli@latest
-```
-
-This installs the CLI only — no skill.
+The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
 
 ### Pre-built binary
 
@@ -74,60 +52,118 @@ Tell your OpenClaw agent (copy this):
 Install the pp-obsidian skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-obsidian. The skill defines how its required CLI can be installed.
 ```
 
-## Use with Claude Desktop
+## Authentication
 
-This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
-
-To install:
-
-1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/obsidian-current).
-2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
-
-Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
-
-<details>
-<summary>Manual JSON config (advanced)</summary>
-
-If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
-
-
-```bash
-go install github.com/mvanhorn/printing-press-library/library/productivity/obsidian/cmd/obsidian-pp-mcp@latest
-```
-
-Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "obsidian": {
-      "command": "obsidian-pp-mcp"
-    }
-  }
-}
-```
-
-</details>
+No authentication required for filesystem mode — set OBSIDIAN_VAULT_PATH to your vault directory and you're done. Optional --rest mode requires the Obsidian Local REST API plugin and a bearer token (OBSIDIAN_REST_TOKEN).
 
 ## Quick Start
 
-### 1. Install
-
-See [Install](#install) above.
-
-### 2. Verify Setup
-
 ```bash
+# Verify the vault path is set and the store is reachable before doing anything else.
 obsidian-pp-cli doctor
+
+
+# Walk the vault once to populate the local SQLite index. Subsequent commands query the store, not the filesystem.
+obsidian-pp-cli sync
+
+
+# Run the three-layer protocol lint and see every note that won't pass downstream extraction.
+obsidian-pp-cli lint --severity error --json
+
+
+# Sub-100ms FTS5 search returning only path and description, ideal for agents.
+obsidian-pp-cli search 'buttermilk' --select path,description --json
+
+
+# Token-efficient entity read: paths and one-line descriptions instead of full notes.
+obsidian-pp-cli entity dossier '[[Jeff Smith]]' --layer description --json
+
 ```
 
-This checks your configuration.
+## Known Gaps
 
-### 3. Try Your First Command
+- **`rest` subtree requires the Obsidian app + Local REST API plugin.** The CLI runs in filesystem mode by default and needs no token. `rest *` commands (e.g. `rest commands`, `rest exec-command`, `rest active`) proxy the [coddingtonbear/obsidian-local-rest-api](https://github.com/coddingtonbear/obsidian-local-rest-api) community plugin and only work when the Obsidian desktop app is running with the plugin enabled and `OBSIDIAN_REST_TOKEN` is set. `doctor` does not verify plugin reachability — if a `rest *` command fails with a connection error, confirm the plugin is enabled in Obsidian's settings.
+- **No unit tests in `internal/vault`.** The vault package (frontmatter parse/assemble, atomic write) is exercised end-to-end by the CLI commands but has no direct unit tests yet. Contributors making changes there should run a full CLI smoke (`sync` → `lint` → `note read`) until a test suite lands.
 
-```bash
-obsidian-pp-cli deadends
-```
+## Unique Features
+
+These capabilities aren't available in any other tool for this API.
+
+### Three-layer protocol enforcement
+- **`lint`** — Walks the vault and reports frontmatter violations with severity tiers, encoding the three-layer-memory protocol rules used by the UCE pipeline.
+
+  _Reach for this before handing the vault to any downstream extractor (cm, search, sync). A protocol error costs hours of silent extraction drift; lint catches them at write time._
+
+  ```bash
+  obsidian-pp-cli lint --severity error --json
+  ```
+- **`migrate`** — Fixes the mechanical subset of lint violations: ISO date coercion, type enum normalization, fill missing description from body.
+
+  _Use this after onboarding an old vault or after a manual editing spree. Always start with --dry-run._
+
+  ```bash
+  obsidian-pp-cli migrate --rule date-iso --dry-run
+  ```
+- **`layers stats`** — Counts of notes per memory layer (Knowledge Graph / Events / Patterns) with type breakdown, average age, and recent-write velocity.
+
+  _Run before a triage session to see where the vault is heavy or light: too many Events, no new Patterns, abandoned Knowledge-Graph entities._
+
+  ```bash
+  obsidian-pp-cli layers stats --json
+  ```
+- **`readiness`** — Filters lint findings to the rule subset that the downstream cm extraction pipeline depends on (missing description, missing type, bad date format).
+
+  _Run before a Tuck sync. Fixing readiness errors here is cheap; debugging them in cm output is expensive._
+
+  ```bash
+  obsidian-pp-cli readiness --since 2026-04-01 --json
+  ```
+
+### Fact and decision tracking
+- **`facts graduation-candidates`** — Lists entities whose inline fact count is approaching or past the 20-fact threshold for graduation to a TOML sidecar file.
+
+  _Pick this when a person/project file is starting to feel heavy. Graduating to TOML before 20 keeps frontmatter loadable._
+
+  ```bash
+  obsidian-pp-cli facts graduation-candidates --threshold 20 --json
+  ```
+- **`facts decision-trace`** — Given a decision_trace_id, returns every fact across the vault that cites it, ordered by timestamp.
+
+  _Reach for this when auditing how a decision propagated through the vault. Required when reconstructing a decision for a stakeholder or post-mortem._
+
+  ```bash
+  obsidian-pp-cli facts decision-trace DT-2026-0142 --json
+  ```
+- **`provenance`** — Reads source frontmatter on a note plus the source field on every fact in that note; prints a chain showing where each datum came from.
+
+  _Reach for this when a fact looks wrong or disputed. The chain shows whether it came from a transcript, manual edit, or agent._
+
+  ```bash
+  obsidian-pp-cli provenance 'People/Jeff Smith.md' --json
+  ```
+
+### Agent-native reads
+- **`entity dossier`** — Joins notes + frontmatter + facts + backlinks + tags for one entity into a single agent-readable block.
+
+  _Use this as the default first read when an agent needs context about a person, company, or project — replaces grep + cat + parse._
+
+  ```bash
+  obsidian-pp-cli entity dossier '[[Jeff Smith]]' --layer description --json
+  ```
+- **`stale`** — Lists notes whose mtime predates a threshold, optionally filtered by type.
+
+  _Run weekly to find meetings/journals that never got promoted to a Pattern, or active entities that have gone cold._
+
+  ```bash
+  obsidian-pp-cli stale --type meeting --older-than 90d --json
+  ```
+- **`daily append`** — Resolves today's daily-note path, creates it from the periodic-note template (with protocol-compliant frontmatter) if missing, and appends under a named section.
+
+  _Default capture path for transcript ingest, journal entries, and any 'remember this' agent task._
+
+  ```bash
+  obsidian-pp-cli daily append 'Talked to Mark about Servosity pricing' --section '## Notes'
+  ```
 
 ## Usage
 
@@ -135,61 +171,37 @@ Run `obsidian-pp-cli --help` for the full command reference and flag list.
 
 ## Commands
 
-### Live reads (require Obsidian running)
+### rest
 
-These commands shell out to the official `obsidian` binary and return current vault state. They need Obsidian open with a vault loaded.
+Optional Local REST API passthrough (requires the Obsidian app running with the Local REST API community plugin enabled).
 
-- **`obsidian-pp-cli notes <name>`** — Read a note's contents.
-- **`obsidian-pp-cli notes <name> backlinks list`** — List backlinks to a note.
-- **`obsidian-pp-cli notes <name> links list`** — List outgoing links from a note.
-- **`obsidian-pp-cli notes <name> properties read-property <property>`** — Read a frontmatter property value.
-- **`obsidian-pp-cli live-search <query>`** — Live full-text search via the running Obsidian process. (Distinct from `search`, which queries the local mirror — titles/paths only.)
-- **`obsidian-pp-cli live-search context <query>`** — Live full-text search with matching line context.
-- **`obsidian-pp-cli tags`** — List tags in the vault.
-- **`obsidian-pp-cli tasks`** — List tasks in the vault.
-- **`obsidian-pp-cli files`** — List files in the vault.
-- **`obsidian-pp-cli folders`** — List folders in the vault.
-- **`obsidian-pp-cli deadends`** — Notes with no outgoing links (live pass-through).
-- **`obsidian-pp-cli unresolved`** — Unresolved wikilink targets (live pass-through).
-- **`obsidian-pp-cli vault`** — Vault metadata.
+- **`obsidian-pp-cli rest active`** - Read the file currently open in the Obsidian editor (requires --rest mode).
+- **`obsidian-pp-cli rest append-active`** - Append text to the file currently open in the Obsidian editor.
+- **`obsidian-pp-cli rest commands`** - List available Obsidian commands (REST plugin only).
+- **`obsidian-pp-cli rest delete-active`** - Delete the file currently open in the Obsidian editor.
+- **`obsidian-pp-cli rest exec-command`** - Execute an Obsidian command by its ID.
+- **`obsidian-pp-cli rest ping`** - Verify the Local REST API plugin is reachable.
+- **`obsidian-pp-cli rest search-simple`** - Simple text search through the REST plugin.
+- **`obsidian-pp-cli rest tags`** - List all tags in the vault via the REST plugin.
 
-### Mirror-backed analytics (work offline once `sync` has run)
-
-- **`obsidian-pp-cli sync`** — Walk the active vault and populate the local SQLite mirror. The ONLY command that requires Obsidian to be running; pass `--max-files=N` to bound work for testing or CI.
-- **`obsidian-pp-cli health`** — Composite vault-health score (connectivity, freshness, integrity, consistency). `--explain` prints the scoring formula.
-- **`obsidian-pp-cli orphans`** — Notes with no incoming wikilinks, ranked by age, with title and word count for triage.
-- **`obsidian-pp-cli stale --days=N`** — Notes not modified in N days that still have incoming wikilinks (triage candidates).
-- **`obsidian-pp-cli broken`** — Unresolved wikilinks plus their source notes — answers "where is the broken link?", not just "what is broken?"
-- **`obsidian-pp-cli vault-sql <query>`** — Raw SELECT against the mirror (read-only). Schema: notes, obsidian_tags, obsidian_links, frontmatter_kv.
-- **`obsidian-pp-cli load`** — Quick coverage report (note count, tag count, link count, last sync).
-- **`obsidian-pp-cli search <query>`** — Local-mirror search over note titles and paths (fast, offline). Pair with `live-search` for body-text search via the running Obsidian process.
-- **`obsidian-pp-cli workflow status`** — Verbose mirror coverage report (alias of `load`).
-
-### Mirror staleness signaling
-
-Mirror-backed commands check whether the local SQLite copy is older than 24h. If Obsidian is running, they suggest re-running `sync`; if it isn't, they warn that results may be stale. Sync is the only path back to a current mirror.
-
-### V2 (not in V1)
-
-Write commands (create, delete, append, prepend, move, property:set) are intentionally absent in V1. They wait on the upstream `markdown-patch` frontmatter-corruption fix. Skipping them in V1 means zero corruption exposure — V1 reads from the live binary or a SQLite copy of your vault, and never writes back. Multi-vault and non-macOS platforms are also V2.
 
 ## Output Formats
 
 ```bash
 # Human-readable table (default in terminal, JSON when piped)
-obsidian-pp-cli deadends
+obsidian-pp-cli rest active
 
 # JSON for scripting and agents
-obsidian-pp-cli deadends --json
+obsidian-pp-cli rest active --json
 
 # Filter to specific fields
-obsidian-pp-cli deadends --json --select id,name,status
+obsidian-pp-cli rest active --json --select id,name,status
 
 # Dry run — show the request without sending
-obsidian-pp-cli deadends --dry-run
+obsidian-pp-cli rest active --dry-run
 
 # Agent mode — JSON + compact + no prompts in one flag
-obsidian-pp-cli deadends --agent
+obsidian-pp-cli rest active --agent
 ```
 
 ## Agent Usage
@@ -200,11 +212,114 @@ This CLI is designed for AI agent consumption:
 - **Pipeable** - `--json` output to stdout, errors to stderr
 - **Filterable** - `--select id,name` returns only fields you need
 - **Previewable** - `--dry-run` shows the request without sending
-- **Read-only by default** - this CLI does not create, update, delete, publish, send, or mutate remote resources
-- **Offline-friendly** - sync/search commands can use the local SQLite store when available
+- **Explicit retries** - add `--idempotent` to create retries and `--ignore-missing` to delete retries when a no-op success is acceptable
+- **Confirmable** - `--yes` for explicit confirmation of destructive actions
+- **Piped input** - write commands can accept structured input when their help lists `--stdin`
 - **Agent-safe by default** - no colors or formatting unless `--human-friendly` is set
 
-Exit codes: `0` success, `2` usage error, `3` not found, `5` API error, `7` rate limited, `10` config error.
+Exit codes: `0` success, `2` usage error, `3` not found, `4` auth error, `5` API error, `7` rate limited, `10` config error.
+
+## Use with Claude Code
+
+Install the focused skill — it auto-installs the CLI on first invocation:
+
+```bash
+npx skills add mvanhorn/printing-press-library/cli-skills/pp-obsidian -g
+```
+
+Then invoke `/pp-obsidian <query>` in Claude Code. The skill is the most efficient path — Claude Code drives the CLI directly without an MCP server in the middle.
+
+<details>
+<summary>Use as an MCP server in Claude Code (advanced)</summary>
+
+If you'd rather register this CLI as an MCP server in Claude Code, install the MCP binary first:
+
+
+Install the MCP binary from this CLI's published public-library entry or pre-built release.
+
+Then register it:
+
+```bash
+claude mcp add obsidian obsidian-pp-mcp -e OBSIDIAN_REST_TOKEN=<your-token>
+```
+
+</details>
+
+## Use with Claude Desktop
+
+This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
+
+To install:
+
+1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/obsidian-current).
+2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
+3. Fill in `OBSIDIAN_REST_TOKEN` when Claude Desktop prompts you.
+
+Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
+
+<details>
+<summary>Manual JSON config (advanced)</summary>
+
+If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
+
+
+Install the MCP binary from this CLI's published public-library entry or pre-built release.
+
+Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "obsidian": {
+      "command": "obsidian-pp-mcp",
+      "env": {
+        "OBSIDIAN_REST_TOKEN": "<your-key>"
+      }
+    }
+  }
+}
+```
+
+</details>
+
+## Cookbook
+
+Verified recipes against the live CLI. Every flag below was confirmed against `obsidian-pp-cli <cmd> --help`.
+
+```bash
+# Surface only the lint errors that block downstream UCE extraction.
+obsidian-pp-cli readiness --json | jq '.[] | select(.severity=="error")'
+
+# Auto-fix mechanical lint violations across the whole vault.
+obsidian-pp-cli migrate --rule all
+
+# Fact graduation: list entities approaching the 20-fact threshold.
+obsidian-pp-cli facts graduation-candidates --threshold 18 --json
+
+# Find every fact citing one decision trace id, ordered by time.
+obsidian-pp-cli facts decision-trace DT-2026-0142 --json
+
+# Cross-note SQL — recent meeting notes, JSON output (read-only SELECT only).
+obsidian-pp-cli sql "SELECT path, description FROM notes WHERE type='meeting' ORDER BY mtime DESC LIMIT 5" --json
+
+# Per-layer health: Knowledge Graph vs Events vs Patterns counts and write velocity.
+obsidian-pp-cli layers stats --json
+
+# Token-efficient entity dossier — paths + descriptions only, no full notes.
+obsidian-pp-cli entity dossier '[[Damien Stevens]]' --layer description --json
+
+# Find stale meetings older than 90 days that never graduated to a pattern.
+obsidian-pp-cli stale --type meeting --older-than 90d --json
+
+# Audit one note's provenance: frontmatter `source` plus every fact's source and decision_trace_id.
+obsidian-pp-cli provenance 'People/Damien Stevens.md' --json
+
+# Capture a transcript fragment into today's daily note under a named section.
+obsidian-pp-cli daily append 'Talked to Mark about pricing' --section '## Notes'
+
+# REST passthrough: execute an Obsidian command palette action (requires plugin + OBSIDIAN_REST_TOKEN).
+obsidian-pp-cli rest exec-command editor:save-file
+```
 
 ## Health Check
 
@@ -212,7 +327,7 @@ Exit codes: `0` success, `2` usage error, `3` not found, `5` API error, `7` rate
 obsidian-pp-cli doctor
 ```
 
-Verifies configuration and connectivity to the API.
+Verifies configuration, credentials, and connectivity to the API.
 
 ## Configuration
 
@@ -220,15 +335,41 @@ Config file: `~/.config/obsidian-pp-cli/config.toml`
 
 Static request headers can be configured under `headers`; per-command header overrides take precedence.
 
+Environment variables:
+
+| Name | Kind | Required | Description |
+| --- | --- | --- | --- |
+| `OBSIDIAN_REST_TOKEN` | per_call | Yes | Set to your API credential. |
+
 ## Troubleshooting
+**Authentication errors (exit code 4)**
+- Run `obsidian-pp-cli doctor` to check credentials
+- Verify the environment variable is set: `echo $OBSIDIAN_REST_TOKEN`
 **Not found errors (exit code 3)**
 - Check the resource ID is correct
 - Run the `list` command to see available items
 
-## HTTP Transport
+### API-specific
 
-This CLI uses Chrome-compatible HTTP transport for browser-facing endpoints. It does not require a resident browser process for normal API calls.
+- **vault path not set** — export OBSIDIAN_VAULT_PATH=/absolute/path/to/your/vault — the CLI refuses to operate on a missing path.
+- **search returns nothing on a known note** — Run obsidian-pp-cli sync to repopulate the index; sync is incremental on subsequent runs.
+- **lint reports errors after a manual edit** — Run obsidian-pp-cli migrate --dry-run to preview mechanical fixes (date format, type enum); rerun without --dry-run to apply.
+- **--rest commands return connection refused** — The Obsidian app must be running and the Local REST API community plugin enabled. Token in OBSIDIAN_REST_TOKEN.
+- **links broken reports many false positives** — Sync first — broken-link detection requires the link index to be current. Wikilinks to files renamed outside this CLI may also show as broken.
 
 ---
+
+## Sources & Inspiration
+
+This CLI was built by studying these projects and resources:
+
+- [**coddingtonbear/obsidian-local-rest-api**](https://github.com/coddingtonbear/obsidian-local-rest-api) — TypeScript (1500 stars)
+- [**Yakitrak/obsidian-cli**](https://github.com/Yakitrak/obsidian-cli) — Go (600 stars)
+- [**cyanheads/obsidian-mcp-server**](https://github.com/cyanheads/obsidian-mcp-server) — TypeScript (500 stars)
+- [**StevenStavrakis/obsidian-mcp**](https://github.com/StevenStavrakis/obsidian-mcp) — TypeScript (400 stars)
+- [**bitbonsai/mcpvault**](https://github.com/bitbonsai/mcpvault) — Go (200 stars)
+- [**jwhonce/obsidian-cli**](https://github.com/jwhonce/obsidian-cli) — Python (150 stars)
+- [**davidpp/obsidian-cli**](https://github.com/davidpp/obsidian-cli) — TypeScript (100 stars)
+- [**mattjoyce/obsave**](https://github.com/mattjoyce/obsave) — Python (80 stars)
 
 Generated by [CLI Printing Press](https://github.com/mvanhorn/cli-printing-press)

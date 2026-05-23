@@ -1,57 +1,78 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-05-20T11:11:44.397648Z",
-  "printing_press_version": "4.9.0",
+  "generated_at": "2026-05-16T11:36:49.168198Z",
+  "printing_press_version": "4.4.0",
   "api_name": "obsidian",
   "display_name": "Obsidian",
   "cli_name": "obsidian-pp-cli",
-  "owner": "drdriftwood",
-  "owner_name": "LARGE FORMAT",
-  "printer": "DrDriftwood",
-  "printer_name": "Angelo Pullen",
-  "spec_path": "obsidian-openapi.yaml",
-  "spec_format": "openapi3",
-  "spec_checksum": "sha256:fcdc101efec9f141b281bd0bacf788dff99bcef473f13811ef516b7d2dfbf89a",
-  "run_id": "20260520-111144",
-  "catalog_entry": "obsidian",
-  "category": "productivity",
-  "description": "Note-taking knowledge base reached through the official Obsidian CLI shipped in the desktop app (v1.12+). Vault is local; no public network API.",
+  "owner": "dstevens",
+  "printer": "dstevens",
+  "printer_name": "Damien Stevens",
+  "spec_path": "/Users/dstevens/printing-press/.runstate/cli-printing-press-70e28f12/runs/20260515-220724/research/obsidian-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:4e8d2587526929208f4ddba23fdebcd53f2bfed32a1ba9efc90a63125d635fd4",
+  "run_id": "20260515-220724",
+  "description": "Every Obsidian CLI feature, plus protocol-aware frontmatter enforcement, instant offline FTS5 search, and token-efficient agent reads no other Obsidian tool ships.",
   "mcp_binary": "obsidian-pp-mcp",
-  "mcp_tool_count": 13,
-  "mcp_public_tool_count": 13,
+  "mcp_tool_count": 8,
+  "mcp_public_tool_count": 1,
   "mcp_ready": "full",
   "api_version": "0.1.0",
-  "auth_type": "none",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "OBSIDIAN_REST_TOKEN"
+  ],
+  "auth_description": "The CLI defaults to filesystem mode and needs no token. Set OBSIDIAN_REST_TOKEN\nonly when using --rest mode, which proxies through the coddingtonbear/obsidian-local-rest-api\ncommunity plugin (the Obsidian app must be running with the plugin enabled).\n",
   "novel_features": [
     {
-      "name": "Vault health score",
-      "command": "health",
-      "description": "Composite 0-100 vault-health score combining connectivity (1 - orphan ratio), freshness (1 - share of notes >N days old), integrity (1 - broken-wikilink ratio), and consistency (1 - frontmatter-drift ratio). --explain prints the formula and raw inputs."
+      "name": "Protocol lint",
+      "command": "lint",
+      "description": "Walks the vault and reports frontmatter violations with severity tiers, encoding the three-layer-memory protocol rules used by the UCE pipeline."
     },
     {
-      "name": "Broken wikilinks with source context",
-      "command": "broken",
-      "description": "Unresolved wikilinks joined against the local mirror so each missing target carries the path and title of the note that pointed at it — answers 'where is the broken link' not just 'what is broken'."
+      "name": "Auto-migrate violations",
+      "command": "migrate",
+      "description": "Fixes the mechanical subset of lint violations: ISO date coercion, type enum normalization, fill missing description from body."
     },
     {
-      "name": "Raw SQL on the vault mirror",
-      "command": "vault-sql",
-      "description": "Run arbitrary SELECT/WITH queries against the local obsidian SQLite mirror (notes, obsidian_tags, obsidian_links, frontmatter_kv, vault_sync_state). Read-only by driver mode plus a query-shape gate."
+      "name": "Three-layer dashboard",
+      "command": "layers stats",
+      "description": "Counts of notes per memory layer (Knowledge Graph / Events / Patterns) with type breakdown, average age, and recent-write velocity."
     },
     {
-      "name": "Mirror-ranked orphans",
-      "command": "orphans",
-      "description": "Vault notes with no incoming wikilinks, ranked by modification age with title, mtime, and word count for triage. Falls back to the live `obsidian orphans` subcommand when the mirror is empty."
+      "name": "Fact graduation candidates",
+      "command": "facts graduation-candidates",
+      "description": "Lists entities whose inline fact count is approaching or past the 20-fact threshold for graduation to a TOML sidecar file."
     },
     {
-      "name": "Stale notes still being linked",
+      "name": "Decision-trace tracker",
+      "command": "facts decision-trace",
+      "description": "Given a decision_trace_id, returns every fact across the vault that cites it, ordered by timestamp."
+    },
+    {
+      "name": "Entity dossier",
+      "command": "entity dossier",
+      "description": "Joins notes + frontmatter + facts + backlinks + tags for one entity into a single agent-readable block."
+    },
+    {
+      "name": "cm extraction-readiness audit",
+      "command": "readiness",
+      "description": "Filters lint findings to the rule subset that the downstream cm extraction pipeline depends on (missing description, missing type, bad date format)."
+    },
+    {
+      "name": "Stale notes by type",
       "command": "stale",
-      "description": "Notes whose modified_at is older than N days AND have at least one incoming wikilink — the incoming-link gate flags 'outdated reference' candidates distinct from plain orphans. --include-orphans relaxes the gate."
+      "description": "Lists notes whose mtime predates a threshold, optionally filtered by type."
     },
     {
-      "name": "Mirror coverage report",
-      "command": "load",
-      "description": "Quick vault-mirror inventory (note count, distinct tag count, link counts by type, last sync time). The thin alternative to `health` for a fast 'how full is the mirror' answer before running Tier-3 analytics."
+      "name": "Provenance audit",
+      "command": "provenance",
+      "description": "Reads source frontmatter on a note plus the source field on every fact in that note; prints a chain showing where each datum came from."
+    },
+    {
+      "name": "Daily note append",
+      "command": "daily append",
+      "description": "Resolves today's daily-note path, creates it from the periodic-note template (with protocol-compliant frontmatter) if missing, and appends under a named section."
     }
   ]
 }

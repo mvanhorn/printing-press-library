@@ -2,8 +2,8 @@
   "manifest_version": "0.3",
   "name": "obsidian-pp-mcp",
   "display_name": "Obsidian",
-  "version": "4.9.0",
-  "description": "Note-taking knowledge base reached through the official Obsidian CLI shipped in the desktop app (v1.12+). Vault is local; no public network API.",
+  "version": "4.4.0",
+  "description": "Every Obsidian CLI feature, plus protocol-aware frontmatter enforcement, instant offline FTS5 search, and token-efficient agent reads no other Obsidian tool ships.",
   "author": {
     "name": "CLI Printing Press"
   },
@@ -13,7 +13,19 @@
     "entry_point": "bin/obsidian-pp-mcp",
     "mcp_config": {
       "command": "${__dirname}/bin/obsidian-pp-mcp",
-      "args": []
+      "args": [],
+      "env": {
+        "OBSIDIAN_REST_TOKEN": "${user_config.obsidian_rest_token}"
+      }
+    }
+  },
+  "user_config": {
+    "obsidian_rest_token": {
+      "type": "string",
+      "title": "OBSIDIAN_REST_TOKEN",
+      "description": "The CLI defaults to filesystem mode and needs no token. Set OBSIDIAN_REST_TOKEN\nonly when using --rest mode, which proxies through the coddingtonbear/obsidian-local-rest-api\ncommunity plugin (the Obsidian app must be running with the plugin enabled).",
+      "sensitive": true,
+      "required": true
     }
   },
   "compatibility": {
