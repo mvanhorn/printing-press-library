@@ -1082,8 +1082,8 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			{"name": "Cross-site sources rollup", "command": "sites-summary", "description": "Aggregate cited sources across every synced site, grouped by domain, with citation count", "rationale": "BotSee's API is strictly per-site", "via": "mcp-command-mirror"},
 		},
 		"playbook": []map[string]string{
-			{"topic": "AI Visibility Audit (flagship)", "insight": "Mimics the proven Python create-site+analyze chain as a single Go command with idempotency on existing sites (normalized-domain match against GET /sites before creation) and local SQLite caching."},
-			{"topic": "Recommendations (top-level)", "insight": "Wraps POST /analysis/{uuid}/recommendations and caches the response in the local SQLite store keyed by analysis_uuid."},
+			{"topic": "AI Visibility Audit (flagship)", "insight": "Mimics the proven Python create-site+analyze chain as a single Go command with idempotency on existing sites (normalized-domain match against GET /sites with cursor pagination before creation; refuses to start a paid analysis when structure bootstrap fails)."},
+			{"topic": "Recommendations (top-level)", "insight": "Wraps POST /analysis/{uuid}/recommendations and promotes it to the top of the command tree so agents discover it from the root help."},
 			{"topic": "Site config tree", "insight": "Joins customer_types + personas + questions from local SQLite into a nested view that no single BotSee endpoint returns; emits actionable edit hints alongside the tree."},
 			{"topic": "Cross-site sources rollup", "insight": "BotSee's API is strictly per-site; portfolio-level domain authority is only computable in a local store that holds every synced analysis_sources row."},
 			{"topic": "Contact lookup", "insight": "Use search for finding contacts by name/email. List endpoints return unsorted results and require pagination for large datasets."},

@@ -551,7 +551,9 @@ func pollAnalysis(ctx context.Context, c httpClient, analysisUUID string) (strin
 			}
 		}
 		first = false
-		data, err := c.Get(ctx, "/api/v1/analysis/"+analysisUUID, nil)
+		// Bypass the 5-minute HTTP cache — polling requires live state
+		// transitions, not a cached snapshot of the first response.
+		data, err := c.GetNoCache(ctx, "/api/v1/analysis/"+analysisUUID, nil)
 		if err != nil {
 			continue
 		}
@@ -692,9 +694,12 @@ func writeMarkdownReport(path string, result *auditResult) error {
 }
 
 // httpClient narrows the generated Client to what this novel command needs,
-// for easier testability later.
+// for easier testability later. GetNoCache is used by poll loops that must
+// see live state (e.g. analysis status transitions) — without it, the
+// 5-minute HTTP cache would lock the poll loop on the first response.
 type httpClient interface {
 	Get(ctx context.Context, path string, params map[string]string) (json.RawMessage, error)
+	GetNoCache(ctx context.Context, path string, params map[string]string) (json.RawMessage, error)
 	Post(ctx context.Context, path string, body any) (json.RawMessage, int, error)
 }
 
