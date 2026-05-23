@@ -1,0 +1,22 @@
+# Local/editor noise
+.DS_Store
+*.swp
+*.tmp
+
+# Build outputs
+bin/
+dist/
+coverage/
+
+# Runtime/session material: keep secrets out of this generated tree
+.env
+.env.*
+*.cookie
+*.cookies
+cookies.json
+session.json
+*.har
+
+# Go test/cache artifacts
+*.test
+*.prof
