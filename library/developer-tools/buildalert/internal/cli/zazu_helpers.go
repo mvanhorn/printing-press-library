@@ -13,7 +13,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"buildalert-pp-cli/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/buildalert/internal/client"
 
 	_ "modernc.org/sqlite"
 )
