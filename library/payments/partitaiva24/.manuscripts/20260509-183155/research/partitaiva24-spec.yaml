@@ -1,0 +1,1390 @@
+name: partitaiva24
+display_name: "Partitaiva24"
+owner: "Giuseppe Bisemi"
+description: "WordPress REST CLI for partitaiva24.cloud — invoices, F24, corrispettivi, customers, esterometro, plus a local SQLite mirror for forfettario turnover, quarterly tax projection, and SDI status sweeps."
+cli_description: "Every Partitaiva24 endpoint as a typed CLI command, plus a local SQLite mirror that answers the questions the web UI doesn't — turnover countdown, quarterly tax projection, AR aging, SDI status sweep."
+version: "0.1.0"
+base_url: "https://partitaiva24.cloud/api/v1"
+
+auth:
+  type: cookie
+  header: Cookie
+  cookie_domain: ".partitaiva24.cloud"
+  env_vars:
+    - P24_COOKIE
+  verify_path: "/user/profile"
+  description: "WordPress session cookie (p24_logged_in_<hash>) plus an X-WP-Nonce header. Capture both from your browser DevTools after signing in to partitaiva24.cloud, then run `auth set --cookie '<full-cookie>' --nonce '<nonce>'`. Nonces rotate roughly every 24 hours; refresh just the nonce when calls return rest_cookie_invalid_nonce."
+
+config:
+  format: toml
+  path: "~/.config/partitaiva24-pp-cli/config.toml"
+
+mcp:
+  transport: [stdio, http]
+  orchestration: code
+  endpoint_tools: hidden
+
+resources:
+  invoices:
+    description: "Active invoices (issued to customers)"
+    endpoints:
+      list:
+        method: GET
+        path: "/user/invoices"
+        description: "List issued invoices"
+        params:
+          - name: year
+            type: int
+            description: "Fiscal year filter"
+          - name: status
+            type: string
+            description: "Filter by status"
+          - name: paid
+            type: bool
+            description: "Filter by paid flag"
+        response:
+          type: object
+          item: InvoicesPage
+      get:
+        method: GET
+        path: "/user/invoices/{id}"
+        description: "Get an invoice by ID"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Invoice UUID"
+        response:
+          type: object
+          item: Invoice
+      create:
+        method: POST
+        path: "/user/invoices"
+        description: "Create an invoice"
+        body:
+          - name: number
+            type: string
+            description: "Invoice number"
+          - name: date
+            type: string
+            description: "Invoice date YYYY-MM-DD"
+          - name: type
+            type: string
+            description: "Invoice type"
+          - name: to
+            type: object
+            description: "Customer object"
+          - name: products
+            type: array
+            description: "Line items"
+        response:
+          type: object
+          item: Invoice
+      update:
+        method: PUT
+        path: "/user/invoices/{id}"
+        description: "Update an invoice"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+            description: "Invoice UUID"
+        body:
+          - name: status
+            type: string
+        response:
+          type: object
+          item: Invoice
+      delete:
+        method: DELETE
+        path: "/user/invoices/{id}"
+        description: "Delete an invoice"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+      mark_paid:
+        method: POST
+        path: "/user/invoices/{id}/paid"
+        description: "Mark an invoice as paid"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+      send_pdf:
+        method: POST
+        path: "/user/invoices/{id}/sendpdf"
+        description: "Email the invoice PDF to its recipient"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+        body:
+          - name: to
+            type: string
+            description: "Override recipient email"
+      file:
+        method: GET
+        path: "/user/invoices/{id}/file"
+        description: "Download invoice PDF"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+      transmit:
+        method: POST
+        path: "/user/invoices/{id}/transmit"
+        description: "Transmit invoice to SDI"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+      sign:
+        method: POST
+        path: "/user/invoices/{id}/sign"
+        description: "Digitally sign the invoice"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+      sdi_notification:
+        method: GET
+        path: "/user/invoices/{id}/s_d_i_notification"
+        description: "Get SDI transmission notification for the invoice"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+        response:
+          type: object
+          item: SDINotification
+      list_attachments:
+        method: GET
+        path: "/user/invoices/{id}/attachment"
+        description: "List invoice attachments"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+        response:
+          type: array
+          item: Attachment
+      add_attachment:
+        method: POST
+        path: "/user/invoices/{id}/attachment"
+        description: "Attach a file to the invoice"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+        body:
+          - name: file
+            type: string
+            description: "Path to file to upload"
+      remove_attachment:
+        method: DELETE
+        path: "/user/invoices/{id}/attachment"
+        description: "Remove an attachment from the invoice"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+          - name: attachment_id
+            type: int
+            required: true
+            description: "Attachment ID to remove"
+      skeleton:
+        method: GET
+        path: "/user/invoice/skeleton"
+        description: "Default starter invoice document shape"
+        response:
+          type: object
+          item: Invoice
+      defaults:
+        method: GET
+        path: "/user/invoice/defaults"
+        description: "Invoice defaults — VAT rates, doc types, pension funds, witholdings"
+        response:
+          type: object
+          item: InvoiceDefaults
+      import:
+        method: POST
+        path: "/user/invoices-import"
+        description: "Import invoices from XML/SDI"
+      export:
+        method: POST
+        path: "/user/invoices-export"
+        description: "Export invoices to XML/ZIP"
+        body:
+          - name: year
+            type: int
+      sdi_accept:
+        method: POST
+        path: "/user/invoices-sdi-accept"
+        description: "Accept (or reject) SDI-refused invoices"
+      stats:
+        method: GET
+        path: "/user/invoices-stats"
+        description: "Annual invoice statistics — turnover, paid, unpaid, VAT"
+        response:
+          type: object
+          item: InvoicesStats
+
+  income:
+    description: "Income invoices (received from suppliers)"
+    endpoints:
+      list:
+        method: GET
+        path: "/user/income-invoices"
+        description: "List received invoices"
+        params:
+          - name: year
+            type: int
+          - name: paid
+            type: bool
+          - name: is_read
+            type: bool
+        response:
+          type: object
+          item: IncomeInvoicesPage
+      get:
+        method: GET
+        path: "/user/income-invoices/{id}"
+        description: "Get a received invoice"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+        response:
+          type: object
+          item: IncomeInvoice
+      mark_paid:
+        method: POST
+        path: "/user/income-invoices/{id}/paid"
+        description: "Mark a received invoice as paid"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+      mark_read:
+        method: POST
+        path: "/user/income-invoices/{id}/read"
+        description: "Mark a received invoice as read"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+      attachment:
+        method: GET
+        path: "/user/income-invoices/{id}/attachment/{idx}"
+        description: "Download an income invoice attachment by index"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+          - name: idx
+            type: int
+            required: true
+            positional: true
+      import:
+        method: POST
+        path: "/user/income-invoices-import"
+        description: "Import received invoices"
+
+  customers:
+    description: "Customer registry"
+    endpoints:
+      list:
+        method: GET
+        path: "/user/customers"
+        description: "List customers"
+        response:
+          type: object
+          item: CustomersPage
+      get:
+        method: GET
+        path: "/user/customers/{id}"
+        description: "Get a customer"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+        response:
+          type: object
+          item: Customer
+      create:
+        method: POST
+        path: "/user/customers"
+        description: "Create a customer"
+        body:
+          - name: type
+            type: string
+            description: "pf | pa | other"
+          - name: companyname
+            type: string
+          - name: name
+            type: string
+          - name: surname
+            type: string
+          - name: p_iva
+            type: string
+            description: "Italian VAT (P.IVA)"
+          - name: codfis
+            type: string
+            description: "Codice fiscale"
+          - name: address
+            type: string
+          - name: cap
+            type: string
+          - name: city
+            type: string
+          - name: prov
+            type: string
+          - name: country
+            type: string
+          - name: country_type
+            type: string
+            description: "it | eu | extra"
+          - name: tel
+            type: string
+          - name: email
+            type: string
+          - name: cod_dest_pec
+            type: string
+            description: "Destinatario SDI o PEC"
+        response:
+          type: object
+          item: Customer
+      update:
+        method: PUT
+        path: "/user/customers/{id}"
+        description: "Update a customer"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+        body:
+          - name: companyname
+            type: string
+          - name: email
+            type: string
+        response:
+          type: object
+          item: Customer
+      delete:
+        method: DELETE
+        path: "/user/customers/{id}"
+        description: "Delete a customer"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+
+  corrispettivi:
+    description: "Corrispettivi telematici (cash receipts)"
+    endpoints:
+      list:
+        method: GET
+        path: "/user/corrispettivi"
+        description: "List corrispettivi"
+        response:
+          type: object
+          item: CorrispettiviPage
+      draft:
+        method: GET
+        path: "/user/corrispettivi/draft"
+        description: "Get draft corrispettivo"
+      get:
+        method: GET
+        path: "/user/corrispettivi/{id}"
+        description: "Get a corrispettivo"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+      create:
+        method: POST
+        path: "/user/corrispettivi"
+        description: "Create a corrispettivo"
+        body:
+          - name: date
+            type: string
+          - name: total
+            type: number
+      update:
+        method: PUT
+        path: "/user/corrispettivi/{id}"
+        description: "Update a corrispettivo"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+      delete:
+        method: DELETE
+        path: "/user/corrispettivi/{id}"
+        description: "Delete a corrispettivo"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+      attach:
+        method: POST
+        path: "/user/corrispettivi/{id}/attach"
+        description: "Attach file to corrispettivo"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+      detach:
+        method: DELETE
+        path: "/user/corrispettivi/{id}/detach/{attachment_id}"
+        description: "Detach file from corrispettivo"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+          - name: attachment_id
+            type: string
+            required: true
+            positional: true
+
+  f24:
+    description: "F24 tax payment forms"
+    endpoints:
+      list:
+        method: GET
+        path: "/user/f24"
+        description: "List F24 forms"
+        params:
+          - name: year
+            type: int
+          - name: paid
+            type: bool
+          - name: archived
+            type: bool
+        response:
+          type: object
+          item: F24Page
+      mark_paid:
+        method: POST
+        path: "/user/f24/{id}/paid"
+        description: "Mark F24 as paid"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+      mark_read:
+        method: POST
+        path: "/user/f24/{id}/read"
+        description: "Mark F24 as read"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+      archive:
+        method: POST
+        path: "/user/f24/{id}/archive"
+        description: "Archive an F24"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+      ravvedimento:
+        method: POST
+        path: "/user/f24/{id}/ravv_request"
+        description: "Request ravvedimento operoso (late-payment correction)"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+
+  esterometro:
+    description: "Foreign transactions (esterometro)"
+    endpoints:
+      list:
+        method: GET
+        path: "/user/foreign-mgmt"
+        description: "List foreign-mgmt entries"
+        response:
+          type: object
+          item: ForeignMgmtPage
+      get:
+        method: GET
+        path: "/user/foreign-mgmt/{id}"
+        description: "Get a foreign-mgmt entry"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+      create:
+        method: POST
+        path: "/user/foreign-mgmt"
+        description: "Create a foreign-mgmt entry"
+        body:
+          - name: date
+            type: string
+          - name: amount
+            type: number
+      update:
+        method: PUT
+        path: "/user/foreign-mgmt/{id}"
+        description: "Update a foreign-mgmt entry"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+      delete:
+        method: DELETE
+        path: "/user/foreign-mgmt/{id}"
+        description: "Delete a foreign-mgmt entry"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+      mark_paid:
+        method: POST
+        path: "/user/foreign-mgmt/{id}/paid"
+        description: "Mark foreign entry as paid"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+
+  docs:
+    description: "Documents from your commercialista"
+    endpoints:
+      list:
+        method: GET
+        path: "/user/docs"
+        description: "List documents"
+        params:
+          - name: year
+            type: int
+          - name: category
+            type: string
+        response:
+          type: object
+          item: DocsPage
+      mark_read:
+        method: POST
+        path: "/user/docs/{id}/read"
+        description: "Mark document as read"
+        params:
+          - name: id
+            type: string
+            required: true
+            positional: true
+      upload:
+        method: POST
+        path: "/user/doc-upload"
+        description: "Upload a document"
+        body:
+          - name: file
+            type: string
+            description: "Path to file"
+
+  attachments:
+    description: "Generic file attachments"
+    endpoints:
+      list:
+        method: GET
+        path: "/user/attachments"
+        description: "List attachments"
+        response:
+          type: array
+          item: Attachment
+      add:
+        method: POST
+        path: "/user/attachments"
+        description: "Upload an attachment"
+        body:
+          - name: file
+            type: string
+      delete:
+        method: DELETE
+        path: "/user/attachment/{id}"
+        description: "Delete an attachment"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+
+  notifications:
+    description: "User notifications and badge counts"
+    endpoints:
+      list:
+        method: GET
+        path: "/user/notifications"
+        description: "List notifications + badge counts"
+        response:
+          type: object
+          item: NotificationsResponse
+      broadcast:
+        method: GET
+        path: "/user/notifications/broadcast"
+        description: "List broadcast notifications"
+        response:
+          type: array
+          item: BroadcastNotification
+
+  account:
+    description: "User profile and fiscal info"
+    endpoints:
+      show:
+        method: GET
+        path: "/user/profile"
+        description: "Get user profile"
+        response:
+          type: object
+          item: Profile
+      update:
+        method: PUT
+        path: "/user/profile"
+        description: "Update profile"
+        body:
+          - name: first_name
+            type: string
+          - name: last_name
+            type: string
+          - name: tel
+            type: string
+        response:
+          type: object
+          item: Profile
+
+  fiscal_year:
+    description: "Fiscal-year metadata (turnover limit, regime, default VAT)"
+    endpoints:
+      get:
+        method: GET
+        path: "/user/fiscal_year/{year}"
+        description: "Get fiscal-year info"
+        params:
+          - name: year
+            type: int
+            required: true
+            positional: true
+            description: "Fiscal year (e.g. 2026)"
+        response:
+          type: object
+          item: FiscalYear
+
+  settings:
+    description: "User settings"
+    endpoints:
+      list:
+        method: GET
+        path: "/user/settings"
+        description: "List settings"
+      set:
+        method: POST
+        path: "/user/settings/{name}"
+        description: "Set or update a named setting"
+        params:
+          - name: name
+            type: string
+            required: true
+            positional: true
+        body:
+          - name: value
+            type: string
+      unset:
+        method: DELETE
+        path: "/user/settings/{name}"
+        description: "Delete a named setting"
+        params:
+          - name: name
+            type: string
+            required: true
+            positional: true
+
+  password:
+    description: "Account password"
+    endpoints:
+      change:
+        method: POST
+        path: "/user/password"
+        description: "Change account password"
+        body:
+          - name: current_password
+            type: string
+            required: true
+          - name: new_password
+            type: string
+            required: true
+
+  events:
+    description: "Calendar events (deadlines, due dates)"
+    endpoints:
+      list:
+        method: GET
+        path: "/user/events"
+        description: "List calendar events"
+        response:
+          type: array
+          item: EventGroup
+
+  data_request:
+    description: "GDPR data export request"
+    endpoints:
+      status:
+        method: GET
+        path: "/user/d-data-request"
+        description: "Status of pending data-export request"
+      submit:
+        method: POST
+        path: "/user/d-data-request"
+        description: "Submit a data-export request"
+
+  tickets:
+    description: "Support tickets"
+    endpoints:
+      list:
+        method: GET
+        path: "/user/tickets"
+        description: "List support tickets"
+        response:
+          type: array
+          item: Ticket
+      categories:
+        method: GET
+        path: "/user/tickets/categories"
+        description: "List ticket categories"
+        response:
+          type: array
+          item: TicketCategory
+      get:
+        method: GET
+        path: "/user/ticket/{id}"
+        description: "Get a ticket"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+        response:
+          type: object
+          item: Ticket
+      create:
+        method: POST
+        path: "/user/ticket"
+        description: "Open a support ticket"
+        body:
+          - name: category
+            type: string
+            required: true
+          - name: subject
+            type: string
+            required: true
+          - name: body
+            type: string
+            required: true
+      reply:
+        method: POST
+        path: "/user/ticket/{id}"
+        description: "Reply to a ticket"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+        body:
+          - name: body
+            type: string
+            required: true
+
+  questionario:
+    description: "Annual tax questionnaire"
+    endpoints:
+      config:
+        method: GET
+        path: "/user/questionario-config"
+        description: "Questionnaire window (start/end dates)"
+      show:
+        method: GET
+        path: "/user/questionario/{year}"
+        description: "Get questionnaire for a year"
+        params:
+          - name: year
+            type: int
+            required: true
+            positional: true
+      submit:
+        method: POST
+        path: "/user/questionario/{year}"
+        description: "Submit / update the questionnaire for a year"
+        params:
+          - name: year
+            type: int
+            required: true
+            positional: true
+      attach:
+        method: POST
+        path: "/user/questionario/{year}/attachfile"
+        description: "Attach a file to the questionnaire"
+        params:
+          - name: year
+            type: int
+            required: true
+            positional: true
+        body:
+          - name: file
+            type: string
+            required: true
+
+  subscriptions:
+    description: "Account subscription / billing"
+    endpoints:
+      list:
+        method: GET
+        path: "/user/subscriptions"
+        description: "List subscriptions"
+        response:
+          type: array
+          item: Subscription
+      gateways:
+        method: GET
+        path: "/user/subscription/gateways"
+        description: "Available payment gateways"
+        response:
+          type: array
+          item: SubscriptionGateway
+      get:
+        method: GET
+        path: "/user/subscription/{id}"
+        description: "Get a subscription"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+        response:
+          type: object
+          item: Subscription
+      update:
+        method: PUT
+        path: "/user/subscription/{id}"
+        description: "Update a subscription"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+        body:
+          - name: status
+            type: string
+      cancel:
+        method: DELETE
+        path: "/user/subscription/{id}"
+        description: "Cancel a subscription"
+        params:
+          - name: id
+            type: int
+            required: true
+            positional: true
+
+  tools:
+    description: "Utility tools (VIES, PA registry, XML parser, signing)"
+    endpoints:
+      check_vies:
+        method: GET
+        path: "/tools/check-vies/{country_code}/{tax_id}"
+        description: "Validate an EU VAT ID via VIES"
+        params:
+          - name: country_code
+            type: string
+            required: true
+            positional: true
+            description: "Two-letter country code (e.g. IT, DE, FR)"
+          - name: tax_id
+            type: string
+            required: true
+            positional: true
+            description: "VAT ID without country prefix"
+      search_pa:
+        method: POST
+        path: "/tools/search-pa/{coduni}"
+        description: "Look up Italian Pubblica Amministrazione by IPA code"
+        params:
+          - name: coduni
+            type: string
+            required: true
+            positional: true
+            description: "IPA univoco code"
+      xml2invoice:
+        method: POST
+        path: "/tools/invoice/xml2invoice"
+        description: "Parse an SDI XML file into invoice JSON"
+        body:
+          - name: file
+            type: string
+            description: "Path to SDI XML"
+      sign:
+        method: POST
+        path: "/tools/sign"
+        description: "Digitally sign a PDF document"
+        body:
+          - name: file
+            type: string
+      ping:
+        method: POST
+        path: "/tools/ping"
+        description: "Health check ping"
+      info:
+        method: GET
+        path: "/tools/info"
+        description: "API version info"
+      system_info:
+        method: GET
+        path: "/tools/system_info"
+        description: "Server system info (PHP, MySQL, OS)"
+
+types:
+  Invoice:
+    fields:
+      - name: id
+        type: string
+      - name: fp_id
+        type: int
+      - name: number
+        type: string
+      - name: date
+        type: string
+      - name: status
+        type: string
+      - name: type
+        type: string
+      - name: paid
+        type: bool
+      - name: paid_year
+        type: int
+      - name: currency
+        type: string
+      - name: taxRate
+        type: number
+      - name: to
+        type: object
+      - name: products
+        type: array
+      - name: payment
+        type: object
+      - name: pension_funds
+        type: array
+      - name: witholdings
+        type: array
+      - name: stamp
+        type: object
+      - name: discount
+        type: number
+      - name: reason
+        type: string
+      - name: rif_amm
+        type: string
+      - name: e_doc_type
+        type: int
+      - name: e_rf
+        type: string
+      - name: taxable
+        type: number
+      - name: total
+        type: number
+      - name: vat
+        type: number
+      - name: nettopay
+        type: number
+      - name: fiscalrelevance
+        type: number
+      - name: created
+        type: string
+      - name: modified
+        type: string
+
+  InvoicesPage:
+    fields:
+      - name: data
+        type: array
+
+  IncomeInvoice:
+    fields:
+      - name: id
+        type: string
+      - name: fp_id
+        type: int
+      - name: sdi_id
+        type: string
+      - name: sdi_date
+        type: string
+      - name: number
+        type: string
+      - name: date
+        type: string
+      - name: type
+        type: string
+      - name: status
+        type: string
+      - name: paid
+        type: bool
+      - name: is_read
+        type: bool
+      - name: sender
+        type: string
+      - name: filename
+        type: string
+      - name: source
+        type: string
+      - name: from
+        type: object
+      - name: to
+        type: object
+      - name: products
+        type: array
+      - name: taxable
+        type: number
+      - name: total
+        type: number
+      - name: vat
+        type: number
+
+  IncomeInvoicesPage:
+    fields:
+      - name: data
+        type: array
+
+  Customer:
+    fields:
+      - name: id
+        type: int
+      - name: user_id
+        type: int
+      - name: type
+        type: string
+      - name: companyname
+        type: string
+      - name: pf
+        type: bool
+      - name: pa
+        type: bool
+      - name: name
+        type: string
+      - name: surname
+        type: string
+      - name: p_iva
+        type: string
+      - name: codfis
+        type: string
+      - name: address
+        type: string
+      - name: cap
+        type: string
+      - name: city
+        type: string
+      - name: prov
+        type: string
+      - name: country
+        type: string
+      - name: country_type
+        type: string
+      - name: tel
+        type: string
+      - name: email
+        type: string
+      - name: cod_dest_pec
+        type: string
+      - name: imported
+        type: bool
+
+  CustomersPage:
+    fields:
+      - name: data
+        type: array
+
+  CorrispettiviPage:
+    fields:
+      - name: data
+        type: array
+
+  F24Page:
+    fields:
+      - name: data
+        type: array
+
+  ForeignMgmtPage:
+    fields:
+      - name: data
+        type: array
+
+  DocsPage:
+    fields:
+      - name: data
+        type: array
+
+  Doc:
+    fields:
+      - name: id
+        type: string
+      - name: user_id
+        type: int
+      - name: fp_id
+        type: int
+      - name: status
+        type: string
+      - name: year
+        type: int
+      - name: label
+        type: string
+      - name: is_read
+        type: bool
+      - name: category
+        type: string
+      - name: created
+        type: string
+      - name: path
+        type: string
+      - name: size
+        type: int
+      - name: mime
+        type: string
+      - name: hash
+        type: string
+      - name: signed_url
+        type: string
+
+  Attachment:
+    fields:
+      - name: id
+        type: int
+      - name: parent_id
+        type: int
+      - name: parent_type
+        type: string
+      - name: date
+        type: string
+      - name: mime_type
+        type: string
+      - name: path
+        type: string
+      - name: title
+        type: string
+      - name: tag
+        type: string
+      - name: size
+        type: string
+      - name: url
+        type: string
+
+  NotificationsResponse:
+    fields:
+      - name: notifications
+        type: array
+      - name: badges
+        type: object
+
+  BroadcastNotification:
+    fields:
+      - name: id
+        type: int
+      - name: title
+        type: string
+      - name: body
+        type: string
+      - name: created
+        type: string
+
+  Profile:
+    fields:
+      - name: id
+        type: int
+      - name: first_name
+        type: string
+      - name: last_name
+        type: string
+      - name: email
+        type: string
+      - name: tel
+        type: string
+      - name: locked
+        type: bool
+      - name: suspended
+        type: bool
+      - name: services
+        type: object
+      - name: fiscal_info
+        type: object
+      - name: invoice_defaults
+        type: object
+      - name: settings
+        type: object
+      - name: subscriptions
+        type: array
+
+  FiscalYear:
+    fields:
+      - name: id
+        type: string
+      - name: label
+        type: string
+      - name: year
+        type: int
+      - name: valid_until
+        type: int
+      - name: turnover_limit
+        type: int
+      - name: tax_rate
+        type: number
+      - name: default_vat_id
+        type: int
+      - name: e_rf
+        type: string
+      - name: years_limit
+        type: int
+      - name: is_vat
+        type: bool
+
+  InvoicesStats:
+    fields:
+      - name: fiscal_profile
+        type: object
+      - name: type
+        type: string
+      - name: inv_stats
+        type: object
+      - name: cor_stats
+        type: object
+      - name: excedence
+        type: object
+
+  InvoiceDefaults:
+    fields:
+      - name: header
+        type: object
+      - name: e_invoice
+        type: bool
+      - name: sdi
+        type: bool
+      - name: sdi_cod_dest
+        type: string
+      - name: sdi_tos
+        type: bool
+      - name: doc_types
+        type: array
+      - name: default_vat_id
+        type: int
+      - name: vats
+        type: array
+      - name: pension_funds
+        type: array
+      - name: witholdings
+        type: array
+      - name: ddt
+        type: bool
+
+  SDINotification:
+    fields:
+      - name: id
+        type: string
+      - name: status
+        type: string
+      - name: code
+        type: string
+      - name: message
+        type: string
+      - name: received_at
+        type: string
+
+  EventGroup:
+    fields:
+      - name: events
+        type: array
+
+  Subscription:
+    fields:
+      - name: id
+        type: int
+      - name: user_id
+        type: int
+      - name: plan_id
+        type: int
+      - name: created_at
+        type: string
+      - name: expires_at
+        type: string
+      - name: status
+        type: string
+      - name: gateway
+        type: string
+      - name: name
+        type: string
+      - name: price
+        type: string
+      - name: recurrence
+        type: string
+      - name: visibility
+        type: string
+
+  SubscriptionGateway:
+    fields:
+      - name: id
+        type: int
+      - name: slug
+        type: string
+      - name: name
+        type: string
+      - name: meta
+        type: string
+
+  Ticket:
+    fields:
+      - name: id
+        type: int
+      - name: category
+        type: string
+      - name: subject
+        type: string
+      - name: status
+        type: string
+      - name: body
+        type: string
+      - name: created
+        type: string
+
+  TicketCategory:
+    fields:
+      - name: id
+        type: int
+      - name: name
+        type: string
+      - name: slug
+        type: string

@@ -1,0 +1,38 @@
+{
+  "manifest_version": "0.3",
+  "name": "partitaiva24-pp-mcp",
+  "display_name": "Partitaiva24",
+  "version": "4.2.0",
+  "description": "Every Partitaiva24 endpoint as a typed CLI command, plus a local SQLite mirror that answers the questions the web UI doesn't — turnover countdown, quarterly tax projection, AR aging, SDI status sweep.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/partitaiva24-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/partitaiva24-pp-mcp",
+      "args": [],
+      "env": {
+        "P24_COOKIE": "${user_config.p24_cookie}"
+      }
+    }
+  },
+  "user_config": {
+    "p24_cookie": {
+      "type": "string",
+      "title": "P24_COOKIE",
+      "description": "WordPress session cookie (p24_logged_in_<hash>) plus an X-WP-Nonce header. Capture both from your browser DevTools after signing in to partitaiva24.cloud, then run `auth set --cookie '<full-cookie>' --nonce '<nonce>'`. Nonces rotate roughly every 24 hours; refresh just the nonce when calls return rest_cookie_invalid_nonce.",
+      "sensitive": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

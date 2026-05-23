@@ -1,0 +1,15 @@
+{
+  "timestamp": "2026-05-23T00:31:55.834518Z",
+  "cli_dir": "\u003ccli-dir\u003e/partitaiva24",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "version",
+      "file": "root.go",
+      "line": 290,
+      "evidence": "Print version",
+      "status": "accepted",
+      "note": "Standard 'version' command; agents understand this without elaboration"
+    }
+  ]
+}

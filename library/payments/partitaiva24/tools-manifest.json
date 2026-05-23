@@ -1,0 +1,26 @@
+{
+  "api_name": "partitaiva24",
+  "base_url": "https://partitaiva24.cloud/api/v1",
+  "description": "WordPress REST CLI for partitaiva24.cloud — invoices, F24, corrispettivi, customers, esterometro, plus a local SQLite mirror for forfettario turnover, quarterly tax projection, and SDI status sweeps.",
+  "mcp_ready": "partial",
+  "http_transport": "standard",
+  "auth": {
+    "type": "cookie",
+    "header": "Cookie",
+    "env_vars": [
+      "P24_COOKIE"
+    ],
+    "env_var_specs": [
+      {
+        "name": "P24_COOKIE",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ],
+    "cookie_domain": ".partitaiva24.cloud"
+  },
+  "required_headers": [],
+  "tools": []
+}

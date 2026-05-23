@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-09T18:37:16.51201Z",
+  "printing_press_version": "4.2.0",
+  "api_name": "partitaiva24",
+  "display_name": "Partitaiva24",
+  "cli_name": "partitaiva24-pp-cli",
+  "owner": "giuseppe-bisemi",
+  "printer": "giuseppebisemi",
+  "printer_name": "giuseppebisemi",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:e7f141a92edd6f2f1eb5cb130c1a0c9b6e7808a7ec20d07fb8590d641ac990f6",
+  "run_id": "20260509-183155",
+  "description": "Every Partitaiva24 endpoint as a typed CLI command, plus a local SQLite mirror that answers the questions the web UI doesn't — turnover countdown, quarterly tax projection, AR aging, SDI status sweep.",
+  "mcp_binary": "partitaiva24-pp-mcp",
+  "mcp_tool_count": 89,
+  "mcp_ready": "partial",
+  "api_version": "0.1.0",
+  "auth_type": "cookie",
+  "auth_env_vars": [
+    "P24_COOKIE"
+  ],
+  "auth_description": "WordPress session cookie (p24_logged_in_\u003chash\u003e) plus an X-WP-Nonce header. Capture both from your browser DevTools after signing in to partitaiva24.cloud, then run `auth set --cookie '\u003cfull-cookie\u003e' --nonce '\u003cnonce\u003e'`. Nonces rotate roughly every 24 hours; refresh just the nonce when calls return rest_cookie_invalid_nonce.",
+  "novel_features": [
+    {
+      "name": "Forfettario turnover meter",
+      "command": "turnover",
+      "description": "See exactly how close you are to the forfettario annual turnover limit, with a days-to-limit projection at your current run-rate."
+    },
+    {
+      "name": "Quarterly tax-due projection",
+      "command": "tax-due",
+      "description": "Project IVA, IRPEF, and INPS owed at quarter-end from already-synced invoices, your fiscal regime, and tax rate."
+    },
+    {
+      "name": "AR aging report",
+      "command": "aging",
+      "description": "Group unpaid invoices into 0-30, 31-60, 61-90, and 90+ day buckets, broken down by customer."
+    },
+    {
+      "name": "Client revenue concentration",
+      "command": "clients top",
+      "description": "Rank customers by year-to-date revenue and flag dangerous concentration (one client \u003e 80% of turnover invites AdE attention for forfettari)."
+    },
+    {
+      "name": "VIES bulk validate",
+      "command": "vies bulk",
+      "description": "Run /tools/check-vies for every EU customer in your registry and flag invalid or expired VAT IDs."
+    },
+    {
+      "name": "Active vs passive reconcile",
+      "command": "reconcile",
+      "description": "Net out issued invoices against received invoices for any period — quarterly margin in one shot."
+    },
+    {
+      "name": "F24 calendar export",
+      "command": "f24 ical",
+      "description": "Emit upcoming F24 deadlines as an iCal file you can drop into any calendar app."
+    },
+    {
+      "name": "SDI status sweep",
+      "command": "sdi watch",
+      "description": "List every invoice you've transmitted to SDI that hasn't been acknowledged after a threshold (default 7 days)."
+    },
+    {
+      "name": "Esterometro export",
+      "command": "esterometro export",
+      "description": "Generate the AdE-ready CSV for the quarterly esterometro filing from synced foreign-mgmt and EU/extra-EU invoices."
+    },
+    {
+      "name": "Stamp duty (bollo) accumulator",
+      "command": "stamp-due",
+      "description": "Sum stamp duty owed by quarter from invoices that carry a stamp, ready to cross-check against the AdE pre-fill."
+    },
+    {
+      "name": "Invoice numbering audit",
+      "command": "numbering audit",
+      "description": "Verify your invoices are sequentially numbered per fiscal year as Italian law requires; flag gaps, duplicates, and out-of-order dates."
+    },
+    {
+      "name": "Portable backup snapshot",
+      "command": "backup",
+      "description": "Sync every resource into local SQLite, then dump a portable archive (JSON + CSV + the actual invoice PDFs) you can carry to any other platform."
+    },
+    {
+      "name": "Safe invoice creation",
+      "command": "invoices create-safe",
+      "description": "Crea una fattura draft con due difese: pre-check del numero (rifiuta duplicati o ritorna l'esistente con --idempotent) e post-error verify (rileva phantom record lasciati da partial-failure 4xx/5xx, opzionalmente li auto-cancella)."
+    },
+    {
+      "name": "Web UI deep-link",
+      "command": "invoices link",
+      "description": "Restituisce l'URL canonico della SPA per qualsiasi fattura. Output URL nudo per default, JSON con --json/--agent."
+    },
+    {
+      "name": "PDF proforma offline",
+      "command": "invoices download-pdf",
+      "description": "Scarica il PDF identico al bottone 'Scarica PDF' della SPA usando il renderer jsPDF embedded nella CLI. --no-footer per togliere il watermark partitaiva24, --launch per aprirlo subito."
+    },
+    {
+      "name": "WordPress cookie + nonce auth",
+      "command": "auth set",
+      "description": "Salva cookie p24_logged_in_\u003chash\u003e e header X-WP-Nonce in config TOML. Il nonce ruota ogni ~24h: refresh con auth set --nonce \u003cnew\u003e."
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-09",
+  "base_run_id": "20260509-183155",
+  "base_printing_press_version": "4.2.0",
+  "patches": [
+    {
+      "id": "transcendence-commands",
+      "summary": "Added twelve hand-authored read-only reporting, export, validation, and backup commands.",
+      "reason": "These features combine local synced SQLite state with targeted live API reads and are beyond endpoint-mirror generation.",
+      "files": [
+        "internal/cli/turnover.go",
+        "internal/cli/tax_due.go",
+        "internal/cli/aging.go",
+        "internal/cli/clients.go",
+        "internal/cli/clients_top.go",
+        "internal/cli/vies.go",
+        "internal/cli/reconcile.go",
+        "internal/cli/f24_ical.go",
+        "internal/cli/sdi.go",
+        "internal/cli/esterometro_export.go",
+        "internal/cli/stamp_due.go",
+        "internal/cli/numbering.go",
+        "internal/cli/backup.go",
+        "internal/cli/custom_reports.go",
+        "internal/cli/root.go",
+        "internal/cli/f24.go",
+        "internal/cli/esterometro.go"
+      ],
+      "validated_outcome": "go build ./... passed after command registration."
+    },
+    {
+      "id": "invoice-download-pdf-spa-renderer",
+      "summary": "Added invoices download-pdf using the Partitaiva24 SPA's bundled jsPDF renderer.",
+      "reason": "The official web UI renders invoice PDFs entirely client-side, so matching Scarica PDF requires running the extracted SPA renderer rather than calling an API endpoint.",
+      "files": [
+        "internal/cli/invoices.go",
+        "internal/cli/invoices_download_pdf.go",
+        "internal/pdfgen/assets.go",
+        "internal/pdfgen/render-pdf.js",
+        "internal/pdfgen/package-lock.json",
+        "internal/pdfgen/package.json",
+        "internal/pdfgen/scripts/patch-bundle.js",
+        ".gitignore",
+        "Makefile"
+      ],
+      "validated_outcome": "go test ./... passed; rendered /tmp/p24-test.pdf as a one-page A4 PDF with Producer jsPDF 2.5.2."
+    }
+  ]
+}

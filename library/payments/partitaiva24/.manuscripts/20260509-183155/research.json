@@ -1,0 +1,395 @@
+{
+  "api_name": "partitaiva24",
+  "novelty_score": 9,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-09T18:35:00Z",
+  "novel_features": [
+    {
+      "name": "Forfettario turnover meter",
+      "command": "turnover",
+      "description": "See exactly how close you are to the forfettario annual turnover limit, with a days-to-limit projection at your current run-rate.",
+      "rationale": "Joins live invoices-stats with the synced fiscal_year.turnover_limit and projects forward — the platform shows a static % bar but never tells you when you'll hit the cap.",
+      "example": "partitaiva24-pp-cli turnover --year 2026 --json",
+      "why_it_matters": "Forfettari blow past the cap with no warning. This is the single most-asked question and the platform doesn't answer it.",
+      "group": "Tax \u0026 turnover insights"
+    },
+    {
+      "name": "Quarterly tax-due projection",
+      "command": "tax-due",
+      "description": "Project IVA, IRPEF, and INPS owed at quarter-end from already-synced invoices, your fiscal regime, and tax rate.",
+      "rationale": "Combines synced invoices + fiscal_year + regime_fiscale locally; the API exposes the inputs but never emits the projection.",
+      "example": "partitaiva24-pp-cli tax-due --quarter 2026-Q2 --json",
+      "why_it_matters": "Cash-flow planning needs a number, not the four web pages you'd have to visit otherwise.",
+      "group": "Tax \u0026 turnover insights"
+    },
+    {
+      "name": "AR aging report",
+      "command": "aging",
+      "description": "Group unpaid invoices into 0-30, 31-60, 61-90, and 90+ day buckets, broken down by customer.",
+      "rationale": "Pure local SQL over the synced invoices table — the platform's web UI offers a flat unpaid list with no aging dimension.",
+      "example": "partitaiva24-pp-cli aging --json --select bucket,customer,total",
+      "why_it_matters": "The first thing any commercialista wants on the 1st of the month.",
+      "group": "Receivables \u0026 cash flow"
+    },
+    {
+      "name": "Client revenue concentration",
+      "command": "clients top",
+      "description": "Rank customers by year-to-date revenue and flag dangerous concentration (one client \u003e 80% of turnover invites AdE attention for forfettari).",
+      "rationale": "Local Pareto over the synced invoices+customers join — no platform endpoint computes this.",
+      "example": "partitaiva24-pp-cli clients top --year 2026 --limit 10",
+      "why_it_matters": "Concentration risk is invisible until it isn't; the AdE check is silent.",
+      "group": "Receivables \u0026 cash flow"
+    },
+    {
+      "name": "VIES bulk validate",
+      "command": "vies bulk",
+      "description": "Run /tools/check-vies for every EU customer in your registry and flag invalid or expired VAT IDs.",
+      "rationale": "The platform's web UI validates one VAT at a time; we batch the synced customer list.",
+      "example": "partitaiva24-pp-cli vies bulk --json",
+      "why_it_matters": "An invalid EU VAT on an invoice is an SDI rejection plus a reverse-charge mistake.",
+      "group": "Compliance audits"
+    },
+    {
+      "name": "Active vs passive reconcile",
+      "command": "reconcile",
+      "description": "Net out issued invoices against received invoices for any period — quarterly margin in one shot.",
+      "rationale": "The web UI keeps issued and received on separate pages; reconciliation is local-store-only.",
+      "example": "partitaiva24-pp-cli reconcile --period 2026-Q1 --json",
+      "why_it_matters": "Margin per quarter without exporting two CSVs and pivoting them by hand.",
+      "group": "Tax \u0026 turnover insights"
+    },
+    {
+      "name": "F24 calendar export",
+      "command": "f24 ical",
+      "description": "Emit upcoming F24 deadlines as an iCal file you can drop into any calendar app.",
+      "rationale": "F24 dates live in the synced f24 + events tables; the platform doesn't export them.",
+      "example": "partitaiva24-pp-cli f24 ical -o ~/calendars/f24-due.ics",
+      "why_it_matters": "F24 is the most-missed Italian tax deadline. Surface it where you actually look.",
+      "group": "Compliance audits"
+    },
+    {
+      "name": "SDI status sweep",
+      "command": "sdi watch",
+      "description": "List every invoice you've transmitted to SDI that hasn't been acknowledged after a threshold (default 7 days).",
+      "rationale": "Walks transmitted invoices and pulls /s_d_i_notification per-row, then filters locally — the platform shows status per invoice, not in aggregate.",
+      "example": "partitaiva24-pp-cli sdi watch --older-than 7d --json",
+      "why_it_matters": "Stuck SDI transmissions become AdE penalties if you don't catch them.",
+      "group": "Compliance audits"
+    },
+    {
+      "name": "Esterometro export",
+      "command": "esterometro export",
+      "description": "Generate the AdE-ready CSV for the quarterly esterometro filing from synced foreign-mgmt and EU/extra-EU invoices.",
+      "rationale": "Pulls foreign-mgmt + invoices flagged as foreign and emits the exact CSV shape AdE accepts. Manual today.",
+      "example": "partitaiva24-pp-cli esterometro export 2026 -o esterometro-2026.csv",
+      "why_it_matters": "Quarterly compliance task; eliminating the manual CSV build is the entire point.",
+      "group": "Compliance audits"
+    },
+    {
+      "name": "Stamp duty (bollo) accumulator",
+      "command": "stamp-due",
+      "description": "Sum stamp duty owed by quarter from invoices that carry a stamp, ready to cross-check against the AdE pre-fill.",
+      "rationale": "Local sum over invoices.stamp; AdE pre-fills from SDI but discrepancies happen.",
+      "example": "partitaiva24-pp-cli stamp-due --year 2026 --json",
+      "why_it_matters": "The AdE prefill is wrong often enough to want a check column.",
+      "group": "Compliance audits"
+    },
+    {
+      "name": "Invoice numbering audit",
+      "command": "numbering audit",
+      "description": "Verify your invoices are sequentially numbered per fiscal year as Italian law requires; flag gaps, duplicates, and out-of-order dates.",
+      "rationale": "Pure local query against the synced invoices table.",
+      "example": "partitaiva24-pp-cli numbering audit --year 2026",
+      "why_it_matters": "A missed numbering gap is a real AdE finding during an inspection.",
+      "group": "Compliance audits"
+    },
+    {
+      "name": "Portable backup snapshot",
+      "command": "backup",
+      "description": "Sync every resource into local SQLite, then dump a portable archive (JSON + CSV + the actual invoice PDFs) you can carry to any other platform.",
+      "rationale": "The platform offers no equivalent. Switching-cost killer.",
+      "example": "partitaiva24-pp-cli backup -o ~/backups/p24-$(date +%Y%m%d).zip",
+      "why_it_matters": "Real-world: every freelancer who's tried to leave one of these platforms knows this is the missing button.",
+      "group": "Local store"
+    },
+    {
+      "name": "Safe invoice creation",
+      "command": "invoices create-safe",
+      "description": "Crea una fattura draft con due difese: pre-check del numero (rifiuta duplicati o ritorna l'esistente con --idempotent) e post-error verify (rileva phantom record lasciati da partial-failure 4xx/5xx, opzionalmente li auto-cancella).",
+      "rationale": "Il backend WordPress non avvolge in transazione gli INSERT padre+meta — un 4xx puo lasciare la fattura draft orfana in DB anche dopo un errore. Solo wrappando il create con verify-after-error possiamo garantire idempotenza unattended.",
+      "example": "partitaiva24-pp-cli invoices create-safe --file fattura.json --auto-cleanup --json --agent",
+      "why_it_matters": "Indispensabile per workflow agentici: senza phantom protection una retry naive crea duplicati su un'API fiscalmente vincolante.",
+      "group": "Workflow fatturazione"
+    },
+    {
+      "name": "Web UI deep-link",
+      "command": "invoices link",
+      "description": "Restituisce l'URL canonico della SPA per qualsiasi fattura. Output URL nudo per default, JSON con --json/--agent.",
+      "rationale": "La SPA non espone un endpoint che restituisca l'URL human-friendly; l'URL deve essere costruito client-side. Avere un comando dedicato evita string-templating duplicato in script.",
+      "example": "partitaiva24-pp-cli invoices link 06d5e64f-4be9-11f1-89c5-0667992834eb --json",
+      "why_it_matters": "Agenti che mostrano una draft a un umano per approvazione passano dall'URL: uno stato (creato) e poi un link per il visual review.",
+      "group": "Workflow fatturazione"
+    },
+    {
+      "name": "PDF proforma offline",
+      "command": "invoices download-pdf",
+      "description": "Scarica il PDF identico al bottone 'Scarica PDF' della SPA usando il renderer jsPDF embedded nella CLI. --no-footer per togliere il watermark partitaiva24, --launch per aprirlo subito.",
+      "rationale": "Il PDF e generato 100% client-side dalla SPA via jsPDF: nessun endpoint REST lo serve. Senza questo comando l'unico modo e cliccare nel browser; gli agenti non possono.",
+      "example": "partitaiva24-pp-cli invoices download-pdf 06d5e64f-4be9-11f1-89c5-0667992834eb -o ~/Downloads/fattura.pdf --no-footer",
+      "why_it_matters": "Chiude il cerchio del workflow agentico: create draft, download proforma, review, transmit. Tutto da CLI senza intervento umano sul browser.",
+      "group": "Workflow fatturazione"
+    },
+    {
+      "name": "WordPress cookie + nonce auth",
+      "command": "auth set",
+      "description": "Salva cookie p24_logged_in_\u003chash\u003e e header X-WP-Nonce in config TOML. Il nonce ruota ogni ~24h: refresh con auth set --nonce \u003cnew\u003e.",
+      "rationale": "WordPress REST richiede cookie + nonce su ogni call autenticata. Il nonce e separato dal cookie e ha lifetime piu corta. Senza un comando dedicato, l'agente deve toccare manualmente il config.toml.",
+      "example": "partitaiva24-pp-cli auth set --cookie 'p24_logged_in_\u003chash\u003e=...' --nonce 'abc1234567'",
+      "why_it_matters": "L'unico comando che NON esponiamo come MCP tool (mcp:hidden) per principio: gli agenti non devono mai leggere/scrivere credenziali dell'utente.",
+      "group": "Auth"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Forfettario turnover meter",
+      "command": "turnover",
+      "description": "See exactly how close you are to the forfettario annual turnover limit, with a days-to-limit projection at your current run-rate.",
+      "rationale": "Joins live invoices-stats with the synced fiscal_year.turnover_limit and projects forward — the platform shows a static % bar but never tells you when you'll hit the cap.",
+      "example": "partitaiva24-pp-cli turnover --year 2026 --json",
+      "why_it_matters": "Forfettari blow past the cap with no warning. This is the single most-asked question and the platform doesn't answer it.",
+      "group": "Tax \u0026 turnover insights"
+    },
+    {
+      "name": "Quarterly tax-due projection",
+      "command": "tax-due",
+      "description": "Project IVA, IRPEF, and INPS owed at quarter-end from already-synced invoices, your fiscal regime, and tax rate.",
+      "rationale": "Combines synced invoices + fiscal_year + regime_fiscale locally; the API exposes the inputs but never emits the projection.",
+      "example": "partitaiva24-pp-cli tax-due --quarter 2026-Q2 --json",
+      "why_it_matters": "Cash-flow planning needs a number, not the four web pages you'd have to visit otherwise.",
+      "group": "Tax \u0026 turnover insights"
+    },
+    {
+      "name": "AR aging report",
+      "command": "aging",
+      "description": "Group unpaid invoices into 0-30, 31-60, 61-90, and 90+ day buckets, broken down by customer.",
+      "rationale": "Pure local SQL over the synced invoices table — the platform's web UI offers a flat unpaid list with no aging dimension.",
+      "example": "partitaiva24-pp-cli aging --json --select bucket,customer,total",
+      "why_it_matters": "The first thing any commercialista wants on the 1st of the month.",
+      "group": "Receivables \u0026 cash flow"
+    },
+    {
+      "name": "Client revenue concentration",
+      "command": "clients top",
+      "description": "Rank customers by year-to-date revenue and flag dangerous concentration (one client \u003e 80% of turnover invites AdE attention for forfettari).",
+      "rationale": "Local Pareto over the synced invoices+customers join — no platform endpoint computes this.",
+      "example": "partitaiva24-pp-cli clients top --year 2026 --limit 10",
+      "why_it_matters": "Concentration risk is invisible until it isn't; the AdE check is silent.",
+      "group": "Receivables \u0026 cash flow"
+    },
+    {
+      "name": "VIES bulk validate",
+      "command": "vies bulk",
+      "description": "Run /tools/check-vies for every EU customer in your registry and flag invalid or expired VAT IDs.",
+      "rationale": "The platform's web UI validates one VAT at a time; we batch the synced customer list.",
+      "example": "partitaiva24-pp-cli vies bulk --json",
+      "why_it_matters": "An invalid EU VAT on an invoice is an SDI rejection plus a reverse-charge mistake.",
+      "group": "Compliance audits"
+    },
+    {
+      "name": "Active vs passive reconcile",
+      "command": "reconcile",
+      "description": "Net out issued invoices against received invoices for any period — quarterly margin in one shot.",
+      "rationale": "The web UI keeps issued and received on separate pages; reconciliation is local-store-only.",
+      "example": "partitaiva24-pp-cli reconcile --period 2026-Q1 --json",
+      "why_it_matters": "Margin per quarter without exporting two CSVs and pivoting them by hand.",
+      "group": "Tax \u0026 turnover insights"
+    },
+    {
+      "name": "F24 calendar export",
+      "command": "f24 ical",
+      "description": "Emit upcoming F24 deadlines as an iCal file you can drop into any calendar app.",
+      "rationale": "F24 dates live in the synced f24 + events tables; the platform doesn't export them.",
+      "example": "partitaiva24-pp-cli f24 ical -o ~/calendars/f24-due.ics",
+      "why_it_matters": "F24 is the most-missed Italian tax deadline. Surface it where you actually look.",
+      "group": "Compliance audits"
+    },
+    {
+      "name": "SDI status sweep",
+      "command": "sdi watch",
+      "description": "List every invoice you've transmitted to SDI that hasn't been acknowledged after a threshold (default 7 days).",
+      "rationale": "Walks transmitted invoices and pulls /s_d_i_notification per-row, then filters locally — the platform shows status per invoice, not in aggregate.",
+      "example": "partitaiva24-pp-cli sdi watch --older-than 7d --json",
+      "why_it_matters": "Stuck SDI transmissions become AdE penalties if you don't catch them.",
+      "group": "Compliance audits"
+    },
+    {
+      "name": "Esterometro export",
+      "command": "esterometro export",
+      "description": "Generate the AdE-ready CSV for the quarterly esterometro filing from synced foreign-mgmt and EU/extra-EU invoices.",
+      "rationale": "Pulls foreign-mgmt + invoices flagged as foreign and emits the exact CSV shape AdE accepts. Manual today.",
+      "example": "partitaiva24-pp-cli esterometro export 2026 -o esterometro-2026.csv",
+      "why_it_matters": "Quarterly compliance task; eliminating the manual CSV build is the entire point.",
+      "group": "Compliance audits"
+    },
+    {
+      "name": "Stamp duty (bollo) accumulator",
+      "command": "stamp-due",
+      "description": "Sum stamp duty owed by quarter from invoices that carry a stamp, ready to cross-check against the AdE pre-fill.",
+      "rationale": "Local sum over invoices.stamp; AdE pre-fills from SDI but discrepancies happen.",
+      "example": "partitaiva24-pp-cli stamp-due --year 2026 --json",
+      "why_it_matters": "The AdE prefill is wrong often enough to want a check column.",
+      "group": "Compliance audits"
+    },
+    {
+      "name": "Invoice numbering audit",
+      "command": "numbering audit",
+      "description": "Verify your invoices are sequentially numbered per fiscal year as Italian law requires; flag gaps, duplicates, and out-of-order dates.",
+      "rationale": "Pure local query against the synced invoices table.",
+      "example": "partitaiva24-pp-cli numbering audit --year 2026",
+      "why_it_matters": "A missed numbering gap is a real AdE finding during an inspection.",
+      "group": "Compliance audits"
+    },
+    {
+      "name": "Portable backup snapshot",
+      "command": "backup",
+      "description": "Sync every resource into local SQLite, then dump a portable archive (JSON + CSV + the actual invoice PDFs) you can carry to any other platform.",
+      "rationale": "The platform offers no equivalent. Switching-cost killer.",
+      "example": "partitaiva24-pp-cli backup -o ~/backups/p24-$(date +%Y%m%d).zip",
+      "why_it_matters": "Real-world: every freelancer who's tried to leave one of these platforms knows this is the missing button.",
+      "group": "Local store"
+    },
+    {
+      "name": "Safe invoice creation",
+      "command": "invoices create-safe",
+      "description": "Crea una fattura draft con due difese: pre-check del numero (rifiuta duplicati o ritorna l'esistente con --idempotent) e post-error verify (rileva phantom record lasciati da partial-failure 4xx/5xx, opzionalmente li auto-cancella).",
+      "rationale": "Il backend WordPress non avvolge in transazione gli INSERT padre+meta — un 4xx puo lasciare la fattura draft orfana in DB anche dopo un errore. Solo wrappando il create con verify-after-error possiamo garantire idempotenza unattended.",
+      "example": "partitaiva24-pp-cli invoices create-safe --file fattura.json --auto-cleanup --json --agent",
+      "why_it_matters": "Indispensabile per workflow agentici: senza phantom protection una retry naive crea duplicati su un'API fiscalmente vincolante.",
+      "group": "Workflow fatturazione"
+    },
+    {
+      "name": "Web UI deep-link",
+      "command": "invoices link",
+      "description": "Restituisce l'URL canonico della SPA per qualsiasi fattura. Output URL nudo per default, JSON con --json/--agent.",
+      "rationale": "La SPA non espone un endpoint che restituisca l'URL human-friendly; l'URL deve essere costruito client-side. Avere un comando dedicato evita string-templating duplicato in script.",
+      "example": "partitaiva24-pp-cli invoices link 06d5e64f-4be9-11f1-89c5-0667992834eb --json",
+      "why_it_matters": "Agenti che mostrano una draft a un umano per approvazione passano dall'URL: uno stato (creato) e poi un link per il visual review.",
+      "group": "Workflow fatturazione"
+    },
+    {
+      "name": "PDF proforma offline",
+      "command": "invoices download-pdf",
+      "description": "Scarica il PDF identico al bottone 'Scarica PDF' della SPA usando il renderer jsPDF embedded nella CLI. --no-footer per togliere il watermark partitaiva24, --launch per aprirlo subito.",
+      "rationale": "Il PDF e generato 100% client-side dalla SPA via jsPDF: nessun endpoint REST lo serve. Senza questo comando l'unico modo e cliccare nel browser; gli agenti non possono.",
+      "example": "partitaiva24-pp-cli invoices download-pdf 06d5e64f-4be9-11f1-89c5-0667992834eb -o ~/Downloads/fattura.pdf --no-footer",
+      "why_it_matters": "Chiude il cerchio del workflow agentico: create draft, download proforma, review, transmit. Tutto da CLI senza intervento umano sul browser.",
+      "group": "Workflow fatturazione"
+    },
+    {
+      "name": "WordPress cookie + nonce auth",
+      "command": "auth set",
+      "description": "Salva cookie p24_logged_in_\u003chash\u003e e header X-WP-Nonce in config TOML. Il nonce ruota ogni ~24h: refresh con auth set --nonce \u003cnew\u003e.",
+      "rationale": "WordPress REST richiede cookie + nonce su ogni call autenticata. Il nonce e separato dal cookie e ha lifetime piu corta. Senza un comando dedicato, l'agente deve toccare manualmente il config.toml.",
+      "example": "partitaiva24-pp-cli auth set --cookie 'p24_logged_in_\u003chash\u003e=...' --nonce 'abc1234567'",
+      "why_it_matters": "L'unico comando che NON esponiamo come MCP tool (mcp:hidden) per principio: gli agenti non devono mai leggere/scrivere credenziali dell'utente.",
+      "group": "Auth"
+    }
+  ],
+  "narrative": {
+    "display_name": "Partitaiva24",
+    "headline": "Every Partitaiva24 endpoint as a typed CLI command, plus a local SQLite mirror that answers the questions the web UI doesn't — turnover countdown, quarterly tax projection, AR aging, SDI status sweep.",
+    "value_prop": "Partitaiva24 ships a complete REST namespace at /api/v1/ but no SDK and no docs. This CLI mirrors the full surface — invoices, income invoices, customers, F24, corrispettivi, esterometro, docs, attachments, subscriptions — into a local store, then layers offline analytics most freelancers reach for monthly: forfettario turnover meter, quarterly IVA/IRPEF/INPS projection, customer concentration, VIES batch validation, F24 iCal export, and a portable backup the platform doesn't offer.",
+    "auth_narrative": "Partitaiva24's API is gated by the same WordPress session your browser uses: the `p24_logged_in_\u003chash\u003e` cookie plus an `X-WP-Nonce` header. After logging in to the web app, copy both values from any logged-in page (DevTools → Network → any /api/v1/ request) and run `auth set --cookie '\u003cfull-cookie\u003e' --nonce '\u003cnonce\u003e'`. Nonces rotate roughly every 24 hours; when calls start returning `rest_cookie_invalid_nonce`, run `auth set --nonce \u003cnew-nonce\u003e` to refresh just the nonce. The cookie itself lasts longer (until you sign out of the browser).",
+    "quickstart": [
+      {
+        "command": "partitaiva24-pp-cli auth set --cookie '\u003cpaste full Cookie header\u003e' --nonce '\u003cpaste X-WP-Nonce\u003e'",
+        "comment": "Capture the WordPress session and nonce from your browser DevTools."
+      },
+      {
+        "command": "partitaiva24-pp-cli doctor",
+        "comment": "Confirms the session is live and shows API version + system info."
+      },
+      {
+        "command": "partitaiva24-pp-cli sync",
+        "comment": "Pulls invoices, income invoices, customers, F24, corrispettivi, docs, attachments, events into the local store."
+      },
+      {
+        "command": "partitaiva24-pp-cli turnover --year 2026",
+        "comment": "Where you stand against the forfettario cap right now."
+      },
+      {
+        "command": "partitaiva24-pp-cli aging",
+        "comment": "Unpaid invoices bucketed by days overdue."
+      },
+      {
+        "command": "partitaiva24-pp-cli sdi watch --older-than 7d",
+        "comment": "Find transmissions that didn't come back from SDI."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "rest_cookie_invalid_nonce",
+        "fix": "Refresh the nonce: open any /api/v1/ XHR in DevTools, copy the X-WP-Nonce header, then run `auth set --nonce \u003cnew-nonce\u003e`."
+      },
+      {
+        "symptom": "rest_not_logged_in",
+        "fix": "Cookie expired. Sign in to partitaiva24.cloud, copy the full Cookie header, then `auth set --cookie '\u003cvalue\u003e'`."
+      },
+      {
+        "symptom": "Empty list on `invoices list` after sync succeeded",
+        "fix": "The user has no invoices for the requested fiscal year. Try `--year` with another year or `invoices stats` to confirm."
+      },
+      {
+        "symptom": "`turnover` reports 0% but you have invoices",
+        "fix": "`sync` first — turnover reads invoices-stats live but joins against the synced fiscal_year row."
+      }
+    ],
+    "when_to_use": "Pick this CLI when you (or your agent) need answers Partitaiva24's web UI fragments across multiple pages — quarterly tax projection, AR aging, customer concentration, SDI sweep — or when you need a portable backup of your invoicing data. Don't reach for it for one-off web actions like sending a single PDF; that's two clicks in the browser. The win is bulk operations and offline analytics over a synced local mirror.",
+    "recipes": [
+      {
+        "title": "Forfettario quarter check-in",
+        "command": "partitaiva24-pp-cli turnover --year 2026 --json",
+        "explanation": "After running `sync`, read the turnover meter — pair with `tax-due --quarter 2026-Q2` for the full monthly check-in."
+      },
+      {
+        "title": "Find stuck SDI transmissions",
+        "command": "partitaiva24-pp-cli sdi watch --older-than 7d --json --select id,number,date,to.companyname",
+        "explanation": "Lists every invoice transmitted \u003e7 days ago without an ack — narrow output to four columns so an agent can act on it cleanly."
+      },
+      {
+        "title": "Validate every EU customer's VAT in one shot",
+        "command": "partitaiva24-pp-cli vies bulk --json",
+        "explanation": "Runs /tools/check-vies for each synced EU customer and emits a structured invalid/valid list."
+      },
+      {
+        "title": "Backup before switching commercialista",
+        "command": "partitaiva24-pp-cli backup -o ~/backups/p24-$(date +%Y%m%d).zip",
+        "explanation": "Full snapshot — SQLite + CSV + actual invoice PDFs — the portable copy the platform doesn't give you."
+      },
+      {
+        "title": "AR aging for a meeting",
+        "command": "partitaiva24-pp-cli aging --json --select bucket,customer,total",
+        "explanation": "Three columns ready to paste into a meeting note."
+      }
+    ],
+    "trigger_phrases": [
+      "show partitaiva24 invoices",
+      "where am I against the forfettario limit",
+      "quarterly tax projection partitaiva24",
+      "AR aging for my partita iva",
+      "validate EU VAT IDs in my customer list",
+      "use partitaiva24",
+      "run partitaiva24",
+      "crea fattura partitaiva24",
+      "crea fattura draft",
+      "scarica pdf fattura",
+      "rata unica a data",
+      "trasmetti fattura SDI",
+      "bozza fattura",
+      "anteprima pdf fattura"
+    ]
+  }
+}
