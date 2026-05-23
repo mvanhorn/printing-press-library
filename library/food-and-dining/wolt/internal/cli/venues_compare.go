@@ -5,6 +5,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -52,7 +53,11 @@ func newVenuesCompareCmd(flags *rootFlags) *cobra.Command {
 			}{DeliveryMethod: deliveryMethod}
 			for _, slug := range slugs {
 				row := venueCompareRow{Slug: slug}
-				path := "https://consumer-api.wolt.com/order-xp/web/v1/venue/slug/" + slug + "/dynamic/?selected_delivery_method=" + deliveryMethod
+				// PATCH(venues-compare-url-escape): escape slug + delivery method
+				// before building the URL; without this a slug containing %, +, or
+				// other URL-special characters produces a malformed request.
+				path := "https://consumer-api.wolt.com/order-xp/web/v1/venue/slug/" +
+					url.PathEscape(slug) + "/dynamic/?selected_delivery_method=" + url.QueryEscape(deliveryMethod)
 				raw, err := c.Get(cmd.Context(), path, nil)
 				if err != nil {
 					row.Error = err.Error()

@@ -64,17 +64,16 @@ func extractTrackID(raw string) string {
 	if err != nil {
 		return ""
 	}
+	// PATCH(track-extract-strict): only accept URLs whose path contains a
+	// "track" or "tracking" segment. The previous fallback returned the
+	// last path segment for ANY URL with at least one segment, which made
+	// the command emit plausible-looking but entirely wrong order IDs for
+	// non-tracking URLs (e.g. wolt.com/en/foo/menu → "menu").
 	parts := strings.Split(strings.Trim(u.Path, "/"), "/")
 	for i, p := range parts {
-		if p == "track" && i+1 < len(parts) {
+		if (p == "track" || p == "tracking") && i+1 < len(parts) {
 			return parts[i+1]
 		}
-		if p == "tracking" && i+1 < len(parts) {
-			return parts[i+1]
-		}
-	}
-	if len(parts) > 0 {
-		return parts[len(parts)-1]
 	}
 	return ""
 }
