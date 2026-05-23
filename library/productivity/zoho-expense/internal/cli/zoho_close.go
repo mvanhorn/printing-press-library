@@ -81,7 +81,8 @@ func newCloseCmd(flags *rootFlags) *cobra.Command {
 			defer rows.Close()
 			var unreported []string
 			var untagged []string
-			var processing []string
+			var processing []string         // all month expenses still processing (informational)
+			var processingUnreported []string // intersection of processing AND unreported — what the auto-submit guard actually cares about
 			for rows.Next() {
 				var id, merchant, catID, autoStatus, reportID string
 				var amount float64
@@ -96,6 +97,9 @@ func newCloseCmd(flags *rootFlags) *cobra.Command {
 				}
 				if strings.EqualFold(autoStatus, "Processing") || strings.EqualFold(autoStatus, "InProgress") {
 					processing = append(processing, id)
+					if reportID == "" {
+						processingUnreported = append(processingUnreported, id)
+					}
 				}
 			}
 			if err := rows.Err(); err != nil {
@@ -128,17 +132,20 @@ func newCloseCmd(flags *rootFlags) *cobra.Command {
 				return nil
 			}
 
-			// PATCH(2026-05-23): block --auto-submit when autoscans are still
-			// processing. Submitting a report with Processing expenses freezes
-			// incomplete line items / merchant_name / category on the report.
-			// Users can opt out with --force-submit (set via the same flag's
-			// future expansion) but the default refuses. Filed per Greptile P2.
-			if autoSubmit && len(processing) > 0 {
+			// PATCH(2026-05-23, second iteration): block --auto-submit only
+			// when an expense being newly bundled is still processing.
+			// Original guard checked `processing` (all month expenses),
+			// which incorrectly refused --auto-submit when an already-
+			// reported expense (on a prior report) was still in Processing
+			// status — a stale autoscan from last week shouldn't block
+			// closing this month's new batch. Intersect with unreported.
+			// Filed twice by Greptile P1+P2.
+			if autoSubmit && len(processingUnreported) > 0 {
 				return fmt.Errorf(
-					"--auto-submit blocked: %d expense(s) still have autoscan_status=Processing for month %s; "+
+					"--auto-submit blocked: %d expense(s) in this month's unreported batch still have autoscan_status=Processing; "+
 						"wait for autoscan to complete (re-run with --no-cache to refresh status), "+
 						"or run without --auto-submit to create the draft report and submit later",
-					len(processing), month,
+					len(processingUnreported),
 				)
 			}
 

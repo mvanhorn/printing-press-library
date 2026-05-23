@@ -33,8 +33,8 @@
     },
     {
       "id": "close-auto-submit-blocks-processing",
-      "summary": "close --auto-submit refuses to run when any unreported expense has autoscan_status=Processing.",
-      "reason": "Submitting a report with Processing expenses freezes incomplete line items / merchant_name / category on the submitted report. Users get incorrectly populated reports with no recovery path. Patched per Greptile P2.",
+      "summary": "close --auto-submit blocks only when an expense being newly bundled is still processing (intersection of processing AND unreported), not just any processing expense in the month.",
+      "reason": "Two-iteration patch (Greptile flagged twice): original guard refused --auto-submit whenever any month-expense was still in Processing, even when that expense was already on a prior report. A stale autoscan from last week should not block this month's new batch. Now the guard intersects processing AND reportID == \"\" so only to-be-bundled expenses count.",
       "files": [
         "internal/cli/zoho_close.go"
       ]
