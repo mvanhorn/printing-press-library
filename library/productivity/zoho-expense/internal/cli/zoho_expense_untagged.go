@@ -31,6 +31,29 @@ func newExpenseUntaggedCmd(flags *rootFlags) *cobra.Command {
 			if dryRunOK(flags) {
 				return nil
 			}
+
+			// PATCH(2026-05-23): when --auto-fix is set, refresh the
+			// expenses table first. Without this, the local store can be
+			// up to cache.stale_after hours behind Zoho — any expense the
+			// user manually tagged in the Zoho UI since the last sync
+			// still appears as category_id='' here, and --auto-fix would
+			// silently overwrite the user's manual choice with the
+			// merchant-memory category. Read-only listing (no --auto-fix)
+			// skips the refresh: stale data is acceptable for review
+			// because it doesn't mutate anything, and a 1-hop hint via
+			// the normal freshness machinery covers users who care.
+			// Filed per Greptile P1.
+			if autoFix {
+				if err := forceRefreshExpenses(cmd.Context(), flags); err != nil {
+					fmt.Fprintf(cmd.ErrOrStderr(), "warning: pre-auto-fix refresh failed (%v); falling back to local store may overwrite categories set in Zoho since last sync\n", err)
+				}
+			} else {
+				meta := ensureFreshForResources(cmd.Context(), flags, "expenses")
+				if meta.Decision != "fresh" && meta.Error != "" {
+					fmt.Fprintf(cmd.ErrOrStderr(), "warning: expenses table refresh hit %s — local data may be stale\n", meta.Error)
+				}
+			}
+
 			s, err := openZohoStore(cmd.Context())
 			if err != nil {
 				return err

@@ -12,14 +12,21 @@ import (
 	"github.com/mvanhorn/printing-press-library/library/productivity/zoho-expense/internal/store"
 )
 
-// closeStalenessThreshold caps how stale the local expenses table can be
-// before `close` warns or refuses. Independent of the global cache.stale_after
-// (168h for this CLI) because `close` is a higher-consequence read — a stale
-// inventory leads to double-bundling expenses into a second report, which
-// either fails the API call or creates a malformed report. One hour is short
-// enough that a normal weekly close already triggers refresh, but long enough
-// that back-to-back runs in the same session don't re-hit the network.
-const closeStalenessThreshold = 1 * time.Hour
+// close-time refresh policy: ALWAYS hit the network before reading the
+// local expenses table. Earlier iterations of this patch tried a tighter
+// staleness threshold (1 hour) via a custom constant, but that constant
+// was never wired into the freshness machinery — ensureFreshForResources
+// routes through autoRefreshIfStale → cachePolicy() which returns the
+// global 168-hour window, so a "tighter" threshold was inert. Filed twice
+// by Greptile P1.
+//
+// The simplest correct shape is "always refresh." A stale inventory at
+// close-time silently double-bundles expenses already on a report into a
+// new report (the API returns either a 400 or a malformed report), so
+// the one extra GET per monthly run is a tiny cost compared to that
+// failure mode. The `--no-cache` flag is now redundant but retained for
+// users who pass it expecting the older behavior; it just routes through
+// the same unconditional refresh path.
 
 func newCloseCmd(flags *rootFlags) *cobra.Command {
 	var month string
@@ -48,28 +55,17 @@ func newCloseCmd(flags *rootFlags) *cobra.Command {
 			}
 			defer s.Close()
 
-			// PATCH(2026-05-23): refresh the expenses table before reading
-			// it. Without this, `close` inventories from data that could be
-			// up to cache.stale_after hours old — any expense reported via
-			// the Zoho web UI in the meantime still appears as unreported
-			// here and gets double-bundled into the new report. Greptile
-			// P1 ×2: first iteration of this patch routed --no-cache through
-			// autoRefreshIfStale with dataSource="live", which short-circuits
-			// at the data-source guard (autoRefreshIfStale returns early
-			// when dataSource != "auto"). The correct shape is:
-			//   --no-cache:  open store, call runAutoRefresh directly,
-			//                bypassing the EnsureFresh staleness check.
-			//   default:     route through ensureFreshForResources so the
-			//                normal stale-detection + refresh policy applies.
-			if noCache {
-				if err := forceRefreshExpenses(cmd.Context(), flags); err != nil {
-					fmt.Fprintf(cmd.ErrOrStderr(), "warning: --no-cache refresh failed (%v); falling back to local store which may be stale\n", err)
-				}
-			} else {
-				meta := ensureFreshForResources(cmd.Context(), flags, "expenses")
-				if meta.Decision != "fresh" && meta.Error != "" {
-					fmt.Fprintf(cmd.ErrOrStderr(), "warning: expenses table refresh hit %s — local data may be stale; re-run with --no-cache to force\n", meta.Error)
-				}
+			// PATCH(2026-05-23, third iteration): close ALWAYS refreshes
+			// the expenses table before reading. See package-level comment
+			// for why a conditional threshold was abandoned. --no-cache is
+			// retained but routes through the same path — kept so users
+			// who pass it (or recipes already written) don't see a flag
+			// rejection. Refresh failures are non-fatal: we fall back to
+			// the local store with a stderr warning, the same pattern
+			// other commands use.
+			_ = noCache // intentionally redundant — refresh runs either way
+			if err := forceRefreshExpenses(cmd.Context(), flags); err != nil {
+				fmt.Fprintf(cmd.ErrOrStderr(), "warning: pre-close refresh failed (%v); falling back to local store which may be stale and double-bundle already-reported expenses\n", err)
 			}
 
 			rows, err := s.DB().Query(

@@ -52,8 +52,8 @@
     },
     {
       "id": "close-refresh-expenses-before-bundle",
-      "summary": "close refreshes the expenses table before reading it; --no-cache bypasses the EnsureFresh staleness check and forces runAutoRefresh directly.",
-      "reason": "Two-iteration patch: original commit added ensureFreshForResources for the default path (correct) but routed --no-cache through ensureFreshForResources with dataSource=live (wrong — autoRefreshIfStale early-exits when dataSource != \"auto\"). Second iteration extracts forceRefreshExpenses() which opens the store and calls runAutoRefresh directly so --no-cache actually triggers a network refresh. Filed and re-confirmed by Greptile P1 across both review rounds.",
+      "summary": "close ALWAYS calls forceRefreshExpenses before reading the local store; dead 1h threshold constant removed.",
+      "reason": "Three-iteration patch (Greptile flagged across three review rounds): (1) original commit added ensureFreshForResources for the default path but routed --no-cache through it with dataSource=live, which short-circuits at the data-source guard. (2) second iteration extracted forceRefreshExpenses() so --no-cache actually triggered runAutoRefresh directly, but kept a closeStalenessThreshold constant that was never wired (ensureFreshForResources still used the global 168h policy, so the default-path back-to-back close double-bundled). (3) final iteration: close always calls forceRefreshExpenses unconditionally; --no-cache is retained as a no-op flag for back-compat but routes through the same path. Dead constant removed. Trade-off: one extra GET per monthly close run, which is negligible compared to the data-corruption mode it prevents.",
       "files": [
         "internal/cli/zoho_close.go"
       ]
@@ -68,6 +68,11 @@
         "internal/zohotools/receipthash_reserve_test.go"
       ],
       "validated_outcome": "TestReserveHash_ReclaimsStaleSentinel + TestReserveHash_DoesNotReclaimFreshSentinel + the existing parallel-claim regression all pass."
+    },
+    {
+      "id": "expense-untagged-refresh-before-auto-fix",
+      "summary": "expense-untagged --auto-fix refreshes the expenses table first so it cannot overwrite categories a user set in the Zoho UI since the last sync.",
+      "reason": "Without the refresh, the local store can be up to cache.stale_after hours old. A user who tagged an expense manually in Zoho since the last sync still appears category_id= locally, and --auto-fix PUTs the merchant-memory category onto it, silently overwriting the manual choice. Plain listing (no --auto-fix) keeps the normal freshness policy because stale data is acceptable for review. Filed per Greptile P1."
     }
   ]
 }
