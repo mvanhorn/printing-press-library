@@ -35,6 +35,12 @@
       "summary": "AdaptiveLimiter.Wait() has a TOCTOU race: lastRequest is read under the lock, the lock is released, both goroutines sleep, both fire simultaneously.",
       "reason": "internal/cliutil/ratelimit.go is generator-emitted shared code present in every printed CLI in this library. A one-CLI patch here would not help the rest; the fix belongs upstream in cli-printing-press.",
       "files": ["internal/cliutil/ratelimit.go"]
+    },
+    {
+      "id": "sync-latest-only-since-warning",
+      "summary": "When --latest-only is combined with --since, sync.go silently ignores --since but emits no structured JSON warning for agent consumers running in --json mode.",
+      "reason": "internal/cli/sync.go is generator-emitted shared code present in every printed CLI. Adding an sync_warning event for this flag combination belongs in the generator template so the whole catalog gets it consistently, not patched per-CLI. Greptile classified this finding as a diagnostics gap, not a data-loss or behavioral defect.",
+      "files": ["internal/cli/sync.go"]
     }
   ]
 }
