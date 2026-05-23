@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "generated_at": "2026-05-14T06:27:26.457588Z",
-  "printing_press_version": "4.5.2",
+  "printing_press_version": "4.11.0",
   "api_name": "canvas",
   "cli_name": "canvas-pp-cli",
   "run_id": "20260513-235625",
