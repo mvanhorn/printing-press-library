@@ -83,12 +83,22 @@ does not expose a flat power-spike field on its HTML pages.`,
 						break
 					}
 				}
-				p := "late"
+				// Skip champions with no surfaced Core data. ttt == 0 is
+				// the parser's "no Core block found" signal (Go's int
+				// zero value), not a real 0-second time-to-target.
+				// Without this guard, every champion missing Core data
+				// would silently classify as "late".
+				if ttt <= 0 {
+					continue
+				}
+				var p string
 				switch {
-				case ttt > 0 && ttt < 800:
+				case ttt < 800:
 					p = "early"
-				case ttt >= 800 && ttt <= 1200:
+				case ttt <= 1200:
 					p = "mid"
+				default:
+					p = "late"
 				}
 				if p != phase {
 					continue
