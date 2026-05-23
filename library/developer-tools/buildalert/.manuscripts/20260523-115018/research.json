@@ -1,0 +1,228 @@
+{
+  "api_name": "buildalert",
+  "novelty_score": 7,
+  "alternatives": [],
+  "gaps": [
+    "Mutations: Letter-send, filter-update, schedule-follow-up, template CRUD are intentionally not in v1. The browser-sniff captured read-only traffic; letter-send is a £2 real-money operation that needs deliberate user consent design. Future work."
+  ],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-23T11:35:00Z",
+  "novel_features": [
+    {
+      "name": "ZAZU diff",
+      "command": "zazu-diff",
+      "description": "List BuildAlert leads that aren't yet in your ZAZU bd-mirror.sqlite, so you know exactly what BuildAlert's 400+ council coverage adds to your own scrapers.",
+      "rationale": "Requires a left-anti-join across two SQLite stores keyed on (council_slug, reference) derived from BuildAlert's internalUniqueReference — no single API call answers this.",
+      "example": "buildalert-pp-cli zazu-diff --zazu-db ~/Downloads/Zazu/bd-mirror.sqlite --agent",
+      "why_it_matters": "Pick this when you need to know which BuildAlert leads to ingest into ZAZU without duplicating effort.",
+      "group": "ZAZU integration"
+    },
+    {
+      "name": "Pending-letter worklist",
+      "command": "pending-letters",
+      "description": "Surface BuildAlert leads where canSendLetter is true, no letter has been sent yet, and ZAZU's own send log has no record either — the morning worklist for outreach.",
+      "rationale": "Requires AND of three local conditions across two stores; cannot be a single dashboard view because ZAZU's send log lives outside BuildAlert.",
+      "example": "buildalert-pp-cli pending-letters --zazu-db ~/Downloads/Zazu/bd-mirror.sqlite --agent --select reference,address,estimationValueBand,distanceAway",
+      "why_it_matters": "Use this as the single actionable list when deciding which homeowners to contact today.",
+      "group": "ZAZU integration"
+    },
+    {
+      "name": "Duplicate-letter guard",
+      "command": "letter-conflict",
+      "description": "Find BuildAlert leads where letterBeenSent is true AND ZAZU's send log already records a Telegram send for the same applicant — i.e., a double-mailed homeowner.",
+      "rationale": "Inner join across two send logs that BuildAlert and ZAZU have no awareness of each other; £2 saved per hit plus reputation protection.",
+      "example": "buildalert-pp-cli letter-conflict --zazu-db ~/Downloads/Zazu/bd-mirror.sqlite --json",
+      "why_it_matters": "Run before any BuildAlert letter campaign to catch homeowners ZAZU already mailed.",
+      "group": "ZAZU integration"
+    },
+    {
+      "name": "Council coverage gap map",
+      "command": "coverage",
+      "description": "Group leads by council across both BuildAlert and ZAZU stores; flag councils where BuildAlert has volume but ZAZU has nothing (and vice versa).",
+      "rationale": "Cross-store aggregation answers 'where is each pipeline blind' — a question neither system can answer alone.",
+      "example": "buildalert-pp-cli coverage --zazu-db ~/Downloads/Zazu/bd-mirror.sqlite --json",
+      "why_it_matters": "Use this when planning which UK councils to add to ZAZU's scraper coverage next.",
+      "group": "ZAZU integration"
+    },
+    {
+      "name": "Spend ledger by council",
+      "command": "analytics --type transactions",
+      "description": "Aggregate the £2-per-letter charges across the local transactions mirror, grouped by council, project type, or month — the answers your accountant asks for.",
+      "rationale": "Framework analytics over the local SQLite mirror of /dapi/transactions; the dashboard only shows ROI aggregates without per-council slicing.",
+      "example": "buildalert-pp-cli analytics --type transactions --group-by council --json",
+      "why_it_matters": "Use this for monthly or quarterly cost reviews; pipe to CSV for spreadsheet handoff.",
+      "group": "Spend visibility"
+    },
+    {
+      "name": "Per-lead ROI joiner",
+      "command": "roi-per-lead",
+      "description": "Join transactions × tracking × applications locally to produce per-lead rows: cost, reply received, work won, total return — sorted by ROI.",
+      "rationale": "BuildAlert's /dapi/tracking gives only aggregates; per-lead ROI requires joining three local tables that the API doesn't expose together.",
+      "example": "buildalert-pp-cli roi-per-lead --json --select reference,cost,replied,workWon",
+      "why_it_matters": "Use this to identify which project types and councils convert at the best £/work-won ratio.",
+      "group": "Spend visibility"
+    },
+    {
+      "name": "Offline radius re-filter",
+      "command": "nearby",
+      "description": "Compute haversine distance from any UK postcode against the local mirror's lat/lng coordinates; return all leads inside a radius without re-hitting the API.",
+      "rationale": "BuildAlert's web filter only honors the user's primary postcode; the CLI can re-filter against any postcode without changing the account-level setting and without API round-trips.",
+      "example": "buildalert-pp-cli nearby --postcode HA1 --radius 10 --json --select reference,distance,fullDescription",
+      "why_it_matters": "Use this to evaluate radius expansion experiments or to score leads against a satellite-office postcode.",
+      "group": "Offline querying"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "ZAZU diff",
+      "command": "zazu-diff",
+      "description": "List BuildAlert leads that aren't yet in your ZAZU bd-mirror.sqlite, so you know exactly what BuildAlert's 400+ council coverage adds to your own scrapers.",
+      "rationale": "Requires a left-anti-join across two SQLite stores keyed on (council_slug, reference) derived from BuildAlert's internalUniqueReference — no single API call answers this.",
+      "example": "buildalert-pp-cli zazu-diff --zazu-db ~/Downloads/Zazu/bd-mirror.sqlite --agent",
+      "why_it_matters": "Pick this when you need to know which BuildAlert leads to ingest into ZAZU without duplicating effort.",
+      "group": "ZAZU integration"
+    },
+    {
+      "name": "Pending-letter worklist",
+      "command": "pending-letters",
+      "description": "Surface BuildAlert leads where canSendLetter is true, no letter has been sent yet, and ZAZU's own send log has no record either — the morning worklist for outreach.",
+      "rationale": "Requires AND of three local conditions across two stores; cannot be a single dashboard view because ZAZU's send log lives outside BuildAlert.",
+      "example": "buildalert-pp-cli pending-letters --zazu-db ~/Downloads/Zazu/bd-mirror.sqlite --agent --select reference,address,estimationValueBand,distanceAway",
+      "why_it_matters": "Use this as the single actionable list when deciding which homeowners to contact today.",
+      "group": "ZAZU integration"
+    },
+    {
+      "name": "Duplicate-letter guard",
+      "command": "letter-conflict",
+      "description": "Find BuildAlert leads where letterBeenSent is true AND ZAZU's send log already records a Telegram send for the same applicant — i.e., a double-mailed homeowner.",
+      "rationale": "Inner join across two send logs that BuildAlert and ZAZU have no awareness of each other; £2 saved per hit plus reputation protection.",
+      "example": "buildalert-pp-cli letter-conflict --zazu-db ~/Downloads/Zazu/bd-mirror.sqlite --json",
+      "why_it_matters": "Run before any BuildAlert letter campaign to catch homeowners ZAZU already mailed.",
+      "group": "ZAZU integration"
+    },
+    {
+      "name": "Council coverage gap map",
+      "command": "coverage",
+      "description": "Group leads by council across both BuildAlert and ZAZU stores; flag councils where BuildAlert has volume but ZAZU has nothing (and vice versa).",
+      "rationale": "Cross-store aggregation answers 'where is each pipeline blind' — a question neither system can answer alone.",
+      "example": "buildalert-pp-cli coverage --zazu-db ~/Downloads/Zazu/bd-mirror.sqlite --json",
+      "why_it_matters": "Use this when planning which UK councils to add to ZAZU's scraper coverage next.",
+      "group": "ZAZU integration"
+    },
+    {
+      "name": "Spend ledger by council",
+      "command": "analytics --type transactions",
+      "description": "Aggregate the £2-per-letter charges across the local transactions mirror, grouped by council, project type, or month — the answers your accountant asks for.",
+      "rationale": "Framework analytics over the local SQLite mirror of /dapi/transactions; the dashboard only shows ROI aggregates without per-council slicing.",
+      "example": "buildalert-pp-cli analytics --type transactions --group-by council --json",
+      "why_it_matters": "Use this for monthly or quarterly cost reviews; pipe to CSV for spreadsheet handoff.",
+      "group": "Spend visibility"
+    },
+    {
+      "name": "Per-lead ROI joiner",
+      "command": "roi-per-lead",
+      "description": "Join transactions × tracking × applications locally to produce per-lead rows: cost, reply received, work won, total return — sorted by ROI.",
+      "rationale": "BuildAlert's /dapi/tracking gives only aggregates; per-lead ROI requires joining three local tables that the API doesn't expose together.",
+      "example": "buildalert-pp-cli roi-per-lead --json --select reference,cost,replied,workWon",
+      "why_it_matters": "Use this to identify which project types and councils convert at the best £/work-won ratio.",
+      "group": "Spend visibility"
+    },
+    {
+      "name": "Offline radius re-filter",
+      "command": "nearby",
+      "description": "Compute haversine distance from any UK postcode against the local mirror's lat/lng coordinates; return all leads inside a radius without re-hitting the API.",
+      "rationale": "BuildAlert's web filter only honors the user's primary postcode; the CLI can re-filter against any postcode without changing the account-level setting and without API round-trips.",
+      "example": "buildalert-pp-cli nearby --postcode HA1 --radius 10 --json --select reference,distance,fullDescription",
+      "why_it_matters": "Use this to evaluate radius expansion experiments or to score leads against a satellite-office postcode.",
+      "group": "Offline querying"
+    }
+  ],
+  "narrative": {
+    "display_name": "BuildAlert",
+    "headline": "Every BuildAlert lead at your fingertips offline — and a ZAZU-aware dedupe layer that stops you from mailing the same homeowner twice.",
+    "value_prop": "BuildAlert's web dashboard is fine for browsing 149 leads at a time. This CLI pulls every matched planning application into a local SQLite mirror with FTS5 search, agent-native JSON output, and a `zazu-diff` command that left-anti-joins against your existing `bd-mirror.sqlite` so the £2-per-letter pipeline never overlaps with ZAZU's own Telegram-manual-send flow.",
+    "auth_narrative": "BuildAlert publishes no API and no API key. Auth is cookie-only. Run `buildalert-pp-cli auth login --chrome` to capture your logged-in session cookies from Chrome (a paid subscriber session unlocks applicant addresses and agent details; a free session unlocks browsing only).",
+    "quickstart": [
+      {
+        "command": "buildalert-pp-cli doctor",
+        "comment": "Verify config, base URL, and store path (auth must be set up via `auth login --chrome` first — see Authentication below)"
+      },
+      {
+        "command": "buildalert-pp-cli sync --resources leads,transactions,tracking --full",
+        "comment": "Mirror all your BuildAlert data into the local SQLite store"
+      },
+      {
+        "command": "buildalert-pp-cli leads list --project-types Loft_Conversion,Extension --min-value 50000 --json",
+        "comment": "List today's high-value loft and extension leads in machine-readable form"
+      },
+      {
+        "command": "buildalert-pp-cli zazu-diff --zazu-db ~/Downloads/Zazu/bd-mirror.sqlite --agent",
+        "comment": "Surface BuildAlert leads ZAZU hasn't picked up yet — the headline command"
+      },
+      {
+        "command": "buildalert-pp-cli pending-letters --zazu-db ~/Downloads/Zazu/bd-mirror.sqlite",
+        "comment": "The daily worklist: untouched leads eligible for outreach across both systems"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "auth login --chrome opens an empty profile / says no buildalert cookies",
+        "fix": "Quit Chrome completely (taskkill /F /IM chrome.exe on Windows) then re-run; Chrome locks the profile while running"
+      },
+      {
+        "symptom": "Every list command returns 401 or redirects to /auth/login",
+        "fix": "Cookies expired. Re-run `buildalert-pp-cli auth login --chrome` and confirm Chrome Profile 1 (or whichever profile holds the BuildAlert login) is the source"
+      },
+      {
+        "symptom": "leads list returns leads with no applicantAddress / no agentDetails",
+        "fix": "Your session is a free-tier session. The applicant address + agent details fields are subscriber-only; upgrade on the BuildAlert dashboard"
+      },
+      {
+        "symptom": "zazu-diff returns zero rows but BuildAlert has 149 leads visible",
+        "fix": "Sync the leads first: `buildalert-pp-cli sync --resources leads --full`. The diff reads from the local mirror, not the live API"
+      },
+      {
+        "symptom": "transactions list errors with 400 / missing dateFrom",
+        "fix": "BuildAlert requires both dateFrom and dateTo as unix-seconds. Use `--date-from $(date -d '90 days ago' +%s) --date-to $(date +%s)`"
+      }
+    ],
+    "when_to_use": "Use this CLI when you operate BuildAlert as a paid lead source alongside another UK planning pipeline (ZAZU, your own scrapers, council direct). It is the offline mirror layer that lets you dedupe, filter, and route BuildAlert leads through scripts and agents instead of clicking through the web dashboard. Read-only in v1 — letter-send and filter-update mutations remain on the web for now.",
+    "recipes": [
+      {
+        "title": "Daily morning ZAZU triage",
+        "command": "buildalert-pp-cli sync --resources leads --since 24h \u0026\u0026 buildalert-pp-cli pending-letters --zazu-db ~/Downloads/Zazu/bd-mirror.sqlite --agent --select reference,address,estimationValueBand,distanceAway",
+        "explanation": "Pull yesterday's new BuildAlert leads, then list only the ones ZAZU hasn't touched yet — the morning worklist that drives outreach decisions."
+      },
+      {
+        "title": "Council coverage audit before adding a ZAZU scraper",
+        "command": "buildalert-pp-cli coverage --zazu-db ~/Downloads/Zazu/bd-mirror.sqlite --json --select council,buildalertCount,zazuCount,delta",
+        "explanation": "Find the councils where BuildAlert has high volume and ZAZU has zero — those are the highest-ROI new scrapers to build."
+      },
+      {
+        "title": "Quarterly spend report",
+        "command": "buildalert-pp-cli transactions list --date-from 1771759831 --date-to 1779535831 --json",
+        "explanation": "Pull the £2-letter charges in a unix-seconds date window directly from BuildAlert in machine-readable form — pipe into `jq` for council aggregation or hand to an accountant."
+      },
+      {
+        "title": "Find a half-remembered lead",
+        "command": "buildalert-pp-cli search \"edgware rooflights dormer\" --type leads --limit 10",
+        "explanation": "FTS5 across the local mirror. Beats the dashboard's category-only filter when you only remember a fragment of the description or address."
+      },
+      {
+        "title": "ROI-per-lead breakdown",
+        "command": "buildalert-pp-cli roi-per-lead --json --select reference,cost,replied,workWon,totalReturn",
+        "explanation": "Three-way local join transactions × tracking × applications; sort by totalReturn to identify your best-performing project types."
+      }
+    ],
+    "trigger_phrases": [
+      "buildalert leads",
+      "pull buildalert dashboard",
+      "buildalert dedupe against zazu",
+      "buildalert pending letters",
+      "buildalert spend",
+      "use buildalert",
+      "run buildalert"
+    ]
+  }
+}

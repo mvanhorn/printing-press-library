@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "site": "https://www.buildalert.uk",
+  "reachability": {
+    "mode": "standard_http",
+    "confidence": 0.95,
+    "rationale": "Plain stdlib HTTP returned a non-error response; no special transport needed."
+  },
+  "auth": {
+    "type": "cookie",
+    "cookie_domain": "www.buildalert.uk",
+    "session_required": true,
+    "login_url": "https://www.buildalert.uk/auth/login"
+  },
+  "client_pattern": "rest",
+  "base_url": "https://www.buildalert.uk",
+  "endpoint_clusters": [
+    {
+      "name": "leads",
+      "paths": [
+        "/dapi/leads/live-leads"
+      ],
+      "observed_auth": [
+        "cookie"
+      ]
+    },
+    {
+      "name": "user",
+      "paths": [
+        "/dapi/user/user",
+        "/dapi/user/details",
+        "/dapi/user/dashboard"
+      ],
+      "observed_auth": [
+        "cookie"
+      ]
+    },
+    {
+      "name": "letters",
+      "paths": [
+        "/dapi/letter-templates"
+      ],
+      "observed_auth": [
+        "cookie"
+      ]
+    },
+    {
+      "name": "transactions",
+      "paths": [
+        "/dapi/transactions"
+      ],
+      "observed_auth": [
+        "cookie"
+      ]
+    },
+    {
+      "name": "tracking",
+      "paths": [
+        "/dapi/tracking"
+      ],
+      "observed_auth": [
+        "cookie"
+      ]
+    },
+    {
+      "name": "health",
+      "paths": [
+        "/dapi/healthcheck/keep-warm"
+      ],
+      "observed_auth": []
+    }
+  ]
+}

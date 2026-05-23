@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "buildalert-pp-mcp",
+  "display_name": "BuildAlert",
+  "version": "4.12.0",
+  "description": "Pull your BuildAlert dashboard offline — every matched planning lead, transaction, and ROI metric queryable via SQL/FTS, JSON-pipeable, and ZAZU-aware.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/buildalert-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/buildalert-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

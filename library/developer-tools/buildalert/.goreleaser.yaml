@@ -1,0 +1,51 @@
+version: 2
+project_name: buildalert-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: buildalert-pp-cli
+    main: ./cmd/buildalert-pp-cli
+    binary: buildalert-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/developer-tools/buildalert/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: buildalert-pp-mcp
+    main: ./cmd/buildalert-pp-mcp
+    binary: buildalert-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: buildalert-pp-cli
+    repository:
+      owner: muhammad-khan
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Pull your BuildAlert dashboard offline — every matched planning lead, transaction, and ROI metric queryable via SQL/FTS"
+    install: |
+      bin.install "buildalert-pp-cli"
+      bin.install "buildalert-pp-mcp"

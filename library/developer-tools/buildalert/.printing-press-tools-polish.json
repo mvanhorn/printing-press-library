@@ -1,0 +1,15 @@
+{
+  "timestamp": "2026-05-23T16:08:18.9981942Z",
+  "cli_dir": "\u003ccli-dir\u003e\\buildalert",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "version",
+      "file": "root.go",
+      "line": 316,
+      "evidence": "Print version",
+      "status": "accepted",
+      "note": "Standard 'version' command; 'Print version' is brief but precise — agents understand the action without elaboration"
+    }
+  ]
+}

@@ -1,0 +1,173 @@
+name: buildalert
+display_name: BuildAlert
+description: BuildAlert UK construction lead platform — planning applications across 400+ UK councils, with applicant addresses and agent details for paid subscribers.
+cli_description: Pull your BuildAlert dashboard offline — every matched planning lead, transaction, and ROI metric queryable via SQL/FTS, JSON-pipeable, and ZAZU-aware.
+base_url: https://www.buildalert.uk
+category: developer-tools
+http_transport: standard
+
+auth:
+  type: cookie
+  cookie_domain: www.buildalert.uk
+  login_url: https://www.buildalert.uk/auth/login
+  description: |
+    BuildAlert authenticates via the same session cookies your browser uses on the dashboard.
+    Run `buildalert-pp-cli auth login --chrome` to capture cookies from your logged-in Chrome profile.
+    No API key is published; the cookie-based path is the only path.
+
+resources:
+  leads:
+    description: Planning-application leads matched to the user's filters across UK councils.
+    endpoints:
+      list:
+        method: GET
+        path: /dapi/leads/live-leads
+        description: List planning-application leads matched to the user's saved filters. Embeds quickFilters (per-category counts) and pagination metadata in the response.
+        params:
+          - name: states
+            type: string
+            in: query
+            description: Lead state filter. -1 = all (only observed value with effect against current account).
+            default: "-1"
+          - name: page
+            type: integer
+            in: query
+            description: 1-indexed page number.
+            default: 1
+          - name: itemsPerPage
+            type: integer
+            in: query
+            description: Page size. The web dashboard uses 50.
+            default: 50
+          - name: orderBy
+            flag_name: sort
+            type: string
+            in: query
+            description: Sort field. Observed values "createdDate" (most recent first) and "value" (highest project value first).
+            default: createdDate
+          - name: force
+            type: string
+            in: query
+            description: Cache-bust marker; pass empty string to match the dashboard.
+            default: ""
+          - name: minValue
+            flag_name: min-value
+            type: integer
+            in: query
+            description: Minimum estimated project value in GBP.
+            required: false
+          - name: projectTypes
+            flag_name: project-types
+            type: string
+            in: query
+            description: Comma-separated project type IDs. Valid values from BuildAlert's quickFilters - Extension, Loft_Conversion, Garage_Conversion, Outbuilding, Porch.
+            required: false
+        response_format: json
+
+  user:
+    description: Authenticated user profile, dashboard summary, and filter preferences.
+    endpoints:
+      profile:
+        method: GET
+        path: /dapi/user/user
+        description: Authenticated user profile - email, role, profession, company, credits, postCode, radius, longitude, latitude, subscription state, and planningStatusToFilter.
+        params: []
+        response_format: json
+      details:
+        method: GET
+        path: /dapi/user/details
+        description: Same payload as `user profile` (alias). Returns user profile + filter preferences.
+        params: []
+        response_format: json
+      dashboard:
+        method: GET
+        path: /dapi/user/dashboard
+        description: Dashboard overview - newLeadsCount, letterSentCount, lastLetterSentDate, credits, totalPlanningApplications, and recent userLeads array.
+        params: []
+        response_format: json
+
+  letter_templates:
+    description: User's saved letter templates for the £2-per-letter outreach flow.
+    endpoints:
+      list:
+        method: GET
+        path: /dapi/letter-templates
+        description: List the user's letter templates plus the baseLogoUrl for the templated letterhead.
+        params: []
+        response_format: json
+
+  transactions:
+    description: BuildAlert letter-send transactions (£2/letter, £2.50/postcard purchases).
+    endpoints:
+      list:
+        method: GET
+        path: /dapi/transactions
+        description: List letter-send transactions in a date window. Requires both dateFrom and dateTo as unix-seconds.
+        params:
+          - name: dateFrom
+            flag_name: date-from
+            type: integer
+            in: query
+            required: true
+            description: Start of date window, unix seconds (inclusive).
+          - name: dateTo
+            flag_name: date-to
+            type: integer
+            in: query
+            required: true
+            description: End of date window, unix seconds (inclusive).
+          - name: page
+            type: integer
+            in: query
+            default: 1
+          - name: itemsPerPage
+            type: integer
+            in: query
+            default: 100
+        response_format: json
+
+  tracking:
+    description: ROI tracking - letters sent, replies, conversion rate, work won, total return, plus chartData.
+    endpoints:
+      list:
+        method: GET
+        path: /dapi/tracking
+        description: ROI summary + per-letter tracking entries in a date window. Aggregates lettersSent, letterReplies, letterRepliesPercent, workWon, workWonPercent, totalReturn.
+        params:
+          - name: dateFrom
+            flag_name: date-from
+            type: integer
+            in: query
+            required: true
+            description: Start of window, unix seconds (inclusive).
+          - name: dateTo
+            flag_name: date-to
+            type: integer
+            in: query
+            required: true
+            description: End of window, unix seconds (inclusive).
+          - name: page
+            type: integer
+            in: query
+            default: 1
+          - name: itemsPerPage
+            type: integer
+            in: query
+            default: 50
+        response_format: json
+
+  health:
+    description: Backend liveness check.
+    endpoints:
+      ping:
+        method: GET
+        path: /dapi/healthcheck/keep-warm
+        description: 'Lightweight liveness probe. Returns {"success": true}. Used by the web dashboard to keep the backend warm; useful as a doctor smoke test.'
+        no_auth: true
+        params: []
+        response_format: json
+
+mcp:
+  transport: [stdio, http]
+  orchestration: code
+  endpoint_tools: visible

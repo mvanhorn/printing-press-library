@@ -1,0 +1,66 @@
+{
+  "Lead Packs": [
+    "https://www.buildalert.uk/dapi/user/details",
+    "https://www.buildalert.uk/?_rsc=cwx3c",
+    "https://www.buildalert.uk/dashboard/index?_rsc=cwx3c",
+    "https://www.buildalert.uk/dashboard/leads?_rsc=cwx3c",
+    "https://www.buildalert.uk/dashboard/letter-templates?_rsc=cwx3c",
+    "https://www.buildalert.uk/dashboard/transactions?_rsc=cwx3c",
+    "https://www.buildalert.uk/dashboard/tracking?_rsc=cwx3c",
+    "https://www.buildalert.uk/dashboard/pricing?_rsc=cwx3c",
+    "https://www.buildalert.uk/dashboard/lead-pack?id=home-extensions-loft-conversions-pack&_rsc=cwx3c",
+    "https://www.buildalert.uk/dapi/reviews/should-show-modal"
+  ],
+  "Letter Templates": [
+    "https://www.buildalert.uk/dapi/letter-templates",
+    "https://www.buildalert.uk/dapi/healthcheck/keep-warm",
+    "https://www.buildalert.uk/dapi/user/details",
+    "https://www.buildalert.uk/?_rsc=bfitz",
+    "https://www.buildalert.uk/dashboard/index?_rsc=bfitz",
+    "https://www.buildalert.uk/dashboard/lead-packs?_rsc=bfitz",
+    "https://www.buildalert.uk/dashboard/leads?_rsc=bfitz",
+    "https://www.buildalert.uk/dashboard/transactions?_rsc=bfitz",
+    "https://www.buildalert.uk/dashboard/tracking?_rsc=bfitz",
+    "https://www.buildalert.uk/dashboard/pricing?_rsc=bfitz",
+    "https://www.buildalert.uk/dapi/reviews/should-show-modal"
+  ],
+  "Transactions": [
+    "https://www.buildalert.uk/dapi/transactions?page=1&itemsPerPage=100&dateFrom=1771759831&dateTo=1779535831",
+    "https://www.buildalert.uk/dapi/user/details",
+    "https://www.buildalert.uk/?_rsc=3cfz0",
+    "https://www.buildalert.uk/dashboard/index?_rsc=3cfz0",
+    "https://www.buildalert.uk/dashboard/lead-packs?_rsc=3cfz0",
+    "https://www.buildalert.uk/dashboard/leads?_rsc=3cfz0",
+    "https://www.buildalert.uk/dashboard/letter-templates?_rsc=3cfz0",
+    "https://www.buildalert.uk/dashboard/tracking?_rsc=3cfz0",
+    "https://www.buildalert.uk/dashboard/pricing?_rsc=3cfz0",
+    "https://www.buildalert.uk/dapi/reviews/should-show-modal"
+  ],
+  "Lead Tracking": [
+    "https://www.buildalert.uk/dapi/tracking?dateFrom=1747999842&dateTo=1779535842&page=1&itemsPerPage=50",
+    "https://www.buildalert.uk/dapi/user/details",
+    "https://www.buildalert.uk/?_rsc=1v3kg",
+    "https://www.buildalert.uk/dashboard/index?_rsc=1v3kg",
+    "https://www.buildalert.uk/dashboard/lead-packs?_rsc=1v3kg",
+    "https://www.buildalert.uk/dashboard/leads?_rsc=1v3kg",
+    "https://www.buildalert.uk/dashboard/letter-templates?_rsc=1v3kg",
+    "https://www.buildalert.uk/dashboard/transactions?_rsc=1v3kg",
+    "https://www.buildalert.uk/dashboard/pricing?_rsc=1v3kg",
+    "https://www.buildalert.uk/dapi/reviews/should-show-modal"
+  ],
+  "Pricing": [],
+  "Payment Details": [],
+  "Dashboard Home": [
+    "https://www.buildalert.uk/dapi/user/dashboard",
+    "https://www.buildalert.uk/dapi/user/details",
+    "https://www.buildalert.uk/?_rsc=nakl4",
+    "https://www.buildalert.uk/dashboard/lead-packs?_rsc=nakl4",
+    "https://www.buildalert.uk/dashboard/leads?_rsc=nakl4",
+    "https://www.buildalert.uk/dashboard/letter-templates?_rsc=nakl4",
+    "https://www.buildalert.uk/dashboard/transactions?_rsc=nakl4",
+    "https://www.buildalert.uk/dashboard/tracking?_rsc=nakl4",
+    "https://www.buildalert.uk/dashboard/pricing?_rsc=nakl4",
+    "https://www.buildalert.uk/dapi/tracking?dateFrom=1747999875&dateTo=1779535875&page=1&itemsPerPage=1",
+    "https://www.buildalert.uk/dapi/reviews/should-show-modal"
+  ]
+}

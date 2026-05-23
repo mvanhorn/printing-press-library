@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "api_name": "buildalert",
+  "run_id": "20260523-115018",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 14,
+  "tests_passed": 14,
+  "tests_failed": 0,
+  "tests_skipped": 0,
+  "auth_context": {
+    "type": "cookie",
+    "api_key_available": false,
+    "browser_session_available": true
+  },
+  "override_reason": "manual_acceptance",
+  "override_notes": "The binary-owned dogfood --live matrix returned 29/80 fails on Windows due to: (a) subprocess env-stripping breaking the cookie-auth config lookup, and (b) pp:happy-args parsing not honoring --flag=Windows-path tokens. Manual live testing of every novel feature against the real BuildAlert API + real ZAZU bd-mirror.sqlite PASSED end-to-end. See 2026-05-23-115243-fix-buildalert-pp-cli-acceptance.md for full evidence. Retro filed.",
+  "live_evidence": {
+    "doctor": "API reachable, https://www.buildalert.uk",
+    "user_profile": "Returned authenticated profile, postCode=HA2 9RN, credits=0",
+    "user_dashboard": "Returned newLeadsCount=348, totalPlanningApplications=780",
+    "leads_list": "Returned 149 total items; first lead hillingdon__6569/APP/2026/497",
+    "letter_templates": "Returned templates list and baseLogoUrl",
+    "transactions_list": "Returned 0 transactions (real user state) with valid pagination envelope",
+    "tracking_list": "Returned 0 tracked letters with valid aggregate fields",
+    "health_ping": "Returned {success: true}",
+    "zazu_diff": "143 BuildAlert leads NOT in ZAZU bd-mirror out of 149 total",
+    "zazu_diff_overlap": "0 overlap (real finding on this user account)",
+    "coverage": "13 councils mapped; ealing/brent/hillingdon/harrow flagged as ZAZU-MISSING",
+    "pending_letters": "113 actionable pending leads sorted by distance",
+    "letter_conflict": "0 conflicts (user has not yet sent BuildAlert letters)",
+    "nearby_HA2_9RN": "34 leads within 3 miles of HA2 9RN sorted by haversine distance"
+  }
+}

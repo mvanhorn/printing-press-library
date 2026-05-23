@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-23T15:38:09.7618538Z",
+  "printing_press_version": "4.12.0",
+  "api_name": "buildalert",
+  "display_name": "BuildAlert",
+  "cli_name": "buildalert-pp-cli",
+  "owner": "muhammad-khan",
+  "printer": "Bazil846",
+  "printer_name": "Muhammad Khan",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:158927e701477468816422efc149f31a870ff3605ebd311f1888968ec9e83a6a",
+  "run_id": "20260523-115018",
+  "category": "developer-tools",
+  "description": "Pull your BuildAlert dashboard offline — every matched planning lead, transaction, and ROI metric queryable via SQL/FTS, JSON-pipeable, and ZAZU-aware.",
+  "mcp_binary": "buildalert-pp-mcp",
+  "mcp_tool_count": 8,
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "partial",
+  "auth_type": "cookie",
+  "auth_description": "BuildAlert authenticates via the same session cookies your browser uses on the dashboard.\nRun `buildalert-pp-cli auth login --chrome` to capture cookies from your logged-in Chrome profile.\nNo API key is published; the cookie-based path is the only path.\n",
+  "novel_features": [
+    {
+      "name": "ZAZU diff",
+      "command": "zazu-diff",
+      "description": "List BuildAlert leads that aren't yet in your ZAZU bd-mirror.sqlite, so you know exactly what BuildAlert's 400+ council coverage adds to your own scrapers."
+    },
+    {
+      "name": "Pending-letter worklist",
+      "command": "pending-letters",
+      "description": "Surface BuildAlert leads where canSendLetter is true, no letter has been sent yet, and ZAZU's own send log has no record either — the morning worklist for outreach."
+    },
+    {
+      "name": "Duplicate-letter guard",
+      "command": "letter-conflict",
+      "description": "Find BuildAlert leads where letterBeenSent is true AND ZAZU's send log already records a Telegram send for the same applicant — i.e., a double-mailed homeowner."
+    },
+    {
+      "name": "Council coverage gap map",
+      "command": "coverage",
+      "description": "Group leads by council across both BuildAlert and ZAZU stores; flag councils where BuildAlert has volume but ZAZU has nothing (and vice versa)."
+    },
+    {
+      "name": "Spend ledger by council",
+      "command": "analytics --type transactions",
+      "description": "Aggregate the £2-per-letter charges across the local transactions mirror, grouped by council, project type, or month — the answers your accountant asks for."
+    },
+    {
+      "name": "Per-lead ROI joiner",
+      "command": "roi-per-lead",
+      "description": "Join transactions × tracking × applications locally to produce per-lead rows: cost, reply received, work won, total return — sorted by ROI."
+    },
+    {
+      "name": "Offline radius re-filter",
+      "command": "nearby",
+      "description": "Compute haversine distance from any UK postcode against the local mirror's lat/lng coordinates; return all leads inside a radius without re-hitting the API."
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "api_name": "buildalert",
+  "base_url": "https://www.buildalert.uk",
+  "description": "Pull your BuildAlert dashboard offline — every matched planning lead, transaction, and ROI metric queryable via SQL/FTS, JSON-pipeable, and ZAZU-aware.",
+  "mcp_ready": "partial",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "visible",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "cookie",
+    "cookie_domain": "www.buildalert.uk"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "health_ping",
+      "description": "Lightweight liveness probe. Returns {'success': true}. Used by the web dashboard to keep the backend warm; useful as a doctor smoke test.",
+      "method": "GET",
+      "path": "/dapi/healthcheck/keep-warm",
+      "no_auth": true,
+      "params": []
+    }
+  ]
+}
