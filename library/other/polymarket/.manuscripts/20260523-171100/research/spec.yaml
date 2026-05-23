@@ -1,0 +1,395 @@
+name: polymarket
+description: "Every Polymarket feature the official Rust CLI ships, plus six novel commands no Polymarket tool offers: resolution radar, reward-yield ranker, position drift, price diff, research bundle, batch redeem. Mirrors Gamma + CLOB + Data API surfaces with agent-native JSON, local SQLite + FTS5, and an MCP server."
+version: "0.1.0"
+base_url: "https://gamma-api.polymarket.com"
+health_check_path: "/"
+
+required_headers:
+  - name: User-Agent
+    value: "polymarket-pp-cli/0.1.0 (+https://github.com/mvanhorn/printing-press-library)"
+  - name: Accept
+    value: "application/json"
+
+auth:
+  type: composed
+  env_vars:
+    - POLYMARKET_PRIVATE_KEY
+    - POLYMARKET_API_KEY
+    - POLYMARKET_API_SECRET
+    - POLYMARKET_API_PASSPHRASE
+    - POLYMARKET_FUNDER
+    - POLYMARKET_SIGNATURE_TYPE
+    - POLYMARKET_CHAIN_ID
+  description: "Polymarket two-tier auth. POLYMARKET_PRIVATE_KEY (Polygon EOA, hex 0x-prefixed) signs EIP-712 challenges + orders. Run `polymarket-pp-cli auth derive` once to mint L2 credentials (POLYMARKET_API_KEY/_SECRET/_PASSPHRASE), then export them for trading commands. Read commands work with no auth. POLYMARKET_FUNDER is only needed for Magic/proxy-wallet flows (SIGNATURE_TYPE 1 or 2). CHAIN_ID defaults to 137 (Polygon mainnet)."
+
+config:
+  format: toml
+  path: "~/.config/polymarket-pp-cli/config.toml"
+
+mcp:
+  transport: [stdio, http]
+  orchestration: code
+  endpoint_tools: hidden
+
+resources:
+  markets:
+    description: "Discover, search, and inspect prediction markets via the Gamma API. Markets are individual yes/no contracts; events group related markets."
+    endpoints:
+      list:
+        method: GET
+        path: "/markets"
+        description: "List prediction markets with filtering. Active, recently-resolved, by tag, by event, etc."
+        no_auth: true
+        params:
+          - {name: limit, type: int, default: 20, description: "Maximum number of markets to return (max 500)"}
+          - {name: offset, type: int, default: 0, description: "Pagination offset"}
+          - {name: active, type: bool, description: "Filter to currently-tradable markets only"}
+          - {name: closed, type: bool, description: "Filter by resolution status"}
+          - {name: archived, type: bool, description: "Filter to archived markets"}
+          - {name: tag_id, type: int, description: "Filter by tag ID"}
+          - {name: order, type: string, description: "Sort field (volume, liquidity, endDate)"}
+          - {name: ascending, type: bool, description: "Sort ascending"}
+      get:
+        method: GET
+        path: "/markets/{id}"
+        description: "Fetch a single market by id or slug."
+        no_auth: true
+        params:
+          - {name: id, type: string, required: true, positional: true, description: "Market id or slug"}
+      search:
+        method: GET
+        path: "/markets"
+        description: "Search markets by text."
+        no_auth: true
+        params:
+          - {name: q, type: string, required: true, positional: true, flag_name: query, aliases: [q], description: "Search query text"}
+          - {name: limit, type: int, default: 20, description: "Max results"}
+          - {name: active, type: bool, default: true, description: "Filter to active markets"}
+
+  events:
+    description: "Browse and inspect events (groups of related markets) via the Gamma API."
+    endpoints:
+      list:
+        method: GET
+        path: "/events"
+        description: "List events with filtering"
+        no_auth: true
+        params:
+          - {name: limit, type: int, default: 20, description: "Max events"}
+          - {name: offset, type: int, default: 0, description: "Pagination offset"}
+          - {name: active, type: bool, description: "Filter to active events"}
+          - {name: closed, type: bool, description: "Filter by resolution"}
+          - {name: archived, type: bool, description: "Filter to archived"}
+          - {name: tag_id, type: int, description: "Filter by tag"}
+          - {name: order, type: string, description: "Sort field"}
+      get:
+        method: GET
+        path: "/events/{id}"
+        description: "Fetch a single event by id or slug"
+        no_auth: true
+        params:
+          - {name: id, type: string, required: true, positional: true, description: "Event id or slug"}
+      tags:
+        method: GET
+        path: "/events/{id}/tags"
+        description: "List the tags attached to an event"
+        no_auth: true
+        params:
+          - {name: id, type: string, required: true, positional: true, description: "Event id"}
+
+  series:
+    description: "Recurring event series."
+    endpoints:
+      list:
+        method: GET
+        path: "/series"
+        description: "List event series"
+        no_auth: true
+        params:
+          - {name: limit, type: int, default: 20, description: "Max series"}
+          - {name: offset, type: int, default: 0, description: "Pagination offset"}
+      get:
+        method: GET
+        path: "/series/{id}"
+        description: "Fetch a single series by id"
+        no_auth: true
+        params:
+          - {name: id, type: string, required: true, positional: true, description: "Series id"}
+
+  tags:
+    description: "Browse Polymarket category tags."
+    endpoints:
+      list:
+        method: GET
+        path: "/tags"
+        description: "List all tags"
+        no_auth: true
+        params:
+          - {name: limit, type: int, default: 100, description: "Max tags"}
+          - {name: offset, type: int, default: 0, description: "Pagination offset"}
+
+  comments:
+    description: "Public comments on markets and events."
+    endpoints:
+      list:
+        method: GET
+        path: "/comments"
+        description: "List comments"
+        no_auth: true
+        params:
+          - {name: parent_entity_type, type: string, description: "Filter by parent type"}
+          - {name: parent_entity_id, type: string, description: "Filter by parent id"}
+          - {name: limit, type: int, default: 20, description: "Max comments"}
+
+  clob:
+    description: "CLOB order book reads, market metadata, server health, and reward configs."
+    endpoints:
+      time:
+        method: GET
+        path: "https://clob.polymarket.com/time"
+        description: "Get the CLOB server time"
+        no_auth: true
+      ok:
+        method: GET
+        path: "https://clob.polymarket.com/"
+        description: "CLOB API liveness probe"
+        no_auth: true
+      book:
+        method: GET
+        path: "https://clob.polymarket.com/book"
+        description: "Get the full order book for an outcome token"
+        no_auth: true
+        params:
+          - {name: token_id, type: string, required: true, description: "ERC-1155 token id"}
+      books:
+        method: POST
+        path: "https://clob.polymarket.com/books"
+        description: "Batch order book fetch"
+        no_auth: true
+        params:
+          - {name: token_ids, type: string, required: true, description: "Comma-separated token ids"}
+      price:
+        method: GET
+        path: "https://clob.polymarket.com/price"
+        description: "Get the best bid or ask price"
+        no_auth: true
+        params:
+          - {name: token_id, type: string, required: true, description: "Outcome token id"}
+          - {name: side, type: string, required: true, description: "buy or sell"}
+      midpoint:
+        method: GET
+        path: "https://clob.polymarket.com/midpoint"
+        description: "Get the midpoint price"
+        no_auth: true
+        params:
+          - {name: token_id, type: string, required: true, description: "Outcome token id"}
+      spread:
+        method: GET
+        path: "https://clob.polymarket.com/spread"
+        description: "Get the current bid-ask spread"
+        no_auth: true
+        params:
+          - {name: token_id, type: string, required: true, description: "Outcome token id"}
+      price_history:
+        method: GET
+        path: "https://clob.polymarket.com/prices-history"
+        description: "Historical price series for an outcome token"
+        no_auth: true
+        params:
+          - {name: market, type: string, required: true, description: "Outcome token id"}
+          - {name: interval, type: string, description: "Aggregation interval"}
+          - {name: startTs, type: int, description: "Start unix timestamp"}
+          - {name: endTs, type: int, description: "End unix timestamp"}
+          - {name: fidelity, type: int, description: "Number of price points"}
+      markets:
+        method: GET
+        path: "https://clob.polymarket.com/markets"
+        description: "List CLOB markets"
+        no_auth: true
+        params:
+          - {name: next_cursor, type: string, description: "Pagination cursor"}
+      market:
+        method: GET
+        path: "https://clob.polymarket.com/markets/{condition_id}"
+        description: "Get CLOB metadata for a single market"
+        no_auth: true
+        params:
+          - {name: condition_id, type: string, required: true, positional: true, description: "Condition id"}
+      neg_risk:
+        method: GET
+        path: "https://clob.polymarket.com/neg-risk"
+        description: "Get neg-risk markets"
+        no_auth: true
+        params:
+          - {name: token_id, type: string, description: "Optional outcome token id"}
+
+  orders:
+    description: "Place, cancel, list, and inspect orders on the CLOB. Requires L1 wallet PK + L2 HMAC credentials."
+    endpoints:
+      list:
+        method: GET
+        path: "https://clob.polymarket.com/data/orders"
+        description: "List the authenticated user's open orders"
+        params:
+          - {name: market, type: string, description: "Filter by condition id"}
+          - {name: next_cursor, type: string, description: "Pagination cursor"}
+      get:
+        method: GET
+        path: "https://clob.polymarket.com/data/order/{order_id}"
+        description: "Get a single order by id"
+        params:
+          - {name: order_id, type: string, required: true, positional: true, description: "Order id"}
+      cancel:
+        method: DELETE
+        path: "https://clob.polymarket.com/order"
+        description: "Cancel a single order by id"
+        params:
+          - {name: order_id, type: string, required: true, description: "Order id to cancel"}
+      cancel_batch:
+        method: DELETE
+        path: "https://clob.polymarket.com/orders"
+        description: "Cancel multiple orders by id list"
+        params:
+          - {name: order_ids, type: string, required: true, description: "Comma-separated order ids"}
+      cancel_market:
+        method: DELETE
+        path: "https://clob.polymarket.com/cancel-market-orders"
+        description: "Cancel all open orders for a single market"
+        params:
+          - {name: market, type: string, required: true, description: "Condition id of the market"}
+      cancel_all:
+        method: DELETE
+        path: "https://clob.polymarket.com/cancel-all"
+        description: "Cancel every open order for the authenticated user"
+
+  trades:
+    description: "Read trades the authenticated user has made on the CLOB."
+    endpoints:
+      list:
+        method: GET
+        path: "https://clob.polymarket.com/data/trades"
+        description: "List the authenticated user's trade history"
+        params:
+          - {name: market, type: string, description: "Filter by condition id"}
+          - {name: next_cursor, type: string, description: "Pagination cursor"}
+          - {name: taker, type: string, description: "Filter by taker address"}
+          - {name: maker, type: string, description: "Filter by maker address"}
+
+  balance:
+    description: "Read on-chain USDC + outcome-token balances."
+    endpoints:
+      get:
+        method: GET
+        path: "https://clob.polymarket.com/balance-allowance"
+        description: "Get balance and allowance for the authenticated wallet"
+        params:
+          - {name: asset_type, type: string, description: "COLLATERAL or CONDITIONAL"}
+          - {name: token_id, type: string, description: "Required when asset_type is CONDITIONAL"}
+
+  rewards:
+    description: "Liquidity-rewards data: configs, payouts, earnings, and order scoring."
+    endpoints:
+      list:
+        method: GET
+        path: "https://clob.polymarket.com/rewards/markets"
+        description: "List all currently reward-eligible markets"
+        no_auth: true
+        params:
+          - {name: next_cursor, type: string, description: "Pagination cursor"}
+      market_reward:
+        method: GET
+        path: "https://clob.polymarket.com/rewards/markets/{condition_id}"
+        description: "Get the reward config for a single market"
+        no_auth: true
+        params:
+          - {name: condition_id, type: string, required: true, positional: true, description: "Condition id"}
+      earnings:
+        method: GET
+        path: "https://clob.polymarket.com/rewards/user"
+        description: "Get the authenticated user's daily reward earnings"
+        params:
+          - {name: date, type: string, description: "Date in YYYY-MM-DD"}
+      earnings_markets:
+        method: GET
+        path: "https://clob.polymarket.com/rewards/user/markets"
+        description: "Get reward earnings per market"
+        params:
+          - {name: date, type: string, description: "Date in YYYY-MM-DD"}
+      percentages:
+        method: GET
+        path: "https://clob.polymarket.com/rewards/percentages"
+        description: "Get current reward distribution percentages"
+        no_auth: true
+      current:
+        method: GET
+        path: "https://clob.polymarket.com/rewards/current"
+        description: "Get current live reward eligibility"
+      order_scoring:
+        method: GET
+        path: "https://clob.polymarket.com/order-scoring"
+        description: "Get the reward score for a single open order"
+        params:
+          - {name: order_id, type: string, required: true, description: "Order id to score"}
+      orders_scoring:
+        method: GET
+        path: "https://clob.polymarket.com/orders-scoring"
+        description: "Get reward scores for multiple open orders"
+        params:
+          - {name: order_ids, type: string, required: true, description: "Comma-separated order ids"}
+
+  api_keys:
+    description: "Manage L2 API credentials."
+    endpoints:
+      list:
+        method: GET
+        path: "https://clob.polymarket.com/auth/api-keys"
+        description: "List API keys for the authenticated wallet"
+      delete:
+        method: DELETE
+        path: "https://clob.polymarket.com/auth/api-key"
+        description: "Delete the L2 API key currently in use"
+
+  data:
+    description: "Polymarket Data API for positions with valuation, portfolio value, activity history, and market holders."
+    endpoints:
+      positions:
+        method: GET
+        path: "https://data-api.polymarket.com/positions"
+        description: "List positions for a wallet address with current price + value + P&L"
+        no_auth: true
+        params:
+          - {name: user, type: string, required: true, description: "Wallet address"}
+          - {name: limit, type: int, default: 100, description: "Max positions"}
+          - {name: offset, type: int, default: 0, description: "Pagination offset"}
+          - {name: market, type: string, description: "Filter to a single market"}
+          - {name: sortBy, type: string, description: "Sort field"}
+          - {name: sortDirection, type: string, description: "ASC or DESC"}
+      value:
+        method: GET
+        path: "https://data-api.polymarket.com/value"
+        description: "Get the total portfolio value for a wallet"
+        no_auth: true
+        params:
+          - {name: user, type: string, required: true, description: "Wallet address"}
+      activity:
+        method: GET
+        path: "https://data-api.polymarket.com/activity"
+        description: "User activity feed: trades, splits, merges, redeems, rewards, conversions"
+        no_auth: true
+        params:
+          - {name: user, type: string, required: true, description: "Wallet address"}
+          - {name: type, type: string, description: "Filter by activity type"}
+          - {name: market, type: string, description: "Filter to one market"}
+          - {name: side, type: string, description: "BUY or SELL"}
+          - {name: limit, type: int, default: 50, description: "Max activity rows"}
+          - {name: offset, type: int, default: 0, description: "Pagination offset"}
+          - {name: start, type: int, description: "Start unix timestamp"}
+          - {name: end, type: int, description: "End unix timestamp"}
+      holders:
+        method: GET
+        path: "https://data-api.polymarket.com/holders"
+        description: "Get holder distribution for a market"
+        no_auth: true
+        params:
+          - {name: market, type: string, required: true, description: "Condition id of the market"}
+          - {name: limit, type: int, default: 100, description: "Max holders"}

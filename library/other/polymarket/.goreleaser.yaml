@@ -1,0 +1,51 @@
+version: 2
+project_name: polymarket-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: polymarket-pp-cli
+    main: ./cmd/polymarket-pp-cli
+    binary: polymarket-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/other/polymarket/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: polymarket-pp-mcp
+    main: ./cmd/polymarket-pp-mcp
+    binary: polymarket-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: polymarket-pp-cli
+    repository:
+      owner: mcsyauqi
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every Polymarket feature the official Rust CLI ships, plus six novel commands no Polymarket tool offers"
+    install: |
+      bin.install "polymarket-pp-cli"
+      bin.install "polymarket-pp-mcp"

@@ -1,0 +1,80 @@
+{
+  "manifest_version": "0.3",
+  "name": "polymarket-pp-mcp",
+  "display_name": "Polymarket",
+  "version": "4.12.0",
+  "description": "Every Polymarket feature the official Rust CLI ships, plus six novel commands no Polymarket tool offers",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/polymarket-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/polymarket-pp-mcp",
+      "args": [],
+      "env": {
+        "POLYMARKET_API_KEY": "${user_config.polymarket_api_key}",
+        "POLYMARKET_API_PASSPHRASE": "${user_config.polymarket_api_passphrase}",
+        "POLYMARKET_API_SECRET": "${user_config.polymarket_api_secret}",
+        "POLYMARKET_CHAIN_ID": "${user_config.polymarket_chain_id}",
+        "POLYMARKET_FUNDER": "${user_config.polymarket_funder}",
+        "POLYMARKET_PRIVATE_KEY": "${user_config.polymarket_private_key}",
+        "POLYMARKET_SIGNATURE_TYPE": "${user_config.polymarket_signature_type}"
+      }
+    }
+  },
+  "user_config": {
+    "polymarket_api_key": {
+      "type": "string",
+      "title": "POLYMARKET_API_KEY",
+      "description": "Optional. Sets POLYMARKET_API_KEY for the Polymarket MCP server.",
+      "sensitive": true
+    },
+    "polymarket_api_passphrase": {
+      "type": "string",
+      "title": "POLYMARKET_API_PASSPHRASE",
+      "description": "Optional. Sets POLYMARKET_API_PASSPHRASE for the Polymarket MCP server.",
+      "sensitive": true
+    },
+    "polymarket_api_secret": {
+      "type": "string",
+      "title": "POLYMARKET_API_SECRET",
+      "description": "Optional. Sets POLYMARKET_API_SECRET for the Polymarket MCP server.",
+      "sensitive": true
+    },
+    "polymarket_chain_id": {
+      "type": "string",
+      "title": "POLYMARKET_CHAIN_ID",
+      "description": "Optional. Sets POLYMARKET_CHAIN_ID for the Polymarket MCP server.",
+      "sensitive": true
+    },
+    "polymarket_funder": {
+      "type": "string",
+      "title": "POLYMARKET_FUNDER",
+      "description": "Optional. Sets POLYMARKET_FUNDER for the Polymarket MCP server.",
+      "sensitive": true
+    },
+    "polymarket_private_key": {
+      "type": "string",
+      "title": "POLYMARKET_PRIVATE_KEY",
+      "description": "Optional. Sets POLYMARKET_PRIVATE_KEY for the Polymarket MCP server.",
+      "sensitive": true
+    },
+    "polymarket_signature_type": {
+      "type": "string",
+      "title": "POLYMARKET_SIGNATURE_TYPE",
+      "description": "Optional. Sets POLYMARKET_SIGNATURE_TYPE for the Polymarket MCP server.",
+      "sensitive": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

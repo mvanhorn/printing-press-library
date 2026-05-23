@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-23T14:05:40.5937208Z",
+  "printing_press_version": "4.12.0",
+  "api_name": "polymarket",
+  "display_name": "Polymarket",
+  "cli_name": "polymarket-pp-cli",
+  "owner": "mcsyauqi",
+  "printer": "mcsyauqi",
+  "printer_name": "Ahmad Thariq Syauqi",
+  "spec_path": "C:\\Users\\Mcsyauqi\\printing-press\\library\\polymarket\\spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:9331f9be12e7a86b32033875a2a026eea6b3593788a5655e062b97a7e192904d",
+  "run_id": "20260523-171100",
+  "category": "other",
+  "description": "Every Polymarket feature the official Rust CLI ships, plus six novel commands no Polymarket tool offers",
+  "mcp_binary": "polymarket-pp-mcp",
+  "mcp_tool_count": 43,
+  "mcp_public_tool_count": 28,
+  "mcp_ready": "partial",
+  "api_version": "0.1.0",
+  "auth_type": "composed",
+  "auth_env_vars": [
+    "POLYMARKET_PRIVATE_KEY",
+    "POLYMARKET_API_KEY",
+    "POLYMARKET_API_SECRET",
+    "POLYMARKET_API_PASSPHRASE",
+    "POLYMARKET_FUNDER",
+    "POLYMARKET_SIGNATURE_TYPE",
+    "POLYMARKET_CHAIN_ID"
+  ],
+  "auth_description": "Polymarket two-tier auth. POLYMARKET_PRIVATE_KEY (Polygon EOA, hex 0x-prefixed) signs EIP-712 challenges + orders. Run `polymarket-pp-cli auth derive` once to mint L2 credentials (POLYMARKET_API_KEY/_SECRET/_PASSPHRASE), then export them for trading commands. Read commands work with no auth. POLYMARKET_FUNDER is only needed for Magic/proxy-wallet flows (SIGNATURE_TYPE 1 or 2). CHAIN_ID defaults to 137 (Polygon mainnet).",
+  "novel_features": [
+    {
+      "name": "Resolution radar",
+      "command": "radar resolutions",
+      "description": "List every market resolving in the next N days, ranked by your position value when a wallet is provided. Stops you missing redemption deadlines."
+    },
+    {
+      "name": "Reward-yield ranker",
+      "command": "rewards rank",
+      "description": "Rank reward-eligible markets by expected daily payout per dollar of capital at risk, given a target spread."
+    },
+    {
+      "name": "Position drift snapshot",
+      "command": "portfolio drift",
+      "description": "For each position: entry price, current mid, min/max over a window, unrealized P\u0026L drift, and a thawed/frozen flag based on current spread + book depth."
+    },
+    {
+      "name": "Implied-probability diff",
+      "command": "diff prices",
+      "description": "Find tokens whose implied probability moved by more than a threshold over a time window. Supports a slug watchlist and arbitrary windows down to a few minutes."
+    },
+    {
+      "name": "Frozen research bundle",
+      "command": "bundle export",
+      "description": "Export every market matching a tag, event, or id list as a portable zip: markets + events + tags + full price history + book snapshot + holders. bundle import rehydrates into a fresh SQLite."
+    },
+    {
+      "name": "Redemption batch executor",
+      "command": "redeem all",
+      "description": "Discover every position in resolved markets and report the redeemable set with totals. In this build --broadcast is a documented stub (real on-chain ctf redeem needs go-ethereum + Polygon RPC, wired in v0.2); the default --dry-run produces the exact call set you can replay through the official Polymarket Rust CLI for live broadcast."
+    }
+  ]
+}

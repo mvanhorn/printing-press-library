@@ -1,0 +1,729 @@
+{
+  "api_name": "polymarket",
+  "base_url": "https://gamma-api.polymarket.com",
+  "description": "Every Polymarket feature the official Rust CLI ships, plus six novel commands no Polymarket tool offers: resolution radar, reward-yield ranker, position drift, price diff, research bundle, batch redeem. Mirrors Gamma + CLOB + Data API surfaces with agent-native JSON, local SQLite + FTS5, and an MCP server.",
+  "mcp_ready": "partial",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "composed",
+    "env_vars": [
+      "POLYMARKET_PRIVATE_KEY",
+      "POLYMARKET_API_KEY",
+      "POLYMARKET_API_SECRET",
+      "POLYMARKET_API_PASSPHRASE",
+      "POLYMARKET_FUNDER",
+      "POLYMARKET_SIGNATURE_TYPE",
+      "POLYMARKET_CHAIN_ID"
+    ],
+    "env_var_specs": [
+      {
+        "name": "POLYMARKET_PRIVATE_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      },
+      {
+        "name": "POLYMARKET_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      },
+      {
+        "name": "POLYMARKET_API_SECRET",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      },
+      {
+        "name": "POLYMARKET_API_PASSPHRASE",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      },
+      {
+        "name": "POLYMARKET_FUNDER",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      },
+      {
+        "name": "POLYMARKET_SIGNATURE_TYPE",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      },
+      {
+        "name": "POLYMARKET_CHAIN_ID",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [
+    {
+      "name": "User-Agent",
+      "value": "polymarket-pp-cli/0.1.0 (+https://github.com/mvanhorn/printing-press-library)"
+    },
+    {
+      "name": "Accept",
+      "value": "application/json"
+    }
+  ],
+  "tools": [
+    {
+      "name": "clob_book",
+      "description": "Get the full order book for an outcome token. Required: token_id.",
+      "method": "GET",
+      "path": "https://clob.polymarket.com/book",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "token_id",
+          "type": "string",
+          "location": "query",
+          "description": "ERC-1155 token id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "clob_books",
+      "description": "Batch order book fetch. Required: token_ids.",
+      "method": "POST",
+      "path": "https://clob.polymarket.com/books",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "token_ids",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated token ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "clob_market",
+      "description": "Get CLOB metadata for a single market. Required: condition_id.",
+      "method": "GET",
+      "path": "https://clob.polymarket.com/markets/{condition_id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "condition_id",
+          "type": "string",
+          "location": "path",
+          "description": "Condition id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "clob_markets",
+      "description": "List CLOB markets. Optional: next_cursor.",
+      "method": "GET",
+      "path": "https://clob.polymarket.com/markets",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "next_cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "clob_midpoint",
+      "description": "Get the midpoint price. Required: token_id.",
+      "method": "GET",
+      "path": "https://clob.polymarket.com/midpoint",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "token_id",
+          "type": "string",
+          "location": "query",
+          "description": "Outcome token id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "clob_neg_risk",
+      "description": "Get neg-risk markets. Optional: token_id.",
+      "method": "GET",
+      "path": "https://clob.polymarket.com/neg-risk",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "token_id",
+          "type": "string",
+          "location": "query",
+          "description": "Optional outcome token id"
+        }
+      ]
+    },
+    {
+      "name": "clob_ok",
+      "description": "CLOB API liveness probe.",
+      "method": "GET",
+      "path": "https://clob.polymarket.com/",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "clob_price",
+      "description": "Get the best bid or ask price. Required: token_id, side.",
+      "method": "GET",
+      "path": "https://clob.polymarket.com/price",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "token_id",
+          "type": "string",
+          "location": "query",
+          "description": "Outcome token id",
+          "required": true
+        },
+        {
+          "name": "side",
+          "type": "string",
+          "location": "query",
+          "description": "buy or sell",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "clob_price_history",
+      "description": "Historical price series for an outcome token. Required: market. Optional: interval, startTs, endTs (plus 1 more).",
+      "method": "GET",
+      "path": "https://clob.polymarket.com/prices-history",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "market",
+          "type": "string",
+          "location": "query",
+          "description": "Outcome token id",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "Aggregation interval"
+        },
+        {
+          "name": "startTs",
+          "type": "int",
+          "location": "query",
+          "description": "Start unix timestamp"
+        },
+        {
+          "name": "endTs",
+          "type": "int",
+          "location": "query",
+          "description": "End unix timestamp"
+        },
+        {
+          "name": "fidelity",
+          "type": "int",
+          "location": "query",
+          "description": "Number of price points"
+        }
+      ]
+    },
+    {
+      "name": "clob_spread",
+      "description": "Get the current bid-ask spread. Required: token_id.",
+      "method": "GET",
+      "path": "https://clob.polymarket.com/spread",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "token_id",
+          "type": "string",
+          "location": "query",
+          "description": "Outcome token id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "clob_time",
+      "description": "Get the CLOB server time.",
+      "method": "GET",
+      "path": "https://clob.polymarket.com/time",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "comments_list",
+      "description": "List comments. Optional: parent_entity_type, parent_entity_id, limit (default: 20).",
+      "method": "GET",
+      "path": "/comments",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "parent_entity_type",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by parent type"
+        },
+        {
+          "name": "parent_entity_id",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by parent id"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max comments"
+        }
+      ]
+    },
+    {
+      "name": "data_activity",
+      "description": "User activity feed: trades, splits, merges, redeems, rewards, conversions. Required: user. Optional: type, market, side (plus 4 more).",
+      "method": "GET",
+      "path": "https://data-api.polymarket.com/activity",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "user",
+          "type": "string",
+          "location": "query",
+          "description": "Wallet address",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by activity type"
+        },
+        {
+          "name": "market",
+          "type": "string",
+          "location": "query",
+          "description": "Filter to one market"
+        },
+        {
+          "name": "side",
+          "type": "string",
+          "location": "query",
+          "description": "BUY or SELL"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max activity rows"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset"
+        },
+        {
+          "name": "start",
+          "type": "int",
+          "location": "query",
+          "description": "Start unix timestamp"
+        },
+        {
+          "name": "end",
+          "type": "int",
+          "location": "query",
+          "description": "End unix timestamp"
+        }
+      ]
+    },
+    {
+      "name": "data_holders",
+      "description": "Get holder distribution for a market. Required: market. Optional: limit (default: 100).",
+      "method": "GET",
+      "path": "https://data-api.polymarket.com/holders",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "market",
+          "type": "string",
+          "location": "query",
+          "description": "Condition id of the market",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max holders"
+        }
+      ]
+    },
+    {
+      "name": "data_positions",
+      "description": "List positions for a wallet address with current price + value + P\u0026L. Required: user. Optional: limit (default: 100), offset (default: 0), market (plus 2 more).",
+      "method": "GET",
+      "path": "https://data-api.polymarket.com/positions",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "user",
+          "type": "string",
+          "location": "query",
+          "description": "Wallet address",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max positions"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset"
+        },
+        {
+          "name": "market",
+          "type": "string",
+          "location": "query",
+          "description": "Filter to a single market"
+        },
+        {
+          "name": "sortBy",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field"
+        },
+        {
+          "name": "sortDirection",
+          "type": "string",
+          "location": "query",
+          "description": "ASC or DESC"
+        }
+      ]
+    },
+    {
+      "name": "data_value",
+      "description": "Get the total portfolio value for a wallet. Required: user.",
+      "method": "GET",
+      "path": "https://data-api.polymarket.com/value",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "user",
+          "type": "string",
+          "location": "query",
+          "description": "Wallet address",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_get",
+      "description": "Fetch a single event by id or slug. Required: id.",
+      "method": "GET",
+      "path": "/events/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Event id or slug",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "events_list",
+      "description": "List events with filtering. Optional: limit (default: 20), offset (default: 0), active (plus 4 more).",
+      "method": "GET",
+      "path": "/events",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max events"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset"
+        },
+        {
+          "name": "active",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter to active events"
+        },
+        {
+          "name": "closed",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter by resolution"
+        },
+        {
+          "name": "archived",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter to archived"
+        },
+        {
+          "name": "tag_id",
+          "type": "int",
+          "location": "query",
+          "description": "Filter by tag"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field"
+        }
+      ]
+    },
+    {
+      "name": "events_tags",
+      "description": "List the tags attached to an event. Required: id.",
+      "method": "GET",
+      "path": "/events/{id}/tags",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Event id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "markets_get",
+      "description": "Fetch a single market by id or slug. Required: id.",
+      "method": "GET",
+      "path": "/markets/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Market id or slug",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "markets_list",
+      "description": "List prediction markets with filtering. Active, recently-resolved, by tag, by event, etc. Optional: limit (default: 20), offset (default: 0), active (plus 5 more).",
+      "method": "GET",
+      "path": "/markets",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of markets to return (max 500)"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset"
+        },
+        {
+          "name": "active",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter to currently-tradable markets only"
+        },
+        {
+          "name": "closed",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter by resolution status"
+        },
+        {
+          "name": "archived",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter to archived markets"
+        },
+        {
+          "name": "tag_id",
+          "type": "int",
+          "location": "query",
+          "description": "Filter by tag ID"
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field (volume, liquidity, endDate)"
+        },
+        {
+          "name": "ascending",
+          "type": "bool",
+          "location": "query",
+          "description": "Sort ascending"
+        }
+      ]
+    },
+    {
+      "name": "markets_search",
+      "description": "Search markets by text. Required: query. Optional: limit (default: 20), active (default: true).",
+      "method": "GET",
+      "path": "/markets",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "query",
+          "wire_name": "q",
+          "type": "string",
+          "location": "path",
+          "description": "Search query text",
+          "required": true,
+          "aliases": [
+            "q"
+          ]
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max results"
+        },
+        {
+          "name": "active",
+          "type": "bool",
+          "location": "query",
+          "description": "Filter to active markets"
+        }
+      ]
+    },
+    {
+      "name": "rewards_list",
+      "description": "List all currently reward-eligible markets. Optional: next_cursor.",
+      "method": "GET",
+      "path": "https://clob.polymarket.com/rewards/markets",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "next_cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "rewards_market_reward",
+      "description": "Get the reward config for a single market. Required: condition_id.",
+      "method": "GET",
+      "path": "https://clob.polymarket.com/rewards/markets/{condition_id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "condition_id",
+          "type": "string",
+          "location": "path",
+          "description": "Condition id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "rewards_percentages",
+      "description": "Get current reward distribution percentages.",
+      "method": "GET",
+      "path": "https://clob.polymarket.com/rewards/percentages",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "series_get",
+      "description": "Fetch a single series by id. Required: id.",
+      "method": "GET",
+      "path": "/series/{id}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Series id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "series_list",
+      "description": "List event series. Optional: limit (default: 20), offset (default: 0).",
+      "method": "GET",
+      "path": "/series",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max series"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset"
+        }
+      ]
+    },
+    {
+      "name": "tags_list",
+      "description": "List all tags. Optional: limit (default: 100), offset (default: 0).",
+      "method": "GET",
+      "path": "/tags",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max tags"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset"
+        }
+      ]
+    }
+  ]
+}
