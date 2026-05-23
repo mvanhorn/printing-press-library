@@ -1,6 +1,34 @@
 {
   "schema_version": 1,
+  "applied_at": "2026-05-23",
   "base_run_id": "20260523-163843",
   "base_printing_press_version": "4.12.0",
-  "patches": []
+  "patches": [
+    {
+      "id": "expense-untagged-not-read-only",
+      "summary": "Remove mcp:read-only annotation from expense-untagged; --auto-fix PUTs to Zoho.",
+      "reason": "MCP hosts use the read-only hint to skip per-call confirmation. --auto-fix is a real mutation (PUT /expenses/{id}); leaving the hint on misleads hosts.",
+      "files": ["internal/cli/zoho_expense_untagged.go"]
+    },
+    {
+      "id": "gst-paise-invariant",
+      "summary": "Round Base first, then derive tax from rounded Base, and split CGST/SGST asymmetrically so sum equals Total.",
+      "reason": "Independent rounding of CGST and SGST drifted 1 paise on common amounts (₹100 @ 18% yielded 100.01). India tax filings require Base + CGST + SGST == Total. Patched per Greptile P1.",
+      "files": ["internal/zohotools/gst.go", "internal/zohotools/gst_test.go"],
+      "validated_outcome": "New TestComputeSplit_SumEqualsTotal covers ₹100/18%, ₹99.99/12%, ₹1234.56/5%, and inter-state cases."
+    },
+    {
+      "id": "auto-refresh-dead-init",
+      "summary": "Collapse the dead 6h initializer; staleAfter is just the 168h literal.",
+      "reason": "Template emitted `staleAfter := 6*time.Hour; if d, err := time.ParseDuration(\"168h\"); err == nil { staleAfter = d }` — the literal ParseDuration never errors, so 6h was always overwritten. Patched per Greptile P2.",
+      "files": ["internal/cli/auto_refresh.go"],
+      "upstream_issue": "TODO: file upstream — generator's auto_refresh template should emit the literal directly when the cache stale_after is a constant."
+    },
+    {
+      "id": "close-auto-submit-blocks-processing",
+      "summary": "close --auto-submit refuses to run when any unreported expense has autoscan_status=Processing.",
+      "reason": "Submitting a report with Processing expenses freezes incomplete line items / merchant_name / category on the submitted report. Users get incorrectly populated reports with no recovery path. Patched per Greptile P2.",
+      "files": ["internal/cli/zoho_close.go"]
+    }
+  ]
 }

@@ -35,15 +35,19 @@ func ComputeSplit(total, taxPercentage float64, intraState bool) GSTSplit {
 		out.Base = round2(total)
 		return out
 	}
-	base := total / (1 + taxPercentage/100)
-	tax := total - base
-	out.Base = round2(base)
+	// Round base first, then derive tax from the rounded base so the
+	// invariant Base + (CGST + SGST | IGST) == Total holds. Then split
+	// the tax across CGST/SGST by rounding only CGST and computing SGST
+	// as the remainder. Independent halving would drift 1 paise on
+	// many real amounts (e.g. ₹100 @ 18%: 7.63 + 7.63 = 15.26, but
+	// 100 - 84.75 = 15.25). Patched per Greptile P1 finding.
+	out.Base = round2(total / (1 + taxPercentage/100))
+	tax := round2(total - out.Base)
 	if intraState {
-		half := tax / 2
-		out.CGST = round2(half)
-		out.SGST = round2(half)
+		out.CGST = round2(tax / 2)
+		out.SGST = round2(tax - out.CGST)
 	} else {
-		out.IGST = round2(tax)
+		out.IGST = tax
 	}
 	return out
 }

@@ -20,8 +20,8 @@ func newExpenseUntaggedCmd(flags *rootFlags) *cobra.Command {
 	var autoFix bool
 	cmd := &cobra.Command{
 		Use:         "expense-untagged",
-		Short:       "List expenses missing category_id; with --auto-fix, apply merchant memory to each",
-		Annotations: map[string]string{"mcp:read-only": "true"},
+		Short: "List expenses missing category_id; with --auto-fix, apply merchant memory to each",
+		// No mcp:read-only annotation: --auto-fix PUTs updated category_ids back to Zoho.
 		Example: strings.Trim(`
   zoho-expense-pp-cli expense-untagged
   zoho-expense-pp-cli expense-untagged --auto-fix

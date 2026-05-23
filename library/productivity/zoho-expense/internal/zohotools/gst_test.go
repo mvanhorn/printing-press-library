@@ -68,6 +68,38 @@ func TestComputeSplit_5PercentIntraState(t *testing.T) {
 	}
 }
 
+// Paise-invariant: Base + CGST + SGST must equal Total for intra-state and
+// Base + IGST for inter-state. ₹100 @ 18% is the canonical regression from
+// Greptile P1 finding (naive halves drifted 1 paise to 100.01).
+func TestComputeSplit_SumEqualsTotal(t *testing.T) {
+	cases := []struct {
+		name  string
+		total float64
+		pct   float64
+		intra bool
+	}{
+		{"100 @ 18% intra", 100.00, 18.0, true},
+		{"99.99 @ 12% intra", 99.99, 12.0, true},
+		{"1234.56 @ 5% intra", 1234.56, 5.0, true},
+		{"1180 @ 18% intra", 1180.00, 18.0, true},
+		{"100 @ 18% inter", 100.00, 18.0, false},
+		{"4999 @ 28% inter", 4999.00, 28.0, false},
+	}
+	for _, c := range cases {
+		got := ComputeSplit(c.total, c.pct, c.intra)
+		var sum float64
+		if c.intra {
+			sum = got.Base + got.CGST + got.SGST
+		} else {
+			sum = got.Base + got.IGST
+		}
+		if !approxEqual(sum, got.Total) {
+			t.Errorf("%s: sum=%.4f != total=%.2f (Base=%.2f CGST=%.2f SGST=%.2f IGST=%.2f)",
+				c.name, sum, got.Total, got.Base, got.CGST, got.SGST, got.IGST)
+		}
+	}
+}
+
 func TestRound2(t *testing.T) {
 	cases := []struct{ in, want float64 }{
 		{123.456, 123.46},

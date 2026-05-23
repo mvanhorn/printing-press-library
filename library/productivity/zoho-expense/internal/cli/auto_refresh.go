@@ -71,10 +71,10 @@ var readCommandResources = map[string][]string{
 // configuration. Defaults: 6h global stale-after, env opt-out named after
 // the CLI. Per-resource overrides from spec.Cache.Resources take priority.
 func cachePolicy() cliutil.Policy {
-	staleAfter := 6 * time.Hour
-	if d, err := time.ParseDuration("168h"); err == nil {
-		staleAfter = d
-	}
+	// PATCH(2026-05-23): collapse to the spec-derived literal. The template-
+	// emitted form initialized to 6h then unconditionally overwrote via
+	// time.ParseDuration("168h"), which always succeeds — leaving 6h dead.
+	staleAfter := 168 * time.Hour
 	perResource := map[string]time.Duration{}
 	// Default env opt-out name is the CLI name normalized with the same
 	// ASCII-safe convention used in generated docs and config env vars.

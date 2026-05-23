@@ -101,6 +101,20 @@ func newCloseCmd(flags *rootFlags) *cobra.Command {
 				return nil
 			}
 
+			// PATCH(2026-05-23): block --auto-submit when autoscans are still
+			// processing. Submitting a report with Processing expenses freezes
+			// incomplete line items / merchant_name / category on the report.
+			// Users can opt out with --force-submit (set via the same flag's
+			// future expansion) but the default refuses. Filed per Greptile P2.
+			if autoSubmit && len(processing) > 0 {
+				return fmt.Errorf(
+					"--auto-submit blocked: %d expense(s) still have autoscan_status=Processing for month %s; "+
+						"wait for autoscan to complete (re-run with --no-cache to refresh status), "+
+						"or run without --auto-submit to create the draft report and submit later",
+					len(processing), month,
+				)
+			}
+
 			c, err := flags.newClient()
 			if err != nil {
 				return err
