@@ -33,6 +33,12 @@
       "summary": "menu items --category now accepts either the category slug or display name; menuItemRow exposes both category and category_slug.",
       "reason": "The flag was labelled 'category slug' but the filter compared display names only, so a user copying a slug from `menu categories` output got zero results. Fixed by tracking both name and slug per item and matching against either form case-insensitively. Verified live with both `--category chow-mein-chow-fen-2` and `--category 'Chow Mein & Chow Fen'`.",
       "files": ["internal/cli/menu.go"]
+    },
+    {
+      "id": "venues-now-dedup-by-slug",
+      "summary": "venues-now and cuisine-bottleneck now dedupe by venue slug across sections of /v1/pages/restaurants.",
+      "reason": "Wolt groups the same venue into multiple thematic sections (Featured, Top Rated, cuisine buckets). Without dedup, venues-now could return the same venue multiple times and cuisine-bottleneck would count one venue N times per tag, skewing VenueCount, OpenCount, and AvgETAMin. Verified live against Helsinki: 170 venues returned, 0 duplicate slugs.",
+      "files": ["internal/cli/venues_now.go", "internal/cli/cuisine_bottleneck.go"]
     }
   ],
   "deferred_to_upstream": [

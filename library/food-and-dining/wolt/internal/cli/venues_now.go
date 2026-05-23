@@ -89,10 +89,18 @@ func newVenuesNowCmd(flags *rootFlags) *cobra.Command {
 			res.Filters.OnlyOpen = !includeClosed
 			res.Filters.Limit = limit
 
+			// PATCH(venues-now-dedup-by-slug): Wolt's /v1/pages/restaurants
+			// groups the same venue into multiple thematic sections (e.g.
+			// "Featured" + a cuisine bucket). Without dedup, the same venue
+			// could appear multiple times in the result.
+			seen := make(map[string]bool)
 			for _, sec := range page.Sections {
 				for _, it := range sec.Items {
 					row, ok := extractVenueRowWNow(it)
 					if !ok {
+						continue
+					}
+					if seen[row.Slug] {
 						continue
 					}
 					if !includeClosed && !row.Online {
@@ -108,6 +116,7 @@ func newVenuesNowCmd(flags *rootFlags) *cobra.Command {
 					if len(cuisines) > 0 && !tagMatchWNow(row.Tags, cuisines) {
 						continue
 					}
+					seen[row.Slug] = true
 					res.Venues = append(res.Venues, row)
 				}
 			}

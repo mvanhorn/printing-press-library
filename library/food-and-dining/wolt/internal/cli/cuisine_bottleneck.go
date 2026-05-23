@@ -63,11 +63,20 @@ func newCuisineBottleneckCmd(flags *rootFlags) *cobra.Command {
 			if err := json.Unmarshal(raw, &page); err != nil {
 				return fmt.Errorf("parsing nearby restaurants: %w", err)
 			}
+			// PATCH(cuisine-bottleneck-dedup-by-slug): Wolt groups the same
+			// venue into multiple sections of /v1/pages/restaurants. Without
+			// dedup, a single venue would be counted N times in VenueCount /
+			// OpenCount and would contribute N times to AvgETAMin per tag,
+			// skewing every aggregation.
+			seen := make(map[string]bool)
 			buckets := map[string]*cuisineBucket{}
 			for _, sec := range page.Sections {
 				for _, it := range sec.Items {
 					row, ok := extractVenueRowWNow(it)
 					if !ok {
+						continue
+					}
+					if seen[row.Slug] {
 						continue
 					}
 					if !includeClosed && !row.Online {
@@ -76,6 +85,7 @@ func newCuisineBottleneckCmd(flags *rootFlags) *cobra.Command {
 					if row.EstimateMin <= 0 {
 						continue
 					}
+					seen[row.Slug] = true
 					for _, t := range row.Tags {
 						b := buckets[t]
 						if b == nil {
