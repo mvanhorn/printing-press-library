@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"sync"
 	"testing"
+	"time"
 
 	_ "modernc.org/sqlite"
 )
@@ -129,6 +130,56 @@ func TestReleaseHash_DoesNotRemoveConfirmedRow(t *testing.T) {
 	}
 	if !found || id != "exp_42" {
 		t.Errorf("Release must not touch confirmed rows; got found=%v id=%q", found, id)
+	}
+}
+
+// Crash-recovery regression. If a prior run reserved a hash and then
+// crashed before Confirm or Release, the sentinel sits in the table
+// forever. Without a TTL reclaim, every subsequent retry returns
+// race-skipped and the file stays unuploaded. With the reclaim,
+// ReserveHash sees the stale sentinel and claims it.
+func TestReserveHash_ReclaimsStaleSentinel(t *testing.T) {
+	db := openTestDB(t)
+	defer func(orig time.Duration) { ReservationTTL = orig }(ReservationTTL)
+	ReservationTTL = 1 * time.Second // shrink for the test
+
+	// Simulate a crashed reservation by inserting a sentinel row with
+	// an old timestamp (2 seconds ago).
+	_, err := db.Exec(
+		`INSERT INTO receipt_hashes (hash, expense_id, original_filename, uploaded_at)
+		 VALUES (?, '', ?, datetime('now', '-2 seconds'))`,
+		"stalehash", "crashed.pdf",
+	)
+	if err != nil {
+		t.Fatalf("seed stale sentinel: %v", err)
+	}
+
+	// A fresh ReserveHash call should reclaim the stale sentinel.
+	claimed, existing, err := ReserveHash(db, "stalehash", "retry.pdf")
+	if err != nil {
+		t.Fatalf("reclaim: %v", err)
+	}
+	if !claimed {
+		t.Errorf("expected to reclaim stale sentinel; got claimed=false existing=%q", existing)
+	}
+}
+
+// Counter-test: a fresh sentinel (within TTL) must NOT be reclaimed.
+// Otherwise the parallel-claim race regression would break.
+func TestReserveHash_DoesNotReclaimFreshSentinel(t *testing.T) {
+	db := openTestDB(t)
+	// Reservation TTL defaults to 30 min; the just-inserted sentinel
+	// is well within that window.
+	_, _, _ = ReserveHash(db, "freshhash", "first.pdf")
+	claimed, existing, err := ReserveHash(db, "freshhash", "second.pdf")
+	if err != nil {
+		t.Fatalf("second reserve: %v", err)
+	}
+	if claimed {
+		t.Errorf("fresh sentinel must not be reclaimed; got claimed=true")
+	}
+	if existing != "" {
+		t.Errorf("sibling reservation must report empty existing; got %q", existing)
 	}
 }
 

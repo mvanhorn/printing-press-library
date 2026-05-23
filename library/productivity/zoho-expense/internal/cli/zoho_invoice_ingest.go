@@ -162,7 +162,14 @@ func newInvoiceIngestCmd(flags *rootFlags) *cobra.Command {
 						})
 						return
 					}
-					if result["status"] == "duplicate" {
+					// Any non-uploaded outcome belongs in `skipped`; only the
+					// `uploaded` shape (which carries an expense_id) belongs
+					// in `ingested`. Previously the check was status=="duplicate"
+					// only, which let the race-skipped sentinel (from a parallel
+					// reservation loss) leak into ingested without an
+					// expense_id — inflating the "uploaded" count for files
+					// that were not in fact uploaded. PATCH per Greptile P1.
+					if result["status"] != "uploaded" {
 						skipped = append(skipped, result)
 						return
 					}

@@ -7,7 +7,17 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"time"
 )
+
+// ReservationTTL caps how long a sentinel-only receipt_hashes row stays
+// authoritative. The runtime upload pipeline is bounded: receipt upload to
+// Zoho + autoscan poll cap out around 60s + 60s. A reservation older than
+// 30 minutes can only mean the previous run crashed between ReserveHash
+// and ConfirmHash/ReleaseHash. Subsequent ReserveHash calls reclaim
+// expired sentinels so the affected file isn't permanently quarantined.
+// Exposed as a package var (not const) so tests can shorten it.
+var ReservationTTL = 30 * time.Minute
 
 // HashFile computes a SHA256 hex digest of the file at path.
 func HashFile(path string) (string, error) {
@@ -77,6 +87,28 @@ func RecordHash(db *sql.DB, hash, expenseID, originalFilename string) error {
 // LookupHash returning "not found" and all proceed to POST /expenses,
 // creating N Zoho expenses where only one would be tracked.
 func ReserveHash(db *sql.DB, hash, originalFilename string) (bool, string, error) {
+	// First try to upsert-claim a stale sentinel: if a row exists whose
+	// expense_id is still the empty sentinel AND its uploaded_at is older
+	// than ReservationTTL, the previous reservation crashed before
+	// confirming or releasing — reclaim by overwriting the timestamp and
+	// filename. SQLite's datetime() with the 'unixepoch' fallback keeps
+	// this comparable across the CURRENT_TIMESTAMP TEXT format.
+	reclaim, err := db.Exec(
+		`UPDATE receipt_hashes
+		    SET original_filename = ?, uploaded_at = CURRENT_TIMESTAMP
+		  WHERE hash = ?
+		    AND expense_id = ''
+		    AND (strftime('%s', 'now') - strftime('%s', uploaded_at)) > ?`,
+		originalFilename, hash, int64(ReservationTTL.Seconds()),
+	)
+	if err != nil {
+		return false, "", fmt.Errorf("reclaim stale sentinel: %w", err)
+	}
+	if reclaimed, _ := reclaim.RowsAffected(); reclaimed == 1 {
+		return true, "", nil
+	}
+
+	// No stale sentinel to reclaim — try to insert a fresh reservation.
 	res, err := db.Exec(
 		`INSERT INTO receipt_hashes (hash, expense_id, original_filename, uploaded_at)
 		 VALUES (?, '', ?, CURRENT_TIMESTAMP)
@@ -90,7 +122,8 @@ func ReserveHash(db *sql.DB, hash, originalFilename string) (bool, string, error
 	if rows == 1 {
 		return true, "", nil
 	}
-	// A row already exists; read whether it's a real upload or a sibling reservation.
+	// A row already exists; read whether it's a real upload or a fresh
+	// (< ReservationTTL) sibling reservation.
 	var existingID string
 	err = db.QueryRow(`SELECT expense_id FROM receipt_hashes WHERE hash = ?`, hash).Scan(&existingID)
 	if err != nil {
