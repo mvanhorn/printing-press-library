@@ -628,6 +628,11 @@ func fetchAnalysisResults(ctx context.Context, c httpClient, analysisUUID string
 	} {
 		data, err := c.Get(ctx, ep.path, nil)
 		if err != nil {
+			// Surface per-endpoint failure to stderr so users see which
+			// result section is missing instead of finding an empty array
+			// in the report. The audit still continues so partial results
+			// are reported for the endpoints that succeeded.
+			fmt.Fprintf(os.Stderr, "warning: fetch %s failed: %v\n", ep.key, err)
 			continue
 		}
 		*ep.dst = extractRawList(data, ep.key)
@@ -688,6 +693,20 @@ func writeMarkdownReport(path string, result *auditResult) error {
 		fmt.Fprintf(&b, "## Competitors (%d)\n\n", n)
 		for _, c := range result.Competitors {
 			b.WriteString("- `" + string(c) + "`\n")
+		}
+		b.WriteString("\n")
+	}
+	if n := len(result.Keywords); n > 0 {
+		fmt.Fprintf(&b, "## Keywords (%d)\n\n", n)
+		for _, k := range result.Keywords {
+			b.WriteString("- `" + string(k) + "`\n")
+		}
+		b.WriteString("\n")
+	}
+	if n := len(result.Sources); n > 0 {
+		fmt.Fprintf(&b, "## Sources (%d)\n\n", n)
+		for _, s := range result.Sources {
+			b.WriteString("- `" + string(s) + "`\n")
 		}
 	}
 	return writeFileAtomic(path, []byte(b.String()))

@@ -443,6 +443,11 @@ func collectCacheReport(ctx context.Context, staleAfterSpec string) map[string]a
 		}
 		resources = append(resources, r)
 	}
+	if err := rows.Err(); err != nil {
+		// Surface iteration errors (context cancellation, driver error)
+		// instead of letting a partial scan look like success.
+		report["resources_scan_error"] = err.Error()
+	}
 	report["resources"] = resources
 	report["stale_after"] = staleAfter.String()
 

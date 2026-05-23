@@ -114,7 +114,11 @@ func buildSiteConfigTree(ctx context.Context, c httpClient, siteUUID, depth stri
 		}
 		if depth != "customer-types" {
 			pData, perr := c.Get(ctx, "/api/v1/customer-types/"+ctNode.UUID+"/personas", nil)
-			if perr == nil {
+			if perr != nil {
+				// Surface per-CT failure to stderr so the user sees an
+				// incomplete tree instead of silently missing personas.
+				fmt.Fprintf(os.Stderr, "warning: listing personas for customer-type %s failed: %v\n", ctNode.UUID, perr)
+			} else {
 				personas := extractList(pData, "personas")
 				tree.Counts["personas"] += len(personas)
 				for _, p := range personas {
@@ -126,7 +130,9 @@ func buildSiteConfigTree(ctx context.Context, c httpClient, siteUUID, depth stri
 					}
 					if depth == "questions" {
 						qData, qerr := c.Get(ctx, "/api/v1/personas/"+pNode.UUID+"/questions", nil)
-						if qerr == nil {
+						if qerr != nil {
+							fmt.Fprintf(os.Stderr, "warning: listing questions for persona %s failed: %v\n", pNode.UUID, qerr)
+						} else {
 							questions := extractList(qData, "questions")
 							tree.Counts["questions"] += len(questions)
 							for _, q := range questions {
