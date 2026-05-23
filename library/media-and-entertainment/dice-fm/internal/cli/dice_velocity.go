@@ -30,28 +30,25 @@ const (
 // eventOnSale reads the onSaleDatetime for an event from the events store. Returns
 // "" when the event is not present or has no on-sale datetime.
 func eventOnSale(ctx context.Context, db *sql.DB, eventID string) (string, error) {
-	rows, err := db.QueryContext(ctx, `SELECT data FROM resources WHERE resource_type = 'events'`)
+	// The resources table is keyed by (resource_type, id), so look the event up
+	// directly instead of scanning every synced event.
+	var data string
+	err := db.QueryRowContext(ctx,
+		`SELECT data FROM resources WHERE resource_type = 'events' AND id = ?`, eventID).Scan(&data)
+	if err == sql.ErrNoRows {
+		return "", nil
+	}
 	if err != nil {
 		return "", err
 	}
-	defer rows.Close()
-	for rows.Next() {
-		var data string
-		if err := rows.Scan(&data); err != nil {
-			continue
-		}
-		var e struct {
-			ID             string `json:"id"`
-			OnSaleDatetime string `json:"onSaleDatetime"`
-		}
-		if err := json.Unmarshal([]byte(data), &e); err != nil {
-			continue
-		}
-		if e.ID == eventID {
-			return e.OnSaleDatetime, nil
-		}
+	var e struct {
+		ID             string `json:"id"`
+		OnSaleDatetime string `json:"onSaleDatetime"`
 	}
-	return "", rows.Err()
+	if err := json.Unmarshal([]byte(data), &e); err != nil {
+		return "", nil
+	}
+	return e.OnSaleDatetime, nil
 }
 
 // bucketKey truncates an RFC3339 timestamp to the start of its day or hour

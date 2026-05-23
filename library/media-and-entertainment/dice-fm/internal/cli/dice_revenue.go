@@ -100,11 +100,16 @@ func dateFloorMatch(purchasedAt, from string) bool {
 	if from == "" {
 		return true
 	}
-	n := len(from)
-	if n > len(purchasedAt) {
-		n = len(purchasedAt)
+	// An order with no purchase date cannot satisfy a date floor — exclude it
+	// rather than letting an empty string compare equal and silently inflate
+	// filtered revenue/fan/velocity totals.
+	if len(purchasedAt) < len(from) {
+		return false
 	}
-	return purchasedAt[:n] >= from[:n]
+	// RFC3339 timestamps and YYYY-MM-DD floors are lexicographically ordered,
+	// so a prefix-length compare against `from` lets a date-only floor match a
+	// full timestamp.
+	return purchasedAt[:len(from)] >= from
 }
 
 // revenueRow is one per-event revenue aggregate.

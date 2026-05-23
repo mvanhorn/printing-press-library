@@ -185,12 +185,15 @@ func computeFansOptin(ctx context.Context, db *sql.DB, eventFilter, country, cit
 			continue
 		}
 		email := o.Fan.Email
-		if email != "" {
-			if seen[email] {
-				continue
-			}
-			seen[email] = true
+		// An opt-in export feeds an email tool; a fan with no email is useless
+		// and an unbounded number of them would emit duplicate blank rows.
+		if email == "" {
+			continue
 		}
+		if seen[email] {
+			continue
+		}
+		seen[email] = true
 		rows = append(rows, fansOptinRow{
 			FirstName: o.Fan.FirstName,
 			LastName:  o.Fan.LastName,

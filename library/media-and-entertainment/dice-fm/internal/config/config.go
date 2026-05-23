@@ -83,12 +83,13 @@ func (c *Config) AuthHeader() string {
 		return c.AuthHeaderVal
 	}
 	// Env-var token wins over file-stored AccessToken (env > config convention).
+	// AuthSource is determined once in Load() from the credential's actual
+	// origin (env vs config file); AuthHeader() is a pure getter and must not
+	// overwrite it, or doctor misreports disk-stored credentials as env tokens.
 	if c.DiceFmToken != "" {
-		c.AuthSource = "env:DICE_FM_TOKEN"
 		return "Bearer " + c.DiceFmToken
 	}
 	if c.AccessToken != "" {
-		c.AuthSource = "oauth2"
 		return "Bearer " + c.AccessToken
 	}
 	return ""
