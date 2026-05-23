@@ -13,7 +13,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/mvanhorn/printing-press-library/library/developer-tools/buildalert/internal/client"
+	"buildalert-pp-cli/internal/client"
 
 	_ "modernc.org/sqlite"
 )
@@ -114,14 +114,9 @@ func fetchAllLeads(ctx context.Context, c *client.Client, projectTypes, states s
 // openZazuDB opens the user's ZAZU bd-mirror.sqlite in read-only mode.
 func openZazuDB(path string) (*sql.DB, error) {
 	if path == "" {
-		return nil, errors.New("--zazu-db is required: path to ZAZU bd-mirror.sqlite")
+		return nil, errors.New("--zazu-db is required: path to ZAZU bd-mirror.sqlite (or comma-separated list)")
 	}
-	// Expand leading ~/ to the user's home directory. Go's os package does not
-	// expand tildes (unlike most shells); without this, documented examples
-	// like `--zazu-db ~/Downloads/Zazu/bd-mirror.sqlite` fail on Windows with
-	// "The system cannot find the path specified." because the literal "~"
-	// is treated as a directory name. Match POSIX shell semantics: only "~/"
-	// and bare "~" are expanded — "~user" is not handled (rare on Windows).
+	// Expand leading ~/ to the user's home directory.
 	if path == "~" {
 		if home, err := os.UserHomeDir(); err == nil {
 			path = home
@@ -146,64 +141,179 @@ func openZazuDB(path string) (*sql.DB, error) {
 	return db, nil
 }
 
-// zazuApplicationKeys returns the set of (sheet, reference) tuples present in
-// the ZAZU applications table.
-func zazuApplicationKeys(ctx context.Context, db *sql.DB) (map[string]struct{}, error) {
-	rows, err := db.QueryContext(ctx, `SELECT sheet, reference FROM applications`)
-	if err != nil {
-		return nil, fmt.Errorf("querying zazu applications: %w", err)
+// openZazuDBs opens one or more ZAZU SQLite mirrors. The path argument may be
+// a single path or a comma-separated list. Common setup: harrow-mirror.sqlite
+// (set by ZAZU_DB_PATH and used by the bot for Harrow leads) plus
+// bd-mirror.sqlite (legacy B&D sheets — Residential/Commercial/Brent Commercial/
+// Brent Residential). The buildalert ZAZU-aware commands treat the union as
+// "ZAZU has this", so a lead present in either mirror is not flagged missing.
+//
+// Each returned DB must be Closed by the caller.
+func openZazuDBs(pathSpec string) ([]*sql.DB, error) {
+	if pathSpec == "" {
+		return nil, errors.New("--zazu-db is required: path to ZAZU SQLite mirror (or comma-separated list of mirrors)")
 	}
-	defer rows.Close()
+	paths := []string{}
+	for _, p := range strings.Split(pathSpec, ",") {
+		p = strings.TrimSpace(p)
+		if p != "" {
+			paths = append(paths, p)
+		}
+	}
+	if len(paths) == 0 {
+		return nil, errors.New("--zazu-db: no valid paths after parsing")
+	}
+	dbs := make([]*sql.DB, 0, len(paths))
+	for _, p := range paths {
+		db, err := openZazuDB(p)
+		if err != nil {
+			// Close any successfully opened DBs before returning the error.
+			for _, opened := range dbs {
+				opened.Close()
+			}
+			return nil, err
+		}
+		dbs = append(dbs, db)
+	}
+	return dbs, nil
+}
+
+// closeAll closes every DB in the slice; errors are swallowed (read-only
+// connections can fail to close cleanly on Windows if Sleep handles are
+// still draining).
+func closeAll(dbs []*sql.DB) {
+	for _, db := range dbs {
+		_ = db.Close()
+	}
+}
+
+// councilMatchesSheet returns true when the BuildAlert councilIdentifier
+// matches a ZAZU `sheet` name. ZAZU's sheet naming is project-specific:
+//   - harrow-mirror.sqlite uses `Harrow Residential` / `Harrow Commercial`
+//   - bd-mirror.sqlite uses `Brent Residential` / `Brent Commercial` plus
+//     bare `Residential` / `Commercial` (the latter are also Harrow-era
+//     legacy sheets).
+//
+// The match rule: case-insensitive prefix on the council name, ignoring
+// category suffix words (Residential, Commercial). Bare sheet names like
+// `Residential` and `Commercial` are intentionally NOT matched against
+// any specific council — they're legacy and would over-match.
+func councilMatchesSheet(council, sheet string) bool {
+	c := strings.ToLower(strings.TrimSpace(council))
+	s := strings.ToLower(strings.TrimSpace(sheet))
+	if c == "" || s == "" {
+		return false
+	}
+	if c == s {
+		return true
+	}
+	// Match "<council> residential" / "<council> commercial" / "<council> <anything>"
+	if strings.HasPrefix(s, c+" ") {
+		return true
+	}
+	return false
+}
+
+// zazuApplicationKeys returns the union of (council, reference) tuples
+// across one or more ZAZU mirrors. Each mirror's `sheet` column is normalized
+// against the BuildAlert councilIdentifier set via councilMatchesSheet — so a
+// row with sheet `Harrow Residential` matches BuildAlert leads where
+// councilIdentifier=`harrow`, and a row with sheet `Brent Commercial` matches
+// councilIdentifier=`brent`. Sheets that don't match a known prefix (legacy
+// bare `Residential`/`Commercial`) are stored under their literal sheet name
+// for backward-compat with single-prefix joins.
+//
+// `councils` is the set of BuildAlert councilIdentifiers present in the
+// current lead pull. Provide this so the join can map ZAZU sheets to
+// council slugs without enumerating every possible council.
+func zazuApplicationKeys(ctx context.Context, dbs []*sql.DB, councils []string) (map[string]struct{}, error) {
 	out := make(map[string]struct{}, 1024)
-	for rows.Next() {
-		var sheet, ref sql.NullString
-		if err := rows.Scan(&sheet, &ref); err != nil {
-			continue
+	for _, db := range dbs {
+		rows, err := db.QueryContext(ctx, `SELECT sheet, reference FROM applications`)
+		if err != nil {
+			return nil, fmt.Errorf("querying zazu applications: %w", err)
 		}
-		out[zazuKey(sheet.String, ref.String)] = struct{}{}
+		for rows.Next() {
+			var sheet, ref sql.NullString
+			if err := rows.Scan(&sheet, &ref); err != nil {
+				continue
+			}
+			if !ref.Valid || ref.String == "" {
+				continue
+			}
+			// Always add the literal-sheet key for backward-compat.
+			out[zazuKey(sheet.String, ref.String)] = struct{}{}
+			// Also add an entry under every matching council in the pull set,
+			// so BuildAlert councilIdentifier=`harrow` can match a row whose
+			// sheet is `Harrow Residential`.
+			for _, c := range councils {
+				if councilMatchesSheet(c, sheet.String) {
+					out[zazuKey(c, ref.String)] = struct{}{}
+				}
+			}
+		}
+		rows.Close()
 	}
-	return out, rows.Err()
+	return out, nil
 }
 
-// zazuLetterReferences returns the set of references present in ZAZU's
-// letters_sent log. ZAZU's letters_sent table is keyed by reference (no sheet
-// column), so the join key is reference-only.
-func zazuLetterReferences(ctx context.Context, db *sql.DB) (map[string]struct{}, error) {
-	rows, err := db.QueryContext(ctx, `SELECT DISTINCT reference FROM letters_sent`)
-	if err != nil {
-		return nil, fmt.Errorf("querying zazu letters_sent: %w", err)
-	}
-	defer rows.Close()
+// zazuLetterReferences returns the union of references across ZAZU's
+// letters_sent logs in each mirror. The letters_sent table is keyed by
+// reference (no sheet column), so the join key is reference-only.
+func zazuLetterReferences(ctx context.Context, dbs []*sql.DB) (map[string]struct{}, error) {
 	out := make(map[string]struct{}, 256)
-	for rows.Next() {
-		var ref sql.NullString
-		if err := rows.Scan(&ref); err != nil {
+	for _, db := range dbs {
+		rows, err := db.QueryContext(ctx, `SELECT DISTINCT reference FROM letters_sent`)
+		if err != nil {
+			// letters_sent may not exist in every mirror; that's OK — skip.
 			continue
 		}
-		if ref.Valid {
-			out[ref.String] = struct{}{}
+		for rows.Next() {
+			var ref sql.NullString
+			if err := rows.Scan(&ref); err != nil {
+				continue
+			}
+			if ref.Valid && ref.String != "" {
+				out[ref.String] = struct{}{}
+			}
 		}
+		rows.Close()
 	}
-	return out, rows.Err()
+	return out, nil
 }
 
-// zazuApplicationCountsByCouncil returns council_slug -> application count from ZAZU.
-func zazuApplicationCountsByCouncil(ctx context.Context, db *sql.DB) (map[string]int, error) {
-	rows, err := db.QueryContext(ctx, `SELECT sheet, COUNT(*) FROM applications GROUP BY sheet`)
-	if err != nil {
-		return nil, fmt.Errorf("querying zazu council counts: %w", err)
-	}
-	defer rows.Close()
+// zazuApplicationCountsByCouncil returns council_slug -> application count
+// across one or more ZAZU mirrors. Sheets are folded onto councils via
+// councilMatchesSheet for every council in the provided set. Sheets that
+// match no council are emitted under their literal (lowercased) sheet name
+// so the caller can still surface them in coverage output.
+func zazuApplicationCountsByCouncil(ctx context.Context, dbs []*sql.DB, councils []string) (map[string]int, error) {
 	out := make(map[string]int, 16)
-	for rows.Next() {
-		var sheet sql.NullString
-		var n int
-		if err := rows.Scan(&sheet, &n); err != nil {
-			continue
+	for _, db := range dbs {
+		rows, err := db.QueryContext(ctx, `SELECT sheet, COUNT(*) FROM applications GROUP BY sheet`)
+		if err != nil {
+			return nil, fmt.Errorf("querying zazu council counts: %w", err)
 		}
-		out[sheet.String] = n
+		for rows.Next() {
+			var sheet sql.NullString
+			var n int
+			if err := rows.Scan(&sheet, &n); err != nil {
+				continue
+			}
+			matched := false
+			for _, c := range councils {
+				if councilMatchesSheet(c, sheet.String) {
+					out[strings.ToLower(c)] += n
+					matched = true
+				}
+			}
+			if !matched {
+				out[strings.ToLower(strings.TrimSpace(sheet.String))] += n
+			}
+		}
+		rows.Close()
 	}
-	return out, rows.Err()
+	return out, nil
 }
 
 // zazuKey normalizes (council, reference) into the join key used by all

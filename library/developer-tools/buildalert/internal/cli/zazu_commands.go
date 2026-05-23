@@ -63,11 +63,11 @@ Use --mode overlap to flip the predicate and list leads present in BOTH systems.
 }
 
 func runZazuDiff(cmd *cobra.Command, flags *rootFlags, z *commonZazuFlags) error {
-	db, err := openZazuDB(z.zazuDB)
+	dbs, err := openZazuDBs(z.zazuDB)
 	if err != nil {
 		return configErr(err)
 	}
-	defer db.Close()
+	defer closeAll(dbs)
 	c, err := flags.newClient()
 	if err != nil {
 		return err
@@ -76,7 +76,8 @@ func runZazuDiff(cmd *cobra.Command, flags *rootFlags, z *commonZazuFlags) error
 	if err != nil {
 		return classifyAPIError(err, flags)
 	}
-	keys, err := zazuApplicationKeys(cmd.Context(), db)
+	councils := leadsCouncils(leads)
+	keys, err := zazuApplicationKeys(cmd.Context(), dbs, councils)
 	if err != nil {
 		return apiErr(err)
 	}
@@ -162,11 +163,11 @@ Telegram-manual-send pipeline.
 }
 
 func runPendingLetters(cmd *cobra.Command, flags *rootFlags, z *commonZazuFlags) error {
-	db, err := openZazuDB(z.zazuDB)
+	dbs, err := openZazuDBs(z.zazuDB)
 	if err != nil {
 		return configErr(err)
 	}
-	defer db.Close()
+	defer closeAll(dbs)
 	c, err := flags.newClient()
 	if err != nil {
 		return err
@@ -175,7 +176,7 @@ func runPendingLetters(cmd *cobra.Command, flags *rootFlags, z *commonZazuFlags)
 	if err != nil {
 		return classifyAPIError(err, flags)
 	}
-	sentRefs, err := zazuLetterReferences(cmd.Context(), db)
+	sentRefs, err := zazuLetterReferences(cmd.Context(), dbs)
 	if err != nil {
 		return apiErr(err)
 	}
@@ -244,11 +245,11 @@ duplicates a ZAZU Telegram send to the same homeowner.
 }
 
 func runLetterConflict(cmd *cobra.Command, flags *rootFlags, z *commonZazuFlags) error {
-	db, err := openZazuDB(z.zazuDB)
+	dbs, err := openZazuDBs(z.zazuDB)
 	if err != nil {
 		return configErr(err)
 	}
-	defer db.Close()
+	defer closeAll(dbs)
 	c, err := flags.newClient()
 	if err != nil {
 		return err
@@ -257,7 +258,7 @@ func runLetterConflict(cmd *cobra.Command, flags *rootFlags, z *commonZazuFlags)
 	if err != nil {
 		return classifyAPIError(err, flags)
 	}
-	sentRefs, err := zazuLetterReferences(cmd.Context(), db)
+	sentRefs, err := zazuLetterReferences(cmd.Context(), dbs)
 	if err != nil {
 		return apiErr(err)
 	}
@@ -324,11 +325,11 @@ new scrapers to build.
 }
 
 func runCoverage(cmd *cobra.Command, flags *rootFlags, z *commonZazuFlags) error {
-	db, err := openZazuDB(z.zazuDB)
+	dbs, err := openZazuDBs(z.zazuDB)
 	if err != nil {
 		return configErr(err)
 	}
-	defer db.Close()
+	defer closeAll(dbs)
 	c, err := flags.newClient()
 	if err != nil {
 		return err
@@ -337,7 +338,8 @@ func runCoverage(cmd *cobra.Command, flags *rootFlags, z *commonZazuFlags) error
 	if err != nil {
 		return classifyAPIError(err, flags)
 	}
-	zazuCounts, err := zazuApplicationCountsByCouncil(cmd.Context(), db)
+	councils := leadsCouncils(leads)
+	zazuCounts, err := zazuApplicationCountsByCouncil(cmd.Context(), dbs, councils)
 	if err != nil {
 		return apiErr(err)
 	}
@@ -537,10 +539,10 @@ func runRoiPerLead(cmd *cobra.Command, flags *rootFlags, z *commonZazuFlags, fro
 
 	var zazuSent map[string]struct{}
 	if z.zazuDB != "" {
-		db, err := openZazuDB(z.zazuDB)
+		dbs, err := openZazuDBs(z.zazuDB)
 		if err == nil {
-			defer db.Close()
-			zazuSent, _ = zazuLetterReferences(ctx, db)
+			defer closeAll(dbs)
+			zazuSent, _ = zazuLetterReferences(ctx, dbs)
 		}
 	}
 
@@ -684,10 +686,32 @@ func runNearby(cmd *cobra.Command, flags *rootFlags, z *commonZazuFlags, postcod
 // ---- shared helpers ----
 
 func addCommonZazuFlags(cmd *cobra.Command, z *commonZazuFlags) {
-	cmd.Flags().StringVar(&z.zazuDB, "zazu-db", "", "Path to ZAZU bd-mirror.sqlite")
+	cmd.Flags().StringVar(&z.zazuDB, "zazu-db", "", "Path to ZAZU SQLite mirror, or comma-separated list of mirrors (e.g. 'harrow-mirror.sqlite,bd-mirror.sqlite')")
 	cmd.Flags().StringVar(&z.projectTypes, "project-types", "", "Comma-separated project type IDs (Extension, Loft_Conversion, ...)")
 	cmd.Flags().IntVar(&z.minValue, "min-value", 0, "Minimum estimated project value in GBP")
 	cmd.Flags().StringVar(&z.states, "states", "", "Lead state filter (passes through to /dapi/leads/live-leads)")
+}
+
+// leadsCouncils returns the deduplicated set of councilIdentifier values
+// present in the fetched lead pull, normalized to lowercase. Used by the
+// ZAZU-aware commands so the sheet-name matcher (councilMatchesSheet) can
+// fold ZAZU's category-prefixed sheets (e.g. "Harrow Residential") onto
+// BuildAlert's bare council slugs (e.g. "harrow").
+func leadsCouncils(leads []buildAlertLead) []string {
+	seen := map[string]struct{}{}
+	out := make([]string, 0, 8)
+	for _, ld := range leads {
+		c := strings.ToLower(strings.TrimSpace(ld.Application.CouncilIdentifier))
+		if c == "" {
+			continue
+		}
+		if _, ok := seen[c]; ok {
+			continue
+		}
+		seen[c] = struct{}{}
+		out = append(out, c)
+	}
+	return out
 }
 
 func emitJSONOrTable(cmd *cobra.Command, flags *rootFlags, v any, summary string) error {
