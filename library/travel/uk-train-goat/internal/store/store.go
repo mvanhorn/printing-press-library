@@ -14,6 +14,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -839,9 +840,9 @@ func (s *Store) ResolveByName(resourceType string, input string, matchFields ...
 		if !safeIdentPattern.MatchString(field) {
 			continue
 		}
-		// PATCH(upstream cli-printing-press#1249): scope rows.Close to each
-		// iteration via an IIFE so any future early return (or panic-recover
-		// in callers) inside the scan loop cannot leak the *sql.Rows handle.
+		// PATCH(upstream cli-printing-press#1249): defer rows.Close per
+		// iteration — the loop opens a fresh *sql.Rows per field and the
+		// scope of `defer` must match.
 		func() {
 			query := fmt.Sprintf(
 				`SELECT id FROM resources WHERE resource_type = ? AND LOWER(json_extract(data, '$.%s')) = LOWER(?)`,
@@ -854,18 +855,11 @@ func (s *Store) ResolveByName(resourceType string, input string, matchFields ...
 			defer rows.Close()
 			for rows.Next() {
 				var id string
-				if rows.Scan(&id) == nil {
-					// Deduplicate
-					found := false
-					for _, m := range matches {
-						if m == id {
-							found = true
-							break
-						}
-					}
-					if !found {
-						matches = append(matches, id)
-					}
+				if err := rows.Scan(&id); err != nil {
+					continue
+				}
+				if !slices.Contains(matches, id) {
+					matches = append(matches, id)
 				}
 			}
 		}()
