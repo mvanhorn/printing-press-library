@@ -85,12 +85,14 @@
       "reason": "AGENTS.md Priority 1 + Priority 3 + Priority 4#3 — pp-numista session friction on PCGS-inventory enrichment showed agents waste quota guessing the underscore-vs-hyphen issuer slug, can't fuzzy-search a 127K-line issuer dump, and don't get help-text that nudges toward narrowing flags. All edits are hand-written and local-only; the error suggestion path never spends a quota call.",
       "files": [
         "internal/cli/issuers_amend.go",
+        "internal/cli/issuers_amend_test.go",
         "internal/cli/types_search_amend.go",
         "internal/cli/root.go",
         "SKILL.md"
       ],
-      "findings_addressed": ["F1", "F2", "F3", "F4", "F5", "F6"],
-      "patch_count": 3
+      "findings_addressed": ["F1", "F2", "F3", "F4", "F5", "F6", "greptile-p1-quiet"],
+      "patch_count": 4,
+      "validated_outcome": "Greptile P1: renderIssuersFind now early-returns on --quiet before the CSV/auto-JSON/human-table branches, so --quiet (incl. --json --quiet) suppresses all stdout per printOutputWithFlags' contract. TestRenderIssuersFindQuiet (3 modes) + TestRenderIssuersFindEmitsWhenNotQuiet PASS."
     }
   ]
 }

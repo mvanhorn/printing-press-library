@@ -301,6 +301,13 @@ func newIssuersFindCmd(flags *rootFlags) *cobra.Command {
 // this CLI.
 func renderIssuersFind(cmd *cobra.Command, flags *rootFlags, matches []issuerRecord) error {
 	out := cmd.OutOrStdout()
+	// --quiet: suppress all output, exit code communicates result. Mirrors the
+	// contract in printOutputWithFlags. Must guard before the CSV / auto-JSON /
+	// human-table branches below, since each emits to stdout unconditionally
+	// and --json --quiet would otherwise still print via the flags.asJSON gate.
+	if flags.quiet {
+		return nil
+	}
 	if flags.csv {
 		w := csv.NewWriter(out)
 		_ = w.Write([]string{"slug", "label", "parent"})
