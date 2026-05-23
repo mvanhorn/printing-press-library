@@ -1,0 +1,12 @@
+{
+  "api_name": "american-express-offers",
+  "base_url": "https://functions.americanexpress.com",
+  "description": "List card-linked offers and savings on your American Express card",
+  "mcp_ready": "partial",
+  "http_transport": "browser-http",
+  "auth": {
+    "type": "cookie"
+  },
+  "required_headers": [],
+  "tools": []
+}

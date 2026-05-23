@@ -1,0 +1,143 @@
+name: american-express-offers
+description: List card-linked offers and savings on your American Express card
+version: 0.1.0
+base_url: https://functions.americanexpress.com
+spec_source: sniffed
+http_transport: browser-chrome-h2
+auth:
+    type: cookie
+    header: ""
+    format: ""
+    env_vars: []
+config:
+    format: toml
+    path: ~/.config/american-express-offers-pp-cli/config.toml
+resources:
+    offers:
+        description: Card-linked offers on your American Express card
+        endpoints:
+            list_offers:
+                method: POST
+                path: /ReadOffersHubPresentation.web.v1
+                description: List available and enrolled card offers
+                params:
+                    - name: category
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: Filter by category (DINING, TRAVEL, SHOPPING, ENTERTAINMENT, SERVICES)
+                      fields: []
+                    - name: filter
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: Filter by type (ONLINE, IN_STORE, NEW, FEATURED, STATEMENT_CREDIT, EXTRA_REWARDS)
+                      fields: []
+                    - name: sort
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: Sort order (RECOMMENDED, A_TO_Z, Z_TO_A, EXPIRATION_DATE)
+                      fields: []
+                    - name: enrolled
+                      type: bool
+                      required: false
+                      positional: false
+                      default: null
+                      description: Show only enrolled offers
+                      fields: []
+                    - name: page
+                      type: string
+                      required: false
+                      positional: false
+                      default: page1
+                      description: Page of results (page1, page2, ...)
+                      fields: []
+                body:
+                    - name: accountNumberProxy
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: Account number proxy token
+                      fields: []
+                    - name: locale
+                      type: string
+                      required: true
+                      positional: false
+                      default: en-US
+                      description: Locale code
+                      fields: []
+                    - name: offerPage
+                      type: string
+                      required: true
+                      positional: false
+                      default: page1
+                      description: Page number for results
+                      fields: []
+                    - name: requestType
+                      type: string
+                      required: true
+                      positional: false
+                      default: OFFERSHUB_LANDING
+                      description: Request type for the offers hub
+                      fields: []
+                    - name: offerCategory
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: Category filter (DINING, TRAVEL, SHOPPING, ENTERTAINMENT, SERVICES)
+                      fields: []
+                response:
+                    type: object
+                    item: offers_hub
+                pagination: null
+            get_savings:
+                method: POST
+                path: /ReadOffersHubPresentation.web.v1
+                description: Show total amount saved via enrolled card offers
+                params:
+                    - name: page
+                      type: string
+                      required: false
+                      positional: false
+                      default: page1
+                      description: ""
+                      fields: []
+                body:
+                    - name: accountNumberProxy
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: Account number proxy token
+                      fields: []
+                    - name: locale
+                      type: string
+                      required: true
+                      positional: false
+                      default: en-US
+                      description: ""
+                      fields: []
+                    - name: offerPage
+                      type: string
+                      required: true
+                      positional: false
+                      default: page1
+                      description: ""
+                      fields: []
+                    - name: requestType
+                      type: string
+                      required: true
+                      positional: false
+                      default: OFFERSHUB_LANDING
+                      description: ""
+                      fields: []
+                response:
+                    type: object
+                    item: offers_savings
+                pagination: null

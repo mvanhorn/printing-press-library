@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "american-express-offers",
+  "run_id": "20260523-051807",
+  "status": "pass",
+  "level": "quick",
+  "matrix_size": 6,
+  "tests_passed": 6,
+  "tests_skipped": 2,
+  "auth_context": {
+    "type": "cookie"
+  }
+}

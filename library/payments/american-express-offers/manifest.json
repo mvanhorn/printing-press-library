@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "american-express-offers-pp-mcp",
+  "display_name": "American Express Offers",
+  "version": "4.12.0",
+  "description": "List card-linked offers and savings on your American Express card",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/american-express-offers-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/american-express-offers-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

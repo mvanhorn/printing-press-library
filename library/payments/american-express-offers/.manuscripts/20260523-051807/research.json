@@ -1,0 +1,67 @@
+{
+  "api_name": "american-express-offers",
+  "novelty_score": 6,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-23T05:18:07Z",
+  "novel_features": [
+    {
+      "name": "Offers analytics by category",
+      "command": "analytics --type offers --group-by category",
+      "description": "Group your synced card-linked offers by category to see at a glance where the bulk of your enrollable rewards live (Dining, Travel, Shopping, etc.).",
+      "rationale": "The American Express hub endpoint returns one flat list per request. Grouping requires either client-side parsing every call or a local store; this CLI's sync persists offers into SQLite so analytics composes without re-hitting the rate-limited live API.",
+      "example": "american-express-offers-pp-cli analytics --type offers --group-by category --agent",
+      "why_it_matters": "Lets an agent answer 'which category has the most offers I haven't enrolled in yet' in one call instead of pulling and tallying the live list itself.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Watch for new card-linked offers",
+      "command": "tail --interval 60s",
+      "description": "Poll the offers hub at a chosen interval and emit NDJSON change events when an offer is added, expires, or flips between available and enrolled.",
+      "rationale": "AMEX issues new offers continuously and does not expose a webhook or push channel. Without local diffing, a user only ever sees the current snapshot; the local store lets the CLI compute and emit a true changelog.",
+      "example": "american-express-offers-pp-cli tail --interval 60s | jq 'select(.event == \"change\")'",
+      "why_it_matters": "Gives an agent a streaming hook to react to new statement-credit offers without having to schedule its own diffing job.",
+      "group": "Realtime monitoring"
+    },
+    {
+      "name": "Offline archive of all offers",
+      "command": "workflow archive",
+      "description": "Snapshot every available and enrolled offer into the local SQLite store in one command, so subsequent reads and analytics work offline and at zero rate-limit cost.",
+      "rationale": "The hub endpoint is cookie-authenticated and rate-limited. Archiving once means downstream filtering, grouping, and SQL queries run against the local store rather than burning live requests.",
+      "example": "american-express-offers-pp-cli workflow archive",
+      "why_it_matters": "Lets an agent run a tight loop of `--data-source local` queries against the offer set without repeatedly hitting the live AMEX hub.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Offers analytics by category",
+      "command": "analytics --type offers --group-by category",
+      "description": "Group your synced card-linked offers by category to see at a glance where the bulk of your enrollable rewards live (Dining, Travel, Shopping, etc.).",
+      "rationale": "The American Express hub endpoint returns one flat list per request. Grouping requires either client-side parsing every call or a local store; this CLI's sync persists offers into SQLite so analytics composes without re-hitting the rate-limited live API.",
+      "example": "american-express-offers-pp-cli analytics --type offers --group-by category --agent",
+      "why_it_matters": "Lets an agent answer 'which category has the most offers I haven't enrolled in yet' in one call instead of pulling and tallying the live list itself.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Watch for new card-linked offers",
+      "command": "tail --interval 60s",
+      "description": "Poll the offers hub at a chosen interval and emit NDJSON change events when an offer is added, expires, or flips between available and enrolled.",
+      "rationale": "AMEX issues new offers continuously and does not expose a webhook or push channel. Without local diffing, a user only ever sees the current snapshot; the local store lets the CLI compute and emit a true changelog.",
+      "example": "american-express-offers-pp-cli tail --interval 60s | jq 'select(.event == \"change\")'",
+      "why_it_matters": "Gives an agent a streaming hook to react to new statement-credit offers without having to schedule its own diffing job.",
+      "group": "Realtime monitoring"
+    },
+    {
+      "name": "Offline archive of all offers",
+      "command": "workflow archive",
+      "description": "Snapshot every available and enrolled offer into the local SQLite store in one command, so subsequent reads and analytics work offline and at zero rate-limit cost.",
+      "rationale": "The hub endpoint is cookie-authenticated and rate-limited. Archiving once means downstream filtering, grouping, and SQL queries run against the local store rather than burning live requests.",
+      "example": "american-express-offers-pp-cli workflow archive",
+      "why_it_matters": "Lets an agent run a tight loop of `--data-source local` queries against the offer set without repeatedly hitting the live AMEX hub.",
+      "group": "Local state that compounds"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-23T05:18:07.075543Z",
+  "printing_press_version": "4.12.0",
+  "api_name": "american-express-offers",
+  "display_name": "American Express Offers",
+  "cli_name": "american-express-offers-pp-cli",
+  "owner": "user",
+  "printer": "brian-d-albrecht",
+  "printer_name": "Brian Albrecht",
+  "spec_path": "research/american-express-offers-spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:002d809a9f822d94d1734be8b5732ad942d1fcf695ff072e7362e4d59411b117",
+  "run_id": "20260523-051807",
+  "description": "List card-linked offers and savings on your American Express card",
+  "mcp_binary": "american-express-offers-pp-mcp",
+  "mcp_tool_count": 2,
+  "mcp_ready": "partial",
+  "api_version": "0.1.0",
+  "auth_type": "cookie",
+  "novel_features": [
+    {
+      "name": "Offers analytics by category",
+      "command": "analytics --type offers --group-by category",
+      "description": "Group your synced card-linked offers by category to see at a glance where the bulk of your enrollable rewards live (Dining, Travel, Shopping, etc.)."
+    },
+    {
+      "name": "Watch for new card-linked offers",
+      "command": "tail --interval 60s",
+      "description": "Poll the offers hub at a chosen interval and emit NDJSON change events when an offer is added, expires, or flips between available and enrolled."
+    },
+    {
+      "name": "Offline archive of all offers",
+      "command": "workflow archive",
+      "description": "Snapshot every available and enrolled offer into the local SQLite store in one command, so subsequent reads and analytics work offline and at zero rate-limit cost."
+    }
+  ]
+}
