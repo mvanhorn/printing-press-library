@@ -451,7 +451,19 @@ func fetchProductsList(ctx context.Context, flags *rootFlags, cfg *config.Config
 	}
 	// cfg is plumbed for future routing tweaks (e.g. consult cfg.Fleet.PublicKeyDomain).
 	_ = cfg
-	return env.Response, nil
+	// Drop energy devices (Wall Connector, Powerwall) — they have no VIN and
+	// can't receive vehicle commands. Leaving them in would let
+	// strings.EqualFold("", "") match an empty --vehicle against an empty VIN
+	// in resolveCommandVehicle's exact-match loop, silently routing the
+	// command to a non-vehicle target.
+	vehicles := env.Response[:0]
+	for _, p := range env.Response {
+		if strings.TrimSpace(p.VIN) == "" {
+			continue
+		}
+		vehicles = append(vehicles, p)
+	}
+	return vehicles, nil
 }
 
 // classifyVehicleClass maps a productEntry into REST-friendly vs signed-cmd.
