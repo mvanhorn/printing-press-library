@@ -74,6 +74,11 @@ func newCapacityCmd(flags *rootFlags) *cobra.Command {
 
 			for eventID, a := range byEvent {
 				e := eventByID[eventID]
+				// "all live events" command: exclude ended/completed/canceled
+				// events from the cross-event capacity headroom view.
+				if !ebIsLiveEvent(e.Status) {
+					continue
+				}
 				if orgID != "" && e.OrgID != orgID {
 					continue
 				}

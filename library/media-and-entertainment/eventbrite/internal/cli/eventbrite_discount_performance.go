@@ -57,10 +57,12 @@ func newDiscountPerformanceCmd(flags *rootFlags) *cobra.Command {
 				if eventID != "" && d.EventID != eventID {
 					continue
 				}
-				denom := d.QtySold + d.QtyAvail
+				// Eventbrite's quantity_available is the discount's total cap
+				// (max times the code can be used), not the remaining count, so
+				// the redemption rate is sold / cap — not sold / (sold + cap).
 				rate := 0.0
-				if denom > 0 {
-					rate = ebRound2(float64(d.QtySold) / float64(denom))
+				if d.QtyAvail > 0 {
+					rate = ebRound2(float64(d.QtySold) / float64(d.QtyAvail))
 				}
 				results = append(results, ebDiscountPerformanceRow{
 					Code:           d.Code,

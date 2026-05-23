@@ -146,6 +146,11 @@ func newSalesVelocityCmd(flags *rootFlags) *cobra.Command {
 
 			now := time.Now()
 			for _, e := range events {
+				// "live events" command: skip ended/completed/canceled/draft
+				// events whose sell-out projection would be meaningless.
+				if !ebIsLiveEvent(e.Status) {
+					continue
+				}
 				sold := ticketsSoldByEvent[e.ID]
 				capTotal := capacityByEvent[e.ID]
 				remaining := capTotal - sold

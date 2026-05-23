@@ -83,13 +83,14 @@ func (c *Config) AuthHeader() string {
 	if c.AuthHeaderVal != "" {
 		return c.AuthHeaderVal
 	}
-	// Env-var token wins over file-stored AccessToken (env > config convention).
+	// AuthSource is determined once in Load() from the credential's actual
+	// origin (env var vs config file); AuthHeader() is a pure getter and must
+	// not overwrite it, or `doctor` misreports disk-stored credentials as env
+	// tokens. (Generator template bug — tracked as cli-printing-press#1970.)
 	if c.EventbriteApiKey != "" {
-		c.AuthSource = "env:EVENTBRITE_API_KEY"
 		return "Bearer " + c.EventbriteApiKey
 	}
 	if c.AccessToken != "" {
-		c.AuthSource = "oauth2"
 		return "Bearer " + c.AccessToken
 	}
 	return ""

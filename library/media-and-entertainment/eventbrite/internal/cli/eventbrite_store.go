@@ -297,3 +297,16 @@ func ebMajor(minor int64) float64 { return float64(minor) / 100.0 }
 func ebRound2(f float64) float64 {
 	return math.Round(f*100) / 100
 }
+
+// ebIsLiveEvent reports whether an event status counts as "live" for the
+// live-events analytics commands (sales-velocity, capacity). Live and started
+// events are on sale; an empty status (event row not synced, only its ticket
+// classes) is included rather than silently dropped. Draft, ended, completed,
+// and canceled events are excluded so their sell-out projections don't mislead.
+func ebIsLiveEvent(status string) bool {
+	switch strings.ToLower(strings.TrimSpace(status)) {
+	case "", "live", "started":
+		return true
+	}
+	return false
+}
