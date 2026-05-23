@@ -1,12 +1,15 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
+
+	"github.com/mvanhorn/printing-press-library/library/productivity/zoho-expense/internal/store"
 )
 
 // closeStalenessThreshold caps how stale the local expenses table can be
@@ -49,22 +52,18 @@ func newCloseCmd(flags *rootFlags) *cobra.Command {
 			// it. Without this, `close` inventories from data that could be
 			// up to cache.stale_after hours old — any expense reported via
 			// the Zoho web UI in the meantime still appears as unreported
-			// here and gets double-bundled into the new report. --no-cache
-			// forces a refresh regardless of staleness; the default behaviour
-			// honours the freshness hook with a short threshold tuned for
-			// close's higher-consequence reads. Filed per Greptile P1.
+			// here and gets double-bundled into the new report. Greptile
+			// P1 ×2: first iteration of this patch routed --no-cache through
+			// autoRefreshIfStale with dataSource="live", which short-circuits
+			// at the data-source guard (autoRefreshIfStale returns early
+			// when dataSource != "auto"). The correct shape is:
+			//   --no-cache:  open store, call runAutoRefresh directly,
+			//                bypassing the EnsureFresh staleness check.
+			//   default:     route through ensureFreshForResources so the
+			//                normal stale-detection + refresh policy applies.
 			if noCache {
-				// Force a refresh by overriding the freshness policy: pass
-				// data-source=live for this command so the auto-refresh
-				// hook always runs the network call.
-				prev := flags.dataSource
-				flags.dataSource = "live"
-				meta := ensureFreshForResources(cmd.Context(), flags, "expenses")
-				flags.dataSource = prev
-				if meta.Decision == "stale" || meta.Decision == "refreshed" {
-					if meta.Error != "" {
-						fmt.Fprintf(cmd.ErrOrStderr(), "warning: refresh failed (%s); falling back to local store which may be stale\n", meta.Error)
-					}
+				if err := forceRefreshExpenses(cmd.Context(), flags); err != nil {
+					fmt.Fprintf(cmd.ErrOrStderr(), "warning: --no-cache refresh failed (%v); falling back to local store which may be stale\n", err)
 				}
 			} else {
 				meta := ensureFreshForResources(cmd.Context(), flags, "expenses")
@@ -221,4 +220,43 @@ func monthReportName(start string) string {
 		return "Monthly Close " + start
 	}
 	return t.Format("January 2006")
+}
+
+// forceRefreshExpenses runs the auto-refresh machinery for the expenses
+// resource regardless of cache freshness. Used by `close --no-cache` so the
+// flag actually triggers a network refresh instead of getting swallowed by
+// autoRefreshIfStale's data-source guard. Errors are returned so the caller
+// can surface them and fall back to the local store rather than aborting.
+func forceRefreshExpenses(ctx context.Context, flags *rootFlags) error {
+	dbPath := defaultDBPath("zoho-expense-pp-cli")
+	db, err := store.OpenWithContext(ctx, dbPath)
+	if err != nil {
+		return fmt.Errorf("open store: %w", err)
+	}
+	defer db.Close()
+	refreshCtx, cancel := context.WithTimeout(ctx, refreshTimeout())
+	defer cancel()
+	if err := runAutoRefresh(refreshCtx, flags, db, []string{"expenses"}); err != nil {
+		emitCacheRefreshFailedEvent([]string{"expenses"}, err)
+		return err
+	}
+	// Mirror the freshness-meta surface so JSON consumers see consistent
+	// provenance when --no-cache was used.
+	flags.freshnessMeta = cliutilFreshnessMeta(true)
+	return nil
+}
+
+// cliutilFreshnessMeta builds a minimal freshness meta envelope that
+// reflects "refresh was forced by user." Kept inline rather than reaching
+// into cliutil to avoid an unnecessary import; the structural shape matches
+// what ensureFreshForResources would emit on a refreshed-stale decision.
+func cliutilFreshnessMeta(ran bool) interface{} {
+	return map[string]any{
+		"decision":   "refreshed",
+		"reason":     "no_cache_flag",
+		"resources":  []string{"expenses"},
+		"ran":        ran,
+		"source":     "live",
+		"elapsed_ms": 0,
+	}
 }

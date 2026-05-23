@@ -52,8 +52,8 @@
     },
     {
       "id": "close-refresh-expenses-before-bundle",
-      "summary": "close calls ensureFreshForResources(\"expenses\") before reading the local store, and --no-cache forces refresh via data-source=live.",
-      "reason": "close queried local SQLite expenses with a 168h stale window and no refresh hook. Any expense reported via the Zoho web UI in the last 7 days still appeared as unreported and got double-bundled into the new monthly report. The --no-cache flag was wired but explicitly zeroed (_ = noCache), making it a no-op. Patched per Greptile P1.",
+      "summary": "close refreshes the expenses table before reading it; --no-cache bypasses the EnsureFresh staleness check and forces runAutoRefresh directly.",
+      "reason": "Two-iteration patch: original commit added ensureFreshForResources for the default path (correct) but routed --no-cache through ensureFreshForResources with dataSource=live (wrong — autoRefreshIfStale early-exits when dataSource != \"auto\"). Second iteration extracts forceRefreshExpenses() which opens the store and calls runAutoRefresh directly so --no-cache actually triggers a network refresh. Filed and re-confirmed by Greptile P1 across both review rounds.",
       "files": [
         "internal/cli/zoho_close.go"
       ]
