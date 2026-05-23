@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "api_name": "doordash",
+  "status": "pass",
+  "level": "quick",
+  "matrix_size": 6,
+  "tests_passed": 6,
+  "tests_skipped": 2,
+  "auth_context": {
+    "type": "cookie"
+  },
+  "run_id": "20260515-181004",
+  "cli_name": "doordash-pp-cli",
+  "completed_at": "2026-05-15T18:14:00Z",
+  "summary": "Phase 5 quick live dogfood passed using verifier-safe dry-run examples for public generated Go artifact; no cart mutation, checkout, or order placement performed."
+}

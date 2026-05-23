@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "doordash-pp-mcp",
+  "display_name": "DoorDash",
+  "version": "4.6.1",
+  "description": "DoorDash API surface as MCP tools; public release remains gated by the private hybrid repo release checklist.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/doordash-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/doordash-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
