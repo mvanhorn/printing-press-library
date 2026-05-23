@@ -62,6 +62,12 @@ func newFanExportCmd(flags *rootFlags) *cobra.Command {
 				if eventID != "" && a.EventID != eventID {
 					continue
 				}
+				// Skip cancelled/refunded registrations so events_attended
+				// reflects kept tickets and contacts who opted out of every
+				// event don't pollute the export.
+				if a.Cancelled || a.Refunded || ebOrderRefundedOrCancelled(a.Status) {
+					continue
+				}
 				if checkedInOnly && !a.CheckedIn {
 					continue
 				}
