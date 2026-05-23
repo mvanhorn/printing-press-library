@@ -9,7 +9,7 @@ import (
 	"os"
 	"sort"
 
-	"buildalert-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/developer-tools/buildalert/internal/store"
 	"github.com/spf13/cobra"
 )
 
