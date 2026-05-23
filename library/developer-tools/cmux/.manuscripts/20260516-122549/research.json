@@ -1,0 +1,243 @@
+{
+  "api_name": "cmux",
+  "novelty_score": 0,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-16T16:28:20Z",
+  "novel_features": [
+    {
+      "name": "Cross-surface FTS search with snippet and switch",
+      "command": "search",
+      "description": "Search workspace titles, surface titles, notification bodies, and sampled pane content with FTS5 — get the surface and snippet, not just the workspace; --switch jumps cmux to the matching surface.",
+      "rationale": "cmux find-window returns workspace-only with no snippet; only a persisted FTS index over titles + bodies + sampled pane text can return surface granularity and surface-context snippet for one query.",
+      "example": "cmux-pp-cli search 'WAF cookie' --json --select results.workspace_ref,results.surface_ref,results.snippet",
+      "why_it_matters": "When an agent or user knows a phrase but not which workspace, this returns the exact surface to focus instead of forcing a workspace-only walk.",
+      "group": "Cross-pane intelligence"
+    },
+    {
+      "name": "Notify-driven event stream",
+      "command": "watch",
+      "description": "Long-running stream of cmux notification events as JSONL, with pluggable sinks (stdout, file, exec hook, Slack webhook, generic webhook). Replaces capture-pane polling with id-cursored notification events or fsnotify on the session JSON.",
+      "rationale": "ecosystem-manager polls every pane via capture-pane each tick because cmux has no first-class event stream from the CLI; cursored list-notifications and fsnotify on the session JSON close that loop.",
+      "example": "cmux-pp-cli watch --source notifications --sink stdout --json",
+      "why_it_matters": "Lets a manager subagent wait on events instead of burning context on full pane scans.",
+      "group": "Notify-driven loop closure"
+    },
+    {
+      "name": "Agent-status timeline",
+      "command": "status timeline",
+      "description": "Time-series of agent state per workspace (and key) over a window, drawn from local status snapshots persisted on every sync.",
+      "rationale": "cmux carries only the current statusEntry; the historical sequence lives entirely in our store, populated by sync.",
+      "example": "cmux-pp-cli status timeline --workspace Tuck --since 4h --json",
+      "why_it_matters": "Answers 'when did Tuck go awaiting?' which is needed to triage stuck panes and to bound sync cadence.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Stuck-pane triage",
+      "command": "status stuck",
+      "description": "List every (workspace, key) whose latest persisted state is awaiting input and whose transition timestamp is older than a threshold.",
+      "rationale": "Requires the local time-series; the live RPC cannot answer 'how long has it been Needs-input'.",
+      "example": "cmux-pp-cli status stuck --over 30m --json",
+      "why_it_matters": "Surfaces the panes a manager subagent should triage first, without re-capturing screens.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Normalized agent-state column",
+      "command": "status awaiting",
+      "description": "Single canonical state per workspace (idle / working / awaiting / stranded) computed by joining status entries with title-icon decode and surface health.",
+      "rationale": "Replaces three signals (statusEntry value, title icon, surface in_window) with one column; the icon-priority rule from the cookbook becomes callable.",
+      "example": "cmux-pp-cli status awaiting --all --json",
+      "why_it_matters": "Gives an agent a single boolean to drive 'should I look here?' instead of decoding folklore icons.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "State-transition alerts",
+      "command": "alert add",
+      "description": "Declarative rules that fire when a workspace transitions into a state (e.g. Tuck claude_code Running -\u003e Needs input). Sinks: stdout, file, exec, macOS osascript, Slack webhook, generic webhook.",
+      "rationale": "cmux notify lands in cmux's own sidebar; rules + external sinks live entirely outside cmux but require our local diff over snapshots to detect transitions.",
+      "example": "cmux-pp-cli alert add --workspace Tuck --on awaiting --sink slack:https://hooks.slack.com/services/X --json",
+      "why_it_matters": "Closes the loop on the user instead of on cmux's sidebar.",
+      "group": "Notify-driven loop closure"
+    },
+    {
+      "name": "Recently-flipped workspaces",
+      "command": "status changes",
+      "description": "List workspaces (and keys) whose persisted state changed within a time window, with prev_value and new_value.",
+      "rationale": "Local SQL over status_snapshots; cmux exposes only current state.",
+      "example": "cmux-pp-cli status changes --since 1h --json",
+      "why_it_matters": "Direct replacement for the manager's 'did anything change since my last tick?' question, without rewalking every pane.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Per-workspace summary card",
+      "command": "workspaces card",
+      "description": "One-shot summary for a workspace: metadata (cwd, git_branch, pr) + current status entries + last 3 notifications + last sampled pane snippets per surface.",
+      "rationale": "Cross-entity local join (workspaces + status_entries + notifications + pane_content_samples); cmux requires N RPC calls.",
+      "example": "cmux-pp-cli workspaces card Tuck --json",
+      "why_it_matters": "Gives a manager subagent the full picture of a workspace in one tool call.",
+      "group": "Cross-pane intelligence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Cross-surface FTS search with snippet and switch",
+      "command": "search",
+      "description": "Search workspace titles, surface titles, notification bodies, and sampled pane content with FTS5 — get the surface and snippet, not just the workspace; --switch jumps cmux to the matching surface.",
+      "rationale": "cmux find-window returns workspace-only with no snippet; only a persisted FTS index over titles + bodies + sampled pane text can return surface granularity and surface-context snippet for one query.",
+      "example": "cmux-pp-cli search 'WAF cookie' --json --select results.workspace_ref,results.surface_ref,results.snippet",
+      "why_it_matters": "When an agent or user knows a phrase but not which workspace, this returns the exact surface to focus instead of forcing a workspace-only walk.",
+      "group": "Cross-pane intelligence"
+    },
+    {
+      "name": "Notify-driven event stream",
+      "command": "watch",
+      "description": "Long-running stream of cmux notification events as JSONL, with pluggable sinks (stdout, file, exec hook, Slack webhook, generic webhook). Replaces capture-pane polling with id-cursored notification events or fsnotify on the session JSON.",
+      "rationale": "ecosystem-manager polls every pane via capture-pane each tick because cmux has no first-class event stream from the CLI; cursored list-notifications and fsnotify on the session JSON close that loop.",
+      "example": "cmux-pp-cli watch --source notifications --sink stdout --json",
+      "why_it_matters": "Lets a manager subagent wait on events instead of burning context on full pane scans.",
+      "group": "Notify-driven loop closure"
+    },
+    {
+      "name": "Agent-status timeline",
+      "command": "status timeline",
+      "description": "Time-series of agent state per workspace (and key) over a window, drawn from local status snapshots persisted on every sync.",
+      "rationale": "cmux carries only the current statusEntry; the historical sequence lives entirely in our store, populated by sync.",
+      "example": "cmux-pp-cli status timeline --workspace Tuck --since 4h --json",
+      "why_it_matters": "Answers 'when did Tuck go awaiting?' which is needed to triage stuck panes and to bound sync cadence.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Stuck-pane triage",
+      "command": "status stuck",
+      "description": "List every (workspace, key) whose latest persisted state is awaiting input and whose transition timestamp is older than a threshold.",
+      "rationale": "Requires the local time-series; the live RPC cannot answer 'how long has it been Needs-input'.",
+      "example": "cmux-pp-cli status stuck --over 30m --json",
+      "why_it_matters": "Surfaces the panes a manager subagent should triage first, without re-capturing screens.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Normalized agent-state column",
+      "command": "status awaiting",
+      "description": "Single canonical state per workspace (idle / working / awaiting / stranded) computed by joining status entries with title-icon decode and surface health.",
+      "rationale": "Replaces three signals (statusEntry value, title icon, surface in_window) with one column; the icon-priority rule from the cookbook becomes callable.",
+      "example": "cmux-pp-cli status awaiting --all --json",
+      "why_it_matters": "Gives an agent a single boolean to drive 'should I look here?' instead of decoding folklore icons.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "State-transition alerts",
+      "command": "alert add",
+      "description": "Declarative rules that fire when a workspace transitions into a state (e.g. Tuck claude_code Running -\u003e Needs input). Sinks: stdout, file, exec, macOS osascript, Slack webhook, generic webhook.",
+      "rationale": "cmux notify lands in cmux's own sidebar; rules + external sinks live entirely outside cmux but require our local diff over snapshots to detect transitions.",
+      "example": "cmux-pp-cli alert add --workspace Tuck --on awaiting --sink slack:https://hooks.slack.com/services/X --json",
+      "why_it_matters": "Closes the loop on the user instead of on cmux's sidebar.",
+      "group": "Notify-driven loop closure"
+    },
+    {
+      "name": "Recently-flipped workspaces",
+      "command": "status changes",
+      "description": "List workspaces (and keys) whose persisted state changed within a time window, with prev_value and new_value.",
+      "rationale": "Local SQL over status_snapshots; cmux exposes only current state.",
+      "example": "cmux-pp-cli status changes --since 1h --json",
+      "why_it_matters": "Direct replacement for the manager's 'did anything change since my last tick?' question, without rewalking every pane.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Per-workspace summary card",
+      "command": "workspaces card",
+      "description": "One-shot summary for a workspace: metadata (cwd, git_branch, pr) + current status entries + last 3 notifications + last sampled pane snippets per surface.",
+      "rationale": "Cross-entity local join (workspaces + status_entries + notifications + pane_content_samples); cmux requires N RPC calls.",
+      "example": "cmux-pp-cli workspaces card Tuck --json",
+      "why_it_matters": "Gives a manager subagent the full picture of a workspace in one tool call.",
+      "group": "Cross-pane intelligence"
+    }
+  ],
+  "narrative": {
+    "display_name": "cmux",
+    "headline": "Every cmux feature, plus persisted state, cross-surface search, and a notify-driven event stream no other cmux tool offers.",
+    "value_prop": "This CLI wraps the cmux Unix-socket CLI with an AI-agent-shaped surface: a local SQLite store of workspaces, surfaces, status entries, and notifications; FTS5 search across titles and sampled pane content with surface-level matches; and a long-running `watch` command that emits cmux notification events as JSONL to stdout, files, Slack, or any webhook so ecosystem-manager-style agents can wait on events instead of polling.",
+    "auth_narrative": "cmux uses a local Unix socket at /tmp/cmux.sock with password auth resolved in this order: --password flag, CMUX_SOCKET_PASSWORD env, then the password saved in cmux's keychain entry. cmux-pp-cli shells out to the cmux binary; if cmux is not running or the socket password is wrong, `cmux-pp-cli doctor` says so up front.",
+    "quickstart": [
+      {
+        "command": "cmux-pp-cli doctor",
+        "comment": "verify the cmux binary is on PATH, cmux is running, the socket answers ping, and credentials resolve"
+      },
+      {
+        "command": "cmux-pp-cli sync",
+        "comment": "snapshot every workspace, surface, status entry, and unread notification into the local SQLite store"
+      },
+      {
+        "command": "cmux-pp-cli status awaiting --all --json",
+        "comment": "list every workspace whose canonical state is awaiting input"
+      },
+      {
+        "command": "cmux-pp-cli search 'rate limit' --json --select results.workspace_ref,results.surface_ref,results.snippet",
+        "comment": "find which surface mentioned the phrase, not just which workspace"
+      },
+      {
+        "command": "cmux-pp-cli watch --source notifications --sink stdout --json",
+        "comment": "stream notification events as JSONL — pipe to jq, exec hook, or Slack webhook"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "doctor reports `cmux binary not found`",
+        "fix": "install cmux.app and add `/Applications/cmux.app/Contents/Resources/bin` to PATH, or set CMUX_BIN to the binary path."
+      },
+      {
+        "symptom": "doctor reports `socket not answering`",
+        "fix": "start cmux.app and wait for the menu-bar icon, then re-run `cmux-pp-cli doctor`."
+      },
+      {
+        "symptom": "search returns nothing for a phrase you can see on screen",
+        "fix": "run `cmux-pp-cli panes sample --workspace W --surface S --scrollback` to seed the FTS table; sync only stores titles + notifications by default."
+      },
+      {
+        "symptom": "`watch --source fsnotify` exits immediately",
+        "fix": "ensure `~/Library/Application Support/cmux/session-com.cmuxterm.app.json` exists by interacting with cmux at least once after install; fsnotify cannot watch a non-existent path."
+      },
+      {
+        "symptom": "alerts to Slack do not fire",
+        "fix": "test the webhook with `cmux-pp-cli alert send-test --sink slack:\u003curl\u003e`; webhook URLs that 4xx will be quoted in `--json` output."
+      }
+    ],
+    "when_to_use": "Use cmux-pp-cli when an agent or human needs the state across many cmux workspaces in one query, when search must return the surface (not just the workspace) that matched, or when a manager-style loop wants to be notified by event rather than poll every pane. Read-only commands are safe to run while cmux is in active use; write-side actions (focus, send) are gated by explicit flags.",
+    "recipes": [
+      {
+        "title": "Bulk awaiting triage",
+        "command": "cmux-pp-cli status awaiting --all --json --select state,workspace_ref,workspace_title,latest_value,changed_at",
+        "explanation": "List every workspace with a normalized `awaiting` state, with the last transition time so a manager can pick the oldest one to look at first."
+      },
+      {
+        "title": "Stuck \u003e 30 minutes",
+        "command": "cmux-pp-cli status stuck --over 30m --json",
+        "explanation": "Returns each (workspace, key) whose latest persisted state is awaiting input older than 30 minutes — the exact list ecosystem-manager wants for triage."
+      },
+      {
+        "title": "Find the surface mentioning a phrase, jump to it",
+        "command": "cmux-pp-cli search 'cookie' --switch",
+        "explanation": "FTS over titles + notifications + sampled pane content; with `--switch`, calls cmux `surface.focus` on the top match so you land directly on the right tab."
+      },
+      {
+        "title": "Replace polling with a notify-driven loop",
+        "command": "cmux-pp-cli watch --source notifications --sink 'exec:/usr/local/bin/handle-cmux.sh' --json",
+        "explanation": "Streams every new cmux notification (id-cursored) and pipes the JSON envelope to the user's handler — the closed-loop replacement for capture-pane polling."
+      },
+      {
+        "title": "Time-series of a single workspace",
+        "command": "cmux-pp-cli status timeline --workspace Tuck --since 4h --json --select transitioned_at,key,prev_value,new_value",
+        "explanation": "Drills into a workspace's recent transitions to answer 'when did this start awaiting?' without re-reading the screen."
+      }
+    ],
+    "trigger_phrases": [
+      "search across cmux panes",
+      "which cmux workspace is awaiting input",
+      "show stuck cmux panes",
+      "watch cmux notifications",
+      "use cmux",
+      "run cmux-pp-cli"
+    ]
+  }
+}

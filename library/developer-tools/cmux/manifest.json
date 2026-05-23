@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "cmux-pp-mcp",
+  "display_name": "Cmux",
+  "version": "4.4.0",
+  "description": "Every cmux feature, plus persisted state, cross-surface search, and a notify-driven event stream no other cmux tool offers.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/cmux-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/cmux-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

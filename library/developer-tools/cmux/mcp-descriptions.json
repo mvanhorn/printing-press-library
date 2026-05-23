@@ -1,0 +1,8 @@
+{
+  "descriptions": {
+    "buffers_list": "List cmux paste buffers (the named text registers populated by yank/paste-buffer in any pane). Takes no parameters. Returns an array of objects with name and text. Use this when an agent needs to read back what was copied in a session — for example, to recover a command, snippet, or selection a user yanked into a buffer without re-prompting them.",
+    "hooks_list": "List the event hooks configured in cmux. Takes no parameters. Returns an array of objects with event (the cmux event name, e.g., 'window-renamed') and command (the shell command cmux runs when that event fires). Use this to inspect or audit what side effects cmux will trigger on lifecycle events before changing workspace/window state.",
+    "windows_current": "Show the currently focused top-level cmux window. Takes no parameters. Returns one Window object: id, index, workspace_count, and selected_workspace_id (the workspace currently selected inside that window). Use this when an agent needs to anchor an action against the user's active window — for example, before invoking workspaces_get on selected_workspace_id, or to confirm which window a subsequent surface-switch will affect.",
+    "workspaces_list": "List every cmux workspace (logical pane group). Takes no parameters. Returns an array of Workspace objects: id, ref (e.g., 'workspace:6'), title, index, selected, pinned, cwd, and git_branch. Use this to enumerate workspaces by attribute (title contains, cwd matches, git_branch equals) before drilling in with workspaces_get or workspaces_card; prefer workspaces_current when you only need the active one."
+  }
+}

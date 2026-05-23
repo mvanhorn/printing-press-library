@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "cmux",
+  "run_id": "20260516-122549",
+  "status": "pass",
+  "level": "quick",
+  "matrix_size": 6,
+  "tests_passed": 6,
+  "tests_skipped": 3,
+  "auth_context": {
+    "type": "none"
+  }
+}

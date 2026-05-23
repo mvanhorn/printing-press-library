@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-05-16T17:24:09.151783Z",
+  "cli_dir": "/Users/dstevens/printing-press/.runstate/cli-printing-press-70e28f12/runs/20260516-122549/working/cmux-pp-cli",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 5,
+    "captured": "2026-05-16T17:22:54.821429Z"
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-16T17:25:12.857126Z",
+  "printing_press_version": "4.4.0",
+  "api_name": "cmux",
+  "display_name": "Cmux",
+  "cli_name": "cmux-pp-cli",
+  "owner": "dstevens",
+  "printer": "dstevens",
+  "printer_name": "Damien Stevens",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:adfc36663eb2925b000de141f45fb6ebef431943217aa11d7bd70e43a79adc84",
+  "run_id": "20260516-122549",
+  "description": "Every cmux feature, plus persisted state, cross-surface search, and a notify-driven event stream no other cmux tool offers.",
+  "mcp_binary": "cmux-pp-mcp",
+  "mcp_tool_count": 14,
+  "mcp_public_tool_count": 14,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Cross-surface FTS search with snippet and switch",
+      "command": "search",
+      "description": "Search workspace titles, surface titles, notification bodies, and sampled pane content with FTS5 — get the surface and snippet, not just the workspace; --switch jumps cmux to the matching surface."
+    },
+    {
+      "name": "Notify-driven event stream",
+      "command": "watch",
+      "description": "Long-running stream of cmux notification events as JSONL, with pluggable sinks (stdout, file, exec hook, Slack webhook, generic webhook). Replaces capture-pane polling with id-cursored notification events or fsnotify on the session JSON."
+    },
+    {
+      "name": "Agent-status timeline",
+      "command": "status timeline",
+      "description": "Time-series of agent state per workspace (and key) over a window, drawn from local status snapshots persisted on every sync."
+    },
+    {
+      "name": "Stuck-pane triage",
+      "command": "status stuck",
+      "description": "List every (workspace, key) whose latest persisted state is awaiting input and whose transition timestamp is older than a threshold."
+    },
+    {
+      "name": "Normalized agent-state column",
+      "command": "status awaiting",
+      "description": "Single canonical state per workspace (idle / working / awaiting / stranded) computed by joining status entries with title-icon decode and surface health."
+    },
+    {
+      "name": "State-transition alerts",
+      "command": "alert add",
+      "description": "Declarative rules that fire when a workspace transitions into a state (e.g. Tuck claude_code Running -\u003e Needs input). Sinks: stdout, file, exec, macOS osascript, Slack webhook, generic webhook."
+    },
+    {
+      "name": "Recently-flipped workspaces",
+      "command": "status changes",
+      "description": "List workspaces (and keys) whose persisted state changed within a time window, with prev_value and new_value."
+    },
+    {
+      "name": "Per-workspace summary card",
+      "command": "workspaces card",
+      "description": "One-shot summary for a workspace: metadata (cwd, git_branch, pr) + current status entries + last 3 notifications + last sampled pane snippets per surface."
+    }
+  ]
+}

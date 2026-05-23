@@ -1,0 +1,51 @@
+version: 2
+project_name: cmux-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: cmux-pp-cli
+    main: ./cmd/cmux-pp-cli
+    binary: cmux-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/developer-tools/cmux/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: cmux-pp-mcp
+    main: ./cmd/cmux-pp-mcp
+    binary: cmux-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: cmux-pp-cli
+    repository:
+      owner: dstevens
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every cmux feature, plus persisted state, cross-surface search, and a notify-driven event stream no other cmux tool..."
+    install: |
+      bin.install "cmux-pp-cli"
+      bin.install "cmux-pp-mcp"

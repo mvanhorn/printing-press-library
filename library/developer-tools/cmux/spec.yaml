@@ -1,0 +1,318 @@
+name: cmux
+cli_description: "Every cmux feature, plus persisted state, cross-surface search, and a notify-driven event stream no other cmux tool offers."
+description: "AI-agent-optimized companion CLI for cmux: persisted SQLite state, FTS5 cross-surface search, and a notify-driven event stream that replaces capture-pane polling."
+version: "0.1.0"
+base_url: "http://cmux.localhost"
+
+auth:
+  type: none
+
+config:
+  format: toml
+  path: "~/.config/cmux-pp-cli/config.toml"
+
+resources:
+  workspaces:
+    description: "cmux workspaces (logical pane groups)"
+    endpoints:
+      list:
+        method: GET
+        path: "/workspaces"
+        description: "List all workspaces."
+        response:
+          type: array
+          item: Workspace
+      get:
+        method: GET
+        path: "/workspaces/{workspace_id}"
+        description: "Get a single workspace with sidebar metadata (cwd, branch, pr)."
+        params:
+          - name: workspace_id
+            type: string
+            required: true
+            positional: true
+            description: "Workspace ref (e.g., workspace:6) or title"
+        response:
+          type: object
+          item: Workspace
+      current:
+        method: GET
+        path: "/workspaces/current"
+        description: "Show the currently selected workspace."
+        response:
+          type: object
+          item: Workspace
+
+  windows:
+    description: "cmux windows (top-level OS windows)"
+    endpoints:
+      list:
+        method: GET
+        path: "/windows"
+        description: "List all cmux windows."
+        response:
+          type: array
+          item: Window
+      current:
+        method: GET
+        path: "/windows/current"
+        description: "Show the current window."
+        response:
+          type: object
+          item: Window
+
+  panes:
+    description: "cmux panes (split containers inside a workspace)"
+    endpoints:
+      list:
+        method: GET
+        path: "/panes"
+        description: "List panes in a workspace."
+        params:
+          - name: workspace
+            type: string
+            description: "Workspace ref (e.g., workspace:6) or title"
+        response:
+          type: array
+          item: Pane
+
+  surfaces:
+    description: "cmux surfaces (terminal or browser tabs inside a pane)"
+    endpoints:
+      list:
+        method: GET
+        path: "/surfaces"
+        description: "List surfaces, optionally scoped to a workspace."
+        params:
+          - name: workspace
+            type: string
+            description: "Workspace ref or title"
+        response:
+          type: array
+          item: Surface
+      health:
+        method: GET
+        path: "/surfaces/health"
+        description: "Surface health: which surfaces are stranded (not in any window)."
+        params:
+          - name: workspace
+            type: string
+            description: "Workspace ref or title"
+        response:
+          type: array
+          item: SurfaceHealth
+
+  status:
+    description: "Per-workspace agent status entries (e.g., claude_code state)"
+    endpoints:
+      list:
+        method: GET
+        path: "/status"
+        description: "List status entries for a workspace."
+        params:
+          - name: workspace
+            type: string
+            description: "Workspace ref or title"
+        response:
+          type: array
+          item: StatusEntry
+
+  logs:
+    description: "Sidebar log entries per workspace"
+    endpoints:
+      list:
+        method: GET
+        path: "/logs"
+        description: "List sidebar log entries for a workspace."
+        params:
+          - name: workspace
+            type: string
+            description: "Workspace ref or title"
+          - name: limit
+            type: int
+            description: "Max log rows"
+        response:
+          type: array
+          item: LogEntry
+
+  notifications:
+    description: "cmux notifications (the event stream for loop closure)"
+    endpoints:
+      list:
+        method: GET
+        path: "/notifications"
+        description: "List notifications across all workspaces. Use --json for the full payload, or filter on workspace_id."
+        response:
+          type: array
+          item: Notification
+
+  hooks:
+    description: "cmux event hooks"
+    endpoints:
+      list:
+        method: GET
+        path: "/hooks"
+        description: "List configured hooks."
+        response:
+          type: array
+          item: Hook
+
+  buffers:
+    description: "cmux paste buffers"
+    endpoints:
+      list:
+        method: GET
+        path: "/buffers"
+        description: "List paste buffers."
+        response:
+          type: array
+          item: Buffer
+
+  capabilities:
+    description: "Methods the running cmux exposes"
+    endpoints:
+      list:
+        method: GET
+        path: "/capabilities"
+        description: "List every RPC method the running cmux exposes."
+        response:
+          type: array
+          item: Capability
+
+types:
+  Workspace:
+    fields:
+      - name: id
+        type: string
+      - name: ref
+        type: string
+      - name: title
+        type: string
+      - name: index
+        type: int
+      - name: selected
+        type: bool
+      - name: pinned
+        type: bool
+      - name: cwd
+        type: string
+      - name: git_branch
+        type: string
+
+  Window:
+    fields:
+      - name: id
+        type: string
+      - name: index
+        type: int
+      - name: workspace_count
+        type: int
+      - name: selected_workspace_id
+        type: string
+
+  Pane:
+    fields:
+      - name: ref
+        type: string
+      - name: index
+        type: int
+      - name: workspace_ref
+        type: string
+      - name: surface_count
+        type: int
+      - name: focused
+        type: bool
+
+  Surface:
+    fields:
+      - name: id
+        type: string
+      - name: ref
+        type: string
+      - name: type
+        type: string
+      - name: title
+        type: string
+      - name: index
+        type: int
+      - name: selected
+        type: bool
+      - name: workspace_ref
+        type: string
+
+  SurfaceHealth:
+    fields:
+      - name: ref
+        type: string
+      - name: type
+        type: string
+      - name: index
+        type: int
+      - name: in_window
+        type: bool
+      - name: workspace_ref
+        type: string
+
+  StatusEntry:
+    fields:
+      - name: workspace_ref
+        type: string
+      - name: key
+        type: string
+      - name: value
+        type: string
+      - name: icon
+        type: string
+      - name: color
+        type: string
+      - name: timestamp
+        type: string
+
+  LogEntry:
+    fields:
+      - name: workspace_ref
+        type: string
+      - name: level
+        type: string
+      - name: source
+        type: string
+      - name: message
+        type: string
+      - name: timestamp
+        type: string
+
+  Notification:
+    fields:
+      - name: id
+        type: string
+      - name: workspace_id
+        type: string
+      - name: surface_id
+        type: string
+      - name: title
+        type: string
+      - name: subtitle
+        type: string
+      - name: body
+        type: string
+      - name: is_read
+        type: bool
+
+  Hook:
+    fields:
+      - name: event
+        type: string
+      - name: command
+        type: string
+
+  Buffer:
+    fields:
+      - name: name
+        type: string
+      - name: text
+        type: string
+
+  Capability:
+    fields:
+      - name: method
+        type: string
