@@ -451,41 +451,52 @@ func runRoiPerLead(cmd *cobra.Command, flags *rootFlags, z *commonZazuFlags, fro
 		Return       float64 `json:"return"`
 	}
 	type trackingPage struct {
-		Items []json.RawMessage `json:"items"`
+		TotalItems   int               `json:"totalItems"`
+		ItemsPerPage int               `json:"itemsPerPage"`
+		PageCount    int               `json:"pageCount"`
+		CurrentPage  int               `json:"currentPage"`
+		Items        []json.RawMessage `json:"items"`
 	}
-	trkRaw, err := c.Get(ctx, "/dapi/tracking", map[string]string{
-		"dateFrom":     fmt.Sprintf("%d", from),
-		"dateTo":       fmt.Sprintf("%d", to),
-		"page":         "1",
-		"itemsPerPage": "200",
-	})
-	if err != nil {
-		return classifyAPIError(err, flags)
-	}
-	var trkPage trackingPage
-	_ = json.Unmarshal(trkRaw, &trkPage)
 	trkByRef := map[string]trackingItem{}
-	for _, it := range trkPage.Items {
-		var ti trackingItem
-		if err := json.Unmarshal(it, &ti); err != nil {
-			continue
+	for page := 1; page <= 200; page++ {
+		trkRaw, err := c.Get(ctx, "/dapi/tracking", map[string]string{
+			"dateFrom":     fmt.Sprintf("%d", from),
+			"dateTo":       fmt.Sprintf("%d", to),
+			"page":         fmt.Sprintf("%d", page),
+			"itemsPerPage": "200",
+		})
+		if err != nil {
+			return classifyAPIError(err, flags)
 		}
-		var ref struct {
-			Reference   string `json:"reference"`
-			Application struct {
-				Reference string `json:"reference"`
-			} `json:"application"`
+		var trkPage trackingPage
+		if err := json.Unmarshal(trkRaw, &trkPage); err != nil {
+			break
 		}
-		_ = json.Unmarshal(it, &ref)
-		key := ti.Reference
-		if key == "" {
-			key = ref.Reference
+		for _, it := range trkPage.Items {
+			var ti trackingItem
+			if err := json.Unmarshal(it, &ti); err != nil {
+				continue
+			}
+			var ref struct {
+				Reference   string `json:"reference"`
+				Application struct {
+					Reference string `json:"reference"`
+				} `json:"application"`
+			}
+			_ = json.Unmarshal(it, &ref)
+			key := ti.Reference
+			if key == "" {
+				key = ref.Reference
+			}
+			if key == "" {
+				key = ref.Application.Reference
+			}
+			if key != "" {
+				trkByRef[key] = ti
+			}
 		}
-		if key == "" {
-			key = ref.Application.Reference
-		}
-		if key != "" {
-			trkByRef[key] = ti
+		if len(trkPage.Items) == 0 || page >= trkPage.PageCount {
+			break
 		}
 	}
 
@@ -495,40 +506,51 @@ func runRoiPerLead(cmd *cobra.Command, flags *rootFlags, z *commonZazuFlags, fro
 		Date      int64   `json:"date"`
 	}
 	type txPage struct {
-		Data []json.RawMessage `json:"data"`
+		TotalItems   int               `json:"totalItems"`
+		ItemsPerPage int               `json:"itemsPerPage"`
+		PageCount    int               `json:"pageCount"`
+		CurrentPage  int               `json:"currentPage"`
+		Data         []json.RawMessage `json:"data"`
 	}
-	txRaw, err := c.Get(ctx, "/dapi/transactions", map[string]string{
-		"dateFrom":     fmt.Sprintf("%d", from),
-		"dateTo":       fmt.Sprintf("%d", to),
-		"page":         "1",
-		"itemsPerPage": "200",
-	})
-	if err != nil {
-		return classifyAPIError(err, flags)
-	}
-	var txp txPage
-	_ = json.Unmarshal(txRaw, &txp)
 	costByRef := map[string]float64{}
-	for _, it := range txp.Data {
-		var tr txRow
-		if err := json.Unmarshal(it, &tr); err != nil {
-			continue
+	for page := 1; page <= 200; page++ {
+		txRaw, err := c.Get(ctx, "/dapi/transactions", map[string]string{
+			"dateFrom":     fmt.Sprintf("%d", from),
+			"dateTo":       fmt.Sprintf("%d", to),
+			"page":         fmt.Sprintf("%d", page),
+			"itemsPerPage": "200",
+		})
+		if err != nil {
+			return classifyAPIError(err, flags)
 		}
-		if tr.Reference == "" {
-			var alt struct {
-				LeadReference string `json:"leadReference"`
-				Application   struct {
-					Reference string `json:"reference"`
-				} `json:"application"`
+		var txp txPage
+		if err := json.Unmarshal(txRaw, &txp); err != nil {
+			break
+		}
+		for _, it := range txp.Data {
+			var tr txRow
+			if err := json.Unmarshal(it, &tr); err != nil {
+				continue
 			}
-			_ = json.Unmarshal(it, &alt)
-			tr.Reference = alt.LeadReference
 			if tr.Reference == "" {
-				tr.Reference = alt.Application.Reference
+				var alt struct {
+					LeadReference string `json:"leadReference"`
+					Application   struct {
+						Reference string `json:"reference"`
+					} `json:"application"`
+				}
+				_ = json.Unmarshal(it, &alt)
+				tr.Reference = alt.LeadReference
+				if tr.Reference == "" {
+					tr.Reference = alt.Application.Reference
+				}
+			}
+			if tr.Reference != "" {
+				costByRef[tr.Reference] += tr.Amount
 			}
 		}
-		if tr.Reference != "" {
-			costByRef[tr.Reference] += tr.Amount
+		if len(txp.Data) == 0 || page >= txp.PageCount {
+			break
 		}
 	}
 
@@ -760,6 +782,13 @@ func roundTo(f float64, places int) float64 {
 	return math.Round(f*shift) / shift
 }
 
+// postcodesClient is a dedicated HTTP client for the postcodes.io lookup with
+// an explicit transport timeout. http.DefaultClient has Timeout=0 (unbounded);
+// a hung postcodes.io connection would otherwise block `nearby` indefinitely
+// even after the parent context is cancelled, because Go's default transport
+// only respects cancellation at request boundaries.
+var postcodesClient = &http.Client{Timeout: 15 * time.Second}
+
 func lookupPostcode(ctx context.Context, postcode string) (float64, float64, error) {
 	clean := strings.ReplaceAll(strings.ToUpper(strings.TrimSpace(postcode)), " ", "")
 	if clean == "" {
@@ -770,7 +799,7 @@ func lookupPostcode(ctx context.Context, postcode string) (float64, float64, err
 	if err != nil {
 		return 0, 0, err
 	}
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := postcodesClient.Do(req)
 	if err != nil {
 		return 0, 0, err
 	}
