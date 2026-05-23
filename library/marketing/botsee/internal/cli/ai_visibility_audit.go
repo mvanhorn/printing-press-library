@@ -141,8 +141,13 @@ func attachAuditFlagsAndRun(cmd *cobra.Command, flags *rootFlags) {
 			return emitAuditResult(cmd, flags, result, outputFile)
 		}
 
-		if costCapUSD > 0 && est != nil && est.PredictedUSD > costCapUSD {
-			return fmt.Errorf("predicted cost $%.2f exceeds --cost-cap $%.2f", est.PredictedUSD, costCapUSD)
+		if costCapUSD > 0 {
+			if est == nil {
+				return fmt.Errorf("--cost-cap set but cost estimation failed; cannot verify cost is within cap — rerun with --estimate-only to debug")
+			}
+			if est.PredictedUSD > costCapUSD {
+				return fmt.Errorf("predicted cost $%.2f exceeds --cost-cap $%.2f", est.PredictedUSD, costCapUSD)
+			}
 		}
 
 		// 4. Reuse latest or run new analysis

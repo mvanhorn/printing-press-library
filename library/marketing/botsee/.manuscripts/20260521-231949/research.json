@@ -19,7 +19,7 @@
     {
       "name": "Recommendations (top-level)",
       "command": "recommendations",
-      "description": "Generate next-step recommendations from an analysis, promoted to top-level discovery with local caching so repeated reads are free.",
+      "description": "Generate next-step recommendations from an analysis — promoted to top-level so agents can discover it without descending into the analysis subcommand tree.",
       "rationale": "Wraps POST /analysis/{uuid}/recommendations and caches the response in the local SQLite store keyed by analysis_uuid.",
       "example": "botsee-pp-cli recommendations $ANALYSIS_UUID --agent",
       "why_it_matters": "Use after an analysis to get LLM-generated action items without re-spending if you already pulled them once.",
@@ -57,7 +57,7 @@
     {
       "name": "Recommendations (top-level)",
       "command": "recommendations",
-      "description": "Generate next-step recommendations from an analysis, promoted to top-level discovery with local caching so repeated reads are free.",
+      "description": "Generate next-step recommendations from an analysis — promoted to top-level so agents can discover it without descending into the analysis subcommand tree.",
       "rationale": "Wraps POST /analysis/{uuid}/recommendations and caches the response in the local SQLite store keyed by analysis_uuid.",
       "example": "botsee-pp-cli recommendations $ANALYSIS_UUID --agent",
       "why_it_matters": "Use after an analysis to get LLM-generated action items without re-spending if you already pulled them once.",

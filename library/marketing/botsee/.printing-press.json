@@ -31,7 +31,7 @@
     {
       "name": "Recommendations (top-level)",
       "command": "recommendations",
-      "description": "Generate next-step recommendations from an analysis, promoted to top-level discovery with local caching so repeated reads are free."
+      "description": "Generate next-step recommendations from an analysis — promoted to top-level so agents can discover it without descending into the analysis subcommand tree."
     },
     {
       "name": "Site config tree",

@@ -47,7 +47,7 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   botsee-pp-cli ai-visibility-audit example.com --types 2 --personas 2 --questions 5 --watch --agent
   ```
-- **`recommendations`** — Generate next-step recommendations from an analysis, promoted to top-level discovery with local caching so repeated reads are free.
+- **`recommendations`** — Generate next-step recommendations from an analysis — promoted to top-level so agents can discover it without descending into the analysis subcommand tree.
 
   _Use after an analysis to get LLM-generated action items without re-spending if you already pulled them once._
 

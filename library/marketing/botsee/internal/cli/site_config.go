@@ -156,28 +156,41 @@ func renderSiteConfigText(w interface{ Write([]byte) (int, error) }, tree *siteC
 	fmt.Fprintf(w, "Site: %s\n", tree.SiteUUID)
 	fmt.Fprintf(w, "  %d customer types  •  %d personas  •  %d questions\n\n",
 		tree.Counts["customer_types"], tree.Counts["personas"], tree.Counts["questions"])
-	for _, ct := range tree.CustomerTypes {
-		fmt.Fprintf(w, "├─ %s (ct=%s)\n", nameOr(ct.Name, "(unnamed)"), ct.UUID)
+	for ctIdx, ct := range tree.CustomerTypes {
+		ctLast := ctIdx == len(tree.CustomerTypes)-1
+		ctPrefix := "├─"
+		if ctLast {
+			ctPrefix = "└─"
+		}
+		fmt.Fprintf(w, "%s %s (ct=%s)\n", ctPrefix, nameOr(ct.Name, "(unnamed)"), ct.UUID)
+		// Vertical guide line under this customer-type's children: '│' if more
+		// customer types follow, blank if this is the last customer-type.
+		vbar := "│"
+		if ctLast {
+			vbar = " "
+		}
 		for i, p := range ct.Children {
 			isLast := i == len(ct.Children)-1
-			pre := "│  ├─"
+			pre := vbar + "  ├─"
 			if isLast {
-				pre = "│  └─"
+				pre = vbar + "  └─"
 			}
 			fmt.Fprintf(w, "%s %s (persona=%s)\n", pre, nameOr(p.Name, "(unnamed)"), p.UUID)
 			if depth == "questions" {
+				// Vertical guide under the persona: '│' if more personas
+				// follow, blank if this persona is the last child of the
+				// current customer-type.
+				pbar := "│"
+				if isLast {
+					pbar = " "
+				}
 				for j, q := range p.Children {
 					qLast := j == len(p.Children)-1
-					qPre := "│  │  ├─"
-					if isLast {
-						qPre = "│     ├─"
+					qConn := "├─"
+					if qLast {
+						qConn = "└─"
 					}
-					if qLast && isLast {
-						qPre = "│     └─"
-					} else if qLast {
-						qPre = "│  │  └─"
-					}
-					fmt.Fprintf(w, "%s \"%s\" (q=%s)\n", qPre, truncate(q.Text, 80), q.UUID)
+					fmt.Fprintf(w, "%s  %s  %s \"%s\" (q=%s)\n", vbar, pbar, qConn, truncate(q.Text, 80), q.UUID)
 				}
 			}
 		}

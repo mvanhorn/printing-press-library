@@ -121,6 +121,9 @@ to populate the local SQLite cache with analysis sources.`,
 					}
 				}
 			}
+			if err := rows.Err(); err != nil {
+				return fmt.Errorf("iterating sources: %w", err)
+			}
 
 			out := make([]*agg, 0, len(aggs))
 			for _, a := range aggs {

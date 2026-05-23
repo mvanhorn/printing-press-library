@@ -149,7 +149,7 @@ func newRootCmd(flags *rootFlags) *cobra.Command {
 
 Highlights (not in the official API docs):
   • ai-visibility-audit   One command runs the full BotSee audit: idempotent on existing sites, bootstraps customer types and personas and questions if missing, then runs analysis across every LLM and prints a structured visi…
-  • recommendations   Generate next-step recommendations from an analysis, promoted to top-level discovery with local caching so repeated reads are free.
+  • recommendations   Generate next-step recommendations from an analysis — promoted to top-level so agents can discover it without descending into the analysis subcommand tree.
   • site-config   Print the full customer-types -> personas -> questions tree for a site, with UUIDs and the actual edit commands users can copy-paste to add, update, or remove any node.
   • sites-summary   Aggregate cited sources across every synced site, grouped by domain, with citation count, distinct sites citing each domain, and first-seen timestamp.
 
