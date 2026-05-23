@@ -1,0 +1,51 @@
+version: 2
+project_name: vibecode-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: vibecode-pp-cli
+    main: ./cmd/vibecode-pp-cli
+    binary: vibecode-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/developer-tools/vibecode/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: vibecode-pp-mcp
+    main: ./cmd/vibecode-pp-mcp
+    binary: vibecode-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: vibecode-pp-cli
+    repository:
+      owner: user
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every Vibecode feature, plus offline sync, cross-project search, and deployment drift detection no other tool has"
+    install: |
+      bin.install "vibecode-pp-cli"
+      bin.install "vibecode-pp-mcp"

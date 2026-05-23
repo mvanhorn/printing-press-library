@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "vibecode-pp-mcp",
+  "display_name": "Vibecode",
+  "version": "4.13.0",
+  "description": "Every Vibecode feature, plus offline sync, cross-project search, and deployment drift detection no other tool has",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/vibecode-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/vibecode-pp-mcp",
+      "args": [],
+      "env": {
+        "VIBECODE_API_KEY": "${user_config.vibecode_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "vibecode_api_key": {
+      "type": "string",
+      "title": "VIBECODE_API_KEY",
+      "description": "Sets VIBECODE_API_KEY for the Vibecode MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,300 @@
+# Vibecode Internal Spec
+# Generated from official vibecode-cli skill documentation
+# https://github.com/vibecode/vibecode-cli
+
+name: vibecode
+display_name: Vibecode
+category: developer-tools
+cli_description: "Every Vibecode feature, plus offline sync, cross-project search, and deployment drift detection"
+base_url: https://api.vibecode.dev
+
+auth:
+  type: bearer_token
+  header: Authorization
+  in: header
+  env_vars:
+    - VIBECODE_API_KEY
+
+resources:
+  user:
+    description: Current authenticated user profile
+    endpoints:
+      get:
+        method: GET
+        path: /user
+        description: Get current user profile
+
+  projects:
+    description: Vibecode projects (web apps, mobile apps, openclaw)
+    endpoints:
+      list:
+        method: GET
+        path: /projects
+        description: List all projects
+        params:
+          - name: limit
+            type: integer
+            description: Maximum number of projects to return
+          - name: query
+            type: string
+            description: Filter projects by name
+      get:
+        method: GET
+        path: /projects/{id}
+        description: Get project details including subdomain and custom domain
+      create:
+        method: POST
+        path: /projects
+        description: Create a new project
+        body:
+          - name: platform
+            type: string
+            description: Project platform type (webapp, mobile, openclaw)
+            required: true
+          - name: description
+            type: string
+            description: Project description/purpose
+            required: true
+      rename:
+        method: PATCH
+        path: /projects/{id}
+        description: Rename a project
+        body:
+          - name: name
+            type: string
+            description: New project name
+            required: true
+      delete:
+        method: DELETE
+        path: /projects/{id}
+        description: Delete a project permanently
+      commits:
+        method: GET
+        path: /projects/{id}/commits
+        description: List git commits for a project
+        params:
+          - name: limit
+            type: integer
+            description: Maximum number of commits to return
+
+  sandboxes:
+    description: Cloud VM sandboxes for development
+    endpoints:
+      list:
+        method: GET
+        path: /sandboxes
+        description: List running sandboxes
+        params:
+          - name: limit
+            type: integer
+            description: Maximum number of sandboxes to return
+      get:
+        method: GET
+        path: /sandboxes/{project_id}
+        description: Get sandbox status for a project
+      acquire:
+        method: POST
+        path: /sandboxes/{project_id}/acquire
+        description: Start sandbox and ensure tunnel links
+      kill:
+        method: POST
+        path: /sandboxes/{project_id}/kill
+        description: Terminate sandbox
+
+  sandbox_links:
+    description: Tunnel links for sandboxes
+    endpoints:
+      list:
+        method: GET
+        path: /sandboxes/{project_id}/links
+        description: List tunnel links for a sandbox
+      create:
+        method: POST
+        path: /sandboxes/{project_id}/links
+        description: Create tunnel link
+        body:
+          - name: port
+            type: integer
+            description: Port number to expose
+            required: true
+      delete:
+        method: DELETE
+        path: /sandboxes/{project_id}/links/{link_id}
+        description: Delete tunnel link
+
+  deployments:
+    description: Production deployments
+    endpoints:
+      list:
+        method: GET
+        path: /deployments
+        description: List deployments
+        params:
+          - name: limit
+            type: integer
+            description: Maximum number of deployments to return
+          - name: query
+            type: string
+            description: Filter deployments
+      get:
+        method: GET
+        path: /deployments/{project_id}
+        description: Get deployment details
+      deploy:
+        method: POST
+        path: /deployments/{project_id}/deploy
+        description: Deploy project (waits up to 2min)
+        body:
+          - name: commit
+            type: string
+            description: Specific commit SHA to deploy
+      destroy:
+        method: POST
+        path: /deployments/{project_id}/destroy
+        description: Tear down deployment
+      ready:
+        method: GET
+        path: /deployments/{project_id}/ready
+        description: Check if deployment is live
+
+  deployment_auth:
+    description: HTTP Basic Auth for deployments
+    endpoints:
+      get:
+        method: GET
+        path: /deployments/{project_id}/auth
+        description: Get HTTP Basic Auth configuration
+      set:
+        method: POST
+        path: /deployments/{project_id}/auth
+        description: Enable HTTP Basic Auth
+        body:
+          - name: username
+            type: string
+            description: Auth username
+            required: true
+          - name: password
+            type: string
+            description: Auth password
+            required: true
+      disable:
+        method: DELETE
+        path: /deployments/{project_id}/auth
+        description: Disable HTTP Basic Auth
+
+  deployment_subdomain:
+    description: Subdomain configuration for deployments
+    endpoints:
+      check:
+        method: GET
+        path: /subdomains/{subdomain}/check
+        description: Check subdomain availability
+      set:
+        method: POST
+        path: /deployments/{project_id}/subdomain
+        description: Set deployment subdomain
+        body:
+          - name: subdomain
+            type: string
+            description: Desired subdomain
+            required: true
+
+  deployment_domain:
+    description: Custom domain configuration for deployments
+    endpoints:
+      get:
+        method: GET
+        path: /deployments/{project_id}/domain
+        description: Get custom domain configuration
+      set:
+        method: POST
+        path: /deployments/{project_id}/domain
+        description: Set custom domain
+        body:
+          - name: domain
+            type: string
+            description: Custom domain
+            required: true
+          - name: www
+            type: boolean
+            description: Add www redirect
+      verify:
+        method: POST
+        path: /deployments/{project_id}/domain/verify
+        description: Verify DNS records for custom domain
+      remove:
+        method: DELETE
+        path: /deployments/{project_id}/domain
+        description: Remove custom domain
+
+  deployment_links:
+    description: Tunnel links for deployments
+    endpoints:
+      list:
+        method: GET
+        path: /deployments/{project_id}/links
+        description: List deployment links
+      create:
+        method: POST
+        path: /deployments/{project_id}/links
+        description: Create deployment link
+        body:
+          - name: port
+            type: integer
+            description: Port number to expose
+            required: true
+      delete:
+        method: DELETE
+        path: /deployments/{project_id}/links/{link_id}
+        description: Delete deployment link
+
+  agent:
+    description: AI coding agent control
+    endpoints:
+      send:
+        method: POST
+        path: /agent/{target}/send
+        description: Send prompt to coding agent (streams events)
+        body:
+          - name: prompt
+            type: string
+            description: The prompt to send to the agent
+            required: true
+          - name: model
+            type: string
+            description: Model to use (default claude-opus-4-6)
+          - name: max_turns
+            type: integer
+            description: Maximum agentic turns (default 100)
+          - name: system_prompt
+            type: string
+            description: Custom system prompt
+          - name: plan
+            type: boolean
+            description: Enable plan mode
+      stop:
+        method: POST
+        path: /agent/{target}/stop
+        description: Stop running agent task
+
+  yolo:
+    description: Combined build and deploy
+    endpoints:
+      execute:
+        method: POST
+        path: /yolo/{project_id}
+        description: Agent send + deploy in one shot
+        body:
+          - name: prompt
+            type: string
+            description: Build prompt for the agent
+            required: true
+          - name: model
+            type: string
+            description: Model to use
+          - name: max_turns
+            type: integer
+            description: Maximum agentic turns
+          - name: deploy_timeout
+            type: string
+            description: Maximum time to wait for deployment

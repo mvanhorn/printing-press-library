@@ -1,0 +1,682 @@
+{
+  "api_name": "vibecode",
+  "base_url": "https://api.vibecode.dev",
+  "description": "Every Vibecode feature, plus offline sync, cross-project search, and deployment drift detection no other tool has",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "in": "header",
+    "env_vars": [
+      "VIBECODE_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "VIBECODE_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "agent_send",
+      "description": "Send prompt to coding agent (streams events). Required: target, prompt. Optional: model, max_turns, system_prompt (plus 1 more).",
+      "method": "POST",
+      "path": "/agent/{target}/send",
+      "params": [
+        {
+          "name": "target",
+          "type": "string",
+          "location": "path",
+          "description": "target",
+          "required": true
+        },
+        {
+          "name": "prompt",
+          "type": "string",
+          "location": "body",
+          "description": "The prompt to send to the agent",
+          "required": true
+        },
+        {
+          "name": "model",
+          "type": "string",
+          "location": "body",
+          "description": "Model to use (default claude-opus-4-6)"
+        },
+        {
+          "name": "max_turns",
+          "type": "integer",
+          "location": "body",
+          "description": "Maximum agentic turns (default 100)"
+        },
+        {
+          "name": "system_prompt",
+          "type": "string",
+          "location": "body",
+          "description": "Custom system prompt"
+        },
+        {
+          "name": "plan",
+          "type": "boolean",
+          "location": "body",
+          "description": "Enable plan mode"
+        }
+      ]
+    },
+    {
+      "name": "agent_stop",
+      "description": "Stop running agent task. Required: target.",
+      "method": "POST",
+      "path": "/agent/{target}/stop",
+      "params": [
+        {
+          "name": "target",
+          "type": "string",
+          "location": "path",
+          "description": "target",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deployment_auth_disable",
+      "description": "Disable HTTP Basic Auth. Required: project_id. Destructive.",
+      "method": "DELETE",
+      "path": "/deployments/{project_id}/auth",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "project_id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deployment_auth_get",
+      "description": "Get HTTP Basic Auth configuration. Required: project_id.",
+      "method": "GET",
+      "path": "/deployments/{project_id}/auth",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "project_id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deployment_auth_set",
+      "description": "Enable HTTP Basic Auth. Required: project_id, username, password.",
+      "method": "POST",
+      "path": "/deployments/{project_id}/auth",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "project_id",
+          "required": true
+        },
+        {
+          "name": "username",
+          "type": "string",
+          "location": "body",
+          "description": "Auth username",
+          "required": true
+        },
+        {
+          "name": "password",
+          "type": "string",
+          "location": "body",
+          "description": "Auth password",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deployment_domain_get",
+      "description": "Get custom domain configuration. Required: project_id.",
+      "method": "GET",
+      "path": "/deployments/{project_id}/domain",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "project_id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deployment_domain_remove",
+      "description": "Remove custom domain. Required: project_id. Destructive.",
+      "method": "DELETE",
+      "path": "/deployments/{project_id}/domain",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "project_id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deployment_domain_set",
+      "description": "Set custom domain. Required: project_id, domain. Optional: www.",
+      "method": "POST",
+      "path": "/deployments/{project_id}/domain",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "project_id",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "body",
+          "description": "Custom domain",
+          "required": true
+        },
+        {
+          "name": "www",
+          "type": "boolean",
+          "location": "body",
+          "description": "Add www redirect"
+        }
+      ]
+    },
+    {
+      "name": "deployment_domain_verify",
+      "description": "Verify DNS records for custom domain. Required: project_id.",
+      "method": "POST",
+      "path": "/deployments/{project_id}/domain/verify",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "project_id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deployment_links_create",
+      "description": "Create deployment link. Required: project_id, port.",
+      "method": "POST",
+      "path": "/deployments/{project_id}/links",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "project_id",
+          "required": true
+        },
+        {
+          "name": "port",
+          "type": "integer",
+          "location": "body",
+          "description": "Port number to expose",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deployment_links_delete",
+      "description": "Delete deployment link. Required: project_id, link_id. Destructive.",
+      "method": "DELETE",
+      "path": "/deployments/{project_id}/links/{link_id}",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "project_id",
+          "required": true
+        },
+        {
+          "name": "link_id",
+          "type": "string",
+          "location": "path",
+          "description": "link_id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deployment_links_list",
+      "description": "List deployment links. Required: project_id.",
+      "method": "GET",
+      "path": "/deployments/{project_id}/links",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "project_id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deployment_subdomain_check",
+      "description": "Check subdomain availability. Required: subdomain.",
+      "method": "GET",
+      "path": "/subdomains/{subdomain}/check",
+      "params": [
+        {
+          "name": "subdomain",
+          "type": "string",
+          "location": "path",
+          "description": "subdomain",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deployment_subdomain_set",
+      "description": "Set deployment subdomain. Required: project_id, subdomain.",
+      "method": "POST",
+      "path": "/deployments/{project_id}/subdomain",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "project_id",
+          "required": true
+        },
+        {
+          "name": "subdomain",
+          "type": "string",
+          "location": "body",
+          "description": "Desired subdomain",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deployments_deploy",
+      "description": "Deploy project (waits up to 2min). Required: project_id. Optional: commit.",
+      "method": "POST",
+      "path": "/deployments/{project_id}/deploy",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "project_id",
+          "required": true
+        },
+        {
+          "name": "commit",
+          "type": "string",
+          "location": "body",
+          "description": "Specific commit SHA to deploy"
+        }
+      ]
+    },
+    {
+      "name": "deployments_destroy",
+      "description": "Tear down deployment. Required: project_id.",
+      "method": "POST",
+      "path": "/deployments/{project_id}/destroy",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "project_id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deployments_get",
+      "description": "Get deployment details. Required: project_id.",
+      "method": "GET",
+      "path": "/deployments/{project_id}",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "project_id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "deployments_list",
+      "description": "List deployments. Optional: limit, query.",
+      "method": "GET",
+      "path": "/deployments",
+      "params": [
+        {
+          "name": "limit",
+          "type": "integer",
+          "location": "query",
+          "description": "Maximum number of deployments to return"
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Filter deployments"
+        }
+      ]
+    },
+    {
+      "name": "deployments_ready",
+      "description": "Check if deployment is live. Required: project_id.",
+      "method": "GET",
+      "path": "/deployments/{project_id}/ready",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "project_id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_commits",
+      "description": "List git commits for a project. Required: id. Optional: limit.",
+      "method": "GET",
+      "path": "/projects/{id}/commits",
+      "params": [
+        {
+          "name": "limit",
+          "type": "integer",
+          "location": "query",
+          "description": "Maximum number of commits to return"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_create",
+      "description": "Create a new project. Required: platform, description.",
+      "method": "POST",
+      "path": "/projects",
+      "params": [
+        {
+          "name": "platform",
+          "type": "string",
+          "location": "body",
+          "description": "Project platform type (webapp, mobile, openclaw)",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Project description/purpose",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_delete",
+      "description": "Delete a project permanently. Required: id. Destructive.",
+      "method": "DELETE",
+      "path": "/projects/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_get",
+      "description": "Get project details including subdomain and custom domain. Required: id.",
+      "method": "GET",
+      "path": "/projects/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_list",
+      "description": "List all projects. Optional: limit, query.",
+      "method": "GET",
+      "path": "/projects",
+      "params": [
+        {
+          "name": "limit",
+          "type": "integer",
+          "location": "query",
+          "description": "Maximum number of projects to return"
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Filter projects by name"
+        }
+      ]
+    },
+    {
+      "name": "projects_rename",
+      "description": "Rename a project. Required: id, name. Partial update.",
+      "method": "PATCH",
+      "path": "/projects/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "New project name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sandbox_links_create",
+      "description": "Create tunnel link. Required: project_id, port.",
+      "method": "POST",
+      "path": "/sandboxes/{project_id}/links",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "project_id",
+          "required": true
+        },
+        {
+          "name": "port",
+          "type": "integer",
+          "location": "body",
+          "description": "Port number to expose",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sandbox_links_delete",
+      "description": "Delete tunnel link. Required: project_id, link_id. Destructive.",
+      "method": "DELETE",
+      "path": "/sandboxes/{project_id}/links/{link_id}",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "project_id",
+          "required": true
+        },
+        {
+          "name": "link_id",
+          "type": "string",
+          "location": "path",
+          "description": "link_id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sandbox_links_list",
+      "description": "List tunnel links for a sandbox. Required: project_id.",
+      "method": "GET",
+      "path": "/sandboxes/{project_id}/links",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "project_id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sandboxes_acquire",
+      "description": "Start sandbox and ensure tunnel links. Required: project_id.",
+      "method": "POST",
+      "path": "/sandboxes/{project_id}/acquire",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "project_id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sandboxes_get",
+      "description": "Get sandbox status for a project. Required: project_id.",
+      "method": "GET",
+      "path": "/sandboxes/{project_id}",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "project_id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sandboxes_kill",
+      "description": "Terminate sandbox. Required: project_id.",
+      "method": "POST",
+      "path": "/sandboxes/{project_id}/kill",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "project_id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sandboxes_list",
+      "description": "List running sandboxes. Optional: limit.",
+      "method": "GET",
+      "path": "/sandboxes",
+      "params": [
+        {
+          "name": "limit",
+          "type": "integer",
+          "location": "query",
+          "description": "Maximum number of sandboxes to return"
+        }
+      ]
+    },
+    {
+      "name": "user_get",
+      "description": "Get current user profile.",
+      "method": "GET",
+      "path": "/user",
+      "params": []
+    },
+    {
+      "name": "yolo_execute",
+      "description": "Agent send + deploy in one shot. Required: project_id, prompt. Optional: model, max_turns, deploy_timeout.",
+      "method": "POST",
+      "path": "/yolo/{project_id}",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "project_id",
+          "required": true
+        },
+        {
+          "name": "prompt",
+          "type": "string",
+          "location": "body",
+          "description": "Build prompt for the agent",
+          "required": true
+        },
+        {
+          "name": "model",
+          "type": "string",
+          "location": "body",
+          "description": "Model to use"
+        },
+        {
+          "name": "max_turns",
+          "type": "integer",
+          "location": "body",
+          "description": "Maximum agentic turns"
+        },
+        {
+          "name": "deploy_timeout",
+          "type": "string",
+          "location": "body",
+          "description": "Maximum time to wait for deployment"
+        }
+      ]
+    }
+  ]
+}

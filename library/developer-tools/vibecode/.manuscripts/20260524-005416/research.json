@@ -1,0 +1,210 @@
+{
+  "api_name": "vibecode",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "vibecode-cli",
+      "url": "https://github.com/vibecode/vibecode-cli",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 40,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-24T01:00:00Z",
+  "novel_features": [
+    {
+      "name": "Cross-Project Search",
+      "command": "search",
+      "description": "Full-text search across all projects, commits, and deployments in one query",
+      "rationale": "Official CLI searches one entity type per API call. Local FTS5 index enables unified search instantly",
+      "example": "vibecode-pp-cli search 'landing page' --json",
+      "why_it_matters": "Find that project or commit without remembering which entity type contains it",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Since-Style Delta Commands",
+      "command": "changes --since",
+      "description": "See what changed across all projects since a timestamp or last sync",
+      "rationale": "Requires comparing current API state against timestamped local snapshots",
+      "example": "vibecode-pp-cli changes --since '2 hours ago' --json",
+      "why_it_matters": "Resume work with full context after stepping away",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Deployment Drift Detection",
+      "command": "drift",
+      "description": "Compare current live deployment against cached configuration to spot unexpected changes",
+      "rationale": "Official CLI only sees current state. Drift detection requires remembering previous state",
+      "example": "vibecode-pp-cli drift proj_abc123 --json",
+      "why_it_matters": "Catch environment variable or build setting changes before they cause production issues",
+      "group": "Production safety"
+    },
+    {
+      "name": "Stale Deployment Finder",
+      "command": "stale --days",
+      "description": "Find deployments across all projects that haven't been updated in N days",
+      "rationale": "Queries local deployment history table with indexed timestamps",
+      "example": "vibecode-pp-cli stale --days 30 --json",
+      "why_it_matters": "Clean up old deployments to reduce costs and attack surface",
+      "group": "Production safety"
+    },
+    {
+      "name": "Build Duration Trends",
+      "command": "metrics builds",
+      "description": "Track build times over history with averages, p95, and trend indicators",
+      "rationale": "Build durations are ephemeral in the API. We capture and store them on every sync",
+      "example": "vibecode-pp-cli metrics builds --project proj_abc123 --json",
+      "why_it_matters": "Identify builds getting slower before they become a bottleneck",
+      "group": "Developer experience"
+    },
+    {
+      "name": "Batch Deploy",
+      "command": "batch deploy",
+      "description": "Deploy multiple projects matching a glob pattern with parallelism control",
+      "rationale": "Official CLI deploys one project per invocation. Batch requires local progress tracking",
+      "example": "vibecode-pp-cli batch deploy --pattern 'frontend-*' --parallel 3 --json",
+      "why_it_matters": "Deploy coordinated changes across microservices in one command",
+      "group": "Developer experience"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Cross-Project Search",
+      "command": "search",
+      "description": "Full-text search across all projects, commits, and deployments in one query",
+      "rationale": "Official CLI searches one entity type per API call. Local FTS5 index enables unified search instantly",
+      "example": "vibecode-pp-cli search 'landing page' --json",
+      "why_it_matters": "Find that project or commit without remembering which entity type contains it",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Since-Style Delta Commands",
+      "command": "changes --since",
+      "description": "See what changed across all projects since a timestamp or last sync",
+      "rationale": "Requires comparing current API state against timestamped local snapshots",
+      "example": "vibecode-pp-cli changes --since '2 hours ago' --json",
+      "why_it_matters": "Resume work with full context after stepping away",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Deployment Drift Detection",
+      "command": "drift",
+      "description": "Compare current live deployment against cached configuration to spot unexpected changes",
+      "rationale": "Official CLI only sees current state. Drift detection requires remembering previous state",
+      "example": "vibecode-pp-cli drift proj_abc123 --json",
+      "why_it_matters": "Catch environment variable or build setting changes before they cause production issues",
+      "group": "Production safety"
+    },
+    {
+      "name": "Stale Deployment Finder",
+      "command": "stale --days",
+      "description": "Find deployments across all projects that haven't been updated in N days",
+      "rationale": "Queries local deployment history table with indexed timestamps",
+      "example": "vibecode-pp-cli stale --days 30 --json",
+      "why_it_matters": "Clean up old deployments to reduce costs and attack surface",
+      "group": "Production safety"
+    },
+    {
+      "name": "Build Duration Trends",
+      "command": "metrics builds",
+      "description": "Track build times over history with averages, p95, and trend indicators",
+      "rationale": "Build durations are ephemeral in the API. We capture and store them on every sync",
+      "example": "vibecode-pp-cli metrics builds --project proj_abc123 --json",
+      "why_it_matters": "Identify builds getting slower before they become a bottleneck",
+      "group": "Developer experience"
+    },
+    {
+      "name": "Batch Deploy",
+      "command": "batch deploy",
+      "description": "Deploy multiple projects matching a glob pattern with parallelism control",
+      "rationale": "Official CLI deploys one project per invocation. Batch requires local progress tracking",
+      "example": "vibecode-pp-cli batch deploy --pattern 'frontend-*' --parallel 3 --json",
+      "why_it_matters": "Deploy coordinated changes across microservices in one command",
+      "group": "Developer experience"
+    }
+  ],
+  "narrative": {
+    "display_name": "Vibecode",
+    "headline": "Every Vibecode feature, plus offline sync, cross-project search, and deployment drift detection no other tool has",
+    "value_prop": "A local-first CLI for the vibecode.dev platform that caches your projects, deployments, and commits in SQLite for instant offline access. Adds cross-entity search, since-style delta commands, and deployment drift detection that the official CLI cannot offer.",
+    "auth_narrative": "Set VIBECODE_API_KEY from vibecode.dev/key. The CLI validates on first use and caches your user profile locally.",
+    "quickstart": [
+      {
+        "command": "vibecode-pp-cli doctor",
+        "comment": "Verify API key and connectivity"
+      },
+      {
+        "command": "vibecode-pp-cli sync --full",
+        "comment": "Pull all projects, deployments, and commits locally"
+      },
+      {
+        "command": "vibecode-pp-cli projects list",
+        "comment": "List projects from local cache"
+      },
+      {
+        "command": "vibecode-pp-cli search 'landing page'",
+        "comment": "Search across all entities"
+      },
+      {
+        "command": "vibecode-pp-cli yolo proj_abc --prompt 'Build a todo app'",
+        "comment": "Build and deploy in one shot"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Error: unauthorized",
+        "fix": "Check VIBECODE_API_KEY is set. Get your key at vibecode.dev/key"
+      },
+      {
+        "symptom": "Sync takes too long",
+        "fix": "Use --project to sync a single project instead of --full"
+      },
+      {
+        "symptom": "Sandbox not found",
+        "fix": "Run 'sync' first or use 'sandboxes acquire' to start one"
+      }
+    ],
+    "when_to_use": "Use this CLI when you're building apps on vibecode.dev and want offline access to your project data, cross-project search, or deployment drift detection. Ideal for developers managing multiple Vibecode projects or AI agents that need reliable structured output.",
+    "recipes": [
+      {
+        "title": "Find stale deployments",
+        "command": "vibecode-pp-cli stale --days 14 --json",
+        "explanation": "List deployments not updated in 14 days for cleanup"
+      },
+      {
+        "title": "Check what changed",
+        "command": "vibecode-pp-cli changes --since '1 day ago' --select name,status",
+        "explanation": "See projects modified in the last day with only essential fields"
+      },
+      {
+        "title": "Batch deploy frontend",
+        "command": "vibecode-pp-cli batch deploy --pattern 'frontend-*' --parallel 2",
+        "explanation": "Deploy all frontend projects with controlled parallelism"
+      },
+      {
+        "title": "Detect deployment drift",
+        "command": "vibecode-pp-cli drift proj_abc123 --json",
+        "explanation": "Compare live deployment against cached config"
+      },
+      {
+        "title": "Build metrics",
+        "command": "vibecode-pp-cli metrics builds --project proj_abc123 --agent",
+        "explanation": "Get build duration trends with agent-optimized output"
+      }
+    ],
+    "trigger_phrases": [
+      "deploy my vibecode project",
+      "check vibecode deployments",
+      "search vibecode projects",
+      "build with vibecode",
+      "vibecode stale projects"
+    ]
+  }
+}
