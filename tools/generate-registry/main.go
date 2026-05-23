@@ -198,6 +198,14 @@ func main() {
 	if err != nil {
 		log.Fatalf("building entries: %v", err)
 	}
+	if errs := validateUniqueAPIDisplayNames(entries, nil); len(errs) > 0 {
+		fmt.Fprintln(os.Stderr, "Registry generation failed:")
+		for _, e := range errs {
+			fmt.Fprintln(os.Stderr, "  - "+e)
+		}
+		fmt.Fprintln(os.Stderr, "\nFix .printing-press.json `display_name` values so catalog labels do not collide.")
+		os.Exit(2)
+	}
 
 	registry := Registry{
 		SchemaVersion: schemaVersion,
