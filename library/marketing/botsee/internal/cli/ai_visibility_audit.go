@@ -258,13 +258,30 @@ func normalizeDomain(input string) string {
 }
 
 func findOrCreateSite(ctx context.Context, c httpClient, rawURL, normalized string, flags *rootFlags, result *auditResult) (string, bool, error) {
-	data, err := c.Get(ctx, "/api/v1/sites", nil)
-	if err != nil {
-		return "", false, fmt.Errorf("listing sites: %w", err)
-	}
-	uuid := matchSiteByDomain(data, normalized)
-	if uuid != "" {
-		return uuid, true, nil
+	// Paginate through /sites until the domain is found or the list is
+	// exhausted. The endpoint uses cursor pagination (`cursor` + `limit`,
+	// per the spec). Without pagination, a user with more sites than the
+	// API default page size would silently get a duplicate site created.
+	cursor := ""
+	const maxPages = 50 // safety cap; 50 * 100 = 5000 sites covered
+	for page := 0; page < maxPages; page++ {
+		params := map[string]string{"limit": "100"}
+		if cursor != "" {
+			params["cursor"] = cursor
+		}
+		data, err := c.Get(ctx, "/api/v1/sites", params)
+		if err != nil {
+			return "", false, fmt.Errorf("listing sites: %w", err)
+		}
+		if uuid := matchSiteByDomain(data, normalized); uuid != "" {
+			return uuid, true, nil
+		}
+		// Extract next cursor (common shapes: next_cursor, cursor, pagination.next_cursor)
+		nextCursor := extractNextCursor(data)
+		if nextCursor == "" || nextCursor == cursor {
+			break
+		}
+		cursor = nextCursor
 	}
 	if dryRunOK(flags) {
 		return "", false, nil
@@ -278,6 +295,44 @@ func findOrCreateSite(ctx context.Context, c httpClient, rawURL, normalized stri
 		return "", false, fmt.Errorf("creating site: %w", err)
 	}
 	return extractUUID(resp, "site"), false, nil
+}
+
+// extractNextCursor probes common cursor field locations in a paginated
+// JSON response. Returns "" if no next-page indicator is present.
+func extractNextCursor(data json.RawMessage) string {
+	if len(data) == 0 {
+		return ""
+	}
+	var m map[string]json.RawMessage
+	if err := json.Unmarshal(data, &m); err != nil {
+		return ""
+	}
+	// Top-level next_cursor / cursor
+	for _, key := range []string{"next_cursor", "nextCursor", "cursor"} {
+		if raw, ok := m[key]; ok {
+			var s string
+			if err := json.Unmarshal(raw, &s); err == nil && s != "" {
+				return s
+			}
+		}
+	}
+	// Nested under pagination / meta
+	for _, parent := range []string{"pagination", "meta"} {
+		if raw, ok := m[parent]; ok {
+			var inner map[string]json.RawMessage
+			if err := json.Unmarshal(raw, &inner); err == nil {
+				for _, key := range []string{"next_cursor", "nextCursor", "cursor"} {
+					if r, ok := inner[key]; ok {
+						var s string
+						if err := json.Unmarshal(r, &s); err == nil && s != "" {
+							return s
+						}
+					}
+				}
+			}
+		}
+	}
+	return ""
 }
 
 func matchSiteByDomain(listResp json.RawMessage, normalized string) string {
@@ -523,12 +578,35 @@ func findLatestCompletedAnalysis(ctx context.Context, c httpClient, siteUUID str
 		return "", err
 	}
 	list := extractList(data, "analyses")
+	// Pick the completed analysis with the greatest completed_at (falling
+	// back to started_at / created_at). The API does not guarantee sorted
+	// order, so iterating in list order risks returning stale data.
+	var bestUUID, bestKey string
 	for _, a := range list {
-		if asString(a["status"]) == "completed" {
-			if u := asString(a["uuid"]); u != "" {
-				return u, nil
-			}
+		if asString(a["status"]) != "completed" {
+			continue
 		}
+		u := asString(a["uuid"])
+		if u == "" {
+			continue
+		}
+		// Prefer completed_at, fall back to started_at, then created_at.
+		// All three are RFC3339 strings per the spec; lexicographic order
+		// over RFC3339 is equivalent to chronological order.
+		key := asString(a["completed_at"])
+		if key == "" {
+			key = asString(a["started_at"])
+		}
+		if key == "" {
+			key = asString(a["created_at"])
+		}
+		if bestUUID == "" || key > bestKey {
+			bestUUID = u
+			bestKey = key
+		}
+	}
+	if bestUUID != "" {
+		return bestUUID, nil
 	}
 	return "", fmt.Errorf("no completed analysis found for site %s — run without --reuse-latest", siteUUID)
 }
