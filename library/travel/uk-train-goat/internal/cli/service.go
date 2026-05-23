@@ -3,6 +3,7 @@ package cli
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 
 	"github.com/mvanhorn/printing-press-library/library/travel/uk-train-goat/internal/config"
@@ -41,6 +42,12 @@ func newServiceCmd(flags *rootFlags) *cobra.Command {
 			svc, err := c.Service(strings.TrimSpace(args[0]))
 			if err != nil {
 				return apiErr(err)
+			}
+			// PATCH(upstream cli-printing-press#1249): GetServiceDetails returns
+			// (nil, nil) when no record matches; without this guard, the caller
+			// gets `null` on stdout and exit 0, indistinguishable from success.
+			if svc == nil {
+				return notFoundErr(fmt.Errorf("no service found for id %q", args[0]))
 			}
 			data, _ := json.Marshal(serializeService(svc))
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)

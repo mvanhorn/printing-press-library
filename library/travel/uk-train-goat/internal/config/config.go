@@ -83,11 +83,11 @@ func (c *Config) AuthHeader() string {
 	if c.AuthHeaderVal != "" {
 		return c.AuthHeaderVal
 	}
+	// PATCH(upstream cli-printing-press#1249): collapse the duplicated empty-token
+	// guard. The generated template emitted a second `if c.LdbwsApiToken == ""`
+	// after `token := c.LdbwsApiToken`, which is unreachable dead code.
 	token := c.LdbwsApiToken
 	if token == "" {
-		return ""
-	}
-	if c.LdbwsApiToken == "" {
 		return ""
 	}
 	replacements := map[string]string{

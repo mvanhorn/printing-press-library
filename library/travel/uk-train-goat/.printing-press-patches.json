@@ -33,7 +33,22 @@
     },
     {
       "files": ["internal/config/config.go"],
-      "summary": "ClearTokens also clears LdbwsApiToken and AuthHeaderVal so `auth logout` is effective for non-OAuth auth modes",
+      "summary": "ClearTokens also clears LdbwsApiToken and AuthHeaderVal so `auth logout` is effective for non-OAuth auth modes; AuthHeader drops a duplicated empty-token guard that was unreachable",
+      "upstream": "cli-printing-press#1249"
+    },
+    {
+      "files": ["internal/cli/saved.go"],
+      "summary": "saved rm cleans the resources_fts FTS5 index after deleting from resources so the index doesn't grow unboundedly across add->rm cycles",
+      "upstream": "cli-printing-press#1249"
+    },
+    {
+      "files": ["internal/cli/service.go"],
+      "summary": "Nil-guard after c.Service so a (nil, nil) GetServiceDetails return surfaces as notFoundErr rather than a success-shaped `null` JSON envelope",
+      "upstream": "cli-printing-press#1249"
+    },
+    {
+      "files": ["internal/cli/why.go"],
+      "summary": "Nil-guard after c.Service so a (nil, nil) GetServiceDetails return surfaces as notFoundErr rather than a success-shaped JSON envelope with service: null",
       "upstream": "cli-printing-press#1249"
     }
   ]

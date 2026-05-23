@@ -137,6 +137,14 @@ func newSavedRmCmd(flags *rootFlags) *cobra.Command {
 			if affected == 0 {
 				return notFoundErr(fmt.Errorf("no saved route named %q", args[0]))
 			}
+			// PATCH(upstream cli-printing-press#1249): mirror the upsert path's
+			// FTS5 maintenance so the resources_fts index doesn't grow
+			// unboundedly across add->rm cycles. Search() already JOINs
+			// against resources so orphaned FTS rows don't affect results,
+			// but the index itself still bloats without this cleanup.
+			if _, ftsErr := s.DB().Exec(`DELETE FROM resources_fts WHERE id = ?`, args[0]); ftsErr != nil {
+				fmt.Fprintf(cmd.ErrOrStderr(), "warning: FTS index cleanup failed: %v\n", ftsErr)
+			}
 			payload := map[string]any{"removed": args[0]}
 			out, _ := json.Marshal(payload)
 			return printOutputWithFlags(cmd.OutOrStdout(), out, flags)

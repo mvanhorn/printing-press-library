@@ -44,6 +44,13 @@ func newWhyCmd(flags *rootFlags) *cobra.Command {
 			if err != nil {
 				return apiErr(err)
 			}
+			// PATCH(upstream cli-printing-press#1249): GetServiceDetails returns
+			// (nil, nil) when no record matches; surface that as not-found so
+			// the caller can branch on exit code rather than parsing a
+			// success-shaped JSON envelope with `service: null`.
+			if details == nil {
+				return notFoundErr(fmt.Errorf("no service found for id %q", args[0]))
+			}
 
 			explanation := summarizeDelay(details)
 			payload := map[string]any{
