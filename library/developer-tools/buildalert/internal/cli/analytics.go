@@ -9,7 +9,7 @@ import (
 	"os"
 	"sort"
 
-	"github.com/mvanhorn/printing-press-library/library/developer-tools/buildalert/internal/store"
+	"buildalert-pp-cli/internal/store"
 	"github.com/spf13/cobra"
 )
 
@@ -95,7 +95,11 @@ Data must be synced first with the sync command.`,
 }
 
 func runGroupBy(db *store.Store, resourceType, field string, limit int, flags *rootFlags) error {
-	items, err := db.List(resourceType, 0)
+	// store.List treats 0 as "use default cap of 200", which silently truncates
+	// group-by output for users with more synced records. Pass a very large
+	// limit to mean "all rows" — the SQL query still streams, but the LIMIT
+	// clause no longer caps the result set short of the real count.
+	items, err := db.List(resourceType, 1<<31-1)
 	if err != nil {
 		return err
 	}

@@ -334,7 +334,7 @@ func runCoverage(cmd *cobra.Command, flags *rootFlags, z *commonZazuFlags) error
 	if err != nil {
 		return err
 	}
-	leads, _, err := fetchAllLeads(cmd.Context(), c, "", "", 0)
+	leads, _, err := fetchAllLeads(cmd.Context(), c, z.projectTypes, z.states, z.minValue)
 	if err != nil {
 		return classifyAPIError(err, flags)
 	}
