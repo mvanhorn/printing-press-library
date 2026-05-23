@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"github.com/mvanhorn/printing-press-library/library/other/polymarket/internal/cliutil"
+	"polymarket-pp-cli/internal/cliutil"
 )
 
 func newPortfolioCmd(flags *rootFlags) *cobra.Command {

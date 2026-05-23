@@ -6,7 +6,7 @@ package main
 import (
 	"os"
 
-	"github.com/mvanhorn/printing-press-library/library/other/polymarket/internal/cli"
+	"polymarket-pp-cli/internal/cli"
 )
 
 func main() {

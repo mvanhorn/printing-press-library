@@ -17,8 +17,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mvanhorn/printing-press-library/library/other/polymarket/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/other/polymarket/internal/store"
+	"polymarket-pp-cli/internal/client"
+	"polymarket-pp-cli/internal/store"
 )
 
 // isNetworkError returns true for errors caused by network connectivity issues

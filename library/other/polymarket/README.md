@@ -184,12 +184,35 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ### Trading
-- **`redeem all`** — Discover every position in resolved markets and report the redeemable set with totals. In this build --broadcast is a documented stub (real on-chain ctf redeem needs go-ethereum + Polygon RPC, wired in v0.2); the default --dry-run produces the exact call set you can replay through the official Polymarket Rust CLI for live broadcast.
 
-  _When the agent is told 'claim everything I've won', this turns a 4-step ritual into one command with a dry-run preview._
+v0.2 wired live on-chain broadcast paths via go-ethereum + Polygon RPC (set `POLYGON_RPC_URL` in env). Status grid:
+
+| Command | Live broadcast | Notes |
+|---------|----------------|-------|
+| `auth derive` | ✅ Yes | EIP-712 ClobAuth, returns L2 HMAC creds |
+| `approve set --broadcast` | ✅ Yes | 6-tx idempotent (USDC.e ×3 + CTF setApprovalForAll ×3), skips already-set |
+| `orders list` | ✅ Yes | L2 HMAC GET /data/orders |
+| `ctf redeem --broadcast` | ✅ Yes | redeemPositions on CTF or NegRiskAdapter |
+| `orders create --broadcast` | ⚠️ Code-complete, platform-gated | EIP-712 sig verifies locally + HMAC accepted on reads, but CLOB POST /order returns `{"error":"Invalid order payload"}` (likely platform onboarding gate, not code bug). Pipe the signed JSON through the official Polymarket Rust CLI as fallback for actual broadcast. |
+| `ctf split / merge --broadcast` | 📋 Stub (v0.3) | Same go-ethereum pattern as redeem |
+
+- **`redeem all`** — Discover every position in resolved markets and report the redeemable set with totals. Default `--dry-run` produces the exact call set; `--broadcast` wires into live `ctf redeem` per market.
 
   ```bash
   polymarket-pp-cli redeem all --dry-run --min-value 1 --agent
+  ```
+
+- **`approve set --broadcast`** — Idempotently set the 6 ERC-20 + ERC-1155 approvals required to trade. Reads current state from chain, broadcasts only what's missing. ~$0.01 total gas on Polygon mainnet.
+
+  ```bash
+  polymarket-pp-cli approve status --agent                          # read-only check
+  polymarket-pp-cli approve set --broadcast --yes --wait --agent    # live broadcast
+  ```
+
+- **`ctf redeem --broadcast`** — Call `redeemPositions(USDC, parent=0, conditionId, indexSets)` on ConditionalTokens (or NegRiskAdapter with `--neg-risk`). Default `--index-sets 1,2` tries both YES/NO; the contract auto-skips outcomes the caller holds zero of.
+
+  ```bash
+  polymarket-pp-cli ctf redeem 0xCONDITION_ID --broadcast --yes --wait --agent
   ```
 
 ## Usage

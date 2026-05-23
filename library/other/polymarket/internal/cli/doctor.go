@@ -15,10 +15,10 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"github.com/mvanhorn/printing-press-library/library/other/polymarket/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/other/polymarket/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/other/polymarket/internal/config"
-	"github.com/mvanhorn/printing-press-library/library/other/polymarket/internal/store"
+	"polymarket-pp-cli/internal/client"
+	"polymarket-pp-cli/internal/cliutil"
+	"polymarket-pp-cli/internal/config"
+	"polymarket-pp-cli/internal/store"
 )
 
 // looksLikeDoctorInterstitial reports whether the response body matches a known

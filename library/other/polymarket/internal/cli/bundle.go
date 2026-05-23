@@ -16,8 +16,8 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"github.com/mvanhorn/printing-press-library/library/other/polymarket/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/other/polymarket/internal/store"
+	"polymarket-pp-cli/internal/cliutil"
+	"polymarket-pp-cli/internal/store"
 )
 
 func newBundleCmd(flags *rootFlags) *cobra.Command {

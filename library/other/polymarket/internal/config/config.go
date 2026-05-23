@@ -231,6 +231,12 @@ func (c *Config) ClearTokens() error {
 }
 
 func (c *Config) save() error {
+	// SECURITY HARDENING (defense-in-depth): zero the private key here in
+	// the canonical writer so every code path — old SaveTokens, new
+	// SaveL2Credentials, future hand-written callers — is guaranteed to
+	// produce a config.toml without the EOA PK. The PK belongs only in
+	// env vars (PK_FOR_POLYMARKET_LOGIN or POLYMARKET_PRIVATE_KEY).
+	c.PolymarketPrivateKey = ""
 	dir := filepath.Dir(c.Path)
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		return fmt.Errorf("creating config dir: %w", err)
@@ -240,6 +246,32 @@ func (c *Config) save() error {
 		return fmt.Errorf("marshaling config: %w", err)
 	}
 	return os.WriteFile(c.Path, data, 0o600)
+}
+
+// SaveL2Credentials persists the L2 HMAC trio (api key / secret / passphrase)
+// returned by POST /auth/api-key.
+//
+// SECURITY: explicitly zeroes PolymarketPrivateKey before saving. The PK
+// field is populated by env loading in Load(), so without this zero pass
+// the in-memory PK would round-trip to disk via save() — a serious leak.
+// The PK belongs in env vars (PK_FOR_POLYMARKET_LOGIN or
+// POLYMARKET_PRIVATE_KEY) only; the config.toml file is for tokens and
+// non-sensitive settings.
+func (c *Config) SaveL2Credentials(apiKey, secret, passphrase string) error {
+	c.PolymarketApiKey = apiKey
+	c.PolymarketApiSecret = secret
+	c.PolymarketApiPassphrase = passphrase
+	c.PolymarketPrivateKey = "" // never persist the EOA private key
+	return c.save()
+}
+
+// Save exposes the unexported save() for hand-written commands that need
+// to persist mutations without going through the L2 helper. ALWAYS zeroes
+// the private-key field before writing — see SaveL2Credentials for the
+// rationale.
+func (c *Config) Save() error {
+	c.PolymarketPrivateKey = ""
+	return c.save()
 }
 
 // Ensure strings import is used

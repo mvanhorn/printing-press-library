@@ -12,7 +12,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mvanhorn/printing-press-library/library/other/polymarket/internal/config"
+	"polymarket-pp-cli/internal/config"
 )
 
 // recordingRoundTripper counts how many times its RoundTrip method is

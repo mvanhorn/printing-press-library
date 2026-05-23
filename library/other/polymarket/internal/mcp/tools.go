@@ -15,12 +15,12 @@ import (
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
-	"github.com/mvanhorn/printing-press-library/library/other/polymarket/internal/cli"
-	"github.com/mvanhorn/printing-press-library/library/other/polymarket/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/other/polymarket/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/other/polymarket/internal/config"
-	"github.com/mvanhorn/printing-press-library/library/other/polymarket/internal/mcp/cobratree"
-	"github.com/mvanhorn/printing-press-library/library/other/polymarket/internal/store"
+	"polymarket-pp-cli/internal/cli"
+	"polymarket-pp-cli/internal/client"
+	"polymarket-pp-cli/internal/cliutil"
+	"polymarket-pp-cli/internal/config"
+	"polymarket-pp-cli/internal/mcp/cobratree"
+	"polymarket-pp-cli/internal/store"
 )
 
 // RegisterTools registers all API operations as MCP tools.

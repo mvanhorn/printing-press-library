@@ -11,7 +11,7 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"github.com/mvanhorn/printing-press-library/library/other/polymarket/internal/config"
+	"polymarket-pp-cli/internal/config"
 )
 
 func newWalletCmd(flags *rootFlags) *cobra.Command {
