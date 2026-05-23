@@ -76,6 +76,28 @@ type SynergyRow struct {
 	WinRate     float64 `json:"winRate"`
 }
 
+// ComboStep is one step in a combo sequence. Mobalytics models each step
+// as a list of move tokens that fire together (typically one token like
+// "Q" or "AA", sometimes two like "Q" + "Flash").
+type ComboStep struct {
+	Items []string `json:"items"`
+}
+
+// Combo is one named Mobalytics combo for a champion, with its move sequence,
+// difficulty tag, prose description, and the video URL Mobalytics renders.
+type Combo struct {
+	Slug             string      `json:"slug"`
+	ChampionSlug     string      `json:"championSlug"`
+	Difficulty       string      `json:"difficulty,omitempty"`
+	Tags             []string    `json:"tags,omitempty"`
+	Sequence         []ComboStep `json:"sequence"`
+	ShortDescription string      `json:"shortDescription,omitempty"`
+	ExecutionText    string      `json:"executionText,omitempty"`
+	Notes            string      `json:"notes,omitempty"`
+	VideoURL         string      `json:"videoUrl,omitempty"`
+	ThumbnailID      string      `json:"thumbnailId,omitempty"`
+}
+
 // ChampionBuildPage is the joined view returned to callers of `champion build`.
 type ChampionBuildPage struct {
 	Slug      string          `json:"slug"`

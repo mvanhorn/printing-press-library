@@ -334,6 +334,87 @@ func ParseSynergies(html string, ownSlug string) []SynergyRow {
 	return out
 }
 
+// comboEntry mirrors the ChampionCombosV1 record Mobalytics SSRs onto the
+// /lol/champions/<slug>/combos page. Difficulty and tags are flat arrays in
+// the wire format.
+type comboEntry struct {
+	Typename string `json:"__typename"`
+	FlatData struct {
+		Slug             string `json:"slug"`
+		ChampionSlug     string `json:"championSlug"`
+		ShortDescription string `json:"shortDescription"`
+		ExecutionText    string `json:"executionText"`
+		Notes            string `json:"notes"`
+		VideoURL         string `json:"videoUrl"`
+		ThumbnailID      string `json:"thumbnailId"`
+		Tags             []string `json:"tags"`
+		Sequence []struct {
+			Items []string `json:"items"`
+		} `json:"sequence"`
+		Difficulty []struct {
+			FlatData struct {
+				Slug  string `json:"slug"`
+				Name  string `json:"name"`
+				Index int    `json:"index"`
+				Color string `json:"color"`
+			} `json:"flatData"`
+		} `json:"difficulty"`
+	} `json:"flatData"`
+}
+
+// reComboHead matches the start of a top-level ChampionCombosV1 record.
+// We anchor on `{"__typename":"ChampionCombosV1"` rather than the nested
+// flatData typename so we don't double-pick the inner sequence/difficulty
+// records.
+var reComboHead = regexp.MustCompile(`\{"__typename":"ChampionCombosV1"`)
+
+// ParseCombos returns every named combo Mobalytics rendered for the
+// champion. The combos page server-renders the full Apollo cache; we
+// balanced-brace slice each ChampionCombosV1 record and project it to
+// the Combo struct.
+func ParseCombos(html string) []Combo {
+	out := []Combo{}
+	idx := 0
+	for {
+		loc := reComboHead.FindStringIndex(html[idx:])
+		if loc == nil {
+			break
+		}
+		start := idx + loc[0]
+		raw := extractBalancedJSON(html, start)
+		if raw == "" {
+			idx = start + 1
+			continue
+		}
+		idx = start + len(raw)
+		var ce comboEntry
+		if err := json.Unmarshal([]byte(raw), &ce); err != nil || ce.FlatData.Slug == "" {
+			continue
+		}
+		c := Combo{
+			Slug:             ce.FlatData.Slug,
+			ChampionSlug:     ce.FlatData.ChampionSlug,
+			ShortDescription: ce.FlatData.ShortDescription,
+			ExecutionText:    ce.FlatData.ExecutionText,
+			Notes:            ce.FlatData.Notes,
+			VideoURL:         ce.FlatData.VideoURL,
+			ThumbnailID:      ce.FlatData.ThumbnailID,
+			Tags:             ce.FlatData.Tags,
+		}
+		for _, s := range ce.FlatData.Sequence {
+			c.Sequence = append(c.Sequence, ComboStep{Items: s.Items})
+		}
+		if len(ce.FlatData.Difficulty) > 0 {
+			c.Difficulty = ce.FlatData.Difficulty[0].FlatData.Name
+			if c.Difficulty == "" {
+				c.Difficulty = ce.FlatData.Difficulty[0].FlatData.Slug
+			}
+		}
+		out = append(out, c)
+	}
+	return out
+}
+
 // ItemsetBlock is the LoL client item-set JSON block shape.
 type ItemsetBlock struct {
 	Type  string                   `json:"type"`

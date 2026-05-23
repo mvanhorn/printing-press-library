@@ -316,12 +316,24 @@ func newChampionArenaCmd(flags *rootFlags) *cobra.Command {
 func newChampionCombosCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "combos <slug>",
-		Short: "Champion combo sequences (Q->W->E patterns).",
-		Long: `Fetch /lol/champions/<slug>/combos and surface what Mobalytics
-exposes. As of 2026-05 the combos page returns the same Apollo blob shape
-as /build; we surface raw build + stats and expose a 'combosURL' for the
-user to follow if Mobalytics moves to client-side rendering for this view.`,
-		Example:     `  mobalytics-lol-pp-cli champion combos jinx`,
+		Short: "Champion combo sequences with move-by-move steps, difficulty, and video URL.",
+		Long: `Fetch /lol/champions/<slug>/combos and parse Mobalytics's named
+combo records. Each combo carries:
+
+  - slug + championSlug (e.g. "ahri-quick-trade")
+  - difficulty (Easy / Average / Hard / Severe)
+  - sequence: ordered list of move steps; each step is a list of tokens
+    that fire together (typically one like "Q" or "AA", sometimes two
+    like "Q" + "Flash")
+  - shortDescription + executionText + notes (prose from Mobalytics's
+    coaching writers)
+  - videoUrl (Vimeo link Mobalytics renders on the page)
+  - tags (e.g. "basic", "all-in", "trade")
+
+The combo videos themselves are not downloaded; the videoUrl is included
+so callers can open or embed them.`,
+		Example: `  mobalytics-lol-pp-cli champion combos ahri
+  mobalytics-lol-pp-cli champion combos ahri --agent --select slug,difficulty,sequence`,
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			slug, err := requireSlug(args)
@@ -341,8 +353,7 @@ user to follow if Mobalytics moves to client-side rendering for this view.`,
 				"slug":      slug,
 				"combosURL": "https://mobalytics.gg" + path,
 				"stats":     moba.ParseChampionStats(html, slug),
-				"builds":    moba.ParseBuilds(html),
-				"note":      "Combo sequences themselves are rendered client-side; visit combosURL or run `champion build` for runes/items.",
+				"combos":    moba.ParseCombos(html),
 			})
 		},
 	}
