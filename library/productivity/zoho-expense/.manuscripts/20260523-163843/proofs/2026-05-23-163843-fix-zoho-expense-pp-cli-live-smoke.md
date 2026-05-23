@@ -44,8 +44,8 @@ These all build and respond to `--help` and `--dry-run` correctly (verified duri
 ## Tokens issued (redacted)
 
 ```
-access_token: 1000.7fc2905c... (70 chars, 1h validity)
-refresh_token: 1000.553f5fd8... (70 chars, long-lived)
+access_token: REDACTED-ACCESS-PREFIX (70 chars, 1h validity)
+refresh_token: REDACTED-REFRESH-PREFIX (70 chars, long-lived)
 api_domain: https://www.zohoapis.in
 organization_id: REDACTED-ORG-ID
 ```
