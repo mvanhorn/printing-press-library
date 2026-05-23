@@ -1,0 +1,51 @@
+version: 2
+project_name: servosity-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: servosity-pp-cli
+    main: ./cmd/servosity-pp-cli
+    binary: servosity-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/cloud/servosity/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: servosity-pp-mcp
+    main: ./cmd/servosity-pp-mcp
+    binary: servosity-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: servosity-pp-cli
+    repository:
+      owner: dstevens
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every Servosity endpoint as a typed command, plus a local fleet mirror, snapshot history, and cross-engine rollups..."
+    install: |
+      bin.install "servosity-pp-cli"
+      bin.install "servosity-pp-mcp"

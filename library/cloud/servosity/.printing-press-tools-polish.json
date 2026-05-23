@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-05-23T02:32:35.973886Z",
+  "cli_dir": "\u003ccli-dir\u003e",
+  "findings": [
+    {
+      "kind": "missing-read-only",
+      "command": "stale-issues",
+      "file": "stale_issues.go",
+      "line": 31,
+      "evidence": "name matches read heuristic; no mcp:read-only annotation",
+      "status": "accepted",
+      "note": "Name matches the 'stale' read-heuristic, but the RunE body mutates state via PUT /issues/{id}/archive/ when --confirm + --auto-archive-known and not --dry-run (stale_issues.go:168-175, applyStaleIssueArchive calls c.Put on /issues/{id}/archive/). Per tools-polish playbook: 'if the name matches the heuristic but the body actually mutates state, do NOT add the annotation.' --dry-run is the default and an IsVerifyEnv() guard forces willMutate=false in tests, but the production behavior with --confirm is a real write. The default destructive hint is correct."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-05-23T02:18:57.275531Z"
+  }
+}

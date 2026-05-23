@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-12T16:29:57.239295Z",
+  "printing_press_version": "4.4.0",
+  "api_name": "servosity",
+  "display_name": "Servosity",
+  "cli_name": "servosity-pp-cli",
+  "owner": "dstevens",
+  "printer": "dstevens",
+  "printer_name": "Damien Stevens",
+  "spec_path": "/Users/dstevens/printing-press/.runstate/cli-printing-press-70e28f12/runs/20260511-211606/research/servosity-openapi.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:5c50504787319a768d3265d3d9db7ce6856d618532488fdba47d43b7dbedf7ca",
+  "run_id": "20260511-211606",
+  "mcp_binary": "servosity-pp-mcp",
+  "mcp_tool_count": 328,
+  "mcp_ready": "full",
+  "api_version": "v1",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "SERVOSITY_API_TOKEN"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "SERVOSITY_API_TOKEN",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": true,
+      "description": "Servosity API token. Get one from cp.servosity.com/user/."
+    }
+  ],
+  "auth_key_url": "https://cp.servosity.com/user/",
+  "auth_title": "Servosity API Token",
+  "auth_description": "Generate at https://cp.servosity.com/user/ (button at the bottom of the page). The CLI sends `Authorization: Token \u003ckey\u003e` (Django REST framework convention).",
+  "novel_features": [
+    {
+      "name": "Fleet attention rollup",
+      "command": "attention",
+      "description": "One screen merges admin attention + dirty repos + DRaaS-in-progress + open issues, ranked per-company, and persists each call so tomorrow can drift against today."
+    },
+    {
+      "name": "Stale-backup offline query",
+      "command": "stale-backups",
+      "description": "Slice the synced /reports/stale-backup-sets/ snapshot by reseller, company, age window, and backup engine — entirely offline once synced. Use --refresh to repull the CSV."
+    },
+    {
+      "name": "Per-company snapshot",
+      "command": "company show",
+      "description": "Single command pulls a company's metadata + addresses + contracts + all backups across three engines + open issues + agent sessions into one human or --json view."
+    },
+    {
+      "name": "Terminal-speed issue triage",
+      "command": "triage",
+      "description": "List open issues with filters, then batch ignore / archive / reactivate / comment in one invocation with --dry-run and typed exit codes."
+    },
+    {
+      "name": "Snapshot drift",
+      "command": "drift",
+      "description": "Diff two snapshots the CLI itself collected (attention, stale, dirty-repos) — show what got worse and what recovered between two timestamps."
+    },
+    {
+      "name": "Cross-engine backup facts",
+      "command": "backup-facts",
+      "description": "Query a unified view (engine + id + company_id + last_successful_at + last_status + size_bytes) over all three backup engines synced into the local store."
+    },
+    {
+      "name": "Cross-table FTS find",
+      "command": "find",
+      "description": "SQLite FTS5 across companies (name, billing notes), issues (title and comments), and backups (descriptive name, last error) — one query hits the whole fleet."
+    },
+    {
+      "name": "Restore-queue oversight",
+      "command": "restore-queue list",
+      "description": "List per-company restore queues across companies the local store knows about; --watch repolls and prints diffs."
+    },
+    {
+      "name": "Clear company or partner (until time)",
+      "command": "clear",
+      "description": "Resolve one or more names as companies (then resellers) and batch-ignore their active issues until a human-readable time. Defaults to --dry-run for production safety."
+    },
+    {
+      "name": "Stale-issue cleanup (per support engineer)",
+      "command": "stale-issues",
+      "description": "Pull your FMDB companies, fetch active issues, classify known-safe-to-archive patterns from a shipped rule table, auto-archive the safe ones, ignore non-dashboard noise, and print unknowns for review. Defaults to --dry-run."
+    }
+  ]
+}

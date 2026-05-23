@@ -1,0 +1,286 @@
+{
+  "api_name": "servosity",
+  "novelty_score": 9,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-11T21:30:00Z",
+  "novel_features": [
+    {
+      "name": "Fleet attention rollup",
+      "command": "attention",
+      "description": "One screen merges admin attention + dirty repos + DRaaS-in-progress + open issues, ranked per-company, and persists each call so tomorrow can drift against today.",
+      "rationale": "Composes four real admin endpoints with snapshot persistence — no single API call returns this view, and the web UI requires four-tab clicking.",
+      "example": "servosity-pp-cli attention --json --select companies.name,companies.score",
+      "why_it_matters": "Use this when an agent or human asks 'what needs my attention right now?' across the whole fleet — it answers in one call instead of four.",
+      "group": "Loop closure for fleet operators"
+    },
+    {
+      "name": "Stale-backup offline query",
+      "command": "stale-backups",
+      "description": "Slice the synced /reports/stale-backup-sets/ snapshot by reseller, company, age window, and backup engine — entirely offline once synced. Use --refresh to repull the CSV.",
+      "rationale": "The API ships stale-backup-sets only as a CSV download; the local SQLite snapshot makes it composable with --reseller, --engine, --days filters.",
+      "example": "servosity-pp-cli stale-backups --days 7 --engine restic --json",
+      "why_it_matters": "Use this on Friday's 'who needs a follow-up?' sweep without burning an API call per slice.",
+      "group": "Offline fleet querying"
+    },
+    {
+      "name": "Per-company snapshot",
+      "command": "company show",
+      "description": "Single command pulls a company's metadata + addresses + contracts + all backups across three engines + open issues + agent sessions into one human or --json view.",
+      "rationale": "Composes ~7 endpoints plus the cross-engine backup_facts view; the web UI needs five tabs to assemble the same picture.",
+      "example": "servosity-pp-cli company show 4421 --json",
+      "why_it_matters": "Use this when a customer asks 'is my backup OK?' — one call, every relevant fact, ready to paste into a ticket.",
+      "group": "Per-company quick view"
+    },
+    {
+      "name": "Terminal-speed issue triage",
+      "command": "triage",
+      "description": "List open issues with filters, then batch ignore / archive / reactivate / comment in one invocation with --dry-run and typed exit codes.",
+      "rationale": "Web UI requires 5+ clicks per issue; this turns a Monday-morning triage into a single piped command.",
+      "example": "servosity-pp-cli triage --audience support --company 4421 --ignore 18,22,29 --dry-run",
+      "why_it_matters": "Use this for batch issue actions when the queue is bursty — pipe-friendly, scriptable, idempotent.",
+      "group": "Loop closure for fleet operators"
+    },
+    {
+      "name": "Snapshot drift",
+      "command": "drift",
+      "description": "Diff two snapshots the CLI itself collected (attention, stale, dirty-repos) — show what got worse and what recovered between two timestamps.",
+      "rationale": "The web UI has no history surface; only a CLI that captures snapshots over time can answer 'what changed since yesterday?'",
+      "example": "servosity-pp-cli drift --metric attention --from yesterday --to now --json",
+      "why_it_matters": "Use this every morning to surface fleet trend instead of treating every Monday like a fresh slate.",
+      "group": "Offline fleet querying"
+    },
+    {
+      "name": "Cross-engine backup facts",
+      "command": "backup-facts",
+      "description": "Query a unified view (engine + id + company_id + last_successful_at + last_status + size_bytes) over all three backup engines synced into the local store.",
+      "rationale": "Three engines (classic / restic / DR) coexist server-side with no unified surface; this view exists only in our local store.",
+      "example": "servosity-pp-cli backup-facts --last-success-before 2026-05-04 --json",
+      "why_it_matters": "Use this when you don't care which engine — you just need 'who hasn't backed up successfully since X?' across the whole fleet.",
+      "group": "Offline fleet querying"
+    },
+    {
+      "name": "Cross-table FTS find",
+      "command": "find",
+      "description": "SQLite FTS5 across companies (name, billing notes), issues (title and comments), and backups (descriptive name, last error) — one query hits the whole fleet.",
+      "rationale": "The API has no cross-resource search; the web UI search is per-page. FTS over the synced store is the only path.",
+      "example": "servosity-pp-cli find \"image manager\" --in issues,backups --json --select hits.resource,hits.snippet",
+      "why_it_matters": "Use this when you remember a phrase but not which entity owned it — one call replaces hunting through three list pages.",
+      "group": "Offline fleet querying"
+    },
+    {
+      "name": "Restore-queue oversight",
+      "command": "restore-queue list",
+      "description": "List per-company restore queues across companies the local store knows about; --watch repolls and prints diffs.",
+      "rationale": "Composes /companies/{id}/restore-queues/ across the fleet — DRaaS in flight needs eyes-on and the web UI is per-company only.",
+      "example": "servosity-pp-cli restore-queue list --watch --interval 30s",
+      "why_it_matters": "Use this during an active DR event to keep one terminal pinned on every queue's progress.",
+      "group": "Loop closure for fleet operators"
+    },
+    {
+      "name": "Clear company or partner (until time)",
+      "command": "clear",
+      "description": "Resolve one or more names as companies (then resellers) and batch-ignore their active issues until a human-readable time. Defaults to --dry-run for production safety.",
+      "rationale": "Replaces the support team's daily clear-company Python workflow that today is a multi-step shell incantation; the CLI computes ignored_seconds from 6am-tomorrow-style strings and calls /issues/{id}/ignore/ in one shot.",
+      "example": "servosity-pp-cli clear \"ACME Corp, BDH Technology\" --until \"6am tomorrow\" --dry-run",
+      "why_it_matters": "Use this when a partner is doing planned maintenance and you want their alert noise paused until morning — one command instead of dozens of UI clicks.",
+      "group": "Tier-One support workflows"
+    },
+    {
+      "name": "Stale-issue cleanup (per support engineer)",
+      "command": "stale-issues",
+      "description": "Pull your FMDB companies, fetch active issues, classify known-safe-to-archive patterns from a shipped rule table, auto-archive the safe ones, ignore non-dashboard noise, and print unknowns for review. Defaults to --dry-run.",
+      "rationale": "Replaces the support team's daily morning stale-issue-cleanup Python workflow. The classification rule table ships with the CLI; nothing is LLM-generated.",
+      "example": "servosity-pp-cli stale-issues --mine --cutoff \"11pm yesterday\" --auto-archive-known --dry-run",
+      "why_it_matters": "Use this every weekday before standup to clear the obvious stale noise off your dashboard so triage focuses on what's actually new.",
+      "group": "Tier-One support workflows"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Fleet attention rollup",
+      "command": "attention",
+      "description": "One screen merges admin attention + dirty repos + DRaaS-in-progress + open issues, ranked per-company, and persists each call so tomorrow can drift against today.",
+      "rationale": "Composes four real admin endpoints with snapshot persistence — no single API call returns this view, and the web UI requires four-tab clicking.",
+      "example": "servosity-pp-cli attention --json --select companies.name,companies.score",
+      "why_it_matters": "Use this when an agent or human asks 'what needs my attention right now?' across the whole fleet — it answers in one call instead of four.",
+      "group": "Loop closure for fleet operators"
+    },
+    {
+      "name": "Stale-backup offline query",
+      "command": "stale-backups",
+      "description": "Slice the synced /reports/stale-backup-sets/ snapshot by reseller, company, age window, and backup engine — entirely offline once synced. Use --refresh to repull the CSV.",
+      "rationale": "The API ships stale-backup-sets only as a CSV download; the local SQLite snapshot makes it composable with --reseller, --engine, --days filters.",
+      "example": "servosity-pp-cli stale-backups --days 7 --engine restic --json",
+      "why_it_matters": "Use this on Friday's 'who needs a follow-up?' sweep without burning an API call per slice.",
+      "group": "Offline fleet querying"
+    },
+    {
+      "name": "Per-company snapshot",
+      "command": "company show",
+      "description": "Single command pulls a company's metadata + addresses + contracts + all backups across three engines + open issues + agent sessions into one human or --json view.",
+      "rationale": "Composes ~7 endpoints plus the cross-engine backup_facts view; the web UI needs five tabs to assemble the same picture.",
+      "example": "servosity-pp-cli company show 4421 --json",
+      "why_it_matters": "Use this when a customer asks 'is my backup OK?' — one call, every relevant fact, ready to paste into a ticket.",
+      "group": "Per-company quick view"
+    },
+    {
+      "name": "Terminal-speed issue triage",
+      "command": "triage",
+      "description": "List open issues with filters, then batch ignore / archive / reactivate / comment in one invocation with --dry-run and typed exit codes.",
+      "rationale": "Web UI requires 5+ clicks per issue; this turns a Monday-morning triage into a single piped command.",
+      "example": "servosity-pp-cli triage --audience support --company 4421 --ignore 18,22,29 --dry-run",
+      "why_it_matters": "Use this for batch issue actions when the queue is bursty — pipe-friendly, scriptable, idempotent.",
+      "group": "Loop closure for fleet operators"
+    },
+    {
+      "name": "Snapshot drift",
+      "command": "drift",
+      "description": "Diff two snapshots the CLI itself collected (attention, stale, dirty-repos) — show what got worse and what recovered between two timestamps.",
+      "rationale": "The web UI has no history surface; only a CLI that captures snapshots over time can answer 'what changed since yesterday?'",
+      "example": "servosity-pp-cli drift --metric attention --from yesterday --to now --json",
+      "why_it_matters": "Use this every morning to surface fleet trend instead of treating every Monday like a fresh slate.",
+      "group": "Offline fleet querying"
+    },
+    {
+      "name": "Cross-engine backup facts",
+      "command": "backup-facts",
+      "description": "Query a unified view (engine + id + company_id + last_successful_at + last_status + size_bytes) over all three backup engines synced into the local store.",
+      "rationale": "Three engines (classic / restic / DR) coexist server-side with no unified surface; this view exists only in our local store.",
+      "example": "servosity-pp-cli backup-facts --last-success-before 2026-05-04 --json",
+      "why_it_matters": "Use this when you don't care which engine — you just need 'who hasn't backed up successfully since X?' across the whole fleet.",
+      "group": "Offline fleet querying"
+    },
+    {
+      "name": "Cross-table FTS find",
+      "command": "find",
+      "description": "SQLite FTS5 across companies (name, billing notes), issues (title and comments), and backups (descriptive name, last error) — one query hits the whole fleet.",
+      "rationale": "The API has no cross-resource search; the web UI search is per-page. FTS over the synced store is the only path.",
+      "example": "servosity-pp-cli find \"image manager\" --in issues,backups --json --select hits.resource,hits.snippet",
+      "why_it_matters": "Use this when you remember a phrase but not which entity owned it — one call replaces hunting through three list pages.",
+      "group": "Offline fleet querying"
+    },
+    {
+      "name": "Restore-queue oversight",
+      "command": "restore-queue list",
+      "description": "List per-company restore queues across companies the local store knows about; --watch repolls and prints diffs.",
+      "rationale": "Composes /companies/{id}/restore-queues/ across the fleet — DRaaS in flight needs eyes-on and the web UI is per-company only.",
+      "example": "servosity-pp-cli restore-queue list --watch --interval 30s",
+      "why_it_matters": "Use this during an active DR event to keep one terminal pinned on every queue's progress.",
+      "group": "Loop closure for fleet operators"
+    },
+    {
+      "name": "Clear company or partner (until time)",
+      "command": "clear",
+      "description": "Resolve one or more names as companies (then resellers) and batch-ignore their active issues until a human-readable time. Defaults to --dry-run for production safety.",
+      "rationale": "Replaces the support team's daily clear-company Python workflow that today is a multi-step shell incantation; the CLI computes ignored_seconds from 6am-tomorrow-style strings and calls /issues/{id}/ignore/ in one shot.",
+      "example": "servosity-pp-cli clear \"ACME Corp, BDH Technology\" --until \"6am tomorrow\" --dry-run",
+      "why_it_matters": "Use this when a partner is doing planned maintenance and you want their alert noise paused until morning — one command instead of dozens of UI clicks.",
+      "group": "Tier-One support workflows"
+    },
+    {
+      "name": "Stale-issue cleanup (per support engineer)",
+      "command": "stale-issues",
+      "description": "Pull your FMDB companies, fetch active issues, classify known-safe-to-archive patterns from a shipped rule table, auto-archive the safe ones, ignore non-dashboard noise, and print unknowns for review. Defaults to --dry-run.",
+      "rationale": "Replaces the support team's daily morning stale-issue-cleanup Python workflow. The classification rule table ships with the CLI; nothing is LLM-generated.",
+      "example": "servosity-pp-cli stale-issues --mine --cutoff \"11pm yesterday\" --auto-archive-known --dry-run",
+      "why_it_matters": "Use this every weekday before standup to clear the obvious stale noise off your dashboard so triage focuses on what's actually new.",
+      "group": "Tier-One support workflows"
+    }
+  ],
+  "narrative": {
+    "display_name": "Servosity",
+    "headline": "Every Servosity endpoint as a typed command, plus a local fleet mirror, snapshot history, and cross-engine rollups the web UI doesn't have.",
+    "value_prop": "Every Servosity REST endpoint becomes a typed Cobra command (Resellers, Companies, three backup engines, Issues, Reports, Admin) with `--json`, `--select`, `--csv`, `--dry-run`, and typed exit codes. A local SQLite mirror makes the fleet queryable offline. The attention command answers 'what needs my attention?' across all admin rollups in one call. The drift command tells you what got worse since yesterday. The backup-facts view unifies classic, restic, and DR engines into one view nothing else exposes.",
+    "auth_narrative": "Auth is a Servosity API token. Set SERVOSITY_API_TOKEN in your environment (or store it in macOS Keychain as a generic password named SERVOSITY_API_TOKEN and export it from your shell rc) and the CLI sends Authorization: Token \u003ckey\u003e on every call — Servosity uses Django REST framework's Token scheme, not Bearer. **The Servosity API is single-tenant production: every mutating command (clear, triage, stale-issues, agent-restart subcommands) defaults to --dry-run; you must drop --dry-run AND pass --confirm to actually call the live API.**",
+    "quickstart": [
+      {
+        "command": "servosity-pp-cli doctor",
+        "comment": "Verify the token reaches /resellers/?page_size=1 successfully before doing anything else."
+      },
+      {
+        "command": "servosity-pp-cli attention --json",
+        "comment": "Get the morning fleet rollup: admin attention + dirty repos + DRaaS-in-flight + open issues, ranked per-company."
+      },
+      {
+        "command": "servosity-pp-cli stale-backups --refresh --days 7 --json",
+        "comment": "Pull the /reports/stale-backup-sets/ CSV (use --timeout 180s on big fleets) and slice for \u003e7-day stale sets."
+      },
+      {
+        "command": "servosity-pp-cli resellers list --json --select results.id,results.name --page-size 5",
+        "comment": "List the first 5 resellers to confirm reads end-to-end. Replace with `sync --resources resellers,companies,issues` once you're ready to populate the local store for offline search and drift."
+      },
+      {
+        "command": "servosity-pp-cli company show 4421 --json",
+        "comment": "Pull every relevant fact about a single company across all three engines into one screen."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Authentication credentials were not provided",
+        "fix": "Confirm SERVOSITY_API_TOKEN is set and the header format is `Token \u003ckey\u003e` (not `Bearer`). Run `servosity-pp-cli doctor` for a clean reachability test."
+      },
+      {
+        "symptom": "403 You do not have permission",
+        "fix": "Your token is scoped below the resource you're hitting (e.g. trying admin endpoints with a reseller-only token). Get a token with the right scope from your Servosity admin."
+      },
+      {
+        "symptom": "stale / drift / backup-facts return empty",
+        "fix": "Run `servosity-pp-cli sync` first — these read from the local SQLite mirror, not live API calls."
+      },
+      {
+        "symptom": "triage / clear / stale-issues refuse to act",
+        "fix": "PLAN mode is the default for production safety. Re-run with `--confirm` to actually call the mutation endpoints (and keep the global `--dry-run` flag off; it overrides --confirm)."
+      }
+    ],
+    "when_to_use": "Reach for servosity-pp-cli whenever you need to see the Servosity fleet from the terminal: the morning attention sweep, the Friday stale-backup hunt, ad-hoc 'is ACME OK?' checks, batch issue triage, or DRaaS-in-flight oversight. The local SQLite store and snapshot history make it the right tool for any 'what changed since X?' question — those are unanswerable through the web UI.",
+    "recipes": [
+      {
+        "title": "Morning fleet sweep",
+        "command": "servosity-pp-cli attention --json --select companies.name,companies.score,companies.reasons",
+        "explanation": "Daily Loop Architect ritual: rank everything that needs eyes-on across all admin endpoints in one call."
+      },
+      {
+        "title": "Stale-backup follow-up list (Friday)",
+        "command": "servosity-pp-cli stale-backups --refresh --days 7 --timeout 180s --json --select results.reseller,results.company,results.backup_set,results.last_complete_at,results.days_stale",
+        "explanation": "Friday CSV-replacement: pull /reports/stale-backup-sets/ (slow on big fleets — bump timeout), snapshot it locally, filter for \u003e7-day stale sets. Subsequent slices read from the local store with no API call."
+      },
+      {
+        "title": "What changed since yesterday morning?",
+        "command": "servosity-pp-cli drift --metric attention --from yesterday --to now --json",
+        "explanation": "Diff today's attention snapshot against yesterday's — see who became attention-worthy and who recovered."
+      },
+      {
+        "title": "Find anything mentioning a phrase",
+        "command": "servosity-pp-cli find \"image manager\" --in issues,backups --json --select hits.resource,hits.id,hits.snippet",
+        "explanation": "FTS5 hit across the synced store — find a phrase across issues and backups in one call instead of three list pages."
+      },
+      {
+        "title": "Batch ignore noise issues",
+        "command": "servosity-pp-cli triage --audience support --reseller 12 --ignore 18,22,29 --dry-run",
+        "explanation": "Print the actions, then re-run without --dry-run to execute them in one call instead of nine UI clicks."
+      },
+      {
+        "title": "Clear a partner until 6am tomorrow",
+        "command": "servosity-pp-cli clear \"BDH Technology\" --until \"6am tomorrow\" --dry-run",
+        "explanation": "Resolve the name as a reseller, list every active issue for every company under it, and print the ignore plan; drop --dry-run + add --confirm to execute."
+      },
+      {
+        "title": "Morning stale-issue cleanup (yours)",
+        "command": "servosity-pp-cli stale-issues --mine --cutoff \"11pm yesterday\" --auto-archive-known --dry-run",
+        "explanation": "Daily Tier-One ritual: archive every known-safe stale issue from your FMDB, ignore non-dashboard noise, list the unknown ones for manual review."
+      }
+    ],
+    "trigger_phrases": [
+      "what needs my attention on servosity",
+      "fleet stale backups",
+      "show me company in servosity",
+      "triage servosity issues",
+      "drift since yesterday on servosity",
+      "use servosity",
+      "run servosity"
+    ]
+  }
+}

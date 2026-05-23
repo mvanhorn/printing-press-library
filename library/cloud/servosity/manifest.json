@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "servosity-pp-mcp",
+  "display_name": "Servosity",
+  "version": "4.4.0",
+  "description": "Servosity API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/servosity-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/servosity-pp-mcp",
+      "args": [],
+      "env": {
+        "SERVOSITY_API_TOKEN": "${user_config.servosity_api_token}"
+      }
+    }
+  },
+  "user_config": {
+    "servosity_api_token": {
+      "type": "string",
+      "title": "Servosity API Token",
+      "description": "Generate at https://cp.servosity.com/user/ (button at the bottom of the page). The CLI sends `Authorization: Token <key>` (Django REST framework convention).",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

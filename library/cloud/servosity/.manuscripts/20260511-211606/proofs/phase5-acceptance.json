@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "api_name": "servosity",
+  "run_id": "20260511-211606",
+  "status": "pass",
+  "level": "quick",
+  "matrix_size": 13,
+  "tests_passed": 13,
+  "tests_failed": 0,
+  "auth_context": {
+    "type": "api_key",
+    "scheme_prefix": "Token",
+    "api_key_available": true,
+    "browser_session_available": false,
+    "source": "macos_keychain"
+  },
+  "production_safety": {
+    "no_writes_constraint_honored": true,
+    "mutation_endpoints_tested": false,
+    "mutation_commands_tested_in_dry_run_only": ["triage", "clear", "stale-issues"],
+    "rationale": "User explicitly forbade POST/PUT/PATCH/DELETE against the live API (admin scope on production). Quick Check matrix is GET-only; mutation commands tested only via their default PLAN mode with will_mutate:false in the output."
+  },
+  "checks": [
+    {"name": "doctor --json", "verdict": "pass", "note": "auth, base_url, env_var all resolved correctly"},
+    {"name": "resellers list --page-size 1 --json", "verdict": "pass", "note": "real fleet data: 127 resellers"},
+    {"name": "companies list --page-size 1 --json", "verdict": "pass"},
+    {"name": "stats list --json", "verdict": "pass"},
+    {"name": "current-user list --json", "verdict": "pass"},
+    {"name": "attention --no-store --json", "verdict": "pass", "note": "composed 4 admin endpoints; returned 53 ranked rows live"},
+    {"name": "company show 5914 --json", "verdict": "pass", "note": "composed 10 sections; live company has 8 open issues, 1 backup-store, 1 restic, 1 DR, 1 contract"},
+    {"name": "resellers list --csv --page-size 1", "verdict": "pass"},
+    {"name": "resellers list --json --select results.count --page-size 1", "verdict": "pass"},
+    {"name": "stale-backups --refresh --json --limit 1 --timeout 180s", "verdict": "pass", "note": "pulled 849 CSV rows, days_stale computed, engine inferred"},
+    {"name": "stale-backups --days 30 --json --limit 1 (offline)", "verdict": "pass", "note": "store-backed query returned without any API call"},
+    {"name": "triage --company 5914 --json --limit 1 (dry-run)", "verdict": "pass", "note": "will_mutate: false, listed 1 real issue UUID, NO mutation"},
+    {"name": "clear ZZZ_NoSuchCo --until \"6am tomorrow\" --json (dry-run)", "verdict": "pass", "note": "will_mutate: false, ignore_seconds correctly computed, total_issues_in_plan: 0 (unknown name)"}
+  ],
+  "documented_spec_gaps_not_tested": [
+    {"command": "issues list --state ACTIVE", "reason": "Servosity API requires state=ACTIVE param to return active issues, but the spec does not declare `state` as a parameter on /issues/. Generator could not emit a typed flag. Workaround: novel `triage` command passes state=ACTIVE automatically. Documented in build log."}
+  ]
+}
