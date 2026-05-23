@@ -1,0 +1,38 @@
+{
+  "manifest_version": "0.3",
+  "name": "zoho-expense-pp-mcp",
+  "display_name": "Zoho Expense",
+  "version": "4.12.0",
+  "description": "Upload receipts, tag expenses, and bundle monthly reports on Zoho Expense from the terminal",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/zoho-expense-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/zoho-expense-pp-mcp",
+      "args": [],
+      "env": {
+        "ZOHO_EXPENSE_ORGANIZATION_ID": "${user_config.zoho_expense_organization_id}"
+      }
+    }
+  },
+  "user_config": {
+    "zoho_expense_organization_id": {
+      "type": "string",
+      "title": "ZOHO_EXPENSE_ORGANIZATION_ID",
+      "description": "Zoho Expense organization ID (sent as X-com-zoho-expense-organizationid header on every request)",
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
