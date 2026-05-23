@@ -12,12 +12,12 @@ import (
 	"strings"
 	"time"
 
+	mcplib "github.com/mark3labs/mcp-go/mcp"
+	"github.com/mark3labs/mcp-go/server"
 	"github.com/mvanhorn/printing-press-library/library/commerce/doordash/internal/cli"
 	"github.com/mvanhorn/printing-press-library/library/commerce/doordash/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/commerce/doordash/internal/config"
 	"github.com/mvanhorn/printing-press-library/library/commerce/doordash/internal/mcp/cobratree"
-	mcplib "github.com/mark3labs/mcp-go/mcp"
-	"github.com/mark3labs/mcp-go/server"
 )
 
 // RegisterTools registers all API operations as MCP tools.
@@ -70,18 +70,9 @@ func RegisterTools(s *server.MCPServer) {
 		),
 		makeAPIHandler("POST", "/graphql/convenienceSearchQuery", []mcpParamBinding{{PublicName: "operation", WireName: "operation", Location: "query"}, {PublicName: "operationName", WireName: "operationName", Location: "body"}, {PublicName: "query", WireName: "query", Location: "body"}, {PublicName: "variables", WireName: "variables", Location: "body"}}, []string{}),
 	)
-	s.AddTool(
-		mcplib.NewTool("graphql_create_create_order_from_cart",
-			mcplib.WithDescription("POST /graphql/createOrderFromCart. Required: operationName, query, variables. Optional: operation. Returns the new createOrderFromCart."),
-			mcplib.WithString("operation", mcplib.Description("")),
-			mcplib.WithString("operationName", mcplib.Required(), mcplib.Description("")),
-			mcplib.WithString("query", mcplib.Required(), mcplib.Description("")),
-			mcplib.WithString("variables", mcplib.Required(), mcplib.Description("")),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("POST", "/graphql/createOrderFromCart", []mcpParamBinding{{PublicName: "operation", WireName: "operation", Location: "query"}, {PublicName: "operationName", WireName: "operationName", Location: "body"}, {PublicName: "query", WireName: "query", Location: "body"}, {PublicName: "variables", WireName: "variables", Location: "body"}}, []string{}),
-	)
+	// PATCH: Do not expose createOrderFromCart through the generic MCP API handler.
+	// The endpoint can charge a saved payment method; agents must use the Cobra
+	// mirror of the guarded CLI commands so validateOrderPlacementGate runs.
 	s.AddTool(
 		mcplib.NewTool("graphql_create_item_page",
 			mcplib.WithDescription("POST /graphql/itemPage. Required: operationName, query, variables. Optional: operation. Returns the new itemPage."),

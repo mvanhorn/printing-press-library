@@ -203,6 +203,15 @@
         "README.md"
       ],
       "validated_outcome": "go test ./... and Printing Press 4.12 publish validate passed locally before updating PR #773."
+    },
+    {
+      "id": "mcp-create-order-removal",
+      "summary": "Remove createOrderFromCart from the generic MCP API tools and require agents to use guarded Cobra-mirrored commands.",
+      "reason": "Greptile flagged that the direct MCP tool could place a live DoorDash order without the CLI live-order gates and was marked non-destructive.",
+      "files": [
+        "internal/mcp/tools.go"
+      ],
+      "validated_outcome": "go test ./... and scoped govulncheck passed before updating PR #784."
     }
   ]
 }
