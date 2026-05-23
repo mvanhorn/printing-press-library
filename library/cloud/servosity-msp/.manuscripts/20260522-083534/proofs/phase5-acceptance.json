@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "api_name": "servosity-msp",
+  "run_id": "20260522-083534",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 12,
+  "tests_passed": 12,
+  "tests_failed": 0,
+  "auth_context": {
+    "type": "api_key",
+    "api_key_available": true,
+    "browser_session_available": false
+  },
+  "fixes_applied_in_phase_5": [
+    {
+      "id": "auth-token-prefix",
+      "summary": "Config.AuthHeader() now prepends 'Token ' (Django REST Framework requires the literal scheme prefix). Without this, every API call returned 403 'Authentication credentials were not provided.'",
+      "file": "internal/config/config.go"
+    },
+    {
+      "id": "reseller-id-resolution",
+      "summary": "Added cliutil.ResolveResellerID — derives the reseller ID from companies[0].reseller URL because /current-user/ does NOT expose reseller info on partner-scoped tokens. Env override: SERVOSITY_MSP_RESELLER_ID.",
+      "file": "internal/cliutil/reseller.go + reseller_test.go"
+    },
+    {
+      "id": "attention-uses-per-reseller-issues",
+      "summary": "attention --refresh now hits /resellers/{id}/issues/ instead of /issues/ (admin-only). Stale-backup section now non-fatal: emits stderr warning and continues with empty stale data on 403.",
+      "file": "internal/cli/attention.go"
+    },
+    {
+      "id": "triage-uses-per-reseller-issues",
+      "summary": "triage list mode now hits /resellers/{id}/issues/ instead of /issues/. Per-issue mutation paths unchanged (work as-is once a valid ID is in hand).",
+      "file": "internal/cli/triage.go"
+    },
+    {
+      "id": "unprovisioned-uses-cliutil-resolver",
+      "summary": "unprovisioned now uses cliutil.ResolveResellerID instead of its own /current-user/-based resolver (which always failed because /current-user/ omits reseller_id).",
+      "file": "internal/cli/unprovisioned.go"
+    },
+    {
+      "id": "bill-uses-cliutil-resolver",
+      "summary": "bill / bill --reconcile now uses cliutil.ResolveResellerID for the same reason as unprovisioned.",
+      "file": "internal/cli/bill_reconcile.go"
+    },
+    {
+      "id": "stale-backups-graceful-redirect",
+      "summary": "stale-backups now emits a clean directive ('use backup-facts --since 7d instead') when /reports/stale-backup-sets/ returns 403 instead of a stack trace. v0.2 reshape will derive from local backup tables natively.",
+      "file": "internal/cli/stale_backups.go"
+    },
+    {
+      "id": "bill-dryrun-ordering",
+      "summary": "bill --reconcile <path> --dry-run no longer fails on missing CSV file — moved file-existence check after the dry-run short-circuit.",
+      "file": "internal/cli/bill_reconcile.go"
+    }
+  ],
+  "live_verification": [
+    {"cmd": "doctor", "result": "pass", "notes": "auth working, base_url correct"},
+    {"cmd": "current-user list", "result": "pass", "notes": "returns username/email/id; does NOT expose reseller_id (handled via /companies/ resolver)"},
+    {"cmd": "companies list", "result": "pass", "notes": "14 companies returned for test partner"},
+    {"cmd": "sync", "result": "pass", "notes": "263 records synced across 20 resources; 21 warnings for admin-only endpoints (expected; not blocking)"},
+    {"cmd": "attention --refresh --since 365d", "result": "pass", "notes": "returns valid JSON envelope with companies + totals; stale section gracefully empty"},
+    {"cmd": "triage --json", "result": "pass", "notes": "returns paginated /resellers/{id}/issues/ data"},
+    {"cmd": "triage --dry-run", "result": "pass", "notes": "envelope returned without side effects"},
+    {"cmd": "unprovisioned --json", "result": "pass", "notes": "returns empty list (no unprovisioned agents on test tenant)"},
+    {"cmd": "bill --json", "result": "pass", "notes": "returns usage array; warning about missing ID field is non-fatal"},
+    {"cmd": "backup-facts --json", "result": "pass", "notes": "61 rows across 3 engines (classic 6, dr 27, restic 28) from real synced data"},
+    {"cmd": "qbr 4576 --quarter 2026-Q1 --format md", "result": "pass", "notes": "renders clean Markdown executive report with all sections"},
+    {"cmd": "drift --metric attention", "result": "pass", "notes": "clean error directing to run attention first when no anchor snapshot exists"}
+  ],
+  "v0_2_followups": [
+    "stale-backups reshape — derive from local backup tables (backups + restic_backups + dr_backups) with last_successful_at older than --days; remove the /reports/stale-backup-sets/ redirect",
+    "attention restore-queue count — iterate /companies/{id}/restore-queues/ to populate drbackup_in_flight; currently always 0",
+    "qbr chart rendering — add SVG line chart for storage trend and bar chart for success-rate in HTML/PDF mode",
+    "MCP orchestration: code — add to spec to reduce 293-tool surface to ~thin search+execute pair (Cloudflare pattern); improves scorecard's MCP Surface Strategy from 2/10",
+    "MCP HTTP transport — add to spec; improves MCP Remote Transport from 5/10",
+    "Type fidelity — flesh out richer response types in spec to improve scorecard's Type Fidelity from 1/5"
+  ]
+}

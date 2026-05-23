@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-22T18:36:11.805267Z",
+  "printing_press_version": "4.10.1",
+  "api_name": "servosity-msp",
+  "display_name": "Servosity Partner Msp",
+  "cli_name": "servosity-msp-pp-cli",
+  "owner": "servosity",
+  "printer": "dstevens",
+  "printer_name": "Damien Stevens",
+  "spec_path": "/Users/dstevens/Documents/Dev/cc-skills/servosity-msp-cli/spec/servosity-msp.openapi.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:b0a5b16baeb09e07b1c04f1440215729fbd0ca06080f82c651b8c1b0d0e79cc2",
+  "run_id": "20260522-083534",
+  "description": "Servosity REST API surface available to authenticated MSP partners.",
+  "mcp_binary": "servosity-msp-pp-mcp",
+  "mcp_tool_count": 293,
+  "mcp_ready": "full",
+  "api_version": "v1",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "SERVOSITY_MSP_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Morning fleet sweep",
+      "command": "attention",
+      "description": "One screen across your whole book of clients. Merges open issues, stale backups, and in-flight DR events into a per-company ranked view, then persists the result so tomorrow's drift command can compare."
+    },
+    {
+      "name": "Client QBR report",
+      "command": "qbr",
+      "description": "Generate the backup section of a client's Quarterly Business Review as Markdown, HTML, or PDF. Job success rate, restore tests run this quarter, coverage map across all three engines, open issues, storage trend."
+    },
+    {
+      "name": "Drift since yesterday",
+      "command": "drift",
+      "description": "Diff two snapshots the CLI collected — show which companies got worse, which recovered, and which are new since a past anchor. Default compares yesterday-to-now on the attention metric."
+    },
+    {
+      "name": "Stale-backup follow-up list",
+      "command": "stale-backups",
+      "description": "Slice the stale-backup-sets report by company, age window, and backup engine — entirely offline once cached. Use --refresh to repull from the API."
+    },
+    {
+      "name": "Batch issue triage",
+      "command": "triage",
+      "description": "List open issues with filters, then batch-mutate them (ignore / archive / reactivate / comment) in one invocation with --dry-run support and typed exit codes."
+    },
+    {
+      "name": "Restore-queue watch",
+      "command": "restore-queue watch",
+      "description": "Watch every active company's restore queue across the book during a DR event. Polls each company periodically and prints diffs since the last tick."
+    },
+    {
+      "name": "Cross-engine backup-facts",
+      "command": "backup-facts",
+      "description": "Unified view across Servosity's three backup engines (classic, restic, DR) for one company or all. Engine, ID, hostname, last_successful_at, status, size — joined from three local store tables into one table."
+    },
+    {
+      "name": "Bill reconciliation",
+      "command": "bill --reconcile",
+      "description": "Pull the MSP's monthly Servosity bill and compare line-by-line against a CSV of what the MSP is invoicing their clients. Surfaces drift — clients under- or over-charged."
+    },
+    {
+      "name": "Unprovisioned agents",
+      "command": "unprovisioned",
+      "description": "List agents installed on client machines but not yet pulling backups, ranked by client. Surfaces lost revenue from incomplete onboardings."
+    },
+    {
+      "name": "Storage trend forecast",
+      "command": "storage-trend",
+      "description": "Linear-regression forecast of when a specific client will hit a capacity threshold. Reads the historical storage_bytes time series from local snapshots; with --snapshot, persists a new measurement for future runs."
+    }
+  ]
+}

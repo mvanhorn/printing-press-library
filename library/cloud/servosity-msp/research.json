@@ -1,0 +1,278 @@
+{
+  "api_name": "servosity-msp",
+  "novelty_score": 10,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-22T12:30:00Z",
+  "novel_features": [
+    {
+      "name": "Morning fleet sweep",
+      "command": "attention",
+      "description": "One screen across your whole book of clients. Merges open issues, stale backups, and in-flight DR events into a per-company ranked view, then persists the result so tomorrow's drift command can compare.",
+      "rationale": "Requires three API rollups + local join + ranking + snapshot persistence. No backup vendor's portal shows a single-screen fleet view ranked by attention need.",
+      "example": "servosity-msp-pp-cli attention --top 10 --json",
+      "why_it_matters": "Reach for this in the morning to triage what needs follow-up across every client without clicking through a portal.",
+      "group": "Fleet-wide intelligence"
+    },
+    {
+      "name": "Client QBR report",
+      "command": "qbr",
+      "description": "Generate the backup section of a client's Quarterly Business Review as Markdown, HTML, or PDF. Job success rate, restore tests run this quarter, coverage map across all three engines, open issues, storage trend.",
+      "rationale": "Every MSP hand-builds these every quarter. We assemble from local store + multiple report endpoints + snapshot history into one executive-grade artifact.",
+      "example": "servosity-msp-pp-cli qbr 4421 --quarter 2026-Q1 --format pdf --out acme-q1.pdf",
+      "why_it_matters": "Use this 1-2 weeks before a client QBR. Saves 30-60 min of manual deck-building per client.",
+      "group": "Client-facing reporting"
+    },
+    {
+      "name": "Drift since yesterday",
+      "command": "drift",
+      "description": "Diff two snapshots the CLI collected — show which companies got worse, which recovered, and which are new since a past anchor. Default compares yesterday-to-now on the attention metric.",
+      "rationale": "Trivially impossible without a local time-keyed snapshot store. Every backup portal shows current state; none answers 'what changed since Friday?'",
+      "example": "servosity-msp-pp-cli drift --metric attention --from yesterday --to now --json",
+      "why_it_matters": "Use Monday morning to start with situation awareness instead of treating every week as a fresh slate.",
+      "group": "Fleet-wide intelligence"
+    },
+    {
+      "name": "Stale-backup follow-up list",
+      "command": "stale-backups",
+      "description": "Slice the stale-backup-sets report by company, age window, and backup engine — entirely offline once cached. Use --refresh to repull from the API.",
+      "rationale": "Friday's 'who needs a follow-up?' sweep. Local snapshot means you can filter without burning an API call per slice.",
+      "example": "servosity-msp-pp-cli stale-backups --days 7 --engine restic --json",
+      "why_it_matters": "Run this Friday afternoon to compile the list of clients you need to email about a stalled backup.",
+      "group": "Fleet-wide intelligence"
+    },
+    {
+      "name": "Batch issue triage",
+      "command": "triage",
+      "description": "List open issues with filters, then batch-mutate them (ignore / archive / reactivate / comment) in one invocation with --dry-run support and typed exit codes.",
+      "rationale": "The Servosity web portal forces one-at-a-time issue actions. This compresses 20 clicks into one shell command.",
+      "example": "servosity-msp-pp-cli triage --company 4421 --ignore 18,22,29 --comment 'scheduled outage' --dry-run",
+      "why_it_matters": "Use when the issue queue is bursty or during a planned-outage window where many alerts cluster around one client.",
+      "group": "Daily ops efficiency"
+    },
+    {
+      "name": "Restore-queue watch",
+      "command": "restore-queue watch",
+      "description": "Watch every active company's restore queue across the book during a DR event. Polls each company periodically and prints diffs since the last tick.",
+      "rationale": "Web portal forces tab-switching during DR. CLI pins one terminal on every queue at once.",
+      "example": "servosity-msp-pp-cli restore-queue watch --interval 30s --json",
+      "why_it_matters": "Use during an active disaster recovery event when multiple clients have restores in flight.",
+      "group": "Disaster recovery"
+    },
+    {
+      "name": "Cross-engine backup-facts",
+      "command": "backup-facts",
+      "description": "Unified view across Servosity's three backup engines (classic, restic, DR) for one company or all. Engine, ID, hostname, last_successful_at, status, size — joined from three local store tables into one table.",
+      "rationale": "Three API calls become one local query. Cross-engine ranking and filtering is impossible without union-joining the engine tables.",
+      "example": "servosity-msp-pp-cli backup-facts --company 4421 --status fail --json",
+      "why_it_matters": "Reach for this when triaging a client who has multiple engines protecting different devices and you need to know which engine is failing where.",
+      "group": "Fleet-wide intelligence"
+    },
+    {
+      "name": "Bill reconciliation",
+      "command": "bill --reconcile",
+      "description": "Pull the MSP's monthly Servosity bill and compare line-by-line against a CSV of what the MSP is invoicing their clients. Surfaces drift — clients under- or over-charged.",
+      "rationale": "MSP billing reconciliation is the most error-prone manual task per industry research. We do it with integer cents and stable sort.",
+      "example": "servosity-msp-pp-cli bill --reconcile invoiced-2026-05.csv --month 2026-05 --json",
+      "why_it_matters": "Run this every month-end before invoicing clients. Catches missed line items and pricing mismatches.",
+      "group": "Business operations"
+    },
+    {
+      "name": "Unprovisioned agents",
+      "command": "unprovisioned",
+      "description": "List agents installed on client machines but not yet pulling backups, ranked by client. Surfaces lost revenue from incomplete onboardings.",
+      "rationale": "Joins the reseller's unprovisioned-agents endpoint with the local companies table to give per-client visibility. Useful onboarding QA loop.",
+      "example": "servosity-msp-pp-cli unprovisioned --age 24h --json",
+      "why_it_matters": "Run weekly to catch agents installed during onboarding that never successfully phoned home.",
+      "group": "Business operations"
+    },
+    {
+      "name": "Storage trend forecast",
+      "command": "storage-trend",
+      "description": "Linear-regression forecast of when a specific client will hit a capacity threshold. Reads the historical storage_bytes time series from local snapshots; with --snapshot, persists a new measurement for future runs.",
+      "rationale": "Capacity-needs forecasting requires a time series. Servosity's portal shows current bytes; we project forward to a threshold and surface upsell timing.",
+      "example": "servosity-msp-pp-cli storage-trend 4421 --weeks 12 --threshold 1TB --json",
+      "why_it_matters": "Run quarterly per high-storage client to identify upsell opportunities before they hit a hard limit.",
+      "group": "Business operations"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Morning fleet sweep",
+      "command": "attention",
+      "description": "One screen across your whole book of clients. Merges open issues, stale backups, and in-flight DR events into a per-company ranked view, then persists the result so tomorrow's drift command can compare.",
+      "rationale": "Requires three API rollups + local join + ranking + snapshot persistence. No backup vendor's portal shows a single-screen fleet view ranked by attention need.",
+      "example": "servosity-msp-pp-cli attention --top 10 --json",
+      "why_it_matters": "Reach for this in the morning to triage what needs follow-up across every client without clicking through a portal.",
+      "group": "Fleet-wide intelligence"
+    },
+    {
+      "name": "Client QBR report",
+      "command": "qbr",
+      "description": "Generate the backup section of a client's Quarterly Business Review as Markdown, HTML, or PDF. Job success rate, restore tests run this quarter, coverage map across all three engines, open issues, storage trend.",
+      "rationale": "Every MSP hand-builds these every quarter. We assemble from local store + multiple report endpoints + snapshot history into one executive-grade artifact.",
+      "example": "servosity-msp-pp-cli qbr 4421 --quarter 2026-Q1 --format pdf --out acme-q1.pdf",
+      "why_it_matters": "Use this 1-2 weeks before a client QBR. Saves 30-60 min of manual deck-building per client.",
+      "group": "Client-facing reporting"
+    },
+    {
+      "name": "Drift since yesterday",
+      "command": "drift",
+      "description": "Diff two snapshots the CLI collected — show which companies got worse, which recovered, and which are new since a past anchor. Default compares yesterday-to-now on the attention metric.",
+      "rationale": "Trivially impossible without a local time-keyed snapshot store. Every backup portal shows current state; none answers 'what changed since Friday?'",
+      "example": "servosity-msp-pp-cli drift --metric attention --from yesterday --to now --json",
+      "why_it_matters": "Use Monday morning to start with situation awareness instead of treating every week as a fresh slate.",
+      "group": "Fleet-wide intelligence"
+    },
+    {
+      "name": "Stale-backup follow-up list",
+      "command": "stale-backups",
+      "description": "Slice the stale-backup-sets report by company, age window, and backup engine — entirely offline once cached. Use --refresh to repull from the API.",
+      "rationale": "Friday's 'who needs a follow-up?' sweep. Local snapshot means you can filter without burning an API call per slice.",
+      "example": "servosity-msp-pp-cli stale-backups --days 7 --engine restic --json",
+      "why_it_matters": "Run this Friday afternoon to compile the list of clients you need to email about a stalled backup.",
+      "group": "Fleet-wide intelligence"
+    },
+    {
+      "name": "Batch issue triage",
+      "command": "triage",
+      "description": "List open issues with filters, then batch-mutate them (ignore / archive / reactivate / comment) in one invocation with --dry-run support and typed exit codes.",
+      "rationale": "The Servosity web portal forces one-at-a-time issue actions. This compresses 20 clicks into one shell command.",
+      "example": "servosity-msp-pp-cli triage --company 4421 --ignore 18,22,29 --comment 'scheduled outage' --dry-run",
+      "why_it_matters": "Use when the issue queue is bursty or during a planned-outage window where many alerts cluster around one client.",
+      "group": "Daily ops efficiency"
+    },
+    {
+      "name": "Restore-queue watch",
+      "command": "restore-queue watch",
+      "description": "Watch every active company's restore queue across the book during a DR event. Polls each company periodically and prints diffs since the last tick.",
+      "rationale": "Web portal forces tab-switching during DR. CLI pins one terminal on every queue at once.",
+      "example": "servosity-msp-pp-cli restore-queue watch --interval 30s --json",
+      "why_it_matters": "Use during an active disaster recovery event when multiple clients have restores in flight.",
+      "group": "Disaster recovery"
+    },
+    {
+      "name": "Cross-engine backup-facts",
+      "command": "backup-facts",
+      "description": "Unified view across Servosity's three backup engines (classic, restic, DR) for one company or all. Engine, ID, hostname, last_successful_at, status, size — joined from three local store tables into one table.",
+      "rationale": "Three API calls become one local query. Cross-engine ranking and filtering is impossible without union-joining the engine tables.",
+      "example": "servosity-msp-pp-cli backup-facts --company 4421 --status fail --json",
+      "why_it_matters": "Reach for this when triaging a client who has multiple engines protecting different devices and you need to know which engine is failing where.",
+      "group": "Fleet-wide intelligence"
+    },
+    {
+      "name": "Bill reconciliation",
+      "command": "bill --reconcile",
+      "description": "Pull the MSP's monthly Servosity bill and compare line-by-line against a CSV of what the MSP is invoicing their clients. Surfaces drift — clients under- or over-charged.",
+      "rationale": "MSP billing reconciliation is the most error-prone manual task per industry research. We do it with integer cents and stable sort.",
+      "example": "servosity-msp-pp-cli bill --reconcile invoiced-2026-05.csv --month 2026-05 --json",
+      "why_it_matters": "Run this every month-end before invoicing clients. Catches missed line items and pricing mismatches.",
+      "group": "Business operations"
+    },
+    {
+      "name": "Unprovisioned agents",
+      "command": "unprovisioned",
+      "description": "List agents installed on client machines but not yet pulling backups, ranked by client. Surfaces lost revenue from incomplete onboardings.",
+      "rationale": "Joins the reseller's unprovisioned-agents endpoint with the local companies table to give per-client visibility. Useful onboarding QA loop.",
+      "example": "servosity-msp-pp-cli unprovisioned --age 24h --json",
+      "why_it_matters": "Run weekly to catch agents installed during onboarding that never successfully phoned home.",
+      "group": "Business operations"
+    },
+    {
+      "name": "Storage trend forecast",
+      "command": "storage-trend",
+      "description": "Linear-regression forecast of when a specific client will hit a capacity threshold. Reads the historical storage_bytes time series from local snapshots; with --snapshot, persists a new measurement for future runs.",
+      "rationale": "Capacity-needs forecasting requires a time series. Servosity's portal shows current bytes; we project forward to a threshold and surface upsell timing.",
+      "example": "servosity-msp-pp-cli storage-trend 4421 --weeks 12 --threshold 1TB --json",
+      "why_it_matters": "Run quarterly per high-storage client to identify upsell opportunities before they hit a hard limit.",
+      "group": "Business operations"
+    }
+  ],
+  "narrative": {
+    "display_name": "Servosity",
+    "headline": "The first MSP-fleet CLI for backup. Every Servosity API endpoint as a typed command, plus a local mirror that lets you ask questions the dashboard can't — across your whole book of clients.",
+    "value_prop": "No competitor in the MSP backup space ships a fleet-wide CLI. Reach for servosity-msp-pp-cli when you need to triage attention across every client at once, generate the backup section of a QBR in 30 seconds, watch every restore queue during DR from one terminal, or reconcile your Servosity bill against what you're invoicing clients. Every response is agent-native: --json, --select, --csv, --dry-run, typed exit codes.",
+    "auth_narrative": "Authenticate with your Servosity partner API token. Export SERVOSITY_MSP_TOKEN with your reseller-scoped token (find or rotate it in the Servosity partner portal). The CLI auto-resolves your reseller ID from /current-user/ on first run — you never type it.",
+    "quickstart": [
+      {
+        "command": "servosity-msp-pp-cli doctor",
+        "comment": "Confirm token works and API is reachable"
+      },
+      {
+        "command": "servosity-msp-pp-cli sync",
+        "comment": "Pull companies, backups, and issues into the local SQLite mirror"
+      },
+      {
+        "command": "servosity-msp-pp-cli attention --top 10",
+        "comment": "Morning fleet sweep — what needs my attention across my book"
+      },
+      {
+        "command": "servosity-msp-pp-cli stale-backups --days 7",
+        "comment": "Friday review — clients with stalled backups to follow up on"
+      },
+      {
+        "command": "servosity-msp-pp-cli qbr \u003ccompany\u003e --quarter 2026-Q1 --format pdf --out report.pdf",
+        "comment": "Generate the backup section of a client's QBR as a PDF"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "doctor reports authentication failure",
+        "fix": "Export SERVOSITY_MSP_TOKEN with your reseller-scoped token. Get one from the Servosity partner portal."
+      },
+      {
+        "symptom": "qbr --format pdf returns 'PDF rendering requires Chrome'",
+        "fix": "Install Chrome, Google Chrome, or Chromium. Or use --format md / --format html instead."
+      },
+      {
+        "symptom": "drift returns 'No snapshot found for metric ...'",
+        "fix": "Run `servosity-msp-pp-cli attention` first to record the first snapshot, then run drift later to compare."
+      },
+      {
+        "symptom": "storage-trend says 'No historical data yet'",
+        "fix": "Run `storage-trend \u003ccompany\u003e --snapshot` periodically (weekly cron is sensible) to build the trend line."
+      }
+    ],
+    "when_to_use": "Use servosity-msp-pp-cli when you're managing backups across a book of MSP clients on Servosity. It is the right tool for the morning attention sweep, the Friday stale-backup hunt, ad-hoc 'is ACME OK?' checks, batch issue triage during planned outages, restore-queue oversight during DR, monthly bill reconciliation, and quarterly client QBR backup sections. The local SQLite mirror + snapshot history make any 'what changed since X?' question answerable — which the web portal cannot do.",
+    "recipes": [
+      {
+        "title": "Morning attention sweep with field projection",
+        "command": "servosity-msp-pp-cli attention --top 5 --json --select companies.company_name,companies.score,companies.open_issues",
+        "explanation": "Narrow the output to just the fields an agent cares about — keeps token usage low and pipes cleanly to jq or downstream tools."
+      },
+      {
+        "title": "Friday stale-backup follow-up list",
+        "command": "servosity-msp-pp-cli stale-backups --days 7 --engine restic --csv",
+        "explanation": "CSV output for paste-into-spreadsheet workflows when you're compiling the list of clients to email."
+      },
+      {
+        "title": "Client QBR pack",
+        "command": "servosity-msp-pp-cli qbr 4421 --quarter 2026-Q1 --format pdf --out acme-q1-backup.pdf",
+        "explanation": "Generates a self-contained PDF with cover page, job success rate, restore tests, coverage table, open issues, and storage trend table. Hand it to the account lead 1-2 weeks before the QBR."
+      },
+      {
+        "title": "Bill reconciliation against invoicing CSV",
+        "command": "servosity-msp-pp-cli bill --reconcile invoiced-2026-05.csv --month 2026-05 --json",
+        "explanation": "CSV columns: company_id, company_name, invoiced_amount. Output shows delta vs Servosity's bill, sorted by absolute delta — catches under-billing before month-end close."
+      },
+      {
+        "title": "Restore-queue watch during DR event",
+        "command": "servosity-msp-pp-cli restore-queue watch --interval 30s --json",
+        "explanation": "Emits NDJSON, one tick per line. Pipe to `tee dr-event.log` to capture the timeline of every queue change for the post-mortem."
+      }
+    ],
+    "trigger_phrases": [
+      "what needs my attention on servosity",
+      "fleet stale backups",
+      "show me the QBR backup report for",
+      "triage servosity issues",
+      "drift since yesterday on servosity",
+      "watch restore queue",
+      "reconcile servosity bill",
+      "use servosity-msp",
+      "run servosity-msp"
+    ]
+  }
+}

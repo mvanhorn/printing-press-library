@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "servosity-msp-pp-mcp",
+  "display_name": "Servosity Partner Msp",
+  "version": "4.10.1",
+  "description": "Servosity REST API surface available to authenticated MSP partners.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/servosity-msp-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/servosity-msp-pp-mcp",
+      "args": [],
+      "env": {
+        "SERVOSITY_MSP_TOKEN": "${user_config.servosity_msp_token}"
+      }
+    }
+  },
+  "user_config": {
+    "servosity_msp_token": {
+      "type": "string",
+      "title": "SERVOSITY_MSP_TOKEN",
+      "description": "Sets SERVOSITY_MSP_TOKEN for the Servosity Partner Msp MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
