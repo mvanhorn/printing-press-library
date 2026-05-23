@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -44,6 +45,9 @@ default; pass --site to override.`,
 				return nil
 			}
 			resolved := siteUUID
+			if resolved == "" {
+				resolved = strings.TrimSpace(os.Getenv("BOTSEE_SITE_UUID"))
+			}
 			if resolved == "" {
 				return fmt.Errorf("--site is required (or set $BOTSEE_SITE_UUID)")
 			}

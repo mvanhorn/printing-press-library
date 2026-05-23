@@ -355,7 +355,10 @@ func ensureStructure(ctx context.Context, c httpClient, siteUUID string, types, 
 	newCTs := extractList(ctResp, "customer_types")
 	result.CustomerTypes = len(newCTs)
 
-	// Generate personas per CT
+	// Generate personas per CT — track partial failures so we can refuse
+	// to run an analysis backed by an empty question set.
+	personaFailures := 0
+	questionFailures := 0
 	for _, ct := range newCTs {
 		ctUUID := asString(ct["uuid"])
 		if ctUUID == "" {
@@ -364,6 +367,8 @@ func ensureStructure(ctx context.Context, c httpClient, siteUUID string, types, 
 		pBody := map[string]any{"count": personas}
 		pResp, pStatus, perr := c.Post(ctx, "/api/v1/customer-types/"+ctUUID+"/personas/generate", pBody)
 		if perr != nil || pStatus < 200 || pStatus >= 300 {
+			personaFailures++
+			fmt.Fprintf(os.Stderr, "warning: persona generation failed for customer-type %s (status=%d, err=%v)\n", ctUUID, pStatus, perr)
 			continue
 		}
 		pList := extractList(pResp, "personas")
@@ -378,11 +383,19 @@ func ensureStructure(ctx context.Context, c httpClient, siteUUID string, types, 
 			qBody := map[string]any{"count": questions}
 			qResp, qStatus, qerr := c.Post(ctx, "/api/v1/personas/"+pUUID+"/questions/generate", qBody)
 			if qerr != nil || qStatus < 200 || qStatus >= 300 {
+				questionFailures++
+				fmt.Fprintf(os.Stderr, "warning: question generation failed for persona %s (status=%d, err=%v)\n", pUUID, qStatus, qerr)
 				continue
 			}
 			qList := extractList(qResp, "questions")
 			result.QuestionsCount += len(qList)
 		}
+	}
+	// Refuse to proceed if structure bootstrapping produced no questions.
+	// Without this, startAnalysis would POST a paid /analysis call backed by
+	// an empty question set — silently consuming credits for no usable data.
+	if result.QuestionsCount == 0 {
+		return fmt.Errorf("structure bootstrap produced 0 questions (%d persona failures, %d question failures); refusing to start a paid analysis — run with --regenerate or check API status", personaFailures, questionFailures)
 	}
 	return nil
 }
