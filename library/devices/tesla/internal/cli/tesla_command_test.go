@@ -598,6 +598,35 @@ func readAll(r interface {
 	}
 }
 
+// TestProductEntry_UnmarshalsHeterogeneousIDs guards the Wall Connector fix:
+// /api/1/products returns an int id for vehicles and a non-numeric string id
+// for energy devices (e.g. "STE20240625-00048"). The router only consumes
+// VIN/display_name, but a typed mismatch on id aborts the whole unmarshal —
+// which historically broke `tesla command` for any account owning a Wall
+// Connector. json.RawMessage is the only stdlib type that swallows both
+// shapes; json.Number rejects non-numeric strings via isValidNumber.
+func TestProductEntry_UnmarshalsHeterogeneousIDs(t *testing.T) {
+	payload := []byte(`{"response":[
+		{"vin":"5YJ3000000000VIN1","display_name":"car","id":3744559116524749},
+		{"display_name":"Wall Connector","id":"STE20240625-00048"}
+	]}`)
+	var wrapper struct {
+		Response []productEntry `json:"response"`
+	}
+	if err := json.Unmarshal(payload, &wrapper); err != nil {
+		t.Fatalf("unmarshal failed: %v", err)
+	}
+	if len(wrapper.Response) != 2 {
+		t.Fatalf("got %d entries, want 2", len(wrapper.Response))
+	}
+	if wrapper.Response[0].VIN != "5YJ3000000000VIN1" {
+		t.Errorf("vehicle VIN: got %q", wrapper.Response[0].VIN)
+	}
+	if wrapper.Response[1].DisplayName != "Wall Connector" {
+		t.Errorf("wall connector display_name: got %q", wrapper.Response[1].DisplayName)
+	}
+}
+
 // Compile-time sanity: ensure config import isn't dropped if any test path
 // stops referencing it (defensive: simplifies refactors that move test setup
 // across files).

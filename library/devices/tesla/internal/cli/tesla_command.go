@@ -390,19 +390,20 @@ func resolveCommandVehicle(ctx context.Context, flags *rootFlags, cfg *config.Co
 // here. command_signing is a hint Tesla sometimes surfaces; absent we fall
 // back to a year-based heuristic via tesla_reachability's classifier.
 //
-// NOTE: the id field is json.Number because /api/1/products returns a
+// NOTE: the id field is json.RawMessage because /api/1/products returns a
 // heterogeneous array — vehicles use integer IDs (e.g. 3744559116524749) while
-// energy devices such as Wall Connectors use string IDs (e.g.
+// energy devices such as Wall Connectors use non-numeric string IDs (e.g.
 // "STE20240625-00048"). Typing the field as int64 causes json.Unmarshal to
-// fail on the entire response the moment any non-vehicle product is present,
-// making command routing impossible for accounts that own a Wall Connector or
-// Powerwall. json.Number accepts both without panicking; callers that need a
-// numeric ID can call .Int64() on it.
+// fail on the entire response the moment any non-vehicle product is present;
+// json.Number is also insufficient because it rejects non-numeric strings via
+// isValidNumber. json.RawMessage implements json.Unmarshaler and accepts any
+// token without inspection, so the parse succeeds for every product shape.
+// No call site currently reads this field; routing keys off VIN.
 type productEntry struct {
-	VIN              string      `json:"vin"`
-	DisplayName      string      `json:"display_name"`
-	CommandSigning   string      `json:"command_signing"`
-	VehicleCommandID json.Number `json:"id"`
+	VIN              string          `json:"vin"`
+	DisplayName      string          `json:"display_name"`
+	CommandSigning   string          `json:"command_signing"`
+	VehicleCommandID json.RawMessage `json:"id"`
 }
 
 // fetchProductsList calls /api/1/products and returns the typed entries.
