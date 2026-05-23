@@ -1,0 +1,14 @@
+warning: resource "feedback" from path "/Feedback" would shadow framework cobra command "feedback"; renamed to "halo-feedback"
+warning: resource "health" from path "/Health" would shadow framework cobra command "health"; renamed to "halo-health"
+warning: resource "search" from path "/Search" would shadow framework cobra command "search"; renamed to "halo-search"
+warning: resource "workflow" from path "/Workflow" would shadow framework cobra command "workflow"; renamed to "halo-workflow"
+PASS go mod tidy
+PASS govulncheck ./...
+PASS go vet ./...
+PASS go build ./...
+PASS build runnable binary
+PASS halopsa-pp-cli --help
+PASS halopsa-pp-cli version
+PASS halopsa-pp-cli doctor
+Generated halopsa at /Users/dstevens/printing-press/.runstate/halopsa-9ec2c4d3/runs/20260521-131235/working/halopsa-pp-cli
+Bundled /Users/dstevens/printing-press/.runstate/halopsa-9ec2c4d3/runs/20260521-131235/working/halopsa-pp-cli/build/halopsa-pp-mcp-darwin-arm64.mcpb

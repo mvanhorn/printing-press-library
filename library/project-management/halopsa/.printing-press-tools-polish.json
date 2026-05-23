@@ -1,0 +1,2278 @@
+{
+  "timestamp": "2026-05-23T02:46:01.934727Z",
+  "cli_dir": "\u003ccli-dir\u003e/halopsa",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "actions",
+      "file": "actions.go",
+      "line": 11,
+      "evidence": "Manage actions",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"actions\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "addigy-details",
+      "file": "addigy-details.go",
+      "line": 11,
+      "evidence": "Manage addigy details",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"addigy-details\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "addigy",
+      "file": "addigy.go",
+      "line": 11,
+      "evidence": "Manage addigy",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"addigy\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "address",
+      "file": "address.go",
+      "line": 11,
+      "evidence": "Manage address",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"address\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "addressbook",
+      "file": "addressbook.go",
+      "line": 11,
+      "evidence": "Manage addressbook",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"addressbook\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "agent",
+      "file": "agent.go",
+      "line": 11,
+      "evidence": "Manage agent",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"agent\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "aisuggestion",
+      "file": "aisuggestion.go",
+      "line": 11,
+      "evidence": "Manage aisuggestion",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"aisuggestion\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "application",
+      "file": "application.go",
+      "line": 11,
+      "evidence": "Manage application",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"application\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "appointment",
+      "file": "appointment.go",
+      "line": 11,
+      "evidence": "Manage appointment",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"appointment\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "approval-process",
+      "file": "approval-process.go",
+      "line": 11,
+      "evidence": "Manage approval process",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"approval-process\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "armis-details",
+      "file": "armis-details.go",
+      "line": 11,
+      "evidence": "Manage armis details",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"armis-details\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "asset-change",
+      "file": "asset-change.go",
+      "line": 11,
+      "evidence": "Manage asset change",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"asset-change\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "asset-group",
+      "file": "asset-group.go",
+      "line": 11,
+      "evidence": "Manage asset group",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"asset-group\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "asset-type",
+      "file": "asset-type.go",
+      "line": 11,
+      "evidence": "Manage asset type",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"asset-type\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "asset",
+      "file": "asset.go",
+      "line": 11,
+      "evidence": "Manage asset",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"asset\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "attachment",
+      "file": "attachment.go",
+      "line": 11,
+      "evidence": "Manage attachment",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"attachment\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "audit",
+      "file": "audit.go",
+      "line": 11,
+      "evidence": "Manage audit",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"audit\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "automation",
+      "file": "automation.go",
+      "line": 11,
+      "evidence": "Manage automation",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"automation\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "avalara-details",
+      "file": "avalara-details.go",
+      "line": 11,
+      "evidence": "Manage avalara details",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"avalara-details\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "awsdetails",
+      "file": "awsdetails.go",
+      "line": 11,
+      "evidence": "Manage awsdetails",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"awsdetails\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "azure-delta",
+      "file": "azure-delta.go",
+      "line": 11,
+      "evidence": "Manage azure delta",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"azure-delta\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "azure-translate",
+      "file": "azure-translate.go",
+      "line": 11,
+      "evidence": "Manage azure translate",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"azure-translate\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "azureadconnection",
+      "file": "azureadconnection.go",
+      "line": 11,
+      "evidence": "Manage azureadconnection",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"azureadconnection\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "billing-template",
+      "file": "billing-template.go",
+      "line": 11,
+      "evidence": "Manage billing template",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"billing-template\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "bookmark",
+      "file": "bookmark.go",
+      "line": 11,
+      "evidence": "Manage bookmark",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"bookmark\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "budget-type",
+      "file": "budget-type.go",
+      "line": 11,
+      "evidence": "Manage budget type",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"budget-type\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "bulk-email",
+      "file": "bulk-email.go",
+      "line": 11,
+      "evidence": "Manage bulk email",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"bulk-email\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "cab",
+      "file": "cab.go",
+      "line": 11,
+      "evidence": "Manage cab",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"cab\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "call-log",
+      "file": "call-log.go",
+      "line": 11,
+      "evidence": "Manage call log",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"call-log\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "call-script",
+      "file": "call-script.go",
+      "line": 11,
+      "evidence": "Manage call script",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"call-script\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "canned-text",
+      "file": "canned-text.go",
+      "line": 11,
+      "evidence": "Manage canned text",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"canned-text\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "category",
+      "file": "category.go",
+      "line": 11,
+      "evidence": "Manage category",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"category\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "certificate",
+      "file": "certificate.go",
+      "line": 11,
+      "evidence": "Manage certificate",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"certificate\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "charge-rate",
+      "file": "charge-rate.go",
+      "line": 11,
+      "evidence": "Manage charge rate",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"charge-rate\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "chat-message",
+      "file": "chat-message.go",
+      "line": 11,
+      "evidence": "Manage chat message",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"chat-message\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "chat-profile",
+      "file": "chat-profile.go",
+      "line": 11,
+      "evidence": "Manage chat profile",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"chat-profile\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "chat",
+      "file": "chat.go",
+      "line": 11,
+      "evidence": "Manage chat",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"chat\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "client-contract",
+      "file": "client-contract.go",
+      "line": 11,
+      "evidence": "Manage client contract",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"client-contract\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "client-prepay",
+      "file": "client-prepay.go",
+      "line": 11,
+      "evidence": "Manage client prepay",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"client-prepay\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "client",
+      "file": "client.go",
+      "line": 11,
+      "evidence": "Manage client",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"client\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "config-commit",
+      "file": "config-commit.go",
+      "line": 11,
+      "evidence": "Manage config commit",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"config-commit\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "confirm-closure",
+      "file": "confirm-closure.go",
+      "line": 11,
+      "evidence": "Manage confirm closure",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"confirm-closure\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "confluence-details",
+      "file": "confluence-details.go",
+      "line": 11,
+      "evidence": "Manage confluence details",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"confluence-details\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "connected-instance",
+      "file": "connected-instance.go",
+      "line": 11,
+      "evidence": "Manage connected instance",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"connected-instance\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "consignment",
+      "file": "consignment.go",
+      "line": 11,
+      "evidence": "Manage consignment",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"consignment\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "contactgroup",
+      "file": "contactgroup.go",
+      "line": 11,
+      "evidence": "Manage contactgroup",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"contactgroup\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "contactgroupcontact",
+      "file": "contactgroupcontact.go",
+      "line": 11,
+      "evidence": "Manage contactgroupcontact",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"contactgroupcontact\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "contract-rule",
+      "file": "contract-rule.go",
+      "line": 11,
+      "evidence": "Manage contract rule",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"contract-rule\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "contract-schedule",
+      "file": "contract-schedule.go",
+      "line": 11,
+      "evidence": "Manage contract schedule",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"contract-schedule\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "cost-centres",
+      "file": "cost-centres.go",
+      "line": 11,
+      "evidence": "Manage cost centres",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"cost-centres\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "crmnote",
+      "file": "crmnote.go",
+      "line": 11,
+      "evidence": "Manage crmnote",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"crmnote\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "cspconsumption-data",
+      "file": "cspconsumption-data.go",
+      "line": 11,
+      "evidence": "Manage cspconsumption data",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"cspconsumption-data\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "cspinvoice",
+      "file": "cspinvoice.go",
+      "line": 11,
+      "evidence": "Manage cspinvoice",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"cspinvoice\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "csvtemplate",
+      "file": "csvtemplate.go",
+      "line": 11,
+      "evidence": "Manage csvtemplate",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"csvtemplate\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "currency",
+      "file": "currency.go",
+      "line": 11,
+      "evidence": "Manage currency",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"currency\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "custom-button",
+      "file": "custom-button.go",
+      "line": 11,
+      "evidence": "Manage custom button",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"custom-button\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "custom-integration",
+      "file": "custom-integration.go",
+      "line": 11,
+      "evidence": "Manage custom integration",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"custom-integration\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "custom-query",
+      "file": "custom-query.go",
+      "line": 11,
+      "evidence": "Manage custom query",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"custom-query\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "custom-table",
+      "file": "custom-table.go",
+      "line": 11,
+      "evidence": "Manage custom table",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"custom-table\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "dashboard-links",
+      "file": "dashboard-links.go",
+      "line": 11,
+      "evidence": "Manage dashboard links",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"dashboard-links\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "database-lookup",
+      "file": "database-lookup.go",
+      "line": 11,
+      "evidence": "Manage database lookup",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"database-lookup\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "distribution-lists",
+      "file": "distribution-lists.go",
+      "line": 11,
+      "evidence": "Manage distribution lists",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"distribution-lists\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "downtime",
+      "file": "downtime.go",
+      "line": 11,
+      "evidence": "Manage downtime",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"downtime\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "dynamics365-crmdetails",
+      "file": "dynamics365-crmdetails.go",
+      "line": 11,
+      "evidence": "Manage dynamics365 crmdetails",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"dynamics365-crmdetails\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "dynatrace-details",
+      "file": "dynatrace-details.go",
+      "line": 11,
+      "evidence": "Manage dynatrace details",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"dynatrace-details\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "ecommerce-order",
+      "file": "ecommerce-order.go",
+      "line": 11,
+      "evidence": "Manage ecommerce order",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"ecommerce-order\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "email-rule",
+      "file": "email-rule.go",
+      "line": 11,
+      "evidence": "Manage email rule",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"email-rule\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "email-store",
+      "file": "email-store.go",
+      "line": 11,
+      "evidence": "Manage email store",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"email-store\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "email-template",
+      "file": "email-template.go",
+      "line": 11,
+      "evidence": "Manage email template",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"email-template\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "eracent-details",
+      "file": "eracent-details.go",
+      "line": 11,
+      "evidence": "Manage eracent details",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"eracent-details\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "event-rule",
+      "file": "event-rule.go",
+      "line": 11,
+      "evidence": "Manage event rule",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"event-rule\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "event",
+      "file": "event.go",
+      "line": 11,
+      "evidence": "Manage event",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"event\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "exact-details",
+      "file": "exact-details.go",
+      "line": 11,
+      "evidence": "Manage exact details",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"exact-details\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "expense",
+      "file": "expense.go",
+      "line": 11,
+      "evidence": "Manage expense",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"expense\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "external-link",
+      "file": "external-link.go",
+      "line": 11,
+      "evidence": "Manage external link",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"external-link\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "facebook-details",
+      "file": "facebook-details.go",
+      "line": 11,
+      "evidence": "Manage facebook details",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"facebook-details\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "faqlists",
+      "file": "faqlists.go",
+      "line": 11,
+      "evidence": "Manage faqlists",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"faqlists\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "faults-forecasting",
+      "file": "faults-forecasting.go",
+      "line": 11,
+      "evidence": "Manage faults forecasting",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"faults-forecasting\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "features",
+      "file": "features.go",
+      "line": 11,
+      "evidence": "Manage features",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"features\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "field-group",
+      "file": "field-group.go",
+      "line": 11,
+      "evidence": "Manage field group",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"field-group\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "field-info",
+      "file": "field-info.go",
+      "line": 11,
+      "evidence": "Manage field info",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"field-info\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "field",
+      "file": "field.go",
+      "line": 11,
+      "evidence": "Manage field",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"field\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "forecast-details",
+      "file": "forecast-details.go",
+      "line": 11,
+      "evidence": "Manage forecast details",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"forecast-details\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "forethought-details",
+      "file": "forethought-details.go",
+      "line": 11,
+      "evidence": "Manage forethought details",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"forethought-details\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "formattedemail",
+      "file": "formattedemail.go",
+      "line": 11,
+      "evidence": "Manage formattedemail",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"formattedemail\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "fortnox-details",
+      "file": "fortnox-details.go",
+      "line": 11,
+      "evidence": "Manage fortnox details",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"fortnox-details\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "gworkspace-details",
+      "file": "gworkspace-details.go",
+      "line": 11,
+      "evidence": "Manage gworkspace details",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"gworkspace-details\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "halo-feedback",
+      "file": "halo-feedback.go",
+      "line": 11,
+      "evidence": "Manage halo feedback",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"halo-feedback\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "halo-health",
+      "file": "halo-health.go",
+      "line": 11,
+      "evidence": "Manage halo health",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"halo-health\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "halo-integration",
+      "file": "halo-integration.go",
+      "line": 11,
+      "evidence": "Manage halo integration",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"halo-integration\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "halo-news",
+      "file": "halo-news.go",
+      "line": 11,
+      "evidence": "Manage halo news",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"halo-news\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "halo-workflow",
+      "file": "halo-workflow.go",
+      "line": 11,
+      "evidence": "Manage halo workflow",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"halo-workflow\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "holiday",
+      "file": "holiday.go",
+      "line": 11,
+      "evidence": "Manage holiday",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"holiday\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "import-csv",
+      "file": "import-csv.go",
+      "line": 11,
+      "evidence": "Manage import csv",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"import-csv\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "incoming-event",
+      "file": "incoming-event.go",
+      "line": 11,
+      "evidence": "Manage incoming event",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"incoming-event\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "incoming-webhook",
+      "file": "incoming-webhook.go",
+      "line": 11,
+      "evidence": "Manage incoming webhook",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"incoming-webhook\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "incomingemail",
+      "file": "incomingemail.go",
+      "line": 11,
+      "evidence": "Manage incomingemail",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"incomingemail\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "instance",
+      "file": "instance.go",
+      "line": 11,
+      "evidence": "Manage instance",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"instance\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "integration-data",
+      "file": "integration-data.go",
+      "line": 11,
+      "evidence": "Manage integration data",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"integration-data\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "integration-delta",
+      "file": "integration-delta.go",
+      "line": 11,
+      "evidence": "Manage integration delta",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"integration-delta\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "integration-error",
+      "file": "integration-error.go",
+      "line": 11,
+      "evidence": "Manage integration error",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"integration-error\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "integration-export",
+      "file": "integration-export.go",
+      "line": 11,
+      "evidence": "Manage integration export",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"integration-export\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "integration-request",
+      "file": "integration-request.go",
+      "line": 11,
+      "evidence": "Manage integration request",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"integration-request\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "integrator-trace",
+      "file": "integrator-trace.go",
+      "line": 11,
+      "evidence": "Manage integrator trace",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"integrator-trace\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "invoice-change",
+      "file": "invoice-change.go",
+      "line": 11,
+      "evidence": "Manage invoice change",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"invoice-change\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "invoice-payment",
+      "file": "invoice-payment.go",
+      "line": 11,
+      "evidence": "Manage invoice payment",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"invoice-payment\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "invoice",
+      "file": "invoice.go",
+      "line": 11,
+      "evidence": "Manage invoice",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"invoice\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "void",
+      "file": "invoice_void.go",
+      "line": 11,
+      "evidence": "Manage void",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"void\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "islonline",
+      "file": "islonline.go",
+      "line": 11,
+      "evidence": "Manage islonline",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"islonline\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "item-group",
+      "file": "item-group.go",
+      "line": 11,
+      "evidence": "Manage item group",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"item-group\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "item-stock",
+      "file": "item-stock.go",
+      "line": 11,
+      "evidence": "Manage item stock",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"item-stock\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "item",
+      "file": "item.go",
+      "line": 11,
+      "evidence": "Manage item",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"item\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "itemsupplier",
+      "file": "itemsupplier.go",
+      "line": 11,
+      "evidence": "Manage itemsupplier",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"itemsupplier\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "jamf-details",
+      "file": "jamf-details.go",
+      "line": 11,
+      "evidence": "Manage jamf details",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"jamf-details\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "jira-details",
+      "file": "jira-details.go",
+      "line": 11,
+      "evidence": "Manage jira details",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"jira-details\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "journey",
+      "file": "journey.go",
+      "line": 11,
+      "evidence": "Manage journey",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"journey\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "kandji-details",
+      "file": "kandji-details.go",
+      "line": 11,
+      "evidence": "Manage kandji details",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"kandji-details\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "kaseya-vsax",
+      "file": "kaseya-vsax.go",
+      "line": 11,
+      "evidence": "Manage kaseya vsax",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"kaseya-vsax\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "kaseya-vsaxdetails",
+      "file": "kaseya-vsaxdetails.go",
+      "line": 11,
+      "evidence": "Manage kaseya vsaxdetails",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"kaseya-vsaxdetails\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "kashflow-details",
+      "file": "kashflow-details.go",
+      "line": 11,
+      "evidence": "Manage kashflow details",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"kashflow-details\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "kbarticle-anon",
+      "file": "kbarticle-anon.go",
+      "line": 11,
+      "evidence": "Manage kbarticle anon",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"kbarticle-anon\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "kbarticle",
+      "file": "kbarticle.go",
+      "line": 11,
+      "evidence": "Manage kbarticle",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"kbarticle\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "key-vault",
+      "file": "key-vault.go",
+      "line": 11,
+      "evidence": "Manage key vault",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"key-vault\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "languages",
+      "file": "languages.go",
+      "line": 11,
+      "evidence": "Manage languages",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"languages\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "lap-safe",
+      "file": "lap-safe.go",
+      "line": 11,
+      "evidence": "Manage lap safe",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"lap-safe\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "ldapconnection",
+      "file": "ldapconnection.go",
+      "line": 11,
+      "evidence": "Manage ldapconnection",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"ldapconnection\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "license-info",
+      "file": "license-info.go",
+      "line": 11,
+      "evidence": "Manage license info",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"license-info\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "lookup",
+      "file": "lookup.go",
+      "line": 11,
+      "evidence": "Manage lookup",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"lookup\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "mail-campaign",
+      "file": "mail-campaign.go",
+      "line": 11,
+      "evidence": "Manage mail campaign",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"mail-campaign\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "mail",
+      "file": "mail.go",
+      "line": 11,
+      "evidence": "Manage mail",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"mail\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "mailbox-credential",
+      "file": "mailbox-credential.go",
+      "line": 11,
+      "evidence": "Manage mailbox credential",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"mailbox-credential\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "mailbox",
+      "file": "mailbox.go",
+      "line": 11,
+      "evidence": "Manage mailbox",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"mailbox\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "outlook-contacts",
+      "file": "mailbox_outlook-contacts.go",
+      "line": 11,
+      "evidence": "Manage outlook contacts",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"outlook-contacts\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "marketing-unsubscribe",
+      "file": "marketing-unsubscribe.go",
+      "line": 11,
+      "evidence": "Manage marketing unsubscribe",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"marketing-unsubscribe\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "mattermost-details",
+      "file": "mattermost-details.go",
+      "line": 11,
+      "evidence": "Manage mattermost details",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"mattermost-details\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "mcp",
+      "file": "mcp.go",
+      "line": 11,
+      "evidence": "Manage mcp",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"mcp\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "meter-reading",
+      "file": "meter-reading.go",
+      "line": 11,
+      "evidence": "Manage meter reading",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"meter-reading\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "mo",
+      "file": "mo.go",
+      "line": 11,
+      "evidence": "Manage mo",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"mo\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "myobdetails",
+      "file": "myobdetails.go",
+      "line": 11,
+      "evidence": "Manage myobdetails",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"myobdetails\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "ncentral-details",
+      "file": "ncentral-details.go",
+      "line": 11,
+      "evidence": "Manage ncentral details",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"ncentral-details\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "nhserverconfig",
+      "file": "nhserverconfig.go",
+      "line": 11,
+      "evidence": "Manage nhserverconfig",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"nhserverconfig\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "notification-message",
+      "file": "notification-message.go",
+      "line": 11,
+      "evidence": "Manage notification message",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"notification-message\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "notification",
+      "file": "notification.go",
+      "line": 11,
+      "evidence": "Manage notification",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"notification\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "notifications",
+      "file": "notifications.go",
+      "line": 11,
+      "evidence": "Manage notifications",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"notifications\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "online-status",
+      "file": "online-status.go",
+      "line": 11,
+      "evidence": "Manage online status",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"online-status\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "opportunities",
+      "file": "opportunities.go",
+      "line": 11,
+      "evidence": "Manage opportunities",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"opportunities\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "organisation",
+      "file": "organisation.go",
+      "line": 11,
+      "evidence": "Manage organisation",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"organisation\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "outcome",
+      "file": "outcome.go",
+      "line": 11,
+      "evidence": "Manage outcome",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"outcome\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "outgoing-attempt",
+      "file": "outgoing-attempt.go",
+      "line": 11,
+      "evidence": "Manage outgoing attempt",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"outgoing-attempt\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "outgoing",
+      "file": "outgoing.go",
+      "line": 11,
+      "evidence": "Manage outgoing",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"outgoing\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "outgoingemail",
+      "file": "outgoingemail.go",
+      "line": 11,
+      "evidence": "Manage outgoingemail",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"outgoingemail\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "password-field",
+      "file": "password-field.go",
+      "line": 11,
+      "evidence": "Manage password field",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"password-field\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "pax8-details",
+      "file": "pax8-details.go",
+      "line": 11,
+      "evidence": "Manage pax8 details",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"pax8-details\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "pdf-template",
+      "file": "pdf-template.go",
+      "line": 11,
+      "evidence": "Manage pdf template",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"pdf-template\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "popup-note",
+      "file": "popup-note.go",
+      "line": 11,
+      "evidence": "Manage popup note",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"popup-note\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "priority",
+      "file": "priority.go",
+      "line": 11,
+      "evidence": "Manage priority",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"priority\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "product-component",
+      "file": "product-component.go",
+      "line": 11,
+      "evidence": "Manage product component",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"product-component\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "product",
+      "file": "product.go",
+      "line": 11,
+      "evidence": "Manage product",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"product\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "projects",
+      "file": "projects.go",
+      "line": 11,
+      "evidence": "Manage projects",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"projects\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "prtgdetails",
+      "file": "prtgdetails.go",
+      "line": 11,
+      "evidence": "Manage prtgdetails",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"prtgdetails\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "publish-profiles",
+      "file": "publish-profiles.go",
+      "line": 11,
+      "evidence": "Manage publish profiles",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"publish-profiles\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "purchase-order",
+      "file": "purchase-order.go",
+      "line": 11,
+      "evidence": "Manage purchase order",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"purchase-order\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "qualification",
+      "file": "qualification.go",
+      "line": 11,
+      "evidence": "Manage qualification",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"qualification\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "quotation",
+      "file": "quotation.go",
+      "line": 11,
+      "evidence": "Manage quotation",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"quotation\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "raynet-details",
+      "file": "raynet-details.go",
+      "line": 11,
+      "evidence": "Manage raynet details",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"raynet-details\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "recurring-invoice",
+      "file": "recurring-invoice.go",
+      "line": 11,
+      "evidence": "Manage recurring invoice",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"recurring-invoice\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "release-pipeline",
+      "file": "release-pipeline.go",
+      "line": 11,
+      "evidence": "Manage release pipeline",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"release-pipeline\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "release-type",
+      "file": "release-type.go",
+      "line": 11,
+      "evidence": "Manage release type",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"release-type\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "release",
+      "file": "release.go",
+      "line": 11,
+      "evidence": "Manage release",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"release\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "remote-session",
+      "file": "remote-session.go",
+      "line": 11,
+      "evidence": "Manage remote session",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"remote-session\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "report-repository",
+      "file": "report-repository.go",
+      "line": 11,
+      "evidence": "Manage report repository",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"report-repository\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "missing-read-only",
+      "command": "report-repository",
+      "file": "report-repository.go",
+      "line": 11,
+      "evidence": "name matches read heuristic; no mcp:read-only annotation",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"report-repository\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "report",
+      "file": "report.go",
+      "line": 11,
+      "evidence": "Manage report",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"report\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "missing-read-only",
+      "command": "report",
+      "file": "report.go",
+      "line": 11,
+      "evidence": "name matches read heuristic; no mcp:read-only annotation",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"report\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "resource-type",
+      "file": "resource-type.go",
+      "line": 11,
+      "evidence": "Manage resource type",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"resource-type\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "roles",
+      "file": "roles.go",
+      "line": 11,
+      "evidence": "Manage roles",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"roles\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "sales-mailbox",
+      "file": "sales-mailbox.go",
+      "line": 11,
+      "evidence": "Manage sales mailbox",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"sales-mailbox\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "sales-order",
+      "file": "sales-order.go",
+      "line": 11,
+      "evidence": "Manage sales order",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"sales-order\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "saved-forecast",
+      "file": "saved-forecast.go",
+      "line": 11,
+      "evidence": "Manage saved forecast",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"saved-forecast\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "schedule-occurrence",
+      "file": "schedule-occurrence.go",
+      "line": 11,
+      "evidence": "Manage schedule occurrence",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"schedule-occurrence\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "schedule",
+      "file": "schedule.go",
+      "line": 11,
+      "evidence": "Manage schedule",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"schedule\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "screen-layout",
+      "file": "screen-layout.go",
+      "line": 11,
+      "evidence": "Manage screen layout",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"screen-layout\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "security-check",
+      "file": "security-check.go",
+      "line": 11,
+      "evidence": "Manage security check",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"security-check\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "security-question",
+      "file": "security-question.go",
+      "line": 11,
+      "evidence": "Manage security question",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"security-question\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "service-availability",
+      "file": "service-availability.go",
+      "line": 11,
+      "evidence": "Manage service availability",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"service-availability\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "service-category",
+      "file": "service-category.go",
+      "line": 11,
+      "evidence": "Manage service category",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"service-category\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "service-status",
+      "file": "service-status.go",
+      "line": 11,
+      "evidence": "Manage service status",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"service-status\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "service",
+      "file": "service.go",
+      "line": 11,
+      "evidence": "Manage service",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"service\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "setup-tab",
+      "file": "setup-tab.go",
+      "line": 11,
+      "evidence": "Manage setup tab",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"setup-tab\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "shopify-details",
+      "file": "shopify-details.go",
+      "line": 11,
+      "evidence": "Manage shopify details",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"shopify-details\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "site",
+      "file": "site.go",
+      "line": 11,
+      "evidence": "Manage site",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"site\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "sla",
+      "file": "sla.go",
+      "line": 11,
+      "evidence": "Manage sla",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"sla\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "slack-details",
+      "file": "slack-details.go",
+      "line": 11,
+      "evidence": "Manage slack details",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"slack-details\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "slack",
+      "file": "slack.go",
+      "line": 11,
+      "evidence": "Manage slack",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"slack\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "snipe-itdetails",
+      "file": "snipe-itdetails.go",
+      "line": 11,
+      "evidence": "Manage snipe itdetails",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"snipe-itdetails\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "snow-details",
+      "file": "snow-details.go",
+      "line": 11,
+      "evidence": "Manage snow details",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"snow-details\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "software-licence",
+      "file": "software-licence.go",
+      "line": 11,
+      "evidence": "Manage software licence",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"software-licence\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "sophos-details",
+      "file": "sophos-details.go",
+      "line": 11,
+      "evidence": "Manage sophos details",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"sophos-details\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "sqlimport",
+      "file": "sqlimport.go",
+      "line": 11,
+      "evidence": "Manage sqlimport",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"sqlimport\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "status",
+      "file": "status.go",
+      "line": 11,
+      "evidence": "Manage status",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"status\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "stock-bin",
+      "file": "stock-bin.go",
+      "line": 11,
+      "evidence": "Manage stock bin",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"stock-bin\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "stock-trace",
+      "file": "stock-trace.go",
+      "line": 11,
+      "evidence": "Manage stock trace",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"stock-trace\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "style-profile",
+      "file": "style-profile.go",
+      "line": 11,
+      "evidence": "Manage style profile",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"style-profile\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "supplier-contract",
+      "file": "supplier-contract.go",
+      "line": 11,
+      "evidence": "Manage supplier contract",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"supplier-contract\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "supplier",
+      "file": "supplier.go",
+      "line": 11,
+      "evidence": "Manage supplier",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"supplier\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "synnex-details",
+      "file": "synnex-details.go",
+      "line": 11,
+      "evidence": "Manage synnex details",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"synnex-details\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "tabs",
+      "file": "tabs.go",
+      "line": 11,
+      "evidence": "Manage tabs",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"tabs\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "tags",
+      "file": "tags.go",
+      "line": 11,
+      "evidence": "Manage tags",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"tags\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "tanium-details",
+      "file": "tanium-details.go",
+      "line": 11,
+      "evidence": "Manage tanium details",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"tanium-details\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "task-schedule",
+      "file": "task-schedule.go",
+      "line": 11,
+      "evidence": "Manage task schedule",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"task-schedule\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "task-trace",
+      "file": "task-trace.go",
+      "line": 11,
+      "evidence": "Manage task trace",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"task-trace\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "tax-rule",
+      "file": "tax-rule.go",
+      "line": 11,
+      "evidence": "Manage tax rule",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"tax-rule\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "tax",
+      "file": "tax.go",
+      "line": 11,
+      "evidence": "Manage tax",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"tax\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "team",
+      "file": "team.go",
+      "line": 11,
+      "evidence": "Manage team",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"team\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "template",
+      "file": "template.go",
+      "line": 11,
+      "evidence": "Manage template",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"template\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "tenable-details",
+      "file": "tenable-details.go",
+      "line": 11,
+      "evidence": "Manage tenable details",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"tenable-details\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "tenable",
+      "file": "tenable.go",
+      "line": 11,
+      "evidence": "Manage tenable",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"tenable\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "tenant",
+      "file": "tenant.go",
+      "line": 11,
+      "evidence": "Manage tenant",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"tenant\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "ticket-approval",
+      "file": "ticket-approval.go",
+      "line": 11,
+      "evidence": "Manage ticket approval",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"ticket-approval\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "ticket-area",
+      "file": "ticket-area.go",
+      "line": 11,
+      "evidence": "Manage ticket area",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"ticket-area\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "ticket-rules",
+      "file": "ticket-rules.go",
+      "line": 11,
+      "evidence": "Manage ticket rules",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"ticket-rules\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "ticket-type",
+      "file": "ticket-type.go",
+      "line": 11,
+      "evidence": "Manage ticket type",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"ticket-type\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "tickets",
+      "file": "tickets.go",
+      "line": 11,
+      "evidence": "Manage tickets",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"tickets\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "timesheet-event",
+      "file": "timesheet-event.go",
+      "line": 11,
+      "evidence": "Manage timesheet event",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"timesheet-event\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "timesheet",
+      "file": "timesheet.go",
+      "line": 11,
+      "evidence": "Manage timesheet",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"timesheet\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "to-do",
+      "file": "to-do.go",
+      "line": 11,
+      "evidence": "Manage to do",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"to-do\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "top-level",
+      "file": "top-level.go",
+      "line": 11,
+      "evidence": "Manage top level",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"top-level\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "transcription-store",
+      "file": "transcription-store.go",
+      "line": 11,
+      "evidence": "Manage transcription store",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"transcription-store\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "translation",
+      "file": "translation.go",
+      "line": 11,
+      "evidence": "Manage translation",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"translation\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "twilio",
+      "file": "twilio.go",
+      "line": 11,
+      "evidence": "Manage twilio",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"twilio\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "twitter-details",
+      "file": "twitter-details.go",
+      "line": 11,
+      "evidence": "Manage twitter details",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"twitter-details\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "user-roles",
+      "file": "user-roles.go",
+      "line": 11,
+      "evidence": "Manage user roles",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"user-roles\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "users",
+      "file": "users.go",
+      "line": 11,
+      "evidence": "Manage users",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"users\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "version-info",
+      "file": "version-info.go",
+      "line": 11,
+      "evidence": "Manage version info",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"version-info\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "view-columns",
+      "file": "view-columns.go",
+      "line": 11,
+      "evidence": "Manage view columns",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"view-columns\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "missing-read-only",
+      "command": "view-columns",
+      "file": "view-columns.go",
+      "line": 11,
+      "evidence": "name matches read heuristic; no mcp:read-only annotation",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"view-columns\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "view-filter",
+      "file": "view-filter.go",
+      "line": 11,
+      "evidence": "Manage view filter",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"view-filter\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "missing-read-only",
+      "command": "view-filter",
+      "file": "view-filter.go",
+      "line": 11,
+      "evidence": "name matches read heuristic; no mcp:read-only annotation",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"view-filter\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "missing-read-only",
+      "command": "view-list-group",
+      "file": "view-list-group.go",
+      "line": 11,
+      "evidence": "name matches read heuristic; no mcp:read-only annotation",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"view-list-group\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "view-lists",
+      "file": "view-lists.go",
+      "line": 11,
+      "evidence": "Manage view lists",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"view-lists\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "missing-read-only",
+      "command": "view-lists",
+      "file": "view-lists.go",
+      "line": 11,
+      "evidence": "name matches read heuristic; no mcp:read-only annotation",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"view-lists\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "virima-details",
+      "file": "virima-details.go",
+      "line": 11,
+      "evidence": "Manage virima details",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"virima-details\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "virtual-agent",
+      "file": "virtual-agent.go",
+      "line": 11,
+      "evidence": "Manage virtual agent",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"virtual-agent\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "vmworkspace-details",
+      "file": "vmworkspace-details.go",
+      "line": 11,
+      "evidence": "Manage vmworkspace details",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"vmworkspace-details\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "webhook-event",
+      "file": "webhook-event.go",
+      "line": 11,
+      "evidence": "Manage webhook event",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"webhook-event\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "webhook-repository",
+      "file": "webhook-repository.go",
+      "line": 11,
+      "evidence": "Manage webhook repository",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"webhook-repository\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "webhook",
+      "file": "webhook.go",
+      "line": 11,
+      "evidence": "Manage webhook",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"webhook\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "whats-app",
+      "file": "whats-app.go",
+      "line": 11,
+      "evidence": "Manage whats app",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"whats-app\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "wordpress-details",
+      "file": "wordpress-details.go",
+      "line": 11,
+      "evidence": "Manage wordpress details",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"wordpress-details\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "workday",
+      "file": "workday.go",
+      "line": 11,
+      "evidence": "Manage workday",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"workday\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "workflow-target",
+      "file": "workflow-target.go",
+      "line": 11,
+      "evidence": "Manage workflow target",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"workflow-target\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    },
+    {
+      "kind": "thin-short",
+      "command": "xero-details",
+      "file": "xero-details.go",
+      "line": 11,
+      "evidence": "Manage xero details",
+      "status": "accepted",
+      "note": "Generated parent grouper for \"xero-details\" resource (DO-NOT-EDIT file). Cobra Hidden:true, RunE=parentNoSubcommandRunE; runtime MCP walker does not register parent groupers as MCP tools (verified via tools-manifest.json). Retro candidate: tools-audit Cobra-side scan should exempt Hidden parent groupers."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 0,
+    "captured": "2026-05-23T02:30:53.196214Z"
+  }
+}

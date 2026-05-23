@@ -1,0 +1,253 @@
+
+=== verify ===
+warning: resource "feedback" from path "/Feedback" would shadow framework cobra command "feedback"; renamed to "halo-feedback"
+warning: resource "health" from path "/Health" would shadow framework cobra command "health"; renamed to "halo-health"
+warning: resource "search" from path "/Search" would shadow framework cobra command "search"; renamed to "halo-search"
+warning: resource "workflow" from path "/Workflow" would shadow framework cobra command "workflow"; renamed to "halo-workflow"
+Runtime Verification: /Users/dstevens/printing-press/.runstate/halopsa-9ec2c4d3/runs/20260521-131235/working/halopsa-pp-cli/halopsa-pp-cli
+Mode: mock
+
+COMMAND                        KIND         HELP   DRY-RUN  EXEC     SCORE
+agent                          read         PASS   PASS     FAIL     2/3
+agent-context                  read         PASS   PASS     PASS     3/3
+agent-image                    read         PASS   PASS     PASS     3/3
+agent-presence-rule            read         PASS   PASS     PASS     3/3
+alemba                         read         PASS   PASS     PASS     3/3
+analytics                      data-layer   PASS   PASS     PASS     3/3
+api                            local        PASS   PASS     PASS     3/3
+area-azure-tenant              read         PASS   PASS     PASS     3/3
+armis                          read         PASS   PASS     PASS     3/3
+asset                          read         PASS   PASS     FAIL     2/3
+asset-software                 read         PASS   PASS     PASS     3/3
+asset-type-info                read         PASS   PASS     PASS     3/3
+att                            read         PASS   PASS     PASS     3/3
+auth                           local        PASS   PASS     PASS     3/3
+auth-info                      read         PASS   PASS     PASS     3/3
+aws                            read         PASS   PASS     PASS     3/3
+azureadmapping                 read         PASS   PASS     PASS     3/3
+background-task                read         PASS   PASS     PASS     3/3
+booking-type                   read         PASS   PASS     PASS     3/3
+cabmember                      read         PASS   PASS     PASS     3/3
+cabrole                        read         PASS   PASS     PASS     3/3
+change-calendar                read         PASS   PASS     PASS     3/3
+chat-flow                      read         PASS   PASS     PASS     3/3
+chat-matching-data             read         PASS   PASS     PASS     3/3
+client                         read         PASS   PASS     FAIL     2/3
+client-cache                   read         PASS   PASS     PASS     3/3
+contracts                      read         PASS   PASS     PASS     3/3
+criteria-group                 read         PASS   PASS     PASS     3/3
+cspsubscription-pricing        read         PASS   PASS     PASS     3/3
+custom-button-audit            read         PASS   PASS     PASS     3/3
+custom-integration-method-v... read         PASS   PASS     PASS     3/3
+device-licence                 read         PASS   PASS     PASS     3/3
+doctor                         local        PASS   PASS     PASS     3/3
+document-creation              read         PASS   PASS     PASS     3/3
+draft                          read         PASS   PASS     PASS     3/3
+email-address-book             read         PASS   PASS     PASS     3/3
+eracent                        read         PASS   PASS     PASS     3/3
+example                        read         PASS   PASS     PASS     3/3
+export                         data-layer   PASS   PASS     PASS     3/3
+fault-view-log                 read         PASS   PASS     PASS     3/3
+feed                           read         PASS   PASS     PASS     3/3
+feedback                       read         PASS   PASS     PASS     3/3
+halo-field                     read         PASS   PASS     PASS     3/3
+halo-search                    read         PASS   PASS     PASS     3/3
+hopewiser                      read         PASS   PASS     PASS     3/3
+impersonation-request          read         PASS   PASS     PASS     3/3
+import                         data-layer   PASS   PASS     PASS     3/3
+incoming-webhook-attempt       read         PASS   PASS     PASS     3/3
+instance-info                  read         PASS   PASS     PASS     3/3
+integration-field-mapping      read         PASS   PASS     PASS     3/3
+integration-site-mapping       read         PASS   PASS     PASS     3/3
+integrator-log                 read         PASS   PASS     PASS     3/3
+integrator-schedule            read         PASS   PASS     PASS     3/3
+invoice-detail-pro-rata        read         PASS   PASS     PASS     3/3
+kandji                         read         PASS   PASS     PASS     3/3
+kbarticle                      read         PASS   PASS     FAIL     2/3
+licence-change                 read         PASS   PASS     PASS     3/3
+load                           read         PASS   PASS     PASS     3/3
+login-token                    read         PASS   PASS     PASS     3/3
+mailchimp                      read         PASS   PASS     PASS     3/3
+manage-engine                  read         PASS   PASS     PASS     3/3
+mattermost-channel-details     read         PASS   PASS     PASS     3/3
+microsoft-teams                read         PASS   PASS     PASS     3/3
+notification-log               read         PASS   PASS     PASS     3/3
+object-mapping-profile         read         PASS   PASS     PASS     3/3
+order-line                     read         PASS   PASS     PASS     3/3
+orphans                        read         PASS   PASS     PASS     3/3
+pagerdutymapping               read         PASS   PASS     PASS     3/3
+product-branch                 read         PASS   PASS     PASS     3/3
+profile                        read         PASS   PASS     FAIL     2/3
+project-setup-lines            read         PASS   PASS     PASS     3/3
+raynet                         read         PASS   PASS     PASS     3/3
+recurring-item                 read         PASS   PASS     PASS     3/3
+remote-session-teams           read         PASS   PASS     PASS     3/3
+report-data                    read         PASS   PASS     PASS     3/3
+roadmap                        read         PASS   PASS     PASS     3/3
+rules                          read         PASS   PASS     PASS     3/3
+sail-point-role-mapping        read         PASS   PASS     PASS     3/3
+sail-point-user-mapping        read         PASS   PASS     PASS     3/3
+search                         data-layer   PASS   PASS     PASS     3/3
+sentinel-one                   read         PASS   PASS     PASS     3/3
+service-restriction            read         PASS   PASS     PASS     3/3
+share-point                    read         PASS   PASS     PASS     3/3
+sla                            read         PASS   PASS     FAIL     2/3
+software-licence-role          read         PASS   PASS     PASS     3/3
+sophos                         read         PASS   PASS     PASS     3/3
+sql                            data-layer   PASS   PASS     PASS     3/3
+stale                          data-layer   PASS   PASS     PASS     3/3
+standup                        read         PASS   PASS     PASS     3/3
+sync                           data-layer   PASS   PASS     PASS     3/3
+tail                           data-layer   PASS   PASS     PASS     3/3
+take-control                   read         PASS   PASS     PASS     3/3
+task-monitor-event             read         PASS   PASS     PASS     3/3
+team-image                     read         PASS   PASS     PASS     3/3
+test-error                     read         PASS   PASS     PASS     3/3
+test1                          read         PASS   PASS     PASS     3/3
+test3                          read         PASS   PASS     PASS     3/3
+test4                          read         PASS   PASS     PASS     3/3
+ticket-type-field              read         PASS   PASS     PASS     3/3
+tickets                        read         PASS   PASS     FAIL     2/3
+time                           read         PASS   PASS     PASS     3/3
+timeslot                       read         PASS   PASS     PASS     3/3
+triage                         read         PASS   PASS     PASS     3/3
+twilio-details                 read         PASS   PASS     PASS     3/3
+user-change                    read         PASS   PASS     PASS     3/3
+virima                         read         PASS   PASS     PASS     3/3
+vorboss                        read         PASS   PASS     PASS     3/3
+which                          read         PASS   PASS     PASS     3/3
+workflow                       read         PASS   PASS     FAIL     2/3
+workflowstep                   read         PASS   PASS     PASS     3/3
+xtype-role                     read         PASS   PASS     PASS     3/3
+zendesk                        read         PASS   PASS     PASS     3/3
+zoom                           read         PASS   PASS     PASS     3/3
+
+Path-Param Probes (nested commands with <positional> args):
+  PASS agent delete
+  PASS agent get
+  PASS asset delete
+  PASS asset get
+  PASS asset history
+  PASS auth set-token
+  PASS client card
+  PASS client delete
+  PASS client get
+  PASS kbarticle delete
+  PASS kbarticle get
+  PASS profile delete
+  PASS profile save
+  PASS profile show
+  PASS profile use
+  PASS sla delete
+  PASS sla get
+  PASS tickets changed-since
+  PASS tickets delete
+  PASS tickets get
+
+Data Pipeline: PASS: 92 domain tables created
+Pass Rate: 100% (133/133 passed, 0 critical)
+Verdict: PASS
+
+=== validate-narrative ===
+MISSING [quickstart]: HALOPSA_TENANT=your-tenant halopsa-pp-cli auth login → halopsa-pp-cli auth login
+UNSUPPORTED [recipes]: halopsa-pp-cli tickets age-out --status "Awaiting Customer Reply" --stale-days 14 --action-note "Auto-closing per policy" --apply → full-example validation skipped: command is side-effectful (auth/launch/apply)
+DONE: 9 ok, 1 missing, 0 empty-words, 0 failed-examples, 1 unsupported
+narrative validation failed
+
+=== dogfood ===
+dogfood: using spec /Users/dstevens/printing-press/.runstate/halopsa-9ec2c4d3/runs/20260521-131235/working/halopsa-pp-cli/spec.json (bundled)
+dogfood: caller --spec=/Users/dstevens/printing-press/.runstate/halopsa-9ec2c4d3/runs/20260521-131235/research/halopsa-swagger-enriched.json overridden by bundled /Users/dstevens/printing-press/.runstate/halopsa-9ec2c4d3/runs/20260521-131235/working/halopsa-pp-cli/spec.json
+warning: resource "feedback" from path "/Feedback" would shadow framework cobra command "feedback"; renamed to "halo-feedback"
+warning: resource "health" from path "/Health" would shadow framework cobra command "health"; renamed to "halo-health"
+warning: resource "search" from path "/Search" would shadow framework cobra command "search"; renamed to "halo-search"
+warning: resource "workflow" from path "/Workflow" would shadow framework cobra command "workflow"; renamed to "halo-workflow"
+Dogfood Report: halopsa-pp-cli
+================================
+
+Path Validity:     8/8 valid (PASS)
+
+Auth Protocol:     MATCH
+  Spec: bearer token format (expects "Bearer " prefix)
+  Generated: Uses "Bearer" prefix
+  Detail: spec and generated client both use "Bearer"
+
+Dead Flags:        0 dead (PASS)
+
+Dead Functions:    0 dead (PASS)
+
+Data Pipeline:     GOOD
+  Sync: calls domain-specific Upsert methods (GOOD)
+  Search: calls domain-specific Search methods (GOOD)
+  Domain tables: 1
+
+Examples:          10/10 commands have examples (PASS)
+
+Novel Features:    13/13 survived (PASS)
+
+MCP Surface:       PASS (MCP surface mirrors the Cobra tree at runtime)
+
+Verdict: PASS
+
+=== workflow-verify ===
+Workflow Verification: halopsa-pp-cli
+================================
+
+Overall Verdict: workflow-pass
+  - no workflow manifest found, skipping
+
+=== verify-skill ===
+=== halopsa-pp-cli ===
+  ✓ All checks passed (flag-names, flag-commands, positional-args, unknown-command)
+  ✓ canonical-sections passed
+
+=== scorecard ===
+Quality Scorecard: halopsa
+
+  Output Modes         10/10
+  Auth                 10/10
+  Error Handling       10/10
+  Terminal UX          8/10
+  README               8/10
+  Doctor               10/10
+  Agent Native         10/10
+  MCP Quality          8/10
+  MCP Desc Quality     N/A
+  MCP Token Efficiency N/A
+  MCP Remote Transport 10/10
+  MCP Tool Design      10/10
+  MCP Surface Strategy 10/10
+  Local Cache          10/10
+  Cache Freshness      5/10
+  Breadth              6/10
+  Vision               9/10
+  Workflows            10/10
+  Insight              10/10
+  Agent Workflow       9/10
+
+  Domain Correctness
+  Path Validity           10/10
+  Auth Protocol           10/10
+  Data Pipeline Integrity 10/10
+  Sync Correctness        10/10
+  Live API Verification   N/A
+  Type Fidelity           1/5
+  Dead Code               5/5
+
+  Total: 91/100 - Grade A
+  Note: omitted from denominator: mcp_description_quality, mcp_token_efficiency, live_api_verification
+
+Gaps:
+  - type_fidelity scored 1/5 - needs improvement
+  - MCP: 1456 tools (0 public, 1456 auth-required) — readiness: full
+
+Shipcheck Summary
+=================
+  LEG               RESULT  EXIT      ELAPSED
+  verify            PASS    0         4m27.015s
+  validate-narrative  FAIL    1         2.788s
+  dogfood           PASS    0         18.51s
+  workflow-verify   PASS    0         13ms
+  verify-skill      PASS    0         19.4s
+  scorecard         PASS    0         1.101s
+
+Verdict: FAIL (1/6 legs failed)

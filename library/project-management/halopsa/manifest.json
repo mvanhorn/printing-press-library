@@ -1,0 +1,68 @@
+{
+  "manifest_version": "0.3",
+  "name": "halopsa-pp-mcp",
+  "display_name": "Halo",
+  "version": "4.10.1",
+  "description": "Every HaloPSA, HaloITSM and HaloCRM feature, plus a local SQLite store and cross-entity views the API can't return.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/halopsa-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/halopsa-pp-mcp",
+      "args": [],
+      "env": {
+        "HALOPSA_CLIENT_ID": "${user_config.halopsa_client_id}",
+        "HALOPSA_CLIENT_SECRET": "${user_config.halopsa_client_secret}",
+        "HALOPSA_DOMAIN": "${user_config.halopsa_domain}",
+        "HALOPSA_TENANT": "${user_config.halopsa_tenant}",
+        "HALOPSA_TOKEN": "${user_config.halopsa_token}"
+      }
+    }
+  },
+  "user_config": {
+    "halopsa_client_id": {
+      "type": "string",
+      "title": "HALOPSA_CLIENT_ID",
+      "description": "Sets HALOPSA_CLIENT_ID for the Halo MCP server. Required by the generated client for credential refresh or hand-written auth flow.",
+      "sensitive": true,
+      "required": true
+    },
+    "halopsa_client_secret": {
+      "type": "string",
+      "title": "HALOPSA_CLIENT_SECRET",
+      "description": "Sets HALOPSA_CLIENT_SECRET for the Halo MCP server. Required by the generated client for credential refresh or hand-written auth flow.",
+      "sensitive": true,
+      "required": true
+    },
+    "halopsa_domain": {
+      "type": "string",
+      "title": "HALOPSA_DOMAIN",
+      "description": "Sets HALOPSA_DOMAIN for the endpoint template variable {domain}.",
+      "default": "halopsa.com"
+    },
+    "halopsa_tenant": {
+      "type": "string",
+      "title": "HALOPSA_TENANT",
+      "description": "Sets HALOPSA_TENANT for the endpoint template variable {tenant}.",
+      "default": "demo"
+    },
+    "halopsa_token": {
+      "type": "string",
+      "title": "HALOPSA_TOKEN",
+      "description": "Optional. Pre-issued Bearer access token. Overrides the client_credentials flow when set.",
+      "sensitive": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

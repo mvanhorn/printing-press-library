@@ -1,0 +1,425 @@
+{
+  "api_name": "halopsa",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "homotechsual/HaloAPI",
+      "url": "https://github.com/homotechsual/HaloAPI",
+      "language": "PowerShell",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 65,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ssmanji89/haloapi-mcp-tools",
+      "url": "https://github.com/ssmanji89/haloapi-mcp-tools",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 10,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ssmanji89/halopsa-workflows-mcp",
+      "url": "https://github.com/ssmanji89/halopsa-workflows-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "greenlighttec/pyhaloapi",
+      "url": "https://github.com/greenlighttec/pyhaloapi",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "panoramicdata/HaloPsa.Api",
+      "url": "https://github.com/panoramicdata/HaloPsa.Api",
+      "language": "C#",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "mspautomator/Halo_ServiceDesk",
+      "url": "https://github.com/mspautomator/Halo_ServiceDesk",
+      "language": "PowerShell",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "amplify-msp/py-halo",
+      "url": "https://github.com/amplify-msp/py-halo",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "lwhitelock/HaloPSA-Automation",
+      "url": "https://github.com/lwhitelock/HaloPSA-Automation",
+      "language": "PowerShell",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-21T17:25:00Z",
+  "novel_features": [
+    {
+      "name": "Triage queue",
+      "command": "triage",
+      "description": "See per-agent open ticket load, stale tickets, and 24-hour SLA-breach count in one table — the dispatcher view Halo's UI scatters across five tabs.",
+      "rationale": "Requires joining tickets × agents × statuses in the local SQLite store; the API only returns these one entity at a time.",
+      "example": "halopsa-pp-cli triage --team Support --json",
+      "why_it_matters": "Reach for this when an agent asks 'who should I assign this P1 to' or 'where are we bleeding'. One call, one screen.",
+      "group": "Cross-entity dispatch views"
+    },
+    {
+      "name": "Bulk age-out closer",
+      "command": "tickets age-out",
+      "description": "Find tickets stale in a status for N days, preview them, then bulk-close with a templated action via --apply.",
+      "rationale": "Local SQLite filter computes stale; --apply issues batch close + action through the API. No competitor offers the preview-then-apply pattern.",
+      "example": "halopsa-pp-cli tickets age-out --status \"Awaiting Customer\" --stale-days 14 --action-note \"Auto-closing per policy\" --apply",
+      "why_it_matters": "Reach for this on the Monday queue cleanse to close 30 stale tickets in one command instead of 30 clicks.",
+      "group": "Cross-entity dispatch views"
+    },
+    {
+      "name": "SLA breach radar",
+      "command": "sla breaching",
+      "description": "List tickets whose targetdate falls in the next N hours, sorted by time-to-breach, with agent + client + current status.",
+      "rationale": "Halo's UI has a breach board but no shareable filter + sort by time-to-breach across the whole team.",
+      "example": "halopsa-pp-cli sla breaching --within 24h --team Support --json",
+      "why_it_matters": "Reach for this on Friday afternoon or anytime before a hand-off to pre-empt SLA breaches.",
+      "group": "Cross-entity dispatch views"
+    },
+    {
+      "name": "Agent workload",
+      "command": "agent workload",
+      "description": "Per-agent: open tickets, tickets touched this week, billable hours logged, oldest open ticket age.",
+      "rationale": "Cross-joins tickets × actions × time_entries × agents in local store — no single API endpoint returns this composite.",
+      "example": "halopsa-pp-cli agent workload --team Support --json",
+      "why_it_matters": "Reach for this when rebalancing the queue or asking 'who's overloaded'.",
+      "group": "Cross-entity dispatch views"
+    },
+    {
+      "name": "Client desk card",
+      "command": "client card",
+      "description": "One panel: client + sites + active tickets + open contracts + contract hours remaining + recent KB articles linked to their tickets + asset count.",
+      "rationale": "Six-table cross-join in local SQLite. The defining MSP technician command — replaces four browser tabs with one printout.",
+      "example": "halopsa-pp-cli client card \"Acme Corp\" --json",
+      "why_it_matters": "Reach for this on every client call. Open it before answering the phone, paste it into ticket notes.",
+      "group": "Per-client situational awareness"
+    },
+    {
+      "name": "Asset ticket history",
+      "command": "asset history",
+      "description": "Every ticket that touched this asset, chronological, with agent and time logged.",
+      "rationale": "Local join of tickets × asset_id over time; the API forces you to look at one ticket at a time.",
+      "example": "halopsa-pp-cli asset history LAP-0042 --json",
+      "why_it_matters": "Reach for this when a machine keeps coming back to the queue — the pattern lives in the history, not in the latest ticket.",
+      "group": "Per-client situational awareness"
+    },
+    {
+      "name": "KB suggest for ticket",
+      "command": "kbarticle suggest",
+      "description": "FTS5-rank KB articles against a ticket's summary + details + last action text; print top 5 with snippets.",
+      "rationale": "Local FTS5 index makes mechanical ranking fast and offline; the API has no 'similar KB' endpoint.",
+      "example": "halopsa-pp-cli kbarticle suggest --ticket 12345 --limit 5",
+      "why_it_matters": "Reach for this mid-call when a known fix probably exists but you don't remember the exact KB title.",
+      "group": "Per-client situational awareness"
+    },
+    {
+      "name": "Time gap finder",
+      "command": "time gaps",
+      "description": "List tickets the agent touched this week that have zero time logged on them.",
+      "rationale": "Set-diff between actions and time_entries — only computable when both are in the local store.",
+      "example": "halopsa-pp-cli time gaps --agent me --week current",
+      "why_it_matters": "Reach for this on Friday before submitting the timesheet. Stops 'I know I worked that ticket but where is it' archaeology.",
+      "group": "Local-only analytics"
+    },
+    {
+      "name": "Contract burn-down",
+      "command": "contracts burn",
+      "description": "Per contract: hours bank, hours consumed this period (sum of billable time on that client's tickets), days remaining, projected overage.",
+      "rationale": "Three-way local aggregation (contracts × time_entries × clients); Halo's native reports cannot project overage.",
+      "example": "halopsa-pp-cli contracts burn --client \"Acme Corp\" --month current --json",
+      "why_it_matters": "Reach for this mid-month before a client conversation — know whether they're tracking over their bank.",
+      "group": "Local-only analytics"
+    },
+    {
+      "name": "Ticket rules dump",
+      "command": "rules dump",
+      "description": "Print every ticket rule and workflow as readable flat text — conditions → actions, one block per rule.",
+      "rationale": "Halo's UI has no export; auditing rules means clicking through each one. Local table read + format.",
+      "example": "halopsa-pp-cli rules dump --workflow \"New Ticket\" \u003e rules-audit.txt",
+      "why_it_matters": "Reach for this during quarterly automation audits or when investigating an unexpected routing.",
+      "group": "Local-only analytics"
+    },
+    {
+      "name": "Changed-since",
+      "command": "tickets changed-since",
+      "description": "Tickets where any action or status change occurred since timestamp, grouped by ticket.",
+      "rationale": "Backed by incremental sync; replaces brittle homegrown PowerShell ETLs that break on field changes.",
+      "example": "halopsa-pp-cli tickets changed-since 09:00 --mine --json",
+      "why_it_matters": "Reach for this after a meeting or when coming back from lunch. 'What did I miss' in one call.",
+      "group": "Local-only analytics"
+    },
+    {
+      "name": "Standup digest",
+      "command": "standup",
+      "description": "Per-agent for the window: tickets closed, tickets reopened, time logged, top client.",
+      "rationale": "Aggregation across tickets + actions + time_entries; no Halo report gives this shape exactly.",
+      "example": "halopsa-pp-cli standup --team Support --since yesterday",
+      "why_it_matters": "Reach for this the moment before standup. One paste, everyone sees yesterday's progress.",
+      "group": "Local-only analytics"
+    },
+    {
+      "name": "Multi-client overlay",
+      "command": "client overlay",
+      "description": "Rank all clients by a chosen metric (open tickets, stale, SLA at-risk, hours over bank). Top N out.",
+      "rationale": "Exploits the defining MSP shape — many clients in one tenant. Local rank, pluggable metric.",
+      "example": "halopsa-pp-cli client overlay --metric open_tickets --top 10 --json",
+      "why_it_matters": "Reach for this when looking for the next escalation to invest time in. Whichever client is on top is the one to call.",
+      "group": "Local-only analytics"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Triage queue",
+      "command": "triage",
+      "description": "See per-agent open ticket load, stale tickets, and 24-hour SLA-breach count in one table — the dispatcher view Halo's UI scatters across five tabs.",
+      "rationale": "Requires joining tickets × agents × statuses in the local SQLite store; the API only returns these one entity at a time.",
+      "example": "halopsa-pp-cli triage --team Support --json",
+      "why_it_matters": "Reach for this when an agent asks 'who should I assign this P1 to' or 'where are we bleeding'. One call, one screen.",
+      "group": "Cross-entity dispatch views"
+    },
+    {
+      "name": "Bulk age-out closer",
+      "command": "tickets age-out",
+      "description": "Find tickets stale in a status for N days, preview them, then bulk-close with a templated action via --apply.",
+      "rationale": "Local SQLite filter computes stale; --apply issues batch close + action through the API. No competitor offers the preview-then-apply pattern.",
+      "example": "halopsa-pp-cli tickets age-out --status \"Awaiting Customer\" --stale-days 14 --action-note \"Auto-closing per policy\" --apply",
+      "why_it_matters": "Reach for this on the Monday queue cleanse to close 30 stale tickets in one command instead of 30 clicks.",
+      "group": "Cross-entity dispatch views"
+    },
+    {
+      "name": "SLA breach radar",
+      "command": "sla breaching",
+      "description": "List tickets whose targetdate falls in the next N hours, sorted by time-to-breach, with agent + client + current status.",
+      "rationale": "Halo's UI has a breach board but no shareable filter + sort by time-to-breach across the whole team.",
+      "example": "halopsa-pp-cli sla breaching --within 24h --team Support --json",
+      "why_it_matters": "Reach for this on Friday afternoon or anytime before a hand-off to pre-empt SLA breaches.",
+      "group": "Cross-entity dispatch views"
+    },
+    {
+      "name": "Agent workload",
+      "command": "agent workload",
+      "description": "Per-agent: open tickets, tickets touched this week, billable hours logged, oldest open ticket age.",
+      "rationale": "Cross-joins tickets × actions × time_entries × agents in local store — no single API endpoint returns this composite.",
+      "example": "halopsa-pp-cli agent workload --team Support --json",
+      "why_it_matters": "Reach for this when rebalancing the queue or asking 'who's overloaded'.",
+      "group": "Cross-entity dispatch views"
+    },
+    {
+      "name": "Client desk card",
+      "command": "client card",
+      "description": "One panel: client + sites + active tickets + open contracts + contract hours remaining + recent KB articles linked to their tickets + asset count.",
+      "rationale": "Six-table cross-join in local SQLite. The defining MSP technician command — replaces four browser tabs with one printout.",
+      "example": "halopsa-pp-cli client card \"Acme Corp\" --json",
+      "why_it_matters": "Reach for this on every client call. Open it before answering the phone, paste it into ticket notes.",
+      "group": "Per-client situational awareness"
+    },
+    {
+      "name": "Asset ticket history",
+      "command": "asset history",
+      "description": "Every ticket that touched this asset, chronological, with agent and time logged.",
+      "rationale": "Local join of tickets × asset_id over time; the API forces you to look at one ticket at a time.",
+      "example": "halopsa-pp-cli asset history LAP-0042 --json",
+      "why_it_matters": "Reach for this when a machine keeps coming back to the queue — the pattern lives in the history, not in the latest ticket.",
+      "group": "Per-client situational awareness"
+    },
+    {
+      "name": "KB suggest for ticket",
+      "command": "kbarticle suggest",
+      "description": "FTS5-rank KB articles against a ticket's summary + details + last action text; print top 5 with snippets.",
+      "rationale": "Local FTS5 index makes mechanical ranking fast and offline; the API has no 'similar KB' endpoint.",
+      "example": "halopsa-pp-cli kbarticle suggest --ticket 12345 --limit 5",
+      "why_it_matters": "Reach for this mid-call when a known fix probably exists but you don't remember the exact KB title.",
+      "group": "Per-client situational awareness"
+    },
+    {
+      "name": "Time gap finder",
+      "command": "time gaps",
+      "description": "List tickets the agent touched this week that have zero time logged on them.",
+      "rationale": "Set-diff between actions and time_entries — only computable when both are in the local store.",
+      "example": "halopsa-pp-cli time gaps --agent me --week current",
+      "why_it_matters": "Reach for this on Friday before submitting the timesheet. Stops 'I know I worked that ticket but where is it' archaeology.",
+      "group": "Local-only analytics"
+    },
+    {
+      "name": "Contract burn-down",
+      "command": "contracts burn",
+      "description": "Per contract: hours bank, hours consumed this period (sum of billable time on that client's tickets), days remaining, projected overage.",
+      "rationale": "Three-way local aggregation (contracts × time_entries × clients); Halo's native reports cannot project overage.",
+      "example": "halopsa-pp-cli contracts burn --client \"Acme Corp\" --month current --json",
+      "why_it_matters": "Reach for this mid-month before a client conversation — know whether they're tracking over their bank.",
+      "group": "Local-only analytics"
+    },
+    {
+      "name": "Ticket rules dump",
+      "command": "rules dump",
+      "description": "Print every ticket rule and workflow as readable flat text — conditions → actions, one block per rule.",
+      "rationale": "Halo's UI has no export; auditing rules means clicking through each one. Local table read + format.",
+      "example": "halopsa-pp-cli rules dump --workflow \"New Ticket\" \u003e rules-audit.txt",
+      "why_it_matters": "Reach for this during quarterly automation audits or when investigating an unexpected routing.",
+      "group": "Local-only analytics"
+    },
+    {
+      "name": "Changed-since",
+      "command": "tickets changed-since",
+      "description": "Tickets where any action or status change occurred since timestamp, grouped by ticket.",
+      "rationale": "Backed by incremental sync; replaces brittle homegrown PowerShell ETLs that break on field changes.",
+      "example": "halopsa-pp-cli tickets changed-since 09:00 --mine --json",
+      "why_it_matters": "Reach for this after a meeting or when coming back from lunch. 'What did I miss' in one call.",
+      "group": "Local-only analytics"
+    },
+    {
+      "name": "Standup digest",
+      "command": "standup",
+      "description": "Per-agent for the window: tickets closed, tickets reopened, time logged, top client.",
+      "rationale": "Aggregation across tickets + actions + time_entries; no Halo report gives this shape exactly.",
+      "example": "halopsa-pp-cli standup --team Support --since yesterday",
+      "why_it_matters": "Reach for this the moment before standup. One paste, everyone sees yesterday's progress.",
+      "group": "Local-only analytics"
+    },
+    {
+      "name": "Multi-client overlay",
+      "command": "client overlay",
+      "description": "Rank all clients by a chosen metric (open tickets, stale, SLA at-risk, hours over bank). Top N out.",
+      "rationale": "Exploits the defining MSP shape — many clients in one tenant. Local rank, pluggable metric.",
+      "example": "halopsa-pp-cli client overlay --metric open_tickets --top 10 --json",
+      "why_it_matters": "Reach for this when looking for the next escalation to invest time in. Whichever client is on top is the one to call.",
+      "group": "Local-only analytics"
+    }
+  ],
+  "narrative": {
+    "display_name": "HaloPSA",
+    "headline": "Every HaloPSA, HaloITSM and HaloCRM feature, plus a local SQLite store and cross-entity views the API can't return.",
+    "value_prop": "Wraps the full Halo REST API (952 endpoints across tickets, clients, assets, contracts, time, KB, and workflows) with offline-first search, agent-native JSON output, and cross-entity commands like `triage`, `client card`, and `contracts burn` that join tables Halo's UI scatters across five tabs.",
+    "auth_narrative": "Halo uses OAuth2 client_credentials. Create an API application in your tenant under Configuration \u003e Integrations \u003e Halo PSA API (Authentication Method: Client ID and Secret — Services), then run `halopsa-pp-cli auth login --client-id \u003cid\u003e --client-secret \u003csecret\u003e --tenant \u003cyoursub\u003e`. The CLI exchanges the credentials at https://\u003ctenant\u003e.halopsa.com/auth/token and caches the access token (auto-refreshed before expiry).",
+    "quickstart": [
+      {
+        "command": "halopsa-pp-cli doctor",
+        "comment": "Confirm setup. Set HALOPSA_TENANT, HALOPSA_CLIENT_ID, and HALOPSA_CLIENT_SECRET in your env first (or run `halopsa-pp-cli auth login` for an interactive prompt); doctor verifies the token mints and a sample GET succeeds."
+      },
+      {
+        "command": "halopsa-pp-cli sync --full",
+        "comment": "First sync pulls tickets, clients, sites, agents, assets, contracts, KB into the local SQLite store"
+      },
+      {
+        "command": "halopsa-pp-cli triage --team Support --json",
+        "comment": "The dispatcher view — per-agent load, stale count, 24h breach count in one table"
+      },
+      {
+        "command": "halopsa-pp-cli client card \"Acme Corp\" --json",
+        "comment": "The keystone command — client + sites + tickets + contracts + assets + KB in one panel"
+      },
+      {
+        "command": "halopsa-pp-cli sql \"SELECT status, COUNT(*) FROM tickets WHERE assigned_team='Support' GROUP BY status\"",
+        "comment": "Drop into SQL when the prebuilt commands don't fit"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on every request",
+        "fix": "Run `halopsa-pp-cli doctor` — the token may have expired or your client_id lost the required scopes. Re-run `auth login`."
+      },
+      {
+        "symptom": "Empty list results that should have data",
+        "fix": "Pass `--include-inactive` (clients/users) or `--include-deleted` (tickets) — Halo filters these by default. Verify with `halopsa-pp-cli sql \"SELECT COUNT(*) FROM tickets\"`."
+      },
+      {
+        "symptom": "`sync` runs slowly on first call",
+        "fix": "Initial sync pulls all 952 endpoints' top resources. Subsequent `sync` runs use `lastupdatedfrom` and are fast. Use `--only tickets,clients` to scope."
+      },
+      {
+        "symptom": "429 Too Many Requests during a burst",
+        "fix": "The client auto-retries with exponential backoff. If it persists, lower `--concurrency` (default 4) on batch commands."
+      },
+      {
+        "symptom": "Tenant URL wrong / DNS error",
+        "fix": "Confirm your Halo subdomain at https://\u003ctenant\u003e.halopsa.com (or .haloitsm.com / .halocrm.com). Pass `--tenant-domain haloitsm.com` to override the default `.halopsa.com`."
+      }
+    ],
+    "when_to_use": "Reach for halopsa-pp-cli when an agent needs to triage, dispatch, or report against a HaloPSA / HaloITSM / HaloCRM tenant without clicking through the web UI. It is the right tool for cross-entity questions (\"who's overloaded\", \"which tickets are about to breach\", \"which client is burning their contract\"), bulk operations (stale-ticket close, batch action posts, batch time entries), and ETLs that previously required hand-rolled scripts. It is NOT the right tool for end-user portal browsing or for tenants you don't have API credentials to.",
+    "recipes": [
+      {
+        "title": "Monday queue cleanse",
+        "command": "halopsa-pp-cli tickets age-out --status \"Awaiting Customer Reply\" --stale-days 14 --action-note \"Auto-closing per policy\"",
+        "explanation": "Preview every stale customer-waiting ticket. Add --apply when you're ready to close them."
+      },
+      {
+        "title": "Friday SLA radar before hand-off",
+        "command": "halopsa-pp-cli sla breaching --within 24h --team Support --agent --select id,summary,client_name,agent_name,minutes_to_breach",
+        "explanation": "List every ticket the on-call shift inherits that's at risk of breaching SLA in their first 24h. Pipe to anything."
+      },
+      {
+        "title": "Pre-call client briefing",
+        "command": "halopsa-pp-cli client card \"Acme Corp\" --agent --select active_tickets,contract_hours_remaining,assets,recent_kb_links",
+        "explanation": "Get the client's complete situation in one query before answering the phone. Use --select to narrow what an agent sees."
+      },
+      {
+        "title": "Friday timesheet reconcile",
+        "command": "halopsa-pp-cli time gaps --agent me --week current --json",
+        "explanation": "Find every ticket you touched this week with zero time logged so the gap doesn't ship with your timesheet."
+      },
+      {
+        "title": "Contract overage check before client meeting",
+        "command": "halopsa-pp-cli contracts burn --client \"Acme Corp\" --month current --json",
+        "explanation": "See current hours consumed vs. bank with projected overage so the contract conversation isn't a surprise."
+      }
+    ],
+    "trigger_phrases": [
+      "triage my Halo queue",
+      "check SLA breaches in HaloPSA",
+      "who is overloaded in Halo",
+      "client card for Acme in Halo",
+      "Halo contract burn-down",
+      "what changed in Halo since this morning",
+      "find time gaps in my Halo timesheet",
+      "use halopsa",
+      "run halopsa"
+    ]
+  }
+}

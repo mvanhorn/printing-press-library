@@ -1,0 +1,148 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-21T19:57:30.570428Z",
+  "printing_press_version": "4.10.1",
+  "api_name": "halopsa",
+  "display_name": "Halo",
+  "cli_name": "halopsa-pp-cli",
+  "owner": "dstevens",
+  "printer": "dstevens",
+  "printer_name": "Damien Stevens",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:b5a16d219829fa136f4ef60633d07cf00ce3d757a9c0728c6dbdf076c454a065",
+  "run_id": "20260521-131235",
+  "description": "Every HaloPSA, HaloITSM and HaloCRM feature, plus a local SQLite store and cross-entity views the API can't return.",
+  "mcp_binary": "halopsa-pp-mcp",
+  "mcp_tool_count": 1456,
+  "mcp_ready": "full",
+  "api_version": "v2",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "HALOPSA_CLIENT_ID",
+    "HALOPSA_CLIENT_SECRET",
+    "HALOPSA_TENANT",
+    "HALOPSA_DOMAIN",
+    "HALOPSA_SCOPE",
+    "HALOPSA_TOKEN"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "HALOPSA_CLIENT_ID",
+      "kind": "auth_flow_input",
+      "required": true,
+      "sensitive": false,
+      "description": "OAuth2 client ID from your Halo API application"
+    },
+    {
+      "name": "HALOPSA_CLIENT_SECRET",
+      "kind": "auth_flow_input",
+      "required": true,
+      "sensitive": true,
+      "description": "OAuth2 client secret from your Halo API application"
+    },
+    {
+      "name": "HALOPSA_TENANT",
+      "kind": "auth_flow_input",
+      "required": true,
+      "sensitive": false,
+      "description": "Your Halo tenant subdomain (e.g. \"acme-msp\" for acme-msp.halopsa.com)"
+    },
+    {
+      "name": "HALOPSA_DOMAIN",
+      "kind": "auth_flow_input",
+      "required": false,
+      "sensitive": false,
+      "description": "Halo domain root: halopsa.com (default), haloitsm.com, or halocrm.com"
+    },
+    {
+      "name": "HALOPSA_SCOPE",
+      "kind": "auth_flow_input",
+      "required": false,
+      "sensitive": false,
+      "description": "OAuth2 scope (defaults to \"all\"); set to a narrower scope when your API application requires it"
+    },
+    {
+      "name": "HALOPSA_TOKEN",
+      "kind": "per_call",
+      "required": false,
+      "sensitive": true,
+      "description": "Pre-issued Bearer access token. Overrides the client_credentials flow when set."
+    }
+  ],
+  "endpoint_template_vars": [
+    "tenant",
+    "domain"
+  ],
+  "endpoint_template_var_defaults": {
+    "domain": "halopsa.com",
+    "tenant": "demo"
+  },
+  "auth_key_url": "https://{tenant}.{domain}/auth/token",
+  "novel_features": [
+    {
+      "name": "Triage queue",
+      "command": "triage",
+      "description": "See per-agent open ticket load, stale tickets, and 24-hour SLA-breach count in one table — the dispatcher view Halo's UI scatters across five tabs."
+    },
+    {
+      "name": "Bulk age-out closer",
+      "command": "tickets age-out",
+      "description": "Find tickets stale in a status for N days, preview them, then bulk-close with a templated action via --apply."
+    },
+    {
+      "name": "SLA breach radar",
+      "command": "sla breaching",
+      "description": "List tickets whose targetdate falls in the next N hours, sorted by time-to-breach, with agent + client + current status."
+    },
+    {
+      "name": "Agent workload",
+      "command": "agent workload",
+      "description": "Per-agent: open tickets, tickets touched this week, billable hours logged, oldest open ticket age."
+    },
+    {
+      "name": "Client desk card",
+      "command": "client card",
+      "description": "One panel: client + sites + active tickets + open contracts + contract hours remaining + recent KB articles linked to their tickets + asset count."
+    },
+    {
+      "name": "Asset ticket history",
+      "command": "asset history",
+      "description": "Every ticket that touched this asset, chronological, with agent and time logged."
+    },
+    {
+      "name": "KB suggest for ticket",
+      "command": "kbarticle suggest",
+      "description": "FTS5-rank KB articles against a ticket's summary + details + last action text; print top 5 with snippets."
+    },
+    {
+      "name": "Time gap finder",
+      "command": "time gaps",
+      "description": "List tickets the agent touched this week that have zero time logged on them."
+    },
+    {
+      "name": "Contract burn-down",
+      "command": "contracts burn",
+      "description": "Per contract: hours bank, hours consumed this period (sum of billable time on that client's tickets), days remaining, projected overage."
+    },
+    {
+      "name": "Ticket rules dump",
+      "command": "rules dump",
+      "description": "Print every ticket rule and workflow as readable flat text — conditions → actions, one block per rule."
+    },
+    {
+      "name": "Changed-since",
+      "command": "tickets changed-since",
+      "description": "Tickets where any action or status change occurred since timestamp, grouped by ticket."
+    },
+    {
+      "name": "Standup digest",
+      "command": "standup",
+      "description": "Per-agent for the window: tickets closed, tickets reopened, time logged, top client."
+    },
+    {
+      "name": "Multi-client overlay",
+      "command": "client overlay",
+      "description": "Rank all clients by a chosen metric (open tickets, stale, SLA at-risk, hours over bank). Top N out."
+    }
+  ]
+}
