@@ -389,11 +389,20 @@ func resolveCommandVehicle(ctx context.Context, flags *rootFlags, cfg *config.Co
 // Tesla returns a much richer object; we only care about VIN + display_name
 // here. command_signing is a hint Tesla sometimes surfaces; absent we fall
 // back to a year-based heuristic via tesla_reachability's classifier.
+//
+// NOTE: the id field is json.Number because /api/1/products returns a
+// heterogeneous array — vehicles use integer IDs (e.g. 3744559116524749) while
+// energy devices such as Wall Connectors use string IDs (e.g.
+// "STE20240625-00048"). Typing the field as int64 causes json.Unmarshal to
+// fail on the entire response the moment any non-vehicle product is present,
+// making command routing impossible for accounts that own a Wall Connector or
+// Powerwall. json.Number accepts both without panicking; callers that need a
+// numeric ID can call .Int64() on it.
 type productEntry struct {
-	VIN              string `json:"vin"`
-	DisplayName      string `json:"display_name"`
-	CommandSigning   string `json:"command_signing"`
-	VehicleCommandID int64  `json:"id"`
+	VIN              string      `json:"vin"`
+	DisplayName      string      `json:"display_name"`
+	CommandSigning   string      `json:"command_signing"`
+	VehicleCommandID json.Number `json:"id"`
 }
 
 // fetchProductsList calls /api/1/products and returns the typed entries.

@@ -164,6 +164,16 @@
       "upstream_issue": "doctor.go, tesla_reachability.go, agent_context.go all carry generator DO NOT EDIT headers; the edits are templated drift. R7 permits this with documentation. Future generator hook should make these extension points."
     },
     {
+      "id": "fix-products-parser-wall-connector-string-id",
+      "summary": "Change productEntry.VehicleCommandID from int64 to json.Number to handle mixed-type id fields in /api/1/products response.",
+      "reason": "Tesla's /api/1/products returns a heterogeneous array: vehicles have integer IDs, energy devices (Wall Connectors, Powerwalls) have string IDs. The int64 type caused json.Unmarshal to fail on the entire response for any account with a Wall Connector, making all `tesla command` routing impossible. json.Number accepts both without loss.",
+      "files": [
+        "internal/cli/tesla_command.go"
+      ],
+      "validated_outcome": "go build ./... and go vet ./... pass. Accounts with both a vehicle and a Wall Connector can now resolve vehicles for command routing.",
+      "upstream_issue": "https://github.com/mvanhorn/printing-press-library/issues/793"
+    },
+    {
       "id": "u7-pii-scrub",
       "summary": "Mechanical scrub of workspace identifiers from source, docs, and manifest files before first publish. Replaced workspace VINs with placeholders across source examples. Scrubbed absolute home paths from polish-state files. Verified the published tree has no workspace identifiers.",
       "reason": "R6: no real PII in any file that lands in the publish repo. Vehicle names Snowflake and Stella are explicitly accepted by the author for cookbook examples; everything else is workspace-specific.",
