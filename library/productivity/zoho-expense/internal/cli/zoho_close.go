@@ -195,8 +195,17 @@ func newCloseCmd(flags *rootFlags) *cobra.Command {
 				return printJSONFiltered(cmd.OutOrStdout(), summary, flags)
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "bundled %d expenses for %s into report_id=%s\n", len(unreported), month, reportID)
+			// PATCH(2026-05-23): surface the --auto-submit failure on the
+			// human-readable path. Previously the error was stashed in
+			// summary["submit_error"] for --json callers only; CLI users
+			// saw "bundled N into report_id=..." with no indication that
+			// the submit step failed and the report exists on Zoho as a
+			// draft. Filed per Greptile P1.
 			if v, ok := summary["submitted"].(bool); ok && v {
 				fmt.Fprintln(cmd.OutOrStdout(), "report submitted")
+			} else if submitErr, ok := summary["submit_error"].(string); ok && submitErr != "" {
+				fmt.Fprintf(cmd.ErrOrStderr(), "warning: --auto-submit failed: %s\n", submitErr)
+				fmt.Fprintf(cmd.ErrOrStderr(), "  report %s exists on Zoho as a draft — submit manually via the web UI or re-run with --auto-submit after the underlying error clears\n", reportID)
 			}
 			return nil
 		},

@@ -73,6 +73,11 @@
       "id": "expense-untagged-refresh-before-auto-fix",
       "summary": "expense-untagged --auto-fix refreshes the expenses table first so it cannot overwrite categories a user set in the Zoho UI since the last sync.",
       "reason": "Without the refresh, the local store can be up to cache.stale_after hours old. A user who tagged an expense manually in Zoho since the last sync still appears category_id= locally, and --auto-fix PUTs the merchant-memory category onto it, silently overwriting the manual choice. Plain listing (no --auto-fix) keeps the normal freshness policy because stale data is acceptable for review. Filed per Greptile P1."
+    },
+    {
+      "id": "close-auto-submit-error-surfaced-on-human-path",
+      "summary": "close --auto-submit submission errors are now printed to stderr on the human-readable path; previously only --json consumers saw them.",
+      "reason": "POST /expensereports/{id}/submit failures were stashed in summary[\"submit_error\"] but the non-JSON output branch never read it. Users running close --auto-submit interactively saw \"bundled N into report_id=...\" and assumed success, while the report sat on Zoho as a draft. Filed per Greptile P1."
     }
   ]
 }
