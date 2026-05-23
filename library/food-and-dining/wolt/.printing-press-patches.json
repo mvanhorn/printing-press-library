@@ -21,6 +21,12 @@
       "summary": "venues-now's --max-eta filter now excludes venues with unknown ETA (EstimateMin == 0).",
       "reason": "The original guard 'row.EstimateMin > 0 && row.EstimateMin > maxETA' short-circuited for unknown-ETA venues, silently including them even when the user asked for fast delivery. The command's --help promises 'deliver within --max-eta minutes', so unknown-ETA venues cannot satisfy the contract.",
       "files": ["internal/cli/venues_now.go"]
+    },
+    {
+      "id": "venues-compare-honest-description",
+      "summary": "Tighten venues-compare description to match what the dynamic endpoint actually returns.",
+      "reason": "Original Short said 'Compare open status, ETA window, and delivery configs' but venueCompareRow has no ETA fields — the dynamic endpoint returns next-close/open timestamps, not delivery-time-in-minutes (that lives in /pages/restaurants). Updated Short + Long to advertise what we actually return and point users to venues-now for ETAs.",
+      "files": ["internal/cli/venues_compare.go"]
     }
   ],
   "deferred_to_upstream": [

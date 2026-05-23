@@ -26,10 +26,13 @@ func newVenuesCompareCmd(flags *rootFlags) *cobra.Command {
 	var slugsCSV, deliveryMethod string
 	cmd := &cobra.Command{
 		Use:   "venues-compare",
-		Short: "Compare open status, ETA window, and delivery configs across multiple venues",
+		Short: "Compare open status, next-close time, delivery configs, and order minimum across multiple venues",
 		Long: "Fans out the per-venue dynamic endpoint for each slug and joins the\n" +
 			"results into one structured payload. Useful for agent decisions that need\n" +
-			"to weigh several venues at once.",
+			"to weigh several venues at once. Returns open status, next-close/open\n" +
+			"timestamps, delivery config count, and order minimum per venue. For\n" +
+			"delivery-time ETAs in minutes, use `venues-now` instead — that data\n" +
+			"comes from the discovery endpoint, not the per-venue dynamic one.",
 		Example: "  wolt-pp-cli venues-compare --slugs noodle-story-kamppi,puttes-bar-pizza --json",
 		Annotations: map[string]string{
 			"mcp:read-only": "true",
