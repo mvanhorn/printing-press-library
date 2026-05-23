@@ -235,6 +235,35 @@ func TestAPIDisplayName(t *testing.T) {
 	}
 }
 
+func TestRepairDuplicateAPIDisplayNamesUsesSourceDisplay(t *testing.T) {
+	entries := []RegistryEntry{
+		{
+			Name:      "substack",
+			API:       "Substack",
+			sourceAPI: "Substack",
+		},
+		{
+			Name:      "substack-creator",
+			API:       "Substack",
+			sourceAPI: "Substack Creator",
+		},
+		{
+			Name:      "cal-com",
+			API:       "Cal.com",
+			sourceAPI: "Cal Com",
+		},
+	}
+
+	repairDuplicateAPIDisplayNames(entries)
+
+	if got := entries[1].API; got != "Substack Creator" {
+		t.Fatalf("substack-creator API = %q, want source display name", got)
+	}
+	if got := entries[2].API; got != "Cal.com" {
+		t.Fatalf("non-duplicate curated API = %q, want unchanged", got)
+	}
+}
+
 func TestTitleCaseSlug(t *testing.T) {
 	cases := map[string]string{
 		"setlist-fm": "Setlist Fm",
@@ -429,6 +458,34 @@ func TestValidateEntries(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestValidateUniqueAPIDisplayNames(t *testing.T) {
+	entries := []RegistryEntry{
+		{Name: "substack", Category: "media", API: "Substack", Description: "Growth loop.", Path: "library/media/substack"},
+		{Name: "substack-creator", Category: "media", API: "Substack", Description: "Creator workflows.", Path: "library/media/substack-creator"},
+		{Name: "espn", Category: "media", API: "ESPN", Description: "Sports.", Path: "library/media/espn"},
+	}
+
+	t.Run("full validation rejects duplicate display labels", func(t *testing.T) {
+		got := strings.Join(validateUniqueAPIDisplayNames(entries, nil), "\n")
+		if !strings.Contains(got, `api display name "Substack" is used by multiple entries: substack, substack-creator`) {
+			t.Fatalf("missing duplicate display error, got:\n%s", got)
+		}
+	})
+
+	t.Run("scoped validation catches a touched entry colliding with unchanged sibling", func(t *testing.T) {
+		got := strings.Join(validateUniqueAPIDisplayNames(entries, []string{"substack-creator"}), "\n")
+		if !strings.Contains(got, "substack, substack-creator") {
+			t.Fatalf("missing scoped duplicate display error, got:\n%s", got)
+		}
+	})
+
+	t.Run("scoped validation ignores unrelated duplicate groups", func(t *testing.T) {
+		if got := validateUniqueAPIDisplayNames(entries, []string{"espn"}); len(got) != 0 {
+			t.Fatalf("want no unrelated duplicate errors, got: %v", got)
+		}
+	})
 }
 
 // TestValidateEntries_IgnoresPriorCuratedValue is the regression test for
