@@ -1,0 +1,234 @@
+{
+  "api_name": "dice-fm",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "Dice FM Partners Docs (SpectaQL)",
+      "url": "https://partners-endpoint.dice.fm/graphql/docs/index.html",
+      "language": "GraphQL",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 7,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-11T19:35:00Z",
+  "novel_features": [
+    {
+      "name": "Door List with Transfer Resolution",
+      "command": "door list",
+      "description": "Generate a valid-ticket-holder list for any event, with transferred tickets showing the new holder's name — ready for door access management.",
+      "rationale": "Requires a three-table SQLite join (tickets, returns, transfers) that no single GraphQL query or Dice dashboard view can produce.",
+      "example": "dice-fm-pp-cli door list --event evt_abc123 --json",
+      "why_it_matters": "Use this before every show to get the definitive 'who can enter' list including all transfers and minus all returns.",
+      "group": "Access management"
+    },
+    {
+      "name": "Revenue Summary",
+      "command": "revenue summary",
+      "description": "Aggregate gross revenue, Dice fees, and net earnings per event or across a date range — ready for CFO reports.",
+      "rationale": "Requires summing paginated order data across all events locally; the API has no aggregation endpoint.",
+      "example": "dice-fm-pp-cli revenue summary --from 2026-01-01 --json",
+      "why_it_matters": "Use this for weekly financial reporting without manually totaling per-event dashboards in a spreadsheet.",
+      "group": "Financial intelligence"
+    },
+    {
+      "name": "Ticket Velocity",
+      "command": "velocity show",
+      "description": "Show cumulative ticket sales by day or hour relative to the on-sale date — see whether an event is tracking fast or slow.",
+      "rationale": "Requires bucketing order purchasedAt timestamps against on-sale date in SQLite; the Dice dashboard shows only a current snapshot.",
+      "example": "dice-fm-pp-cli velocity show --event evt_abc123 --bucket day --json",
+      "why_it_matters": "Use within the first 72 hours after an on-sale to decide whether an event needs promotional push.",
+      "group": "Financial intelligence"
+    },
+    {
+      "name": "Cross-Event Repeat Buyer Report",
+      "command": "fans repeat",
+      "description": "Find fans who bought tickets to two or more of your events — your most loyal audience, ready for VIP outreach.",
+      "rationale": "Requires GROUP BY fan email across distinct event IDs in SQLite; no API call or sequence can produce this cross-event view.",
+      "example": "dice-fm-pp-cli fans repeat --min-events 2 --since 2026-01-01 --csv",
+      "why_it_matters": "Use weekly to build re-engagement lists before announcing new events to warm audiences first.",
+      "group": "Audience intelligence"
+    },
+    {
+      "name": "Opt-In Fan List with Geography Filter",
+      "command": "fans optin",
+      "description": "Export opted-in fan contacts filtered by city or country — CSV ready for Mailchimp, no dashboard exports needed.",
+      "rationale": "Requires joining fans (optInPartners=true) against orders.ipCity/ipCountry in SQLite; dashboard export does not include geography join.",
+      "example": "dice-fm-pp-cli fans optin --event evt_abc123 --country GB --city London --csv",
+      "why_it_matters": "Use every Monday to build targeted email lists from the previous week's ticket buyers without touching the Dice dashboard.",
+      "group": "Audience intelligence"
+    },
+    {
+      "name": "Return Rate Anomaly Report",
+      "command": "returns anomalies",
+      "description": "Flag events with unusually high refund rates — a pricing or marketing signal that deserves immediate attention.",
+      "rationale": "Requires computing COUNT(returns)/COUNT(orders) per event and filtering above a threshold in SQLite; no API analytics endpoint exists.",
+      "example": "dice-fm-pp-cli returns anomalies --threshold 0.08 --agent",
+      "why_it_matters": "Use after sales close each week to surface events that may have pricing problems before the show date.",
+      "group": "Financial intelligence"
+    },
+    {
+      "name": "Top Spenders",
+      "command": "fans top",
+      "description": "Rank ticket buyers by total spend for an event or across all events — your VIP list for comps, upgrades, and sponsor decks.",
+      "rationale": "Requires SUM(order total) GROUP BY fan_id joined against fans table in SQLite; the API has no leaderboard or aggregation endpoint.",
+      "example": "dice-fm-pp-cli fans top --event evt_abc123 --n 20 --json",
+      "why_it_matters": "Use before each show to identify high-value fans for VIP treatment, and before sponsor meetings to demonstrate audience quality.",
+      "group": "Audience intelligence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Door List with Transfer Resolution",
+      "command": "door list",
+      "description": "Generate a valid-ticket-holder list for any event, with transferred tickets showing the new holder's name — ready for door access management.",
+      "rationale": "Requires a three-table SQLite join (tickets, returns, transfers) that no single GraphQL query or Dice dashboard view can produce.",
+      "example": "dice-fm-pp-cli door list --event evt_abc123 --json",
+      "why_it_matters": "Use this before every show to get the definitive 'who can enter' list including all transfers and minus all returns.",
+      "group": "Access management"
+    },
+    {
+      "name": "Revenue Summary",
+      "command": "revenue summary",
+      "description": "Aggregate gross revenue, Dice fees, and net earnings per event or across a date range — ready for CFO reports.",
+      "rationale": "Requires summing paginated order data across all events locally; the API has no aggregation endpoint.",
+      "example": "dice-fm-pp-cli revenue summary --from 2026-01-01 --json",
+      "why_it_matters": "Use this for weekly financial reporting without manually totaling per-event dashboards in a spreadsheet.",
+      "group": "Financial intelligence"
+    },
+    {
+      "name": "Ticket Velocity",
+      "command": "velocity show",
+      "description": "Show cumulative ticket sales by day or hour relative to the on-sale date — see whether an event is tracking fast or slow.",
+      "rationale": "Requires bucketing order purchasedAt timestamps against on-sale date in SQLite; the Dice dashboard shows only a current snapshot.",
+      "example": "dice-fm-pp-cli velocity show --event evt_abc123 --bucket day --json",
+      "why_it_matters": "Use within the first 72 hours after an on-sale to decide whether an event needs promotional push.",
+      "group": "Financial intelligence"
+    },
+    {
+      "name": "Cross-Event Repeat Buyer Report",
+      "command": "fans repeat",
+      "description": "Find fans who bought tickets to two or more of your events — your most loyal audience, ready for VIP outreach.",
+      "rationale": "Requires GROUP BY fan email across distinct event IDs in SQLite; no API call or sequence can produce this cross-event view.",
+      "example": "dice-fm-pp-cli fans repeat --min-events 2 --since 2026-01-01 --csv",
+      "why_it_matters": "Use weekly to build re-engagement lists before announcing new events to warm audiences first.",
+      "group": "Audience intelligence"
+    },
+    {
+      "name": "Opt-In Fan List with Geography Filter",
+      "command": "fans optin",
+      "description": "Export opted-in fan contacts filtered by city or country — CSV ready for Mailchimp, no dashboard exports needed.",
+      "rationale": "Requires joining fans (optInPartners=true) against orders.ipCity/ipCountry in SQLite; dashboard export does not include geography join.",
+      "example": "dice-fm-pp-cli fans optin --event evt_abc123 --country GB --city London --csv",
+      "why_it_matters": "Use every Monday to build targeted email lists from the previous week's ticket buyers without touching the Dice dashboard.",
+      "group": "Audience intelligence"
+    },
+    {
+      "name": "Return Rate Anomaly Report",
+      "command": "returns anomalies",
+      "description": "Flag events with unusually high refund rates — a pricing or marketing signal that deserves immediate attention.",
+      "rationale": "Requires computing COUNT(returns)/COUNT(orders) per event and filtering above a threshold in SQLite; no API analytics endpoint exists.",
+      "example": "dice-fm-pp-cli returns anomalies --threshold 0.08 --agent",
+      "why_it_matters": "Use after sales close each week to surface events that may have pricing problems before the show date.",
+      "group": "Financial intelligence"
+    },
+    {
+      "name": "Top Spenders",
+      "command": "fans top",
+      "description": "Rank ticket buyers by total spend for an event or across all events — your VIP list for comps, upgrades, and sponsor decks.",
+      "rationale": "Requires SUM(order total) GROUP BY fan_id joined against fans table in SQLite; the API has no leaderboard or aggregation endpoint.",
+      "example": "dice-fm-pp-cli fans top --event evt_abc123 --n 20 --json",
+      "why_it_matters": "Use before each show to identify high-value fans for VIP treatment, and before sponsor meetings to demonstrate audience quality.",
+      "group": "Audience intelligence"
+    }
+  ],
+  "narrative": {
+    "display_name": "DICE",
+    "headline": "Every ticket, fan, and pound of revenue from your DICE events — queryable, exportable, and joinable across shows.",
+    "value_prop": "The DICE Partners GraphQL API gives promoters access to their ticket, fan, and order data — but only one event at a time, only through a web dashboard or raw API calls. This CLI syncs all your data locally and unlocks cross-event analytics: who are your repeat buyers, what's your real net revenue, which events have anomalous refund rates, who's valid at the door tonight.",
+    "auth_narrative": "Requires a Bearer token from MIO (DICE.FM AMP). Set DICE_FM_TOKEN in your environment. All commands are read-only — no writes to the DICE platform.",
+    "quickstart": [
+      {
+        "command": "dice-fm-pp-cli doctor",
+        "comment": "Verify your token and connectivity"
+      },
+      {
+        "command": "dice-fm-pp-cli sync --full",
+        "comment": "Sync all your events, tickets, orders, returns, transfers, and fans to a local SQLite database"
+      },
+      {
+        "command": "dice-fm-pp-cli revenue summary --from 2026-01-01 --json",
+        "comment": "Financial report across all events this year — the headline workflow"
+      },
+      {
+        "command": "dice-fm-pp-cli door list --event evt_abc123",
+        "comment": "Build tonight's door list, transfers resolved and returns removed"
+      },
+      {
+        "command": "dice-fm-pp-cli fans repeat --min-events 2 --csv",
+        "comment": "Export your repeat buyers for re-engagement campaigns"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on all commands",
+        "fix": "Set DICE_FM_TOKEN to a valid token from MIO (DICE.FM AMP): export DICE_FM_TOKEN=your_token_here"
+      },
+      {
+        "symptom": "sync returns 0 events",
+        "fix": "Verify your token has partner access: dice-fm-pp-cli events list --json (check for API error in response)"
+      },
+      {
+        "symptom": "door list shows no transfers",
+        "fix": "Run sync --full first; transfers are a separate entity that requires an explicit sync pass"
+      },
+      {
+        "symptom": "fans optin returns empty",
+        "fix": "Check that fans have optInPartners=true; not all buyers opt in to partner marketing"
+      }
+    ],
+    "when_to_use": "Use this CLI when you need to query your DICE event data programmatically — building door lists before shows, generating financial reports, segmenting fan lists for Mailchimp, or identifying repeat buyers across your event history. It is the right tool for any workflow that requires cross-event aggregation or data that the DICE dashboard cannot combine in one view.",
+    "recipes": [
+      {
+        "title": "Build tonight's door list",
+        "command": "dice-fm-pp-cli door list --event evt_abc123 --json",
+        "explanation": "Returns valid ticket holders with transfer resolution — who holds valid tickets, with new holder names for any transferred tickets."
+      },
+      {
+        "title": "Export opted-in London fans for Mailchimp",
+        "command": "dice-fm-pp-cli fans optin --event evt_abc123 --country GB --city London --csv",
+        "explanation": "Filters opted-in buyers from London, outputs CSV with firstName, lastName, email for direct import."
+      },
+      {
+        "title": "Weekly CFO revenue report",
+        "command": "dice-fm-pp-cli revenue summary --from 2026-01-01 --json --select event_name,gross,dice_fees,net,orders_count",
+        "explanation": "Aggregates all orders since January 1, showing gross, Dice fees, and net per event with totals."
+      },
+      {
+        "title": "Find repeat buyers for new event announcement",
+        "command": "dice-fm-pp-cli fans repeat --min-events 2 --since 2026-01-01 --agent",
+        "explanation": "Lists fans who attended 2+ events this year with total spend — warm audience for early access campaigns."
+      },
+      {
+        "title": "Check ticket velocity in first 72 hours",
+        "command": "dice-fm-pp-cli velocity show --event evt_abc123 --bucket hour --json --select hour_offset,cumulative_sold",
+        "explanation": "Shows hourly cumulative ticket sales relative to on-sale time so you can decide if an event needs promotional push."
+      }
+    ],
+    "trigger_phrases": [
+      "door list for tonight's show",
+      "export opted-in fans from DICE",
+      "revenue report from DICE events",
+      "find repeat buyers on DICE",
+      "ticket velocity for my DICE event",
+      "sync my DICE data",
+      "use dice-fm"
+    ]
+  }
+}

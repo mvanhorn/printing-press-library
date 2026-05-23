@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-05-23T16:51:06.403061Z",
+  "cli_dir": "\u003ccli-dir\u003e/dice-fm-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "version",
+      "file": "root.go",
+      "line": 326,
+      "evidence": "Print version",
+      "status": "accepted",
+      "note": "Standard 'version' command; the action is universally understood by agents and humans, and version is a framework command skipped from the typed MCP surface, so a longer Short adds no decision value."
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 5,
+    "captured": "2026-05-23T16:33:03.965464Z"
+  }
+}

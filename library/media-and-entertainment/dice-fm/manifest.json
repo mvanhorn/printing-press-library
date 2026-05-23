@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "dice-fm-pp-mcp",
+  "display_name": "DICE",
+  "version": "4.12.0",
+  "description": "Every ticket, fan, and pound of revenue from your DICE events — queryable, exportable, and joinable across shows.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/dice-fm-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/dice-fm-pp-mcp",
+      "args": [],
+      "env": {
+        "DICE_FM_TOKEN": "${user_config.dice_fm_token}"
+      }
+    }
+  },
+  "user_config": {
+    "dice_fm_token": {
+      "type": "string",
+      "title": "DICE_FM_TOKEN",
+      "description": "Sets DICE_FM_TOKEN for the DICE MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

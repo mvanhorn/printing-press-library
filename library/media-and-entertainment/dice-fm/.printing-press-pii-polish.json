@@ -1,0 +1,128 @@
+{
+  "timestamp": "2026-05-23T17:05:58.900964Z",
+  "cli_dir": "\u003ccli-dir\u003e/dice-fm",
+  "findings": [
+    {
+      "kind": "email",
+      "file": "internal/cli/dice_transcend_test.go",
+      "line": 22,
+      "column": 15,
+      "matched_span": "a@example.com",
+      "status": "accepted",
+      "note": "Synthetic test const 'a@example.com' — first of three revenue-summary seed buyers; reserved example.com domain, never a real mailbox.",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Const declaration in dice_transcend_test.go (fanA      = \"a@example.com\"); synthetic fan-identity value on the RFC 2606 reserved example.com domain, declared once and referenced by name from the unit-test fixtures."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/dice_transcend_test.go",
+      "line": 23,
+      "column": 15,
+      "matched_span": "b@example.com",
+      "status": "accepted",
+      "note": "Synthetic test const 'b@example.com' — second revenue-summary seed buyer; reserved example.com domain, never a real mailbox.",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Const declaration in dice_transcend_test.go (fanB      = \"b@example.com\"); synthetic fan-identity value on the RFC 2606 reserved example.com domain, declared once and referenced by name from the unit-test fixtures."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/dice_transcend_test.go",
+      "line": 24,
+      "column": 15,
+      "matched_span": "c@example.com",
+      "status": "accepted",
+      "note": "Synthetic test const 'c@example.com' — third revenue-summary / cross-event seed buyer; reserved example.com domain, never a real mailbox.",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Const declaration in dice_transcend_test.go (fanC      = \"c@example.com\"); synthetic fan-identity value on the RFC 2606 reserved example.com domain, declared once and referenced by name from the unit-test fixtures."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/dice_transcend_test.go",
+      "line": 25,
+      "column": 15,
+      "matched_span": "loyal@example.com",
+      "status": "accepted",
+      "note": "Synthetic test const 'loyal@example.com' — repeat buyer who appears across two events (fans repeat fixture); reserved example.com domain, never a real mailbox.",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Const declaration in dice_transcend_test.go (fanLoyal  = \"loyal@example.com\"); synthetic fan-identity value on the RFC 2606 reserved example.com domain, declared once and referenced by name from the unit-test fixtures."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/dice_transcend_test.go",
+      "line": 26,
+      "column": 15,
+      "matched_span": "casual@example.com",
+      "status": "accepted",
+      "note": "Synthetic test const 'casual@example.com' — single-event buyer used as the non-repeat control (fans repeat fixture); reserved example.com domain, never a real mailbox.",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Const declaration in dice_transcend_test.go (fanCasual = \"casual@example.com\"); synthetic fan-identity value on the RFC 2606 reserved example.com domain, declared once and referenced by name from the unit-test fixtures."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/dice_transcend_test.go",
+      "line": 27,
+      "column": 15,
+      "matched_span": "mid@example.com",
+      "status": "accepted",
+      "note": "Synthetic test const 'mid@example.com' — mid-tier spender in the fans top ranking fixture; reserved example.com domain, never a real mailbox.",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Const declaration in dice_transcend_test.go (fanMid    = \"mid@example.com\"); synthetic fan-identity value on the RFC 2606 reserved example.com domain, declared once and referenced by name from the unit-test fixtures."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/dice_transcend_test.go",
+      "line": 28,
+      "column": 15,
+      "matched_span": "high@example.com",
+      "status": "accepted",
+      "note": "Synthetic test const 'high@example.com' — top spender in the fans top ranking fixture; reserved example.com domain, never a real mailbox.",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Const declaration in dice_transcend_test.go (fanHigh   = \"high@example.com\"); synthetic fan-identity value on the RFC 2606 reserved example.com domain, declared once and referenced by name from the unit-test fixtures."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/dice_transcend_test.go",
+      "line": 29,
+      "column": 15,
+      "matched_span": "low@example.com",
+      "status": "accepted",
+      "note": "Synthetic test const 'low@example.com' — lowest spender in the fans top ranking fixture; reserved example.com domain, never a real mailbox.",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Const declaration in dice_transcend_test.go (fanLow    = \"low@example.com\"); synthetic fan-identity value on the RFC 2606 reserved example.com domain, declared once and referenced by name from the unit-test fixtures."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/dice_transcend_test.go",
+      "line": 30,
+      "column": 15,
+      "matched_span": "gb@example.com",
+      "status": "accepted",
+      "note": "Synthetic test const 'gb@example.com' — opted-in GB/London fan in the fans optin geography fixture; reserved example.com domain, never a real mailbox.",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Const declaration in dice_transcend_test.go (fanGB     = \"gb@example.com\"); synthetic fan-identity value on the RFC 2606 reserved example.com domain, declared once and referenced by name from the unit-test fixtures."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/dice_transcend_test.go",
+      "line": 31,
+      "column": 15,
+      "matched_span": "us@example.com",
+      "status": "accepted",
+      "note": "Synthetic test const 'us@example.com' — opted-in US fan in the fans optin geography fixture; reserved example.com domain, never a real mailbox.",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Const declaration in dice_transcend_test.go (fanUS     = \"us@example.com\"); synthetic fan-identity value on the RFC 2606 reserved example.com domain, declared once and referenced by name from the unit-test fixtures."
+    },
+    {
+      "kind": "email",
+      "file": "internal/cli/dice_transcend_test.go",
+      "line": 32,
+      "column": 15,
+      "matched_span": "out@example.com",
+      "status": "accepted",
+      "note": "Synthetic test const 'out@example.com' — opted-out fan used as the exclusion control (fans optin fixture); reserved example.com domain, never a real mailbox.",
+      "category": "synthetic_placeholder",
+      "evidence_context": "Const declaration in dice_transcend_test.go (fanOut    = \"out@example.com\"); synthetic fan-identity value on the RFC 2606 reserved example.com domain, declared once and referenced by name from the unit-test fixtures."
+    }
+  ],
+  "findings_count_before": 29
+}

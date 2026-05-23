@@ -1,0 +1,140 @@
+// Copyright 2026 vinny-pasceri. Licensed under Apache-2.0. See LICENSE.
+// Hand-authored DICE "returns anomalies" command: flags events whose return
+// rate (returns/orders) meets or exceeds a threshold, computed from the local
+// order and return stores.
+package cli
+
+import (
+	"context"
+	"database/sql"
+	"encoding/json"
+	"fmt"
+	"sort"
+
+	"github.com/spf13/cobra"
+)
+
+// returnsAnomalyRow is one flagged event.
+type returnsAnomalyRow struct {
+	EventID      string  `json:"event_id"`
+	EventName    string  `json:"event_name"`
+	OrdersCount  int     `json:"orders_count"`
+	ReturnsCount int     `json:"returns_count"`
+	ReturnRate   float64 `json:"return_rate"`
+}
+
+// computeReturnsAnomalies counts orders and returns per event and returns the
+// events whose return rate is >= threshold, sorted by return rate descending.
+// Events with zero orders are skipped (an undefined rate).
+func computeReturnsAnomalies(ctx context.Context, db *sql.DB, threshold float64) ([]returnsAnomalyRow, error) {
+	orders, err := readOrders(ctx, db)
+	if err != nil {
+		return nil, err
+	}
+	ordersByEvent := map[string]int{}
+	for _, o := range orders {
+		if o.Event.ID == "" {
+			continue
+		}
+		ordersByEvent[o.Event.ID]++
+	}
+
+	returnsByEvent, namesByEvent, err := readReturnsByEvent(ctx, db)
+	if err != nil {
+		return nil, err
+	}
+
+	rows := make([]returnsAnomalyRow, 0)
+	for eventID, ordersCount := range ordersByEvent {
+		if ordersCount == 0 {
+			continue
+		}
+		returnsCount := returnsByEvent[eventID]
+		rate := float64(returnsCount) / float64(ordersCount)
+		if rate < threshold {
+			continue
+		}
+		rows = append(rows, returnsAnomalyRow{
+			EventID:      eventID,
+			EventName:    namesByEvent[eventID],
+			OrdersCount:  ordersCount,
+			ReturnsCount: returnsCount,
+			ReturnRate:   round4(rate),
+		})
+	}
+	sort.Slice(rows, func(i, j int) bool {
+		if rows[i].ReturnRate != rows[j].ReturnRate {
+			return rows[i].ReturnRate > rows[j].ReturnRate
+		}
+		return rows[i].EventID < rows[j].EventID
+	})
+	return rows, nil
+}
+
+// readReturnsByEvent counts returns per event ID (return.order.event.id) and
+// collects the event names found there.
+func readReturnsByEvent(ctx context.Context, db *sql.DB) (counts map[string]int, names map[string]string, err error) {
+	rows, err := db.QueryContext(ctx, `SELECT data FROM resources WHERE resource_type = 'returns'`)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer rows.Close()
+	counts = map[string]int{}
+	names = map[string]string{}
+	for rows.Next() {
+		var data string
+		if err := rows.Scan(&data); err != nil {
+			continue
+		}
+		var r struct {
+			Order struct {
+				Event struct {
+					ID   string `json:"id"`
+					Name string `json:"name"`
+				} `json:"event"`
+			} `json:"order"`
+		}
+		if err := json.Unmarshal([]byte(data), &r); err != nil {
+			continue
+		}
+		id := r.Order.Event.ID
+		if id == "" {
+			continue
+		}
+		counts[id]++
+		if names[id] == "" && r.Order.Event.Name != "" {
+			names[id] = r.Order.Event.Name
+		}
+	}
+	return counts, names, rows.Err()
+}
+
+func newReturnsAnomaliesCmd(flags *rootFlags) *cobra.Command {
+	var threshold float64
+	cmd := &cobra.Command{
+		Use:         "anomalies",
+		Short:       "Flag events with an unusually high return rate",
+		Example:     "  dice-fm-pp-cli returns anomalies --threshold 0.05 --json",
+		Annotations: map[string]string{"mcp:read-only": "true"},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if dryRunOK(flags) {
+				return nil
+			}
+			s, err := openStoreForRead(cmd.Context(), diceCLIName)
+			if err != nil {
+				return err
+			}
+			if s == nil {
+				return printJSONFiltered(cmd.OutOrStdout(), []returnsAnomalyRow{}, flags)
+			}
+			defer s.Close()
+			rows, err := computeReturnsAnomalies(cmd.Context(), s.DB(), threshold)
+			if err != nil {
+				return fmt.Errorf("computing return anomalies: %w", err)
+			}
+			return printJSONFiltered(cmd.OutOrStdout(), rows, flags)
+		},
+	}
+	cmd.Flags().Float64Var(&threshold, "threshold", 0.05, "Minimum return rate (returns/orders) to flag an event")
+	return cmd
+}
