@@ -250,8 +250,11 @@ func TestDiceFansOptin(t *testing.T) {
 }
 
 func TestDiceReturnsAnomalies(t *testing.T) {
-	// Event A: 10 orders, 2 returns -> 0.2 rate (flagged).
-	// Event B: 10 orders, 0 returns -> 0.0 rate (not flagged).
+	// Event A: 10 orders x1 ticket = 10 tickets, 2 returns -> 0.2 (flagged).
+	// Event B: 10 orders x1 ticket, 0 returns -> 0.0 (not flagged).
+	// Event C: 1 order x5 tickets = 5 tickets, 2 returns -> 0.4 (flagged).
+	//   Regression: dividing by order count would give 2/1 = 2.0; the rate must
+	//   divide by tickets sold, so 2/5 = 0.4.
 	orders := map[string]string{}
 	for i := 0; i < 10; i++ {
 		idA := "a" + string(rune('0'+i))
@@ -259,14 +262,17 @@ func TestDiceReturnsAnomalies(t *testing.T) {
 		orders[idA] = order(idA, "2026-01-10T10:00:00Z", "evtA", "Show A", "fa"+idA+"@example.com", "F", "A", 5000, 0, 1, false, "", "")
 		orders[idB] = order(idB, "2026-01-10T10:00:00Z", "evtB", "Show B", "fb"+idB+"@example.com", "F", "B", 5000, 0, 1, false, "", "")
 	}
-	ret := func(id string) string {
-		return `{"id":"` + id + `","ticketId":"t-` + id + `","order":{"id":"ord-` + id + `","event":{"id":"evtA","name":"Show A"}}}`
+	orders["c0"] = order("c0", "2026-01-10T10:00:00Z", "evtC", "Show C", "fc@example.com", "F", "C", 25000, 0, 5, false, "", "")
+	retFor := func(id, eventID, eventName string) string {
+		return `{"id":"` + id + `","ticketId":"t-` + id + `","order":{"id":"ord-` + id + `","event":{"id":"` + eventID + `","name":"` + eventName + `"}}}`
 	}
 	s := seedStore(t, map[string]map[string]string{
 		"orders": orders,
 		"returns": {
-			"r1": ret("r1"),
-			"r2": ret("r2"),
+			"r1": retFor("r1", "evtA", "Show A"),
+			"r2": retFor("r2", "evtA", "Show A"),
+			"r3": retFor("r3", "evtC", "Show C"),
+			"r4": retFor("r4", "evtC", "Show C"),
 		},
 	})
 
@@ -274,18 +280,24 @@ func TestDiceReturnsAnomalies(t *testing.T) {
 	if err != nil {
 		t.Fatalf("computeReturnsAnomalies: %v", err)
 	}
-	if len(rows) != 1 {
-		t.Fatalf("want 1 flagged event, got %d: %+v", len(rows), rows)
+	// evtC (0.4) and evtA (0.2) flagged; evtB (0.0) not. Sorted by rate desc.
+	if len(rows) != 2 {
+		t.Fatalf("want 2 flagged events, got %d: %+v", len(rows), rows)
 	}
-	r := rows[0]
-	if r.EventID != "evtA" || r.EventName != "Show A" {
-		t.Errorf("flagged event = %+v, want evtA/Show A", r)
+	byEvent := map[string]returnsAnomalyRow{}
+	for _, r := range rows {
+		byEvent[r.EventID] = r
 	}
-	if r.OrdersCount != 10 || r.ReturnsCount != 2 {
-		t.Errorf("counts = %d orders / %d returns, want 10/2", r.OrdersCount, r.ReturnsCount)
+	c := byEvent["evtC"]
+	if c.OrdersCount != 1 || c.TicketsSold != 5 || c.ReturnsCount != 2 || c.ReturnRate != 0.4 {
+		t.Errorf("evtC = %+v, want orders 1 / tickets 5 / returns 2 / rate 0.4", c)
 	}
-	if r.ReturnRate != 0.2 {
-		t.Errorf("return_rate = %v, want 0.2", r.ReturnRate)
+	a := byEvent["evtA"]
+	if a.OrdersCount != 10 || a.TicketsSold != 10 || a.ReturnsCount != 2 || a.ReturnRate != 0.2 {
+		t.Errorf("evtA = %+v, want orders 10 / tickets 10 / returns 2 / rate 0.2", a)
+	}
+	if rows[0].EventID != "evtC" {
+		t.Errorf("rows[0] = %s, want evtC first (highest rate)", rows[0].EventID)
 	}
 }
 
@@ -337,5 +349,123 @@ func TestDiceVelocityShow(t *testing.T) {
 	}
 	if rows[1].HourOffset != 24 {
 		t.Errorf("day2 hour_offset = %d, want 24", rows[1].HourOffset)
+	}
+}
+
+// eventFixture builds an `events` store payload with a capacity and state.
+func eventFixture(id, name, state string, capacity int64) string {
+	e := storeEvent{ID: id, Name: name, State: state, TotalAllocQty: capacity}
+	b, _ := json.Marshal(e)
+	return string(b)
+}
+
+// ticketFixture builds a `tickets` store payload at a named price tier.
+func ticketFixture(id, tierID, tierName string, tierPrice int64) string {
+	t := storeTicket{ID: id}
+	t.PriceTier.ID = tierID
+	t.PriceTier.Name = tierName
+	t.PriceTier.Price = tierPrice
+	b, _ := json.Marshal(t)
+	return string(b)
+}
+
+// returnFixture builds a `returns` store payload referencing a ticket.
+func returnFixture(id, ticketID string) string {
+	b, _ := json.Marshal(map[string]string{"id": id, "ticketId": ticketID})
+	return string(b)
+}
+
+func TestDiceCapacity(t *testing.T) {
+	s := seedStore(t, map[string]map[string]string{
+		"events": {
+			// evtA: live, capacity 100. evtB: live, capacity 50.
+			// evtC: cancelled — must be excluded from the headroom rollup.
+			"evtA": eventFixture("evtA", "Show A", "live", 100),
+			"evtB": eventFixture("evtB", "Show B", "on-sale", 50),
+			"evtC": eventFixture("evtC", "Show C", "cancelled", 200),
+		},
+		"orders": {
+			// evtA: 60 sold (40 + 20) -> 60% sold. evtB: 50 sold -> 100% sold.
+			// evtC: 10 sold but cancelled, must not appear.
+			"o1": order("o1", "2026-02-01T10:00:00Z", "evtA", "Show A", fanA, "Ann", "A", 0, 0, 40, false, "", ""),
+			"o2": order("o2", "2026-02-02T10:00:00Z", "evtA", "Show A", fanB, "Bob", "B", 0, 0, 20, false, "", ""),
+			"o3": order("o3", "2026-02-03T10:00:00Z", "evtB", "Show B", fanC, "Cat", "C", 0, 0, 50, false, "", ""),
+			"o4": order("o4", "2026-02-04T10:00:00Z", "evtC", "Show C", fanA, "Ann", "A", 0, 0, 10, false, "", ""),
+		},
+	})
+
+	rows, err := computeCapacity(context.Background(), s.DB(), "")
+	if err != nil {
+		t.Fatalf("computeCapacity: %v", err)
+	}
+	if len(rows) != 2 {
+		t.Fatalf("want 2 live rows, got %d: %+v", len(rows), rows)
+	}
+	// Sorted by pct_sold desc -> evtB (100%) first.
+	if rows[0].EventID != "evtB" || rows[0].Sold != 50 || rows[0].Capacity != 50 || rows[0].Remaining != 0 || rows[0].PctSold != 100 {
+		t.Errorf("row[0] = %+v, want evtB 50/50 rem 0 pct 100", rows[0])
+	}
+	if rows[1].EventID != "evtA" || rows[1].Sold != 60 || rows[1].Capacity != 100 || rows[1].Remaining != 40 || rows[1].PctSold != 60 {
+		t.Errorf("row[1] = %+v, want evtA 60/100 rem 40 pct 60", rows[1])
+	}
+
+	// --event filter keeps only the requested event.
+	filtered, err := computeCapacity(context.Background(), s.DB(), "evtA")
+	if err != nil {
+		t.Fatalf("computeCapacity filtered: %v", err)
+	}
+	if len(filtered) != 1 || filtered[0].EventID != "evtA" {
+		t.Errorf("filtered = %+v, want single evtA row", filtered)
+	}
+}
+
+func TestDiceTierPerformance(t *testing.T) {
+	s := seedStore(t, map[string]map[string]string{
+		"tickets": {
+			// evtA: 3 Early Bird, 1 General. evtB: 1 General. t6 is returned.
+			"t1": ticketFixture("t1", "tier-eb", "Early Bird", 2500),
+			"t2": ticketFixture("t2", "tier-eb", "Early Bird", 2500),
+			"t3": ticketFixture("t3", "tier-eb", "Early Bird", 2500),
+			"t4": ticketFixture("t4", "tier-gen", "General", 3500),
+			"t5": ticketFixture("t5", "tier-gen", "General", 3500),
+			"t6": ticketFixture("t6", "tier-eb", "Early Bird", 2500),
+		},
+		"returns": {
+			// t6 returned -> excluded from redemptions and the denominator.
+			"r1": returnFixture("r1", "t6"),
+		},
+	})
+
+	rows, err := computeTierPerformance(context.Background(), s.DB())
+	if err != nil {
+		t.Fatalf("computeTierPerformance: %v", err)
+	}
+	// Global per-tier rollup (tickets carry no synced event reference):
+	// tier-eb = t1,t2,t3 = 3 (t6 returned, excluded); tier-gen = t4,t5 = 2.
+	// Total non-returned redemptions = 5.
+	if len(rows) != 2 {
+		t.Fatalf("want 2 tier rows, got %d: %+v", len(rows), rows)
+	}
+	top := rows[0]
+	if top.TierID != "tier-eb" || top.Redemptions != 3 {
+		t.Errorf("row[0] = %+v, want Early Bird redemptions 3", top)
+	}
+	if top.Price != 25 {
+		t.Errorf("Early Bird price = %v, want 25 (2500 cents)", top.Price)
+	}
+	// Share of total: 3/5 = 0.6.
+	if top.RedemptionRate != 0.6 {
+		t.Errorf("Early Bird redemption_rate = %v, want 0.6", top.RedemptionRate)
+	}
+	// Returned ticket t6 must not inflate the count, and tier-gen = 2/5 = 0.4.
+	byTier := map[string]tierPerformanceRow{}
+	for _, r := range rows {
+		byTier[r.TierID] = r
+	}
+	if byTier["tier-eb"].Redemptions != 3 {
+		t.Errorf("Early Bird redemptions = %d, want 3 (returned t6 excluded)", byTier["tier-eb"].Redemptions)
+	}
+	if byTier["tier-gen"].Redemptions != 2 || byTier["tier-gen"].RedemptionRate != 0.4 {
+		t.Errorf("General tier = %+v, want redemptions 2 / rate 0.4", byTier["tier-gen"])
 	}
 }

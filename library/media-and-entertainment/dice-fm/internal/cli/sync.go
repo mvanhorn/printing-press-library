@@ -100,7 +100,11 @@ Exit codes & warnings:
 				if humanFriendly {
 					fmt.Fprintf(os.Stderr, "dry-run: would sync resources: %s\n", strings.Join(resources, ", "))
 				} else {
-					fmt.Fprintf(os.Stderr, `{"event":"sync_dry_run","resources":[%s]}`+"\n", `"`+strings.Join(resources, `","`)+`"`)
+					// json.Marshal escapes quotes/backslashes/newlines in resource
+					// names and emits the array form, so a crafted --resources value
+					// can't produce malformed JSON (mirrors sync_warning/sync_error).
+					resJSON, _ := json.Marshal(resources)
+					fmt.Fprintf(os.Stderr, `{"event":"sync_dry_run","resources":%s}`+"\n", resJSON)
 				}
 				return nil
 			}
@@ -245,7 +249,10 @@ Exit codes & warnings:
 func syncResource(ctx context.Context, c *client.Client, db *store.Store, resource, sinceTS string, full bool, maxPages int) syncResult {
 	started := time.Now()
 	if !humanFriendly {
-		fmt.Fprintf(os.Stderr, `{"event":"sync_start","resource":"%s"}`+"\n", resource)
+		// json.Marshal escapes the resource name so a value containing a quote,
+		// backslash, or newline can't produce a malformed sync_start event.
+		resJSON, _ := json.Marshal(resource)
+		fmt.Fprintf(os.Stderr, `{"event":"sync_start","resource":%s}`+"\n", resJSON)
 	}
 	if _, ok := diceConnections[resource]; !ok {
 		return syncResult{Resource: resource, Err: fmt.Errorf("unknown resource %q", resource), Duration: time.Since(started)}

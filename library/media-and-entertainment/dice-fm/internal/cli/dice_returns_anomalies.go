@@ -19,6 +19,7 @@ type returnsAnomalyRow struct {
 	EventID      string  `json:"event_id"`
 	EventName    string  `json:"event_name"`
 	OrdersCount  int     `json:"orders_count"`
+	TicketsSold  int     `json:"tickets_sold"`
 	ReturnsCount int     `json:"returns_count"`
 	ReturnRate   float64 `json:"return_rate"`
 }
@@ -32,11 +33,21 @@ func computeReturnsAnomalies(ctx context.Context, db *sql.DB, threshold float64)
 		return nil, err
 	}
 	ordersByEvent := map[string]int{}
+	ticketsByEvent := map[string]int{}
 	for _, o := range orders {
 		if o.Event.ID == "" {
 			continue
 		}
 		ordersByEvent[o.Event.ID]++
+		// DICE return records are per-ticket, so the return rate must divide by
+		// tickets sold (sum of order quantity), not order count — otherwise a
+		// multi-ticket order can push the rate above 1.0. An order is at least
+		// one ticket even when quantity is missing/zero.
+		qty := o.Quantity
+		if qty <= 0 {
+			qty = 1
+		}
+		ticketsByEvent[o.Event.ID] += qty
 	}
 
 	returnsByEvent, namesByEvent, err := readReturnsByEvent(ctx, db)
@@ -45,19 +56,20 @@ func computeReturnsAnomalies(ctx context.Context, db *sql.DB, threshold float64)
 	}
 
 	rows := make([]returnsAnomalyRow, 0)
-	for eventID, ordersCount := range ordersByEvent {
-		if ordersCount == 0 {
+	for eventID, ticketsCount := range ticketsByEvent {
+		if ticketsCount == 0 {
 			continue
 		}
 		returnsCount := returnsByEvent[eventID]
-		rate := float64(returnsCount) / float64(ordersCount)
+		rate := float64(returnsCount) / float64(ticketsCount)
 		if rate < threshold {
 			continue
 		}
 		rows = append(rows, returnsAnomalyRow{
 			EventID:      eventID,
 			EventName:    namesByEvent[eventID],
-			OrdersCount:  ordersCount,
+			OrdersCount:  ordersByEvent[eventID],
+			TicketsSold:  ticketsCount,
 			ReturnsCount: returnsCount,
 			ReturnRate:   round4(rate),
 		})

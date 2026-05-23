@@ -34,6 +34,9 @@ var whichIndex = []whichEntry{
 	{Command: "fans optin", Description: "Export opted-in fan contacts filtered by city or country — CSV ready for Mailchimp, no dashboard exports needed.", Group: "Audience intelligence", WhyItMatters: "Use every Monday to build targeted email lists from the previous week's ticket buyers without touching the Dice dashboard."},
 	{Command: "returns anomalies", Description: "Flag events with unusually high refund rates — a pricing or marketing signal that deserves immediate attention.", Group: "Financial intelligence", WhyItMatters: "Use after sales close each week to surface events that may have pricing problems before the show date."},
 	{Command: "fans top", Description: "Rank ticket buyers by total spend for an event or across all events — your VIP list for comps, upgrades, and sponsor decks.", Group: "Audience intelligence", WhyItMatters: "Use before each show to identify high-value fans for VIP treatment, and before sponsor meetings to demonstrate audience quality."},
+	// PATCH(amend-2026-05-23: catalog the ported capacity + tier-performance commands)
+	{Command: "capacity", Description: "Roll up sold vs total capacity and percent remaining across every live event — one cross-event headroom view.", Group: "Financial intelligence", WhyItMatters: "Use weekly to spot events selling out (push announcements) and events lagging (needs promo) without opening each event's dashboard."},
+	{Command: "tier-performance", Description: "Break down redemptions and share-of-sales by price tier — DICE's named pricing lever, the closest analog to a discount code.", Group: "Financial intelligence", WhyItMatters: "Use after an on-sale to see which price tier is carrying sales and whether your tier pricing is working."},
 }
 
 // whichMatch pairs an index entry with its ranking score for a query.
