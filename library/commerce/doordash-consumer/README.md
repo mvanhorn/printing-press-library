@@ -75,19 +75,17 @@ This checks your configuration.
 doordash-consumer-pp-cli doctor --json
 doordash-consumer-pp-cli --help
 
-# Read-only DoorDash flows from the active Hermes wrapper
+# Read-only DoorDash flows from the generated Go CLI
 doordash-consumer-pp-cli search "pizza" --json
-doordash-consumer-pp-cli stores rank "Thai" --limit 5 --json
 doordash-consumer-pp-cli menu --store-id <store-id> --json
-doordash-consumer-pp-cli items search "chicken parmesan" --store-query "italian" --stores 8 --limit 10 --json
 doordash-consumer-pp-cli item-options --store-id <store-id> --item-id <item-id> --json
 doordash-consumer-pp-cli convenience-search --store-id <store-id> "sparkling water" --json
-doordash-consumer-pp-cli orders recent --limit 5 --json
-doordash-consumer-pp-cli addresses list --json
-doordash-consumer-pp-cli payment-methods list --json
+doordash-consumer-pp-cli recent-orders --limit 5 --json
+doordash-consumer-pp-cli addresses --json
+doordash-consumer-pp-cli payment-methods --json
 
 # Checkout preview; never calls createOrderFromCart
-doordash-consumer-pp-cli checkout preview --cart-id <cart-id> --json
+doordash-consumer-pp-cli cart preview --variables '{"orderCartId":"cart_123","includeCompanyPaymentInfo":false,"includeRewardBalanceAvailable":false}' --json
 ```
 
 ## Unique Features
@@ -142,19 +140,14 @@ Run `doordash-consumer-pp-cli --help` for the full command reference and flag li
 ### Curated safe commands
 
 - **`doordash-consumer-pp-cli search <query>`** — read-only store search.
-- **`doordash-consumer-pp-cli stores rank <query> --limit 5`** — read-only store ranking enriched with rating, delivery estimate, and price range.
 - **`doordash-consumer-pp-cli menu --store-id <id>`** — read-only store menu.
-- **`doordash-consumer-pp-cli items search <query> --store-query <query> --stores 8 --limit 10`** — read-only menu-item search across candidate stores, with price sorting and match-kind buckets such as `sub_or_sandwich` and `dinner_or_pasta`.
 - **`doordash-consumer-pp-cli item-options --store-id <id> --item-id <id>`** — read-only option groups.
 - **`doordash-consumer-pp-cli convenience-search --store-id <id> <query>`** — read-only convenience/grocery item search.
-- **`doordash-consumer-pp-cli orders recent --limit 5`** — read-only recent order summary.
-- **`doordash-consumer-pp-cli addresses list`** — read-only saved addresses.
-- **`doordash-consumer-pp-cli payment-methods list`** — read-only payment metadata; never prints full card data.
-- **`doordash-consumer-pp-cli cart show [--store-id <id>]`** — read-only visible-cart check.
-- **`doordash-consumer-pp-cli cart add --store-id <id> --item-name <name> --dry-run`** — guarded cart-add preview; real add requires `--yes` and bricenice17 approval.
-- **`doordash-consumer-pp-cli cart remove --cart-id <id> --item-id <id> --dry-run`** — guarded cart-remove preview; real remove requires `--yes` and bricenice17 approval.
-- **`doordash-consumer-pp-cli checkout preview --cart-id <id>`** — checkout/fee preview; never calls `createOrderFromCart`.
-- **`doordash-consumer-pp-cli order place --cart-id <id> --confirm "PLACE ORDER"`** — live order placement; additionally blocked unless `ALLOW_DOORDASH_ORDERING=1` is set after bricenice17 explicitly approves the exact order.
+- **`doordash-consumer-pp-cli recent-orders --limit 5`** — read-only recent order summary.
+- **`doordash-consumer-pp-cli addresses`** — read-only saved addresses.
+- **`doordash-consumer-pp-cli payment-methods`** — read-only payment metadata; never prints full card data.
+- **`doordash-consumer-pp-cli cart preview --variables '{"orderCartId":"cart_123","includeCompanyPaymentInfo":false,"includeRewardBalanceAvailable":false}'`** — checkout/fee preview; never calls `createOrderFromCart`.
+- **`doordash-consumer-pp-cli cart place --variables '{}' --enable-live-order-placement --owner-approved --confirm "PLACE DOORDASH ORDER"`** — live order placement; disabled unless every explicit safety gate is provided.
 
 ### graphql
 

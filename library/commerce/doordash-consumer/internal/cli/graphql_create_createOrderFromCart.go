@@ -18,6 +18,9 @@ func newGraphqlCreateCreateOrderFromCartCmd(flags *rootFlags) *cobra.Command {
 	var bodyQuery string
 	var bodyVariables string
 	var stdinBody bool
+	var allowLiveOrderPlacement bool
+	var ownerApproved bool
+	var confirmation string
 
 	cmd := &cobra.Command{
 		Use:         "create-create-order-from-cart",
@@ -25,6 +28,10 @@ func newGraphqlCreateCreateOrderFromCartCmd(flags *rootFlags) *cobra.Command {
 		Example:     "  doordash-consumer-pp-cli graphql create-create-order-from-cart --operation-name example-resource",
 		Annotations: map[string]string{"pp:endpoint": "graphql.create_createOrderFromCart", "pp:method": "POST", "pp:path": "/graphql/createOrderFromCart"},
 		RunE: func(cmd *cobra.Command, args []string) error {
+			// PATCH: Apply the same hard live-order gates to the raw GraphQL order-placement endpoint.
+			if err := validateOrderPlacementGate(flags, allowLiveOrderPlacement, ownerApproved, confirmation); err != nil {
+				return err
+			}
 			if !stdinBody {
 				if !cmd.Flags().Changed("variables") && !flags.dryRun {
 					return fmt.Errorf("required flag \"%s\" not set", "variables")
@@ -135,6 +142,9 @@ func newGraphqlCreateCreateOrderFromCartCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyQuery, "query", "queries/createOrderFromCart.graphql", "GraphQL document from upstream queries/createOrderFromCart.graphql.")
 	cmd.Flags().StringVar(&bodyVariables, "variables", "", "GraphQL variables object.")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
+	cmd.Flags().BoolVar(&allowLiveOrderPlacement, "enable-live-order-placement", false, "Required live-order safety gate; does not bypass confirmation")
+	cmd.Flags().BoolVar(&ownerApproved, "owner-approved", false, "Affirm that the account owner explicitly approved this live order")
+	cmd.Flags().StringVar(&confirmation, "confirm", "", fmt.Sprintf("Exact confirmation phrase required for live order placement: %q", orderPlacementConfirmationPhrase))
 
 	return cmd
 }

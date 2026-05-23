@@ -20,7 +20,7 @@ This skill drives the `doordash-consumer-pp-cli` binary. **You must verify the C
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install doordash-consumer --cli-only
+   npx -y @mvanhorn/printing-press-library install doordash-consumer --cli-only
    ```
 2. Verify: `doordash-consumer-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.

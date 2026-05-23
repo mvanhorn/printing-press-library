@@ -94,3 +94,18 @@ func TestBuildGraphQLBody_ResolvesEmbeddedQueryDocument(t *testing.T) {
 		t.Fatalf("query was not resolved to embedded GraphQL document: %.80q", query)
 	}
 }
+
+func TestRawCreateOrderFromCartRequiresLiveOrderGates(t *testing.T) {
+	cmd := newGraphqlCreateCreateOrderFromCartCmd(&rootFlags{})
+	cmd.SetArgs([]string{"--variables", "{}"})
+	err := cmd.Execute()
+	if err == nil {
+		t.Fatal("expected raw createOrderFromCart command to require live-order gates")
+	}
+	msg := err.Error()
+	for _, want := range []string{"--enable-live-order-placement", "--owner-approved", orderPlacementConfirmationPhrase} {
+		if !strings.Contains(msg, want) {
+			t.Fatalf("missing %q in raw gate error: %s", want, msg)
+		}
+	}
+}

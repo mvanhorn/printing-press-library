@@ -191,6 +191,18 @@
         "internal/cli/queries/totalFeeTally.graphql"
       ],
       "validated_outcome": "go test ./... and scoped govulncheck passed before updating PR #773."
+    },
+    {
+      "id": "raw-create-order-live-gate",
+      "summary": "Apply live-order safety gates to the raw createOrderFromCart GraphQL command and update public README examples for the generated command surface.",
+      "reason": "Greptile flagged that cart place was gated but graphql create-create-order-from-cart could still post to the order endpoint directly; the newer Printing Press validator also rejected stale Node-wrapper README command examples.",
+      "files": [
+        "internal/cli/graphql_create_createOrderFromCart.go",
+        "internal/cli/cart_test.go",
+        "internal/cli/auth.go",
+        "README.md"
+      ],
+      "validated_outcome": "go test ./... and Printing Press 4.12 publish validate passed locally before updating PR #773."
     }
   ]
 }

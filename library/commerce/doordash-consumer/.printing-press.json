@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-05-15T17:44:10.550488474Z",
-  "printing_press_version": "4.6.1",
+  "generated_at": "2026-05-23T02:59:26.570609261Z",
+  "printing_press_version": "4.12.0",
   "api_name": "doordash-consumer",
   "display_name": "DoorDash Consumer",
   "cli_name": "doordash-consumer-pp-cli",
@@ -43,7 +43,7 @@
       "description": "Expose cart inspection and mutations as a separately named, guarded command family rather than mixing them into search/menu reads."
     }
   ],
-  "regen_note": "Reprinted with Printing Press 4.6.1 from generated-cli/spec.yaml, merged with DoorDash-specific safe read/cart patches, and release-gated with run_id 20260515-181004.",
+  "regen_note": "Regenerated manifest metadata with Printing Press 4.12.0 from spec.yaml, then retained DoorDash-specific safe read/cart/session patches and release-gated run_id 20260515-181004.",
   "run_id": "20260515-181004",
   "category": "commerce"
 }

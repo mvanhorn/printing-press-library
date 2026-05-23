@@ -82,7 +82,7 @@ func newAuthLoginCmd(flags *rootFlags) *cobra.Command {
 	var userAgent string
 	cmd := &cobra.Command{
 		Use:   "login",
-		Short: "Import a bricenice17-approved DoorDash Cookie header into the local encrypted-by-permissions session file",
+		Short: "Import an account-owner-approved DoorDash Cookie header into the local encrypted-by-permissions session file",
 		Long: `Import a DoorDash browser Cookie header into a 0600 JSON session jar.
 
 Preferred secret-safe use:
