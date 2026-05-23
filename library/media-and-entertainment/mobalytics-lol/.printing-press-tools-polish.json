@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-05-23T10:52:16.619665Z",
+  "cli_dir": "\u003ccli-dir\u003e/mobalytics-lol-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "version",
+      "file": "root.go",
+      "line": 316,
+      "evidence": "Print version",
+      "status": "accepted",
+      "note": "Standard 'version' command; the action is universally understood and any elaboration would be noise"
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-05-23T10:43:46.010565Z"
+  }
+}
