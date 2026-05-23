@@ -38,9 +38,19 @@ func TestParseVideoID(t *testing.T) {
 		{"youtu.be short", "https://youtu.be/dQw4w9WgXcQ", "dQw4w9WgXcQ"},
 		{"embed url", "https://www.youtube.com/embed/dQw4w9WgXcQ", "dQw4w9WgXcQ"},
 		{"shorts url", "https://www.youtube.com/shorts/dQw4w9WgXcQ", "dQw4w9WgXcQ"},
+		{"live url", "https://www.youtube.com/live/dQw4w9WgXcQ", "dQw4w9WgXcQ"},
 		{"bare id", "dQw4w9WgXcQ", "dQw4w9WgXcQ"},
 		{"junk with spaces", "not a video", ""},
 		{"empty", "", ""},
+		// Non-video URLs must return "" so the caller errors clearly rather
+		// than passing a bogus ID to videos.list (Greptile #803).
+		{"channel /c/ url", "https://www.youtube.com/c/SomeChannel", ""},
+		{"channel /channel/ url", "https://www.youtube.com/channel/UCabcdefghijklmnopqrstuv", ""},
+		{"user url", "https://www.youtube.com/user/SomeUser", ""},
+		{"playlist url", "https://www.youtube.com/playlist?list=PLfoo", ""},
+		{"handle url", "https://www.youtube.com/@SomeHandle", ""},
+		{"too-short bare token", "abc", ""},
+		{"too-long bare token", "dQw4w9WgXcQ123", ""},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {

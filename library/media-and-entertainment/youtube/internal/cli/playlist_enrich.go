@@ -42,14 +42,17 @@ type enrichedVideo struct {
 }
 
 type playlistEnrichResponse struct {
-	PlaylistID    string          `json:"playlistId"`
-	PlaylistTitle string          `json:"playlistTitle,omitempty"`
-	TotalItems    int             `json:"totalItems"`
-	StartIndex    int             `json:"startIndex"`
-	Limit         int             `json:"limit"`
-	Returned      int             `json:"returned"`
-	Videos        []enrichedVideo `json:"videos"`
-	Warnings      []string        `json:"warnings,omitempty"`
+	PlaylistID    string `json:"playlistId"`
+	PlaylistTitle string `json:"playlistTitle,omitempty"`
+	// TotalItems is the playlist's full length (playlistItems.list
+	// pageInfo.totalResults), so startIndex+returned < totalItems is a valid
+	// "more pages exist" test even though only the scan window is enriched.
+	TotalItems int             `json:"totalItems"`
+	StartIndex int             `json:"startIndex"`
+	Limit      int             `json:"limit"`
+	Returned   int             `json:"returned"`
+	Videos     []enrichedVideo `json:"videos"`
+	Warnings   []string        `json:"warnings,omitempty"`
 }
 
 func newYoutubePlaylistEnrichCmd(flags *rootFlags) *cobra.Command {
@@ -112,11 +115,17 @@ func newYoutubePlaylistEnrichCmd(flags *rootFlags) *cobra.Command {
 			// walk so a giant playlist doesn't burn quota; we only need enough
 			// items to cover startIndex+limit.
 			needed := startIndex + limit
-			ordered, walkWarns, err := walkPlaylistItems(c, playlistID, needed, flags)
+			ordered, totalItems, walkWarns, err := walkPlaylistItems(c, playlistID, needed, flags)
 			if err != nil {
 				return err
 			}
-			out.TotalItems = len(ordered)
+			// totalItems is the playlist's true length (playlistItems.list
+			// pageInfo.totalResults), not the count we scanned. Fall back to
+			// the scanned count if the API omitted/under-reported it.
+			if totalItems < len(ordered) {
+				totalItems = len(ordered)
+			}
+			out.TotalItems = totalItems
 			out.Warnings = append(out.Warnings, walkWarns...)
 
 			// 3. Apply start-index / limit window over the resolved IDs.
@@ -268,8 +277,12 @@ func parsePlaylistID(in string) string {
 // walkPlaylistItems pages playlistItems.list until it has at least `needed`
 // video IDs or the playlist ends. maxPages caps quota use; under verify env we
 // cap hard so the verifier's per-command timeout isn't tripped.
-func walkPlaylistItems(c apiGetter, playlistID string, needed int, flags *rootFlags) ([]playlistEntry, []string, error) {
+// walkPlaylistItems returns the ordered entries scanned (capped at needed/500),
+// the playlist's true total length (from pageInfo.totalResults on the first
+// page), and any warnings.
+func walkPlaylistItems(c apiGetter, playlistID string, needed int, flags *rootFlags) ([]playlistEntry, int, []string, error) {
 	var warnings []string
+	var total int
 	maxPages := (needed + 49) / 50
 	if maxPages < 1 {
 		maxPages = 1
@@ -296,14 +309,17 @@ func walkPlaylistItems(c apiGetter, playlistID string, needed int, flags *rootFl
 		data, err := c.GetWithHeaders("/youtube/v3/playlistItems", params, nil)
 		if err != nil {
 			if page == 0 {
-				return nil, warnings, classifyAPIError(err, flags)
+				return nil, 0, warnings, classifyAPIError(err, flags)
 			}
 			warnings = append(warnings, fmt.Sprintf("playlist page %d fetch failed: %v", page+1, err))
 			break
 		}
 		var resp struct {
 			NextPageToken string `json:"nextPageToken"`
-			Items         []struct {
+			PageInfo      struct {
+				TotalResults int `json:"totalResults"`
+			} `json:"pageInfo"`
+			Items []struct {
 				Snippet struct {
 					Title      string `json:"title"`
 					Position   int    `json:"position"`
@@ -314,7 +330,10 @@ func walkPlaylistItems(c apiGetter, playlistID string, needed int, flags *rootFl
 			} `json:"items"`
 		}
 		if err := json.Unmarshal(data, &resp); err != nil {
-			return nil, warnings, apiErr(fmt.Errorf("parse playlistItems page %d: %w", page+1, err))
+			return nil, 0, warnings, apiErr(fmt.Errorf("parse playlistItems page %d: %w", page+1, err))
+		}
+		if page == 0 {
+			total = resp.PageInfo.TotalResults
 		}
 		for _, it := range resp.Items {
 			vid := it.Snippet.ResourceID.VideoID
@@ -333,9 +352,9 @@ func walkPlaylistItems(c apiGetter, playlistID string, needed int, flags *rootFl
 		pageToken = resp.NextPageToken
 	}
 	if len(ordered) == 0 {
-		return nil, warnings, notFoundErr(fmt.Errorf("playlist %q returned no items (private, empty, or invalid ID)", playlistID))
+		return nil, 0, warnings, notFoundErr(fmt.Errorf("playlist %q returned no items (private, empty, or invalid ID)", playlistID))
 	}
-	return ordered, warnings, nil
+	return ordered, total, warnings, nil
 }
 
 // fetchPlaylistTitle resolves the playlist's display title via playlists.list.

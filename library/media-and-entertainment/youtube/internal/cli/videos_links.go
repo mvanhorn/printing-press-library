@@ -47,6 +47,11 @@ type videoLinksResponse struct {
 // trimmed after the match so a URL ending a sentence doesn't keep its period.
 var urlRegex = regexp.MustCompile(`https?://[^\s<>"')\]]+`)
 
+// videoIDRe matches a bare YouTube video ID: exactly 11 chars from the
+// URL-safe base64 alphabet. Used to reject channel/playlist/user URLs whose
+// final path segment is not a video ID.
+var videoIDRe = regexp.MustCompile(`^[A-Za-z0-9_-]{11}$`)
+
 // knownShorteners are hosts whose links we expand to a final URL when
 // --resolve is on. Match is on exact host (case-insensitive, www-stripped).
 var knownShorteners = map[string]bool{
@@ -196,11 +201,14 @@ func isNoisyHost(host string) bool {
 }
 
 // resolveRedirect follows redirects for a short link and returns the final
-// URL. Uses a bounded timeout so a dead shortener can't hang the command.
+// URL. The 8s context (shared across the HEAD+GET fallback) is the sole bound,
+// so a dead shortener can't hang the command.
 func resolveRedirect(ctx context.Context, rawURL string) (string, error) {
 	rctx, cancel := context.WithTimeout(ctx, 8*time.Second)
 	defer cancel()
-	client := &http.Client{Timeout: 8 * time.Second}
+	// No http.Client.Timeout: both requests run under rctx via
+	// NewRequestWithContext, so a per-client timeout would be dead code.
+	client := &http.Client{}
 	// HEAD first (cheap); some shorteners only redirect on GET, so fall back.
 	for _, method := range []string{http.MethodHead, http.MethodGet} {
 		req, err := http.NewRequestWithContext(rctx, method, rawURL, nil)
@@ -254,30 +262,42 @@ func fetchVideoSnippet(ctx context.Context, flags *rootFlags, videoID string) (t
 		html.UnescapeString(resp.Items[0].Snippet.Description), nil
 }
 
-// parseVideoID extracts a video ID from a watch/short/embed URL, or returns the
-// input when it already looks like a bare 11-char video ID.
+// parseVideoID extracts an 11-char video ID from a watch/shorts/embed/live URL
+// or a bare ID. It deliberately returns "" for channel, playlist, and user URLs
+// (e.g. /c/Name, /channel/UC…, /user/Name, /playlist?list=…) rather than
+// guessing a non-video path segment, so the caller can report a clear
+// "could not extract a video ID" error instead of a confusing "video X not
+// found" after a wasted videos.list call.
 func parseVideoID(in string) string {
 	if in == "" {
 		return ""
 	}
 	if strings.Contains(in, "://") {
-		if u, err := url.Parse(in); err == nil {
-			if v := u.Query().Get("v"); v != "" {
-				return v
-			}
-			// youtu.be/<id> or /embed/<id> or /shorts/<id>
-			parts := strings.Split(strings.Trim(u.Path, "/"), "/")
-			if len(parts) > 0 {
-				last := parts[len(parts)-1]
-				if last != "" {
-					return last
-				}
+		u, err := url.Parse(in)
+		if err != nil {
+			return ""
+		}
+		if v := u.Query().Get("v"); videoIDRe.MatchString(v) {
+			return v
+		}
+		// Only known video-bearing shapes carry an ID in the path:
+		// youtu.be/<id>, /embed/<id>, /shorts/<id>, /live/<id>.
+		parts := strings.Split(strings.Trim(u.Path, "/"), "/")
+		if len(parts) > 0 {
+			last := parts[len(parts)-1]
+			fromShortHost := strings.EqualFold(u.Hostname(), "youtu.be")
+			fromVideoPath := len(parts) >= 2 &&
+				(parts[len(parts)-2] == "embed" ||
+					parts[len(parts)-2] == "shorts" ||
+					parts[len(parts)-2] == "live")
+			if (fromShortHost || fromVideoPath) && videoIDRe.MatchString(last) {
+				return last
 			}
 		}
 		return ""
 	}
-	// Bare ID: no scheme, no spaces.
-	if !strings.ContainsAny(in, " \t/?&") {
+	// Bare ID.
+	if videoIDRe.MatchString(in) {
 		return in
 	}
 	return ""
