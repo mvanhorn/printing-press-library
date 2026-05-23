@@ -85,6 +85,20 @@
       ],
       "patch_count": 12,
       "validated_outcome": "go build ./..., go vet ./... clean. New `client/sapisidhash_test.go` passes against canonical SHA1 reference value. `crawl-stats by-type ... --dry-run --json` prints the constructed batchexecute payload matching the discovery-report shape byte-for-byte (file_type=css yields filter code 5 at envelope index 8). `auth status --json` reports the new `crawl_stats_cookie_jar` + `crawl_stats_cookie_jar_status` fields. `cli-printing-press publish validate` PASSES every check except (a) `verify-skill` SKILL.md install-section drift, which is pre-existing on main (verified by re-running the same check on a clean main checkout \u2014 fails identically). Live testing is deferred to post-merge since it requires the user's authenticated Google session cookies. Follow-up PR review sweep: `go test ./internal/store` passes for latest-row crawl-stats union regression; `gofmt` and `git diff --check` pass."
+    },
+    {
+      "id": "crawl-stats-sample-metadata",
+      "date": "2026-05-22",
+      "summary": "Best-effort decode Crawl Stats sample metadata from the private GSC UI payload.",
+      "reason": "The crawl-stats client previously emitted only URLs, leaving fetched_at, response_code, size_bytes, and response_ms at zero in persisted union output.",
+      "files": [
+        "internal/client/crawlstats.go",
+        "internal/client/crawlstats_test.go"
+      ],
+      "findings_addressed": [
+        "Greptile-P1-extract-samples-metadata"
+      ],
+      "validated_outcome": "gofmt; git diff --check; go test ./internal/client; go test ./internal/store; go test ./..."
     }
   ]
 }

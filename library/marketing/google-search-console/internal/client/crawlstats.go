@@ -56,9 +56,9 @@ const (
 
 // rpcDef is one rpc entry in the outer batchexecute payload.
 type rpcDef struct {
-	rpcID     string
+	rpcID      string
 	reportKind int
-	index     string // string-encoded request index
+	index      string // string-encoded request index
 }
 
 // canonicalRPCSet is the three-rpc set Crawl Stats fires for each drill-down
@@ -82,25 +82,25 @@ const (
 
 // CrawlStatsRequest carries the inputs for a single batchexecute call.
 type CrawlStatsRequest struct {
-	Property    string    // e.g. "sc-domain:example.com"
-	Dimension   Dimension // empty for the no-drill-down overview
-	FilterCode  int       // integer code from the discovery report (file_type 1-9, etc.)
-	XSRFToken   string    // `at=` body field — extracted from GSC HTML on first call
-	BuildLabel  string    // bl= query param; empty uses defaultBuildLabel
-	SessionID   string    // f.sid= query param; empty omits
-	RequestSeq  int       // _reqid= query param; monotonic counter; 0 -> use 1
+	Property   string    // e.g. "sc-domain:example.com"
+	Dimension  Dimension // empty for the no-drill-down overview
+	FilterCode int       // integer code from the discovery report (file_type 1-9, etc.)
+	XSRFToken  string    // `at=` body field — extracted from GSC HTML on first call
+	BuildLabel string    // bl= query param; empty uses defaultBuildLabel
+	SessionID  string    // f.sid= query param; empty omits
+	RequestSeq int       // _reqid= query param; monotonic counter; 0 -> use 1
 }
 
 // CrawlStatsResponse is the decoded payload from one canonical-three-rpc set.
 type CrawlStatsResponse struct {
-	Property      string                  `json:"property"`
-	Dimension     Dimension               `json:"filter_dimension,omitempty"`
-	FilterCode    int                     `json:"filter_code,omitempty"`
-	CapturedAt    time.Time               `json:"captured_at"`
-	Totals        *CrawlStatsTotals       `json:"totals,omitempty"`
-	TimeSeries    []CrawlStatsTimePoint   `json:"time_series,omitempty"`
-	Samples       []CrawlStatsSample      `json:"samples,omitempty"`
-	RawResponses  map[string]json.RawMessage `json:"raw,omitempty"` // present only when --raw set
+	Property     string                     `json:"property"`
+	Dimension    Dimension                  `json:"filter_dimension,omitempty"`
+	FilterCode   int                        `json:"filter_code,omitempty"`
+	CapturedAt   time.Time                  `json:"captured_at"`
+	Totals       *CrawlStatsTotals          `json:"totals,omitempty"`
+	TimeSeries   []CrawlStatsTimePoint      `json:"time_series,omitempty"`
+	Samples      []CrawlStatsSample         `json:"samples,omitempty"`
+	RawResponses map[string]json.RawMessage `json:"raw,omitempty"` // present only when --raw set
 }
 
 // CrawlStatsTotals are the aggregate stats (rpcid czrWJf, report_kind 35).
@@ -455,10 +455,68 @@ func extractSamples(payload json.RawMessage) []CrawlStatsSample {
 		}
 		var rawURL string
 		if err := json.Unmarshal(inner[0], &rawURL); err == nil && rawURL != "" {
-			out = append(out, CrawlStatsSample{URL: rawURL})
+			// PATCH(crawl-stats): preserve metadata from the sparse GSC sample array.
+			// The private UI payload has shifted field positions across captures, so keep
+			// URL decoding strict while best-effort extracting the remaining scalar values.
+			out = append(out, crawlStatsSampleFromInner(rawURL, inner[1:]))
 		}
 	}
 	return out
+}
+
+func crawlStatsSampleFromInner(rawURL string, fields []json.RawMessage) CrawlStatsSample {
+	sample := CrawlStatsSample{URL: rawURL}
+	for _, field := range fields {
+		if sample.FetchedAt.IsZero() {
+			if t, ok := crawlStatsTime(field); ok {
+				sample.FetchedAt = t
+				continue
+			}
+		}
+
+		if n, ok := crawlStatsInt64(field); ok {
+			switch {
+			case sample.ResponseCode == 0 && n >= 100 && n <= 599:
+				sample.ResponseCode = int(n)
+			case sample.SizeBytes == 0 && n > 0:
+				sample.SizeBytes = n
+			case sample.ResponseMs == 0 && n > 0 && n <= 600000:
+				sample.ResponseMs = int(n)
+			}
+		}
+	}
+	return sample
+}
+
+func crawlStatsInt64(raw json.RawMessage) (int64, bool) {
+	var n int64
+	if err := json.Unmarshal(raw, &n); err == nil {
+		return n, true
+	}
+	var f float64
+	if err := json.Unmarshal(raw, &f); err == nil {
+		return int64(f), true
+	}
+	return 0, false
+}
+
+func crawlStatsTime(raw json.RawMessage) (time.Time, bool) {
+	var s string
+	if err := json.Unmarshal(raw, &s); err == nil && s != "" {
+		for _, layout := range []string{time.RFC3339Nano, time.RFC3339, "2006-01-02 15:04:05"} {
+			if t, err := time.Parse(layout, s); err == nil {
+				return t.UTC(), true
+			}
+		}
+	}
+	if n, ok := crawlStatsInt64(raw); ok {
+		// Treat large UI timestamps as milliseconds since epoch; smaller values are
+		// left for response-code/size/latency extraction.
+		if n > 946684800000 {
+			return time.UnixMilli(n).UTC(), true
+		}
+	}
+	return time.Time{}, false
 }
 
 // extractTimeSeries walks the OLiH4d payload. The series is a list of
