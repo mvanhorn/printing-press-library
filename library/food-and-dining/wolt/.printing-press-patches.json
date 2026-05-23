@@ -15,6 +15,12 @@
       "summary": "url.PathEscape the slug and url.QueryEscape the delivery method when building the per-venue dynamic URL in venues-compare.",
       "reason": "menu.go already escapes the slug; venues_compare.go was missing the same call. A slug containing %, +, or other URL-special characters would produce a malformed request URL.",
       "files": ["internal/cli/venues_compare.go"]
+    },
+    {
+      "id": "venues-now-max-eta-strict",
+      "summary": "venues-now's --max-eta filter now excludes venues with unknown ETA (EstimateMin == 0).",
+      "reason": "The original guard 'row.EstimateMin > 0 && row.EstimateMin > maxETA' short-circuited for unknown-ETA venues, silently including them even when the user asked for fast delivery. The command's --help promises 'deliver within --max-eta minutes', so unknown-ETA venues cannot satisfy the contract.",
+      "files": ["internal/cli/venues_now.go"]
     }
   ],
   "deferred_to_upstream": [

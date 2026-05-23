@@ -98,7 +98,11 @@ func newVenuesNowCmd(flags *rootFlags) *cobra.Command {
 					if !includeClosed && !row.Online {
 						continue
 					}
-					if maxETA > 0 && row.EstimateMin > 0 && row.EstimateMin > maxETA {
+					// PATCH(venues-now-max-eta-strict): when --max-eta is set, venues
+					// with unknown ETA (EstimateMin == 0) cannot satisfy the
+					// "deliver within N minutes" contract and must be excluded too.
+					// Previously they were silently included.
+					if maxETA > 0 && (row.EstimateMin <= 0 || row.EstimateMin > maxETA) {
 						continue
 					}
 					if len(cuisines) > 0 && !tagMatchWNow(row.Tags, cuisines) {
