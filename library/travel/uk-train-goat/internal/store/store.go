@@ -839,31 +839,36 @@ func (s *Store) ResolveByName(resourceType string, input string, matchFields ...
 		if !safeIdentPattern.MatchString(field) {
 			continue
 		}
-		query := fmt.Sprintf(
-			`SELECT id FROM resources WHERE resource_type = ? AND LOWER(json_extract(data, '$.%s')) = LOWER(?)`,
-			field,
-		)
-		rows, err := s.db.Query(query, resourceType, input)
-		if err != nil {
-			continue
-		}
-		for rows.Next() {
-			var id string
-			if rows.Scan(&id) == nil {
-				// Deduplicate
-				found := false
-				for _, m := range matches {
-					if m == id {
-						found = true
-						break
+		// PATCH(upstream cli-printing-press#1249): scope rows.Close to each
+		// iteration via an IIFE so any future early return (or panic-recover
+		// in callers) inside the scan loop cannot leak the *sql.Rows handle.
+		func() {
+			query := fmt.Sprintf(
+				`SELECT id FROM resources WHERE resource_type = ? AND LOWER(json_extract(data, '$.%s')) = LOWER(?)`,
+				field,
+			)
+			rows, err := s.db.Query(query, resourceType, input)
+			if err != nil {
+				return
+			}
+			defer rows.Close()
+			for rows.Next() {
+				var id string
+				if rows.Scan(&id) == nil {
+					// Deduplicate
+					found := false
+					for _, m := range matches {
+						if m == id {
+							found = true
+							break
+						}
+					}
+					if !found {
+						matches = append(matches, id)
 					}
 				}
-				if !found {
-					matches = append(matches, id)
-				}
 			}
-		}
-		rows.Close()
+		}()
 	}
 
 	switch len(matches) {
