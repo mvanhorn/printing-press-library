@@ -18,9 +18,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/dice-fm/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/dice-fm/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/dice-fm/internal/store"
+	"dice-fm-pp-cli/internal/client"
+	"dice-fm-pp-cli/internal/cliutil"
+	"dice-fm-pp-cli/internal/store"
 	"github.com/spf13/cobra"
 )
 
@@ -273,13 +273,18 @@ func syncResource(ctx context.Context, c *client.Client, db *store.Store, resour
 	if err != nil {
 		if w, ok := isSyncAccessWarning(err); ok {
 			if !humanFriendly {
-				fmt.Fprintf(os.Stderr, `{"event":"sync_warning","resource":"%s","status":%d,"reason":"%s","message":"%s"}`+"\n",
-					resource, w.Status, w.Reason, strings.ReplaceAll(w.Message, `"`, `\"`))
+				// json.Marshal escapes backslashes, newlines, and control bytes
+				// that raw API bodies carry; a bare quote-only replace would
+				// emit invalid JSON and break `sync --json 2>&1 | jq`.
+				msgJSON, _ := json.Marshal(w.Message)
+				fmt.Fprintf(os.Stderr, `{"event":"sync_warning","resource":"%s","status":%d,"reason":"%s","message":%s}`+"\n",
+					resource, w.Status, w.Reason, msgJSON)
 			}
 			return syncResult{Resource: resource, Warn: fmt.Errorf("skipped %s: %s", resource, w.Reason), Duration: time.Since(started)}
 		}
 		if !humanFriendly {
-			fmt.Fprintf(os.Stderr, `{"event":"sync_error","resource":"%s","error":"%s"}`+"\n", resource, strings.ReplaceAll(err.Error(), `"`, `\"`))
+			errJSON, _ := json.Marshal(err.Error())
+			fmt.Fprintf(os.Stderr, `{"event":"sync_error","resource":"%s","error":%s}`+"\n", resource, errJSON)
 		}
 		return syncResult{Resource: resource, Err: fmt.Errorf("fetching %s: %w", resource, err), Duration: time.Since(started)}
 	}

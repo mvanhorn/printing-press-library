@@ -16,7 +16,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/dice-fm/internal/client"
+	"dice-fm-pp-cli/internal/client"
 )
 
 // GraphQL field selections per entity, derived from the SpectaQL schema at
@@ -130,12 +130,36 @@ func diceQuery(ctx context.Context, c *client.Client, query string, variables ma
 	}
 	if len(resp.Errors) > 0 {
 		msgs := make([]string, len(resp.Errors))
+		codes := make([]string, 0, len(resp.Errors))
+		allDenial := true
 		for i, e := range resp.Errors {
 			msgs[i] = e.Message
+			if e.Extensions.Code != "" {
+				codes = append(codes, e.Extensions.Code)
+			}
+			if !isGraphQLAccessDenialCode(e.Extensions.Code) {
+				allDenial = false
+			}
+		}
+		// When every error is an access-denial code, surface the typed error so
+		// sync's isSyncAccessWarning can warn-and-skip the resource instead of
+		// hard-failing the whole run (matches the generated client.Query path).
+		if allDenial && len(codes) > 0 {
+			return nil, &client.GraphQLAccessDeniedError{Codes: codes, Messages: msgs}
 		}
 		return nil, fmt.Errorf("graphql: %s", strings.Join(msgs, "; "))
 	}
 	return resp.Data, nil
+}
+
+// isGraphQLAccessDenialCode reports whether a GraphQL extension code denotes
+// access denial (mirrors the unexported helper in the generated client).
+func isGraphQLAccessDenialCode(code string) bool {
+	switch strings.ToUpper(code) {
+	case "FORBIDDEN", "UNAUTHENTICATED", "UNAUTHORIZED", "PERMISSION_DENIED":
+		return true
+	}
+	return false
 }
 
 // isVerifySynthetic reports whether raw is the verify-mode synthetic noop
