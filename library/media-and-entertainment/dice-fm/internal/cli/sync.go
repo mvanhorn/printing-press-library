@@ -18,9 +18,9 @@ import (
 	"sync"
 	"time"
 
-	"dice-fm-pp-cli/internal/client"
-	"dice-fm-pp-cli/internal/cliutil"
-	"dice-fm-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/dice-fm/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/dice-fm/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/dice-fm/internal/store"
 	"github.com/spf13/cobra"
 )
 

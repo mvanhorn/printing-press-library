@@ -16,7 +16,7 @@ import (
 	"fmt"
 	"strings"
 
-	"dice-fm-pp-cli/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/dice-fm/internal/client"
 )
 
 // GraphQL field selections per entity, derived from the SpectaQL schema at
