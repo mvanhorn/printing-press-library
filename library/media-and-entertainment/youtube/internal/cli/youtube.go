@@ -28,5 +28,7 @@ func newYoutubeCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newYoutubeVideosRelatedCmd(flags))
 	cmd.AddCommand(newYoutubeVideosCommentsCmd(flags))
 	cmd.AddCommand(newYoutubeChannelUploadsCmd(flags))
+	cmd.AddCommand(newYoutubePlaylistEnrichCmd(flags))
+	cmd.AddCommand(newYoutubeVideosLinksCmd(flags))
 	return cmd
 }
