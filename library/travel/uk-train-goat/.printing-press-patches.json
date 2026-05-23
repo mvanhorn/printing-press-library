@@ -13,7 +13,7 @@
     },
     {
       "files": ["internal/store/store.go"],
-      "summary": "SQL injection guard: reject non-safe-ident resource and JSON-field names before splicing into ListIDs and ResolveByName; ResolveByName per-iteration query wrapped in an IIFE so rows.Close is deferred per field and cannot leak on a future early return",
+      "summary": "SQL injection guard: reject non-safe-ident resource and JSON-field names before splicing into ListIDs and ResolveByName; ResolveByName per-iteration query wrapped in an IIFE so rows.Close is deferred per field",
       "upstream": "cli-printing-press#1249"
     },
     {

@@ -862,6 +862,7 @@ func (s *Store) ResolveByName(resourceType string, input string, matchFields ...
 					matches = append(matches, id)
 				}
 			}
+			_ = rows.Err()
 		}()
 	}
 
