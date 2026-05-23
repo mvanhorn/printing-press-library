@@ -45,7 +45,7 @@ brews:
       owner: nikica-jokic
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Jira Cloud Platform REST API documentation"
+    description: "Call Jira Cloud Platform REST endpoints for issues, projects, users, workflows, permissions, and other Atlassian work-management data."
     install: |
       bin.install "jira-pp-cli"
       bin.install "jira-pp-mcp"

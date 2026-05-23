@@ -25,7 +25,7 @@ This skill drives the `openipa-pp-cli` binary. **You must verify the CLI is inst
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install openipa --cli-only
+   npx -y @mvanhorn/printing-press-library install openipa --cli-only
    ```
 2. Verify: `openipa-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -37,8 +37,6 @@ go install github.com/mvanhorn/printing-press-library/library/developer-tools/op
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-openipa porta sul terminale le 22 API web service di IPA che gli sviluppatori usano copia-incollando curl. Con un singolo comando `openipa cf <CF>` ottieni uffici FE, nodi NSO e domicilio digitale in parallelo — tre roundtrip in uno.
 
 ## Perché openipa?
 

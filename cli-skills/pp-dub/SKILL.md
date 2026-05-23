@@ -29,7 +29,7 @@ This skill drives the `dub-pp-cli` binary. **You must verify the CLI is installe
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install dub --cli-only
+   npx -y @mvanhorn/printing-press-library install dub --cli-only
    ```
 2. Verify: `dub-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.

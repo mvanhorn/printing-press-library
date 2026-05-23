@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-20T11:11:44.397648Z",
+  "printing_press_version": "4.9.0",
+  "api_name": "obsidian",
+  "display_name": "Obsidian",
+  "cli_name": "obsidian-pp-cli",
+  "owner": "drdriftwood",
+  "owner_name": "LARGE FORMAT",
+  "printer": "DrDriftwood",
+  "printer_name": "Angelo Pullen",
+  "spec_path": "obsidian-openapi.yaml",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:fcdc101efec9f141b281bd0bacf788dff99bcef473f13811ef516b7d2dfbf89a",
+  "run_id": "20260520-111144",
+  "catalog_entry": "obsidian",
+  "category": "productivity",
+  "description": "Note-taking knowledge base reached through the official Obsidian CLI shipped in the desktop app (v1.12+). Vault is local; no public network API.",
+  "mcp_binary": "obsidian-pp-mcp",
+  "mcp_tool_count": 13,
+  "mcp_public_tool_count": 13,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Vault health score",
+      "command": "health",
+      "description": "Composite 0-100 vault-health score combining connectivity (1 - orphan ratio), freshness (1 - share of notes >N days old), integrity (1 - broken-wikilink ratio), and consistency (1 - frontmatter-drift ratio). --explain prints the formula and raw inputs."
+    },
+    {
+      "name": "Broken wikilinks with source context",
+      "command": "broken",
+      "description": "Unresolved wikilinks joined against the local mirror so each missing target carries the path and title of the note that pointed at it — answers 'where is the broken link' not just 'what is broken'."
+    },
+    {
+      "name": "Raw SQL on the vault mirror",
+      "command": "vault-sql",
+      "description": "Run arbitrary SELECT/WITH queries against the local obsidian SQLite mirror (notes, obsidian_tags, obsidian_links, frontmatter_kv, vault_sync_state). Read-only by driver mode plus a query-shape gate."
+    },
+    {
+      "name": "Mirror-ranked orphans",
+      "command": "orphans",
+      "description": "Vault notes with no incoming wikilinks, ranked by modification age with title, mtime, and word count for triage. Falls back to the live `obsidian orphans` subcommand when the mirror is empty."
+    },
+    {
+      "name": "Stale notes still being linked",
+      "command": "stale",
+      "description": "Notes whose modified_at is older than N days AND have at least one incoming wikilink — the incoming-link gate flags 'outdated reference' candidates distinct from plain orphans. --include-orphans relaxes the gate."
+    },
+    {
+      "name": "Mirror coverage report",
+      "command": "load",
+      "description": "Quick vault-mirror inventory (note count, distinct tag count, link counts by type, last sync time). The thin alternative to `health` for a fast 'how full is the mirror' answer before running Tier-3 analytics."
+    }
+  ]
+}

@@ -45,7 +45,7 @@ brews:
       owner: salmonumbrella
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Every Mariana Tek booking feature, plus multi-tenant search, cancellation watching, and an offline class catalog no..."
+    description: "Search Mariana Tek studio schedules, book classes, watch cancellations, and sync reservations into an offline class catalog."
     install: |
       bin.install "marianatek-pp-cli"
       bin.install "marianatek-pp-mcp"

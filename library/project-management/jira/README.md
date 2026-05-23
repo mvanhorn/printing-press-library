@@ -9,26 +9,26 @@ Learn more at [Jira Cloud Platform](http://www.atlassian.com).
 The recommended path installs both the `jira-pp-cli` binary and the `pp-jira` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install jira
+npx -y @mvanhorn/printing-press-library install jira
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install jira --cli-only
+npx -y @mvanhorn/printing-press-library install jira --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install jira --skill-only
+npx -y @mvanhorn/printing-press-library install jira --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install jira --agent claude-code
-npx -y @mvanhorn/printing-press install jira --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install jira --agent claude-code
+npx -y @mvanhorn/printing-press-library install jira --agent claude-code --agent codex
 ```
 
 ### Without Node (Go fallback)

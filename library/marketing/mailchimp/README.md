@@ -13,31 +13,37 @@ Printed by [@tmchow](https://github.com/tmchow) (Trevin Chow).
 The recommended path installs both the `mailchimp-pp-cli` binary and the `pp-mailchimp` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install mailchimp
+npx -y @mvanhorn/printing-press-library install mailchimp
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install mailchimp --cli-only
+npx -y @mvanhorn/printing-press-library install mailchimp --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install mailchimp --skill-only
+npx -y @mvanhorn/printing-press-library install mailchimp --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install mailchimp --agent claude-code
-npx -y @mvanhorn/printing-press install mailchimp --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install mailchimp --agent claude-code
+npx -y @mvanhorn/printing-press-library install mailchimp --agent claude-code --agent codex
 ```
 
-### Without Node
+### Without Node (Go fallback)
 
-The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/marketing/mailchimp/cmd/mailchimp-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
 
 ### Pre-built binary
 
@@ -113,22 +119,17 @@ Mailchimp encodes the datacenter in the API key suffix. The key 'abc...xyz-us6' 
 # datacenter encoded in the suffix; the CLI parses it
 export MAILCHIMP_API_KEY=your-key-us6
 
-
 # verify auth, dc routing, and API reach
 mailchimp-pp-cli doctor
-
 
 # pull a local copy so search and sql work offline
 mailchimp-pp-cli sync --resources lists,members,campaigns,reports
 
-
 # one-shot upsert with tags, no MD5 dance
 mailchimp-pp-cli subscribe alice@example.com --list LIST_ID --tags vip,newsletter
 
-
 # the four-endpoint join the dashboard buries
 mailchimp-pp-cli digest CAMPAIGN_ID --json --select campaign_id,open_rate,click_rate,top_links
-
 
 # offline FTS over synced audiences, members, campaigns
 mailchimp-pp-cli search 'newsletter' --json
@@ -493,7 +494,6 @@ Manage verified domains
 - **`mailchimp-pp-cli verified-domains delete`** - Delete a verified domain from the account.
 - **`mailchimp-pp-cli verified-domains get`** - Get all of the sending domains on the account.
 - **`mailchimp-pp-cli verified-domains get-verifieddomains`** - Get the details for a single domain on the account.
-
 
 ## Output Formats
 

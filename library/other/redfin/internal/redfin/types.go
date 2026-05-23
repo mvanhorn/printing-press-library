@@ -9,28 +9,33 @@ package redfin
 // from those populated by the home/details/* endpoints; see ParseSearchResponse
 // and ParseListingDetail for the per-source contracts.
 type Listing struct {
-	URL          string              `json:"url"`
-	PropertyID   int64               `json:"property_id"`
-	ListingID    int64               `json:"listing_id,omitempty"`
-	MLS          string              `json:"mls,omitempty"`
-	Status       string              `json:"status,omitempty"`
-	Address      Address             `json:"address"`
-	Price        int                 `json:"price,omitempty"`
-	Beds         float64             `json:"beds,omitempty"`
-	Baths        float64             `json:"baths,omitempty"`
-	Sqft         int                 `json:"sqft,omitempty"`
-	LotSize      int                 `json:"lot_size,omitempty"`
-	YearBuilt    int                 `json:"year_built,omitempty"`
-	PropertyType string              `json:"property_type,omitempty"`
-	HOA          int                 `json:"hoa,omitempty"`
-	DOM          int                 `json:"dom,omitempty"`
-	ListedAt     string              `json:"listed_at,omitempty"`
-	SoldAt       string              `json:"sold_at,omitempty"`
-	Estimate     int                 `json:"estimate,omitempty"`
-	Photos       []string            `json:"photos,omitempty"`
-	PriceHistory []PriceHistoryEvent `json:"price_history,omitempty"`
-	Schools      []School            `json:"schools,omitempty"`
-	SearchSlug   string              `json:"search_slug,omitempty"`
+	URL          string  `json:"url"`
+	PropertyID   int64   `json:"property_id"`
+	ListingID    int64   `json:"listing_id,omitempty"`
+	MLS          string  `json:"mls,omitempty"`
+	Status       string  `json:"status,omitempty"`
+	Address      Address `json:"address"`
+	Price        int     `json:"price,omitempty"`
+	Beds         float64 `json:"beds,omitempty"`
+	Baths        float64 `json:"baths,omitempty"`
+	Sqft         int     `json:"sqft,omitempty"`
+	LotSize      int     `json:"lot_size,omitempty"`
+	YearBuilt    int     `json:"year_built,omitempty"`
+	PropertyType string  `json:"property_type,omitempty"`
+	// UIPropertyType is Stingray's `uiPropertyType` field. The --type flag
+	// sends these numeric codes as `uipt` (house=1, condo=2, townhouse=3,
+	// multi=4, manufactured=5, land=6), but Redfin responses are the source of
+	// truth for filtering because Stingray may still return other codes.
+	UIPropertyType int                 `json:"ui_property_type,omitempty"`
+	HOA            int                 `json:"hoa,omitempty"`
+	DOM            int                 `json:"dom,omitempty"`
+	ListedAt       string              `json:"listed_at,omitempty"`
+	SoldAt         string              `json:"sold_at,omitempty"`
+	Estimate       int                 `json:"estimate,omitempty"`
+	Photos         []string            `json:"photos,omitempty"`
+	PriceHistory   []PriceHistoryEvent `json:"price_history,omitempty"`
+	Schools        []School            `json:"schools,omitempty"`
+	SearchSlug     string              `json:"search_slug,omitempty"`
 }
 
 // Address is the structured location for a Listing. Latitude/Longitude are

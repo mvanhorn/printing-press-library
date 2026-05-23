@@ -45,7 +45,7 @@ brews:
       owner: gregvanhorn
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Printing Press CLI for Whoop."
+    description: "Fetch WHOOP recovery, strain, sleep, workout, cycle, profile, and body-measurement data with OAuth-backed API access."
     install: |
       bin.install "whoop-pp-cli"
       bin.install "whoop-pp-mcp"

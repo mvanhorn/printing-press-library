@@ -73,6 +73,19 @@
       ],
       "validated_outcome": "Live smoke against digg.com at PR time: 'rankings emerging' returns 10 entries (Inspired Cognition, Evolving Programs, Shadow Robot, Tavus, etc.); 'rankings movers --direction up' returns 10 gainers (rank 76 aclanthology, rank 4 GoogleAI...); 'rankings list --limit 3' returns OpenAI(#1), GoogleDeepMind(#2), AnthropicAI(#3); 'github stars --min-starrers 2' narrows 114 unfiltered rows to 6 with distinct_starrers >= 2.",
       "scope_note": "Rankings leaf commands intentionally OMIT the pp:endpoint annotation. The MCP cobratree walker treats pp:endpoint-tagged commands as 'covered by a typed MCP tool' and skips registering a shell-out tool; until a typed rankings tool ships, the rankings commands need shell-out MCP exposure. The existing github stars/new/activity/recent commands have the same annotation/MCP-skip behavior as a known issue, not as precedent."
+    },
+    {
+      "id": "digg-enhancements",
+      "summary": "Add three small surface enhancements: `sql <query>` read-only passthrough (driver-level mode=ro), `authors overlap <a> <b>` INTERSECT query, and `--topics` multi-topic flag on sync.",
+      "reason": "Follow-up to the closed digg-ai PR #704. Read-only enforcement for `sql` runs at the SQLite driver via store.OpenReadOnly so writable CTEs (`WITH x AS (DELETE ... RETURNING ...) SELECT * FROM x`) are rejected before parse — the SELECT/WITH prefix check is just a friendlier error path.",
+      "files": [
+        "internal/cli/sql.go",
+        "internal/cli/digg_commands.go",
+        "internal/cli/digg_sync.go",
+        "internal/cli/root.go",
+        "internal/diggstore/store.go"
+      ],
+      "validated_outcome": "go build / go test all green; smoke: writable-CTE rejected by driver mode=ro; `authors overlap karpathy sama --json` returns INTERSECT result; `sync --topics ai,technology --dry-run` reports both topics; `RecordReplacementsForTopics` scopes the 2-hour window query to the synced topics via WHERE topic IN (...) so a topic-subset sync no longer pollutes the replacements table."
     }
   ]
 }

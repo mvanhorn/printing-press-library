@@ -24,20 +24,18 @@ This skill drives the `setlist-fm-pp-cli` binary. **You must verify the CLI is i
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install setlist-fm --cli-only
+   npx -y @mvanhorn/printing-press-library install setlist-fm --cli-only
    ```
 2. Verify: `setlist-fm-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.23+):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/setlist-fm/cmd/setlist-fm-pp-cli@latest
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-Setlist.fm rate-limits to 2 requests per second and 1,440 per day, which makes any real analytics workflow impossible against the live API. This CLI syncs an artist's full setlist history to a local SQLite store once, then runs every transcendence query — predict, overdue, tour shape, song gap, covers, attended stats — instantly and offline. Six SDK wrappers exist across five languages; none of them store anything. This one does.
 
 ## When to Use This CLI
 

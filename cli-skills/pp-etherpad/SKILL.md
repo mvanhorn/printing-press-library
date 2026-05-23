@@ -25,7 +25,7 @@ This skill drives the `etherpad-pp-cli` binary. **You must verify the CLI is ins
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install etherpad --cli-only
+   npx -y @mvanhorn/printing-press-library install etherpad --cli-only
    ```
 2. Verify: `etherpad-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -37,8 +37,6 @@ go install github.com/mvanhorn/printing-press-library/library/productivity/ether
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-Etherpad is a real-time collaborative editor scalable to thousands of simultaneous real time users. It provides full data export capabilities, and runs on your server, under your control.
 
 ## Command Reference
 

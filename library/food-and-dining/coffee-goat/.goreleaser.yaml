@@ -45,7 +45,7 @@ brews:
       owner: justinwfu
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "The third-wave coffee terminal — every elite roaster, every YouTube creator review, your brews, and the God cup."
+    description: "Search elite roaster catalogs, creator reviews, brew logs, and cupping notes in one local coffee database."
     install: |
       bin.install "coffee-goat-pp-cli"
       bin.install "coffee-goat-pp-mcp"

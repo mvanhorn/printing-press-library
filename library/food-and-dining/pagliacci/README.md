@@ -9,26 +9,26 @@ First and only CLI for the Pagliacci API. Browse menus and slice availability ac
 The recommended path installs both the `pagliacci-pp-cli` binary and the `pp-pagliacci` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install pagliacci
+npx -y @mvanhorn/printing-press-library install pagliacci
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install pagliacci --cli-only
+npx -y @mvanhorn/printing-press-library install pagliacci --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install pagliacci --skill-only
+npx -y @mvanhorn/printing-press-library install pagliacci --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install pagliacci --agent claude-code
-npx -y @mvanhorn/printing-press install pagliacci --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install pagliacci --agent claude-code
+npx -y @mvanhorn/printing-press-library install pagliacci --agent claude-code --agent codex
 ```
 
 ### Without Node (Go fallback)

@@ -9,26 +9,26 @@ Digg is a curated AI-news leaderboard powered by tracked accounts on X and a par
 The recommended path installs both the `digg-pp-cli` binary and the `pp-digg` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install digg
+npx -y @mvanhorn/printing-press-library install digg
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install digg --cli-only
+npx -y @mvanhorn/printing-press-library install digg --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install digg --skill-only
+npx -y @mvanhorn/printing-press-library install digg --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install digg --agent claude-code
-npx -y @mvanhorn/printing-press install digg --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install digg --agent claude-code
+npx -y @mvanhorn/printing-press-library install digg --agent claude-code --agent codex
 ```
 
 ### Without Node (Go fallback)
@@ -120,10 +120,8 @@ digg-pp-cli events --since 1h --type fast_climb
 # What got knocked out of the rankings overnight and Digg's own rationale for each
 digg-pp-cli replaced --since 24h
 
-
 # Top influencers tracked by Digg, ranked by Digg's score
 digg-pp-cli authors top --by influence --limit 25
-
 
 # Top AI repos by starring activity from Digg-tracked accounts
 digg-pp-cli github stars --limit 10 --json
@@ -131,10 +129,8 @@ digg-pp-cli github stars --limit 10 --json
 # Smart-money convergence — repos starred by >= 2 distinct AI-builder accounts
 digg-pp-cli github stars --min-starrers 2 --json
 
-
 # Live GitHub activity feed: who starred / committed / opened issues, in real time
 digg-pp-cli github recent --limit 20 --json
-
 
 # Curated emerging AI companies from the /ai/x/rankings/companies snapshot
 digg-pp-cli rankings emerging --json

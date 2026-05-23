@@ -20,7 +20,7 @@ This skill drives the `bandsintown-pp-cli` binary. **You must verify the CLI is 
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install bandsintown --cli-only
+   npx -y @mvanhorn/printing-press-library install bandsintown --cli-only
    ```
 2. Verify: `bandsintown-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -32,8 +32,6 @@ go install github.com/mvanhorn/printing-press-library/library/media-and-entertai
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-Every existing Bandsintown wrapper is a 10-year-old language binding for the same two API endpoints. This CLI absorbs all of them and adds the queries promoters and tour routers actually need: feasibility-ranked routing candidates for a target city and date, empty windows in an artist's calendar, co-bill patterns across past festivals, and tracker_count trends over time. Local SQLite store, FTS search, agent-native --json output, and MCP exposure are standard.
 
 ## When to Use This CLI
 

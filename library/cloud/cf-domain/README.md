@@ -7,26 +7,26 @@ Agent-native CLI for Cloudflare Registrar domain search, check, and registration
 The recommended path installs both the `cf-domain-pp-cli` binary and the `pp-cf-domain` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install cf-domain
+npx -y @mvanhorn/printing-press-library install cf-domain
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install cf-domain --cli-only
+npx -y @mvanhorn/printing-press-library install cf-domain --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install cf-domain --skill-only
+npx -y @mvanhorn/printing-press-library install cf-domain --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install cf-domain --agent claude-code
-npx -y @mvanhorn/printing-press install cf-domain --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install cf-domain --agent claude-code
+npx -y @mvanhorn/printing-press-library install cf-domain --agent claude-code --agent codex
 ```
 
 ### Without Node (Go fallback)

@@ -11,26 +11,26 @@ Printed by [@tmchow](https://github.com/tmchow) (Trevin Chow).
 The recommended path installs both the `hotel-tonight-pp-cli` binary and the `pp-hotel-tonight` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install hotel-tonight
+npx -y @mvanhorn/printing-press-library install hotel-tonight
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install hotel-tonight --cli-only
+npx -y @mvanhorn/printing-press-library install hotel-tonight --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install hotel-tonight --skill-only
+npx -y @mvanhorn/printing-press-library install hotel-tonight --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install hotel-tonight --agent claude-code
-npx -y @mvanhorn/printing-press install hotel-tonight --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install hotel-tonight --agent claude-code
+npx -y @mvanhorn/printing-press-library install hotel-tonight --agent claude-code --agent codex
 ```
 
 ### Without Node (Go fallback)
@@ -115,10 +115,8 @@ No account or API key. HotelTonight's consumer endpoints are reachable anonymous
 # See HotelTonight's major markets and their ids (1 = San Francisco, 72 = Austin).
 hotel-tonight-pp-cli markets list
 
-
 # Pull tonight's deals near a location ranked by % off; this also records a price snapshot so history and watch have data to work with.
 hotel-tonight-pp-cli deals --lat 37.7749 --lng -122.4194 --sort discount
-
 
 # Flag rooms under $150 or that dropped since the last snapshot.
 hotel-tonight-pp-cli watch --lat 37.7749 --lng -122.4194 --when tonight --below 150
@@ -196,7 +194,6 @@ HotelTonight markets (cities where deals are offered)
 - **`hotel-tonight-pp-cli markets get`** - Get a single market by its numeric id
 - **`hotel-tonight-pp-cli markets list`** - List HotelTonight's major markets with location, slug, and category prices
 - **`hotel-tonight-pp-cli markets nearby`** - List popular/nearby markets for a given market id
-
 
 ## Output Formats
 

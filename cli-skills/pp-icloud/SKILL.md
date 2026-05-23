@@ -25,19 +25,22 @@ metadata:
 
 ## Prerequisites: Install the CLI
 
-This skill drives the `icloud-pp-cli` binary. **Verify it is installed before running any command.**
+This skill drives the `icloud-pp-cli` binary. **You must verify the CLI is installed before invoking any command from this skill.** If it is missing, install it first:
 
-Install via Go (requires Go 1.23+):
+1. Install via the Printing Press installer:
+   ```bash
+   npx -y @mvanhorn/printing-press-library install icloud --cli-only
+   ```
+2. Verify: `icloud-pp-cli --version`
+3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
+
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
 
 ```bash
-go install github.com/matysanchez/icloudcli/cmd/icloud-pp-cli@latest
+go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/icloud/cmd/icloud-pp-cli@latest
 ```
 
-Verify: `icloud-pp-cli --version`
-
-Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
-
-**macOS only.** The CLI reads local iCloud SQLite databases and uses AppleScript for deletion — it does not run on Linux or Windows.
+If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
 
 ## Pre-flight Check
 

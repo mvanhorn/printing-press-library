@@ -1,0 +1,47 @@
+{
+  "endpoint": "GET /api/{id}/charging/queue",
+  "method": "GET",
+  "raw_url": "https://owner-api.teslamotors.com/api/1/charging/queue?vin=5YJ3E1EA6XXXXXXXX",
+  "status": 200,
+  "request_headers": {
+    "accept": "*/*",
+    "accept-encoding": "gzip",
+    "accept-language": "en",
+    "authorization": "<redacted>",
+    "baggage": "sentry-environment=tesla,sentry-public_key=c1ad0d1b7177450aaaf8a91863960dc7,sentry-release=com.teslamotors.TeslaApp%404.57.0-4306,sentry-trace_id=74e3e9b31a484793b845b5ebadd7f932",
+    "cache-control": "no-cache",
+    "charset": "utf-8",
+    "content-type": "application/json",
+    "priority": "u=3, i",
+    "sentry-trace": "74e3e9b31a484793b845b5ebadd7f932-fa868ccd4e02499a-0",
+    "user-agent": "TeslaV4/4.57.0 (com.teslamotors.TeslaApp; build:4306; iOS 26.5.0) Alamofire/5.2.1",
+    "x-app-state": "active",
+    "x-tesla-app-key": "684260B3F7B372B67DFECD8A023131784979490A",
+    "x-tesla-user-agent": "com.teslamotors.TeslaApp/4.57.0-4306/b937ef26/iOS/26.5",
+    "x-txid": "4C6991BF-C461-4C74-A74D-64FE5CCAF5C1"
+  },
+  "request_body": null,
+  "response_headers": {
+    "cache-control": "no-cache, no-store, private, s-max-age=0",
+    "content-encoding": "gzip",
+    "content-type": "application/json; charset=utf-8",
+    "date": "Mon, 18 May 2026 22:56:54 GMT",
+    "etag": "W/\"dbb89c5a06dba37ea8b6dbfb223c1b60\"",
+    "server": "envoy",
+    "strict-transport-security": "max-age=31536000; includeSubDomains",
+    "vary": "Accept,Accept-Encoding",
+    "x-content-type-options": "nosniff",
+    "x-envoy-upstream-service-time": "57",
+    "x-frame-options": "DENY",
+    "x-request-id": "3a30d4d3-1ad9-4046-8da3-0430ef739b1b",
+    "x-txid": "4C6991BF-C461-4C74-A74D-64FE5CCAF5C1",
+    "x-xss-protection": "1; mode=block"
+  },
+  "response_body": {
+    "response": ""
+  },
+  "response_body_known": true,
+  "redactions": [
+    "request_headers.authorization"
+  ]
+}

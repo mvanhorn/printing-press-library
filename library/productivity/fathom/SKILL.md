@@ -24,7 +24,7 @@ This skill drives the `fathom-pp-cli` binary. **You must verify the CLI is insta
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install fathom --cli-only
+   npx -y @mvanhorn/printing-press-library install fathom --cli-only
    ```
 2. Verify: `fathom-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -36,8 +36,6 @@ go install github.com/mvanhorn/printing-press-library/library/productivity/fatho
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-fathom-pp-cli pulls every meeting, transcript, summary, and action item into a local SQLite store, then unlocks cross-meeting intelligence no MCP server or web UI can provide: commitment tracking across all your calls, topic trend analysis over weeks, pre-call account briefs, pipeline velocity detection, and team meeting-load audits.
 
 ## When to Use This CLI
 

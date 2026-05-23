@@ -11,31 +11,37 @@ Printed by [@kjmagnan1s](https://github.com/kjmagnan1s) (Kevin Magnan).
 The recommended path installs both the `apify-pp-cli` binary and the `pp-apify` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install apify
+npx -y @mvanhorn/printing-press-library install apify
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install apify --cli-only
+npx -y @mvanhorn/printing-press-library install apify --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install apify --skill-only
+npx -y @mvanhorn/printing-press-library install apify --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install apify --agent claude-code
-npx -y @mvanhorn/printing-press install apify --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install apify --agent claude-code
+npx -y @mvanhorn/printing-press-library install apify --agent claude-code --agent codex
 ```
 
-### Without Node
+### Without Node (Go fallback)
 
-The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/developer-tools/apify/cmd/apify-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
 
 ### Pre-built binary
 
@@ -111,22 +117,17 @@ Set `APIFY_TOKEN` (from Apify Console → Settings → Integrations) or run `api
 # Verify token, API reachability, and quota status.
 apify-pp doctor
 
-
 # Find an Actor in the public store.
 apify-pp store search 'twitter scraper' --json --select name,username,stats.totalUsers7Days
-
 
 # Run an Actor and block until terminal state.
 apify-pp run apidojo/twitter-scraper-lite --input @input.json --wait --json
 
-
 # Pull items from the run's default dataset.
 apify-pp datasets items <dataset-id> --format json --limit 100
 
-
 # Hydrate local store, then full-text search across every cached dataset.
 apify-pp sync --since 7d && apify-pp search 'AI' --since 7d --agent
-
 
 # Render a newsletter-ready markdown digest from the local store.
 apify-pp digest --topic AI --since 24h --template default --agent
@@ -788,7 +789,6 @@ header!
 When providing your API authentication token, we recommend using the
 request's `Authorization` header, rather than the URL. ([More
 info](#/introduction/authentication)).
-
 
 ## Output Formats
 

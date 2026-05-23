@@ -45,7 +45,7 @@ brews:
       owner: matt-van-horn
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Search Alaska Airlines flights, manage Atmos Rewards, and pre-build cart deeplinks for one-click checkout - all from..."
+    description: "Search Alaska Airlines flights, manage Atmos Rewards data, and build checkout-ready cart links from the terminal."
     install: |
       bin.install "alaska-airlines-pp-cli"
       bin.install "alaska-airlines-pp-mcp"

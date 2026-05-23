@@ -13,31 +13,37 @@ Printed by [@melanson633](https://github.com/melanson633).
 The recommended path installs both the `loopnet-pp-cli` binary and the `pp-loopnet` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install loopnet
+npx -y @mvanhorn/printing-press-library install loopnet
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install loopnet --cli-only
+npx -y @mvanhorn/printing-press-library install loopnet --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install loopnet --skill-only
+npx -y @mvanhorn/printing-press-library install loopnet --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install loopnet --agent claude-code
-npx -y @mvanhorn/printing-press install loopnet --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install loopnet --agent claude-code
+npx -y @mvanhorn/printing-press-library install loopnet --agent claude-code --agent codex
 ```
 
-### Without Node
+### Without Node (Go fallback)
 
-The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/commerce/loopnet/cmd/loopnet-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
 
 ### Pre-built binary
 
@@ -109,18 +115,14 @@ LoopNet's data pages are protected by Akamai Bot Manager, which blocks plain HTT
 # Mint Akamai clearance cookies (briefly opens a browser). Required before any live fetch.
 loopnet-pp-cli auth refresh
 
-
 # Live search — confirm cookies work and listings parse.
 loopnet-pp-cli inventory worcester-ma --type industrial --listing for-sale --json
-
 
 # Pull the submarket into the local store (fetches are paced ~10s for Akamai).
 loopnet-pp-cli sync worcester-ma --type industrial --listing for-sale
 
-
 # Cap-rate and yield distribution, computed offline from the store.
 loopnet-pp-cli caprate worcester-ma --type industrial --agent
-
 
 # After a later sync, see which listings dropped their asking price.
 loopnet-pp-cli price-cuts worcester-ma --agent
@@ -210,7 +212,6 @@ Search LoopNet commercial real estate inventory by location, property type, and 
 Fetch the full detail record for a single LoopNet listing.
 
 - **`loopnet-pp-cli property <id>`** - Fetch one LoopNet listing's detail page. The page carries a schema.org RealEstateListing/Product JSON-LD block plus a property-facts table (price, cap rate, building class, zoning, year built, parcel numbers, tax assessments).
-
 
 ## Output Formats
 

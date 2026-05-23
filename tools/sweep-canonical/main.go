@@ -35,7 +35,7 @@
 // README.md:
 //   - Rewrites the `## Install` section (with its `### Binary` /
 //     `### Go` subsections) to lead with the `npx -y
-//     @mvanhorn/printing-press install <api>` installer (CLI + agent
+//     @mvanhorn/printing-press-library install <api>` installer (CLI + agent
 //     skill), with `--cli-only` and a Go fallback below. Mirrors the
 //     upstream readme.md.tmpl change.
 //   - Inserts `## Install via Hermes` and `## Install via OpenClaw`
@@ -391,10 +391,11 @@ func sweepCLI(cliDir, ownerName string, readmeOnly bool) (sweepStatus, error) {
 }
 
 type patchSkillCtx struct {
-	CLIName    string // e.g. "shopify-pp-cli"
-	APIName    string // e.g. "shopify"
-	Category   string // e.g. "commerce"
-	AuthorName string // display name, e.g. "Trevin Chow"
+	CLIName           string // e.g. "shopify-pp-cli"
+	APIName           string // e.g. "shopify"
+	Category          string // e.g. "commerce"
+	AuthorName        string // display name, e.g. "Trevin Chow"
+	FillMissingAuthor bool   // opt in only for dedicated attribution sweeps
 }
 
 // patchSkill applies the canonical Hermes/OpenClaw shape to a SKILL.md
@@ -504,13 +505,11 @@ func leadingSpaces(s string) int {
 // the canonical "after description" position. Both are stripped first
 // and re-inserted as a contiguous block, so:
 //
-//   - Author preserves any existing non-placeholder value already in
-//     the frontmatter. Only when the existing author is missing or the
-//     known generator-fallback placeholder "user" does the sweep fill
-//     in `ctx.AuthorName` (resolved upstream through cliAuthorByAPIName
-//     → manifest owner_name → operator git config). This makes the
-//     sweep safe to run from any workspace — it never silently flips a
-//     real author to the operator's `git config user.name`.
+//   - Author preserves any existing value already in the frontmatter,
+//     including the old generator-fallback placeholder "user". Missing
+//     authors are filled only when ctx.FillMissingAuthor is true, so a
+//     docs-shape sweep cannot accidentally bundle attribution changes
+//     with unrelated README/SKILL surface edits.
 //   - License is always "Apache-2.0" — the constant for every printed
 //     CLI per LICENSE.tmpl.
 //
@@ -522,18 +521,20 @@ func leadingSpaces(s string) int {
 // same ctx produces the same output.
 func ensureFrontmatterTopLevelFields(fm string, ctx patchSkillCtx) string {
 	existingAuthor := extractTopLevelFieldValue(fm, "author")
+	hasAuthor := topLevelFieldRe("author").FindStringIndex(fm) != nil
 
 	fm = stripTopLevelField(fm, "version")
 	fm = stripTopLevelField(fm, "author")
 	fm = stripTopLevelField(fm, "license")
 
-	author := ctx.AuthorName
-	if existingAuthor != "" && existingAuthor != "user" {
-		author = existingAuthor
+	var b strings.Builder
+	if hasAuthor {
+		fmt.Fprintf(&b, "author: %q\n", existingAuthor)
+	} else if ctx.FillMissingAuthor && ctx.AuthorName != "" {
+		fmt.Fprintf(&b, "author: %q\n", ctx.AuthorName)
 	}
-
-	block := fmt.Sprintf("author: %q\nlicense: %q\n",
-		author, "Apache-2.0")
+	fmt.Fprintf(&b, "license: %q\n", "Apache-2.0")
+	block := b.String()
 
 	descRe := regexp.MustCompile(`(?m)^description: ".*"\n`)
 	return descRe.ReplaceAllStringFunc(fm, func(match string) string {
@@ -649,7 +650,7 @@ This skill drives the `+"`%s`"+` binary. **You must verify the CLI is installed 
 
 1. Install via the Printing Press installer:
    `+"```bash"+`
-   npx -y @mvanhorn/printing-press install %s --cli-only
+   npx -y @mvanhorn/printing-press-library install %s --cli-only
    `+"```"+`
 2. Verify: `+"`%s --version`"+`
 3. Ensure `+"`$GOPATH/bin`"+` (or `+"`$HOME/go/bin`"+`) is on `+"`$PATH`"+`.
@@ -733,7 +734,7 @@ type patchReadmeCtx struct {
 
 // patchReadme applies the canonical README shape:
 //  1. Rewrites the `## Install` section to lead with the `npx -y
-//     @mvanhorn/printing-press install <api>` installer (CLI + agent
+//     @mvanhorn/printing-press-library install <api>` installer (CLI + agent
 //     skill), with `--cli-only` and a Go fallback below. Mirrors the
 //     upstream readme.md.tmpl shape.
 //  2. Inserts the `## Install via Hermes` and `## Install via
@@ -794,26 +795,26 @@ func buildReadmeInstallSection(ctx patchReadmeCtx) string {
 The recommended path installs both the `+"`%s`"+` binary and the `+"`pp-%s`"+` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`+"`skills`"+`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 `+"```bash"+`
-npx -y @mvanhorn/printing-press install %s
+npx -y @mvanhorn/printing-press-library install %s
 `+"```"+`
 
 For CLI only (no skill):
 
 `+"```bash"+`
-npx -y @mvanhorn/printing-press install %s --cli-only
+npx -y @mvanhorn/printing-press-library install %s --cli-only
 `+"```"+`
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 `+"```bash"+`
-npx -y @mvanhorn/printing-press install %s --skill-only
+npx -y @mvanhorn/printing-press-library install %s --skill-only
 `+"```"+`
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`+"`skills`"+`](https://github.com/vercel-labs/skills) CLI):
 
 `+"```bash"+`
-npx -y @mvanhorn/printing-press install %s --agent claude-code
-npx -y @mvanhorn/printing-press install %s --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install %s --agent claude-code
+npx -y @mvanhorn/printing-press-library install %s --agent claude-code --agent codex
 `+"```"+`
 
 ### Without Node (Go fallback)
@@ -831,16 +832,16 @@ This installs the CLI only — no skill.
 Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/%s-current). On macOS, clear the Gatekeeper quarantine: `+"`xattr -d com.apple.quarantine <binary>`"+`. On Unix, mark it executable: `+"`chmod +x <binary>`"+`.
 
 `,
-		ctx.CLIName,  // binary name in headline
-		ctx.APIName,  // skill name in headline
-		ctx.APIName,  // bundled install slug
-		ctx.APIName,  // --cli-only slug
-		ctx.APIName,  // --skill-only slug
-		ctx.APIName,  // --agent single slug
-		ctx.APIName,  // --agent multi slug
+		ctx.CLIName, // binary name in headline
+		ctx.APIName, // skill name in headline
+		ctx.APIName, // bundled install slug
+		ctx.APIName, // --cli-only slug
+		ctx.APIName, // --skill-only slug
+		ctx.APIName, // --agent single slug
+		ctx.APIName, // --agent multi slug
 		minimumGoVersion,
-		module,       // Go fallback module
-		ctx.APIName,  // pre-built release tag
+		module,      // Go fallback module
+		ctx.APIName, // pre-built release tag
 	)
 }
 

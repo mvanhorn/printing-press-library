@@ -45,7 +45,7 @@ brews:
       owner: greatclips
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "First CLI for Great Clips Online Check-In: every endpoint shape and host route, ready for real calls once cookies..."
+    description: "Check Great Clips salon wait times, prepare Online Check-In requests, inspect route shapes, and track local wait history."
     install: |
       bin.install "greatclips-pp-cli"
       bin.install "greatclips-pp-mcp"

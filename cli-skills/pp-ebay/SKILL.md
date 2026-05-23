@@ -29,7 +29,7 @@ This skill drives the `ebay-pp-cli` binary. **You must verify the CLI is install
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install ebay --cli-only
+   npx -y @mvanhorn/printing-press-library install ebay --cli-only
    ```
 2. Verify: `ebay-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.

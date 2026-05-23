@@ -29,7 +29,7 @@ This skill drives the `food52-pp-cli` binary. **You must verify the CLI is insta
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install food52 --cli-only
+   npx -y @mvanhorn/printing-press-library install food52 --cli-only
    ```
 2. Verify: `food52-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.

@@ -25,7 +25,7 @@ This skill drives the `anylist-pp-cli` binary. **You must verify the CLI is inst
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install anylist --cli-only
+   npx -y @mvanhorn/printing-press-library install anylist --cli-only
    ```
 2. Verify: `anylist-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -37,8 +37,6 @@ go install github.com/mvanhorn/printing-press-library/library/food-and-dining/an
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-The CLI syncs your shopping lists, recipes, and meal plan to a local SQLite database, then lets you query and automate everything from the shell. Search recipes by ingredient, split shopping lists by store, and build this week's grocery list from your meal plan — all scriptable, JSON-outputting, and safe to run on a schedule.
 
 ## When to Use This CLI
 

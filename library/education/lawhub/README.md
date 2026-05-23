@@ -35,24 +35,66 @@ Use `review open` to view official content in LawHub.
 
 ## Install
 
-Once published in the Printing Press library:
+The recommended path installs both the `lawhub-pp-cli` binary and the `pp-lawhub` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
+
+```bash
+npx -y @mvanhorn/printing-press-library install lawhub
+```
+
+For CLI only (no skill):
+
+```bash
+npx -y @mvanhorn/printing-press-library install lawhub --cli-only
+```
+
+For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
+
+```bash
+npx -y @mvanhorn/printing-press-library install lawhub --skill-only
+```
+
+To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
+
+```bash
+npx -y @mvanhorn/printing-press-library install lawhub --agent claude-code
+npx -y @mvanhorn/printing-press-library install lawhub --agent claude-code --agent codex
+```
+
+### Without Node (Go fallback)
+
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/education/lawhub/cmd/lawhub-pp-cli@latest
 ```
 
-Verify:
+This installs the CLI only — no skill.
+
+### Pre-built binary
+
+Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/lawhub-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
+
+<!-- pp-hermes-install-anchor -->
+## Install for Hermes
+
+From the Hermes CLI:
 
 ```bash
-lawhub-pp-cli version --agent
-lawhub-pp-cli doctor --agent
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-lawhub --force
 ```
 
-Local development:
+Inside a Hermes chat session:
 
 ```bash
-make build VERSION=0.1.0-dev
-./bin/lawhub-pp-cli-go version --agent
+/skills install mvanhorn/printing-press-library/cli-skills/pp-lawhub --force
+```
+
+## Install for OpenClaw
+
+Tell your OpenClaw agent (copy this):
+
+```
+Install the pp-lawhub skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-lawhub. The skill defines how its required CLI can be installed.
 ```
 
 ## Authentication

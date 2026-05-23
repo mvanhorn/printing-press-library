@@ -204,3 +204,50 @@ func TestFilterFields(t *testing.T) {
 		})
 	}
 }
+
+// PATCH(amend-2026-05-18): cover the isMachineOutputMode predicate that
+// gates --quota stdout-vs-stderr routing. The predicate must return true
+// for every flag the SKILL.md agent-mode contract enumerates, and for
+// --deliver when the sink is anything other than literal "stdout".
+func TestIsMachineOutputMode(t *testing.T) {
+	t.Parallel()
+	cases := []struct {
+		name   string
+		mutate func(*rootFlags)
+		want   bool
+	}{
+		{"zero value", func(*rootFlags) {}, false},
+		{"--json", func(f *rootFlags) { f.asJSON = true }, true},
+		{"--csv", func(f *rootFlags) { f.csv = true }, true},
+		{"--compact", func(f *rootFlags) { f.compact = true }, true},
+		{"--plain", func(f *rootFlags) { f.plain = true }, true},
+		{"--quiet", func(f *rootFlags) { f.quiet = true }, true},
+		{"--agent", func(f *rootFlags) { f.agent = true }, true},
+		{"--select <nonempty>", func(f *rootFlags) { f.selectFields = "id,name" }, true},
+		{"--select empty string", func(f *rootFlags) { f.selectFields = "" }, false},
+		{"--deliver file:/tmp/out", func(f *rootFlags) { f.deliverSpec = "file:/tmp/out" }, true},
+		{"--deliver webhook:https://x", func(f *rootFlags) { f.deliverSpec = "webhook:https://x" }, true},
+		{"--deliver stdout (explicit)", func(f *rootFlags) { f.deliverSpec = "stdout" }, false},
+		{"--deliver empty", func(f *rootFlags) { f.deliverSpec = "" }, false},
+	}
+	for _, tc := range cases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			f := &rootFlags{}
+			tc.mutate(f)
+			if got := isMachineOutputMode(f); got != tc.want {
+				t.Errorf("isMachineOutputMode(%+v) = %v, want %v", f, got, tc.want)
+			}
+		})
+	}
+}
+
+// TestIsMachineOutputMode_NilReceiver guards the nil-safety path so a
+// caller that passes a nil rootFlags does not panic.
+func TestIsMachineOutputMode_NilReceiver(t *testing.T) {
+	t.Parallel()
+	if got := isMachineOutputMode(nil); got != false {
+		t.Errorf("isMachineOutputMode(nil) = %v, want false", got)
+	}
+}

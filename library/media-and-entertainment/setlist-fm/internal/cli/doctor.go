@@ -90,7 +90,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				header := cfg.AuthHeader()
 				if header == "" {
 					report["auth"] = "missing (x-api-key header not set)"
-					report["auth_hint"] = "export SETLISTFM_API_KEY=<your-key>  (get one at https://www.setlist.fm/settings/api)"
+					report["auth_hint"] = "Get a free API key at https://www.setlist.fm/settings/api, then run:\n  setlist-fm-pp-cli auth set-token <key>   (or export SETLISTFM_API_KEY=<key>)"
 				} else {
 					report["auth"] = "configured (x-api-key header will be sent)"
 					report["auth_source"] = cfg.AuthSource
@@ -116,7 +116,17 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			default:
 				authEnvRequiredMissing = append(authEnvRequiredMissing, "SETLISTFM_API_KEY (or SETLIST_FM_API_KEY)")
 			}
+			// The env var is one of multiple valid auth sources, not a hard
+			// requirement. When fm_api_key is set in config, the env var
+			// missing is informational, not a failure.
+			configProvidesAuth := cfg != nil && cfg.AuthHeader() != "" && cfg.AuthSource == "config"
 			switch {
+			case len(authEnvRequiredMissing) > 0 && configProvidesAuth:
+				// Word the message so it survives the color-mapping pass below:
+				// any "not " substring later in the message is matched as a
+				// WARN signal (e.g. "not configured"), so we say "optional"
+				// instead of "not required" to keep the verdict green.
+				report["env_vars"] = "OK config provides auth (env var optional)"
 			case len(authEnvRequiredMissing) > 0:
 				report["env_vars"] = "ERROR missing required: " + strings.Join(authEnvRequiredMissing, ", ")
 			case len(authEnvOptionalNames) > 1 && !authEnvOptionalSatisfied:
@@ -274,9 +284,17 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 					fmt.Fprintf(w, "  %s: %v\n", key, v)
 				}
 			}
-			// Print auth setup hints (indented under Auth line)
+			// Print auth setup hints (indented under Auth line). Multi-line
+			// hints render with each line on its own indented row so the block
+			// visually nests under the Auth indicator.
 			if hint, ok := report["auth_hint"]; ok {
-				fmt.Fprintf(w, "  hint: %v\n", hint)
+				for i, line := range strings.Split(fmt.Sprintf("%v", hint), "\n") {
+					if i == 0 {
+						fmt.Fprintf(w, "  hint: %s\n", line)
+					} else {
+						fmt.Fprintf(w, "    %s\n", strings.TrimLeft(line, " "))
+					}
+				}
 			}
 			// Cache section: render after the primary health block so it
 			// sits next to version info, mirroring the JSON report layout.

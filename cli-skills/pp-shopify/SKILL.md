@@ -29,7 +29,7 @@ This skill drives the `shopify-pp-cli` binary. **You must verify the CLI is inst
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install shopify --cli-only
+   npx -y @mvanhorn/printing-press-library install shopify --cli-only
    ```
 2. Verify: `shopify-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.

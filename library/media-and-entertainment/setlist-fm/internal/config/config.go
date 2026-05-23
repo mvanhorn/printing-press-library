@@ -7,23 +7,20 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
-	"time"
 
 	"github.com/pelletier/go-toml/v2"
 )
 
+// Setlist.fm uses only the static x-api-key header. The generator-emitted
+// OAuth-shaped fields (auth_header, access_token, refresh_token, token_expiry,
+// client_id, client_secret) were dead storage: AuthHeader() only ever returned
+// SetlistFmApiKey, and `auth set-token` wrote to the wrong field which is why
+// the documented setup flow silently failed.
 type Config struct {
-	BaseURL         string    `toml:"base_url"`
-	AuthHeaderVal   string    `toml:"auth_header"`
-	AuthSource      string    `toml:"-"`
-	AccessToken     string    `toml:"access_token"`
-	RefreshToken    string    `toml:"refresh_token"`
-	TokenExpiry     time.Time `toml:"token_expiry"`
-	ClientID        string    `toml:"client_id"`
-	ClientSecret    string    `toml:"client_secret"`
-	Path            string    `toml:"-"`
-	SetlistFmApiKey string    `toml:"fm_api_key"`
+	BaseURL         string `toml:"base_url"`
+	AuthSource      string `toml:"-"`
+	Path            string `toml:"-"`
+	SetlistFmApiKey string `toml:"fm_api_key"`
 }
 
 func Load(configPath string) (*Config, error) {
@@ -42,11 +39,16 @@ func Load(configPath string) (*Config, error) {
 	}
 	cfg.Path = path
 
-	// Try to load config file
+	// Try to load config file. go-toml/v2 ignores unknown keys by default,
+	// so legacy access_token / auth_header / refresh_token rows from older
+	// configs load without error and are simply dropped on the next save.
 	data, err := os.ReadFile(path)
 	if err == nil {
 		if err := toml.Unmarshal(data, cfg); err != nil {
 			return nil, fmt.Errorf("parsing config %s: %w", path, err)
+		}
+		if cfg.SetlistFmApiKey != "" {
+			cfg.AuthSource = "config"
 		}
 	}
 
@@ -69,38 +71,16 @@ func Load(configPath string) (*Config, error) {
 }
 
 func (c *Config) AuthHeader() string {
-	if c.AuthHeaderVal != "" {
-		return c.AuthHeaderVal
-	}
 	return c.SetlistFmApiKey
 }
 
-func applyAuthFormat(format string, replacements map[string]string) string {
-	if format == "" {
-		return ""
-	}
-	for key, value := range replacements {
-		format = strings.ReplaceAll(format, "{"+key+"}", value)
-	}
-	if strings.Contains(format, "{") {
-		return ""
-	}
-	return format
-}
-
-func (c *Config) SaveTokens(clientID, clientSecret, accessToken, refreshToken string, expiry time.Time) error {
-	c.ClientID = clientID
-	c.ClientSecret = clientSecret
-	c.AccessToken = accessToken
-	c.RefreshToken = refreshToken
-	c.TokenExpiry = expiry
+func (c *Config) SaveAPIKey(key string) error {
+	c.SetlistFmApiKey = key
 	return c.save()
 }
 
-func (c *Config) ClearTokens() error {
-	c.AccessToken = ""
-	c.RefreshToken = ""
-	c.TokenExpiry = time.Time{}
+func (c *Config) ClearAPIKey() error {
+	c.SetlistFmApiKey = ""
 	return c.save()
 }
 
@@ -115,6 +95,3 @@ func (c *Config) save() error {
 	}
 	return os.WriteFile(c.Path, data, 0o600)
 }
-
-// Ensure strings import is used
-var _ = strings.ReplaceAll

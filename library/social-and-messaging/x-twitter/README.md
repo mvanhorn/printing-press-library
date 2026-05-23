@@ -9,26 +9,26 @@ Learn more at [X](https://docs.x.com/x-api).
 The recommended path installs both the `x-twitter-pp-cli` binary and the `pp-x-twitter` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install x-twitter
+npx -y @mvanhorn/printing-press-library install x-twitter
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install x-twitter --cli-only
+npx -y @mvanhorn/printing-press-library install x-twitter --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install x-twitter --skill-only
+npx -y @mvanhorn/printing-press-library install x-twitter --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install x-twitter --agent claude-code
-npx -y @mvanhorn/printing-press install x-twitter --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install x-twitter --agent claude-code
+npx -y @mvanhorn/printing-press-library install x-twitter --agent claude-code --agent codex
 ```
 
 ### Without Node (Go fallback)

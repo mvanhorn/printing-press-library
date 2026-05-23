@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "exchangerate-api",
+  "run_id": "20260517-025552",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 88,
+  "tests_passed": 88,
+  "tests_skipped": 63,
+  "auth_context": {
+    "type": "api_key"
+  }
+}

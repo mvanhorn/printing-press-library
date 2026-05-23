@@ -29,7 +29,7 @@ This skill drives the `usgs-earthquakes-pp-cli` binary. **You must verify the CL
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install usgs-earthquakes --cli-only
+   npx -y @mvanhorn/printing-press-library install usgs-earthquakes --cli-only
    ```
 2. Verify: `usgs-earthquakes-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -41,8 +41,6 @@ go install github.com/mvanhorn/printing-press-library/library/other/usgs-earthqu
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-Wraps the full USGS FDSN Event Service and all 20 GeoJSON summary feeds in a single binary. Adds a 30-day rolling local SQLite cache so search, sql, aftershocks, swarm-detect, top, and changes run instantly without the network. Built for seismologists, journalists, emergency managers, and agents that need to reason about earthquake activity programmatically.
 
 ## When to Use This CLI
 

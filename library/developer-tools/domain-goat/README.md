@@ -9,26 +9,26 @@ domain-goat absorbs everything dnstwist, openrdap, whois, and the abandoned doma
 The recommended path installs both the `domain-goat-pp-cli` binary and the `pp-domain-goat` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install domain-goat
+npx -y @mvanhorn/printing-press-library install domain-goat
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install domain-goat --cli-only
+npx -y @mvanhorn/printing-press-library install domain-goat --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install domain-goat --skill-only
+npx -y @mvanhorn/printing-press-library install domain-goat --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install domain-goat --agent claude-code
-npx -y @mvanhorn/printing-press install domain-goat --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install domain-goat --agent claude-code
+npx -y @mvanhorn/printing-press-library install domain-goat --agent claude-code --agent codex
 ```
 
 ### Without Node (Go fallback)
