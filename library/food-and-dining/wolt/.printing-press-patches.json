@@ -27,6 +27,12 @@
       "summary": "Tighten venues-compare description to match what the dynamic endpoint actually returns.",
       "reason": "Original Short said 'Compare open status, ETA window, and delivery configs' but venueCompareRow has no ETA fields — the dynamic endpoint returns next-close/open timestamps, not delivery-time-in-minutes (that lives in /pages/restaurants). Updated Short + Long to advertise what we actually return and point users to venues-now for ETAs.",
       "files": ["internal/cli/venues_compare.go"]
+    },
+    {
+      "id": "menu-items-category-slug-or-name",
+      "summary": "menu items --category now accepts either the category slug or display name; menuItemRow exposes both category and category_slug.",
+      "reason": "The flag was labelled 'category slug' but the filter compared display names only, so a user copying a slug from `menu categories` output got zero results. Fixed by tracking both name and slug per item and matching against either form case-insensitively. Verified live with both `--category chow-mein-chow-fen-2` and `--category 'Chow Mein & Chow Fen'`.",
+      "files": ["internal/cli/menu.go"]
     }
   ],
   "deferred_to_upstream": [

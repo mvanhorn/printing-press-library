@@ -13,17 +13,18 @@ import (
 )
 
 type menuItemRow struct {
-	ID                  string   `json:"id"`
-	Name                string   `json:"name"`
-	Description         string   `json:"description,omitempty"`
-	PriceInt            int      `json:"price_int"`
-	PriceFormatted      string   `json:"price,omitempty"`
-	Currency            string   `json:"currency,omitempty"`
-	Category            string   `json:"category,omitempty"`
-	Enabled             bool     `json:"enabled"`
-	OutOfStock          bool     `json:"out_of_stock"`
-	DietaryPreferences  []string `json:"dietary_preferences,omitempty"`
-	ImageURL            string   `json:"image_url,omitempty"`
+	ID                 string   `json:"id"`
+	Name               string   `json:"name"`
+	Description        string   `json:"description,omitempty"`
+	PriceInt           int      `json:"price_int"`
+	PriceFormatted     string   `json:"price,omitempty"`
+	Currency           string   `json:"currency,omitempty"`
+	Category           string   `json:"category,omitempty"`
+	CategorySlug       string   `json:"category_slug,omitempty"`
+	Enabled            bool     `json:"enabled"`
+	OutOfStock         bool     `json:"out_of_stock"`
+	DietaryPreferences []string `json:"dietary_preferences,omitempty"`
+	ImageURL           string   `json:"image_url,omitempty"`
 }
 
 type menuCategoryRow struct {
@@ -93,10 +94,16 @@ func newMenuItemsCmd(flags *rootFlags) *cobra.Command {
 			}
 			items := flattenMenuItems(data)
 			if categorySlug != "" {
+				// PATCH(menu-items-category-slug-or-name): match against either
+				// the category slug or the display name (case-insensitive). The
+				// flag was originally labelled "slug" but the filter only
+				// compared display names, so passing a slug from `menu categories`
+				// output returned zero results.
 				want := strings.ToLower(categorySlug)
 				filtered := items[:0]
 				for _, it := range items {
-					if strings.ToLower(it.Category) == want {
+					if strings.ToLower(it.Category) == want ||
+						strings.ToLower(it.CategorySlug) == want {
 						filtered = append(filtered, it)
 					}
 				}
@@ -114,7 +121,7 @@ func newMenuItemsCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&lang, "lang", "en", "Menu language code")
-	cmd.Flags().StringVar(&categorySlug, "category", "", "Filter to items in this category slug")
+	cmd.Flags().StringVar(&categorySlug, "category", "", "Filter to items in this category (accepts slug or display name; case-insensitive)")
 	cmd.Flags().IntVar(&limit, "limit", 0, "Cap returned items (0 = no cap)")
 	return cmd
 }
@@ -224,18 +231,23 @@ func flattenMenuItems(data map[string]any) []menuItemRow {
 	itemsRaw, _ := data["items"].([]any)
 	catsRaw, _ := data["categories"].([]any)
 
-	// Build item_id -> category-name map
+	// Build item_id -> {category name, category slug} maps. Tracking both
+	// lets `menu items --category` accept either form (display name OR slug
+	// copied from `menu categories` output).
 	itemToCategory := map[string]string{}
+	itemToCategorySlug := map[string]string{}
 	for _, cRaw := range catsRaw {
 		c, ok := cRaw.(map[string]any)
 		if !ok {
 			continue
 		}
 		name, _ := c["name"].(string)
+		slug, _ := c["slug"].(string)
 		ids, _ := c["item_ids"].([]any)
 		for _, idRaw := range ids {
 			if id, ok := idRaw.(string); ok {
 				itemToCategory[id] = name
+				itemToCategorySlug[id] = slug
 			}
 		}
 	}
@@ -251,6 +263,7 @@ func flattenMenuItems(data map[string]any) []menuItemRow {
 		row.Name, _ = it["name"].(string)
 		row.Description, _ = it["description"].(string)
 		row.Category = itemToCategory[row.ID]
+		row.CategorySlug = itemToCategorySlug[row.ID]
 		if e, ok := it["enabled"].(bool); ok {
 			row.Enabled = e
 		} else {
