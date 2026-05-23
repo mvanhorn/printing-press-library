@@ -46,9 +46,13 @@ func newPoolDigestCmd(flags *rootFlags) *cobra.Command {
 				stats := moba.ParseChampionStats(buildHTML, slug)
 				syn := moba.ParseSynergies(buildHTML, slug)
 				sort.SliceStable(syn, func(i, j int) bool { return syn[i].WinRate > syn[j].WinRate })
-				counterHTML, err := client.Fetch(moba.ChampionPath(slug, "counters"))
-				if err != nil {
-					return fmt.Errorf("fetch %s counters: %w", slug, err)
+				// Soft-fail on counter fetch so one slow / rate-limited
+				// counter page doesn't abort the entire digest. Build
+				// data is still fatal above (no build = no row); counter
+				// data is enrichment.
+				counterHTML, cErr := client.Fetch(moba.ChampionPath(slug, "counters"))
+				if cErr != nil {
+					fmt.Fprintf(cmd.ErrOrStderr(), "  warning: failed to fetch counters for %s: %v\n", slug, cErr)
 				}
 				counters := moba.ParseCounters(counterHTML, slug)
 				moba.SortCountersByDelta(counters, true)
