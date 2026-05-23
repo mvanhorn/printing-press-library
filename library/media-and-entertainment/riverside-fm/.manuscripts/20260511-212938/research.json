@@ -1,0 +1,319 @@
+{
+  "api_name": "riverside-fm",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "PodInvite/riverside-api-docs",
+      "url": "https://github.com/PodInvite/riverside-api-docs",
+      "language": "YAML",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 7,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "dlt source: riverside",
+      "url": "https://dlthub.com/context/source/riverside",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Make.com Riverside integration",
+      "url": "https://apps.make.com/riverside-goh4mb",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 7,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [
+    "Editor-side export creation (POST that triggers a new render) was not exercised in browser-sniff to avoid consuming the user's plan quota. CLI can still list and download existing exports.",
+    "Delete / mutation endpoints (delete-recording, delete-clip, delete-export) were not captured. v0.2 if needed.",
+    "Webinar registration endpoints were not exercised.",
+    "Business API v3 endpoints exist but are unreachable from this CLI (Bearer-key only) — intentional scope choice for Pro-tier user."
+  ],
+  "patterns": [
+    "Cookie-import auth (auth login --chrome) — same pattern reused for any HttpOnly-cookie-protected web app",
+    "CloudFront-signed-URL TTL refresh — pattern for any service whose downloads use short-lived signed asset URLs",
+    "Cross-source readiness join over local SQLite — pattern any service with multi-stage async pipelines benefits from"
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-12T07:55:00Z",
+  "novel_features": [
+    {
+      "name": "Priority-fallback grab",
+      "command": "grab",
+      "description": "Get whichever exists for a recording in priority order: transcript first, then audio tracks, then HLS video — your stated goal as a single command.",
+      "rationale": "Combines three Riverside endpoints (transcriptions, take/assets, vod) behind a single decision tree; exits with code naming the tier reached. No competing tool offers priority fallback for Pro-tier recordings.",
+      "example": "riverside-fm-pp-cli grab bf487406-af40-4bb4-b7f9-a6b49047b55d --agent",
+      "why_it_matters": "When an agent has a recording session ID, this is the one-shot command that gets the most useful asset that exists without polling three separate endpoints first.",
+      "group": "Priority-aware downloads"
+    },
+    {
+      "name": "Bulk studio export with resume",
+      "command": "bulk export",
+      "description": "Walk every project / take / asset in a studio (or date range) and download transcripts + per-participant audio + HLS manifests with a resume cursor on `.runstate/`. The killer workflow no Pro-tier tool offers.",
+      "rationale": "Iterates projects -\u003e takes -\u003e assets endpoints, persists progress so interruption never restarts the walk. Riverside's web app has no bulk-export UI for non-Business tiers.",
+      "example": "riverside-fm-pp-cli bulk export --studio damien-stevenss-studio --since 2026-04-01 --out ./archive",
+      "why_it_matters": "For an agent backing up a creator's archive, this is the only way to get every asset out of Riverside without 6-12 manual clicks per take.",
+      "group": "Priority-aware downloads"
+    },
+    {
+      "name": "Transcript format converter",
+      "command": "transcripts convert",
+      "description": "Convert Riverside's editableWithVoiceActivity JSON (speakers + voice-activity timestamps) to VTT, SRT, plain text, JSON, or speaker-grouped Markdown — formats Riverside's own UI doesn't expose.",
+      "rationale": "Pure local transform on cached transcription data; Riverside natively exposes only SRT/TXT through its UI download but the API payload contains richer voice-activity data we can reformat.",
+      "example": "riverside-fm-pp-cli transcripts convert bf487406-af40-4bb4-b7f9-a6b49047b55d --format vtt --out episode-12.vtt",
+      "why_it_matters": "When an agent needs a transcript in WebVTT for a web player or JSON for downstream NLP, this command converts the locally-cached transcript without re-hitting the API.",
+      "group": "Transcript intelligence"
+    },
+    {
+      "name": "Cross-studio readiness board",
+      "command": "ready",
+      "description": "List every take across all your synced studios that is fully ready: cloud backup done, transcription finished, no participant track still uploading.",
+      "rationale": "Local SQLite join across recordings, transcriptions, and participants — no single Riverside API call returns this view, and the web app surfaces it only per-recording.",
+      "example": "riverside-fm-pp-cli ready --json --select studio,project,take_id,duration",
+      "why_it_matters": "Agents helping a producer with multiple shows need one call to see what's ready to cut — not 4 studios x N projects of manual clicking.",
+      "group": "Production ops"
+    },
+    {
+      "name": "Signed-URL refresh + prefetch",
+      "command": "media refresh",
+      "description": "Re-walks production media + clip-assets to refresh short-lived CloudFront signed URLs; --prefetch downloads every asset body before TTL expires.",
+      "rationale": "Riverside CloudFront URLs are time-limited; the web app silently regenerates them on each page load but offers no \"refresh all\" surface or bulk prefetch.",
+      "example": "riverside-fm-pp-cli media refresh --project 69fcda9fba030a19ae93a526 --prefetch --out ./media",
+      "why_it_matters": "When an agent needs to archive a project's media assets, this command races the TTL clock instead of failing midway through a download chain.",
+      "group": "Priority-aware downloads"
+    },
+    {
+      "name": "Transcript full-text search",
+      "command": "search",
+      "description": "SQLite FTS5 over locally-cached transcription bodies; speaker filter joins the speakers array; output names the session, project, matched line, and timestamp.",
+      "rationale": "The only way to grep your own three-year Riverside catalog. No API endpoint searches transcripts; the web app shows transcripts only one take at a time.",
+      "example": "riverside-fm-pp-cli search \"compounding loop\" --json",
+      "why_it_matters": "Agents finding a quote or moment in a creator's backlog use this instead of opening Riverside studios one by one.",
+      "group": "Transcript intelligence"
+    },
+    {
+      "name": "Wait-until-ready",
+      "command": "wait",
+      "description": "Block until a take's backup, transcription, and/or AI generation are done; --include selects which facets to wait on; --timeout caps the wait. Exits 0 on ready, 2 on timeout.",
+      "rationale": "Polls three separate Riverside endpoints with adaptive backoff; useful when an editor-side automation needs to fire only after upload + transcription + AI clips are all finished.",
+      "example": "riverside-fm-pp-cli wait bf487406-af40-4bb4-b7f9-a6b49047b55d --include transcript,assets,ai --timeout 30m",
+      "why_it_matters": "Lets an agent pipeline depend on Riverside readiness without busy-loops or hardcoded sleeps.",
+      "group": "Production ops"
+    },
+    {
+      "name": "Magic Clips harvest",
+      "command": "clips harvest",
+      "description": "Gates on AI-generation-status=ready, lists Magic Clip exports for a project, refreshes each clip's signed URL, optionally downloads MP4s.",
+      "rationale": "Chains three separate Riverside surfaces (AI status + exports list + per-clip URL refresh); the web app exposes them as separate tabs with no programmatic seam.",
+      "example": "riverside-fm-pp-cli clips harvest --project 69fcda9fba030a19ae93a526 --download --out ./clips",
+      "why_it_matters": "When an agent automates social-clip distribution, this is the one command to pull every Magic Clip with fresh, downloadable URLs.",
+      "group": "Production ops"
+    },
+    {
+      "name": "Speaker talktime stats",
+      "command": "transcripts talktime",
+      "description": "From the cached voice-activity timestamps, compute seconds spoken per speaker, % of total, longest monologue, and interrupt count.",
+      "rationale": "Riverside captures voice-activity timestamps but never surfaces them as metrics. Pure local computation post-sync; mechanical aggregation no other tool offers.",
+      "example": "riverside-fm-pp-cli transcripts talktime bf487406-af40-4bb4-b7f9-a6b49047b55d --json",
+      "why_it_matters": "Agents grading interview pacing or producer-host balance use this to answer talktime questions without re-watching takes.",
+      "group": "Transcript intelligence"
+    },
+    {
+      "name": "Stale take detector",
+      "command": "stale",
+      "description": "Cross-studio query: which recordings have been stuck in uploading / processing / transcribing past N hours? Catches dropped guest-wifi uploads and abandoned takes.",
+      "rationale": "Local SQLite query against synced recording status; Riverside has no UI for cross-studio stuck-upload triage.",
+      "example": "riverside-fm-pp-cli stale --days 1 --json",
+      "why_it_matters": "Production agents catching stuck takes before the host has moved on use this to triage what needs guest re-upload.",
+      "group": "Production ops"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Priority-fallback grab",
+      "command": "grab",
+      "description": "Get whichever exists for a recording in priority order: transcript first, then audio tracks, then HLS video — your stated goal as a single command.",
+      "rationale": "Combines three Riverside endpoints (transcriptions, take/assets, vod) behind a single decision tree; exits with code naming the tier reached. No competing tool offers priority fallback for Pro-tier recordings.",
+      "example": "riverside-fm-pp-cli grab bf487406-af40-4bb4-b7f9-a6b49047b55d --agent",
+      "why_it_matters": "When an agent has a recording session ID, this is the one-shot command that gets the most useful asset that exists without polling three separate endpoints first.",
+      "group": "Priority-aware downloads"
+    },
+    {
+      "name": "Bulk studio export with resume",
+      "command": "bulk export",
+      "description": "Walk every project / take / asset in a studio (or date range) and download transcripts + per-participant audio + HLS manifests with a resume cursor on `.runstate/`. The killer workflow no Pro-tier tool offers.",
+      "rationale": "Iterates projects -\u003e takes -\u003e assets endpoints, persists progress so interruption never restarts the walk. Riverside's web app has no bulk-export UI for non-Business tiers.",
+      "example": "riverside-fm-pp-cli bulk export --studio damien-stevenss-studio --since 2026-04-01 --out ./archive",
+      "why_it_matters": "For an agent backing up a creator's archive, this is the only way to get every asset out of Riverside without 6-12 manual clicks per take.",
+      "group": "Priority-aware downloads"
+    },
+    {
+      "name": "Transcript format converter",
+      "command": "transcripts convert",
+      "description": "Convert Riverside's editableWithVoiceActivity JSON (speakers + voice-activity timestamps) to VTT, SRT, plain text, JSON, or speaker-grouped Markdown — formats Riverside's own UI doesn't expose.",
+      "rationale": "Pure local transform on cached transcription data; Riverside natively exposes only SRT/TXT through its UI download but the API payload contains richer voice-activity data we can reformat.",
+      "example": "riverside-fm-pp-cli transcripts convert bf487406-af40-4bb4-b7f9-a6b49047b55d --format vtt --out episode-12.vtt",
+      "why_it_matters": "When an agent needs a transcript in WebVTT for a web player or JSON for downstream NLP, this command converts the locally-cached transcript without re-hitting the API.",
+      "group": "Transcript intelligence"
+    },
+    {
+      "name": "Cross-studio readiness board",
+      "command": "ready",
+      "description": "List every take across all your synced studios that is fully ready: cloud backup done, transcription finished, no participant track still uploading.",
+      "rationale": "Local SQLite join across recordings, transcriptions, and participants — no single Riverside API call returns this view, and the web app surfaces it only per-recording.",
+      "example": "riverside-fm-pp-cli ready --json --select studio,project,take_id,duration",
+      "why_it_matters": "Agents helping a producer with multiple shows need one call to see what's ready to cut — not 4 studios x N projects of manual clicking.",
+      "group": "Production ops"
+    },
+    {
+      "name": "Signed-URL refresh + prefetch",
+      "command": "media refresh",
+      "description": "Re-walks production media + clip-assets to refresh short-lived CloudFront signed URLs; --prefetch downloads every asset body before TTL expires.",
+      "rationale": "Riverside CloudFront URLs are time-limited; the web app silently regenerates them on each page load but offers no \"refresh all\" surface or bulk prefetch.",
+      "example": "riverside-fm-pp-cli media refresh --project 69fcda9fba030a19ae93a526 --prefetch --out ./media",
+      "why_it_matters": "When an agent needs to archive a project's media assets, this command races the TTL clock instead of failing midway through a download chain.",
+      "group": "Priority-aware downloads"
+    },
+    {
+      "name": "Transcript full-text search",
+      "command": "search",
+      "description": "SQLite FTS5 over locally-cached transcription bodies; speaker filter joins the speakers array; output names the session, project, matched line, and timestamp.",
+      "rationale": "The only way to grep your own three-year Riverside catalog. No API endpoint searches transcripts; the web app shows transcripts only one take at a time.",
+      "example": "riverside-fm-pp-cli search \"compounding loop\" --json",
+      "why_it_matters": "Agents finding a quote or moment in a creator's backlog use this instead of opening Riverside studios one by one.",
+      "group": "Transcript intelligence"
+    },
+    {
+      "name": "Wait-until-ready",
+      "command": "wait",
+      "description": "Block until a take's backup, transcription, and/or AI generation are done; --include selects which facets to wait on; --timeout caps the wait. Exits 0 on ready, 2 on timeout.",
+      "rationale": "Polls three separate Riverside endpoints with adaptive backoff; useful when an editor-side automation needs to fire only after upload + transcription + AI clips are all finished.",
+      "example": "riverside-fm-pp-cli wait bf487406-af40-4bb4-b7f9-a6b49047b55d --include transcript,assets,ai --timeout 30m",
+      "why_it_matters": "Lets an agent pipeline depend on Riverside readiness without busy-loops or hardcoded sleeps.",
+      "group": "Production ops"
+    },
+    {
+      "name": "Magic Clips harvest",
+      "command": "clips harvest",
+      "description": "Gates on AI-generation-status=ready, lists Magic Clip exports for a project, refreshes each clip's signed URL, optionally downloads MP4s.",
+      "rationale": "Chains three separate Riverside surfaces (AI status + exports list + per-clip URL refresh); the web app exposes them as separate tabs with no programmatic seam.",
+      "example": "riverside-fm-pp-cli clips harvest --project 69fcda9fba030a19ae93a526 --download --out ./clips",
+      "why_it_matters": "When an agent automates social-clip distribution, this is the one command to pull every Magic Clip with fresh, downloadable URLs.",
+      "group": "Production ops"
+    },
+    {
+      "name": "Speaker talktime stats",
+      "command": "transcripts talktime",
+      "description": "From the cached voice-activity timestamps, compute seconds spoken per speaker, % of total, longest monologue, and interrupt count.",
+      "rationale": "Riverside captures voice-activity timestamps but never surfaces them as metrics. Pure local computation post-sync; mechanical aggregation no other tool offers.",
+      "example": "riverside-fm-pp-cli transcripts talktime bf487406-af40-4bb4-b7f9-a6b49047b55d --json",
+      "why_it_matters": "Agents grading interview pacing or producer-host balance use this to answer talktime questions without re-watching takes.",
+      "group": "Transcript intelligence"
+    },
+    {
+      "name": "Stale take detector",
+      "command": "stale",
+      "description": "Cross-studio query: which recordings have been stuck in uploading / processing / transcribing past N hours? Catches dropped guest-wifi uploads and abandoned takes.",
+      "rationale": "Local SQLite query against synced recording status; Riverside has no UI for cross-studio stuck-upload triage.",
+      "example": "riverside-fm-pp-cli stale --days 1 --json",
+      "why_it_matters": "Production agents catching stuck takes before the host has moved on use this to triage what needs guest re-upload.",
+      "group": "Production ops"
+    }
+  ],
+  "narrative": {
+    "display_name": "Riverside",
+    "headline": "The first programmatic way to download every transcript, audio track, and video from your own Riverside.com account — no Business plan or API key required.",
+    "value_prop": "Riverside.com makes you click through Studio → Project → Take → Transcript for every download, and locks the official API behind a custom-priced Business plan. This CLI imports your logged-in browser cookies and reaches the same internal API the web app uses, giving you priority-fallback grab, bulk studio export with resume, transcript search over your whole archive, and Magic Clips harvest with CloudFront URL refresh — features Riverside has never shipped to Pro users.",
+    "auth_narrative": "Riverside Pro / Live / Webinar tiers don't get an API key — but the web app you log into uses an internal API gated only by HttpOnly session cookies. Run `riverside-fm-pp-cli auth login --chrome` once: the CLI reads `riverside_auth_access`, `riverside_auth_refresh`, `sweetsesh`, and `cloudfront_signed_url` from your local Chrome profile and reuses them. The Business API at platform.riverside.fm is NOT used by this CLI — it requires a Bearer key that Pro plans cannot issue, and rejects cookies outright.",
+    "quickstart": [
+      {
+        "command": "riverside-fm-pp-cli auth login --chrome",
+        "comment": "Import your Riverside session cookies from local Chrome (no password, no API key)"
+      },
+      {
+        "command": "riverside-fm-pp-cli doctor",
+        "comment": "Verify the cookies authenticate against /user"
+      },
+      {
+        "command": "riverside-fm-pp-cli sync",
+        "comment": "Pull projects, takes, recordings, transcripts into the local SQLite store"
+      },
+      {
+        "command": "riverside-fm-pp-cli grab bf487406-af40-4bb4-b7f9-a6b49047b55d",
+        "comment": "Priority-fallback download: transcript first, then audio, then video"
+      },
+      {
+        "command": "riverside-fm-pp-cli search \"compounding loops\" --json",
+        "comment": "FTS over every cached transcript"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 'User is not authenticated'",
+        "fix": "Cookies expired — re-run `auth login --chrome` after reopening riverside.com in Chrome"
+      },
+      {
+        "symptom": "403 on download URL after a successful list",
+        "fix": "CloudFront signed URL TTL expired — run `media refresh --project \u003cid\u003e` to fetch fresh signed URLs"
+      },
+      {
+        "symptom": "Transcription returns empty speakers[]",
+        "fix": "Take is too short to transcribe or transcription is still processing — run `wait \u003csession-id\u003e --include transcript`"
+      },
+      {
+        "symptom": "Business API 401 \"The Api Key is required\"",
+        "fix": "This CLI uses the cookie-authed riverside.com surface, not the Business API. You don't need an API key. If you see this, you're hitting platform.riverside.fm by mistake — file a bug."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent needs to programmatically access a Riverside.com account on Pro / Live / Webinar tier (i.e., no Business API key available). It's the right choice for backing up a creator's archive, batch-downloading transcripts/audio/video by date range, full-text-searching a podcast catalog, harvesting Magic Clips when AI generation finishes, or waiting on a recording to be ready before firing downstream automation. It is NOT the right choice for write operations (creating studios, inviting guests, posting webhooks) — those surfaces exist in the API but weren't exercised in this print.",
+    "recipes": [
+      {
+        "title": "Bulk-export a whole studio's archive",
+        "command": "riverside-fm-pp-cli bulk export --studio damien-stevenss-studio --since 2026-04-01 --out ./archive",
+        "explanation": "Walks projects, takes, transcripts, asset metadata, HLS manifests; resumes if interrupted."
+      },
+      {
+        "title": "Find every mention of a topic across years of podcasts",
+        "command": "riverside-fm-pp-cli search \"network effects\" --json --select id,resource_type,hit",
+        "explanation": "FTS5 across every cached transcript with snippet context."
+      },
+      {
+        "title": "Wait until a take is ready, then harvest its Magic Clips",
+        "command": "riverside-fm-pp-cli clips harvest --project 69fcda9fba030a19ae93a526 --wait --download --out ./clips",
+        "explanation": "Blocks on AI-generation-status, then refreshes signed URLs and downloads every Magic Clip."
+      },
+      {
+        "title": "Compute per-speaker talktime stats",
+        "command": "riverside-fm-pp-cli transcripts talktime bf487406-af40-4bb4-b7f9-a6b49047b55d --json",
+        "explanation": "Computes seconds, % of total, longest monologue, and interrupt count per speaker from voice-activity timestamps."
+      },
+      {
+        "title": "Pull a clean WebVTT transcript for a take",
+        "command": "riverside-fm-pp-cli transcripts convert bf487406-af40-4bb4-b7f9-a6b49047b55d --format vtt --out ep12.vtt",
+        "explanation": "Converts the voice-activity JSON to WebVTT (a format Riverside's UI doesn't expose) for embedding in a web player."
+      }
+    ],
+    "trigger_phrases": [
+      "download my riverside transcripts",
+      "grab my riverside recording",
+      "bulk export riverside studio",
+      "search riverside transcripts",
+      "harvest magic clips",
+      "use riverside-fm",
+      "run riverside-fm"
+    ]
+  }
+}

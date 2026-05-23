@@ -1,0 +1,87 @@
+===== TEST 3: doctor (re-run) =====
+{
+  "api": "reachable",
+  "auth": "configured (browser session)",
+  "auth_domain": "riverside.com",
+  "auth_source": "browser",
+  "base_url": "https://riverside.com",
+  "cache": {
+    "db_bytes": 57344,
+    "db_path": "/Users/dstevens/.local/share/riverside-fm-pp-cli/data.db",
+    "hint": "sync_state is empty; run 'riverside-fm-pp-cli sync' to hydrate.",
+    "resources": null,
+    "schema_version": 2,
+    "stale_after": "6h0m0s",
+    "status": "unknown"
+  },
+  "config": "ok",
+  "config_path": "/Users/dstevens/.config/riverside-fm-pp-cli/config.toml",
+  "cookie_tool": "python3",
+  "credentials": "present (not verified — set auth.verify_path in spec for an API acceptance check)",
+  "version": "1.0.0"
+
+===== TEST 4: studios get =====
+{
+  "meta": {
+    "source": "live"
+  },
+  "results": {}
+}
+
+===== TEST 5: projects list-by-studio =====
+{
+  "meta": {
+    "source": "live"
+  },
+  "results": {}
+}
+
+===== TEST 6: projects list-takes =====
+{
+  "meta": {
+    "source": "live"
+  },
+  "results": {
+    "takes": [
+      {
+        "_id": "69fcf0ce7478a63e4fb320e9",
+        "recordings": [
+          {
+
+===== TEST 7: grab (priority fallback) =====
+{
+  "bytes": 21029,
+  "path": "/tmp/riverside-test/bf487406-af40-4bb4-b7f9-a6b49047b55d-take-assets.json",
+  "session_id": "bf487406-af40-4bb4-b7f9-a6b49047b55d",
+  "tier": "audio"
+}
+
+===== TEST 8: transcripts talktime =====
+{
+  "session_total_seconds": 0,
+  "total_speech_seconds": 0,
+  "speakers": null
+}
+===== TEST 9: grab on 40min take =====
+{
+  "bytes": 166426,
+  "path": "/tmp/riverside-test/9c0386e9-1640-478a-b243-c75d25cf6b71-transcript.json",
+  "session_id": "9c0386e9-1640-478a-b243-c75d25cf6b71",
+  "tier": "transcript"
+}
+===== TEST 10: transcripts talktime on REAL transcript =====
+{
+  "session_total_seconds": 2388392,
+  "total_speech_seconds": 2326950,
+  "speakers": [
+    {
+      "speaker": "",
+      "seconds": 2326950,
+      "percent_of_total": 100,
+      "longest_monologue_seconds": 0,
+      "interrupts": 0
+    }
+  ]
+}
+===== TEST 11: transcripts convert --format vtt =====
+wrote /tmp/riverside-test/ep.vtt (5243 bytes, format=vtt)

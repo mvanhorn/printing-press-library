@@ -1,0 +1,1227 @@
+name: riverside-fm
+description: Discovered API spec for riverside
+version: 0.1.0
+base_url: https://riverside.com
+spec_source: sniffed
+http_transport: browser-chrome
+auth:
+    type: none
+    header: ""
+    format: ""
+    env_vars: []
+config:
+    format: toml
+    path: ~/.config/riverside-fm-pp-cli/config.toml
+resources:
+    account-access:
+        description: Operations on account-access
+        endpoints:
+            list_account_access:
+                method: GET
+                path: /account-access
+                description: GET /account-access
+                params:
+                    - name: error
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: isOperational
+                      type: boolean
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: message
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: name
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: status
+                      type: integer
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: account_access
+                pagination: null
+    builds:
+        description: Operations on mf-manifest.json
+        endpoints:
+            list_mf_manifest.json:
+                method: GET
+                path: /builds/mfe/project_page_new/2.82.0/mf-manifest.json
+                description: GET /builds/mfe/project_page_new/2.82.0/mf-manifest.json
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: mf_manifest.json
+                pagination: null
+            list_mf_manifest.json_2:
+                method: GET
+                path: /builds/mfe/co_creator/2.318.0/mf-manifest.json
+                description: GET /builds/mfe/co_creator/2.318.0/mf-manifest.json
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: mf_manifest.json
+                pagination: null
+            list_mf_manifest.json_3:
+                method: GET
+                path: /builds/mfe/webinar_management_page/1.242.0/mf-manifest.json
+                description: GET /builds/mfe/webinar_management_page/1.242.0/mf-manifest.json
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: mf_manifest.json
+                pagination: null
+    clip:
+        description: Operations on 69fced6526b237adc601b3a8
+        endpoints:
+            list_69fcda9fba030a19ae93a63c:
+                method: GET
+                path: /api/v4/clip/69fcda9fba030a19ae93a63c
+                description: GET /api/v4/clip/69fcda9fba030a19ae93a63c
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: 69fcda9fba030a19ae93a63c
+                pagination: null
+            list_69fce405b3980c6ab4fa6592:
+                method: GET
+                path: /api/v4/clip/69fce405b3980c6ab4fa6592
+                description: GET /api/v4/clip/69fce405b3980c6ab4fa6592
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: 69fce405b3980c6ab4fa6592
+                pagination: null
+            list_69fced6526b237adc601b3a8:
+                method: GET
+                path: /api/v4/clip/69fced6526b237adc601b3a8
+                description: GET /api/v4/clip/69fced6526b237adc601b3a8
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: 69fced6526b237adc601b3a8
+                pagination: null
+            list_69fcefd36df6463126ac8bbb:
+                method: GET
+                path: /api/v4/clip/69fcefd36df6463126ac8bbb
+                description: GET /api/v4/clip/69fcefd36df6463126ac8bbb
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: 69fcefd36df6463126ac8bbb
+                pagination: null
+            list_69fcf0ce7478a63e4fb3214d:
+                method: GET
+                path: /api/v4/clip/69fcf0ce7478a63e4fb3214d
+                description: GET /api/v4/clip/69fcf0ce7478a63e4fb3214d
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: 69fcf0ce7478a63e4fb3214d
+                pagination: null
+            list_patches:
+                method: GET
+                path: /api/v4/clip/69fcda9fba030a19ae93a63c/patches
+                description: GET /api/v4/clip/69fcda9fba030a19ae93a63c/patches
+                params:
+                    - name: patches
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: patches
+                pagination: null
+            list_patches_2:
+                method: GET
+                path: /api/v4/clip/69fced6526b237adc601b3a8/patches
+                description: GET /api/v4/clip/69fced6526b237adc601b3a8/patches
+                params:
+                    - name: patches
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: patches
+                pagination: null
+            list_patches_3:
+                method: GET
+                path: /api/v4/clip/69fce405b3980c6ab4fa6592/patches
+                description: GET /api/v4/clip/69fce405b3980c6ab4fa6592/patches
+                params:
+                    - name: patches
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: patches
+                pagination: null
+            list_patches_4:
+                method: GET
+                path: /api/v4/clip/69fcefd36df6463126ac8bbb/patches
+                description: GET /api/v4/clip/69fcefd36df6463126ac8bbb/patches
+                params:
+                    - name: patches
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: patches
+                pagination: null
+            list_patches_5:
+                method: GET
+                path: /api/v4/clip/69fcf0ce7478a63e4fb3214d/patches
+                description: GET /api/v4/clip/69fcf0ce7478a63e4fb3214d/patches
+                params:
+                    - name: patches
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: patches
+                pagination: null
+    dialogr:
+        description: Operations on history
+        endpoints:
+            list_history:
+                method: GET
+                path: /dialogr/api/history
+                description: GET /dialogr/api/history
+                params:
+                    - name: format
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: projectId
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: resourceId
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: threadId
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: history
+                pagination: null
+    global-search:
+        description: Operations on migrate
+        endpoints:
+            create_migrate:
+                method: POST
+                path: /api/v4/global-search/migrate
+                description: POST /api/v4/global-search/migrate
+                params:
+                    - name: pendingMigrations
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: success
+                      type: boolean
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: migrate
+                pagination: null
+    logs:
+        description: Operations on logs
+        endpoints:
+            create_logs:
+                method: POST
+                path: /api/logs
+                description: POST /api/logs
+                params: []
+                body:
+                    - name: logs
+                      type: array
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: category
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: className
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: err
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: extraData
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: functionName
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: msg
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: severity
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: slug
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: time
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                          format: date-time
+                        - name: topic
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                    - name: platform
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: ua
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: user
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: _id
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: clientID
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                          format: uuid
+                        - name: env
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: gitVersionTag
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: reviewApp
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: isReviewApp
+                              type: boolean
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                response:
+                    type: object
+                    item: logs
+                pagination: null
+    production:
+        description: Operations on media
+        endpoints:
+            list_media:
+                method: GET
+                path: /api/v4/production/65b7f6999a4cfb0b2e7caf46/media
+                description: GET /api/v4/production/65b7f6999a4cfb0b2e7caf46/media
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: media
+                pagination: null
+    projects:
+        description: Operations on 69fcda9fba030a19ae93a526
+        endpoints:
+            list_69fcda9fba030a19ae93a526:
+                method: GET
+                path: /api/v4/projects/69fcda9fba030a19ae93a526
+                description: GET /api/v4/projects/69fcda9fba030a19ae93a526
+                params:
+                    - name: project
+                      type: object
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: __v
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: _id
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: autoGenerateStatus
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: 69fcda9fba030a19ae93a560
+                              type: object
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: 69fce405b3980c6ab4fa6530
+                              type: object
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: 69fced6426b237adc601b323
+                              type: object
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: 69fcefd26df6463126ac8b58
+                              type: object
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: 69fcf0ce7478a63e4fb320e9
+                              type: object
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: clipsCount
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: createdAt
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                          format: date-time
+                        - name: createdByUser
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: deleted
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: deletedWithStudio
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: lastViewed
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: magicClipsCount
+                          type: integer
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: magicEpisode
+                          type: object
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: clips
+                              type: array
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: preReleaseScheduling
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: scheduledEvents
+                          type: array
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: studio
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: studioSlug
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: thumbnails
+                          type: array
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: title
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: updatedAt
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                          format: date-time
+                body: []
+                response:
+                    type: object
+                    item: 69fcda9fba030a19ae93a526
+                pagination: null
+            list_ai_generation_status:
+                method: GET
+                path: /api/v4/projects/69fcda9fba030a19ae93a526/ai-generation-status
+                description: GET /api/v4/projects/69fcda9fba030a19ae93a526/ai-generation-status
+                params:
+                    - name: canGenerateClips
+                      type: boolean
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: canGenerateHooks
+                      type: boolean
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: canGenerateSegments
+                      type: boolean
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: ai_generation_status
+                pagination: null
+            list_damien_stevenss_studio:
+                method: GET
+                path: /api/v4/projects/studio/damien-stevenss-studio
+                description: GET /api/v4/projects/studio/damien-stevenss-studio
+                params:
+                    - name: limit
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: offset
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: orderBy
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: sortBy
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: damien_stevenss_studio
+                pagination: null
+            list_exports:
+                method: GET
+                path: /api/v4/projects/69fcda9fba030a19ae93a526/clips/exports
+                description: GET /api/v4/projects/69fcda9fba030a19ae93a526/clips/exports
+                params:
+                    - name: limit
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: offset
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: exports
+                pagination: null
+            list_takes:
+                method: GET
+                path: /api/v4/projects/69fcda9fba030a19ae93a526/takes
+                description: GET /api/v4/projects/69fcda9fba030a19ae93a526/takes
+                params:
+                    - name: limit
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: offset
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: takes
+                pagination: null
+    recording:
+        description: Operations on backup-status
+        endpoints:
+            list_backup_status:
+                method: GET
+                path: /api/v4/recording/69fced652903136836936db2/backup-status
+                description: GET /api/v4/recording/69fced652903136836936db2/backup-status
+                params:
+                    - name: status
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: backup_status
+                pagination: null
+            list_backup_status_2:
+                method: GET
+                path: /api/v4/recording/69fce40921fae89008fa031b/backup-status
+                description: GET /api/v4/recording/69fce40921fae89008fa031b/backup-status
+                params:
+                    - name: status
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: backup_status
+                pagination: null
+            list_backup_status_3:
+                method: GET
+                path: /api/v4/recording/69fce405c5ca057663acb095/backup-status
+                description: GET /api/v4/recording/69fce405c5ca057663acb095/backup-status
+                params:
+                    - name: status
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: backup_status
+                pagination: null
+            list_backup_status_4:
+                method: GET
+                path: /api/v4/recording/69fcdaa48e8d1cfd506f441a/backup-status
+                description: GET /api/v4/recording/69fcdaa48e8d1cfd506f441a/backup-status
+                params:
+                    - name: status
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: backup_status
+                pagination: null
+            list_backup_status_5:
+                method: GET
+                path: /api/v4/recording/69fcefd3447f6e389f075b2b/backup-status
+                description: GET /api/v4/recording/69fcefd3447f6e389f075b2b/backup-status
+                params:
+                    - name: status
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: backup_status
+                pagination: null
+            list_backup_status_6:
+                method: GET
+                path: /api/v4/recording/69fcdaa0e2f88d170b74d88c/backup-status
+                description: GET /api/v4/recording/69fcdaa0e2f88d170b74d88c/backup-status
+                params:
+                    - name: status
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: backup_status
+                pagination: null
+            list_backup_status_7:
+                method: GET
+                path: /api/v4/recording/69fcf0cea22b3b4263104623/backup-status
+                description: GET /api/v4/recording/69fcf0cea22b3b4263104623/backup-status
+                params:
+                    - name: status
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: backup_status
+                pagination: null
+    recording-ai:
+        description: Operations on can-generate
+        endpoints:
+            list_can_generate:
+                method: GET
+                path: /api/v4/recording-ai/damien-stevenss-studio/can-generate
+                description: GET /api/v4/recording-ai/damien-stevenss-studio/can-generate
+                params:
+                    - name: status
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: can_generate
+                pagination: null
+    studio:
+        description: Operations on overview
+        endpoints:
+            list_can_create_event:
+                method: GET
+                path: /api/v4/studio/damien-stevenss-studio/event/can-create-event
+                description: GET /api/v4/studio/damien-stevenss-studio/event/can-create-event
+                params:
+                    - name: canUserGenerate
+                      type: boolean
+                      required: true
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: can_create_event
+                pagination: null
+            list_damien_stevenss_studio:
+                method: GET
+                path: /api/v3/studio/damien-stevenss-studio
+                description: GET /api/v3/studio/damien-stevenss-studio
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: damien_stevenss_studio
+                pagination: null
+            list_overview:
+                method: GET
+                path: /api/v4/studio/damien-stevenss-studio/overview
+                description: GET /api/v4/studio/damien-stevenss-studio/overview
+                params:
+                    - name: t
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: overview
+                pagination: null
+    take:
+        description: Operations on clip-assets
+        endpoints:
+            get_assets:
+                method: GET
+                path: /api/v4/take/{uuid}/assets
+                description: GET /api/v4/take/{uuid}/assets
+                params:
+                    - name: uuid
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The uuid path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: assets
+                pagination: null
+            get_clip_assets:
+                method: GET
+                path: /api/v4/take/{uuid}/clip/69fcda9fba030a19ae93a63c/clip-assets
+                description: GET /api/v4/take/{uuid}/clip/69fcda9fba030a19ae93a63c/clip-assets
+                params:
+                    - name: uuid
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The uuid path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: clip_assets
+                pagination: null
+            get_clip_assets_2:
+                method: GET
+                path: /api/v4/take/{uuid}/clip/69fced6526b237adc601b3a8/clip-assets
+                description: GET /api/v4/take/{uuid}/clip/69fced6526b237adc601b3a8/clip-assets
+                params:
+                    - name: uuid
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The uuid path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: clip_assets
+                pagination: null
+            get_clip_assets_3:
+                method: GET
+                path: /api/v4/take/{uuid}/clip/69fce405b3980c6ab4fa6592/clip-assets
+                description: GET /api/v4/take/{uuid}/clip/69fce405b3980c6ab4fa6592/clip-assets
+                params:
+                    - name: uuid
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The uuid path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: clip_assets
+                pagination: null
+            get_clip_assets_4:
+                method: GET
+                path: /api/v4/take/{uuid}/clip/69fcefd36df6463126ac8bbb/clip-assets
+                description: GET /api/v4/take/{uuid}/clip/69fcefd36df6463126ac8bbb/clip-assets
+                params:
+                    - name: uuid
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The uuid path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: clip_assets
+                pagination: null
+            get_clip_assets_5:
+                method: GET
+                path: /api/v4/take/{uuid}/clip/69fcf0ce7478a63e4fb3214d/clip-assets
+                description: GET /api/v4/take/{uuid}/clip/69fcf0ce7478a63e4fb3214d/clip-assets
+                params:
+                    - name: uuid
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The uuid path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: clip_assets
+                pagination: null
+    transcriptions:
+        description: Operations on editableWithVoiceActivity
+        endpoints:
+            get_editableWithVoiceActivity:
+                method: GET
+                path: /api/v4/transcriptions/editableWithVoiceActivity/{uuid}
+                description: GET /api/v4/transcriptions/editableWithVoiceActivity/{uuid}
+                params:
+                    - name: uuid
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The uuid path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: editableWithVoiceActivity
+                pagination: null
+    user:
+        description: Operations on user
+        endpoints:
+            list_user:
+                method: GET
+                path: /user
+                description: GET /user
+                params: []
+                body: []
+                response:
+                    type: object
+                    item: user
+                pagination: null
+    vod:
+        description: Operations on damienstevens-nev5txur8
+        endpoints:
+            get_damienstevens_fqd4a6ckh:
+                method: GET
+                path: /api/v4/vod/{uuid}/damienstevens-fqd4a6ckh
+                description: GET /api/v4/vod/{uuid}/damienstevens-fqd4a6ckh
+                params:
+                    - name: uuid
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The uuid path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: damienstevens_fqd4a6ckh
+                pagination: null
+            get_damienstevens_lmb0ml5mk:
+                method: GET
+                path: /api/v4/vod/{uuid}/damienstevens-lmb0ml5mk
+                description: GET /api/v4/vod/{uuid}/damienstevens-lmb0ml5mk
+                params:
+                    - name: uuid
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The uuid path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: damienstevens_lmb0ml5mk
+                pagination: null
+            get_damienstevens_ms1to36g5:
+                method: GET
+                path: /api/v4/vod/{uuid}/damienstevens-ms1to36g5
+                description: GET /api/v4/vod/{uuid}/damienstevens-ms1to36g5
+                params:
+                    - name: uuid
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The uuid path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: damienstevens_ms1to36g5
+                pagination: null
+            get_damienstevens_nev5txur8:
+                method: GET
+                path: /api/v4/vod/{uuid}/damienstevens-nev5txur8
+                description: GET /api/v4/vod/{uuid}/damienstevens-nev5txur8
+                params:
+                    - name: uuid
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The uuid path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: damienstevens_nev5txur8
+                pagination: null
+            get_damienstevens_z2w164h45:
+                method: GET
+                path: /api/v4/vod/{uuid}/damienstevens-z2w164h45
+                description: GET /api/v4/vod/{uuid}/damienstevens-z2w164h45
+                params:
+                    - name: uuid
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The uuid path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: damienstevens_z2w164h45
+                pagination: null
+            get_jonsalisbury_JY1l6G9Z9:
+                method: GET
+                path: /api/v4/vod/{uuid}/jonsalisbury-JY1l6G9Z9
+                description: GET /api/v4/vod/{uuid}/jonsalisbury-JY1l6G9Z9
+                params:
+                    - name: uuid
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The uuid path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: jonsalisbury_JY1l6G9Z9
+                pagination: null
+            get_jonsalisbury_uQjY73Hca:
+                method: GET
+                path: /api/v4/vod/{uuid}/jonsalisbury-uQjY73Hca
+                description: GET /api/v4/vod/{uuid}/jonsalisbury-uQjY73Hca
+                params:
+                    - name: uuid
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The uuid path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: jonsalisbury_uQjY73Hca
+                pagination: null
+types: {}

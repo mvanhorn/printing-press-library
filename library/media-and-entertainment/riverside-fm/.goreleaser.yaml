@@ -1,0 +1,51 @@
+version: 2
+project_name: riverside-fm-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: riverside-fm-pp-cli
+    main: ./cmd/riverside-fm-pp-cli
+    binary: riverside-fm-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/media-and-entertainment/riverside-fm/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: riverside-fm-pp-mcp
+    main: ./cmd/riverside-fm-pp-mcp
+    binary: riverside-fm-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: riverside-fm-pp-cli
+    repository:
+      owner: dstevens
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "The first programmatic way to download every transcript, audio track, and video from your own Riverside.com account..."
+    install: |
+      bin.install "riverside-fm-pp-cli"
+      bin.install "riverside-fm-pp-mcp"

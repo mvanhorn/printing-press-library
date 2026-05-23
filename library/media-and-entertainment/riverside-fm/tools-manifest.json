@@ -1,0 +1,13 @@
+{
+  "api_name": "riverside-fm",
+  "base_url": "https://riverside.com",
+  "description": "Download transcripts, audio, and video from your Riverside.com recording sessions",
+  "mcp_ready": "partial",
+  "http_transport": "browser-chrome",
+  "auth": {
+    "type": "cookie",
+    "cookie_domain": "riverside.com"
+  },
+  "required_headers": [],
+  "tools": []
+}

@@ -1,0 +1,302 @@
+name: riverside-fm
+display_name: Riverside
+description: Download transcripts, audio, and video from your Riverside.com recording sessions
+version: 0.1.0
+base_url: https://riverside.com
+spec_source: sniffed
+http_transport: browser-chrome
+
+auth:
+  type: cookie
+  cookie_domain: riverside.com
+  cookies:
+    - riverside_auth_access
+    - riverside_auth_refresh
+    - sweetsesh
+    - cloudfront_signed_url
+    - dialogr-session
+    - dialogr-session.sig
+
+config:
+  format: toml
+  path: ~/.config/riverside-fm-pp-cli/config.toml
+
+resources:
+  user:
+    description: Current authenticated Riverside user
+    endpoints:
+      get:
+        method: GET
+        path: /user
+        description: Get the current authenticated user profile (id, role, account, plan flags).
+
+  studios:
+    description: Riverside studios (top-level workspaces for a series of content)
+    endpoints:
+      get:
+        method: GET
+        path: /api/v4/studio/{slug}/overview
+        description: Get the studio overview by slug (includes production ID, members, recent activity).
+        params:
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: Studio slug, e.g. damien-stevenss-studio
+      get_v3:
+        method: GET
+        path: /api/v3/studio/{slug}
+        description: Get the v3 studio detail by slug (legacy endpoint, returns richer config).
+        params:
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: Studio slug
+
+  projects:
+    description: Riverside projects (episodes / sessions inside a studio)
+    endpoints:
+      list_by_studio:
+        method: GET
+        path: /api/v4/projects/studio/{slug}
+        description: List projects (episodes) in a studio.
+        params:
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: Studio slug
+          - name: offset
+            type: integer
+            required: false
+            description: Pagination offset (default 0)
+          - name: limit
+            type: integer
+            required: false
+            description: Page size (default 20)
+          - name: sortBy
+            flag_name: sort-by
+            type: string
+            required: false
+            description: Sort field (default createdAt)
+          - name: orderBy
+            flag_name: order
+            type: string
+            required: false
+            description: Sort order asc or desc (default desc)
+      get:
+        method: GET
+        path: /api/v4/projects/{projectId}
+        description: Get a single project with full metadata (title, scheduled events, AI generation status).
+        params:
+          - name: projectId
+            flag_name: project-id
+            aliases: [id]
+            type: string
+            required: true
+            positional: true
+            description: Project ID (24-char MongoDB ObjectId)
+      ai_generation_status:
+        method: GET
+        path: /api/v4/projects/{projectId}/ai-generation-status
+        description: Get the AI generation status (magic clips, magic episodes) for a project.
+        params:
+          - name: projectId
+            flag_name: project-id
+            type: string
+            required: true
+            positional: true
+            description: Project ID
+      list_exports:
+        method: GET
+        path: /api/v4/projects/{projectId}/clips/exports
+        description: List exports (rendered MP4/WAV files) for a project.
+        params:
+          - name: projectId
+            flag_name: project-id
+            type: string
+            required: true
+            positional: true
+            description: Project ID
+          - name: offset
+            type: integer
+            required: false
+            description: Pagination offset
+          - name: limit
+            type: integer
+            required: false
+            description: Page size (default 200)
+      list_takes:
+        method: GET
+        path: /api/v4/projects/{projectId}/takes
+        description: List takes (recording sessions) in a project. Each take includes participant recordings and transcription session ID.
+        params:
+          - name: projectId
+            flag_name: project-id
+            type: string
+            required: true
+            positional: true
+            description: Project ID
+          - name: offset
+            type: integer
+            required: false
+            description: Pagination offset
+          - name: limit
+            type: integer
+            required: false
+            description: Page size (default 10)
+
+  takes:
+    description: Riverside takes (a single recording attempt grouping per-participant tracks + a session-level transcription)
+    endpoints:
+      get_assets:
+        method: GET
+        path: /api/v4/take/{sessionId}/assets
+        description: Get all track assets for a take by session ID (filenames, resolution, recording status, device info).
+        params:
+          - name: sessionId
+            flag_name: session-id
+            aliases: [take]
+            type: string
+            required: true
+            positional: true
+            description: Take session ID (UUID format)
+      get_clip_assets:
+        method: GET
+        path: /api/v4/take/{sessionId}/clip/{clipId}/clip-assets
+        description: Get clip-specific assets for a take + clip pair.
+        params:
+          - name: sessionId
+            flag_name: session-id
+            type: string
+            required: true
+            positional: true
+            description: Take session ID (UUID)
+          - name: clipId
+            flag_name: clip-id
+            type: string
+            required: true
+            positional: true
+            description: Clip ID (24-char MongoDB ObjectId)
+
+  recordings:
+    description: Individual recording files (per-participant audio + video)
+    endpoints:
+      get_backup_status:
+        method: GET
+        path: /api/v4/recording/{recordingId}/backup-status
+        description: Get the cloud backup status for a single recording. Status values - none, processing, done.
+        params:
+          - name: recordingId
+            flag_name: recording-id
+            aliases: [id]
+            type: string
+            required: true
+            positional: true
+            description: Recording ID (24-char MongoDB ObjectId)
+
+  clips:
+    description: Clips (Magic Clips, Magic Segments, manual edits)
+    endpoints:
+      get:
+        method: GET
+        path: /api/v4/clip/{clipId}
+        description: Get a clip with full take + clip metadata (export status, AI generation info, transcription language).
+        params:
+          - name: clipId
+            flag_name: clip-id
+            aliases: [id]
+            type: string
+            required: true
+            positional: true
+            description: Clip ID (24-char MongoDB ObjectId)
+      get_patches:
+        method: GET
+        path: /api/v4/clip/{clipId}/patches
+        description: Get edit patches applied to a clip.
+        params:
+          - name: clipId
+            flag_name: clip-id
+            type: string
+            required: true
+            positional: true
+            description: Clip ID
+
+  transcriptions:
+    description: Per-session transcripts with speaker labels and voice activity timestamps
+    endpoints:
+      get:
+        method: GET
+        path: /api/v4/transcriptions/editableWithVoiceActivity/{sessionId}
+        description: Get the editable transcript with voice activity for a take. Returns speakers, segments, timestamps. This is the raw data the CLI converts to TXT/SRT/VTT/JSON output.
+        params:
+          - name: sessionId
+            flag_name: session-id
+            aliases: [transcription, take]
+            type: string
+            required: true
+            positional: true
+            description: Session UUID (matches takes.sessionId)
+
+  vod:
+    description: HLS video-on-demand manifests per participant per take
+    endpoints:
+      manifest:
+        method: GET
+        path: /api/v4/vod/{sessionId}/{participantHandle}
+        description: Get the HLS m3u8 manifest for a participant's video. Used to stream or transcode.
+        params:
+          - name: sessionId
+            flag_name: session-id
+            type: string
+            required: true
+            positional: true
+            description: Session UUID
+          - name: participantHandle
+            flag_name: participant
+            aliases: [handle]
+            type: string
+            required: true
+            positional: true
+            description: "Participant archive ID, e.g. damienstevens-z2w164h45"
+
+  productions:
+    description: Workspace-level productions
+    endpoints:
+      get_media:
+        method: GET
+        path: /api/v4/production/{productionId}/media
+        description: List media board items (sound effects, intros, jingles) for a production. Includes signed CloudFront URLs.
+        params:
+          - name: productionId
+            flag_name: production-id
+            aliases: [id]
+            type: string
+            required: true
+            positional: true
+            description: Production ID (24-char MongoDB ObjectId)
+
+  ai:
+    description: AI/Magic features status checks
+    endpoints:
+      can_generate:
+        method: GET
+        path: /api/v4/recording-ai/{slug}/can-generate
+        description: Check whether the workspace can run AI generation (magic clips, magic episodes) for a studio.
+        params:
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: Studio slug
+      can_create_event:
+        method: GET
+        path: /api/v4/studio/{slug}/event/can-create-event
+        description: Check whether the workspace can create scheduled events for a studio.
+        params:
+          - name: slug
+            type: string
+            required: true
+            positional: true
+            description: Studio slug

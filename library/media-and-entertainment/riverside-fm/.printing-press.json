@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-12T18:17:58.06046Z",
+  "printing_press_version": "4.4.0",
+  "api_name": "riverside-fm",
+  "display_name": "Riverside",
+  "cli_name": "riverside-fm-pp-cli",
+  "owner": "dstevens",
+  "printer": "dstevens",
+  "printer_name": "Damien Stevens",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:a6186a43aa63135be2c55822320a0eaa83176bae653892f4a90416540534349c",
+  "run_id": "20260511-212938",
+  "mcp_binary": "riverside-fm-pp-mcp",
+  "mcp_tool_count": 18,
+  "mcp_ready": "partial",
+  "api_version": "0.1.0",
+  "auth_type": "cookie",
+  "novel_features": [
+    {
+      "name": "Priority-fallback grab",
+      "command": "grab",
+      "description": "Get whichever exists for a recording in priority order: transcript first, then audio tracks, then HLS video — your stated goal as a single command."
+    },
+    {
+      "name": "Bulk studio export with resume",
+      "command": "bulk export",
+      "description": "Walk every project / take / asset in a studio (or date range) and download transcripts + per-participant audio + HLS manifests with a resume cursor on `.runstate/`. The killer workflow no Pro-tier tool offers."
+    },
+    {
+      "name": "Transcript format converter",
+      "command": "transcripts convert",
+      "description": "Convert Riverside's editableWithVoiceActivity JSON (speakers + voice-activity timestamps) to VTT, SRT, plain text, JSON, or speaker-grouped Markdown — formats Riverside's own UI doesn't expose."
+    },
+    {
+      "name": "Cross-studio readiness board",
+      "command": "ready",
+      "description": "List every take across all your synced studios that is fully ready: cloud backup done, transcription finished, no participant track still uploading."
+    },
+    {
+      "name": "Signed-URL refresh + prefetch",
+      "command": "media refresh",
+      "description": "Re-walks production media + clip-assets to refresh short-lived CloudFront signed URLs; --prefetch downloads every asset body before TTL expires."
+    },
+    {
+      "name": "Transcript full-text search",
+      "command": "search",
+      "description": "SQLite FTS5 over locally-cached transcription bodies; speaker filter joins the speakers array; output names the session, project, matched line, and timestamp."
+    },
+    {
+      "name": "Wait-until-ready",
+      "command": "wait",
+      "description": "Block until a take's backup, transcription, and/or AI generation are done; --include selects which facets to wait on; --timeout caps the wait. Exits 0 on ready, 2 on timeout."
+    },
+    {
+      "name": "Magic Clips harvest",
+      "command": "clips harvest",
+      "description": "Gates on AI-generation-status=ready, lists Magic Clip exports for a project, refreshes each clip's signed URL, optionally downloads MP4s."
+    },
+    {
+      "name": "Speaker talktime stats",
+      "command": "transcripts talktime",
+      "description": "From the cached voice-activity timestamps, compute seconds spoken per speaker, % of total, longest monologue, and interrupt count."
+    },
+    {
+      "name": "Stale take detector",
+      "command": "stale",
+      "description": "Cross-studio query: which recordings have been stuck in uploading / processing / transcribing past N hours? Catches dropped guest-wifi uploads and abandoned takes."
+    }
+  ]
+}
