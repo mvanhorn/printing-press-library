@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "generated_at": "2026-05-24T06:56:00Z",
-  "printing_press_version": "4.8.0",
+  "printing_press_version": "4.14.0",
   "api_name": "synology-router",
   "display_name": "Synology Router",
   "cli_name": "synology-router-pp-cli",

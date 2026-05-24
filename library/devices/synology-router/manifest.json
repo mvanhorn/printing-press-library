@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "synology-router-pp-mcp",
   "display_name": "Synology Router",
-  "version": "4.8.0",
+  "version": "4.14.0",
   "description": "Synology Router Manager (SRM) CLI — device management, traffic analysis, firewall rules, mesh network monitoring, and Smart WAN configuration",
   "author": {
     "name": "CLI Printing Press"
