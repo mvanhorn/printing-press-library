@@ -41,6 +41,14 @@
       "files": [
         "internal/cli/oversight_velocity.go"
       ]
+    },
+    {
+      "id": "allowlist-coverage-json-array-recipients",
+      "summary": "Parse $.recipients JSON array so multi-recipient sends are matched against allowlist patterns.",
+      "reason": "json_extract returns the raw JSON array string for $.recipients. The string never matches any pattern, causing coverage_percent to be systematically under-reported for mailboxes using multi-recipient sends.",
+      "files": [
+        "internal/cli/allowlist_coverage.go"
+      ]
     }
   ]
 }

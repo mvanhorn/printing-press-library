@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"encoding/json"
 	"fmt"
 	"sort"
 	"strings"
@@ -149,12 +150,25 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 							if recipRows.Scan(&recip) != nil || recip == "" {
 								continue
 							}
-							recipLower := strings.ToLower(recip)
-							for _, pat := range patterns {
-								if matchAllowlistPattern(recipLower, pat) {
-									coveredSends++
+							// PATCH: handle $.recipients JSON array — extract
+							// individual addresses so each can be matched against
+							// allowlist patterns.
+							recipients := expandRecipients(recip)
+							matched := false
+							for _, r := range recipients {
+								rLower := strings.ToLower(r)
+								for _, pat := range patterns {
+									if matchAllowlistPattern(rLower, pat) {
+										matched = true
+										break
+									}
+								}
+								if matched {
 									break
 								}
+							}
+							if matched {
+								coveredSends++
 							}
 						}
 						recipRows.Close()
@@ -193,6 +207,20 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
 	cmd.Flags().StringVar(&mailbox, "mailbox", "", "Filter to a specific mailbox by name or ID")
 	return cmd
+}
+
+// expandRecipients normalises a recipient value from the send table.
+// If the value is a JSON array (from $.recipients), it returns all
+// elements. Otherwise it returns a single-element slice.
+func expandRecipients(raw string) []string {
+	raw = strings.TrimSpace(raw)
+	if len(raw) > 0 && raw[0] == '[' {
+		var arr []string
+		if json.Unmarshal([]byte(raw), &arr) == nil && len(arr) > 0 {
+			return arr
+		}
+	}
+	return []string{raw}
 }
 
 // matchAllowlistPattern checks whether a recipient matches an allowlist
