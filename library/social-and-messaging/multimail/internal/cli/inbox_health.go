@@ -28,9 +28,14 @@ func newInboxHealthCmd(flags *rootFlags) *cobra.Command {
 		Use:   "health",
 		Short: "Per-mailbox health snapshot: unread count, oldest unread age, reply rate, and thread depth",
 		Long: `Inbox health shows a per-mailbox health snapshot from synced data.
-It reports unread count, oldest unread email age, reply rate (replies
-as a fraction of inbound emails), and average thread depth — metrics
-that reveal whether a mailbox is keeping up with its volume.
+It reports unread count, oldest unread email age, reply rate, and
+average thread depth — metrics that reveal whether a mailbox is
+keeping up with its volume.
+
+Reply rate is derived from synced emails: outbound emails with a
+parent_id are counted as replies to existing conversations. Thread
+metrics are derived from emails grouped by parent_id, since the API
+has no list-threads endpoint. Both rely on synced email data only.
 
 Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 		Example: strings.Trim(`
@@ -143,10 +148,19 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 					oldestUnread = "—"
 				}
 
-				// Reply rate: replies / total inbound
+				// PATCH: Derive reply rate from mailboxes_emails.
+				// The reply endpoint is POST-only (no list GET), so sync
+				// cannot populate the reply table. Instead, count outbound
+				// emails with a parent_id — these are replies to existing
+				// conversations.
 				var replyCount int
 				replyRow := db.DB().QueryRowContext(cmd.Context(),
-					`SELECT COUNT(*) FROM reply WHERE mailboxes_id = ?`, mb.ID)
+					`SELECT COUNT(*) FROM mailboxes_emails
+					WHERE mailboxes_id = ?
+					AND parent_id IS NOT NULL AND parent_id != ''
+					AND (json_extract(data, '$.direction') IN ('outbound', 'sent')
+					  OR LOWER(COALESCE(json_extract(data, '$.from'), '')) = LOWER(?))`,
+					mb.ID, mb.Name)
 				_ = replyRow.Scan(&replyCount)
 
 				var replyRate float64
@@ -154,24 +168,28 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 					replyRate = float64(replyCount) / float64(totalEmails) * 100
 				}
 
-				// Thread count and average depth
+				// PATCH: Derive thread count and average depth from
+				// mailboxes_emails parent_id grouping. The API has no
+				// list-threads endpoint (only GET single thread by ID),
+				// so sync --full cannot populate the threads table.
 				var threadCount int
-				threadRow := db.DB().QueryRowContext(cmd.Context(),
-					`SELECT COUNT(*) FROM threads WHERE mailboxes_id = ?`, mb.ID)
-				_ = threadRow.Scan(&threadCount)
-
 				var avgDepth float64
-				if threadCount > 0 {
-					// Compute average depth by counting emails per thread via parent_id grouping
+				threadRows, terr := db.DB().QueryContext(cmd.Context(),
+					`SELECT COUNT(*) FROM mailboxes_emails
+					WHERE mailboxes_id = ? AND parent_id IS NOT NULL AND parent_id != ''
+					GROUP BY parent_id
+					HAVING COUNT(*) >= 2`, mb.ID)
+				if terr == nil {
 					var totalDepth int
-					depthRow := db.DB().QueryRowContext(cmd.Context(),
-						`SELECT COALESCE(SUM(cnt), 0) FROM (
-							SELECT COUNT(*) as cnt FROM mailboxes_emails
-							WHERE mailboxes_id = ? AND parent_id IS NOT NULL AND parent_id != ''
-							GROUP BY parent_id
-						)`, mb.ID)
-					_ = depthRow.Scan(&totalDepth)
-					if totalDepth > 0 {
+					for threadRows.Next() {
+						var cnt int
+						if threadRows.Scan(&cnt) == nil {
+							threadCount++
+							totalDepth += cnt
+						}
+					}
+					threadRows.Close()
+					if threadCount > 0 {
 						avgDepth = float64(totalDepth) / float64(threadCount)
 					}
 				}

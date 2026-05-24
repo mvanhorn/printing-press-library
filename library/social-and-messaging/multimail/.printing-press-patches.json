@@ -81,6 +81,38 @@
       "files": [
         "internal/cli/threads_stale.go"
       ]
+    },
+    {
+      "id": "inbox-health-derive-reply-rate-from-emails",
+      "summary": "Derive reply_rate from mailboxes_emails outbound emails with parent_id instead of the reply table.",
+      "reason": "The reply endpoint is POST-only (no list GET), so sync cannot populate the reply table. Outbound emails with a parent_id are replies to existing conversations.",
+      "files": [
+        "internal/cli/inbox_health.go"
+      ]
+    },
+    {
+      "id": "inbox-health-derive-threads-from-emails",
+      "summary": "Derive thread_count and avg_thread_depth from mailboxes_emails parent_id groups instead of the threads table.",
+      "reason": "The API has no list-threads endpoint (only GET single thread by ID), so sync --full cannot populate the threads table. Thread metrics are now derived from parent_id grouping with HAVING COUNT(*) >= 2.",
+      "files": [
+        "internal/cli/inbox_health.go"
+      ]
+    },
+    {
+      "id": "trust-status-derive-upgrades-from-audit-log",
+      "summary": "Derive upgrade_count and last_upgrade_at from audit-log events instead of the upgrade table.",
+      "reason": "The upgrade endpoint is POST-only (no list GET), so sync cannot populate the upgrade table. Audit-log entries with upgrade-related actions provide the same data.",
+      "files": [
+        "internal/cli/trust_status.go"
+      ]
+    },
+    {
+      "id": "allowlist-coverage-derive-sends-from-emails",
+      "summary": "Derive recent_sends from mailboxes_emails outbound emails instead of the send table.",
+      "reason": "The send endpoint is POST-only (no list GET), so sync cannot populate the send table. Outbound emails from mailboxes_emails provide a richer and syncable data source for coverage analysis.",
+      "files": [
+        "internal/cli/allowlist_coverage.go"
+      ]
     }
   ]
 }

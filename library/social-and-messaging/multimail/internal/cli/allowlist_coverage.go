@@ -32,17 +32,16 @@ func newAllowlistCoverageCmd(flags *rootFlags) *cobra.Command {
 		Use:   "coverage",
 		Short: "See what percentage of recent recipients are covered by allowlist patterns vs gated",
 		Long: `Allowlist coverage shows how well each mailbox's sending allowlist
-covers its actual sending patterns. It compares recent outbound sends
+covers its actual sending patterns. It compares recent outbound emails
 against allowlist entries in the local SQLite cache to estimate how
 many sends would bypass the gated_send approval queue.
 
 A low coverage percentage means most sends are going through the approval
 queue — consider adding frequently-used recipients to the allowlist.
 
-Allowlist patterns are populated by sync --full. Send history is populated
-when you use this CLI to send emails (the API has no send-history list
-endpoint). If recent_sends shows 0, it means no sends have been recorded
-through this CLI — the allowlist_count and pattern data are still valid.
+Outbound emails are derived from synced mailboxes_emails data (emails
+whose direction is outbound or whose from-address matches the mailbox).
+Allowlist patterns are populated by sync --full.
 
 Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 		Example: strings.Trim(`
@@ -115,11 +114,17 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 					`SELECT COUNT(*) FROM allowlist WHERE mailboxes_id = ?`, mb.ID)
 				_ = alRow.Scan(&allowlistCount)
 
-				// Count recent sends for this mailbox
+				// PATCH: Derive recent sends from mailboxes_emails outbound.
+				// The send endpoint is POST-only (no list GET), so sync
+				// cannot populate the send table. Instead, count outbound
+				// emails from synced mailboxes_emails data.
 				var recentSends int
 				sendRow := db.DB().QueryRowContext(cmd.Context(),
-					`SELECT COUNT(*) FROM send
-					WHERE mailboxes_id = ? AND synced_at > ?`, mb.ID, cutoff)
+					`SELECT COUNT(*) FROM mailboxes_emails
+					WHERE mailboxes_id = ? AND synced_at > ?
+					AND (json_extract(data, '$.direction') IN ('outbound', 'sent')
+					  OR LOWER(COALESCE(json_extract(data, '$.from'), '')) = LOWER(?))`,
+					mb.ID, cutoff, mb.Name)
 				_ = sendRow.Scan(&recentSends)
 
 				// Get allowlist patterns
@@ -137,18 +142,21 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 					patRows.Close()
 				}
 
-				// Count how many recent sends match allowlist patterns
+				// Count how many recent outbound emails match allowlist patterns
 				var coveredSends int
 				if len(patterns) > 0 && recentSends > 0 {
-					// Check each send's recipient against allowlist patterns
+					// PATCH: Check each outbound email's recipient against allowlist patterns
 					recipRows, err := db.DB().QueryContext(cmd.Context(),
 						`SELECT COALESCE(
 							json_extract(data, '$.to'),
 							json_extract(data, '$.recipient'),
 							json_extract(data, '$.recipients'),
 							''
-						) FROM send
-						WHERE mailboxes_id = ? AND synced_at > ?`, mb.ID, cutoff)
+						) FROM mailboxes_emails
+						WHERE mailboxes_id = ? AND synced_at > ?
+						AND (json_extract(data, '$.direction') IN ('outbound', 'sent')
+						  OR LOWER(COALESCE(json_extract(data, '$.from'), '')) = LOWER(?))`,
+						mb.ID, cutoff, mb.Name)
 					if err == nil {
 						for recipRows.Next() {
 							var recip string
@@ -214,9 +222,9 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 	return cmd
 }
 
-// expandRecipients normalises a recipient value from the send table.
-// If the value is a JSON array (from $.recipients), it returns all
-// elements. Otherwise it returns a single-element slice.
+// expandRecipients normalises a recipient value from email data.
+// If the value is a JSON array (from $.recipients or $.to), it returns
+// all elements. Otherwise it returns a single-element slice.
 func expandRecipients(raw string) []string {
 	raw = strings.TrimSpace(raw)
 	if len(raw) > 0 && raw[0] == '[' {

@@ -27,7 +27,8 @@ func newTrustStatusCmd(flags *rootFlags) *cobra.Command {
 		Short: "Fleet-wide view of each mailbox's oversight mode, time-at-level, and upgrade history",
 		Long: `Trust status shows where each mailbox sits on the trust ladder and how
 long it has been at its current oversight level. It joins mailbox metadata
-with upgrade history from the local SQLite cache.
+with upgrade events from the audit log, since the upgrade endpoint is
+POST-only and cannot be synced directly.
 
 The five oversight modes, from most restrictive to most autonomous:
   read_only → gated_all → gated_send → monitored → autonomous
@@ -84,12 +85,22 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 
 			var results []trustRow
 			for _, mb := range mailboxes {
-				// Count upgrades for this mailbox
+				// PATCH: Derive upgrade history from audit-log events.
+				// The upgrade endpoint is POST-only (no list GET), so sync
+				// cannot populate the upgrade table. Instead, look for
+				// audit-log entries with upgrade-related actions whose
+				// resource_id matches this mailbox.
 				var upgradeCount int
 				var lastUpgrade string
 				upgradeRow := db.DB().QueryRowContext(cmd.Context(),
-					`SELECT COUNT(*), COALESCE(MAX(json_extract(data, '$.upgraded_at')), MAX(synced_at), '')
-					FROM upgrade WHERE mailboxes_id = ?`, mb.ID)
+					`SELECT COUNT(*),
+						COALESCE(MAX(json_extract(data, '$.created_at')), '')
+					FROM resources
+					WHERE resource_type = 'audit-log'
+					AND json_extract(data, '$.action') LIKE '%upgrade%'
+					AND (json_extract(data, '$.resource_id') = ?
+					  OR json_extract(data, '$.metadata.mailbox_id') = ?)`,
+					mb.ID, mb.ID)
 				_ = upgradeRow.Scan(&upgradeCount, &lastUpgrade)
 
 				// Compute time-at-level: time since last upgrade, or since mailbox creation
