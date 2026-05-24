@@ -88,6 +88,7 @@ Logs every invocation to ~/.local/state/ollama-cloud-pp-cli/advisor-log.jsonl
 			if validateCatalog {
 				tagsRaw, terr := c.Get("/api/tags", nil)
 				if terr != nil {
+					captureDialDiag(terr.Error())
 					return classifyAPIError(terr, flags)
 				}
 				drift, derr := advisor.ValidateCatalog(tagsRaw, overlay)
@@ -121,6 +122,7 @@ Logs every invocation to ~/.local/state/ollama-cloud-pp-cli/advisor-log.jsonl
 
 			tagsRaw, err := c.Get("/api/tags", nil)
 			if err != nil {
+				captureDialDiag(err.Error())
 				return classifyAPIError(err, flags)
 			}
 			catalog, err := advisor.LoadCatalog(tagsRaw, overlay)
