@@ -24,7 +24,7 @@ This skill drives the `slack-pp-cli` binary. **You must verify the CLI is instal
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install slack --cli-only
+   npx -y @mvanhorn/printing-press-library install slack --cli-only
    ```
 2. Verify: `slack-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.

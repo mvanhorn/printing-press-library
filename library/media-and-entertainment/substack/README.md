@@ -6,22 +6,40 @@ Substack has no public API and the closed-source tools that work around it (Writ
 
 ## Install
 
-The recommended path installs both the `substack-pp-cli` binary and the `pp-substack` agent skill in one shot:
+The recommended path installs both the `substack-pp-cli` binary and the `pp-substack` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install substack
+npx -y @mvanhorn/printing-press-library install substack
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install substack --cli-only
+npx -y @mvanhorn/printing-press-library install substack --cli-only
 ```
 
+For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
-### Without Node
+```bash
+npx -y @mvanhorn/printing-press-library install substack --skill-only
+```
 
-The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
+To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
+
+```bash
+npx -y @mvanhorn/printing-press-library install substack --agent claude-code
+npx -y @mvanhorn/printing-press-library install substack --agent claude-code --agent codex
+```
+
+### Without Node (Go fallback)
+
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/substack/cmd/substack-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
 
 ### Pre-built binary
 
@@ -50,6 +68,45 @@ Tell your OpenClaw agent (copy this):
 Install the pp-substack skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-substack. The skill defines how its required CLI can be installed.
 ```
 
+## Use with Claude Desktop
+
+This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
+
+The bundle reuses your local browser session — set it up first if you haven't:
+
+```bash
+substack-pp-cli auth login --chrome
+```
+
+To install:
+
+1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/substack-current).
+2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
+
+Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
+
+<details>
+<summary>Manual JSON config (advanced)</summary>
+
+If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
+
+
+Install the MCP binary from this CLI's published public-library entry or pre-built release.
+
+Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "substack": {
+      "command": "substack-pp-mcp"
+    }
+  }
+}
+```
+
+</details>
+
 ## Authentication
 
 Substack uses a session cookie (substack.sid). The only path today is `auth login --chrome` (also accepts `--browser` as an alias) — it reads the cookie from your logged-in Chrome via pycookiecheat / cookies / cookie-scoop-cli and stores it in the OS keyring. There is no password login and no manual cookie-paste subcommand. If your cookie expires, re-run `auth login --chrome`.
@@ -60,22 +117,17 @@ Substack uses a session cookie (substack.sid). The only path today is `auth logi
 # Reads your logged-in Substack session out of Chrome and stores it in the OS keyring.
 substack-pp-cli auth login --chrome
 
-
 # Probes all three Substack bases plus the RSS path to surface auth or Cloudflare issues early.
 substack-pp-cli doctor
-
 
 # Pulls posts, drafts, your Notes, comments, profiles, and subscriber-count snapshots into the local store.
 substack-pp-cli sync --since 30d
 
-
 # Dry-run prints the request without firing; drop --dry-run to publish.
 substack-pp-cli notes new --body "Stop refreshing the feed. Spend 15 minutes in your inbox replying to commenters and you'll outgrow 90% of writers who don't." --dry-run
 
-
 # Surfaces which of your last 30 days of Notes brought subs.
 substack-pp-cli growth attribution --days 30 --agent --select rank,note_excerpt,subs_acquired
-
 
 # Ranks candidate publications for a recommendation swap by audience overlap.
 substack-pp-cli recs find-partners --my-pub on --top 10 --json
@@ -272,7 +324,6 @@ Post tags
 - **`substack-pp-cli tags create`** - Create a new tag
 - **`substack-pp-cli tags list`** - List all tags for the publication
 
-
 ## Output Formats
 
 ```bash
@@ -363,74 +414,6 @@ Endpoint environment variables:
 - `SUBSTACK_PUBLICATION` resolves `{publication}`
 
 Base URL: `https://substack.com/api/v1`
-
-## Use with Claude Code
-
-Install the focused skill — it auto-installs the CLI on first invocation:
-
-```bash
-npx skills add mvanhorn/printing-press-library/cli-skills/pp-substack -g
-```
-
-Then invoke `/pp-substack <query>` in Claude Code. The skill is the most efficient path — Claude Code drives the CLI directly without an MCP server in the middle.
-
-<details>
-<summary>Use as an MCP server in Claude Code (advanced)</summary>
-
-If you'd rather register this CLI as an MCP server in Claude Code, install the MCP binary first:
-
-
-Install the MCP binary from this CLI's published public-library entry or pre-built release.
-
-Then register it:
-
-```bash
-# Some tools work without auth. For full access, set up auth first:
-substack-pp-cli auth login --chrome
-
-claude mcp add substack substack-pp-mcp
-```
-
-</details>
-
-## Use with Claude Desktop
-
-This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
-
-The bundle reuses your local browser session — set it up first if you haven't:
-
-```bash
-substack-pp-cli auth login --chrome
-```
-
-To install:
-
-1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/substack-current).
-2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
-
-Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
-
-<details>
-<summary>Manual JSON config (advanced)</summary>
-
-If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
-
-
-Install the MCP binary from this CLI's published public-library entry or pre-built release.
-
-Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "substack": {
-      "command": "substack-pp-mcp"
-    }
-  }
-}
-```
-
-</details>
 
 ## Health Check
 

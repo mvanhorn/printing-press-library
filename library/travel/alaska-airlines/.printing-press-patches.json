@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-19",
+  "base_run_id": "20260512-151223",
+  "base_printing_press_version": "4.5.1",
+  "patches": [
+    {
+      "id": "validate-uses-cookie-header",
+      "summary": "Send the composed cookie string in the Cookie request header (not Authorization) when validating the saved session.",
+      "reason": "Alaska Airlines uses cookie-based session auth. The previous code set Authorization: to the composed cookie string, which alaskaair.com ignores, so the HEAD request never returned 401/403 and every cookie composition - including expired sessions - reported 'valid' before subsequent API calls failed (greptile P1).",
+      "files": [
+        "internal/cli/auth.go"
+      ]
+    },
+    {
+      "id": "authheader-as-cookie",
+      "summary": "Route the composed cookie string to the Cookie request header in client.do() instead of Authorization.",
+      "reason": "All authenticated alaskaair.com endpoints (SvelteKit __data.json + Atmos Rewards API) read the standard Cookie header. The prior Authorization assignment was silently dropped server-side, so every authenticated command (atmos-rewards, account status, authenticated flight search) was effectively unauthenticated (greptile P1).",
+      "files": [
+        "internal/client/client.go"
+      ]
+    },
+    {
+      "id": "python-cookie-path-escape",
+      "summary": "Pass the cookie file path through an environment variable instead of splicing it into a Python -c source-text literal.",
+      "reason": "The prior code embedded a user-controlled path inside a Python \"...\" string. A double-quote in the home directory (possible on unusual Linux setups) escaped the literal and allowed arbitrary Python execution at the user's privilege level (greptile P1).",
+      "files": [
+        "internal/cli/auth.go"
+      ]
+    },
+    {
+      "id": "ratelimit-serialize-under-lock",
+      "summary": "Hold the AdaptiveLimiter mutex across the sleep and the lastRequest update so concurrent workers actually queue.",
+      "reason": "The prior Wait() dropped the lock before sleeping and only re-took it to write lastRequest. When sync ran with --concurrency N every worker read the same stale lastRequest, slept for the same duration, then fired the same instant; the limiter produced bursts of N requests rather than spacing them at 1/rate (greptile P1).",
+      "files": [
+        "internal/cliutil/ratelimit.go"
+      ]
+    },
+    {
+      "id": "award-search-toggle",
+      "summary": "Add --award, --shopping-method, --upgrade flags to flights search; new flights award-search command that defaults to award mode.",
+      "reason": "Manuscript scoped award-vs-cash comparator as a gap (research.json). Live browser sniff against alaskaair.com on 2026-05-19 confirmed the same /search/results/__data.json endpoint serves award data when ShoppingMethod=onlineaward plus UPG=none, OT=Anytime, DT=Anytime are added. Reuses existing Cookie auth and response parser; no new endpoint needed.",
+      "files": [
+        "internal/cli/flights_search.go",
+        "internal/cli/flights_award_search.go",
+        "internal/cli/flights.go"
+      ],
+      "validated_outcome": "Dry-run emits the exact URL captured during the live sniff. SvelteKit response identical shape to cash search; existing --select / --compact / --json filters carry through."
+    },
+    {
+      "id": "award-cheapest-planner",
+      "summary": "New flights award-cheapest command iterates (depart, return) date pairs across multiple destination airports in parallel and returns the cheapest round-trip in miles.",
+      "reason": "Killer use case: find the cheapest round-trip to a region (e.g. Japan) in a calendar month using miles. --destination-region japan expands to HND,NRT,KIX,ITM,NGO,FUK,CTS,OKA; --month YYYY-MM enumerates the full month with default 5-21 night trip lengths; --concurrency N + the existing AdaptiveLimiter keep the fan-out polite. Tolerant JSON extractor walks the SvelteKit deflated response for the lowest miles+cash combo.",
+      "files": [
+        "internal/cli/flights_award_cheapest.go",
+        "internal/cli/flights_award_cheapest_test.go",
+        "internal/cli/flights.go"
+      ],
+      "validated_outcome": "Unit tests cover date-window resolution, date-pair enumeration, region expansion, JSON extractor. Dry-run against SFO + japan-region + 2026-08 emits a 4216-job plan."
+    },
+    {
+      "id": "value-compare",
+      "summary": "New flights value-compare command runs paired cash + award searches and applies a TPG cents-per-point valuation, with a 30-day on-disk cache and a soft-fallback chain (override -> fresh cache -> live TPG fetch -> stale cache -> constant).",
+      "reason": "Manual ritual of running cash search + award search + cents-per-point math + TPG lookup recurs constantly. Now one command emits an apples-to-apples comparison: cash_usd, miles + taxes_usd, effective_cpp, multiple over TPG baseline, tpg_valued_usd. A new internal/valuation/ package holds the pluggable program registry so a future amend can add United/AAdvantage/etc. by appending one struct row.",
+      "files": [
+        "internal/cli/flights_value_compare.go",
+        "internal/cli/flights_value_compare_test.go",
+        "internal/cli/flights_fare_extract.go",
+        "internal/cli/flights_fare_extract_test.go",
+        "internal/cli/flights_award_cheapest.go",
+        "internal/cli/flights_award_cheapest_test.go",
+        "internal/cli/flights.go",
+        "internal/valuation/program.go",
+        "internal/valuation/tpg.go",
+        "internal/valuation/cache.go",
+        "internal/valuation/lookup.go",
+        "internal/valuation/compare.go",
+        "internal/valuation/program_test.go",
+        "internal/valuation/tpg_test.go",
+        "internal/valuation/lookup_test.go",
+        "internal/valuation/compare_test.go",
+        "go.mod",
+        "go.sum"
+      ],
+      "validated_outcome": "End-to-end live: FCO->SEA 2026-08-30 returns cash $1626.23 (SAVER) + award 30000mi + $64.53, TPG cpp 1.4c (live-scraped), effective cpp 5.21c, multiple 3.72x, tpg_valued_usd $484.53. Replaces the previously-broken extractLowestAwardPrice (whose synthetic-test field names did not match the live SvelteKit response; award-cheapest was silently returning empty results) with a structured hydrate+walk over the actual rows[].solutions.<CABIN> shape."
+    }
+  ]
+}

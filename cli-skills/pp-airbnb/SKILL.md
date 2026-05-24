@@ -15,6 +15,11 @@ metadata:
         bins: [airbnb-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/travel/airbnb/cmd/airbnb-pp-cli
 ---
+<!-- GENERATED FILE — DO NOT EDIT.
+     This file is a verbatim mirror of library/travel/airbnb/SKILL.md,
+     regenerated post-merge by tools/generate-skills/. Hand-edits here are
+     silently overwritten on the next regen. Edit the library/ source instead.
+     See AGENTS.md "Generated artifacts: registry.json, cli-skills/". -->
 
 # Airbnb — Printing Press CLI
 
@@ -24,7 +29,7 @@ This skill drives the `airbnb-pp-cli` binary. **You must verify the CLI is insta
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install airbnb --cli-only
+   npx -y @mvanhorn/printing-press-library install airbnb --cli-only
    ```
 2. Verify: `airbnb-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -300,7 +305,20 @@ Explicit flags always win over profile values; profile values win over defaults.
 | 4 | Authentication required |
 | 5 | API error (upstream issue) |
 | 7 | Rate limited (wait and retry) |
+| 8 | Bot challenge (datadome/Akamai). Wait, or refresh cookies via `airbnb-pp-cli auth login --chrome` |
 | 10 | Config error |
+
+## Rate Limiting
+
+`--rate-limit N` (global flag) caps the request rate to N per second. Applies to BOTH the scrape path (`search`, `get`, `cheapest`, `plan`, `compare`) AND the GraphQL path (`BookingPrice` for pricing, `wishlist list`, `wishlist items`).
+
+- Default (flag unset): 0.5 rps baseline. Non-regressive.
+- `--rate-limit N` with N > 0: sets that as the new cap.
+- `--rate-limit 0`: disables rate limiting.
+
+The limiter is adaptive: on a 429 or a detected datadome/Akamai challenge it halves the current rate and records a ceiling. After 10 consecutive successes it ramps the rate up by 25%, capped at 90% of the discovered ceiling. Retry sleeps include 25% jitter to prevent a fleet of clients from synchronizing.
+
+When sustained challenges fire, the CLI returns a typed `BotChallengeError` with a remediation hint (refresh cookies for datadome; wait for the Akamai sensor cooldown). The CLI does not synthesize fake data on failure.
 
 ## Argument Parsing
 

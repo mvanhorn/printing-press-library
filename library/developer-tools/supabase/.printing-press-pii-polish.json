@@ -1,0 +1,37 @@
+{
+  "timestamp": "2026-05-12T23:16:57.033835Z",
+  "cli_dir": "/tmp/printing-press/publish/supabase-jfDNfr/package/library/developer-tools/supabase",
+  "findings": [
+    {
+      "kind": "email",
+      "file": "README.md",
+      "line": 132,
+      "column": 37,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "README cookbook example for `auth-admin lookup`: 'supabase-pp-cli auth-admin lookup user@example.com --context-table profiles --context-key user_id --json'. Standards-reserved @example.com TLD (RFC 2606) used as the email placeholder argument for the command."
+    },
+    {
+      "kind": "email",
+      "file": "SKILL.md",
+      "line": 87,
+      "column": 37,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "SKILL recipe showing the `auth-admin lookup` invocation with --context-table/--context-key flags; uses the RFC 2606 reserved user@example.com address as the lookup target for documentation."
+    },
+    {
+      "kind": "email",
+      "file": "SKILL.md",
+      "line": 168,
+      "column": 35,
+      "matched_span": "user@example.com",
+      "status": "accepted",
+      "category": "synthetic_placeholder",
+      "evidence_context": "SKILL agent-mode recipe demonstrating `auth-admin lookup ... --agent --select user.id,user.email,user.last_sign_in_at,context.tier`; the address is the standards-reserved synthetic placeholder for the email positional argument."
+    }
+  ],
+  "findings_count_before": 3
+}

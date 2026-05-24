@@ -1,0 +1,51 @@
+version: 2
+project_name: tenderned-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: tenderned-pp-cli
+    main: ./cmd/tenderned-pp-cli
+    binary: tenderned-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/sales-and-crm/tenderned/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: tenderned-pp-mcp
+    main: ./cmd/tenderned-pp-mcp
+    binary: tenderned-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: tenderned-pp-cli
+    repository:
+      owner: markvandeven
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every Dutch public tender, with the sub-threshold long tail that EU TED never sees, in a local-first CLI you can pipe."
+    install: |
+      bin.install "tenderned-pp-cli"
+      bin.install "tenderned-pp-mcp"

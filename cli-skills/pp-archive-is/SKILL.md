@@ -15,6 +15,11 @@ metadata:
         bins: [archive-is-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/media-and-entertainment/archive-is/cmd/archive-is-pp-cli
 ---
+<!-- GENERATED FILE — DO NOT EDIT.
+     This file is a verbatim mirror of library/media-and-entertainment/archive-is/SKILL.md,
+     regenerated post-merge by tools/generate-skills/. Hand-edits here are
+     silently overwritten on the next regen. Edit the library/ source instead.
+     See AGENTS.md "Generated artifacts: registry.json, cli-skills/". -->
 
 # archive.today — Printing Press CLI
 
@@ -24,7 +29,7 @@ This skill drives the `archive-is-pp-cli` binary. **You must verify the CLI is i
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install archive-is --cli-only
+   npx -y @mvanhorn/printing-press-library install archive-is --cli-only
    ```
 2. Verify: `archive-is-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.

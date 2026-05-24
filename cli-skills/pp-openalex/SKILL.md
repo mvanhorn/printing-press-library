@@ -1,6 +1,6 @@
 ---
 name: pp-openalex
-description: "Printing Press CLI for Openalex. The OpenAlex API provides access to a comprehensive catalog of scholarly works, authors, sources, institutions,..."
+description: "Search OpenAlex's catalog of 250M+ scholarly works, authors, sources, institutions, topics, keywords, publishers, and funders. Trigger phrases: `find scholarly papers on`, `look up research by <author>`, `citations for <work>`, `use openalex`."
 author: "Hiten Shah"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
@@ -11,6 +11,11 @@ metadata:
       bins:
         - openalex-pp-cli
 ---
+<!-- GENERATED FILE — DO NOT EDIT.
+     This file is a verbatim mirror of library/other/openalex/SKILL.md,
+     regenerated post-merge by tools/generate-skills/. Hand-edits here are
+     silently overwritten on the next regen. Edit the library/ source instead.
+     See AGENTS.md "Generated artifacts: registry.json, cli-skills/". -->
 
 # Openalex — Printing Press CLI
 
@@ -20,7 +25,7 @@ This skill drives the `openalex-pp-cli` binary. **You must verify the CLI is ins
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install openalex --cli-only
+   npx -y @mvanhorn/printing-press-library install openalex --cli-only
    ```
 2. Verify: `openalex-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.

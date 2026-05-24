@@ -11,6 +11,11 @@ metadata:
       bins:
         - ordertogo-pp-cli
 ---
+<!-- GENERATED FILE — DO NOT EDIT.
+     This file is a verbatim mirror of library/food-and-dining/ordertogo/SKILL.md,
+     regenerated post-merge by tools/generate-skills/. Hand-edits here are
+     silently overwritten on the next regen. Edit the library/ source instead.
+     See AGENTS.md "Generated artifacts: registry.json, cli-skills/". -->
 
 # OrderToGo — Printing Press CLI
 
@@ -20,7 +25,7 @@ This skill drives the `ordertogo-pp-cli` binary. **You must verify the CLI is in
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install ordertogo --cli-only
+   npx -y @mvanhorn/printing-press-library install ordertogo --cli-only
    ```
 2. Verify: `ordertogo-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -32,8 +37,6 @@ go install github.com/mvanhorn/printing-press-library/library/food-and-dining/or
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-OrderToGo.com is a multi-tenant pickup ordering platform that powers small chains across multiple US metros. There is no CLI, MCP, or SDK presence anywhere for it. This CLI gives an agent every read endpoint, a safe `order plan` that composes a cart locally and validates against a `--max` cap, and an `order place` that drives a headless Chrome through Braintree DropIn to actually submit. Everything is offline-cacheable, agent-callable, and verify-env safe by construction.
 
 ## When to Use This CLI
 

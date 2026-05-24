@@ -15,6 +15,11 @@ metadata:
         bins: [kalshi-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/payments/kalshi/cmd/kalshi-pp-cli
 ---
+<!-- GENERATED FILE — DO NOT EDIT.
+     This file is a verbatim mirror of library/payments/kalshi/SKILL.md,
+     regenerated post-merge by tools/generate-skills/. Hand-edits here are
+     silently overwritten on the next regen. Edit the library/ source instead.
+     See AGENTS.md "Generated artifacts: registry.json, cli-skills/". -->
 
 # Kalshi — Printing Press CLI
 
@@ -24,7 +29,7 @@ This skill drives the `kalshi-pp-cli` binary. **You must verify the CLI is insta
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install kalshi --cli-only
+   npx -y @mvanhorn/printing-press-library install kalshi --cli-only
    ```
 2. Verify: `kalshi-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.

@@ -1,0 +1,341 @@
+{
+  "api_name": "eventbrite",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "eventbrite-sdk-python",
+      "url": "https://github.com/eventbrite/eventbrite-sdk-python",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "eventbrite-sdk-javascript",
+      "url": "https://github.com/eventbrite/eventbrite-sdk-javascript",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "eventbrite-sdk-php",
+      "url": "https://github.com/eventbrite/eventbrite-sdk-php",
+      "language": "PHP",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "GearPlug/eventbrite-python",
+      "url": "https://github.com/GearPlug/eventbrite-python",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "ibraheem4/eventbrite-mcp",
+      "url": "https://github.com/ibraheem4/eventbrite-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "joshuachestang/eventbrite-mcp-server",
+      "url": "https://github.com/joshuachestang/eventbrite-mcp-server",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "punkpeye/eventbrite-mcp",
+      "url": "https://github.com/punkpeye/eventbrite-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-23T18:15:00Z",
+  "novel_features": [
+    {
+      "name": "Sales velocity board",
+      "command": "sales-velocity",
+      "description": "Ranks all your live events by tickets sold per day since on-sale and projects a sell-out date.",
+      "rationale": "Requires joining synced events, orders, and ticket classes in the local store to compute per-event rate-over-time — no single Eventbrite endpoint, SDK, or MCP server exposes cross-event velocity.",
+      "example": "eventbrite-pp-cli sales-velocity --json",
+      "why_it_matters": "Reach for this when an agent needs to know which of an organizer's events are underperforming right now, not just current totals.",
+      "group": "Cross-event sales analytics"
+    },
+    {
+      "name": "Repeat-attendee finder",
+      "command": "repeat-attendees",
+      "description": "Finds fans who bought into two or more of your events, across your whole synced history.",
+      "rationale": "A cross-event SQLite join over the attendee table by normalized email — it restores exactly the cross-event search Eventbrite removed from the public API in 2020.",
+      "example": "eventbrite-pp-cli repeat-attendees --min 2 --json",
+      "why_it_matters": "Use this for loyalty and re-marketing questions an agent cannot answer from any one event's attendee list.",
+      "group": "Search your own data offline"
+    },
+    {
+      "name": "Discount-code performance",
+      "command": "discount-performance",
+      "description": "Per discount code: redemptions, type, and the redemption rate (share of the code's allotment used).",
+      "rationale": "Reads synced discount objects locally — Eventbrite ships no discount-performance report, so ranking codes by redemptions and redemption rate only happens once they live in the store.",
+      "example": "eventbrite-pp-cli discount-performance --json",
+      "why_it_matters": "Pick this to measure whether a promo code actually drove sales before renewing or killing it.",
+      "group": "Cross-event sales analytics"
+    },
+    {
+      "name": "Multi-org client roll-up",
+      "command": "org-rollup",
+      "description": "Single pane across every organization your token can see: events count, tickets sold, gross, and top event per org.",
+      "rationale": "Aggregates synced orders per organization — every existing Eventbrite MCP server and SDK helper is single-org, so the cross-org agency view does not exist anywhere else.",
+      "example": "eventbrite-pp-cli org-rollup --json",
+      "why_it_matters": "Use this for an agency or multi-brand operator who needs one client roll-up instead of logging into each org.",
+      "group": "Agency multi-org view"
+    },
+    {
+      "name": "Door roster + check-in gap",
+      "command": "roster",
+      "description": "Offline attendee roster for one event with checked-in vs not-yet, VIP and comp flags, door-sorted.",
+      "rationale": "Reads the local attendee store so it works when venue wifi is flaky, and shapes output for will-call — neither the Organizer app nor the API gives a grep-able offline roster.",
+      "example": "eventbrite-pp-cli roster 1234567890 --csv",
+      "why_it_matters": "Reach for this at the door when an agent needs a fast who-has-not-checked-in list without a live API round-trip.",
+      "group": "Search your own data offline"
+    },
+    {
+      "name": "Capacity headroom rollup",
+      "command": "capacity",
+      "description": "Sold vs total capacity and percent remaining across all your live events at once.",
+      "rationale": "Joins synced events with their ticket classes and inventory tiers — the dashboard shows capacity one event at a time, never the cross-event headroom view.",
+      "example": "eventbrite-pp-cli capacity --json",
+      "why_it_matters": "Use this to spot which events are near sell-out or badly under-sold in a single call.",
+      "group": "Cross-event sales analytics"
+    },
+    {
+      "name": "Refund / cancellation rate",
+      "command": "refund-rate",
+      "description": "Refunded and cancelled order counts, refunded revenue, and the rate per event or across the org.",
+      "rationale": "Aggregates synced order status across events — the per-event dashboard buries refunds, so the cross-event rate only emerges from the local store.",
+      "example": "eventbrite-pp-cli refund-rate --json",
+      "why_it_matters": "Pick this to flag events with abnormal refund rates that signal a pricing, date, or fulfillment problem.",
+      "group": "Cross-event sales analytics"
+    },
+    {
+      "name": "Top buyers by spend",
+      "command": "top-buyers",
+      "description": "Ranks ticket buyers by total spend across all your events, not just by how many events they attended.",
+      "rationale": "Joins synced orders and attendees by normalized email and sums order totals into a lifetime-value view — the dashboard reports spend one event at a time and never aggregates a buyer across events.",
+      "example": "eventbrite-pp-cli top-buyers --limit 25 --json",
+      "why_it_matters": "Reach for this to find an organizer's highest-value customers for VIP or pre-sale outreach.",
+      "group": "Cross-event sales analytics"
+    },
+    {
+      "name": "Attendee contact export",
+      "command": "fan-export",
+      "description": "Exports unique attendee contacts (email, name, events attended, check-in status), deduped across all your events and filterable by event.",
+      "rationale": "Dedupes attendees across all synced events into one re-marketing list; the dashboard exports a single event at a time with no cross-event dedupe.",
+      "example": "eventbrite-pp-cli fan-export --csv",
+      "why_it_matters": "Use this to build a clean, deduped contact list for an email campaign across an organizer's whole audience.",
+      "group": "Search your own data offline"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Sales velocity board",
+      "command": "sales-velocity",
+      "description": "Ranks all your live events by tickets sold per day since on-sale and projects a sell-out date.",
+      "rationale": "Requires joining synced events, orders, and ticket classes in the local store to compute per-event rate-over-time — no single Eventbrite endpoint, SDK, or MCP server exposes cross-event velocity.",
+      "example": "eventbrite-pp-cli sales-velocity --json",
+      "why_it_matters": "Reach for this when an agent needs to know which of an organizer's events are underperforming right now, not just current totals.",
+      "group": "Cross-event sales analytics"
+    },
+    {
+      "name": "Repeat-attendee finder",
+      "command": "repeat-attendees",
+      "description": "Finds fans who bought into two or more of your events, across your whole synced history.",
+      "rationale": "A cross-event SQLite join over the attendee table by normalized email — it restores exactly the cross-event search Eventbrite removed from the public API in 2020.",
+      "example": "eventbrite-pp-cli repeat-attendees --min 2 --json",
+      "why_it_matters": "Use this for loyalty and re-marketing questions an agent cannot answer from any one event's attendee list.",
+      "group": "Search your own data offline"
+    },
+    {
+      "name": "Discount-code performance",
+      "command": "discount-performance",
+      "description": "Per discount code: redemptions, type, and the redemption rate (share of the code's allotment used).",
+      "rationale": "Reads synced discount objects locally — Eventbrite ships no discount-performance report, so ranking codes by redemptions and redemption rate only happens once they live in the store.",
+      "example": "eventbrite-pp-cli discount-performance --json",
+      "why_it_matters": "Pick this to measure whether a promo code actually drove sales before renewing or killing it.",
+      "group": "Cross-event sales analytics"
+    },
+    {
+      "name": "Multi-org client roll-up",
+      "command": "org-rollup",
+      "description": "Single pane across every organization your token can see: events count, tickets sold, gross, and top event per org.",
+      "rationale": "Aggregates synced orders per organization — every existing Eventbrite MCP server and SDK helper is single-org, so the cross-org agency view does not exist anywhere else.",
+      "example": "eventbrite-pp-cli org-rollup --json",
+      "why_it_matters": "Use this for an agency or multi-brand operator who needs one client roll-up instead of logging into each org.",
+      "group": "Agency multi-org view"
+    },
+    {
+      "name": "Door roster + check-in gap",
+      "command": "roster",
+      "description": "Offline attendee roster for one event with checked-in vs not-yet, VIP and comp flags, door-sorted.",
+      "rationale": "Reads the local attendee store so it works when venue wifi is flaky, and shapes output for will-call — neither the Organizer app nor the API gives a grep-able offline roster.",
+      "example": "eventbrite-pp-cli roster 1234567890 --csv",
+      "why_it_matters": "Reach for this at the door when an agent needs a fast who-has-not-checked-in list without a live API round-trip.",
+      "group": "Search your own data offline"
+    },
+    {
+      "name": "Capacity headroom rollup",
+      "command": "capacity",
+      "description": "Sold vs total capacity and percent remaining across all your live events at once.",
+      "rationale": "Joins synced events with their ticket classes and inventory tiers — the dashboard shows capacity one event at a time, never the cross-event headroom view.",
+      "example": "eventbrite-pp-cli capacity --json",
+      "why_it_matters": "Use this to spot which events are near sell-out or badly under-sold in a single call.",
+      "group": "Cross-event sales analytics"
+    },
+    {
+      "name": "Refund / cancellation rate",
+      "command": "refund-rate",
+      "description": "Refunded and cancelled order counts, refunded revenue, and the rate per event or across the org.",
+      "rationale": "Aggregates synced order status across events — the per-event dashboard buries refunds, so the cross-event rate only emerges from the local store.",
+      "example": "eventbrite-pp-cli refund-rate --json",
+      "why_it_matters": "Pick this to flag events with abnormal refund rates that signal a pricing, date, or fulfillment problem.",
+      "group": "Cross-event sales analytics"
+    },
+    {
+      "name": "Top buyers by spend",
+      "command": "top-buyers",
+      "description": "Ranks ticket buyers by total spend across all your events, not just by how many events they attended.",
+      "rationale": "Joins synced orders and attendees by normalized email and sums order totals into a lifetime-value view — the dashboard reports spend one event at a time and never aggregates a buyer across events.",
+      "example": "eventbrite-pp-cli top-buyers --limit 25 --json",
+      "why_it_matters": "Reach for this to find an organizer's highest-value customers for VIP or pre-sale outreach.",
+      "group": "Cross-event sales analytics"
+    },
+    {
+      "name": "Attendee contact export",
+      "command": "fan-export",
+      "description": "Exports unique attendee contacts (email, name, events attended, check-in status), deduped across all your events and filterable by event.",
+      "rationale": "Dedupes attendees across all synced events into one re-marketing list; the dashboard exports a single event at a time with no cross-event dedupe.",
+      "example": "eventbrite-pp-cli fan-export --csv",
+      "why_it_matters": "Use this to build a clean, deduped contact list for an email campaign across an organizer's whole audience.",
+      "group": "Search your own data offline"
+    }
+  ],
+  "narrative": {
+    "display_name": "Eventbrite",
+    "headline": "Every Eventbrite organizer endpoint, plus a local SQLite mirror of your events, orders, and attendees you can search offline — the cross-event search Eventbrite removed, restored over your own data.",
+    "value_prop": "Existing Eventbrite tools wrap a handful of event CRUD calls one event at a time. This CLI mirrors the full v3 organizer API and syncs your events, orders, attendees, ticket classes, and discounts into a local SQLite store, then layers cross-event analytics on top: sales-velocity ranks your live events by sell rate, repeat-attendees surfaces returning fans across your whole history, and org-rollup gives agencies a single pane across every client organization.",
+    "auth_narrative": "Eventbrite uses an OAuth2 private token sent as a Bearer header. For your own account you do not need the full OAuth dance — copy a private token from eventbrite.com/platform/api-keys and set EVENTBRITE_API_KEY. Run `eventbrite-pp-cli doctor` to confirm it is picked up.",
+    "quickstart": [
+      {
+        "command": "eventbrite-pp-cli doctor",
+        "comment": "Confirm EVENTBRITE_API_KEY is set and the API is reachable before anything else."
+      },
+      {
+        "command": "eventbrite-pp-cli sync",
+        "comment": "Pull everything your token can access into local SQLite; Eventbrite paginates with continuation tokens, which sync follows automatically."
+      },
+      {
+        "command": "eventbrite-pp-cli sales-velocity --json",
+        "comment": "Rank your live events by tickets sold per day so you can see laggards at a glance."
+      },
+      {
+        "command": "eventbrite-pp-cli repeat-attendees --min 2 --json",
+        "comment": "Find fans who attended multiple events — the cross-event view Eventbrite's public search no longer provides."
+      },
+      {
+        "command": "eventbrite-pp-cli search \"VIP\"",
+        "comment": "Full-text search across everything you have synced offline."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on every call",
+        "fix": "Set EVENTBRITE_API_KEY to a private token from eventbrite.com/platform/api-keys, then run `eventbrite-pp-cli doctor`."
+      },
+      {
+        "symptom": "Public event search returns nothing or 404",
+        "fix": "Eventbrite removed public event search in 2020; sync your org first with `sync` and search the local store with `search` or `repeat-attendees`."
+      },
+      {
+        "symptom": "sync stops before all records load",
+        "fix": "List endpoints page with continuation tokens; re-run `eventbrite-pp-cli sync --full` to walk every page."
+      },
+      {
+        "symptom": "sales-velocity or capacity returns empty",
+        "fix": "These read the local store — run `eventbrite-pp-cli sync` first."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent manages an organizer's Eventbrite presence: creating and publishing events, pulling order and attendee history, and answering cross-event questions (which events sell slowest, which fans return, who the top buyers are, how a discount code performed) that the per-event dashboard and existing single-org MCP servers cannot answer. It is the right tool whenever the task needs the whole order/attendee history in one place rather than a single live API lookup. When the same promoter also sells on DICE, both CLIs emit JSON and a local SQLite store, so an agent can join the two datasets by event (name and date) and by buyer email for a cross-platform performance and loyalty picture.",
+    "recipes": [
+      {
+        "title": "Find your slowest-selling live events",
+        "command": "eventbrite-pp-cli sales-velocity --json",
+        "explanation": "Ranks every live event by tickets sold per day since on-sale with a projected sell-out date, computed from the local order store."
+      },
+      {
+        "title": "Surface returning fans for re-marketing",
+        "command": "eventbrite-pp-cli repeat-attendees --min 3 --agent --select email,name,events_count",
+        "explanation": "Cross-event attendee join; --agent emits structured rows and --select narrows to just the contact fields an email tool needs."
+      },
+      {
+        "title": "Door check-in roster, offline",
+        "command": "eventbrite-pp-cli roster 1234567890 --csv",
+        "explanation": "Prints the synced attendee roster for one event with checked-in status as CSV for a will-call sheet — no live API call required."
+      },
+      {
+        "title": "Agency Friday client roll-up",
+        "command": "eventbrite-pp-cli org-rollup --json",
+        "explanation": "One pane across every organization the token can see: events, tickets sold, gross, and top event per client org."
+      },
+      {
+        "title": "Measure a promo code's ROI",
+        "command": "eventbrite-pp-cli discount-performance --json",
+        "explanation": "Ranks discount codes by redemptions and redemption rate (share of each code's allotment used) from the synced discount objects."
+      },
+      {
+        "title": "Combine Eventbrite + DICE for full event performance",
+        "command": "eventbrite-pp-cli fan-export --json",
+        "explanation": "Export your Eventbrite buyer/attendee list as JSON; a promoter selling the same show on DICE exports the DICE side too, then an agent joins events by name and date and buyers by normalized email for a cross-platform performance and loyalty view no single platform shows."
+      }
+    ],
+    "trigger_phrases": [
+      "sync my eventbrite events",
+      "which of my events are selling slowest",
+      "find repeat attendees on eventbrite",
+      "check in roster for my event",
+      "how did my discount code perform",
+      "use eventbrite",
+      "run eventbrite"
+    ]
+  }
+}

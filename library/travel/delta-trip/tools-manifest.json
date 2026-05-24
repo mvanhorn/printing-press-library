@@ -1,0 +1,145 @@
+{
+  "api_name": "delta-trip",
+  "base_url": "https://www.delta.com",
+  "description": "Look up and manage Delta Air Lines trips by confirmation number — view all flights, seats, baggage, upgrade options, and flight details without logging in.",
+  "mcp_ready": "full",
+  "http_transport": "browser-chrome",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "baggage_info",
+      "description": "View baggage allowance and tracking info for a confirmation. Required: confirmation, first-name, last-name.",
+      "method": "GET",
+      "path": "/my-trips/trip-details",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "confirmation",
+          "wire_name": "confirmationNo",
+          "type": "string",
+          "location": "query",
+          "description": "6-character confirmation number",
+          "required": true
+        },
+        {
+          "name": "first-name",
+          "wire_name": "firstName",
+          "type": "string",
+          "location": "query",
+          "description": "Passenger first name",
+          "required": true
+        },
+        {
+          "name": "last-name",
+          "wire_name": "lastName",
+          "type": "string",
+          "location": "query",
+          "description": "Passenger last name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "flights_list",
+      "description": "List all flights in a trip itinerary with details. Required: confirmation, first-name, last-name.",
+      "method": "GET",
+      "path": "/my-trips/trip-details",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "confirmation",
+          "wire_name": "confirmationNo",
+          "type": "string",
+          "location": "query",
+          "description": "6-character confirmation number",
+          "required": true
+        },
+        {
+          "name": "first-name",
+          "wire_name": "firstName",
+          "type": "string",
+          "location": "query",
+          "description": "Passenger first name",
+          "required": true
+        },
+        {
+          "name": "last-name",
+          "wire_name": "lastName",
+          "type": "string",
+          "location": "query",
+          "description": "Passenger last name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "seats_list",
+      "description": "View seat assignments and upgrade options for all passengers. Required: confirmation, first-name, last-name.",
+      "method": "GET",
+      "path": "/my-trips/trip-details",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "confirmation",
+          "wire_name": "confirmationNo",
+          "type": "string",
+          "location": "query",
+          "description": "6-character confirmation number",
+          "required": true
+        },
+        {
+          "name": "first-name",
+          "wire_name": "firstName",
+          "type": "string",
+          "location": "query",
+          "description": "Passenger first name",
+          "required": true
+        },
+        {
+          "name": "last-name",
+          "wire_name": "lastName",
+          "type": "string",
+          "location": "query",
+          "description": "Passenger last name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "trips_get",
+      "description": "Look up a trip by confirmation number, first name, and last name. Required: confirmation, first-name, last-name.",
+      "method": "GET",
+      "path": "/my-trips/trip-details",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "confirmation",
+          "wire_name": "confirmationNo",
+          "type": "string",
+          "location": "query",
+          "description": "6-character confirmation number (e.g. ABC123)",
+          "required": true
+        },
+        {
+          "name": "first-name",
+          "wire_name": "firstName",
+          "type": "string",
+          "location": "query",
+          "description": "Passenger first name",
+          "required": true
+        },
+        {
+          "name": "last-name",
+          "wire_name": "lastName",
+          "type": "string",
+          "location": "query",
+          "description": "Passenger last name",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

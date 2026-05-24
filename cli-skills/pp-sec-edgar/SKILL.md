@@ -1,6 +1,6 @@
 ---
 name: pp-sec-edgar
-description: "Every SEC filing, every XBRL fact, every insider trade — synced into a local SQLite store you can pivot, search,... Trigger phrases: `look up an SEC filing`, `check insider trading on`, `compare quarterly financials for`, `find restatements in the last quarter`, `watch SEC filings for`, `use sec-edgar`, `run sec-edgar`."
+description: "Every SEC filing, every XBRL fact, every insider trade — synced into a local SQLite store you can pivot, search, and watch offline. Trigger phrases: `look up an SEC filing`, `check insider trading on`, `compare quarterly financials for`, `watch SEC filings for`, `use sec-edgar`."
 author: "Chris Drit"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
@@ -15,6 +15,11 @@ metadata:
         bins: [sec-edgar-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/developer-tools/sec-edgar/cmd/sec-edgar-pp-cli
 ---
+<!-- GENERATED FILE — DO NOT EDIT.
+     This file is a verbatim mirror of library/developer-tools/sec-edgar/SKILL.md,
+     regenerated post-merge by tools/generate-skills/. Hand-edits here are
+     silently overwritten on the next regen. Edit the library/ source instead.
+     See AGENTS.md "Generated artifacts: registry.json, cli-skills/". -->
 
 # SEC EDGAR — Printing Press CLI
 
@@ -24,7 +29,7 @@ This skill drives the `sec-edgar-pp-cli` binary. **You must verify the CLI is in
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install sec-edgar --cli-only
+   npx -y @mvanhorn/printing-press-library install sec-edgar --cli-only
    ```
 2. Verify: `sec-edgar-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -36,8 +41,6 @@ go install github.com/mvanhorn/printing-press-library/library/developer-tools/se
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-An agent-native CLI for the entire SEC EDGAR surface — data.sec.gov XBRL, efts.sec.gov full-text search, and the live Atom feed. The synced SQLite store enables joins no single SEC endpoint supports: insider-cluster detection across issuers, XBRL peer-group benchmarks by SIC, 13F holdings deltas across quarters, and live filing watches with multi-dimensional filters. All free — SEC provides no API key, just a mandatory User-Agent header.
 
 ## When to Use This CLI
 

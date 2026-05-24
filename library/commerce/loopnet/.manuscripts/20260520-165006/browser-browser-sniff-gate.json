@@ -1,0 +1,11 @@
+{
+  "run_id": "20260520-165006",
+  "sources": [
+    {
+      "source_name": "loopnet",
+      "decision": "skip-silent",
+      "reason": "spec-complete — reprint reusing prior browser-sniff capture (loopnet-capture.har, traffic-analysis.json) and the validated internal spec the prior v4.9.0 CLI shipped from; no gaps to enrich",
+      "asked_at": "2026-05-20T20:52:48Z"
+    }
+  ]
+}

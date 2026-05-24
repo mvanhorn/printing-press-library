@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-20T22:29:10.148327Z",
+  "printing_press_version": "4.0.3",
+  "api_name": "setlist-fm",
+  "display_name": "setlist.fm",
+  "description": "Search setlist.fm artists, setlists, venues, cities, and concert histories through the setlist.fm API.",
+  "printer": "davemorin",
+  "printer_name": "Dave Morin",
+  "cli_name": "setlist-fm-pp-cli",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:ee0b0d85bd07efcffe250c69b295af54db5a86b02f675819f190600afacd49b5",
+  "mcp_binary": "setlist-fm-pp-mcp",
+  "mcp_tool_count": 15,
+  "mcp_ready": "full",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "SETLIST_FM_API_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "Setlist prediction",
+      "command": "predict",
+      "description": "Generate a likely setlist for an upcoming show using recency-weighted per-song probability from the artist's recent tour."
+    },
+    {
+      "name": "Per-song stats",
+      "command": "song-stats",
+      "description": "For one song: total plays, first/last date, longest gap, average set position, percentage of shows that included it."
+    },
+    {
+      "name": "Overdue songs",
+      "command": "overdue",
+      "description": "Rank an artist's songs by shows-since-last-played to surface what is most due to return."
+    },
+    {
+      "name": "Tour shape",
+      "command": "tour-shape",
+      "description": "Median set length, encore frequency, song-position histogram, top openers and closers for one tour."
+    },
+    {
+      "name": "Tour comparison",
+      "command": "compare",
+      "description": "Overlap percent, dropped songs, debuts, and set-position shifts between two named tours of one artist."
+    },
+    {
+      "name": "Encore intelligence",
+      "command": "encore",
+      "description": "Top encore openers, top encore closers, percent of shows that had an encore at all."
+    },
+    {
+      "name": "Cover finder",
+      "command": "covers",
+      "description": "All cover songs an artist has played live, ranked by frequency with the original artist."
+    },
+    {
+      "name": "Setlist diff",
+      "command": "setlist-diff",
+      "description": "Side-by-side song diff of two setlist IDs."
+    },
+    {
+      "name": "Song gap",
+      "command": "song-gap",
+      "description": "Biggest dry spells for one song and when the comeback happened."
+    },
+    {
+      "name": "Rare debuts",
+      "command": "debut",
+      "description": "Songs an artist has played exactly once live."
+    },
+    {
+      "name": "Attended dashboard",
+      "command": "attended-stats",
+      "description": "Total shows, unique artists/songs/venues/cities, biggest streak, longest gap, decade breakdown for a user."
+    },
+    {
+      "name": "Bingo card",
+      "command": "bingo",
+      "description": "Printable bingo card of N most-likely-to-play songs for an upcoming show."
+    },
+    {
+      "name": "Venue loyalty",
+      "command": "venue-loyalty",
+      "description": "Top venues an artist plays at, by frequency. Detects 'home venue' patterns."
+    },
+    {
+      "name": "Since-cursor digest",
+      "command": "since",
+      "description": "Setlist updates since a given timestamp; pair with sync for delta refresh."
+    },
+    {
+      "name": "Spotify playlist export",
+      "command": "playlist",
+      "description": "Generate a Spotify playlist from an artist's most recent setlist (or merged last N setlists) \u2014 output as CSV, M3U, or Spotify-search URIs, or use the Spotify Web API to create the playlist directly."
+    }
+  ],
+  "run_id": "20260520-142155",
+  "category": "media-and-entertainment"
+}

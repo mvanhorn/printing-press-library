@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-20",
+  "base_run_id": "20260520-142155",
+  "base_printing_press_version": "4.0.3",
+  "patches": [
+    {
+      "id": "greptile-review-feedback",
+      "summary": "Stabilize HTTP cache keys and harden setlist sync/store helpers.",
+      "reason": "Greptile flagged nondeterministic cache keys, unquoted typed-table lookup for resource 1_0, a non-atomic song delete-plus-insert sequence, an ignored --max-pages flag, unsafe JSON field interpolation in ResolveByName, and dead timestamp validation in since.",
+      "files": [
+        "internal/cli/since.go",
+        "internal/cli/since_test.go",
+        "internal/cli/sync_hydrate.go",
+        "internal/cli/sync_hydrate_test.go",
+        "internal/client/client.go",
+        "internal/client/client_test.go",
+        "internal/store/store.go",
+        "internal/store/upsert_batch_test.go"
+      ],
+      "validated_outcome": "go test ./... passed for the generated Setlist.fm module."
+    },
+    {
+      "id": "auth-flow-fix",
+      "summary": "Re-route auth set-token to fm_api_key, drop dead OAuth fields, fix doctor env-vars verdict, chain SETLISTFM_API_KEY into auth logout's env-still-set check, and route doctor tests through an httptest stub.",
+      "reason": "Generated CLI emitted an OAuth-shaped config (access_token / refresh_token / token_expiry / client_id / client_secret / auth_header) but Setlist.fm uses only the static x-api-key header. auth set-token wrote to a dead access_token field, every API call returned 403, and doctor falsely reported FAIL Env Vars when fm_api_key was set in config. Also adds 'free' language and the auth set-token command to the doctor hint. Greptile review on PR #731 surfaced two follow-ups: auth logout's env-still-set check only inspected SETLIST_FM_API_KEY (lower priority in config.Load) so users on the SETLISTFM_API_KEY convention saw a misleading 'Logged out. Credentials cleared.' message while staying authenticated via env; doctor tests pointed base_url at the real api.setlist.fm host and round-tripped two live HTTP calls per test run.",
+      "files": [
+        "internal/cli/auth.go",
+        "internal/cli/auth_test.go",
+        "internal/cli/doctor.go",
+        "internal/cli/doctor_test.go",
+        "internal/client/client.go",
+        "internal/config/config.go",
+        "internal/config/config_test.go"
+      ],
+      "validated_outcome": "go test ./... passed; manual smoke confirmed auth set-token persists to fm_api_key and doctor no longer reports FAIL Env Vars when config provides auth. Auth logout env-var matrix is covered by TestAuthLogoutNotes* / TestAuthLogoutPrefersHigherPriorityEnvWhenBothSet / TestAuthLogoutOmitsNoteWhenNoEnvSet. Doctor tests now run with no network round-trips, and TestDoctorAPIReachableThroughStub proves the stub server is actually wired in."
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 ---
 name: pp-nvd
-description: "Printing Press CLI for Nvd. The NVD is the U.S. government repository of standards-based vulnerability management data. Search CVEs by keyword,..."
+description: "Search the U.S. National Vulnerability Database for CVEs, CVSS scores, affected versions, and severity ratings — by keyword, product (CPE name), CVE ID, or date range. Trigger phrases: `look up CVE`, `CVSS score for`, `vulnerabilities in <product>`, `use nvd`."
 author: "Hiten Shah"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
@@ -24,7 +24,7 @@ This skill drives the `nvd-pp-cli` binary. **You must verify the CLI is installe
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install nvd --cli-only
+   npx -y @mvanhorn/printing-press-library install nvd --cli-only
    ```
 2. Verify: `nvd-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.

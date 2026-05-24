@@ -15,6 +15,11 @@ metadata:
         bins: [ebay-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/commerce/ebay/cmd/ebay-pp-cli
 ---
+<!-- GENERATED FILE — DO NOT EDIT.
+     This file is a verbatim mirror of library/commerce/ebay/SKILL.md,
+     regenerated post-merge by tools/generate-skills/. Hand-edits here are
+     silently overwritten on the next regen. Edit the library/ source instead.
+     See AGENTS.md "Generated artifacts: registry.json, cli-skills/". -->
 
 # eBay — Printing Press CLI
 
@@ -24,7 +29,7 @@ This skill drives the `ebay-pp-cli` binary. **You must verify the CLI is install
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install ebay --cli-only
+   npx -y @mvanhorn/printing-press-library install ebay --cli-only
    ```
 2. Verify: `ebay-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.

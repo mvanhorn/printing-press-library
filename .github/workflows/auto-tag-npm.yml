@@ -1,13 +1,14 @@
 name: Auto-tag npm release on version bump
 
 # When npm/package.json's "version" field changes on main, push a matching
-# `npm-v<version>` tag. The existing npm-publish.yml workflow listens for that
-# tag and publishes via OIDC.
+# `npm-v<version>` tag, then explicitly dispatch npm-publish.yml for that tag.
+# Tag pushes made with GITHUB_TOKEN do not trigger another workflow run, so the
+# dispatch step is the part that actually starts the trusted publishing flow.
 #
 # This means the entire release rhythm is:
 #   1. Bump npm/package.json version in a PR (alongside any code change).
 #   2. Merge the PR.
-#   3. This workflow tags. npm-publish.yml publishes. Done.
+#   3. This workflow tags and dispatches npm-publish.yml. Done.
 #
 # Things that intentionally do NOT trigger a release:
 #   - Library / SKILL.md / registry.json / cli-skills changes (sourced live by
@@ -27,6 +28,7 @@ on:
       - 'npm/package.json'
 
 permissions:
+  actions: write    # needs to dispatch npm-publish.yml
   contents: write   # needs to push the tag
 
 jobs:
@@ -63,4 +65,14 @@ jobs:
           tag="npm-v${{ steps.check.outputs.new }}"
           git tag "$tag"
           git push origin "$tag"
-          echo "Pushed tag $tag — npm-publish.yml will run on the tag event."
+          echo "Pushed tag $tag."
+
+      - name: Dispatch npm publish workflow
+        if: steps.check.outputs.bumped == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag="npm-v${{ steps.check.outputs.new }}"
+          gh workflow run npm-publish.yml --ref "$tag"
+          echo "Dispatched npm-publish.yml for $tag."

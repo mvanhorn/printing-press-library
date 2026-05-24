@@ -15,6 +15,11 @@ metadata:
         bins: [weather-goat-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/other/weather-goat/cmd/weather-goat-pp-cli
 ---
+<!-- GENERATED FILE — DO NOT EDIT.
+     This file is a verbatim mirror of library/other/weather-goat/SKILL.md,
+     regenerated post-merge by tools/generate-skills/. Hand-edits here are
+     silently overwritten on the next regen. Edit the library/ source instead.
+     See AGENTS.md "Generated artifacts: registry.json, cli-skills/". -->
 
 # Weather Goat — Printing Press CLI
 
@@ -24,7 +29,7 @@ This skill drives the `weather-goat-pp-cli` binary. **You must verify the CLI is
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install weather-goat --cli-only
+   npx -y @mvanhorn/printing-press-library install weather-goat --cli-only
    ```
 2. Verify: `weather-goat-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.

@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "setlist-fm-pp-mcp",
+  "display_name": "Setlist Fm",
+  "version": "4.0.3",
+  "description": "Setlist Fm API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/setlist-fm-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/setlist-fm-pp-mcp",
+      "args": [],
+      "env": {
+        "SETLIST_FM_API_KEY": "${user_config.setlist_fm_api_key}"
+      }
+    }
+  },
+  "user_config": {
+    "setlist_fm_api_key": {
+      "type": "string",
+      "title": "SETLIST_FM_API_KEY",
+      "description": "Sets SETLIST_FM_API_KEY for the Setlist Fm MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

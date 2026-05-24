@@ -15,6 +15,11 @@ metadata:
         bins: [espn-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/media-and-entertainment/espn/cmd/espn-pp-cli
 ---
+<!-- GENERATED FILE — DO NOT EDIT.
+     This file is a verbatim mirror of library/media-and-entertainment/espn/SKILL.md,
+     regenerated post-merge by tools/generate-skills/. Hand-edits here are
+     silently overwritten on the next regen. Edit the library/ source instead.
+     See AGENTS.md "Generated artifacts: registry.json, cli-skills/". -->
 
 # ESPN — Printing Press CLI
 
@@ -24,7 +29,7 @@ This skill drives the `espn-pp-cli` binary. **You must verify the CLI is install
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install espn --cli-only
+   npx -y @mvanhorn/printing-press-library install espn --cli-only
    ```
 2. Verify: `espn-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.

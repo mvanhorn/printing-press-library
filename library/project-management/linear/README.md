@@ -1,18 +1,51 @@
 # Linear CLI
 
-Manage issues, projects, cycles, and teams via the Linear API with offline search and analytics.
+**Offline-capable, agent-native Linear CLI with SQLite-backed sync, FTS5 search, cross-cycle comparison, project burndown projection, and a pp_created fixture-lifecycle contract that lets agents mutate real workspaces safely.**
+
+Pulls your workspace into a local SQLite store with FTS5 search and runs compound queries that no live API call can answer in one round-trip — today view, bottleneck detection, project burndown, cycle comparison. Ships a thin linear_search + linear_execute MCP orchestration pair (with named multi-step intents for triage, standup, sprint plan, weekly update, and grooming) so agents reach the full surface in ~1K tokens instead of enumerating 60+ endpoint mirrors.
+
+Printed by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
 
 ## Install
 
-### Go
+The recommended path installs both the `linear-pp-cli` binary and the `pp-linear` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
+```bash
+npx -y @mvanhorn/printing-press-library install linear
 ```
+
+For CLI only (no skill):
+
+```bash
+npx -y @mvanhorn/printing-press-library install linear --cli-only
+```
+
+For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
+
+```bash
+npx -y @mvanhorn/printing-press-library install linear --skill-only
+```
+
+To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
+
+```bash
+npx -y @mvanhorn/printing-press-library install linear --agent claude-code
+npx -y @mvanhorn/printing-press-library install linear --agent claude-code --agent codex
+```
+
+### Without Node (Go fallback)
+
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
 go install github.com/mvanhorn/printing-press-library/library/project-management/linear/cmd/linear-pp-cli@latest
 ```
 
-### Binary
+This installs the CLI only — no skill.
 
-Download from [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/linear-current).
+### Pre-built binary
+
+Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/linear-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
 
 <!-- pp-hermes-install-anchor -->
 ## Install for Hermes
@@ -37,338 +70,25 @@ Tell your OpenClaw agent (copy this):
 Install the pp-linear skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-linear. The skill defines how its required CLI can be installed.
 ```
 
-## Authentication
+## Use with Claude Desktop
 
-Create a **personal API key** under **Settings → Account → Security & access** while logged into Linear: [Security & access](https://linear.app/settings/account/security). (The **Integrations / Connected accounts** page is for linking Slack, GitHub, etc., not for API keys.)
+This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
 
-```bash
-export LINEAR_API_KEY="lin_api_abc123..."
-```
+To install:
 
-Or persist with:
+1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/linear-current).
+2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
+3. Fill in `LINEAR_API_KEY` when Claude Desktop prompts you.
 
-```bash
-linear-pp-cli auth set-api-key "lin_api_abc123..."
-```
+Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
 
-That writes `~/.config/linear-pp-cli/config.toml` (field `api_key`). For OAuth-style **access tokens** (advanced), use `linear-pp-cli auth set-token` instead. You can also edit the file directly:
+<details>
+<summary>Manual JSON config (advanced)</summary>
 
-```toml
-api_key = "lin_api_abc123..."
-```
+If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
 
-**Cursor users:** see [CURSOR.md](./CURSOR.md) for a short setup guide (MCP vs skill, where keys live, verification).
 
-
-To override the API base URL (for self-hosted or proxied setups):
-
-```bash
-export LINEAR_BASE_URL="https://your-proxy.example.com/graphql"
-```
-
-## Quick Start
-
-```bash
-# Check that credentials are working
-linear-pp-cli doctor
-
-# Sync issues, projects, teams, cycles, labels, and users locally
-linear-pp-cli sync
-
-# See your issues for today across all teams
-linear-pp-cli today
-
-# Look up a specific issue
-linear-pp-cli issues ESP-1155
-
-# List issues assigned to you (excludes completed/canceled by default)
-linear-pp-cli issues list --assignee me
-
-# Narrow to a team and state, output JSON
-linear-pp-cli issues list --team ESP --state started --json
-
-# Find stale issues that need attention
-linear-pp-cli stale --days 14
-
-# Search for potential duplicate issues
-linear-pp-cli similar "login timeout"
-```
-
-## Finding Issues
-
-`issues <ID>` fetches a single issue. Resolution order with the default `--data-source auto`:
-
-1. local sqlite store, matched by identifier
-2. live Linear GraphQL query (POST)
-3. on live failure with a stale store, return the store miss as not found
-
-`issues list` lists issues from the local store. Run `linear-pp-cli sync` first.
-
-Filters compose with AND:
-
-| Flag | Accepts | Notes |
-|------|---------|-------|
-| `--assignee` | `me`, UUID, display name, or email | `me` resolves the authenticated viewer via a live query |
-| `--state` | `active` (default), `started`, `backlog`, `unstarted`, `completed`, `canceled`, `triage`, `all` | Matches `state.type`, so custom state names still work |
-| `--team` | Team key (e.g. `ESP`) or UUID | Resolved against the local `teams` table |
-| `--project` | Project name or UUID | Resolved against the local `projects` table |
-| `--limit` | Integer | Defaults to 200 |
-| `--json` | Flag | JSON output for piping to `jq` |
-
-## Unique Features
-
-These capabilities aren't available in any other tool for this API.
-
-### Local state that compounds
-- **`today`** — See all your issues for today across every team, ranked by priority and cycle deadline.
-
-  _When an agent is asked 'what should I work on right now?', this returns the ranked list in one call instead of N team-scoped list queries._
-
-  ```bash
-  linear-pp-cli today --json --select identifier,title,priority,cycle.endsAt
-  ```
-- **`bottleneck`** — See which team members are overloaded and which issues are blocked before sprint planning.
-
-  _Pre-sprint-planning question 'who is overloaded right now' becomes a single agent call instead of scrolling N tabs._
-
-  ```bash
-  linear-pp-cli bottleneck --team ENG --json
-  ```
-- **`projects burndown`** — Project a project's landing date by linear-regressing remaining estimate against the team's measured velocity.
-
-  _Replaces static project target-dates with a velocity-driven projection an agent can compare against the milestone date._
-
-  ```bash
-  linear-pp-cli projects burndown PROJ-42 --json
-  ```
-- **`cycles compare`** — Side-by-side metrics between any two cycles: completion %, scope added, scope cut, carryover, average cycle time.
-
-  _Friday-update ritual: 'how does this cycle compare to last cycle?' becomes one call._
-
-  ```bash
-  linear-pp-cli cycles compare 42 43 --json
-  ```
-- **`stale`** — Find issues that haven't been touched in N days, grouped by team and project.
-
-  _Backlog-grooming workflow: surface zombie issues without paying API complexity for a full scan._
-
-  ```bash
-  linear-pp-cli stale --days 30 --team ENG --json
-  ```
-- **`slipped`** — Show what carried over from last cycle into this cycle, grouped by team and reason heuristic.
-
-  _Maya's Friday update needs 'what slipped' as a structured list, not a manual count._
-
-  ```bash
-  linear-pp-cli slipped --team ENG --json
-  ```
-- **`blocking`** — Show issues you are blocking — sorted by impact (downstream count and priority).
-
-  _Daily ritual: 'what's blocked because of me' becomes one call instead of clicking through every assigned issue._
-
-  ```bash
-  linear-pp-cli blocking --json
-  ```
-- **`similar`** — Find issues that look like duplicates of a query string using offline FTS5 fuzzy matching.
-
-  _Triage and grooming: catch dupes before filing or while sweeping the inbox._
-
-  ```bash
-  linear-pp-cli similar "login button broken" --json
-  ```
-- **`velocity`** — Track sprint completion rates over the last N cycles to spot productivity trends.
-
-  _Multi-cycle trend lines feed the burndown projection and the weekly stakeholder update._
-
-  ```bash
-  linear-pp-cli velocity --weeks 8 --team ENG --json
-  ```
-- **`initiatives health`** — Rolled-up portfolio view per initiative: child project progress, milestone target-vs-projected dates, slippage flags.
-
-  _Portfolio review: 'which milestone in my portfolio is most at risk this month' becomes one ranked answer._
-
-  ```bash
-  linear-pp-cli initiatives health --json
-  ```
-
-### Agent-native plumbing
-- **`pp-test list`** — List Linear issues this CLI created in the current or named session, then archive them with pp-cleanup.
-
-  _Lets agents create test issues during a session and clean up only their own fixtures, never touching pre-existing tickets._
-
-  ```bash
-  linear-pp-cli pp-test list --session current && linear-pp-cli pp-cleanup --session current --dry-run
-  ```
-- **`issues create`** — Refuse mutations on Linear issues not in the local pp_created ledger when --trust-mode strict is set; works on the create command and any future mutation surfaces.
-
-  _When an agent runs against a real workspace, this is the safety net that prevents silent damage to non-test data._
-
-  ```bash
-  linear-pp-cli issues create --title "test" --team ENG --trust-mode strict --session demo
-  ```
-
-## Usage
-
-```
-Manage issues, projects, cycles, and teams via the Linear API with offline search and analytics
-
-Usage:
-  linear-pp-cli [command]
-
-Available Commands:
-  analytics                        Run analytics queries on locally synced data
-  api                              Browse all API endpoints by interface name
-  attachments                      Get a single attachment
-  audit-entry-types                Get a single auditentrytype
-  auth                             Manage authentication tokens
-  bottleneck                       Find overloaded team members and blocked issues
-  completion                       Generate the autocompletion script for the specified shell
-  customers                        Get a single customer
-  cycles                           Get a single cycle
-  doctor                           Check CLI health
-  documents                        Get a single document
-  export                           Export data to JSONL or JSON for backup, migration, or analysis
-  favorites                        Get a single favorite
-  help                             Help about any command
-  import                           Import data from JSONL file via API create/upsert calls
-  initiatives                      Get a single initiative
-  integrations                     Get a single integration
-  issue-labels                     Get a single issuelabel
-  issue-priority-values            Get a single issuepriorityvalue
-  issue-relations                  Get a single issuerelation
-  issues                           Get a single issue
-  load                             Show workload distribution per assignee
-  me                               Show current authenticated user
-  organizations                    Get a single organization
-  orphans                          Find items missing key fields like assignee or project
-  projects                         Get a single project
-  release-pipelines                Get a single releasepipeline
-  releases                         Get a single release
-  roadmaps                         Get a single roadmap
-  similar                          Find potentially duplicate issues using fuzzy text search
-  sql                              Run read-only SQL against the local store
-  stale                            Find issues not updated in N days
-  sync                             Sync Linear data to local SQLite store
-  tail                             Stream live changes by polling the API at regular intervals
-  teams                            Get a single team
-  templates                        Get a single template
-  today                            Show your issues for today across all teams
-  users                            Get a single user
-  velocity                         Show sprint velocity trends over recent cycles
-  version                          Print version
-  workflow                         Compound workflows that combine multiple API operations
-  workload                         Show issue and estimate distribution per team member
-```
-
-## Commands
-
-### Daily Workflow
-
-| Command | Description |
-|---------|-------------|
-| `today` | Show your issues for today across all teams |
-| `me` | Show current authenticated user |
-| `stale` | Find issues not updated in N days |
-| `orphans` | Find items missing key fields like assignee or project |
-| `similar` | Find potentially duplicate issues using fuzzy text search |
-
-### Team Analytics
-
-| Command | Description |
-|---------|-------------|
-| `bottleneck` | Find overloaded team members and blocked issues |
-| `workload` | Show issue and estimate distribution per team member |
-| `load` | Show workload distribution per assignee |
-| `velocity` | Show sprint velocity trends over recent cycles |
-| `analytics` | Run analytics queries on locally synced data |
-| `sql` | Run read-only SQL against the local store |
-
-### Data Management
-
-| Command | Description |
-|---------|-------------|
-| `sync` | Sync Linear data to local SQLite store |
-| `export` | Export data to JSONL or JSON for backup, migration, or analysis |
-| `import` | Import data from JSONL file via API create/upsert calls |
-| `tail` | Stream live changes by polling the API at regular intervals |
-
-### Resources
-
-| Command | Description |
-|---------|-------------|
-| `issues` | Get a single issue |
-| `projects` | Get a single project |
-| `teams` | Get a single team |
-| `cycles` | Get a single cycle |
-| `initiatives` | Get a single initiative |
-| `customers` | Get a single customer |
-| `documents` | Get a single document |
-| `releases` | Get a single release |
-| `users` | Get a single user |
-| `integrations` | Get, create, or delete integrations |
-| `api` | Browse all API endpoints by interface name |
-
-### Utilities
-
-| Command | Description |
-|---------|-------------|
-| `doctor` | Check CLI health |
-| `auth` | Manage authentication tokens |
-| `workflow` | Compound workflows that combine multiple API operations |
-| `version` | Print version |
-
-## Output Formats
-
-```bash
-# Human-readable table (default in terminal, JSON when piped)
-linear-pp-cli today
-
-# JSON for scripting and agents
-linear-pp-cli today --json
-
-# Filter to specific fields
-linear-pp-cli issues abc123 --json --select id,title,state
-
-# CSV for spreadsheets
-linear-pp-cli stale --days 30 --csv
-
-# Dry run - show the request without sending
-linear-pp-cli issues abc123 --dry-run
-
-# Compact mode - minimal fields for token efficiency
-linear-pp-cli today --compact
-
-# Agent mode - JSON + compact + no prompts in one flag
-linear-pp-cli today --agent
-```
-
-## Agent Usage
-
-This CLI is designed for AI agent consumption:
-
-- **Non-interactive** - never prompts, every input is a flag
-- **Pipeable** - `--json` output to stdout, errors to stderr
-- **Filterable** - `--select id,name` returns only fields you need
-- **Previewable** - `--dry-run` shows the request without sending
-- **Confirmable** - `--yes` for explicit confirmation of destructive actions
-- **Piped input** - `echo '{"key":"value"}' | linear-pp-cli integrations create --stdin`
-- **Cacheable** - GET responses cached for 5 minutes, bypass with `--no-cache`
-- **Agent-safe by default** - no colors or formatting unless `--human-friendly` is set
-- **Progress events** - paginated commands emit NDJSON events to stderr in default mode
-
-Exit codes: `0` success, `2` usage error, `3` not found, `4` auth error, `5` API error, `7` rate limited, `10` config error.
-
-## Use as MCP Server
-
-This CLI ships a companion MCP server for use with Claude Desktop, Cursor, and other MCP-compatible tools.
-
-### Claude Code
-
-```bash
-claude mcp add linear linear-pp-mcp -e LINEAR_API_KEY=<your-key>
-```
-
-### Claude Desktop
+Install the MCP binary from this CLI's published public-library entry or pre-built release.
 
 Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
 
@@ -385,97 +105,414 @@ Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_
 }
 ```
 
-## Cookbook
+</details>
+
+## Authentication
+
+Linear personal API keys go in the `Authorization` header verbatim — no `Bearer` prefix. Run `linear-pp-cli auth set-token lin_api_yourkeyhere` to save your key (no Bearer prefix needed for Linear personal API keys), or export `LINEAR_API_KEY=lin_api_...`. Personal API keys are workspace-scoped; the doctor command validates auth, API connectivity, and store health in one shot.
+
+## Quick Start
 
 ```bash
-# See what you need to work on today
-linear-pp-cli today
+# Save your Linear personal API key (or export LINEAR_API_KEY)
+linear-pp-cli auth set-token <your-key>
 
-# Find issues untouched for 2 weeks on the ENG team
-linear-pp-cli stale --days 14 --team ENG
-
-# Check who is overloaded before sprint planning
-linear-pp-cli bottleneck --team ENG
-
-# Find potential duplicate issues
-linear-pp-cli similar "payment failed"
-
-# Track velocity over the last 8 sprints
-linear-pp-cli velocity --weeks 8
-
-# Check workload balance across a team
-linear-pp-cli workload --team ENG
-
-# Run ad-hoc SQL against synced data
-linear-pp-cli sql "SELECT identifier, title FROM issues WHERE priority = 1"
-
-# Count issues by team
-linear-pp-cli sql "SELECT team_id, count(*) as cnt FROM issues GROUP BY team_id"
-
-# Export all issues for backup
-linear-pp-cli export issues --format jsonl --output issues-backup.jsonl
-
-# Stream changes in real time
-linear-pp-cli tail --interval 10s | jq 'select(.type == "issue")'
-
-# Find unassigned issues that need triage
-linear-pp-cli orphans --limit 20
-
-# Full re-sync from scratch
+# Burn your workspace into the local SQLite store for offline + transcendent queries
 linear-pp-cli sync --full
 
-# Pipe issue data to another tool
-linear-pp-cli today --json | jq '.[].title'
+# Your ranked work queue for today across every team
+linear-pp-cli today --json
+
+# Pre-sprint-planning overload + blocked-count signal for one team
+linear-pp-cli bottleneck --team ENG
+
+# Project landing date from regressed velocity, not the static target someone typed in
+linear-pp-cli projects burndown PROJ_ID --weeks 8
+
+# Archive only the test issues this CLI created in this session
+linear-pp-cli pp-cleanup
+
 ```
+
+## Unique Features
+
+These capabilities aren't available in any other tool for this API.
+
+### Local state that compounds
+- **`today`** — See all of your assigned issues across every team for today, ranked by priority and cycle deadline.
+
+  _Reach for this when an agent or human needs a single ranked work queue across every team, without naming the underlying joins._
+
+  ```bash
+  linear-pp-cli today --json --agent
+  ```
+- **`bottleneck`** — See which team members are overloaded and which issues are blocked before sprint planning.
+
+  _Reach for this in sprint planning when you need to see who is overloaded and where work is stuck in one view._
+
+  ```bash
+  linear-pp-cli bottleneck --team ENG --json
+  ```
+- **`stale`** — Find issues that haven't been touched in N days, grouped by team and project.
+
+  _Reach for this during backlog grooming when you need to surface forgotten issues without exhausting the API rate limit._
+
+  ```bash
+  linear-pp-cli stale --days 30 --team ENG --json
+  ```
+- **`similar`** — Find issues that look like duplicates of a query string using offline FTS5 fuzzy matching.
+
+  _Reach for this during triage when you suspect an incoming bug duplicates an existing issue._
+
+  ```bash
+  linear-pp-cli similar "login redirect bug" --limit 5 --json
+  ```
+
+### Cross-entity rollups
+- **`projects burndown`** — Project a project's landing date by linear-regressing remaining estimate against the team's measured velocity.
+
+  _Reach for this when stakeholders ask when a project will land and the project page only shows a static target date someone typed in months ago._
+
+  ```bash
+  linear-pp-cli projects burndown PROJ_ID --weeks 8 --json
+  ```
+- **`cycles compare`** — Side-by-side metrics between any two cycles: completion %, scope added, scope cut, carryover, average cycle time.
+
+  _Reach for this for cycle retros and Friday updates when you need a numeric diff rather than two browser tabs._
+
+  ```bash
+  linear-pp-cli cycles compare 42 43 --json
+  ```
+- **`slipped`** — Show what carried over from last cycle into this cycle, grouped by team and reason heuristic.
+
+  _Reach for this in Friday stakeholder updates when you need a structured slipped-from-last-cycle list, not just a saved view._
+
+  ```bash
+  linear-pp-cli slipped --team ENG --json
+  ```
+- **`velocity`** — Track sprint completion rates over the last N cycles to spot productivity trends.
+
+  _Reach for this in Monday sprint planning to ground rebalance decisions in actual completion data, not the team's last cycle alone._
+
+  ```bash
+  linear-pp-cli velocity --weeks 8 --json
+  ```
+- **`initiatives health`** — Rolled-up portfolio view per initiative: child project progress, milestone target-vs-projected dates, slippage flags.
+
+  _Reach for this in portfolio reviews when stakeholders want the initiative-level rollup, not seven open project tabs._
+
+  ```bash
+  linear-pp-cli initiatives health --json
+  ```
+- **`milestones at-risk`** — List portfolio milestones whose projected landing date has slipped past their target, ranked by slip magnitude.
+
+  _Reach for this in weekly portfolio review when the question is which milestone is most at risk, not which initiative is healthy._
+
+  ```bash
+  linear-pp-cli milestones at-risk --json
+  ```
+
+### Personal queues
+- **`blocking`** — Show issues you are blocking — sorted by downstream impact (downstream count × downstream priority).
+
+  _Reach for this every morning when you need to know which of your in-flight issues are stalling teammates downstream._
+
+  ```bash
+  linear-pp-cli blocking --json
+  ```
+
+### Agent-native plumbing
+- **`pp-test list`** — List Linear issues this CLI created in the current or named session, then archive them with pp-cleanup.
+
+  _Reach for this when an agent needs to clean up only the tickets it created in a session — the workspace's existing data must not be touched._
+
+  ```bash
+  linear-pp-cli pp-test list --json
+  ```
+- **`issues create --trust-mode strict`** — Refuse mutations on Linear issues not in the local pp_created ledger when --trust-mode strict is set; works on create and any future mutation surface.
+
+  _Reach for this when running an agent against a real workspace with real data — strict mode makes accidental mutation impossible._
+
+  ```bash
+  linear-pp-cli issues create --title "Test ticket" --team ENG --trust-mode strict
+  ```
+
+## Usage
+
+Run `linear-pp-cli --help` for the full command reference and flag list.
+
+## Commands
+
+### attachments
+
+Manage attachments
+
+- **`linear-pp-cli attachments <id>`** - Get a single attachment
+
+### audit-entry-types
+
+Manage audit-entry-types
+
+- **`linear-pp-cli audit-entry-types`** - Get a single auditentrytype
+
+### auth-resolver-responses
+
+Manage auth-resolver-responses
+
+- **`linear-pp-cli auth-resolver-responses`** - Get a single authresolverresponse
+
+### authentication-session-responses
+
+Manage authentication-session-responses
+
+- **`linear-pp-cli authentication-session-responses`** - Get a single authenticationsessionresponse
+
+### email-intake-addresses
+
+Manage email-intake-addresses
+
+- **`linear-pp-cli email-intake-addresses <id>`** - Get a single emailintakeaddress
+
+### favorites
+
+Manage favorites
+
+- **`linear-pp-cli favorites <id>`** - Get a single favorite
+
+### initiative-relations
+
+Manage initiative-relations
+
+- **`linear-pp-cli initiative-relations <id>`** - Get a single initiativerelation
+
+### initiative-to-projects
+
+Manage initiative-to-projects
+
+- **`linear-pp-cli initiative-to-projects <id>`** - Get a single initiativetoproject
+
+### initiatives
+
+Manage initiatives
+
+- **`linear-pp-cli initiatives <id>`** - Get a single initiative
+
+### integrations
+
+Manage integrations
+
+- **`linear-pp-cli integrations create`** - Create a integration
+- **`linear-pp-cli integrations delete`** - Delete a integration
+
+### issue-priority-values
+
+Manage issue-priority-values
+
+- **`linear-pp-cli issue-priority-values`** - Get a single issuepriorityvalue
+
+### organizations
+
+Manage organizations
+
+- **`linear-pp-cli organizations`** - Get a single organization
+
+### project-labels
+
+Manage project-labels
+
+- **`linear-pp-cli project-labels <id>`** - Get a single projectlabel
+
+### project-milestones
+
+Manage project-milestones
+
+- **`linear-pp-cli project-milestones <id>`** - Get a single projectmilestone
+
+### project-relations
+
+Manage project-relations
+
+- **`linear-pp-cli project-relations <id>`** - Get a single projectrelation
+
+### project-statuses
+
+Manage project-statuses
+
+- **`linear-pp-cli project-statuses <id>`** - Get a single projectstatus
+
+### projects
+
+Manage projects
+
+- **`linear-pp-cli projects <id>`** - Get a single project
+
+### release-notes
+
+Manage release-notes
+
+- **`linear-pp-cli release-notes <id>`** - Get a single releasenote
+
+### release-pipelines
+
+Manage release-pipelines
+
+- **`linear-pp-cli release-pipelines`** - Get a single releasepipeline
+
+### release-stages
+
+Manage release-stages
+
+- **`linear-pp-cli release-stages <id>`** - Get a single releasestage
+
+### releases
+
+Manage releases
+
+- **`linear-pp-cli releases <id>`** - Get a single release
+
+### roadmap-to-projects
+
+Manage roadmap-to-projects
+
+- **`linear-pp-cli roadmap-to-projects <id>`** - Get a single roadmaptoproject
+
+### roadmaps
+
+Manage roadmaps
+
+- **`linear-pp-cli roadmaps <id>`** - Get a single roadmap
+
+### teams
+
+Manage teams
+
+- **`linear-pp-cli teams`** - Get a single team
+
+### templates
+
+Manage templates
+
+- **`linear-pp-cli templates`** - Get a single template
+
+### user-settingses
+
+Manage user-settingses
+
+- **`linear-pp-cli user-settingses`** - Get a single usersettings
+
+### users
+
+Manage users
+
+- **`linear-pp-cli users`** - Get a single user
+
+## Output Formats
+
+```bash
+# Human-readable table (default in terminal, JSON when piped)
+linear-pp-cli attachments mock-value
+
+# JSON for scripting and agents
+linear-pp-cli attachments mock-value --json
+
+# Filter to specific fields
+linear-pp-cli attachments mock-value --json --select id,name,status
+
+# Dry run — show the request without sending
+linear-pp-cli attachments mock-value --dry-run
+
+# Agent mode — JSON + compact + no prompts in one flag
+linear-pp-cli attachments mock-value --agent
+```
+
+## Agent Usage
+
+This CLI is designed for AI agent consumption:
+
+- **Non-interactive** - never prompts, every input is a flag
+- **Pipeable** - `--json` output to stdout, errors to stderr
+- **Filterable** - `--select id,name` returns only fields you need
+- **Previewable** - `--dry-run` shows the request without sending
+- **Explicit retries** - add `--idempotent` to create retries and `--ignore-missing` to delete retries when a no-op success is acceptable
+- **Confirmable** - `--yes` for explicit confirmation of destructive actions
+- **Piped input** - write commands can accept structured input when their help lists `--stdin`
+- **Offline-friendly** - sync/search commands can use the local SQLite store when available
+- **Agent-safe by default** - no colors or formatting unless `--human-friendly` is set
+
+Exit codes: `0` success, `2` usage error, `3` not found, `4` auth error, `5` API error, `7` rate limited, `10` config error.
 
 ## Health Check
 
 ```bash
-$ linear-pp-cli doctor
-Checking CLI health...
-
-  Config file    ~/.config/linear-pp-cli/config.toml
-  API key        set (env:LINEAR_API_KEY)
-  Base URL       https://api.linear.app/graphql
-  Connectivity   ok
-  Local store    ~/.local/share/linear-pp-cli/store.db (synced)
+linear-pp-cli doctor
 ```
+
+Verifies configuration, credentials, and connectivity to the API.
 
 ## Configuration
 
 Config file: `~/.config/linear-pp-cli/config.toml`
 
+Static request headers can be configured under `headers`; per-command header overrides take precedence.
+
 Environment variables:
 
-| Variable | Description |
-|----------|-------------|
-| `LINEAR_API_KEY` | API key for authentication (required) |
-| `LINEAR_BASE_URL` | Override the API base URL (default: `https://api.linear.app/graphql`) |
-| `LINEAR_CONFIG` | Override the config file path |
+| Name | Kind | Required | Description |
+| --- | --- | --- | --- |
+| `LINEAR_API_KEY` | per_call | Yes | Set to your API credential. |
+
+## Freshness and Data Sources
+
+Read commands fall into three categories with different data-source semantics. The persistent flags `--data-source auto|live|local` and `--max-age <duration>` control where reads come from and when to warn about stale local data.
+
+| Category | Commands | Default | Override |
+| --- | --- | --- | --- |
+| **Live-first with local fallback** | `attachments`, `projects get`, `teams`, `initiatives get`, `issues`, `issues list` (the v4 refactor) | `--data-source auto`: live API → write-through → fall back to local on network error | `--data-source live` (no fallback), `--data-source local` (no API) |
+| **Snapshot-computational** | `today`, `bottleneck`, `blocking`, `similar`, `velocity`, `slipped`, `cycles compare`, `projects burndown`, `initiatives health`, `milestones at-risk` | Local store only — no live equivalent exists. **Must `sync` first.** | None (flag ignored) |
+| **Mutations** | `issues create`, `pp-cleanup` | Always live; on success, the HTTP cache is invalidated AND the entity is written back to the local store | n/a |
+
+**`--max-age` (default 30 minutes):**
+
+When a store-backed read returns data older than `--max-age`, a stderr hint suggests running `sync`. Set `--max-age 6h` for archival workflows or `--max-age 0` to disable the warning entirely. JSON output stays clean — the hint is stderr-only.
+
+**Cold-start hint:** Running `today`, `issues list`, `bottleneck`, etc. before any sync prints `(no issues in local store — run 'linear-pp-cli sync' to populate)` to stderr.
+
+**Budget-conscious agent pattern (Linear meters ~1500 complexity points/hour on personal keys):**
+
+```bash
+# Hydrate once at session start
+linear-pp-cli sync
+
+# Read freely from local — zero API budget
+linear-pp-cli today --data-source local
+linear-pp-cli bottleneck --team ENG --data-source local
+linear-pp-cli issues list --assignee me --data-source local
+
+# Mutate — write-back keeps the store fresh, no re-sync needed
+linear-pp-cli issues create --title "..." --team ENG --pp-session $SESSION
+
+# Verify from local
+linear-pp-cli issues list --data-source local --pp-session $SESSION
+
+# Refresh every ~30 minutes for long sessions
+linear-pp-cli sync
+```
 
 ## Troubleshooting
-
 **Authentication errors (exit code 4)**
 - Run `linear-pp-cli doctor` to check credentials
 - Verify the environment variable is set: `echo $LINEAR_API_KEY`
-- Get a new key at [linear.app/settings/api](https://linear.app/settings/api)
-
 **Not found errors (exit code 3)**
 - Check the resource ID is correct
-- Use `linear-pp-cli sql "SELECT id, title FROM issues LIMIT 5"` to browse available items
+- Run the `list` command to see available items
 
-**Rate limit errors (exit code 7)**
-- The CLI auto-retries with exponential backoff
-- Use `--rate-limit 2` to cap requests per second
-- If persistent, wait a few minutes and try again
+### API-specific
 
-**Sync errors**
-- Run `linear-pp-cli sync --full` for a clean re-sync
-- Check connectivity with `linear-pp-cli doctor`
-
-**Empty results from analytics commands**
-- Run `linear-pp-cli sync` first to populate the local store
-- Check that your API key has access to the relevant teams
+- **Authentication failed / 401 from Linear** — Run `linear-pp-cli doctor` — it checks key validity, header shape (no Bearer prefix), and rate-limit headroom in one shot.
+- **Rate limit error / complexity budget exceeded** — Lower concurrency on sync and prefer offline reads — Linear meters by complexity points (~1500/hr for personal API keys), mutations cost more than queries.
+- **`sync --full` is slow or paginates indefinitely** — Run `linear-pp-cli sync` after the first full sync — it cursors on updatedAt and only fetches changed rows.
+- **FTS5 search returns no rows for a term you know exists** — Run `linear-pp-cli sync` to refresh the FTS index, or `linear-pp-cli doctor` to confirm the FTS triggers fired on the latest sync.
+- **Agent accidentally mutated an issue it did not create** — Set `LINEAR_PP_CLI_TRUST_MODE=strict` in the environment — strict mode refuses any mutation on an issue ID not in the local pp_created ledger.
 
 ---
 
@@ -483,20 +520,11 @@ Environment variables:
 
 This CLI was built by studying these projects and resources:
 
-- [**Finesssee/linear-cli**](https://github.com/Finesssee/linear-cli) - Rust
-- [**schpet/linear-cli**](https://github.com/schpet/linear-cli) - Ruby
-- [**czottmann/linearis**](https://github.com/czottmann/linearis) - TypeScript
-- [**dorkitude/linctl**](https://github.com/dorkitude/linctl) - Go
-- [**evangodon/linear-cli**](https://github.com/evangodon/linear-cli) - Go
-- [**tacticlaunch/mcp-linear**](https://github.com/tacticlaunch/mcp-linear) - TypeScript
+- [**Finesssee/linear-cli**](https://github.com/Finesssee/linear-cli) — Rust
+- [**schpet/linear-cli**](https://github.com/schpet/linear-cli) — Ruby
+- [**czottmann/linearis**](https://github.com/czottmann/linearis) — TypeScript
+- [**dorkitude/linctl**](https://github.com/dorkitude/linctl) — Go
+- [**evangodon/linear-cli**](https://github.com/evangodon/linear-cli) — Go
+- [**linear-mcp**](https://github.com/tacticlaunch/mcp-linear) — TypeScript
 
 Generated by [CLI Printing Press](https://github.com/mvanhorn/cli-printing-press)
-
-<!-- pr-218-features -->
-## Agent workflow features
-
-This CLI was patched to add these agent-workflow capabilities (see [`printing-press patch`](https://github.com/mvanhorn/cli-printing-press/pull/221)):
-
-- **Named profiles** — save a set of flags under a name and reuse them: `linear-pp-cli profile save <name> --<flag> <value>`, then `linear-pp-cli --profile <name> <command>`. Flag precedence: explicit flag > env var > profile > default.
-- **`--deliver`** — route command output to a sink other than stdout. Values: `file:<path>` writes atomically via tmp+rename; `webhook:<url>` POSTs as JSON (or NDJSON with `--compact`).
-- **`feedback`** — record in-band feedback about the CLI. Entries append as JSON lines to `~/.linear-pp-cli/feedback.jsonl`. When `LINEAR_FEEDBACK_ENDPOINT` is set and either `--send` is passed or `LINEAR_FEEDBACK_AUTO_SEND=true`, the entry is also POSTed upstream.

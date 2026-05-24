@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-10",
+  "base_run_id": "20260510-144732",
+  "base_printing_press_version": "4.2.2",
+  "patches": [
+    {
+      "id": "beehiiv-insights",
+      "summary": "Adds Beehiiv-specific read-only insight commands and warning handling for partial failures.",
+      "reason": "The generated OpenAPI surface exposes raw endpoints, but Beehiiv users need compact growth, source, post, field, referral, and subscriber lookup workflows.",
+      "files": [
+        "internal/cli/insights.go"
+      ],
+      "validated_outcome": "go test ./... and verify-skill pass for the published Beehiiv CLI."
+    },
+    {
+      "id": "private-response-cache",
+      "summary": "Restricts Beehiiv response-cache directories and files to the current user.",
+      "reason": "Beehiiv API responses can contain subscriber emails and other PII, so cache files must not be world-readable on multi-user systems.",
+      "files": [
+        "internal/client/client.go",
+        "internal/cache/cache.go"
+      ],
+      "validated_outcome": "go test ./... passes for the published Beehiiv CLI."
+    },
+    {
+      "id": "fresh-jwt-token-reads",
+      "summary": "Bypasses response and offline caches for short-lived subscriber JWT token reads.",
+      "reason": "Beehiiv subscriber auto-login JWTs are short lived and stale cached tokens can produce unusable login URLs.",
+      "files": [
+        "internal/client/client.go",
+        "internal/cli/subscriptions_jwt-token_subscriptions-get.go",
+        "internal/cli/import.go"
+      ],
+      "validated_outcome": "go test ./... passes for the published Beehiiv CLI."
+    },
+    {
+      "id": "escaped-path-params",
+      "summary": "Escapes generated CLI, MCP, and compound insight path parameters before inserting them into URL paths.",
+      "reason": "Beehiiv email and publication path parameters can contain reserved characters, and raw replacement breaks valid API paths.",
+      "files": [
+        "internal/cli/helpers.go",
+        "internal/cli/insights.go",
+        "internal/mcp/tools.go"
+      ],
+      "validated_outcome": "go test ./... passes for the published Beehiiv CLI."
+    },
+    {
+      "id": "review-polish",
+      "summary": "Removes dead generated scaffolding from refresh-token and update-by-email paths.",
+      "reason": "Beehiiv uses bearer-token auth in this CLI, so unsupported OAuth refresh tokens should fail explicitly instead of silently no-oping; empty generated conditionals should not ship.",
+      "files": [
+        "internal/client/client.go",
+        "internal/cli/subscriptions_update-by-email.go"
+      ],
+      "validated_outcome": "go test ./... passes for the published Beehiiv CLI."
+    },
+    {
+      "id": "workflow-archive-endpoints",
+      "summary": "Routes workflow archive through the generated sync endpoint map.",
+      "reason": "Beehiiv user and workspace identity resources live at /users/identify and /workspaces/identify, not collection paths.",
+      "files": [
+        "internal/cli/channel_workflow.go",
+        "internal/cli/channel_workflow_test.go"
+      ],
+      "validated_outcome": "go test ./... passes for the published Beehiiv CLI."
+    },
+    {
+      "id": "nested-dependent-sync-paths",
+      "summary": "Resolves multi-placeholder dependent sync paths using intermediate resource IDs and their publication parent IDs.",
+      "reason": "Nested Beehiiv resources such as automation emails, segment members, poll responses, and newsletter-list subscriptions require both the intermediate resource ID and publication ID; leaving either placeholder unresolved causes invalid API paths.",
+      "files": [
+        "internal/cli/sync.go",
+        "internal/cli/sync_dependent_test.go",
+        "internal/store/store.go"
+      ],
+      "validated_outcome": "go test ./... passes for the published Beehiiv CLI."
+    }
+  ]
+}

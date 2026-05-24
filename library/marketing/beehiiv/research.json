@@ -1,0 +1,185 @@
+{
+  "api_name": "beehiiv",
+  "novelty_score": 8,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-10T20:05:00Z",
+  "novel_features": [
+    {
+      "name": "Growth Summary",
+      "command": "insights growth-summary",
+      "description": "Summarize publication, subscriber, post, referral, and custom-field health in one read-only response.",
+      "rationale": "Combines several Beehiiv resources that otherwise require separate publication, subscription, post, referral, and field calls.",
+      "example": "beehiiv-pp-cli insights growth-summary pub_00000000-0000-0000-0000-000000000000 --agent",
+      "why_it_matters": "Use this first when an agent needs a compact account-level picture before choosing a narrower Beehiiv endpoint.",
+      "group": "Publication intelligence"
+    },
+    {
+      "name": "Subscriber Sources",
+      "command": "insights subscriber-sources",
+      "description": "Group subscribers by UTM, channel, and referring-site fields to see where audience growth is coming from.",
+      "rationale": "Turns raw subscription rows into source attribution counts without forcing an agent to page and aggregate manually.",
+      "example": "beehiiv-pp-cli insights subscriber-sources pub_00000000-0000-0000-0000-000000000000 --limit 100 --agent",
+      "why_it_matters": "Use this when the question is about acquisition channels rather than individual subscribers.",
+      "group": "Audience intelligence"
+    },
+    {
+      "name": "Post Performance",
+      "command": "insights post-performance",
+      "description": "List recent posts with status, audience, publish timing, and any available expanded stats.",
+      "rationale": "Normalizes post metadata into a compact performance review surface for agents comparing recent sends.",
+      "example": "beehiiv-pp-cli insights post-performance pub_00000000-0000-0000-0000-000000000000 --limit 25 --agent",
+      "why_it_matters": "Use this when an agent needs to inspect content output before drilling into one post.",
+      "group": "Publication intelligence"
+    },
+    {
+      "name": "Field Coverage",
+      "command": "insights field-coverage",
+      "description": "Inspect custom-field definitions alongside subscriber sample size for enrichment planning.",
+      "rationale": "Pairs schema-level custom fields with audience sample context so agents can decide whether enrichment work is worthwhile.",
+      "example": "beehiiv-pp-cli insights field-coverage pub_00000000-0000-0000-0000-000000000000 --agent",
+      "why_it_matters": "Use this before importing, enriching, or auditing subscriber metadata.",
+      "group": "Audience intelligence"
+    },
+    {
+      "name": "Referral Health",
+      "command": "insights referral-health",
+      "description": "Summarize referral-program configuration and subscriber referral-code coverage.",
+      "rationale": "Connects publication-level referral settings with subscriber-level referral-code presence in one check.",
+      "example": "beehiiv-pp-cli insights referral-health pub_00000000-0000-0000-0000-000000000000 --agent",
+      "why_it_matters": "Use this when an agent needs to check whether referral growth is configured and visible in subscriber data.",
+      "group": "Growth loops"
+    },
+    {
+      "name": "Subscriber Lookup",
+      "command": "insights subscriber-lookup",
+      "description": "Find one subscriber by email or subscription ID and return a compact subscriber record.",
+      "rationale": "Provides a safer single-record lookup surface before agents consider broader subscription exports.",
+      "example": "beehiiv-pp-cli insights subscriber-lookup pub_00000000-0000-0000-0000-000000000000 --email reader@example.com --agent",
+      "why_it_matters": "Use this when the task is about one subscriber and broad list calls would waste context.",
+      "group": "Audience intelligence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Growth Summary",
+      "command": "insights growth-summary",
+      "description": "Summarize publication, subscriber, post, referral, and custom-field health in one read-only response.",
+      "rationale": "Combines several Beehiiv resources that otherwise require separate publication, subscription, post, referral, and field calls.",
+      "example": "beehiiv-pp-cli insights growth-summary pub_00000000-0000-0000-0000-000000000000 --agent",
+      "why_it_matters": "Use this first when an agent needs a compact account-level picture before choosing a narrower Beehiiv endpoint.",
+      "group": "Publication intelligence"
+    },
+    {
+      "name": "Subscriber Sources",
+      "command": "insights subscriber-sources",
+      "description": "Group subscribers by UTM, channel, and referring-site fields to see where audience growth is coming from.",
+      "rationale": "Turns raw subscription rows into source attribution counts without forcing an agent to page and aggregate manually.",
+      "example": "beehiiv-pp-cli insights subscriber-sources pub_00000000-0000-0000-0000-000000000000 --limit 100 --agent",
+      "why_it_matters": "Use this when the question is about acquisition channels rather than individual subscribers.",
+      "group": "Audience intelligence"
+    },
+    {
+      "name": "Post Performance",
+      "command": "insights post-performance",
+      "description": "List recent posts with status, audience, publish timing, and any available expanded stats.",
+      "rationale": "Normalizes post metadata into a compact performance review surface for agents comparing recent sends.",
+      "example": "beehiiv-pp-cli insights post-performance pub_00000000-0000-0000-0000-000000000000 --limit 25 --agent",
+      "why_it_matters": "Use this when an agent needs to inspect content output before drilling into one post.",
+      "group": "Publication intelligence"
+    },
+    {
+      "name": "Field Coverage",
+      "command": "insights field-coverage",
+      "description": "Inspect custom-field definitions alongside subscriber sample size for enrichment planning.",
+      "rationale": "Pairs schema-level custom fields with audience sample context so agents can decide whether enrichment work is worthwhile.",
+      "example": "beehiiv-pp-cli insights field-coverage pub_00000000-0000-0000-0000-000000000000 --agent",
+      "why_it_matters": "Use this before importing, enriching, or auditing subscriber metadata.",
+      "group": "Audience intelligence"
+    },
+    {
+      "name": "Referral Health",
+      "command": "insights referral-health",
+      "description": "Summarize referral-program configuration and subscriber referral-code coverage.",
+      "rationale": "Connects publication-level referral settings with subscriber-level referral-code presence in one check.",
+      "example": "beehiiv-pp-cli insights referral-health pub_00000000-0000-0000-0000-000000000000 --agent",
+      "why_it_matters": "Use this when an agent needs to check whether referral growth is configured and visible in subscriber data.",
+      "group": "Growth loops"
+    },
+    {
+      "name": "Subscriber Lookup",
+      "command": "insights subscriber-lookup",
+      "description": "Find one subscriber by email or subscription ID and return a compact subscriber record.",
+      "rationale": "Provides a safer single-record lookup surface before agents consider broader subscription exports.",
+      "example": "beehiiv-pp-cli insights subscriber-lookup pub_00000000-0000-0000-0000-000000000000 --email reader@example.com --agent",
+      "why_it_matters": "Use this when the task is about one subscriber and broad list calls would waste context.",
+      "group": "Audience intelligence"
+    }
+  ],
+  "narrative": {
+    "display_name": "beehiiv",
+    "headline": "beehiiv CLI with read-only growth, audience, post, field, and referral intelligence.",
+    "value_prop": "Wrap Beehiiv's official API and add compact insight commands for the workflows agents ask for most. Start with `insights growth-summary`, then drill into subscribers, sources, posts, fields, referrals, or raw endpoints.",
+    "quickstart": [
+      {
+        "command": "beehiiv-pp-cli doctor",
+        "comment": "Confirm the token and base URL before reading account data."
+      },
+      {
+        "command": "beehiiv-pp-cli publications index --agent",
+        "comment": "Find the publication ID used by most Beehiiv endpoints."
+      },
+      {
+        "command": "beehiiv-pp-cli insights growth-summary pub_00000000-0000-0000-0000-000000000000 --agent",
+        "comment": "Get the compact overview before choosing a narrower workflow."
+      },
+      {
+        "command": "beehiiv-pp-cli insights subscriber-sources pub_00000000-0000-0000-0000-000000000000 --agent --select combined",
+        "comment": "Narrow source-attribution output for agent context."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "doctor says auth is not configured",
+        "fix": "Run `beehiiv-pp-cli auth set-token YOUR_TOKEN` or set `BEEHIIV_BEARER_AUTH`."
+      },
+      {
+        "symptom": "a publication command returns an empty result",
+        "fix": "Run `beehiiv-pp-cli publications index --agent` and make sure the publication ID starts with `pub_`."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent needs to inspect Beehiiv publications, subscribers, posts, custom fields, referrals, or workspace identity from a shell-safe interface. Prefer `insights` commands for compact reasoning surfaces and raw endpoint commands when you need exact Beehiiv API parity.",
+    "recipes": [
+      {
+        "title": "Start with publication context",
+        "command": "beehiiv-pp-cli publications index --agent",
+        "explanation": "Returns the publication IDs needed for subscriber, post, field, and referral workflows."
+      },
+      {
+        "title": "Get a compact growth overview",
+        "command": "beehiiv-pp-cli insights growth-summary pub_00000000-0000-0000-0000-000000000000 --agent",
+        "explanation": "Combines the main health signals into one response."
+      },
+      {
+        "title": "Inspect acquisition sources",
+        "command": "beehiiv-pp-cli insights subscriber-sources pub_00000000-0000-0000-0000-000000000000 --agent --select combined",
+        "explanation": "Shows the channel counts without dumping every subscriber row."
+      },
+      {
+        "title": "Look up one subscriber",
+        "command": "beehiiv-pp-cli insights subscriber-lookup pub_00000000-0000-0000-0000-000000000000 --email reader@example.com --agent",
+        "explanation": "Uses the single-record lookup when broad subscriber lists are unnecessary."
+      }
+    ],
+    "trigger_phrases": [
+      "check beehiiv growth",
+      "beehiiv subscriber sources",
+      "beehiiv publication health",
+      "find a beehiiv subscriber",
+      "use beehiiv",
+      "run beehiiv"
+    ]
+  }
+}

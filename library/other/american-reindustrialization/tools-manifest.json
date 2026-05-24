@@ -1,0 +1,270 @@
+{
+  "api_name": "american-reindustrialization",
+  "base_url": "https://americanreindustrialization.com/api",
+  "description": "Browse, slice, and analyze the curated American Reindustrialization company directory and jobs board",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "categories_counts",
+      "description": "Map of category_id -\u003e company count. Returns the CountMap.",
+      "method": "GET",
+      "path": "/categories/counts",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "categories_get",
+      "description": "Get one category by slug. Required: slug. Returns the Category.",
+      "method": "GET",
+      "path": "/categories/{slug}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Category slug",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "categories_list",
+      "description": "List every category (bare array). Returns array of Category.",
+      "method": "GET",
+      "path": "/categories",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "categories_search",
+      "description": "Search categories by query string. Required: q. Returns array of Category.",
+      "method": "GET",
+      "path": "/categories/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Search query",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "companies_get",
+      "description": "Get one company by slug (returns the full object directly, not wrapped). Required: slug.",
+      "method": "GET",
+      "path": "/companies/{slug}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Company slug (e.g. harmony-ai)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "companies_list",
+      "description": "List companies with pagination and optional server-side filters. Optional: page, limit (default: 20), state (plus 1 more). Returns the CompanyPage.",
+      "method": "GET",
+      "path": "/companies",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-indexed)"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Items per page"
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by HQ state code (e.g. CA, TX)"
+        },
+        {
+          "name": "category",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by category slug (e.g. manufacturing)"
+        }
+      ]
+    },
+    {
+      "name": "companies_search",
+      "description": "Full-text search across company names and descriptions; returns a bare array. Required: q.",
+      "method": "GET",
+      "path": "/companies/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Search query",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "news_list",
+      "description": "List news items (returns a bare array; empty at capture).",
+      "method": "GET",
+      "path": "/news",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "openings_categories",
+      "description": "Autocomplete list of categories that have at least one opening. Returns array of Category.",
+      "method": "GET",
+      "path": "/jobs/categories",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "openings_companies",
+      "description": "Autocomplete list of {id, name} for companies that currently have open openings. Returns array of CompanyRef.",
+      "method": "GET",
+      "path": "/jobs/companies",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "openings_get",
+      "description": "Get one job opening by slug. Required: slug. Returns the Job.",
+      "method": "GET",
+      "path": "/jobs/{slug}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Job slug",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "openings_list",
+      "description": "List job openings with pagination and optional server-side filters (work_mode and experience_level are honored; state is silently ignored upstream — use `openings find` for cross-resource filters). Optional: page, limit (default: 20), work_mode (plus 1 more). Returns the JobPage.",
+      "method": "GET",
+      "path": "/jobs",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-indexed)"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Items per page"
+        },
+        {
+          "name": "work_mode",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by work_mode (remote, hybrid, onsite)"
+        },
+        {
+          "name": "experience_level",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by experience level (entry, mid, senior, lead)"
+        }
+      ]
+    },
+    {
+      "name": "openings_tags",
+      "description": "Autocomplete list of tags that appear on at least one opening. Returns array of Tag.",
+      "method": "GET",
+      "path": "/jobs/tags",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "openings_titles",
+      "description": "Autocomplete list of job titles matching the query. Optional: q. Returns array of string.",
+      "method": "GET",
+      "path": "/jobs/titles",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Query prefix (empty returns the full title list)"
+        }
+      ]
+    },
+    {
+      "name": "tags_counts",
+      "description": "Map of tag_id -\u003e company count. Returns the CountMap.",
+      "method": "GET",
+      "path": "/tags/counts",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "tags_get",
+      "description": "Get one tag by slug. Required: slug. Returns the Tag.",
+      "method": "GET",
+      "path": "/tags/{slug}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Tag slug",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tags_list",
+      "description": "List every tag (bare array). Returns array of Tag.",
+      "method": "GET",
+      "path": "/tags",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "tags_search",
+      "description": "Search tags by query string. Required: q. Returns array of Tag.",
+      "method": "GET",
+      "path": "/tags/search",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Search query",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-24T00:00:00Z",
+  "base_run_id": "20260524-023512",
+  "base_printing_press_version": "4.12.0",
+  "patches": [
+    {"id": "chrome-history-local-sqlite-source", "summary": "Hand-built local-SQLite source adapter (snapshot + FTS5 + typed queries) replacing the HTTP client.", "reason": "Data source is Chrome's local History DB, not an HTTP API — the generator has no local-datastore path yet.", "files": ["internal/source/types.go", "internal/source/chrome/source.go", "internal/store/store.go"]},
+    {"id": "chrome-history-novel-commands", "summary": "Hand-authored journeys/timeline/rabbitholes/dwell/graph/profile/topic commands.", "reason": "Transcendence features over the local store; not generatable from a spec.", "files": ["internal/cli/journeys.go", "internal/cli/timeline.go", "internal/cli/rabbitholes.go", "internal/cli/dwell.go", "internal/cli/graph.go", "internal/cli/profile.go", "internal/cli/topic.go"]},
+    {"id": "chrome-history-device-origin", "summary": "Cross-device (origin) partitioning via visit_source/originator_cache_guid + --device filter + devices command.", "reason": "Browser history includes synced other-device activity; surfaced as a first-class dimension.", "files": ["internal/cli/devices.go", "internal/source/chrome/source.go"]}
+  ]
+}

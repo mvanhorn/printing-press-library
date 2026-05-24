@@ -11,6 +11,11 @@ metadata:
       bins:
         - figma-pp-cli
 ---
+<!-- GENERATED FILE — DO NOT EDIT.
+     This file is a verbatim mirror of library/productivity/figma/SKILL.md,
+     regenerated post-merge by tools/generate-skills/. Hand-edits here are
+     silently overwritten on the next regen. Edit the library/ source instead.
+     See AGENTS.md "Generated artifacts: registry.json, cli-skills/". -->
 
 # Figma — Printing Press CLI
 
@@ -20,7 +25,7 @@ This skill drives the `figma-pp-cli` binary. **You must verify the CLI is instal
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install figma --cli-only
+   npx -y @mvanhorn/printing-press-library install figma --cli-only
    ```
 2. Verify: `figma-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -32,7 +37,6 @@ go install github.com/mvanhorn/printing-press-library/library/productivity/figma
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
 
 ## When to Use This CLI
 

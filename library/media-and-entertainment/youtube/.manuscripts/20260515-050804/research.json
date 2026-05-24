@@ -1,0 +1,255 @@
+{
+  "api_name": "youtube",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "Bin-Huang/youtube-data-cli",
+      "url": "https://github.com/Bin-Huang/youtube-data-cli",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 50,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "pauling-ai/youtube-mcp-server",
+      "url": "https://github.com/pauling-ai/youtube-mcp-server",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 40,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "jdepoix/youtube-transcript-api",
+      "url": "https://github.com/jdepoix/youtube-transcript-api",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "djthorpe/ytapi",
+      "url": "https://github.com/djthorpe/ytapi",
+      "language": "Go",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 20,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [
+    "OAuth write operations not supported (out of scope for the trimmed read-only build)",
+    "Analytics, revenue, retention require YouTube Analytics API + OAuth, not included",
+    "captions.download not supported (use timedtext transcript fetcher instead)",
+    "Transcripts may fail with RequestBlocked from cloud IPs; residential IP recommended",
+    "`videos related` is heuristic (topic + channel + tag overlap), not Google's real recommendation engine"
+  ],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-15T05:08:30Z",
+  "novel_features": [
+    {
+      "name": "Bulk search from stdin",
+      "command": "youtube search-bulk",
+      "description": "Take a list of search terms from stdin or args, return top-N YouTube videos per term in one JSON document with titles, channels, embed URLs, and thumbnails.",
+      "rationale": "No existing CLI or MCP takes a list of search terms. Drops directly into a photo-keywords -\u003e videos -\u003e blog-post pipeline.",
+      "example": "youtube-pp-cli youtube search-bulk \"sourdough scoring\" \"latte art\" --top 3",
+      "why_it_matters": "When you have N search terms from an upstream pipeline (image labels, photo tags, scraped keywords), reach for this instead of looping single searches.",
+      "group": "Blog-post composition"
+    },
+    {
+      "name": "Transcript fetcher",
+      "command": "youtube videos-transcript",
+      "description": "Fetch the spoken-content transcript of a YouTube video using the timedtext endpoint. Works for auto-generated and manual captions on any public video. Caches into the local store.",
+      "rationale": "The YouTube Data API exposes caption metadata but not text (captions.download requires OAuth as owner). The timedtext endpoint is the standard workaround and needs no API key.",
+      "example": "youtube-pp-cli youtube videos-transcript dQw4w9WgXcQ --lang en --json",
+      "why_it_matters": "Read the transcript before deciding whether a candidate video actually fits the topic of the blog post or photo.",
+      "group": "Blog-post composition"
+    },
+    {
+      "name": "Embed snippet generator",
+      "command": "youtube videos-embed",
+      "description": "Print embed HTML, iframe, or markdown-style embed for a video ID. Direct copy-paste into a blog draft.",
+      "rationale": "Every blog platform expects a slightly different embed shape; no competing CLI emits a ready-to-paste embed snippet.",
+      "example": "youtube-pp-cli youtube videos-embed dQw4w9WgXcQ --format markdown",
+      "why_it_matters": "Once you've picked a video for the blog, get the embed snippet without remembering the exact iframe URL pattern.",
+      "group": "Blog-post composition"
+    },
+    {
+      "name": "Topic-similarity related videos",
+      "command": "youtube videos-related",
+      "description": "Find videos related to a target video using topicDetails + same-channel + tag overlap from the local store. Best-effort replacement for the deprecated relatedToVideoId parameter.",
+      "rationale": "YouTube deprecated relatedToVideoId in June 2023; no API replacement exists. Only possible because we sync topicDetails and tags into the local store.",
+      "example": "youtube-pp-cli youtube videos-related dQw4w9WgXcQ --limit 10 --json",
+      "why_it_matters": "When one candidate video is on-topic but you want more like it, this is the working stand-in for the deprecated parameter.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "Top comments by likes",
+      "command": "youtube videos-comments",
+      "description": "Fetch top comments on a video, ranked locally by likeCount. Pulls up to 5 pages from commentThreads.list and sorts so most-liked floats regardless of API order.",
+      "rationale": "commentThreads.list returns by relevance or time, not by likeCount. Local sort surfaces audience-validated comments that the default API ordering buries.",
+      "example": "youtube-pp-cli youtube videos-comments dQw4w9WgXcQ --top 10",
+      "why_it_matters": "Use to gauge whether a video is actually well-received before embedding, or to surface viewer-supplied context the description doesn't mention.",
+      "group": "Audience signal"
+    },
+    {
+      "name": "Channel uploads in one call",
+      "command": "youtube channel-uploads",
+      "description": "List a channel's most recent uploads in one call. Resolves @handle or channelId, walks the auto-generated uploads playlist, returns video IDs + titles + publish times.",
+      "rationale": "The standard YouTube workflow requires two calls (channels.list -\u003e contentDetails.relatedPlaylists.uploads, then playlistItems.list). One command collapses that.",
+      "example": "youtube-pp-cli youtube channel-uploads @veritasium --top 10",
+      "why_it_matters": "Replaces the manual two-step lookup. Pairs naturally with --for-handle workflows.",
+      "group": "Channel discovery"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Bulk search from stdin",
+      "command": "youtube search-bulk",
+      "description": "Take a list of search terms from stdin or args, return top-N YouTube videos per term in one JSON document with titles, channels, embed URLs, and thumbnails.",
+      "rationale": "No existing CLI or MCP takes a list of search terms. Drops directly into a photo-keywords -\u003e videos -\u003e blog-post pipeline.",
+      "example": "youtube-pp-cli youtube search-bulk \"sourdough scoring\" \"latte art\" --top 3",
+      "why_it_matters": "When you have N search terms from an upstream pipeline (image labels, photo tags, scraped keywords), reach for this instead of looping single searches.",
+      "group": "Blog-post composition"
+    },
+    {
+      "name": "Transcript fetcher",
+      "command": "youtube videos-transcript",
+      "description": "Fetch the spoken-content transcript of a YouTube video using the timedtext endpoint. Works for auto-generated and manual captions on any public video. Caches into the local store.",
+      "rationale": "The YouTube Data API exposes caption metadata but not text (captions.download requires OAuth as owner). The timedtext endpoint is the standard workaround and needs no API key.",
+      "example": "youtube-pp-cli youtube videos-transcript dQw4w9WgXcQ --lang en --json",
+      "why_it_matters": "Read the transcript before deciding whether a candidate video actually fits the topic of the blog post or photo.",
+      "group": "Blog-post composition"
+    },
+    {
+      "name": "Embed snippet generator",
+      "command": "youtube videos-embed",
+      "description": "Print embed HTML, iframe, or markdown-style embed for a video ID. Direct copy-paste into a blog draft.",
+      "rationale": "Every blog platform expects a slightly different embed shape; no competing CLI emits a ready-to-paste embed snippet.",
+      "example": "youtube-pp-cli youtube videos-embed dQw4w9WgXcQ --format markdown",
+      "why_it_matters": "Once you've picked a video for the blog, get the embed snippet without remembering the exact iframe URL pattern.",
+      "group": "Blog-post composition"
+    },
+    {
+      "name": "Topic-similarity related videos",
+      "command": "youtube videos-related",
+      "description": "Find videos related to a target video using topicDetails + same-channel + tag overlap from the local store. Best-effort replacement for the deprecated relatedToVideoId parameter.",
+      "rationale": "YouTube deprecated relatedToVideoId in June 2023; no API replacement exists. Only possible because we sync topicDetails and tags into the local store.",
+      "example": "youtube-pp-cli youtube videos-related dQw4w9WgXcQ --limit 10 --json",
+      "why_it_matters": "When one candidate video is on-topic but you want more like it, this is the working stand-in for the deprecated parameter.",
+      "group": "Reachability mitigation"
+    },
+    {
+      "name": "Top comments by likes",
+      "command": "youtube videos-comments",
+      "description": "Fetch top comments on a video, ranked locally by likeCount. Pulls up to 5 pages from commentThreads.list and sorts so most-liked floats regardless of API order.",
+      "rationale": "commentThreads.list returns by relevance or time, not by likeCount. Local sort surfaces audience-validated comments that the default API ordering buries.",
+      "example": "youtube-pp-cli youtube videos-comments dQw4w9WgXcQ --top 10",
+      "why_it_matters": "Use to gauge whether a video is actually well-received before embedding, or to surface viewer-supplied context the description doesn't mention.",
+      "group": "Audience signal"
+    },
+    {
+      "name": "Channel uploads in one call",
+      "command": "youtube channel-uploads",
+      "description": "List a channel's most recent uploads in one call. Resolves @handle or channelId, walks the auto-generated uploads playlist, returns video IDs + titles + publish times.",
+      "rationale": "The standard YouTube workflow requires two calls (channels.list -\u003e contentDetails.relatedPlaylists.uploads, then playlistItems.list). One command collapses that.",
+      "example": "youtube-pp-cli youtube channel-uploads @veritasium --top 10",
+      "why_it_matters": "Replaces the manual two-step lookup. Pairs naturally with --for-handle workflows.",
+      "group": "Channel discovery"
+    }
+  ],
+  "narrative": {
+    "display_name": "YouTube",
+    "headline": "Search YouTube in bulk, grab transcripts, get embed snippets — for the photo-keywords-to-blog-post workflow.",
+    "value_prop": "A trimmed read-only YouTube Data API v3 CLI built for local research workflows. Bulk search from stdin, transcript fetching via timedtext (no OAuth needed), embed snippet generation, and a heuristic-based `videos related` that still works despite the 2023 deprecation.",
+    "auth_narrative": "API-key only — set `YOUTUBE_API_KEY` and you're done. Read-only public-data operations only (10,000 quota units/day default). Write operations are not configured; this CLI is for discovery and research, not channel management.",
+    "quickstart": [
+      {
+        "command": "youtube-pp-cli doctor",
+        "comment": "Verify the API key and reachability."
+      },
+      {
+        "command": "youtube-pp-cli youtube search-list --q \"sourdough scoring\" --max-results 5 --json",
+        "comment": "Single-term search."
+      },
+      {
+        "command": "youtube-pp-cli youtube search-bulk \"sourdough scoring\" \"latte art\" --top 3 --json",
+        "comment": "Bulk search from positional args — the photo-keywords → videos shape (use --stdin to read from a file/pipe instead)."
+      },
+      {
+        "command": "youtube-pp-cli youtube videos-transcript dQw4w9WgXcQ --lang en",
+        "comment": "Fetch the transcript to verify topic relevance before picking the video."
+      },
+      {
+        "command": "youtube-pp-cli youtube videos-embed dQw4w9WgXcQ --format markdown",
+        "comment": "Get a markdown embed snippet for the blog draft."
+      },
+      {
+        "command": "youtube-pp-cli youtube videos-related dQw4w9WgXcQ --limit 5",
+        "comment": "Find more candidates similar to a video you've already picked."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "`videos transcript` returns RequestBlocked",
+        "fix": "Run from a residential IP (your laptop). YouTube blocks AWS/GCP/Azure IPs from the timedtext endpoint."
+      },
+      {
+        "symptom": "`videos related` returns no results for a fresh video ID",
+        "fix": "Run `youtube-pp-cli youtube videos-list --id \u003cid\u003e --parts topicDetails,snippet` first to populate topic/tag data in the local store, then retry."
+      },
+      {
+        "symptom": "`search` returns HTTP 403 quotaExceeded",
+        "fix": "Daily quota (10,000 units) is exhausted. search.list costs 100 units per call, videos.list costs 1. Switch to cached results via `youtube-pp-cli sql \\\"SELECT * FROM search_results WHERE query='...'\\\"`."
+      }
+    ],
+    "when_to_use": "Use this CLI when you have search terms (from photo tags, image labels, or notes) and want relevant YouTube videos back — with transcripts to verify relevance and embed snippets to drop into a blog draft. It's read-only and local; not a webapp backend, not a write tool.",
+    "recipes": [
+      {
+        "title": "Photo keywords to candidate videos",
+        "command": "youtube-pp-cli youtube search-bulk --stdin --top 5 --json --select \"results[].videoId,results[].title,results[].channelTitle,results[].embedUrl\" \u003c photo-keywords.txt",
+        "explanation": "Reads keywords (one per line), searches each, returns webapp-ready embed-URL JSON. Use --select with dotted paths to keep the output tight."
+      },
+      {
+        "title": "Verify a candidate via transcript",
+        "command": "youtube-pp-cli youtube videos-transcript dQw4w9WgXcQ --lang en --json --select \"text\"",
+        "explanation": "Pull the first 2KB of the transcript to confirm the video is actually about the topic before adding it to the blog."
+      },
+      {
+        "title": "Get a markdown embed for the draft",
+        "command": "youtube-pp-cli youtube videos-embed dQw4w9WgXcQ --format markdown",
+        "explanation": "Drops a ready-to-paste markdown video reference into your editor buffer."
+      },
+      {
+        "title": "Find more candidates like a picked one",
+        "command": "youtube-pp-cli youtube videos-related dQw4w9WgXcQ --limit 5 --json --select \"results[].videoId,results[].title\"",
+        "explanation": "Heuristic-based replacement for the deprecated relatedToVideoId. Uses topic + channel + tag overlap from synced local data."
+      },
+      {
+        "title": "Two-step bulk research: search then transcript",
+        "command": "youtube-pp-cli youtube search-bulk \"sourdough scoring\" --top 3 --json",
+        "explanation": "Top results JSON. Pipe `.results[*].videoId` through jq + xargs into `youtube-pp-cli youtube videos-transcript {}` to extract transcripts for each."
+      }
+    ],
+    "trigger_phrases": [
+      "search youtube for",
+      "find youtube videos about",
+      "get youtube transcript",
+      "find videos like",
+      "youtube embed for",
+      "use youtube-pp",
+      "run youtube-pp"
+    ]
+  }
+}

@@ -1,0 +1,234 @@
+{
+  "api_name": "pushover",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "python-pushover",
+      "url": "https://pypi.org/pypi/python-pushover",
+      "language": "Python",
+      "install_method": "pip",
+      "stars": 0,
+      "last_updated": "2018-05-13",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": true
+    },
+    {
+      "name": "po-notify",
+      "url": "https://npm.io/package/po-notify",
+      "language": "JavaScript",
+      "install_method": "npm",
+      "stars": 0,
+      "last_updated": "2019-era",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": true
+    },
+    {
+      "name": "mcp-pushover",
+      "url": "https://mcpservers.org/servers/pyang2045/mcp-pushover",
+      "language": "TypeScript",
+      "install_method": "npx",
+      "stars": 0,
+      "last_updated": "2026",
+      "command_count": 1,
+      "has_json_output": true,
+      "has_auth_support": true
+    },
+    {
+      "name": "freeformz/pushover-mcp",
+      "url": "https://pkg.go.dev/github.com/freeformz/pushover-mcp",
+      "language": "Go",
+      "install_method": "go install",
+      "stars": 0,
+      "last_updated": "2026",
+      "command_count": 2,
+      "has_json_output": true,
+      "has_auth_support": true
+    },
+    {
+      "name": "lifecoach pushover scripts",
+      "url": "local:/Users/todd_1/repo/claude/lifecoach",
+      "language": "Python",
+      "install_method": "local",
+      "stars": 0,
+      "last_updated": "2026",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": true
+    }
+  ],
+  "gaps": [
+    "Most tools are send-only and do not expose groups, glances, subscriptions, teams, licensing, or Open Client HTTP sync.",
+    "Emergency-priority receipt polling and cancellation are not usually modeled as a lifecycle.",
+    "Quota state is not treated as an operational preflight.",
+    "Existing tools do not create a local redacted ledger of sent notifications and receipt outcomes."
+  ],
+  "patterns": [
+    "Environment or config based credentials are expected.",
+    "Stdin notification bodies are useful for shell agents.",
+    "Emergency sends need typed validation because retry and expire are required.",
+    "Pushover's API returns useful request ids and receipts that should be preserved."
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-12T21:12:45Z",
+  "novel_features": [
+    {
+      "name": "Agent send wrapper",
+      "command": "notify",
+      "description": "Send a notification from an argument or stdin with env/config defaults, named priorities, and emergency validation.",
+      "rationale": "Existing CLIs prove stdin send is table stakes, while agents need credentials and priority safety handled consistently.",
+      "example": "pushover-pp-cli notify \"Printing Press test\" --priority low --json",
+      "why_it_matters": "Lets agents send test or operational notifications without leaking token values or remembering the raw endpoint shape.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Emergency lifecycle",
+      "command": "emergency watch",
+      "description": "Send or monitor an emergency notification receipt, polling acknowledgement status and supporting cancellation.",
+      "rationale": "Priority-2 sends are only useful if the caller can track acknowledgement and stop retries safely.",
+      "example": "pushover-pp-cli emergency watch --receipt \u003creceipt\u003e --poll-interval 30s --cancel-on-timeout --json",
+      "why_it_matters": "Turns emergency notifications from fire-and-forget sends into an auditable on-call workflow.",
+      "group": "Receipt operations"
+    },
+    {
+      "name": "Quota cockpit",
+      "command": "quota",
+      "description": "Show monthly send limit, remaining sends, and reset time from the app limits endpoint.",
+      "rationale": "Pushover rejects sends after quota exhaustion and exposes quota state both in headers and a dedicated endpoint.",
+      "example": "pushover-pp-cli quota --json",
+      "why_it_matters": "Agents can check send budget before fanout or repeated test sends.",
+      "group": "Operational safety"
+    },
+    {
+      "name": "Local notification ledger",
+      "command": "history",
+      "description": "Search and export a local redacted ledger of notifications sent by this CLI and receipt outcomes.",
+      "rationale": "Pushover does not retain a server-side sent-message archive for this workflow; the CLI can record its own request ids and receipts.",
+      "example": "pushover-pp-cli history list --since 24h --json",
+      "why_it_matters": "Shows what this CLI sent, when, with which priority, without storing raw user keys or tokens.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Inbox sync/search",
+      "command": "inbox sync",
+      "description": "Download Open Client messages into local SQLite before optional server-side delete-through.",
+      "rationale": "Open Client workflows are destructive after download; local storage preserves the messages an agent needs to inspect.",
+      "example": "pushover-pp-cli inbox sync --device-id \u003cdevice-id\u003e --json",
+      "why_it_matters": "Makes Pushover usable as both send channel and retrievable inbox for agents that own an Open Client device.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Agent send wrapper",
+      "command": "notify",
+      "description": "Send a notification from an argument or stdin with env/config defaults, named priorities, and emergency validation.",
+      "rationale": "Existing CLIs prove stdin send is table stakes, while agents need credentials and priority safety handled consistently.",
+      "example": "pushover-pp-cli notify \"Printing Press test\" --priority low --json",
+      "why_it_matters": "Lets agents send test or operational notifications without leaking token values or remembering the raw endpoint shape.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Emergency lifecycle",
+      "command": "emergency watch",
+      "description": "Send or monitor an emergency notification receipt, polling acknowledgement status and supporting cancellation.",
+      "rationale": "Priority-2 sends are only useful if the caller can track acknowledgement and stop retries safely.",
+      "example": "pushover-pp-cli emergency watch --receipt \u003creceipt\u003e --poll-interval 30s --cancel-on-timeout --json",
+      "why_it_matters": "Turns emergency notifications from fire-and-forget sends into an auditable on-call workflow.",
+      "group": "Receipt operations"
+    },
+    {
+      "name": "Quota cockpit",
+      "command": "quota",
+      "description": "Show monthly send limit, remaining sends, and reset time from the app limits endpoint.",
+      "rationale": "Pushover rejects sends after quota exhaustion and exposes quota state both in headers and a dedicated endpoint.",
+      "example": "pushover-pp-cli quota --json",
+      "why_it_matters": "Agents can check send budget before fanout or repeated test sends.",
+      "group": "Operational safety"
+    },
+    {
+      "name": "Local notification ledger",
+      "command": "history",
+      "description": "Search and export a local redacted ledger of notifications sent by this CLI and receipt outcomes.",
+      "rationale": "Pushover does not retain a server-side sent-message archive for this workflow; the CLI can record its own request ids and receipts.",
+      "example": "pushover-pp-cli history list --since 24h --json",
+      "why_it_matters": "Shows what this CLI sent, when, with which priority, without storing raw user keys or tokens.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Inbox sync/search",
+      "command": "inbox sync",
+      "description": "Download Open Client messages into local SQLite before optional server-side delete-through.",
+      "rationale": "Open Client workflows are destructive after download; local storage preserves the messages an agent needs to inspect.",
+      "example": "pushover-pp-cli inbox sync --device-id \u003cdevice-id\u003e --json",
+      "why_it_matters": "Makes Pushover usable as both send channel and retrievable inbox for agents that own an Open Client device.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "Pushover",
+    "headline": "Pushover from the terminal: send alerts, watch emergency receipts, inspect quota, and keep a redacted local notification ledger.",
+    "value_prop": "pushover-pp-cli covers the full official API instead of stopping at send-message. It adds agent-safe env defaults, receipt lifecycle tools, quota preflight, and local history so alerts are auditable.",
+    "auth_narrative": "Use a Pushover application token and user key. Set PUSHOVER_APP_TOKEN and PUSHOVER_USER_KEY, or pass --app-token and --user-key explicitly. Legacy PUSHOVER_TOKEN/PUSHOVER_USER names are accepted for local compatibility.",
+    "quickstart": [
+      {
+        "command": "pushover-pp-cli quota --json",
+        "comment": "Check send budget before test notifications"
+      },
+      {
+        "command": "pushover-pp-cli notify \"Printing Press test\" --priority low --json",
+        "comment": "Send a low-priority test notification"
+      },
+      {
+        "command": "pushover-pp-cli history list --since 24h --json",
+        "comment": "Review sends recorded by the CLI"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "notification send returns invalid user",
+        "fix": "Run users validate with the same user key and optional device before saving the destination"
+      },
+      {
+        "symptom": "priority 2 send fails",
+        "fix": "Provide retry \u003e= 30 and expire \u003c= 10800; use emergency watch for a safer flow"
+      },
+      {
+        "symptom": "429 quota response",
+        "fix": "Run quota and wait until reset or reduce send volume"
+      }
+    ],
+    "when_to_use": "Use pushover-pp-cli for agent or ops workflows that need mobile push notifications, emergency receipt tracking, quota-aware sends, group delivery management, or Open Client message retrieval.",
+    "recipes": [
+      {
+        "title": "Send a low-priority test",
+        "command": "pushover-pp-cli notify \"Printing Press test\" --priority low --json",
+        "explanation": "Uses env/config credentials and records a local ledger row."
+      },
+      {
+        "title": "Check quota before a batch",
+        "command": "pushover-pp-cli quota --json --select remaining,reset",
+        "explanation": "Reads the dedicated app limits endpoint."
+      },
+      {
+        "title": "Validate a destination",
+        "command": "pushover-pp-cli users validate --user-key \"$PUSHOVER_USER_KEY\" --json",
+        "explanation": "Confirms the key is valid before relying on it in scripts."
+      },
+      {
+        "title": "Watch an emergency receipt",
+        "command": "pushover-pp-cli emergency watch --receipt \u003creceipt\u003e --json",
+        "explanation": "Polls the official receipt endpoint at a safe cadence."
+      }
+    ],
+    "trigger_phrases": [
+      "send me a pushover",
+      "notify me on my phone",
+      "check pushover quota",
+      "watch pushover emergency receipt",
+      "validate pushover user key",
+      "use pushover-pp-cli"
+    ]
+  }
+}

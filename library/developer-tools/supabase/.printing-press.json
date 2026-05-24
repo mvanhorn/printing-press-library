@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-12T23:06:14.806252Z",
+  "printing_press_version": "4.5.1",
+  "api_name": "supabase",
+  "display_name": "Supabase",
+  "cli_name": "supabase-pp-cli",
+  "owner": "giacaglia",
+  "printer": "giacaglia",
+  "printer_name": "Giuliano Giacaglia",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:d656fe4195bbbf938a8bb2c353f604cc22755e2e9dd847524e99e64722882629",
+  "run_id": "20260512-165514",
+  "mcp_binary": "supabase-pp-mcp",
+  "mcp_tool_count": 162,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "SUPABASE_ACCESS_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Cross-project secret-name audit",
+      "command": "secrets where-name",
+      "description": "Find every project (across orgs) holding a secret with a given name, plus when each was last synced."
+    },
+    {
+      "name": "Function inventory rollup",
+      "command": "functions inventory",
+      "description": "Per-project, per-org rollup of every edge function with slug, version, status, and last-deployed timestamp."
+    },
+    {
+      "name": "Branch-drift sweep",
+      "command": "branches drift",
+      "description": "List preview branches older than N days that haven't been merged or deleted, grouped by parent project."
+    },
+    {
+      "name": "Auth user lookup with context",
+      "command": "auth-admin lookup",
+      "description": "Look up an Auth user by email and optionally join their row from a user-named PostgREST context table on user_id."
+    },
+    {
+      "name": "RLS-aware schema introspection",
+      "command": "pgrst schema",
+      "description": "Fetch the per-project PostgREST OpenAPI from the Management API and list tables, columns, types, and detected indexes for typed query planning."
+    },
+    {
+      "name": "Project estate rollup",
+      "command": "projects estate",
+      "description": "One-row-per-project rollup of function count, branch count, api-key count, secret-name count, and last-synced-at."
+    },
+    {
+      "name": "Storage bucket usage rollup",
+      "command": "storage usage",
+      "description": "For each bucket, list objects and aggregate file count, total bytes, and largest object."
+    },
+    {
+      "name": "Cross-project recent signups",
+      "command": "auth-admin recent",
+      "description": "Iterate synced projects, call Auth Admin per project, aggregate users created within the window into one table."
+    }
+  ]
+}

@@ -15,6 +15,11 @@ metadata:
         bins: [cal-com-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/productivity/cal-com/cmd/cal-com-pp-cli
 ---
+<!-- GENERATED FILE — DO NOT EDIT.
+     This file is a verbatim mirror of library/productivity/cal-com/SKILL.md,
+     regenerated post-merge by tools/generate-skills/. Hand-edits here are
+     silently overwritten on the next regen. Edit the library/ source instead.
+     See AGENTS.md "Generated artifacts: registry.json, cli-skills/". -->
 
 # Cal.com — Printing Press CLI
 
@@ -24,7 +29,7 @@ This skill drives the `cal-com-pp-cli` binary. **You must verify the CLI is inst
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install cal-com --cli-only
+   npx -y @mvanhorn/printing-press-library install cal-com --cli-only
    ```
 2. Verify: `cal-com-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.

@@ -16,6 +16,7 @@ import (
 	"net/http/cookiejar"
 	"net/url"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/commerce/craigslist/internal/cliutil"
@@ -47,6 +48,12 @@ type Client struct {
 	HTTP      *http.Client
 	UserAgent string
 	limiter   *cliutil.AdaptiveLimiter
+
+	cacheMu          sync.Mutex
+	areasLoaded      bool
+	areaByKey        map[string]Area
+	categoriesLoaded bool
+	categoryAbbrs    map[int]string
 }
 
 // New returns a fresh Client. ratePerSec=0 disables rate limiting; the polite

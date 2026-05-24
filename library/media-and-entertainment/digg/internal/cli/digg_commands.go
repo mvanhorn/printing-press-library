@@ -1483,12 +1483,93 @@ func newHistoryCmd(flags *rootFlags) *cobra.Command {
 func newAuthorsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "authors",
-		Short:       "Inspect the Digg AI 1000 — the curated leaderboard of AI accounts on X",
+		// PATCH(digg-rename-and-github-feeds): drop Digg AI 1000 branding.
+		Short:       "Inspect the accounts Digg tracks — the curated leaderboard of AI-news influencers on X",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 	}
 	cmd.AddCommand(newAuthorsTopCmd(flags))
 	cmd.AddCommand(newAuthorsListCmd(flags))
 	cmd.AddCommand(newAuthorsGetCmd(flags))
+	// PATCH(digg-enhancements): register `authors overlap` subcommand.
+	cmd.AddCommand(newAuthorsOverlapCmd(flags))
+	return cmd
+}
+
+// PATCH(digg-enhancements): clusters where two tracked X accounts both
+// contributed. INTERSECT over digg_cluster_authors; no schema changes.
+func newAuthorsOverlapCmd(flags *rootFlags) *cobra.Command {
+	var limit int
+	cmd := &cobra.Command{
+		Use:         "overlap <userA> <userB>",
+		Short:       "Clusters where both X accounts contributed",
+		Annotations: readOnlyAnnotations(),
+		Example: `  digg-pp-cli authors overlap karpathy sama
+  digg-pp-cli authors overlap karpathy sama --limit 20 --json`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if len(args) == 0 {
+				return cmd.Help()
+			}
+			if len(args) < 2 {
+				return fmt.Errorf("overlap requires two usernames (got %d); see --help", len(args))
+			}
+			if dryRunOK(flags) {
+				return nil
+			}
+			userA, userB := args[0], args[1]
+
+			_, db, closeFn, err := openStore(cmd.Context())
+			if err != nil {
+				return err
+			}
+			defer closeFn()
+
+			rows, err := db.QueryContext(cmd.Context(), `
+SELECT c.cluster_id, COALESCE(c.cluster_url_id,''), COALESCE(c.title,''),
+       COALESCE(c.current_rank,0) AS current_rank,
+       COALESCE(c.gravity_score,0) AS gravity_score,
+       COALESCE(c.label,''), COALESCE(c.last_seen_at,'')
+FROM digg_clusters c
+WHERE c.cluster_id IN (
+  SELECT ca1.cluster_id FROM digg_cluster_authors ca1
+  WHERE ca1.username = ?
+  INTERSECT
+  SELECT ca2.cluster_id FROM digg_cluster_authors ca2
+  WHERE ca2.username = ?
+)
+ORDER BY CASE WHEN c.current_rank = 0 THEN 9999 ELSE c.current_rank END ASC
+LIMIT ?`, userA, userB, limit)
+			if err != nil {
+				return err
+			}
+			defer rows.Close()
+
+			type overlapRow struct {
+				ClusterID    string  `json:"clusterId"`
+				ClusterURLID string  `json:"clusterUrlId,omitempty"`
+				Title        string  `json:"title,omitempty"`
+				CurrentRank  int     `json:"currentRank"`
+				GravityScore float64 `json:"gravityScore,omitempty"`
+				Label        string  `json:"label,omitempty"`
+				LastSeenAt   string  `json:"lastSeenAt,omitempty"`
+			}
+			var results []overlapRow
+			for rows.Next() {
+				var r overlapRow
+				if err := rows.Scan(&r.ClusterID, &r.ClusterURLID, &r.Title, &r.CurrentRank, &r.GravityScore, &r.Label, &r.LastSeenAt); err != nil {
+					return err
+				}
+				results = append(results, r)
+			}
+			if err := rows.Err(); err != nil {
+				return err
+			}
+			if len(results) == 0 {
+				return emptyHint(cmd, fmt.Sprintf("no overlapping clusters found for %s and %s. Run `digg-pp-cli sync` to populate.", userA, userB))
+			}
+			return printJSONFiltered(cmd.OutOrStdout(), results, flags)
+		},
+	}
+	cmd.Flags().IntVar(&limit, "limit", 50, "Max number of clusters to return")
 	return cmd
 }
 
@@ -1497,7 +1578,7 @@ func newAuthorsTopCmd(flags *rootFlags) *cobra.Command {
 	var limit int
 	cmd := &cobra.Command{
 		Use:         "top",
-		Short:       "Top contributors across the Digg AI 1000, ranked by influence, post count, or reach",
+		Short:       "Top contributors across Digg's tracked accounts, ranked by influence, post count, or reach",
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		Example: `  digg-pp-cli authors top --by influence --limit 25
   digg-pp-cli authors top --by posts --json`,
@@ -1617,9 +1698,9 @@ func newAuthorsListCmd(flags *rootFlags) *cobra.Command {
 	var onlyFallers bool
 	cmd := &cobra.Command{
 		Use:         "list",
-		Short:       "Full ranked AI 1000 with rich fields (rank, category, bio, vibeDistribution); fetches /ai/1000 by default",
+		Short:       "Full ranked roster of Digg-tracked accounts with rich fields (rank, category, bio, vibeDistribution); fetches /ai/1000 by default",
 		Annotations: map[string]string{"mcp:read-only": "true"},
-		Long: `List the full Digg AI 1000 with per-author rank, category, bio, GitHub URL, and vibe distribution.
+		Long: `List the full roster of Digg-tracked accounts with per-author rank, category, bio, GitHub URL, and vibe distribution.
 
 Live by default: fetches /ai/1000, parses the embedded RSC payload, upserts
 the roster into the local store, then reads back. Pass --data-source local

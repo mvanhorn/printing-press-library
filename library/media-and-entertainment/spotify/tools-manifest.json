@@ -1,0 +1,2419 @@
+{
+  "api_name": "spotify",
+  "base_url": "https://api.spotify.com/v1",
+  "description": "You can use Spotify's Web API to discover music and podcasts, manage your Spotify library, control audio playback, and much more. Browse our available Web API endpoints using the sidebar at left, or via the navigation bar on top of this page on smaller screens.\n\nIn order to make successful Web API requests your app will need a valid access token. One can be obtained through \u003ca href=\"https://developer.spotify.com/documentation/general/guides/authorization-guide/\"\u003eOAuth 2.0\u003c/a\u003e.\n\nThe base URI for all Web API requests is `https://api.spotify.com/v1`.\n\nNeed help? See our \u003ca href=\"https://developer.spotify.com/documentation/web-api/guides/\"\u003eWeb API guides\u003c/a\u003e for more information, or visit the \u003ca href=\"https://community.spotify.com/t5/Spotify-for-Developers/bd-p/Spotify_Developer\"\u003eSpotify for Developers community forum\u003c/a\u003e to ask questions and connect with other developers.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "SPOTIFY_OAUTH_2_0"
+    ],
+    "env_var_specs": [
+      {
+        "name": "SPOTIFY_OAUTH_2_0",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "albums_get-an",
+      "description": "Get Spotify catalog information for a single album. Required: id. Optional: market. Returns the AlbumObject.",
+      "method": "GET",
+      "path": "/albums/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "market",
+          "type": "string",
+          "location": "query",
+          "description": "Market"
+        }
+      ]
+    },
+    {
+      "name": "albums_get-multiple",
+      "description": "Get Spotify catalog information for multiple albums identified by their Spotify IDs. Required: ids. Optional: market. Returns the AlbumsGetMultipleResponse.",
+      "method": "GET",
+      "path": "/albums",
+      "params": [
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "query",
+          "description": "Ids",
+          "required": true
+        },
+        {
+          "name": "market",
+          "type": "string",
+          "location": "query",
+          "description": "Market"
+        }
+      ]
+    },
+    {
+      "name": "albums_tracks_get-an-albums",
+      "description": "Get Spotify catalog information about an album’s tracks. Optional parameters can be used to limit the number of tracks returned. Required: id. Optional: market, limit (default: 20), offset (default: 0). Returns the PagingSimplifiedTrackObject.",
+      "method": "GET",
+      "path": "/albums/{id}/tracks",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "market",
+          "type": "string",
+          "location": "query",
+          "description": "Market"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    },
+    {
+      "name": "artists_get-an",
+      "description": "Get Spotify catalog information for a single artist identified by their unique Spotify ID. Required: id. Returns the ArtistObject.",
+      "method": "GET",
+      "path": "/artists/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "artists_get-multiple",
+      "description": "Get Spotify catalog information for several artists based on their Spotify IDs. Required: ids. Returns the ArtistsGetMultipleResponse.",
+      "method": "GET",
+      "path": "/artists",
+      "params": [
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "query",
+          "description": "Ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "artists_albums_get-an-artists",
+      "description": "Get Spotify catalog information about an artist's albums. Required: id. Optional: include_groups, market, limit (default: 5) (plus 1 more). Returns the PagingArtistDiscographyAlbumObject.",
+      "method": "GET",
+      "path": "/artists/{id}/albums",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "include_groups",
+          "type": "string",
+          "location": "query",
+          "description": "Include groups"
+        },
+        {
+          "name": "market",
+          "type": "string",
+          "location": "query",
+          "description": "Market"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    },
+    {
+      "name": "artists_related-artists_get-an-artists",
+      "description": "Get Spotify catalog information about artists similar to a given artist. Similarity is based on analysis of the Spotify community's listening history. Required: id. Returns the RelatedArtistsGetAnArtistsResponse.",
+      "method": "GET",
+      "path": "/artists/{id}/related-artists",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "artists_top-tracks_get-an-artists",
+      "description": "Get Spotify catalog information about an artist's top tracks by country. Required: id. Optional: market. Returns the TopTracksGetAnArtistsResponse.",
+      "method": "GET",
+      "path": "/artists/{id}/top-tracks",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "market",
+          "type": "string",
+          "location": "query",
+          "description": "Market"
+        }
+      ]
+    },
+    {
+      "name": "audio-analysis_get",
+      "description": "Get a low-level audio analysis for a track in the Spotify catalog. The audio analysis describes the track’s structure and musical content, including rhythm, pitch, and timbre. Required: id. Returns the AudioAnalysisObject.",
+      "method": "GET",
+      "path": "/audio-analysis/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "audio-features_get",
+      "description": "Get audio feature information for a single track identified by its unique Spotify ID. Required: id. Returns the AudioFeaturesObject.",
+      "method": "GET",
+      "path": "/audio-features/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "audio-features_get-several",
+      "description": "Get audio features for multiple tracks based on their Spotify IDs. Required: ids. Returns the AudioFeaturesGetSeveralResponse.",
+      "method": "GET",
+      "path": "/audio-features",
+      "params": [
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "query",
+          "description": "Ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "audiobooks_get-an",
+      "description": "Get Spotify catalog information for a single audiobook. Audiobooks are only available within the US, UK, Canada, Ireland, New Zealand and Australia markets. Required: id. Optional: market. Returns the AudiobookObject.",
+      "method": "GET",
+      "path": "/audiobooks/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "market",
+          "type": "string",
+          "location": "query",
+          "description": "Market"
+        }
+      ]
+    },
+    {
+      "name": "audiobooks_get-multiple",
+      "description": "Get Spotify catalog information for several audiobooks identified by their Spotify IDs. Audiobooks are only available within the US, UK, Canada, Ireland, New Zealand and Australia markets. Required: ids. Optional: market. Returns the AudiobooksGetMultipleResponse.",
+      "method": "GET",
+      "path": "/audiobooks",
+      "params": [
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "query",
+          "description": "Ids",
+          "required": true
+        },
+        {
+          "name": "market",
+          "type": "string",
+          "location": "query",
+          "description": "Market"
+        }
+      ]
+    },
+    {
+      "name": "audiobooks_chapters_get-audiobook",
+      "description": "Get Spotify catalog information about an audiobook's chapters. Audiobooks are only available within the US, UK, Canada, Ireland, New Zealand and Australia markets. Required: id. Optional: market, limit (default: 20), offset (default: 0). Returns the PagingSimplifiedChapterObject.",
+      "method": "GET",
+      "path": "/audiobooks/{id}/chapters",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "market",
+          "type": "string",
+          "location": "query",
+          "description": "Market"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    },
+    {
+      "name": "browse_get-a-categories-playlists",
+      "description": "Get a list of Spotify playlists tagged with a particular category. Required: category_id. Optional: limit (default: 20), offset (default: 0). Returns the PagingFeaturedPlaylistObject.",
+      "method": "GET",
+      "path": "/browse/categories/{category_id}/playlists",
+      "params": [
+        {
+          "name": "category_id",
+          "type": "string",
+          "location": "path",
+          "description": "Category id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    },
+    {
+      "name": "browse_get-a-category",
+      "description": "Get a single category used to tag items in Spotify (on, for example, the Spotify player’s “Browse” tab). Required: category_id. Optional: locale. Returns the CategoryObject.",
+      "method": "GET",
+      "path": "/browse/categories/{category_id}",
+      "params": [
+        {
+          "name": "category_id",
+          "type": "string",
+          "location": "path",
+          "description": "Category id",
+          "required": true
+        },
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "query",
+          "description": "Locale"
+        }
+      ]
+    },
+    {
+      "name": "browse_get-categories",
+      "description": "Get a list of categories used to tag items in Spotify (on, for example, the Spotify player’s “Browse” tab). Optional: locale, limit (default: 20), offset (default: 0). Returns the BrowseGetCategoriesResponse.",
+      "method": "GET",
+      "path": "/browse/categories",
+      "params": [
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "query",
+          "description": "Locale"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    },
+    {
+      "name": "browse_get-featured-playlists",
+      "description": "Get a list of Spotify featured playlists (shown, for example, on a Spotify player's 'Browse' tab). Optional: locale, limit (default: 20), offset (default: 0). Returns the PagingFeaturedPlaylistObject.",
+      "method": "GET",
+      "path": "/browse/featured-playlists",
+      "params": [
+        {
+          "name": "locale",
+          "type": "string",
+          "location": "query",
+          "description": "Locale"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    },
+    {
+      "name": "browse_get-new-releases",
+      "description": "Get a list of new album releases featured in Spotify (shown, for example, on a Spotify player’s “Browse” tab). Optional: limit (default: 20), offset (default: 0). Returns the BrowseGetNewReleasesResponse.",
+      "method": "GET",
+      "path": "/browse/new-releases",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    },
+    {
+      "name": "chapters_get-a",
+      "description": "Get Spotify catalog information for a single audiobook chapter. Chapters are only available within the US, UK, Canada, Ireland, New Zealand and Australia markets. Required: id. Optional: market. Returns the ChapterObject.",
+      "method": "GET",
+      "path": "/chapters/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "market",
+          "type": "string",
+          "location": "query",
+          "description": "Market"
+        }
+      ]
+    },
+    {
+      "name": "chapters_get-several",
+      "description": "Get Spotify catalog information for several audiobook chapters identified by their Spotify IDs. Chapters are only available within the US, UK, Canada, Ireland, New Zealand and Australia markets. Required: ids. Optional: market. Returns the ChaptersGetSeveralResponse.",
+      "method": "GET",
+      "path": "/chapters",
+      "params": [
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "query",
+          "description": "Ids",
+          "required": true
+        },
+        {
+          "name": "market",
+          "type": "string",
+          "location": "query",
+          "description": "Market"
+        }
+      ]
+    },
+    {
+      "name": "episodes_get-an",
+      "description": "Get Spotify catalog information for a single episode identified by its unique Spotify ID. Required: id. Optional: market. Returns the EpisodeObject.",
+      "method": "GET",
+      "path": "/episodes/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "market",
+          "type": "string",
+          "location": "query",
+          "description": "Market"
+        }
+      ]
+    },
+    {
+      "name": "episodes_get-multiple",
+      "description": "Get Spotify catalog information for several episodes based on their Spotify IDs. Required: ids. Optional: market. Returns the EpisodesGetMultipleResponse.",
+      "method": "GET",
+      "path": "/episodes",
+      "params": [
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "query",
+          "description": "Ids",
+          "required": true
+        },
+        {
+          "name": "market",
+          "type": "string",
+          "location": "query",
+          "description": "Market"
+        }
+      ]
+    },
+    {
+      "name": "markets_get-available",
+      "description": "Get the list of markets where Spotify is available. Returns the MarketsGetAvailableResponse.",
+      "method": "GET",
+      "path": "/markets",
+      "params": []
+    },
+    {
+      "name": "me_add-to-queue",
+      "description": "Add an item to be played next in the user's current playback queue. This API only works for users who have Spotify Premium. The order of execution is not guaranteed when you use this API with other Player API endpoints. Required: uri. Optional: device_id.",
+      "method": "POST",
+      "path": "/me/player/queue",
+      "params": [
+        {
+          "name": "uri",
+          "type": "string",
+          "location": "query",
+          "description": "Uri",
+          "required": true
+        },
+        {
+          "name": "device_id",
+          "type": "string",
+          "location": "query",
+          "description": "Device id"
+        }
+      ]
+    },
+    {
+      "name": "me_check-current-user-follows",
+      "description": "Check to see if the current user is following one or more artists or other Spotify users. **Note:** This endpoint is deprecated. Use [Check User's Saved Items](/documentation/web-api/reference/check-library-contains) instead. Required: type, ids. Returns array of bool.",
+      "method": "GET",
+      "path": "/me/following/contains",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Type",
+          "required": true
+        },
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "query",
+          "description": "Ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "me_check-library-contains",
+      "description": "Check if one or more items are already saved in the current user's library. Accepts Spotify URIs for tracks, albums, episodes, shows, audiobooks, artists, users, and playlists. Required: uris. Returns array of bool.",
+      "method": "GET",
+      "path": "/me/library/contains",
+      "params": [
+        {
+          "name": "uris",
+          "type": "string",
+          "location": "query",
+          "description": "Uris",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "me_check-users-saved-albums",
+      "description": "Check if one or more albums is already saved in the current Spotify user's 'Your Music' library. **Note:** This endpoint is deprecated. Use [Check User's Saved Items](/documentation/web-api/reference/check-library-contains) instead. Required: ids. Returns array of bool.",
+      "method": "GET",
+      "path": "/me/albums/contains",
+      "params": [
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "query",
+          "description": "Ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "me_check-users-saved-audiobooks",
+      "description": "Check if one or more audiobooks are already saved in the current Spotify user's library. **Note:** This endpoint is deprecated. Use [Check User's Saved Items](/documentation/web-api/reference/check-library-contains) instead. Required: ids. Returns array of bool.",
+      "method": "GET",
+      "path": "/me/audiobooks/contains",
+      "params": [
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "query",
+          "description": "Ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "me_check-users-saved-episodes",
+      "description": "Check if one or more episodes is already saved in the current Spotify user's 'Your Episodes' library. **Note:** This endpoint is deprecated. Use [Check User's Saved Items](/documentation/web-api/reference/check-library-contains) instead. Required: ids. Returns array of bool.",
+      "method": "GET",
+      "path": "/me/episodes/contains",
+      "params": [
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "query",
+          "description": "Ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "me_check-users-saved-shows",
+      "description": "Check if one or more shows is already saved in the current Spotify user's library. **Note:** This endpoint is deprecated. Use [Check User's Saved Items](/documentation/web-api/reference/check-library-contains) instead. Required: ids. Returns array of bool.",
+      "method": "GET",
+      "path": "/me/shows/contains",
+      "params": [
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "query",
+          "description": "Ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "me_check-users-saved-tracks",
+      "description": "Check if one or more tracks is already saved in the current Spotify user's 'Your Music' library. **Note:** This endpoint is deprecated. Use [Check User's Saved Items](/documentation/web-api/reference/check-library-contains) instead. Required: ids. Returns array of bool.",
+      "method": "GET",
+      "path": "/me/tracks/contains",
+      "params": [
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "query",
+          "description": "Ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "me_create-playlist",
+      "description": "Create a playlist for the current Spotify user. (The playlist will be empty until you [add tracks](/documentation/web-api/reference/add-tracks-to-playlist).) Each user is generally limited to a maximum of 11000 playlists. Required: name. Optional: collaborative, description, public. Returns the new PlaylistObject.",
+      "method": "POST",
+      "path": "/me/playlists",
+      "params": [
+        {
+          "name": "collaborative",
+          "type": "bool",
+          "location": "body",
+          "description": "Defaults to `false`. If `true` the playlist will be collaborative. _**Note**: to create a collaborative playlist you must also set `public` to `false`. To create collaborative playlists you must have granted `playlist-modify-private` and `playlist-modify-public` [scopes](/documentation/web-api/concepts/scopes/#list-of-scopes)._"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "value for playlist description as displayed in Spotify Clients and in the Web API."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name for the new playlist, for example `'Your Coolest Playlist'`. This name does not need to be unique; a user may have several playlists with the same name.",
+          "required": true
+        },
+        {
+          "name": "public",
+          "type": "bool",
+          "location": "body",
+          "description": "Defaults to `true`. The playlist's public/private status (if it should be added to the user's profile or not): `true` the playlist will be public, `false` the playlist will be private. To be able to create private playlists, the user must have granted the `playlist-modify-private` [scope](/documentation/web-api/concepts/scopes/#list-of-scopes). For more about public/private status, see [Working with Playlists](/documentation/web-api/concepts/playlists)"
+        }
+      ]
+    },
+    {
+      "name": "me_follow-artists-users",
+      "description": "Add the current user as a follower of one or more artists or other Spotify users. **Note:** This endpoint is deprecated. Use [Save Items to Library](/documentation/web-api/reference/save-library-items) instead. Required: type, ids.",
+      "method": "PUT",
+      "path": "/me/following",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Type",
+          "required": true
+        },
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "query",
+          "description": "Ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "me_get-a-list-of-current-users-playlists",
+      "description": "Get a list of the playlists owned or followed by the current Spotify user. Optional: limit (default: 20), offset (default: 0). Returns the PagingPlaylistObject.",
+      "method": "GET",
+      "path": "/me/playlists",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    },
+    {
+      "name": "me_get-a-users-available-devices",
+      "description": "Get information about a user’s available Spotify Connect devices. Some device models are not supported and will not be listed in the API response. Returns the MeGetAUsersAvailableDevicesResponse.",
+      "method": "GET",
+      "path": "/me/player/devices",
+      "params": []
+    },
+    {
+      "name": "me_get-current-users-profile",
+      "description": "Get detailed profile information about the current user (including the current user's username). Returns the PrivateUserObject.",
+      "method": "GET",
+      "path": "/me",
+      "params": []
+    },
+    {
+      "name": "me_get-followed",
+      "description": "Get the current user's followed artists. Required: type. Optional: after, limit (default: 20). Returns the MeGetFollowedResponse.",
+      "method": "GET",
+      "path": "/me/following",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Type",
+          "required": true
+        },
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "After"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        }
+      ]
+    },
+    {
+      "name": "me_get-information-about-the-users-current-playback",
+      "description": "Get information about the user’s current playback state, including track or episode, progress, and active device. Optional: market, additional_types. Returns the CurrentlyPlayingContextObject.",
+      "method": "GET",
+      "path": "/me/player",
+      "params": [
+        {
+          "name": "market",
+          "type": "string",
+          "location": "query",
+          "description": "Market"
+        },
+        {
+          "name": "additional_types",
+          "type": "string",
+          "location": "query",
+          "description": "Additional types"
+        }
+      ]
+    },
+    {
+      "name": "me_get-queue",
+      "description": "Get the list of objects that make up the user's queue. Returns the QueueObject.",
+      "method": "GET",
+      "path": "/me/player/queue",
+      "params": []
+    },
+    {
+      "name": "me_get-recently-played",
+      "description": "Get tracks from the current user's recently played tracks. _**Note**: Currently doesn't support podcast episodes._. Optional: limit (default: 20), after, before. Returns the CursorPagingPlayHistoryObject.",
+      "method": "GET",
+      "path": "/me/player/recently-played",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "after",
+          "type": "int",
+          "location": "query",
+          "description": "After"
+        },
+        {
+          "name": "before",
+          "type": "int",
+          "location": "query",
+          "description": "Before"
+        }
+      ]
+    },
+    {
+      "name": "me_get-the-users-currently-playing-track",
+      "description": "Get the object currently being played on the user's Spotify account. Optional: market, additional_types. Returns the CurrentlyPlayingObject.",
+      "method": "GET",
+      "path": "/me/player/currently-playing",
+      "params": [
+        {
+          "name": "market",
+          "type": "string",
+          "location": "query",
+          "description": "Market"
+        },
+        {
+          "name": "additional_types",
+          "type": "string",
+          "location": "query",
+          "description": "Additional types"
+        }
+      ]
+    },
+    {
+      "name": "me_get-users-saved-albums",
+      "description": "Get a list of the albums saved in the current Spotify user's 'Your Music' library. Optional: limit (default: 20), offset (default: 0), market. Returns the PagingSavedAlbumObject.",
+      "method": "GET",
+      "path": "/me/albums",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "market",
+          "type": "string",
+          "location": "query",
+          "description": "Market"
+        }
+      ]
+    },
+    {
+      "name": "me_get-users-saved-audiobooks",
+      "description": "Get a list of the audiobooks saved in the current Spotify user's 'Your Music' library. Optional: limit (default: 20), offset (default: 0). Returns the PagingSavedAudiobookObject.",
+      "method": "GET",
+      "path": "/me/audiobooks",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    },
+    {
+      "name": "me_get-users-saved-episodes",
+      "description": "Get a list of the episodes saved in the current Spotify user's library. Optional: market, limit (default: 20), offset (default: 0). Returns the PagingSavedEpisodeObject.",
+      "method": "GET",
+      "path": "/me/episodes",
+      "params": [
+        {
+          "name": "market",
+          "type": "string",
+          "location": "query",
+          "description": "Market"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    },
+    {
+      "name": "me_get-users-saved-shows",
+      "description": "Get a list of shows saved in the current Spotify user's library. Optional parameters can be used to limit the number of shows returned. Optional: limit (default: 20), offset (default: 0). Returns the PagingSavedShowObject.",
+      "method": "GET",
+      "path": "/me/shows",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    },
+    {
+      "name": "me_get-users-saved-tracks",
+      "description": "Get a list of the songs saved in the current Spotify user's 'Your Music' library. Optional: market, limit (default: 20), offset (default: 0). Returns the PagingSavedTrackObject.",
+      "method": "GET",
+      "path": "/me/tracks",
+      "params": [
+        {
+          "name": "market",
+          "type": "string",
+          "location": "query",
+          "description": "Market"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    },
+    {
+      "name": "me_get-users-top-artists",
+      "description": "Get the current user's top artists based on calculated affinity. Optional: time_range (default: medium_term), limit (default: 20), offset (default: 0). Returns the PagingArtistObject.",
+      "method": "GET",
+      "path": "/me/top/artists",
+      "params": [
+        {
+          "name": "time_range",
+          "type": "string",
+          "location": "query",
+          "description": "Time range"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    },
+    {
+      "name": "me_get-users-top-tracks",
+      "description": "Get the current user's top tracks based on calculated affinity. Optional: time_range (default: medium_term), limit (default: 20), offset (default: 0). Returns the PagingTrackObject.",
+      "method": "GET",
+      "path": "/me/top/tracks",
+      "params": [
+        {
+          "name": "time_range",
+          "type": "string",
+          "location": "query",
+          "description": "Time range"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    },
+    {
+      "name": "me_pause-a-users-playback",
+      "description": "Pause playback on the user's account. This API only works for users who have Spotify Premium. The order of execution is not guaranteed when you use this API with other Player API endpoints. Optional: device_id.",
+      "method": "PUT",
+      "path": "/me/player/pause",
+      "params": [
+        {
+          "name": "device_id",
+          "type": "string",
+          "location": "query",
+          "description": "Device id"
+        }
+      ]
+    },
+    {
+      "name": "me_remove-albums-user",
+      "description": "Remove one or more albums from the current user's 'Your Music' library. **Note:** This endpoint is deprecated. Use [Remove Items from Library](/documentation/web-api/reference/remove-library-items) instead. Required: ids. Destructive.",
+      "method": "DELETE",
+      "path": "/me/albums",
+      "params": [
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "query",
+          "description": "Ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "me_remove-audiobooks-user",
+      "description": "Remove one or more audiobooks from the Spotify user's library. **Note:** This endpoint is deprecated. Use [Remove Items from Library](/documentation/web-api/reference/remove-library-items) instead. Required: ids. Destructive.",
+      "method": "DELETE",
+      "path": "/me/audiobooks",
+      "params": [
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "query",
+          "description": "Ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "me_remove-episodes-user",
+      "description": "Remove one or more episodes from the current user's library. **Note:** This endpoint is deprecated. Use [Remove Items from Library](/documentation/web-api/reference/remove-library-items) instead. Required: ids. Destructive.",
+      "method": "DELETE",
+      "path": "/me/episodes",
+      "params": [
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "query",
+          "description": "Ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "me_remove-library-items",
+      "description": "Remove one or more items from the current user's library. Accepts Spotify URIs for tracks, albums, episodes, shows, audiobooks, users, and playlists. Required: uris. Destructive.",
+      "method": "DELETE",
+      "path": "/me/library",
+      "params": [
+        {
+          "name": "uris",
+          "type": "string",
+          "location": "query",
+          "description": "Uris",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "me_remove-shows-user",
+      "description": "Delete one or more shows from current Spotify user's library. **Note:** This endpoint is deprecated. Use [Remove Items from Library](/documentation/web-api/reference/remove-library-items) instead. Required: ids. Optional: market. Destructive.",
+      "method": "DELETE",
+      "path": "/me/shows",
+      "params": [
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "query",
+          "description": "Ids",
+          "required": true
+        },
+        {
+          "name": "market",
+          "type": "string",
+          "location": "query",
+          "description": "Market"
+        }
+      ]
+    },
+    {
+      "name": "me_remove-tracks-user",
+      "description": "Remove one or more tracks from the current user's 'Your Music' library. **Note:** This endpoint is deprecated. Use [Remove Items from Library](/documentation/web-api/reference/remove-library-items) instead. Required: ids. Destructive.",
+      "method": "DELETE",
+      "path": "/me/tracks",
+      "params": [
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "query",
+          "description": "Ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "me_save-albums-user",
+      "description": "Save one or more albums to the current user's 'Your Music' library. **Note:** This endpoint is deprecated. Use [Save Items to Library](/documentation/web-api/reference/save-library-items) instead. Required: ids.",
+      "method": "PUT",
+      "path": "/me/albums",
+      "params": [
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "query",
+          "description": "Ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "me_save-audiobooks-user",
+      "description": "Save one or more audiobooks to the current Spotify user's library. **Note:** This endpoint is deprecated. Use [Save Items to Library](/documentation/web-api/reference/save-library-items) instead. Required: ids.",
+      "method": "PUT",
+      "path": "/me/audiobooks",
+      "params": [
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "query",
+          "description": "Ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "me_save-episodes-user",
+      "description": "Save one or more episodes to the current user's library. **Note:** This endpoint is deprecated. Use [Save Items to Library](/documentation/web-api/reference/save-library-items) instead. Required: ids.",
+      "method": "PUT",
+      "path": "/me/episodes",
+      "params": [
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "query",
+          "description": "Ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "me_save-library-items",
+      "description": "Add one or more items to the current user's library. Accepts Spotify URIs for tracks, albums, episodes, shows, audiobooks, users, and playlists. Required: uris.",
+      "method": "PUT",
+      "path": "/me/library",
+      "params": [
+        {
+          "name": "uris",
+          "type": "string",
+          "location": "query",
+          "description": "Uris",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "me_save-shows-user",
+      "description": "Save one or more shows to current Spotify user's library. **Note:** This endpoint is deprecated. Use [Save Items to Library](/documentation/web-api/reference/save-library-items) instead. Required: ids.",
+      "method": "PUT",
+      "path": "/me/shows",
+      "params": [
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "query",
+          "description": "Ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "me_save-tracks-user",
+      "description": "Save one or more tracks to the current user's 'Your Music' library. **Note:** This endpoint is deprecated. Use [Save Items to Library](/documentation/web-api/reference/save-library-items) instead. Required: ids. Optional: timestamped_ids.",
+      "method": "PUT",
+      "path": "/me/tracks",
+      "params": [
+        {
+          "name": "ids",
+          "type": "array",
+          "location": "body",
+          "description": "A JSON array of the [Spotify IDs](/documentation/web-api/concepts/spotify-uris-ids). For example: `['4iV5W9uYEdYUVa79Axb7Rh', '1301WleyT98MSxVHPZCA6M']`\u003cbr/\u003eA maximum of 50 items can be specified in one request. _**Note**: if the `timestamped_ids` is present in the body, any IDs listed in the query parameters (deprecated) or the `ids` field in the body will be ignored._",
+          "required": true
+        },
+        {
+          "name": "timestamped_ids",
+          "type": "array",
+          "location": "body",
+          "description": "A JSON array of objects containing track IDs with their corresponding timestamps. Each object must include a track ID and an `added_at` timestamp. This allows you to specify when tracks were added to maintain a specific chronological order in the user's library.\u003cbr/\u003eA maximum of 50 items can be specified in one request. _**Note**: if the `timestamped_ids` is present in the body, any IDs listed in the query parameters (deprecated) or the `ids` field in the body will be ignored._"
+        }
+      ]
+    },
+    {
+      "name": "me_seek-to-position-in-currently-playing-track",
+      "description": "Seeks to the given position in the user’s currently playing track. This API only works for users who have Spotify Premium. The order of execution is not guaranteed when you use this API with other Player API endpoints. Required: position_ms. Optional: device_id.",
+      "method": "PUT",
+      "path": "/me/player/seek",
+      "params": [
+        {
+          "name": "position_ms",
+          "type": "int",
+          "location": "query",
+          "description": "Position ms",
+          "required": true
+        },
+        {
+          "name": "device_id",
+          "type": "string",
+          "location": "query",
+          "description": "Device id"
+        }
+      ]
+    },
+    {
+      "name": "me_set-repeat-mode-on-users-playback",
+      "description": "Set the repeat mode for the user's playback. This API only works for users who have Spotify Premium. The order of execution is not guaranteed when you use this API with other Player API endpoints. Required: state. Optional: device_id.",
+      "method": "PUT",
+      "path": "/me/player/repeat",
+      "params": [
+        {
+          "name": "state",
+          "type": "string",
+          "location": "query",
+          "description": "State",
+          "required": true
+        },
+        {
+          "name": "device_id",
+          "type": "string",
+          "location": "query",
+          "description": "Device id"
+        }
+      ]
+    },
+    {
+      "name": "me_set-volume-for-users-playback",
+      "description": "Set the volume for the user’s current playback device. This API only works for users who have Spotify Premium. The order of execution is not guaranteed when you use this API with other Player API endpoints. Required: volume_percent. Optional: device_id.",
+      "method": "PUT",
+      "path": "/me/player/volume",
+      "params": [
+        {
+          "name": "volume_percent",
+          "type": "int",
+          "location": "query",
+          "description": "Volume percent",
+          "required": true
+        },
+        {
+          "name": "device_id",
+          "type": "string",
+          "location": "query",
+          "description": "Device id"
+        }
+      ]
+    },
+    {
+      "name": "me_skip-users-playback-to-next-track",
+      "description": "Skips to next track in the user’s queue. This API only works for users who have Spotify Premium. The order of execution is not guaranteed when you use this API with other Player API endpoints. Optional: device_id.",
+      "method": "POST",
+      "path": "/me/player/next",
+      "params": [
+        {
+          "name": "device_id",
+          "type": "string",
+          "location": "query",
+          "description": "Device id"
+        }
+      ]
+    },
+    {
+      "name": "me_skip-users-playback-to-previous-track",
+      "description": "Skips to previous track in the user’s queue. This API only works for users who have Spotify Premium. The order of execution is not guaranteed when you use this API with other Player API endpoints. Optional: device_id.",
+      "method": "POST",
+      "path": "/me/player/previous",
+      "params": [
+        {
+          "name": "device_id",
+          "type": "string",
+          "location": "query",
+          "description": "Device id"
+        }
+      ]
+    },
+    {
+      "name": "me_start-a-users-playback",
+      "description": "Start a new context or resume current playback on the user's active device. This API only works for users who have Spotify Premium. The order of execution is not guaranteed when you use this API with other Player API endpoints. Optional: device_id, context_uri, offset (plus 2 more).",
+      "method": "PUT",
+      "path": "/me/player/play",
+      "params": [
+        {
+          "name": "device_id",
+          "type": "string",
+          "location": "query",
+          "description": "Device id"
+        },
+        {
+          "name": "context_uri",
+          "type": "string",
+          "location": "body",
+          "description": "Optional. Spotify URI of the context to play. Valid contexts are albums, artists \u0026 playlists. `{context_uri:'spotify:album:1Je1IMUlBXcx1Fz0WE7oPT'}`"
+        },
+        {
+          "name": "offset",
+          "type": "object",
+          "location": "body",
+          "description": "Optional. Indicates from where in the context playback should start. Only available when context_uri corresponds to an album or playlist object 'position' is zero based and can’t be negative. Example: `'offset': {'position': 5}` 'uri' is a string representing the uri of the item to start at. Example: `'offset': {'uri': 'spotify:track:1301WleyT98MSxVHPZCA6M'}`"
+        },
+        {
+          "name": "position_ms",
+          "type": "int",
+          "location": "body",
+          "description": "Indicates from what position to start playback. Must be a positive number. Passing in a position that is greater than the length of the track will cause the player to start playing the next song."
+        },
+        {
+          "name": "uris",
+          "type": "array",
+          "location": "body",
+          "description": "Optional. A JSON array of the Spotify track URIs to play. For example: `{'uris': ['spotify:track:4iV5W9uYEdYUVa79Axb7Rh', 'spotify:track:1301WleyT98MSxVHPZCA6M']}`"
+        }
+      ]
+    },
+    {
+      "name": "me_toggle-shuffle-for-users-playback",
+      "description": "Toggle shuffle on or off for user’s playback. This API only works for users who have Spotify Premium. The order of execution is not guaranteed when you use this API with other Player API endpoints. Required: state. Optional: device_id.",
+      "method": "PUT",
+      "path": "/me/player/shuffle",
+      "params": [
+        {
+          "name": "state",
+          "type": "bool",
+          "location": "query",
+          "description": "State",
+          "required": true
+        },
+        {
+          "name": "device_id",
+          "type": "string",
+          "location": "query",
+          "description": "Device id"
+        }
+      ]
+    },
+    {
+      "name": "me_transfer-a-users-playback",
+      "description": "Transfer playback to a new device and optionally begin playback. This API only works for users who have Spotify Premium. The order of execution is not guaranteed when you use this API with other Player API endpoints. Required: device_ids. Optional: play.",
+      "method": "PUT",
+      "path": "/me/player",
+      "params": [
+        {
+          "name": "device_ids",
+          "type": "array",
+          "location": "body",
+          "description": "A JSON array containing the ID of the device on which playback should be started/transferred.\u003cbr/\u003eFor example:`{device_ids:['74ASZWbe4lXaubB36ztrGX']}`\u003cbr/\u003e_**Note**: Although an array is accepted, only a single device_id is currently supported. Supplying more than one will return `400 Bad Request`_",
+          "required": true
+        },
+        {
+          "name": "play",
+          "type": "bool",
+          "location": "body",
+          "description": "**true**: ensure playback happens on new device.\u003cbr/\u003e**false** or not provided: keep the current playback state."
+        }
+      ]
+    },
+    {
+      "name": "me_unfollow-artists-users",
+      "description": "Remove the current user as a follower of one or more artists or other Spotify users. **Note:** This endpoint is deprecated. Use [Remove Items from Library](/documentation/web-api/reference/remove-library-items) instead. Required: type, ids. Destructive.",
+      "method": "DELETE",
+      "path": "/me/following",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Type",
+          "required": true
+        },
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "query",
+          "description": "Ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "playlists_change-details",
+      "description": "Change a playlist's name and public/private state. (The user must, of course, own the playlist.). Required: playlist_id. Optional: collaborative, description, name (plus 1 more).",
+      "method": "PUT",
+      "path": "/playlists/{playlist_id}",
+      "params": [
+        {
+          "name": "playlist_id",
+          "type": "string",
+          "location": "path",
+          "description": "Playlist id",
+          "required": true
+        },
+        {
+          "name": "collaborative",
+          "type": "bool",
+          "location": "body",
+          "description": "If `true`, the playlist will become collaborative and other users will be able to modify the playlist in their Spotify client. \u003cbr/\u003e _**Note**: You can only set `collaborative` to `true` on non-public playlists._"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Value for playlist description as displayed in Spotify Clients and in the Web API."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The new name for the playlist, for example `'My New Playlist Title'`"
+        },
+        {
+          "name": "public",
+          "type": "bool",
+          "location": "body",
+          "description": "The playlist's public/private status (if it should be added to the user's profile or not): `true` the playlist will be public, `false` the playlist will be private, `null` the playlist status is not relevant. For more about public/private status, see [Working with Playlists](/documentation/web-api/concepts/playlists)"
+        }
+      ]
+    },
+    {
+      "name": "playlists_get",
+      "description": "Get a playlist owned by a Spotify user. Required: playlist_id. Optional: market, fields, additional_types. Returns the PlaylistObject.",
+      "method": "GET",
+      "path": "/playlists/{playlist_id}",
+      "params": [
+        {
+          "name": "playlist_id",
+          "type": "string",
+          "location": "path",
+          "description": "Playlist id",
+          "required": true
+        },
+        {
+          "name": "market",
+          "type": "string",
+          "location": "query",
+          "description": "Market"
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Fields"
+        },
+        {
+          "name": "additional_types",
+          "type": "string",
+          "location": "query",
+          "description": "Additional types"
+        }
+      ]
+    },
+    {
+      "name": "playlists_followers_check-if-user-follows-playlist",
+      "description": "Check to see if the current user is following a specified playlist. **Note:** This endpoint is deprecated. Use [Check User's Saved Items](/documentation/web-api/reference/check-library-contains) instead. Required: playlist_id. Optional: ids. Returns array of bool.",
+      "method": "GET",
+      "path": "/playlists/{playlist_id}/followers/contains",
+      "params": [
+        {
+          "name": "playlist_id",
+          "type": "string",
+          "location": "path",
+          "description": "Playlist id",
+          "required": true
+        },
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "query",
+          "description": "Ids"
+        }
+      ]
+    },
+    {
+      "name": "playlists_followers_follow-playlist",
+      "description": "Add the current user as a follower of a playlist. **Note:** This endpoint is deprecated. Use [Save Items to Library](/documentation/web-api/reference/save-library-items) instead. Required: playlist_id. Optional: public.",
+      "method": "PUT",
+      "path": "/playlists/{playlist_id}/followers",
+      "params": [
+        {
+          "name": "playlist_id",
+          "type": "string",
+          "location": "path",
+          "description": "Playlist id",
+          "required": true
+        },
+        {
+          "name": "public",
+          "type": "bool",
+          "location": "body",
+          "description": "Defaults to `true`. If `true` the playlist will be included in user's public playlists (added to profile), if `false` it will remain private. For more about public/private status, see [Working with Playlists](/documentation/web-api/concepts/playlists)"
+        }
+      ]
+    },
+    {
+      "name": "playlists_followers_unfollow-playlist",
+      "description": "Remove the current user as a follower of a playlist. **Note:** This endpoint is deprecated. Use [Remove Items from Library](/documentation/web-api/reference/remove-library-items) instead. Required: playlist_id. Destructive.",
+      "method": "DELETE",
+      "path": "/playlists/{playlist_id}/followers",
+      "params": [
+        {
+          "name": "playlist_id",
+          "type": "string",
+          "location": "path",
+          "description": "Playlist id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "playlists_images_get-playlist-cover",
+      "description": "Get the current image associated with a specific playlist. Required: playlist_id. Returns array of ImageObject.",
+      "method": "GET",
+      "path": "/playlists/{playlist_id}/images",
+      "params": [
+        {
+          "name": "playlist_id",
+          "type": "string",
+          "location": "path",
+          "description": "Playlist id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "playlists_images_upload-custom-playlist-cover",
+      "description": "Replace the image used to represent a specific playlist. Required: playlist_id.",
+      "method": "PUT",
+      "path": "/playlists/{playlist_id}/images",
+      "params": [
+        {
+          "name": "playlist_id",
+          "type": "string",
+          "location": "path",
+          "description": "Playlist id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "playlists_items_add-to-playlist",
+      "description": "Add one or more items to a user's playlist. Required: playlist_id. Optional: position, uris. Returns the new ItemsAddToPlaylistResponse.",
+      "method": "POST",
+      "path": "/playlists/{playlist_id}/items",
+      "params": [
+        {
+          "name": "playlist_id",
+          "type": "string",
+          "location": "path",
+          "description": "Playlist id",
+          "required": true
+        },
+        {
+          "name": "position",
+          "type": "int",
+          "location": "query",
+          "description": "Position"
+        },
+        {
+          "name": "uris",
+          "type": "string",
+          "location": "query",
+          "description": "Uris"
+        }
+      ]
+    },
+    {
+      "name": "playlists_items_get-playlists",
+      "description": "Get full details of the items of a playlist owned by a Spotify user. **Note**: This endpoint is only accessible for playlists owned by the current user or playlists the user is a collaborator of. A `403 Forbidden` status code will be returned if the user is neither the owner nor a collaborator of the playlist. Required: playlist_id. Optional: market, fields, limit (default: 20) (plus 2 more). Returns the PagingPlaylistTrackObject.",
+      "method": "GET",
+      "path": "/playlists/{playlist_id}/items",
+      "params": [
+        {
+          "name": "playlist_id",
+          "type": "string",
+          "location": "path",
+          "description": "Playlist id",
+          "required": true
+        },
+        {
+          "name": "market",
+          "type": "string",
+          "location": "query",
+          "description": "Market"
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Fields"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "additional_types",
+          "type": "string",
+          "location": "query",
+          "description": "Additional types"
+        }
+      ]
+    },
+    {
+      "name": "playlists_items_remove-playlist",
+      "description": "Remove one or more items from a user's playlist. Required: playlist_id, items. Optional: snapshot_id. Returns the ItemsRemovePlaylistResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/playlists/{playlist_id}/items",
+      "params": [
+        {
+          "name": "playlist_id",
+          "type": "string",
+          "location": "path",
+          "description": "Playlist id",
+          "required": true
+        },
+        {
+          "name": "items",
+          "type": "array",
+          "location": "body",
+          "description": "An array of objects containing [Spotify URIs](/documentation/web-api/concepts/spotify-uris-ids) of the tracks or episodes to remove. For example: `{ 'items': [{ 'uri': 'spotify:track:4iV5W9uYEdYUVa79Axb7Rh' },{ 'uri': 'spotify:track:1301WleyT98MSxVHPZCA6M' }] }`. A maximum of 100 objects can be sent at once.",
+          "required": true
+        },
+        {
+          "name": "snapshot_id",
+          "type": "string",
+          "location": "body",
+          "description": "The playlist's snapshot ID against which you want to make the changes. The API will validate that the specified items exist and in the specified positions and make the changes, even if more recent changes have been made to the playlist."
+        }
+      ]
+    },
+    {
+      "name": "playlists_items_reorder-or-replace-playlists",
+      "description": "Either reorder or replace items in a playlist depending on the request's parameters. To reorder items, include `range_start`, `insert_before`, `range_length` and `snapshot_id` in the request's body. To replace items, include `uris` as either a query parameter or in the request's body. Replacing items in a playlist will overwrite its existing items. This operation can be used for replacing or clearing items in a playlist. \u003cbr/\u003e **Note**: Replace and reorder are mutually exclusive operations which share the same endpoint, but have different parameters. These operations can't be applied together in a single request. Required: playlist_id. Optional: uris, insert_before, range_length (plus 2 more). Returns the updated ItemsReorderOrReplacePlaylistsResponse.",
+      "method": "PUT",
+      "path": "/playlists/{playlist_id}/items",
+      "params": [
+        {
+          "name": "playlist_id",
+          "type": "string",
+          "location": "path",
+          "description": "Playlist id",
+          "required": true
+        },
+        {
+          "name": "uris",
+          "type": "string",
+          "location": "query",
+          "description": "Uris"
+        },
+        {
+          "name": "insert_before",
+          "type": "int",
+          "location": "body",
+          "description": "The position where the items should be inserted.\u003cbr/\u003eTo reorder the items to the end of the playlist, simply set _insert_before_ to the position after the last item.\u003cbr/\u003eExamples:\u003cbr/\u003eTo reorder the first item to the last position in a playlist with 10 items, set _range_start_ to 0, and _insert_before_ to 10.\u003cbr/\u003eTo reorder the last item in a playlist with 10 items to the start of the playlist, set _range_start_ to 9, and _insert_before_ to 0."
+        },
+        {
+          "name": "range_length",
+          "type": "int",
+          "location": "body",
+          "description": "The amount of items to be reordered. Defaults to 1 if not set.\u003cbr/\u003eThe range of items to be reordered begins from the _range_start_ position, and includes the _range_length_ subsequent items.\u003cbr/\u003eExample:\u003cbr/\u003eTo move the items at index 9-10 to the start of the playlist, _range_start_ is set to 9, and _range_length_ is set to 2."
+        },
+        {
+          "name": "range_start",
+          "type": "int",
+          "location": "body",
+          "description": "The position of the first item to be reordered."
+        },
+        {
+          "name": "snapshot_id",
+          "type": "string",
+          "location": "body",
+          "description": "The playlist's snapshot ID against which you want to make the changes."
+        }
+      ]
+    },
+    {
+      "name": "playlists_tracks_add-to-playlist",
+      "description": "**Deprecated:** Use [Add Items to Playlist](/documentation/web-api/reference/add-items-to-playlist) instead. Add one or more items to a user's playlist. Required: playlist_id. Optional: position, uris. Returns the new TracksAddToPlaylistResponse.",
+      "method": "POST",
+      "path": "/playlists/{playlist_id}/tracks",
+      "params": [
+        {
+          "name": "playlist_id",
+          "type": "string",
+          "location": "path",
+          "description": "Playlist id",
+          "required": true
+        },
+        {
+          "name": "position",
+          "type": "int",
+          "location": "query",
+          "description": "Position"
+        },
+        {
+          "name": "uris",
+          "type": "string",
+          "location": "query",
+          "description": "Uris"
+        }
+      ]
+    },
+    {
+      "name": "playlists_tracks_get-playlists",
+      "description": "**Deprecated:** Use [Get Playlist Items](/documentation/web-api/reference/get-playlists-items) instead. Get full details of the items of a playlist owned by a Spotify user. Required: playlist_id. Optional: market, fields, limit (default: 20) (plus 2 more). Returns the PagingPlaylistTrackObject.",
+      "method": "GET",
+      "path": "/playlists/{playlist_id}/tracks",
+      "params": [
+        {
+          "name": "playlist_id",
+          "type": "string",
+          "location": "path",
+          "description": "Playlist id",
+          "required": true
+        },
+        {
+          "name": "market",
+          "type": "string",
+          "location": "query",
+          "description": "Market"
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Fields"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "additional_types",
+          "type": "string",
+          "location": "query",
+          "description": "Additional types"
+        }
+      ]
+    },
+    {
+      "name": "playlists_tracks_remove-playlist",
+      "description": "**Deprecated:** Use [Remove Playlist Items](/documentation/web-api/reference/remove-items-playlist) instead. Remove one or more items from a user's playlist. Required: playlist_id, tracks. Optional: snapshot_id. Returns the TracksRemovePlaylistResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/playlists/{playlist_id}/tracks",
+      "params": [
+        {
+          "name": "playlist_id",
+          "type": "string",
+          "location": "path",
+          "description": "Playlist id",
+          "required": true
+        },
+        {
+          "name": "snapshot_id",
+          "type": "string",
+          "location": "body",
+          "description": "The playlist's snapshot ID against which you want to make the changes. The API will validate that the specified items exist and in the specified positions and make the changes, even if more recent changes have been made to the playlist."
+        },
+        {
+          "name": "tracks",
+          "type": "array",
+          "location": "body",
+          "description": "An array of objects containing [Spotify URIs](/documentation/web-api/concepts/spotify-uris-ids) of the tracks or episodes to remove. For example: `{ 'tracks': [{ 'uri': 'spotify:track:4iV5W9uYEdYUVa79Axb7Rh' },{ 'uri': 'spotify:track:1301WleyT98MSxVHPZCA6M' }] }`. A maximum of 100 objects can be sent at once.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "playlists_tracks_reorder-or-replace-playlists",
+      "description": "**Deprecated:** Use [Update Playlist Items](/documentation/web-api/reference/reorder-or-replace-playlists-items) instead. Either reorder or replace items in a playlist depending on the request's parameters. To reorder items, include `range_start`, `insert_before`, `range_length` and `snapshot_id` in the request's body. To replace items, include `uris` as either a query parameter or in the request's body. Replacing items in a playlist will overwrite its existing items. This operation can be used for replacing or clearing items in a playlist. \u003cbr/\u003e **Note**: Replace and reorder are mutually exclusive operations which share the same endpoint, but have different parameters. These operations can't be applied together in a single request. Required: playlist_id. Optional: uris, insert_before, range_length (plus 2 more). Returns the updated TracksReorderOrReplacePlaylistsResponse.",
+      "method": "PUT",
+      "path": "/playlists/{playlist_id}/tracks",
+      "params": [
+        {
+          "name": "playlist_id",
+          "type": "string",
+          "location": "path",
+          "description": "Playlist id",
+          "required": true
+        },
+        {
+          "name": "uris",
+          "type": "string",
+          "location": "query",
+          "description": "Uris"
+        },
+        {
+          "name": "insert_before",
+          "type": "int",
+          "location": "body",
+          "description": "The position where the items should be inserted.\u003cbr/\u003eTo reorder the items to the end of the playlist, simply set _insert_before_ to the position after the last item.\u003cbr/\u003eExamples:\u003cbr/\u003eTo reorder the first item to the last position in a playlist with 10 items, set _range_start_ to 0, and _insert_before_ to 10.\u003cbr/\u003eTo reorder the last item in a playlist with 10 items to the start of the playlist, set _range_start_ to 9, and _insert_before_ to 0."
+        },
+        {
+          "name": "range_length",
+          "type": "int",
+          "location": "body",
+          "description": "The amount of items to be reordered. Defaults to 1 if not set.\u003cbr/\u003eThe range of items to be reordered begins from the _range_start_ position, and includes the _range_length_ subsequent items.\u003cbr/\u003eExample:\u003cbr/\u003eTo move the items at index 9-10 to the start of the playlist, _range_start_ is set to 9, and _range_length_ is set to 2."
+        },
+        {
+          "name": "range_start",
+          "type": "int",
+          "location": "body",
+          "description": "The position of the first item to be reordered."
+        },
+        {
+          "name": "snapshot_id",
+          "type": "string",
+          "location": "body",
+          "description": "The playlist's snapshot ID against which you want to make the changes."
+        }
+      ]
+    },
+    {
+      "name": "recommendations_get",
+      "description": "Recommendations are generated based on the available information for a given seed entity and matched against similar artists and tracks. If there is sufficient information about the provided seeds, a list of tracks will be returned together with pool size details. For artists and tracks that are very new or obscure there might not be enough data to generate a list of tracks. Optional: limit (default: 20), market, seed_artists (plus 44 more). Returns the RecommendationsObject.",
+      "method": "GET",
+      "path": "/recommendations",
+      "params": [
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "market",
+          "type": "string",
+          "location": "query",
+          "description": "Market"
+        },
+        {
+          "name": "seed_artists",
+          "type": "string",
+          "location": "query",
+          "description": "Seed artists"
+        },
+        {
+          "name": "seed_genres",
+          "type": "string",
+          "location": "query",
+          "description": "Seed genres"
+        },
+        {
+          "name": "seed_tracks",
+          "type": "string",
+          "location": "query",
+          "description": "Seed tracks"
+        },
+        {
+          "name": "min_acousticness",
+          "type": "float",
+          "location": "query",
+          "description": "Min acousticness"
+        },
+        {
+          "name": "max_acousticness",
+          "type": "float",
+          "location": "query",
+          "description": "Max acousticness"
+        },
+        {
+          "name": "target_acousticness",
+          "type": "float",
+          "location": "query",
+          "description": "Target acousticness"
+        },
+        {
+          "name": "min_danceability",
+          "type": "float",
+          "location": "query",
+          "description": "Min danceability"
+        },
+        {
+          "name": "max_danceability",
+          "type": "float",
+          "location": "query",
+          "description": "Max danceability"
+        },
+        {
+          "name": "target_danceability",
+          "type": "float",
+          "location": "query",
+          "description": "Target danceability"
+        },
+        {
+          "name": "min_duration_ms",
+          "type": "int",
+          "location": "query",
+          "description": "Min duration ms"
+        },
+        {
+          "name": "max_duration_ms",
+          "type": "int",
+          "location": "query",
+          "description": "Max duration ms"
+        },
+        {
+          "name": "target_duration_ms",
+          "type": "int",
+          "location": "query",
+          "description": "Target duration ms"
+        },
+        {
+          "name": "min_energy",
+          "type": "float",
+          "location": "query",
+          "description": "Min energy"
+        },
+        {
+          "name": "max_energy",
+          "type": "float",
+          "location": "query",
+          "description": "Max energy"
+        },
+        {
+          "name": "target_energy",
+          "type": "float",
+          "location": "query",
+          "description": "Target energy"
+        },
+        {
+          "name": "min_instrumentalness",
+          "type": "float",
+          "location": "query",
+          "description": "Min instrumentalness"
+        },
+        {
+          "name": "max_instrumentalness",
+          "type": "float",
+          "location": "query",
+          "description": "Max instrumentalness"
+        },
+        {
+          "name": "target_instrumentalness",
+          "type": "float",
+          "location": "query",
+          "description": "Target instrumentalness"
+        },
+        {
+          "name": "min_key",
+          "type": "int",
+          "location": "query",
+          "description": "Min key"
+        },
+        {
+          "name": "max_key",
+          "type": "int",
+          "location": "query",
+          "description": "Max key"
+        },
+        {
+          "name": "target_key",
+          "type": "int",
+          "location": "query",
+          "description": "Target key"
+        },
+        {
+          "name": "min_liveness",
+          "type": "float",
+          "location": "query",
+          "description": "Min liveness"
+        },
+        {
+          "name": "max_liveness",
+          "type": "float",
+          "location": "query",
+          "description": "Max liveness"
+        },
+        {
+          "name": "target_liveness",
+          "type": "float",
+          "location": "query",
+          "description": "Target liveness"
+        },
+        {
+          "name": "min_loudness",
+          "type": "float",
+          "location": "query",
+          "description": "Min loudness"
+        },
+        {
+          "name": "max_loudness",
+          "type": "float",
+          "location": "query",
+          "description": "Max loudness"
+        },
+        {
+          "name": "target_loudness",
+          "type": "float",
+          "location": "query",
+          "description": "Target loudness"
+        },
+        {
+          "name": "min_mode",
+          "type": "int",
+          "location": "query",
+          "description": "Min mode"
+        },
+        {
+          "name": "max_mode",
+          "type": "int",
+          "location": "query",
+          "description": "Max mode"
+        },
+        {
+          "name": "target_mode",
+          "type": "int",
+          "location": "query",
+          "description": "Target mode"
+        },
+        {
+          "name": "min_popularity",
+          "type": "int",
+          "location": "query",
+          "description": "Min popularity"
+        },
+        {
+          "name": "max_popularity",
+          "type": "int",
+          "location": "query",
+          "description": "Max popularity"
+        },
+        {
+          "name": "target_popularity",
+          "type": "int",
+          "location": "query",
+          "description": "Target popularity"
+        },
+        {
+          "name": "min_speechiness",
+          "type": "float",
+          "location": "query",
+          "description": "Min speechiness"
+        },
+        {
+          "name": "max_speechiness",
+          "type": "float",
+          "location": "query",
+          "description": "Max speechiness"
+        },
+        {
+          "name": "target_speechiness",
+          "type": "float",
+          "location": "query",
+          "description": "Target speechiness"
+        },
+        {
+          "name": "min_tempo",
+          "type": "float",
+          "location": "query",
+          "description": "Min tempo"
+        },
+        {
+          "name": "max_tempo",
+          "type": "float",
+          "location": "query",
+          "description": "Max tempo"
+        },
+        {
+          "name": "target_tempo",
+          "type": "float",
+          "location": "query",
+          "description": "Target tempo"
+        },
+        {
+          "name": "min_time_signature",
+          "type": "int",
+          "location": "query",
+          "description": "Min time signature"
+        },
+        {
+          "name": "max_time_signature",
+          "type": "int",
+          "location": "query",
+          "description": "Max time signature"
+        },
+        {
+          "name": "target_time_signature",
+          "type": "int",
+          "location": "query",
+          "description": "Target time signature"
+        },
+        {
+          "name": "min_valence",
+          "type": "float",
+          "location": "query",
+          "description": "Min valence"
+        },
+        {
+          "name": "max_valence",
+          "type": "float",
+          "location": "query",
+          "description": "Max valence"
+        },
+        {
+          "name": "target_valence",
+          "type": "float",
+          "location": "query",
+          "description": "Target valence"
+        }
+      ]
+    },
+    {
+      "name": "recommendations_get-genres",
+      "description": "Retrieve a list of available genres seed parameter values for [recommendations](/documentation/web-api/reference/get-recommendations). Returns the RecommendationsGetGenresResponse.",
+      "method": "GET",
+      "path": "/recommendations/available-genre-seeds",
+      "params": []
+    },
+    {
+      "name": "shows_get-a",
+      "description": "Get Spotify catalog information for a single show identified by its unique Spotify ID. Required: id. Optional: market. Returns the ShowObject.",
+      "method": "GET",
+      "path": "/shows/{id}",
+      "params": [
+        {
+          "name": "market",
+          "type": "string",
+          "location": "query",
+          "description": "Market"
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shows_get-multiple",
+      "description": "Get Spotify catalog information for several shows based on their Spotify IDs. Required: ids. Optional: market. Returns the ShowsGetMultipleResponse.",
+      "method": "GET",
+      "path": "/shows",
+      "params": [
+        {
+          "name": "market",
+          "type": "string",
+          "location": "query",
+          "description": "Market"
+        },
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "query",
+          "description": "Ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "shows_episodes_get-a-shows",
+      "description": "Get Spotify catalog information about an show’s episodes. Optional parameters can be used to limit the number of episodes returned. Required: id. Optional: market, limit (default: 20), offset (default: 0). Returns the PagingSimplifiedEpisodeObject.",
+      "method": "GET",
+      "path": "/shows/{id}/episodes",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "market",
+          "type": "string",
+          "location": "query",
+          "description": "Market"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    },
+    {
+      "name": "spotify-search_search",
+      "description": "Get Spotify catalog information about albums, artists, playlists, tracks, shows, episodes or audiobooks that match a keyword string. Audiobooks are only available within the US, UK, Canada, Ireland, New Zealand and Australia markets. Required: q, type. Optional: market, limit (default: 5), offset (default: 0) (plus 1 more). Returns the SpotifySearchSearchResponse.",
+      "method": "GET",
+      "path": "/search",
+      "params": [
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Q",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "array",
+          "location": "query",
+          "description": "Type",
+          "required": true
+        },
+        {
+          "name": "market",
+          "type": "string",
+          "location": "query",
+          "description": "Market"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "include_external",
+          "type": "string",
+          "location": "query",
+          "description": "Include external"
+        }
+      ]
+    },
+    {
+      "name": "tracks_get",
+      "description": "Get Spotify catalog information for a single track identified by its unique Spotify ID. Required: id. Optional: market. Returns the TrackObject.",
+      "method": "GET",
+      "path": "/tracks/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "market",
+          "type": "string",
+          "location": "query",
+          "description": "Market"
+        }
+      ]
+    },
+    {
+      "name": "tracks_get-several",
+      "description": "Get Spotify catalog information for multiple tracks based on their Spotify IDs. Required: ids. Optional: market. Returns the TracksGetSeveralResponse.",
+      "method": "GET",
+      "path": "/tracks",
+      "params": [
+        {
+          "name": "market",
+          "type": "string",
+          "location": "query",
+          "description": "Market"
+        },
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "query",
+          "description": "Ids",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_get-profile",
+      "description": "Get public profile information about a Spotify user. Required: user_id. Returns the PublicUserObject.",
+      "method": "GET",
+      "path": "/users/{user_id}",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "path",
+          "description": "User id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_playlists_create-for-user",
+      "description": "**Deprecated**: Use [Create Playlist](/documentation/web-api/reference/create-playlist) instead. Create a playlist for a Spotify user. (The playlist will be empty until you [add tracks](/documentation/web-api/reference/add-tracks-to-playlist).) Each user is generally limited to a maximum of 11000 playlists. Required: user_id, name. Optional: collaborative, description, public. Returns the new PlaylistObject.",
+      "method": "POST",
+      "path": "/users/{user_id}/playlists",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "path",
+          "description": "User id",
+          "required": true
+        },
+        {
+          "name": "collaborative",
+          "type": "bool",
+          "location": "body",
+          "description": "Defaults to `false`. If `true` the playlist will be collaborative. _**Note**: to create a collaborative playlist you must also set `public` to `false`. To create collaborative playlists you must have granted `playlist-modify-private` and `playlist-modify-public` [scopes](/documentation/web-api/concepts/scopes/#list-of-scopes)._"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "value for playlist description as displayed in Spotify Clients and in the Web API."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name for the new playlist, for example `'Your Coolest Playlist'`. This name does not need to be unique; a user may have several playlists with the same name.",
+          "required": true
+        },
+        {
+          "name": "public",
+          "type": "bool",
+          "location": "body",
+          "description": "Defaults to `true`. The playlist's public/private status (if it should be added to the user's profile or not): `true` the playlist will be public, `false` the playlist will be private. To be able to create private playlists, the user must have granted the `playlist-modify-private` [scope](/documentation/web-api/concepts/scopes/#list-of-scopes). For more about public/private status, see [Working with Playlists](/documentation/web-api/concepts/playlists)"
+        }
+      ]
+    },
+    {
+      "name": "users_playlists_get-list-users",
+      "description": "Get a list of the playlists owned or followed by a Spotify user. Required: user_id. Optional: limit (default: 20), offset (default: 0). Returns the PagingPlaylistObject.",
+      "method": "GET",
+      "path": "/users/{user_id}/playlists",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "path",
+          "description": "User id",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Offset"
+        }
+      ]
+    }
+  ]
+}

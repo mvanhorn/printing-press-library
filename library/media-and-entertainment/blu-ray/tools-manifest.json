@@ -1,0 +1,203 @@
+{
+  "api_name": "blu-ray",
+  "base_url": "https://www.blu-ray.com",
+  "description": "Blu-ray.com — the canonical disc database for Blu-ray, 4K UHD, DVD, and digital releases since 2002. No public API; sourced from the published XML sitemap and HTML pages.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "calendar_digital",
+      "description": "Digital release calendar (streaming/rental window opens). Optional: year.",
+      "method": "GET",
+      "path": "/digital/releasedates.php",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "year",
+          "type": "int",
+          "location": "query",
+          "description": "Calendar year."
+        }
+      ]
+    },
+    {
+      "name": "calendar_releases",
+      "description": "Release calendar page for a given year, optionally filtered by country and format. JS-driven UI; the raw HTML still contains the listing data the page renders. Optional: year, country, format.",
+      "method": "GET",
+      "path": "/movies/releasedates.php",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "year",
+          "type": "int",
+          "location": "query",
+          "description": "Calendar year (2006-onwards). Defaults to current year when omitted."
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "Country filter (e.g. USA)."
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Format filter."
+        }
+      ]
+    },
+    {
+      "name": "calendar_theatrical",
+      "description": "Theatrical release calendar. Optional: year.",
+      "method": "GET",
+      "path": "/theatrical/releasedates.php",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "year",
+          "type": "int",
+          "location": "query",
+          "description": "Calendar year."
+        }
+      ]
+    },
+    {
+      "name": "deals_list",
+      "description": "Current Blu-ray.com deals, filterable by country and format. Each row carries the underlying release id and the affiliate click URL (the latter is not followed by the CLI). Optional: country (default: USA), format.",
+      "method": "GET",
+      "path": "/deals/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "Country code (USA, UK, DE, FR, ...). Defaults to USA."
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Format filter."
+        }
+      ]
+    },
+    {
+      "name": "news_get",
+      "description": "Fetch a single news story by id. Required: id.",
+      "method": "GET",
+      "path": "/news/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Numeric story id.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "news_index",
+      "description": "News index page (latest stories on top). Hand-parser extracts headline + posted-date + body link.",
+      "method": "GET",
+      "path": "/news/",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "releases_get",
+      "description": "Fetch the canonical release detail page by URL slug and id. The id is stable; slug is documented for redirect-safe fetching. Required: slug, id.",
+      "method": "GET",
+      "path": "/movies/{slug}/{id}/",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "URL slug (e.g. 'Alien-Blu-ray', 'Fight-Club-4K-Blu-ray'). Captured from sitemap or listing pages.",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "Numeric release id (stable across slug renames).",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "releases_new",
+      "description": "List recent Blu-ray, 4K, DVD, and digital releases (paginated). Returns release page links from the static template. Optional: show (default: newreleases), page (default: 1), country (plus 1 more).",
+      "method": "GET",
+      "path": "/movies/movies.php",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "show",
+          "type": "string",
+          "location": "query",
+          "description": "Listing view: new releases or coming soon."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number (1-indexed)."
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "ISO 2-letter country filter (e.g. US, UK, FR)."
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Format filter."
+        }
+      ]
+    },
+    {
+      "name": "sitemap_bluraymovies",
+      "description": "One of nine gzipped Blu-ray release shards (50,000 URLs each). Pull all nine for the full Blu-ray catalog. Required: shard.",
+      "method": "GET",
+      "path": "/sitemap/sitemap_bluraymovies_{shard}.xml.gz",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "shard",
+          "type": "int",
+          "location": "path",
+          "description": "Shard index 0-8.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sitemap_index",
+      "description": "Sitemap index — points at gzipped sub-sitemaps for main, news, bluraymovies (9 shards), dvdmovies (7), itunesmovies (5), digitalmovies (2), cast (11), ma, games, other.",
+      "method": "GET",
+      "path": "/sitemap.xml",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "sitemap_news",
+      "description": "Compressed news sitemap — each entry has title + publication_date inline (no per-story fetch needed for enumeration).",
+      "method": "GET",
+      "path": "/sitemap/sitemap_news.xml.gz",
+      "no_auth": true,
+      "params": []
+    }
+  ]
+}

@@ -1,0 +1,1496 @@
+{
+  "api_name": "gumroad",
+  "base_url": "https://api.gumroad.com/v2",
+  "description": "Gumroad OAuth 2.0 API for products, sales, subscribers, licenses, payouts, tax data, and resource subscriptions.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "GUMROAD_ACCESS_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "GUMROAD_ACCESS_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "earnings_get",
+      "description": "Retrieve an annual earnings breakdown for the authenticated user. Requires view_tax_data scope. Required: year. Returns the SuccessEnvelope.",
+      "method": "GET",
+      "path": "/earnings",
+      "params": [
+        {
+          "name": "year",
+          "type": "int",
+          "location": "query",
+          "description": "Four-digit tax year.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "files_abort",
+      "description": "Cancel a multipart upload started by /files/presign. Requires edit_products scope. Required: key, upload_id. Returns the new SuccessEnvelope.",
+      "method": "POST",
+      "path": "/files/abort",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "body",
+          "description": "Key",
+          "required": true
+        },
+        {
+          "name": "upload_id",
+          "type": "string",
+          "location": "body",
+          "description": "Upload id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "files_complete",
+      "description": "Finalize a multipart upload started by /files/presign. Requires edit_products scope. Required: key, parts, upload_id. Returns the new SuccessEnvelope.",
+      "method": "POST",
+      "path": "/files/complete",
+      "params": [
+        {
+          "name": "key",
+          "type": "string",
+          "location": "body",
+          "description": "Key",
+          "required": true
+        },
+        {
+          "name": "parts",
+          "type": "array",
+          "location": "body",
+          "description": "Parts",
+          "required": true
+        },
+        {
+          "name": "upload_id",
+          "type": "string",
+          "location": "body",
+          "description": "Upload id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "files_presign",
+      "description": "Start a multipart upload and return presigned URLs for each part. Requires edit_products scope. Required: file_size, filename. Returns the new SuccessEnvelope.",
+      "method": "POST",
+      "path": "/files/presign",
+      "params": [
+        {
+          "name": "file_size",
+          "type": "int",
+          "location": "body",
+          "description": "File size in bytes, max 20 GB.",
+          "required": true
+        },
+        {
+          "name": "filename",
+          "type": "string",
+          "location": "body",
+          "description": "Filename",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "licenses_decrement-uses-count",
+      "description": "Decrement the uses count of a license. Requires edit_products scope. Required: license_key, product_id. Returns the updated SuccessEnvelope.",
+      "method": "PUT",
+      "path": "/licenses/decrement_uses_count",
+      "params": [
+        {
+          "name": "license_key",
+          "type": "string",
+          "location": "body",
+          "description": "License key",
+          "required": true
+        },
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "body",
+          "description": "Product id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "licenses_disable",
+      "description": "Disable a license. Requires edit_products scope. Required: license_key, product_id. Returns the updated SuccessEnvelope.",
+      "method": "PUT",
+      "path": "/licenses/disable",
+      "params": [
+        {
+          "name": "license_key",
+          "type": "string",
+          "location": "body",
+          "description": "License key",
+          "required": true
+        },
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "body",
+          "description": "Product id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "licenses_enable",
+      "description": "Enable a license. Requires edit_products scope. Required: license_key, product_id. Returns the updated SuccessEnvelope.",
+      "method": "PUT",
+      "path": "/licenses/enable",
+      "params": [
+        {
+          "name": "license_key",
+          "type": "string",
+          "location": "body",
+          "description": "License key",
+          "required": true
+        },
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "body",
+          "description": "Product id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "licenses_rotate",
+      "description": "Rotate a license key. The old key will no longer be valid. Requires edit_products scope. Required: license_key, product_id. Returns the updated SuccessEnvelope.",
+      "method": "PUT",
+      "path": "/licenses/rotate",
+      "params": [
+        {
+          "name": "license_key",
+          "type": "string",
+          "location": "body",
+          "description": "License key",
+          "required": true
+        },
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "body",
+          "description": "Product id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "licenses_verify",
+      "description": "Verify a license key. Required: license_key, product_id. Optional: increment_uses_count. Returns the new SuccessEnvelope. (public)",
+      "method": "POST",
+      "path": "/licenses/verify",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "increment_uses_count",
+          "type": "bool",
+          "location": "body",
+          "description": "Increment uses count"
+        },
+        {
+          "name": "license_key",
+          "type": "string",
+          "location": "body",
+          "description": "License key",
+          "required": true
+        },
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "body",
+          "description": "Product id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "payouts_get",
+      "description": "Retrieve details of a payout. Requires view_payouts scope. Required: id. Optional: include_sales, include_transactions. Returns the SuccessEnvelope.",
+      "method": "GET",
+      "path": "/payouts/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "include_sales",
+          "type": "bool",
+          "location": "query",
+          "description": "Include sales"
+        },
+        {
+          "name": "include_transactions",
+          "type": "bool",
+          "location": "query",
+          "description": "Include transactions"
+        }
+      ]
+    },
+    {
+      "name": "payouts_get-upcoming",
+      "description": "Retrieve upcoming payouts. Requires view_payouts scope. Optional: include_sales, include_transactions. Returns the SuccessEnvelope.",
+      "method": "GET",
+      "path": "/payouts/upcoming",
+      "params": [
+        {
+          "name": "include_sales",
+          "type": "bool",
+          "location": "query",
+          "description": "Include sales"
+        },
+        {
+          "name": "include_transactions",
+          "type": "bool",
+          "location": "query",
+          "description": "Include transactions"
+        }
+      ]
+    },
+    {
+      "name": "payouts_list",
+      "description": "Retrieve payouts for the authenticated user. Requires view_payouts scope. Optional: after, before, page_key (plus 1 more). Returns the SuccessEnvelope.",
+      "method": "GET",
+      "path": "/payouts",
+      "params": [
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Return records after this date."
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Return records before this date."
+        },
+        {
+          "name": "page_key",
+          "type": "string",
+          "location": "query",
+          "description": "Opaque pagination cursor returned as next_page_key."
+        },
+        {
+          "name": "include_upcoming",
+          "type": "bool",
+          "location": "query",
+          "description": "Set false to exclude the upcoming payout."
+        }
+      ]
+    },
+    {
+      "name": "products_create",
+      "description": "Create a new product as a draft. Requires edit_products or account scope. Optional: cover_ids, custom_permalink, custom_receipt (plus 19 more). Returns the new SuccessEnvelope.",
+      "method": "POST",
+      "path": "/products",
+      "params": [
+        {
+          "name": "cover_ids",
+          "type": "array",
+          "location": "body",
+          "description": "Cover ids"
+        },
+        {
+          "name": "custom_permalink",
+          "type": "string",
+          "location": "body",
+          "description": "Custom permalink"
+        },
+        {
+          "name": "custom_receipt",
+          "type": "string",
+          "location": "body",
+          "description": "Custom receipt"
+        },
+        {
+          "name": "custom_summary",
+          "type": "string",
+          "location": "body",
+          "description": "Custom summary"
+        },
+        {
+          "name": "customizable_price",
+          "type": "bool",
+          "location": "body",
+          "description": "Customizable price"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "HTML description."
+        },
+        {
+          "name": "display_product_reviews",
+          "type": "bool",
+          "location": "body",
+          "description": "Display product reviews"
+        },
+        {
+          "name": "files",
+          "type": "array",
+          "location": "body",
+          "description": "Files to attach. Use file_url values returned by /files/complete."
+        },
+        {
+          "name": "has_same_rich_content_for_all_variants",
+          "type": "bool",
+          "location": "body",
+          "description": "Has same rich content for all variants"
+        },
+        {
+          "name": "is_adult",
+          "type": "bool",
+          "location": "body",
+          "description": "Is adult"
+        },
+        {
+          "name": "max_purchase_count",
+          "type": "int",
+          "location": "body",
+          "description": "Max purchase count"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "native_type",
+          "type": "string",
+          "location": "body",
+          "description": "Native type"
+        },
+        {
+          "name": "price",
+          "type": "int",
+          "location": "body",
+          "description": "Price in the smallest currency unit, for example cents."
+        },
+        {
+          "name": "price_currency_type",
+          "type": "string",
+          "location": "body",
+          "description": "ISO currency code."
+        },
+        {
+          "name": "quantity_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Quantity enabled"
+        },
+        {
+          "name": "rich_content",
+          "type": "array",
+          "location": "body",
+          "description": "Rich content"
+        },
+        {
+          "name": "should_show_sales_count",
+          "type": "bool",
+          "location": "body",
+          "description": "Should show sales count"
+        },
+        {
+          "name": "subscription_duration",
+          "type": "string",
+          "location": "body",
+          "description": "Subscription duration"
+        },
+        {
+          "name": "suggested_price_cents",
+          "type": "int",
+          "location": "body",
+          "description": "Suggested price cents"
+        },
+        {
+          "name": "tags",
+          "type": "array",
+          "location": "body",
+          "description": "Tags"
+        },
+        {
+          "name": "taxonomy_id",
+          "type": "string",
+          "location": "body",
+          "description": "Taxonomy id"
+        }
+      ]
+    },
+    {
+      "name": "products_delete",
+      "description": "Permanently delete a product. Required: id. Returns the SuccessEnvelope. Destructive.",
+      "method": "DELETE",
+      "path": "/products/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "products_get",
+      "description": "Retrieve details of a product. Required: id. Returns the SuccessEnvelope.",
+      "method": "GET",
+      "path": "/products/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "products_list",
+      "description": "Retrieve all existing products for the authenticated user. Optional: page_key. Returns the SuccessEnvelope.",
+      "method": "GET",
+      "path": "/products",
+      "params": [
+        {
+          "name": "page_key",
+          "type": "string",
+          "location": "query",
+          "description": "Opaque pagination cursor returned as next_page_key."
+        }
+      ]
+    },
+    {
+      "name": "products_update",
+      "description": "Update an existing product. Collection fields such as files, tags, and rich_content replace the full collection. Required: id. Optional: cover_ids, custom_permalink, custom_receipt (plus 19 more). Returns the updated SuccessEnvelope.",
+      "method": "PUT",
+      "path": "/products/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "cover_ids",
+          "type": "array",
+          "location": "body",
+          "description": "Cover ids"
+        },
+        {
+          "name": "custom_permalink",
+          "type": "string",
+          "location": "body",
+          "description": "Custom permalink"
+        },
+        {
+          "name": "custom_receipt",
+          "type": "string",
+          "location": "body",
+          "description": "Custom receipt"
+        },
+        {
+          "name": "custom_summary",
+          "type": "string",
+          "location": "body",
+          "description": "Custom summary"
+        },
+        {
+          "name": "customizable_price",
+          "type": "bool",
+          "location": "body",
+          "description": "Customizable price"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "HTML description."
+        },
+        {
+          "name": "display_product_reviews",
+          "type": "bool",
+          "location": "body",
+          "description": "Display product reviews"
+        },
+        {
+          "name": "files",
+          "type": "array",
+          "location": "body",
+          "description": "Files to attach. Use file_url values returned by /files/complete."
+        },
+        {
+          "name": "has_same_rich_content_for_all_variants",
+          "type": "bool",
+          "location": "body",
+          "description": "Has same rich content for all variants"
+        },
+        {
+          "name": "is_adult",
+          "type": "bool",
+          "location": "body",
+          "description": "Is adult"
+        },
+        {
+          "name": "max_purchase_count",
+          "type": "int",
+          "location": "body",
+          "description": "Max purchase count"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "native_type",
+          "type": "string",
+          "location": "body",
+          "description": "Native type"
+        },
+        {
+          "name": "price",
+          "type": "int",
+          "location": "body",
+          "description": "Price in the smallest currency unit, for example cents."
+        },
+        {
+          "name": "price_currency_type",
+          "type": "string",
+          "location": "body",
+          "description": "ISO currency code."
+        },
+        {
+          "name": "quantity_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Quantity enabled"
+        },
+        {
+          "name": "rich_content",
+          "type": "array",
+          "location": "body",
+          "description": "Rich content"
+        },
+        {
+          "name": "should_show_sales_count",
+          "type": "bool",
+          "location": "body",
+          "description": "Should show sales count"
+        },
+        {
+          "name": "subscription_duration",
+          "type": "string",
+          "location": "body",
+          "description": "Subscription duration"
+        },
+        {
+          "name": "suggested_price_cents",
+          "type": "int",
+          "location": "body",
+          "description": "Suggested price cents"
+        },
+        {
+          "name": "tags",
+          "type": "array",
+          "location": "body",
+          "description": "Tags"
+        },
+        {
+          "name": "taxonomy_id",
+          "type": "string",
+          "location": "body",
+          "description": "Taxonomy id"
+        }
+      ]
+    },
+    {
+      "name": "products_covers_create",
+      "description": "Add a cover to a product from a publicly accessible URL. Requires edit_products scope. Required: product_id, url. Returns the new SuccessEnvelope.",
+      "method": "POST",
+      "path": "/products/{product_id}/covers",
+      "params": [
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Product id",
+          "required": true
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "Url",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "products_covers_delete",
+      "description": "Delete a cover from a product. Requires edit_products scope. Required: product_id, id. Returns the SuccessEnvelope. Destructive.",
+      "method": "DELETE",
+      "path": "/products/{product_id}/covers/{id}",
+      "params": [
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Product id",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "products_custom-fields_create",
+      "description": "Create a new custom field for a product. Required: product_id, name. Optional: required, type. Returns the new SuccessEnvelope.",
+      "method": "POST",
+      "path": "/products/{product_id}/custom_fields",
+      "params": [
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Product id",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "required",
+          "type": "bool",
+          "location": "body",
+          "description": "Required"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type"
+        }
+      ]
+    },
+    {
+      "name": "products_custom-fields_delete",
+      "description": "Permanently delete a product custom field. Required: product_id, name. Returns the SuccessEnvelope. Destructive.",
+      "method": "DELETE",
+      "path": "/products/{product_id}/custom_fields/{name}",
+      "params": [
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Product id",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "path",
+          "description": "Name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "products_custom-fields_list",
+      "description": "Retrieve all existing custom fields for a product. Required: product_id. Returns the SuccessEnvelope.",
+      "method": "GET",
+      "path": "/products/{product_id}/custom_fields",
+      "params": [
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Product id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "products_custom-fields_update",
+      "description": "Edit an existing product custom field. Required: product_id, name. Optional: required, type. Returns the updated SuccessEnvelope.",
+      "method": "PUT",
+      "path": "/products/{product_id}/custom_fields/{name}",
+      "params": [
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Product id",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "path",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "required",
+          "type": "bool",
+          "location": "body",
+          "description": "Required"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type"
+        }
+      ]
+    },
+    {
+      "name": "products_disable_product",
+      "description": "Disable an existing product. Required: id. Returns the updated SuccessEnvelope.",
+      "method": "PUT",
+      "path": "/products/{id}/disable",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "products_enable_product",
+      "description": "Enable an existing product. Required: id. Returns the updated SuccessEnvelope.",
+      "method": "PUT",
+      "path": "/products/{id}/enable",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "products_offer-codes_create",
+      "description": "Create a new offer code for a product. Required: product_id, name. Optional: amount_cents, max_purchase_count, percent_off (plus 1 more). Returns the new SuccessEnvelope.",
+      "method": "POST",
+      "path": "/products/{product_id}/offer_codes",
+      "params": [
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Product id",
+          "required": true
+        },
+        {
+          "name": "amount_cents",
+          "type": "int",
+          "location": "body",
+          "description": "Amount cents"
+        },
+        {
+          "name": "max_purchase_count",
+          "type": "int",
+          "location": "body",
+          "description": "Max purchase count"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "percent_off",
+          "type": "int",
+          "location": "body",
+          "description": "Percent off"
+        },
+        {
+          "name": "universal",
+          "type": "bool",
+          "location": "body",
+          "description": "Universal"
+        }
+      ]
+    },
+    {
+      "name": "products_offer-codes_delete",
+      "description": "Permanently delete a product offer code. Required: product_id, id. Returns the SuccessEnvelope. Destructive.",
+      "method": "DELETE",
+      "path": "/products/{product_id}/offer_codes/{id}",
+      "params": [
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Product id",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "products_offer-codes_get",
+      "description": "Retrieve details of a specific offer code of a product. Required: product_id, id. Returns the SuccessEnvelope.",
+      "method": "GET",
+      "path": "/products/{product_id}/offer_codes/{id}",
+      "params": [
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Product id",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "products_offer-codes_list",
+      "description": "Retrieve all existing offer codes for a product. Required: product_id. Returns the SuccessEnvelope.",
+      "method": "GET",
+      "path": "/products/{product_id}/offer_codes",
+      "params": [
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Product id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "products_offer-codes_update",
+      "description": "Edit an existing product offer code. Required: product_id, id. Optional: amount_cents, max_purchase_count, name (plus 1 more). Returns the updated SuccessEnvelope.",
+      "method": "PUT",
+      "path": "/products/{product_id}/offer_codes/{id}",
+      "params": [
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Product id",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "amount_cents",
+          "type": "int",
+          "location": "body",
+          "description": "Amount cents"
+        },
+        {
+          "name": "max_purchase_count",
+          "type": "int",
+          "location": "body",
+          "description": "Max purchase count"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "percent_off",
+          "type": "int",
+          "location": "body",
+          "description": "Percent off"
+        }
+      ]
+    },
+    {
+      "name": "products_subscribers_list",
+      "description": "Retrieve active subscribers for one product. Requires view_sales scope. Required: product_id. Optional: email, page_key. Returns the SuccessEnvelope.",
+      "method": "GET",
+      "path": "/products/{product_id}/subscribers",
+      "params": [
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Product id",
+          "required": true
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "query",
+          "description": "Email"
+        },
+        {
+          "name": "page_key",
+          "type": "string",
+          "location": "query",
+          "description": "Opaque pagination cursor returned as next_page_key."
+        }
+      ]
+    },
+    {
+      "name": "products_variant-categories_create-variant",
+      "description": "Create a new variant of a product. Required: product_id, variant_category_id, name. Optional: max_purchase_count, price_difference_cents. Returns the new SuccessEnvelope.",
+      "method": "POST",
+      "path": "/products/{product_id}/variant_categories/{variant_category_id}/variants",
+      "params": [
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Product id",
+          "required": true
+        },
+        {
+          "name": "variant_category_id",
+          "type": "string",
+          "location": "path",
+          "description": "Variant category id",
+          "required": true
+        },
+        {
+          "name": "max_purchase_count",
+          "type": "int",
+          "location": "body",
+          "description": "Max purchase count"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "price_difference_cents",
+          "type": "int",
+          "location": "body",
+          "description": "Price difference cents"
+        }
+      ]
+    },
+    {
+      "name": "products_variant-categories_create-variant-category",
+      "description": "Create a new variant category on a product. Required: product_id, title. Returns the new SuccessEnvelope.",
+      "method": "POST",
+      "path": "/products/{product_id}/variant_categories",
+      "params": [
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Product id",
+          "required": true
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "products_variant-categories_delete-variant",
+      "description": "Permanently delete a variant of a product. Required: product_id, variant_category_id, id. Returns the SuccessEnvelope. Destructive.",
+      "method": "DELETE",
+      "path": "/products/{product_id}/variant_categories/{variant_category_id}/variants/{id}",
+      "params": [
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Product id",
+          "required": true
+        },
+        {
+          "name": "variant_category_id",
+          "type": "string",
+          "location": "path",
+          "description": "Variant category id",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "products_variant-categories_delete-variant-category",
+      "description": "Permanently delete a variant category of a product. Required: product_id, id. Returns the SuccessEnvelope. Destructive.",
+      "method": "DELETE",
+      "path": "/products/{product_id}/variant_categories/{id}",
+      "params": [
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Product id",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "products_variant-categories_get-variant",
+      "description": "Retrieve details of a variant of a product. Required: product_id, variant_category_id, id. Returns the SuccessEnvelope.",
+      "method": "GET",
+      "path": "/products/{product_id}/variant_categories/{variant_category_id}/variants/{id}",
+      "params": [
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Product id",
+          "required": true
+        },
+        {
+          "name": "variant_category_id",
+          "type": "string",
+          "location": "path",
+          "description": "Variant category id",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "products_variant-categories_get-variant-category",
+      "description": "Retrieve details of a variant category of a product. Required: product_id, id. Returns the SuccessEnvelope.",
+      "method": "GET",
+      "path": "/products/{product_id}/variant_categories/{id}",
+      "params": [
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Product id",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "products_variant-categories_list",
+      "description": "Retrieve all existing variant categories of a product. Required: product_id. Returns the SuccessEnvelope.",
+      "method": "GET",
+      "path": "/products/{product_id}/variant_categories",
+      "params": [
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Product id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "products_variant-categories_list-variants",
+      "description": "Retrieve all existing variants in a variant category. Required: product_id, variant_category_id. Returns the SuccessEnvelope.",
+      "method": "GET",
+      "path": "/products/{product_id}/variant_categories/{variant_category_id}/variants",
+      "params": [
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Product id",
+          "required": true
+        },
+        {
+          "name": "variant_category_id",
+          "type": "string",
+          "location": "path",
+          "description": "Variant category id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "products_variant-categories_update-variant",
+      "description": "Edit a variant of an existing product. Required: product_id, variant_category_id, id. Optional: max_purchase_count, name, price_difference_cents. Returns the updated SuccessEnvelope.",
+      "method": "PUT",
+      "path": "/products/{product_id}/variant_categories/{variant_category_id}/variants/{id}",
+      "params": [
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Product id",
+          "required": true
+        },
+        {
+          "name": "variant_category_id",
+          "type": "string",
+          "location": "path",
+          "description": "Variant category id",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "max_purchase_count",
+          "type": "int",
+          "location": "body",
+          "description": "Max purchase count"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "price_difference_cents",
+          "type": "int",
+          "location": "body",
+          "description": "Price difference cents"
+        }
+      ]
+    },
+    {
+      "name": "products_variant-categories_update-variant-category",
+      "description": "Edit a variant category of an existing product. Required: product_id, id. Optional: title. Returns the updated SuccessEnvelope.",
+      "method": "PUT",
+      "path": "/products/{product_id}/variant_categories/{id}",
+      "params": [
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "Product id",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "location": "body",
+          "description": "Title"
+        }
+      ]
+    },
+    {
+      "name": "resource-subscriptions_create",
+      "description": "Subscribe to a resource webhook. Requires view_sales scope. Required: post_url, resource_name. Returns the updated SuccessEnvelope.",
+      "method": "PUT",
+      "path": "/resource_subscriptions",
+      "params": [
+        {
+          "name": "post_url",
+          "type": "string",
+          "location": "body",
+          "description": "Post url",
+          "required": true
+        },
+        {
+          "name": "resource_name",
+          "type": "string",
+          "location": "body",
+          "description": "Resource name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "resource-subscriptions_delete",
+      "description": "Unsubscribe from a resource. Required: id. Returns the SuccessEnvelope. Destructive.",
+      "method": "DELETE",
+      "path": "/resource_subscriptions/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "resource-subscriptions_list",
+      "description": "Show active subscriptions for the input resource. Requires view_sales scope. Optional: resource_name. Returns the SuccessEnvelope.",
+      "method": "GET",
+      "path": "/resource_subscriptions",
+      "params": [
+        {
+          "name": "resource_name",
+          "type": "string",
+          "location": "query",
+          "description": "Resource name"
+        }
+      ]
+    },
+    {
+      "name": "sales_get",
+      "description": "Retrieve details of a sale. Requires view_sales scope. Required: id. Returns the SuccessEnvelope.",
+      "method": "GET",
+      "path": "/sales/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "sales_list",
+      "description": "Retrieve successful sales by the authenticated user. Requires view_sales scope. Optional: after, before, product_id (plus 5 more). Returns the SuccessEnvelope.",
+      "method": "GET",
+      "path": "/sales",
+      "params": [
+        {
+          "name": "after",
+          "type": "string",
+          "location": "query",
+          "description": "Return records after this date."
+        },
+        {
+          "name": "before",
+          "type": "string",
+          "location": "query",
+          "description": "Return records before this date."
+        },
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "query",
+          "description": "Product id"
+        },
+        {
+          "name": "email",
+          "type": "string",
+          "location": "query",
+          "description": "Email"
+        },
+        {
+          "name": "order_id",
+          "type": "string",
+          "location": "query",
+          "description": "Order id"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "Name"
+        },
+        {
+          "name": "license_key",
+          "type": "string",
+          "location": "query",
+          "description": "License key"
+        },
+        {
+          "name": "page_key",
+          "type": "string",
+          "location": "query",
+          "description": "Opaque pagination cursor returned as next_page_key."
+        }
+      ]
+    },
+    {
+      "name": "sales_mark-as-shipped_mark-sale-as-shipped",
+      "description": "Mark a sale as shipped. Requires mark_sales_as_shipped scope. Required: id. Optional: tracking_url. Returns the updated SuccessEnvelope.",
+      "method": "PUT",
+      "path": "/sales/{id}/mark_as_shipped",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "tracking_url",
+          "type": "string",
+          "location": "body",
+          "description": "Tracking url"
+        }
+      ]
+    },
+    {
+      "name": "sales_refund_sale",
+      "description": "Refund a sale. Requires refund_sales or edit_sales scope. Required: id. Optional: amount_cents, comment. Returns the updated SuccessEnvelope.",
+      "method": "PUT",
+      "path": "/sales/{id}/refund",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "amount_cents",
+          "type": "int",
+          "location": "body",
+          "description": "Amount cents"
+        },
+        {
+          "name": "comment",
+          "type": "string",
+          "location": "body",
+          "description": "Comment"
+        }
+      ]
+    },
+    {
+      "name": "sales_resend-receipt_resend_receipt",
+      "description": "Resend the purchase receipt to the customer's email. Requires edit_sales scope. Required: id. Returns the new SuccessEnvelope.",
+      "method": "POST",
+      "path": "/sales/{id}/resend_receipt",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "subscribers_get",
+      "description": "Retrieve details of a subscriber. Requires view_sales scope. Required: id. Returns the SuccessEnvelope.",
+      "method": "GET",
+      "path": "/subscribers/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tax-forms_list",
+      "description": "Retrieve 1099 tax forms for the authenticated user. Requires view_tax_data scope. Optional: year. Returns the SuccessEnvelope.",
+      "method": "GET",
+      "path": "/tax_forms",
+      "params": [
+        {
+          "name": "year",
+          "type": "int",
+          "location": "query",
+          "description": "Optional four-digit tax year."
+        }
+      ]
+    },
+    {
+      "name": "user_get",
+      "description": "Retrieve the authenticated user's data. Returns the SuccessEnvelope.",
+      "method": "GET",
+      "path": "/user",
+      "params": []
+    }
+  ]
+}

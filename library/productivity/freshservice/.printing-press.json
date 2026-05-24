@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-12T21:05:56.798328223Z",
+  "printing_press_version": "4.5.0",
+  "api_name": "freshservice",
+  "display_name": "Freshservice",
+  "cli_name": "freshservice-pp-cli",
+  "owner": "mark-van-de-ven",
+  "printer": "mark-van-de-ven",
+  "printer_name": "Mark van de Ven",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:21e00bc63e56791013025594d4c744cc0022cb55f9b762d014dacdde7ea01ddd",
+  "run_id": "20260512-170855",
+  "mcp_binary": "freshservice-pp-mcp",
+  "mcp_tool_count": 76,
+  "mcp_ready": "full",
+  "api_version": "2",
+  "auth_type": "api_key",
+  "auth_env_vars": [
+    "FRESHSERVICE_APIKEY",
+    "FRESHSERVICE_DOMAIN"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "FRESHSERVICE_APIKEY",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": true,
+      "description": "Personal Access Token from Freshservice Profile Settings → API Settings"
+    },
+    {
+      "name": "FRESHSERVICE_DOMAIN",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": false,
+      "description": "Your Freshservice subdomain, e.g. acme.freshservice.com"
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "SLA Breach Countdown",
+      "command": "breach-risk",
+      "description": "Shows every open ticket projected to breach SLA within the next N hours, sorted by minutes remaining — act before the clock runs out, not after."
+    },
+    {
+      "name": "My Queue",
+      "command": "my-queue",
+      "description": "Combines all tickets assigned to you with SLA countdown plus any change records awaiting your approval — the first command an agent runs each morning."
+    },
+    {
+      "name": "Cross-Entity Full-Text Search",
+      "command": "search",
+      "description": "Runs a single ranked full-text search across tickets, assets, change records, and KB articles simultaneously — find everything related to an incident keyword in one shot."
+    },
+    {
+      "name": "Agent Workload Heatmap",
+      "command": "workload",
+      "description": "Table of agents with open ticket count, average ticket age, P1/P2 count, and normalized load score — see who is drowning and who has capacity in five seconds."
+    },
+    {
+      "name": "Change Collision Detector",
+      "command": "change-collisions",
+      "description": "Flags change records whose planned maintenance windows overlap, optionally filtered by CI — prevents two teams from scheduling conflicting downtime on the same system."
+    },
+    {
+      "name": "Incident Recurrence Fingerprinter",
+      "command": "recurrence",
+      "description": "Uses FTS similarity on ticket subjects and descriptions to surface repeated symptom patterns grouped by asset, requester, or keyword — shows which problems keep coming back."
+    },
+    {
+      "name": "Knowledge Gap Finder",
+      "command": "kb-gaps",
+      "description": "Matches recent ticket subjects against the KB article corpus using FTS and ranks topic clusters with no matching article by ticket volume — tells you exactly what to document first."
+    },
+    {
+      "name": "Asset Orphan Detector",
+      "command": "orphan-assets",
+      "description": "Finds assets with no associated open ticket, no active contract, and no assigned user activity in the last N days — surfaces hardware you are paying maintenance on that nobody uses."
+    },
+    {
+      "name": "Department SLA Leaderboard",
+      "command": "dept-sla",
+      "description": "Aggregates SLA compliance percentage, breach count, and mean time to resolve by requester department for a rolling period — exec-ready ranking without exporting to Excel."
+    },
+    {
+      "name": "On-Call Coverage Gap Finder",
+      "command": "oncall-gap",
+      "description": "Identifies time windows where high-severity tickets arrived but no agent in the group acknowledged within SLA — surfaces staffing gaps in on-call rotations."
+    }
+  ]
+}

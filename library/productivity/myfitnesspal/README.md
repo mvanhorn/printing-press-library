@@ -8,16 +8,29 @@ Learn more at [MyFitnessPal](https://www.myfitnesspal.com).
 
 ## Install
 
-The recommended path installs both the `myfitnesspal-pp-cli` binary and the `pp-myfitnesspal` agent skill in one shot:
+The recommended path installs both the `myfitnesspal-pp-cli` binary and the `pp-myfitnesspal` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install myfitnesspal
+npx -y @mvanhorn/printing-press-library install myfitnesspal
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install myfitnesspal --cli-only
+npx -y @mvanhorn/printing-press-library install myfitnesspal --cli-only
+```
+
+For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
+
+```bash
+npx -y @mvanhorn/printing-press-library install myfitnesspal --skill-only
+```
+
+To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
+
+```bash
+npx -y @mvanhorn/printing-press-library install myfitnesspal --agent claude-code
+npx -y @mvanhorn/printing-press-library install myfitnesspal --agent claude-code --agent codex
 ```
 
 ### Without Node (Go fallback)
@@ -57,6 +70,46 @@ Tell your OpenClaw agent (copy this):
 Install the pp-myfitnesspal skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-myfitnesspal. The skill defines how its required CLI can be installed.
 ```
 
+## Use with Claude Desktop
+
+This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
+
+The bundle reuses your local browser session — set it up first if you haven't:
+
+```bash
+myfitnesspal-pp-cli auth login --chrome
+```
+
+To install:
+
+1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/myfitnesspal-current).
+2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
+
+Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
+
+<details>
+<summary>Manual JSON config (advanced)</summary>
+
+If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/productivity/myfitnesspal/cmd/myfitnesspal-pp-mcp@latest
+```
+
+Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "myfitnesspal": {
+      "command": "myfitnesspal-pp-mcp"
+    }
+  }
+}
+```
+
+</details>
+
 ## Authentication
 
 MyFitnessPal closed their public API. This CLI uses your logged-in browser session — log in to myfitnesspal.com in Chrome, then run `myfitnesspal-pp-cli auth login --chrome`. Cookies are read from the .myfitnesspal.com domain. Sessions usually last 7-30 days; when they expire, log in again in Chrome and re-run `auth login --chrome`.
@@ -67,22 +120,17 @@ MyFitnessPal closed their public API. This CLI uses your logged-in browser sessi
 # Imports your MFP cookies from Chrome (one-time setup; works after you've logged in to myfitnesspal.com)
 myfitnesspal-pp-cli auth login --chrome
 
-
 # Verifies the session is valid and api.myfitnesspal.com is reachable
 myfitnesspal-pp-cli doctor
-
 
 # Pulls four months of diary, exercises, water, measurements, and goals into the local SQLite store
 myfitnesspal-pp-cli sync --from 2026-01-01 --to 2026-05-08
 
-
 # Per-food CSV export — the headline thing premium MFP doesn't deliver
 myfitnesspal-pp-cli export csv --from 2026-01-01 --to 2026-05-08 --out diary.csv
 
-
 # One-shot agent context: 14 days of diary totals, weight trend, current goals, recent foods, macro deltas
 myfitnesspal-pp-cli context --days 14 --json
-
 
 # Joins weight measurements with calorie deficit to compute the implied calories-per-pound ratio
 myfitnesspal-pp-cli analytics weight-trend --weeks 8 --smooth 7d
@@ -203,7 +251,6 @@ Daily water intake tracking.
 
 - **`myfitnesspal-pp-cli water get`** - Get water intake for a single day.
 
-
 ## Output Formats
 
 ```bash
@@ -238,76 +285,6 @@ This CLI is designed for AI agent consumption:
 - **Agent-safe by default** - no colors or formatting unless `--human-friendly` is set
 
 Exit codes: `0` success, `2` usage error, `3` not found, `4` auth error, `5` API error, `7` rate limited, `10` config error.
-
-## Use with Claude Code
-
-Install the focused skill — it auto-installs the CLI on first invocation:
-
-```bash
-npx skills add mvanhorn/printing-press-library/cli-skills/pp-myfitnesspal -g
-```
-
-Then invoke `/pp-myfitnesspal <query>` in Claude Code. The skill is the most efficient path — Claude Code drives the CLI directly without an MCP server in the middle.
-
-<details>
-<summary>Use as an MCP server in Claude Code (advanced)</summary>
-
-If you'd rather register this CLI as an MCP server in Claude Code, install the MCP binary first:
-
-```bash
-go install github.com/mvanhorn/printing-press-library/library/productivity/myfitnesspal/cmd/myfitnesspal-pp-mcp@latest
-```
-
-Then register it:
-
-```bash
-# Some tools work without auth. For full access, set up auth first:
-myfitnesspal-pp-cli auth login --chrome
-
-claude mcp add myfitnesspal myfitnesspal-pp-mcp
-```
-
-</details>
-
-## Use with Claude Desktop
-
-This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
-
-The bundle reuses your local browser session — set it up first if you haven't:
-
-```bash
-myfitnesspal-pp-cli auth login --chrome
-```
-
-To install:
-
-1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/myfitnesspal-current).
-2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
-
-Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
-
-<details>
-<summary>Manual JSON config (advanced)</summary>
-
-If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
-
-```bash
-go install github.com/mvanhorn/printing-press-library/library/productivity/myfitnesspal/cmd/myfitnesspal-pp-mcp@latest
-```
-
-Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "myfitnesspal": {
-      "command": "myfitnesspal-pp-mcp"
-    }
-  }
-}
-```
-
-</details>
 
 ## Health Check
 

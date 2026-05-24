@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-10T18:30:00Z",
+  "base_printing_press_version": "4.2.2",
+  "base_run_id": "20260510T124341Z-e440f457",
+  "patches": [
+    {
+      "id": "oidc-urls-from-base-url",
+      "summary": "Derive OIDC authorization and token URLs from cfg.BaseURL (or cfg.OIDCIssuer override) instead of hardcoding localhost:9001.",
+      "reason": "Generator emits hardcoded http://localhost:9001 OIDC URLs in auth.go (lines 70 + 129) and client.go (line 375), bypassing cfg.BaseURL entirely. `auth login` and automatic token refresh are broken for any non-local Etherpad deployment. Greptile flagged this as P1 on review of mvanhorn/printing-press-library#396.",
+      "files": [
+        "internal/config/config.go",
+        "internal/cli/auth.go",
+        "internal/client/client.go"
+      ],
+      "validated_outcome": "Adds cfg.OIDCIssuer field + ETHERPAD_OIDC_ISSUER env override + AuthURL()/TokenURL() helpers that derive scheme://host from BaseURL. auth login + refresh now work against any Etherpad deployment whose OIDC provider is at the same host, with explicit override for separate-host providers. localhost:9001 fallback preserved only when BaseURL is unset or unparseable.",
+      "upstream_issue": "TODO: file on mvanhorn/cli-printing-press — generator template should derive OIDC URLs from BaseURL by default."
+    },
+    {
+      "id": "remove-dead-tokenurl-guard",
+      "summary": "Drop the dead `if tokenURL == \"\"` guard in client.go's refreshAccessToken; tokenURL is now always non-empty (returned by helper).",
+      "reason": "client.go:375-378 had `tokenURL := \"http://localhost:9001/oidc/token\"; if tokenURL == \"\" { return nil }` — the literal can never be empty, so the guard was dead code. Likely a leftover from a planned OIDC-discovery lookup that never landed.",
+      "files": [
+        "internal/client/client.go"
+      ],
+      "validated_outcome": "Replaced with `tokenURL := c.Config.TokenURL()`. Token refresh now works against any non-local deployment; a config-derived URL replaces the dead guard.",
+      "upstream_issue": "Same as oidc-urls-from-base-url"
+    },
+    {
+      "id": "expires-in-zero-guard-on-login",
+      "summary": "Guard against ExpiresIn==0 on initial token storage in auth.go (parallel guard already exists in refreshAccessToken).",
+      "reason": "auth.go:167 set `expiry := time.Now().Add(time.Duration(tokenResp.ExpiresIn) * time.Second)` unconditionally. If the OIDC server returns expires_in=0 (non-conformant but possible), expiry == time.Now() (already past) → next request triggers an unnecessary refresh round-trip.",
+      "files": [
+        "internal/cli/auth.go"
+      ],
+      "validated_outcome": "Mirrors the existing client.go:418 guard: `expiry := time.Time{}; if tokenResp.ExpiresIn > 0 { expiry = time.Now().Add(...) }`. Eliminates the spurious refresh per call when ExpiresIn is 0."
+    },
+    {
+      "id": "shellout-args-passthrough-comment",
+      "summary": "Add a comment to internal/mcp/cobratree/shellout.go explaining the intent of the raw args passthrough.",
+      "reason": "Greptile flagged the raw `args` passthrough as a potential CLI-flag-injection vector. It's intentional (mirrors printing-press v4 design — lets MCP callers reach typed flags not in the tool schema) but worth documenting for security reviewers.",
+      "files": [
+        "internal/mcp/cobratree/shellout.go"
+      ],
+      "validated_outcome": "Comment in place describing the design (no shell, exec.CommandContext executes argv directly) and the trust boundary (hosts run this MCP behind their own access control)."
+    },
+    {
+      "id": "drop-sync-and-analytics-novel-features",
+      "summary": "Drop `sync` and `Analytics Over Mirror` from .printing-press.json novel_features and document in defaultSyncResources why the resource list is empty for Etherpad.",
+      "reason": "Etherpad's HTTP API is RPC-shaped, not REST-shaped: every list endpoint (`listAllPads`, `listAllGroups`, `listAuthorsOfPad`, `listSessionsOfAuthor`, ...) returns a wrapper of scalar IDs (`{\"data\":{\"padIDs\":[\"id1\",\"id2\",...]}}`), not arrays of objects with extractable primary-key fields. Hydrating each ID into a record requires a separate per-resource RPC call per item (e.g., `getRevisionsCount`, `getLastEdited`). The generator's sync template assumes paginated object lists, so `defaultSyncResources()` and `syncResourcePath()` ship as empty stubs — the command exits 0 with 0 records by default, and any `--resources <name>` invocation returns `unknown sync resource`. Advertising sync/analytics as novel features in this state was misleading (Greptile P1 on PR #396). The `sync` and `analytics` commands themselves remain in the binary so a future patch can wire in a fan-out adapter, but they are not part of the published feature set.",
+      "files": [
+        ".printing-press.json",
+        "internal/cli/sync.go"
+      ],
+      "validated_outcome": "novel_features now lists only the four commands that work end-to-end against Etherpad's API shape: tail, workflow archive, import, agent-context. defaultSyncResources() carries an inline comment explaining the Etherpad-specific gap so the next regen reviewer doesn't try to remove the comment as dead code.",
+      "upstream_issue": "TODO: file on mvanhorn/cli-printing-press — generator template should detect APIs that return only scalar-ID lists (no object hydration) and either elide sync/analytics from novel_features automatically or emit a per-resource fan-out adapter."
+    },
+    {
+      "id": "no-env-bleed-on-save",
+      "summary": "Stop save() from persisting env-var-loaded credentials to disk, while preserving any TOML-set openid value that env happened to override.",
+      "reason": "Load() copies $ETHERPAD_OPENID into c.EtherpadOpenid (and tags the source as `env:ETHERPAD_OPENID`), then toml.Marshal in save() writes the whole struct — persisting the env token under `openid` in ~/.config/etherpad-pp-cli/config.toml. After the user unsets the env var, subsequent CLI invocations still find the token in the config file and AuthHeader() returns `Bearer <token>`, so `auth logout` effectively does not log out for API-key users. Same side-effect occurs on `auth login` (which calls SaveTokens → save()) when the env var is set during login. The naive fix (zero c.EtherpadOpenid in save() when env-sourced) destroys a TOML-set openid the env happened to override — Greptile flagged this as a follow-up P1 (#396).",
+      "files": [
+        "internal/config/config.go"
+      ],
+      "validated_outcome": "Config now carries a `fileOpenid` shadow field (tagged `toml:\"-\"`) that Load() populates from the on-disk value BEFORE the env-var override. save() restores `c.EtherpadOpenid = c.fileOpenid` when AuthSource == \"env:ETHERPAD_OPENID\" before toml.Marshal, then restores the env value for in-memory state. Result: env-only auth never lands on disk (fileOpenid is \"\"); env-overriding-config preserves the persisted openid (fileOpenid carries it); config-only auth marshals normally. ClearTokens() intentionally still only wipes the OAuth-issued AccessToken / RefreshToken / TokenExpiry — wiping AuthHeaderVal or EtherpadOpenid in ClearTokens would persist `auth_header = \"\"` / `openid = \"\"` to disk via save() (no `omitempty` on those TOML tags), destroying a user's manually-configured static credentials on logout.",
+      "upstream_issue": "TODO: file on mvanhorn/cli-printing-press — generator template should not persist any field that Load() also reads from an env var, since the env var is by definition ephemeral and persisting it changes the auth-source semantics under the user's feet. The shadow-field pattern here is a robust drop-in."
+    },
+    {
+      "id": "drop-workflow-archive-novel-feature",
+      "summary": "Drop `workflow archive` from .printing-press.json novel_features for the same reason `sync` was dropped — empty resource list, silent no-op on Etherpad's RPC-shaped API.",
+      "reason": "Greptile P1 on PR #396: `channel_workflow.go` declares `resources := []string{}`, so `etherpad-pp-cli workflow archive` loops over zero resources, prints \"Archived 0 items across 0 resources\", and exits 0. Identical in behavior to the `sync` stub that was dropped from `novel_features` in patches[4]. The root cause is the same — every Etherpad list endpoint returns scalar IDs (`{\"data\":{\"padIDs\":[...]}}`) rather than hydratable objects, and `workflow archive` is built on the same sync machinery.",
+      "files": [
+        ".printing-press.json",
+        "internal/cli/channel_workflow.go"
+      ],
+      "validated_outcome": "novel_features now lists only the three commands that work end-to-end against Etherpad's API shape: tail, import, agent-context. channel_workflow.go carries an inline `// PATCH(drop-workflow-archive-novel-feature)` comment explaining why the resource list is empty so the next regen reviewer doesn't try to remove the comment as dead code.",
+      "upstream_issue": "Same upstream root cause as patches[4] (drop-sync-and-analytics-novel-features) — generator should detect scalar-ID-list APIs and either skip the sync-derived workflow features or emit a per-resource fan-out adapter."
+    },
+    {
+      "id": "default-baseurl-https",
+      "summary": "Default Config.BaseURL to HTTPS instead of HTTP so the CLI doesn't ship a cleartext-credential footgun.",
+      "reason": "Greptile P1 (security) on PR #396: Load() set `BaseURL: \"http://pad-dev.etherpad.org/api/1.3.1\"` as the default, but `.printing-press.json` already registers the same host as `https://`, and pad-dev.etherpad.org serves the spec over TLS. Any user who runs the CLI without setting $ETHERPAD_BASE_URL would transmit their bearer token in cleartext to pad-dev.etherpad.org.",
+      "files": [
+        "internal/config/config.go"
+      ],
+      "validated_outcome": "Default is now https://. Local development instances that run on plain HTTP can still be reached by setting $ETHERPAD_BASE_URL explicitly. AuthURL/TokenURL helpers inherit the scheme from BaseURL, so the OIDC fallback path also defaults to HTTPS now.",
+      "upstream_issue": "TODO: file on mvanhorn/cli-printing-press — generator template should default to HTTPS whenever the spec_url is HTTPS (and warn loudly if a printed CLI ships an HTTP default for a host that the spec serves over HTTPS)."
+    },
+    {
+      "id": "tail-fixes",
+      "summary": "Honour --follow=false in tail and fix the hint list's hyphenated names to match Etherpad's camelCase API paths.",
+      "reason": "Greptile P1 (two findings) on PR #396: (1) the `follow` flag is declared, registered, and documented (\"set --follow=false for single poll\") but the variable is never checked inside RunE — the ticker for-loop runs indefinitely regardless. (2) `tailKnownResources()` returned hyphenated Cobra command names (`\"get-stats\"`, `\"list-all-pads\"`, ...) but tail builds the HTTP path as `\"/\" + resource` and Etherpad's API endpoints are camelCase (`/getStats`, `/listAllPads`, ...). Every hint was guaranteed to 404 on a real Etherpad instance.",
+      "files": [
+        "internal/cli/tail.go"
+      ],
+      "validated_outcome": "RunE now returns after the initial fetch when follow == false (banner message also branches between \"Tailing ...\" and \"Polling ... once\"). tailKnownResources() now uses camelCase API path segments matching each promoted command's `pp:path` annotation. The JSON help envelope's `note` field flags the additional constraint that most Etherpad endpoints take query parameters tail's bare GET doesn't pass — the no-param endpoints that work as-is are listAllPads, listAllGroups, and getStats.",
+      "upstream_issue": "TODO: file on mvanhorn/cli-printing-press — tail template should derive the hint list from the OpenAPI path segments (not the kebab-cased CLI command names) and should always wire its --follow flag into the loop condition."
+    },
+    {
+      "id": "auth-status-cover-all-credential-paths",
+      "summary": "`auth status` now considers a user authenticated when AuthHeader() can produce a Bearer — i.e. AuthHeaderVal, EtherpadOpenid, or AccessToken — instead of only AccessToken.",
+      "reason": "Greptile P1 on PR #396 final review: `authed := cfg.AccessToken != \"\"` did not cover the env-var ($ETHERPAD_OPENID → EtherpadOpenid) or static-header (auth_header → AuthHeaderVal) credential paths that AuthHeader() reads from. So users authenticating via $ETHERPAD_OPENID or a TOML-set auth_header saw `authenticated: false` and \"Not authenticated\" output even though every API call succeeded with a valid Bearer token.",
+      "files": [
+        "internal/cli/auth.go"
+      ],
+      "validated_outcome": "Inlines AuthHeader()'s precedence (auth_header > env openid > access token) without calling it (AuthHeader has a write side-effect on AuthSource that would overwrite the value Load() already set, e.g. flipping \"config\" → \"oauth2\" when an AccessToken from disk is present). auth status now reports authenticated for all three credential shapes."
+    }
+  ]
+}

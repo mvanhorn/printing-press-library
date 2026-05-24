@@ -15,6 +15,11 @@ metadata:
         bins: [trigger-dev-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/developer-tools/trigger-dev/cmd/trigger-dev-pp-cli
 ---
+<!-- GENERATED FILE — DO NOT EDIT.
+     This file is a verbatim mirror of library/developer-tools/trigger-dev/SKILL.md,
+     regenerated post-merge by tools/generate-skills/. Hand-edits here are
+     silently overwritten on the next regen. Edit the library/ source instead.
+     See AGENTS.md "Generated artifacts: registry.json, cli-skills/". -->
 
 # Trigger.dev — Printing Press CLI
 
@@ -24,7 +29,7 @@ This skill drives the `trigger-dev-pp-cli` binary. **You must verify the CLI is 
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install trigger-dev
+   npx -y @mvanhorn/printing-press-library install trigger-dev --cli-only
    ```
 2. Verify: `trigger-dev-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -36,8 +41,6 @@ go install github.com/mvanhorn/printing-press-library/library/developer-tools/tr
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-trigger-dev-pp-cli wraps the full v3 management API (47 endpoints across runs, schedules, deployments, batches, queues, waitpoints, env vars, and TRQL queries) and adds the cross-run aggregations the dashboard hides one click deep — LLM span cost rollups, recurring-failure patterns, real-time failure watch with desktop notifications, env-var diffs across environments, and substring grep over cached run errors.
 
 ## When to Use This CLI
 

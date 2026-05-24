@@ -11,6 +11,11 @@ metadata:
       bins:
         - marginalrevolution-pp-cli
 ---
+<!-- GENERATED FILE — DO NOT EDIT.
+     This file is a verbatim mirror of library/media-and-entertainment/marginalrevolution/SKILL.md,
+     regenerated post-merge by tools/generate-skills/. Hand-edits here are
+     silently overwritten on the next regen. Edit the library/ source instead.
+     See AGENTS.md "Generated artifacts: registry.json, cli-skills/". -->
 
 # Marginal Revolution - Printing Press CLI
 
@@ -20,7 +25,7 @@ This skill drives the `marginalrevolution-pp-cli` binary. **You must verify the 
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install marginalrevolution --cli-only
+   npx -y @mvanhorn/printing-press-library install marginalrevolution --cli-only
    ```
 2. Verify: `marginalrevolution-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -32,8 +37,6 @@ go install github.com/mvanhorn/printing-press-library/library/media-and-entertai
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-Use this CLI for recent Marginal Revolution posts in structured form, including author/category filtering, recent-feed search, post text, comment counts, and outbound links. It was regenerated with CLI Printing Press 4.2.1 and keeps the generated v4.2 agent/MCP scaffolding while adding RSS-native helper commands.
 
 ## When to Use This CLI
 

@@ -15,6 +15,11 @@ metadata:
         bins: [flight-goat-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/travel/flight-goat/cmd/flight-goat-pp-cli
 ---
+<!-- GENERATED FILE — DO NOT EDIT.
+     This file is a verbatim mirror of library/travel/flight-goat/SKILL.md,
+     regenerated post-merge by tools/generate-skills/. Hand-edits here are
+     silently overwritten on the next regen. Edit the library/ source instead.
+     See AGENTS.md "Generated artifacts: registry.json, cli-skills/". -->
 
 # Flight Goat — Printing Press CLI
 
@@ -24,7 +29,7 @@ This skill drives the `flight-goat-pp-cli` binary. **You must verify the CLI is 
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install flight-goat --cli-only
+   npx -y @mvanhorn/printing-press-library install flight-goat --cli-only
    ```
 2. Verify: `flight-goat-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.

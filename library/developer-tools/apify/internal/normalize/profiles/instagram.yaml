@@ -1,0 +1,7 @@
+actor: apify/instagram-scraper
+title: [caption, text]
+url: [url, displayUrl, postUrl]
+body: [caption, text]
+author: [ownerUsername, owner.username]
+published_at: [timestamp, takenAtTimestamp, createdAt]
+engagement: [likesCount, commentsCount]

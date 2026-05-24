@@ -8,18 +8,30 @@ Learn more at [Stripe](https://stripe.com).
 
 ## Install
 
-The recommended path installs both the `stripe-pp-cli` binary and the `pp-stripe` agent skill in one shot:
+The recommended path installs both the `stripe-pp-cli` binary and the `pp-stripe` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install stripe
+npx -y @mvanhorn/printing-press-library install stripe
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install stripe --cli-only
+npx -y @mvanhorn/printing-press-library install stripe --cli-only
 ```
 
+For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
+
+```bash
+npx -y @mvanhorn/printing-press-library install stripe --skill-only
+```
+
+To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
+
+```bash
+npx -y @mvanhorn/printing-press-library install stripe --agent claude-code
+npx -y @mvanhorn/printing-press-library install stripe --agent claude-code --agent codex
+```
 
 ### Without Node (Go fallback)
 
@@ -58,6 +70,45 @@ Tell your OpenClaw agent (copy this):
 Install the pp-stripe skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-stripe. The skill defines how its required CLI can be installed.
 ```
 
+## Use with Claude Desktop
+
+This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
+
+To install:
+
+1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/stripe-current).
+2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
+3. Fill in `STRIPE_SECRET_KEY` when Claude Desktop prompts you.
+
+Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
+
+<details>
+<summary>Manual JSON config (advanced)</summary>
+
+If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
+
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/payments/stripe/cmd/stripe-pp-mcp@latest
+```
+
+Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "stripe": {
+      "command": "stripe-pp-mcp",
+      "env": {
+        "STRIPE_SECRET_KEY": "<your-key>"
+      }
+    }
+  }
+}
+```
+
+</details>
+
 ## Authentication
 
 Authenticate by exporting `STRIPE_SECRET_KEY=sk_test_...` (recommended) or running `stripe-pp-cli auth set-token <key>` to persist it. Test-mode keys (`sk_test_...`) and live-mode keys (`sk_live_...`) are accepted. Mutating commands against a live key are blocked by default; pass `--confirm-live` (or set `STRIPE_CONFIRM_LIVE=1`) once you have audited the invocation.
@@ -78,18 +129,14 @@ These are deferred to v0.2:
 # Persist your test-mode key (or just `export STRIPE_SECRET_KEY=sk_test_...`)
 stripe-pp-cli auth set-token sk_test_<your-key>
 
-
 # Pull customers, subscriptions, invoices, charges, payouts, and events into local SQLite
 stripe-pp-cli sync --since 30d
-
 
 # Score every customer; surface the worst 20 — feed into outreach segments
 stripe-pp-cli health --all --limit 20 --json
 
-
 # Surface the failed-payment retry queue ranked by days-overdue
 stripe-pp-cli dunning-queue --owner billing@yourcompany.com --json
-
 
 # Full customer dossier in one shot — replaces 6+ dashboard clicks
 stripe-pp-cli customer-360 alice@example.com --compact
@@ -1178,7 +1225,6 @@ Manage webhook endpoints
 - **`stripe-pp-cli webhook-endpoints post`** - <p>A webhook endpoint must have a <code>url</code> and a list of <code>enabled_events</code>. You may optionally specify the Boolean <code>connect</code> parameter. If set to true, then a Connect webhook endpoint that notifies the specified <code>url</code> about events from all connected accounts is created; otherwise an account webhook endpoint that notifies the specified <code>url</code> only about events from your account is created. You can also create webhook endpoints in the <a href="https://dashboard.stripe.com/account/webhooks">webhooks settings</a> section of the Dashboard.</p>
 - **`stripe-pp-cli webhook-endpoints post-webhookendpoints`** - <p>Updates the webhook endpoint. You may edit the <code>url</code>, the list of <code>enabled_events</code>, and the status of your endpoint.</p>
 
-
 ## Output Formats
 
 ```bash
@@ -1213,73 +1259,6 @@ This CLI is designed for AI agent consumption:
 - **Agent-safe by default** - no colors or formatting unless `--human-friendly` is set
 
 Exit codes: `0` success, `2` usage error, `3` not found, `4` auth error, `5` API error, `7` rate limited, `10` config error.
-
-## Use with Claude Code
-
-Install the focused skill — it auto-installs the CLI on first invocation:
-
-```bash
-npx skills add mvanhorn/printing-press-library/cli-skills/pp-stripe -g
-```
-
-Then invoke `/pp-stripe <query>` in Claude Code. The skill is the most efficient path — Claude Code drives the CLI directly without an MCP server in the middle.
-
-<details>
-<summary>Use as an MCP server in Claude Code (advanced)</summary>
-
-If you'd rather register this CLI as an MCP server in Claude Code, install the MCP binary first:
-
-
-```bash
-go install github.com/mvanhorn/printing-press-library/library/payments/stripe/cmd/stripe-pp-mcp@latest
-```
-
-Then register it:
-
-```bash
-claude mcp add stripe stripe-pp-mcp -e STRIPE_SECRET_KEY=<your-token>
-```
-
-</details>
-
-## Use with Claude Desktop
-
-This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
-
-To install:
-
-1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/stripe-current).
-2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
-3. Fill in `STRIPE_SECRET_KEY` when Claude Desktop prompts you.
-
-Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
-
-<details>
-<summary>Manual JSON config (advanced)</summary>
-
-If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
-
-
-```bash
-go install github.com/mvanhorn/printing-press-library/library/payments/stripe/cmd/stripe-pp-mcp@latest
-```
-
-Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "stripe": {
-      "command": "stripe-pp-mcp",
-      "env": {
-        "STRIPE_SECRET_KEY": "<your-key>"
-      }
-    }
-  }
-}
-```
-
-</details>
 
 ## Health Check
 

@@ -1,0 +1,7 @@
+actor: trudax/reddit-scraper
+title: [title]
+url: [url, permalink, dataUrl]
+body: [text, selftext, body]
+author: [author, username]
+published_at: [createdAt, created_at, date]
+engagement: [ups, upvotes, score, numberOfComments, num_comments]

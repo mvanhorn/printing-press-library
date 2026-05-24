@@ -15,6 +15,11 @@ metadata:
         bins: [cloud-run-admin-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/cloud/cloud-run-admin/cmd/cloud-run-admin-pp-cli
 ---
+<!-- GENERATED FILE — DO NOT EDIT.
+     This file is a verbatim mirror of library/cloud/cloud-run-admin/SKILL.md,
+     regenerated post-merge by tools/generate-skills/. Hand-edits here are
+     silently overwritten on the next regen. Edit the library/ source instead.
+     See AGENTS.md "Generated artifacts: registry.json, cli-skills/". -->
 
 # Google Cloud Run — Printing Press CLI
 
@@ -24,20 +29,18 @@ This skill drives the `cloud-run-admin-pp-cli` binary. **You must verify the CLI
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install cloud-run-admin --cli-only
+   npx -y @mvanhorn/printing-press-library install cloud-run-admin --cli-only
    ```
 2. Verify: `cloud-run-admin-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.25+):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/cloud/cloud-run-admin/cmd/cloud-run-admin-pp-cli@latest
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-This CLI wraps the Cloud Run Admin API directly for services, jobs, executions, tasks, operations, revisions, and IAM helpers. It complements gcloud by giving agents a smaller API-shaped surface with JSON-first output, field selection, local sync, search, analytics, and workflow commands.
 
 ## When to Use This CLI
 

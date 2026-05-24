@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-23T12:53:47.373643Z",
+  "printing_press_version": "4.11.0",
+  "api_name": "visit-detroit-blog",
+  "display_name": "Visit Detroit Blog",
+  "cli_name": "visit-detroit-blog-pp-cli",
+  "owner": "stanrails",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:3a4577975a82f1e574c7f41e57e5c965a84660d078b117caa6fb9c13032d2035",
+  "run_id": "20260522-180126",
+  "description": "Detroit's official \"Inside the D\" blog as a CLI — every article searchable offline, sliced across category and neighborhood at once, with related-reads and exports the website can't produce.",
+  "mcp_binary": "visit-detroit-blog-pp-mcp",
+  "mcp_tool_count": 1,
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "full",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "Cross-axis filter (category × neighborhood × date)",
+      "command": "blogs list",
+      "description": "Filter Detroit articles by category AND neighborhood AND date window in one query — the slice the website's single-facet search can't express."
+    },
+    {
+      "name": "Related reads",
+      "command": "blogs related",
+      "description": "Find the articles that share the most categories and neighborhoods with a given post, ranked."
+    },
+    {
+      "name": "Coverage map (category × neighborhood cross-tab)",
+      "command": "blogs coverage",
+      "description": "Cross-tabulate article counts across every category and every neighborhood to see where coverage is dense or thin."
+    },
+    {
+      "name": "Reading list export",
+      "command": "blogs reading-list",
+      "description": "Materialize an ordered, deduped reading list (markdown/json/csv) from any filter to a file — with an option to drop sponsored posts for a neutral handout."
+    }
+  ],
+  "printer": "stanrails",
+  "printer_name": "stanrails",
+  "category": "travel"
+}

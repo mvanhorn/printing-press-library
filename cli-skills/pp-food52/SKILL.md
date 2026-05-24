@@ -15,6 +15,11 @@ metadata:
         bins: [food52-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/food-and-dining/food52/cmd/food52-pp-cli
 ---
+<!-- GENERATED FILE — DO NOT EDIT.
+     This file is a verbatim mirror of library/food-and-dining/food52/SKILL.md,
+     regenerated post-merge by tools/generate-skills/. Hand-edits here are
+     silently overwritten on the next regen. Edit the library/ source instead.
+     See AGENTS.md "Generated artifacts: registry.json, cli-skills/". -->
 
 # Food52 — Printing Press CLI
 
@@ -24,7 +29,7 @@ This skill drives the `food52-pp-cli` binary. **You must verify the CLI is insta
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install food52 --cli-only
+   npx -y @mvanhorn/printing-press-library install food52 --cli-only
    ```
 2. Verify: `food52-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.

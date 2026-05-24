@@ -1,6 +1,6 @@
 ---
 name: pp-nvd
-description: "Printing Press CLI for Nvd. The NVD is the U.S. government repository of standards-based vulnerability management data. Search CVEs by keyword,..."
+description: "Search the U.S. National Vulnerability Database for CVEs, CVSS scores, affected versions, and severity ratings — by keyword, product (CPE name), CVE ID, or date range. Trigger phrases: `look up CVE`, `CVSS score for`, `vulnerabilities in <product>`, `use nvd`."
 author: "Hiten Shah"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
@@ -15,6 +15,11 @@ metadata:
         bins: [nvd-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/developer-tools/nvd/cmd/nvd-pp-cli
 ---
+<!-- GENERATED FILE — DO NOT EDIT.
+     This file is a verbatim mirror of library/developer-tools/nvd/SKILL.md,
+     regenerated post-merge by tools/generate-skills/. Hand-edits here are
+     silently overwritten on the next regen. Edit the library/ source instead.
+     See AGENTS.md "Generated artifacts: registry.json, cli-skills/". -->
 
 # Nvd — Printing Press CLI
 
@@ -24,7 +29,7 @@ This skill drives the `nvd-pp-cli` binary. **You must verify the CLI is installe
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install nvd --cli-only
+   npx -y @mvanhorn/printing-press-library install nvd --cli-only
    ```
 2. Verify: `nvd-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.

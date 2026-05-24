@@ -8,17 +8,47 @@ Learn more at [Redfin](https://www.redfin.com).
 
 ## Install
 
-### Binary
+The recommended path installs both the `redfin-pp-cli` binary and the `pp-redfin` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
-Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/redfin-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
-
-### Go
-
+```bash
+npx -y @mvanhorn/printing-press-library install redfin
 ```
+
+For CLI only (no skill):
+
+```bash
+npx -y @mvanhorn/printing-press-library install redfin --cli-only
+```
+
+For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
+
+```bash
+npx -y @mvanhorn/printing-press-library install redfin --skill-only
+```
+
+To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
+
+```bash
+npx -y @mvanhorn/printing-press-library install redfin --agent claude-code
+npx -y @mvanhorn/printing-press-library install redfin --agent claude-code --agent codex
+```
+
+### Without Node (Go fallback)
+
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
 go install github.com/mvanhorn/printing-press-library/library/other/redfin/cmd/redfin-pp-cli@latest
 ```
 
-## Install via Hermes
+This installs the CLI only — no skill.
+
+### Pre-built binary
+
+Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/redfin-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
+
+<!-- pp-hermes-install-anchor -->
+## Install for Hermes
 
 From the Hermes CLI:
 
@@ -32,13 +62,47 @@ Inside a Hermes chat session:
 /skills install mvanhorn/printing-press-library/cli-skills/pp-redfin --force
 ```
 
-## Install via OpenClaw
+## Install for OpenClaw
 
 Tell your OpenClaw agent (copy this):
 
 ```
 Install the pp-redfin skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-redfin. The skill defines how its required CLI can be installed.
 ```
+
+## Use with Claude Desktop
+
+This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
+
+To install:
+
+1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/redfin-current).
+2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
+
+Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
+
+<details>
+<summary>Manual JSON config (advanced)</summary>
+
+If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/other/redfin/cmd/redfin-pp-mcp@latest
+```
+
+Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "redfin": {
+      "command": "redfin-pp-mcp"
+    }
+  }
+}
+```
+
+</details>
 
 ## Authentication
 
@@ -50,26 +114,20 @@ No authentication required. The Stingray endpoints are the same ones Redfin's we
 # Verify connectivity and US-IP geo access (Stingray is US-only).
 redfin-pp-cli doctor
 
-
 # Resolve the canonical region_id you need for every search.
 redfin-pp-cli region resolve "Austin, TX" --json
-
 
 # Search — verifies Stingray endpoints respond and JSON output is well-formed.
 redfin-pp-cli homes --region-id 30772 --region-type 6 --beds-min 3 --price-max 600000 --status for-sale --json --limit 10
 
-
 # Persist that search to the local store under slug 'austin-3br'.
 redfin-pp-cli sync-search austin-3br --region-id 30772 --region-type 6 --beds-min 3 --price-max 600000 --status for-sale
-
 
 # Rank synced listings by net-HOA $/sqft — the metric Redfin's sort never offers.
 redfin-pp-cli rank --by price-per-sqft --net-hoa --region-id 30772 --region-type 6 --json --limit 10
 
-
 # After a few days — diff against the previous sync and emit NEW / REMOVED / PRICE-CHANGED / STATUS-CHANGED.
 redfin-pp-cli watch austin-3br --since 7d --json
-
 
 # One-shot market snapshot: active, pending, sold-90d, medians, % with price drops.
 redfin-pp-cli summary 30772 --json
@@ -186,7 +244,6 @@ Aggregate market trends for a region (median sale price, days on market, supply,
 
 - **`redfin-pp-cli market trends`** - Fetch aggregate-trends JSON for one region and period (months).
 
-
 ## Output Formats
 
 ```bash
@@ -222,75 +279,13 @@ Exit codes: `0` success, `2` usage error, `3` not found, `5` API error, `7` rate
 
 ## Freshness
 
-This CLI owns bounded freshness for registered store-backed read command paths. In `--data-source auto` mode, covered commands check the local SQLite store before serving results; stale or missing resources trigger a bounded refresh, and refresh failures fall back to the existing local data with a warning. `--data-source local` never refreshes, and `--data-source live` reads the API without mutating the local store.
+This CLI owns bounded freshness only for registered store-backed read command paths. In `--data-source auto` mode, covered commands check the local SQLite store before serving results; stale or missing resources trigger a bounded refresh, and refresh failures fall back to the existing local data with a warning. `--data-source local` never refreshes, and `--data-source live` reads the API without mutating the local store.
 
 Set `REDFIN_NO_AUTO_REFRESH=1` to disable the pre-read freshness hook while preserving the selected data source.
 
-Covered command paths:
-- `redfin-pp-cli homes`
+Covered command paths: none. `homes` is a live per-call search; the local store is populated by `sync-search` / `watch` only.
 
 JSON outputs that use the generated provenance envelope include freshness metadata at `meta.freshness`. This metadata describes the freshness decision for the covered command path; it does not claim full historical backfill or API-specific enrichment.
-
-## Use with Claude Code
-
-Install the focused skill — it auto-installs the CLI on first invocation:
-
-```bash
-npx skills add mvanhorn/printing-press-library/cli-skills/pp-redfin -g
-```
-
-Then invoke `/pp-redfin <query>` in Claude Code. The skill is the most efficient path — Claude Code drives the CLI directly without an MCP server in the middle.
-
-<details>
-<summary>Use as an MCP server in Claude Code (advanced)</summary>
-
-If you'd rather register this CLI as an MCP server in Claude Code, install the MCP binary first:
-
-```bash
-go install github.com/mvanhorn/printing-press-library/library/other/redfin/cmd/redfin-pp-mcp@latest
-```
-
-Then register it:
-
-```bash
-claude mcp add redfin redfin-pp-mcp
-```
-
-</details>
-
-## Use with Claude Desktop
-
-This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
-
-To install:
-
-1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/redfin-current).
-2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
-
-Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
-
-<details>
-<summary>Manual JSON config (advanced)</summary>
-
-If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
-
-```bash
-go install github.com/mvanhorn/printing-press-library/library/other/redfin/cmd/redfin-pp-mcp@latest
-```
-
-Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "redfin": {
-      "command": "redfin-pp-mcp"
-    }
-  }
-}
-```
-
-</details>
 
 ## Health Check
 

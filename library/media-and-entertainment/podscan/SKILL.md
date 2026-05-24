@@ -1,6 +1,6 @@
 ---
 name: pp-podscan
-description: "Printing Press CLI for Podscan. Podscan REST API — search 51M+ podcast episodes and 4.4M+ podcasts. Full transcripts, AI-extracted entities,..."
+description: "Search 51M+ podcast episodes and 4.4M+ podcasts via Podscan — full transcripts, AI-extracted entities, mentions, and brand-safety analysis. Trigger phrases: `search podcast transcripts`, `find podcasts mentioning`, `who's talked about <topic> on podcasts`, `use podscan`."
 author: "Greg Van Horn"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
@@ -20,7 +20,7 @@ This skill drives the `podscan-pp-cli` binary. **You must verify the CLI is inst
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install podscan --cli-only
+   npx -y @mvanhorn/printing-press-library install podscan --cli-only
    ```
 2. Verify: `podscan-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -32,9 +32,6 @@ go install github.com/mvanhorn/printing-press-library/library/media-and-entertai
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-Podscan REST API — search 51M+ podcast episodes and 4.4M+ podcasts.
-Full transcripts, AI-extracted entities, mentions, brand-safety analysis.
 
 ## Command Reference
 

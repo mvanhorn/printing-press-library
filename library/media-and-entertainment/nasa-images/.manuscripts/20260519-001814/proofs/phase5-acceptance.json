@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "api_name": "nasa-images",
+  "run_id": "20260519-001814",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 61,
+  "tests_passed": 61,
+  "tests_skipped": 44,
+  "auth_context": {
+    "type": "none"
+  }
+}

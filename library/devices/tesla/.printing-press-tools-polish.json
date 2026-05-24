@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-05-22T17:25:32.319161Z",
+  "cli_dir": "\u003ccli-dir\u003e/tesla",
+  "findings": null,
+  "scorecard_before": {
+    "mcp_description_quality": 10,
+    "captured": "2026-05-22T17:21:18.716513Z"
+  }
+}

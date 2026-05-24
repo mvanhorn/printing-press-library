@@ -15,6 +15,11 @@ metadata:
         bins: [firecrawl-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/developer-tools/firecrawl/cmd/firecrawl-pp-cli
 ---
+<!-- GENERATED FILE — DO NOT EDIT.
+     This file is a verbatim mirror of library/developer-tools/firecrawl/SKILL.md,
+     regenerated post-merge by tools/generate-skills/. Hand-edits here are
+     silently overwritten on the next regen. Edit the library/ source instead.
+     See AGENTS.md "Generated artifacts: registry.json, cli-skills/". -->
 
 # Firecrawl — Printing Press CLI
 
@@ -24,7 +29,7 @@ This skill drives the `firecrawl-pp-cli` binary. **You must verify the CLI is in
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install firecrawl --cli-only
+   npx -y @mvanhorn/printing-press-library install firecrawl --cli-only
    ```
 2. Verify: `firecrawl-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.

@@ -1,0 +1,334 @@
+{
+  "api_name": "tesla",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "timdorr/tesla-api",
+      "url": "https://github.com/timdorr/tesla-api",
+      "language": "Ruby",
+      "install_method": "",
+      "stars": 2100,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "tdorssers/TeslaPy",
+      "url": "https://github.com/tdorssers/TeslaPy",
+      "language": "Python",
+      "install_method": "",
+      "stars": 416,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "teslamotors/vehicle-command (tesla-control)",
+      "url": "https://github.com/teslamotors/vehicle-command",
+      "language": "Go",
+      "install_method": "",
+      "stars": 650,
+      "last_updated": "",
+      "command_count": 62,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "jonasman/TeslaSwift",
+      "url": "https://github.com/jonasman/TeslaSwift",
+      "language": "Swift",
+      "install_method": "",
+      "stars": 255,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "teslamate-org/teslamate",
+      "url": "https://github.com/teslamate-org/teslamate",
+      "language": "Elixir",
+      "install_method": "",
+      "stars": 8000,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "cobanov/teslamate-mcp",
+      "url": "https://github.com/cobanov/teslamate-mcp",
+      "language": "Python",
+      "install_method": "",
+      "stars": 127,
+      "last_updated": "",
+      "command_count": 18,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "scald/tesla-mcp",
+      "url": "https://github.com/scald/tesla-mcp",
+      "language": "Rust",
+      "install_method": "",
+      "stars": 14,
+      "last_updated": "",
+      "command_count": 3,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "gak/teslatte",
+      "url": "https://github.com/gak/teslatte",
+      "language": "Rust",
+      "install_method": "",
+      "stars": 7,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-19T22:53:00Z",
+  "novel_features": [
+    {
+      "name": "Ready-to-drive composite",
+      "command": "ready",
+      "description": "Single yes/no answer to \"can I leave in 5 minutes?\" with reasoned blocker list - SOC vs trip distance, plugged-in, doors closed, sentry off, cabin within 3F of target, no mid-install update",
+      "rationale": "Requires a local join across the last vehicle_states snapshot and synced metadata; the Tesla API does not expose a composite readiness endpoint",
+      "example": "tesla ready 5YJ3E1EA6XXXXXXXX --json",
+      "why_it_matters": "Most-asked Tesla owner question; the iOS app makes it a 6-tap diagnostic, agents need a one-call truth",
+      "group": "Composite truth from local state"
+    },
+    {
+      "name": "Charging cost ledger",
+      "command": "cost ledger",
+      "description": "Per-session cost, monthly spend, home-vs-Supercharger ratio with tariff-window aware $/kWh",
+      "rationale": "Joins local charges + tariffs tables; the Tesla API returns raw kWh but not stitched cost by tariff window. TeslaMate proves demand but requires Postgres+Grafana",
+      "example": "tesla cost ledger --since 2026-04-01 --group supercharger --json",
+      "why_it_matters": "Charging cost is the #1 Tesla-owner spreadsheet exercise; this is the first pure-CLI replacement for the TeslaMate dashboard",
+      "group": "Local analytics that beat the dashboard"
+    },
+    {
+      "name": "Cost counterfactual",
+      "command": "cost what-if",
+      "description": "\"If you had only charged at home you would have saved $X over the last 90 days.\" Re-runs charge rows with home $/kWh substituted for Supercharger sessions",
+      "rationale": "Only possible because the ledger lives locally; no API exposes the counterfactual",
+      "example": "tesla cost what-if --only-home --since 90d --json",
+      "why_it_matters": "Most Tesla owners suspect they could save by charging at home but lack proof; this puts a dollar figure on it",
+      "group": "Local analytics that beat the dashboard"
+    },
+    {
+      "name": "Supercharger queue watch",
+      "command": "supercharger watch",
+      "description": "Single-poll snapshot of free stalls at a saved Supercharger; --watch repeats every N seconds with JSON-lines transitions",
+      "rationale": "Polls NEARBY_CHARGING_SITES stall-availability subfield. Tesla shows this in-car only; no third-party CLI/agent exposes it",
+      "example": "tesla supercharger watch 1000 --free-stalls 2 --watch --json",
+      "why_it_matters": "Avoids the I-90 Issaquah queue at peak; pageable from an agent on a drive",
+      "group": "Charging intelligence nobody else exposes"
+    },
+    {
+      "name": "Drive-and-charge timeline",
+      "command": "timeline",
+      "description": "Stitched drives + charges from synced vehicle_states polls - start/end, distance, energy, efficiency, address-resolved lat/lng",
+      "rationale": "Stitches consecutive vehicle_states rows where shift_state or charging_state transitions; reproduces TeslaMate's primary view without Postgres",
+      "example": "tesla timeline --since \"last week\" --json",
+      "why_it_matters": "Lets agents reason over the same data TeslaMate exposes, without standing up Docker+Postgres+Grafana",
+      "group": "Local analytics that beat the dashboard"
+    },
+    {
+      "name": "Vampire-drain monitor",
+      "command": "vampire",
+      "description": "SOC delta vs idle time, flags suspicious sentry sessions or app-wake events",
+      "rationale": "Reads vehicle_states rows where shift_state=null and charging=disconnected; computes %/24h drain trend",
+      "example": "tesla vampire --threshold 1.5pct/24h --since 30d --json",
+      "why_it_matters": "Warranty-dispute evidence and rogue-sentry detection; TeslaMate dashboard only otherwise",
+      "group": "Local analytics that beat the dashboard"
+    },
+    {
+      "name": "Keys audit",
+      "command": "keys audit",
+      "description": "Lists every enrolled key with last-seen, role, form-factor; flags keys not seen \u003e90d as stale candidates for removal",
+      "rationale": "Joins keys_enrolled with commands_log for last-seen derivation; no Tesla UI exposes this",
+      "example": "tesla keys audit --stale-after 90d --json",
+      "why_it_matters": "Security-minded owners worry about old phones and abandoned NFC cards still pairing with their car; this is the quarterly review",
+      "group": "Security audit nobody else does"
+    },
+    {
+      "name": "Reachability doctor",
+      "command": "doctor",
+      "description": "Detects signed-command-required errors, classifies the vehicle as REST-friendly vs signed-command-required, prints tesla-control enrollment URL when needed",
+      "rationale": "Pings vehicle_data + a benign command/honk; parses the error envelope; only us because no competitor explains the signed-command landmine to the user",
+      "example": "tesla doctor --json",
+      "why_it_matters": "Tesla's 2024-2026 signed-command rollout is the #1 user-facing landmine for any Tesla CLI; this is the only one that surfaces it clearly",
+      "group": "Reachability mitigation"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Ready-to-drive composite",
+      "command": "ready",
+      "description": "Single yes/no answer to \"can I leave in 5 minutes?\" with reasoned blocker list - SOC vs trip distance, plugged-in, doors closed, sentry off, cabin within 3F of target, no mid-install update",
+      "rationale": "Requires a local join across the last vehicle_states snapshot and synced metadata; the Tesla API does not expose a composite readiness endpoint",
+      "example": "tesla ready 5YJ3E1EA6XXXXXXXX --json",
+      "why_it_matters": "Most-asked Tesla owner question; the iOS app makes it a 6-tap diagnostic, agents need a one-call truth",
+      "group": "Composite truth from local state"
+    },
+    {
+      "name": "Charging cost ledger",
+      "command": "cost ledger",
+      "description": "Per-session cost, monthly spend, home-vs-Supercharger ratio with tariff-window aware $/kWh",
+      "rationale": "Joins local charges + tariffs tables; the Tesla API returns raw kWh but not stitched cost by tariff window. TeslaMate proves demand but requires Postgres+Grafana",
+      "example": "tesla cost ledger --since 2026-04-01 --group supercharger --json",
+      "why_it_matters": "Charging cost is the #1 Tesla-owner spreadsheet exercise; this is the first pure-CLI replacement for the TeslaMate dashboard",
+      "group": "Local analytics that beat the dashboard"
+    },
+    {
+      "name": "Cost counterfactual",
+      "command": "cost what-if",
+      "description": "\"If you had only charged at home you would have saved $X over the last 90 days.\" Re-runs charge rows with home $/kWh substituted for Supercharger sessions",
+      "rationale": "Only possible because the ledger lives locally; no API exposes the counterfactual",
+      "example": "tesla cost what-if --only-home --since 90d --json",
+      "why_it_matters": "Most Tesla owners suspect they could save by charging at home but lack proof; this puts a dollar figure on it",
+      "group": "Local analytics that beat the dashboard"
+    },
+    {
+      "name": "Supercharger queue watch",
+      "command": "supercharger watch",
+      "description": "Single-poll snapshot of free stalls at a saved Supercharger; --watch repeats every N seconds with JSON-lines transitions",
+      "rationale": "Polls NEARBY_CHARGING_SITES stall-availability subfield. Tesla shows this in-car only; no third-party CLI/agent exposes it",
+      "example": "tesla supercharger watch 1000 --free-stalls 2 --watch --json",
+      "why_it_matters": "Avoids the I-90 Issaquah queue at peak; pageable from an agent on a drive",
+      "group": "Charging intelligence nobody else exposes"
+    },
+    {
+      "name": "Drive-and-charge timeline",
+      "command": "timeline",
+      "description": "Stitched drives + charges from synced vehicle_states polls - start/end, distance, energy, efficiency, address-resolved lat/lng",
+      "rationale": "Stitches consecutive vehicle_states rows where shift_state or charging_state transitions; reproduces TeslaMate's primary view without Postgres",
+      "example": "tesla timeline --since \"last week\" --json",
+      "why_it_matters": "Lets agents reason over the same data TeslaMate exposes, without standing up Docker+Postgres+Grafana",
+      "group": "Local analytics that beat the dashboard"
+    },
+    {
+      "name": "Vampire-drain monitor",
+      "command": "vampire",
+      "description": "SOC delta vs idle time, flags suspicious sentry sessions or app-wake events",
+      "rationale": "Reads vehicle_states rows where shift_state=null and charging=disconnected; computes %/24h drain trend",
+      "example": "tesla vampire --threshold 1.5pct/24h --since 30d --json",
+      "why_it_matters": "Warranty-dispute evidence and rogue-sentry detection; TeslaMate dashboard only otherwise",
+      "group": "Local analytics that beat the dashboard"
+    },
+    {
+      "name": "Keys audit",
+      "command": "keys audit",
+      "description": "Lists every enrolled key with last-seen, role, form-factor; flags keys not seen \u003e90d as stale candidates for removal",
+      "rationale": "Joins keys_enrolled with commands_log for last-seen derivation; no Tesla UI exposes this",
+      "example": "tesla keys audit --stale-after 90d --json",
+      "why_it_matters": "Security-minded owners worry about old phones and abandoned NFC cards still pairing with their car; this is the quarterly review",
+      "group": "Security audit nobody else does"
+    },
+    {
+      "name": "Reachability doctor",
+      "command": "doctor",
+      "description": "Detects signed-command-required errors, classifies the vehicle as REST-friendly vs signed-command-required, prints tesla-control enrollment URL when needed",
+      "rationale": "Pings vehicle_data + a benign command/honk; parses the error envelope; only us because no competitor explains the signed-command landmine to the user",
+      "example": "tesla doctor --json",
+      "why_it_matters": "Tesla's 2024-2026 signed-command rollout is the #1 user-facing landmine for any Tesla CLI; this is the only one that surfaces it clearly",
+      "group": "Reachability mitigation"
+    }
+  ],
+  "narrative": {
+    "display_name": "Tesla",
+    "headline": "Every Tesla mobile-app feature, plus a charging-cost ledger and supercharger queue watcher no other Tesla CLI ships.",
+    "value_prop": "The Tesla owner-API as JSON-first commands, with a local SQLite that remembers every vehicle state. Get a single `ready` yes/no for departure, a tariff-aware charging cost ledger that replaces TeslaMate's Docker stack, and a supercharger queue watcher you can subscribe to from an agent. For 2018+ Models S/X and pre-2021 Models 3/Y, commands route end-to-end on plain REST; newer vehicles get a clear shim message via `tesla reachability`.",
+    "auth_narrative": "Tesla owner API uses an 8-hour bearer token issued by the iOS/Android app's OAuth flow. The CLI ships `tesla auth login --paste` for one-time refresh-token capture; the refresh token lives in your macOS Keychain (or `~/.config/tesla-pp-cli/auth.json` mode 600 elsewhere) and silently re-mints the bearer on 401. No Tesla partner registration required for personal use; the Fleet API (signed commands) is documented in `tesla doctor` for newer-vehicle owners.",
+    "quickstart": [
+      {
+        "command": "tesla products --json",
+        "comment": "After you set TESLA_AUTH_TOKEN (see Auth section), this confirms auth and lists your vehicle_id / VINs / energy sites"
+      },
+      {
+        "command": "tesla products --json",
+        "comment": "Confirm auth and discover your vehicle_id / VINs / energy site IDs"
+      },
+      {
+        "command": "tesla reachability --json",
+        "comment": "Confirm your vehicle responds to REST commands (vs needing signed-command enrollment)"
+      },
+      {
+        "command": "tesla snap --all --json",
+        "comment": "Capture a vehicle_data snapshot for every car on your account; populates the local store for analytics"
+      },
+      {
+        "command": "tesla ready 5YJ3E1EA6XXXXXXXX --json",
+        "comment": "Single yes/no \"can I leave?\" with the blocker list"
+      },
+      {
+        "command": "tesla cost ledger --since 30d --json",
+        "comment": "Last 30 days of charging cost, home vs Supercharger split"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "`tesla command ...` returns `vehicle command protocol required`",
+        "fix": "Your vehicle is on Tesla's new signed-command protocol. Run `tesla doctor` for enrollment URL; install `tesla-control` from teslamotors/vehicle-command for command operations"
+      },
+      {
+        "symptom": "All commands return 401 token expired",
+        "fix": "Run `tesla auth refresh`; if that fails, capture a fresh refresh token via tesla_auth and `tesla auth login --paste`"
+      },
+      {
+        "symptom": "vehicle_data calls drain the 12V battery",
+        "fix": "Run snapshots on a cron with `tesla snap --all` and avoid keeping the car awake unnecessarily; check `tesla doctor` for asleep-state behavior and battery drain mitigation"
+      },
+      {
+        "symptom": "`tesla cost ledger` shows $0 for Supercharger sessions",
+        "fix": "Run `tesla snap --all` to refresh vehicle_data, then `tesla timeline` to stitch new charge sessions into `tesla_charges`; Supercharger pricing may also lag in the upstream CHARGING_HISTORY by up to 24h"
+      }
+    ],
+    "when_to_use": "Use tesla-pp-cli when you want a JSON-first CLI for your Tesla owner account: vehicle state inspection, climate/lock/charge commands, charging cost analytics, and an MCP surface for AI agents to drive your car. Faster than the iOS app for one-off commands, more agent-friendly than TeslaPy, and ships a local SQLite that delivers TeslaMate-style analytics (drives, charges, vampire drain, cost ledger) without standing up Postgres+Grafana. Best fit for owners with pre-2021 Models S/X or 3/Y on the old REST endpoints; newer vehicles get a clear shim via `tesla reachability`.",
+    "recipes": [
+      {
+        "title": "Morning ready check",
+        "command": "tesla ready 5YJ3E1EA6XXXXXXXX --json --select ready,blockers",
+        "explanation": "One JSON object: is the car ready to drive, and if not, why not. Use `--select` to limit response size for agents."
+      },
+      {
+        "title": "Monthly charging-cost report",
+        "command": "tesla cost ledger --since 30d --group supercharger,home --json --select total_usd,sessions,kwh_added,supercharger_ratio",
+        "explanation": "Per-month breakdown with dotted-path `--select` so the agent sees only the rollup fields, not every session."
+      },
+      {
+        "title": "Preconditioning before leaving",
+        "command": "tesla vehicles create-auto-conditioning-start 5YJ3E1EA6XXXXXXXX --json",
+        "explanation": "Start climate preconditioning. Run `tesla ready \u003cvin\u003e` ten minutes later to confirm cabin warmed up."
+      },
+      {
+        "title": "Supercharger queue watcher",
+        "command": "tesla supercharger watch 1000 --free-stalls 2 --watch --json",
+        "explanation": "Subscribe to free-stall transitions at a saved site; emits one JSON line per transition. Pipe to an agent for alerting."
+      },
+      {
+        "title": "Local SOC history via analytics",
+        "command": "tesla-pp-cli analytics --select battery_level,captured_at --limit 30 --json",
+        "explanation": "Pull the 30 most recent vehicle-state rows from the local SQLite for trend analysis; same data TeslaMate would surface in Grafana."
+      }
+    ],
+    "trigger_phrases": [
+      "is my tesla ready",
+      "precondition my tesla",
+      "how much did i spend on charging this month",
+      "supercharger queue at",
+      "send this address to my tesla",
+      "list my tesla keys",
+      "use tesla",
+      "run tesla"
+    ]
+  }
+}

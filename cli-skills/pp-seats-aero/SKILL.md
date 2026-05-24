@@ -15,6 +15,11 @@ metadata:
         bins: [seats-aero-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/travel/seats-aero/cmd/seats-aero-pp-cli
 ---
+<!-- GENERATED FILE — DO NOT EDIT.
+     This file is a verbatim mirror of library/travel/seats-aero/SKILL.md,
+     regenerated post-merge by tools/generate-skills/. Hand-edits here are
+     silently overwritten on the next regen. Edit the library/ source instead.
+     See AGENTS.md "Generated artifacts: registry.json, cli-skills/". -->
 
 # Seats Aero — Printing Press CLI
 
@@ -24,7 +29,7 @@ This skill drives the `seats-aero-pp-cli` binary. **You must verify the CLI is i
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install seats-aero --cli-only
+   npx -y @mvanhorn/printing-press-library install seats-aero --cli-only
    ```
 2. Verify: `seats-aero-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.

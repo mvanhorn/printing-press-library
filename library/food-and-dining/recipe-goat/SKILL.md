@@ -1,6 +1,6 @@
 ---
 name: pp-recipe-goat
-description: "Printing Press CLI for Recipe Goat. Recipe GOAT — find the best version of any recipe across 37 trusted sites, with offline cookbook, pantry match,..."
+description: "Find the best version of any recipe across 37 trusted sites — with offline cookbook, pantry match, substitution lookup, meal planning, and USDA-backed nutrition. Trigger phrases: `find the best recipe for`, `what can I make with`, `substitute for <ingredient>`, `nutrition for <recipe>`, `use recipe-goat`."
 author: "Trevin Chow"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
@@ -24,7 +24,7 @@ This skill drives the `recipe-goat-pp-cli` binary. **You must verify the CLI is 
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install recipe-goat --cli-only
+   npx -y @mvanhorn/printing-press-library install recipe-goat --cli-only
    ```
 2. Verify: `recipe-goat-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.

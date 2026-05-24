@@ -1,0 +1,73 @@
+{
+  "timestamp": "2026-05-13T22:21:50.857524Z",
+  "cli_dir": "/tmp/printing-press/publish/trendhunter-MbK8rj/package/library/marketing/trendhunter",
+  "findings": [
+    {
+      "kind": "phone-us",
+      "file": "internal/thparse/testdata/th-popular.html",
+      "line": 22,
+      "column": 21,
+      "matched_span": "1068445809",
+      "status": "accepted",
+      "note": "Google Ads conversion-tracking ID inside a gtag('config', 'AW-...') call, not a US phone number. Captured verbatim from trendhunter.com HTML for the parser fixture.",
+      "category": "other",
+      "evidence_context": "gtag('config', 'AW-1068445809',{'allow_enhanced_conversions':true});"
+    },
+    {
+      "kind": "phone-us",
+      "file": "internal/thparse/testdata/th-results.html",
+      "line": 41,
+      "column": 21,
+      "matched_span": "1068445809",
+      "status": "accepted",
+      "note": "Google Ads conversion-tracking ID inside a gtag('config', 'AW-...') call, not a US phone number. Captured verbatim from trendhunter.com HTML for the parser fixture.",
+      "category": "other",
+      "evidence_context": "gtag('config', 'AW-1068445809',{'allow_enhanced_conversions':true});"
+    },
+    {
+      "kind": "phone-us",
+      "file": "internal/thparse/testdata/th-scoreboard.html",
+      "line": 25,
+      "column": 21,
+      "matched_span": "1068445809",
+      "status": "accepted",
+      "note": "Google Ads conversion-tracking ID inside a gtag('config', 'AW-...') call, not a US phone number. Captured verbatim from trendhunter.com HTML for the parser fixture.",
+      "category": "other",
+      "evidence_context": "gtag('config', 'AW-1068445809',{'allow_enhanced_conversions':true});"
+    },
+    {
+      "kind": "phone-us",
+      "file": "internal/thparse/testdata/th-tech.html",
+      "line": 40,
+      "column": 21,
+      "matched_span": "1068445809",
+      "status": "accepted",
+      "note": "Google Ads conversion-tracking ID inside a gtag('config', 'AW-...') call, not a US phone number. Captured verbatim from trendhunter.com HTML for the parser fixture.",
+      "category": "other",
+      "evidence_context": "gtag('config', 'AW-1068445809',{'allow_enhanced_conversions':true});"
+    },
+    {
+      "kind": "phone-us",
+      "file": "internal/thparse/testdata/th-tech.html",
+      "line": 202,
+      "column": 110,
+      "matched_span": "1732439141",
+      "status": "accepted",
+      "note": "Amazon ASIN/ISBN-10 product identifier in an amazon.com /dp/\u003cid\u003e URL path, not a US phone number. Captured verbatim from trendhunter.com HTML for the parser fixture.",
+      "category": "other",
+      "evidence_context": "\u003ca class='thm__bookBtn' href='https://www.amazon.com/Create-Future-Innovation-Handbook-Disruptive/dp/1732439141?tag=trenhunt0f-20'\u003e"
+    },
+    {
+      "kind": "phone-us",
+      "file": "internal/thparse/testdata/th-trend.html",
+      "line": 539,
+      "column": 21,
+      "matched_span": "1068445809",
+      "status": "accepted",
+      "note": "Google Ads conversion-tracking ID inside a gtag('config', 'AW-...') call, not a US phone number. Captured verbatim from trendhunter.com HTML for the parser fixture.",
+      "category": "other",
+      "evidence_context": "gtag('config', 'AW-1068445809',{'allow_enhanced_conversions':true});"
+    }
+  ],
+  "findings_count_before": 6
+}

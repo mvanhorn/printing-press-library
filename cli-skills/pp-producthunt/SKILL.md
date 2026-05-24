@@ -15,6 +15,11 @@ metadata:
         bins: [producthunt-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/marketing/producthunt/cmd/producthunt-pp-cli
 ---
+<!-- GENERATED FILE — DO NOT EDIT.
+     This file is a verbatim mirror of library/marketing/producthunt/SKILL.md,
+     regenerated post-merge by tools/generate-skills/. Hand-edits here are
+     silently overwritten on the next regen. Edit the library/ source instead.
+     See AGENTS.md "Generated artifacts: registry.json, cli-skills/". -->
 
 # Product Hunt — Printing Press CLI
 
@@ -24,7 +29,7 @@ This skill drives the `producthunt-pp-cli` binary. **You must verify the CLI is 
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install producthunt --cli-only
+   npx -y @mvanhorn/printing-press-library install producthunt --cli-only
    ```
 2. Verify: `producthunt-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.

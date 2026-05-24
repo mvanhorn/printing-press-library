@@ -15,6 +15,11 @@ metadata:
         bins: [tiktok-shop-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/commerce/tiktok-shop/cmd/tiktok-shop-pp-cli
 ---
+<!-- GENERATED FILE — DO NOT EDIT.
+     This file is a verbatim mirror of library/commerce/tiktok-shop/SKILL.md,
+     regenerated post-merge by tools/generate-skills/. Hand-edits here are
+     silently overwritten on the next regen. Edit the library/ source instead.
+     See AGENTS.md "Generated artifacts: registry.json, cli-skills/". -->
 
 # TikTok Shop - Printing Press Safe v1
 
@@ -24,7 +29,7 @@ This skill drives the `tiktok-shop-pp-cli` binary. **You must verify the CLI is 
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install tiktok-shop --cli-only
+   npx -y @mvanhorn/printing-press-library install tiktok-shop --cli-only
    ```
 2. Verify: `tiktok-shop-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.

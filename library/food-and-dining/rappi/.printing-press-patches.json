@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-20",
+  "base_run_id": "20260518-200403",
+  "base_printing_press_version": "4.2.1",
+  "patches": [
+    {
+      "id": "review-feedback-hardening",
+      "summary": "Fix Rappi review findings around opening-hour windows, store adjacency geo, brand cuisine output, diff baselines and inputs, shared request throttling, path slug validation, and ListIDs SQL table selection.",
+      "reason": "The published Rappi CLI needed narrow post-print fixes for Greptile PR feedback before merge.",
+      "files": [
+        "README.md",
+        "SKILL.md",
+        "internal/cli/novel_helpers.go",
+        "internal/cli/restaurants_brand.go",
+        "internal/cli/restaurants_brand_test.go",
+        "internal/cli/restaurants_by_neighborhood.go",
+        "internal/cli/restaurants_diff.go",
+        "internal/cli/restaurants_multi_category.go",
+        "internal/cli/restaurants_near.go",
+        "internal/cli/restaurants_open.go",
+        "internal/cli/restaurants_top.go",
+        "internal/cli/stores_coverage.go",
+        "internal/cli/stores_coverage_diff.go",
+        "internal/cli/stores_adjacency.go",
+        "internal/source/rappi/jsonld.go",
+        "internal/store/store.go"
+      ],
+      "validated_outcome": "go test ./...; go vet ./...; go build ./...; verify_skill.py"
+    }
+  ]
+}

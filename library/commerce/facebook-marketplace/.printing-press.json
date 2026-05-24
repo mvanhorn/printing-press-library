@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-18T21:03:47.392864Z",
+  "printing_press_version": "4.6.1",
+  "api_name": "facebook-marketplace",
+  "display_name": "Facebook Marketplace",
+  "cli_name": "facebook-marketplace-pp-cli",
+  "owner": "user",
+  "printer": "cathrynlavery",
+  "printer_name": "Cathryn Lavery",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:ed16c549473dac8185ffaacdf383a34e91c66e55669c3441da51d5afb393437c",
+  "run_id": "20260518-135804",
+  "category": "commerce",
+  "description": "Search, publish, mirror, and manage Facebook Marketplace seller workflows with explicit write checkpoints.",
+  "mcp_binary": "facebook-marketplace-pp-mcp",
+  "mcp_tool_count": 16,
+  "mcp_ready": "partial",
+  "api_version": "0.1.0",
+  "auth_type": "cookie",
+  "auth_env_vars": [
+    "FACEBOOK_MARKET_COOKIES"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "FACEBOOK_MARKET_COOKIES",
+      "kind": "harvested",
+      "required": true,
+      "sensitive": true,
+      "description": "Browser session cookies captured from Chrome for facebook.com."
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "AI listing drafter",
+      "command": "draft",
+      "description": "Draft a Marketplace title, description, and price suggestion from photos and notes."
+    },
+    {
+      "name": "Buy-side watcher",
+      "command": "watch add",
+      "description": "Persist a Marketplace search watch with deterministic keyword, price, and distance filters."
+    },
+    {
+      "name": "Watch matches",
+      "command": "matches",
+      "description": "Show new watch matches after deterministic filtering."
+    },
+    {
+      "name": "Stale listing query",
+      "command": "stale",
+      "description": "Find local seller listings older than seven days with no engagement."
+    },
+    {
+      "name": "Write-gated seller reply",
+      "command": "reply",
+      "description": "Prepare and send a seller inbox reply only when `--write` and doctor gating both pass."
+    }
+  ]
+}

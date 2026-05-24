@@ -1,0 +1,22 @@
+{
+  "cli_dir": "/Users/cathrynlavery/printing-press/.runstate/cli-printing-press-23b02465/runs/20260518-135804/working/facebook-market-pp-cli",
+  "skill_path": "/Users/cathrynlavery/printing-press/.runstate/cli-printing-press-23b02465/runs/20260518-135804/working/facebook-market-pp-cli/SKILL.md",
+  "checks_run": [
+    "flag-names",
+    "flag-commands",
+    "positional-args",
+    "unknown-command",
+    "canonical-sections"
+  ],
+  "recipes_checked": 8,
+  "findings": [
+    {
+      "check": "positional-args",
+      "severity": "error",
+      "command": "facebook-market-pp-cli draft",
+      "detail": "got 1 positional args; Use: \"draft\" expects 0–0",
+      "evidence": "chair-tag.jpg",
+      "likely_false_positive": false
+    }
+  ]
+}

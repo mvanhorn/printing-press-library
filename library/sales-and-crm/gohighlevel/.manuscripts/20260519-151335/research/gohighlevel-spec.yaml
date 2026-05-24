@@ -1,0 +1,1317 @@
+openapi: 3.0.3
+info:
+  title: GoHighLevel
+  version: "2021-07-28"
+  description: |
+    GoHighLevel (HighLevel) public API v2 — multi-tenant SaaS marketing/CRM
+    platform widely used by agencies and real estate brokerages.
+
+    Authentication: Private Integration Token (PIT). Format `pit-<uuid>`,
+    lowercase prefix mandatory. Capital `Pit-` returns 401 Invalid JWT.
+
+    Version header: most endpoints want `Version: 2021-07-28`. Conversations
+    endpoints want `Version: 2021-04-15`. The CLI handles this per-resource
+    so callers never think about it.
+  x-auth-env-vars:
+    - GHL_PIT_TOKEN
+servers:
+  - url: https://services.leadconnectorhq.com
+    description: GoHighLevel API v2 (leadconnectorhq.com)
+security:
+  - PrivateIntegrationToken: []
+components:
+  securitySchemes:
+    PrivateIntegrationToken:
+      type: http
+      scheme: bearer
+      bearerFormat: pit-<uuid>
+      description: Bearer token with lowercase `pit-` prefix.
+      x-auth-env-vars:
+        - GHL_PIT_TOKEN
+  parameters:
+    LocationId:
+      name: locationId
+      in: query
+      required: true
+      schema:
+        type: string
+      description: GHL sub-account (location) ID
+    LimitParam:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        default: 100
+        maximum: 100
+    StartAfterParam:
+      name: startAfter
+      in: query
+      schema:
+        type: array
+        items:
+          type: string
+      description: Cursor for searchAfter pagination
+  schemas:
+    Contact:
+      type: object
+      properties:
+        id: { type: string }
+        locationId: { type: string }
+        firstName: { type: string }
+        lastName: { type: string }
+        contactName: { type: string }
+        email: { type: string }
+        phone: { type: string }
+        dateAdded: { type: string, format: date-time }
+        dateUpdated: { type: string, format: date-time }
+        tags:
+          type: array
+          items: { type: string }
+        customFields:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: string }
+              value: {}
+        source: { type: string }
+        type: { type: string }
+        country: { type: string }
+        city: { type: string }
+        state: { type: string }
+        postalCode: { type: string }
+        address1: { type: string }
+        timezone: { type: string }
+        companyName: { type: string }
+        assignedTo: { type: string }
+        dnd: { type: boolean }
+    SearchContactsRequest:
+      type: object
+      properties:
+        locationId: { type: string }
+        pageLimit: { type: integer, default: 100 }
+        query: { type: string }
+        filters:
+          type: array
+          items: { type: object }
+        startAfter:
+          type: array
+          items: { type: string }
+    Opportunity:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        monetaryValue: { type: number }
+        pipelineId: { type: string }
+        pipelineStageId: { type: string }
+        status: { type: string, enum: [open, won, lost, abandoned] }
+        contactId: { type: string }
+        assignedTo: { type: string }
+        dateAdded: { type: string, format: date-time }
+        dateUpdated: { type: string, format: date-time }
+    Pipeline:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        locationId: { type: string }
+        stages:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: string }
+              name: { type: string }
+              position: { type: integer }
+    CustomField:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        fieldKey: { type: string }
+        placeholder: { type: string }
+        dataType: { type: string }
+        position: { type: integer }
+    Tag:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        locationId: { type: string }
+    Calendar:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        locationId: { type: string }
+        slug: { type: string }
+        widgetSlug: { type: string }
+        groupId: { type: string }
+        teamMembers:
+          type: array
+          items: { type: object }
+    Appointment:
+      type: object
+      properties:
+        id: { type: string }
+        calendarId: { type: string }
+        contactId: { type: string }
+        title: { type: string }
+        appointmentStatus: { type: string }
+        startTime: { type: string, format: date-time }
+        endTime: { type: string, format: date-time }
+        notes: { type: string }
+        address: { type: string }
+        meetingLocationType: { type: string }
+    Conversation:
+      type: object
+      properties:
+        id: { type: string }
+        contactId: { type: string }
+        locationId: { type: string }
+        type: { type: string }
+        unreadCount: { type: integer }
+        inbox: { type: boolean }
+        lastMessageBody: { type: string }
+        lastMessageDate: { type: string, format: date-time }
+    Message:
+      type: object
+      properties:
+        id: { type: string }
+        type: { type: integer }
+        messageType: { type: string }
+        body: { type: string }
+        conversationId: { type: string }
+        contactId: { type: string }
+        locationId: { type: string }
+        dateAdded: { type: string, format: date-time }
+        direction: { type: string }
+        status: { type: string }
+    Location:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        address: { type: string }
+        city: { type: string }
+        state: { type: string }
+        timezone: { type: string }
+        email: { type: string }
+        phone: { type: string }
+        website: { type: string }
+        country: { type: string }
+    User:
+      type: object
+      properties:
+        id: { type: string }
+        firstName: { type: string }
+        lastName: { type: string }
+        email: { type: string }
+        phone: { type: string }
+        role: { type: string }
+        locationIds:
+          type: array
+          items: { type: string }
+    Workflow:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        status: { type: string }
+        locationId: { type: string }
+        version: { type: integer }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    Note:
+      type: object
+      properties:
+        id: { type: string }
+        body: { type: string }
+        contactId: { type: string }
+        userId: { type: string }
+        dateAdded: { type: string, format: date-time }
+    Task:
+      type: object
+      properties:
+        id: { type: string }
+        title: { type: string }
+        body: { type: string }
+        contactId: { type: string }
+        assignedTo: { type: string }
+        dueDate: { type: string, format: date-time }
+        completed: { type: boolean }
+    CustomValue:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        fieldKey: { type: string }
+        value: { type: string }
+        locationId: { type: string }
+paths:
+  # ============================================================
+  # CONTACTS — the heaviest-used resource
+  # ============================================================
+  /contacts/:
+    post:
+      operationId: createContact
+      tags: [contacts]
+      summary: Create a contact
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Contact'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  contact: { $ref: '#/components/schemas/Contact' }
+  /contacts/{contactId}:
+    get:
+      operationId: getContact
+      tags: [contacts]
+      summary: Get a contact by id
+      parameters:
+        - name: contactId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  contact: { $ref: '#/components/schemas/Contact' }
+    put:
+      operationId: updateContact
+      tags: [contacts]
+      summary: Update a contact
+      parameters:
+        - name: contactId
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Contact'
+      responses:
+        '200':
+          description: OK
+    delete:
+      operationId: deleteContact
+      tags: [contacts]
+      summary: Delete a contact
+      parameters:
+        - name: contactId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+  /contacts/search:
+    post:
+      operationId: searchContacts
+      tags: [contacts]
+      summary: Search contacts (uses searchAfter cursor for 10k+ results)
+      description: |
+        GHL's /contacts/search has a hard 100-page cap. Use the `startAfter`
+        cursor returned in the response for pagination past 10k results.
+        Phone search returns 500 — use email or name instead.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchContactsRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  contacts:
+                    type: array
+                    items: { $ref: '#/components/schemas/Contact' }
+                  total: { type: integer }
+                  count: { type: integer }
+  /contacts/search/duplicate:
+    get:
+      operationId: findDuplicateContact
+      tags: [contacts]
+      summary: Find duplicate contact by email or name
+      parameters:
+        - $ref: '#/components/parameters/LocationId'
+        - name: email
+          in: query
+          schema: { type: string }
+        - name: name
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+  /contacts/upsert:
+    post:
+      operationId: upsertContact
+      tags: [contacts]
+      summary: Upsert contact by email or phone
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Contact'
+      responses:
+        '200':
+          description: OK
+  /contacts/{contactId}/tags:
+    post:
+      operationId: addContactTags
+      tags: [contacts]
+      summary: Add tags to a contact
+      parameters:
+        - name: contactId
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tags:
+                  type: array
+                  items: { type: string }
+      responses:
+        '200':
+          description: OK
+    delete:
+      operationId: removeContactTags
+      tags: [contacts]
+      summary: Remove tags from a contact
+      parameters:
+        - name: contactId
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tags:
+                  type: array
+                  items: { type: string }
+      responses:
+        '200':
+          description: OK
+  /contacts/tags/bulk:
+    post:
+      operationId: bulkUpdateContactTags
+      tags: [contacts]
+      summary: Bulk add/remove tags across many contacts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ids:
+                  type: array
+                  items: { type: string }
+                tags:
+                  type: array
+                  items: { type: string }
+                type:
+                  type: string
+                  enum: [add, remove]
+      responses:
+        '200':
+          description: OK
+  /contacts/{contactId}/notes:
+    get:
+      operationId: listContactNotes
+      tags: [contacts]
+      parameters:
+        - name: contactId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  notes:
+                    type: array
+                    items: { $ref: '#/components/schemas/Note' }
+    post:
+      operationId: createContactNote
+      tags: [contacts]
+      parameters:
+        - name: contactId
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Note'
+      responses:
+        '201':
+          description: Created
+  /contacts/{contactId}/tasks:
+    get:
+      operationId: listContactTasks
+      tags: [contacts]
+      parameters:
+        - name: contactId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tasks:
+                    type: array
+                    items: { $ref: '#/components/schemas/Task' }
+    post:
+      operationId: createContactTask
+      tags: [contacts]
+      parameters:
+        - name: contactId
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Task'
+      responses:
+        '201':
+          description: Created
+  /contacts/{contactId}/workflow/{workflowId}:
+    post:
+      operationId: addContactToWorkflow
+      tags: [contacts]
+      summary: Enroll contact in workflow
+      description: |
+        Note: GHL "Form Submitted" trigger won't re-fire for contacts already
+        enrolled in this workflow.
+      parameters:
+        - name: contactId
+          in: path
+          required: true
+          schema: { type: string }
+        - name: workflowId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+    delete:
+      operationId: removeContactFromWorkflow
+      tags: [contacts]
+      parameters:
+        - name: contactId
+          in: path
+          required: true
+          schema: { type: string }
+        - name: workflowId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+  # ============================================================
+  # OPPORTUNITIES & PIPELINES
+  # ============================================================
+  /opportunities/search:
+    get:
+      operationId: searchOpportunities
+      tags: [opportunities]
+      summary: Search opportunities across a pipeline
+      parameters:
+        - $ref: '#/components/parameters/LocationId'
+        - name: pipeline_id
+          in: query
+          schema: { type: string }
+        - name: pipeline_stage_id
+          in: query
+          schema: { type: string }
+        - name: status
+          in: query
+          schema: { type: string, enum: [open, won, lost, abandoned] }
+        - name: contact_id
+          in: query
+          schema: { type: string }
+        - name: assigned_to
+          in: query
+          schema: { type: string }
+        - name: q
+          in: query
+          schema: { type: string }
+        - $ref: '#/components/parameters/LimitParam'
+        - name: page
+          in: query
+          schema: { type: integer }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  opportunities:
+                    type: array
+                    items: { $ref: '#/components/schemas/Opportunity' }
+                  meta:
+                    type: object
+  /opportunities/pipelines:
+    get:
+      operationId: listPipelines
+      tags: [opportunities]
+      summary: List pipelines for a location
+      parameters:
+        - $ref: '#/components/parameters/LocationId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pipelines:
+                    type: array
+                    items: { $ref: '#/components/schemas/Pipeline' }
+  /opportunities/{id}:
+    get:
+      operationId: getOpportunity
+      tags: [opportunities]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+    put:
+      operationId: updateOpportunity
+      tags: [opportunities]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Opportunity'
+      responses:
+        '200':
+          description: OK
+    delete:
+      operationId: deleteOpportunity
+      tags: [opportunities]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+  /opportunities/:
+    post:
+      operationId: createOpportunity
+      tags: [opportunities]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Opportunity'
+      responses:
+        '201':
+          description: Created
+  /opportunities/{id}/status:
+    put:
+      operationId: updateOpportunityStatus
+      tags: [opportunities]
+      summary: Update opportunity status only (Open/Won/Lost/Abandoned)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [open, won, lost, abandoned]
+      responses:
+        '200':
+          description: OK
+  /opportunities/upsert:
+    post:
+      operationId: upsertOpportunity
+      tags: [opportunities]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Opportunity'
+      responses:
+        '200':
+          description: OK
+  # ============================================================
+  # CUSTOM FIELDS (location-scoped v1)
+  # ============================================================
+  /locations/{locationId}/customFields:
+    get:
+      operationId: listCustomFields
+      tags: [customFields]
+      summary: List custom fields for a location
+      parameters:
+        - name: locationId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  customFields:
+                    type: array
+                    items: { $ref: '#/components/schemas/CustomField' }
+    post:
+      operationId: createCustomField
+      tags: [customFields]
+      summary: Create a custom field
+      description: |
+        Note: GHL API cannot create dropdown / multi-select custom fields
+        with their options via this endpoint. Use the UI for those.
+      parameters:
+        - name: locationId
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomField'
+      responses:
+        '201':
+          description: Created
+  /locations/{locationId}/customFields/{id}:
+    get:
+      operationId: getCustomField
+      tags: [customFields]
+      parameters:
+        - name: locationId
+          in: path
+          required: true
+          schema: { type: string }
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+    put:
+      operationId: updateCustomField
+      tags: [customFields]
+      parameters:
+        - name: locationId
+          in: path
+          required: true
+          schema: { type: string }
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomField'
+      responses:
+        '200':
+          description: OK
+    delete:
+      operationId: deleteCustomField
+      tags: [customFields]
+      parameters:
+        - name: locationId
+          in: path
+          required: true
+          schema: { type: string }
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+  /locations/{locationId}/customValues:
+    get:
+      operationId: listCustomValues
+      tags: [customValues]
+      parameters:
+        - name: locationId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  customValues:
+                    type: array
+                    items: { $ref: '#/components/schemas/CustomValue' }
+    post:
+      operationId: createCustomValue
+      tags: [customValues]
+      parameters:
+        - name: locationId
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomValue'
+      responses:
+        '201':
+          description: Created
+  /locations/{locationId}/customValues/{id}:
+    get:
+      operationId: getCustomValue
+      tags: [customValues]
+      parameters:
+        - name: locationId
+          in: path
+          required: true
+          schema: { type: string }
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+    put:
+      operationId: updateCustomValue
+      tags: [customValues]
+      parameters:
+        - name: locationId
+          in: path
+          required: true
+          schema: { type: string }
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomValue'
+      responses:
+        '200':
+          description: OK
+    delete:
+      operationId: deleteCustomValue
+      tags: [customValues]
+      parameters:
+        - name: locationId
+          in: path
+          required: true
+          schema: { type: string }
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+  # ============================================================
+  # TAGS (location-scoped)
+  # ============================================================
+  /locations/{locationId}/tags:
+    get:
+      operationId: listLocationTags
+      tags: [tags]
+      summary: List location tags
+      parameters:
+        - name: locationId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tags:
+                    type: array
+                    items: { $ref: '#/components/schemas/Tag' }
+    post:
+      operationId: createLocationTag
+      tags: [tags]
+      parameters:
+        - name: locationId
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Tag'
+      responses:
+        '201':
+          description: Created
+  /locations/{locationId}/tags/{tagId}:
+    get:
+      operationId: getLocationTag
+      tags: [tags]
+      parameters:
+        - name: locationId
+          in: path
+          required: true
+          schema: { type: string }
+        - name: tagId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+    delete:
+      operationId: deleteLocationTag
+      tags: [tags]
+      parameters:
+        - name: locationId
+          in: path
+          required: true
+          schema: { type: string }
+        - name: tagId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+  # ============================================================
+  # CALENDARS & APPOINTMENTS
+  # ============================================================
+  /calendars/:
+    get:
+      operationId: listCalendars
+      tags: [calendars]
+      parameters:
+        - $ref: '#/components/parameters/LocationId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  calendars:
+                    type: array
+                    items: { $ref: '#/components/schemas/Calendar' }
+    post:
+      operationId: createCalendar
+      tags: [calendars]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Calendar'
+      responses:
+        '201':
+          description: Created
+  /calendars/{calendarId}:
+    get:
+      operationId: getCalendar
+      tags: [calendars]
+      parameters:
+        - name: calendarId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+  /calendars/events:
+    get:
+      operationId: listCalendarEvents
+      tags: [calendars]
+      summary: List calendar events for a location
+      parameters:
+        - $ref: '#/components/parameters/LocationId'
+        - name: calendarId
+          in: query
+          schema: { type: string }
+        - name: startTime
+          in: query
+          schema: { type: string }
+        - name: endTime
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  events:
+                    type: array
+                    items: { $ref: '#/components/schemas/Appointment' }
+  /calendars/{calendarId}/free-slots:
+    get:
+      operationId: getCalendarFreeSlots
+      tags: [calendars]
+      parameters:
+        - name: calendarId
+          in: path
+          required: true
+          schema: { type: string }
+        - name: startDate
+          in: query
+          schema: { type: string }
+        - name: endDate
+          in: query
+          schema: { type: string }
+        - name: timezone
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+  /calendars/events/appointments:
+    post:
+      operationId: createAppointment
+      tags: [calendars]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Appointment'
+      responses:
+        '201':
+          description: Created
+  /calendars/events/appointments/{eventId}:
+    get:
+      operationId: getAppointment
+      tags: [calendars]
+      parameters:
+        - name: eventId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+    put:
+      operationId: updateAppointment
+      tags: [calendars]
+      parameters:
+        - name: eventId
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Appointment'
+      responses:
+        '200':
+          description: OK
+    delete:
+      operationId: deleteAppointment
+      tags: [calendars]
+      parameters:
+        - name: eventId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+  # ============================================================
+  # CONVERSATIONS & MESSAGES (Version: 2021-04-15 for these endpoints)
+  # ============================================================
+  /conversations/search:
+    get:
+      operationId: searchConversations
+      tags: [conversations]
+      summary: Search conversations (Version 2021-04-15)
+      parameters:
+        - $ref: '#/components/parameters/LocationId'
+        - name: contactId
+          in: query
+          schema: { type: string }
+        - name: lastMessageDirection
+          in: query
+          schema: { type: string }
+        - name: assignedTo
+          in: query
+          schema: { type: string }
+        - name: status
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  conversations:
+                    type: array
+                    items: { $ref: '#/components/schemas/Conversation' }
+  /conversations/{conversationId}:
+    get:
+      operationId: getConversation
+      tags: [conversations]
+      parameters:
+        - name: conversationId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+  /conversations/{conversationId}/messages:
+    get:
+      operationId: listConversationMessages
+      tags: [conversations]
+      parameters:
+        - name: conversationId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  messages:
+                    type: object
+                    properties:
+                      messages:
+                        type: array
+                        items: { $ref: '#/components/schemas/Message' }
+  /conversations/messages:
+    post:
+      operationId: sendMessage
+      tags: [conversations]
+      summary: Send an SMS, email, or other message
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [type, contactId]
+              properties:
+                type:
+                  type: string
+                  enum: [SMS, Email, WhatsApp, IG, FB, Custom]
+                contactId: { type: string }
+                message: { type: string }
+                subject: { type: string }
+                html: { type: string }
+                emailFrom: { type: string }
+                emailTo:
+                  type: array
+                  items: { type: string }
+      responses:
+        '201':
+          description: Created
+  # ============================================================
+  # LOCATIONS / SUB-ACCOUNTS
+  # ============================================================
+  /locations/search:
+    get:
+      operationId: searchLocations
+      tags: [locations]
+      summary: Search locations (agency-level)
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer }
+        - name: skip
+          in: query
+          schema: { type: integer }
+        - name: companyId
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  locations:
+                    type: array
+                    items: { $ref: '#/components/schemas/Location' }
+  /locations/{locationId}:
+    get:
+      operationId: getLocation
+      tags: [locations]
+      parameters:
+        - name: locationId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+  # ============================================================
+  # USERS
+  # ============================================================
+  /users/search:
+    get:
+      operationId: searchUsers
+      tags: [users]
+      summary: Search users in a location
+      parameters:
+        - $ref: '#/components/parameters/LocationId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  users:
+                    type: array
+                    items: { $ref: '#/components/schemas/User' }
+  /users/{userId}:
+    get:
+      operationId: getUser
+      tags: [users]
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+  # ============================================================
+  # WORKFLOWS (read-only list)
+  # ============================================================
+  /workflows/:
+    get:
+      operationId: listWorkflows
+      tags: [workflows]
+      summary: List workflows for a location
+      parameters:
+        - $ref: '#/components/parameters/LocationId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  workflows:
+                    type: array
+                    items: { $ref: '#/components/schemas/Workflow' }
+  # ============================================================
+  # SURVEYS (read-only)
+  # ============================================================
+  /surveys/:
+    get:
+      operationId: listSurveys
+      tags: [surveys]
+      parameters:
+        - $ref: '#/components/parameters/LocationId'
+      responses:
+        '200':
+          description: OK

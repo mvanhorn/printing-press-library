@@ -15,6 +15,11 @@ metadata:
         bins: [ufo-goat-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/other/ufo-goat/cmd/ufo-goat-pp-cli
 ---
+<!-- GENERATED FILE — DO NOT EDIT.
+     This file is a verbatim mirror of library/other/ufo-goat/SKILL.md,
+     regenerated post-merge by tools/generate-skills/. Hand-edits here are
+     silently overwritten on the next regen. Edit the library/ source instead.
+     See AGENTS.md "Generated artifacts: registry.json, cli-skills/". -->
 
 # War.gov UFO — Printing Press CLI
 
@@ -24,20 +29,18 @@ This skill drives the `ufo-goat-pp-cli` binary. **You must verify the CLI is ins
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install ufo-goat --cli-only
+   npx -y @mvanhorn/printing-press-library install ufo-goat --cli-only
    ```
 2. Verify: `ufo-goat-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.23+):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/other/ufo-goat/cmd/ufo-goat-pp-cli@latest
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-The first CLI for the War.gov/UFO declassified files portal. Search across all four agencies (DoW, FBI, NASA, State), download files with resume support, track new release tranches, and discover video-PDF pairings — all from a single binary with offline SQLite storage.
 
 ## When to Use This CLI
 

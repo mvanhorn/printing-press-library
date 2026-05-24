@@ -6,22 +6,40 @@ Roam HQ ships a remote MCP but no CLI. roam-pp-cli unifies all five Roam HQ APIs
 
 ## Install
 
-The recommended path installs both the `roam-pp-cli` binary and the `pp-roam` agent skill in one shot:
+The recommended path installs both the `roam-pp-cli` binary and the `pp-roam` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install roam
+npx -y @mvanhorn/printing-press-library install roam
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install roam --cli-only
+npx -y @mvanhorn/printing-press-library install roam --cli-only
 ```
 
+For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
-### Without Node
+```bash
+npx -y @mvanhorn/printing-press-library install roam --skill-only
+```
 
-The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
+To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
+
+```bash
+npx -y @mvanhorn/printing-press-library install roam --agent claude-code
+npx -y @mvanhorn/printing-press-library install roam --agent claude-code --agent codex
+```
+
+### Without Node (Go fallback)
+
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/productivity/roam/cmd/roam-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
 
 ### Pre-built binary
 
@@ -50,6 +68,43 @@ Tell your OpenClaw agent (copy this):
 Install the pp-roam skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-roam. The skill defines how its required CLI can be installed.
 ```
 
+## Use with Claude Desktop
+
+This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
+
+To install:
+
+1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/roam-current).
+2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
+3. Fill in `ROAM_API_KEY` when Claude Desktop prompts you.
+
+Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
+
+<details>
+<summary>Manual JSON config (advanced)</summary>
+
+If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
+
+
+Install the MCP binary from this CLI's published public-library entry or pre-built release.
+
+Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "roam": {
+      "command": "roam-pp-mcp",
+      "env": {
+        "ROAM_API_KEY": "<your-key>"
+      }
+    }
+  }
+}
+```
+
+</details>
+
 ## Authentication
 
 Bearer auth via ROAM_API_KEY. Roam supports two key tiers: full-access organization keys and personal access tokens. Some HQ v1 endpoints require full-access; Chat/Transcript v0 endpoints work with PATs. Run `roam-pp-cli doctor token` to see which families your key can reach.
@@ -60,18 +115,14 @@ Bearer auth via ROAM_API_KEY. Roam supports two key tiers: full-access organizat
 # Verify which Roam APIs your key tier can reach before anything else.
 roam-pp-cli doctor token
 
-
 # Pull the last week of chat + transcripts into the local store for offline search.
 roam-pp-cli sync --since 7d
-
 
 # Cross-resource FTS5 search over messages and transcripts.
 roam-pp-cli grep "pricing" --since 14d --json
 
-
 # Extract decision-shaped lines from synced transcripts.
 roam-pp-cli decisions --since 7d
-
 
 # Pipe CI output to a Roam group with dedupe + Retry-After backoff.
 echo "Deploy v1.2.3 succeeded" | roam-pp-cli relay --to eng-deploys --idempotent-key-prefix deploys
@@ -764,7 +815,6 @@ depending on the content type, contains additional fields:
 - added: a list of Participant objects corresponding to all participants added in this event
 - removed: a list of Participant objects corresponding to all participants removed in this event
 
-
 ---
 
 **OpenAPI Spec:** [openapi.json](https://developer.ro.am/openapi.json)
@@ -1237,7 +1287,6 @@ Manage webhook unsubscribe
 
 **OpenAPI Spec:** [webhooks.json](https://developer.ro.am/webhooks.json)
 
-
 ## Output Formats
 
 ```bash
@@ -1272,69 +1321,6 @@ This CLI is designed for AI agent consumption:
 - **Agent-safe by default** - no colors or formatting unless `--human-friendly` is set
 
 Exit codes: `0` success, `2` usage error, `3` not found, `4` auth error, `5` API error, `7` rate limited, `10` config error.
-
-## Use with Claude Code
-
-Install the focused skill — it auto-installs the CLI on first invocation:
-
-```bash
-npx skills add mvanhorn/printing-press-library/cli-skills/pp-roam -g
-```
-
-Then invoke `/pp-roam <query>` in Claude Code. The skill is the most efficient path — Claude Code drives the CLI directly without an MCP server in the middle.
-
-<details>
-<summary>Use as an MCP server in Claude Code (advanced)</summary>
-
-If you'd rather register this CLI as an MCP server in Claude Code, install the MCP binary first:
-
-
-Install the MCP binary from this CLI's published public-library entry or pre-built release.
-
-Then register it:
-
-```bash
-claude mcp add roam roam-pp-mcp -e ROAM_API_KEY=<your-token>
-```
-
-</details>
-
-## Use with Claude Desktop
-
-This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
-
-To install:
-
-1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/roam-current).
-2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
-3. Fill in `ROAM_API_KEY` when Claude Desktop prompts you.
-
-Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
-
-<details>
-<summary>Manual JSON config (advanced)</summary>
-
-If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
-
-
-Install the MCP binary from this CLI's published public-library entry or pre-built release.
-
-Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "roam": {
-      "command": "roam-pp-mcp",
-      "env": {
-        "ROAM_API_KEY": "<your-key>"
-      }
-    }
-  }
-}
-```
-
-</details>
 
 ## Health Check
 

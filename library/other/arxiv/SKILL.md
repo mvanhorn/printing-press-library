@@ -20,7 +20,7 @@ This skill drives the `arxiv-pp-cli` binary. **You must verify the CLI is instal
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install arxiv --cli-only
+   npx -y @mvanhorn/printing-press-library install arxiv --cli-only
    ```
 2. Verify: `arxiv-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.

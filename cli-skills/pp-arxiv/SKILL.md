@@ -11,6 +11,11 @@ metadata:
       bins:
         - arxiv-pp-cli
 ---
+<!-- GENERATED FILE — DO NOT EDIT.
+     This file is a verbatim mirror of library/other/arxiv/SKILL.md,
+     regenerated post-merge by tools/generate-skills/. Hand-edits here are
+     silently overwritten on the next regen. Edit the library/ source instead.
+     See AGENTS.md "Generated artifacts: registry.json, cli-skills/". -->
 
 # arXiv — Printing Press CLI
 
@@ -20,7 +25,7 @@ This skill drives the `arxiv-pp-cli` binary. **You must verify the CLI is instal
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install arxiv --cli-only
+   npx -y @mvanhorn/printing-press-library install arxiv --cli-only
    ```
 2. Verify: `arxiv-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.

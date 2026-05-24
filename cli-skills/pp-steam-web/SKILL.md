@@ -1,6 +1,6 @@
 ---
 name: pp-steam-web
-description: "Every Steam Web API endpoint, plus a local SQLite store that turns friend playtimes, achievement progress, and... Trigger phrases: `what should I play next on steam`, `find friends who own this game`, `easiest steam achievement to unlock`, `who in my friends has the most hours in`, `audit my steam backlog`, `use steam-web`, `run steam-web`."
+description: "Every Steam Web API endpoint, plus a local SQLite store that turns friend playtimes, achievement progress, and library backlogs into single SQL queries no other tool can answer. Trigger phrases: `what should I play next on steam`, `find friends who own this game`, `easiest steam achievement to unlock`, `audit my steam backlog`, `use steam-web`."
 author: "Trevin Chow"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
@@ -15,6 +15,11 @@ metadata:
         bins: [steam-web-pp-cli]
         module: github.com/mvanhorn/printing-press-library/library/other/steam-web/cmd/steam-web-pp-cli
 ---
+<!-- GENERATED FILE — DO NOT EDIT.
+     This file is a verbatim mirror of library/media-and-entertainment/steam-web/SKILL.md,
+     regenerated post-merge by tools/generate-skills/. Hand-edits here are
+     silently overwritten on the next regen. Edit the library/ source instead.
+     See AGENTS.md "Generated artifacts: registry.json, cli-skills/". -->
 
 # Steam Web — Printing Press CLI
 
@@ -24,7 +29,7 @@ This skill drives the `steam-web-pp-cli` binary. **You must verify the CLI is in
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install steam-web --cli-only
+   npx -y @mvanhorn/printing-press-library install steam-web --cli-only
    ```
 2. Verify: `steam-web-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -32,12 +37,10 @@ This skill drives the `steam-web-pp-cli` binary. **You must verify the CLI is in
 If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
 
 ```bash
-go install github.com/mvanhorn/printing-press-library/library/other/steam-web/cmd/steam-web-pp-cli@latest
+go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/steam-web/cmd/steam-web-pp-cli@latest
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-Mirrors all 169 documented Steam Web API endpoints (and the undocumented store endpoints every wrapper picks one of) with rate-limit-aware throttling for the post-2025 25 req/s budget. Adds a local SQLite layer with FTS5 over apps, news, and achievements so cross-library queries — `next-achievement`, `friends compare`, `library audit`, `achievement-leaderboard` — run as one command instead of an N+1 fanout app rewrite. Ships an MCP server with both stdio and HTTP streamable transport plus a code-orchestration pair (`steam_web_search` + `steam_web_execute`) so the full surface is reachable without flooding your agent's tool catalog.
 
 ## When to Use This CLI
 

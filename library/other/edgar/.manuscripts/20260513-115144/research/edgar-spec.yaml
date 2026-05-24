@@ -1,0 +1,235 @@
+name: edgar
+description: "Agent-native CLI for SEC EDGAR — primary-source bundles and insider-summary shaped for LODESTAR conviction research"
+cli_description: "Agent-native CLI for SEC EDGAR — primary-source bundles and insider-summary shaped for LODESTAR conviction research"
+version: "0.1.0"
+base_url: "https://data.sec.gov"
+health_check_path: "/submissions/CIK0000320193.json"
+
+# SEC fair-access: identity is the User-Agent, not an API key. The CLI refuses
+# to run if COMPANY_PP_CONTACT_EMAIL is unset (enforced in config + doctor +
+# every client request).
+auth:
+  type: api_key
+  header: "User-Agent"
+  format: "lodestar-edgar-pp-cli {email}"
+  in: header
+  env_vars:
+    - COMPANY_PP_CONTACT_EMAIL
+
+config:
+  format: toml
+  path: "~/.config/edgar-pp-cli/config.toml"
+
+required_headers:
+  - name: Accept
+    value: "application/json"
+
+resources:
+  companies:
+    description: "Company identifiers (ticker → CIK) and per-issuer submissions index"
+    endpoints:
+      lookup:
+        method: GET
+        path: "/files/company_tickers.json"
+        base_url: "https://www.sec.gov"
+        description: "Resolve ticker → CIK (and company name + SIC) from SEC's nightly index. Cache 24h in local SQLite."
+        params:
+          - name: ticker
+            type: string
+            description: "Stock ticker (case-insensitive). Filters the response client-side."
+        response:
+          type: object
+          item: TickerEntry
+
+      submissions:
+        method: GET
+        path: "/submissions/CIK{cik}.json"
+        description: "Structured submissions index for a company (filing history with accession numbers, form types, filed-at)."
+        params:
+          - name: cik
+            type: string
+            required: true
+            positional: true
+            description: "Zero-padded 10-digit CIK (e.g., 0000-320193). Use `edgar-pp-cli companies lookup TICKER` to resolve from a ticker."
+        response:
+          type: object
+          item: SubmissionsIndex
+
+  companyfacts:
+    description: "XBRL company facts (financial concepts: revenue, net income, assets, cash flow, etc.) for a CIK"
+    endpoints:
+      get:
+        method: GET
+        path: "/api/xbrl/companyfacts/CIK{cik}.json"
+        description: "All XBRL company facts for a CIK. Optionally filter to a single concept client-side."
+        params:
+          - name: cik
+            type: string
+            required: true
+            positional: true
+            description: "Zero-padded 10-digit CIK"
+          - name: concept
+            type: string
+            description: "Optional client-side filter: emit only this US-GAAP concept (e.g., Revenues, NetIncomeLoss)"
+        response:
+          type: object
+          item: CompanyFacts
+
+  filings:
+    description: "Per-form-type filing retrieval and individual filing document fetch"
+    base_url: "https://www.sec.gov"
+    endpoints:
+      browse:
+        method: GET
+        path: "/cgi-bin/browse-edgar"
+        description: "EDGAR filing index for a CIK + form type. Returns HTML/Atom; the generator wraps it but parsing happens in the compound commands."
+        params:
+          - name: CIK
+            flag_name: cik
+            type: string
+            required: true
+            description: "Zero-padded 10-digit CIK"
+          - name: type
+            flag_name: form-type
+            type: string
+            description: "Form type filter (10-K, 10-Q, 8-K, 4, DEF+14A, 13D, 13G, NT-10-K, etc.)"
+          - name: dateb
+            flag_name: date-before
+            type: string
+            description: "Only return filings before this date (YYYYMMDD)"
+          - name: action
+            type: string
+            default: "getcompany"
+            description: "Always 'getcompany' for our use; exposed for completeness."
+          - name: owner
+            type: string
+            default: "include"
+            description: "include | exclude | only (ownership filings)"
+          - name: count
+            type: int
+            default: 40
+            description: "Page size (max 100)"
+        response:
+          type: object
+          item: BrowseEdgarResult
+
+      get:
+        method: GET
+        path: "/Archives/edgar/data/{cik}/{accession}/"
+        description: "Fetch raw filing index page or document for a specific accession. Accession must be the no-dashes form (e.g., 000032019322000049)."
+        params:
+          - name: cik
+            type: string
+            required: true
+            positional: true
+            description: "CIK (no leading zeros for path; e.g., 320193)"
+          - name: accession
+            type: string
+            required: true
+            positional: true
+            description: "Accession number, no-dashes form (e.g., 000032019322000049)"
+          - name: file
+            type: string
+            description: "Optional specific filename inside the accession folder (e.g., 'aapl-20230930.htm'). If omitted, returns the directory index."
+        response:
+          type: object
+          item: FilingDocument
+
+  efts:
+    description: "EDGAR full-text search across all filings (efts.sec.gov). For offline FTS5 over cached filing bodies, use the framework `search` command instead."
+    base_url: "https://efts.sec.gov"
+    endpoints:
+      query:
+        method: GET
+        path: "/LATEST/search-index"
+        description: "Online full-text search across EDGAR filings. For offline FTS5 over cached bodies, use `edgar-pp-cli search`."
+        params:
+          - name: q
+            flag_name: query
+            type: string
+            required: true
+            positional: true
+            description: "Search query (supports phrases with quotes)"
+          - name: forms
+            type: string
+            description: "Comma-separated form types to filter (e.g., '10-K,10-Q')"
+          - name: dateRange
+            flag_name: date-range
+            type: string
+            description: "Date range filter (e.g., '2024-01-01,2026-05-13')"
+          - name: ciks
+            type: string
+            description: "Comma-separated CIKs to filter to specific issuers"
+        response:
+          type: object
+          item: SearchResult
+
+types:
+  TickerEntry:
+    fields:
+      - name: cik_str
+        type: int
+      - name: ticker
+        type: string
+      - name: title
+        type: string
+
+  SubmissionsIndex:
+    fields:
+      - name: cik
+        type: string
+      - name: name
+        type: string
+      - name: tickers
+        type: string
+      - name: sic
+        type: string
+      - name: sicDescription
+        type: string
+      - name: filings
+        type: string
+
+  CompanyFacts:
+    fields:
+      - name: cik
+        type: int
+      - name: entityName
+        type: string
+      - name: facts
+        type: string
+
+  BrowseEdgarResult:
+    fields:
+      - name: cik
+        type: string
+      - name: filings
+        type: string
+
+  FilingDocument:
+    fields:
+      - name: cik
+        type: string
+      - name: accession
+        type: string
+      - name: form_type
+        type: string
+      - name: filed_at
+        type: string
+      - name: body_text
+        type: string
+
+  SearchResult:
+    fields:
+      - name: hits
+        type: string
+      - name: total
+        type: int
+
+# MCP enrichment — total tool surface estimate: 6 endpoint-mirror + ~13 framework
+# + 11 novel/compound = ~30 tools. Right at the boundary; default endpoint-mirror
+# is acceptable for stdio. LODESTAR consumer is local Claude Code, so stdio is
+# all that's needed. If remote-reach becomes desired, polish can flip on http.
+mcp:
+  transport: [stdio]
+  orchestration: endpoint-mirror
+  endpoint_tools: visible

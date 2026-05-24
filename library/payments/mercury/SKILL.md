@@ -1,6 +1,6 @@
 ---
 name: pp-mercury
-description: "Printing Press CLI for Mercury. Streamline financial tasks with secure account management and transaction processing. Enables user registration,..."
+description: "Mercury banking API for account management, transaction processing, balance tracking, and payment handling. Trigger phrases: `mercury account balance`, `mercury transactions`, `send a Mercury payment`, `use mercury`."
 author: "Cathryn Lavery"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
@@ -24,7 +24,7 @@ This skill drives the `mercury-pp-cli` binary. **You must verify the CLI is inst
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install mercury --cli-only
+   npx -y @mvanhorn/printing-press-library install mercury --cli-only
    ```
 2. Verify: `mercury-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.

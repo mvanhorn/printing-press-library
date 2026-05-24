@@ -115,7 +115,23 @@ metadata:
 func TestEnsureFrontmatterTopLevelFields(t *testing.T) {
 	ctx := patchSkillCtx{AuthorName: "Trevin Chow"}
 
-	t.Run("inserts after description when fields absent", func(t *testing.T) {
+	t.Run("leaves author absent by default", func(t *testing.T) {
+		in := `name: pp-test
+description: "a CLI"
+argument-hint: "..."
+`
+		want := `name: pp-test
+description: "a CLI"
+license: "Apache-2.0"
+argument-hint: "..."
+`
+		if got := ensureFrontmatterTopLevelFields(in, ctx); got != want {
+			t.Errorf("\nwant: %q\ngot:  %q", want, got)
+		}
+	})
+
+	t.Run("can fill author when explicitly requested", func(t *testing.T) {
+		ctxFill := patchSkillCtx{AuthorName: "Trevin Chow", FillMissingAuthor: true}
 		in := `name: pp-test
 description: "a CLI"
 argument-hint: "..."
@@ -126,7 +142,7 @@ author: "Trevin Chow"
 license: "Apache-2.0"
 argument-hint: "..."
 `
-		if got := ensureFrontmatterTopLevelFields(in, ctx); got != want {
+		if got := ensureFrontmatterTopLevelFields(in, ctxFill); got != want {
 			t.Errorf("\nwant: %q\ngot:  %q", want, got)
 		}
 	})
@@ -143,17 +159,37 @@ argument-hint: "..."
 		}
 	})
 
-	t.Run("rewrites author when ctx differs (per-CLI map correction)", func(t *testing.T) {
+	t.Run("preserves existing non-placeholder author even when ctx differs", func(t *testing.T) {
+		// Policy: a real author already in the SKILL.md is the source
+		// of truth. The sweep never overrides it with the operator's
+		// git config (or any other ctx-supplied value). This guards
+		// against silent attribution flips when the sweep runs from a
+		// workspace whose `git config user.name` is something like
+		// "Codex Temp".
 		in := `description: "a CLI"
-author: "Wrong Operator"
+author: "Real Author"
 license: "Apache-2.0"
 `
 		want := `description: "a CLI"
-author: "Trevin Chow"
+author: "Real Author"
 license: "Apache-2.0"
 `
 		if got := ensureFrontmatterTopLevelFields(in, ctx); got != want {
-			t.Errorf("expected author rewritten to ctx value;\nwant: %q\ngot:  %q", want, got)
+			t.Errorf("expected existing author preserved;\nwant: %q\ngot:  %q", want, got)
+		}
+	})
+
+	t.Run("preserves placeholder \"user\" by default", func(t *testing.T) {
+		in := `description: "a CLI"
+author: "user"
+license: "Apache-2.0"
+`
+		want := `description: "a CLI"
+author: "user"
+license: "Apache-2.0"
+`
+		if got := ensureFrontmatterTopLevelFields(in, ctx); got != want {
+			t.Errorf("expected placeholder author preserved;\nwant: %q\ngot:  %q", want, got)
 		}
 	})
 
@@ -176,7 +212,7 @@ license: "Apache-2.0"
 	})
 
 	t.Run("escapes special characters via fmt %q", func(t *testing.T) {
-		ctxQuoted := patchSkillCtx{AuthorName: `Trevin "Quoted" Chow`}
+		ctxQuoted := patchSkillCtx{AuthorName: `Trevin "Quoted" Chow`, FillMissingAuthor: true}
 		in := `description: "a CLI"
 `
 		got := ensureFrontmatterTopLevelFields(in, ctxQuoted)
@@ -214,7 +250,7 @@ stuff.
 	if strings.Contains(got, "STALE INSTALL CONTENT") {
 		t.Errorf("stale Prerequisites content not removed:\n%s", got)
 	}
-	if !strings.Contains(got, "npx -y @mvanhorn/printing-press install x --cli-only") {
+	if !strings.Contains(got, "npx -y @mvanhorn/printing-press-library install x --cli-only") {
 		t.Errorf("canonical npx install line not present:\n%s", got)
 	}
 	if strings.Count(got, "## Prerequisites: Install the CLI") != 1 {
@@ -324,7 +360,9 @@ stuff.
 
 func TestPatchReadmeHermesOpenClaw_MovesFromBottomToAfterInstall(t *testing.T) {
 	// Fedex-shape: Install at top, Hermes/OpenClaw deep in the file
-	// near Use with Claude Desktop. Sweep moves them up.
+	// near Use with Claude Desktop. Sweep moves them up, strips the
+	// legacy ## Use with Claude Code section, and pulls Claude Desktop
+	// up to live alongside Hermes/OpenClaw.
 	body := `# Fedex CLI
 
 ## Install
@@ -356,15 +394,23 @@ desktop body.
 	got := patchReadmeHermesOpenClaw(body, ctx)
 
 	hermesIdx := strings.Index(got, "## Install for Hermes")
+	openclawIdx := strings.Index(got, "## Install for OpenClaw")
+	desktopIdx := strings.Index(got, "## Use with Claude Desktop")
 	authIdx := strings.Index(got, "## Authentication")
-	codeIdx := strings.Index(got, "## Use with Claude Code")
 
-	if hermesIdx < 0 || authIdx < 0 || codeIdx < 0 {
-		t.Fatalf("missing expected section: hermes=%d auth=%d code=%d\n%s", hermesIdx, authIdx, codeIdx, got)
+	if hermesIdx < 0 || openclawIdx < 0 || desktopIdx < 0 || authIdx < 0 {
+		t.Fatalf("missing expected section: hermes=%d openclaw=%d desktop=%d auth=%d\n%s",
+			hermesIdx, openclawIdx, desktopIdx, authIdx, got)
 	}
-	// Hermes must now be BEFORE Authentication (i.e. moved to top), not BEFORE Use with Claude Code (its old neighbor).
-	if !(hermesIdx < authIdx) {
-		t.Errorf("Hermes must appear before Authentication after sweep; hermes=%d auth=%d:\n%s", hermesIdx, authIdx, got)
+	// Hermes → OpenClaw → Claude Desktop → Authentication is the canonical order.
+	if !(hermesIdx < openclawIdx && openclawIdx < desktopIdx && desktopIdx < authIdx) {
+		t.Errorf("expected order Hermes → OpenClaw → Claude Desktop → Authentication; got %d/%d/%d/%d:\n%s",
+			hermesIdx, openclawIdx, desktopIdx, authIdx, got)
+	}
+	// ## Use with Claude Code is now stripped — its skill-install
+	// content is covered by the canonical ## Install block.
+	if strings.Contains(got, "## Use with Claude Code") {
+		t.Errorf("## Use with Claude Code should be stripped:\n%s", got)
 	}
 	// Old "via" naming gone.
 	if strings.Contains(got, "## Install via Hermes") || strings.Contains(got, "## Install via OpenClaw") {
@@ -373,6 +419,86 @@ desktop body.
 	// Anchor still present, exactly once.
 	if strings.Count(got, "<!-- pp-hermes-install-anchor -->") != 1 {
 		t.Errorf("anchor should appear exactly once; got %d", strings.Count(got, "<!-- pp-hermes-install-anchor -->"))
+	}
+	// Claude Desktop body is preserved verbatim.
+	if !strings.Contains(got, "desktop body.") {
+		t.Errorf("Claude Desktop section body was lost:\n%s", got)
+	}
+}
+
+func TestPatchReadmeHermesOpenClaw_StripsAnchorInsideMovedClaudeDesktop(t *testing.T) {
+	// Pre-PR layout for trigger-dev had the pp-hermes-install-anchor
+	// comment sitting at the end of the ## Use with Claude Desktop
+	// section, just before the next H2. Without explicit stripping, the
+	// anchor rides along when the section is moved to canonical
+	// position — and produces a duplicate alongside the canonical anchor
+	// we re-insert. Both copies survive future sweep runs (idempotent
+	// with the duplicate), so the regression persists silently.
+	body := `# X CLI
+
+## Install
+
+cli body.
+
+## Install for Hermes
+
+hermes body.
+
+## Install for OpenClaw
+
+openclaw body.
+
+## Use with Claude Desktop
+
+desktop body.
+
+<!-- pp-hermes-install-anchor -->
+## Authentication
+
+auth body.
+`
+	ctx := patchReadmeCtx{CLIName: "x-pp-cli", APIName: "x", Category: "other"}
+	got := patchReadmeHermesOpenClaw(body, ctx)
+
+	if n := strings.Count(got, "<!-- pp-hermes-install-anchor -->"); n != 1 {
+		t.Errorf("anchor should appear exactly once after sweep; got %d:\n%s", n, got)
+	}
+	if !strings.Contains(got, "## Use with Claude Desktop") {
+		t.Errorf("Claude Desktop section was lost:\n%s", got)
+	}
+	if !strings.Contains(got, "desktop body.") {
+		t.Errorf("Claude Desktop section body was lost:\n%s", got)
+	}
+}
+
+func TestPatchReadmeHermesOpenClaw_NoClaudeDesktopSection(t *testing.T) {
+	// Not every CLI ships an MCPB bundle. When ## Use with Claude
+	// Desktop is absent, the sweep must not invent one.
+	body := `# X CLI
+
+## Install
+
+cli body.
+
+## Use with Claude Code
+
+claude code body.
+
+## Authentication
+
+auth body.
+`
+	ctx := patchReadmeCtx{CLIName: "x-pp-cli", APIName: "x", Category: "other"}
+	got := patchReadmeHermesOpenClaw(body, ctx)
+
+	if strings.Contains(got, "## Use with Claude Desktop") {
+		t.Errorf("sweep must not fabricate ## Use with Claude Desktop when absent:\n%s", got)
+	}
+	if strings.Contains(got, "## Use with Claude Code") {
+		t.Errorf("## Use with Claude Code should be stripped:\n%s", got)
+	}
+	if !strings.Contains(got, "## Install for Hermes") || !strings.Contains(got, "## Install for OpenClaw") {
+		t.Errorf("canonical Hermes/OpenClaw blocks missing:\n%s", got)
 	}
 }
 
@@ -487,11 +613,27 @@ stuff.
 		t.Errorf("legacy ### Binary subsection still present:\n%s", got)
 	}
 	// Canonical npx install line present.
-	if !strings.Contains(got, "npx -y @mvanhorn/printing-press install x\n") {
+	if !strings.Contains(got, "npx -y @mvanhorn/printing-press-library install x\n") {
 		t.Errorf("canonical npx install line not present:\n%s", got)
 	}
-	if !strings.Contains(got, "npx -y @mvanhorn/printing-press install x --cli-only") {
+	if !strings.Contains(got, "npx -y @mvanhorn/printing-press-library install x --cli-only") {
 		t.Errorf("--cli-only variant not present:\n%s", got)
+	}
+	// --skill-only variant is documented for skill-only installs / updates.
+	if !strings.Contains(got, "npx -y @mvanhorn/printing-press-library install x --skill-only") {
+		t.Errorf("--skill-only variant not present:\n%s", got)
+	}
+	// --agent flag is documented for constraining the skill install to one
+	// or more specific agents.
+	if !strings.Contains(got, "--agent claude-code") {
+		t.Errorf("--agent variant not present:\n%s", got)
+	}
+	// The agent-list parenthetical names well-known agents so a scanning
+	// reader (human or agent) sees the supported scope.
+	for _, expected := range []string{"Claude Code", "Codex", "Cursor", "Gemini CLI", "GitHub Copilot"} {
+		if !strings.Contains(got, expected) {
+			t.Errorf("expected agent %q named in install headline:\n%s", expected, got)
+		}
 	}
 	// Go fallback retained, with module path derived from category.
 	if !strings.Contains(got, "go install github.com/mvanhorn/printing-press-library/library/other/x/cmd/x-pp-cli@latest") {

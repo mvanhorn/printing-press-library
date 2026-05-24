@@ -1,22 +1,19 @@
 name: Verify library conventions
 
-# PR-time guards for five invariants that local builds and the existing
+# PR-time guards for four invariants that local builds and the existing
 # verify-skills.yml / verify-manifests.yml workflows do not catch:
 #
-# 1. cli-skills/<slug>/SKILL.md must equal what
-#    tools/generate-skills/main.go would produce from the current
-#    library/<cat>/<slug>/SKILL.md. Hand-edits to either side without
-#    re-running the generator produce drift that ships to users
-#    immediately via `npx skills add`. The post-merge auto-regen
-#    workflow fixes drift after the fact, but a PR can ship visibly
-#    drifted mirrors that real users consume in the meantime.
+# 1. registry.json and cli-skills/pp-*/SKILL.md are generated artifacts
+#    regenerated post-merge by generate-registry.yml and
+#    generate-skills.yml and committed back to main with [skip ci]. PR
+#    commits that touch these files cause silent overwrite on the next
+#    regen and produce gnarly merge conflicts in the interim. The single
+#    rule is: don't commit them in PRs. The fix is identical for fork
+#    and same-repo PRs (drop the files from the diff and let post-merge
+#    regen produce them), so the workflow no longer auto-fixes drift or
+#    distinguishes between fork and same-repo origin.
 #
-# 2. registry.json is generated from library metadata on main. Older
-#    PR flows sometimes committed it directly; same-repo PRs should have
-#    that generated diff removed automatically, and fork PRs should get
-#    a direct failure explaining the source-of-truth boundary.
-#
-# 3. library/<cat>/<slug>/go.mod's declared `module` path must match
+# 2. library/<cat>/<slug>/go.mod's declared `module` path must match
 #    its directory location (github.com/mvanhorn/printing-press-library/<dirpath>).
 #    A mismatch compiles fine locally because the package is internally
 #    self-consistent, but every public install via `go install …@latest`
@@ -25,34 +22,37 @@ name: Verify library conventions
 #    The hubspot CLI shipped with this exact bug for some time before
 #    being caught.
 #
-# 4. Every published CLI manifest must carry printer attribution, and
+# 3. Every published CLI manifest must carry printer attribution, and
 #    existing CLI attribution must not change in the same PR as CLI
 #    behavior or docs. The printer / author fields are reviewable when
 #    corrected in an attribution-only PR, but a normal CLI improvement
 #    PR should never accidentally claim ownership of someone else's CLI.
 #
-# 5. Newly added library CLI packages must include the publish-package
+# 4. Newly added library CLI packages must include the publish-package
 #    artifacts and provenance that reviewers need to audit the print:
 #    per-CLI AGENTS.md, patch manifest, manuscripts tied to run_id,
 #    novel feature metadata, and MCP manifests when advertised. The
 #    publish-skill PR body sections are suggested from these artifacts,
 #    but artifact completeness remains the source of truth.
+#
+# 5. Prebuilt MCPB/native binary payloads must not be committed under
+#    library/. Release assets are built from source in GitHub Actions,
+#    then published from that workflow.
+#
+# 6. Newly added library CLIs must have been printed by cli-printing-press
+#    v4.10.0 or newer. That release renamed the generator binary from
+#    `printing-press` to `cli-printing-press`; stale local generator
+#    checkouts and skill installs should fail with direct upgrade
+#    instructions instead of publishing ambiguous old artifacts. Existing
+#    published CLIs can still receive narrow bugfixes even when their
+#    historical manifest records an older Printing Press version.
 
 on:
   pull_request:
-    paths:
-      - 'library/**'
-      - 'cli-skills/**'
-      - 'registry.json'
-      - 'tools/generate-skills/**'
-      - 'tools/sweep-canonical/**'
-      - '.github/scripts/verify-attribution/**'
-      - '.github/scripts/verify-publish-package/**'
-      - '.github/workflows/verify-library-conventions.yml'
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   verify:
@@ -66,138 +66,158 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Check generated registry diff
-        id: registry-diff
+      - name: Fetch base ref
+        id: base
         if: github.event_name == 'pull_request'
         env:
           BASE_REF: ${{ github.base_ref }}
           BASE_REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
+          # Single authoritative fetch of base. Downstream steps reuse
+          # `refs/remotes/base/${BASE_REF}` so they all see the same
+          # base commit even if `main` advances mid-job.
+          git remote add base "https://github.com/${BASE_REPO}.git" 2>/dev/null \
+            || git remote set-url base "https://github.com/${BASE_REPO}.git"
+          git fetch --no-tags base "${BASE_REF}:refs/remotes/base/${BASE_REF}"
+          echo "ref=refs/remotes/base/${BASE_REF}" >> "${GITHUB_OUTPUT}"
 
-          git remote add base "https://github.com/${BASE_REPO}.git" 2>/dev/null || git remote set-url base "https://github.com/${BASE_REPO}.git"
-          base_remote_ref="refs/remotes/base/${BASE_REF}"
-          git fetch --no-tags base "${BASE_REF}:${base_remote_ref}"
+      - name: Overlay verifier scripts from base
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_REMOTE_REF: ${{ steps.base.outputs.ref }}
+        run: |
+          set -euo pipefail
+          # Run the latest verifier scripts (from base) against the PR's
+          # tree, not whatever stale version the PR was branched from.
+          # Without this overlay, a PR opened against an old main runs
+          # the verifier as it existed back then — surfacing checks that
+          # have since been relaxed and missing checks that have since
+          # been added. It's also the right security default: fork PRs
+          # shouldn't be able to ship their own modified verifier.
+          #
+          # tools/generate-registry is overlaid for the same reason: the
+          # "Validate registry source descriptions" step below runs it in
+          # --validate mode, so it is a verifier too. A PR branched before
+          # the --validate flag existed otherwise runs its own stale tool
+          # and dies with "flag provided but not defined: -validate"
+          # instead of a real validation message (or a pass).
+          for path in \
+            .github/scripts/verify-attribution \
+            .github/scripts/verify-binary-payload \
+            .github/scripts/verify-press-version \
+            .github/scripts/verify-publish-package \
+            tools/generate-registry
+          do
+            if git cat-file -e "${BASE_REMOTE_REF}:${path}" 2>/dev/null; then
+              git checkout "${BASE_REMOTE_REF}" -- "${path}"
+            fi
+          done
 
-          if git diff --quiet "${base_remote_ref}...HEAD" -- registry.json; then
-            echo "registry.json is not changed by this PR."
-            echo "changed=false" >> "${GITHUB_OUTPUT}"
+      - name: Fail on changes to generated artifacts
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_REMOTE_REF: ${{ steps.base.outputs.ref }}
+        run: |
+          set -euo pipefail
+
+          # registry.json and cli-skills/pp-*/SKILL.md are regenerated
+          # post-merge by generate-registry.yml and generate-skills.yml
+          # and committed back to main with [skip ci]. Any PR commit
+          # that changes them is silently overwritten on the next regen
+          # and produces gnarly merge conflicts in the interim. The fix
+          # is identical for fork and same-repo PRs (drop the files
+          # from the diff), so this single check replaces the older
+          # Guard + auto-fix + fork-only drift trio.
+          #
+          # cli-skills/AGENTS.md and other meta files under cli-skills/
+          # are hand-maintained; only pp-*/SKILL.md is generated.
+
+          # Flag a file only when BOTH conditions hold:
+          #   (a) the PR's commits touched it (merge-base aware: not
+          #       just "tree differs from base"), AND
+          #   (b) HEAD's content differs from current base
+          #
+          # (a) alone (the old `...` form) over-fires when a stale-base
+          # PR was caught up by checking out base's version of the file
+          # — the final tree matches base, but merge-base diff still
+          # sees a commit touching it.
+          #
+          # (b) alone (the previous `..` form) over-fires when the PR's
+          # commits never touched the file but its HEAD tree carries
+          # an older snapshot (every post-merge [skip ci] regen on main
+          # advances those paths; any unrebased PR will lag and trip).
+          #
+          # The intersection is the only signal that means "this PR
+          # introduced a divergent change to a generated file."
+
+          # `awk 'NF'` keeps non-blank lines; unlike `grep -v '^$'`, it exits
+          # 0 even when no lines pass through. With `set -o pipefail`, the
+          # previous `grep -v '^$'` form failed the assignment whenever
+          # `git log` produced empty output (the common no-touch case),
+          # making the whole step exit 1 with no stdout. awk's exit code
+          # reflects script errors only, not match counts.
+          touched=$(git log "${BASE_REMOTE_REF}..HEAD" --name-only --format= \
+            -- 'registry.json' 'cli-skills/pp-*/SKILL.md' \
+            | awk 'NF' | sort -u)
+          differs=$(git diff --name-only "${BASE_REMOTE_REF}" HEAD \
+            -- 'registry.json' 'cli-skills/pp-*/SKILL.md' \
+            | sort -u)
+
+          if [ -z "$touched" ] || [ -z "$differs" ]; then
+            echo "No PR commits introduce divergent changes to generated artifacts. OK."
             exit 0
           fi
 
-          echo "changed=true" >> "${GITHUB_OUTPUT}"
+          violations=$(comm -12 <(echo "$touched") <(echo "$differs"))
 
-      - name: Reset generated registry diff
-        if: steps.registry-diff.outputs.changed == 'true' && github.event.pull_request.head.repo.full_name == github.repository
-        env:
-          BASE_REF: ${{ github.base_ref }}
-        run: |
-          set -euo pipefail
-          base_remote_ref="refs/remotes/base/${BASE_REF}"
-          git checkout "${base_remote_ref}" -- registry.json
+          if [ -z "$violations" ]; then
+            echo "No changes to generated artifacts. OK."
+            exit 0
+          fi
 
-      - name: Fail on generated registry diff from fork
-        if: steps.registry-diff.outputs.changed == 'true' && github.event.pull_request.head.repo.full_name != github.repository
-        run: |
-          echo "::error file=registry.json::registry.json is generated on main from library metadata. Remove it from this fork PR and let generate-registry.yml update it after merge."
+          echo "::error::This PR modifies generated artifacts that are regenerated post-merge:"
+          while IFS= read -r file; do
+            [ -z "$file" ] && continue
+            echo "::error file=${file}::Remove this file from the PR. It is regenerated post-merge by generate-registry.yml or generate-skills.yml."
+          done <<< "$violations"
+          echo
+          echo "::error::Edit the source instead:"
+          echo "::error::  - registry.json source: library/<cat>/<slug>/.printing-press.json + manifest.json"
+          echo "::error::  - cli-skills/pp-<slug>/SKILL.md source: library/<cat>/<slug>/SKILL.md"
           exit 1
 
       - name: Guard CLI attribution
         if: github.event_name == 'pull_request'
         env:
-          BASE_REF: ${{ github.base_ref }}
+          BASE_REMOTE_REF: ${{ steps.base.outputs.ref }}
         run: |
           set -euo pipefail
-          base_remote_ref="refs/remotes/base/${BASE_REF}"
-          python3 .github/scripts/verify-attribution/verify_attribution.py --base "${base_remote_ref}"
+          python3 .github/scripts/verify-attribution/verify_attribution.py --base "${BASE_REMOTE_REF}"
 
       - name: Publish package completeness
         if: github.event_name == 'pull_request'
         env:
-          BASE_REF: ${{ github.base_ref }}
-          BASE_REPO: ${{ github.repository }}
+          BASE_REMOTE_REF: ${{ steps.base.outputs.ref }}
         run: |
           set -euo pipefail
+          python3 .github/scripts/verify-publish-package/verify_publish_package.py --base-ref "${BASE_REMOTE_REF}"
 
-          git remote add base "https://github.com/${BASE_REPO}.git" 2>/dev/null || git remote set-url base "https://github.com/${BASE_REPO}.git"
-          base_remote_ref="refs/remotes/base/${BASE_REF}"
-          if ! git show-ref --verify --quiet "${base_remote_ref}"; then
-            git fetch --no-tags base "${BASE_REF}:${base_remote_ref}"
-          fi
-
-          python3 .github/scripts/verify-publish-package/verify_publish_package.py --base-ref "${base_remote_ref}"
-
-      - uses: actions/setup-go@v6
-        with:
-          go-version: '1.26.3'
-
-      - name: cli-skills mirror parity
-        id: skill-diff
+      - name: Block committed MCPB/native binary payloads
+        if: github.event_name == 'pull_request'
         env:
-          EVENT_NAME: ${{ github.event_name }}
+          BASE_REMOTE_REF: ${{ steps.base.outputs.ref }}
         run: |
           set -euo pipefail
-          go run ./tools/generate-skills/main.go > /dev/null
-          # `git status --porcelain` catches both modifications to
-          # tracked mirrors and brand-new mirrors the generator would
-          # create (e.g., when a PR adds a new CLI without committing
-          # its cli-skills/pp-<slug>/SKILL.md alongside).
-          drift=$(git status --porcelain -- cli-skills/)
-          if [ -n "$drift" ]; then
-            echo
-            echo "Out-of-sync entries:"
-            echo "$drift"
-            echo "changed=true" >> "${GITHUB_OUTPUT}"
+          python3 .github/scripts/verify-binary-payload/verify_binary_payload.py --base-ref "${BASE_REMOTE_REF}"
 
-            if [ "${EVENT_NAME}" = "pull_request" ]; then
-              exit 0
-            fi
-
-            echo "::error::cli-skills/ is out of sync with what tools/generate-skills produces from library/<cat>/<slug>/SKILL.md."
-            echo "::error::Run \`go run ./tools/generate-skills/main.go\` locally and commit the result."
-            exit 1
-          fi
-          echo "changed=false" >> "${GITHUB_OUTPUT}"
-          echo "cli-skills/ matches generator output."
-
-      - name: Commit generated convention fixes
-        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && (steps.registry-diff.outputs.changed == 'true' || steps.skill-diff.outputs.changed == 'true')
+      - name: Require current cli-printing-press for new CLIs
+        if: github.event_name == 'pull_request'
         env:
-          BASE_REPO: ${{ github.repository }}
-          GITHUB_TOKEN: ${{ github.token }}
-          HEAD_REF: ${{ github.event.pull_request.head.ref }}
-          REGISTRY_CHANGED: ${{ steps.registry-diff.outputs.changed }}
-          SKILL_CHANGED: ${{ steps.skill-diff.outputs.changed }}
+          BASE_REMOTE_REF: ${{ steps.base.outputs.ref }}
         run: |
           set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add registry.json
-          git add -A cli-skills/
-
-          if git diff --staged --quiet; then
-            echo "No generated convention fixes to commit."
-            exit 0
-          fi
-
-          if [ "${REGISTRY_CHANGED}" = "true" ] && [ "${SKILL_CHANGED}" = "true" ]; then
-            message="chore: refresh generated library artifacts"
-          elif [ "${REGISTRY_CHANGED}" = "true" ]; then
-            message="chore(registry): drop generated registry changes"
-          else
-            message="chore(skills): regenerate per-app skills"
-          fi
-
-          git commit -m "${message}"
-          git push "https://x-access-token:${GITHUB_TOKEN}@github.com/${BASE_REPO}.git" "HEAD:${HEAD_REF}"
-          echo "Committed generated convention fixes to the PR branch."
-
-      - name: Fail on cli-skills drift from fork
-        if: steps.skill-diff.outputs.changed == 'true' && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository
-        run: |
-          echo "::error::cli-skills/ is out of sync with what tools/generate-skills produces from library/<cat>/<slug>/SKILL.md."
-          echo "::error::Run \`go run ./tools/generate-skills/main.go\` locally and commit the result."
-          exit 1
+          python3 .github/scripts/verify-press-version/verify_press_version.py --base-ref "${BASE_REMOTE_REF}"
 
       - name: go.mod module path matches directory
         run: |
@@ -216,3 +236,63 @@ jobs:
             exit 1
           fi
           echo "All library/*/*/go.mod module declarations match their directories."
+
+      # Go is needed only for the next step's `go run ./tools/generate-registry`.
+      # Pinned to the same version as the post-merge regen workflow
+      # (generate-registry.yml) so a CI pass here implies the same generator
+      # binary that will run after merge.
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.26.3'
+
+      - name: Validate registry source descriptions
+        # Reject PRs whose .printing-press.json + .goreleaser.yaml sources would
+        # produce an empty `description` (or other required field) in the
+        # post-merge regenerated registry.json. Catches the lawhub-shape
+        # regression at PR time so the npm installer never sees a malformed
+        # entry. See tools/generate-registry/main.go validateEntries() for the
+        # exact field set.
+        #
+        # Scope to the CLIs this PR actually changes. --validate runs against
+        # the PR's whole tree, but a stale PR shouldn't be failed for an
+        # unrelated CLI that is already correct on main — merging the PR won't
+        # change that CLI's manifest, so its in-tree copy never reaches the
+        # post-merge registry. (A PR branched before a CLI's description landed
+        # carries the old description-less manifest for that untouched CLI and
+        # was failing here for agent-capture / tiktok-shop.) We pass the slugs
+        # of CLIs whose registry-source files this PR adds or modifies vs base;
+        # with none, there's nothing to validate. The full-tree invariant still
+        # holds: every CLI is validated by the PR that introduces or edits it.
+        # workflow_dispatch keeps the unscoped whole-library run.
+        #
+        # The file-path form (./tools/generate-registry/main.go) is required
+        # because the repo root has no go.mod — Go locates the tool's go.mod
+        # by walking up from the source file. The package-path form
+        # (./tools/generate-registry) fails with "go.mod not found" from the
+        # repo root. Matches the invocation in generate-registry.yml.
+        #
+        # The tool is overlaid from base in "Overlay verifier scripts from
+        # base" above, so this always runs the current validator (including
+        # the slug-scoping arg) even on a stale-base PR; only the library
+        # data being validated is the PR's.
+        env:
+          BASE_REMOTE_REF: ${{ steps.base.outputs.ref }}
+        run: |
+          set -euo pipefail
+          if [ "${GITHUB_EVENT_NAME}" != "pull_request" ]; then
+            go run ./tools/generate-registry/main.go --validate
+            exit 0
+          fi
+          # --diff-filter=d drops deletions: a CLI the PR removes has nothing
+          # to validate. $3 of library/<cat>/<slug>/<file> is the slug, which
+          # equals the registry entry Name the validator keys its errors on.
+          mapfile -t slugs < <(
+            git diff --name-only --diff-filter=d "${BASE_REMOTE_REF}...HEAD" \
+              -- 'library/*/*/.printing-press.json' 'library/*/*/.goreleaser.yaml' \
+            | awk -F/ 'NF>=3 {print $3}' | sort -u)
+          if [ "${#slugs[@]}" -eq 0 ]; then
+            echo "No CLI registry-source files changed in this PR. Nothing to validate."
+            exit 0
+          fi
+          echo "Validating changed CLIs: ${slugs[*]}"
+          go run ./tools/generate-registry/main.go --validate "${slugs[@]}"

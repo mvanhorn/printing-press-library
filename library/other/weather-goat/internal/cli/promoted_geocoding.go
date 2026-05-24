@@ -6,10 +6,23 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
+	"net/url"
 	"os"
+	"time"
 
 	"github.com/spf13/cobra"
 )
+
+// PATCH (fix-geocoding-wrong-host-502): the spec-derived client uses
+// `https://api.open-meteo.com/v1` for every endpoint, but Open-Meteo splits
+// geocoding to a separate host `geocoding-api.open-meteo.com`. The generated
+// resolveRead call above routes through the wrong base URL and returns
+// HTTP 404. We bypass the spec-derived client for this one endpoint and call
+// the correct host directly (matching `geocodeLookup` in `location.go`).
+// See mvanhorn/printing-press-library#502.
+const geocodingBaseURL = "https://geocoding-api.open-meteo.com/v1"
 
 func newGeocodingPromotedCmd(flags *rootFlags) *cobra.Command {
 	var flagCount int
@@ -21,27 +34,45 @@ func newGeocodingPromotedCmd(flags *rootFlags) *cobra.Command {
 		Long:    "Shortcut for 'geocoding search'. Search for a location by name and get coordinates",
 		Example: "  weather-goat-pp-cli geocoding",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			c, err := flags.newClient()
-			if err != nil {
-				return err
-			}
-
-			path := "/search"
 			if len(args) < 1 {
 				return usageErr(fmt.Errorf("name is required\nUsage: %s %s <%s>", cmd.Root().Name(), cmd.CommandPath(), "name"))
 			}
-			params := map[string]string{}
-			params["name"] = args[0]
+
+			// PATCH (fix-geocoding-wrong-host-502): direct call to the
+			// geocoding host. Mirrors `geocodeLookup` in location.go.
+			params := url.Values{}
+			params.Set("name", args[0])
 			if flagCount != 0 {
-				params["count"] = fmt.Sprintf("%v", flagCount)
+				params.Set("count", fmt.Sprintf("%d", flagCount))
 			}
 			if flagLanguage != "" {
-				params["language"] = fmt.Sprintf("%v", flagLanguage)
+				params.Set("language", flagLanguage)
 			}
-			data, prov, err := resolveRead(c, flags, "geocoding", false, path, params)
-			if err != nil {
-				return classifyAPIError(err)
+			endpoint := geocodingBaseURL + "/search?" + params.Encode()
+
+			if flags.dryRun {
+				return printOutputWithFlags(cmd.OutOrStdout(), json.RawMessage(fmt.Sprintf(`{"dry_run":true,"method":"GET","url":%q}`, endpoint)), flags)
 			}
+
+			httpClient := &http.Client{Timeout: 10 * time.Second}
+			resp, httpErr := httpClient.Get(endpoint) // pp:client-call
+			if httpErr != nil {
+				return apiErr(fmt.Errorf("geocoding request failed: %w", httpErr))
+			}
+			defer resp.Body.Close()
+			body, readErr := io.ReadAll(resp.Body)
+			if readErr != nil {
+				return apiErr(fmt.Errorf("reading geocoding response: %w", readErr))
+			}
+			if resp.StatusCode >= 400 {
+				// Preserve the typed exit-code contract — 404 → exit 3,
+				// 401/403 → exit 4, 429 → exit 7 — instead of forcing every
+				// non-2xx to apiErr (exit 5). classifyAPIError reads the
+				// "HTTP <N>" substring from the message.
+				return classifyAPIError(fmt.Errorf("geocoding API returned HTTP %d: %s", resp.StatusCode, truncate(string(body), 200)))
+			}
+			data := json.RawMessage(body)
+			prov := DataProvenance{Source: "live"}
 			// Unwrap API response envelopes (e.g. {"status":"success","data":[...]})
 			// so output helpers see the inner data, not the wrapper.
 			data = extractResponseData(data)

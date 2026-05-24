@@ -1,27 +1,45 @@
-# Digg AI CLI
+# Digg CLI
 
-**Tail the Digg AI 1000's news cycle from the terminal — read-only, with the full pipeline event stream and rank-history nobody else surfaces.**
+**Tail Digg's news cycle from the terminal — read-only, with the full pipeline event stream, GitHub feeds, and rank-history nobody else surfaces.**
 
-Digg AI is a curated leaderboard of 1,000 AI accounts on X and the story clusters they surface. The web UI shows you today's snapshot. This CLI tails the pipeline events, keeps a local rank-history that survives daily overwrites, and exposes Digg's own replacement rationale and gravity components so an agent can answer 'why this story?' and 'what got dropped overnight?' with structured data.
+Digg is a curated AI-news leaderboard powered by tracked accounts on X and a parallel GitHub feed (stars / new / activity / recent). The web UI shows you today's snapshot. This CLI tails the pipeline events, keeps a local rank-history that survives daily overwrites, exposes Digg's own replacement rationale and gravity components, and surfaces the four GitHub feeds as structured data.
 
 ## Install
 
-The recommended path installs both the `digg-pp-cli` binary and the `pp-digg` agent skill in one shot:
+The recommended path installs both the `digg-pp-cli` binary and the `pp-digg` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install digg
+npx -y @mvanhorn/printing-press-library install digg
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install digg --cli-only
+npx -y @mvanhorn/printing-press-library install digg --cli-only
 ```
 
+For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
-### Without Node
+```bash
+npx -y @mvanhorn/printing-press-library install digg --skill-only
+```
 
-The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
+To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
+
+```bash
+npx -y @mvanhorn/printing-press-library install digg --agent claude-code
+npx -y @mvanhorn/printing-press-library install digg --agent claude-code --agent codex
+```
+
+### Without Node (Go fallback)
+
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/digg/cmd/digg-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
 
 ### Pre-built binary
 
@@ -50,6 +68,39 @@ Tell your OpenClaw agent (copy this):
 Install the pp-digg skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-digg. The skill defines how its required CLI can be installed.
 ```
 
+## Use with Claude Desktop
+
+This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
+
+To install:
+
+1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/digg-current).
+2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
+
+Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
+
+<details>
+<summary>Manual JSON config (advanced)</summary>
+
+If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
+
+
+Install the MCP binary from this CLI's published public-library entry or pre-built release.
+
+Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "digg": {
+      "command": "digg-pp-mcp"
+    }
+  }
+}
+```
+
+</details>
+
 ## Authentication
 
 No auth required. The CLI uses only public surfaces — the /ai page (HTML+RSC scrape) and /api/trending/status (public JSON). It does not use Clerk session cookies or any authenticated endpoint, by design: this is a read-only research tool, and Digg's parent platform was shut down over AI-agent abuse. The CLI is read-only and identifies itself with a clear User-Agent so Digg ops can rate-limit it cleanly.
@@ -60,21 +111,35 @@ No auth required. The CLI uses only public surfaces — the /ai page (HTML+RSC s
 # Pull the current /ai feed and /api/trending/status events into the local store
 digg-pp-cli sync
 
-
 # Read today's top 10 clusters as structured JSON
 digg-pp-cli top --limit 10 --json
-
 
 # See which stories climbed the rankings in the last hour with explicit rank deltas
 digg-pp-cli events --since 1h --type fast_climb
 
-
 # What got knocked out of the rankings overnight and Digg's own rationale for each
 digg-pp-cli replaced --since 24h
 
-
-# The Digg AI 1000's top influencers by Digg's score
+# Top influencers tracked by Digg, ranked by Digg's score
 digg-pp-cli authors top --by influence --limit 25
+
+# Top AI repos by starring activity from Digg-tracked accounts
+digg-pp-cli github stars --limit 10 --json
+
+# Smart-money convergence — repos starred by >= 2 distinct AI-builder accounts
+digg-pp-cli github stars --min-starrers 2 --json
+
+# Live GitHub activity feed: who starred / committed / opened issues, in real time
+digg-pp-cli github recent --limit 20 --json
+
+# Curated emerging AI companies from the /ai/x/rankings/companies snapshot
+digg-pp-cli rankings emerging --json
+
+# Companies climbing fastest in follower count since the last snapshot
+digg-pp-cli rankings movers --direction up --json
+
+# Full company ranking (initial-HTML slice)
+digg-pp-cli rankings list --limit 20 --json
 
 ```
 
@@ -170,7 +235,7 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   digg-pp-cli crossref iq7usf9e
   ```
-- **`authors top`** — Top accounts in the Digg AI 1000 ranked by Digg's influence score, story count, or reach.
+- **`authors top`** — Top accounts Digg tracks, ranked by Digg's influence score, story count, or reach.
 
   _Investors and AI scouts care which accounts move the news cycle. Now queryable, sortable, scriptable._
 
@@ -216,10 +281,27 @@ Run `digg-pp-cli --help` for the full command reference and flag list.
 
 ### feed
 
-Top-level AI story feed (HTML page; CLI parses the embedded RSC stream)
+Top-level story feed (HTML page; CLI parses the embedded RSC stream)
 
 - **`digg-pp-cli feed raw`** - Fetch the raw /ai HTML page. The CLI's sync command parses this; most users should run `sync` then `top` instead of calling this directly.
 - **`digg-pp-cli feed story_raw`** - Fetch the raw /ai/{clusterUrlId} story detail page (HTML). The CLI's `story` command parses this; users should not need to call this directly.
+
+### github
+
+GitHub feeds Digg surfaces alongside the X-account leaderboard. Four flavors, each parsed from the embedded RSC stream.
+
+- **`digg-pp-cli github stars`** - Top AI repos ranked by starring activity from Digg-tracked accounts. Returns repo name, language, stargazers_count, recent starrer list, breakout_score, novel_score, ai_related_score, and the model's one-sentence classification. Flag: `--min-starrers N` filters to repos starred by >= N distinct accounts (smart-money convergence).
+- **`digg-pp-cli github new`** - Recently first-seen repos with the Digg-tracked creator/starrer who first put them on Digg's radar (event_id, event_created_at, repo_full_name, creator).
+- **`digg-pp-cli github activity`** - Top GitHub contributor leaderboard: per-author rank, contribution count, and distinct repos.
+- **`digg-pp-cli github recent`** - Live activity feed: per-event entries with the GitHub URL and the user who acted.
+
+### Rankings views
+
+Sub-views of the `/ai/x/rankings/companies` page, each parsed from a distinct section of the same RSC stream. Every command shares a schema-drift gate via `--max-skip-ratio` (default 0.10).
+
+- **`digg-pp-cli rankings emerging`** - Curated list of small AI companies (the "EMERGING STARTUPS — CURATED THIS SNAPSHOT" section). ~10 rows per snapshot. Each row carries `isEmergingStartup` (the AI judge's verdict) plus the curator's `emergingReasoning` text.
+- **`digg-pp-cli rankings movers`** - Companies whose follower count shifted most since the last snapshot. `--direction up|down|both` (default both, with direction tagged per row). ~10 rows per side.
+- **`digg-pp-cli rankings list`** - Full company ranking (the "Companies followed by the AI 2K" section). Server-paginated; returns the initial-HTML slice. `--limit` caps.
 
 ### search
 
@@ -229,10 +311,10 @@ Topic search across the full Digg window
 
 ### authors
 
-Inspect the Digg AI 1000 leaderboard
+Inspect Digg's tracked AI-news accounts (the /ai/1000 roster).
 
 - **`digg-pp-cli authors get <handle>`** - Look up any X handle (1000 + off-1000); off-1000 records include `subject_peer_follow_count`, the rank-1000 `nearest_in_1000` anchor, and `peer_follow_gap`. Flag: `--limit` (fuzzy fallback).
-- **`digg-pp-cli authors list`** - Full ranked AI 1000 from `/ai/1000`, persisted with rich fields. Flags: `--by rank|rankChange|category|followers`, `--category`, `--only-new`, `--only-fallers`, `--limit`.
+- **`digg-pp-cli authors list`** - Full ranked roster from `/ai/1000`, persisted with rich fields. Flags: `--by rank|rankChange|category|followers`, `--category`, `--only-new`, `--only-fallers`, `--limit`.
 - **`digg-pp-cli authors top`** - Top contributors by influence, post count, or reach.
 
 ### posts
@@ -250,7 +332,6 @@ Full cluster detail. The envelope now includes `posts` and `postsMeta` fields po
 Public ingestion-pipeline status and event stream
 
 - **`digg-pp-cli trending status`** - Read the current pipeline status: storiesToday, clustersToday, isFetching, nextFetchAt, and the recent event stream (cluster_detected, fast_climb, post_understanding, batch_started, batch_breakdown, posts_stored, embedding_progress).
-
 
 ## Output Formats
 
@@ -284,65 +365,6 @@ This CLI is designed for AI agent consumption:
 - **Agent-safe by default** - no colors or formatting unless `--human-friendly` is set
 
 Exit codes: `0` success, `2` usage error, `3` not found, `5` API error, `7` rate limited, `10` config error.
-
-## Use with Claude Code
-
-Install the focused skill — it auto-installs the CLI on first invocation:
-
-```bash
-npx skills add mvanhorn/printing-press-library/cli-skills/pp-digg -g
-```
-
-Then invoke `/pp-digg <query>` in Claude Code. The skill is the most efficient path — Claude Code drives the CLI directly without an MCP server in the middle.
-
-<details>
-<summary>Use as an MCP server in Claude Code (advanced)</summary>
-
-If you'd rather register this CLI as an MCP server in Claude Code, install the MCP binary first:
-
-
-Install the MCP binary from this CLI's published public-library entry or pre-built release.
-
-Then register it:
-
-```bash
-claude mcp add digg digg-pp-mcp
-```
-
-</details>
-
-## Use with Claude Desktop
-
-This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
-
-To install:
-
-1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/digg-current).
-2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
-
-Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
-
-<details>
-<summary>Manual JSON config (advanced)</summary>
-
-If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
-
-
-Install the MCP binary from this CLI's published public-library entry or pre-built release.
-
-Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "digg": {
-      "command": "digg-pp-mcp"
-    }
-  }
-}
-```
-
-</details>
 
 ## Health Check
 

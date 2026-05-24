@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-15",
+  "base_run_id": "20260515-050804",
+  "base_printing_press_version": "4.2.2",
+  "patches": [
+    {
+      "id": "feat-comments-and-handle-resolution",
+      "summary": "Add commentThreads typed endpoint, --for-handle flag on channels-list, novel videos-comments (top by likeCount), novel channel-uploads (resolves @handle -> uploads playlist -> recent uploads in one call), and opt-in cmd.Context() propagation through the HTTP client for novel commands.",
+      "reason": "The trimmed YouTube spec in this CLI did not include /youtube/v3/commentThreads, blocking the most common audience-signal use case ('what do people say about this video'). channels.list also wired the deprecated --for-username but not the modern --for-handle, forcing fuzzy search for any @handle resolution. The standard 'recent uploads from channel X' workflow required two API calls (channels.list -> contentDetails.relatedPlaylists.uploads, then playlistItems.list) which novel channel-uploads collapses. Greptile P2 (2026-05-15 PR #585) flagged that internal/client/client.go discarded cmd.Context(), so Ctrl+C and --timeout did not cancel in-flight Data API calls; opt-in WithContext lets novel commands honor cancellation while leaving generated typed endpoints unchanged (full ctx propagation through resolvePaginatedRead is a generator-side fix, not a per-CLI fix).",
+      "files": [
+        "spec.yaml",
+        "internal/client/client.go",
+        "internal/cli/youtube.go",
+        "internal/cli/youtube_channels-list.go",
+        "internal/cli/youtube_comment-threads-list.go",
+        "internal/cli/videos_comments.go",
+        "internal/cli/channel_uploads.go",
+        "internal/cli/search_bulk.go",
+        "internal/cli/videos_embed.go"
+      ],
+      "validated_outcome": "go build ./... and go vet ./... clean. Polish skill scorecard 77/100 (B). videos-comments returns top-10-by-likeCount JSON for any public video (verified against dQw4w9WgXcQ). channel-uploads @veritasium returns recent uploads in one call. channels-list --for-handle @veritasium resolves the channel without forUsername. search-bulk titles render apostrophes as ' instead of &#39;."
+    },
+    {
+      "id": "polish-html-unescape-and-ranking",
+      "summary": "HTML-unescape titles and channelTitle in videos-related's searchListVideos helper; lower same_channel weight from 3 to 1 and raise shared_topic from 2 to 3 in videos-related ranking so cross-channel topic-shared videos outrank channel-mate fillers; emit stderr warning when 100% of videos-related results come from the input video's own channel.",
+      "reason": "Polish-pass output review (2026-05-15) found that search.list returns titles with HTML entities like &#39; and &amp;, which were leaking into JSON consumers and cached values verbatim. The original same_channel weight (3) dominated tag/topic matches, producing channel-mate filler when better cross-channel matches existed in the topic search. The 100%-same-channel case is a tell that the input video has thin topicDetails/tags or the local sync is too narrow; the warning lets agents widen the sync or pick a richer anchor. Greptile P2 (2026-05-15 PR #585) confirmed search-bulk had the same HTML-entity bug, fixed in the same patch family for consistency.",
+      "files": [
+        "internal/cli/videos_related.go"
+      ],
+      "validated_outcome": "Output-review WARN count went from 2 to 0 (entities decoded; cross-channel diversity improved). videos-related dQw4w9WgXcQ --limit 10 returns mixed-channel results dominated by topic/tag matches, with apostrophes rendered correctly."
+    },
+    {
+      "id": "feat-playlist-enrich-and-description-links",
+      "summary": "Add two novel read-only commands for yt-video-mcp parity: playlist-enrich (resolves a playlist URL/ID -> per-video metadata + transcript + description in one concurrent, start-index/limit-paged call with per-row error isolation) and videos-links (extracts HTTP(S) links from a video description, expands known short-link redirects, and skips social/storefront noise).",
+      "reason": "The published CLI had per-video transcript (videos-transcript) and uploads-playlist walking (channel-uploads) but no command that resolves an arbitrary playlist to enriched per-video rows in one call, and no command that surfaces the resource links creators put in descriptions. playlist-enrich collapses the playlistItems.list -> videos.list -> per-video InnerTube transcript workflow with cliutil.FanoutRun-bounded concurrency, --start-index/--limit paging over the resolved ID list, and per-row transcriptError/metadataError fields so one captionless video never aborts the run. videos-links calls videos.list for the description, regex-extracts URLs, and (under --resolve, default on) follows redirects for known shorteners (amzn.to, bit.ly, goo.gl, ow.ly, t.co, tinyurl.com, buff.ly) to their final URL; --include-social (default off) controls the social/storefront skip filter. Both reuse the existing transcript helpers and HTML-unescape titles/descriptions to match the existing novel commands.",
+      "files": [
+        "internal/cli/playlist_enrich.go",
+        "internal/cli/playlist_enrich_test.go",
+        "internal/cli/videos_links.go",
+        "internal/cli/videos_links_test.go",
+        "internal/cli/youtube.go"
+      ],
+      "validated_outcome": "publish validate: 11/12 checks pass (manifest, transcendence, phase5, go mod tidy, govulncheck, go vet, go build, --help, --version, manuscripts). The one failure (verify-skill: SKILL.md install-section drift) is pre-existing on upstream/main and unrelated to this amend — SKILL.md is untouched; the public library refreshes generator-owned skill sections post-merge. go test ./... clean; new table-driven tests cover parsePlaylistID, parseVideoID, hostOf, isNoisyHost, and extractDescriptionLinks (dedupe, trailing-punct trim, shortener flagging, social skip). Dry-run verified for both commands against the test playlist PLkdrbggVaVRDNyR3b5SlqcI9Z0xJjShTh and watch/bare-ID inputs; bad-input usage errors exit 2.",
+      "findings_addressed": [
+        "F1",
+        "F2"
+      ],
+      "patch_count": 2
+    },
+    {
+      "id": "feat-videos-enrich-and-greptile-fixes",
+      "summary": "Add a third novel read-only command, videos-enrich (single-video analog of playlist-enrich: one call -> one video's metadata + transcript + description in the same enrichedVideo shape, --lang/--no-transcript), and resolve the three Greptile P2 findings on the playlist-enrich/videos-links commits.",
+      "reason": "playlist-enrich only handled whole playlists; the single-video path still required chaining videos-list + videos-transcript, so videos-enrich collapses that into one call by reusing fetchVideoMetadata and fetchTranscriptForVideo (no new payloads). Greptile P2 (PR #803): (1) resolveRedirect set http.Client.Timeout equal to the rctx context deadline, which was dead/misleading since both requests run under rctx via NewRequestWithContext; removed it. (2) parseVideoID accepted any final path segment, so /c/Name, /channel/UC..., /user/Name, @handle, and /playlist returned a bogus ID that reached videos.list and produced a confusing 'video X not found'; tightened to require an 11-char video-ID shape and to read a path segment only for known video URLs (youtu.be/, /embed/, /shorts/, /live/), returning '' otherwise so the caller emits a clear 'could not extract a video ID' error. (3) playlist-enrich reported totalItems as the scanned count, capping at the page window; now reads the true playlist length from playlistItems.list pageInfo.totalResults so startIndex+returned < totalItems is a valid has-more test.",
+      "files": [
+        "internal/cli/videos_enrich.go",
+        "internal/cli/videos_enrich_test.go",
+        "internal/cli/videos_links.go",
+        "internal/cli/playlist_enrich.go",
+        "internal/cli/playlist_enrich_test.go",
+        "internal/cli/youtube.go"
+      ],
+      "validated_outcome": "go build ./..., go vet ./..., go test ./..., and gofmt clean on the youtube module. Added 7 parseVideoID regression cases (channel/playlist/user/@handle URLs and bad-length bare tokens all -> '') and a new videos_enrich_test.go fakeAPIGetter suite covering fetchVideoMetadata field mapping, HTML-entity unescaping, thumbnail priority (high>medium>default), and the missing-video case. videos-enrich live-verified against dQw4w9WgXcQ (metadata + 458-word transcript + 332-word description in one call; --no-transcript drops the transcript). All 5 PR CI checks green (Verify, Validate SKILL.md, Govulncheck, Greptile Review, Greptile policy gate).",
+      "findings_addressed": [
+        "F3"
+      ],
+      "patch_count": 1
+    }
+  ],
+  "machine_followups": [
+    {
+      "issue": "internal/client/client.go's do() and the resolvePaginatedRead helper do not thread cmd.Context() to outbound HTTP requests by default, so generated typed endpoints (channels-list, videos-list, etc.) cannot be cancelled with Ctrl+C and ignore --timeout. The per-CLI WithContext escape hatch fixes only hand-authored commands.",
+      "scope": "generator (cli-printing-press)",
+      "filed_as": "TBD — file at github.com/mvanhorn/cli-printing-press"
+    },
+    {
+      "issue": "Generator emits HTML-entity-bearing API response strings to JSON consumers without unescaping at the API boundary. Affects every search-shaped endpoint across YouTube and other APIs whose payloads carry HTML-encoded text.",
+      "scope": "generator (cli-printing-press)",
+      "filed_as": "TBD — file at github.com/mvanhorn/cli-printing-press"
+    }
+  ]
+}

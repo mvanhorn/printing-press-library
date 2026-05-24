@@ -1,0 +1,5475 @@
+{
+  "api_name": "supabase",
+  "base_url": "https://api.supabase.com",
+  "description": "Supabase API generated from the OpenAPI specification.\u003cbr\u003eVisit [https://supabase.com/docs](https://supabase.com/docs) for a complete documentation.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "SUPABASE_ACCESS_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "SUPABASE_ACCESS_TOKEN",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "branches_delete-a-branch",
+      "description": "Deletes the specified database branch. By default, deletes immediately. Use force=false to schedule deletion with 1-hour grace period (only when soft deletion is enabled). Required: branch_id_or_ref. Optional: force (default: true). Returns the BranchDeleteResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/branches/{branch_id_or_ref}",
+      "params": [
+        {
+          "name": "branch_id_or_ref",
+          "type": "string",
+          "location": "path",
+          "description": "Branch ref or deprecated branch ID",
+          "required": true
+        },
+        {
+          "name": "force",
+          "type": "bool",
+          "location": "query",
+          "description": "If set to false, schedule deletion with 1-hour grace period (only when soft deletion is enabled)."
+        }
+      ]
+    },
+    {
+      "name": "branches_get-a-branch-config",
+      "description": "Fetches configurations of the specified database branch. Required: branch_id_or_ref. Returns the BranchDetailResponse.",
+      "method": "GET",
+      "path": "/v1/branches/{branch_id_or_ref}",
+      "params": [
+        {
+          "name": "branch_id_or_ref",
+          "type": "string",
+          "location": "path",
+          "description": "Branch ref or deprecated branch ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "branches_update-a-branch-config",
+      "description": "Updates the configuration of the specified database branch. Required: branch_id_or_ref. Optional: branch_name, git_branch, notify_url (plus 4 more). Returns the updated BranchResponse.",
+      "method": "PATCH",
+      "path": "/v1/branches/{branch_id_or_ref}",
+      "params": [
+        {
+          "name": "branch_id_or_ref",
+          "type": "string",
+          "location": "path",
+          "description": "Branch ref or deprecated branch ID",
+          "required": true
+        },
+        {
+          "name": "branch_name",
+          "type": "string",
+          "location": "body",
+          "description": "Branch name"
+        },
+        {
+          "name": "git_branch",
+          "type": "string",
+          "location": "body",
+          "description": "Git branch"
+        },
+        {
+          "name": "notify_url",
+          "type": "string",
+          "location": "body",
+          "description": "HTTP endpoint to receive branch status updates."
+        },
+        {
+          "name": "persistent",
+          "type": "bool",
+          "location": "body",
+          "description": "Persistent"
+        },
+        {
+          "name": "request_review",
+          "type": "bool",
+          "location": "body",
+          "description": "Request review"
+        },
+        {
+          "name": "reset_on_push",
+          "type": "bool",
+          "location": "body",
+          "description": "This field is deprecated and will be ignored. Use v1-reset-a-branch endpoint directly instead."
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Status"
+        }
+      ]
+    },
+    {
+      "name": "branches_diff_a-branch",
+      "description": "Diffs the specified database branch. Required: branch_id_or_ref. Optional: included_schemas, pgdelta.",
+      "method": "GET",
+      "path": "/v1/branches/{branch_id_or_ref}/diff",
+      "params": [
+        {
+          "name": "branch_id_or_ref",
+          "type": "string",
+          "location": "path",
+          "description": "Branch ref or deprecated branch ID",
+          "required": true
+        },
+        {
+          "name": "included_schemas",
+          "type": "string",
+          "location": "query",
+          "description": "Included schemas"
+        },
+        {
+          "name": "pgdelta",
+          "type": "bool",
+          "location": "query",
+          "description": "Use pg-delta instead of Migra for diffing when true"
+        }
+      ]
+    },
+    {
+      "name": "branches_merge_a-branch",
+      "description": "Merges the specified database branch. Required: branch_id_or_ref. Optional: migration_version. Returns the new BranchUpdateResponse.",
+      "method": "POST",
+      "path": "/v1/branches/{branch_id_or_ref}/merge",
+      "params": [
+        {
+          "name": "branch_id_or_ref",
+          "type": "string",
+          "location": "path",
+          "description": "Branch ref or deprecated branch ID",
+          "required": true
+        },
+        {
+          "name": "migration_version",
+          "type": "string",
+          "location": "body",
+          "description": "Migration version"
+        }
+      ]
+    },
+    {
+      "name": "branches_push_a-branch",
+      "description": "Pushes the specified database branch. Required: branch_id_or_ref. Optional: migration_version. Returns the new BranchUpdateResponse.",
+      "method": "POST",
+      "path": "/v1/branches/{branch_id_or_ref}/push",
+      "params": [
+        {
+          "name": "branch_id_or_ref",
+          "type": "string",
+          "location": "path",
+          "description": "Branch ref or deprecated branch ID",
+          "required": true
+        },
+        {
+          "name": "migration_version",
+          "type": "string",
+          "location": "body",
+          "description": "Migration version"
+        }
+      ]
+    },
+    {
+      "name": "branches_reset_a-branch",
+      "description": "Resets the specified database branch. Required: branch_id_or_ref. Optional: migration_version. Returns the new BranchUpdateResponse.",
+      "method": "POST",
+      "path": "/v1/branches/{branch_id_or_ref}/reset",
+      "params": [
+        {
+          "name": "branch_id_or_ref",
+          "type": "string",
+          "location": "path",
+          "description": "Branch ref or deprecated branch ID",
+          "required": true
+        },
+        {
+          "name": "migration_version",
+          "type": "string",
+          "location": "body",
+          "description": "Migration version"
+        }
+      ]
+    },
+    {
+      "name": "branches_restore_a-branch",
+      "description": "Cancels scheduled deletion and restores the branch to active state. Required: branch_id_or_ref. Returns the new BranchRestoreResponse.",
+      "method": "POST",
+      "path": "/v1/branches/{branch_id_or_ref}/restore",
+      "params": [
+        {
+          "name": "branch_id_or_ref",
+          "type": "string",
+          "location": "path",
+          "description": "Branch ref or deprecated branch ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "oauth_authorize-project-claim",
+      "description": "Initiates the OAuth authorization flow for the specified provider. After successful authentication, the user can claim ownership of the specified project. Required: project_ref, client_id, response_type, redirect_uri. Optional: state, response_mode, code_challenge (plus 1 more).",
+      "method": "GET",
+      "path": "/v1/oauth/authorize/project-claim",
+      "params": [
+        {
+          "name": "project_ref",
+          "type": "string",
+          "location": "query",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "client_id",
+          "type": "string",
+          "location": "query",
+          "description": "Client id",
+          "required": true
+        },
+        {
+          "name": "response_type",
+          "type": "string",
+          "location": "query",
+          "description": "Response type",
+          "required": true
+        },
+        {
+          "name": "redirect_uri",
+          "type": "string",
+          "location": "query",
+          "description": "Redirect uri",
+          "required": true
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "query",
+          "description": "State"
+        },
+        {
+          "name": "response_mode",
+          "type": "string",
+          "location": "query",
+          "description": "Response mode"
+        },
+        {
+          "name": "code_challenge",
+          "type": "string",
+          "location": "query",
+          "description": "Code challenge"
+        },
+        {
+          "name": "code_challenge_method",
+          "type": "string",
+          "location": "query",
+          "description": "Code challenge method"
+        }
+      ]
+    },
+    {
+      "name": "oauth_authorize-user",
+      "description": "[Beta] Authorize user through oauth. Required: client_id, response_type, redirect_uri. Optional: scope, state, response_mode (plus 4 more).",
+      "method": "GET",
+      "path": "/v1/oauth/authorize",
+      "params": [
+        {
+          "name": "client_id",
+          "type": "string",
+          "location": "query",
+          "description": "Client id",
+          "required": true
+        },
+        {
+          "name": "response_type",
+          "type": "string",
+          "location": "query",
+          "description": "Response type",
+          "required": true
+        },
+        {
+          "name": "redirect_uri",
+          "type": "string",
+          "location": "query",
+          "description": "Redirect uri",
+          "required": true
+        },
+        {
+          "name": "scope",
+          "type": "string",
+          "location": "query",
+          "description": "Scope"
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "query",
+          "description": "State"
+        },
+        {
+          "name": "response_mode",
+          "type": "string",
+          "location": "query",
+          "description": "Response mode"
+        },
+        {
+          "name": "code_challenge",
+          "type": "string",
+          "location": "query",
+          "description": "Code challenge"
+        },
+        {
+          "name": "code_challenge_method",
+          "type": "string",
+          "location": "query",
+          "description": "Code challenge method"
+        },
+        {
+          "name": "organization_slug",
+          "type": "string",
+          "location": "query",
+          "description": "Organization slug"
+        },
+        {
+          "name": "resource",
+          "type": "string",
+          "location": "query",
+          "description": "Resource indicator for MCP (Model Context Protocol) clients"
+        }
+      ]
+    },
+    {
+      "name": "oauth_exchange-token",
+      "description": "[Beta] Exchange auth code for user's access and refresh token. Optional: client_id, client_secret, code (plus 6 more). Returns the new OauthTokenResponse.",
+      "method": "POST",
+      "path": "/v1/oauth/token",
+      "params": [
+        {
+          "name": "client_id",
+          "type": "string",
+          "location": "body",
+          "description": "Client id"
+        },
+        {
+          "name": "client_secret",
+          "type": "string",
+          "location": "body",
+          "description": "Client secret"
+        },
+        {
+          "name": "code",
+          "type": "string",
+          "location": "body",
+          "description": "Code"
+        },
+        {
+          "name": "code_verifier",
+          "type": "string",
+          "location": "body",
+          "description": "Code verifier"
+        },
+        {
+          "name": "grant_type",
+          "type": "string",
+          "location": "body",
+          "description": "Grant type"
+        },
+        {
+          "name": "redirect_uri",
+          "type": "string",
+          "location": "body",
+          "description": "Redirect uri"
+        },
+        {
+          "name": "refresh_token",
+          "type": "string",
+          "location": "body",
+          "description": "Refresh token"
+        },
+        {
+          "name": "resource",
+          "type": "string",
+          "location": "body",
+          "description": "Resource indicator for MCP (Model Context Protocol) clients"
+        },
+        {
+          "name": "scope",
+          "type": "string",
+          "location": "body",
+          "description": "Scope"
+        }
+      ]
+    },
+    {
+      "name": "oauth_revoke-token",
+      "description": "[Beta] Revoke oauth app authorization and it's corresponding tokens. Required: client_id, client_secret, refresh_token.",
+      "method": "POST",
+      "path": "/v1/oauth/revoke",
+      "params": [
+        {
+          "name": "client_id",
+          "type": "string",
+          "location": "body",
+          "description": "Client id",
+          "required": true
+        },
+        {
+          "name": "client_secret",
+          "type": "string",
+          "location": "body",
+          "description": "Client secret",
+          "required": true
+        },
+        {
+          "name": "refresh_token",
+          "type": "string",
+          "location": "body",
+          "description": "Refresh token",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "organizations_create-an",
+      "description": "Create an organization. Required: name. Returns the new OrganizationResponseV1.",
+      "method": "POST",
+      "path": "/v1/organizations",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "organizations_get-an",
+      "description": "Gets information about the organization. Required: slug. Returns the V1OrganizationSlugResponse.",
+      "method": "GET",
+      "path": "/v1/organizations/{slug}",
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Organization slug",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "organizations_list-all",
+      "description": "Returns a list of organizations that you currently belong to.",
+      "method": "GET",
+      "path": "/v1/organizations",
+      "params": []
+    },
+    {
+      "name": "organizations_entitlements_get-organization",
+      "description": "Returns the entitlements available to the organization based on their plan and any overrides. Required: slug.",
+      "method": "GET",
+      "path": "/v1/organizations/{slug}/entitlements",
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Organization slug",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "organizations_members_list-organization",
+      "description": "List members of an organization. Required: slug. Returns array of V1OrganizationMemberResponse.",
+      "method": "GET",
+      "path": "/v1/organizations/{slug}/members",
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Organization slug",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "organizations_project-claim_claim-project-for-organization",
+      "description": "Claims project for the specified organization. Required: slug, token.",
+      "method": "POST",
+      "path": "/v1/organizations/{slug}/project-claim/{token}",
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Organization slug",
+          "required": true
+        },
+        {
+          "name": "token",
+          "type": "string",
+          "location": "path",
+          "description": "Token",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "organizations_project-claim_get-organization",
+      "description": "Gets project details for the specified organization and claim token. Required: slug, token. Returns the OrganizationProjectClaimResponse.",
+      "method": "GET",
+      "path": "/v1/organizations/{slug}/project-claim/{token}",
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Organization slug",
+          "required": true
+        },
+        {
+          "name": "token",
+          "type": "string",
+          "location": "path",
+          "description": "Token",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "organizations_projects_get-all-for-organization",
+      "description": "Returns a paginated list of projects for the specified organization. This endpoint uses offset-based pagination. Use the `offset` parameter to skip a number of projects and the `limit` parameter to control the number of projects returned per page. Required: slug. Optional: offset (default: 0), limit (default: 100), search (plus 2 more).",
+      "method": "GET",
+      "path": "/v1/organizations/{slug}/projects",
+      "params": [
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "path",
+          "description": "Organization slug",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Number of projects to skip"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Number of projects to return per page"
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Search projects by name"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order for projects"
+        },
+        {
+          "name": "statuses",
+          "type": "string",
+          "location": "query",
+          "description": "A comma-separated list of project statuses to filter by. The following values are supported: `ACTIVE_HEALTHY`, `INACTIVE`."
+        }
+      ]
+    },
+    {
+      "name": "projects_create-a",
+      "description": "Create a project. Required: db_pass, name, organization_slug. Optional: desired_instance_size, kps_enabled, organization_id (plus 4 more). Returns the new V1ProjectResponse.",
+      "method": "POST",
+      "path": "/v1/projects",
+      "params": [
+        {
+          "name": "db_pass",
+          "type": "string",
+          "location": "body",
+          "description": "Database password",
+          "required": true
+        },
+        {
+          "name": "desired_instance_size",
+          "type": "string",
+          "location": "body",
+          "description": "Desired instance size. Omit this field to always default to the smallest possible size."
+        },
+        {
+          "name": "kps_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "This field is deprecated and is ignored in this request"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name of your project",
+          "required": true
+        },
+        {
+          "name": "organization_id",
+          "type": "string",
+          "location": "body",
+          "description": "Deprecated: Use `organization_slug` instead."
+        },
+        {
+          "name": "organization_slug",
+          "type": "string",
+          "location": "body",
+          "description": "Organization slug",
+          "required": true
+        },
+        {
+          "name": "plan",
+          "type": "string",
+          "location": "body",
+          "description": "Subscription Plan is now set on organization level and is ignored in this request"
+        },
+        {
+          "name": "region",
+          "type": "string",
+          "location": "body",
+          "description": "Region you want your server to reside in. Use region_selection instead."
+        },
+        {
+          "name": "region_selection",
+          "type": "string",
+          "location": "body",
+          "description": "Region selection. Only one of region or region_selection can be specified."
+        },
+        {
+          "name": "template_url",
+          "type": "string",
+          "location": "body",
+          "description": "Template URL used to create the project from the CLI."
+        }
+      ]
+    },
+    {
+      "name": "projects_delete-a",
+      "description": "Deletes the given project. Required: ref. Returns the V1ProjectRefResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/projects/{ref}",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_get",
+      "description": "Gets a specific project that belongs to the authenticated user. Required: ref. Returns the V1ProjectWithDatabaseResponse.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_get-available-regions",
+      "description": "[Beta] Gets the list of available regions that can be used for a new project. Required: organization_slug. Optional: continent, desired_instance_size. Returns the RegionsInfo.",
+      "method": "GET",
+      "path": "/v1/projects/available-regions",
+      "params": [
+        {
+          "name": "organization_slug",
+          "type": "string",
+          "location": "query",
+          "description": "Slug of your organization",
+          "required": true
+        },
+        {
+          "name": "continent",
+          "type": "string",
+          "location": "query",
+          "description": "Continent code to determine regional recommendations: NA (North America), SA (South America), EU (Europe), AF (Africa), AS (Asia), OC (Oceania), AN (Antarctica)"
+        },
+        {
+          "name": "desired_instance_size",
+          "type": "string",
+          "location": "query",
+          "description": "Desired instance size. Omit this field to always default to the smallest possible size."
+        }
+      ]
+    },
+    {
+      "name": "projects_list-all",
+      "description": "Returns a list of all projects you've previously created.",
+      "method": "GET",
+      "path": "/v1/projects",
+      "params": []
+    },
+    {
+      "name": "projects_update-a",
+      "description": "Updates the given project. Required: ref, name. Returns the updated V1ProjectRefResponse.",
+      "method": "PATCH",
+      "path": "/v1/projects/{ref}",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_actions_count-runs",
+      "description": "Returns the total number of action runs of the specified project. Required: ref.",
+      "method": "HEAD",
+      "path": "/v1/projects/{ref}/actions",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_actions_get-run",
+      "description": "Returns the current status of the specified action run. Required: ref, run_id.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/actions/{run_id}",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "run_id",
+          "type": "string",
+          "location": "path",
+          "description": "Action Run ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_actions_get-run-logs",
+      "description": "Returns the logs from the specified action run. Required: ref, run_id.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/actions/{run_id}/logs",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "run_id",
+          "type": "string",
+          "location": "path",
+          "description": "Action Run ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_actions_list-runs",
+      "description": "Returns a paginated list of action runs of the specified project. Required: ref. Optional: offset, limit.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/actions",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "offset",
+          "type": "float",
+          "location": "query",
+          "description": "Offset"
+        },
+        {
+          "name": "limit",
+          "type": "float",
+          "location": "query",
+          "description": "Limit"
+        }
+      ]
+    },
+    {
+      "name": "projects_actions_update-run-status",
+      "description": "Updates the status of an ongoing action run. Required: ref, run_id. Optional: clone, configure, deploy (plus 4 more). Returns the updated UpdateRunStatusResponse.",
+      "method": "PATCH",
+      "path": "/v1/projects/{ref}/actions/{run_id}/status",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "run_id",
+          "type": "string",
+          "location": "path",
+          "description": "Action Run ID",
+          "required": true
+        },
+        {
+          "name": "clone",
+          "type": "string",
+          "location": "body",
+          "description": "Clone"
+        },
+        {
+          "name": "configure",
+          "type": "string",
+          "location": "body",
+          "description": "Configure"
+        },
+        {
+          "name": "deploy",
+          "type": "string",
+          "location": "body",
+          "description": "Deploy"
+        },
+        {
+          "name": "health",
+          "type": "string",
+          "location": "body",
+          "description": "Health"
+        },
+        {
+          "name": "migrate",
+          "type": "string",
+          "location": "body",
+          "description": "Migrate"
+        },
+        {
+          "name": "pull",
+          "type": "string",
+          "location": "body",
+          "description": "Pull"
+        },
+        {
+          "name": "seed",
+          "type": "string",
+          "location": "body",
+          "description": "Seed"
+        }
+      ]
+    },
+    {
+      "name": "projects_advisors_get-performance",
+      "description": "This is an **experimental** endpoint. It is subject to change or removal in future versions. Use it with caution, as it may not remain supported or stable. Required: ref. Returns the V1ProjectAdvisorsResponse.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/advisors/performance",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_advisors_get-security",
+      "description": "This is an **experimental** endpoint. It is subject to change or removal in future versions. Use it with caution, as it may not remain supported or stable. Required: ref. Optional: lint_type. Returns the V1ProjectAdvisorsResponse.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/advisors/security",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "lint_type",
+          "type": "string",
+          "location": "query",
+          "description": "Lint type"
+        }
+      ]
+    },
+    {
+      "name": "projects_analytics_get-project-function-combined-stats",
+      "description": "Gets a project's function combined statistics. Required: ref, interval, function_id. Returns the AnalyticsResponse.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/analytics/endpoints/functions.combined-stats",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "Interval",
+          "required": true
+        },
+        {
+          "name": "function_id",
+          "type": "string",
+          "location": "query",
+          "description": "Function id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_analytics_get-project-logs",
+      "description": "Executes a SQL query on the project's logs. Either the `iso_timestamp_start` and `iso_timestamp_end` parameters must be provided. If both are not provided, only the last 1 minute of logs will be queried. The timestamp range must be no more than 24 hours and is rounded to the nearest minute. If the range is more than 24 hours, a validation error will be thrown. Note: Unless the `sql` parameter is provided, only edge_logs will be queried. See the [log query docs](/docs/guides/telemetry/logs?queryGroups=product\u0026product=postgres\u0026queryGroups=source\u0026source=edge_logs#querying-with-the-logs-explorer:~:text=logs%20from%20the-,Sources,-drop%2Ddown%3A) for all available sources. Required: ref. Optional: sql, iso_timestamp_start, iso_timestamp_end. Returns the AnalyticsResponse.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/analytics/endpoints/logs.all",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "sql",
+          "type": "string",
+          "location": "query",
+          "description": "Custom SQL query to execute on the logs. See [querying logs](/docs/guides/telemetry/logs?queryGroups=product\u0026product=postgres\u0026queryGroups=source\u0026source=edge_logs#querying-with-the-logs-explorer) for more details."
+        },
+        {
+          "name": "iso_timestamp_start",
+          "type": "string",
+          "location": "query",
+          "description": "Iso timestamp start"
+        },
+        {
+          "name": "iso_timestamp_end",
+          "type": "string",
+          "location": "query",
+          "description": "Iso timestamp end"
+        }
+      ]
+    },
+    {
+      "name": "projects_analytics_get-project-usage-api-count",
+      "description": "Gets project's usage api counts. Required: ref. Optional: interval. Returns the V1GetUsageApiCountResponse.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/analytics/endpoints/usage.api-counts",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "Interval"
+        }
+      ]
+    },
+    {
+      "name": "projects_analytics_get-project-usage-request-count",
+      "description": "Gets project's usage api requests count. Required: ref. Returns the V1GetUsageApiRequestsCountResponse.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/analytics/endpoints/usage.api-requests-count",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_api-keys_create-project",
+      "description": "Creates a new API key for the project. Required: ref, name, type. Optional: reveal, description, secret_jwt_template. Returns the new ApiKeyResponse.",
+      "method": "POST",
+      "path": "/v1/projects/{ref}/api-keys",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "reveal",
+          "type": "bool",
+          "location": "query",
+          "description": "Boolean string, true or false"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        },
+        {
+          "name": "secret_jwt_template",
+          "type": "object",
+          "location": "body",
+          "description": "Secret jwt template"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_api-keys_delete-project",
+      "description": "Deletes an API key for the project. Required: ref, id. Optional: reveal, was_compromised, reason. Returns the ApiKeyResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/projects/{ref}/api-keys/{id}",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "reveal",
+          "type": "bool",
+          "location": "query",
+          "description": "Boolean string, true or false"
+        },
+        {
+          "name": "was_compromised",
+          "type": "bool",
+          "location": "query",
+          "description": "Boolean string, true or false"
+        },
+        {
+          "name": "reason",
+          "type": "string",
+          "location": "query",
+          "description": "Reason"
+        }
+      ]
+    },
+    {
+      "name": "projects_api-keys_get-project",
+      "description": "Get project api keys. Required: ref. Optional: reveal. Returns array of ApiKeyResponse.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/api-keys",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "reveal",
+          "type": "bool",
+          "location": "query",
+          "description": "Boolean string, true or false"
+        }
+      ]
+    },
+    {
+      "name": "projects_api-keys_get-project-legacy",
+      "description": "Check whether JWT based legacy (anon, service_role) API keys are enabled. This API endpoint will be removed in the future, check for HTTP 404 Not Found. Required: ref. Returns the LegacyApiKeysResponse.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/api-keys/legacy",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_api-keys_get-project-projects",
+      "description": "Get API key. Required: ref, id. Optional: reveal. Returns the ApiKeyResponse.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/api-keys/{id}",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "reveal",
+          "type": "bool",
+          "location": "query",
+          "description": "Boolean string, true or false"
+        }
+      ]
+    },
+    {
+      "name": "projects_api-keys_update-project",
+      "description": "Updates an API key for the project. Required: ref, id. Optional: reveal, description, name (plus 1 more). Returns the updated ApiKeyResponse.",
+      "method": "PATCH",
+      "path": "/v1/projects/{ref}/api-keys/{id}",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "reveal",
+          "type": "bool",
+          "location": "query",
+          "description": "Boolean string, true or false"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "secret_jwt_template",
+          "type": "object",
+          "location": "body",
+          "description": "Secret jwt template"
+        }
+      ]
+    },
+    {
+      "name": "projects_api-keys_update-project-legacy",
+      "description": "Disable or re-enable JWT based legacy (anon, service_role) API keys. This API endpoint will be removed in the future, check for HTTP 404 Not Found. Required: ref, enabled. Returns the updated LegacyApiKeysResponse.",
+      "method": "PUT",
+      "path": "/v1/projects/{ref}/api-keys/legacy",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "enabled",
+          "type": "bool",
+          "location": "query",
+          "description": "Boolean string, true or false",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_billing_apply-project-addon",
+      "description": "Selects an addon variant, for example scaling the project’s compute instance up or down, and applies it to the project. Required: ref, addon_type, addon_variant. Partial update.",
+      "method": "PATCH",
+      "path": "/v1/projects/{ref}/billing/addons",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "addon_type",
+          "type": "string",
+          "location": "body",
+          "description": "Addon type",
+          "required": true
+        },
+        {
+          "name": "addon_variant",
+          "type": "string",
+          "location": "body",
+          "description": "Addon variant",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_billing_list-project-addons",
+      "description": "Returns the billing addons that are currently applied, including the active compute instance size, and lists every addon option that can be provisioned with pricing metadata. Required: ref.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/billing/addons",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_billing_remove-project-addon",
+      "description": "Disables the selected addon variant, including rolling the compute instance back to its previous size. Required: ref, addon_variant. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/projects/{ref}/billing/addons/{addon_variant}",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "addon_variant",
+          "type": "string",
+          "location": "path",
+          "description": "Addon variant",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_branches_create-a-branch",
+      "description": "Creates a database branch from the specified project. Required: ref, branch_name. Optional: desired_instance_size, git_branch, is_default (plus 7 more). Returns the new BranchResponse.",
+      "method": "POST",
+      "path": "/v1/projects/{ref}/branches",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "branch_name",
+          "type": "string",
+          "location": "body",
+          "description": "Branch name",
+          "required": true
+        },
+        {
+          "name": "desired_instance_size",
+          "type": "string",
+          "location": "body",
+          "description": "Desired instance size"
+        },
+        {
+          "name": "git_branch",
+          "type": "string",
+          "location": "body",
+          "description": "Git branch"
+        },
+        {
+          "name": "is_default",
+          "type": "bool",
+          "location": "body",
+          "description": "Is default"
+        },
+        {
+          "name": "notify_url",
+          "type": "string",
+          "location": "body",
+          "description": "HTTP endpoint to receive branch status updates."
+        },
+        {
+          "name": "persistent",
+          "type": "bool",
+          "location": "body",
+          "description": "Persistent"
+        },
+        {
+          "name": "postgres_engine",
+          "type": "string",
+          "location": "body",
+          "description": "Postgres engine version. If not provided, the latest version will be used."
+        },
+        {
+          "name": "region",
+          "type": "string",
+          "location": "body",
+          "description": "Region"
+        },
+        {
+          "name": "release_channel",
+          "type": "string",
+          "location": "body",
+          "description": "Release channel. If not provided, GA will be used."
+        },
+        {
+          "name": "secrets",
+          "type": "object",
+          "location": "body",
+          "description": "Secrets"
+        },
+        {
+          "name": "with_data",
+          "type": "bool",
+          "location": "body",
+          "description": "With data"
+        }
+      ]
+    },
+    {
+      "name": "projects_branches_disable-preview-branching",
+      "description": "Disables preview branching for the specified project. Required: ref. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/projects/{ref}/branches",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_branches_get-a-branch",
+      "description": "Fetches the specified database branch by its name. Required: ref, name. Returns the BranchResponse.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/branches/{name}",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "path",
+          "description": "Name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_branches_list-all",
+      "description": "Returns all database branches of the specified project. Required: ref.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/branches",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_claim-token_create-project",
+      "description": "Creates project claim token. Required: ref. Returns the new CreateProjectClaimTokenResponse.",
+      "method": "POST",
+      "path": "/v1/projects/{ref}/claim-token",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_claim-token_delete-project",
+      "description": "Revokes project claim token. Required: ref. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/projects/{ref}/claim-token",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_claim-token_get-project",
+      "description": "Gets project claim token. Required: ref. Returns the ProjectClaimTokenResponse.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/claim-token",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_cli_create-login-role",
+      "description": "[Beta] Create a login role for CLI with temporary password. Required: ref, read_only. Returns the new CreateRoleResponse.",
+      "method": "POST",
+      "path": "/v1/projects/{ref}/cli/login-role",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "read_only",
+          "type": "bool",
+          "location": "body",
+          "description": "Read only",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_cli_delete-login-roles",
+      "description": "[Beta] Delete existing login roles used by CLI. Required: ref. Returns the DeleteRolesResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/projects/{ref}/cli/login-role",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_config_create-a-sso-provider",
+      "description": "Creates a new SSO provider. Required: ref, type. Optional: attribute_mapping, domains, metadata_url (plus 2 more). Returns the new CreateProviderResponse.",
+      "method": "POST",
+      "path": "/v1/projects/{ref}/config/auth/sso/providers",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "attribute_mapping",
+          "type": "object",
+          "location": "body",
+          "description": "Attribute mapping"
+        },
+        {
+          "name": "domains",
+          "type": "array",
+          "location": "body",
+          "description": "Domains"
+        },
+        {
+          "name": "metadata_url",
+          "type": "string",
+          "location": "body",
+          "description": "Metadata url"
+        },
+        {
+          "name": "metadata_xml",
+          "type": "string",
+          "location": "body",
+          "description": "Metadata xml"
+        },
+        {
+          "name": "name_id_format",
+          "type": "string",
+          "location": "body",
+          "description": "Name id format"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "What type of provider will be created",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_config_create-legacy-signing-key",
+      "description": "Set up the project's existing JWT secret as an in_use JWT signing key. This endpoint will be removed in the future always check for HTTP 404 Not Found. Required: ref. Returns the new SigningKeyResponse.",
+      "method": "POST",
+      "path": "/v1/projects/{ref}/config/auth/signing-keys/legacy",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_config_create-project-signing-key",
+      "description": "Create a new signing key for the project in standby status. Required: ref, algorithm. Optional: private_jwk, status. Returns the new SigningKeyResponse.",
+      "method": "POST",
+      "path": "/v1/projects/{ref}/config/auth/signing-keys",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "algorithm",
+          "type": "string",
+          "location": "body",
+          "description": "Algorithm",
+          "required": true
+        },
+        {
+          "name": "private_jwk",
+          "type": "string",
+          "location": "body",
+          "description": "Private jwk"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Status"
+        }
+      ]
+    },
+    {
+      "name": "projects_config_create-project-tpa-integration",
+      "description": "Creates a new third-party auth integration. Required: ref. Optional: custom_jwks, jwks_url, oidc_issuer_url. Returns the new ThirdPartyAuth.",
+      "method": "POST",
+      "path": "/v1/projects/{ref}/config/auth/third-party-auth",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "custom_jwks",
+          "type": "string",
+          "location": "body",
+          "description": "Custom jwks"
+        },
+        {
+          "name": "jwks_url",
+          "type": "string",
+          "location": "body",
+          "description": "Jwks url"
+        },
+        {
+          "name": "oidc_issuer_url",
+          "type": "string",
+          "location": "body",
+          "description": "Oidc issuer url"
+        }
+      ]
+    },
+    {
+      "name": "projects_config_delete-a-sso-provider",
+      "description": "Removes a SSO provider by its UUID. Required: ref, provider_id. Returns the DeleteProviderResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/projects/{ref}/config/auth/sso/providers/{provider_id}",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "provider_id",
+          "type": "string",
+          "location": "path",
+          "description": "Provider id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_config_delete-project-tpa-integration",
+      "description": "Removes a third-party auth integration. Required: ref, tpa_id. Returns the ThirdPartyAuth. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/projects/{ref}/config/auth/third-party-auth/{tpa_id}",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "tpa_id",
+          "type": "string",
+          "location": "path",
+          "description": "Tpa id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_config_get-a-sso-provider",
+      "description": "Gets a SSO provider by its UUID. Required: ref, provider_id. Returns the GetProviderResponse.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/config/auth/sso/providers/{provider_id}",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "provider_id",
+          "type": "string",
+          "location": "path",
+          "description": "Provider id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_config_get-auth-service",
+      "description": "Gets project's auth config. Required: ref. Returns the AuthConfigResponse.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/config/auth",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_config_get-database-disk",
+      "description": "Get database disk attributes. Required: ref. Returns the DiskResponse.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/config/disk",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_config_get-disk-utilization",
+      "description": "Get disk utilization. Required: ref. Returns the DiskUtilMetricsResponse.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/config/disk/util",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_config_get-legacy-signing-key",
+      "description": "Get the signing key information for the JWT secret imported as signing key for this project. This endpoint will be removed in the future, check for HTTP 404 Not Found. Required: ref. Returns the SigningKeyResponse.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/config/auth/signing-keys/legacy",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_config_get-pooler",
+      "description": "Gets project's supavisor config. Required: ref. Returns array of SupavisorConfigResponse.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/config/database/pooler",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_config_get-postgres",
+      "description": "Gets project's Postgres config. Required: ref. Returns the PostgresConfigResponse.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/config/database/postgres",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_config_get-project-disk-autoscale",
+      "description": "Gets project disk autoscale config. Required: ref. Returns the DiskAutoscaleConfig.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/config/disk/autoscale",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_config_get-project-pgbouncer",
+      "description": "Get project's pgbouncer config. Required: ref. Returns the V1PgbouncerConfigResponse.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/config/database/pgbouncer",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_config_get-project-signing-key",
+      "description": "Get information about a signing key. Required: id, ref. Returns the SigningKeyResponse.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/config/auth/signing-keys/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_config_get-project-signing-keys",
+      "description": "List all signing keys for the project. Required: ref. Returns the SigningKeysResponse.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/config/auth/signing-keys",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_config_get-project-tpa-integration",
+      "description": "Get a third-party integration. Required: ref, tpa_id. Returns the ThirdPartyAuth.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/config/auth/third-party-auth/{tpa_id}",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "tpa_id",
+          "type": "string",
+          "location": "path",
+          "description": "Tpa id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_config_get-realtime",
+      "description": "Gets realtime configuration. Required: ref. Returns the RealtimeConfigResponse.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/config/realtime",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_config_get-storage",
+      "description": "Gets project's storage config. Required: ref. Returns the StorageConfigResponse.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/config/storage",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_config_list-all-sso-provider",
+      "description": "Lists all SSO providers. Required: ref. Returns the ListProvidersResponse.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/config/auth/sso/providers",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_config_list-project-tpa-integrations",
+      "description": "Lists all third-party auth integrations. Required: ref. Returns array of ThirdPartyAuth.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/config/auth/third-party-auth",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_config_modify-database-disk",
+      "description": "Modify database disk. Required: ref, attributes.",
+      "method": "POST",
+      "path": "/v1/projects/{ref}/config/disk",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "attributes",
+          "type": "string",
+          "location": "body",
+          "description": "Attributes",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_config_remove-project-signing-key",
+      "description": "Remove a signing key from a project. Only possible if the key has been in revoked status for a while. Required: id, ref. Returns the SigningKeyResponse. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/projects/{ref}/config/auth/signing-keys/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_config_shutdown-realtime",
+      "description": "Shutdowns realtime connections for a project. Required: ref.",
+      "method": "POST",
+      "path": "/v1/projects/{ref}/config/realtime/shutdown",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_config_update-a-sso-provider",
+      "description": "Updates a SSO provider by its UUID. Required: ref, provider_id. Optional: attribute_mapping, domains, metadata_url (plus 2 more). Returns the updated UpdateProviderResponse.",
+      "method": "PUT",
+      "path": "/v1/projects/{ref}/config/auth/sso/providers/{provider_id}",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "provider_id",
+          "type": "string",
+          "location": "path",
+          "description": "Provider id",
+          "required": true
+        },
+        {
+          "name": "attribute_mapping",
+          "type": "object",
+          "location": "body",
+          "description": "Attribute mapping"
+        },
+        {
+          "name": "domains",
+          "type": "array",
+          "location": "body",
+          "description": "Domains"
+        },
+        {
+          "name": "metadata_url",
+          "type": "string",
+          "location": "body",
+          "description": "Metadata url"
+        },
+        {
+          "name": "metadata_xml",
+          "type": "string",
+          "location": "body",
+          "description": "Metadata xml"
+        },
+        {
+          "name": "name_id_format",
+          "type": "string",
+          "location": "body",
+          "description": "Name id format"
+        }
+      ]
+    },
+    {
+      "name": "projects_config_update-auth-service",
+      "description": "Updates a project's auth config. Required: ref. Optional: api_max_request_duration, custom_oauth_enabled, db_max_pool_size (plus 231 more). Returns the updated AuthConfigResponse.",
+      "method": "PATCH",
+      "path": "/v1/projects/{ref}/config/auth",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "api_max_request_duration",
+          "type": "int",
+          "location": "body",
+          "description": "Api max request duration"
+        },
+        {
+          "name": "custom_oauth_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Custom oauth enabled"
+        },
+        {
+          "name": "db_max_pool_size",
+          "type": "int",
+          "location": "body",
+          "description": "Db max pool size"
+        },
+        {
+          "name": "db_max_pool_size_unit",
+          "type": "string",
+          "location": "body",
+          "description": "Db max pool size unit"
+        },
+        {
+          "name": "disable_signup",
+          "type": "bool",
+          "location": "body",
+          "description": "Disable signup"
+        },
+        {
+          "name": "external_anonymous_users_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "External anonymous users enabled"
+        },
+        {
+          "name": "external_apple_additional_client_ids",
+          "type": "string",
+          "location": "body",
+          "description": "External apple additional client ids"
+        },
+        {
+          "name": "external_apple_client_id",
+          "type": "string",
+          "location": "body",
+          "description": "External apple client id"
+        },
+        {
+          "name": "external_apple_email_optional",
+          "type": "bool",
+          "location": "body",
+          "description": "External apple email optional"
+        },
+        {
+          "name": "external_apple_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "External apple enabled"
+        },
+        {
+          "name": "external_apple_secret",
+          "type": "string",
+          "location": "body",
+          "description": "External apple secret"
+        },
+        {
+          "name": "external_azure_client_id",
+          "type": "string",
+          "location": "body",
+          "description": "External azure client id"
+        },
+        {
+          "name": "external_azure_email_optional",
+          "type": "bool",
+          "location": "body",
+          "description": "External azure email optional"
+        },
+        {
+          "name": "external_azure_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "External azure enabled"
+        },
+        {
+          "name": "external_azure_secret",
+          "type": "string",
+          "location": "body",
+          "description": "External azure secret"
+        },
+        {
+          "name": "external_azure_url",
+          "type": "string",
+          "location": "body",
+          "description": "External azure url"
+        },
+        {
+          "name": "external_bitbucket_client_id",
+          "type": "string",
+          "location": "body",
+          "description": "External bitbucket client id"
+        },
+        {
+          "name": "external_bitbucket_email_optional",
+          "type": "bool",
+          "location": "body",
+          "description": "External bitbucket email optional"
+        },
+        {
+          "name": "external_bitbucket_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "External bitbucket enabled"
+        },
+        {
+          "name": "external_bitbucket_secret",
+          "type": "string",
+          "location": "body",
+          "description": "External bitbucket secret"
+        },
+        {
+          "name": "external_discord_client_id",
+          "type": "string",
+          "location": "body",
+          "description": "External discord client id"
+        },
+        {
+          "name": "external_discord_email_optional",
+          "type": "bool",
+          "location": "body",
+          "description": "External discord email optional"
+        },
+        {
+          "name": "external_discord_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "External discord enabled"
+        },
+        {
+          "name": "external_discord_secret",
+          "type": "string",
+          "location": "body",
+          "description": "External discord secret"
+        },
+        {
+          "name": "external_email_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "External email enabled"
+        },
+        {
+          "name": "external_facebook_client_id",
+          "type": "string",
+          "location": "body",
+          "description": "External facebook client id"
+        },
+        {
+          "name": "external_facebook_email_optional",
+          "type": "bool",
+          "location": "body",
+          "description": "External facebook email optional"
+        },
+        {
+          "name": "external_facebook_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "External facebook enabled"
+        },
+        {
+          "name": "external_facebook_secret",
+          "type": "string",
+          "location": "body",
+          "description": "External facebook secret"
+        },
+        {
+          "name": "external_figma_client_id",
+          "type": "string",
+          "location": "body",
+          "description": "External figma client id"
+        },
+        {
+          "name": "external_figma_email_optional",
+          "type": "bool",
+          "location": "body",
+          "description": "External figma email optional"
+        },
+        {
+          "name": "external_figma_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "External figma enabled"
+        },
+        {
+          "name": "external_figma_secret",
+          "type": "string",
+          "location": "body",
+          "description": "External figma secret"
+        },
+        {
+          "name": "external_github_client_id",
+          "type": "string",
+          "location": "body",
+          "description": "External github client id"
+        },
+        {
+          "name": "external_github_email_optional",
+          "type": "bool",
+          "location": "body",
+          "description": "External github email optional"
+        },
+        {
+          "name": "external_github_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "External github enabled"
+        },
+        {
+          "name": "external_github_secret",
+          "type": "string",
+          "location": "body",
+          "description": "External github secret"
+        },
+        {
+          "name": "external_gitlab_client_id",
+          "type": "string",
+          "location": "body",
+          "description": "External gitlab client id"
+        },
+        {
+          "name": "external_gitlab_email_optional",
+          "type": "bool",
+          "location": "body",
+          "description": "External gitlab email optional"
+        },
+        {
+          "name": "external_gitlab_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "External gitlab enabled"
+        },
+        {
+          "name": "external_gitlab_secret",
+          "type": "string",
+          "location": "body",
+          "description": "External gitlab secret"
+        },
+        {
+          "name": "external_gitlab_url",
+          "type": "string",
+          "location": "body",
+          "description": "External gitlab url"
+        },
+        {
+          "name": "external_google_additional_client_ids",
+          "type": "string",
+          "location": "body",
+          "description": "External google additional client ids"
+        },
+        {
+          "name": "external_google_client_id",
+          "type": "string",
+          "location": "body",
+          "description": "External google client id"
+        },
+        {
+          "name": "external_google_email_optional",
+          "type": "bool",
+          "location": "body",
+          "description": "External google email optional"
+        },
+        {
+          "name": "external_google_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "External google enabled"
+        },
+        {
+          "name": "external_google_secret",
+          "type": "string",
+          "location": "body",
+          "description": "External google secret"
+        },
+        {
+          "name": "external_google_skip_nonce_check",
+          "type": "bool",
+          "location": "body",
+          "description": "External google skip nonce check"
+        },
+        {
+          "name": "external_kakao_client_id",
+          "type": "string",
+          "location": "body",
+          "description": "External kakao client id"
+        },
+        {
+          "name": "external_kakao_email_optional",
+          "type": "bool",
+          "location": "body",
+          "description": "External kakao email optional"
+        },
+        {
+          "name": "external_kakao_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "External kakao enabled"
+        },
+        {
+          "name": "external_kakao_secret",
+          "type": "string",
+          "location": "body",
+          "description": "External kakao secret"
+        },
+        {
+          "name": "external_keycloak_client_id",
+          "type": "string",
+          "location": "body",
+          "description": "External keycloak client id"
+        },
+        {
+          "name": "external_keycloak_email_optional",
+          "type": "bool",
+          "location": "body",
+          "description": "External keycloak email optional"
+        },
+        {
+          "name": "external_keycloak_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "External keycloak enabled"
+        },
+        {
+          "name": "external_keycloak_secret",
+          "type": "string",
+          "location": "body",
+          "description": "External keycloak secret"
+        },
+        {
+          "name": "external_keycloak_url",
+          "type": "string",
+          "location": "body",
+          "description": "External keycloak url"
+        },
+        {
+          "name": "external_linkedin_oidc_client_id",
+          "type": "string",
+          "location": "body",
+          "description": "External linkedin oidc client id"
+        },
+        {
+          "name": "external_linkedin_oidc_email_optional",
+          "type": "bool",
+          "location": "body",
+          "description": "External linkedin oidc email optional"
+        },
+        {
+          "name": "external_linkedin_oidc_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "External linkedin oidc enabled"
+        },
+        {
+          "name": "external_linkedin_oidc_secret",
+          "type": "string",
+          "location": "body",
+          "description": "External linkedin oidc secret"
+        },
+        {
+          "name": "external_notion_client_id",
+          "type": "string",
+          "location": "body",
+          "description": "External notion client id"
+        },
+        {
+          "name": "external_notion_email_optional",
+          "type": "bool",
+          "location": "body",
+          "description": "External notion email optional"
+        },
+        {
+          "name": "external_notion_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "External notion enabled"
+        },
+        {
+          "name": "external_notion_secret",
+          "type": "string",
+          "location": "body",
+          "description": "External notion secret"
+        },
+        {
+          "name": "external_phone_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "External phone enabled"
+        },
+        {
+          "name": "external_slack_client_id",
+          "type": "string",
+          "location": "body",
+          "description": "External slack client id"
+        },
+        {
+          "name": "external_slack_email_optional",
+          "type": "bool",
+          "location": "body",
+          "description": "External slack email optional"
+        },
+        {
+          "name": "external_slack_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "External slack enabled"
+        },
+        {
+          "name": "external_slack_oidc_client_id",
+          "type": "string",
+          "location": "body",
+          "description": "External slack oidc client id"
+        },
+        {
+          "name": "external_slack_oidc_email_optional",
+          "type": "bool",
+          "location": "body",
+          "description": "External slack oidc email optional"
+        },
+        {
+          "name": "external_slack_oidc_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "External slack oidc enabled"
+        },
+        {
+          "name": "external_slack_oidc_secret",
+          "type": "string",
+          "location": "body",
+          "description": "External slack oidc secret"
+        },
+        {
+          "name": "external_slack_secret",
+          "type": "string",
+          "location": "body",
+          "description": "External slack secret"
+        },
+        {
+          "name": "external_spotify_client_id",
+          "type": "string",
+          "location": "body",
+          "description": "External spotify client id"
+        },
+        {
+          "name": "external_spotify_email_optional",
+          "type": "bool",
+          "location": "body",
+          "description": "External spotify email optional"
+        },
+        {
+          "name": "external_spotify_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "External spotify enabled"
+        },
+        {
+          "name": "external_spotify_secret",
+          "type": "string",
+          "location": "body",
+          "description": "External spotify secret"
+        },
+        {
+          "name": "external_twitch_client_id",
+          "type": "string",
+          "location": "body",
+          "description": "External twitch client id"
+        },
+        {
+          "name": "external_twitch_email_optional",
+          "type": "bool",
+          "location": "body",
+          "description": "External twitch email optional"
+        },
+        {
+          "name": "external_twitch_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "External twitch enabled"
+        },
+        {
+          "name": "external_twitch_secret",
+          "type": "string",
+          "location": "body",
+          "description": "External twitch secret"
+        },
+        {
+          "name": "external_twitter_client_id",
+          "type": "string",
+          "location": "body",
+          "description": "External twitter client id"
+        },
+        {
+          "name": "external_twitter_email_optional",
+          "type": "bool",
+          "location": "body",
+          "description": "External twitter email optional"
+        },
+        {
+          "name": "external_twitter_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "External twitter enabled"
+        },
+        {
+          "name": "external_twitter_secret",
+          "type": "string",
+          "location": "body",
+          "description": "External twitter secret"
+        },
+        {
+          "name": "external_web3_ethereum_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "External web3 ethereum enabled"
+        },
+        {
+          "name": "external_web3_solana_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "External web3 solana enabled"
+        },
+        {
+          "name": "external_workos_client_id",
+          "type": "string",
+          "location": "body",
+          "description": "External workos client id"
+        },
+        {
+          "name": "external_workos_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "External workos enabled"
+        },
+        {
+          "name": "external_workos_secret",
+          "type": "string",
+          "location": "body",
+          "description": "External workos secret"
+        },
+        {
+          "name": "external_workos_url",
+          "type": "string",
+          "location": "body",
+          "description": "External workos url"
+        },
+        {
+          "name": "external_x_client_id",
+          "type": "string",
+          "location": "body",
+          "description": "External x client id"
+        },
+        {
+          "name": "external_x_email_optional",
+          "type": "bool",
+          "location": "body",
+          "description": "External x email optional"
+        },
+        {
+          "name": "external_x_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "External x enabled"
+        },
+        {
+          "name": "external_x_secret",
+          "type": "string",
+          "location": "body",
+          "description": "External x secret"
+        },
+        {
+          "name": "external_zoom_client_id",
+          "type": "string",
+          "location": "body",
+          "description": "External zoom client id"
+        },
+        {
+          "name": "external_zoom_email_optional",
+          "type": "bool",
+          "location": "body",
+          "description": "External zoom email optional"
+        },
+        {
+          "name": "external_zoom_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "External zoom enabled"
+        },
+        {
+          "name": "external_zoom_secret",
+          "type": "string",
+          "location": "body",
+          "description": "External zoom secret"
+        },
+        {
+          "name": "hook_after_user_created_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Hook after user created enabled"
+        },
+        {
+          "name": "hook_after_user_created_secrets",
+          "type": "string",
+          "location": "body",
+          "description": "Hook after user created secrets"
+        },
+        {
+          "name": "hook_after_user_created_uri",
+          "type": "string",
+          "location": "body",
+          "description": "Hook after user created uri"
+        },
+        {
+          "name": "hook_before_user_created_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Hook before user created enabled"
+        },
+        {
+          "name": "hook_before_user_created_secrets",
+          "type": "string",
+          "location": "body",
+          "description": "Hook before user created secrets"
+        },
+        {
+          "name": "hook_before_user_created_uri",
+          "type": "string",
+          "location": "body",
+          "description": "Hook before user created uri"
+        },
+        {
+          "name": "hook_custom_access_token_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Hook custom access token enabled"
+        },
+        {
+          "name": "hook_custom_access_token_secrets",
+          "type": "string",
+          "location": "body",
+          "description": "Hook custom access token secrets"
+        },
+        {
+          "name": "hook_custom_access_token_uri",
+          "type": "string",
+          "location": "body",
+          "description": "Hook custom access token uri"
+        },
+        {
+          "name": "hook_mfa_verification_attempt_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Hook mfa verification attempt enabled"
+        },
+        {
+          "name": "hook_mfa_verification_attempt_secrets",
+          "type": "string",
+          "location": "body",
+          "description": "Hook mfa verification attempt secrets"
+        },
+        {
+          "name": "hook_mfa_verification_attempt_uri",
+          "type": "string",
+          "location": "body",
+          "description": "Hook mfa verification attempt uri"
+        },
+        {
+          "name": "hook_password_verification_attempt_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Hook password verification attempt enabled"
+        },
+        {
+          "name": "hook_password_verification_attempt_secrets",
+          "type": "string",
+          "location": "body",
+          "description": "Hook password verification attempt secrets"
+        },
+        {
+          "name": "hook_password_verification_attempt_uri",
+          "type": "string",
+          "location": "body",
+          "description": "Hook password verification attempt uri"
+        },
+        {
+          "name": "hook_send_email_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Hook send email enabled"
+        },
+        {
+          "name": "hook_send_email_secrets",
+          "type": "string",
+          "location": "body",
+          "description": "Hook send email secrets"
+        },
+        {
+          "name": "hook_send_email_uri",
+          "type": "string",
+          "location": "body",
+          "description": "Hook send email uri"
+        },
+        {
+          "name": "hook_send_sms_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Hook send sms enabled"
+        },
+        {
+          "name": "hook_send_sms_secrets",
+          "type": "string",
+          "location": "body",
+          "description": "Hook send sms secrets"
+        },
+        {
+          "name": "hook_send_sms_uri",
+          "type": "string",
+          "location": "body",
+          "description": "Hook send sms uri"
+        },
+        {
+          "name": "jwt_exp",
+          "type": "int",
+          "location": "body",
+          "description": "Jwt exp"
+        },
+        {
+          "name": "mailer_allow_unverified_email_sign_ins",
+          "type": "bool",
+          "location": "body",
+          "description": "Mailer allow unverified email sign ins"
+        },
+        {
+          "name": "mailer_autoconfirm",
+          "type": "bool",
+          "location": "body",
+          "description": "Mailer autoconfirm"
+        },
+        {
+          "name": "mailer_notifications_email_changed_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Mailer notifications email changed enabled"
+        },
+        {
+          "name": "mailer_notifications_identity_linked_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Mailer notifications identity linked enabled"
+        },
+        {
+          "name": "mailer_notifications_identity_unlinked_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Mailer notifications identity unlinked enabled"
+        },
+        {
+          "name": "mailer_notifications_mfa_factor_enrolled_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Mailer notifications mfa factor enrolled enabled"
+        },
+        {
+          "name": "mailer_notifications_mfa_factor_unenrolled_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Mailer notifications mfa factor unenrolled enabled"
+        },
+        {
+          "name": "mailer_notifications_password_changed_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Mailer notifications password changed enabled"
+        },
+        {
+          "name": "mailer_notifications_phone_changed_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Mailer notifications phone changed enabled"
+        },
+        {
+          "name": "mailer_otp_exp",
+          "type": "int",
+          "location": "body",
+          "description": "Mailer otp exp"
+        },
+        {
+          "name": "mailer_otp_length",
+          "type": "int",
+          "location": "body",
+          "description": "Mailer otp length"
+        },
+        {
+          "name": "mailer_secure_email_change_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Mailer secure email change enabled"
+        },
+        {
+          "name": "mailer_subjects_confirmation",
+          "type": "string",
+          "location": "body",
+          "description": "Mailer subjects confirmation"
+        },
+        {
+          "name": "mailer_subjects_email_change",
+          "type": "string",
+          "location": "body",
+          "description": "Mailer subjects email change"
+        },
+        {
+          "name": "mailer_subjects_email_changed_notification",
+          "type": "string",
+          "location": "body",
+          "description": "Mailer subjects email changed notification"
+        },
+        {
+          "name": "mailer_subjects_identity_linked_notification",
+          "type": "string",
+          "location": "body",
+          "description": "Mailer subjects identity linked notification"
+        },
+        {
+          "name": "mailer_subjects_identity_unlinked_notification",
+          "type": "string",
+          "location": "body",
+          "description": "Mailer subjects identity unlinked notification"
+        },
+        {
+          "name": "mailer_subjects_invite",
+          "type": "string",
+          "location": "body",
+          "description": "Mailer subjects invite"
+        },
+        {
+          "name": "mailer_subjects_magic_link",
+          "type": "string",
+          "location": "body",
+          "description": "Mailer subjects magic link"
+        },
+        {
+          "name": "mailer_subjects_mfa_factor_enrolled_notification",
+          "type": "string",
+          "location": "body",
+          "description": "Mailer subjects mfa factor enrolled notification"
+        },
+        {
+          "name": "mailer_subjects_mfa_factor_unenrolled_notification",
+          "type": "string",
+          "location": "body",
+          "description": "Mailer subjects mfa factor unenrolled notification"
+        },
+        {
+          "name": "mailer_subjects_password_changed_notification",
+          "type": "string",
+          "location": "body",
+          "description": "Mailer subjects password changed notification"
+        },
+        {
+          "name": "mailer_subjects_phone_changed_notification",
+          "type": "string",
+          "location": "body",
+          "description": "Mailer subjects phone changed notification"
+        },
+        {
+          "name": "mailer_subjects_reauthentication",
+          "type": "string",
+          "location": "body",
+          "description": "Mailer subjects reauthentication"
+        },
+        {
+          "name": "mailer_subjects_recovery",
+          "type": "string",
+          "location": "body",
+          "description": "Mailer subjects recovery"
+        },
+        {
+          "name": "mailer_templates_confirmation_content",
+          "type": "string",
+          "location": "body",
+          "description": "Mailer templates confirmation content"
+        },
+        {
+          "name": "mailer_templates_email_change_content",
+          "type": "string",
+          "location": "body",
+          "description": "Mailer templates email change content"
+        },
+        {
+          "name": "mailer_templates_email_changed_notification_content",
+          "type": "string",
+          "location": "body",
+          "description": "Mailer templates email changed notification content"
+        },
+        {
+          "name": "mailer_templates_identity_linked_notification_content",
+          "type": "string",
+          "location": "body",
+          "description": "Mailer templates identity linked notification content"
+        },
+        {
+          "name": "mailer_templates_identity_unlinked_notification_content",
+          "type": "string",
+          "location": "body",
+          "description": "Mailer templates identity unlinked notification content"
+        },
+        {
+          "name": "mailer_templates_invite_content",
+          "type": "string",
+          "location": "body",
+          "description": "Mailer templates invite content"
+        },
+        {
+          "name": "mailer_templates_magic_link_content",
+          "type": "string",
+          "location": "body",
+          "description": "Mailer templates magic link content"
+        },
+        {
+          "name": "mailer_templates_mfa_factor_enrolled_notification_content",
+          "type": "string",
+          "location": "body",
+          "description": "Mailer templates mfa factor enrolled notification content"
+        },
+        {
+          "name": "mailer_templates_mfa_factor_unenrolled_notification_content",
+          "type": "string",
+          "location": "body",
+          "description": "Mailer templates mfa factor unenrolled notification content"
+        },
+        {
+          "name": "mailer_templates_password_changed_notification_content",
+          "type": "string",
+          "location": "body",
+          "description": "Mailer templates password changed notification content"
+        },
+        {
+          "name": "mailer_templates_phone_changed_notification_content",
+          "type": "string",
+          "location": "body",
+          "description": "Mailer templates phone changed notification content"
+        },
+        {
+          "name": "mailer_templates_reauthentication_content",
+          "type": "string",
+          "location": "body",
+          "description": "Mailer templates reauthentication content"
+        },
+        {
+          "name": "mailer_templates_recovery_content",
+          "type": "string",
+          "location": "body",
+          "description": "Mailer templates recovery content"
+        },
+        {
+          "name": "mfa_max_enrolled_factors",
+          "type": "int",
+          "location": "body",
+          "description": "Mfa max enrolled factors"
+        },
+        {
+          "name": "mfa_phone_enroll_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Mfa phone enroll enabled"
+        },
+        {
+          "name": "mfa_phone_max_frequency",
+          "type": "int",
+          "location": "body",
+          "description": "Mfa phone max frequency"
+        },
+        {
+          "name": "mfa_phone_otp_length",
+          "type": "int",
+          "location": "body",
+          "description": "Mfa phone otp length"
+        },
+        {
+          "name": "mfa_phone_template",
+          "type": "string",
+          "location": "body",
+          "description": "Mfa phone template"
+        },
+        {
+          "name": "mfa_phone_verify_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Mfa phone verify enabled"
+        },
+        {
+          "name": "mfa_totp_enroll_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Mfa totp enroll enabled"
+        },
+        {
+          "name": "mfa_totp_verify_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Mfa totp verify enabled"
+        },
+        {
+          "name": "mfa_web_authn_enroll_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Mfa web authn enroll enabled"
+        },
+        {
+          "name": "mfa_web_authn_verify_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Mfa web authn verify enabled"
+        },
+        {
+          "name": "nimbus_oauth_client_id",
+          "type": "string",
+          "location": "body",
+          "description": "Nimbus oauth client id"
+        },
+        {
+          "name": "nimbus_oauth_client_secret",
+          "type": "string",
+          "location": "body",
+          "description": "Nimbus oauth client secret"
+        },
+        {
+          "name": "oauth_server_allow_dynamic_registration",
+          "type": "bool",
+          "location": "body",
+          "description": "Oauth server allow dynamic registration"
+        },
+        {
+          "name": "oauth_server_authorization_path",
+          "type": "string",
+          "location": "body",
+          "description": "Oauth server authorization path"
+        },
+        {
+          "name": "oauth_server_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Oauth server enabled"
+        },
+        {
+          "name": "passkey_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Passkey enabled"
+        },
+        {
+          "name": "password_hibp_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Password hibp enabled"
+        },
+        {
+          "name": "password_min_length",
+          "type": "int",
+          "location": "body",
+          "description": "Password min length"
+        },
+        {
+          "name": "password_required_characters",
+          "type": "string",
+          "location": "body",
+          "description": "Password required characters"
+        },
+        {
+          "name": "rate_limit_anonymous_users",
+          "type": "int",
+          "location": "body",
+          "description": "Rate limit anonymous users"
+        },
+        {
+          "name": "rate_limit_email_sent",
+          "type": "int",
+          "location": "body",
+          "description": "Rate limit email sent"
+        },
+        {
+          "name": "rate_limit_otp",
+          "type": "int",
+          "location": "body",
+          "description": "Rate limit otp"
+        },
+        {
+          "name": "rate_limit_sms_sent",
+          "type": "int",
+          "location": "body",
+          "description": "Rate limit sms sent"
+        },
+        {
+          "name": "rate_limit_token_refresh",
+          "type": "int",
+          "location": "body",
+          "description": "Rate limit token refresh"
+        },
+        {
+          "name": "rate_limit_verify",
+          "type": "int",
+          "location": "body",
+          "description": "Rate limit verify"
+        },
+        {
+          "name": "rate_limit_web3",
+          "type": "int",
+          "location": "body",
+          "description": "Rate limit web3"
+        },
+        {
+          "name": "refresh_token_rotation_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Refresh token rotation enabled"
+        },
+        {
+          "name": "saml_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Saml enabled"
+        },
+        {
+          "name": "saml_external_url",
+          "type": "string",
+          "location": "body",
+          "description": "Saml external url"
+        },
+        {
+          "name": "security_captcha_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Security captcha enabled"
+        },
+        {
+          "name": "security_captcha_provider",
+          "type": "string",
+          "location": "body",
+          "description": "Security captcha provider"
+        },
+        {
+          "name": "security_captcha_secret",
+          "type": "string",
+          "location": "body",
+          "description": "Security captcha secret"
+        },
+        {
+          "name": "security_manual_linking_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Security manual linking enabled"
+        },
+        {
+          "name": "security_refresh_token_reuse_interval",
+          "type": "int",
+          "location": "body",
+          "description": "Security refresh token reuse interval"
+        },
+        {
+          "name": "security_sb_forwarded_for_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Security sb forwarded for enabled"
+        },
+        {
+          "name": "security_update_password_require_reauthentication",
+          "type": "bool",
+          "location": "body",
+          "description": "Security update password require reauthentication"
+        },
+        {
+          "name": "sessions_inactivity_timeout",
+          "type": "float",
+          "location": "body",
+          "description": "Sessions inactivity timeout"
+        },
+        {
+          "name": "sessions_single_per_user",
+          "type": "bool",
+          "location": "body",
+          "description": "Sessions single per user"
+        },
+        {
+          "name": "sessions_tags",
+          "type": "string",
+          "location": "body",
+          "description": "Sessions tags"
+        },
+        {
+          "name": "sessions_timebox",
+          "type": "float",
+          "location": "body",
+          "description": "Sessions timebox"
+        },
+        {
+          "name": "site_url",
+          "type": "string",
+          "location": "body",
+          "description": "Site url"
+        },
+        {
+          "name": "sms_autoconfirm",
+          "type": "bool",
+          "location": "body",
+          "description": "Sms autoconfirm"
+        },
+        {
+          "name": "sms_max_frequency",
+          "type": "int",
+          "location": "body",
+          "description": "Sms max frequency"
+        },
+        {
+          "name": "sms_messagebird_access_key",
+          "type": "string",
+          "location": "body",
+          "description": "Sms messagebird access key"
+        },
+        {
+          "name": "sms_messagebird_originator",
+          "type": "string",
+          "location": "body",
+          "description": "Sms messagebird originator"
+        },
+        {
+          "name": "sms_otp_exp",
+          "type": "int",
+          "location": "body",
+          "description": "Sms otp exp"
+        },
+        {
+          "name": "sms_otp_length",
+          "type": "int",
+          "location": "body",
+          "description": "Sms otp length"
+        },
+        {
+          "name": "sms_provider",
+          "type": "string",
+          "location": "body",
+          "description": "Sms provider"
+        },
+        {
+          "name": "sms_template",
+          "type": "string",
+          "location": "body",
+          "description": "Sms template"
+        },
+        {
+          "name": "sms_test_otp",
+          "type": "string",
+          "location": "body",
+          "description": "Sms test otp"
+        },
+        {
+          "name": "sms_test_otp_valid_until",
+          "type": "string",
+          "location": "body",
+          "description": "Sms test otp valid until"
+        },
+        {
+          "name": "sms_textlocal_api_key",
+          "type": "string",
+          "location": "body",
+          "description": "Sms textlocal api key"
+        },
+        {
+          "name": "sms_textlocal_sender",
+          "type": "string",
+          "location": "body",
+          "description": "Sms textlocal sender"
+        },
+        {
+          "name": "sms_twilio_account_sid",
+          "type": "string",
+          "location": "body",
+          "description": "Sms twilio account sid"
+        },
+        {
+          "name": "sms_twilio_auth_token",
+          "type": "string",
+          "location": "body",
+          "description": "Sms twilio auth token"
+        },
+        {
+          "name": "sms_twilio_content_sid",
+          "type": "string",
+          "location": "body",
+          "description": "Sms twilio content sid"
+        },
+        {
+          "name": "sms_twilio_message_service_sid",
+          "type": "string",
+          "location": "body",
+          "description": "Sms twilio message service sid"
+        },
+        {
+          "name": "sms_twilio_verify_account_sid",
+          "type": "string",
+          "location": "body",
+          "description": "Sms twilio verify account sid"
+        },
+        {
+          "name": "sms_twilio_verify_auth_token",
+          "type": "string",
+          "location": "body",
+          "description": "Sms twilio verify auth token"
+        },
+        {
+          "name": "sms_twilio_verify_message_service_sid",
+          "type": "string",
+          "location": "body",
+          "description": "Sms twilio verify message service sid"
+        },
+        {
+          "name": "sms_vonage_api_key",
+          "type": "string",
+          "location": "body",
+          "description": "Sms vonage api key"
+        },
+        {
+          "name": "sms_vonage_api_secret",
+          "type": "string",
+          "location": "body",
+          "description": "Sms vonage api secret"
+        },
+        {
+          "name": "sms_vonage_from",
+          "type": "string",
+          "location": "body",
+          "description": "Sms vonage from"
+        },
+        {
+          "name": "smtp_admin_email",
+          "type": "string",
+          "location": "body",
+          "description": "Smtp admin email"
+        },
+        {
+          "name": "smtp_host",
+          "type": "string",
+          "location": "body",
+          "description": "Smtp host"
+        },
+        {
+          "name": "smtp_max_frequency",
+          "type": "int",
+          "location": "body",
+          "description": "Smtp max frequency"
+        },
+        {
+          "name": "smtp_pass",
+          "type": "string",
+          "location": "body",
+          "description": "Smtp pass"
+        },
+        {
+          "name": "smtp_port",
+          "type": "string",
+          "location": "body",
+          "description": "Smtp port"
+        },
+        {
+          "name": "smtp_sender_name",
+          "type": "string",
+          "location": "body",
+          "description": "Smtp sender name"
+        },
+        {
+          "name": "smtp_user",
+          "type": "string",
+          "location": "body",
+          "description": "Smtp user"
+        },
+        {
+          "name": "uri_allow_list",
+          "type": "string",
+          "location": "body",
+          "description": "Uri allow list"
+        },
+        {
+          "name": "webauthn_rp_display_name",
+          "type": "string",
+          "location": "body",
+          "description": "Webauthn rp display name"
+        },
+        {
+          "name": "webauthn_rp_id",
+          "type": "string",
+          "location": "body",
+          "description": "Webauthn rp id"
+        },
+        {
+          "name": "webauthn_rp_origins",
+          "type": "string",
+          "location": "body",
+          "description": "Webauthn rp origins"
+        }
+      ]
+    },
+    {
+      "name": "projects_config_update-pooler",
+      "description": "Updates project's supavisor config. Required: ref. Optional: default_pool_size, pool_mode. Returns the updated UpdateSupavisorConfigResponse.",
+      "method": "PATCH",
+      "path": "/v1/projects/{ref}/config/database/pooler",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "default_pool_size",
+          "type": "int",
+          "location": "body",
+          "description": "Default pool size"
+        },
+        {
+          "name": "pool_mode",
+          "type": "string",
+          "location": "body",
+          "description": "Dedicated pooler mode for the project"
+        }
+      ]
+    },
+    {
+      "name": "projects_config_update-postgres",
+      "description": "Updates project's Postgres config. Required: ref. Optional: checkpoint_timeout, effective_cache_size, hot_standby_feedback (plus 23 more). Returns the updated PostgresConfigResponse.",
+      "method": "PUT",
+      "path": "/v1/projects/{ref}/config/database/postgres",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "checkpoint_timeout",
+          "type": "string",
+          "location": "body",
+          "description": "Default unit: s"
+        },
+        {
+          "name": "effective_cache_size",
+          "type": "string",
+          "location": "body",
+          "description": "Effective cache size"
+        },
+        {
+          "name": "hot_standby_feedback",
+          "type": "bool",
+          "location": "body",
+          "description": "Hot standby feedback"
+        },
+        {
+          "name": "logical_decoding_work_mem",
+          "type": "string",
+          "location": "body",
+          "description": "Logical decoding work mem"
+        },
+        {
+          "name": "maintenance_work_mem",
+          "type": "string",
+          "location": "body",
+          "description": "Maintenance work mem"
+        },
+        {
+          "name": "max_connections",
+          "type": "int",
+          "location": "body",
+          "description": "Max connections"
+        },
+        {
+          "name": "max_locks_per_transaction",
+          "type": "int",
+          "location": "body",
+          "description": "Max locks per transaction"
+        },
+        {
+          "name": "max_parallel_maintenance_workers",
+          "type": "int",
+          "location": "body",
+          "description": "Max parallel maintenance workers"
+        },
+        {
+          "name": "max_parallel_workers",
+          "type": "int",
+          "location": "body",
+          "description": "Max parallel workers"
+        },
+        {
+          "name": "max_parallel_workers_per_gather",
+          "type": "int",
+          "location": "body",
+          "description": "Max parallel workers per gather"
+        },
+        {
+          "name": "max_replication_slots",
+          "type": "int",
+          "location": "body",
+          "description": "Max replication slots"
+        },
+        {
+          "name": "max_slot_wal_keep_size",
+          "type": "string",
+          "location": "body",
+          "description": "Max slot wal keep size"
+        },
+        {
+          "name": "max_standby_archive_delay",
+          "type": "string",
+          "location": "body",
+          "description": "Max standby archive delay"
+        },
+        {
+          "name": "max_standby_streaming_delay",
+          "type": "string",
+          "location": "body",
+          "description": "Max standby streaming delay"
+        },
+        {
+          "name": "max_wal_senders",
+          "type": "int",
+          "location": "body",
+          "description": "Max wal senders"
+        },
+        {
+          "name": "max_wal_size",
+          "type": "string",
+          "location": "body",
+          "description": "Max wal size"
+        },
+        {
+          "name": "max_worker_processes",
+          "type": "int",
+          "location": "body",
+          "description": "Max worker processes"
+        },
+        {
+          "name": "restart_database",
+          "type": "bool",
+          "location": "body",
+          "description": "Restart database"
+        },
+        {
+          "name": "session_replication_role",
+          "type": "string",
+          "location": "body",
+          "description": "Session replication role"
+        },
+        {
+          "name": "shared_buffers",
+          "type": "string",
+          "location": "body",
+          "description": "Shared buffers"
+        },
+        {
+          "name": "statement_timeout",
+          "type": "string",
+          "location": "body",
+          "description": "Default unit: ms"
+        },
+        {
+          "name": "track_activity_query_size",
+          "type": "string",
+          "location": "body",
+          "description": "Track activity query size"
+        },
+        {
+          "name": "track_commit_timestamp",
+          "type": "bool",
+          "location": "body",
+          "description": "Track commit timestamp"
+        },
+        {
+          "name": "wal_keep_size",
+          "type": "string",
+          "location": "body",
+          "description": "Wal keep size"
+        },
+        {
+          "name": "wal_sender_timeout",
+          "type": "string",
+          "location": "body",
+          "description": "Default unit: ms"
+        },
+        {
+          "name": "work_mem",
+          "type": "string",
+          "location": "body",
+          "description": "Work mem"
+        }
+      ]
+    },
+    {
+      "name": "projects_config_update-project-signing-key",
+      "description": "Update a signing key, mainly its status. Required: id, ref, status. Returns the updated SigningKeyResponse.",
+      "method": "PATCH",
+      "path": "/v1/projects/{ref}/config/auth/signing-keys/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        },
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Status",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_config_update-realtime",
+      "description": "Updates realtime configuration. Required: ref. Optional: connection_pool, max_bytes_per_second, max_channels_per_client (plus 8 more). Partial update.",
+      "method": "PATCH",
+      "path": "/v1/projects/{ref}/config/realtime",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "connection_pool",
+          "type": "int",
+          "location": "body",
+          "description": "Sets connection pool size for Realtime Authorization"
+        },
+        {
+          "name": "max_bytes_per_second",
+          "type": "int",
+          "location": "body",
+          "description": "Sets maximum number of bytes per second rate per channel limit"
+        },
+        {
+          "name": "max_channels_per_client",
+          "type": "int",
+          "location": "body",
+          "description": "Sets maximum number of channels per client rate limit"
+        },
+        {
+          "name": "max_concurrent_users",
+          "type": "int",
+          "location": "body",
+          "description": "Sets maximum number of concurrent users rate limit"
+        },
+        {
+          "name": "max_events_per_second",
+          "type": "int",
+          "location": "body",
+          "description": "Sets maximum number of events per second rate per channel limit"
+        },
+        {
+          "name": "max_joins_per_second",
+          "type": "int",
+          "location": "body",
+          "description": "Sets maximum number of joins per second rate limit"
+        },
+        {
+          "name": "max_payload_size_in_kb",
+          "type": "int",
+          "location": "body",
+          "description": "Sets maximum number of payload size in KB rate limit"
+        },
+        {
+          "name": "max_presence_events_per_second",
+          "type": "int",
+          "location": "body",
+          "description": "Sets maximum number of presence events per second rate limit"
+        },
+        {
+          "name": "presence_enabled",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to enable presence"
+        },
+        {
+          "name": "private_only",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether to only allow private channels"
+        },
+        {
+          "name": "suspend",
+          "type": "bool",
+          "location": "body",
+          "description": "Disables the Realtime service for this project when true. Set to false to re-enable it."
+        }
+      ]
+    },
+    {
+      "name": "projects_config_update-storage",
+      "description": "Updates project's storage config. Required: ref. Optional: external, features, fileSizeLimit. Partial update.",
+      "method": "PATCH",
+      "path": "/v1/projects/{ref}/config/storage",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "external",
+          "type": "object",
+          "location": "body",
+          "description": "External"
+        },
+        {
+          "name": "features",
+          "type": "object",
+          "location": "body",
+          "description": "Features"
+        },
+        {
+          "name": "fileSizeLimit",
+          "type": "int",
+          "location": "body",
+          "description": "File size limit"
+        }
+      ]
+    },
+    {
+      "name": "projects_custom-hostname_activate",
+      "description": "[Beta] Activates a custom hostname for a project. Required: ref. Returns the new UpdateCustomHostnameResponse.",
+      "method": "POST",
+      "path": "/v1/projects/{ref}/custom-hostname/activate",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_custom-hostname_delete-hostname-config",
+      "description": "[Beta] Deletes a project's custom hostname configuration. Required: ref. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/projects/{ref}/custom-hostname",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_custom-hostname_get-hostname-config",
+      "description": "[Beta] Gets project's custom hostname config. Required: ref. Returns the UpdateCustomHostnameResponse.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/custom-hostname",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_custom-hostname_update-hostname-config",
+      "description": "[Beta] Updates project's custom hostname configuration. Required: ref, custom_hostname. Returns the new UpdateCustomHostnameResponse.",
+      "method": "POST",
+      "path": "/v1/projects/{ref}/custom-hostname/initialize",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "custom_hostname",
+          "type": "string",
+          "location": "body",
+          "description": "Custom hostname",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_custom-hostname_verify-dns-config",
+      "description": "[Beta] Attempts to verify the DNS configuration for project's custom hostname configuration. Required: ref. Returns the new UpdateCustomHostnameResponse.",
+      "method": "POST",
+      "path": "/v1/projects/{ref}/custom-hostname/reverify",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_database_apply-a-migration",
+      "description": "Only available to selected partner OAuth apps. Required: ref, query. Optional: name, rollback.",
+      "method": "POST",
+      "path": "/v1/projects/{ref}/database/migrations",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "Query",
+          "required": true
+        },
+        {
+          "name": "rollback",
+          "type": "string",
+          "location": "body",
+          "description": "Rollback"
+        }
+      ]
+    },
+    {
+      "name": "projects_database_authorize-jit-access",
+      "description": "Authorizes the request to assume a role in the project database. Required: ref, rhost, role. Returns the new JitAuthorizeAccessResponse.",
+      "method": "POST",
+      "path": "/v1/projects/{ref}/database/jit",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "rhost",
+          "type": "string",
+          "location": "body",
+          "description": "Rhost",
+          "required": true
+        },
+        {
+          "name": "role",
+          "type": "string",
+          "location": "body",
+          "description": "Role",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_database_create-restore-point",
+      "description": "Initiates a creation of a restore point for a database. Required: ref, name. Returns the new V1RestorePointResponse.",
+      "method": "POST",
+      "path": "/v1/projects/{ref}/database/backups/restore-point",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_database_delete-jit-access",
+      "description": "Remove JIT mappings of a user, revoking all JIT database access. Required: ref, user_id. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/projects/{ref}/database/jit/{user_id}",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "path",
+          "description": "User id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_database_enable-webhook",
+      "description": "[Beta] Enables Database Webhooks on the project. Required: ref.",
+      "method": "POST",
+      "path": "/v1/projects/{ref}/database/webhooks/enable",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_database_get-a-migration",
+      "description": "Fetch an existing entry from migration history. Required: ref, version. Returns the V1GetMigrationResponse.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/database/migrations/{version}",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "version",
+          "type": "string",
+          "location": "path",
+          "description": "Version",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_database_get-jit-access",
+      "description": "Mappings of roles a user can assume in the project database. Required: ref. Returns the JitAccessResponse.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/database/jit",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_database_get-metadata",
+      "description": "This is an **experimental** endpoint. It is subject to change or removal in future versions. Use it with caution, as it may not remain supported or stable. Required: ref. Returns the GetProjectDbMetadataResponse.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/database/context",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_database_get-openapi",
+      "description": "Returns the PostgREST OpenAPI specification for the project. This is the replacement for querying `/rest/v1/` directly with the anon key. Required: ref. Optional: schema (default: public).",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/database/openapi",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "schema",
+          "type": "string",
+          "location": "query",
+          "description": "The database schema to generate the OpenAPI spec for"
+        }
+      ]
+    },
+    {
+      "name": "projects_database_get-restore-point",
+      "description": "Get restore points for project. Required: ref. Optional: name. Returns the V1RestorePointResponse.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/database/backups/restore-point",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "Name"
+        }
+      ]
+    },
+    {
+      "name": "projects_database_list-all-backups",
+      "description": "Lists all backups. Required: ref. Returns the V1BackupsResponse.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/database/backups",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_database_list-jit-access",
+      "description": "Mappings of roles a user can assume in the project database. Required: ref. Returns the JitListAccessResponse.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/database/jit/list",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_database_list-migration-history",
+      "description": "Only available to selected partner OAuth apps. Required: ref. Returns array of DatabaseListMigrationHistoryItem.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/database/migrations",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_database_patch-a-migration",
+      "description": "Only available to selected partner OAuth apps. Required: ref, version. Optional: name, rollback. Partial update.",
+      "method": "PATCH",
+      "path": "/v1/projects/{ref}/database/migrations/{version}",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "version",
+          "type": "string",
+          "location": "path",
+          "description": "Version",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "rollback",
+          "type": "string",
+          "location": "body",
+          "description": "Rollback"
+        }
+      ]
+    },
+    {
+      "name": "projects_database_read-only-query",
+      "description": "[Beta] Run a sql query as supabase_read_only_user. Required: ref, query. Optional: parameters.",
+      "method": "POST",
+      "path": "/v1/projects/{ref}/database/query/read-only",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "parameters",
+          "type": "array",
+          "location": "body",
+          "description": "Parameters"
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "Query",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_database_restore-physical-backup",
+      "description": "Restores a physical backup for a database. Required: ref, id.",
+      "method": "POST",
+      "path": "/v1/projects/{ref}/database/backups/restore",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "id",
+          "type": "int",
+          "location": "body",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_database_restore-pitr-backup",
+      "description": "Restores a PITR backup for a database. Required: ref, recovery_time_target_unix.",
+      "method": "POST",
+      "path": "/v1/projects/{ref}/database/backups/restore-pitr",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "recovery_time_target_unix",
+          "type": "int",
+          "location": "body",
+          "description": "Recovery time target unix",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_database_rollback-migrations",
+      "description": "Rollback database migrations and remove them from history table. Required: ref, gte. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/projects/{ref}/database/migrations",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "gte",
+          "type": "string",
+          "location": "query",
+          "description": "Rollback migrations greater or equal to this version",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_database_run-a-query",
+      "description": "[Beta] Run sql query. Required: ref, query. Optional: parameters, read_only.",
+      "method": "POST",
+      "path": "/v1/projects/{ref}/database/query",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "parameters",
+          "type": "array",
+          "location": "body",
+          "description": "Parameters"
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "Query",
+          "required": true
+        },
+        {
+          "name": "read_only",
+          "type": "bool",
+          "location": "body",
+          "description": "Read only"
+        }
+      ]
+    },
+    {
+      "name": "projects_database_undo",
+      "description": "Initiates an undo to a given restore point. Required: ref, name.",
+      "method": "POST",
+      "path": "/v1/projects/{ref}/database/backups/undo",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_database_update-jit-access",
+      "description": "Modifies the roles that can be assumed and for how long. Required: ref, roles, user_id. Returns the updated JitAccessResponse.",
+      "method": "PUT",
+      "path": "/v1/projects/{ref}/database/jit",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "roles",
+          "type": "array",
+          "location": "body",
+          "description": "Roles",
+          "required": true
+        },
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "body",
+          "description": "User id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_database_update-password",
+      "description": "Updates the database password. Required: ref, password. Returns the updated V1UpdatePasswordResponse.",
+      "method": "PATCH",
+      "path": "/v1/projects/{ref}/database/password",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "password",
+          "type": "string",
+          "location": "body",
+          "description": "Password",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_database_upsert-a-migration",
+      "description": "Only available to selected partner OAuth apps. Required: ref, query. Optional: name, rollback.",
+      "method": "PUT",
+      "path": "/v1/projects/{ref}/database/migrations",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Name"
+        },
+        {
+          "name": "query",
+          "type": "string",
+          "location": "body",
+          "description": "Query",
+          "required": true
+        },
+        {
+          "name": "rollback",
+          "type": "string",
+          "location": "body",
+          "description": "Rollback"
+        }
+      ]
+    },
+    {
+      "name": "projects_functions_bulk-update",
+      "description": "Bulk update functions. It will create a new function or replace existing. The operation is idempotent. NOTE: You will need to manually bump the version. Required: ref. Returns the updated BulkUpdateFunctionResponse.",
+      "method": "PUT",
+      "path": "/v1/projects/{ref}/functions",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_functions_create-a",
+      "description": "This endpoint is deprecated - use the deploy endpoint. Creates a function and adds it to the specified project. Required: ref, body. Optional: slug, name, verify_jwt (plus 4 more). Returns the new FunctionResponse.",
+      "method": "POST",
+      "path": "/v1/projects/{ref}/functions",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "query",
+          "description": "Slug"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "Name"
+        },
+        {
+          "name": "verify_jwt",
+          "type": "bool",
+          "location": "query",
+          "description": "Boolean string, true or false"
+        },
+        {
+          "name": "import_map",
+          "type": "bool",
+          "location": "query",
+          "description": "Boolean string, true or false"
+        },
+        {
+          "name": "entrypoint_path",
+          "type": "string",
+          "location": "query",
+          "description": "Entrypoint path"
+        },
+        {
+          "name": "import_map_path",
+          "type": "string",
+          "location": "query",
+          "description": "Import map path"
+        },
+        {
+          "name": "ezbr_sha256",
+          "type": "string",
+          "location": "query",
+          "description": "Ezbr sha256"
+        },
+        {
+          "name": "body",
+          "type": "string",
+          "location": "body",
+          "description": "Body",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_functions_delete-a",
+      "description": "Deletes a function with the specified slug from the specified project. Required: ref, function_slug. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/projects/{ref}/functions/{function_slug}",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "function_slug",
+          "type": "string",
+          "location": "path",
+          "description": "Function slug",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_functions_deploy-a",
+      "description": "A new endpoint to deploy functions. It will create if function does not exist. Required: ref, metadata. Optional: slug, bundleOnly, file. Returns the new DeployFunctionResponse.",
+      "method": "POST",
+      "path": "/v1/projects/{ref}/functions/deploy",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "query",
+          "description": "Slug"
+        },
+        {
+          "name": "bundleOnly",
+          "type": "bool",
+          "location": "query",
+          "description": "Boolean string, true or false"
+        },
+        {
+          "name": "file",
+          "type": "array",
+          "location": "body",
+          "description": "File"
+        },
+        {
+          "name": "metadata",
+          "type": "object",
+          "location": "body",
+          "description": "Metadata",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_functions_get-a",
+      "description": "Retrieves a function with the specified slug and project. Required: ref, function_slug. Returns the FunctionSlugResponse.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/functions/{function_slug}",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "function_slug",
+          "type": "string",
+          "location": "path",
+          "description": "Function slug",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_functions_get-a-body",
+      "description": "Retrieves a function body for the specified slug and project. Required: ref, function_slug. Returns the StreamableFile.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/functions/{function_slug}/body",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "function_slug",
+          "type": "string",
+          "location": "path",
+          "description": "Function slug",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_functions_list-all",
+      "description": "Returns all functions you've previously added to the specified project. Required: ref.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/functions",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_functions_update-a",
+      "description": "Updates a function with the specified slug and project. Required: ref, function_slug. Optional: slug, name, verify_jwt (plus 5 more). Returns the updated FunctionResponse.",
+      "method": "PATCH",
+      "path": "/v1/projects/{ref}/functions/{function_slug}",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "function_slug",
+          "type": "string",
+          "location": "path",
+          "description": "Function slug",
+          "required": true
+        },
+        {
+          "name": "slug",
+          "type": "string",
+          "location": "query",
+          "description": "Slug"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": "Name"
+        },
+        {
+          "name": "verify_jwt",
+          "type": "bool",
+          "location": "query",
+          "description": "Boolean string, true or false"
+        },
+        {
+          "name": "import_map",
+          "type": "bool",
+          "location": "query",
+          "description": "Boolean string, true or false"
+        },
+        {
+          "name": "entrypoint_path",
+          "type": "string",
+          "location": "query",
+          "description": "Entrypoint path"
+        },
+        {
+          "name": "import_map_path",
+          "type": "string",
+          "location": "query",
+          "description": "Import map path"
+        },
+        {
+          "name": "ezbr_sha256",
+          "type": "string",
+          "location": "query",
+          "description": "Ezbr sha256"
+        },
+        {
+          "name": "body",
+          "type": "string",
+          "location": "body",
+          "description": "Body"
+        }
+      ]
+    },
+    {
+      "name": "projects_health_get-services",
+      "description": "Gets project's service health status. Required: ref, services. Optional: timeout_ms. Returns array of V1ServiceHealthResponse.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/health",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "services",
+          "type": "array",
+          "location": "query",
+          "description": "Services",
+          "required": true
+        },
+        {
+          "name": "timeout_ms",
+          "type": "int",
+          "location": "query",
+          "description": "Timeout ms"
+        }
+      ]
+    },
+    {
+      "name": "projects_jit-access_get-config",
+      "description": "[Beta] Get project's temporary access configuration. Required: ref.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/jit-access",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_jit-access_update-config",
+      "description": "[Beta] Update project's temporary access configuration. Required: ref, state.",
+      "method": "PUT",
+      "path": "/v1/projects/{ref}/jit-access",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "state",
+          "type": "string",
+          "location": "body",
+          "description": "State",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_network-bans_delete",
+      "description": "[Beta] Remove network bans. Required: ref, ipv4_addresses. Optional: identifier, requester_ip (default: false). Destructive.",
+      "method": "DELETE",
+      "path": "/v1/projects/{ref}/network-bans",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "identifier",
+          "type": "string",
+          "location": "body",
+          "description": "Identifier"
+        },
+        {
+          "name": "ipv4_addresses",
+          "type": "array",
+          "location": "body",
+          "description": "List of IP addresses to unban.",
+          "required": true
+        },
+        {
+          "name": "requester_ip",
+          "type": "bool",
+          "location": "body",
+          "description": "Include requester's public IP in the list of addresses to unban."
+        }
+      ]
+    },
+    {
+      "name": "projects_network-bans_list-all",
+      "description": "[Beta] Gets project's network bans. Required: ref. Returns the new NetworkBanResponse.",
+      "method": "POST",
+      "path": "/v1/projects/{ref}/network-bans/retrieve",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_network-bans_list-all-enriched",
+      "description": "[Beta] Gets project's network bans with additional information about which databases they affect. Required: ref. Returns the new NetworkBanResponseEnriched.",
+      "method": "POST",
+      "path": "/v1/projects/{ref}/network-bans/retrieve/enriched",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_network-restrictions_get",
+      "description": "[Beta] Gets project's network restrictions. Required: ref. Returns the NetworkRestrictionsResponse.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/network-restrictions",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_network-restrictions_patch",
+      "description": "[Alpha] Updates project's network restrictions by adding or removing CIDRs. Required: ref. Optional: add, remove. Returns the updated NetworkRestrictionsV2Response.",
+      "method": "PATCH",
+      "path": "/v1/projects/{ref}/network-restrictions",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "add",
+          "type": "object",
+          "location": "body",
+          "description": "Add"
+        },
+        {
+          "name": "remove",
+          "type": "object",
+          "location": "body",
+          "description": "Remove"
+        }
+      ]
+    },
+    {
+      "name": "projects_network-restrictions_update",
+      "description": "[Beta] Updates project's network restrictions. Required: ref. Optional: dbAllowedCidrs, dbAllowedCidrsV6. Returns the new NetworkRestrictionsResponse.",
+      "method": "POST",
+      "path": "/v1/projects/{ref}/network-restrictions/apply",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "dbAllowedCidrs",
+          "type": "array",
+          "location": "body",
+          "description": "Db allowed cidrs"
+        },
+        {
+          "name": "dbAllowedCidrsV6",
+          "type": "array",
+          "location": "body",
+          "description": "Db allowed cidrs v6"
+        }
+      ]
+    },
+    {
+      "name": "projects_pause_a-project",
+      "description": "Pauses the given project. Required: ref.",
+      "method": "POST",
+      "path": "/v1/projects/{ref}/pause",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_pgsodium_get-config",
+      "description": "[Beta] Gets project's pgsodium config. Required: ref. Returns the PgsodiumConfigResponse.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/pgsodium",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_pgsodium_update-config",
+      "description": "[Beta] Updates project's pgsodium config. Updating the root_key can cause all data encrypted with the older key to become inaccessible. Required: ref, root_key. Returns the updated PgsodiumConfigResponse.",
+      "method": "PUT",
+      "path": "/v1/projects/{ref}/pgsodium",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "root_key",
+          "type": "string",
+          "location": "body",
+          "description": "Root key",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_postgrest_get-service-config",
+      "description": "Gets project's postgrest config. Required: ref. Returns the PostgrestConfigWithJwtsecretResponse.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/postgrest",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_postgrest_update-service-config",
+      "description": "Updates project's postgrest config. Required: ref. Optional: db_extra_search_path, db_pool, db_schema (plus 1 more). Returns the updated V1PostgrestConfigResponse.",
+      "method": "PATCH",
+      "path": "/v1/projects/{ref}/postgrest",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "db_extra_search_path",
+          "type": "string",
+          "location": "body",
+          "description": "Db extra search path"
+        },
+        {
+          "name": "db_pool",
+          "type": "int",
+          "location": "body",
+          "description": "Db pool"
+        },
+        {
+          "name": "db_schema",
+          "type": "string",
+          "location": "body",
+          "description": "Db schema"
+        },
+        {
+          "name": "max_rows",
+          "type": "int",
+          "location": "body",
+          "description": "Max rows"
+        }
+      ]
+    },
+    {
+      "name": "projects_read-replicas_remove-a",
+      "description": "[Beta] Remove a read replica. Required: ref, database_identifier.",
+      "method": "POST",
+      "path": "/v1/projects/{ref}/read-replicas/remove",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "database_identifier",
+          "type": "string",
+          "location": "body",
+          "description": "Database identifier",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_read-replicas_setup-a",
+      "description": "[Beta] Set up a read replica. Required: ref, read_replica_region.",
+      "method": "POST",
+      "path": "/v1/projects/{ref}/read-replicas/setup",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "read_replica_region",
+          "type": "string",
+          "location": "body",
+          "description": "Region you want your read replica to reside in",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_readonly_disable-mode-temporarily",
+      "description": "Disables project's readonly mode for the next 15 minutes. Required: ref.",
+      "method": "POST",
+      "path": "/v1/projects/{ref}/readonly/temporary-disable",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_readonly_get-mode-status",
+      "description": "Returns project's readonly mode status. Required: ref.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/readonly",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_restore_a-project",
+      "description": "Restores the given project. Required: ref.",
+      "method": "POST",
+      "path": "/v1/projects/{ref}/restore",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_restore_cancel-a-project-restoration",
+      "description": "Cancels the given project restoration. Required: ref.",
+      "method": "POST",
+      "path": "/v1/projects/{ref}/restore/cancel",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_restore_list-available-versions",
+      "description": "Lists available restore versions for the given project. Required: ref. Returns the GetProjectAvailableRestoreVersionsResponse.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/restore",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_secrets_bulk-create",
+      "description": "Creates multiple secrets and adds them to the specified project. Required: ref.",
+      "method": "POST",
+      "path": "/v1/projects/{ref}/secrets",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_secrets_bulk-delete",
+      "description": "Deletes all secrets with the given names from the specified project. Required: ref. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/projects/{ref}/secrets",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_secrets_list-all",
+      "description": "Returns all secrets you've previously added to the specified project. Required: ref.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/secrets",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_ssl-enforcement_get-config",
+      "description": "[Beta] Get project's SSL enforcement configuration. Required: ref. Returns the SslEnforcementResponse.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/ssl-enforcement",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_ssl-enforcement_update-config",
+      "description": "[Beta] Update project's SSL enforcement configuration. Required: ref, requestedConfig. Returns the updated SslEnforcementResponse.",
+      "method": "PUT",
+      "path": "/v1/projects/{ref}/ssl-enforcement",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "requestedConfig",
+          "type": "object",
+          "location": "body",
+          "description": "Requested config",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_storage_list-all-buckets",
+      "description": "Lists all buckets. Required: ref. Returns array of V1StorageBucketResponse.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/storage/buckets",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_types_generate-typescript",
+      "description": "Returns the TypeScript types of your schema for use with supabase-js. Required: ref. Optional: included_schemas (default: public).",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/types/typescript",
+      "params": [
+        {
+          "name": "included_schemas",
+          "type": "string",
+          "location": "query",
+          "description": "Included schemas"
+        },
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_upgrade_get-postgres-eligibility",
+      "description": "[Beta] Returns the project's eligibility for upgrades. Required: ref.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/upgrade/eligibility",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_upgrade_get-postgres-status",
+      "description": "[Beta] Gets the latest status of the project's upgrade. Required: ref. Optional: tracking_id. Returns the DatabaseUpgradeStatusResponse.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/upgrade/status",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "tracking_id",
+          "type": "string",
+          "location": "query",
+          "description": "Tracking id"
+        }
+      ]
+    },
+    {
+      "name": "projects_upgrade_postgres-version",
+      "description": "[Beta] Upgrades the project's Postgres version. Required: ref, target_version. Optional: release_channel. Returns the new ProjectUpgradeInitiateResponse.",
+      "method": "POST",
+      "path": "/v1/projects/{ref}/upgrade",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "release_channel",
+          "type": "string",
+          "location": "body",
+          "description": "Release channel"
+        },
+        {
+          "name": "target_version",
+          "type": "string",
+          "location": "body",
+          "description": "Target version",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_vanity-subdomain_activate-config",
+      "description": "[Beta] Activates a vanity subdomain for a project. Required: ref, vanity_subdomain. Returns the new ActivateVanitySubdomainResponse.",
+      "method": "POST",
+      "path": "/v1/projects/{ref}/vanity-subdomain/activate",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "vanity_subdomain",
+          "type": "string",
+          "location": "body",
+          "description": "Vanity subdomain",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_vanity-subdomain_check-availability",
+      "description": "[Beta] Checks vanity subdomain availability. Required: ref, vanity_subdomain. Returns the new SubdomainAvailabilityResponse.",
+      "method": "POST",
+      "path": "/v1/projects/{ref}/vanity-subdomain/check-availability",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        },
+        {
+          "name": "vanity_subdomain",
+          "type": "string",
+          "location": "body",
+          "description": "Vanity subdomain",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_vanity-subdomain_deactivate-config",
+      "description": "[Beta] Deletes a project's vanity subdomain configuration. Required: ref. Destructive.",
+      "method": "DELETE",
+      "path": "/v1/projects/{ref}/vanity-subdomain",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "projects_vanity-subdomain_get-config",
+      "description": "[Beta] Gets current vanity subdomain config. Required: ref. Returns the VanitySubdomainConfigResponse.",
+      "method": "GET",
+      "path": "/v1/projects/{ref}/vanity-subdomain",
+      "params": [
+        {
+          "name": "ref",
+          "type": "string",
+          "location": "path",
+          "description": "Project ref",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "snippets_get-a",
+      "description": "Gets a specific SQL snippet. Required: id. Returns the SnippetResponse.",
+      "method": "GET",
+      "path": "/v1/snippets/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "Id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "snippets_list-all",
+      "description": "Lists SQL snippets for the logged in user. Optional: project_ref, cursor, limit (plus 2 more). Returns array of SnippetsListAllItem.",
+      "method": "GET",
+      "path": "/v1/snippets",
+      "params": [
+        {
+          "name": "project_ref",
+          "type": "string",
+          "location": "query",
+          "description": "Project ref"
+        },
+        {
+          "name": "cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor"
+        },
+        {
+          "name": "limit",
+          "type": "string",
+          "location": "query",
+          "description": "Limit"
+        },
+        {
+          "name": "sort_by",
+          "type": "string",
+          "location": "query",
+          "description": "Sort by"
+        },
+        {
+          "name": "sort_order",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order"
+        }
+      ]
+    },
+    {
+      "name": "supabase-profile_get",
+      "description": "Gets the user's profile. Returns the V1ProfileResponse.",
+      "method": "GET",
+      "path": "/v1/profile",
+      "params": []
+    }
+  ]
+}

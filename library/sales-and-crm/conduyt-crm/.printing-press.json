@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-09T18:10:00Z",
+  "printing_press_version": "4.2.0",
+  "api_name": "conduyt-crm",
+  "display_name": "Conduyt CRM",
+  "cli_name": "conduyt-crm-pp-cli",
+  "owner": "conduyt",
+  "owner_name": "Conduyt",
+  "category": "sales-and-crm",
+  "description": "Manage Conduyt CRM contacts, deals, pipelines, automations, campaigns, invoices, and local insight reports from the terminal.",
+  "mcp_binary": "conduyt-crm-pp-mcp",
+  "mcp_ready": "full",
+  "auth_type": "bearer",
+  "auth_env_vars": [
+    "CONDUYT_CRM_TOKEN"
+  ],
+  "spec_format": "openapi3",
+  "base_url": "https://app.conduyt.com/api/v1",
+  "run_id": "20260509T181000Z-6513e1d0",
+  "novel_features": [
+    {
+      "name": "Contact Trends",
+      "command": "contact-trends",
+      "description": "Analyze contact creation patterns by date and source using local SQLite store"
+    },
+    {
+      "name": "Deal Velocity",
+      "command": "deal-velocity",
+      "description": "Analyze average deal cycle time, win rate, and per-stage duration metrics"
+    },
+    {
+      "name": "Pipeline Health",
+      "command": "pipeline-health",
+      "description": "Pipeline health check with stale deal detection, stage distribution, and bottleneck scoring"
+    },
+    {
+      "name": "Email Stats",
+      "command": "email-stats",
+      "description": "Email performance analytics \u2014 open rates, click rates, reply rates, and per-template breakdown"
+    }
+  ],
+  "printer": "ptaramona",
+  "printer_name": "Conduyt"
+}

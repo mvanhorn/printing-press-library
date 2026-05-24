@@ -1,0 +1,22 @@
+{
+  "version": "1",
+  "reachability": {
+    "mode": "standard_http",
+    "needs_browser_capture": false,
+    "needs_clearance_cookie": false,
+    "rationale": "probe-reachability confirmed substack.com and substack.com/api/v1/publication/search both return 200 OK with stdlib HTTP, application/json. No CF/Vercel/WAF challenge."
+  },
+  "auth": {
+    "type": "cookie",
+    "scheme": "session_cookie",
+    "cookies_required": ["connect.sid", "substack.sid"],
+    "cookie_source": "chrome",
+    "domain": "substack.com",
+    "verified_by": "community-wrappers"
+  },
+  "api_base_urls": [
+    "https://substack.com/api/v1",
+    "https://<subdomain>.substack.com/api/v1"
+  ],
+  "client_pattern": "rest"
+}
