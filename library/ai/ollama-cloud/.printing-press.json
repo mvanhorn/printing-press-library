@@ -24,7 +24,7 @@
     {
       "name": "Advisor replay",
       "command": "advise-replay",
-      "description": "Replays advisor recommendations against a judge LLM scoring whether the picked model handled the prompt better than alternatives. Powers the divergence canary."
+      "description": "Replays advisor recommendations and reports divergence between recommended models and actually-chosen models. Foundation for the divergence canary; the prompt corpus is not retained so judge-LLM scoring is not in scope until a corpus sidecar ships."
     },
     {
       "name": "Budget probe",

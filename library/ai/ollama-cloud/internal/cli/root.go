@@ -89,7 +89,7 @@ Highlights (not in the official API docs):
   • advise   Picks the right Ollama Cloud model for a prompt by combining live catalog, heuristic prompt-feature extraction, curated cost/latency metadata, and an optional cheap meta-LLM tiebreak.
   • compare   Runs the same prompt against N hosted models in parallel and emits side-by-side response, tokens, latency, and cost.
   • advise   With --explain, advise emits the full scoring trace: feature extraction, per-model scores, filter passes, tiebreak rationale.
-  • advise-replay   Replays advisor recommendations against a judge LLM scoring whether the picked model handled the prompt better than alternatives. Powers the divergence canary.
+  • advise-replay   Replays advisor recommendations and reports divergence between recommended models and actually-chosen models. Foundation for the divergence canary; the prompt corpus is not retained so judge-LLM scoring is not in scope until a corpus sidecar ships.
   • budget   Probes the free-tier weekly cap with a 1-token chat. Parses Ollama Cloud's 429 prose and emits a structured verdict (ok | exhausted | unknown) with the upgrade URL so agents can pre-flight quota befo…
   • cost-trace   Aggregates advisor-log cost estimates over a time window; compares per-model and per-task-hint spend.
 

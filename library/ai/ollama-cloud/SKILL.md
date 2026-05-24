@@ -67,12 +67,12 @@ These capabilities aren't available in any other tool for this API.
   ```
 
 ### Engagement canary
-- **`advise-replay`** — Replays advisor recommendations against a judge LLM scoring whether the picked model handled the prompt better than alternatives. Powers the divergence canary.
+- **`advise-replay`** — Replays advisor recommendations and reports divergence between recommended models and actually-chosen models. Foundation for the divergence canary; the prompt corpus is not retained so judge-LLM scoring is not in scope until a corpus sidecar ships.
 
   _Run weekly to detect advisor drift; surfaces divergence between recommended and actual-chosen models._
 
   ```bash
-  ollama-cloud-pp-cli advise-replay --log ~/.local/state/ollama-cloud-pp-cli/advisor-log.jsonl --judge-with gpt-oss:120b --since 7d
+  ollama-cloud-pp-cli advise-replay --since 7d --diverge-only --json --select rows,divergence_count,divergence_pct
   ```
 
 ### Operations
