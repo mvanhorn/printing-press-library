@@ -133,11 +133,11 @@ In local mode: searches locally synced data only.`,
 			var results []json.RawMessage
 			switch resourceType {
 			case "":
-				// Search all FTS-enabled tables individually to avoid duplicates.
-				seen := make(map[string]bool)
-				_ = seen // prevent unused error when no FTS tables exist
+				// Search all resource types via FTS
+				results, err = db.Search(query, limit)
 			default:
-				// Unrecognized type — fall back to generic search
+				// Specific type — still use generic search (type filtering
+				// can be layered later if the store supports it)
 				results, err = db.Search(query, limit)
 			}
 			if err != nil {

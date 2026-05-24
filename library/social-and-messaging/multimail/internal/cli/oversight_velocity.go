@@ -106,6 +106,53 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 					rate = float64(approved) / float64(total) * 100
 				}
 
+				// Compute median latency from oversight records that have
+				// both created_at and decided_at (or resolved_at) timestamps.
+				medianLatency := "—"
+				latencyRows, lerr := db.DB().QueryContext(cmd.Context(),
+					`SELECT
+						COALESCE(json_extract(data, '$.created_at'), ''),
+						COALESCE(json_extract(data, '$.decided_at'), json_extract(data, '$.resolved_at'), '')
+					FROM resources
+					WHERE resource_type = 'oversight'
+					AND json_extract(data, '$.mailbox_id') = ?
+					AND json_extract(data, '$.status') != 'pending'
+					AND synced_at > ?`, mb.ID, cutoff)
+				if lerr == nil {
+					var latencies []float64
+					for latencyRows.Next() {
+						var createdStr, decidedStr string
+						if latencyRows.Scan(&createdStr, &decidedStr) != nil {
+							continue
+						}
+						if createdStr == "" || decidedStr == "" {
+							continue
+						}
+						created, cerr := time.Parse(time.RFC3339, createdStr)
+						decided, derr := time.Parse(time.RFC3339, decidedStr)
+						if cerr != nil || derr != nil {
+							continue
+						}
+						dur := decided.Sub(created).Seconds()
+						if dur >= 0 {
+							latencies = append(latencies, dur)
+						}
+					}
+					latencyRows.Close()
+					if len(latencies) > 0 {
+						sort.Float64s(latencies)
+						mid := latencies[len(latencies)/2]
+						switch {
+						case mid < 60:
+							medianLatency = fmt.Sprintf("%.0fs", mid)
+						case mid < 3600:
+							medianLatency = fmt.Sprintf("%.1fm", mid/60)
+						default:
+							medianLatency = fmt.Sprintf("%.1fh", mid/3600)
+						}
+					}
+				}
+
 				// Count currently pending
 				var pending int
 				pendingRow := db.DB().QueryRowContext(cmd.Context(),
@@ -122,7 +169,7 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 					Approved:       approved,
 					Rejected:       rejected,
 					ApprovalRate:   rate,
-					MedianLatency:  "—", // Would need timestamp pairs for real median
+					MedianLatency:  medianLatency,
 					PendingCount:   pending,
 				})
 			}

@@ -122,13 +122,13 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 					`SELECT COALESCE(json_extract(data, '$.pattern'), json_extract(data, '$.email'), '')
 					FROM allowlist WHERE mailboxes_id = ?`, mb.ID)
 				if err == nil {
-					defer patRows.Close()
 					for patRows.Next() {
 						var p string
 						if patRows.Scan(&p) == nil && p != "" {
 							patterns = append(patterns, strings.ToLower(p))
 						}
 					}
+					patRows.Close()
 				}
 
 				// Count how many recent sends match allowlist patterns
@@ -144,7 +144,6 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 						) FROM send
 						WHERE mailboxes_id = ? AND synced_at > ?`, mb.ID, cutoff)
 					if err == nil {
-						defer recipRows.Close()
 						for recipRows.Next() {
 							var recip string
 							if recipRows.Scan(&recip) != nil || recip == "" {
@@ -158,6 +157,7 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 								}
 							}
 						}
+						recipRows.Close()
 					}
 				}
 
