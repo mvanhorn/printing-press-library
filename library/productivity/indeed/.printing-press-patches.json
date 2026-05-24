@@ -19,6 +19,14 @@
       "files": ["go.mod", "go.sum"],
       "validated_outcome": "govulncheck ./... reports 0 reachable vulnerabilities.",
       "upstream_issue": ""
+    },
+    {
+      "id": "indeed-store-delete-fts-cleanup",
+      "summary": "Hand-authored internal/store/indeed_ext.go adds Store.DeleteResource (deletes the resources row AND its resources_fts entry) and Store.ListAll (uncapped scan); used by untrack, saved delete, and company.",
+      "reason": "Raw `DELETE FROM resources` left orphaned FTS index rows; company's List(\"job\", 5000) silently truncated. DeleteResource lives in package store so it can reuse the generated, unexported ftsRowID to keep delete/insert rowids consistent.",
+      "files": ["internal/store/indeed_ext.go", "internal/cli/indeed_commands.go"],
+      "validated_outcome": "untrack/saved-delete remove FTS entries; go test ./internal/store/ passes.",
+      "upstream_issue": ""
     }
   ]
 }

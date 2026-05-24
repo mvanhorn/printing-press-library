@@ -505,7 +505,9 @@ func newCompanyCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			defer db.Close()
-			raws, err := db.List("job", 5000)
+			// Scan the full job history (no row cap) so the summary can't
+			// silently miss a company's jobs once the local store grows large.
+			raws, err := db.ListAll(cmd.Context(), "job")
 			if err != nil {
 				return err
 			}
@@ -701,7 +703,7 @@ func newSavedDeleteCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			defer db.Close()
-			if _, err := db.DB().ExecContext(cmd.Context(), "DELETE FROM resources WHERE resource_type='saved_search' AND id=?", args[0]); err != nil {
+			if err := db.DeleteResource(cmd.Context(), "saved_search", args[0]); err != nil {
 				return err
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "Deleted saved search %q.\n", args[0])
@@ -858,7 +860,7 @@ func newUntrackCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 			defer db.Close()
-			if _, err := db.DB().ExecContext(cmd.Context(), "DELETE FROM resources WHERE resource_type='tracked' AND id=?", args[0]); err != nil {
+			if err := db.DeleteResource(cmd.Context(), "tracked", args[0]); err != nil {
 				return err
 			}
 			fmt.Fprintf(cmd.OutOrStdout(), "Untracked %s.\n", args[0])
