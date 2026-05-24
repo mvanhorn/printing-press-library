@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"os"
 
-	"multimail-pp-cli/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/multimail/internal/cli"
 )
 
 func main() {

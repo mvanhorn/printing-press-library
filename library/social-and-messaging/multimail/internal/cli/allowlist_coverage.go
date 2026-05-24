@@ -9,7 +9,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"multimail-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/multimail/internal/store"
 )
 
 type coverageRow struct {

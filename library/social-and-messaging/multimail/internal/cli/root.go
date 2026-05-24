@@ -13,8 +13,8 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"multimail-pp-cli/internal/client"
-	"multimail-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/multimail/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/multimail/internal/config"
 )
 
 var version = "1.0.0"

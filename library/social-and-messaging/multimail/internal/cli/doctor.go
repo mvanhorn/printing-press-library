@@ -14,10 +14,10 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"multimail-pp-cli/internal/client"
-	"multimail-pp-cli/internal/cliutil"
-	"multimail-pp-cli/internal/config"
-	"multimail-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/multimail/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/multimail/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/multimail/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/social-and-messaging/multimail/internal/store"
 )
 
 // looksLikeDoctorInterstitial reports whether the response body matches a known
