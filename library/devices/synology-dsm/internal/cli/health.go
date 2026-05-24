@@ -118,40 +118,33 @@ Agents should call this before triggering backup or storage operations.`,
 				summary["disk_warnings"] = diskWarnings
 			}
 
-			// ── 3. Storage volumes ───────────────────────────────────────────────
-			volData, _ := c.Get("/webapi/entry.cgi/storage/volume/list", map[string]string{
-				"api": "SYNO.Core.Storage.Volume", "method": "list", "version": "1",
+			// ── 3. Storage volume ────────────────────────────────────────────────
+			volData, _ := c.Get("/webapi/entry.cgi/storage/volume/get", map[string]string{
+				"api": "SYNO.Core.Storage.Volume", "method": "get", "version": "1",
+				"volume_path": "/volume1",
 			})
 			volStatus := "ok"
 			var volDetails []map[string]any
 			var volResp map[string]any
 			if json.Unmarshal(volData, &volResp) == nil {
 				if d, ok := volResp["data"].(map[string]any); ok {
-					if vols, ok := d["volumes"].([]any); ok {
-						for _, v := range vols {
-							vm, ok := v.(map[string]any)
-							if !ok {
-								continue
-							}
-							volDetails = append(volDetails, vm)
-							st := fmt.Sprintf("%v", vm["status"])
-							if st == "degraded" || st == "crashed" {
-								volStatus = "error"
-								overallStatus = "error"
-							}
-							// Compute usage percentage if size data is available
-							if sizeTotal, ok := vm["size"].(map[string]any); ok {
-								totalB, _ := sizeTotal["total"].(float64)
-								usedB, _ := sizeTotal["used"].(float64)
-								if totalB > 0 {
-									usedPct := (usedB / totalB) * 100
-									vm["usage_pct"] = fmt.Sprintf("%.1f%%", usedPct)
-									if usedPct > 80 && volStatus == "ok" {
-										volStatus = "warn"
-										if overallStatus == "ok" {
-											overallStatus = "warn"
-										}
-									}
+					if vm, ok := d["volume"].(map[string]any); ok {
+						volDetails = append(volDetails, vm)
+						st := fmt.Sprintf("%v", vm["status"])
+						if st == "degraded" || st == "crashed" {
+							volStatus = "error"
+							overallStatus = "error"
+						}
+						t := parseByteStr(vm["size_total_byte"])
+						f := parseByteStr(vm["size_free_byte"])
+						if t > 0 {
+							u := t - f
+							usedPct := (u / t) * 100
+							vm["usage_pct"] = fmt.Sprintf("%.1f%%", usedPct)
+							if usedPct > 80 && volStatus == "ok" {
+								volStatus = "warn"
+								if overallStatus == "ok" {
+									overallStatus = "warn"
 								}
 							}
 						}

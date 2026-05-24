@@ -126,7 +126,7 @@ func newWebapiDeleteScheduledTaskCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyId, "id", "", "Scheduled task ID to delete (from list-scheduled-tasks, e.g. 1, 2, 3)")
 	cmd.Flags().StringVar(&bodyMethod, "method", "delete", "API method (constant: delete)")
 	cmd.Flags().StringVar(&bodyRealOwner, "real-owner", "", "Task owner")
-	cmd.Flags().StringVar(&bodyVersion, "version", "4", "API version (constant: 4)")
+	cmd.Flags().StringVar(&bodyVersion, "version", "3", "API version (constant: 3)")
 	cmd.MarkFlagRequired("id")
 	cmd.MarkFlagRequired("real-owner")
 

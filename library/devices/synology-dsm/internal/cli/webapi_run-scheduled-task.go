@@ -126,7 +126,7 @@ func newWebapiRunScheduledTaskCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyId, "id", "", "Scheduled task ID (from list-scheduled-tasks, e.g. 1, 2, 3)")
 	cmd.Flags().StringVar(&bodyMethod, "method", "run", "API method (constant: run)")
 	cmd.Flags().StringVar(&bodyRealOwner, "real-owner", "", "Task owner (root, admin, or username)")
-	cmd.Flags().StringVar(&bodyVersion, "version", "4", "API version (constant: 4)")
+	cmd.Flags().StringVar(&bodyVersion, "version", "3", "API version (constant: 3)")
 
 	return cmd
 }

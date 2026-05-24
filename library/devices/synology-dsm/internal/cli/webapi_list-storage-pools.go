@@ -15,6 +15,9 @@ func newWebapiListStoragePoolsCmd(flags *rootFlags) *cobra.Command {
 	var flagApi string
 	var flagVersion string
 	var flagMethod string
+	var flagLimit int
+	var flagOffset string
+	var flagAll bool
 
 	cmd := &cobra.Command{
 		Use:         "list-storage-pools",
@@ -28,17 +31,13 @@ func newWebapiListStoragePoolsCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/webapi/entry.cgi/storage/pool/list"
-			params := map[string]string{}
-			if flagApi != "" {
-				params["api"] = fmt.Sprintf("%v", flagApi)
-			}
-			if flagVersion != "" {
-				params["version"] = fmt.Sprintf("%v", flagVersion)
-			}
-			if flagMethod != "" {
-				params["method"] = fmt.Sprintf("%v", flagMethod)
-			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "webapi", false, path, params, nil)
+			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "webapi", path, map[string]string{
+				"api":     fmt.Sprintf("%v", flagApi),
+				"version": fmt.Sprintf("%v", flagVersion),
+				"method":  fmt.Sprintf("%v", flagMethod),
+				"limit":   fmt.Sprintf("%v", flagLimit),
+				"offset":  fmt.Sprintf("%v", flagOffset),
+			}, nil, flagAll, "offset", "", "")
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -89,6 +88,9 @@ func newWebapiListStoragePoolsCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagApi, "api", "SYNO.Core.Storage.Pool", "DSM API name (constant: SYNO.Core.Storage.Pool)")
 	cmd.Flags().StringVar(&flagVersion, "version", "1", "API version (constant: 1)")
 	cmd.Flags().StringVar(&flagMethod, "method", "list", "API method (constant: list)")
+	cmd.Flags().IntVar(&flagLimit, "limit", -1, "Max results (-1 for all)")
+	cmd.Flags().StringVar(&flagOffset, "offset", "0", "Offset")
+	cmd.Flags().BoolVar(&flagAll, "all", false, "Fetch all pages")
 
 	return cmd
 }

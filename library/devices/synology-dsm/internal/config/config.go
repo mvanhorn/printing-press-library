@@ -25,6 +25,7 @@ type Config struct {
 	ClientSecret         string            `toml:"client_secret"`
 	Path                 string            `toml:"-"`
 	SynologyDsmSidcookie string            `toml:"dsm_sidcookie"`
+	SynologyDsmSynotoken string            `toml:"dsm_synotoken"`
 	// TemplateVars holds the runtime values for {placeholder} markers in
 	// BaseURL and the request path (e.g. Shopify's {shop}/{version}). Populated
 	// at Load() time from env vars; consumed by the client's buildURL helper.
@@ -60,6 +61,9 @@ func Load(configPath string) (*Config, error) {
 	if v := os.Getenv("SYNOLOGY_DSM_SIDCOOKIE"); v != "" {
 		cfg.SynologyDsmSidcookie = v
 		cfg.AuthSource = "env:SYNOLOGY_DSM_SIDCOOKIE"
+	}
+	if v := os.Getenv("SYNOLOGY_DSM_SYNOTOKEN"); v != "" {
+		cfg.SynologyDsmSynotoken = v
 	}
 
 	// Label config-file-derived credentials so doctor can distinguish
@@ -136,7 +140,14 @@ func (c *Config) AuthHeader() string {
 	if c.SynologyDsmSidcookie == "" {
 		return ""
 	}
-	return c.SynologyDsmSidcookie
+	return "id=" + c.SynologyDsmSidcookie
+}
+
+func (c *Config) SynoTokenHeader() string {
+	if c.SynologyDsmSynotoken == "" {
+		return ""
+	}
+	return c.SynologyDsmSynotoken
 }
 
 func applyAuthFormat(format string, replacements map[string]string) string {

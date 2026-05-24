@@ -125,7 +125,7 @@ func newWebapiListScheduledTasksCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&flagApi, "api", "SYNO.Core.TaskScheduler", "DSM API name (constant: SYNO.Core.TaskScheduler)")
-	cmd.Flags().StringVar(&flagVersion, "version", "4", "API version (constant: 4)")
+	cmd.Flags().StringVar(&flagVersion, "version", "3", "API version (constant: 3)")
 	cmd.Flags().StringVar(&flagMethod, "method", "list", "API method (constant: list)")
 	cmd.Flags().StringVar(&flagRealOwner, "real-owner", "", "Filter by task owner (root, admin, or username)")
 	cmd.Flags().StringVar(&flagSortBy, "sort-by", "name", "Sort by (one of: name, real_owner, next_trigger_time, type, enable)")

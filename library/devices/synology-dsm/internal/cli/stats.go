@@ -6,6 +6,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 
 	"github.com/spf13/cobra"
 )
@@ -39,40 +40,34 @@ Useful for capacity planning and monitoring disk utilization trends.`,
 
 			result := map[string]any{}
 
-			// ── 1. Storage Volumes ───────────────────────────────────────────────
-			volData, _ := c.Get("/webapi/entry.cgi/storage/volume/list", map[string]string{
-				"api": "SYNO.Core.Storage.Volume", "method": "list", "version": "1",
+			// ── 1. Storage Volume ────────────────────────────────────────────────
+			volData, _ := c.Get("/webapi/entry.cgi/storage/volume/get", map[string]string{
+				"api": "SYNO.Core.Storage.Volume", "method": "get", "version": "1",
+				"volume_path": "/volume1",
 			})
 			var volumes []map[string]any
 			var totalBytes, usedBytes float64
 			var volResp map[string]any
 			if json.Unmarshal(volData, &volResp) == nil {
 				if d, ok := volResp["data"].(map[string]any); ok {
-					if vols, ok := d["volumes"].([]any); ok {
-						for _, v := range vols {
-							vm, ok := v.(map[string]any)
-							if !ok {
-								continue
-							}
-							volInfo := map[string]any{
-								"id":     vm["id"],
-								"status": vm["status"],
-							}
-							if sizeMap, ok := vm["size"].(map[string]any); ok {
-								t, _ := sizeMap["total"].(float64)
-								u, _ := sizeMap["used"].(float64)
-								f := t - u
-								totalBytes += t
-								usedBytes += u
-								volInfo["total_gb"] = fmt.Sprintf("%.1f", t/1073741824)
-								volInfo["used_gb"] = fmt.Sprintf("%.1f", u/1073741824)
-								volInfo["free_gb"] = fmt.Sprintf("%.1f", f/1073741824)
-								if t > 0 {
-									volInfo["usage_pct"] = fmt.Sprintf("%.1f%%", (u/t)*100)
-								}
-							}
-							volumes = append(volumes, volInfo)
+					if vm, ok := d["volume"].(map[string]any); ok {
+						t := parseByteStr(vm["size_total_byte"])
+						f := parseByteStr(vm["size_free_byte"])
+						u := t - f
+						totalBytes += t
+						usedBytes += u
+						volInfo := map[string]any{
+							"volume_path": vm["volume_path"],
+							"status":      vm["status"],
+							"fs_type":     vm["fs_type"],
+							"total_gb":    fmt.Sprintf("%.1f", t/1073741824),
+							"used_gb":     fmt.Sprintf("%.1f", u/1073741824),
+							"free_gb":     fmt.Sprintf("%.1f", f/1073741824),
 						}
+						if t > 0 {
+							volInfo["usage_pct"] = fmt.Sprintf("%.1f%%", (u/t)*100)
+						}
+						volumes = append(volumes, volInfo)
 					}
 				}
 			}
@@ -81,6 +76,7 @@ Useful for capacity planning and monitoring disk utilization trends.`,
 			// ── 2. Storage Pools ─────────────────────────────────────────────────
 			poolData, _ := c.Get("/webapi/entry.cgi/storage/pool/list", map[string]string{
 				"api": "SYNO.Core.Storage.Pool", "method": "list", "version": "1",
+				"limit": "-1", "offset": "0",
 			})
 			var pools []map[string]any
 			var poolResp map[string]any
@@ -142,4 +138,16 @@ Useful for capacity planning and monitoring disk utilization trends.`,
 		},
 	}
 	return cmd
+}
+
+func parseByteStr(v any) float64 {
+	switch n := v.(type) {
+	case float64:
+		return n
+	case string:
+		f, _ := strconv.ParseFloat(n, 64)
+		return f
+	default:
+		return 0
+	}
 }

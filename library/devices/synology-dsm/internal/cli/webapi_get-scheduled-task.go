@@ -101,7 +101,7 @@ func newWebapiGetScheduledTaskCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&flagApi, "api", "SYNO.Core.TaskScheduler", "DSM API name (constant: SYNO.Core.TaskScheduler)")
-	cmd.Flags().StringVar(&flagVersion, "version", "4", "API version (constant: 4)")
+	cmd.Flags().StringVar(&flagVersion, "version", "3", "API version (constant: 3)")
 	cmd.Flags().StringVar(&flagMethod, "method", "get", "API method (constant: get)")
 	cmd.Flags().StringVar(&flagId, "id", "", "Task ID (from list-scheduled-tasks)")
 	cmd.Flags().StringVar(&flagRealOwner, "real-owner", "", "Task owner (root, admin, or username)")

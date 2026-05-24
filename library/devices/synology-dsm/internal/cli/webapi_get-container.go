@@ -94,7 +94,7 @@ func newWebapiGetContainerCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&flagApi, "api", "SYNO.Docker.Container", "DSM API name (constant: SYNO.Docker.Container)")
-	cmd.Flags().StringVar(&flagVersion, "version", "2", "API version (constant: 2)")
+	cmd.Flags().StringVar(&flagVersion, "version", "1", "API version (constant: 1)")
 	cmd.Flags().StringVar(&flagMethod, "method", "get", "API method (constant: get)")
 	cmd.Flags().StringVar(&flagName, "name", "", "Container name")
 

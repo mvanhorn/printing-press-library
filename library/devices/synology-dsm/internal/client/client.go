@@ -409,6 +409,13 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 					q.Set(k, v)
 				}
 			}
+			if c.Config != nil && c.Config.SynologyDsmSidcookie != "" {
+				q.Set("_sid", c.Config.SynologyDsmSidcookie)
+			}
+			req.URL.RawQuery = q.Encode()
+		} else if c.Config != nil && c.Config.SynologyDsmSidcookie != "" {
+			q := req.URL.Query()
+			q.Set("_sid", c.Config.SynologyDsmSidcookie)
 			req.URL.RawQuery = q.Encode()
 		}
 
@@ -416,6 +423,9 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 			req.Header.Set("Cookie", authHeader)
 		}
 		if c.Config != nil {
+			if token := c.Config.SynoTokenHeader(); token != "" {
+				req.Header.Set("X-SYNO-TOKEN", token)
+			}
 			for k, v := range c.Config.Headers {
 				req.Header.Set(k, v)
 			}

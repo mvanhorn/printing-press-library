@@ -15,6 +15,7 @@ func newWebapiCmd(flags *rootFlags) *cobra.Command {
 	}
 
 	cmd.AddCommand(newWebapiCancelBackupTaskCmd(flags))
+	cmd.AddCommand(newWebapiCreateContainerCmd(flags))
 	cmd.AddCommand(newWebapiDeleteScheduledTaskCmd(flags))
 	cmd.AddCommand(newWebapiGetBackupTaskCmd(flags))
 	cmd.AddCommand(newWebapiGetBackupTaskStatusCmd(flags))
@@ -23,6 +24,7 @@ func newWebapiCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newWebapiGetDsminfoCmd(flags))
 	cmd.AddCommand(newWebapiGetFileInfoCmd(flags))
 	cmd.AddCommand(newWebapiGetFileStationInfoCmd(flags))
+	cmd.AddCommand(newWebapiGetPackageCmd(flags))
 	cmd.AddCommand(newWebapiGetScheduledTaskCmd(flags))
 	cmd.AddCommand(newWebapiGetStorageDiskCmd(flags))
 	cmd.AddCommand(newWebapiGetStorageVolumeCmd(flags))
@@ -32,6 +34,7 @@ func newWebapiCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newWebapiListContainerImagesCmd(flags))
 	cmd.AddCommand(newWebapiListContainersCmd(flags))
 	cmd.AddCommand(newWebapiListFilesCmd(flags))
+	cmd.AddCommand(newWebapiListPackagesCmd(flags))
 	cmd.AddCommand(newWebapiListScheduledTasksCmd(flags))
 	cmd.AddCommand(newWebapiListSharedFoldersCmd(flags))
 	cmd.AddCommand(newWebapiListStorageDisksCmd(flags))
@@ -39,6 +42,9 @@ func newWebapiCmd(flags *rootFlags) *cobra.Command {
 	cmd.AddCommand(newWebapiListStorageVolumesCmd(flags))
 	cmd.AddCommand(newWebapiLoginCmd(flags))
 	cmd.AddCommand(newWebapiLogoutCmd(flags))
+	cmd.AddCommand(newWebapiPullImageCmd(flags))
+	cmd.AddCommand(newWebapiRemoveContainerCmd(flags))
+	cmd.AddCommand(newWebapiRemoveImageCmd(flags))
 	cmd.AddCommand(newWebapiRestartContainerCmd(flags))
 	cmd.AddCommand(newWebapiRunBackupTaskCmd(flags))
 	cmd.AddCommand(newWebapiRunScheduledTaskCmd(flags))

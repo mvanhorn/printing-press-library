@@ -118,7 +118,7 @@ func newWebapiRestartContainerCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyApi, "api", "SYNO.Docker.Container", "DSM API name (constant: SYNO.Docker.Container)")
 	cmd.Flags().StringVar(&bodyMethod, "method", "restart", "API method (constant: restart)")
 	cmd.Flags().StringVar(&bodyName, "name", "", "Container name")
-	cmd.Flags().StringVar(&bodyVersion, "version", "2", "API version (constant: 2)")
+	cmd.Flags().StringVar(&bodyVersion, "version", "1", "API version (constant: 1)")
 
 	return cmd
 }

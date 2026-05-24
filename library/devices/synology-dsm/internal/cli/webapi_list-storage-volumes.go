@@ -15,19 +15,20 @@ func newWebapiListStorageVolumesCmd(flags *rootFlags) *cobra.Command {
 	var flagApi string
 	var flagVersion string
 	var flagMethod string
+	var flagVolumePath string
 
 	cmd := &cobra.Command{
 		Use:         "list-storage-volumes",
-		Short:       "List all storage volumes with usage and mount point",
-		Example:     "  synology-dsm-pp-cli webapi list-storage-volumes",
-		Annotations: map[string]string{"pp:endpoint": "webapi.list-storage-volumes", "pp:method": "GET", "pp:path": "/webapi/entry.cgi/storage/volume/list", "mcp:read-only": "true"},
+		Short:       "Get storage volume details (usage, filesystem, RAID type, health)",
+		Example:     "  synology-dsm-pp-cli webapi list-storage-volumes\n  synology-dsm-pp-cli webapi list-storage-volumes --volume-path /volume1",
+		Annotations: map[string]string{"pp:endpoint": "webapi.list-storage-volumes", "pp:method": "GET", "pp:path": "/webapi/entry.cgi/storage/volume/get", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
 				return err
 			}
 
-			path := "/webapi/entry.cgi/storage/volume/list"
+			path := "/webapi/entry.cgi/storage/volume/get"
 			params := map[string]string{}
 			if flagApi != "" {
 				params["api"] = fmt.Sprintf("%v", flagApi)
@@ -38,25 +39,18 @@ func newWebapiListStorageVolumesCmd(flags *rootFlags) *cobra.Command {
 			if flagMethod != "" {
 				params["method"] = fmt.Sprintf("%v", flagMethod)
 			}
+			if flagVolumePath != "" {
+				params["volume_path"] = flagVolumePath
+			}
 			data, prov, err := resolveRead(cmd.Context(), c, flags, "webapi", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output only.
-			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
-			// --select) and piped stdout suppress this line; the JSON envelope
-			// already carries meta.source for those consumers.
-			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)
 			}
-			// For JSON output, wrap with provenance envelope before passing through flags.
-			// --select wins over --compact when both are set; --compact only runs when
-			// no explicit fields were requested. Explicit format flags (--csv, --quiet,
-			// --plain) opt out of the auto-JSON path so piped consumers that asked for
-			// a non-JSON format reach the standard pipeline below.
 			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				filtered := data
 				if flags.selectFields != "" {
@@ -70,7 +64,6 @@ func newWebapiListStorageVolumesCmd(flags *rootFlags) *cobra.Command {
 				}
 				return printOutput(cmd.OutOrStdout(), wrapped, true)
 			}
-			// For all other output modes (table, csv, plain, quiet), use the standard pipeline
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var items []map[string]any
 				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
@@ -88,7 +81,8 @@ func newWebapiListStorageVolumesCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&flagApi, "api", "SYNO.Core.Storage.Volume", "DSM API name (constant: SYNO.Core.Storage.Volume)")
 	cmd.Flags().StringVar(&flagVersion, "version", "1", "API version (constant: 1)")
-	cmd.Flags().StringVar(&flagMethod, "method", "list", "API method (constant: list)")
+	cmd.Flags().StringVar(&flagMethod, "method", "get", "API method (constant: get)")
+	cmd.Flags().StringVar(&flagVolumePath, "volume-path", "/volume1", "Volume path (e.g. /volume1)")
 
 	return cmd
 }

@@ -19,11 +19,12 @@ func newWebapiLoginCmd(flags *rootFlags) *cobra.Command {
 	var flagPasswd string
 	var flagFormat string
 	var flagEnableSynoToken string
+	var flagOtpCode string
 
 	cmd := &cobra.Command{
 		Use:         "login",
 		Short:       "Authenticate with DSM and obtain a session ID (SID). After login, save the returned sid with: auth set-token...",
-		Example:     "  synology-dsm-pp-cli webapi login --account example-value --passwd example-value",
+		Example:     "  synology-dsm-pp-cli webapi login --account example-value --passwd example-value\n  synology-dsm-pp-cli webapi login --account admin --passwd secret --otp-code 123456",
 		Annotations: map[string]string{"pp:endpoint": "webapi.login", "pp:method": "GET", "pp:path": "/webapi/entry.cgi/auth/login", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("account") && !flags.dryRun {
@@ -86,6 +87,9 @@ func newWebapiLoginCmd(flags *rootFlags) *cobra.Command {
 			if flagEnableSynoToken != "" {
 				params["enable_syno_token"] = fmt.Sprintf("%v", flagEnableSynoToken)
 			}
+			if flagOtpCode != "" {
+				params["otp_code"] = flagOtpCode
+			}
 			data, prov, err := resolveRead(cmd.Context(), c, flags, "webapi", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err, flags)
@@ -141,6 +145,7 @@ func newWebapiLoginCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&flagPasswd, "passwd", "", "DSM admin password")
 	cmd.Flags().StringVar(&flagFormat, "format", "sid", "Response format (sid returns the SID in the response body) (one of: sid, cookie)")
 	cmd.Flags().StringVar(&flagEnableSynoToken, "enable-syno-token", "yes", "Also return a CSRF token for write operations (one of: yes, no)")
+	cmd.Flags().StringVar(&flagOtpCode, "otp-code", "", "One-time password for 2FA-enabled accounts (6-digit TOTP code)")
 
 	return cmd
 }
