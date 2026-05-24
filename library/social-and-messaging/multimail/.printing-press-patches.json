@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-24",
+  "base_run_id": "20260523-201101",
+  "base_printing_press_version": "4.14.0",
+  "patches": [
+    {
+      "id": "defer-in-loop-connection-exhaustion",
+      "summary": "Replace defer rows.Close() with explicit Close() after iteration in novel commands.",
+      "reason": "SQLite MaxOpenConns=2; defer inside a for-mailboxes loop defers to function return, not loop end. Inner queries need a connection from the same pool, causing deadlock when both connections are held by deferred closes.",
+      "files": [
+        "internal/cli/threads_stale.go",
+        "internal/cli/trust_status.go",
+        "internal/cli/oversight_velocity.go",
+        "internal/cli/inbox_health.go",
+        "internal/cli/allowlist_coverage.go"
+      ],
+      "validated_outcome": "Greptile review 5/5 on PR #806 after fix."
+    },
+    {
+      "id": "trust-status-upgraded-at",
+      "summary": "Use upgraded_at timestamp from API response instead of synced_at for last upgrade time.",
+      "reason": "synced_at reflects when the record was cached locally, not when the trust upgrade actually occurred. The API returns upgraded_at in the response data.",
+      "files": [
+        "internal/cli/trust_status.go"
+      ]
+    },
+    {
+      "id": "upsert-batch-test-mailboxes-id",
+      "summary": "Add mailboxes_id to test items in TestUpsertBatch_SetsMailboxesEmailsParentID.",
+      "reason": "The mailboxes_emails typed table has a NOT NULL constraint on mailboxes_id. Test items without it cause the typed upsert to fail, falling through to generic resources only.",
+      "files": [
+        "internal/store/upsert_batch_test.go"
+      ],
+      "validated_outcome": "go test ./internal/store/ passes."
+    }
+  ]
+}
