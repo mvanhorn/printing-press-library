@@ -1,5 +1,5 @@
 // Copyright 2026 eric-jung. Licensed under Apache-2.0. See LICENSE.
-// Custom SRM transport layer for synology-router-pp-cli.
+// Custom SRM transport layer for github.com/mvanhorn/printing-press-library/library/devices/synology-router.
 //
 // Synology Router Manager (SRM) uses an RPC-style API where all operations
 // POST to /webapi/entry.cgi (or /webapi/auth.cgi) with form-encoded parameters:
@@ -463,14 +463,9 @@ func (c *Client) PostSRMForm(apiName, method string, version int, extraFields ma
 	}
 
 	// Build the request URL directly to entry.cgi
-	baseURL := strings.TrimRight(c.BaseURL, "/webapi")
-	if !strings.HasSuffix(baseURL, "/webapi") {
-		baseURL = strings.TrimRight(c.BaseURL, "/")
-		// Strip /webapi suffix to get the router root
-		idx := strings.LastIndex(baseURL, "/webapi")
-		if idx >= 0 {
-			baseURL = baseURL[:idx]
-		}
+	baseURL := strings.TrimRight(c.BaseURL, "/")
+	if idx := strings.LastIndex(baseURL, "/webapi"); idx >= 0 {
+		baseURL = baseURL[:idx]
 	}
 	endpoint := baseURL + "/webapi/entry.cgi"
 

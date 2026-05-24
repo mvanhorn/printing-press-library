@@ -7,8 +7,10 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -29,20 +31,20 @@ func newSRMLoginCmd(flags *rootFlags) *cobra.Command {
 		Long: `Authenticate with the Synology Router Manager (SRM) API and save
 the session ID for subsequent requests.
 
-The session ID is stored in ~/.config/synology-router-pp-cli/config.toml
+The session ID is stored in ~/.config/github.com/mvanhorn/printing-press-library/library/devices/synology-router/config.toml
 under router_cookie_auth. It can also be set via the SYNOLOGY_ROUTER_COOKIE_AUTH
 environment variable.
 
 Note: SRM sessions expire after inactivity. Run 'login' again if you get
 authentication errors.`,
 		Example: `  # Interactive login (prompts for password)
-  synology-router-pp-cli login --account admin
+  github.com/mvanhorn/printing-press-library/library/devices/synology-router login --account admin
 
-  # Non-interactive login
-  synology-router-pp-cli login --account admin --passwd mypassword
+  # Non-interactive via stdin (recommended for scripts)
+  echo "$PASSWORD" | github.com/mvanhorn/printing-press-library/library/devices/synology-router login --account admin
 
   # Login without saving (just print the sid)
-  synology-router-pp-cli login --account admin --passwd mypassword --no-save`,
+  echo "$PASSWORD" | github.com/mvanhorn/printing-press-library/library/devices/synology-router login --account admin --no-save`,
 		Annotations: map[string]string{
 			"pp:endpoint": "session.auth-login",
 			"pp:method":   "POST",
@@ -76,11 +78,11 @@ authentication errors.`,
 
 			// Call the SRM login endpoint via the transport
 			// The transport will convert this to POST /webapi/auth.cgi
-			response, _, err := c.Post("/session/login", map[string]string{
-				"account": account,
-				"passwd":  passwd,
-				"format":  "sid",
-			})
+			formFields := url.Values{}
+			formFields.Set("account", account)
+			formFields.Set("passwd", passwd)
+			formFields.Set("format", "sid")
+			response, _, err := c.PostFormWithParams("/session/login", nil, formFields)
 			if err != nil {
 				return authErr(fmt.Errorf("login failed: %w", err))
 			}
@@ -144,8 +146,8 @@ authentication errors.`,
 					fmt.Fprintf(os.Stderr, "Session ID saved to config.\n")
 				}
 			} else {
-				fmt.Fprintf(os.Stderr, "To persist: synology-router-pp-cli auth set-token %s\n", sid)
-				fmt.Fprintf(os.Stderr, "Or export: SYNOLOGY_ROUTER_COOKIE_AUTH=%s\n", sid)
+				fmt.Fprintf(os.Stderr, "To persist: github.com/mvanhorn/printing-press-library/library/devices/synology-router auth set-token <sid>\n")
+				fmt.Fprintf(os.Stderr, "Or export: SYNOLOGY_ROUTER_COOKIE_AUTH=<sid>\n")
 			}
 
 			return nil
@@ -173,7 +175,7 @@ func saveSIDToConfig(configPath, sid string) error {
 	cfgPath := cfg.Path
 	if cfgPath == "" {
 		home, _ := os.UserHomeDir()
-		cfgPath = filepath.Join(home, ".config", "synology-router-pp-cli", "config.toml")
+		cfgPath = filepath.Join(home, ".config", "github.com/mvanhorn/printing-press-library/library/devices/synology-router", "config.toml")
 	}
 
 	// Ensure config directory exists
@@ -193,18 +195,19 @@ func saveSIDToConfig(configPath, sid string) error {
 
 // updateTOMLField updates or adds a simple key = "value" line in TOML content.
 func updateTOMLField(content, key, value string) string {
+	quoted := strconv.Quote(value)
 	lines := strings.Split(content, "\n")
 	prefix := key + " ="
 	updated := false
 	for i, line := range lines {
 		if strings.HasPrefix(strings.TrimSpace(line), prefix) {
-			lines[i] = key + ` = "` + value + `"`
+			lines[i] = key + " = " + quoted
 			updated = true
 			break
 		}
 	}
 	if !updated {
-		lines = append(lines, key+` = "`+value+`"`)
+		lines = append(lines, key+" = "+quoted)
 	}
 	return strings.Join(lines, "\n")
 }
