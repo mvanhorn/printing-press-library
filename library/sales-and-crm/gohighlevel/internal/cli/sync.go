@@ -1290,7 +1290,16 @@ func extractSearchAfterCursor(data json.RawMessage) (string, bool) {
 			}
 		}
 	}
-	// Strategy 2: derive from the last contact's id (GHL pattern).
+	// Strategy 2: pull the last contact's own per-item searchAfter array.
+	// PATCH(amend-2026-05-24: prefer per-contact searchAfter [timestamp_ms, id]
+	// over synthesized [id]) — GHL /contacts/search emits a 2-element
+	// [timestamp_ms, id] searchAfter on each contact in the response and
+	// requires the same 2-element shape on the next request body. The prior
+	// fallback of synthesizing []string{id} produced a 1-element cursor that
+	// the API rejects with HTTP 400 "Error occurred while searching for
+	// contact" on page 2. Use the contact's own array first; keep the
+	// id-only fallback only as defense in case GHL ever stops emitting
+	// per-contact searchAfter.
 	rawContacts, ok := envelope["contacts"]
 	if !ok {
 		return "", false
@@ -1300,6 +1309,19 @@ func extractSearchAfterCursor(data json.RawMessage) (string, bool) {
 		return "", false
 	}
 	last := contacts[len(contacts)-1]
+	// PATCH(amend-2026-05-24: prefer per-contact searchAfter)
+	if rawSA, ok := last["searchAfter"]; ok {
+		// Validate shape: must be a non-empty array. Marshal back to JSON
+		// for storage in sync_state.last_cursor (same encoding fetchSyncPage
+		// expects to json.Unmarshal back into []any).
+		if saArr, ok := rawSA.([]any); ok && len(saArr) > 0 {
+			out, err := json.Marshal(saArr)
+			if err == nil {
+				return string(out), true
+			}
+		}
+	}
+	// PATCH(amend-2026-05-24: id-only fallback — defensive only, GHL rejects 1-element cursors as of 2026-05-24)
 	if id, ok := last["id"].(string); ok && id != "" {
 		out, err := json.Marshal([]string{id})
 		if err == nil {
