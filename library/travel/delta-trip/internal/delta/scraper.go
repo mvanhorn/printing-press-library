@@ -82,12 +82,24 @@ func GetTrip(ctx context.Context, confirmationNo, firstName, lastName string) (*
 	// Navigate to My Trips and submit the search form (shared with GetSeatMap).
 	navigateAndSubmitSearch(page, conf, first, last)
 
-	// Wait for the travelreservations API response (up to 60s after form submission).
+	// Derive the XHR wait from the remaining context budget so the DOM fallback
+	// fires before the deadline. navigateAndSubmitSearch takes ~10s, so a
+	// hardcoded 60s timer would always lose to ctx.Done().
+	var xhrWait time.Duration
+	if deadline, ok := ctx.Deadline(); ok {
+		if budget := time.Until(deadline) - 5*time.Second; budget > 0 {
+			xhrWait = budget
+		}
+	}
+	if xhrWait <= 0 {
+		return scrapeTripFromDOM(page, conf)
+	}
+
 	select {
 	case <-apiReceived:
 		// Captured the XHR — use structured JSON data.
-	case <-time.After(60 * time.Second):
-		// XHR not captured; log current state then fall back to DOM text scraping.
+	case <-time.After(xhrWait):
+		// XHR not captured within budget; fall back to DOM text scraping.
 		return scrapeTripFromDOM(page, conf)
 	case <-ctx.Done():
 		return nil, ctx.Err()
