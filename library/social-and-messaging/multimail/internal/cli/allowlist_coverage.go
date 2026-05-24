@@ -167,22 +167,26 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 							}
 							// PATCH: handle $.recipients JSON array — extract
 							// individual addresses so each can be matched against
-							// allowlist patterns.
+							// allowlist patterns. A send is only "covered" when
+							// ALL recipients match (AND-logic), because a single
+							// unallowed recipient would gate the entire send.
 							recipients := expandRecipients(recip)
-							matched := false
+							allMatched := true
 							for _, r := range recipients {
 								rLower := strings.ToLower(r)
+								thisMatched := false
 								for _, pat := range patterns {
 									if matchAllowlistPattern(rLower, pat) {
-										matched = true
+										thisMatched = true
 										break
 									}
 								}
-								if matched {
+								if !thisMatched {
+									allMatched = false
 									break
 								}
 							}
-							if matched {
+							if allMatched {
 								coveredSends++
 							}
 						}

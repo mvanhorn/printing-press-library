@@ -44,8 +44,8 @@
     },
     {
       "id": "allowlist-coverage-json-array-recipients",
-      "summary": "Parse $.recipients JSON array so multi-recipient sends are matched against allowlist patterns.",
-      "reason": "json_extract returns the raw JSON array string for $.recipients. The string never matches any pattern, causing coverage_percent to be systematically under-reported for mailboxes using multi-recipient sends.",
+      "summary": "Parse $.recipients JSON array and use AND-logic: a send is covered only when ALL recipients match allowlist patterns.",
+      "reason": "json_extract returns the raw JSON array string for $.recipients. The string never matches any pattern. After expanding the array, OR-logic (any match = covered) overstates coverage for mixed-recipient sends — a single unallowed recipient gates the entire send.",
       "files": [
         "internal/cli/allowlist_coverage.go"
       ]
