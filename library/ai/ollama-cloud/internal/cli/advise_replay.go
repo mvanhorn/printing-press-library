@@ -17,34 +17,29 @@ type replayRow struct {
 	Recommended    string    `json:"recommended"`
 	ActualChosen   string    `json:"actual_chosen,omitempty"`
 	DivergenceFlag bool      `json:"divergence,omitempty"`
-	JudgePicked    string    `json:"judge_picked,omitempty"`
-	JudgeRationale string    `json:"judge_rationale,omitempty"`
-	JudgeError     string    `json:"judge_error,omitempty"`
 }
 
 func newAdviseReplayCmd(flags *rootFlags) *cobra.Command {
 	var (
 		logPath     string
 		since       string
-		judgeModel  string
 		limit       int
 		divergeOnly bool
 		dryRun      bool
 	)
 	cmd := &cobra.Command{
 		Use:   "advise-replay",
-		Short: "Replay advisor recommendations and (optionally) score them with a judge LLM",
+		Short: "Replay advisor recommendations and report divergence vs actual-chosen models",
 		Long: strings.TrimSpace(`
-Reads the advisor JSONL log, surfaces every row's recommended model, and
-optionally calls a judge LLM (--judge-with) to score whether the picked model
-handled the prompt better than the next-best alternative. Powers the
-divergence canary: divergence between recommended and actual-chosen indicates
-the advisor needs recalibration.
+Reads the advisor JSONL log and surfaces every row's recommended model.
+Divergence between recommended and actual_chosen (when populated by a
+downstream consumer reporting back) indicates the advisor needs recalibration.
 
-Each row's prompt is NOT stored in the log (privacy + atomic-append limits) —
-this command can only score divergence between recommended and actual_chosen
-when actual_chosen is present, or annotate rows with the recommendation as-is.
-The full judge path requires a separate prompt corpus; reserved for v0.2.
+Each row's prompt is NOT stored in the log (privacy + atomic-append limits).
+That means this command CANNOT score response quality against a judge LLM —
+it can only report which prompts diverged from the recommendation. A
+prompt-corpus sidecar that would unlock judge-LLM scoring is a future
+addition; until then this command is divergence-reporting only.
 `),
 		Example: strings.Trim(`
   ollama-cloud-pp-cli advise-replay --since 7d
@@ -96,13 +91,9 @@ The full judge path requires a separate prompt corpus; reserved for v0.2.
 				"emitted":          len(out),
 				"divergence_count": divergeCount,
 				"divergence_pct":   percent(divergeCount, len(out)),
-				"judge_model":      judgeModel,
 				"dry_run":          dryRun,
 				"rows":             out,
 				"computed_at":      time.Now().UTC(),
-			}
-			if !dryRun && judgeModel != "" {
-				envelope["judge_note"] = "judge-LLM scoring requires the original prompt corpus, which advisor-log.jsonl does not retain. Track --judge-with as opt-in for v0.2 once a prompt-corpus sidecar is wired."
 			}
 			b, _ := json.MarshalIndent(envelope, "", "  ")
 			fmt.Fprintln(cmd.OutOrStdout(), string(b))
@@ -111,10 +102,9 @@ The full judge path requires a separate prompt corpus; reserved for v0.2.
 	}
 	cmd.Flags().StringVar(&logPath, "log", "", "Override advisor log path")
 	cmd.Flags().StringVar(&since, "since", "7d", "Time window: 7d, 24h, 1h, all")
-	cmd.Flags().StringVar(&judgeModel, "judge-with", "", "(opt-in) judge LLM model ID; requires prompt corpus")
 	cmd.Flags().IntVar(&limit, "limit", 0, "Cap result rows (0 = no cap)")
 	cmd.Flags().BoolVar(&divergeOnly, "diverge-only", false, "Only emit rows where actual_chosen differs from recommended")
-	cmd.Flags().BoolVar(&dryRun, "dry-run", false, "Skip any judge call; just emit divergence counts")
+	cmd.Flags().BoolVar(&dryRun, "dry-run", false, "Reserved for future judge-corpus path; currently a no-op on the divergence-reporting path")
 	return cmd
 }
 
