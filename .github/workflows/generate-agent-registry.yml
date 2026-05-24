@@ -1,0 +1,59 @@
+name: Regenerate agent-registry.json
+
+# Regenerates agent-registry.json from each CLI's .printing-press.json
+# + tools-manifest.json after library/** changes land on main. Commits
+# with [skip ci] so the regen doesn't chain workflows. Source of truth
+# for the field shape: tools/generate-agent-registry/main.go.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'library/**/.printing-press.json'
+      - 'library/**/tools-manifest.json'
+      # Only MCP server main.go affects transport detection; the
+      # ~130 cmd/*-pp-cli/main.go files don't change output.
+      - 'library/**/cmd/*-pp-mcp/main.go'
+      - 'tools/generate-agent-registry/**'
+      - '.github/workflows/generate-agent-registry.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  regenerate:
+    name: Regenerate and commit
+    runs-on: ubuntu-latest
+    # Same single-lane concurrency the sibling regen workflows use:
+    # all three commit generated artifacts back to main and would
+    # otherwise race on non-fast-forward push.
+    concurrency:
+      group: generated-artifact-push-main
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+          token: ${{ secrets.ADMIN_PUSH_PAT }}
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.26.3'
+      - name: Run generator
+        run: go run ./tools/generate-agent-registry/main.go
+      - name: Commit if changed
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- agent-registry.json; then
+            echo "No agent-registry.json changes; nothing to commit."
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add agent-registry.json
+          git commit -m "chore(agent-registry): regenerate from library/ [skip ci]"
+          # Same rebase-before-push pattern the sibling regen workflows
+          # use to handle the concurrency-window race when a sibling
+          # workflow lands between our checkout and our push.
+          git pull --rebase origin main
+          git push

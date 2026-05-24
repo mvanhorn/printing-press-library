@@ -72,7 +72,10 @@ type RegistryEntry struct {
 	Description string   `json:"description"`
 	SearchTerms []string `json:"search_terms,omitempty"`
 	Path        string   `json:"path"`
-	sourceAPI   string
+	// InstallModule is the Go module path for `go install`. Inlined so
+	// programmatic consumers don't have to reconstruct the path convention.
+	InstallModule string `json:"install_module"`
+	sourceAPI     string
 	// Printer is the GitHub @handle of the human who originally ran the
 	// press for this CLI. Sourced verbatim from .printing-press.json's
 	// `printer` field; never derived from operator git config or curated
@@ -352,11 +355,13 @@ func buildEntry(dir, category, slug string, existing map[string]RegistryEntry) (
 
 	prior := existing[slug]
 
+	pathSlash := filepath.ToSlash(dir)
 	entry := RegistryEntry{
-		Name:     slug,
-		Category: category,
-		API:      apiDisplayName(pp, prior, slug),
-		Path:     filepath.ToSlash(dir),
+		Name:          slug,
+		Category:      category,
+		API:           apiDisplayName(pp, prior, slug),
+		Path:          pathSlash,
+		InstallModule: installModulePath(pathSlash, slug),
 		sourceAPI: strings.TrimSpace(firstNonEmpty(
 			pp.DisplayName,
 			pp.APIName,
@@ -523,6 +528,16 @@ func dedupeStrings(values []string) []string {
 		out = append(out, value)
 	}
 	return out
+}
+
+// installModulePath returns the canonical Go install path for a CLI.
+// Returns "" when either input is empty so partial entries surface in
+// --validate rather than emitting a bogus path.
+func installModulePath(path, slug string) string {
+	if path == "" || slug == "" {
+		return ""
+	}
+	return fmt.Sprintf("github.com/mvanhorn/printing-press-library/%s/cmd/%s-pp-cli", path, slug)
 }
 
 // validateEntries returns one human-readable error per missing required

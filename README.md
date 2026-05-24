@@ -286,6 +286,72 @@ claude mcp add espn-pp-mcp -- espn-pp-mcp
 
 If a CLI needs credentials, the focused skill and the per-CLI README document the required environment variables.
 
+## Programmatic consumers
+
+Two machine-readable catalogs live at the repo root, generated post-merge from `library/`. Both are public surfaces — fetch them directly rather than parsing the README or walking `library/`.
+
+### `registry.json` — lean catalog for installers and humans
+
+Pulled by the npm installer in this repo and by any tool that needs the per-CLI identity, path, and MCP shape without the full per-endpoint tool list.
+
+```
+https://raw.githubusercontent.com/mvanhorn/printing-press-library/main/registry.json
+```
+
+```json
+{
+  "schema_version": 2,
+  "entries": [
+    {
+      "name": "hackernews",
+      "category": "media-and-entertainment",
+      "api": "Hacker News",
+      "description": "...",
+      "search_terms": ["hackernews", "Hacker News", "..."],
+      "path": "library/media-and-entertainment/hackernews",
+      "install_module": "github.com/mvanhorn/printing-press-library/library/media-and-entertainment/hackernews/cmd/hackernews-pp-cli",
+      "printer": "mvanhorn",
+      "printer_name": "Matt Van Horn",
+      "mcp": { "binary": "hackernews-pp-mcp", "transports": ["stdio"], "tool_count": 8, "public_tool_count": 6, "auth_type": "none", "env_vars": [], "mcp_ready": "full" }
+    }
+  ]
+}
+```
+
+`install_module` is the Go module path that `go install <install_module>@latest` resolves to. `search_terms` is a deduped keyword corpus (API/CLI name, description, novel-feature metadata) for consumers that rank CLIs by relevance. The `mcp` block is present only on CLIs that ship an MCP server companion. Generator: [`tools/generate-registry/main.go`](tools/generate-registry/main.go).
+
+### `agent-registry.json` — agent-facing catalog with per-CLI tool tree
+
+Built for agent runners that need the full tool list per CLI without making a fan-out of N+1 HTTP requests to fetch each CLI's `tools-manifest.json` separately. External consumers like [cocoon](https://github.com/vu1n/cocoon) (lazy CLI/MCP runner over the printing-press corpus) are the design target.
+
+```
+https://raw.githubusercontent.com/mvanhorn/printing-press-library/main/agent-registry.json
+```
+
+```json
+{
+  "schema_version": 1,
+  "entries": [
+    {
+      "name": "hackernews",
+      "api": "Hacker News",
+      "category": "media-and-entertainment",
+      "description": "...",
+      "install_module": "github.com/mvanhorn/printing-press-library/library/media-and-entertainment/hackernews/cmd/hackernews-pp-cli",
+      "skill": "pp-hackernews",
+      "auth": { "type": "none", "env_vars": [] },
+      "mcp": { "binary": "hackernews-pp-mcp", "transports": ["stdio", "http"], "tool_count": 10, "public_tool_count": 10, "env_vars": [], "mcp_ready": "full" },
+      "tools_source": "tools-manifest",
+      "tools": [ { "name": "items_get", "description": "...", "params": [ ... ] } ]
+    }
+  ]
+}
+```
+
+`tools` is the verbatim contents of each CLI's `tools-manifest.json` `tools[]` array. Docs-driven and sniff-driven CLIs ship no static manifest; those emit `tools: null` with `tools_source: "agent-context"`, signaling that the consumer should call `<binary> agent-context` after install to capture the live command tree. Generator: [`tools/generate-agent-registry/main.go`](tools/generate-agent-registry/main.go).
+
+Schema bumps for either file land via their top-level `schema_version`. Regen runs post-merge on `library/**` changes, so a freshly-merged CLI is in both catalogs within minutes.
+
 ## Repo structure
 
 ```text

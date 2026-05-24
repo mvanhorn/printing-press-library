@@ -158,10 +158,10 @@ jobs:
           # making the whole step exit 1 with no stdout. awk's exit code
           # reflects script errors only, not match counts.
           touched=$(git log "${BASE_REMOTE_REF}..HEAD" --name-only --format= \
-            -- 'registry.json' 'cli-skills/pp-*/SKILL.md' \
+            -- 'registry.json' 'agent-registry.json' 'cli-skills/pp-*/SKILL.md' \
             | awk 'NF' | sort -u)
           differs=$(git diff --name-only "${BASE_REMOTE_REF}" HEAD \
-            -- 'registry.json' 'cli-skills/pp-*/SKILL.md' \
+            -- 'registry.json' 'agent-registry.json' 'cli-skills/pp-*/SKILL.md' \
             | sort -u)
 
           if [ -z "$touched" ] || [ -z "$differs" ]; then
@@ -179,11 +179,12 @@ jobs:
           echo "::error::This PR modifies generated artifacts that are regenerated post-merge:"
           while IFS= read -r file; do
             [ -z "$file" ] && continue
-            echo "::error file=${file}::Remove this file from the PR. It is regenerated post-merge by generate-registry.yml or generate-skills.yml."
+            echo "::error file=${file}::Remove this file from the PR. It is regenerated post-merge by generate-registry.yml, generate-agent-registry.yml, or generate-skills.yml."
           done <<< "$violations"
           echo
           echo "::error::Edit the source instead:"
-          echo "::error::  - registry.json source: library/<cat>/<slug>/.printing-press.json + manifest.json"
+          echo "::error::  - registry.json source:        library/<cat>/<slug>/.printing-press.json + manifest.json"
+          echo "::error::  - agent-registry.json source:  library/<cat>/<slug>/.printing-press.json + tools-manifest.json"
           echo "::error::  - cli-skills/pp-<slug>/SKILL.md source: library/<cat>/<slug>/SKILL.md"
           exit 1
 

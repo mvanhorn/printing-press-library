@@ -575,6 +575,48 @@ func TestFilterEntriesBySlug(t *testing.T) {
 	})
 }
 
+// Locks the install-path format. Schema_version bump if this changes.
+func TestInstallModulePath(t *testing.T) {
+	cases := []struct {
+		name string
+		path string
+		slug string
+		want string
+	}{
+		{
+			name: "canonical layout",
+			path: "library/dev/github",
+			slug: "github",
+			want: "github.com/mvanhorn/printing-press-library/library/dev/github/cmd/github-pp-cli",
+		},
+		{
+			name: "hyphenated slug",
+			path: "library/travel/alaska-airlines",
+			slug: "alaska-airlines",
+			want: "github.com/mvanhorn/printing-press-library/library/travel/alaska-airlines/cmd/alaska-airlines-pp-cli",
+		},
+		{
+			name: "empty path returns empty string",
+			path: "",
+			slug: "x",
+			want: "",
+		},
+		{
+			name: "empty slug returns empty string",
+			path: "library/tools/x",
+			slug: "",
+			want: "",
+		},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := installModulePath(tc.path, tc.slug); got != tc.want {
+				t.Errorf("installModulePath(%q, %q) = %q, want %q", tc.path, tc.slug, got, tc.want)
+			}
+		})
+	}
+}
+
 // TestRenderCatalogCounts checks both pluralization branches and the
 // happy multi-entry / multi-category path. The pluralization matters
 // because the rendered string lands in human-readable prose; "1 CLIs
