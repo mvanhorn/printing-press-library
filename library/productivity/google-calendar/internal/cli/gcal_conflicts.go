@@ -52,7 +52,7 @@ func newConflictsCmd(flags *rootFlags) *cobra.Command {
 
 			var busy []gcalEvent
 			for _, ev := range events {
-				if ev.Status == "cancelled" || ev.AllDay {
+				if ev.Status == "cancelled" || ev.AllDay || ev.Transparency == "transparent" {
 					continue
 				}
 				if ev.Start.IsZero() || ev.End.IsZero() || !ev.End.After(ev.Start) {

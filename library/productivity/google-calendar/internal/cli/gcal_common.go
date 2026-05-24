@@ -236,6 +236,9 @@ func gcalLoadEvents(cmd *cobra.Command, flags *rootFlags, q eventQuery) ([]gcalE
 		prov.Reason = "api_unreachable"
 		return filterEvents(evs, q), prov, nil
 	}
+	if liveErr != nil {
+		fmt.Fprintf(cmd.ErrOrStderr(), "warning: one or more calendars failed to load (%v); results may be incomplete\n", liveErr)
+	}
 	prov.Source = "live"
 	return filterEvents(all, q), prov, nil
 }

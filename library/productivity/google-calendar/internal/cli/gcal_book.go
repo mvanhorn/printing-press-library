@@ -78,7 +78,7 @@ func newBookCmd(flags *rootFlags) *cobra.Command {
 				} else {
 					var clashes []conflictEndpoint
 					for _, ev := range events {
-						if ev.Status == "cancelled" || ev.AllDay || ev.Start.IsZero() || ev.End.IsZero() {
+						if ev.Status == "cancelled" || ev.AllDay || ev.Transparency == "transparent" || ev.Start.IsZero() || ev.End.IsZero() {
 							continue
 						}
 						if ev.Start.Before(end) && ev.End.After(start) {
