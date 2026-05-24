@@ -154,9 +154,8 @@ func (c *Client) RunCalibredb(subcmd string, args ...string) ([]byte, int, error
 				exitCode = 1
 			}
 		}
-		if exitCode == 0 {
-			return stdout.Bytes(), 0, nil
-		}
+	}
+}
 		stderrStr := stderr.String()
 		isDBLock := strings.Contains(stderrStr, "database is locked") ||
 			strings.Contains(stderrStr, "is currently busy") ||
@@ -369,10 +368,19 @@ func (c *Client) route(method, path string, params map[string]string, body map[s
 	}
 }
 
-func (c *Client) cacheResult(method, path string, data json.RawMessage) {
+func (c *Client) cacheResult(method, path string, params map[string]string, data json.RawMessage) {
 	if method == "GET" && len(data) > 0 {
+		key := method + ":" + path
+		if len(params) > 0 {
+			parts := make([]string, 0, len(params))
+			for k, v := range params {
+				parts = append(parts, k+"="+v)
+			}
+			sort.Strings(parts)
+			key += "?" + strings.Join(parts, "&")
+		}
 		ttl := c.ttlForPath(path)
-		writeCache(c, method+":"+path, data, ttl)
+		writeCache(c, key, data, ttl)
 	}
 }
 
@@ -397,7 +405,7 @@ func (c *Client) ttlForPath(path string) time.Duration {
 func (c *Client) Get(path string, params map[string]string) (json.RawMessage, error) {
 	data, _, err := c.route("GET", path, params, nil)
 	if err == nil {
-		c.cacheResult("GET", path, data)
+		c.cacheResult("GET", path, params, data)
 	}
 	return data, err
 }
@@ -405,7 +413,7 @@ func (c *Client) Get(path string, params map[string]string) (json.RawMessage, er
 func (c *Client) GetWithHeaders(path string, params map[string]string, _ map[string]string) (json.RawMessage, error) {
 	data, _, err := c.route("GET", path, params, nil)
 	if err == nil {
-		c.cacheResult("GET", path, data)
+		c.cacheResult("GET", path, params, data)
 	}
 	return data, err
 }

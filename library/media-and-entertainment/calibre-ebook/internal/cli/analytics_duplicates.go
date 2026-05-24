@@ -53,19 +53,19 @@ Tolerance levels:
 			}
 
 			var groups []map[string]any
-			for _, books := range index {
-				if len(books) > 1 {
-					ids := make([]any, len(books))
-					titles := make([]string, len(books))
-					for i, b := range books {
+			for _, dupes := range index {
+				if len(dupes) > 1 {
+					ids := make([]any, len(dupes))
+					titles := make([]string, len(dupes))
+					for i, b := range dupes {
 						ids[i] = b["id"]
 						titles[i] = fmt.Sprintf("%v", b["title"])
 					}
 					groups = append(groups, map[string]any{
 						"ids":       ids,
-						"count":     len(books),
+						"count":     len(dupes),
 						"title":     titles[0],
-						"documents": books,
+						"documents": dupes,
 					})
 				}
 			}
