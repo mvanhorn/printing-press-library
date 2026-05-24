@@ -15,6 +15,12 @@
       "summary": "recap --by tag: use sum of bucket totals as the share_pct denominator so percentages do not exceed 100% when entries carry multiple tags.",
       "reason": "Greptile pass-2 P2 (logic). grand counted each entry once, but the tag branch added the full entry duration to every tag bucket, so multi-tagged entries produced per-tag shares that summed to more than 100% (visible in both the table and the JSON share_pct field). project and client modes are unaffected; grand still drives total_hours and the header line.",
       "files": ["internal/cli/recap.go"]
+    },
+    {
+      "id": "team-approval-rfc3339-parse-fallback",
+      "summary": "team timesheets: treat an unparseable approval DateRange.Start as 'exclude from this week' instead of falling through, so a malformed timestamp no longer credits the approval to every week queried.",
+      "reason": "Greptile pass-3 (logic). The approval week-range filter parsed DateRange.Start as RFC3339 but had no fallback when parsing failed; on parse error it fell through and the approval was added to stateByUser for the current week, so a single malformed Start inflated 'submitted' counts across every week the loop visited. Fix: continue on parse error.",
+      "files": ["internal/cli/team.go"]
     }
   ]
 }

@@ -127,11 +127,12 @@ Reads the local store — run 'clockify-pp-cli sync' for fresh data.`,
 				}
 				if a.DateRange.Start != "" {
 					t, err := time.Parse(time.RFC3339, a.DateRange.Start)
-					if err == nil {
-						t = t.Local()
-						if t.Before(ws) || !t.Before(weekEnd) {
-							continue // a different week
-						}
+					if err != nil {
+						continue // unparseable Start — exclude from this week rather than crediting every week queried
+					}
+					t = t.Local()
+					if t.Before(ws) || !t.Before(weekEnd) {
+						continue // a different week
 					}
 				}
 				stateByUser[uid] = strings.ToUpper(a.Status.State)
