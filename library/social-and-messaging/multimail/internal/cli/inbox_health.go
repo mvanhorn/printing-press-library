@@ -135,7 +135,7 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 						case d < 30*24*time.Hour:
 							oldestUnread = fmt.Sprintf("%dd", int(d.Hours()/24))
 						default:
-							oldestUnread = fmt.Sprintf("%dm", int(d.Hours()/(24*30)))
+							oldestUnread = fmt.Sprintf("%dmo", int(d.Hours()/(24*30)))
 						}
 					}
 				}

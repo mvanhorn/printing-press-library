@@ -107,7 +107,7 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 						case d < 30*24*time.Hour:
 							timeAtLevel = fmt.Sprintf("%dd", int(d.Hours()/24))
 						default:
-							timeAtLevel = fmt.Sprintf("%dm", int(d.Hours()/(24*30)))
+							timeAtLevel = fmt.Sprintf("%dmo", int(d.Hours()/(24*30)))
 						}
 					}
 				}
