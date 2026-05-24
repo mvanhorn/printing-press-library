@@ -12,8 +12,8 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/mvanhorn/printing-press-library/library/monitoring/adguard-home/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/monitoring/adguard-home/internal/config"
+	"adguard-home-pp-cli/internal/client"
+	"adguard-home-pp-cli/internal/config"
 	"github.com/spf13/cobra"
 )
 

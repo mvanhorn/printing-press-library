@@ -1,4 +1,4 @@
-module github.com/mvanhorn/printing-press-library/library/monitoring/adguard-home
+module adguard-home-pp-cli
 
 go 1.26.3
 

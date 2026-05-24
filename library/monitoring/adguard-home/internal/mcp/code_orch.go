@@ -8,7 +8,7 @@ import (
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
-	"github.com/mvanhorn/printing-press-library/library/monitoring/adguard-home/internal/store"
+	"adguard-home-pp-cli/internal/store"
 )
 
 func RegisterCodeOrchTools(s *server.MCPServer) {
@@ -29,7 +29,7 @@ func RegisterCodeOrchTools(s *server.MCPServer) {
 			mcplib.WithString("method", mcplib.Required(), mcplib.Description("HTTP method: GET, POST, PUT, or DELETE")),
 			mcplib.WithString("path", mcplib.Required(), mcplib.Description("API path (e.g. /clients, /filtering/status, /dhcp/set_config)")),
 			mcplib.WithString("body", mcplib.Description("Optional JSON body for POST/PUT/PATCH requests")),
-			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		handleCodeOrchExecute,

@@ -4,8 +4,8 @@
 package cli
 
 import (
-	"github.com/mvanhorn/printing-press-library/library/monitoring/adguard-home/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/monitoring/adguard-home/internal/store"
+	"adguard-home-pp-cli/internal/cliutil"
+	"adguard-home-pp-cli/internal/store"
 	"encoding/json"
 	"fmt"
 	"github.com/spf13/cobra"
@@ -1064,7 +1064,7 @@ func syncResourcePath(resource string) (string, error) {
 		"access":                    "/access/list",
 		"blocked-services":          "/blocked_services/all",
 		"blocked-services-services": "/blocked_services/services",
-		"clients":                   "/clients/find",
+		"clients":                   "/clients",
 		"dns-info":                  "/dns_info",
 		"parental":                  "/parental/status",
 		"querylog":                  "/querylog",
@@ -1072,7 +1072,7 @@ func syncResourcePath(resource string) (string, error) {
 		"querylog-info":             "/querylog_info",
 		"rewrite":                   "/rewrite/list",
 		"safebrowsing":              "/safebrowsing/status",
-		"stats":                     "/stats/config",
+		"stats":                     "/stats",
 	}
 	if p, ok := paths[resource]; ok {
 		return p, nil

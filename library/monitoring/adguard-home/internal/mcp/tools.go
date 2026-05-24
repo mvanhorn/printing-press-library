@@ -13,12 +13,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mvanhorn/printing-press-library/library/monitoring/adguard-home/internal/cli"
-	"github.com/mvanhorn/printing-press-library/library/monitoring/adguard-home/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/monitoring/adguard-home/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/monitoring/adguard-home/internal/config"
-	"github.com/mvanhorn/printing-press-library/library/monitoring/adguard-home/internal/mcp/cobratree"
-	"github.com/mvanhorn/printing-press-library/library/monitoring/adguard-home/internal/store"
+	"adguard-home-pp-cli/internal/cli"
+	"adguard-home-pp-cli/internal/client"
+	"adguard-home-pp-cli/internal/cliutil"
+	"adguard-home-pp-cli/internal/config"
+	"adguard-home-pp-cli/internal/mcp/cobratree"
+	"adguard-home-pp-cli/internal/store"
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 )
@@ -40,7 +40,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("allowed_clients", mcplib.Description("The allowlist of clients: IP addresses, CIDRs, or ClientIDs.")),
 			mcplib.WithString("blocked_hosts", mcplib.Description("The blocklist of hosts.")),
 			mcplib.WithString("disallowed_clients", mcplib.Description("The blocklist of clients: IP addresses, CIDRs, or ClientIDs.")),
-			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("POST", "/access/set", false, []mcpParamBinding{{PublicName: "allowed_clients", WireName: "allowed_clients", Location: "body"}, {PublicName: "blocked_hosts", WireName: "blocked_hosts", Location: "body"}, {PublicName: "disallowed_clients", WireName: "disallowed_clients", Location: "body"}}, []string{}),
@@ -134,7 +134,7 @@ func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("blocked-services_set",
 			mcplib.WithDescription("Deprecated: Use `PUT /blocked_services/update` instead."),
-			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("POST", "/blocked_services/set", false, []mcpParamBinding{}, []string{}),
@@ -142,7 +142,7 @@ func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("cache-clear_cache_clear",
 			mcplib.WithDescription("Clear DNS cache."),
-			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
 		makeAPIHandler("POST", "/cache_clear", false, []mcpParamBinding{}, []string{}),

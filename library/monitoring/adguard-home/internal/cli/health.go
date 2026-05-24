@@ -7,7 +7,7 @@ import (
 	"sort"
 	"time"
 
-	"github.com/mvanhorn/printing-press-library/library/monitoring/adguard-home/internal/store"
+	"adguard-home-pp-cli/internal/store"
 	"github.com/spf13/cobra"
 )
 
@@ -64,7 +64,7 @@ func newHealthCmd(flags *rootFlags) *cobra.Command {
 			if len(status) > 0 {
 				percentage = float64(staleCount) / float64(len(status)) * 100
 			}
-			report["stale_percentage"] = fmt.Sprintf("%.1f", percentage)
+			report["stale_percentage"] = percentage
 
 			if flags.asJSON {
 				enc := json.NewEncoder(os.Stdout)
@@ -75,7 +75,7 @@ func newHealthCmd(flags *rootFlags) *cobra.Command {
 			fmt.Println("AdGuard Home DNS Health Report")
 			fmt.Println("===============================")
 			fmt.Printf("Resource types synced: %d\n", report["total_resources"])
-			fmt.Printf("Stale (> %d days):     %s (%s%%)\n", days, fmt.Sprintf("%d", staleCount), report["stale_percentage"])
+			fmt.Printf("Stale (> %d days):     %d (%.1f%%)\n", days, staleCount, percentage)
 			if staleCount > 0 {
 				fmt.Println("\n⚠ Some resource types are stale. Run 'adguard-home-pp-cli sync' to refresh.")
 			} else {

@@ -78,6 +78,10 @@ native streaming instead of polling.`,
 				fmt.Fprintf(os.Stderr, "warning: initial fetch failed: %v\n", err)
 			}
 
+			if !follow {
+				return nil
+			}
+
 			for {
 				select {
 				case <-sig:
@@ -108,20 +112,15 @@ func tailKnownResources() []string {
 		"adguard-home-profile",
 		"apple",
 		"blocked-services",
-		"cache-clear",
 		"clients",
 		"dhcp",
 		"dns-config",
 		"dns-info",
 		"filtering",
 		"i18n",
-		"install",
-		"login",
-		"logout",
 		"parental",
 		"protection",
 		"querylog",
-		"querylog-clear",
 		"querylog-config",
 		"querylog-info",
 		"rewrite",
@@ -130,11 +129,8 @@ func tailKnownResources() []string {
 		"stats",
 		"stats-config",
 		"stats-info",
-		"stats-reset",
 		"status",
-		"test-upstream-dns",
 		"tls",
-		"update",
 		"version-json",
 	}
 }
