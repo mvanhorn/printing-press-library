@@ -33,6 +33,14 @@
         "internal/store/upsert_batch_test.go"
       ],
       "validated_outcome": "go test ./internal/store/ passes."
+    },
+    {
+      "id": "oversight-velocity-median-bias",
+      "summary": "Average two middle elements for even-length latency slices in median calculation.",
+      "reason": "Integer division picks the upper-middle element for even-length sorted slices (e.g. [1,2,3,4] returns 3 instead of 2.5), consistently skewing median_latency upward.",
+      "files": [
+        "internal/cli/oversight_velocity.go"
+      ]
     }
   ]
 }

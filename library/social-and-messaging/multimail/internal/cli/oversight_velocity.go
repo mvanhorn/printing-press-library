@@ -141,7 +141,13 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 					latencyRows.Close()
 					if len(latencies) > 0 {
 						sort.Float64s(latencies)
-						mid := latencies[len(latencies)/2]
+						var mid float64
+						n := len(latencies)
+						if n%2 == 1 {
+							mid = latencies[n/2]
+						} else {
+							mid = (latencies[n/2-1] + latencies[n/2]) / 2
+						}
 						switch {
 						case mid < 60:
 							medianLatency = fmt.Sprintf("%.0fs", mid)
