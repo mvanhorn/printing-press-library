@@ -117,6 +117,35 @@ func TestBuildEntry_NoToolsManifest(t *testing.T) {
 	}
 }
 
+// A tools-manifest.json with a null/absent tools field is still
+// manifest-sourced: tools must serialize as [] (not null) so tools:null
+// stays reserved for the agent-context case.
+func TestBuildEntry_ManifestWithNullTools(t *testing.T) {
+	dir := t.TempDir()
+	writeJSON(t, filepath.Join(dir, ".printing-press.json"), map[string]any{
+		"api_name":    "nulltools",
+		"description": "Manifest present, tools null.",
+	})
+	writeJSON(t, filepath.Join(dir, "tools-manifest.json"), map[string]any{
+		"auth":  map[string]any{"type": "none"},
+		"tools": nil,
+	})
+
+	entry, err := buildEntry(dir, "tools", "nulltools")
+	if err != nil {
+		t.Fatalf("buildEntry: %v", err)
+	}
+	if entry.ToolsSource != toolsSourceManifest {
+		t.Errorf("tools_source = %q, want %q", entry.ToolsSource, toolsSourceManifest)
+	}
+	if entry.Tools == nil {
+		t.Error("tools is nil; want non-nil empty slice so it serializes as [] not null")
+	}
+	if len(entry.Tools) != 0 {
+		t.Errorf("tools len = %d, want 0", len(entry.Tools))
+	}
+}
+
 // Directories without .printing-press.json should skip cleanly so
 // scratch dirs under library/ don't break the walk.
 func TestBuildEntry_MissingManifestSkipped(t *testing.T) {

@@ -228,7 +228,10 @@ func buildEntry(dir, category, slug string) (*AgentEntry, error) {
 
 	if tm != nil {
 		entry.ToolsSource = toolsSourceManifest
-		entry.Tools = tm.Tools
+		// A manifest with a null/absent tools field still means
+		// "manifest-sourced": emit [] not null, so tools:null stays
+		// reserved for the agent-context case (the README invariant).
+		entry.Tools = nonNilRawMessages(tm.Tools)
 	} else {
 		entry.ToolsSource = toolsSourceAgentCtx
 	}
@@ -331,6 +334,15 @@ func installModulePath(path, slug string) string {
 func nonNilStrings(src []string) []string {
 	if src == nil {
 		return []string{}
+	}
+	return src
+}
+
+// nonNilRawMessages is nonNilStrings for the tools array — keeps
+// manifest-sourced entries emitting [] rather than null.
+func nonNilRawMessages(src []json.RawMessage) []json.RawMessage {
+	if src == nil {
+		return []json.RawMessage{}
 	}
 	return src
 }

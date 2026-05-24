@@ -44,7 +44,11 @@ jobs:
       - name: Commit if changed
         run: |
           set -euo pipefail
-          if git diff --quiet -- agent-registry.json; then
+          # git status --porcelain (not git diff) so the brand-new,
+          # still-untracked agent-registry.json is detected on the first
+          # run — git diff only compares tracked files and would exit 0,
+          # silently skipping the initial commit.
+          if [ -z "$(git status --porcelain -- agent-registry.json)" ]; then
             echo "No agent-registry.json changes; nothing to commit."
             exit 0
           fi

@@ -531,8 +531,9 @@ func dedupeStrings(values []string) []string {
 }
 
 // installModulePath returns the canonical Go install path for a CLI.
-// Returns "" when either input is empty so partial entries surface in
-// --validate rather than emitting a bogus path.
+// Returns "" when either input is empty — purely defensive, since path
+// and slug are both required fields validateEntries already enforces,
+// so a populated entry never carries an empty install_module.
 func installModulePath(path, slug string) string {
 	if path == "" || slug == "" {
 		return ""
