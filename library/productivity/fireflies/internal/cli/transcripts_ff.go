@@ -32,7 +32,6 @@ query Transcript($id: String!) {
     privacy
     transcript_url
     audio_url
-    video_url
     is_live
     meeting_link
     calendar_type
