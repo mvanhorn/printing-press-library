@@ -6,25 +6,27 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
-	"net/url"
-	"os"
 
 	"github.com/spf13/cobra"
 )
 
 func newWebapiGetContainerLogsCmd(flags *rootFlags) *cobra.Command {
-	var bodyApi string
-	var bodyFromDate string
-	var bodyMethod string
 	var bodyName string
-	var bodyToDate string
-	var bodyVersion string
 
 	cmd := &cobra.Command{
-		Use:         "get-container-logs",
-		Short:       "Get recent log output from a container",
-		Example:     "  synology-dsm-pp-cli webapi get-container-logs --name example-resource",
-		Annotations: map[string]string{"pp:endpoint": "webapi.get-container-logs", "pp:method": "POST", "pp:path": "/webapi/entry.cgi/docker/container/logs"},
+		Use:   "get-container-logs",
+		Short: "Get recent log output from a container",
+		Long: `Fetch container logs via the SYNO.Docker.Container.Log REST API (JSON POST).
+
+NOTE: On DSM 7.3.2, the Container.Log REST API returns error 101 (wrong parameters)
+regardless of the parameter names or values used. Synology's Container Manager web UI
+likely routes log retrieval through WebSocket or the Docker socket proxy, not this
+REST endpoint.
+
+For working container logs, use the SSH-based CLI instead:
+  synology-nas-pp-cli containers logs <name> --lines 50`,
+		Example:     "  synology-dsm-pp-cli webapi get-container-logs --name immich_server",
+		Annotations: map[string]string{"pp:endpoint": "webapi.get-container-logs", "pp:method": "POST", "pp:path": "/webapi/entry.cgi"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !cmd.Flags().Changed("name") && !flags.dryRun {
 				return fmt.Errorf("required flag \"%s\" not set", "name")
@@ -34,62 +36,23 @@ func newWebapiGetContainerLogsCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "/webapi/entry.cgi/docker/container/logs"
-			params := map[string]string{}
-			fields := url.Values{}
-			if bodyApi != "" {
-				fields.Set("api", bodyApi)
-			}
-			if bodyFromDate != "" {
-				fields.Set("from_date", bodyFromDate)
-			}
-			if bodyMethod != "" {
-				fields.Set("method", bodyMethod)
-			}
-			if bodyName != "" {
-				fields.Set("name", bodyName)
-			}
-			if bodyToDate != "" {
-				fields.Set("to_date", bodyToDate)
-			}
-			if bodyVersion != "" {
-				fields.Set("version", bodyVersion)
+			path := "/webapi/entry.cgi"
+			payload := map[string]any{
+				"api":     "SYNO.Docker.Container.Log",
+				"method":  "get",
+				"version": 1,
+				"name":    bodyName,
 			}
 
-			data, statusCode, err := c.PostFormWithParams(path, params, fields)
+			data, statusCode, err := c.Post(path, payload)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			if wantsHumanTable(cmd.OutOrStdout(), flags) {
-				// Check if response contains an array (directly or wrapped in "data")
-				var items []map[string]any
-				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
-					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
-						fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)
-					} else {
-						return nil
-					}
-				} else {
-					var wrapped struct {
-						Data []map[string]any `json:"data"`
-					}
-					if json.Unmarshal(data, &wrapped) == nil && len(wrapped.Data) > 0 {
-						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
-							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)
-						} else {
-							return nil
-						}
-					}
-				}
-			}
+
 			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				if flags.quiet {
 					return nil
 				}
-				// Apply --compact and --select to the API response before wrapping.
-				// --select wins when both are set: explicit field choice trumps the
-				// generic high-gravity allow-list. Otherwise --compact still applies
-				// when --agent is on but the user did not name fields.
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
@@ -98,7 +61,7 @@ func newWebapiGetContainerLogsCmd(flags *rootFlags) *cobra.Command {
 				}
 				envelope := map[string]any{
 					"action":   "post",
-					"resource": "webapi",
+					"resource": "webapi.get-container-logs",
 					"path":     path,
 					"status":   statusCode,
 					"success":  statusCode >= 200 && statusCode < 300,
@@ -123,12 +86,7 @@ func newWebapiGetContainerLogsCmd(flags *rootFlags) *cobra.Command {
 			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
 		},
 	}
-	cmd.Flags().StringVar(&bodyApi, "api", "SYNO.Docker.Container", "DSM API name (constant: SYNO.Docker.Container)")
-	cmd.Flags().StringVar(&bodyFromDate, "from-date", "", "Start date for log retrieval (ISO 8601)")
-	cmd.Flags().StringVar(&bodyMethod, "method", "get", "API method (constant: get)")
-	cmd.Flags().StringVar(&bodyName, "name", "", "Container name")
-	cmd.Flags().StringVar(&bodyToDate, "to-date", "", "End date for log retrieval (ISO 8601)")
-	cmd.Flags().StringVar(&bodyVersion, "version", "1", "API version (constant: 1)")
+	cmd.Flags().StringVar(&bodyName, "name", "", "Container name (required)")
 
 	return cmd
 }

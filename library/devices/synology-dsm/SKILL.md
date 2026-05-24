@@ -40,14 +40,16 @@ This CLI uses Chrome-compatible HTTP transport for browser-facing endpoints. It 
 **webapi** — Manage webapi
 
 - `synology-dsm-pp-cli webapi cancel-backup-task` — Cancel an in-progress Hyper Backup task
+- `synology-dsm-pp-cli webapi create-container` — Create a new Docker container (POST framework; DSM 7.3.2 REST API returns 114 — use SSH/docker CLI for writes)
 - `synology-dsm-pp-cli webapi delete-scheduled-task` — Delete a scheduled task permanently
 - `synology-dsm-pp-cli webapi get-backup-task` — Get details for a specific Hyper Backup task
 - `synology-dsm-pp-cli webapi get-backup-task-status` — Get current status and progress of a Hyper Backup task
 - `synology-dsm-pp-cli webapi get-container` — Get detailed configuration and status for a specific container
-- `synology-dsm-pp-cli webapi get-container-logs` — Get recent log output from a container
+- `synology-dsm-pp-cli webapi get-container-logs` — Get recent log output from a container (DSM 7.3.2 limitation: REST Log API returns 101; use `synology-nas-pp-cli containers logs <name>` via SSH instead)
 - `synology-dsm-pp-cli webapi get-dsminfo` — Get DSM system information — model, version, uptime, CPU
 - `synology-dsm-pp-cli webapi get-file-info` — Get metadata for specific files or directories
 - `synology-dsm-pp-cli webapi get-file-station-info` — Get File Station capabilities and hostname
+- `synology-dsm-pp-cli webapi get-package` — Get details for a specific installed package (client-side filter on list-packages)
 - `synology-dsm-pp-cli webapi get-scheduled-task` — Get configuration for a specific scheduled task
 - `synology-dsm-pp-cli webapi get-storage-disk` — Get detailed information for a specific disk including SMART data
 - `synology-dsm-pp-cli webapi get-storage-volume` — Get details for a specific volume
@@ -57,6 +59,7 @@ This CLI uses Chrome-compatible HTTP transport for browser-facing endpoints. It 
 - `synology-dsm-pp-cli webapi list-container-images` — List all downloaded Docker images
 - `synology-dsm-pp-cli webapi list-containers` — List all Docker containers with running status and image
 - `synology-dsm-pp-cli webapi list-files` — List files and directories in a folder path
+- `synology-dsm-pp-cli webapi list-packages` — List all installed packages with version and status
 - `synology-dsm-pp-cli webapi list-scheduled-tasks` — List all Task Scheduler tasks with schedule and enable status
 - `synology-dsm-pp-cli webapi list-shared-folders` — List all shared folders visible to the authenticated user
 - `synology-dsm-pp-cli webapi list-storage-disks` — List all disks with health status, temperature, and SMART indicators
@@ -64,6 +67,9 @@ This CLI uses Chrome-compatible HTTP transport for browser-facing endpoints. It 
 - `synology-dsm-pp-cli webapi list-storage-volumes` — List all storage volumes with usage and mount point
 - `synology-dsm-pp-cli webapi login` — Authenticate with DSM and obtain a session ID (SID). After login, save the returned sid with: auth set-token...
 - `synology-dsm-pp-cli webapi logout` — Log out and invalidate the current session
+- `synology-dsm-pp-cli webapi pull-image` — Pull a Docker image from a registry (POST framework; DSM 7.3.2 REST API returns 103 — use SSH/docker CLI)
+- `synology-dsm-pp-cli webapi remove-container` — Remove a stopped container (confirmed working on DSM 7.3.2)
+- `synology-dsm-pp-cli webapi remove-image` — Remove a Docker image (POST framework; DSM 7.3.2 REST API returns 114 — use SSH/docker CLI)
 - `synology-dsm-pp-cli webapi restart-container` — Restart a container (stop then start)
 - `synology-dsm-pp-cli webapi run-backup-task` — Trigger an immediate Hyper Backup for a task
 - `synology-dsm-pp-cli webapi run-scheduled-task` — Run a scheduled task immediately (outside its normal schedule)
