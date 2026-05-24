@@ -67,13 +67,13 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 			if err != nil {
 				return fmt.Errorf("querying mailboxes: %w", err)
 			}
-			defer mbRows.Close()
 			for mbRows.Next() {
 				var id, name string
 				if mbRows.Scan(&id, &name) == nil {
 					mbNames[id] = name
 				}
 			}
+			mbRows.Close()
 
 			if len(mbNames) == 0 {
 				return fmt.Errorf("no mailboxes in local cache — run 'multimail-pp-cli sync --full' first")

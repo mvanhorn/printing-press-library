@@ -69,7 +69,6 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 			if err != nil {
 				return fmt.Errorf("querying mailboxes: %w", err)
 			}
-			defer mbRows.Close()
 			for mbRows.Next() {
 				var m mbInfo
 				if err := mbRows.Scan(&m.ID, &m.Name, &m.OversightMode, &m.CreatedAt); err != nil {
@@ -77,6 +76,7 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 				}
 				mailboxes = append(mailboxes, m)
 			}
+			mbRows.Close()
 
 			if len(mailboxes) == 0 {
 				return fmt.Errorf("no mailboxes in local cache — run 'multimail-pp-cli sync --full' first")
@@ -88,7 +88,11 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 				var upgradeCount int
 				var lastUpgrade string
 				upgradeRow := db.DB().QueryRowContext(cmd.Context(),
-					`SELECT COUNT(*), COALESCE(MAX(synced_at), '')
+					`SELECT COUNT(*),
+						COALESCE(
+							MAX(COALESCE(json_extract(data, '$.upgraded_at'), json_extract(data, '$.created_at'), synced_at)),
+							''
+						)
 					FROM upgrade WHERE mailboxes_id = ?`, mb.ID)
 				_ = upgradeRow.Scan(&upgradeCount, &lastUpgrade)
 

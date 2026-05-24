@@ -73,7 +73,6 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 			if err != nil {
 				return fmt.Errorf("querying mailboxes: %w", err)
 			}
-			defer mbRows.Close()
 			for mbRows.Next() {
 				var m mbInfo
 				if err := mbRows.Scan(&m.ID, &m.Name); err != nil {
@@ -81,6 +80,7 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 				}
 				mailboxes = append(mailboxes, m)
 			}
+			mbRows.Close()
 
 			if len(mailboxes) == 0 {
 				return fmt.Errorf("no mailboxes in local cache — run 'multimail-pp-cli sync --full' first")
