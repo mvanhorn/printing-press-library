@@ -13,6 +13,7 @@ const SchemaVersion = 1
 
 type Model struct {
 	ID             string   `json:"id"`
+	Provider       string   `json:"provider,omitempty"`
 	Family         string   `json:"family,omitempty"`
 	CtxWindow      int      `json:"ctx_window,omitempty"`
 	PriceInPer1M   float64  `json:"price_in_per_1m,omitempty"`
@@ -22,6 +23,16 @@ type Model struct {
 	SupportsVision bool     `json:"supports_vision,omitempty"`
 	Strengths      []string `json:"strengths,omitempty"`
 	Source         string   `json:"source,omitempty"`
+}
+
+// QualifiedID returns the provider-qualified model id (e.g. "qwen3.6-35b@local-llama")
+// when Provider is set, or just the bare ID for backward compatibility with
+// schema_version=1 single-provider envelopes.
+func (m Model) QualifiedID() string {
+	if m.Provider == "" || m.Provider == "ollama-cloud" {
+		return m.ID
+	}
+	return m.ID + "@" + m.Provider
 }
 
 type Features struct {

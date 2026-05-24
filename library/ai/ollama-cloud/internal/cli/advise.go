@@ -26,6 +26,7 @@ func newAdviseCmd(flags *rootFlags) *cobra.Command {
 		exclude           []string
 		expectedOutputTok int
 		modelsOverlay     string
+		providerOverlays  []string
 		explain           bool
 		validateCatalog   bool
 		enableTiebreak    bool
@@ -126,6 +127,24 @@ Logs every invocation to ~/.local/state/ollama-cloud-pp-cli/advisor-log.jsonl
 			if err != nil {
 				return apiErr(err)
 			}
+			// Merge sibling provider overlays (e.g. local-llama, openrouter)
+			// so advise can recommend across providers. Each overlay must have
+			// schema_version=1 + provider="<name>" + a models[] array.
+			for _, povPath := range providerOverlays {
+				povPath = strings.TrimSpace(povPath)
+				if povPath == "" {
+					continue
+				}
+				b, perr := os.ReadFile(povPath)
+				if perr != nil {
+					return configErr(fmt.Errorf("--provider-overlay %s: %w", povPath, perr))
+				}
+				sibling, perr := advisor.LoadProviderOverlay(b)
+				if perr != nil {
+					return configErr(fmt.Errorf("--provider-overlay %s: %w", povPath, perr))
+				}
+				catalog = append(catalog, sibling...)
+			}
 
 			req := advisor.Request{
 				Prompt:               prompt,
@@ -171,6 +190,7 @@ Logs every invocation to ~/.local/state/ollama-cloud-pp-cli/advisor-log.jsonl
 	cmd.Flags().StringSliceVar(&exclude, "exclude", nil, "Comma-separated model IDs to exclude")
 	cmd.Flags().IntVar(&expectedOutputTok, "expected-output-tokens", 1024, "Output-token planning hint (for cost+latency estimation)")
 	cmd.Flags().StringVar(&modelsOverlay, "models-overlay", "", "Override the bundled models.json with a custom overlay file")
+	cmd.Flags().StringSliceVar(&providerOverlays, "provider-overlay", nil, "Comma-separated sibling-provider overlay files (e.g. workspace/scripts/local-llama-models.json). Each adds its models to the candidate set; provider-qualified IDs (model@provider) appear in the envelope when non-ollama-cloud wins.")
 	cmd.Flags().BoolVar(&explain, "explain", false, "Emit full scoring trace + features + filtered candidates")
 	cmd.Flags().BoolVar(&validateCatalog, "validate-catalog", false, "Diff /api/tags against curated models.json overlay and exit")
 	cmd.Flags().BoolVar(&enableTiebreak, "enable-tiebreak", false, "When top-2 scores within 5%, call a cheap LLM to break the tie")

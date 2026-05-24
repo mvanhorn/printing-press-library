@@ -78,7 +78,7 @@ func Advise(ctx context.Context, req Request, catalog []Model, includeExplain bo
 		}
 	}
 
-	rec.Recommended = picked.ModelID
+	rec.Recommended = picked.Model.QualifiedID()
 	rec.Why = picked.Why
 	if len(live) > 1 {
 		alts := make([]Candidate, 0, 3)
@@ -86,15 +86,17 @@ func Advise(ctx context.Context, req Request, catalog []Model, includeExplain bo
 			if c.ModelID == picked.ModelID {
 				continue
 			}
-			alts = append(alts, c)
+			altCopy := c
+			altCopy.ModelID = c.Model.QualifiedID()
+			alts = append(alts, altCopy)
 			if len(alts) >= 3 {
 				break
 			}
 		}
 		rec.Alternatives = alts
-		rec.Fallback = live[1].ModelID
-		if rec.Fallback == picked.ModelID && len(live) >= 3 {
-			rec.Fallback = live[2].ModelID
+		rec.Fallback = live[1].Model.QualifiedID()
+		if rec.Fallback == rec.Recommended && len(live) >= 3 {
+			rec.Fallback = live[2].Model.QualifiedID()
 		}
 	}
 	rec.EstInputTokens = feats.InputTokens
@@ -107,6 +109,77 @@ func Advise(ctx context.Context, req Request, catalog []Model, includeExplain bo
 		rec.Filtered = filtered
 	}
 	return rec, nil
+}
+
+// LoadProviderOverlay reads a sibling-provider overlay (no live catalog needed
+// for providers like local-llama where the curated list IS the catalog) and
+// returns Model entries stamped with the overlay's "provider" field. The first
+// id_pattern in each entry that doesn't contain a wildcard becomes the canonical
+// model id; wildcard-only patterns are skipped (no concrete id to surface).
+func LoadProviderOverlay(modelsJSON []byte) ([]Model, error) {
+	meta, err := parseOverlay(modelsJSON)
+	if err != nil {
+		return nil, err
+	}
+	// Provider name is required for sibling overlays so QualifiedID can stamp it.
+	var raw struct {
+		Provider string `json:"provider"`
+	}
+	if err := json.Unmarshal(modelsJSON, &raw); err != nil {
+		return nil, fmt.Errorf("advisor: parsing provider overlay top-level: %w", err)
+	}
+	if raw.Provider == "" {
+		return nil, fmt.Errorf("advisor: provider-overlay missing required `provider` field")
+	}
+
+	out := make([]Model, 0, len(meta.Models))
+	for _, mm := range meta.Models {
+		concrete := firstConcretePattern(mm.IDPatterns)
+		if concrete == "" {
+			continue
+		}
+		m := Model{
+			ID:             concrete,
+			Provider:       raw.Provider,
+			Family:         mm.Family,
+			CtxWindow:      mm.CtxWindow,
+			PriceInPer1M:   mm.PriceInPer1M,
+			PriceOutPer1M:  mm.PriceOutPer1M,
+			LatencyP50Ms:   mm.LatencyP50Ms,
+			SupportsTools:  mm.SupportsTools,
+			SupportsVision: mm.SupportsVision,
+			Strengths:      append([]string{}, mm.Strengths...),
+			Source:         "overlay:" + raw.Provider,
+		}
+		out = append(out, m)
+	}
+	return out, nil
+}
+
+func firstConcretePattern(patterns []string) string {
+	for _, p := range patterns {
+		// Strip a single trailing "*" if present (most-common pattern shape)
+		if len(p) > 0 && p[len(p)-1] == '*' {
+			candidate := p[:len(p)-1]
+			if candidate != "" && !containsWildcard(candidate) {
+				return candidate
+			}
+			continue
+		}
+		if !containsWildcard(p) {
+			return p
+		}
+	}
+	return ""
+}
+
+func containsWildcard(s string) bool {
+	for _, r := range s {
+		if r == '*' || r == '?' {
+			return true
+		}
+	}
+	return false
 }
 
 func LoadCatalog(tagsJSON json.RawMessage, modelsJSON []byte) ([]Model, error) {

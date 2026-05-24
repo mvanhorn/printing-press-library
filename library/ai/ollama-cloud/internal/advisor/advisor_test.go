@@ -151,6 +151,99 @@ func TestDeterministicScoring(t *testing.T) {
 	}
 }
 
+func TestLoadProviderOverlayStampsProvider(t *testing.T) {
+	overlay := []byte(`{
+		"schema_version": 1,
+		"provider": "local-llama",
+		"models": [
+			{"id_patterns":["qwen3.6-35b*"],"family":"qwen","ctx_window":65536,"latency_p50_ms":80,"supports_tools":true,"strengths":["coding","fast"],"measured":true},
+			{"id_patterns":["gemma-4-e4b*"],"family":"gemma","ctx_window":32768,"latency_p50_ms":25,"strengths":["cheap","fast"]}
+		],
+		"default":{}
+	}`)
+	models, err := LoadProviderOverlay(overlay)
+	if err != nil {
+		t.Fatalf("LoadProviderOverlay: %v", err)
+	}
+	if len(models) != 2 {
+		t.Fatalf("want 2 models, got %d", len(models))
+	}
+	for _, m := range models {
+		if m.Provider != "local-llama" {
+			t.Errorf("model %q missing provider stamp: %+v", m.ID, m)
+		}
+		if m.Source != "overlay:local-llama" {
+			t.Errorf("model %q wrong source: %q", m.ID, m.Source)
+		}
+	}
+	if models[0].ID != "qwen3.6-35b" {
+		t.Errorf("first concrete id should be qwen3.6-35b (stripped wildcard), got %q", models[0].ID)
+	}
+	if !models[0].SupportsTools {
+		t.Error("qwen3.6-35b should support tools")
+	}
+}
+
+func TestQualifiedIDOnlyStampsNonCloud(t *testing.T) {
+	cases := []struct {
+		m    Model
+		want string
+	}{
+		{Model{ID: "qwen3-coder:480b"}, "qwen3-coder:480b"},
+		{Model{ID: "qwen3-coder:480b", Provider: "ollama-cloud"}, "qwen3-coder:480b"},
+		{Model{ID: "qwen3.6-35b", Provider: "local-llama"}, "qwen3.6-35b@local-llama"},
+		{Model{ID: "gpt-4", Provider: "openrouter"}, "gpt-4@openrouter"},
+	}
+	for _, c := range cases {
+		got := c.m.QualifiedID()
+		if got != c.want {
+			t.Errorf("QualifiedID(%+v) = %q, want %q", c.m, got, c.want)
+		}
+	}
+}
+
+func TestCrossProviderAdviseRoutesToLocalForCheap(t *testing.T) {
+	// Cloud catalog includes a slow + a fast cloud model
+	cloudTags := json.RawMessage(`{"models":[
+		{"name":"qwen3-coder:480b","model":"qwen3-coder:480b","details":{"family":"qwen"}},
+		{"name":"gpt-oss:20b","model":"gpt-oss:20b","details":{"family":"gpt-oss"}}
+	]}`)
+	cloudOverlay := []byte(`{
+		"schema_version":1,
+		"models":[
+			{"id_patterns":["qwen3-coder*"],"ctx_window":262144,"latency_p50_ms":4200,"supports_tools":true,"strengths":["coding","long-context"]},
+			{"id_patterns":["gpt-oss:20b*"],"ctx_window":131072,"latency_p50_ms":1200,"supports_tools":true,"strengths":["cheap","fast"]}
+		],
+		"default":{}
+	}`)
+	cat, err := LoadCatalog(cloudTags, cloudOverlay)
+	if err != nil {
+		t.Fatalf("LoadCatalog: %v", err)
+	}
+	// Local sibling overlay with a much faster model
+	localOverlay := []byte(`{
+		"schema_version":1,
+		"provider":"local-llama",
+		"models":[
+			{"id_patterns":["gemma-4-e4b*"],"ctx_window":32768,"latency_p50_ms":25,"strengths":["cheap","fast"]}
+		],
+		"default":{}
+	}`)
+	siblings, err := LoadProviderOverlay(localOverlay)
+	if err != nil {
+		t.Fatalf("LoadProviderOverlay: %v", err)
+	}
+	cat = append(cat, siblings...)
+
+	rec, err := Advise(context.Background(), Request{Prompt: "ping", TaskHint: "cheap", MaxLatencyMs: 1500}, cat, false)
+	if err != nil {
+		t.Fatalf("Advise: %v", err)
+	}
+	if rec.Recommended != "gemma-4-e4b@local-llama" {
+		t.Errorf("cheap+low-latency prompt should pick local-llama gemma-4-e4b (25ms p50, provider-qualified); got %q", rec.Recommended)
+	}
+}
+
 func TestGlobMatchHandlesColon(t *testing.T) {
 	if !globMatch("qwen3-coder*", "qwen3-coder:480b") {
 		t.Error("qwen3-coder* should match qwen3-coder:480b")
