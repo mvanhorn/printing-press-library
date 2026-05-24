@@ -152,6 +152,19 @@ share of total tracked time. Reads the local store; run sync first.`,
 				return rows[i].Key < rows[j].Key
 			})
 
+			// For --by tag, a single entry can land in multiple buckets (one per
+			// tag), so sum(bucket totals) > grand and per-tag shares against
+			// grand can exceed 100%. Use the sum of bucket totals as the share
+			// denominator in that mode; grand remains the honest total-tracked
+			// figure used for the JSON total_hours and the header line.
+			shareDenom := grand
+			if byFlag == "tag" {
+				shareDenom = 0
+				for _, b := range rows {
+					shareDenom += b.Billable + b.NonBillable
+				}
+			}
+
 			if flags.asJSON {
 				type jrow struct {
 					Group            string  `json:"group"`
@@ -168,7 +181,7 @@ share of total tracked time. Reads the local store; run sync first.`,
 						TotalHours:       round2(tot.Hours()),
 						BillableHours:    round2(b.Billable.Hours()),
 						NonBillableHours: round2(b.NonBillable.Hours()),
-						SharePct:         sharePct(tot, grand),
+						SharePct:         sharePct(tot, shareDenom),
 					})
 				}
 				return flags.printJSON(cmd, map[string]any{
@@ -193,7 +206,7 @@ share of total tracked time. Reads the local store; run sync first.`,
 			for _, b := range rows {
 				tot := b.Billable + b.NonBillable
 				fmt.Fprintf(tw, "%s\t%.2fh\t%.2fh\t%.2fh\t%.1f%%\n",
-					truncate(b.Key, 32), tot.Hours(), b.Billable.Hours(), b.NonBillable.Hours(), sharePct(tot, grand))
+					truncate(b.Key, 32), tot.Hours(), b.Billable.Hours(), b.NonBillable.Hours(), sharePct(tot, shareDenom))
 			}
 			tw.Flush()
 			return nil

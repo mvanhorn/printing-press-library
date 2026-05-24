@@ -71,16 +71,16 @@ client — the "what can I invoice right now" number.`,
 			var total time.Duration
 			lockedSkipped := 0
 			for _, e := range entries {
-				if !e.Billable || e.Locked {
-					if e.Billable && e.Locked {
-						lockedSkipped++
-					}
-					continue
-				}
 				if e.Start.IsZero() || e.Start.Before(start) || !e.Start.Before(end) {
 					continue
 				}
 				if workspace != "" && e.WorkspaceID != workspace {
+					continue
+				}
+				if !e.Billable || e.Locked {
+					if e.Billable && e.Locked {
+						lockedSkipped++
+					}
 					continue
 				}
 				client := "(no client)"
