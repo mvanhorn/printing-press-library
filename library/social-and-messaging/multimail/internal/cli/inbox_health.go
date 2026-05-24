@@ -120,7 +120,9 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 					`SELECT MIN(COALESCE(json_extract(data, '$.received_at'), json_extract(data, '$.created_at'), synced_at))
 					FROM mailboxes_emails
 					WHERE mailboxes_id = ?
-					AND (json_extract(data, '$.read') = 0 OR json_extract(data, '$.is_read') = 0)`, mb.ID)
+					AND (json_extract(data, '$.read') = 0
+					  OR json_extract(data, '$.is_read') = 0
+					  OR json_extract(data, '$.is_read') = 'false')`, mb.ID)
 				var oldestTS string
 				if oldestRow.Scan(&oldestTS) == nil && oldestTS != "" {
 					if t, err := time.Parse(time.RFC3339, oldestTS); err == nil {
