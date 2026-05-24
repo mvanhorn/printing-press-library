@@ -120,7 +120,10 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 				// re-appear with updated status. Instead, correlate
 				// audit-log approve/reject events (which have the decision
 				// timestamp) with oversight items (which retain received_at)
-				// via resource_id.
+				// via resource_id. Mailbox association is checked on both
+				// the oversight item ($.mailbox_id) and the audit-log entry
+				// ($.mailbox_id, $.resource_id, $.metadata.mailbox_id) for
+				// consistency with the count query above.
 				medianLatency := "—"
 				latencyRows, lerr := db.DB().QueryContext(cmd.Context(),
 					`SELECT
@@ -132,8 +135,11 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 					WHERE a.resource_type = 'audit-log'
 					AND (json_extract(a.data, '$.action') LIKE '%approve%'
 					  OR json_extract(a.data, '$.action') LIKE '%reject%')
-					AND json_extract(o.data, '$.mailbox_id') = ?
-					AND json_extract(a.data, '$.created_at') > ?`, mb.ID, cutoff)
+					AND (json_extract(o.data, '$.mailbox_id') = ?
+					  OR json_extract(a.data, '$.mailbox_id') = ?
+					  OR json_extract(a.data, '$.resource_id') = ?
+					  OR json_extract(a.data, '$.metadata.mailbox_id') = ?)
+					AND json_extract(a.data, '$.created_at') > ?`, mb.ID, mb.ID, mb.ID, mb.ID, cutoff)
 				if lerr == nil {
 					var latencies []float64
 					for latencyRows.Next() {
