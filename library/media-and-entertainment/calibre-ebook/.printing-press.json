@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "cli_name": "calibre-ebook-pp-cli",
+  "api_name": "calibre-ebook",
+  "display_name": "Calibre Ebook",
+  "version": "1.0.0",
+  "run_id": "calibre-ebook-spec",
+  "printing_press_version": "4.8.0",
+  "printer": "e-jung",
+  "printer_name": "Eric Jung",
+  "category": "media-and-entertainment",
+  "novel_features": [
+    {
+      "name": "health-score",
+      "command": "library health-score",
+      "topic": "library health",
+      "insight": "Computes a weighted 0-100 health score from check_library output with per-category deductions"
+    },
+    {
+      "name": "duplicates",
+      "command": "library duplicates",
+      "topic": "duplicate detection",
+      "insight": "Finds duplicate books by title/author with exact, fuzzy, and broad matching modes"
+    },
+    {
+      "name": "series-gaps",
+      "command": "library series-gaps",
+      "topic": "series completeness",
+      "insight": "Detects series with missing books by analyzing series_index gaps"
+    },
+    {
+      "name": "stats",
+      "command": "library stats",
+      "topic": "library analytics",
+      "insight": "Aggregate statistics: format distribution, top authors, series, file sizes"
+    },
+    {
+      "name": "similar",
+      "command": "library similar",
+      "topic": "book recommendations",
+      "insight": "Content-based similar book finder using shared authors, tags, series, and publisher"
+    }
+  ],
+  "workflows": [
+    {
+      "name": "health-audit",
+      "command": "workflow health-audit",
+      "description": "Full library health audit with prioritized recommendations"
+    }
+  ]
+}
