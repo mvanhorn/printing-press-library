@@ -1,8 +1,17 @@
-# Adguard Home CLI
+# AdGuard Home CLI
 
-AdGuard Home REST-ish API.  Our admin web interface is built on top of this REST-ish API.
+A command-line interface for [AdGuard Home](https://github.com/AdguardTeam/AdGuardHome) — the network-wide ad and tracker blocker that runs as a self-hosted DNS sinkhole. This CLI wraps the full AdGuard Home REST API so you can manage your DNS filtering, parental controls, safe browsing, DHCP server, TLS certificates, filter lists, DNS rewrites, client rules, and query logs from a terminal or AI agent.
 
-Learn more at [Adguard Home](https://github.com/AdguardTeam/AdGuardHome).
+**Key capabilities:**
+
+- **DNS filtering** — manage blocklists, custom filter rules, per-client access controls, and blocked services (YouTube, Facebook, TikTok, etc.)
+- **Local sync & offline search** — `sync` pulls all data into a local SQLite database for instant full-text search, analytics, and health reporting without hitting the API
+- **DNS health dashboard** — `health` summarizes protection status, block rate, top blocked domains, stale data detection, and query volume trends
+- **Parental & safe browsing controls** — enable/disable safe search, safe browsing (malware/phishing), and parental filtering from the command line
+- **DHCP management** — configure the built-in DHCP server, manage static leases, check for conflicts
+- **TLS & encryption** — configure DoH/DoT/DoQ, validate TLS certificates, generate Apple mobile config profiles
+- **Real-time monitoring** — `tail` streams live DNS query changes; `analytics` runs aggregate queries on synced data
+- **Agent-ready** — `--agent` flag sets JSON output, compact mode, no-color, and no-prompts in one flag for AI agent workflows
 
 Printed by [@e-jung](https://github.com/e-jung) (Eric Jung).
 
