@@ -86,7 +86,10 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 
 			var results []velocityRow
 			for _, mb := range mailboxes {
-				// Count decisions from audit log for this mailbox
+				// PATCH: Use event timestamp ($.created_at) instead of synced_at
+				// for --days window filtering. synced_at is when the record was
+				// cached locally — on first sync all records land with synced_at ≈ now,
+				// making the window include all historical events.
 				var approved, rejected int
 				row := db.DB().QueryRowContext(cmd.Context(),
 					`SELECT
@@ -95,7 +98,7 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 					FROM resources
 					WHERE resource_type = 'audit-log'
 					AND json_extract(data, '$.mailbox_id') = ?
-					AND synced_at > ?`, mb.ID, cutoff)
+					AND json_extract(data, '$.created_at') > ?`, mb.ID, cutoff)
 				if err := row.Scan(&approved, &rejected); err != nil {
 					continue
 				}
@@ -125,7 +128,7 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 					AND (json_extract(a.data, '$.action') LIKE '%approve%'
 					  OR json_extract(a.data, '$.action') LIKE '%reject%')
 					AND json_extract(o.data, '$.mailbox_id') = ?
-					AND a.synced_at > ?`, mb.ID, cutoff)
+					AND json_extract(a.data, '$.created_at') > ?`, mb.ID, cutoff)
 				if lerr == nil {
 					var latencies []float64
 					for latencyRows.Next() {
@@ -169,13 +172,14 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 
 				// PATCH: Count currently pending within the --days window
 				// for consistency with the windowed decision counts above.
+				// Use received_at (event time) instead of synced_at.
 				var pending int
 				pendingRow := db.DB().QueryRowContext(cmd.Context(),
 					`SELECT COUNT(*) FROM resources
 					WHERE resource_type = 'oversight'
 					AND json_extract(data, '$.mailbox_id') = ?
 					AND json_extract(data, '$.status') = 'pending'
-					AND synced_at > ?`, mb.ID, cutoff)
+					AND COALESCE(json_extract(data, '$.received_at'), json_extract(data, '$.created_at')) > ?`, mb.ID, cutoff)
 				_ = pendingRow.Scan(&pending)
 
 				results = append(results, velocityRow{

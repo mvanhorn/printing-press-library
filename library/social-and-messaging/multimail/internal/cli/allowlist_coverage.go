@@ -121,7 +121,8 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 				var recentSends int
 				sendRow := db.DB().QueryRowContext(cmd.Context(),
 					`SELECT COUNT(*) FROM mailboxes_emails
-					WHERE mailboxes_id = ? AND synced_at > ?
+					WHERE mailboxes_id = ?
+					AND COALESCE(json_extract(data, '$.received_at'), json_extract(data, '$.created_at'), synced_at) > ?
 					AND (json_extract(data, '$.direction') IN ('outbound', 'sent')
 					  OR LOWER(COALESCE(json_extract(data, '$.from'), '')) = LOWER(?))`,
 					mb.ID, cutoff, mb.Name)
@@ -153,7 +154,8 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 							json_extract(data, '$.recipients'),
 							''
 						) FROM mailboxes_emails
-						WHERE mailboxes_id = ? AND synced_at > ?
+						WHERE mailboxes_id = ?
+						AND COALESCE(json_extract(data, '$.received_at'), json_extract(data, '$.created_at'), synced_at) > ?
 						AND (json_extract(data, '$.direction') IN ('outbound', 'sent')
 						  OR LOWER(COALESCE(json_extract(data, '$.from'), '')) = LOWER(?))`,
 						mb.ID, cutoff, mb.Name)

@@ -113,6 +113,15 @@
       "files": [
         "internal/cli/allowlist_coverage.go"
       ]
+    },
+    {
+      "id": "time-window-use-event-timestamp",
+      "summary": "Use event timestamps ($.created_at, $.received_at) instead of synced_at for --days window filtering.",
+      "reason": "synced_at is when the record was cached locally. On first-time sync, all historical records land with synced_at ≈ now, making --days 7 include all history. Using the actual event timestamp produces correct windowed results regardless of sync timing.",
+      "files": [
+        "internal/cli/oversight_velocity.go",
+        "internal/cli/allowlist_coverage.go"
+      ]
     }
   ]
 }
