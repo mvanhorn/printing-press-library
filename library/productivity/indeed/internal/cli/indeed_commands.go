@@ -59,12 +59,15 @@ func openIndeedStore(ctx context.Context) (*store.Store, error) {
 // storeJob persists a job into the generic resources table (resource_type
 // "job") so the framework search/sql/context commands and our offline `find`
 // see it.
-func storeJob(db *store.Store, j indeedparse.Job) {
+// storeJob caches a job in the local store. It returns any error so callers
+// can surface a persistence failure rather than silently dropping the cache
+// write (which would also defeat offline `find` and the saved-search history).
+func storeJob(db *store.Store, j indeedparse.Job) error {
 	raw, err := json.Marshal(j)
 	if err != nil {
-		return
+		return err
 	}
-	_ = db.Upsert("job", j.Key, raw)
+	return db.Upsert("job", j.Key, raw)
 }
 
 // buildSearchParams maps filters to Indeed web /jobs query params.
@@ -261,10 +264,23 @@ func runSearch(cmd *cobra.Command, flags *rootFlags, f searchFilters) ([]indeedp
 		}
 	}
 	if db, derr := openIndeedStore(ctx); derr == nil {
+		stored := 0
+		var firstErr error
 		for _, j := range merged {
-			storeJob(db, j)
+			if err := storeJob(db, j); err != nil {
+				if firstErr == nil {
+					firstErr = err
+				}
+				continue
+			}
+			stored++
 		}
 		db.Close()
+		if firstErr != nil {
+			fmt.Fprintf(cmd.ErrOrStderr(), "warning: cached %d/%d jobs locally (offline `find` and saved-search history may be incomplete): %v\n", stored, len(merged), firstErr)
+		}
+	} else {
+		fmt.Fprintf(cmd.ErrOrStderr(), "warning: could not open local store (%v); results not cached for offline use\n", derr)
 	}
 
 	var out []indeedparse.Job
@@ -779,8 +795,15 @@ func newNewCmd(flags *rootFlags) *cobra.Command {
 				ss.SeenKeys = ss.SeenKeys[len(ss.SeenKeys)-maxSeenKeys:]
 			}
 			ss.LastRun = time.Now().UTC().Format(time.RFC3339)
-			if raw, mErr := json.Marshal(ss); mErr == nil {
-				_ = db.Upsert("saved_search", ss.Name, raw)
+			// Persist the updated seen set; if this write fails, warn loudly —
+			// silently dropping it means the same postings resurface as "new"
+			// on the next run, defeating the whole point of the command.
+			raw, mErr := json.Marshal(ss)
+			if mErr != nil {
+				return fmt.Errorf("encoding saved search: %w", mErr)
+			}
+			if uErr := db.Upsert("saved_search", ss.Name, raw); uErr != nil {
+				fmt.Fprintf(cmd.ErrOrStderr(), "warning: could not persist seen-state for %q (%v); these jobs may show as new again next run\n", ss.Name, uErr)
 			}
 			_ = total
 			if firstRun {
