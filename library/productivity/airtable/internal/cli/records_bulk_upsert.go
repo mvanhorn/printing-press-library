@@ -127,6 +127,16 @@ set, emits one JSON progress line per batch on stderr.`,
 						Status: statusCode,
 						Error:  err.Error(),
 					})
+					// PATCH(airtable-records-bulk-upsert): Surface accumulated
+					// successful batch results to stderr before returning so
+					// callers running large imports can see which batches
+					// committed before the mid-run failure.
+					if encErr := json.NewEncoder(cmd.ErrOrStderr()).Encode(map[string]any{
+						"event":   "partial_results",
+						"batches": results,
+					}); encErr != nil {
+						fmt.Fprintf(cmd.ErrOrStderr(), `{"event":"partial_results_encode_error","error":%q}`+"\n", encErr.Error())
+					}
 					return classifyAPIError(err, flags)
 				}
 				results = append(results, batchResult{

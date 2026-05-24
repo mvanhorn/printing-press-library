@@ -6,10 +6,17 @@
   "patches": [
     {
       "id": "airtable-records-bulk-upsert",
-      "summary": "Hand-built `records bulk-upsert` wrapper adding --merge-on, --batch-progress, --stdin, and automatic 10-record batching over the generated records upsert path.",
-      "reason": "Airtable caps upserts at 10 records per request, so file/stdin-driven ingest pipelines need a batching wrapper the generator doesn't emit. The wrapper preserves the generated body shape and forwards each batch through the generated client.",
+      "summary": "Hand-built `records bulk-upsert` wrapper adding --merge-on, --batch-progress, --stdin, and automatic 10-record batching over the generated records upsert path; on mid-run batch failure now emits accumulated results to stderr before returning so callers can see which batches committed.",
+      "reason": "Airtable caps upserts at 10 records per request, so file/stdin-driven ingest pipelines need a batching wrapper the generator doesn't emit. The wrapper preserves the generated body shape and forwards each batch through the generated client. Greptile P1 review (PR #829) flagged that the original error path discarded accumulated successful results before printing; the partial_results stderr event addresses that without changing the success exit shape.",
       "files": ["internal/cli/records_bulk_upsert.go"],
-      "validated_outcome": "Builds, registers under `records` group, and forwards through the generated upsert client per-batch with stderr progress lines."
+      "validated_outcome": "Builds, registers under `records` group, forwards each batch through the generated upsert client with stderr progress lines, and on mid-run failure emits a `partial_results` JSON event to stderr listing every batch attempted before returning the classified error."
+    },
+    {
+      "id": "airtable-dependent-unresolved-guard",
+      "summary": "Guard `syncDependentResource` against path templates that declare placeholders beyond `{ParentIDParam}`. Skips the dependent with a structured `sync_warning` (mirroring the existing `syncResource` hierarchical-API guard) instead of firing HTTP requests with literal `{tableIdOrName}`/`{recordId}`/`{webhookId}` segments.",
+      "reason": "Airtable's records / comments / webhook-payloads dependents each require multi-level enumeration (tables-per-base, records-per-table, webhook-IDs-per-base) the current sync loop does not perform. Without this guard the dependent pass silently produced zero rows and 404s on every parent; Greptile P1 review (PR #829) called this out. The guard keeps `sync` honest while leaving room for a future enumeration walker to fill those placeholders properly.",
+      "files": ["internal/cli/sync.go"],
+      "validated_outcome": "`go build`, `go vet`, and `go test ./...` all pass; the dependent loop emits a `sync_warning` with `reason=dependent_path_unresolved` listing the unresolved keys instead of issuing the bad request."
     }
   ]
 }

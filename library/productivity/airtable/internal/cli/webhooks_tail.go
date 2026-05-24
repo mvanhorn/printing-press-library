@@ -78,6 +78,7 @@ streams payloads as ndjson to stdout, persists cursor between runs.`,
 
 			sig := make(chan os.Signal, 1)
 			signal.Notify(sig, syscall.SIGTERM, syscall.SIGINT)
+			defer signal.Stop(sig)
 			ticker := time.NewTicker(interval)
 			defer ticker.Stop()
 

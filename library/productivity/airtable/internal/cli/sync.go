@@ -1260,6 +1260,48 @@ func syncDependentResource(ctx context.Context, c interface {
 		// Build child endpoint path by replacing the param placeholder
 		path := strings.Replace(dep.PathTemplate, "{"+dep.ParentIDParam+"}", parentID, 1)
 
+		// Guard: dependent resources whose path templates declare additional
+		// placeholders beyond {ParentIDParam} cannot be synced from the parent
+		// table alone. Skip them with a structured warning rather than firing
+		// HTTP requests with literal "{...}" segments in the URL. This matches
+		// the unresolved-placeholder guard pattern from syncResource (the
+		// hierarchical-API skip used by Yahoo Fantasy, Reddit, YouTube) and
+		// prevents silent zero-row outcomes for the records / comments /
+		// webhook-payloads dependents on Airtable, where each path requires
+		// an additional enumeration (tables-per-base, records-per-table,
+		// webhook-IDs-per-base) that the current sync loop does not perform.
+		// PATCH(airtable-dependent-unresolved-guard).
+		if missingKeys := unresolvedPathKeyRE.FindAllString(path, -1); len(missingKeys) > 0 {
+			if humanFriendly {
+				fmt.Fprintf(os.Stderr, "\n  %s: skipping (path requires %s — multi-level enumeration not yet implemented for this dependent)\n", dep.Name, strings.Join(missingKeys, ", "))
+			} else {
+				payload := struct {
+					Event    string   `json:"event"`
+					Resource string   `json:"resource"`
+					Reason   string   `json:"reason"`
+					Keys     []string `json:"keys"`
+					Parent   string   `json:"parent"`
+					Path     string   `json:"path"`
+					Message  string   `json:"message"`
+				}{
+					Event:    "sync_warning",
+					Resource: dep.Name,
+					Reason:   "dependent_path_unresolved",
+					Keys:     missingKeys,
+					Parent:   parentID,
+					Path:     path,
+					Message:  fmt.Sprintf("dependent path %s requires additional enumeration (%s); skipped", path, strings.Join(missingKeys, ", ")),
+				}
+				payloadJSON, _ := json.Marshal(payload)
+				fmt.Fprintf(syncEvents, "%s\n", payloadJSON)
+			}
+			return syncResult{
+				Resource: dep.Name,
+				Duration: time.Since(started),
+				Warn:     fmt.Errorf("dependent path requires additional enumeration (%s); skipped", strings.Join(missingKeys, ", ")),
+			}
+		}
+
 		if humanFriendly {
 			fmt.Fprintf(os.Stderr, "\r  %s: syncing for %s (%d/%d parents)", dep.Name, dep.ParentTable, idx+1, len(parentIDs))
 		}
