@@ -1,0 +1,47 @@
+{
+  "manifest_version": "0.3",
+  "name": "adguard-home-pp-mcp",
+  "display_name": "AdGuard Home",
+  "version": "4.8.0",
+  "description": "DNS-level ad/tracker/malware blocking via AdGuard Home REST API for self-hosted network DNS management",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/adguard-home-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/adguard-home-pp-mcp",
+      "args": [],
+      "env": {
+        "ADGUARD_HOME_PASSWORD": "${user_config.adguard_home_password}",
+        "ADGUARD_HOME_USERNAME": "${user_config.adguard_home_username}"
+      }
+    }
+  },
+  "user_config": {
+    "adguard_home_password": {
+      "type": "string",
+      "title": "ADGUARD_HOME_PASSWORD",
+      "description": "Sets ADGUARD_HOME_PASSWORD for the AdGuard Home MCP server.",
+      "sensitive": true,
+      "required": true
+    },
+    "adguard_home_username": {
+      "type": "string",
+      "title": "ADGUARD_HOME_USERNAME",
+      "description": "Sets ADGUARD_HOME_USERNAME for the AdGuard Home MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
