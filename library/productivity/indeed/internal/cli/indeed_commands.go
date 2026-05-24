@@ -302,7 +302,9 @@ func newSearchCmd(flags *rootFlags) *cobra.Command {
 		Annotations: map[string]string{"mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			f.Query = strings.TrimSpace(strings.Join(args, " "))
-			if f.Query == "" && f.Location == "" {
+			// --remote alone is a valid invocation (buildSearchParams maps it to
+			// l=Remote), so don't fall through to help when only --remote is set.
+			if f.Query == "" && f.Location == "" && !f.Remote {
 				return cmd.Help()
 			}
 			if f.JobType != "" && !validJobTypes[f.JobType] {
@@ -753,9 +755,7 @@ func newNewCmd(flags *rootFlags) *cobra.Command {
 			}
 			firstRun := len(ss.SeenKeys) == 0
 			var fresh []indeedparse.Job
-			allKeys := make([]string, 0, len(jobs))
 			for _, j := range jobs {
-				allKeys = append(allKeys, j.Key)
 				if !seen[j.Key] {
 					fresh = append(fresh, j)
 				}
