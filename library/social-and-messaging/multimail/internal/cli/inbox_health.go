@@ -85,15 +85,27 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 					`SELECT COUNT(*) FROM mailboxes_emails WHERE mailboxes_id = ?`, mb.ID)
 				_ = totalRow.Scan(&totalEmails)
 
-				// Unread count
+				// Unread count — check whether the 'read' field exists in any
+				// email for this mailbox; only fall back to 'is_read' when the
+				// primary field is absent entirely (not when the count is zero,
+				// which is a legitimate "all read" state).
 				var unreadCount int
-				unreadRow := db.DB().QueryRowContext(cmd.Context(),
+				var hasReadField int
+				readFieldCheck := db.DB().QueryRowContext(cmd.Context(),
 					`SELECT COUNT(*) FROM mailboxes_emails
 					WHERE mailboxes_id = ?
-					AND json_extract(data, '$.read') IS NOT NULL
-					AND json_extract(data, '$.read') = 0`, mb.ID)
-				// Fallback: try 'is_read' field if 'read' doesn't exist
-				if err := unreadRow.Scan(&unreadCount); err != nil || unreadCount == 0 {
+					AND json_extract(data, '$.read') IS NOT NULL`, mb.ID)
+				_ = readFieldCheck.Scan(&hasReadField)
+
+				if hasReadField > 0 {
+					// Primary field exists — count unread via 'read'
+					unreadRow := db.DB().QueryRowContext(cmd.Context(),
+						`SELECT COUNT(*) FROM mailboxes_emails
+						WHERE mailboxes_id = ?
+						AND json_extract(data, '$.read') = 0`, mb.ID)
+					_ = unreadRow.Scan(&unreadCount)
+				} else {
+					// Fallback: 'read' field absent — try 'is_read'
 					unreadFallback := db.DB().QueryRowContext(cmd.Context(),
 						`SELECT COUNT(*) FROM mailboxes_emails
 						WHERE mailboxes_id = ?

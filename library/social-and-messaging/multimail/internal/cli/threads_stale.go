@@ -85,8 +85,6 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 			if err != nil {
 				return fmt.Errorf("querying threads: %w", err)
 			}
-			defer threadRows.Close()
-
 			var results []staleThreadRow
 			for threadRows.Next() {
 				var id, mailboxID string
@@ -166,6 +164,7 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 					MessageCount: msgCount,
 				})
 			}
+			threadRows.Close()
 
 			// Sort by stale_days descending — most stale first
 			sort.Slice(results, func(i, j int) bool {

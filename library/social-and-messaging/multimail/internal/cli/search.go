@@ -136,9 +136,27 @@ In local mode: searches locally synced data only.`,
 				// Search all resource types via FTS
 				results, err = db.Search(query, limit)
 			default:
-				// Specific type — still use generic search (type filtering
-				// can be layered later if the store supports it)
-				results, err = db.Search(query, limit)
+				// Search filtered by resource type via FTS + type constraint
+				rows, qerr := db.DB().QueryContext(cmd.Context(),
+					`SELECT r.data FROM resources r
+					 JOIN resources_fts f ON r.id = f.id AND r.resource_type = f.resource_type
+					 WHERE resources_fts MATCH ?
+					 AND r.resource_type = ?
+					 ORDER BY rank
+					 LIMIT ?`,
+					query, resourceType, limit)
+				if qerr != nil {
+					err = qerr
+				} else {
+					for rows.Next() {
+						var data string
+						if rows.Scan(&data) == nil {
+							results = append(results, json.RawMessage(data))
+						}
+					}
+					rows.Close()
+					err = rows.Err()
+				}
 			}
 			if err != nil {
 				return fmt.Errorf("search failed: %w", err)
