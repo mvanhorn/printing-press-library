@@ -21,6 +21,14 @@
         "internal/cli/gcal_book.go"
       ],
       "validated_outcome": "All eight commands resolve as leaf commands; novel_features_check reports planned 7 / found 7 (book is the conflict-guarded create); shipcheck 6/6 PASS, scorecard 90/100."
+    },
+    {
+      "id": "mcpb-manifest-auth-env",
+      "summary": "Add user_config + server.mcp_config.env to the MCPB manifest.json for the three OAuth2 env vars (GOOGLE_CALENDAR_CLIENT_ID/SECRET/TOKEN).",
+      "reason": "cli-printing-press v4.14.0 emitted an MCPB manifest.json with no user_config block and no server.mcp_config.env for this composed OAuth2 (auth_flow_input + harvested) auth shape, so the library MCPB-contract verifier failed (env missing entries). Likely a generator gap for non-bearer composed auth; fixed in the published artifact. Retro candidate.",
+      "files": [
+        "manifest.json"
+      ]
     }
   ]
 }

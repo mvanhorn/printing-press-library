@@ -13,7 +13,12 @@
     "entry_point": "bin/google-calendar-pp-mcp",
     "mcp_config": {
       "command": "${__dirname}/bin/google-calendar-pp-mcp",
-      "args": []
+      "args": [],
+      "env": {
+        "GOOGLE_CALENDAR_CLIENT_ID": "${user_config.google_calendar_client_id}",
+        "GOOGLE_CALENDAR_CLIENT_SECRET": "${user_config.google_calendar_client_secret}",
+        "GOOGLE_CALENDAR_TOKEN": "${user_config.google_calendar_token}"
+      }
     }
   },
   "compatibility": {
@@ -23,5 +28,28 @@
       "linux",
       "win32"
     ]
+  },
+  "user_config": {
+    "google_calendar_client_id": {
+      "type": "string",
+      "title": "GOOGLE_CALENDAR_CLIENT_ID",
+      "description": "OAuth2 client ID from your Google Cloud project. Used by auth login.",
+      "sensitive": false,
+      "required": true
+    },
+    "google_calendar_client_secret": {
+      "type": "string",
+      "title": "GOOGLE_CALENDAR_CLIENT_SECRET",
+      "description": "OAuth2 client secret from your Google Cloud project. Used by auth login.",
+      "sensitive": true,
+      "required": true
+    },
+    "google_calendar_token": {
+      "type": "string",
+      "title": "GOOGLE_CALENDAR_TOKEN",
+      "description": "OAuth2 access token, populated automatically by auth login.",
+      "sensitive": true,
+      "required": false
+    }
   }
 }
