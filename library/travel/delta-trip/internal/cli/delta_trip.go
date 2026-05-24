@@ -316,7 +316,7 @@ func printCheckinStatus(w io.Writer, trip *delta.TripResult, flags *rootFlags) e
 		}
 
 		checkinOpen := depTime.Add(-24 * time.Hour)
-		isOpen := !depTime.IsZero() && now.After(checkinOpen)
+		isOpen := !depTime.IsZero() && now.After(checkinOpen) && now.Before(depTime)
 		openAt := "unknown"
 		var opensInSecs int64
 		if !depTime.IsZero() {

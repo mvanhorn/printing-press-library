@@ -38,7 +38,9 @@ func GetTrip(ctx context.Context, confirmationNo, firstName, lastName string) (*
 	}
 	defer cleanup()
 
-	browser = browser.Context(ctx)
+	// Do NOT bind the browser to ctx via browser.Context(ctx): that attaches CDP
+	// event subscriptions to the context and causes premature teardown when the
+	// deadline approaches, breaking the DOM-scrape fallback path.
 	page, err := browser.Page(proto.TargetCreateTarget{URL: ""})
 	if err != nil {
 		return nil, fmt.Errorf("opening browser tab: %w", err)
