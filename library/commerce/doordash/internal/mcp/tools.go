@@ -132,6 +132,23 @@ type mcpParamBinding struct {
 	Location   string
 }
 
+// PATCH(greptile PR #784): MCP clients pass GraphQL variables through a string
+// schema, but the GraphQL HTTP body must contain variables as a JSON object.
+func normalizeMCPBodyValue(wireName string, v any) (any, error) {
+	if wireName != "variables" {
+		return v, nil
+	}
+	s, ok := v.(string)
+	if !ok {
+		return v, nil
+	}
+	var parsed map[string]any
+	if err := json.Unmarshal([]byte(s), &parsed); err != nil {
+		return nil, fmt.Errorf("parsing variables JSON: %w", err)
+	}
+	return parsed, nil
+}
+
 // makeAPIHandler creates a generic MCP tool handler for an API endpoint.
 func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, positionalParams []string) server.ToolHandlerFunc {
 	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
@@ -165,7 +182,11 @@ func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, pos
 				pathParams[binding.PublicName] = true
 				path = strings.Replace(path, placeholder, fmt.Sprintf("%v", v), 1)
 			case "body":
-				bodyArgs[binding.WireName] = v
+				bodyValue, err := normalizeMCPBodyValue(binding.WireName, v)
+				if err != nil {
+					return mcplib.NewToolResultError(err.Error()), nil
+				}
+				bodyArgs[binding.WireName] = bodyValue
 			default:
 				params[binding.WireName] = fmt.Sprintf("%v", v)
 			}
@@ -187,7 +208,11 @@ func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, pos
 			}
 			switch method {
 			case "POST", "PUT", "PATCH":
-				bodyArgs[k] = v
+				bodyValue, err := normalizeMCPBodyValue(k, v)
+				if err != nil {
+					return mcplib.NewToolResultError(err.Error()), nil
+				}
+				bodyArgs[k] = bodyValue
 			default:
 				params[k] = fmt.Sprintf("%v", v)
 			}
