@@ -25,12 +25,13 @@ func newBudgetCmd(flags *rootFlags) *cobra.Command {
 	var model string
 	cmd := &cobra.Command{
 		Use:   "budget",
-		Short: "Probe Ollama Cloud free-tier quota; surface 429 weekly cap before workflows blow up",
+		Short: "Probe Ollama Cloud weekly-cap quota (free + paid tiers); surface 429 before workflows blow up",
 		Long: strings.TrimSpace(`
-Sends a 1-token chat probe to detect free-tier weekly cap exhaustion. Parses
-the 429 prose ("you have reached your weekly usage limit, upgrade for higher
-limits") and emits a structured verdict so agents can pre-flight quota before
-launching a long session.
+Sends a 1-token chat probe to detect weekly cap exhaustion. Parses the 429
+prose ("you have reached your weekly usage limit, upgrade for higher limits")
+and emits a structured verdict so agents can pre-flight quota before launching
+a long session. The same 429 prose appears on free AND paid tiers (paid =
+higher cap, not unlimited; verified 2026-05-24).
 
 Verdicts: ok | exhausted | unknown. exhausted surfaces the upgrade URL so the
 caller has an actionable next step.
