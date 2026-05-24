@@ -17,9 +17,9 @@
       "files": ["internal/cli/recap.go"]
     },
     {
-      "id": "team-approval-rfc3339-parse-fallback",
-      "summary": "team timesheets: treat an unparseable approval DateRange.Start as 'exclude from this week' instead of falling through, so a malformed timestamp no longer credits the approval to every week queried.",
-      "reason": "Greptile pass-3 (logic). The approval week-range filter parsed DateRange.Start as RFC3339 but had no fallback when parsing failed; on parse error it fell through and the approval was added to stateByUser for the current week, so a single malformed Start inflated 'submitted' counts across every week the loop visited. Fix: continue on parse error.",
+      "id": "team-approval-start-week-guard",
+      "summary": "team timesheets: skip approvals whose DateRange.Start is empty or unparseable instead of crediting them to every week queried, so a single bad Start no longer ghost-inflates 'submitted' counts.",
+      "reason": "Greptile pass-3 and pass-4 (logic). The week-range filter only ran when Start was non-empty and only acted when the RFC3339 parse succeeded; on either empty Start or parse failure, execution fell through and stateByUser[uid] was set for whichever week the loop was on, so a single approval with a missing or malformed Start appeared 'submitted' across every week the loop visited. Fix: continue on Start == \"\" before the parse, continue on parse error after — both treated as 'exclude this approval from this week'.",
       "files": ["internal/cli/team.go"]
     }
   ]

@@ -125,15 +125,16 @@ Reads the local store — run 'clockify-pp-cli sync' for fresh data.`,
 				if uid == "" {
 					continue
 				}
-				if a.DateRange.Start != "" {
-					t, err := time.Parse(time.RFC3339, a.DateRange.Start)
-					if err != nil {
-						continue // unparseable Start — exclude from this week rather than crediting every week queried
-					}
-					t = t.Local()
-					if t.Before(ws) || !t.Before(weekEnd) {
-						continue // a different week
-					}
+				if a.DateRange.Start == "" {
+					continue // no Start — can't place this approval in a week, exclude rather than credit every week queried
+				}
+				t, err := time.Parse(time.RFC3339, a.DateRange.Start)
+				if err != nil {
+					continue // unparseable Start — same exclusion
+				}
+				t = t.Local()
+				if t.Before(ws) || !t.Before(weekEnd) {
+					continue // a different week
 				}
 				stateByUser[uid] = strings.ToUpper(a.Status.State)
 			}
