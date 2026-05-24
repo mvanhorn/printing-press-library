@@ -1,0 +1,1821 @@
+openapi: 3.0.3
+info:
+  title: Synology DSM API
+  description: >-
+    REST API for Synology DiskStation Manager (DSM 7.x). All API calls are dispatched
+    through /webapi/entry.cgi with api, method, and version query parameters.
+    Authentication uses session-based SID tokens. Use 'auth set-token' to save your SID,
+    or set SYNOLOGY_DSM_SIDCOOKIE env var. Obtain a SID via 'webapi login'.
+  version: "7.0.0"
+  contact:
+    name: Synology Community
+    url: https://github.com/synology-community/go-synology
+
+servers:
+  - url: http://{host}:{port}
+    variables:
+      host:
+        default: "100.98.82.96"
+        description: NAS hostname or IP (set via SYNOLOGY_DSM_HOST)
+      port:
+        default: "5000"
+        enum:
+          - "5000"
+          - "5001"
+
+security:
+  - SIDCookie: []
+
+components:
+  securitySchemes:
+    SIDCookie:
+      type: apiKey
+      in: header
+      name: Cookie
+      x-auth-env-vars:
+        - SYNOLOGY_DSM_SIDCOOKIE
+      x-auth-title: Synology DSM Session Cookie
+      x-auth-description: >-
+        DSM session ID obtained via 'webapi login'. Format: id=<SID>.
+        Run 'synology-dsm-pp-cli webapi login --account ADMIN --passwd PASS' to get a SID,
+        then save it with 'auth set-token id=<SID_VALUE>'.
+
+  schemas:
+    SynoResponse:
+      type: object
+      required: [success]
+      properties:
+        success:
+          type: boolean
+        error:
+          type: object
+          properties:
+            code:
+              type: integer
+        data:
+          type: object
+
+    LoginData:
+      type: object
+      properties:
+        sid:
+          type: string
+          description: Session ID for subsequent API calls — save as Cookie header value
+        did:
+          type: string
+        synotoken:
+          type: string
+
+    LoginResponse:
+      allOf:
+        - $ref: '#/components/schemas/SynoResponse'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/LoginData'
+
+    DSMInfoData:
+      type: object
+      properties:
+        model:
+          type: string
+        ram:
+          type: integer
+          description: RAM size in MB
+        serial:
+          type: string
+        version:
+          type: string
+        version_string:
+          type: string
+        uptime:
+          type: integer
+          description: Uptime in seconds
+        codename:
+          type: string
+        cpu_clock_speed:
+          type: integer
+        cpu_cores:
+          type: integer
+        cpu_family:
+          type: string
+        cpu_series:
+          type: string
+
+    BackupTask:
+      type: object
+      properties:
+        task_id:
+          type: integer
+        task_name:
+          type: string
+        dest_type:
+          type: string
+        enable:
+          type: boolean
+        next_bkp_time:
+          type: integer
+        action:
+          type: string
+
+    BackupTaskStatus:
+      type: object
+      properties:
+        task_id:
+          type: integer
+        action:
+          type: string
+        finished:
+          type: boolean
+        percent:
+          type: number
+        transfer:
+          type: integer
+        speed:
+          type: integer
+        total_size:
+          type: integer
+        start_time:
+          type: integer
+        elapsed:
+          type: integer
+        transferred_size:
+          type: integer
+
+    BackupRepository:
+      type: object
+      properties:
+        repo_id:
+          type: integer
+        repo_name:
+          type: string
+        storage_type:
+          type: string
+        status:
+          type: string
+
+    StorageDisk:
+      type: object
+      properties:
+        name:
+          type: string
+        id:
+          type: string
+        model:
+          type: string
+        serial:
+          type: string
+        size_total:
+          type: string
+        status:
+          type: string
+        temp:
+          type: integer
+        type:
+          type: string
+        vendor:
+          type: string
+        firm:
+          type: string
+        exceed_bad_sector_thr:
+          type: boolean
+        below_remain_life_thr:
+          type: boolean
+        has_system:
+          type: boolean
+        is_ssd:
+          type: boolean
+        longName:
+          type: string
+
+    StoragePool:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        status:
+          type: string
+        size_total:
+          type: string
+        size_used:
+          type: string
+        size_free:
+          type: string
+        raid_type:
+          type: string
+
+    StorageVolume:
+      type: object
+      properties:
+        id:
+          type: string
+        device_type:
+          type: string
+        desc:
+          type: string
+        size_total:
+          type: string
+        size_used:
+          type: string
+        status:
+          type: string
+        fs_type:
+          type: string
+        mount_point:
+          type: string
+
+    TaskSchedulerTask:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        real_owner:
+          type: string
+        enable:
+          type: boolean
+        next_trigger_time:
+          type: string
+        type:
+          type: string
+        action:
+          type: string
+        schedule:
+          type: object
+
+    DockerContainer:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        image:
+          type: string
+        status:
+          type: string
+        running:
+          type: boolean
+        ports:
+          type: array
+          items:
+            type: object
+        created:
+          type: integer
+        memory:
+          type: integer
+
+    DockerImage:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        tag:
+          type: string
+        size:
+          type: integer
+        created:
+          type: integer
+
+    FileShareInfo:
+      type: object
+      properties:
+        name:
+          type: string
+        path:
+          type: string
+        vol_path:
+          type: string
+        desc:
+          type: string
+        isdir:
+          type: boolean
+
+    FileInfo:
+      type: object
+      properties:
+        name:
+          type: string
+        path:
+          type: string
+        isdir:
+          type: boolean
+        size:
+          type: integer
+        time:
+          type: object
+          properties:
+            atime:
+              type: integer
+            ctime:
+              type: integer
+            mtime:
+              type: integer
+
+paths:
+  # ─── Authentication ───────────────────────────────────────────────────────
+  /webapi/entry.cgi/auth/login:
+    get:
+      operationId: Login
+      summary: Log in and obtain a DSM session ID (SID)
+      description: >-
+        Authenticate with DSM and obtain a session ID (SID).
+        After login, save the returned sid with: auth set-token id=<SID_VALUE>
+      tags: [auth]
+      security: []
+      parameters:
+        - name: api
+          in: query
+          schema:
+            type: string
+            default: "SYNO.API.Auth"
+          description: "DSM API name (constant: SYNO.API.Auth)"
+        - name: version
+          in: query
+          schema:
+            type: string
+            default: "6"
+          description: "API version (constant: 6)"
+        - name: method
+          in: query
+          schema:
+            type: string
+            default: "login"
+          description: "API method (constant: login)"
+        - name: account
+          in: query
+          required: true
+          description: DSM admin username (e.g. admin)
+          schema:
+            type: string
+            example: admin
+        - name: passwd
+          in: query
+          required: true
+          description: DSM admin password
+          schema:
+            type: string
+            format: password
+        - name: format
+          in: query
+          schema:
+            type: string
+            enum: [sid, cookie]
+            default: sid
+          description: Response format (sid returns the SID in the response body)
+        - name: enable_syno_token
+          in: query
+          schema:
+            type: string
+            enum: [yes, no]
+            default: yes
+          description: Also return a CSRF token for write operations
+      responses:
+        "200":
+          description: Authentication response containing sid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+
+  /webapi/entry.cgi/auth/logout:
+    get:
+      operationId: Logout
+      summary: Log out and invalidate the current session
+      tags: [auth]
+      parameters:
+        - name: api
+          in: query
+          schema:
+            type: string
+            default: "SYNO.API.Auth"
+          description: "DSM API name (constant: SYNO.API.Auth)"
+        - name: version
+          in: query
+          schema:
+            type: string
+            default: "6"
+          description: "API version (constant: 6)"
+        - name: method
+          in: query
+          schema:
+            type: string
+            default: "logout"
+          description: "API method (constant: logout)"
+      responses:
+        "200":
+          description: Logout response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SynoResponse'
+
+  # ─── System Info ─────────────────────────────────────────────────────────
+  /webapi/entry.cgi/dsm/info:
+    get:
+      operationId: GetDSMInfo
+      summary: Get DSM system information — model, version, uptime, CPU
+      tags: [system]
+      parameters:
+        - name: api
+          in: query
+          schema:
+            type: string
+            default: "SYNO.DSM.Info"
+          description: "DSM API name (constant: SYNO.DSM.Info)"
+        - name: version
+          in: query
+          schema:
+            type: string
+            default: "2"
+          description: "API version (constant: 2)"
+        - name: method
+          in: query
+          schema:
+            type: string
+            default: "getinfo"
+          description: "API method (constant: getinfo)"
+      responses:
+        "200":
+          description: DSM system info
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SynoResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/DSMInfoData'
+
+  /webapi/entry.cgi/system/utilization:
+    get:
+      operationId: GetSystemUtilization
+      summary: Get real-time CPU, memory, network, and disk utilization
+      tags: [system]
+      parameters:
+        - name: api
+          in: query
+          schema:
+            type: string
+            default: "SYNO.Core.System.Utilization"
+          description: "DSM API name (constant: SYNO.Core.System.Utilization)"
+        - name: version
+          in: query
+          schema:
+            type: string
+            default: "1"
+          description: "API version (constant: 1)"
+        - name: method
+          in: query
+          schema:
+            type: string
+            default: "get"
+          description: "API method (constant: get)"
+        - name: type
+          in: query
+          description: Resource sample type
+          schema:
+            type: string
+            enum: [current, history]
+            default: current
+      responses:
+        "200":
+          description: System utilization stats
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SynoResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          cpu:
+                            type: object
+                            properties:
+                              user_load:
+                                type: integer
+                              system_load:
+                                type: integer
+                              other_load:
+                                type: integer
+                          memory:
+                            type: object
+                            properties:
+                              avail_real:
+                                type: integer
+                              real_usage:
+                                type: integer
+                              total_real:
+                                type: integer
+
+  # ─── Hyper Backup ────────────────────────────────────────────────────────
+  /webapi/entry.cgi/backup/task/list:
+    get:
+      operationId: ListBackupTasks
+      summary: List all Hyper Backup tasks with schedule and destination info
+      tags: [backup]
+      parameters:
+        - name: api
+          in: query
+          schema:
+            type: string
+            default: "SYNO.Backup.Task"
+          description: "DSM API name (constant: SYNO.Backup.Task)"
+        - name: version
+          in: query
+          schema:
+            type: string
+            default: "1"
+          description: "API version (constant: 1)"
+        - name: method
+          in: query
+          schema:
+            type: string
+            default: "list"
+          description: "API method (constant: list)"
+      responses:
+        "200":
+          description: List of Hyper Backup tasks
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SynoResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          tasks:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/BackupTask'
+                          total:
+                            type: integer
+
+  /webapi/entry.cgi/backup/task/get:
+    get:
+      operationId: GetBackupTask
+      summary: Get details for a specific Hyper Backup task
+      tags: [backup]
+      parameters:
+        - name: api
+          in: query
+          schema:
+            type: string
+            default: "SYNO.Backup.Task"
+          description: "DSM API name (constant: SYNO.Backup.Task)"
+        - name: version
+          in: query
+          schema:
+            type: string
+            default: "1"
+          description: "API version (constant: 1)"
+        - name: method
+          in: query
+          schema:
+            type: string
+            default: "get"
+          description: "API method (constant: get)"
+        - name: task_id
+          in: query
+          required: true
+          description: Backup task ID from list-backup-tasks (e.g. 1, 2, 3)
+          schema:
+            type: string
+            example: "1"
+      responses:
+        "200":
+          description: Backup task details
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SynoResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/BackupTask'
+
+  /webapi/entry.cgi/backup/task/status:
+    get:
+      operationId: GetBackupTaskStatus
+      summary: Get current status and progress of a Hyper Backup task
+      tags: [backup]
+      parameters:
+        - name: api
+          in: query
+          schema:
+            type: string
+            default: "SYNO.Backup.Task"
+          description: "DSM API name (constant: SYNO.Backup.Task)"
+        - name: version
+          in: query
+          schema:
+            type: string
+            default: "1"
+          description: "API version (constant: 1)"
+        - name: method
+          in: query
+          schema:
+            type: string
+            default: "status"
+          description: "API method (constant: status)"
+        - name: task_id
+          in: query
+          required: true
+          description: Backup task ID from list-backup-tasks (e.g. 1, 2, 3)
+          schema:
+            type: string
+            example: "1"
+      responses:
+        "200":
+          description: Backup task status and progress
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SynoResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/BackupTaskStatus'
+
+  /webapi/entry.cgi/backup/task/run:
+    post:
+      operationId: RunBackupTask
+      summary: Trigger an immediate Hyper Backup for a task
+      tags: [backup]
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required: [task_id]
+              properties:
+                api:
+                  type: string
+                  default: "SYNO.Backup.Task"
+                  description: "DSM API name (constant: SYNO.Backup.Task)"
+                version:
+                  type: string
+                  default: "1"
+                  description: "API version (constant: 1)"
+                method:
+                  type: string
+                  default: "backup"
+                  description: "API method (constant: backup)"
+                task_id:
+                  type: string
+                  description: Backup task ID to trigger (e.g. 1, 2, 3)
+                  example: "1"
+      responses:
+        "200":
+          description: Backup triggered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SynoResponse'
+
+  /webapi/entry.cgi/backup/task/cancel:
+    post:
+      operationId: CancelBackupTask
+      summary: Cancel an in-progress Hyper Backup task
+      tags: [backup]
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required: [task_id]
+              properties:
+                api:
+                  type: string
+                  default: "SYNO.Backup.Task"
+                  description: "DSM API name (constant: SYNO.Backup.Task)"
+                version:
+                  type: string
+                  default: "1"
+                  description: "API version (constant: 1)"
+                method:
+                  type: string
+                  default: "cancel"
+                  description: "API method (constant: cancel)"
+                task_id:
+                  type: string
+                  description: Backup task ID to cancel (e.g. 1, 2, 3)
+                  example: "1"
+      responses:
+        "200":
+          description: Backup cancelled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SynoResponse'
+
+  /webapi/entry.cgi/backup/repository/list:
+    get:
+      operationId: ListBackupRepositories
+      summary: List all Hyper Backup repositories (destinations)
+      tags: [backup]
+      parameters:
+        - name: api
+          in: query
+          schema:
+            type: string
+            default: "SYNO.Backup.Repository"
+          description: "DSM API name (constant: SYNO.Backup.Repository)"
+        - name: version
+          in: query
+          schema:
+            type: string
+            default: "1"
+          description: "API version (constant: 1)"
+        - name: method
+          in: query
+          schema:
+            type: string
+            default: "list"
+          description: "API method (constant: list)"
+      responses:
+        "200":
+          description: List of backup repositories
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SynoResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          repositories:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/BackupRepository'
+
+  # ─── Storage ─────────────────────────────────────────────────────────────
+  /webapi/entry.cgi/storage/disk/list:
+    get:
+      operationId: ListStorageDisks
+      summary: List all disks with health status, temperature, and SMART indicators
+      tags: [storage]
+      parameters:
+        - name: api
+          in: query
+          schema:
+            type: string
+            default: "SYNO.Core.Storage.Disk"
+          description: "DSM API name (constant: SYNO.Core.Storage.Disk)"
+        - name: version
+          in: query
+          schema:
+            type: string
+            default: "1"
+          description: "API version (constant: 1)"
+        - name: method
+          in: query
+          schema:
+            type: string
+            default: "list"
+          description: "API method (constant: list)"
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: -1
+          description: Max results (-1 for all)
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        "200":
+          description: List of storage disks
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SynoResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          disks:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/StorageDisk'
+                          total:
+                            type: integer
+
+  /webapi/entry.cgi/storage/disk/get:
+    get:
+      operationId: GetStorageDisk
+      summary: Get detailed information for a specific disk including SMART data
+      tags: [storage]
+      parameters:
+        - name: api
+          in: query
+          schema:
+            type: string
+            default: "SYNO.Core.Storage.Disk"
+          description: "DSM API name (constant: SYNO.Core.Storage.Disk)"
+        - name: version
+          in: query
+          schema:
+            type: string
+            default: "1"
+          description: "API version (constant: 1)"
+        - name: method
+          in: query
+          schema:
+            type: string
+            default: "get"
+          description: "API method (constant: get)"
+        - name: disk_id
+          in: query
+          required: true
+          description: Disk slot ID, e.g. disk1, disk2, disk3
+          schema:
+            type: string
+            example: disk1
+      responses:
+        "200":
+          description: Disk details
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SynoResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/StorageDisk'
+
+  /webapi/entry.cgi/storage/pool/list:
+    get:
+      operationId: ListStoragePools
+      summary: List all storage pools (RAID groups) with health and usage
+      tags: [storage]
+      parameters:
+        - name: api
+          in: query
+          schema:
+            type: string
+            default: "SYNO.Core.Storage.Pool"
+          description: "DSM API name (constant: SYNO.Core.Storage.Pool)"
+        - name: version
+          in: query
+          schema:
+            type: string
+            default: "1"
+          description: "API version (constant: 1)"
+        - name: method
+          in: query
+          schema:
+            type: string
+            default: "list"
+          description: "API method (constant: list)"
+      responses:
+        "200":
+          description: List of storage pools
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SynoResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          pools:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/StoragePool'
+                          total:
+                            type: integer
+
+  /webapi/entry.cgi/storage/volume/list:
+    get:
+      operationId: ListStorageVolumes
+      summary: List all storage volumes with usage and mount point
+      tags: [storage]
+      parameters:
+        - name: api
+          in: query
+          schema:
+            type: string
+            default: "SYNO.Core.Storage.Volume"
+          description: "DSM API name (constant: SYNO.Core.Storage.Volume)"
+        - name: version
+          in: query
+          schema:
+            type: string
+            default: "1"
+          description: "API version (constant: 1)"
+        - name: method
+          in: query
+          schema:
+            type: string
+            default: "list"
+          description: "API method (constant: list)"
+      responses:
+        "200":
+          description: List of storage volumes
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SynoResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          volumes:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/StorageVolume'
+                          total:
+                            type: integer
+
+  /webapi/entry.cgi/storage/volume/get:
+    get:
+      operationId: GetStorageVolume
+      summary: Get details for a specific volume
+      tags: [storage]
+      parameters:
+        - name: api
+          in: query
+          schema:
+            type: string
+            default: "SYNO.Core.Storage.Volume"
+          description: "DSM API name (constant: SYNO.Core.Storage.Volume)"
+        - name: version
+          in: query
+          schema:
+            type: string
+            default: "1"
+          description: "API version (constant: 1)"
+        - name: method
+          in: query
+          schema:
+            type: string
+            default: "get"
+          description: "API method (constant: get)"
+        - name: volume_path
+          in: query
+          required: true
+          description: Volume mount path (e.g. /volume1)
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Volume details
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SynoResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/StorageVolume'
+
+  # ─── Task Scheduler ───────────────────────────────────────────────────────
+  /webapi/entry.cgi/taskscheduler/task/list:
+    get:
+      operationId: ListScheduledTasks
+      summary: List all Task Scheduler tasks with schedule and enable status
+      tags: [task-scheduler]
+      parameters:
+        - name: api
+          in: query
+          schema:
+            type: string
+            default: "SYNO.Core.TaskScheduler"
+          description: "DSM API name (constant: SYNO.Core.TaskScheduler)"
+        - name: version
+          in: query
+          schema:
+            type: string
+            default: "4"
+          description: "API version (constant: 4)"
+        - name: method
+          in: query
+          schema:
+            type: string
+            default: "list"
+          description: "API method (constant: list)"
+        - name: real_owner
+          in: query
+          description: Filter by task owner (root, admin, or username)
+          schema:
+            type: string
+        - name: sort_by
+          in: query
+          schema:
+            type: string
+            enum: [name, real_owner, next_trigger_time, type, enable]
+            default: name
+        - name: sort_direction
+          in: query
+          schema:
+            type: string
+            enum: [ASC, DESC]
+            default: ASC
+      responses:
+        "200":
+          description: List of scheduled tasks
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SynoResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          tasks:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/TaskSchedulerTask'
+                          total:
+                            type: integer
+
+  /webapi/entry.cgi/taskscheduler/task/get:
+    get:
+      operationId: GetScheduledTask
+      summary: Get configuration for a specific scheduled task
+      tags: [task-scheduler]
+      parameters:
+        - name: api
+          in: query
+          schema:
+            type: string
+            default: "SYNO.Core.TaskScheduler"
+          description: "DSM API name (constant: SYNO.Core.TaskScheduler)"
+        - name: version
+          in: query
+          schema:
+            type: string
+            default: "4"
+          description: "API version (constant: 4)"
+        - name: method
+          in: query
+          schema:
+            type: string
+            default: "get"
+          description: "API method (constant: get)"
+        - name: id
+          in: query
+          required: true
+          description: Task Scheduler task ID from list-scheduled-tasks (e.g. 1, 2, 3)
+          schema:
+            type: string
+            example: "1"
+        - name: real_owner
+          in: query
+          required: true
+          description: Task owner (root, admin, or username)
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Scheduled task configuration
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SynoResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/TaskSchedulerTask'
+
+  /webapi/entry.cgi/taskscheduler/task/run:
+    post:
+      operationId: RunScheduledTask
+      summary: Run a scheduled task immediately (outside its normal schedule)
+      tags: [task-scheduler]
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required: [id, real_owner]
+              properties:
+                api:
+                  type: string
+                  default: "SYNO.Core.TaskScheduler"
+                  description: "DSM API name (constant: SYNO.Core.TaskScheduler)"
+                version:
+                  type: string
+                  default: "4"
+                  description: "API version (constant: 4)"
+                method:
+                  type: string
+                  default: "run"
+                  description: "API method (constant: run)"
+                id:
+                  type: string
+                  description: Task Scheduler task ID (e.g. 1, 2, 3)
+                  example: "1"
+                real_owner:
+                  type: string
+                  description: Task owner (root, admin, or username)
+      responses:
+        "200":
+          description: Task triggered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SynoResponse'
+
+  /webapi/entry.cgi/taskscheduler/task/enable:
+    post:
+      operationId: SetScheduledTaskEnabled
+      summary: Enable or disable a scheduled task
+      tags: [task-scheduler]
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required: [id, real_owner, enable]
+              properties:
+                api:
+                  type: string
+                  default: "SYNO.Core.TaskScheduler"
+                  description: "DSM API name (constant: SYNO.Core.TaskScheduler)"
+                version:
+                  type: string
+                  default: "4"
+                  description: "API version (constant: 4)"
+                method:
+                  type: string
+                  default: "set_enable"
+                  description: "API method (constant: set_enable)"
+                id:
+                  type: string
+                  description: Task Scheduler task ID (e.g. 1, 2, 3)
+                  example: "1"
+                real_owner:
+                  type: string
+                  description: Task owner
+                enable:
+                  type: boolean
+                  description: true to enable, false to disable
+      responses:
+        "200":
+          description: Task enabled/disabled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SynoResponse'
+
+  /webapi/entry.cgi/taskscheduler/task/delete:
+    post:
+      operationId: DeleteScheduledTask
+      summary: Delete a scheduled task permanently
+      tags: [task-scheduler]
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required: [id, real_owner]
+              properties:
+                api:
+                  type: string
+                  default: "SYNO.Core.TaskScheduler"
+                  description: "DSM API name (constant: SYNO.Core.TaskScheduler)"
+                version:
+                  type: string
+                  default: "4"
+                  description: "API version (constant: 4)"
+                method:
+                  type: string
+                  default: "delete"
+                  description: "API method (constant: delete)"
+                id:
+                  type: string
+                  description: Task Scheduler task ID (e.g. 1, 2, 3)
+                  example: "1"
+                real_owner:
+                  type: string
+                  description: Task owner
+      responses:
+        "200":
+          description: Task deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SynoResponse'
+
+  # ─── Container Manager (Docker) ───────────────────────────────────────────
+  /webapi/entry.cgi/docker/container/list:
+    get:
+      operationId: ListContainers
+      summary: List all Docker containers with running status and image
+      tags: [containers]
+      parameters:
+        - name: api
+          in: query
+          schema:
+            type: string
+            default: "SYNO.Docker.Container"
+          description: "DSM API name (constant: SYNO.Docker.Container)"
+        - name: version
+          in: query
+          schema:
+            type: string
+            default: "2"
+          description: "API version (constant: 2)"
+        - name: method
+          in: query
+          schema:
+            type: string
+            default: "list"
+          description: "API method (constant: list)"
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: -1
+          description: Max results (-1 for all)
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: type
+          in: query
+          description: Filter by container state
+          schema:
+            type: string
+            enum: [all, running, stopped]
+            default: all
+      responses:
+        "200":
+          description: List of containers
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SynoResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          containers:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/DockerContainer'
+                          total:
+                            type: integer
+
+  /webapi/entry.cgi/docker/container/get:
+    get:
+      operationId: GetContainer
+      summary: Get detailed configuration and status for a specific container
+      tags: [containers]
+      parameters:
+        - name: api
+          in: query
+          schema:
+            type: string
+            default: "SYNO.Docker.Container"
+          description: "DSM API name (constant: SYNO.Docker.Container)"
+        - name: version
+          in: query
+          schema:
+            type: string
+            default: "2"
+          description: "API version (constant: 2)"
+        - name: method
+          in: query
+          schema:
+            type: string
+            default: "get"
+          description: "API method (constant: get)"
+        - name: name
+          in: query
+          required: true
+          description: Container name as shown in Container Manager (e.g. portainer, homeassistant)
+          schema:
+            type: string
+            example: portainer
+      responses:
+        "200":
+          description: Container details
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SynoResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/DockerContainer'
+
+  /webapi/entry.cgi/docker/container/start:
+    post:
+      operationId: StartContainer
+      summary: Start a stopped container
+      tags: [containers]
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                api:
+                  type: string
+                  default: "SYNO.Docker.Container"
+                  description: "DSM API name (constant: SYNO.Docker.Container)"
+                version:
+                  type: string
+                  default: "2"
+                  description: "API version (constant: 2)"
+                method:
+                  type: string
+                  default: "start"
+                  description: "API method (constant: start)"
+                name:
+                  type: string
+                  description: Container name
+      responses:
+        "200":
+          description: Container started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SynoResponse'
+
+  /webapi/entry.cgi/docker/container/stop:
+    post:
+      operationId: StopContainer
+      summary: Stop a running container gracefully
+      tags: [containers]
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                api:
+                  type: string
+                  default: "SYNO.Docker.Container"
+                  description: "DSM API name (constant: SYNO.Docker.Container)"
+                version:
+                  type: string
+                  default: "2"
+                  description: "API version (constant: 2)"
+                method:
+                  type: string
+                  default: "stop"
+                  description: "API method (constant: stop)"
+                name:
+                  type: string
+                  description: Container name
+      responses:
+        "200":
+          description: Container stopped
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SynoResponse'
+
+  /webapi/entry.cgi/docker/container/restart:
+    post:
+      operationId: RestartContainer
+      summary: Restart a container (stop then start)
+      tags: [containers]
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                api:
+                  type: string
+                  default: "SYNO.Docker.Container"
+                  description: "DSM API name (constant: SYNO.Docker.Container)"
+                version:
+                  type: string
+                  default: "2"
+                  description: "API version (constant: 2)"
+                method:
+                  type: string
+                  default: "restart"
+                  description: "API method (constant: restart)"
+                name:
+                  type: string
+                  description: Container name
+      responses:
+        "200":
+          description: Container restarted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SynoResponse'
+
+  /webapi/entry.cgi/docker/container/logs:
+    post:
+      operationId: GetContainerLogs
+      summary: Get recent log output from a container
+      tags: [containers]
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                api:
+                  type: string
+                  default: "SYNO.Docker.Container"
+                  description: "DSM API name (constant: SYNO.Docker.Container)"
+                version:
+                  type: string
+                  default: "2"
+                  description: "API version (constant: 2)"
+                method:
+                  type: string
+                  default: "get"
+                  description: "API method (constant: get)"
+                name:
+                  type: string
+                  description: Container name
+                from_date:
+                  type: string
+                  description: Start date for log retrieval (ISO 8601)
+                to_date:
+                  type: string
+                  description: End date for log retrieval (ISO 8601)
+      responses:
+        "200":
+          description: Container logs
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SynoResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          log:
+                            type: array
+                            items:
+                              type: string
+
+  /webapi/entry.cgi/docker/image/list:
+    get:
+      operationId: ListContainerImages
+      summary: List all downloaded Docker images
+      tags: [containers]
+      parameters:
+        - name: api
+          in: query
+          schema:
+            type: string
+            default: "SYNO.Docker.Image"
+          description: "DSM API name (constant: SYNO.Docker.Image)"
+        - name: version
+          in: query
+          schema:
+            type: string
+            default: "2"
+          description: "API version (constant: 2)"
+        - name: method
+          in: query
+          schema:
+            type: string
+            default: "list"
+          description: "API method (constant: list)"
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: -1
+          description: Max results (-1 for all)
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        "200":
+          description: List of Docker images
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SynoResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          images:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/DockerImage'
+                          total:
+                            type: integer
+
+  # ─── File Station ─────────────────────────────────────────────────────────
+  /webapi/entry.cgi/filestation/info:
+    get:
+      operationId: GetFileStationInfo
+      summary: Get File Station capabilities and hostname
+      tags: [file-station]
+      parameters:
+        - name: api
+          in: query
+          schema:
+            type: string
+            default: "SYNO.FileStation.Info"
+          description: "DSM API name (constant: SYNO.FileStation.Info)"
+        - name: version
+          in: query
+          schema:
+            type: string
+            default: "2"
+          description: "API version (constant: 2)"
+        - name: method
+          in: query
+          schema:
+            type: string
+            default: "get"
+          description: "API method (constant: get)"
+      responses:
+        "200":
+          description: File Station service info
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SynoResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          hostname:
+                            type: string
+                          is_manager:
+                            type: boolean
+                          support_sharing:
+                            type: boolean
+
+  /webapi/entry.cgi/filestation/share/list:
+    get:
+      operationId: ListSharedFolders
+      summary: List all shared folders visible to the authenticated user
+      tags: [file-station]
+      parameters:
+        - name: api
+          in: query
+          schema:
+            type: string
+            default: "SYNO.FileStation.List"
+          description: "DSM API name (constant: SYNO.FileStation.List)"
+        - name: version
+          in: query
+          schema:
+            type: string
+            default: "2"
+          description: "API version (constant: 2)"
+        - name: method
+          in: query
+          schema:
+            type: string
+            default: "list_share"
+          description: "API method (constant: list_share)"
+        - name: offset
+          in: query
+          description: Pagination offset (skip this many results)
+          schema:
+            type: integer
+            default: 0
+        - name: limit
+          in: query
+          description: Maximum number of results to return
+          schema:
+            type: integer
+            default: 100
+        - name: sort_by
+          in: query
+          schema:
+            type: string
+            enum: [name, user, group, mtime, atime, ctime, posix]
+            default: name
+        - name: sort_direction
+          in: query
+          schema:
+            type: string
+            enum: [ASC, DESC]
+            default: ASC
+        - name: additional
+          in: query
+          description: Additional info fields (real_path, owner, time, perm, mount_point_type, sync_share)
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of shared folders
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SynoResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          shares:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/FileShareInfo'
+                          total:
+                            type: integer
+                          offset:
+                            type: integer
+
+  /webapi/entry.cgi/filestation/files/list:
+    get:
+      operationId: ListFiles
+      summary: List files and directories in a folder path
+      tags: [file-station]
+      parameters:
+        - name: api
+          in: query
+          schema:
+            type: string
+            default: "SYNO.FileStation.List"
+          description: "DSM API name (constant: SYNO.FileStation.List)"
+        - name: version
+          in: query
+          schema:
+            type: string
+            default: "2"
+          description: "API version (constant: 2)"
+        - name: method
+          in: query
+          schema:
+            type: string
+            default: "list"
+          description: "API method (constant: list)"
+        - name: folder_path
+          in: query
+          required: true
+          description: Folder path to list, e.g. /volume1/data or /homes/admin
+          schema:
+            type: string
+            example: /volume1/data
+        - name: offset
+          in: query
+          description: Pagination offset (skip this many results)
+          schema:
+            type: integer
+            default: 0
+        - name: limit
+          in: query
+          description: Maximum number of results to return
+          schema:
+            type: integer
+            default: 100
+        - name: sort_by
+          in: query
+          schema:
+            type: string
+            enum: [name, size, user, group, mtime, atime, ctime, posix, type]
+            default: name
+        - name: sort_direction
+          in: query
+          schema:
+            type: string
+            enum: [ASC, DESC]
+            default: ASC
+        - name: pattern
+          in: query
+          description: Glob pattern filter (e.g. *.log)
+          schema:
+            type: string
+        - name: filetype
+          in: query
+          description: Filter by entry type
+          schema:
+            type: string
+            enum: [all, file, dir]
+            default: all
+        - name: additional
+          in: query
+          description: Extra fields to return (real_path, size, owner, time, perm, type)
+          schema:
+            type: string
+      responses:
+        "200":
+          description: File and directory listing
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SynoResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          files:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/FileInfo'
+                          total:
+                            type: integer
+                          offset:
+                            type: integer
+
+  /webapi/entry.cgi/filestation/files/info:
+    get:
+      operationId: GetFileInfo
+      summary: Get metadata for specific files or directories
+      tags: [file-station]
+      parameters:
+        - name: api
+          in: query
+          schema:
+            type: string
+            default: "SYNO.FileStation.List"
+          description: "DSM API name (constant: SYNO.FileStation.List)"
+        - name: version
+          in: query
+          schema:
+            type: string
+            default: "2"
+          description: "API version (constant: 2)"
+        - name: method
+          in: query
+          schema:
+            type: string
+            default: "getinfo"
+          description: "API method (constant: getinfo)"
+        - name: path
+          in: query
+          required: true
+          description: File or directory path(s), comma-separated
+          schema:
+            type: string
+        - name: additional
+          in: query
+          description: Extra metadata to return (real_path, size, owner, time, perm, type)
+          schema:
+            type: string
+      responses:
+        "200":
+          description: File metadata
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SynoResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          files:
+                            type: array
+                            items:
+                              $ref: '#/components/schemas/FileInfo'
