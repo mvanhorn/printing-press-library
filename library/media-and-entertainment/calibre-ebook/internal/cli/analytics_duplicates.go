@@ -103,8 +103,8 @@ func normalizeForDup(title, authors any, tolerance string) string {
 	if t == "" || t == "<nil>" {
 		return ""
 	}
-	if tolerance == "broad" && len(t) > 30 {
-		t = t[:30]
+	if tolerance == "broad" && len([]rune(t)) > 30 {
+		t = string([]rune(t)[:30])
 	}
 	if tolerance != "exact" {
 		t = stripPunctuation(t)

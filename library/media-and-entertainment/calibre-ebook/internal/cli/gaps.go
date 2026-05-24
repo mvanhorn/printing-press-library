@@ -82,7 +82,7 @@ series with only a single book.`,
 					for _, i := range indices {
 						indexSet[i] = true
 					}
-					for i := 1.0; i <= maxIdx; i++ {
+					for i := 1.0; i <= maxIdx; i += 1.0 {
 						if !indexSet[i] {
 							missing = append(missing, i)
 						}

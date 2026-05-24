@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -290,6 +291,14 @@ func (c *Client) runEbookConvert(input, output string, extraArgs ...string) ([]b
 // from the OpenAPI spec — we intercept them here.
 func (c *Client) route(method, path string, params map[string]string, body map[string]any) (json.RawMessage, int, error) {
 	cacheKey := method + ":" + path
+	if method == "GET" && len(params) > 0 {
+		parts := make([]string, 0, len(params))
+		for k, v := range params {
+			parts = append(parts, k+"="+v)
+		}
+		sort.Strings(parts)
+		cacheKey += "?" + strings.Join(parts, "&")
+	}
 	if method == "GET" {
 		if data, ok := readCache(c, cacheKey); ok {
 			return data, 200, nil
@@ -402,16 +411,18 @@ func (c *Client) GetWithHeaders(path string, params map[string]string, _ map[str
 }
 
 func (c *Client) GetNoCache(path string, params map[string]string) (json.RawMessage, error) {
+	saved := c.NoCache
 	c.NoCache = true
-	defer func() { c.NoCache = false }()
 	data, _, err := c.route("GET", path, params, nil)
+	c.NoCache = saved
 	return data, err
 }
 
 func (c *Client) GetWithHeadersNoCache(path string, params map[string]string, _ map[string]string) (json.RawMessage, error) {
+	saved := c.NoCache
 	c.NoCache = true
-	defer func() { c.NoCache = false }()
 	data, _, err := c.route("GET", path, params, nil)
+	c.NoCache = saved
 	return data, err
 }
 
