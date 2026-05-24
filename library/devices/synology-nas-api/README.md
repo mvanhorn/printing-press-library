@@ -1,0 +1,353 @@
+# Synology Dsm CLI
+
+REST API for Synology DiskStation Manager (DSM 7.x). All API calls are dispatched through /webapi/entry.cgi with api, method, and version query parameters. Authentication uses session-based SID tokens. Use 'auth set-token' to save your SID, or set SYNOLOGY_NAS_API_SIDCOOKIE env var. Obtain a SID via 'webapi login'.
+
+Learn more at [Synology Dsm](https://github.com/synology-community/go-synology).
+
+Printed by [@e-jung](https://github.com/e-jung) (Eric Jung).
+
+## Install
+
+The recommended path installs both the `synology-nas-api-pp-cli` binary and the `pp-synology-nas-api` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
+
+```bash
+npx -y @mvanhorn/printing-press install synology-nas-api
+```
+
+For CLI only (no skill):
+
+```bash
+npx -y @mvanhorn/printing-press install synology-nas-api --cli-only
+```
+
+For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
+
+```bash
+npx -y @mvanhorn/printing-press install synology-nas-api --skill-only
+```
+
+To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
+
+```bash
+npx -y @mvanhorn/printing-press install synology-nas-api --agent claude-code
+npx -y @mvanhorn/printing-press install synology-nas-api --agent claude-code --agent codex
+```
+
+### Without Node
+
+The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
+
+### Pre-built binary
+
+Download a pre-built binary for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/synology-nas-api-current). On macOS, clear the Gatekeeper quarantine: `xattr -d com.apple.quarantine <binary>`. On Unix, mark it executable: `chmod +x <binary>`.
+
+<!-- pp-hermes-install-anchor -->
+## Install for Hermes
+
+From the Hermes CLI:
+
+```bash
+hermes skills install mvanhorn/printing-press-library/cli-skills/pp-synology-nas-api --force
+```
+
+Inside a Hermes chat session:
+
+```bash
+/skills install mvanhorn/printing-press-library/cli-skills/pp-synology-nas-api --force
+```
+
+## Install for OpenClaw
+
+Tell your OpenClaw agent (copy this):
+
+```
+Install the pp-synology-nas-api skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-synology-nas-api. The skill defines how its required CLI can be installed.
+```
+
+## Use with Claude Desktop
+
+This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
+
+To install:
+
+1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/synology-nas-api-current).
+2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
+3. Fill in `SYNOLOGY_NAS_API_SIDCOOKIE` when Claude Desktop prompts you.
+
+Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
+
+<details>
+<summary>Manual JSON config (advanced)</summary>
+
+If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
+
+
+Install the MCP binary from this CLI's published public-library entry or pre-built release.
+
+Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "synology-nas-api": {
+      "command": "synology-nas-api-pp-mcp",
+      "env": {
+        "SYNOLOGY_NAS_API_HOST": "<host>",
+        "SYNOLOGY_NAS_API_PORT": "<port>",
+        "SYNOLOGY_NAS_API_SIDCOOKIE": "<your-key>"
+      }
+    }
+  }
+}
+```
+
+</details>
+
+## Quick Start
+
+### 1. Install
+
+See [Install](#install) above.
+
+### 2. Set Up Credentials
+
+Set the endpoint variables for the tenant, workspace, or API version you want this CLI to use:
+
+```bash
+export SYNOLOGY_NAS_API_HOST="<host>"
+export SYNOLOGY_NAS_API_PORT="<port>"
+```
+
+Get your API key from your API provider's developer portal. The key typically looks like a long alphanumeric string.
+
+```bash
+export SYNOLOGY_NAS_API_SIDCOOKIE="<paste-your-key>"
+```
+
+You can also persist this in your config file at `~/.config/synology-nas-api-pp-cli/config.toml`.
+
+### 3. Verify Setup
+
+```bash
+synology-nas-api-pp-cli doctor
+```
+
+This checks your configuration and credentials.
+
+### 4. Try Your First Command
+
+```bash
+synology-nas-api-pp-cli webapi cancel-backup-task
+```
+
+## Usage
+
+Run `synology-nas-api-pp-cli --help` for the full command reference and flag list.
+
+## Commands
+
+### webapi
+
+Manage webapi
+
+- **`synology-nas-api-pp-cli webapi cancel-backup-task`** - Cancel an in-progress Hyper Backup task
+- **`synology-nas-api-pp-cli webapi create-container`** - Create a new Docker container (DSM 7.3.2 REST API returns 114 — use SSH/docker CLI for writes)
+- **`synology-nas-api-pp-cli webapi delete-scheduled-task`** - Delete a scheduled task permanently
+- **`synology-nas-api-pp-cli webapi get-backup-task`** - Get details for a specific Hyper Backup task
+- **`synology-nas-api-pp-cli webapi get-backup-task-status`** - Get current status and progress of a Hyper Backup task
+- **`synology-nas-api-pp-cli webapi get-container`** - Get detailed configuration and status for a specific container
+- **`synology-nas-api-pp-cli webapi get-container-logs`** - Get recent log output from a container (DSM 7.3.2: REST Log API returns 101; use SSH-based CLI instead)
+- **`synology-nas-api-pp-cli webapi get-dsminfo`** - Get DSM system information — model, version, uptime, CPU
+- **`synology-nas-api-pp-cli webapi get-file-info`** - Get metadata for specific files or directories
+- **`synology-nas-api-pp-cli webapi get-file-station-info`** - Get File Station capabilities and hostname
+- **`synology-nas-api-pp-cli webapi get-package`** - Get details for a specific installed package
+- **`synology-nas-api-pp-cli webapi get-scheduled-task`** - Get configuration for a specific scheduled task
+- **`synology-nas-api-pp-cli webapi get-storage-disk`** - Get detailed information for a specific disk including SMART data
+- **`synology-nas-api-pp-cli webapi get-storage-volume`** - Get details for a specific volume
+- **`synology-nas-api-pp-cli webapi get-system-utilization`** - Get real-time CPU, memory, network, and disk utilization
+- **`synology-nas-api-pp-cli webapi list-backup-repositories`** - List all Hyper Backup repositories (destinations)
+- **`synology-nas-api-pp-cli webapi list-backup-tasks`** - List all Hyper Backup tasks with schedule and destination info
+- **`synology-nas-api-pp-cli webapi list-container-images`** - List all downloaded Docker images
+- **`synology-nas-api-pp-cli webapi list-containers`** - List all Docker containers with running status and image
+- **`synology-nas-api-pp-cli webapi list-files`** - List files and directories in a folder path
+- **`synology-nas-api-pp-cli webapi list-packages`** - List all installed packages with version and status
+- **`synology-nas-api-pp-cli webapi list-scheduled-tasks`** - List all Task Scheduler tasks with schedule and enable status
+- **`synology-nas-api-pp-cli webapi list-shared-folders`** - List all shared folders visible to the authenticated user
+- **`synology-nas-api-pp-cli webapi list-storage-disks`** - List all disks with health status, temperature, and SMART indicators
+- **`synology-nas-api-pp-cli webapi list-storage-pools`** - List all storage pools (RAID groups) with health and usage
+- **`synology-nas-api-pp-cli webapi list-storage-volumes`** - List all storage volumes with usage and mount point
+- **`synology-nas-api-pp-cli webapi login`** - Authenticate with DSM and obtain a session ID (SID). After login, save the returned sid with: auth set-token id=<SID_VALUE>
+- **`synology-nas-api-pp-cli webapi logout`** - Log out and invalidate the current session
+- **`synology-nas-api-pp-cli webapi pull-image`** - Pull a Docker image from a registry (DSM 7.3.2 REST API returns 103 — use SSH/docker CLI)
+- **`synology-nas-api-pp-cli webapi remove-container`** - Remove a stopped container
+- **`synology-nas-api-pp-cli webapi remove-image`** - Remove a Docker image (DSM 7.3.2 REST API returns 114 — use SSH/docker CLI)
+- **`synology-nas-api-pp-cli webapi restart-container`** - Restart a container (stop then start)
+- **`synology-nas-api-pp-cli webapi run-backup-task`** - Trigger an immediate Hyper Backup for a task
+- **`synology-nas-api-pp-cli webapi run-scheduled-task`** - Run a scheduled task immediately (outside its normal schedule)
+- **`synology-nas-api-pp-cli webapi set-scheduled-task-enabled`** - Enable or disable a scheduled task
+- **`synology-nas-api-pp-cli webapi start-container`** - Start a stopped container
+- **`synology-nas-api-pp-cli webapi stop-container`** - Stop a running container gracefully
+
+
+## Output Formats
+
+```bash
+# Human-readable table (default in terminal, JSON when piped)
+synology-nas-api-pp-cli webapi cancel-backup-task
+
+# JSON for scripting and agents
+synology-nas-api-pp-cli webapi cancel-backup-task --json
+
+# Filter to specific fields
+synology-nas-api-pp-cli webapi cancel-backup-task --json --select id,name,status
+
+# Dry run — show the request without sending
+synology-nas-api-pp-cli webapi cancel-backup-task --dry-run
+
+# Agent mode — JSON + compact + no prompts in one flag
+synology-nas-api-pp-cli webapi cancel-backup-task --agent
+```
+
+## Agent Usage
+
+This CLI is designed for AI agent consumption:
+
+- **Non-interactive** - never prompts, every input is a flag
+- **Pipeable** - `--json` output to stdout, errors to stderr
+- **Filterable** - `--select id,name` returns only fields you need
+- **Previewable** - `--dry-run` shows the request without sending
+- **Explicit retries** - add `--idempotent` to create retries when a no-op success is acceptable
+- **Confirmable** - `--yes` for explicit confirmation of destructive actions
+- **Piped input** - write commands can accept structured input when their help lists `--stdin`
+- **Offline-friendly** - sync/search commands can use the local SQLite store when available
+- **Agent-safe by default** - no colors or formatting unless `--human-friendly` is set
+
+Exit codes: `0` success, `2` usage error, `3` not found, `4` auth error, `5` API error, `7` rate limited, `10` config error.
+
+## Runtime Endpoint
+
+This CLI resolves endpoint placeholders at runtime, so one installed binary can target different tenants or API versions without regeneration.
+
+Endpoint environment variables:
+- `SYNOLOGY_NAS_API_HOST` resolves `{host}`
+- `SYNOLOGY_NAS_API_PORT` resolves `{port}`
+
+Base URL: `http://{host}:{port}`
+
+## Health Check
+
+```bash
+synology-nas-api-pp-cli doctor
+```
+
+Verifies configuration, credentials, and connectivity to the API.
+
+## Configuration
+
+Config file: `~/.config/synology-nas-api-pp-cli/config.toml`
+
+Static request headers can be configured under `headers`; per-command header overrides take precedence.
+
+Environment variables:
+
+| Name | Kind | Required | Description |
+| --- | --- | --- | --- |
+| `SYNOLOGY_NAS_API_HOST` | endpoint | Yes |  |
+| `SYNOLOGY_NAS_API_PORT` | endpoint | Yes |  |
+| `SYNOLOGY_NAS_API_SIDCOOKIE` | per_call | Yes | Set to your API credential. |
+
+## Troubleshooting
+**Authentication errors (exit code 4)**
+- Run `synology-nas-api-pp-cli doctor` to check credentials
+- Verify the environment variable is set: `echo $SYNOLOGY_NAS_API_SIDCOOKIE`
+**Not found errors (exit code 3)**
+- Check the resource ID is correct
+- Run the `list` command to see available items
+
+## HTTP Transport
+
+This CLI uses Chrome-compatible HTTP transport for browser-facing endpoints. It does not require a resident browser process for normal API calls.
+
+---
+
+## Cookbook
+
+Common workflows and agent recipes.
+
+### Check NAS health before a backup run
+
+```bash
+# One-shot health check — backup status, disk SMART, and volume usage
+synology-nas-api-pp-cli health --json
+
+# Trigger backup only if NAS is healthy
+STATUS=$(synology-nas-api-pp-cli health --json --select overall | jq -r '.overall')
+if [ "$STATUS" = "ok" ]; then
+  synology-nas-api-pp-cli webapi run-backup-task --task-id 1 --yes
+fi
+```
+
+### Manage containers
+
+```bash
+# List all running containers
+synology-nas-api-pp-cli webapi list-containers --type running --json
+
+# Restart a container by name
+synology-nas-api-pp-cli webapi restart-container --name homeassistant --yes
+
+# Get container details
+synology-nas-api-pp-cli webapi get-container --name immich_server --json
+
+# NOTE: get-container-logs returns DSM API error 101 on DSM 7.3.2.
+# For working container logs, use the SSH-based CLI:
+synology-nas-pp-cli containers logs <name> --lines 50
+```
+
+### Manage packages
+
+```bash
+# List all installed packages
+synology-nas-api-pp-cli webapi list-packages --json
+
+# Get details for a specific package
+synology-nas-api-pp-cli webapi get-package --name Tailscale --json
+```
+
+### Storage capacity planning
+
+```bash
+# Aggregate storage stats (total/used/free/usage%)
+synology-nas-api-pp-cli stats --json
+
+# Check all disk health
+synology-nas-api-pp-cli webapi list-storage-disks --json \
+  | jq '[.data[] | select(.exceed_bad_sector_thr or .below_remain_life_thr)]'
+```
+
+### Automate scheduled tasks
+
+```bash
+# List all scheduled tasks
+synology-nas-api-pp-cli webapi list-scheduled-tasks --json
+
+# Run a specific task immediately
+synology-nas-api-pp-cli webapi run-scheduled-task --id 3 --real-owner root --yes
+
+# Enable a task
+synology-nas-api-pp-cli webapi set-scheduled-task-enabled --id 3 --real-owner root --enable --yes
+```
+
+### Agent workflow (MCP)
+
+```bash
+# Start the MCP server (stdio — for Claude Desktop / VS Code)
+synology-nas-api-pp-mcp
+
+# Start the MCP server (HTTP — for cloud agents)
+SYNOLOGY_NAS_API_MCP_TRANSPORT=http SYNOLOGY_NAS_API_MCP_PORT=8080 synology-nas-api-pp-mcp
+```
+
+---
+
+Generated by [CLI Printing Press](https://github.com/mvanhorn/cli-printing-press)

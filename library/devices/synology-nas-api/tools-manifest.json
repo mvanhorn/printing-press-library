@@ -1,0 +1,300 @@
+{
+  "api_name": "synology-nas-api",
+  "base_url": "https://<nas-host>:5000",
+  "description": "Synology DiskStation Manager (DSM 7.x) REST API. All calls go through /webapi/entry.cgi with api, method, and version query parameters. Auth uses session-based SID tokens.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "session_based",
+    "header": "Cookie",
+    "env_vars": ["SYNOLOGY_NAS_API_SIDCOOKIE"],
+    "env_var_specs": [
+      {
+        "name": "SYNOLOGY_NAS_API_SIDCOOKIE",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "description": "DSM session cookie in format 'id=<SID>'. Obtain via Login tool."
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "Login",
+      "description": "Log in and obtain a DSM session ID (SID). Save the returned sid with auth set-token id=<SID_VALUE>.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi",
+      "params": [
+        {"name": "account", "location": "query", "required": true, "description": "DSM admin username"},
+        {"name": "passwd", "location": "query", "required": true, "description": "DSM admin password"}
+      ]
+    },
+    {
+      "name": "Logout",
+      "description": "Log out and invalidate the current session.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi",
+      "params": []
+    },
+    {
+      "name": "GetDSMInfo",
+      "description": "Get DSM system information — model, version, uptime, CPU.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi",
+      "params": []
+    },
+    {
+      "name": "GetSystemUtilization",
+      "description": "Get real-time CPU, memory, network, and disk utilization.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi",
+      "params": [
+        {"name": "type", "location": "query", "required": false, "description": "Resource sample type: current or history"}
+      ]
+    },
+    {
+      "name": "ListBackupTasks",
+      "description": "List all Hyper Backup tasks with schedule and destination info.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi",
+      "params": []
+    },
+    {
+      "name": "GetBackupTask",
+      "description": "Get details for a specific Hyper Backup task.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi",
+      "params": [
+        {"name": "task_id", "location": "query", "required": true, "description": "Backup task ID"}
+      ]
+    },
+    {
+      "name": "GetBackupTaskStatus",
+      "description": "Get current status and progress of a Hyper Backup task.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi",
+      "params": [
+        {"name": "task_id", "location": "query", "required": true, "description": "Backup task ID"}
+      ]
+    },
+    {
+      "name": "RunBackupTask",
+      "description": "Trigger an immediate Hyper Backup for a task.",
+      "method": "POST",
+      "path": "/webapi/entry.cgi",
+      "params": [
+        {"name": "task_id", "location": "body", "required": true, "description": "Backup task ID to trigger"}
+      ]
+    },
+    {
+      "name": "CancelBackupTask",
+      "description": "Cancel an in-progress Hyper Backup task.",
+      "method": "POST",
+      "path": "/webapi/entry.cgi",
+      "params": [
+        {"name": "task_id", "location": "body", "required": true, "description": "Backup task ID to cancel"}
+      ]
+    },
+    {
+      "name": "ListBackupRepositories",
+      "description": "List all Hyper Backup repositories (destinations).",
+      "method": "GET",
+      "path": "/webapi/entry.cgi",
+      "params": []
+    },
+    {
+      "name": "ListStorageDisks",
+      "description": "List all disks with health status, temperature, and SMART indicators.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi",
+      "params": []
+    },
+    {
+      "name": "GetStorageDisk",
+      "description": "Get detailed information for a specific disk including SMART data.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi",
+      "params": [
+        {"name": "disk_id", "location": "query", "required": true, "description": "Disk slot ID (e.g. disk1)"}
+      ]
+    },
+    {
+      "name": "ListStoragePools",
+      "description": "List all storage pools (RAID groups) with health and usage.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi",
+      "params": []
+    },
+    {
+      "name": "ListStorageVolumes",
+      "description": "List all storage volumes with usage and mount point.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi",
+      "params": []
+    },
+    {
+      "name": "GetStorageVolume",
+      "description": "Get details for a specific volume.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi",
+      "params": [
+        {"name": "volume_path", "location": "query", "required": true, "description": "Volume mount path (e.g. /volume1)"}
+      ]
+    },
+    {
+      "name": "ListScheduledTasks",
+      "description": "List all Task Scheduler tasks with schedule and enable status.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi",
+      "params": [
+        {"name": "real_owner", "location": "query", "required": false, "description": "Filter by task owner"},
+        {"name": "sort_by", "location": "query", "required": false, "description": "Sort field"},
+        {"name": "sort_direction", "location": "query", "required": false, "description": "Sort direction: ASC or DESC"}
+      ]
+    },
+    {
+      "name": "GetScheduledTask",
+      "description": "Get configuration for a specific scheduled task.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi",
+      "params": [
+        {"name": "id", "location": "query", "required": true, "description": "Task ID"},
+        {"name": "real_owner", "location": "query", "required": true, "description": "Task owner"}
+      ]
+    },
+    {
+      "name": "RunScheduledTask",
+      "description": "Run a scheduled task immediately.",
+      "method": "POST",
+      "path": "/webapi/entry.cgi",
+      "params": [
+        {"name": "id", "location": "body", "required": true, "description": "Task ID"},
+        {"name": "real_owner", "location": "body", "required": true, "description": "Task owner"}
+      ]
+    },
+    {
+      "name": "SetScheduledTaskEnabled",
+      "description": "Enable or disable a scheduled task.",
+      "method": "POST",
+      "path": "/webapi/entry.cgi",
+      "params": [
+        {"name": "id", "location": "body", "required": true, "description": "Task ID"},
+        {"name": "real_owner", "location": "body", "required": true, "description": "Task owner"},
+        {"name": "enable", "location": "body", "required": true, "description": "true to enable, false to disable"}
+      ]
+    },
+    {
+      "name": "DeleteScheduledTask",
+      "description": "Delete a scheduled task permanently.",
+      "method": "POST",
+      "path": "/webapi/entry.cgi",
+      "params": [
+        {"name": "id", "location": "body", "required": true, "description": "Task ID"},
+        {"name": "real_owner", "location": "body", "required": true, "description": "Task owner"}
+      ]
+    },
+    {
+      "name": "ListContainers",
+      "description": "List all Docker containers with running status and image.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi",
+      "params": [
+        {"name": "limit", "location": "query", "required": false, "description": "Max results"},
+        {"name": "offset", "location": "query", "required": false, "description": "Pagination offset"},
+        {"name": "type", "location": "query", "required": false, "description": "Filter: all, running, stopped"}
+      ]
+    },
+    {
+      "name": "GetContainer",
+      "description": "Get detailed configuration and status for a specific container.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi",
+      "params": [
+        {"name": "name", "location": "query", "required": true, "description": "Container name"}
+      ]
+    },
+    {
+      "name": "StartContainer",
+      "description": "Start a stopped container.",
+      "method": "POST",
+      "path": "/webapi/entry.cgi",
+      "params": [
+        {"name": "name", "location": "body", "required": true, "description": "Container name"}
+      ]
+    },
+    {
+      "name": "StopContainer",
+      "description": "Stop a running container gracefully.",
+      "method": "POST",
+      "path": "/webapi/entry.cgi",
+      "params": [
+        {"name": "name", "location": "body", "required": true, "description": "Container name"}
+      ]
+    },
+    {
+      "name": "RestartContainer",
+      "description": "Restart a container (stop then start).",
+      "method": "POST",
+      "path": "/webapi/entry.cgi",
+      "params": [
+        {"name": "name", "location": "body", "required": true, "description": "Container name"}
+      ]
+    },
+    {
+      "name": "GetContainerLogs",
+      "description": "Get recent log output from a container.",
+      "method": "POST",
+      "path": "/webapi/entry.cgi",
+      "params": [
+        {"name": "name", "location": "body", "required": true, "description": "Container name"}
+      ]
+    },
+    {
+      "name": "ListContainerImages",
+      "description": "List all downloaded Docker images.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi",
+      "params": []
+    },
+    {
+      "name": "GetFileStationInfo",
+      "description": "Get File Station capabilities and hostname.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi",
+      "params": []
+    },
+    {
+      "name": "ListSharedFolders",
+      "description": "List all shared folders visible to the authenticated user.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi",
+      "params": [
+        {"name": "offset", "location": "query", "required": false, "description": "Pagination offset"},
+        {"name": "limit", "location": "query", "required": false, "description": "Max results"}
+      ]
+    },
+    {
+      "name": "ListFiles",
+      "description": "List files and directories in a folder path.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi",
+      "params": [
+        {"name": "folder_path", "location": "query", "required": true, "description": "Folder path to list"},
+        {"name": "limit", "location": "query", "required": false, "description": "Max results"},
+        {"name": "offset", "location": "query", "required": false, "description": "Pagination offset"},
+        {"name": "pattern", "location": "query", "required": false, "description": "Glob pattern filter"},
+        {"name": "filetype", "location": "query", "required": false, "description": "Filter: all, file, dir"}
+      ]
+    },
+    {
+      "name": "GetFileInfo",
+      "description": "Get metadata for specific files or directories.",
+      "method": "GET",
+      "path": "/webapi/entry.cgi",
+      "params": [
+        {"name": "path", "location": "query", "required": true, "description": "File or directory path(s)"}
+      ]
+    }
+  ]
+}
