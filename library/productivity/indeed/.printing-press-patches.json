@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-24",
+  "base_run_id": "20260523-210014",
+  "base_printing_press_version": "4.13.0",
+  "patches": [
+    {
+      "id": "indeed-workflow-archive-json",
+      "summary": "Suppress syncResource NDJSON event stream under --json in workflow archive so stdout is a single parseable JSON document.",
+      "reason": "The generated syncResource emits NDJSON progress events to stdout (gated on !humanFriendly); combined with workflow archive's own summary JSON they made `workflow archive --json` unparseable, failing dogfood json_fidelity.",
+      "files": ["internal/cli/channel_workflow.go"],
+      "validated_outcome": "`workflow archive --json | jq .` parses; dogfood json_fidelity passes.",
+      "upstream_issue": ""
+    },
+    {
+      "id": "indeed-xnet-vuln-bump",
+      "summary": "Bumped golang.org/x/net to v0.55.0 (from generator-pinned v0.43.0).",
+      "reason": "GO-2026-5026 is reachable via the generated cliutil/probe.go http3 path; govulncheck blocks publish on v0.43.0.",
+      "files": ["go.mod", "go.sum"],
+      "validated_outcome": "govulncheck ./... reports 0 reachable vulnerabilities.",
+      "upstream_issue": ""
+    }
+  ]
+}

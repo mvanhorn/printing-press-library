@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "indeed-pp-mcp",
+  "display_name": "Indeed",
+  "version": "4.13.0",
+  "description": "Search Indeed from your terminal — with a local job history no scraper keeps, so you can ask what's new since last time and grep everything offline.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/indeed-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/indeed-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-24T01:52:55.918016081Z",
+  "printing_press_version": "4.13.0",
+  "api_name": "indeed",
+  "display_name": "Indeed",
+  "cli_name": "indeed-pp-cli",
+  "owner": "iceman12276",
+  "printer": "iceman12276",
+  "printer_name": "Isaac Quintero",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:d01335ccbbb67b9708e654e74a731c1ff170f8b2401ce748c8fee3f71b54b4ce",
+  "run_id": "20260523-210014",
+  "category": "productivity",
+  "description": "Search Indeed from your terminal — with a local job history no scraper keeps, so you can ask what's new since last time and grep everything offline.",
+  "mcp_binary": "indeed-pp-mcp",
+  "mcp_tool_count": 1,
+  "mcp_public_tool_count": 1,
+  "mcp_ready": "full",
+  "api_version": "1.0.0",
+  "auth_type": "none",
+  "novel_features": [
+    {
+      "name": "New jobs since last run",
+      "command": "new",
+      "description": "Re-run a saved search and show only the postings that appeared since you last looked."
+    },
+    {
+      "name": "Offline full-text search",
+      "command": "find",
+      "description": "Full-text search across every job you've ever synced, with no network call."
+    },
+    {
+      "name": "Saved searches",
+      "command": "saved save",
+      "description": "Persist a named query with all its filters so you can re-run it by name."
+    },
+    {
+      "name": "Salary floor filter",
+      "command": "search",
+      "description": "Drop results whose parsed salary falls below a threshold."
+    },
+    {
+      "name": "Multi-location fan-out",
+      "command": "search",
+      "description": "Run one keyword across several locations in a single command and dedup by job key."
+    },
+    {
+      "name": "Track a job",
+      "command": "track",
+      "description": "Add a job to a local shortlist you can list and annotate later."
+    }
+  ]
+}

@@ -1,0 +1,219 @@
+{
+  "api_name": "indeed",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "JobSpy",
+      "url": "https://github.com/speedyapply/JobSpy",
+      "language": "Python",
+      "install_method": "",
+      "stars": 3460,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "linkedin-jobs-scraper",
+      "url": "https://github.com/spinlud/linkedin-jobs-scraper",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 178,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "indeed-scraper",
+      "url": "https://github.com/rynobax/indeed-scraper",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 56,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-23T21:07:00Z",
+  "novel_features": [
+    {
+      "name": "New jobs since last run",
+      "command": "new",
+      "description": "Re-run a saved search and show only the postings that appeared since you last looked.",
+      "rationale": "Requires a local first_seen_at history per saved search; Indeed exposes no durable cursor for this.",
+      "example": "indeed-pp-cli new daily-remote --json",
+      "why_it_matters": "Reach for this to poll a query on a schedule without re-reading jobs you've already triaged.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Offline full-text search",
+      "command": "find",
+      "description": "Full-text search across every job you've ever synced, with no network call.",
+      "rationale": "FTS5 over the local store; works offline and across many past searches at once.",
+      "example": "indeed-pp-cli find \"rust kubernetes\" --json --select key,title,company",
+      "why_it_matters": "Use when you want to grep your whole job history, not just one fresh query.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Saved searches",
+      "command": "saved save",
+      "description": "Persist a named query with all its filters so you can re-run it by name.",
+      "rationale": "Local persistence of query + filters; the basis for new-since-last-run.",
+      "example": "indeed-pp-cli saved save daily-remote \"software engineer\" --location Remote --posted 1 --sort date",
+      "why_it_matters": "Use to define the recurring searches you care about once, then poll them.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Salary floor filter",
+      "command": "search",
+      "description": "Drop results whose parsed salary falls below a threshold.",
+      "rationale": "Requires parsing Indeed's free-text salary snippets locally and filtering on the normalized minimum.",
+      "example": "indeed-pp-cli search \"data engineer\" --location \"Austin, TX\" --min-salary 120000 --json",
+      "why_it_matters": "Use to cut low-paying noise that Indeed's own filters miss because salaries are free-text.",
+      "group": "Smarter filtering"
+    },
+    {
+      "name": "Multi-location fan-out",
+      "command": "search",
+      "description": "Run one keyword across several locations in a single command and dedup by job key.",
+      "rationale": "Fans out N requests and merges/dedups locally in one pass.",
+      "example": "indeed-pp-cli search \"product manager\" --location \"Austin,Dallas,Remote\" --json",
+      "why_it_matters": "Use when you're open to multiple metros and want one merged, deduped list.",
+      "group": "Smarter filtering"
+    },
+    {
+      "name": "Track a job",
+      "command": "track",
+      "description": "Add a job to a local shortlist you can list and annotate later.",
+      "rationale": "Local shortlist with status; no Indeed equivalent without a logged-in account.",
+      "example": "indeed-pp-cli track 3700db3b90d43bc1",
+      "why_it_matters": "Use to keep a working set of interesting jobs across sessions without logging in.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "New jobs since last run",
+      "command": "new",
+      "description": "Re-run a saved search and show only the postings that appeared since you last looked.",
+      "rationale": "Requires a local first_seen_at history per saved search; Indeed exposes no durable cursor for this.",
+      "example": "indeed-pp-cli new daily-remote --json",
+      "why_it_matters": "Reach for this to poll a query on a schedule without re-reading jobs you've already triaged.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Offline full-text search",
+      "command": "find",
+      "description": "Full-text search across every job you've ever synced, with no network call.",
+      "rationale": "FTS5 over the local store; works offline and across many past searches at once.",
+      "example": "indeed-pp-cli find \"rust kubernetes\" --json --select key,title,company",
+      "why_it_matters": "Use when you want to grep your whole job history, not just one fresh query.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Saved searches",
+      "command": "saved save",
+      "description": "Persist a named query with all its filters so you can re-run it by name.",
+      "rationale": "Local persistence of query + filters; the basis for new-since-last-run.",
+      "example": "indeed-pp-cli saved save daily-remote \"software engineer\" --location Remote --posted 1 --sort date",
+      "why_it_matters": "Use to define the recurring searches you care about once, then poll them.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Salary floor filter",
+      "command": "search",
+      "description": "Drop results whose parsed salary falls below a threshold.",
+      "rationale": "Requires parsing Indeed's free-text salary snippets locally and filtering on the normalized minimum.",
+      "example": "indeed-pp-cli search \"data engineer\" --location \"Austin, TX\" --min-salary 120000 --json",
+      "why_it_matters": "Use to cut low-paying noise that Indeed's own filters miss because salaries are free-text.",
+      "group": "Smarter filtering"
+    },
+    {
+      "name": "Multi-location fan-out",
+      "command": "search",
+      "description": "Run one keyword across several locations in a single command and dedup by job key.",
+      "rationale": "Fans out N requests and merges/dedups locally in one pass.",
+      "example": "indeed-pp-cli search \"product manager\" --location \"Austin,Dallas,Remote\" --json",
+      "why_it_matters": "Use when you're open to multiple metros and want one merged, deduped list.",
+      "group": "Smarter filtering"
+    },
+    {
+      "name": "Track a job",
+      "command": "track",
+      "description": "Add a job to a local shortlist you can list and annotate later.",
+      "rationale": "Local shortlist with status; no Indeed equivalent without a logged-in account.",
+      "example": "indeed-pp-cli track 3700db3b90d43bc1",
+      "why_it_matters": "Use to keep a working set of interesting jobs across sessions without logging in.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "Indeed",
+    "headline": "Search Indeed from your terminal — with a local job history no scraper keeps, so you can ask what's new since last time and grep everything offline.",
+    "value_prop": "A read-only job-search CLI for Indeed. Search with all the filters (location, radius, date posted, job type, remote, salary floor), pull full job descriptions, and research companies. Every job you see is stored locally, so `new` shows only fresh postings for a saved search and `find` does offline full-text search across your whole history.",
+    "quickstart": [
+      {
+        "command": "indeed-pp-cli search \"software engineer\" --location Remote",
+        "comment": "the core search, with filters"
+      },
+      {
+        "command": "indeed-pp-cli job get 3700db3b90d43bc1",
+        "comment": "full description for a result's key"
+      },
+      {
+        "command": "indeed-pp-cli saved save daily-remote \"software engineer\" --location Remote --posted 1",
+        "comment": "name a search to poll later"
+      },
+      {
+        "command": "indeed-pp-cli new daily-remote",
+        "comment": "only what's appeared since last run"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "search returns 0 results but the query is valid",
+        "fix": "Indeed may have escalated bot protection on the SERP; retry, and check `indeed-pp-cli doctor` for reachability."
+      },
+      {
+        "symptom": "salary is empty for many jobs",
+        "fix": "Indeed only lists salary on some postings; salary is free-text and absent on most. Use --min-salary to keep only the ones that have it."
+      }
+    ],
+    "when_to_use": "Reach for this CLI when an agent or user needs to search Indeed job listings, pull a full job description by key, research a company's rating/size, or track new postings for a recurring search over time. It is read-only: it never applies to jobs or submits resumes.",
+    "recipes": [
+      {
+        "title": "Fresh remote roles today",
+        "command": "indeed-pp-cli search \"backend engineer\" --location Remote --posted 1 --sort date --json",
+        "explanation": "Newest remote backend roles posted in the last day, as JSON."
+      },
+      {
+        "title": "Narrow a verbose result set",
+        "command": "indeed-pp-cli search \"data scientist\" --location \"New York, NY\" --json --select key,title,company,salary,formattedLocation",
+        "explanation": "Use --select to keep only the fields you need from each job and avoid burning context on the full payload."
+      },
+      {
+        "title": "Salary floor",
+        "command": "indeed-pp-cli search \"ml engineer\" --location Remote --min-salary 150000 --csv",
+        "explanation": "Drop anything under $150k (by parsed salary) and export to CSV."
+      },
+      {
+        "title": "Poll a saved search",
+        "command": "indeed-pp-cli new daily-remote --json",
+        "explanation": "Only the jobs that are new since the last time you ran this saved search."
+      }
+    ],
+    "trigger_phrases": [
+      "search indeed for jobs",
+      "find software engineer jobs",
+      "what's new on my job search",
+      "look up a job on indeed",
+      "use indeed",
+      "run indeed"
+    ]
+  }
+}

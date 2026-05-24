@@ -1,0 +1,35 @@
+{
+  "api_name": "indeed",
+  "base_url": "https://www.indeed.com",
+  "description": "Search Indeed from your terminal — with a local job history no scraper keeps, so you can ask what's new since last time and grep everything offline.",
+  "mcp_ready": "full",
+  "http_transport": "browser-chrome",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "related_list",
+      "description": "List jobs similar to a given job key. Optional: job-key, limit.",
+      "method": "GET",
+      "path": "/m/getcompetitorsjobs",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "job-key",
+          "wire_name": "jobKey",
+          "type": "string",
+          "location": "query",
+          "description": "Indeed job key (from a search result)."
+        },
+        {
+          "name": "limit",
+          "type": "integer",
+          "location": "query",
+          "description": "Maximum related jobs to return."
+        }
+      ]
+    }
+  ]
+}

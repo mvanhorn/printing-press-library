@@ -1,0 +1,27 @@
+name: indeed
+display_name: Indeed
+description: Read-only job search and research for Indeed — search listings, pull full job descriptions, research companies, with a local SQLite history.
+base_url: https://www.indeed.com
+category: productivity
+version: "1.0.0"
+http_transport: browser-chrome
+
+auth:
+  type: none
+
+resources:
+  related:
+    description: Jobs related to a given job (Indeed "competitors jobs" feed).
+    endpoints:
+      list:
+        method: GET
+        path: /m/getcompetitorsjobs
+        no_auth: true
+        description: List jobs similar to a given job key.
+        params:
+          - name: jobKey
+            flag_name: job-key
+            description: Indeed job key (from a search result).
+          - name: limit
+            type: integer
+            description: Maximum related jobs to return.
