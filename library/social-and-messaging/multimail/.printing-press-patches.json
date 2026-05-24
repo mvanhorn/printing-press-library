@@ -122,6 +122,14 @@
         "internal/cli/oversight_velocity.go",
         "internal/cli/allowlist_coverage.go"
       ]
+    },
+    {
+      "id": "oversight-velocity-mailbox-lookup-consistency",
+      "summary": "Check $.mailbox_id, $.resource_id, and $.metadata.mailbox_id for audit-log mailbox association.",
+      "reason": "The audit-log schema may store mailbox association in different fields depending on event type. trust_status already checks resource_id and metadata.mailbox_id; oversight_velocity was only checking $.mailbox_id, risking zero results if the field is stored elsewhere.",
+      "files": [
+        "internal/cli/oversight_velocity.go"
+      ]
     }
   ]
 }

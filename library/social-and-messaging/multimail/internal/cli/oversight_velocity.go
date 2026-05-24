@@ -90,6 +90,9 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 				// for --days window filtering. synced_at is when the record was
 				// cached locally — on first sync all records land with synced_at ≈ now,
 				// making the window include all historical events.
+				// PATCH: Check multiple fields for mailbox association — the audit-log
+				// schema may store mailbox_id at the top level, in metadata, or as
+				// resource_id. Match all three for consistency with trust_status.
 				var approved, rejected int
 				row := db.DB().QueryRowContext(cmd.Context(),
 					`SELECT
@@ -97,8 +100,10 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 						COALESCE(SUM(CASE WHEN json_extract(data, '$.action') LIKE '%reject%' THEN 1 ELSE 0 END), 0)
 					FROM resources
 					WHERE resource_type = 'audit-log'
-					AND json_extract(data, '$.mailbox_id') = ?
-					AND json_extract(data, '$.created_at') > ?`, mb.ID, cutoff)
+					AND (json_extract(data, '$.mailbox_id') = ?
+					  OR json_extract(data, '$.resource_id') = ?
+					  OR json_extract(data, '$.metadata.mailbox_id') = ?)
+					AND json_extract(data, '$.created_at') > ?`, mb.ID, mb.ID, mb.ID, cutoff)
 				if err := row.Scan(&approved, &rejected); err != nil {
 					continue
 				}
