@@ -17,6 +17,20 @@
       "reason": "Airtable's records / comments / webhook-payloads dependents each require multi-level enumeration (tables-per-base, records-per-table, webhook-IDs-per-base) the current sync loop does not perform. Without this guard the dependent pass silently produced zero rows and 404s on every parent; Greptile P1 review (PR #829) called this out. The guard keeps `sync` honest while leaving room for a future enumeration walker to fill those placeholders properly.",
       "files": ["internal/cli/sync.go"],
       "validated_outcome": "`go build`, `go vet`, and `go test ./...` all pass; the dependent loop emits a `sync_warning` with `reason=dependent_path_unresolved` listing the unresolved keys instead of issuing the bad request."
+    },
+    {
+      "id": "airtable-traverse-base-scope",
+      "summary": "Scope `traverse` lookups to the user-supplied baseID by adding `AND parent_id = ?` to the per-frontier `SELECT data FROM records WHERE id = ?` query.",
+      "reason": "Greptile P1 (PR #829, round 2) flagged that the original code explicitly discarded the baseID argument via `_ = baseID`, so multi-base mirrors could return edges from unrelated bases that happened to share a `rec...` prefix. parent_id is populated by dependent sync with the parent baseID, so adding it to the WHERE clause is the minimal correct scope.",
+      "files": ["internal/cli/traverse.go"],
+      "validated_outcome": "`go build`, `go vet`, and `go test ./...` all pass; the traversal frontier now only walks records whose `parent_id` matches the user-supplied baseID."
+    },
+    {
+      "id": "airtable-history-base-scope",
+      "summary": "Scope `history record` payload scans by joining the raw payload rows in `resources` (resource_type='webhooks') against the dedicated `webhooks` subscription table on `id`, restricting to subscriptions whose `parent_id` matches the user-supplied baseID. LEFT JOIN with an IS NULL fallback preserves legacy mirrors that pre-date the dedicated webhooks table.",
+      "reason": "Greptile P1 (PR #829, round 2) flagged that the original SELECT used only `WHERE resource_type='webhooks'` with no base scoping, so multi-base mirrors mixed payload events from every base whose webhook IDs accidentally collided in the local cache. Airtable webhook payloads don't carry baseId at the top level, so the correct scope is the webhook-subscription join.",
+      "files": ["internal/cli/history_record.go"],
+      "validated_outcome": "`go build`, `go vet`, and `go test ./...` all pass; the payload scan now joins through the dedicated webhooks subscription table and filters by `parent_id = baseID OR parent_id IS NULL` (the IS NULL branch keeps legacy mirrors functional)."
     }
   ]
 }

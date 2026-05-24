@@ -65,9 +65,24 @@ UI-only in Airtable.`,
 			}
 			defer db.Close()
 
+			// PATCH(airtable-history-base-scope): scope the payload scan to
+			// webhooks belonging to baseID by joining the raw payload rows in
+			// `resources` (where the synced webhook events land as
+			// resource_type='webhooks') against the dedicated `webhooks`
+			// subscription table (where parent_id = baseID is populated by
+			// dependent sync). The LEFT JOIN keeps legacy mirrors that never
+			// populated the dedicated webhooks table working: when no
+			// subscription rows exist, the IS NULL branch matches all rows
+			// (best-effort fallback). When the webhooks subscription table
+			// IS populated, only payloads from webhooks bound to baseID
+			// are returned, so multi-base mirrors no longer cross-contaminate
+			// the result.
 			rows, err := db.DB().QueryContext(cmd.Context(),
-				`SELECT id, data, updated_at FROM resources
-				 WHERE resource_type = 'webhooks'`)
+				`SELECT r.id, r.data, r.updated_at FROM resources r
+				 LEFT JOIN webhooks w ON w.id = r.id
+				 WHERE r.resource_type = 'webhooks'
+				   AND (w.parent_id = ? OR w.parent_id IS NULL)`,
+				baseID)
 			if err != nil {
 				return fmt.Errorf("read webhook payloads: %w", err)
 			}

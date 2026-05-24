@@ -44,7 +44,6 @@ Offline; reads the local SQLite mirror only.`,
 				return usageErr(fmt.Errorf("baseId and recordId are required\nUsage: %s <baseId> <recordId>", cmd.CommandPath()))
 			}
 			baseID, recordID := args[0], args[1]
-			_ = baseID
 
 			if depth <= 0 {
 				depth = 2
@@ -84,8 +83,12 @@ Offline; reads the local SQLite mirror only.`,
 				next := []string{}
 				for _, id := range frontier {
 					var data string
+					// PATCH(airtable-traverse-base-scope): scope the lookup to
+					// the user-supplied baseID via parent_id so multi-base
+					// mirrors don't return edges from unrelated bases that
+					// happen to share a record-ID prefix.
 					err := db.DB().QueryRowContext(cmd.Context(),
-						`SELECT data FROM records WHERE id = ?`, id).Scan(&data)
+						`SELECT data FROM records WHERE id = ? AND parent_id = ?`, id, baseID).Scan(&data)
 					if err != nil {
 						continue
 					}
