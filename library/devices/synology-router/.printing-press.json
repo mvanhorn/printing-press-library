@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-24T06:56:00Z",
+  "printing_press_version": "4.8.0",
+  "api_name": "synology-router",
+  "display_name": "Synology Router",
+  "cli_name": "synology-router-pp-cli",
+  "owner": "eric-jung",
+  "printer": "eric-jung",
+  "printer_name": "Eric Jung",
+  "spec_path": "synology-router-spec.yaml",
+  "spec_format": "openapi",
+  "run_id": "20260523T232306Z-15099166",
+  "description": "Synology Router Manager (SRM) CLI — device management, traffic analysis, firewall rules, mesh network monitoring, Smart WAN configuration, and Wake-on-LAN via the Synology Router REST API",
+  "mcp_binary": "synology-router-pp-mcp",
+  "mcp_tool_count": 26,
+  "mcp_ready": "full",
+  "api_version": "1.x",
+  "auth_type": "session_based",
+  "auth_env_vars": [
+    "SYNOLOGY_ROUTER_COOKIE_AUTH"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "SYNOLOGY_ROUTER_COOKIE_AUTH",
+      "kind": "per_call",
+      "required": true,
+      "sensitive": true,
+      "description": "Synology Router session cookie obtained via auth login"
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "Network Health Overview",
+      "command": "health",
+      "description": "Aggregates device counts, bandwidth usage, and WAN connection status into a single health snapshot"
+    },
+    {
+      "name": "Busiest Devices",
+      "command": "busiest",
+      "description": "Ranks devices by bandwidth consumption with percentage of total traffic"
+    },
+    {
+      "name": "Network Bottleneck Analysis",
+      "command": "bottleneck",
+      "description": "Identifies devices consuming disproportionate bandwidth from combined traffic and device data"
+    },
+    {
+      "name": "Traffic Trends",
+      "command": "trends",
+      "description": "Day-over-day or week-over-week traffic trend analysis with rate-of-change metrics"
+    },
+    {
+      "name": "Coverage Report",
+      "command": "coverage",
+      "description": "Shows API endpoint coverage and sync completeness per resource type"
+    },
+    {
+      "name": "Stale Resource Detection",
+      "command": "stale",
+      "description": "Lists synced resources older than a configurable threshold to identify stale data"
+    },
+    {
+      "name": "Network Statistics",
+      "command": "stats",
+      "description": "Aggregated network statistics from local store including device counts and bandwidth totals"
+    },
+    {
+      "name": "Full-text Search",
+      "command": "search",
+      "description": "FTS5 full-text search across all synced router resources in the local SQLite store"
+    },
+    {
+      "name": "Offline Export",
+      "command": "export",
+      "description": "Export synced router resources to stdout in JSON or JSONL format for backup and analysis"
+    }
+  ]
+}

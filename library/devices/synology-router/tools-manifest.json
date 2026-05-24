@@ -1,0 +1,556 @@
+{
+  "api_name": "synology-router",
+  "base_url": "https://{{router_ip}}:8001/webapi",
+  "description": "Synology Router Manager (SRM) REST API",
+  "mcp_ready": "full",
+  "http_transport": "streamable",
+  "auth": {
+    "type": "api_key",
+    "in": "cookie",
+    "env_vars": ["SYNOLOGY_ROUTER_COOKIE_AUTH"],
+    "env_var_specs": [
+      {
+        "name": "SYNOLOGY_ROUTER_COOKIE_AUTH",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "description": "Synology Router session cookie obtained via auth login"
+      }
+    ]
+  },
+  "tools": [
+    {
+      "name": "access-control_groups-list",
+      "description": "Returns array of access control groups with member devices and usage stats.",
+      "method": "GET",
+      "path": "/access-control/groups",
+      "tier": "endpoint",
+      "params": [
+        {
+          "name": "additional",
+          "type": "string",
+          "location": "query",
+          "description": "JSON array of extra fields",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "devices_list",
+      "description": "Returns array of devices with IP, MAC, hostname, and online status.",
+      "method": "GET",
+      "path": "/devices",
+      "tier": "endpoint",
+      "params": [
+        {
+          "name": "conntype",
+          "type": "string",
+          "location": "query",
+          "description": "all|wireless|wired",
+          "required": false
+        },
+        {
+          "name": "info",
+          "type": "string",
+          "location": "query",
+          "description": "basic|online",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "dns_ddns-records-list",
+      "description": "Returns array of DDNS records with update status.",
+      "method": "GET",
+      "path": "/dns/ddns",
+      "tier": "endpoint",
+      "params": []
+    },
+    {
+      "name": "dns_external-ip-get",
+      "description": "Returns object with current external (WAN) IP address.",
+      "method": "GET",
+      "path": "/dns/external-ip",
+      "tier": "endpoint",
+      "params": []
+    },
+    {
+      "name": "firewall_rules-list",
+      "description": "Returns array of firewall policy route rules.",
+      "method": "GET",
+      "path": "/firewall/rules",
+      "tier": "endpoint",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "ipv4|ipv6",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "firewall_rules-set",
+      "description": "Replace all firewall rules. Full replace, not patch.",
+      "method": "PUT",
+      "path": "/firewall/rules",
+      "tier": "endpoint",
+      "params": [
+        {
+          "name": "rules",
+          "type": "string",
+          "location": "body",
+          "description": "JSON rules array",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "ipv4|ipv6",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "mesh_nodes-list",
+      "description": "Returns array of mesh nodes with status, rate, and device count.",
+      "method": "GET",
+      "path": "/mesh/nodes",
+      "tier": "endpoint",
+      "params": []
+    },
+    {
+      "name": "mesh_system-info-get",
+      "description": "Returns object with router model, firmware, serial, uptime.",
+      "method": "GET",
+      "path": "/mesh/info",
+      "tier": "endpoint",
+      "params": []
+    },
+    {
+      "name": "qos_rules-list",
+      "description": "Returns array of QoS bandwidth rules per device.",
+      "method": "GET",
+      "path": "/qos/rules",
+      "tier": "endpoint",
+      "params": []
+    },
+    {
+      "name": "session_auth-login",
+      "description": "Authenticate and obtain a session ID. Returns object with sid.",
+      "method": "POST",
+      "path": "/session/login",
+      "tier": "endpoint",
+      "params": [
+        {
+          "name": "account",
+          "type": "string",
+          "location": "body",
+          "description": "Admin username",
+          "required": true
+        },
+        {
+          "name": "passwd",
+          "type": "string",
+          "location": "body",
+          "description": "Admin password",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "session_auth-logout",
+      "description": "Destroy the current SRM session.",
+      "method": "POST",
+      "path": "/session/logout",
+      "tier": "endpoint",
+      "params": []
+    },
+    {
+      "name": "smartwan_smart-wan-config-get",
+      "description": "Returns object with Smart WAN config: failover mode, load-balancing, interfaces.",
+      "method": "GET",
+      "path": "/smartwan/config",
+      "tier": "endpoint",
+      "params": []
+    },
+    {
+      "name": "smartwan_smart-wan-config-set",
+      "description": "Update Smart WAN config.",
+      "method": "PUT",
+      "path": "/smartwan/config",
+      "tier": "endpoint",
+      "params": [
+        {
+          "name": "dw_weight_ratio",
+          "type": "number",
+          "location": "body",
+          "description": "Download weight 0-100",
+          "required": false
+        },
+        {
+          "name": "smartwan_failback",
+          "type": "boolean",
+          "location": "body",
+          "description": "Auto-failback to primary",
+          "required": false
+        },
+        {
+          "name": "smartwan_ifname_1",
+          "type": "string",
+          "location": "body",
+          "description": "Primary WAN interface",
+          "required": false
+        },
+        {
+          "name": "smartwan_ifname_2",
+          "type": "string",
+          "location": "body",
+          "description": "Secondary WAN interface",
+          "required": false
+        },
+        {
+          "name": "smartwan_mode",
+          "type": "string",
+          "location": "body",
+          "description": "failover|load_balance|spillover",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "smartwan_smart-wan-gateway-list",
+      "description": "Returns array of Smart WAN gateways with status and health.",
+      "method": "GET",
+      "path": "/smartwan/gateways",
+      "tier": "endpoint",
+      "params": [
+        {
+          "name": "gatewaytype",
+          "type": "string",
+          "location": "query",
+          "description": "ipv4|ipv6",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "system_info-query",
+      "description": "Returns object with available SRM API namespaces. No auth required.",
+      "method": "GET",
+      "path": "/system/api-info",
+      "tier": "endpoint",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "ALL or comma-separated namespaces",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "traffic_get",
+      "description": "Returns array of traffic per device sorted by download with human-readable bandwidth.",
+      "method": "GET",
+      "path": "/traffic",
+      "tier": "endpoint",
+      "params": [
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "live|day|week|month",
+          "required": true
+        },
+        {
+          "name": "mode",
+          "type": "string",
+          "location": "query",
+          "description": "net|net_l7",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "utilization_get",
+      "description": "Returns object with router CPU, memory, and network utilization.",
+      "method": "GET",
+      "path": "/utilization",
+      "tier": "endpoint",
+      "params": [
+        {
+          "name": "resource",
+          "type": "string",
+          "location": "query",
+          "description": "JSON array: cpu, memory, network",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "wan_status-get",
+      "description": "Returns object with WAN status: IP, gateway, DNS, connection uptime.",
+      "method": "GET",
+      "path": "/wan/status",
+      "tier": "endpoint",
+      "params": []
+    },
+    {
+      "name": "wifi_settings-get",
+      "description": "Returns array of Wi-Fi profiles: SSIDs, security, band, radio config.",
+      "method": "GET",
+      "path": "/wifi/settings",
+      "tier": "endpoint",
+      "params": []
+    },
+    {
+      "name": "wifi_settings-set",
+      "description": "Update Wi-Fi profiles. Full replace — read current first.",
+      "method": "PUT",
+      "path": "/wifi/settings",
+      "tier": "endpoint",
+      "params": [
+        {
+          "name": "profiles",
+          "type": "string",
+          "location": "body",
+          "description": "Complete Wi-Fi profiles array",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "wol_device-add",
+      "description": "Register a MAC for Wake-on-LAN.",
+      "method": "POST",
+      "path": "/wol/devices",
+      "tier": "endpoint",
+      "params": [
+        {
+          "name": "host",
+          "type": "string",
+          "location": "body",
+          "description": "Optional hostname",
+          "required": false
+        },
+        {
+          "name": "mac",
+          "type": "string",
+          "location": "body",
+          "description": "MAC address (AA:BB:CC:DD:EE:FF)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "wol_devices-list",
+      "description": "Returns array of WOL-registered devices with MAC and hostname.",
+      "method": "GET",
+      "path": "/wol/devices",
+      "tier": "endpoint",
+      "params": []
+    },
+    {
+      "name": "wol_wake",
+      "description": "Send WOL magic packet to wake a device.",
+      "method": "POST",
+      "path": "/wol/wake",
+      "tier": "endpoint",
+      "params": [
+        {
+          "name": "mac",
+          "type": "string",
+          "location": "body",
+          "description": "MAC of device to wake",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "search",
+      "description": "FTS across synced data. Requires sync first.",
+      "tier": "framework",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "FTS5 query: AND, OR, NOT, phrases",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "number",
+          "location": "query",
+          "description": "Max results (default 25)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "sql",
+      "description": "Read-only SQL on local DB. Requires sync first.",
+      "tier": "framework",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "SELECT or WITH...SELECT query",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "context",
+      "description": "API context: resource taxonomy, auth, tips. Call first.",
+      "tier": "framework",
+      "params": []
+    },
+    {
+      "name": "network_overview",
+      "description": "Single-call network snapshot: WAN IP, device counts, top talkers, Wi-Fi SSIDs, and mesh health.",
+      "tier": "intent",
+      "params": []
+    },
+    {
+      "name": "device_lookup",
+      "description": "Find a device by hostname, IP, or MAC across synced and live data.",
+      "tier": "intent",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Hostname, IP, or MAC to search",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "busiest_devices",
+      "description": "Top bandwidth consumers aggregated from traffic data. Returns ranked list with human-readable sizes.",
+      "tier": "intent",
+      "params": [
+        {
+          "name": "interval",
+          "type": "string",
+          "location": "query",
+          "description": "live|day|week|month (default: day)",
+          "required": false
+        },
+        {
+          "name": "top",
+          "type": "number",
+          "location": "query",
+          "description": "Number of results (default: 10)",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "router_health",
+      "description": "Router health: CPU, memory, WAN status, device counts, and mesh node status in one call.",
+      "tier": "intent",
+      "params": []
+    },
+    {
+      "name": "security_audit",
+      "description": "Firewall rules, Wi-Fi security, access control groups, and open ports summary.",
+      "tier": "intent",
+      "params": []
+    },
+    {
+      "name": "wake_device",
+      "description": "Wake a device by hostname or MAC. Registers if needed, then sends WOL packet.",
+      "tier": "intent",
+      "params": [
+        {
+          "name": "mac",
+          "type": "string",
+          "location": "query",
+          "description": "MAC address (overrides hostname)",
+          "required": false
+        },
+        {
+          "name": "hostname",
+          "type": "string",
+          "location": "query",
+          "description": "Hostname to look up MAC",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "stale_resources",
+      "description": "List synced resources older than a threshold. Helps decide when to re-sync.",
+      "tier": "intent",
+      "params": [
+        {
+          "name": "older_than",
+          "type": "string",
+          "location": "query",
+          "description": "Duration threshold (e.g. 1h, 24h, 7d). Default: 1h",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "wifi_toggle",
+      "description": "Enable or disable a Wi-Fi SSID by name without replacing the full profile.",
+      "tier": "intent",
+      "params": [
+        {
+          "name": "ssid",
+          "type": "string",
+          "location": "query",
+          "description": "SSID name to toggle",
+          "required": true
+        },
+        {
+          "name": "enable",
+          "type": "boolean",
+          "location": "query",
+          "description": "true to enable, false to disable",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "device_online",
+      "description": "Check if a specific device is currently online by hostname, IP, or MAC.",
+      "tier": "intent",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Hostname, IP, or MAC address",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "mesh_health",
+      "description": "Mesh node status with connected device counts and link quality.",
+      "tier": "intent",
+      "params": []
+    },
+    {
+      "name": "dns_summary",
+      "description": "External IP plus all DDNS records in one call.",
+      "tier": "intent",
+      "params": []
+    },
+    {
+      "name": "reboot_check",
+      "description": "Check if router needs a reboot: uptime, firmware version, and pending changes.",
+      "tier": "intent",
+      "params": []
+    }
+  ]
+}

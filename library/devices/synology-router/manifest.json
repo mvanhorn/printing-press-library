@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "synology-router-pp-mcp",
+  "display_name": "Synology Router",
+  "version": "4.8.0",
+  "description": "Synology Router Manager (SRM) CLI — device management, traffic analysis, firewall rules, mesh network monitoring, and Smart WAN configuration",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/synology-router-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/synology-router-pp-mcp",
+      "args": [],
+      "env": {
+        "SYNOLOGY_ROUTER_COOKIE_AUTH": "${user_config.synology_router_cookie_auth}"
+      }
+    }
+  },
+  "user_config": {
+    "synology_router_cookie_auth": {
+      "type": "string",
+      "title": "SYNOLOGY_ROUTER_COOKIE_AUTH",
+      "description": "Synology Router session cookie obtained via auth login",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

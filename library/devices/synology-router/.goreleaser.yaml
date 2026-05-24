@@ -1,0 +1,51 @@
+version: 2
+project_name: synology-router-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: synology-router-pp-cli
+    main: ./cmd/synology-router-pp-cli
+    binary: synology-router-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/devices/synology-router/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: synology-router-pp-mcp
+    main: ./cmd/synology-router-pp-mcp
+    binary: synology-router-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: synology-router-pp-cli
+    repository:
+      owner: eric-jung
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "REST-style API for managing Synology routers via SRM (Synology Router Manager). All operations use form-encoded POST..."
+    install: |
+      bin.install "synology-router-pp-cli"
+      bin.install "synology-router-pp-mcp"
