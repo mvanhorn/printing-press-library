@@ -74,6 +74,18 @@
       "files": [
         "internal/cli/sync.go"
       ]
+    },
+    {
+      "date": "2026-05-24",
+      "amend_run_id": "amend-2026-05-24T2346",
+      "summary": "feat(clickup): add team-tasks read command wrapping GET /v2/team/{team_id}/task",
+      "files": [
+        "internal/cli/team_tasks.go",
+        "internal/cli/root.go"
+      ],
+      "findings_addressed": ["F1"],
+      "patch_count": 1,
+      "note": "team_tasks.go is a new file; its inline PATCH comment is authorial. The git-diff parity check only counts modified-file markers; 1 marker covers root.go."
     }
   ]
 }

@@ -208,6 +208,8 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newTeamPromotedCmd(flags))
 	rootCmd.AddCommand(newUserPromotedCmd(flags))
 	rootCmd.AddCommand(newVersionCliCmd())
+	// PATCH(amend-2026-05-24: register team-tasks command)
+	rootCmd.AddCommand(newTeamTasksCmd(flags))
 
 	return rootCmd
 }
