@@ -28,6 +28,10 @@ const indeedCLIName = "indeed-pp-cli"
 const jobsPerPage = 10
 const viewJobBase = "https://www.indeed.com/viewjob?jk="
 
+// maxSeenKeys bounds a saved search's persisted seen-key history so repeated
+// `new` polls can't grow the stored blob indefinitely.
+const maxSeenKeys = 2000
+
 // validJobTypes are the values Indeed's `jt` query param accepts.
 var validJobTypes = map[string]bool{
 	"fulltime": true, "parttime": true, "contract": true,
@@ -163,24 +167,36 @@ func runSearch(cmd *cobra.Command, flags *rootFlags, f searchFilters) ([]indeedp
 
 	locations := splitCSV(f.Location)
 
-	fetchLoc := func(ctx context.Context, loc string) ([]indeedparse.Job, error) {
+	// locFetch carries one location's deduped jobs plus the highest
+	// totalJobCount Indeed reported for that location's query — the "~47,000
+	// jobs found" scale figure, which is independent of how many we paged in.
+	type locFetch struct {
+		Jobs  []indeedparse.Job
+		Total int
+	}
+
+	fetchLoc := func(ctx context.Context, loc string) (locFetch, error) {
 		var collected []indeedparse.Job
+		maxTotal := 0
 		seen := map[string]bool{}
 		for start := 0; len(collected) < perLoc; start += jobsPerPage {
 			params := buildSearchParams(f, loc, start)
 			html, err := c.GetNoCache(ctx, "/jobs", params)
 			if err != nil {
 				if start == 0 {
-					return nil, classifyAPIError(err, flags)
+					return locFetch{}, classifyAPIError(err, flags)
 				}
 				break // later page failed; keep what we have
 			}
-			jobs, _, perr := indeedparse.ParseSearchResults(html)
+			jobs, total, perr := indeedparse.ParseSearchResults(html)
 			if perr != nil {
 				if start == 0 {
-					return nil, perr
+					return locFetch{}, perr
 				}
 				break
+			}
+			if total > maxTotal {
+				maxTotal = total
 			}
 			if len(jobs) == 0 {
 				break
@@ -195,18 +211,18 @@ func runSearch(cmd *cobra.Command, flags *rootFlags, f searchFilters) ([]indeedp
 				break // last page
 			}
 		}
-		return collected, nil
+		return locFetch{Jobs: collected, Total: maxTotal}, nil
 	}
 
 	// Single location: run directly so a hard error surfaces as the command
 	// error. Multi-location: fan out so one bad location doesn't drop the rest.
-	var perLocResults [][]indeedparse.Job
+	var perLocResults []locFetch
 	if len(locations) == 1 {
-		jobs, err := fetchLoc(ctx, locations[0])
+		lf, err := fetchLoc(ctx, locations[0])
 		if err != nil {
 			return nil, 0, err
 		}
-		perLocResults = append(perLocResults, jobs)
+		perLocResults = append(perLocResults, lf)
 	} else {
 		results, errs := cliutil.FanoutRun(ctx, locations,
 			func(l string) string { return l },
@@ -218,7 +234,7 @@ func runSearch(cmd *cobra.Command, flags *rootFlags, f searchFilters) ([]indeedp
 			// A location that succeeded but matched nothing is dropped
 			// silently otherwise; surface it so a user fanning out across
 			// "Austin,Dallas,Remote" knows which leg contributed zero.
-			if len(r.Value) == 0 {
+			if len(r.Value.Jobs) == 0 {
 				fmt.Fprintf(cmd.ErrOrStderr(), "note: location %q returned no jobs\n", r.Source)
 			}
 			perLocResults = append(perLocResults, r.Value)
@@ -229,10 +245,15 @@ func runSearch(cmd *cobra.Command, flags *rootFlags, f searchFilters) ([]indeedp
 	}
 
 	// Merge in location order, dedup by key, store everything, then filter.
+	// totalReported is the sum of each location's reported scale so the footer
+	// reflects Indeed's actual result volume across the searched locations, not
+	// the number of rows we happened to page in.
 	byKey := map[string]bool{}
 	var merged []indeedparse.Job
-	for _, jobs := range perLocResults {
-		for _, j := range jobs {
+	totalReported := 0
+	for _, lf := range perLocResults {
+		totalReported += lf.Total
+		for _, j := range lf.Jobs {
 			if !byKey[j.Key] {
 				byKey[j.Key] = true
 				merged = append(merged, j)
@@ -256,7 +277,12 @@ func runSearch(cmd *cobra.Command, flags *rootFlags, f searchFilters) ([]indeedp
 			break
 		}
 	}
-	return out, len(merged), nil
+	// Fall back to the local count if Indeed reported no scale figure, so the
+	// footer never claims fewer total than we actually returned.
+	if totalReported < len(merged) {
+		totalReported = len(merged)
+	}
+	return out, totalReported, nil
 }
 
 func newSearchCmd(flags *rootFlags) *cobra.Command {
@@ -739,6 +765,14 @@ func newNewCmd(flags *rootFlags) *cobra.Command {
 				if !seen[j.Key] {
 					ss.SeenKeys = append(ss.SeenKeys, j.Key)
 				}
+			}
+			// Cap the seen set so a daily poll on a busy query can't grow the
+			// persisted blob without bound. Indeed job keys are permanent and
+			// retired listings don't resurface, so keeping the most recent
+			// maxSeenKeys is enough to suppress repeats; the rare resurfaced
+			// listing reappearing as "new" is acceptable.
+			if len(ss.SeenKeys) > maxSeenKeys {
+				ss.SeenKeys = ss.SeenKeys[len(ss.SeenKeys)-maxSeenKeys:]
 			}
 			ss.LastRun = time.Now().UTC().Format(time.RFC3339)
 			if raw, mErr := json.Marshal(ss); mErr == nil {
