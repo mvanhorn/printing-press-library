@@ -101,6 +101,8 @@ func TestParseSalary(t *testing.T) {
 		{"$100,000 - $130,000 a year", 100000, 130000, "year"},
 		{"Up to $90K a year", 90000, 90000, "year"},
 		{"From $25.50 an hour", 25.50, 25.50, "hour"},
+		// 3+ figures must not invert min/max (smallest..largest).
+		{"$120,000 - $150,000 plus $10,000 bonus a year", 10000, 150000, "year"},
 		{"Competitive", 0, 0, ""},
 	}
 	for _, c := range cases {

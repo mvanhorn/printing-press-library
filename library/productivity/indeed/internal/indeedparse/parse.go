@@ -284,14 +284,22 @@ func ParseSalary(text string) (min, max float64, period string) {
 	if pm := periodRE.FindString(text); pm != "" {
 		period = normalizePeriod(pm)
 	}
-	switch len(nums) {
-	case 0:
+	if len(nums) == 0 {
 		return 0, 0, period
-	case 1:
-		return nums[0], nums[0], period
-	default:
-		return nums[0], nums[len(nums)-1], period
 	}
+	// Take the smallest and largest figures so the result is never inverted,
+	// even when the snippet carries a third number (e.g. a bonus or sign-on
+	// amount alongside a "$X - $Y" range).
+	min, max = nums[0], nums[0]
+	for _, v := range nums[1:] {
+		if v < min {
+			min = v
+		}
+		if v > max {
+			max = v
+		}
+	}
+	return min, max, period
 }
 
 // jsonLDScriptRE matches the contents of <script type="application/ld+json">…</script>.
