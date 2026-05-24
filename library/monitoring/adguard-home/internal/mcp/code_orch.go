@@ -8,7 +8,7 @@ import (
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
-	"adguard-home-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/monitoring/adguard-home/internal/store"
 )
 
 func RegisterCodeOrchTools(s *server.MCPServer) {

@@ -15,8 +15,8 @@ import (
 	"strings"
 	"time"
 
-	"adguard-home-pp-cli/internal/client"
-	"adguard-home-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/monitoring/adguard-home/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/monitoring/adguard-home/internal/store"
 )
 
 // isNetworkError returns true for errors caused by network connectivity issues

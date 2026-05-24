@@ -4,8 +4,8 @@
 package cli
 
 import (
-	"adguard-home-pp-cli/internal/client"
-	"adguard-home-pp-cli/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/monitoring/adguard-home/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/monitoring/adguard-home/internal/cliutil"
 	"bytes"
 	"encoding/json"
 	"errors"

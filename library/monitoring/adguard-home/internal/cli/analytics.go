@@ -9,7 +9,7 @@ import (
 	"os"
 	"sort"
 
-	"adguard-home-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/monitoring/adguard-home/internal/store"
 	"github.com/spf13/cobra"
 )
 

@@ -4,8 +4,8 @@
 package cli
 
 import (
-	"adguard-home-pp-cli/internal/cliutil"
-	"adguard-home-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/monitoring/adguard-home/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/monitoring/adguard-home/internal/store"
 	"encoding/json"
 	"fmt"
 	"github.com/spf13/cobra"

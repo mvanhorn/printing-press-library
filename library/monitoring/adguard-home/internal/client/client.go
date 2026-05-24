@@ -4,8 +4,8 @@
 package client
 
 import (
-	"adguard-home-pp-cli/internal/cliutil"
-	"adguard-home-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/monitoring/adguard-home/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/monitoring/adguard-home/internal/config"
 	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
@@ -340,7 +340,7 @@ func (c *Client) do(method, path string, params map[string]string, body any, hea
 			req.Header.Del(BinaryResponseHeader)
 		}
 		if req.Header.Get("User-Agent") == "" {
-			req.Header.Set("User-Agent", "adguard-home-pp-cli/0.107")
+			req.Header.Set("User-Agent", "github.com/mvanhorn/printing-press-library/library/monitoring/adguard-home/0.107")
 		}
 		// Go's net/http omits Accept by default; browsers, curl, and other
 		// stdlibs always send it. Fingerprint-checking WAFs (Imperva, Akamai,
