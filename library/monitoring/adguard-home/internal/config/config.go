@@ -136,7 +136,7 @@ func (c *Config) SaveTokens(clientID, clientSecret, accessToken, refreshToken st
 func (c *Config) SaveCredential(token string) error {
 	c.AuthHeaderVal = ""
 	c.AccessToken = ""
-	c.AdguardHomeUsername = token
+	c.AdguardHomePassword = token
 	return c.save()
 }
 

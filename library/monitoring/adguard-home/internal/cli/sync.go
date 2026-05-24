@@ -709,8 +709,23 @@ func extractPageItems(data json.RawMessage, cursorParam string) ([]json.RawMessa
 	}
 	if arrayCount == 1 {
 		nextCursor, hasMore := extractPaginationFromEnvelope(envelope, cursorParam)
-		_ = arrayKey // used for detection, items extracted above
+		_ = arrayKey
 		return arrayItems, nextCursor, hasMore
+	}
+	// Multi-array: pick the first non-"auto_*" key. Handles AdGuard's
+	// {"clients": [...], "auto_clients": [...]} where we want the manual
+	// clients array, not the auto-detected one.
+	if arrayCount > 1 {
+		for key, raw := range envelope {
+			if strings.HasPrefix(key, "auto_") {
+				continue
+			}
+			var candidate []json.RawMessage
+			if err := json.Unmarshal(raw, &candidate); err == nil && len(candidate) > 0 {
+				nextCursor, hasMore := extractPaginationFromEnvelope(envelope, cursorParam)
+				return candidate, nextCursor, hasMore
+			}
+		}
 	}
 
 	return nil, "", false
