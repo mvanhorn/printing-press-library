@@ -138,6 +138,22 @@
       "files": [
         "internal/cli/trust_status.go"
       ]
+    },
+    {
+      "id": "oversight-list-islist-flag",
+      "summary": "Set isList=true in resolveRead call so local-store fallback uses db.List() instead of extracting 'pending' as a resource ID.",
+      "reason": "isList=false causes resolveLocal to split the path /v1/oversight/pending and call db.Get('oversight', 'pending'), which always returns not-found. --data-source local and auto-mode offline fallback were broken.",
+      "files": [
+        "internal/cli/oversight_list.go"
+      ]
+    },
+    {
+      "id": "oversight-velocity-anchored-like-patterns",
+      "summary": "Use start-anchored LIKE patterns ('approve%', 'reject%') instead of '%approve%' / '%reject%' in both count and latency queries.",
+      "reason": "Unanchored '%approve%' matches negation prefixes like 'unapprove' or 'pre_approval_check', silently inflating approval/rejection counts and skewing approval_rate.",
+      "files": [
+        "internal/cli/oversight_velocity.go"
+      ]
     }
   ]
 }

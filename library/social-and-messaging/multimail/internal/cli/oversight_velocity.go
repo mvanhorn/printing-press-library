@@ -93,11 +93,14 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 				// PATCH: Check multiple fields for mailbox association — the audit-log
 				// schema may store mailbox_id at the top level, in metadata, or as
 				// resource_id. Match all three for consistency with trust_status.
+				// PATCH: Use start-anchored LIKE patterns ('approve%', 'reject%')
+				// instead of '%approve%' / '%reject%' to prevent false matches
+				// from negation prefixes (e.g. 'unapprove', 'pre_approval_check').
 				var approved, rejected int
 				row := db.DB().QueryRowContext(cmd.Context(),
 					`SELECT
-						COALESCE(SUM(CASE WHEN json_extract(data, '$.action') LIKE '%approve%' THEN 1 ELSE 0 END), 0),
-						COALESCE(SUM(CASE WHEN json_extract(data, '$.action') LIKE '%reject%' THEN 1 ELSE 0 END), 0)
+						COALESCE(SUM(CASE WHEN json_extract(data, '$.action') LIKE 'approve%' THEN 1 ELSE 0 END), 0),
+						COALESCE(SUM(CASE WHEN json_extract(data, '$.action') LIKE 'reject%' THEN 1 ELSE 0 END), 0)
 					FROM resources
 					WHERE resource_type = 'audit-log'
 					AND (json_extract(data, '$.mailbox_id') = ?
@@ -133,8 +136,8 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 					JOIN resources o ON o.resource_type = 'oversight'
 						AND o.id = json_extract(a.data, '$.resource_id')
 					WHERE a.resource_type = 'audit-log'
-					AND (json_extract(a.data, '$.action') LIKE '%approve%'
-					  OR json_extract(a.data, '$.action') LIKE '%reject%')
+					AND (json_extract(a.data, '$.action') LIKE 'approve%'
+					  OR json_extract(a.data, '$.action') LIKE 'reject%')
 					AND (json_extract(o.data, '$.mailbox_id') = ?
 					  OR json_extract(a.data, '$.mailbox_id') = ?
 					  OR json_extract(a.data, '$.resource_id') = ?

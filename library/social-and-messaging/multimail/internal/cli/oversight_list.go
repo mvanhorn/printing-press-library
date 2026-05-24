@@ -26,7 +26,11 @@ func newOversightListCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/v1/oversight/pending"
 			params := map[string]string{}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "oversight", false, path, params, nil, cmd.ErrOrStderr())
+			// PATCH: isList must be true so resolveLocal returns db.List()
+			// instead of extracting "pending" as a resource ID from the
+			// path and calling db.Get("oversight", "pending") — which
+			// always returns not-found regardless of synced data.
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "oversight", true, path, params, nil, cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
