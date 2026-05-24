@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "generated_at": "2026-05-23T23:19:23Z",
-  "printing_press_version": "4.8.0",
+  "printing_press_version": "4.10.0",
   "api_name": "synology-dsm",
   "display_name": "Synology DSM",
   "cli_name": "synology-dsm-pp-cli",

@@ -2,6 +2,6 @@
   "schema_version": 1,
   "applied_at": "2026-05-24",
   "base_run_id": "20260523T231923Z-2618938d",
-  "base_printing_press_version": "4.8.0",
+  "base_printing_press_version": "4.10.0",
   "patches": []
 }
