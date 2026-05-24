@@ -54,7 +54,22 @@ type response struct {
 }
 
 type gqlError struct {
-	Message string `json:"message"`
+	Message    string         `json:"message"`
+	Path       []any          `json:"path,omitempty"`
+	Extensions map[string]any `json:"extensions,omitempty"`
+}
+
+// isPlanGated returns true if the error is a per-field plan restriction
+// (paid_required) rather than a request-wide failure. The Fireflies API
+// returns partial data alongside these so the caller can continue.
+func (e gqlError) isPlanGated() bool {
+	if e.Extensions == nil {
+		return false
+	}
+	if code, ok := e.Extensions["code"].(string); ok && code == "paid_required" {
+		return true
+	}
+	return false
 }
 
 // Do executes a GraphQL query and returns the raw data field.
@@ -104,6 +119,20 @@ func (c *Client) Do(ctx context.Context, query string, variables map[string]any)
 		return nil, fmt.Errorf("parsing response: %w", err)
 	}
 	if len(gqlResp.Errors) > 0 {
+		allPlanGated := true
+		var nonGated []string
+		for _, e := range gqlResp.Errors {
+			if !e.isPlanGated() {
+				allPlanGated = false
+				nonGated = append(nonGated, e.Message)
+			}
+		}
+		if !allPlanGated {
+			return nil, fmt.Errorf("GraphQL error: %s", nonGated[0])
+		}
+		if len(gqlResp.Data) > 0 {
+			return gqlResp.Data, nil
+		}
 		return nil, fmt.Errorf("GraphQL error: %s", gqlResp.Errors[0].Message)
 	}
 	return gqlResp.Data, nil
