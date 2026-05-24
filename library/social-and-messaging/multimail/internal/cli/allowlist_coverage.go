@@ -39,6 +39,11 @@ many sends would bypass the gated_send approval queue.
 A low coverage percentage means most sends are going through the approval
 queue — consider adding frequently-used recipients to the allowlist.
 
+Allowlist patterns are populated by sync --full. Send history is populated
+when you use this CLI to send emails (the API has no send-history list
+endpoint). If recent_sends shows 0, it means no sends have been recorded
+through this CLI — the allowlist_count and pattern data are still valid.
+
 Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 		Example: strings.Trim(`
   multimail-pp-cli mailboxes allowlist coverage --json

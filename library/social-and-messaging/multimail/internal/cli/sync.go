@@ -1258,6 +1258,8 @@ type dependentResourceDef struct {
 func dependentResourceDefs() []dependentResourceDef {
 	return []dependentResourceDef{
 		{Name: "mailboxes_emails", ParentTable: "mailboxes", ParentIDParam: "mailboxId", PathTemplate: "/v1/mailboxes/{mailboxId}/emails", KeyField: ""},
+		// PATCH: allowlist is needed by the allowlist coverage novel command
+		{Name: "allowlist", ParentTable: "mailboxes", ParentIDParam: "mailboxId", PathTemplate: "/v1/mailboxes/{mailboxId}/allowlist", KeyField: ""},
 	}
 }
 

@@ -13,13 +13,13 @@ import (
 )
 
 type staleThreadRow struct {
-	ThreadID    string `json:"thread_id"`
-	Mailbox     string `json:"mailbox"`
-	MailboxID   string `json:"mailbox_id"`
-	Subject     string `json:"subject"`
-	LastReplyAt string `json:"last_reply_at"`
-	StaleDays   int    `json:"stale_days"`
-	MessageCount int   `json:"message_count"`
+	ThreadID     string `json:"thread_id"`
+	Mailbox      string `json:"mailbox"`
+	MailboxID    string `json:"mailbox_id"`
+	Subject      string `json:"subject"`
+	LastReplyAt  string `json:"last_reply_at"`
+	StaleDays    int    `json:"stale_days"`
+	MessageCount int    `json:"message_count"`
 }
 
 func newThreadsStaleCmd(flags *rootFlags) *cobra.Command {
@@ -35,6 +35,10 @@ func newThreadsStaleCmd(flags *rootFlags) *cobra.Command {
 scans the local SQLite cache for threads whose last message is older
 than the threshold, revealing dropped conversations that may need
 follow-up.
+
+When the threads table has data (from CLI thread operations), it uses
+that directly. Otherwise, it derives threads from synced emails by
+grouping on parent_id — any email chain with 2+ messages is a thread.
 
 Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 		Example: strings.Trim(`
@@ -79,92 +83,26 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 				return fmt.Errorf("no mailboxes in local cache — run 'multimail-pp-cli sync --full' first")
 			}
 
-			// Query threads and compute staleness
-			threadRows, err := db.DB().QueryContext(cmd.Context(),
-				`SELECT id, mailboxes_id, data FROM threads`)
-			if err != nil {
-				return fmt.Errorf("querying threads: %w", err)
-			}
 			var results []staleThreadRow
-			for threadRows.Next() {
-				var id, mailboxID string
-				var dataBytes []byte
-				if err := threadRows.Scan(&id, &mailboxID, &dataBytes); err != nil {
-					continue
-				}
 
-				var threadData map[string]interface{}
-				if json.Unmarshal(dataBytes, &threadData) != nil {
-					continue
-				}
+			// Check if the threads table has data
+			var threadCount int
+			countRow := db.DB().QueryRowContext(cmd.Context(), `SELECT COUNT(*) FROM threads`)
+			_ = countRow.Scan(&threadCount)
 
-				// Extract last activity timestamp
-				var lastActivity string
-				for _, key := range []string{"last_reply_at", "last_message_at", "updated_at", "last_activity_at"} {
-					if v, ok := threadData[key]; ok {
-						if s, ok := v.(string); ok && s != "" {
-							lastActivity = s
-							break
-						}
-					}
-				}
-				if lastActivity == "" {
-					continue
-				}
-
-				lastTime, err := time.Parse(time.RFC3339, lastActivity)
-				if err != nil {
-					// Try RFC3339Nano
-					lastTime, err = time.Parse(time.RFC3339Nano, lastActivity)
-					if err != nil {
-						continue
-					}
-				}
-
-				if lastTime.After(cutoff) {
-					continue // not stale
-				}
-
-				staleDays := int(time.Since(lastTime).Hours() / 24)
-
-				subject := ""
-				if v, ok := threadData["subject"]; ok {
-					if s, ok := v.(string); ok {
-						subject = s
-					}
-				}
-
-				var msgCount int
-				if v, ok := threadData["message_count"]; ok {
-					switch n := v.(type) {
-					case float64:
-						msgCount = int(n)
-					}
-				}
-				// Fallback: count emails with this thread as parent
-				if msgCount == 0 {
-					countRow := db.DB().QueryRowContext(cmd.Context(),
-						`SELECT COUNT(*) FROM mailboxes_emails
-						WHERE mailboxes_id = ? AND parent_id = ?`, mailboxID, id)
-					_ = countRow.Scan(&msgCount)
-				}
-
-				mbName := mbNames[mailboxID]
-				if mbName == "" {
-					mbName = mailboxID
-				}
-
-				results = append(results, staleThreadRow{
-					ThreadID:     id,
-					Mailbox:      mbName,
-					MailboxID:    mailboxID,
-					Subject:      subject,
-					LastReplyAt:  lastActivity,
-					StaleDays:    staleDays,
-					MessageCount: msgCount,
-				})
+			if threadCount > 0 {
+				// Use threads table directly
+				results, err = staleFromThreadsTable(cmd, db, cutoff, mbNames)
+			} else {
+				// PATCH: Derive threads from mailboxes_emails parent_id
+				// grouping. The API has no list-threads endpoint, so
+				// sync --full cannot populate the threads table. Fall
+				// back to treating shared parent_id groups as threads.
+				results, err = staleFromEmailParentGroups(cmd, db, cutoff, mbNames)
 			}
-			threadRows.Close()
+			if err != nil {
+				return err
+			}
 
 			// Sort by stale_days descending — most stale first
 			sort.Slice(results, func(i, j int) bool {
@@ -183,4 +121,150 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 	cmd.Flags().IntVar(&limit, "limit", 50, "Maximum threads to return")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
 	return cmd
+}
+
+// staleFromThreadsTable uses the dedicated threads table (populated by CLI thread operations).
+func staleFromThreadsTable(cmd *cobra.Command, db *store.Store, cutoff time.Time, mbNames map[string]string) ([]staleThreadRow, error) {
+	threadRows, err := db.DB().QueryContext(cmd.Context(),
+		`SELECT id, mailboxes_id, data FROM threads`)
+	if err != nil {
+		return nil, fmt.Errorf("querying threads: %w", err)
+	}
+	var results []staleThreadRow
+	for threadRows.Next() {
+		var id, mailboxID string
+		var dataBytes []byte
+		if err := threadRows.Scan(&id, &mailboxID, &dataBytes); err != nil {
+			continue
+		}
+
+		var threadData map[string]interface{}
+		if json.Unmarshal(dataBytes, &threadData) != nil {
+			continue
+		}
+
+		var lastActivity string
+		for _, key := range []string{"last_reply_at", "last_message_at", "updated_at", "last_activity_at"} {
+			if v, ok := threadData[key]; ok {
+				if s, ok := v.(string); ok && s != "" {
+					lastActivity = s
+					break
+				}
+			}
+		}
+		if lastActivity == "" {
+			continue
+		}
+
+		lastTime, perr := time.Parse(time.RFC3339, lastActivity)
+		if perr != nil {
+			lastTime, perr = time.Parse(time.RFC3339Nano, lastActivity)
+			if perr != nil {
+				continue
+			}
+		}
+		if lastTime.After(cutoff) {
+			continue
+		}
+
+		staleDays := int(time.Since(lastTime).Hours() / 24)
+
+		subject := ""
+		if v, ok := threadData["subject"]; ok {
+			if s, ok := v.(string); ok {
+				subject = s
+			}
+		}
+
+		var msgCount int
+		if v, ok := threadData["message_count"]; ok {
+			if n, ok := v.(float64); ok {
+				msgCount = int(n)
+			}
+		}
+		if msgCount == 0 {
+			countRow := db.DB().QueryRowContext(cmd.Context(),
+				`SELECT COUNT(*) FROM mailboxes_emails
+				WHERE mailboxes_id = ? AND parent_id = ?`, mailboxID, id)
+			_ = countRow.Scan(&msgCount)
+		}
+
+		mbName := mbNames[mailboxID]
+		if mbName == "" {
+			mbName = mailboxID
+		}
+
+		results = append(results, staleThreadRow{
+			ThreadID:     id,
+			Mailbox:      mbName,
+			MailboxID:    mailboxID,
+			Subject:      subject,
+			LastReplyAt:  lastActivity,
+			StaleDays:    staleDays,
+			MessageCount: msgCount,
+		})
+	}
+	threadRows.Close()
+	return results, nil
+}
+
+// staleFromEmailParentGroups derives threads from mailboxes_emails by grouping
+// on parent_id. Any parent_id with 2+ emails is treated as a conversation thread.
+func staleFromEmailParentGroups(cmd *cobra.Command, db *store.Store, cutoff time.Time, mbNames map[string]string) ([]staleThreadRow, error) {
+	rows, err := db.DB().QueryContext(cmd.Context(),
+		`SELECT
+			parent_id,
+			mailboxes_id,
+			COUNT(*) as msg_count,
+			MAX(COALESCE(json_extract(data, '$.received_at'), json_extract(data, '$.created_at'), synced_at)) as last_ts,
+			-- Pick subject from any email in the thread
+			COALESCE(json_extract(data, '$.subject'), '')
+		FROM mailboxes_emails
+		WHERE parent_id IS NOT NULL AND parent_id != ''
+		GROUP BY parent_id, mailboxes_id
+		HAVING COUNT(*) >= 2`)
+	if err != nil {
+		return nil, fmt.Errorf("querying email threads: %w", err)
+	}
+	var results []staleThreadRow
+	for rows.Next() {
+		var parentID, mailboxID, lastTS, subject string
+		var msgCount int
+		if rows.Scan(&parentID, &mailboxID, &msgCount, &lastTS, &subject) != nil {
+			continue
+		}
+		if lastTS == "" {
+			continue
+		}
+
+		lastTime, perr := time.Parse(time.RFC3339, lastTS)
+		if perr != nil {
+			lastTime, perr = time.Parse(time.RFC3339Nano, lastTS)
+			if perr != nil {
+				continue
+			}
+		}
+		if lastTime.After(cutoff) {
+			continue
+		}
+
+		staleDays := int(time.Since(lastTime).Hours() / 24)
+
+		mbName := mbNames[mailboxID]
+		if mbName == "" {
+			mbName = mailboxID
+		}
+
+		results = append(results, staleThreadRow{
+			ThreadID:     parentID,
+			Mailbox:      mbName,
+			MailboxID:    mailboxID,
+			Subject:      subject,
+			LastReplyAt:  lastTS,
+			StaleDays:    staleDays,
+			MessageCount: msgCount,
+		})
+	}
+	rows.Close()
+	return results, nil
 }

@@ -65,6 +65,22 @@
       "files": [
         "internal/cli/oversight_velocity.go"
       ]
+    },
+    {
+      "id": "sync-add-allowlist-dependent",
+      "summary": "Add allowlist as a dependent sync resource so allowlist coverage has data after sync --full.",
+      "reason": "The allowlist table was defined in the schema but never populated by sync. GET /v1/mailboxes/{mailboxId}/allowlist exists in the API.",
+      "files": [
+        "internal/cli/sync.go"
+      ]
+    },
+    {
+      "id": "threads-stale-derive-from-emails",
+      "summary": "Derive thread data from mailboxes_emails parent_id groups when the threads table is empty.",
+      "reason": "The API has no list-threads endpoint (only GET single thread by ID), so sync --full cannot populate the threads table. The command now falls back to grouping emails by parent_id to detect conversation threads.",
+      "files": [
+        "internal/cli/threads_stale.go"
+      ]
     }
   ]
 }
