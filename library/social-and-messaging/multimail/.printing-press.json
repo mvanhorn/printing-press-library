@@ -6,6 +6,7 @@
   "display_name": "Multimail",
   "cli_name": "multimail-pp-cli",
   "owner": "h179922",
+  "printer": "H179922",
   "printer_name": "H179922",
   "spec_path": "/tmp/multimail-openapi-2026-05-23.json",
   "spec_format": "openapi3",
