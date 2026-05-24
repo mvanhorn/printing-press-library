@@ -130,6 +130,14 @@
       "files": [
         "internal/cli/oversight_velocity.go"
       ]
+    },
+    {
+      "id": "trust-status-mailbox-lookup-consistency",
+      "summary": "Add $.mailbox_id check to trust_status audit-log query for consistency with oversight_velocity.",
+      "reason": "trust_status checked $.resource_id and $.metadata.mailbox_id but not $.mailbox_id. oversight_velocity checks all three. If upgrade events store mailbox association at the top level, trust_status would return zero upgrade_count and fall back to creation time for time_at_level.",
+      "files": [
+        "internal/cli/trust_status.go"
+      ]
     }
   ]
 }
