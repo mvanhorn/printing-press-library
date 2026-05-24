@@ -293,7 +293,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			{
 				"name":        "graphql",
 				"description": "Operations on autocompleteFacetFeed",
-				"endpoints":   []string{"create_addCartItem", "create_autocompleteFacetFeed", "create_checkout", "create_convenienceSearchQuery", "create_createOrderFromCart", "create_itemPage", "create_listCarts", "create_storepageFeed"},
+				"endpoints":   []string{"create_addCartItem", "create_autocompleteFacetFeed", "create_checkout", "create_convenienceSearchQuery", "create_itemPage", "create_listCarts", "create_storepageFeed"},
 				"searchable":  true,
 			},
 		},
