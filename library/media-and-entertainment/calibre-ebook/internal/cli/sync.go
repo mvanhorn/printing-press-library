@@ -4,8 +4,8 @@
 package cli
 
 import (
-	"calibre-ebook-pp-cli/internal/cliutil"
-	"calibre-ebook-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/calibre-ebook/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/calibre-ebook/internal/store"
 	"encoding/json"
 	"fmt"
 	"github.com/spf13/cobra"

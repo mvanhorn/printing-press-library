@@ -5,7 +5,7 @@ package cli
 
 import (
 	"bytes"
-	"calibre-ebook-pp-cli/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/calibre-ebook/internal/client"
 	"encoding/json"
 	"errors"
 	"fmt"

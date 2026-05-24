@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"os"
 
-	mcptools "calibre-ebook-pp-cli/internal/mcp"
+	mcptools "github.com/mvanhorn/printing-press-library/library/media-and-entertainment/calibre-ebook/internal/mcp"
 	"github.com/mark3labs/mcp-go/server"
 )
 

@@ -1,4 +1,4 @@
-module calibre-ebook-pp-cli
+module github.com/mvanhorn/printing-press-library/library/media-and-entertainment/calibre-ebook
 
 go 1.26.3
 

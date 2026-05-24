@@ -5,9 +5,9 @@ import (
 	"os"
 	"time"
 
-	"calibre-ebook-pp-cli/internal/cliutil"
-	"calibre-ebook-pp-cli/internal/config"
-	"calibre-ebook-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/calibre-ebook/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/calibre-ebook/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/calibre-ebook/internal/store"
 )
 
 func autoRefreshIfStale(flags *rootFlags, resourceTypes []string) error {

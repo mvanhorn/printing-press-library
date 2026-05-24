@@ -1,51 +1,53 @@
 {
   "schema_version": 1,
-  "cli_name": "calibre-ebook-pp-cli",
+  "generated_at": "2026-05-24T11:15:00Z",
+  "printing_press_version": "4.8.0",
   "api_name": "calibre-ebook",
   "display_name": "Calibre Ebook",
-  "version": "1.0.0",
-  "run_id": "calibre-ebook-spec",
-  "printing_press_version": "4.8.0",
+  "cli_name": "calibre-ebook-pp-cli",
+  "owner": "eric-jung",
   "printer": "e-jung",
   "printer_name": "Eric Jung",
+  "run_id": "calibre-ebook-spec",
+  "catalog_entry": "calibre-ebook",
   "category": "media-and-entertainment",
+  "description": "Local ebook library management via Calibre CLI tools (calibredb/ebook-meta/ebook-convert/ebook-polish) — no REST API, no content server required",
+  "mcp_binary": "calibre-ebook-pp-mcp",
+  "mcp_ready": "full",
+  "auth_type": "none",
+  "auth_env_vars": [],
   "novel_features": [
     {
-      "name": "health-score",
+      "name": "Health Score",
       "command": "library health-score",
-      "topic": "library health",
-      "insight": "Computes a weighted 0-100 health score from check_library output with per-category deductions"
+      "description": "Computes a weighted 0-100 library health score from check_library output with per-category deductions for metadata completeness, format coverage, and integrity issues"
     },
     {
-      "name": "duplicates",
+      "name": "Duplicate Detection",
       "command": "library duplicates",
-      "topic": "duplicate detection",
-      "insight": "Finds duplicate books by title/author with exact, fuzzy, and broad matching modes"
+      "description": "Finds duplicate books by title/author with exact, fuzzy, and broad matching modes — Calibre has no built-in duplicate detection"
     },
     {
-      "name": "series-gaps",
+      "name": "Series Gap Detection",
       "command": "library series-gaps",
-      "topic": "series completeness",
-      "insight": "Detects series with missing books by analyzing series_index gaps"
+      "description": "Detects series with missing books by analyzing series_index gaps, reporting which volumes are absent"
     },
     {
-      "name": "stats",
+      "name": "Library Statistics",
       "command": "library stats",
-      "topic": "library analytics",
-      "insight": "Aggregate statistics: format distribution, top authors, series, file sizes"
+      "description": "Aggregate library statistics: format distribution, top authors, series breakdown, file sizes, and language counts"
     },
     {
-      "name": "similar",
+      "name": "Similar Books",
       "command": "library similar",
-      "topic": "book recommendations",
-      "insight": "Content-based similar book finder using shared authors, tags, series, and publisher"
+      "description": "Content-based similar book finder using shared authors, tags, series, and publisher overlap with configurable similarity threshold"
     }
   ],
   "workflows": [
     {
       "name": "health-audit",
       "command": "workflow health-audit",
-      "description": "Full library health audit with prioritized recommendations"
+      "description": "Full library health audit with prioritized recommendations combining health-score and check_library output"
     }
   ]
 }

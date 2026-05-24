@@ -13,11 +13,11 @@ import (
 	"strings"
 	"time"
 
-	"calibre-ebook-pp-cli/internal/cli"
-	"calibre-ebook-pp-cli/internal/client"
-	"calibre-ebook-pp-cli/internal/config"
-	"calibre-ebook-pp-cli/internal/mcp/cobratree"
-	"calibre-ebook-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/calibre-ebook/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/calibre-ebook/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/calibre-ebook/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/calibre-ebook/internal/mcp/cobratree"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/calibre-ebook/internal/store"
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 )

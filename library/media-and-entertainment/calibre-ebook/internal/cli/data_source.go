@@ -15,8 +15,8 @@ import (
 	"strings"
 	"time"
 
-	"calibre-ebook-pp-cli/internal/client"
-	"calibre-ebook-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/calibre-ebook/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/calibre-ebook/internal/store"
 )
 
 // isNetworkError returns true for errors caused by network connectivity issues

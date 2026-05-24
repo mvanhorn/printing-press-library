@@ -12,8 +12,8 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"calibre-ebook-pp-cli/internal/client"
-	"calibre-ebook-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/calibre-ebook/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/calibre-ebook/internal/config"
 	"github.com/spf13/cobra"
 )
 

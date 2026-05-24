@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"calibre-ebook-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/calibre-ebook/internal/config"
 )
 
 const BinaryResponseHeader = "X-Printing-Press-Binary-Response"
