@@ -90,9 +90,9 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 				// for --days window filtering. synced_at is when the record was
 				// cached locally — on first sync all records land with synced_at ≈ now,
 				// making the window include all historical events.
-				// PATCH: Check multiple fields for mailbox association — the audit-log
-				// schema may store mailbox_id at the top level, in metadata, or as
-				// resource_id. Match all three for consistency with trust_status.
+				// PATCH: Check $.mailbox_id and $.metadata.mailbox_id for mailbox
+				// association. $.resource_id is NOT checked because it stores the
+				// oversight-item ID, not the mailbox ID.
 				// PATCH: Use start-anchored LIKE patterns ('approve%', 'reject%')
 				// instead of '%approve%' / '%reject%' to prevent false matches
 				// from negation prefixes (e.g. 'unapprove', 'pre_approval_check').
@@ -104,9 +104,8 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 					FROM resources
 					WHERE resource_type = 'audit-log'
 					AND (json_extract(data, '$.mailbox_id') = ?
-					  OR json_extract(data, '$.resource_id') = ?
 					  OR json_extract(data, '$.metadata.mailbox_id') = ?)
-					AND json_extract(data, '$.created_at') > ?`, mb.ID, mb.ID, mb.ID, cutoff)
+					AND json_extract(data, '$.created_at') > ?`, mb.ID, mb.ID, cutoff)
 				if err := row.Scan(&approved, &rejected); err != nil {
 					continue
 				}
@@ -123,10 +122,10 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 				// re-appear with updated status. Instead, correlate
 				// audit-log approve/reject events (which have the decision
 				// timestamp) with oversight items (which retain received_at)
-				// via resource_id. Mailbox association is checked on both
-				// the oversight item ($.mailbox_id) and the audit-log entry
-				// ($.mailbox_id, $.resource_id, $.metadata.mailbox_id) for
-				// consistency with the count query above.
+				// via resource_id. Mailbox association is checked on the
+				// oversight item ($.mailbox_id) and the audit-log entry
+				// ($.mailbox_id, $.metadata.mailbox_id). $.resource_id is
+				// NOT checked — it stores oversight-item IDs, not mailbox IDs.
 				medianLatency := "—"
 				latencyRows, lerr := db.DB().QueryContext(cmd.Context(),
 					`SELECT
@@ -140,9 +139,8 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 					  OR json_extract(a.data, '$.action') LIKE 'reject%')
 					AND (json_extract(o.data, '$.mailbox_id') = ?
 					  OR json_extract(a.data, '$.mailbox_id') = ?
-					  OR json_extract(a.data, '$.resource_id') = ?
 					  OR json_extract(a.data, '$.metadata.mailbox_id') = ?)
-					AND json_extract(a.data, '$.created_at') > ?`, mb.ID, mb.ID, mb.ID, mb.ID, cutoff)
+					AND json_extract(a.data, '$.created_at') > ?`, mb.ID, mb.ID, mb.ID, cutoff)
 				if lerr == nil {
 					var latencies []float64
 					for latencyRows.Next() {

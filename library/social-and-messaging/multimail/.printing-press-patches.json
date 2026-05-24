@@ -125,8 +125,8 @@
     },
     {
       "id": "oversight-velocity-mailbox-lookup-consistency",
-      "summary": "Check $.mailbox_id, $.resource_id, and $.metadata.mailbox_id for audit-log mailbox association.",
-      "reason": "The audit-log schema may store mailbox association in different fields depending on event type. trust_status already checks resource_id and metadata.mailbox_id; oversight_velocity was only checking $.mailbox_id, risking zero results if the field is stored elsewhere.",
+      "summary": "Check $.mailbox_id and $.metadata.mailbox_id for audit-log mailbox association.",
+      "reason": "The audit-log schema may store mailbox association in $.mailbox_id or $.metadata.mailbox_id. oversight_velocity was only checking $.mailbox_id, risking zero results if the field is stored in metadata.",
       "files": [
         "internal/cli/oversight_velocity.go"
       ]
@@ -134,7 +134,7 @@
     {
       "id": "trust-status-mailbox-lookup-consistency",
       "summary": "Add $.mailbox_id check to trust_status audit-log query for consistency with oversight_velocity.",
-      "reason": "trust_status checked $.resource_id and $.metadata.mailbox_id but not $.mailbox_id. oversight_velocity checks all three. If upgrade events store mailbox association at the top level, trust_status would return zero upgrade_count and fall back to creation time for time_at_level.",
+      "reason": "trust_status checked only $.metadata.mailbox_id but not $.mailbox_id. If upgrade events store mailbox association at the top level, trust_status would return zero upgrade_count and fall back to creation time for time_at_level.",
       "files": [
         "internal/cli/trust_status.go"
       ]
@@ -153,6 +153,15 @@
       "reason": "Unanchored '%approve%' matches negation prefixes like 'unapprove' or 'pre_approval_check', silently inflating approval/rejection counts and skewing approval_rate.",
       "files": [
         "internal/cli/oversight_velocity.go"
+      ]
+    },
+    {
+      "id": "remove-dead-resource-id-mailbox-check",
+      "summary": "Remove $.resource_id = mb.ID from audit-log mailbox association queries. resource_id stores the target object ID (oversight item, upgrade object), not the mailbox ID.",
+      "reason": "The $.resource_id arm never matches a mailbox ID, making it dead code. Leaving it suggests resource_id is a mailbox field, which could mislead future queries.",
+      "files": [
+        "internal/cli/oversight_velocity.go",
+        "internal/cli/trust_status.go"
       ]
     }
   ]
