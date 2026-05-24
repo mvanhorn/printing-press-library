@@ -88,8 +88,9 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 				// PATCH: Derive upgrade history from audit-log events.
 				// The upgrade endpoint is POST-only (no list GET), so sync
 				// cannot populate the upgrade table. Instead, look for
-				// audit-log entries with upgrade-related actions whose
-				// resource_id matches this mailbox.
+				// audit-log entries with completed upgrade actions whose
+				// resource_id matches this mailbox. Exclude request/pending
+				// actions to avoid counting unapproved upgrade requests.
 				var upgradeCount int
 				var lastUpgrade string
 				upgradeRow := db.DB().QueryRowContext(cmd.Context(),
@@ -98,6 +99,8 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 					FROM resources
 					WHERE resource_type = 'audit-log'
 					AND json_extract(data, '$.action') LIKE '%upgrade%'
+					AND json_extract(data, '$.action') NOT LIKE '%request%'
+					AND json_extract(data, '$.action') NOT LIKE '%pending%'
 					AND (json_extract(data, '$.resource_id') = ?
 					  OR json_extract(data, '$.metadata.mailbox_id') = ?)`,
 					mb.ID, mb.ID)

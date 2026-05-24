@@ -100,8 +100,8 @@
     },
     {
       "id": "trust-status-derive-upgrades-from-audit-log",
-      "summary": "Derive upgrade_count and last_upgrade_at from audit-log events instead of the upgrade table.",
-      "reason": "The upgrade endpoint is POST-only (no list GET), so sync cannot populate the upgrade table. Audit-log entries with upgrade-related actions provide the same data.",
+      "summary": "Derive upgrade_count and last_upgrade_at from audit-log events instead of the upgrade table. Excludes request/pending actions to count only completed upgrades.",
+      "reason": "The upgrade endpoint is POST-only (no list GET), so sync cannot populate the upgrade table. Audit-log entries with completed upgrade actions provide the same data. LIKE '%upgrade%' alone would match request_upgrade/upgrade_pending events, inflating the count.",
       "files": [
         "internal/cli/trust_status.go"
       ]
