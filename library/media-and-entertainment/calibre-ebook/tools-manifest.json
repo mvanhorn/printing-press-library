@@ -1,0 +1,405 @@
+{
+  "api_name": "calibre-ebook",
+  "base_url": "",
+  "description": "Local ebook library management via Calibre CLI tools \u2014 no REST API, no HTTP transport",
+  "mcp_ready": "full",
+  "http_transport": "none",
+  "auth": {
+    "type": "none",
+    "env_vars": [],
+    "env_var_specs": []
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "listBooks",
+      "description": "List books in the library",
+      "method": "GET",
+      "path": "/books",
+      "params": [
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated fields: id,title,authors,series,series_index,formats,tags,isbn,publisher,pubdate,rating,comments,cover,identifiers,languages,size,last_modified,uuid"
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "location": "query",
+          "description": "Calibre search expression (e.g. 'author:tolkien', 'series:^Dune', 'format:epub')"
+        },
+        {
+          "name": "sort_by",
+          "type": "string",
+          "location": "query",
+          "description": ""
+        },
+        {
+          "name": "limit",
+          "type": "integer",
+          "location": "query",
+          "description": ""
+        },
+        {
+          "name": "ascending",
+          "type": "boolean",
+          "location": "query",
+          "description": ""
+        }
+      ]
+    },
+    {
+      "name": "searchBooks",
+      "description": "Search for book IDs matching a query",
+      "method": "GET",
+      "path": "/books/search",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Calibre search expression"
+        },
+        {
+          "name": "limit",
+          "type": "integer",
+          "location": "query",
+          "description": ""
+        }
+      ]
+    },
+    {
+      "name": "showMetadata",
+      "description": "Show full metadata for a book",
+      "method": "GET",
+      "path": "/books/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "integer",
+          "location": "path",
+          "description": ""
+        }
+      ]
+    },
+    {
+      "name": "setMetadata",
+      "description": "Update metadata for a book",
+      "method": "PUT",
+      "path": "/books/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "integer",
+          "location": "path",
+          "description": ""
+        }
+      ]
+    },
+    {
+      "name": "removeBook",
+      "description": "Remove a book from the library",
+      "method": "DELETE",
+      "path": "/books/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "integer",
+          "location": "path",
+          "description": ""
+        }
+      ]
+    },
+    {
+      "name": "addBook",
+      "description": "Add a book to the library",
+      "method": "POST",
+      "path": "/books/add",
+      "params": [
+        {
+          "name": "path",
+          "type": "string",
+          "location": "body",
+          "description": "Path to ebook file or directory"
+        },
+        {
+          "name": "recurse",
+          "type": "boolean",
+          "location": "body",
+          "description": ""
+        }
+      ]
+    },
+    {
+      "name": "listFormats",
+      "description": "List formats for a book",
+      "method": "GET",
+      "path": "/books/{id}/formats",
+      "params": [
+        {
+          "name": "id",
+          "type": "integer",
+          "location": "path",
+          "description": ""
+        }
+      ]
+    },
+    {
+      "name": "addFormat",
+      "description": "Add a format to an existing book",
+      "method": "POST",
+      "path": "/books/{id}/formats",
+      "params": [
+        {
+          "name": "id",
+          "type": "integer",
+          "location": "path",
+          "description": ""
+        },
+        {
+          "name": "path",
+          "type": "string",
+          "location": "body",
+          "description": ""
+        }
+      ]
+    },
+    {
+      "name": "removeFormat",
+      "description": "Remove a format from a book",
+      "method": "DELETE",
+      "path": "/books/{id}/formats",
+      "params": [
+        {
+          "name": "id",
+          "type": "integer",
+          "location": "path",
+          "description": ""
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Format name (e.g. EPUB, MOBI)"
+        }
+      ]
+    },
+    {
+      "name": "embedMetadata",
+      "description": "Write DB metadata back into book files",
+      "method": "POST",
+      "path": "/books/{id}/embed-metadata",
+      "params": [
+        {
+          "name": "id",
+          "type": "integer",
+          "location": "path",
+          "description": ""
+        }
+      ]
+    },
+    {
+      "name": "checkLibrary",
+      "description": "Audit library for errors and inconsistencies",
+      "method": "GET",
+      "path": "/library/check",
+      "params": [
+        {
+          "name": "report",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated report types: invalid_titles,extra_titles,invalid_authors,extra_authors,missing_formats,extra_formats,extra_files,missing_covers,extra_covers,malformed_formats,malformed_paths,failed_folders"
+        },
+        {
+          "name": "csv",
+          "type": "boolean",
+          "location": "query",
+          "description": ""
+        }
+      ]
+    },
+    {
+      "name": "listCategories",
+      "description": "List all tags, authors, series, publishers, etc.",
+      "method": "GET",
+      "path": "/library/categories",
+      "params": []
+    },
+    {
+      "name": "listCustomColumns",
+      "description": "List custom metadata columns",
+      "method": "GET",
+      "path": "/library/custom-columns",
+      "params": []
+    },
+    {
+      "name": "exportBooks",
+      "description": "Export books to the filesystem",
+      "method": "POST",
+      "path": "/library/export",
+      "params": [
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated book IDs, or 'all'"
+        },
+        {
+          "name": "to_dir",
+          "type": "string",
+          "location": "body",
+          "description": ""
+        },
+        {
+          "name": "formats",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated format filter"
+        }
+      ]
+    },
+    {
+      "name": "backupMetadata",
+      "description": "Backup metadata to OPF files for all books",
+      "method": "POST",
+      "path": "/library/backup-metadata",
+      "params": []
+    },
+    {
+      "name": "restoreDatabase",
+      "description": "Rebuild database from OPF files (destructive)",
+      "method": "POST",
+      "path": "/library/restore-database",
+      "params": []
+    },
+    {
+      "name": "listSavedSearches",
+      "description": "List saved searches",
+      "method": "GET",
+      "path": "/library/saved-searches",
+      "params": []
+    },
+    {
+      "name": "addSavedSearch",
+      "description": "Add a saved search",
+      "method": "POST",
+      "path": "/library/saved-searches",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": ""
+        },
+        {
+          "name": "expression",
+          "type": "string",
+          "location": "body",
+          "description": ""
+        }
+      ]
+    },
+    {
+      "name": "removeSavedSearch",
+      "description": "Remove a saved search",
+      "method": "DELETE",
+      "path": "/library/saved-searches",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "query",
+          "description": ""
+        }
+      ]
+    },
+    {
+      "name": "ftsIndexStatus",
+      "description": "Check full-text search indexing status",
+      "method": "GET",
+      "path": "/fts/index",
+      "params": []
+    },
+    {
+      "name": "ftsIndexReindex",
+      "description": "Reindex books for full-text search",
+      "method": "POST",
+      "path": "/fts/index",
+      "params": [
+        {
+          "name": "ids",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated book IDs, or empty for full reindex"
+        },
+        {
+          "name": "speed",
+          "type": "string",
+          "location": "body",
+          "description": ""
+        },
+        {
+          "name": "wait",
+          "type": "boolean",
+          "location": "body",
+          "description": ""
+        }
+      ]
+    },
+    {
+      "name": "ftsSearch",
+      "description": "Full-text search across book contents",
+      "method": "GET",
+      "path": "/fts/search",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": ""
+        },
+        {
+          "name": "include_snippets",
+          "type": "boolean",
+          "location": "query",
+          "description": ""
+        },
+        {
+          "name": "restrict_to",
+          "type": "string",
+          "location": "query",
+          "description": "Filter: 'ids:1,2,3' or 'search:tag:foo'"
+        }
+      ]
+    },
+    {
+      "name": "convertBook",
+      "description": "Convert an ebook between formats",
+      "method": "POST",
+      "path": "/convert",
+      "params": []
+    },
+    {
+      "name": "polishBook",
+      "description": "Polish an ebook (EPUB/AZW3/KEPUB only)",
+      "method": "POST",
+      "path": "/polish",
+      "params": []
+    },
+    {
+      "name": "getFileMetadata",
+      "description": "Read metadata from an ebook file (no library needed)",
+      "method": "GET",
+      "path": "/file-meta",
+      "params": [
+        {
+          "name": "path",
+          "type": "string",
+          "location": "query",
+          "description": ""
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,701 @@
+openapi: "3.0.3"
+info:
+  title: Calibre Ebook Library
+  x-display-name: "Calibre Ebook"
+  version: "1.0.0"
+  description: |
+    Local ebook library management via calibredb CLI.
+    Operates directly on the Calibre SQLite database — no content server required.
+    All operations are local/offline.
+servers:
+  - url: local://calibre
+    description: Local calibredb CLI invocation
+security: []
+paths:
+  /books:
+    get:
+      tags: [books]
+      operationId: listBooks
+      summary: List books in the library
+      parameters:
+        - name: fields
+          in: query
+          schema:
+            type: string
+            default: "id,title,authors"
+          description: "Comma-separated fields: id,title,authors,series,series_index,formats,tags,isbn,publisher,pubdate,rating,comments,cover,identifiers,languages,size,last_modified,uuid"
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: "Calibre search expression (e.g. 'author:tolkien', 'series:^Dune', 'format:epub')"
+        - name: sort_by
+          in: query
+          schema:
+            type: string
+            default: "id"
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: ascending
+          in: query
+          schema:
+            type: boolean
+            default: false
+      responses:
+        "200":
+          description: JSON array of books
+  /books/search:
+    get:
+      tags: [books]
+      operationId: searchBooks
+      summary: Search for book IDs matching a query
+      parameters:
+        - name: query
+          in: query
+          required: true
+          schema:
+            type: string
+          description: "Calibre search expression"
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Comma-separated book IDs
+  /books/{id}:
+    get:
+      tags: [books]
+      operationId: showMetadata
+      summary: Show full metadata for a book
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Book metadata
+    put:
+      tags: [books]
+      operationId: setMetadata
+      summary: Update metadata for a book
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MetadataUpdate"
+      responses:
+        "200":
+          description: Metadata updated
+    delete:
+      tags: [books]
+      operationId: removeBook
+      summary: Remove a book from the library
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Book removed
+  /books/add:
+    post:
+      tags: [books]
+      operationId: addBook
+      summary: Add a book to the library
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [path]
+              properties:
+                path:
+                  type: string
+                  description: "Path to ebook file or directory"
+                recurse:
+                  type: boolean
+                  default: false
+      responses:
+        "200":
+          description: Book added
+  /books/{id}/formats:
+    get:
+      tags: [formats]
+      operationId: listFormats
+      summary: List formats for a book
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Format list
+    post:
+      tags: [formats]
+      operationId: addFormat
+      summary: Add a format to an existing book
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [path]
+              properties:
+                path:
+                  type: string
+      responses:
+        "200":
+          description: Format added
+    delete:
+      tags: [formats]
+      operationId: removeFormat
+      summary: Remove a format from a book
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: format
+          in: query
+          required: true
+          schema:
+            type: string
+          description: "Format name (e.g. EPUB, MOBI)"
+      responses:
+        "200":
+          description: Format removed
+  /books/{id}/embed-metadata:
+    post:
+      tags: [books]
+      operationId: embedMetadata
+      summary: Write DB metadata back into book files
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Metadata embedded
+  /library/check:
+    get:
+      tags: [library]
+      operationId: checkLibrary
+      summary: Audit library for errors and inconsistencies
+      parameters:
+        - name: report
+          in: query
+          schema:
+            type: string
+          description: "Comma-separated report types: invalid_titles,extra_titles,invalid_authors,extra_authors,missing_formats,extra_formats,extra_files,missing_covers,extra_covers,malformed_formats,malformed_paths,failed_folders"
+        - name: csv
+          in: query
+          schema:
+            type: boolean
+            default: false
+      responses:
+        "200":
+          description: Library health report
+  /library/categories:
+    get:
+      tags: [library]
+      operationId: listCategories
+      summary: List all tags, authors, series, publishers, etc.
+      responses:
+        "200":
+          description: Category list
+  /library/custom-columns:
+    get:
+      tags: [library]
+      operationId: listCustomColumns
+      summary: List custom metadata columns
+      responses:
+        "200":
+          description: Custom column list
+  /library/export:
+    post:
+      tags: [library]
+      operationId: exportBooks
+      summary: Export books to the filesystem
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ids, to_dir]
+              properties:
+                ids:
+                  type: string
+                  description: "Comma-separated book IDs, or 'all'"
+                to_dir:
+                  type: string
+                formats:
+                  type: string
+                  description: "Comma-separated format filter"
+      responses:
+        "200":
+          description: Books exported
+  /library/backup-metadata:
+    post:
+      tags: [library]
+      operationId: backupMetadata
+      summary: Backup metadata to OPF files for all books
+      responses:
+        "200":
+          description: Metadata backed up
+  /library/restore-database:
+    post:
+      tags: [library]
+      operationId: restoreDatabase
+      summary: Rebuild database from OPF files (destructive)
+      responses:
+        "200":
+          description: Database restored
+  /library/saved-searches:
+    get:
+      tags: [library]
+      operationId: listSavedSearches
+      summary: List saved searches
+      responses:
+        "200":
+          description: Saved search list
+    post:
+      tags: [library]
+      operationId: addSavedSearch
+      summary: Add a saved search
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, expression]
+              properties:
+                name:
+                  type: string
+                expression:
+                  type: string
+      responses:
+        "200":
+          description: Search saved
+    delete:
+      tags: [library]
+      operationId: removeSavedSearch
+      summary: Remove a saved search
+      parameters:
+        - name: name
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Search removed
+  /fts/index:
+    get:
+      tags: [fts]
+      operationId: ftsIndexStatus
+      summary: Check full-text search indexing status
+      responses:
+        "200":
+          description: Index status
+    post:
+      tags: [fts]
+      operationId: ftsIndexReindex
+      summary: Reindex books for full-text search
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ids:
+                  type: string
+                  description: "Comma-separated book IDs, or empty for full reindex"
+                speed:
+                  type: string
+                  enum: [slow, fast]
+                  default: slow
+                wait:
+                  type: boolean
+                  default: false
+      responses:
+        "200":
+          description: Reindex started
+  /fts/search:
+    get:
+      tags: [fts]
+      operationId: ftsSearch
+      summary: Full-text search across book contents
+      parameters:
+        - name: query
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: include_snippets
+          in: query
+          schema:
+            type: boolean
+            default: false
+        - name: restrict_to
+          in: query
+          schema:
+            type: string
+          description: "Filter: 'ids:1,2,3' or 'search:tag:foo'"
+      responses:
+        "200":
+          description: Search results with matching book IDs
+  /convert:
+    post:
+      tags: [convert]
+      operationId: convertBook
+      summary: Convert an ebook between formats
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConvertRequest"
+      responses:
+        "200":
+          description: Conversion complete
+  /polish:
+    post:
+      tags: [polish]
+      operationId: polishBook
+      summary: Polish an ebook (EPUB/AZW3/KEPUB only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PolishRequest"
+      responses:
+        "200":
+          description: Polish complete
+  /file-meta:
+    get:
+      tags: [file-meta]
+      operationId: getFileMetadata
+      summary: Read metadata from an ebook file (no library needed)
+      parameters:
+        - name: path
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: File metadata
+components:
+  schemas:
+    MetadataUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+        authors:
+          type: string
+        author_sort:
+          type: string
+        series:
+          type: string
+        series_index:
+          type: number
+        tags:
+          type: string
+          description: "Comma-separated, replaces all existing tags"
+        isbn:
+          type: string
+        publisher:
+          type: string
+        pubdate:
+          type: string
+          format: date
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comments:
+          type: string
+        language:
+          type: string
+        identifiers:
+          type: string
+          description: "e.g. 'isbn:978-...', 'uri:https://...'"
+        cover:
+          type: string
+          description: "Path to cover image file"
+    ConvertRequest:
+      type: object
+      required: [input, output]
+      properties:
+        input:
+          type: string
+          description: "Path to input file"
+        output:
+          type: string
+          description: "Path to output file (extension determines format)"
+        title:
+          type: string
+        authors:
+          type: string
+        series:
+          type: string
+        series_index:
+          type: number
+        smarten_punctuation:
+          type: boolean
+          default: false
+        language:
+          type: string
+    PolishRequest:
+      type: object
+      required: [path]
+      properties:
+        path:
+          type: string
+          description: "Path to ebook file (EPUB/AZW3/KEPUB only)"
+        smarten_punctuation:
+          type: boolean
+          default: false
+        subset_fonts:
+          type: boolean
+          default: false
+        embed_fonts:
+          type: boolean
+          default: false
+        compress_images:
+          type: boolean
+          default: false
+        remove_unused_css:
+          type: boolean
+          default: false
+        upgrade_book:
+          type: boolean
+          default: false
+        download_external_resources:
+          type: boolean
+          default: false
+        add_soft_hyphens:
+          type: boolean
+          default: false
+        add_jacket:
+          type: boolean
+          default: false
+        cover:
+          type: string
+          description: "Path to new cover image"
+
+  /library/health-score:
+    get:
+      tags: [library, insight]
+      operationId: libraryHealthScore
+      summary: Compute a 0-100 library health score with per-category deductions
+      description: |
+        Analyzes the library for issues (invalid titles, extra authors, missing formats,
+        duplicate books, series gaps) and produces a numeric health score.
+        Returns grade, score, categories checked, and detailed deductions.
+      x-pp-insight: true
+      x-pp-read-only: true
+      responses:
+        "200":
+          description: Health score report
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  score:
+                    type: integer
+                  grade:
+                    type: string
+                  categories:
+                    type: integer
+                  deductions:
+                    type: object
+                  total_issues:
+                    type: integer
+
+  /library/duplicates:
+    get:
+      tags: [library, insight]
+      operationId: libraryDuplicates
+      summary: Find duplicate books by title/author
+      description: |
+        Compares all books in the library and returns sets of duplicates.
+        Supports exact, fuzzy, and broad matching modes.
+      x-pp-insight: true
+      x-pp-read-only: true
+      parameters:
+        - name: tolerance
+          in: query
+          schema:
+            type: string
+            enum: [exact, fuzzy, broad]
+            default: exact
+          description: Matching tolerance level
+      responses:
+        "200":
+          description: Duplicate sets
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  duplicate_sets:
+                    type: integer
+                  total_books:
+                    type: integer
+                  groups:
+                    type: array
+
+  /library/series-gaps:
+    get:
+      tags: [library, insight]
+      operationId: librarySeriesGaps
+      summary: Detect series with missing books
+      description: |
+        Analyzes series metadata to find gaps in series_index numbering.
+        Returns per-series reports with missing indices.
+      x-pp-insight: true
+      x-pp-read-only: true
+      responses:
+        "200":
+          description: Series gap reports
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reports:
+                    type: array
+
+  /library/stats:
+    get:
+      tags: [library, insight]
+      operationId: libraryStats
+      summary: Aggregate library statistics
+      description: |
+        Returns total books, format distribution, top authors, top series,
+        average file size, and other aggregate statistics.
+      x-pp-insight: true
+      x-pp-read-only: true
+      responses:
+        "200":
+          description: Library statistics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_books:
+                    type: integer
+                  formats:
+                    type: object
+                  authors:
+                    type: object
+                  series:
+                    type: object
+
+  /library/similar:
+    get:
+      tags: [library, insight]
+      operationId: librarySimilar
+      summary: Find books similar to a given book
+      description: |
+        Content-based recommendation engine. Analyzes shared authors, tags,
+        series, and publisher to find similar books. Returns ranked results
+        with similarity score and match reasons.
+      x-pp-insight: true
+      x-pp-read-only: true
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: integer
+          description: Book ID to find similar books for
+        - name: threshold
+          in: query
+          schema:
+            type: number
+            default: 20
+          description: Minimum similarity score to include
+      responses:
+        "200":
+          description: Similar books
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  target_book:
+                    type: string
+                  similar_count:
+                    type: integer
+                  similar_books:
+                    type: array
+
+  /workflow/health-audit:
+    post:
+      tags: [workflow]
+      operationId: workflowHealthAudit
+      summary: Full library health audit with prioritized recommendations
+      description: |
+        Compound workflow that runs check_library, duplicates detection,
+        series gap analysis, and format coverage. Synthesizes a single report
+        with prioritized fix recommendations.
+        With fix=true, automatically embeds metadata for books that need it.
+      x-pp-insight: true
+      parameters:
+        - name: fix
+          in: query
+          schema:
+            type: boolean
+            default: false
+          description: Auto-fix issues after audit
+      responses:
+        "200":
+          description: Health audit report
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  severity:
+                    type: string
+                  total_books:
+                    type: integer
+                  recommendations:
+                    type: array
+                  checks:
+                    type: object

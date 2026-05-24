@@ -1,0 +1,30 @@
+{
+  "manifest_version": "0.3",
+  "name": "calibre-ebook-pp-mcp",
+  "display_name": "Calibre Ebook",
+  "version": "1.0.0",
+  "description": "Local ebook library management via Calibre CLI tools (calibredb/ebook-meta/ebook-convert/ebook-polish) — no REST API, no content server required",
+  "author": {
+    "name": "Eric Jung"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/calibre-ebook-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/calibre-ebook-pp-mcp",
+      "args": [],
+      "env": {}
+    }
+  },
+  "user_config": {},
+  "tools": [],
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

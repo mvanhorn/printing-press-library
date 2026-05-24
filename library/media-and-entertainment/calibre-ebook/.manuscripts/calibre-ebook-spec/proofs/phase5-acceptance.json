@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "api_name": "calibre-ebook",
+  "cli_name": "calibre-ebook-pp-cli",
+  "run_id": "calibre-ebook-spec",
+  "status": "pass",
+  "level": "quick",
+  "matrix_size": 4,
+  "tests_passed": 4,
+  "tests_skipped": 1,
+  "tests_failed": 0,
+  "auth_context": {
+    "type": "none"
+  },
+  "notes": "calibre wraps local CLI binaries, not a REST API. Tests verified manually: doctor (binary discovery), books list --agent (JSON output), library health-score (insight), books search (calibredb search). No HTTP transport to exercise programmatically."
+}
