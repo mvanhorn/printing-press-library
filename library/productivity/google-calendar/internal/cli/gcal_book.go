@@ -65,7 +65,17 @@ func newBookCmd(flags *rootFlags) *cobra.Command {
 			// under verify since the guard only loads events.
 			if onConflict != "allow" {
 				events, _, lerr := gcalLoadEvents(cmd, flags, eventQuery{calendars: []string{cal}, timeMin: start, timeMax: end})
-				if lerr == nil {
+				if lerr != nil {
+					// The guard could not run. Under --on-conflict abort (the
+					// default, used as a hard double-booking guard) we must NOT
+					// book blindly — a silent fall-through here would defeat the
+					// entire purpose of the command. Fail loudly and tell the
+					// user how to override.
+					if onConflict == "abort" {
+						return apiErr(fmt.Errorf("conflict check failed, refusing to book (could double-book): %w\nhint: pass --on-conflict allow to book without checking, or --on-conflict warn to book and continue", lerr))
+					}
+					fmt.Fprintf(cmd.ErrOrStderr(), "warning: conflict check failed (%v); booking anyway (--on-conflict warn)\n", lerr)
+				} else {
 					var clashes []conflictEndpoint
 					for _, ev := range events {
 						if ev.Status == "cancelled" || ev.AllDay || ev.Start.IsZero() || ev.End.IsZero() {

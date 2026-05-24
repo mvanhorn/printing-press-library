@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-24",
+  "base_run_id": "20260524-001616",
+  "base_printing_press_version": "4.9.0",
+  "patches": [
+    {
+      "id": "novel-command-registration",
+      "summary": "Register the eight hand-authored transcendence commands (agenda, free, conflicts, changes, load, acl-audit, rsvp-status, book) on the root command. The command implementations live in separate hand-authored files (internal/cli/gcal_*.go) that survive regeneration as whole units; only their AddCommand wiring touches the generated root.go.",
+      "reason": "The generator emits the spec-derived command tree but not novel features. Per the Printing Press novel-command pattern, the AddCommand calls go in root.go (re-injected by regen-merge). The eight gcal_*.go files are new hand-authored files, not edits to generated code, so they are not individually listed as patches.",
+      "files": [
+        "internal/cli/root.go",
+        "internal/cli/gcal_common.go",
+        "internal/cli/gcal_agenda.go",
+        "internal/cli/gcal_free.go",
+        "internal/cli/gcal_conflicts.go",
+        "internal/cli/gcal_changes.go",
+        "internal/cli/gcal_load.go",
+        "internal/cli/gcal_acl_audit.go",
+        "internal/cli/gcal_rsvp.go",
+        "internal/cli/gcal_book.go"
+      ],
+      "validated_outcome": "All eight commands resolve as leaf commands; novel_features_check reports planned 7 / found 7 (book is the conflict-guarded create); shipcheck 6/6 PASS, scorecard 90/100."
+    }
+  ]
+}

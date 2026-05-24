@@ -260,7 +260,9 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newColorsPromotedCmd(flags))
 	rootCmd.AddCommand(newFreeBusyPromotedCmd(flags))
 	rootCmd.AddCommand(newVersionCliCmd())
-	// Hand-authored novel-feature commands (transcendence layer).
+	// PATCH(novel-command-registration): register hand-authored transcendence
+	// commands. Implementations live in internal/cli/gcal_*.go. See
+	// .printing-press-patches.json.
 	rootCmd.AddCommand(newAgendaCmd(flags))
 	rootCmd.AddCommand(newFreeCmd(flags))
 	rootCmd.AddCommand(newConflictsCmd(flags))

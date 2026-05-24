@@ -97,12 +97,15 @@ func parseStoredEvent(calendarID string, data json.RawMessage) (gcalEvent, bool)
 		Transparency: re.Transparency,
 		Attendees:    re.Attendees,
 	}
-	if t, _, ok := parseEventBound(re.Start); ok {
+	// All-day is signaled by the start bound using a date (not dateTime).
+	// Google sets both start.date and end.date for all-day events, but the
+	// start is the authoritative signal.
+	if t, allDay, ok := parseEventBound(re.Start); ok {
 		ev.Start = t
-	}
-	if t, allDay, ok := parseEventBound(re.End); ok {
-		ev.End = t
 		ev.AllDay = allDay
+	}
+	if t, _, ok := parseEventBound(re.End); ok {
+		ev.End = t
 	}
 	if re.Created != "" {
 		if t, err := time.Parse(time.RFC3339, re.Created); err == nil {
@@ -190,18 +193,36 @@ func gcalLoadEvents(cmd *cobra.Command, flags *rootFlags, q eventQuery) ([]gcalE
 		if q.showDeleted {
 			params["showDeleted"] = "true"
 		}
-		data, err := c.Get("/calendars/"+url.PathEscape(cal)+"/events", params)
-		if err != nil {
-			liveErr = err
-			continue
-		}
-		items := extractEventItems(data)
-		for _, it := range items {
-			if ev, ok := parseStoredEvent(cal, it); ok {
-				all = append(all, ev)
-				cacheEvent(db, cal, ev.ID, it)
+		// Page through every result for this calendar. Without this loop the
+		// Calendar API caps a single response at maxResults and silently drops
+		// the rest, so a busy window would compute free/busy and conflicts
+		// against a truncated set. The page cap is a runaway guard, not a
+		// truncation: 200 pages * 2500 = 500k events is far beyond any real
+		// window.
+		pageToken := ""
+		const maxPages = 200
+		for page := 0; page < maxPages; page++ {
+			if pageToken != "" {
+				params["pageToken"] = pageToken
 			}
+			data, err := c.Get("/calendars/"+url.PathEscape(cal)+"/events", params)
+			if err != nil {
+				liveErr = err
+				break
+			}
+			items, next := extractEventPage(data)
+			for _, it := range items {
+				if ev, ok := parseStoredEvent(cal, it); ok {
+					all = append(all, ev)
+					cacheEvent(db, cal, ev.ID, it)
+				}
+			}
+			if next == "" {
+				break
+			}
+			pageToken = next
 		}
+		delete(params, "pageToken")
 	}
 	if liveErr != nil && len(all) == 0 {
 		if flags.dataSource == "live" {
@@ -233,6 +254,23 @@ func extractEventItems(data json.RawMessage) []json.RawMessage {
 		return obj.Items
 	}
 	return nil
+}
+
+// extractEventPage pulls the `items` array and the `nextPageToken` out of a
+// Calendar list response. A bare array (no envelope) has no next token.
+func extractEventPage(data json.RawMessage) ([]json.RawMessage, string) {
+	var arr []json.RawMessage
+	if json.Unmarshal(data, &arr) == nil && arr != nil {
+		return arr, ""
+	}
+	var obj struct {
+		Items         []json.RawMessage `json:"items"`
+		NextPageToken string            `json:"nextPageToken"`
+	}
+	if json.Unmarshal(data, &obj) == nil {
+		return obj.Items, obj.NextPageToken
+	}
+	return nil, ""
 }
 
 func cacheEvent(db *store.Store, calendarID, id string, data json.RawMessage) {
