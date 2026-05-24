@@ -17,8 +17,8 @@ func newAdminPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "admin",
-		Short:       "Admin-only. Creates a new API key and emails it to the tenant's oversight email. Used when welcome email failed or...",
-		Long:        "Shortcut for 'admin create'. Admin-only. Creates a new API key and emails it to the tenant's oversight email. Used when welcome email failed or...",
+		Short:       "Admin-only. Creates a new API key and emails it to the tenant's oversight email.",
+		Long:        "Admin-only. Creates a new API key and emails it to the tenant's oversight email.",
 		Example:     "  multimail-pp-cli admin --reason example-value",
 		Annotations: map[string]string{"pp:endpoint": "admin.create", "pp:method": "POST", "pp:path": "/v1/admin/recover-key"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -34,6 +34,7 @@ func newAdminPromotedCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/v1/admin/recover-key"
+			params := map[string]string{}
 			// HasStore + non-GET falls through to a live API call here
 			// rather than through resolveRead (GET-only internally); a
 			// body-aware cached read helper is filed as #425 for when a
@@ -45,17 +46,29 @@ func newAdminPromotedCmd(flags *rootFlags) *cobra.Command {
 			if bodyTenantId != "" {
 				body["tenant_id"] = bodyTenantId
 			}
-			data, _, err := c.Post(path, body)
+			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
+
 			prov := attachFreshness(DataProvenance{Source: "live"}, flags)
 			if err != nil {
 				return classifyAPIError(err, flags)
+			}
+			var partialFailure *partialFailureReport
+			if !flags.dryRun && statusCode >= 200 && statusCode < 300 {
+				partialFailure = detectPartialFailure(data)
+			}
+			if !flags.dryRun && statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure) {
+				writeMutationResponseToStore(cmd.Context(), "admin", data, "")
 			}
 			// Unwrap API response envelopes (e.g. {"status":"success","data":[...]})
 			// so output helpers see the inner data, not the wrapper.
 			data = extractResponseData(data)
 
-			// Print provenance to stderr
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_endpoint.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				if json.Unmarshal(data, &countItems) != nil {
 					// Single object, not an array

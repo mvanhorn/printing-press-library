@@ -16,7 +16,7 @@ func newSlugCheckPromotedCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "slug-check <slug>",
 		Short:       "Check if a slug is available for registration. Returns suggestions if taken or reserved. No auth required.",
-		Long:        "Shortcut for 'slug-check get'. Check if a slug is available for registration. Returns suggestions if taken or reserved. No auth required.",
+		Long:        "Check if a slug is available for registration. Returns suggestions if taken or reserved. No auth required.",
 		Example:     "  multimail-pp-cli slug-check example-value",
 		Annotations: map[string]string{"pp:endpoint": "slug-check.get", "pp:method": "GET", "pp:path": "/v1/slug-check/{slug}", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -41,7 +41,7 @@ func newSlugCheckPromotedCmd(flags *rootFlags) *cobra.Command {
 			}
 			path = replacePathParam(path, "slug", args[0])
 			params := map[string]string{}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "slug-check", false, path, params, nil)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "slug-check", false, path, params, nil, cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -49,8 +49,12 @@ func newSlugCheckPromotedCmd(flags *rootFlags) *cobra.Command {
 			// so output helpers see the inner data, not the wrapper.
 			data = extractResponseData(data)
 
-			// Print provenance to stderr
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_endpoint.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				if json.Unmarshal(data, &countItems) != nil {
 					// Single object, not an array

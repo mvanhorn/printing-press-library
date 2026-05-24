@@ -10,12 +10,12 @@ import (
 func newMailboxesAllowlistCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "allowlist",
-		Short: "Manage allowlist",
+		Short: "Get, create, and delete allowlist for mailboxes",
+		RunE:  parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newMailboxesAllowlistCreateCmd(flags))
 	cmd.AddCommand(newMailboxesAllowlistDeleteCmd(flags))
 	cmd.AddCommand(newMailboxesAllowlistGetCmd(flags))
-	cmd.AddCommand(newAllowlistCoverageCmd(flags))
 	return cmd
 }

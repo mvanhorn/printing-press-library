@@ -10,7 +10,8 @@ import (
 func newMailboxesReplyCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "reply",
-		Short: "Manage reply",
+		Short: "Create reply for mailboxes",
+		RunE:  parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newMailboxesReplyCreateCmd(flags))

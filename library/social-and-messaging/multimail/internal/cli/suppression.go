@@ -10,8 +10,9 @@ import (
 func newSuppressionCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:    "suppression",
-		Short:  "Manage suppression",
+		Short:  "List and delete suppression",
 		Hidden: true,
+		RunE:   parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newSuppressionDeleteCmd(flags))

@@ -294,6 +294,10 @@ type FunnelCreateResponse struct {
 	Ok bool `json:"ok"`
 }
 
+type HealthListResponse struct {
+	Status string `json:"status"`
+}
+
 type Mailbox struct {
 	Address             string `json:"address"`
 	AutoBcc             string `json:"auto_bcc"`
@@ -324,10 +328,6 @@ type MailboxesListResponse struct {
 }
 
 type MailboxesUpdateResponse struct {
-	Status string `json:"status"`
-}
-
-type MultimailHealthListResponse struct {
 	Status string `json:"status"`
 }
 

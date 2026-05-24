@@ -10,10 +10,10 @@ import (
 func newMailboxesThreadsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "threads",
-		Short: "Manage threads",
+		Short: "Get threads for mailboxes",
+		RunE:  parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newMailboxesThreadsGetCmd(flags))
-	cmd.AddCommand(newThreadsStaleCmd(flags))
 	return cmd
 }

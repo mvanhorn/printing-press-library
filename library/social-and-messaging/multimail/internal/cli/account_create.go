@@ -17,24 +17,8 @@ func newAccountCreateCmd(flags *rootFlags) *cobra.Command {
 	var bodyAcceptedOperatorAgreement bool
 	var bodyAcceptedTos bool
 	var bodyAttributionFirstLandingPath string
-	var bodyAttributionFirstParamsFbclid string
-	var bodyAttributionFirstParamsGclid string
-	var bodyAttributionFirstParamsMsclkid string
-	var bodyAttributionFirstParamsUtmCampaign string
-	var bodyAttributionFirstParamsUtmContent string
-	var bodyAttributionFirstParamsUtmMedium string
-	var bodyAttributionFirstParamsUtmSource string
-	var bodyAttributionFirstParamsUtmTerm string
 	var bodyAttributionFirstTs int
 	var bodyAttributionLastLandingPath string
-	var bodyAttributionLastParamsFbclid string
-	var bodyAttributionLastParamsGclid string
-	var bodyAttributionLastParamsMsclkid string
-	var bodyAttributionLastParamsUtmCampaign string
-	var bodyAttributionLastParamsUtmContent string
-	var bodyAttributionLastParamsUtmMedium string
-	var bodyAttributionLastParamsUtmSource string
-	var bodyAttributionLastParamsUtmTerm string
 	var bodyAttributionLastTs int
 	var bodyAttributionVersion int
 	var bodyAttributionVisits int
@@ -59,7 +43,7 @@ func newAccountCreateCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "create",
-		Short:       "Requires a solved proof-of-work challenge. Creates a pending signup and sends a confirmation email. Response is...",
+		Short:       "Requires a solved proof-of-work challenge. Creates a pending signup and sends a confirmation email.",
 		Example:     "  multimail-pp-cli account create --operator-name example-resource",
 		Annotations: map[string]string{"pp:endpoint": "account.create", "pp:method": "POST", "pp:path": "/v1/account"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -101,6 +85,7 @@ func newAccountCreateCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/v1/account"
+			params := map[string]string{}
 			var body map[string]any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
@@ -114,13 +99,13 @@ func newAccountCreateCmd(flags *rootFlags) *cobra.Command {
 				body = jsonBody
 			} else {
 				body = map[string]any{}
-				if bodyAcceptedAntiSpamPolicy != false {
+				if cmd.Flags().Changed("accepted-anti-spam-policy") {
 					body["accepted_anti_spam_policy"] = bodyAcceptedAntiSpamPolicy
 				}
-				if bodyAcceptedOperatorAgreement != false {
+				if cmd.Flags().Changed("accepted-operator-agreement") {
 					body["accepted_operator_agreement"] = bodyAcceptedOperatorAgreement
 				}
-				if bodyAcceptedTos != false {
+				if cmd.Flags().Changed("accepted-tos") {
 					body["accepted_tos"] = bodyAcceptedTos
 				}
 				{
@@ -129,36 +114,6 @@ func newAccountCreateCmd(flags *rootFlags) *cobra.Command {
 						nestedAttributionFirst := map[string]any{}
 						if bodyAttributionFirstLandingPath != "" {
 							nestedAttributionFirst["landing_path"] = bodyAttributionFirstLandingPath
-						}
-						{
-							nestedAttributionFirstParams := map[string]any{}
-							if bodyAttributionFirstParamsFbclid != "" {
-								nestedAttributionFirstParams["fbclid"] = bodyAttributionFirstParamsFbclid
-							}
-							if bodyAttributionFirstParamsGclid != "" {
-								nestedAttributionFirstParams["gclid"] = bodyAttributionFirstParamsGclid
-							}
-							if bodyAttributionFirstParamsMsclkid != "" {
-								nestedAttributionFirstParams["msclkid"] = bodyAttributionFirstParamsMsclkid
-							}
-							if bodyAttributionFirstParamsUtmCampaign != "" {
-								nestedAttributionFirstParams["utm_campaign"] = bodyAttributionFirstParamsUtmCampaign
-							}
-							if bodyAttributionFirstParamsUtmContent != "" {
-								nestedAttributionFirstParams["utm_content"] = bodyAttributionFirstParamsUtmContent
-							}
-							if bodyAttributionFirstParamsUtmMedium != "" {
-								nestedAttributionFirstParams["utm_medium"] = bodyAttributionFirstParamsUtmMedium
-							}
-							if bodyAttributionFirstParamsUtmSource != "" {
-								nestedAttributionFirstParams["utm_source"] = bodyAttributionFirstParamsUtmSource
-							}
-							if bodyAttributionFirstParamsUtmTerm != "" {
-								nestedAttributionFirstParams["utm_term"] = bodyAttributionFirstParamsUtmTerm
-							}
-							if len(nestedAttributionFirstParams) > 0 {
-								nestedAttributionFirst["params"] = nestedAttributionFirstParams
-							}
 						}
 						if bodyAttributionFirstTs != 0 {
 							nestedAttributionFirst["ts"] = bodyAttributionFirstTs
@@ -171,36 +126,6 @@ func newAccountCreateCmd(flags *rootFlags) *cobra.Command {
 						nestedAttributionLast := map[string]any{}
 						if bodyAttributionLastLandingPath != "" {
 							nestedAttributionLast["landing_path"] = bodyAttributionLastLandingPath
-						}
-						{
-							nestedAttributionLastParams := map[string]any{}
-							if bodyAttributionLastParamsFbclid != "" {
-								nestedAttributionLastParams["fbclid"] = bodyAttributionLastParamsFbclid
-							}
-							if bodyAttributionLastParamsGclid != "" {
-								nestedAttributionLastParams["gclid"] = bodyAttributionLastParamsGclid
-							}
-							if bodyAttributionLastParamsMsclkid != "" {
-								nestedAttributionLastParams["msclkid"] = bodyAttributionLastParamsMsclkid
-							}
-							if bodyAttributionLastParamsUtmCampaign != "" {
-								nestedAttributionLastParams["utm_campaign"] = bodyAttributionLastParamsUtmCampaign
-							}
-							if bodyAttributionLastParamsUtmContent != "" {
-								nestedAttributionLastParams["utm_content"] = bodyAttributionLastParamsUtmContent
-							}
-							if bodyAttributionLastParamsUtmMedium != "" {
-								nestedAttributionLastParams["utm_medium"] = bodyAttributionLastParamsUtmMedium
-							}
-							if bodyAttributionLastParamsUtmSource != "" {
-								nestedAttributionLastParams["utm_source"] = bodyAttributionLastParamsUtmSource
-							}
-							if bodyAttributionLastParamsUtmTerm != "" {
-								nestedAttributionLastParams["utm_term"] = bodyAttributionLastParamsUtmTerm
-							}
-							if len(nestedAttributionLastParams) > 0 {
-								nestedAttributionLast["params"] = nestedAttributionLastParams
-							}
 						}
 						if bodyAttributionLastTs != 0 {
 							nestedAttributionLast["ts"] = bodyAttributionLastTs
@@ -277,9 +202,30 @@ func newAccountCreateCmd(flags *rootFlags) *cobra.Command {
 					body["use_case"] = bodyUseCase
 				}
 			}
-			data, statusCode, err := c.Post(path, body)
+			data, statusCode, err := c.PostWithParams(cmd.Context(), path, params, body)
 			if err != nil {
 				return classifyAPIError(err, flags)
+			}
+			// Inspect the mutate response body for a partial-failure-shaped
+			// field (e.g. Google Ads `partialFailureError`). Several Google
+			// APIs return 200 OK with a partial-failure field when some
+			// operations in the batch failed; ignoring it silently swallows
+			// real failures. Detection runs before output-mode selection so
+			// the exit code is consistent regardless of how stdout is
+			// rendered. --dry-run short-circuits because no real request
+			// was sent.
+			var partialFailure *partialFailureReport
+			if !flags.dryRun && statusCode >= 200 && statusCode < 300 {
+				partialFailure = detectPartialFailure(data)
+				if partialFailure != nil {
+					fmt.Fprintf(os.Stderr, "warning: partial failure detected in %s response: %s\n", "account", partialFailure.Message)
+					if len(partialFailure.ResourceNames) > 0 {
+						fmt.Fprintf(os.Stderr, "         succeeded: %d operation(s)\n", len(partialFailure.ResourceNames))
+					}
+				}
+			}
+			if !flags.dryRun && statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure) {
+				writeMutationResponseToStore(cmd.Context(), "account", data, "")
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				// Check if response contains an array (directly or wrapped in "data")
@@ -288,6 +234,9 @@ func newAccountCreateCmd(flags *rootFlags) *cobra.Command {
 					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
 						fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)
 					} else {
+						if partialFailure != nil && !flags.allowPartialFailure {
+							return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "account", partialFailure.Message))
+						}
 						return nil
 					}
 				} else {
@@ -298,6 +247,9 @@ func newAccountCreateCmd(flags *rootFlags) *cobra.Command {
 						if err := printAutoTable(cmd.OutOrStdout(), wrapped.Data); err != nil {
 							fmt.Fprintf(os.Stderr, "warning: table rendering failed, falling back to JSON: %v\n", err)
 						} else {
+							if partialFailure != nil && !flags.allowPartialFailure {
+								return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "account", partialFailure.Message))
+							}
 							return nil
 						}
 					}
@@ -305,7 +257,42 @@ func newAccountCreateCmd(flags *rootFlags) *cobra.Command {
 			}
 			if flags.asJSON || (!isTerminal(cmd.OutOrStdout()) && !flags.csv && !flags.quiet && !flags.plain) {
 				if flags.quiet {
+					if partialFailure != nil && !flags.allowPartialFailure {
+						return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "account", partialFailure.Message))
+					}
 					return nil
+				}
+				envelope := map[string]any{
+					"action":   "post",
+					"resource": "account",
+					"path":     path,
+					"status":   statusCode,
+					"success":  statusCode >= 200 && statusCode < 300 && (partialFailure == nil || flags.allowPartialFailure),
+				}
+				if partialFailure != nil {
+					envelope["partial_failure"] = partialFailure
+				}
+				if flags.dryRun {
+					envelope["dry_run"] = true
+					envelope["status"] = 0
+					envelope["success"] = false
+				}
+				// Verify-mode synthetic envelope detection runs against RAW data
+				// (before --compact/--select filtering) so the sentinel field is
+				// guaranteed to be visible even if the operator passes a filter
+				// flag that would otherwise strip it. Surfaces a top-level
+				// verify_noop signal + flips success to false. Mirrors the dry_run
+				// shape above.
+				if len(data) > 0 {
+					var rawParsed any
+					if err := json.Unmarshal(data, &rawParsed); err == nil {
+						if m, ok := rawParsed.(map[string]any); ok {
+							if v, ok := m["__pp_verify_synthetic__"].(bool); ok && v {
+								envelope["verify_noop"] = true
+								envelope["success"] = false
+							}
+						}
+					}
 				}
 				// Apply --compact and --select to the API response before wrapping.
 				// --select wins when both are set: explicit field choice trumps the
@@ -317,18 +304,6 @@ func newAccountCreateCmd(flags *rootFlags) *cobra.Command {
 				} else if flags.compact {
 					filtered = compactFields(filtered)
 				}
-				envelope := map[string]any{
-					"action":   "post",
-					"resource": "account",
-					"path":     path,
-					"status":   statusCode,
-					"success":  statusCode >= 200 && statusCode < 300,
-				}
-				if flags.dryRun {
-					envelope["dry_run"] = true
-					envelope["status"] = 0
-					envelope["success"] = false
-				}
 				if len(filtered) > 0 {
 					var parsed any
 					if err := json.Unmarshal(filtered, &parsed); err == nil {
@@ -339,37 +314,40 @@ func newAccountCreateCmd(flags *rootFlags) *cobra.Command {
 				if err != nil {
 					return err
 				}
-				return printOutput(cmd.OutOrStdout(), json.RawMessage(envelopeJSON), true)
+				if perr := printOutput(cmd.OutOrStdout(), json.RawMessage(envelopeJSON), true); perr != nil {
+					return perr
+				}
+				if partialFailure != nil && !flags.allowPartialFailure {
+					return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "account", partialFailure.Message))
+				}
+				return nil
 			}
-			return printOutputWithFlags(cmd.OutOrStdout(), data, flags)
+			// Fall-through for mutate paths that did not hit the table or
+			// asJSON branches: --quiet, --csv, --plain, and default terminal
+			// raw output. printOutputWithFlags renders the body, then the
+			// typed partial-failure exit fires unless --allow-partial-failure
+			// downgrades it. Without this guard a partial failure would exit
+			// 0 for these output modes — the exact silent-swallow regression
+			// the surrounding patch is preventing for asJSON / piped output.
+			if perr := printOutputWithFlags(cmd.OutOrStdout(), data, flags); perr != nil {
+				return perr
+			}
+			if partialFailure != nil && !flags.allowPartialFailure {
+				return partialFailureErr(fmt.Errorf("partial failure in %s response: %s", "account", partialFailure.Message))
+			}
+			return nil
 		},
 	}
 	cmd.Flags().BoolVar(&bodyAcceptedAntiSpamPolicy, "accepted-anti-spam-policy", false, "Must be true.")
 	cmd.Flags().BoolVar(&bodyAcceptedOperatorAgreement, "accepted-operator-agreement", false, "Must be true.")
 	cmd.Flags().BoolVar(&bodyAcceptedTos, "accepted-tos", false, "Must be true.")
 	cmd.Flags().StringVar(&bodyAttributionFirstLandingPath, "attribution-first-landing-path", "", "Pathname of the landing page (no host).")
-	cmd.Flags().StringVar(&bodyAttributionFirstParamsFbclid, "attribution-first-params-fbclid", "", "Fbclid")
-	cmd.Flags().StringVar(&bodyAttributionFirstParamsGclid, "attribution-first-params-gclid", "", "Gclid")
-	cmd.Flags().StringVar(&bodyAttributionFirstParamsMsclkid, "attribution-first-params-msclkid", "", "Msclkid")
-	cmd.Flags().StringVar(&bodyAttributionFirstParamsUtmCampaign, "attribution-first-params-utm-campaign", "", "Utm campaign")
-	cmd.Flags().StringVar(&bodyAttributionFirstParamsUtmContent, "attribution-first-params-utm-content", "", "Utm content")
-	cmd.Flags().StringVar(&bodyAttributionFirstParamsUtmMedium, "attribution-first-params-utm-medium", "", "Utm medium")
-	cmd.Flags().StringVar(&bodyAttributionFirstParamsUtmSource, "attribution-first-params-utm-source", "", "Utm source")
-	cmd.Flags().StringVar(&bodyAttributionFirstParamsUtmTerm, "attribution-first-params-utm-term", "", "Utm term")
 	cmd.Flags().IntVar(&bodyAttributionFirstTs, "attribution-first-ts", 0, "Epoch milliseconds at landing.")
 	cmd.Flags().StringVar(&bodyAttributionLastLandingPath, "attribution-last-landing-path", "", "Pathname of the landing page (no host).")
-	cmd.Flags().StringVar(&bodyAttributionLastParamsFbclid, "attribution-last-params-fbclid", "", "Fbclid")
-	cmd.Flags().StringVar(&bodyAttributionLastParamsGclid, "attribution-last-params-gclid", "", "Gclid")
-	cmd.Flags().StringVar(&bodyAttributionLastParamsMsclkid, "attribution-last-params-msclkid", "", "Msclkid")
-	cmd.Flags().StringVar(&bodyAttributionLastParamsUtmCampaign, "attribution-last-params-utm-campaign", "", "Utm campaign")
-	cmd.Flags().StringVar(&bodyAttributionLastParamsUtmContent, "attribution-last-params-utm-content", "", "Utm content")
-	cmd.Flags().StringVar(&bodyAttributionLastParamsUtmMedium, "attribution-last-params-utm-medium", "", "Utm medium")
-	cmd.Flags().StringVar(&bodyAttributionLastParamsUtmSource, "attribution-last-params-utm-source", "", "Utm source")
-	cmd.Flags().StringVar(&bodyAttributionLastParamsUtmTerm, "attribution-last-params-utm-term", "", "Utm term")
 	cmd.Flags().IntVar(&bodyAttributionLastTs, "attribution-last-ts", 0, "Epoch milliseconds at landing.")
-	cmd.Flags().IntVar(&bodyAttributionVersion, "attribution-version", 0, "Schema version. Only 1 is currently accepted; future bumps will rotate the localStorage key client-side and add new...")
+	cmd.Flags().IntVar(&bodyAttributionVersion, "attribution-version", 0, "Schema version.")
 	cmd.Flags().IntVar(&bodyAttributionVisits, "attribution-visits", 0, "Visit counter, incremented client-side. Server validator coerces missing/zero/negative values to 1.")
-	cmd.Flags().StringVar(&bodyCfChallengeResponse, "cf-challenge-response", "", "Preferred browser Turnstile token field. Mirrors the hidden cf-turnstile-response input value. maxLength keeps API...")
+	cmd.Flags().StringVar(&bodyCfChallengeResponse, "cf-challenge-response", "", "Preferred browser Turnstile token field. Mirrors the hidden cf-turnstile-response input value.")
 	cmd.Flags().StringVar(&bodyEmailUseType, "email-use-type", "", "Only transactional is accepted today.")
 	cmd.Flags().StringVar(&bodyFingerprint, "fingerprint", "", "Optional browser fingerprint used for signup throttling.")
 	cmd.Flags().IntVar(&bodyFormOpenAt, "form-open-at", 0, "Epoch milliseconds when the signup modal opened.")
@@ -384,9 +362,9 @@ func newAccountCreateCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringVar(&bodyPowSolutionSalt, "pow-solution-salt", "", "Salt from the challenge (echo back unchanged)")
 	cmd.Flags().StringVar(&bodyPowSolutionSignature, "pow-solution-signature", "", "Signature from the challenge (echo back unchanged)")
 	cmd.Flags().StringVar(&bodySlug, "slug", "", "URL-safe slug. Auto-generated from operator_name if omitted.")
-	cmd.Flags().StringVar(&bodyTurnstileToken, "turnstile-token", "", "Legacy Turnstile token field. Accepted for backward compatibility. maxLength matches cf_challenge_response — see...")
+	cmd.Flags().StringVar(&bodyTurnstileToken, "turnstile-token", "", "Legacy Turnstile token field. Accepted for backward compatibility.")
 	cmd.Flags().StringVar(&bodyUseCase, "use-case", "", "Use case")
-	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
+	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin (use this for deeply nested fields not exposed as flags)")
 
 	return cmd
 }

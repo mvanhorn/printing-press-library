@@ -504,7 +504,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Account(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE account (
+	if _, err := raw.Exec(`CREATE TABLE "account" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -523,7 +523,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Account(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(account)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("account")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -578,7 +578,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Admin(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE admin (
+	if _, err := raw.Exec(`CREATE TABLE "admin" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -597,7 +597,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Admin(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(admin)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("admin")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -645,7 +645,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Agent(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE agent (
+	if _, err := raw.Exec(`CREATE TABLE "agent" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -664,7 +664,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Agent(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(agent)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("agent")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -715,7 +715,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Billing(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE billing (
+	if _, err := raw.Exec(`CREATE TABLE "billing" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -734,7 +734,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Billing(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(billing)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("billing")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -782,7 +782,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Domains(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE domains (
+	if _, err := raw.Exec(`CREATE TABLE "domains" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -801,7 +801,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Domains(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(domains)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("domains")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -851,7 +851,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Verify(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE verify (
+	if _, err := raw.Exec(`CREATE TABLE "verify" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -870,7 +870,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Verify(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(verify)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("verify")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -913,7 +913,7 @@ func TestMigrate_AddsColumnsOnUpgrade_NotSpam(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE not_spam (
+	if _, err := raw.Exec(`CREATE TABLE "not_spam" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -932,7 +932,7 @@ func TestMigrate_AddsColumnsOnUpgrade_NotSpam(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(not_spam)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("not_spam")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -975,7 +975,7 @@ func TestMigrate_AddsColumnsOnUpgrade_ReportSpam(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE report_spam (
+	if _, err := raw.Exec(`CREATE TABLE "report_spam" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -994,7 +994,7 @@ func TestMigrate_AddsColumnsOnUpgrade_ReportSpam(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(report_spam)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("report_spam")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -1037,7 +1037,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Allowlist(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE allowlist (
+	if _, err := raw.Exec(`CREATE TABLE "allowlist" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -1056,7 +1056,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Allowlist(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(allowlist)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("allowlist")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -1099,7 +1099,7 @@ func TestMigrate_AddsColumnsOnUpgrade_MailboxesEmails(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE mailboxes_emails (
+	if _, err := raw.Exec(`CREATE TABLE "mailboxes_emails" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -1118,7 +1118,7 @@ func TestMigrate_AddsColumnsOnUpgrade_MailboxesEmails(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(mailboxes_emails)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("mailboxes_emails")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -1162,7 +1162,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Reply(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE reply (
+	if _, err := raw.Exec(`CREATE TABLE "reply" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -1181,7 +1181,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Reply(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(reply)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("reply")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -1224,7 +1224,7 @@ func TestMigrate_AddsColumnsOnUpgrade_RequestUpgrade(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE request_upgrade (
+	if _, err := raw.Exec(`CREATE TABLE "request_upgrade" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -1243,7 +1243,7 @@ func TestMigrate_AddsColumnsOnUpgrade_RequestUpgrade(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(request_upgrade)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("request_upgrade")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -1286,7 +1286,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Send(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE send (
+	if _, err := raw.Exec(`CREATE TABLE "send" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -1305,7 +1305,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Send(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(send)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("send")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -1348,7 +1348,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Threads(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE threads (
+	if _, err := raw.Exec(`CREATE TABLE "threads" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -1367,7 +1367,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Threads(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(threads)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("threads")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -1410,7 +1410,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Upgrade(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE upgrade (
+	if _, err := raw.Exec(`CREATE TABLE "upgrade" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -1429,7 +1429,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Upgrade(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(upgrade)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("upgrade")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -1472,7 +1472,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Operator(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE operator (
+	if _, err := raw.Exec(`CREATE TABLE "operator" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -1491,7 +1491,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Operator(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(operator)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("operator")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -1536,7 +1536,7 @@ func TestMigrate_AddsColumnsOnUpgrade_SlugCheck(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE slug_check (
+	if _, err := raw.Exec(`CREATE TABLE "slug_check" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -1555,7 +1555,7 @@ func TestMigrate_AddsColumnsOnUpgrade_SlugCheck(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(slug_check)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("slug_check")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -1601,7 +1601,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Webhooks(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE webhooks (
+	if _, err := raw.Exec(`CREATE TABLE "webhooks" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -1620,7 +1620,7 @@ func TestMigrate_AddsColumnsOnUpgrade_Webhooks(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(webhooks)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("webhooks")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -1666,7 +1666,7 @@ func TestMigrate_AddsColumnsOnUpgrade_WellKnown(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE well_known (
+	if _, err := raw.Exec(`CREATE TABLE "well_known" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -1685,7 +1685,7 @@ func TestMigrate_AddsColumnsOnUpgrade_WellKnown(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(well_known)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("well_known")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}
@@ -1732,7 +1732,7 @@ func TestMigrate_AddsColumnsOnUpgrade_SyncState(t *testing.T) {
 	if err != nil {
 		t.Fatalf("open raw: %v", err)
 	}
-	if _, err := raw.Exec(`CREATE TABLE sync_state (
+	if _, err := raw.Exec(`CREATE TABLE "sync_state" (
 		id TEXT PRIMARY KEY,
 		data JSON NOT NULL,
 		synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -1751,7 +1751,7 @@ func TestMigrate_AddsColumnsOnUpgrade_SyncState(t *testing.T) {
 	defer s.Close()
 
 	// The migration must have added every generated column.
-	rows, err := s.DB().Query(`PRAGMA table_info(sync_state)`)
+	rows, err := s.DB().Query(`PRAGMA table_info("sync_state")`)
 	if err != nil {
 		t.Fatalf("table_info: %v", err)
 	}

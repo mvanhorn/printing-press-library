@@ -124,7 +124,7 @@ func buildAgentContext(rootCmd *cobra.Command) agentContext {
 		SchemaVersion: agentContextSchemaVersion,
 		CLI: agentContextCLI{
 			Name:        "multimail-pp-cli",
-			Description: "Every MultiMail feature, plus cross-mailbox search, oversight analytics, and trust ladder tracking no other tool has.",
+			Description: "Email-as-a-Service for AI agents. Inbound email converted to markdown, outbound markdown converted to HTML.",
 			Version:     rootCmd.Version,
 		},
 		Auth: agentContextAuth{

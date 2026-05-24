@@ -11,14 +11,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newMultimailHealthPromotedCmd(flags *rootFlags) *cobra.Command {
+func newHealthPromotedCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
-		Use:         "multimail-health",
+		Use:         "health",
 		Short:       "Verifies D1 and R2 connectivity. No auth required.",
-		Long:        "Shortcut for 'multimail-health list'. Verifies D1 and R2 connectivity. No auth required.",
-		Example:     "  multimail-pp-cli multimail-health",
-		Annotations: map[string]string{"pp:endpoint": "multimail-health.list", "pp:method": "GET", "pp:path": "/health", "mcp:read-only": "true"},
+		Long:        "Verifies D1 and R2 connectivity. No auth required.",
+		Example:     "  multimail-pp-cli health",
+		Annotations: map[string]string{"pp:endpoint": "health.list", "pp:method": "GET", "pp:path": "/health", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c, err := flags.newClient()
 			if err != nil {
@@ -27,7 +27,7 @@ func newMultimailHealthPromotedCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/health"
 			params := map[string]string{}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "multimail-health", false, path, params, nil)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "health", false, path, params, nil, cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -35,8 +35,12 @@ func newMultimailHealthPromotedCmd(flags *rootFlags) *cobra.Command {
 			// so output helpers see the inner data, not the wrapper.
 			data = extractResponseData(data)
 
-			// Print provenance to stderr
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_endpoint.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				if json.Unmarshal(data, &countItems) != nil {
 					// Single object, not an array

@@ -16,7 +16,7 @@ func newBillingListCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "list",
-		Short:       "Public endpoint. Returns the API key stored during pricing-checkout, then deletes it. Key expires after 1 hour if...",
+		Short:       "Public endpoint. Returns the API key stored during pricing-checkout, then deletes it.",
 		Example:     "  multimail-pp-cli billing list --session-id 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "billing.list", "pp:method": "GET", "pp:path": "/v1/billing/session-key", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -33,12 +33,16 @@ func newBillingListCmd(flags *rootFlags) *cobra.Command {
 			if flagSessionId != "" {
 				params["session_id"] = fmt.Sprintf("%v", flagSessionId)
 			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "billing", false, path, params, nil)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "billing", false, path, params, nil, cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)

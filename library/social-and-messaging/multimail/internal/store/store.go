@@ -11,6 +11,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"hash/fnv"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -335,187 +336,187 @@ func (s *Store) migrate(ctx context.Context) error {
 			total_count INTEGER DEFAULT 0
 		)`,
 		resourcesFTSCreateSQL,
-		`CREATE TABLE IF NOT EXISTS account (
-			id TEXT PRIMARY KEY,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-			emails_sent_this_month INTEGER,
-			is_active INTEGER,
-			max_mailboxes INTEGER,
-			max_storage_bytes INTEGER,
-			monthly_email_quota INTEGER,
-			name TEXT,
-			oversight_email TEXT,
-			physical_address TEXT,
-			plan TEXT,
-			sending_disabled INTEGER,
-			sending_disabled_reason TEXT,
-			slug TEXT,
-			storage_used_bytes INTEGER
+		`CREATE TABLE IF NOT EXISTS "account" (
+			"id" TEXT PRIMARY KEY,
+			"data" JSON NOT NULL,
+			"synced_at" DATETIME DEFAULT CURRENT_TIMESTAMP,
+			"emails_sent_this_month" INTEGER,
+			"is_active" INTEGER,
+			"max_mailboxes" INTEGER,
+			"max_storage_bytes" INTEGER,
+			"monthly_email_quota" INTEGER,
+			"name" TEXT,
+			"oversight_email" TEXT,
+			"physical_address" TEXT,
+			"plan" TEXT,
+			"sending_disabled" INTEGER,
+			"sending_disabled_reason" TEXT,
+			"slug" TEXT,
+			"storage_used_bytes" INTEGER
 		)`,
-		`CREATE TABLE IF NOT EXISTS admin (
-			id TEXT PRIMARY KEY,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-			api_key TEXT,
-			email_sent INTEGER,
-			key_id TEXT,
-			key_prefix TEXT,
-			success INTEGER,
-			tenant_id TEXT
+		`CREATE TABLE IF NOT EXISTS "admin" (
+			"id" TEXT PRIMARY KEY,
+			"data" JSON NOT NULL,
+			"synced_at" DATETIME DEFAULT CURRENT_TIMESTAMP,
+			"api_key" TEXT,
+			"email_sent" INTEGER,
+			"key_id" TEXT,
+			"key_prefix" TEXT,
+			"success" INTEGER,
+			"tenant_id" TEXT
 		)`,
-		`CREATE INDEX IF NOT EXISTS idx_admin_key_id ON admin(key_id)`,
-		`CREATE INDEX IF NOT EXISTS idx_admin_tenant_id ON admin(tenant_id)`,
-		`CREATE TABLE IF NOT EXISTS agent (
-			id TEXT PRIMARY KEY,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-			claim_token TEXT,
-			claim_token_expires DATETIME,
-			claim_url TEXT,
-			registration_id TEXT,
-			registration_type TEXT,
-			credential TEXT,
-			credential_expires TEXT,
-			credential_type TEXT,
-			status TEXT
+		`CREATE INDEX IF NOT EXISTS "idx_admin_key_id" ON "admin"("key_id")`,
+		`CREATE INDEX IF NOT EXISTS "idx_admin_tenant_id" ON "admin"("tenant_id")`,
+		`CREATE TABLE IF NOT EXISTS "agent" (
+			"id" TEXT PRIMARY KEY,
+			"data" JSON NOT NULL,
+			"synced_at" DATETIME DEFAULT CURRENT_TIMESTAMP,
+			"claim_token" TEXT,
+			"claim_token_expires" DATETIME,
+			"claim_url" TEXT,
+			"registration_id" TEXT,
+			"registration_type" TEXT,
+			"credential" TEXT,
+			"credential_expires" TEXT,
+			"credential_type" TEXT,
+			"status" TEXT
 		)`,
-		`CREATE INDEX IF NOT EXISTS idx_agent_registration_id ON agent(registration_id)`,
-		`CREATE TABLE IF NOT EXISTS billing (
-			id TEXT PRIMARY KEY,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-			api_key TEXT,
-			mailbox_address TEXT,
-			mailbox_id TEXT,
-			org_name TEXT,
-			oversight_email TEXT,
-			oversight_mode TEXT
+		`CREATE INDEX IF NOT EXISTS "idx_agent_registration_id" ON "agent"("registration_id")`,
+		`CREATE TABLE IF NOT EXISTS "billing" (
+			"id" TEXT PRIMARY KEY,
+			"data" JSON NOT NULL,
+			"synced_at" DATETIME DEFAULT CURRENT_TIMESTAMP,
+			"api_key" TEXT,
+			"mailbox_address" TEXT,
+			"mailbox_id" TEXT,
+			"org_name" TEXT,
+			"oversight_email" TEXT,
+			"oversight_mode" TEXT
 		)`,
-		`CREATE INDEX IF NOT EXISTS idx_billing_mailbox_id ON billing(mailbox_id)`,
-		`CREATE TABLE IF NOT EXISTS domains (
-			id TEXT PRIMARY KEY,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-			created_at DATETIME,
-			dkim_verified INTEGER,
-			domain TEXT,
-			mx_verified INTEGER,
-			return_path_verified INTEGER,
-			spf_verified INTEGER,
-			status TEXT,
-			verified_at DATETIME
+		`CREATE INDEX IF NOT EXISTS "idx_billing_mailbox_id" ON "billing"("mailbox_id")`,
+		`CREATE TABLE IF NOT EXISTS "domains" (
+			"id" TEXT PRIMARY KEY,
+			"data" JSON NOT NULL,
+			"synced_at" DATETIME DEFAULT CURRENT_TIMESTAMP,
+			"created_at" DATETIME,
+			"dkim_verified" INTEGER,
+			"domain" TEXT,
+			"mx_verified" INTEGER,
+			"return_path_verified" INTEGER,
+			"spf_verified" INTEGER,
+			"status" TEXT,
+			"verified_at" DATETIME
 		)`,
-		`CREATE INDEX IF NOT EXISTS idx_domains_created_at ON domains(created_at)`,
-		`CREATE TABLE IF NOT EXISTS verify (
-			id TEXT PRIMARY KEY,
-			domains_id TEXT NOT NULL,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		`CREATE INDEX IF NOT EXISTS "idx_domains_created_at" ON "domains"("created_at")`,
+		`CREATE TABLE IF NOT EXISTS "verify" (
+			"id" TEXT PRIMARY KEY,
+			"domains_id" TEXT NOT NULL,
+			"data" JSON NOT NULL,
+			"synced_at" DATETIME DEFAULT CURRENT_TIMESTAMP
 		)`,
-		`CREATE INDEX IF NOT EXISTS idx_verify_domains_id ON verify(domains_id)`,
-		`CREATE TABLE IF NOT EXISTS not_spam (
-			id TEXT PRIMARY KEY,
-			emails_id TEXT NOT NULL,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		`CREATE INDEX IF NOT EXISTS "idx_verify_domains_id" ON "verify"("domains_id")`,
+		`CREATE TABLE IF NOT EXISTS "not_spam" (
+			"id" TEXT PRIMARY KEY,
+			"emails_id" TEXT NOT NULL,
+			"data" JSON NOT NULL,
+			"synced_at" DATETIME DEFAULT CURRENT_TIMESTAMP
 		)`,
-		`CREATE INDEX IF NOT EXISTS idx_not_spam_emails_id ON not_spam(emails_id)`,
-		`CREATE TABLE IF NOT EXISTS report_spam (
-			id TEXT PRIMARY KEY,
-			emails_id TEXT NOT NULL,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		`CREATE INDEX IF NOT EXISTS "idx_not_spam_emails_id" ON "not_spam"("emails_id")`,
+		`CREATE TABLE IF NOT EXISTS "report_spam" (
+			"id" TEXT PRIMARY KEY,
+			"emails_id" TEXT NOT NULL,
+			"data" JSON NOT NULL,
+			"synced_at" DATETIME DEFAULT CURRENT_TIMESTAMP
 		)`,
-		`CREATE INDEX IF NOT EXISTS idx_report_spam_emails_id ON report_spam(emails_id)`,
-		`CREATE TABLE IF NOT EXISTS allowlist (
-			id TEXT PRIMARY KEY,
-			mailboxes_id TEXT NOT NULL,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		`CREATE INDEX IF NOT EXISTS "idx_report_spam_emails_id" ON "report_spam"("emails_id")`,
+		`CREATE TABLE IF NOT EXISTS "allowlist" (
+			"id" TEXT PRIMARY KEY,
+			"mailboxes_id" TEXT NOT NULL,
+			"data" JSON NOT NULL,
+			"synced_at" DATETIME DEFAULT CURRENT_TIMESTAMP
 		)`,
-		`CREATE INDEX IF NOT EXISTS idx_allowlist_mailboxes_id ON allowlist(mailboxes_id)`,
-		`CREATE TABLE IF NOT EXISTS mailboxes_emails (
-			id TEXT PRIMARY KEY,
-			mailboxes_id TEXT NOT NULL,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-			parent_id TEXT
+		`CREATE INDEX IF NOT EXISTS "idx_allowlist_mailboxes_id" ON "allowlist"("mailboxes_id")`,
+		`CREATE TABLE IF NOT EXISTS "mailboxes_emails" (
+			"id" TEXT PRIMARY KEY,
+			"mailboxes_id" TEXT NOT NULL,
+			"data" JSON NOT NULL,
+			"synced_at" DATETIME DEFAULT CURRENT_TIMESTAMP,
+			"parent_id" TEXT
 		)`,
-		`CREATE INDEX IF NOT EXISTS idx_mailboxes_emails_mailboxes_id ON mailboxes_emails(mailboxes_id)`,
-		`CREATE INDEX IF NOT EXISTS idx_mailboxes_emails_parent_id ON mailboxes_emails(parent_id)`,
-		`CREATE TABLE IF NOT EXISTS reply (
-			id TEXT PRIMARY KEY,
-			mailboxes_id TEXT NOT NULL,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		`CREATE INDEX IF NOT EXISTS "idx_mailboxes_emails_mailboxes_id" ON "mailboxes_emails"("mailboxes_id")`,
+		`CREATE INDEX IF NOT EXISTS "idx_mailboxes_emails_parent_id" ON "mailboxes_emails"("parent_id")`,
+		`CREATE TABLE IF NOT EXISTS "reply" (
+			"id" TEXT PRIMARY KEY,
+			"mailboxes_id" TEXT NOT NULL,
+			"data" JSON NOT NULL,
+			"synced_at" DATETIME DEFAULT CURRENT_TIMESTAMP
 		)`,
-		`CREATE INDEX IF NOT EXISTS idx_reply_mailboxes_id ON reply(mailboxes_id)`,
-		`CREATE TABLE IF NOT EXISTS request_upgrade (
-			id TEXT PRIMARY KEY,
-			mailboxes_id TEXT NOT NULL,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		`CREATE INDEX IF NOT EXISTS "idx_reply_mailboxes_id" ON "reply"("mailboxes_id")`,
+		`CREATE TABLE IF NOT EXISTS "request_upgrade" (
+			"id" TEXT PRIMARY KEY,
+			"mailboxes_id" TEXT NOT NULL,
+			"data" JSON NOT NULL,
+			"synced_at" DATETIME DEFAULT CURRENT_TIMESTAMP
 		)`,
-		`CREATE INDEX IF NOT EXISTS idx_request_upgrade_mailboxes_id ON request_upgrade(mailboxes_id)`,
-		`CREATE TABLE IF NOT EXISTS send (
-			id TEXT PRIMARY KEY,
-			mailboxes_id TEXT NOT NULL,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		`CREATE INDEX IF NOT EXISTS "idx_request_upgrade_mailboxes_id" ON "request_upgrade"("mailboxes_id")`,
+		`CREATE TABLE IF NOT EXISTS "send" (
+			"id" TEXT PRIMARY KEY,
+			"mailboxes_id" TEXT NOT NULL,
+			"data" JSON NOT NULL,
+			"synced_at" DATETIME DEFAULT CURRENT_TIMESTAMP
 		)`,
-		`CREATE INDEX IF NOT EXISTS idx_send_mailboxes_id ON send(mailboxes_id)`,
-		`CREATE TABLE IF NOT EXISTS threads (
-			id TEXT PRIMARY KEY,
-			mailboxes_id TEXT NOT NULL,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		`CREATE INDEX IF NOT EXISTS "idx_send_mailboxes_id" ON "send"("mailboxes_id")`,
+		`CREATE TABLE IF NOT EXISTS "threads" (
+			"id" TEXT PRIMARY KEY,
+			"mailboxes_id" TEXT NOT NULL,
+			"data" JSON NOT NULL,
+			"synced_at" DATETIME DEFAULT CURRENT_TIMESTAMP
 		)`,
-		`CREATE INDEX IF NOT EXISTS idx_threads_mailboxes_id ON threads(mailboxes_id)`,
-		`CREATE TABLE IF NOT EXISTS upgrade (
-			id TEXT PRIMARY KEY,
-			mailboxes_id TEXT NOT NULL,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		`CREATE INDEX IF NOT EXISTS "idx_threads_mailboxes_id" ON "threads"("mailboxes_id")`,
+		`CREATE TABLE IF NOT EXISTS "upgrade" (
+			"id" TEXT PRIMARY KEY,
+			"mailboxes_id" TEXT NOT NULL,
+			"data" JSON NOT NULL,
+			"synced_at" DATETIME DEFAULT CURRENT_TIMESTAMP
 		)`,
-		`CREATE INDEX IF NOT EXISTS idx_upgrade_mailboxes_id ON upgrade(mailboxes_id)`,
-		`CREATE TABLE IF NOT EXISTS operator (
-			id TEXT PRIMARY KEY,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-			active INTEGER,
-			expires_at INTEGER,
-			max_tier TEXT
+		`CREATE INDEX IF NOT EXISTS "idx_upgrade_mailboxes_id" ON "upgrade"("mailboxes_id")`,
+		`CREATE TABLE IF NOT EXISTS "operator" (
+			"id" TEXT PRIMARY KEY,
+			"data" JSON NOT NULL,
+			"synced_at" DATETIME DEFAULT CURRENT_TIMESTAMP,
+			"active" INTEGER,
+			"expires_at" INTEGER,
+			"max_tier" TEXT
 		)`,
-		`CREATE TABLE IF NOT EXISTS slug_check (
-			id TEXT PRIMARY KEY,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-			address_preview TEXT,
-			available INTEGER,
-			reason TEXT,
-			slug TEXT
+		`CREATE TABLE IF NOT EXISTS "slug_check" (
+			"id" TEXT PRIMARY KEY,
+			"data" JSON NOT NULL,
+			"synced_at" DATETIME DEFAULT CURRENT_TIMESTAMP,
+			"address_preview" TEXT,
+			"available" INTEGER,
+			"reason" TEXT,
+			"slug" TEXT
 		)`,
-		`CREATE TABLE IF NOT EXISTS webhooks (
-			id TEXT PRIMARY KEY,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-			created_at DATETIME,
-			mailbox_id TEXT,
-			signing_secret TEXT,
-			url TEXT
+		`CREATE TABLE IF NOT EXISTS "webhooks" (
+			"id" TEXT PRIMARY KEY,
+			"data" JSON NOT NULL,
+			"synced_at" DATETIME DEFAULT CURRENT_TIMESTAMP,
+			"created_at" DATETIME,
+			"mailbox_id" TEXT,
+			"signing_secret" TEXT,
+			"url" TEXT
 		)`,
-		`CREATE INDEX IF NOT EXISTS idx_webhooks_mailbox_id ON webhooks(mailbox_id)`,
-		`CREATE INDEX IF NOT EXISTS idx_webhooks_created_at ON webhooks(created_at)`,
-		`CREATE TABLE IF NOT EXISTS well_known (
-			id TEXT PRIMARY KEY,
-			data JSON NOT NULL,
-			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-			issuer TEXT,
-			resource TEXT,
-			resource_documentation TEXT,
-			resource_logo_uri TEXT,
-			resource_name TEXT
+		`CREATE INDEX IF NOT EXISTS "idx_webhooks_mailbox_id" ON "webhooks"("mailbox_id")`,
+		`CREATE INDEX IF NOT EXISTS "idx_webhooks_created_at" ON "webhooks"("created_at")`,
+		`CREATE TABLE IF NOT EXISTS "well_known" (
+			"id" TEXT PRIMARY KEY,
+			"data" JSON NOT NULL,
+			"synced_at" DATETIME DEFAULT CURRENT_TIMESTAMP,
+			"issuer" TEXT,
+			"resource" TEXT,
+			"resource_documentation" TEXT,
+			"resource_logo_uri" TEXT,
+			"resource_name" TEXT
 		)`,
 	}
 
@@ -913,7 +914,7 @@ func (s *Store) Search(query string, limit int) ([]json.RawMessage, error) {
 }
 
 func extractObjectID(obj map[string]any) string {
-	for _, key := range []string{"id", "ID", "uuid", "slug", "name"} {
+	for _, key := range []string{"id", "Id", "ID", "uuid", "slug", "name"} {
 		if v, ok := obj[key]; ok {
 			return fmt.Sprintf("%v", v)
 		}
@@ -925,21 +926,19 @@ func extractObjectID(obj map[string]any) string {
 // modernc.org/sqlite's FTS5 implementation may not support DELETE WHERE column=?
 // on virtual tables, so we use explicit rowids and DELETE WHERE rowid=? instead.
 func ftsRowID(scope, id string) int64 {
-	var h uint64
-	for _, c := range scope {
-		h = h*31 + uint64(c)
-	}
-	h *= 31
-	for _, c := range id {
-		h = h*31 + uint64(c)
-	}
-	return int64(h & 0x7FFFFFFFFFFFFFFF) // ensure positive
+	h := fnv.New64a()
+	_, _ = h.Write([]byte(scope))
+	_, _ = h.Write([]byte{0}) // separator so ("ab","c") != ("a","bc")
+	_, _ = h.Write([]byte(id))
+	return int64(h.Sum64() & 0x7FFFFFFFFFFFFFFF) // ensure positive
 }
 
-// LookupFieldValue resolves a field value from a JSON object map, trying
-// the snake_case key first and the camelCase rendering second. Exported so
-// the sync command's extractID and the upsert path resolve fields the same
-// way — a divergence here produces silent drops on heterogeneous payloads.
+// LookupFieldValue resolves a field value from a JSON object map, trying the
+// snake_case key first, then the camelCase rendering, then the PascalCase
+// rendering. Exported so the sync command's extractID and the upsert path
+// resolve fields the same way — a divergence here produces silent drops on
+// heterogeneous payloads. The PascalCase pass handles .NET-shaped responses
+// (`Id`, `Name`, `OrderId`) without forcing each spec to declare casing.
 func LookupFieldValue(obj map[string]any, snakeKey string) any {
 	if v, ok := obj[snakeKey]; ok {
 		return sqliteFieldValue(v)
@@ -951,8 +950,15 @@ func LookupFieldValue(obj map[string]any, snakeKey string) any {
 		}
 		parts[i] = strings.ToUpper(parts[i][:1]) + parts[i][1:]
 	}
-	if v, ok := obj[strings.Join(parts, "")]; ok {
+	camel := strings.Join(parts, "")
+	if v, ok := obj[camel]; ok {
 		return sqliteFieldValue(v)
+	}
+	if parts[0] != "" {
+		pascal := strings.ToUpper(parts[0][:1]) + parts[0][1:] + strings.Join(parts[1:], "")
+		if v, ok := obj[pascal]; ok {
+			return sqliteFieldValue(v)
+		}
 	}
 	return nil
 }
@@ -984,9 +990,9 @@ func lookupFieldValue(obj map[string]any, snakeKey string) any {
 // opening a per-item transaction.
 func (s *Store) upsertAccountTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
 	if _, err := tx.Exec(
-		`INSERT INTO account (id, data, synced_at, emails_sent_this_month, is_active, max_mailboxes, max_storage_bytes, monthly_email_quota, name, oversight_email, physical_address, plan, sending_disabled, sending_disabled_reason, slug, storage_used_bytes)
+		`INSERT INTO "account" ("id", "data", "synced_at", "emails_sent_this_month", "is_active", "max_mailboxes", "max_storage_bytes", "monthly_email_quota", "name", "oversight_email", "physical_address", "plan", "sending_disabled", "sending_disabled_reason", "slug", "storage_used_bytes")
 		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, emails_sent_this_month = excluded.emails_sent_this_month, is_active = excluded.is_active, max_mailboxes = excluded.max_mailboxes, max_storage_bytes = excluded.max_storage_bytes, monthly_email_quota = excluded.monthly_email_quota, name = excluded.name, oversight_email = excluded.oversight_email, physical_address = excluded.physical_address, plan = excluded.plan, sending_disabled = excluded.sending_disabled, sending_disabled_reason = excluded.sending_disabled_reason, slug = excluded.slug, storage_used_bytes = excluded.storage_used_bytes`,
+		 ON CONFLICT("id") DO UPDATE SET "data" = excluded."data", "synced_at" = excluded."synced_at", "emails_sent_this_month" = excluded."emails_sent_this_month", "is_active" = excluded."is_active", "max_mailboxes" = excluded."max_mailboxes", "max_storage_bytes" = excluded."max_storage_bytes", "monthly_email_quota" = excluded."monthly_email_quota", "name" = excluded."name", "oversight_email" = excluded."oversight_email", "physical_address" = excluded."physical_address", "plan" = excluded."plan", "sending_disabled" = excluded."sending_disabled", "sending_disabled_reason" = excluded."sending_disabled_reason", "slug" = excluded."slug", "storage_used_bytes" = excluded."storage_used_bytes"`,
 		id,
 		string(data),
 		time.Now(),
@@ -1047,9 +1053,9 @@ func (s *Store) UpsertAccount(data json.RawMessage) error {
 // opening a per-item transaction.
 func (s *Store) upsertAdminTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
 	if _, err := tx.Exec(
-		`INSERT INTO admin (id, data, synced_at, api_key, email_sent, key_id, key_prefix, success, tenant_id)
+		`INSERT INTO "admin" ("id", "data", "synced_at", "api_key", "email_sent", "key_id", "key_prefix", "success", "tenant_id")
 		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, api_key = excluded.api_key, email_sent = excluded.email_sent, key_id = excluded.key_id, key_prefix = excluded.key_prefix, success = excluded.success, tenant_id = excluded.tenant_id`,
+		 ON CONFLICT("id") DO UPDATE SET "data" = excluded."data", "synced_at" = excluded."synced_at", "api_key" = excluded."api_key", "email_sent" = excluded."email_sent", "key_id" = excluded."key_id", "key_prefix" = excluded."key_prefix", "success" = excluded."success", "tenant_id" = excluded."tenant_id"`,
 		id,
 		string(data),
 		time.Now(),
@@ -1103,9 +1109,9 @@ func (s *Store) UpsertAdmin(data json.RawMessage) error {
 // opening a per-item transaction.
 func (s *Store) upsertAgentTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
 	if _, err := tx.Exec(
-		`INSERT INTO agent (id, data, synced_at, claim_token, claim_token_expires, claim_url, registration_id, registration_type, credential, credential_expires, credential_type, status)
+		`INSERT INTO "agent" ("id", "data", "synced_at", "claim_token", "claim_token_expires", "claim_url", "registration_id", "registration_type", "credential", "credential_expires", "credential_type", "status")
 		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, claim_token = excluded.claim_token, claim_token_expires = excluded.claim_token_expires, claim_url = excluded.claim_url, registration_id = excluded.registration_id, registration_type = excluded.registration_type, credential = excluded.credential, credential_expires = excluded.credential_expires, credential_type = excluded.credential_type, status = excluded.status`,
+		 ON CONFLICT("id") DO UPDATE SET "data" = excluded."data", "synced_at" = excluded."synced_at", "claim_token" = excluded."claim_token", "claim_token_expires" = excluded."claim_token_expires", "claim_url" = excluded."claim_url", "registration_id" = excluded."registration_id", "registration_type" = excluded."registration_type", "credential" = excluded."credential", "credential_expires" = excluded."credential_expires", "credential_type" = excluded."credential_type", "status" = excluded."status"`,
 		id,
 		string(data),
 		time.Now(),
@@ -1162,9 +1168,9 @@ func (s *Store) UpsertAgent(data json.RawMessage) error {
 // opening a per-item transaction.
 func (s *Store) upsertBillingTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
 	if _, err := tx.Exec(
-		`INSERT INTO billing (id, data, synced_at, api_key, mailbox_address, mailbox_id, org_name, oversight_email, oversight_mode)
+		`INSERT INTO "billing" ("id", "data", "synced_at", "api_key", "mailbox_address", "mailbox_id", "org_name", "oversight_email", "oversight_mode")
 		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, api_key = excluded.api_key, mailbox_address = excluded.mailbox_address, mailbox_id = excluded.mailbox_id, org_name = excluded.org_name, oversight_email = excluded.oversight_email, oversight_mode = excluded.oversight_mode`,
+		 ON CONFLICT("id") DO UPDATE SET "data" = excluded."data", "synced_at" = excluded."synced_at", "api_key" = excluded."api_key", "mailbox_address" = excluded."mailbox_address", "mailbox_id" = excluded."mailbox_id", "org_name" = excluded."org_name", "oversight_email" = excluded."oversight_email", "oversight_mode" = excluded."oversight_mode"`,
 		id,
 		string(data),
 		time.Now(),
@@ -1218,9 +1224,9 @@ func (s *Store) UpsertBilling(data json.RawMessage) error {
 // opening a per-item transaction.
 func (s *Store) upsertDomainsTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
 	if _, err := tx.Exec(
-		`INSERT INTO domains (id, data, synced_at, created_at, dkim_verified, domain, mx_verified, return_path_verified, spf_verified, status, verified_at)
+		`INSERT INTO "domains" ("id", "data", "synced_at", "created_at", "dkim_verified", "domain", "mx_verified", "return_path_verified", "spf_verified", "status", "verified_at")
 		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, created_at = excluded.created_at, dkim_verified = excluded.dkim_verified, domain = excluded.domain, mx_verified = excluded.mx_verified, return_path_verified = excluded.return_path_verified, spf_verified = excluded.spf_verified, status = excluded.status, verified_at = excluded.verified_at`,
+		 ON CONFLICT("id") DO UPDATE SET "data" = excluded."data", "synced_at" = excluded."synced_at", "created_at" = excluded."created_at", "dkim_verified" = excluded."dkim_verified", "domain" = excluded."domain", "mx_verified" = excluded."mx_verified", "return_path_verified" = excluded."return_path_verified", "spf_verified" = excluded."spf_verified", "status" = excluded."status", "verified_at" = excluded."verified_at"`,
 		id,
 		string(data),
 		time.Now(),
@@ -1276,9 +1282,9 @@ func (s *Store) UpsertDomains(data json.RawMessage) error {
 // opening a per-item transaction.
 func (s *Store) upsertVerifyTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
 	if _, err := tx.Exec(
-		`INSERT INTO verify (id, domains_id, data, synced_at)
+		`INSERT INTO "verify" ("id", "domains_id", "data", "synced_at")
 		 VALUES (?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET domains_id = excluded.domains_id, data = excluded.data, synced_at = excluded.synced_at`,
+		 ON CONFLICT("id") DO UPDATE SET "domains_id" = excluded."domains_id", "data" = excluded."data", "synced_at" = excluded."synced_at"`,
 		id,
 		lookupFieldValue(obj, "domains_id"),
 		string(data),
@@ -1327,9 +1333,9 @@ func (s *Store) UpsertVerify(data json.RawMessage) error {
 // opening a per-item transaction.
 func (s *Store) upsertNotSpamTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
 	if _, err := tx.Exec(
-		`INSERT INTO not_spam (id, emails_id, data, synced_at)
+		`INSERT INTO "not_spam" ("id", "emails_id", "data", "synced_at")
 		 VALUES (?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET emails_id = excluded.emails_id, data = excluded.data, synced_at = excluded.synced_at`,
+		 ON CONFLICT("id") DO UPDATE SET "emails_id" = excluded."emails_id", "data" = excluded."data", "synced_at" = excluded."synced_at"`,
 		id,
 		lookupFieldValue(obj, "emails_id"),
 		string(data),
@@ -1378,9 +1384,9 @@ func (s *Store) UpsertNotSpam(data json.RawMessage) error {
 // opening a per-item transaction.
 func (s *Store) upsertReportSpamTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
 	if _, err := tx.Exec(
-		`INSERT INTO report_spam (id, emails_id, data, synced_at)
+		`INSERT INTO "report_spam" ("id", "emails_id", "data", "synced_at")
 		 VALUES (?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET emails_id = excluded.emails_id, data = excluded.data, synced_at = excluded.synced_at`,
+		 ON CONFLICT("id") DO UPDATE SET "emails_id" = excluded."emails_id", "data" = excluded."data", "synced_at" = excluded."synced_at"`,
 		id,
 		lookupFieldValue(obj, "emails_id"),
 		string(data),
@@ -1429,9 +1435,9 @@ func (s *Store) UpsertReportSpam(data json.RawMessage) error {
 // opening a per-item transaction.
 func (s *Store) upsertAllowlistTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
 	if _, err := tx.Exec(
-		`INSERT INTO allowlist (id, mailboxes_id, data, synced_at)
+		`INSERT INTO "allowlist" ("id", "mailboxes_id", "data", "synced_at")
 		 VALUES (?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET mailboxes_id = excluded.mailboxes_id, data = excluded.data, synced_at = excluded.synced_at`,
+		 ON CONFLICT("id") DO UPDATE SET "mailboxes_id" = excluded."mailboxes_id", "data" = excluded."data", "synced_at" = excluded."synced_at"`,
 		id,
 		lookupFieldValue(obj, "mailboxes_id"),
 		string(data),
@@ -1480,9 +1486,9 @@ func (s *Store) UpsertAllowlist(data json.RawMessage) error {
 // opening a per-item transaction.
 func (s *Store) upsertMailboxesEmailsTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
 	if _, err := tx.Exec(
-		`INSERT INTO mailboxes_emails (id, mailboxes_id, data, synced_at, parent_id)
+		`INSERT INTO "mailboxes_emails" ("id", "mailboxes_id", "data", "synced_at", "parent_id")
 		 VALUES (?, ?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET mailboxes_id = excluded.mailboxes_id, data = excluded.data, synced_at = excluded.synced_at, parent_id = excluded.parent_id`,
+		 ON CONFLICT("id") DO UPDATE SET "mailboxes_id" = excluded."mailboxes_id", "data" = excluded."data", "synced_at" = excluded."synced_at", "parent_id" = excluded."parent_id"`,
 		id,
 		lookupFieldValue(obj, "mailboxes_id"),
 		string(data),
@@ -1532,9 +1538,9 @@ func (s *Store) UpsertMailboxesEmails(data json.RawMessage) error {
 // opening a per-item transaction.
 func (s *Store) upsertReplyTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
 	if _, err := tx.Exec(
-		`INSERT INTO reply (id, mailboxes_id, data, synced_at)
+		`INSERT INTO "reply" ("id", "mailboxes_id", "data", "synced_at")
 		 VALUES (?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET mailboxes_id = excluded.mailboxes_id, data = excluded.data, synced_at = excluded.synced_at`,
+		 ON CONFLICT("id") DO UPDATE SET "mailboxes_id" = excluded."mailboxes_id", "data" = excluded."data", "synced_at" = excluded."synced_at"`,
 		id,
 		lookupFieldValue(obj, "mailboxes_id"),
 		string(data),
@@ -1583,9 +1589,9 @@ func (s *Store) UpsertReply(data json.RawMessage) error {
 // opening a per-item transaction.
 func (s *Store) upsertRequestUpgradeTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
 	if _, err := tx.Exec(
-		`INSERT INTO request_upgrade (id, mailboxes_id, data, synced_at)
+		`INSERT INTO "request_upgrade" ("id", "mailboxes_id", "data", "synced_at")
 		 VALUES (?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET mailboxes_id = excluded.mailboxes_id, data = excluded.data, synced_at = excluded.synced_at`,
+		 ON CONFLICT("id") DO UPDATE SET "mailboxes_id" = excluded."mailboxes_id", "data" = excluded."data", "synced_at" = excluded."synced_at"`,
 		id,
 		lookupFieldValue(obj, "mailboxes_id"),
 		string(data),
@@ -1634,9 +1640,9 @@ func (s *Store) UpsertRequestUpgrade(data json.RawMessage) error {
 // opening a per-item transaction.
 func (s *Store) upsertSendTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
 	if _, err := tx.Exec(
-		`INSERT INTO send (id, mailboxes_id, data, synced_at)
+		`INSERT INTO "send" ("id", "mailboxes_id", "data", "synced_at")
 		 VALUES (?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET mailboxes_id = excluded.mailboxes_id, data = excluded.data, synced_at = excluded.synced_at`,
+		 ON CONFLICT("id") DO UPDATE SET "mailboxes_id" = excluded."mailboxes_id", "data" = excluded."data", "synced_at" = excluded."synced_at"`,
 		id,
 		lookupFieldValue(obj, "mailboxes_id"),
 		string(data),
@@ -1685,9 +1691,9 @@ func (s *Store) UpsertSend(data json.RawMessage) error {
 // opening a per-item transaction.
 func (s *Store) upsertThreadsTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
 	if _, err := tx.Exec(
-		`INSERT INTO threads (id, mailboxes_id, data, synced_at)
+		`INSERT INTO "threads" ("id", "mailboxes_id", "data", "synced_at")
 		 VALUES (?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET mailboxes_id = excluded.mailboxes_id, data = excluded.data, synced_at = excluded.synced_at`,
+		 ON CONFLICT("id") DO UPDATE SET "mailboxes_id" = excluded."mailboxes_id", "data" = excluded."data", "synced_at" = excluded."synced_at"`,
 		id,
 		lookupFieldValue(obj, "mailboxes_id"),
 		string(data),
@@ -1736,9 +1742,9 @@ func (s *Store) UpsertThreads(data json.RawMessage) error {
 // opening a per-item transaction.
 func (s *Store) upsertUpgradeTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
 	if _, err := tx.Exec(
-		`INSERT INTO upgrade (id, mailboxes_id, data, synced_at)
+		`INSERT INTO "upgrade" ("id", "mailboxes_id", "data", "synced_at")
 		 VALUES (?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET mailboxes_id = excluded.mailboxes_id, data = excluded.data, synced_at = excluded.synced_at`,
+		 ON CONFLICT("id") DO UPDATE SET "mailboxes_id" = excluded."mailboxes_id", "data" = excluded."data", "synced_at" = excluded."synced_at"`,
 		id,
 		lookupFieldValue(obj, "mailboxes_id"),
 		string(data),
@@ -1787,9 +1793,9 @@ func (s *Store) UpsertUpgrade(data json.RawMessage) error {
 // opening a per-item transaction.
 func (s *Store) upsertOperatorTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
 	if _, err := tx.Exec(
-		`INSERT INTO operator (id, data, synced_at, active, expires_at, max_tier)
+		`INSERT INTO "operator" ("id", "data", "synced_at", "active", "expires_at", "max_tier")
 		 VALUES (?, ?, ?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, active = excluded.active, expires_at = excluded.expires_at, max_tier = excluded.max_tier`,
+		 ON CONFLICT("id") DO UPDATE SET "data" = excluded."data", "synced_at" = excluded."synced_at", "active" = excluded."active", "expires_at" = excluded."expires_at", "max_tier" = excluded."max_tier"`,
 		id,
 		string(data),
 		time.Now(),
@@ -1840,9 +1846,9 @@ func (s *Store) UpsertOperator(data json.RawMessage) error {
 // opening a per-item transaction.
 func (s *Store) upsertSlugCheckTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
 	if _, err := tx.Exec(
-		`INSERT INTO slug_check (id, data, synced_at, address_preview, available, reason, slug)
+		`INSERT INTO "slug_check" ("id", "data", "synced_at", "address_preview", "available", "reason", "slug")
 		 VALUES (?, ?, ?, ?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, address_preview = excluded.address_preview, available = excluded.available, reason = excluded.reason, slug = excluded.slug`,
+		 ON CONFLICT("id") DO UPDATE SET "data" = excluded."data", "synced_at" = excluded."synced_at", "address_preview" = excluded."address_preview", "available" = excluded."available", "reason" = excluded."reason", "slug" = excluded."slug"`,
 		id,
 		string(data),
 		time.Now(),
@@ -1894,9 +1900,9 @@ func (s *Store) UpsertSlugCheck(data json.RawMessage) error {
 // opening a per-item transaction.
 func (s *Store) upsertWebhooksTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
 	if _, err := tx.Exec(
-		`INSERT INTO webhooks (id, data, synced_at, created_at, mailbox_id, signing_secret, url)
+		`INSERT INTO "webhooks" ("id", "data", "synced_at", "created_at", "mailbox_id", "signing_secret", "url")
 		 VALUES (?, ?, ?, ?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, created_at = excluded.created_at, mailbox_id = excluded.mailbox_id, signing_secret = excluded.signing_secret, url = excluded.url`,
+		 ON CONFLICT("id") DO UPDATE SET "data" = excluded."data", "synced_at" = excluded."synced_at", "created_at" = excluded."created_at", "mailbox_id" = excluded."mailbox_id", "signing_secret" = excluded."signing_secret", "url" = excluded."url"`,
 		id,
 		string(data),
 		time.Now(),
@@ -1948,9 +1954,9 @@ func (s *Store) UpsertWebhooks(data json.RawMessage) error {
 // opening a per-item transaction.
 func (s *Store) upsertWellKnownTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
 	if _, err := tx.Exec(
-		`INSERT INTO well_known (id, data, synced_at, issuer, resource, resource_documentation, resource_logo_uri, resource_name)
+		`INSERT INTO "well_known" ("id", "data", "synced_at", "issuer", "resource", "resource_documentation", "resource_logo_uri", "resource_name")
 		 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-		 ON CONFLICT(id) DO UPDATE SET data = excluded.data, synced_at = excluded.synced_at, issuer = excluded.issuer, resource = excluded.resource, resource_documentation = excluded.resource_documentation, resource_logo_uri = excluded.resource_logo_uri, resource_name = excluded.resource_name`,
+		 ON CONFLICT("id") DO UPDATE SET "data" = excluded."data", "synced_at" = excluded."synced_at", "issuer" = excluded."issuer", "resource" = excluded."resource", "resource_documentation" = excluded."resource_documentation", "resource_logo_uri" = excluded."resource_logo_uri", "resource_name" = excluded."resource_name"`,
 		id,
 		string(data),
 		time.Now(),
@@ -2022,22 +2028,56 @@ var resourceIDFieldOverrides = map[string]string{
 
 // genericIDFieldFallbacks is the runtime safety net for resources that did
 // NOT receive a templated IDField. API-specific names belong in spec
-// annotations (x-resource-id), not this list.
-var genericIDFieldFallbacks = []string{"id", "ID", "name", "uuid", "slug", "key", "code", "uid"}
+// annotations (x-resource-id), not this list. Order matters: vendor
+// identifier names (gid, sid, uid, uuid, guid) take precedence over `name`
+// so APIs like Asana (gid) and Twilio (sid) don't fall through to a display
+// field and upsert on names — see #1394.
+var genericIDFieldFallbacks = []string{"id", "ID", "gid", "sid", "uid", "uuid", "guid", "name", "slug", "key", "code"}
+
+// ExtractResourceID resolves the primary key UpsertBatch would use for a
+// resource item. Callers that need to gate best-effort writes can use this to
+// avoid passing non-entity envelopes into the batch path.
+func ExtractResourceID(resourceType string, obj map[string]any) string {
+	if override, ok := resourceIDFieldOverrides[resourceType]; ok && override != "" {
+		if v := lookupFieldValue(obj, override); v != nil {
+			s := fmt.Sprintf("%v", v)
+			if s != "" && s != "<nil>" {
+				return s
+			}
+		}
+	}
+	for _, key := range genericIDFieldFallbacks {
+		if v := lookupFieldValue(obj, key); v != nil {
+			s := fmt.Sprintf("%v", v)
+			if s != "" && s != "<nil>" {
+				return s
+			}
+		}
+	}
+	return ""
+}
 
 // UpsertBatch inserts or replaces multiple records in a single transaction
-// and returns (stored, extractFailures, err). stored counts rows actually
-// landed; extractFailures counts items that survived JSON unmarshal but had
-// no extractable primary key (templated IDField AND generic fallback both
-// missed). callers (sync.go.tmpl) compare these against len(items) to emit
-// the per-item primary_key_unresolved warning and the F4b
-// stored_count_zero_after_extraction probe.
+// and returns (stored, extractFailures, err). stored counts rows landed in
+// the generic resources table; extractFailures counts items that survived
+// JSON unmarshal but had no extractable primary key (templated IDField AND
+// generic fallback both missed). callers (sync.go.tmpl) compare these
+// against len(items) to emit the per-item primary_key_unresolved warning
+// and the F4b stored_count_zero_after_extraction probe.
 //
 // For resource types that have a domain-specific typed table, the per-item
 // generic insert is followed by a dispatch to the matching upsert<Pascal>Tx
 // inside the same transaction. Without that dispatch, paginated syncs would
 // only populate the generic resources table — typed tables (and indexed
 // columns like parent_id added by dependent-resource sync) would stay empty.
+//
+// Each typed-table dispatch runs inside a per-item SAVEPOINT so a constraint
+// failure in the typed insert (e.g. NOT NULL parent FK when the generator
+// didn't populate the parent path placeholder) rolls back only that typed
+// upsert. The generic resources row inserted just above it survives the
+// rollback, so successful API fetches never strand in memory because one
+// downstream typed table is misconfigured. Failures are surfaced via a
+// trailing stderr warning rather than aborting the batch.
 func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, int, error) {
 	s.writeMu.Lock()
 	defer s.writeMu.Unlock()
@@ -2047,8 +2087,8 @@ func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, 
 	}
 	defer tx.Rollback()
 
-	var stored, skippedCount, extractFailures int
-	for _, item := range items {
+	var stored, skippedCount, extractFailures, typedFailures int
+	for i, item := range items {
 		var obj map[string]any
 		if err := json.Unmarshal(item, &obj); err != nil {
 			skippedCount++
@@ -2058,26 +2098,7 @@ func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, 
 		// the override is empty OR the override field is absent on this
 		// particular item (response shape mismatches happen even when the
 		// spec declares x-resource-id).
-		var id string
-		if override, ok := resourceIDFieldOverrides[resourceType]; ok && override != "" {
-			if v := lookupFieldValue(obj, override); v != nil {
-				s := fmt.Sprintf("%v", v)
-				if s != "" && s != "<nil>" {
-					id = s
-				}
-			}
-		}
-		if id == "" {
-			for _, key := range genericIDFieldFallbacks {
-				if v := lookupFieldValue(obj, key); v != nil {
-					s := fmt.Sprintf("%v", v)
-					if s != "" && s != "<nil>" {
-						id = s
-						break
-					}
-				}
-			}
-		}
+		id := ExtractResourceID(resourceType, obj)
 		if id == "" {
 			skippedCount++
 			extractFailures++
@@ -2085,94 +2106,84 @@ func (s *Store) UpsertBatch(resourceType string, items []json.RawMessage) (int, 
 		}
 
 		if err := s.upsertGenericResourceTx(tx, resourceType, id, item); err != nil {
-			return 0, extractFailures, fmt.Errorf("upserting %s/%s: %w", resourceType, id, err)
-		}
-
-		switch resourceType {
-		case "account":
-			if err := s.upsertAccountTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "admin":
-			if err := s.upsertAdminTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "agent":
-			if err := s.upsertAgentTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "billing":
-			if err := s.upsertBillingTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "domains":
-			if err := s.upsertDomainsTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "verify":
-			if err := s.upsertVerifyTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "not_spam":
-			if err := s.upsertNotSpamTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "report_spam":
-			if err := s.upsertReportSpamTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "allowlist":
-			if err := s.upsertAllowlistTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "mailboxes_emails":
-			if err := s.upsertMailboxesEmailsTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "reply":
-			if err := s.upsertReplyTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "request_upgrade":
-			if err := s.upsertRequestUpgradeTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "send":
-			if err := s.upsertSendTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "threads":
-			if err := s.upsertThreadsTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "upgrade":
-			if err := s.upsertUpgradeTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "operator":
-			if err := s.upsertOperatorTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "slug-check":
-			if err := s.upsertSlugCheckTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "webhooks":
-			if err := s.upsertWebhooksTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
-		case "well-known":
-			if err := s.upsertWellKnownTx(tx, id, obj, item); err != nil {
-				return 0, extractFailures, fmt.Errorf("typed upsert for %s/%s: %w", resourceType, id, err)
-			}
+			// Return the running stored count rather than zero so callers
+			// inspecting partial progress on failure see what already
+			// landed in earlier loop iterations.
+			return stored, extractFailures, fmt.Errorf("upserting %s/%s: %w", resourceType, id, err)
 		}
 		stored++
+
+		savepoint := fmt.Sprintf("pp_typed_%d", i)
+		if _, err := tx.Exec("SAVEPOINT " + savepoint); err != nil {
+			return stored, extractFailures, fmt.Errorf("savepoint begin for %s/%s: %w", resourceType, id, err)
+		}
+
+		var typedErr error
+		switch resourceType {
+		case "account":
+			typedErr = s.upsertAccountTx(tx, id, obj, item)
+		case "admin":
+			typedErr = s.upsertAdminTx(tx, id, obj, item)
+		case "agent":
+			typedErr = s.upsertAgentTx(tx, id, obj, item)
+		case "billing":
+			typedErr = s.upsertBillingTx(tx, id, obj, item)
+		case "domains":
+			typedErr = s.upsertDomainsTx(tx, id, obj, item)
+		case "verify":
+			typedErr = s.upsertVerifyTx(tx, id, obj, item)
+		case "not_spam":
+			typedErr = s.upsertNotSpamTx(tx, id, obj, item)
+		case "report_spam":
+			typedErr = s.upsertReportSpamTx(tx, id, obj, item)
+		case "allowlist":
+			typedErr = s.upsertAllowlistTx(tx, id, obj, item)
+		case "mailboxes_emails":
+			typedErr = s.upsertMailboxesEmailsTx(tx, id, obj, item)
+		case "reply":
+			typedErr = s.upsertReplyTx(tx, id, obj, item)
+		case "request_upgrade":
+			typedErr = s.upsertRequestUpgradeTx(tx, id, obj, item)
+		case "send":
+			typedErr = s.upsertSendTx(tx, id, obj, item)
+		case "threads":
+			typedErr = s.upsertThreadsTx(tx, id, obj, item)
+		case "upgrade":
+			typedErr = s.upsertUpgradeTx(tx, id, obj, item)
+		case "operator":
+			typedErr = s.upsertOperatorTx(tx, id, obj, item)
+		case "slug-check":
+			typedErr = s.upsertSlugCheckTx(tx, id, obj, item)
+		case "webhooks":
+			typedErr = s.upsertWebhooksTx(tx, id, obj, item)
+		case "well-known":
+			typedErr = s.upsertWellKnownTx(tx, id, obj, item)
+		}
+
+		if typedErr != nil {
+			if _, rbErr := tx.Exec("ROLLBACK TO SAVEPOINT " + savepoint); rbErr != nil {
+				return stored, extractFailures, fmt.Errorf("rollback to savepoint for %s/%s (typed err: %v): %w", resourceType, id, typedErr, rbErr)
+			}
+			if _, relErr := tx.Exec("RELEASE SAVEPOINT " + savepoint); relErr != nil {
+				return stored, extractFailures, fmt.Errorf("release savepoint after rollback for %s/%s: %w", resourceType, id, relErr)
+			}
+			typedFailures++
+			continue
+		}
+		if _, err := tx.Exec("RELEASE SAVEPOINT " + savepoint); err != nil {
+			return stored, extractFailures, fmt.Errorf("release savepoint for %s/%s: %w", resourceType, id, err)
+		}
 	}
 
 	// Warn when most items in a batch lack an extractable ID — this likely
 	// means the API uses a primary key field we don't recognize yet.
 	if skippedCount > 0 && len(items) > 0 && skippedCount*2 > len(items) {
 		fmt.Fprintf(os.Stderr, "warning: %d/%d %s items skipped (no extractable ID field found)\n", skippedCount, len(items), resourceType)
+	}
+	// Surface typed-table failures without aborting the batch. Generic rows
+	// already committed; only the typed projection failed.
+	if typedFailures > 0 {
+		fmt.Fprintf(os.Stderr, "warning: %d/%d %s items: typed-table upsert failed; generic resources rows preserved\n", typedFailures, len(items), resourceType)
 	}
 
 	if err := tx.Commit(); err != nil {
@@ -2394,6 +2405,10 @@ func (s *Store) Status() (map[string]int, error) {
 // ResolveByName resolves a human-readable name to a UUID from synced data.
 // If the input is already a UUID, it is returned as-is.
 // matchFields are JSON field names to search against (e.g., "name", "key", "email").
+//
+// json_extract path components cannot be bound as SQL parameters, so each
+// field is validated against validIdentifierRE before being spliced into
+// the query.
 func (s *Store) ResolveByName(resourceType string, input string, matchFields ...string) (string, error) {
 	if IsUUID(input) {
 		return input, nil
@@ -2401,6 +2416,9 @@ func (s *Store) ResolveByName(resourceType string, input string, matchFields ...
 
 	var matches []string
 	for _, field := range matchFields {
+		if !validIdentifierRE.MatchString(field) {
+			continue
+		}
 		query := fmt.Sprintf(
 			`SELECT id FROM resources WHERE resource_type = ? AND LOWER(json_extract(data, '$.%s')) = LOWER(?)`,
 			field,

@@ -10,8 +10,9 @@ import (
 func newAccountCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:    "account",
-		Short:  "Manage account",
+		Short:  "List, create, update, and delete account",
 		Hidden: true,
+		RunE:   parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newAccountCreateCmd(flags))

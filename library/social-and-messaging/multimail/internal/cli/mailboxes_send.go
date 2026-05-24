@@ -10,7 +10,8 @@ import (
 func newMailboxesSendCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "send",
-		Short: "Manage send",
+		Short: "Run send operations for mailboxes",
+		RunE:  parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newMailboxesSendCreateCmd(flags))

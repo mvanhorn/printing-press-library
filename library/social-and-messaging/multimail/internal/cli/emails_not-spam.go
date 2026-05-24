@@ -10,7 +10,8 @@ import (
 func newEmailsNotSpamCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "not-spam",
-		Short: "Manage not spam",
+		Short: "Create not spam for emails",
+		RunE:  parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newEmailsNotSpamCreateCmd(flags))

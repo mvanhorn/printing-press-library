@@ -854,6 +854,13 @@
       ]
     },
     {
+      "name": "health_list",
+      "description": "Verifies D1 and R2 connectivity. No auth required. Returns the HealthListResponse.",
+      "method": "GET",
+      "path": "/health",
+      "params": []
+    },
+    {
       "name": "mailboxes_create",
       "description": "Requires admin scope. Address can be a local part (appended to tenant subdomain) or full address on a verified custom domain. Required: address_local. Optional: display_name, oversight_mode (default: gated_send), webhook_url. Returns the new MailboxesCreateResponse.",
       "method": "POST",
@@ -1472,13 +1479,6 @@
       "description": "Requires admin scope. Rate limited to 1 request per hour.",
       "method": "GET",
       "path": "/v1/export",
-      "params": []
-    },
-    {
-      "name": "multimail-health_list",
-      "description": "Verifies D1 and R2 connectivity. No auth required. Returns the MultimailHealthListResponse.",
-      "method": "GET",
-      "path": "/health",
       "params": []
     },
     {

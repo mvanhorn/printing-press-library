@@ -88,11 +88,7 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 				var upgradeCount int
 				var lastUpgrade string
 				upgradeRow := db.DB().QueryRowContext(cmd.Context(),
-					`SELECT COUNT(*),
-						COALESCE(
-							MAX(COALESCE(json_extract(data, '$.upgraded_at'), json_extract(data, '$.created_at'), synced_at)),
-							''
-						)
+					`SELECT COUNT(*), COALESCE(MAX(json_extract(data, '$.upgraded_at')), MAX(synced_at), '')
 					FROM upgrade WHERE mailboxes_id = ?`, mb.ID)
 				_ = upgradeRow.Scan(&upgradeCount, &lastUpgrade)
 

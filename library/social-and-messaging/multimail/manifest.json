@@ -3,7 +3,7 @@
   "name": "multimail-pp-mcp",
   "display_name": "Multimail",
   "version": "4.4.0",
-  "description": "Multimail API surface as MCP tools.",
+  "description": "Email-as-a-Service for AI agents. Inbound email converted to markdown, outbound markdown converted to HTML.",
   "author": {
     "name": "CLI Printing Press"
   },

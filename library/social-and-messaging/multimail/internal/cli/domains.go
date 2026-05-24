@@ -10,8 +10,9 @@ import (
 func newDomainsCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:    "domains",
-		Short:  "Manage domains",
+		Short:  "List, get, create, and delete domains",
 		Hidden: true,
+		RunE:   parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newDomainsCreateCmd(flags))

@@ -15,6 +15,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"multimail-pp-cli/internal/client"
+	"multimail-pp-cli/internal/cliutil"
 	"multimail-pp-cli/internal/config"
 	"multimail-pp-cli/internal/store"
 )
@@ -145,7 +146,11 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 					report["api"] = fmt.Sprintf("client init error: %s", clientErr)
 				} else {
 					// Step 1: Basic reachability via the configured transport.
-					reachBody, reachErr := c.Get("/", nil)
+					healthPath := "/v1/account"
+					if !strings.HasPrefix(healthPath, "/") {
+						healthPath = "/" + healthPath
+					}
+					reachBody, reachErr := c.Get(cmd.Context(), healthPath, nil)
 					var reachAPIErr *client.APIError
 					switch {
 					case reachErr == nil:
@@ -182,7 +187,37 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 					} else if reachErr != nil && !errors.As(reachErr, &reachAPIErr) {
 						report["credentials"] = "skipped (API unreachable)"
 					} else {
-						report["credentials"] = "present (not verified — set auth.verify_path in spec for an API acceptance check)"
+						// Shared auth-header setup for both probe variants below.
+						// Kept hoisted out of the per-probe branches because the
+						// per-API auth-placement, RequiredHeaders, and User-Agent
+						// fallback logic is independent of which verb the probe
+						// dials.
+						authParams := map[string]string{}
+						authHeaders := map[string]string{}
+						authHeaders["Authorization"] = authHeader
+						authHeaders["User-Agent"] = "multimail-pp-cli"
+						verifyPath := "/v1/account"
+						if !strings.HasPrefix(verifyPath, "/") {
+							verifyPath = "/" + verifyPath
+						}
+						_, authErr := c.GetWithHeaders(cmd.Context(), verifyPath, authParams, authHeaders)
+						var authAPIErr *client.APIError
+						switch {
+						case authErr == nil:
+							report["credentials"] = "valid"
+						case errors.As(authErr, &authAPIErr):
+							switch {
+							case authAPIErr.StatusCode == 401:
+								report["credentials"] = fmt.Sprintf("invalid (HTTP %d) — check your credentials", authAPIErr.StatusCode)
+							case authAPIErr.StatusCode == 403:
+								report["credentials"] = fmt.Sprintf("scope-limited (HTTP %d) — credentials are valid but lack permission for this endpoint. Check your dashboard's API key scope.", authAPIErr.StatusCode)
+							default:
+								// Non-auth HTTP error (404, 500, etc.) — don't blame credentials
+								report["credentials"] = fmt.Sprintf("ok (HTTP %d from %s, but auth was accepted)", authAPIErr.StatusCode, verifyPath)
+							}
+						default:
+							report["credentials"] = fmt.Sprintf("error: %s", authErr)
+						}
 					}
 				}
 			} else if cfg != nil && cfg.BaseURL == "" {
@@ -193,6 +228,21 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			// and a fresh/stale/unknown verdict so agents can introspect
 			// whether to trust the cached data before issuing queries.
 			report["cache"] = collectCacheReport(cmd.Context(), "")
+
+			// Verify mode state. Surfaced so an operator who unintentionally
+			// inherits PRINTING_PRESS_VERIFY=1 (parent shell, CI runner, container
+			// image) detects the foot-gun without inspecting a response body.
+			// Pairs with the synthetic envelope's verify_noop / reason literals
+			// as a second diagnosis anchor.
+			if cliutil.IsVerifyEnv() {
+				if cliutil.IsVerifyLiveHTTPEnv() {
+					report["verify_mode"] = "INFO ACTIVE — live HTTP opt-in (mutating verbs dial out)"
+				} else {
+					report["verify_mode"] = "INFO ACTIVE — mutating HTTP verbs short-circuit (PRINTING_PRESS_VERIFY=1; no network calls for DELETE/POST/PUT/PATCH)"
+				}
+			} else {
+				report["verify_mode"] = "normal operation"
+			}
 
 			report["version"] = version
 
@@ -209,6 +259,7 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 				{"config", "Config"},
 				{"auth", "Auth"},
 				{"env_vars", "Env Vars"},
+				{"verify_mode", "Verify Mode"},
 				{"api", "API"},
 				{"credentials", "Credentials"},
 			}
@@ -229,6 +280,11 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 					indicator = yellow("INFO")
 				case strings.Contains(s, "scope-limited"):
 					indicator = yellow("WARN")
+				case strings.Contains(s, "not verified"):
+					// "present, not verified" — credentials are loaded but no
+					// probe ran. Informational, not a warning; a clean config
+					// shouldn't render yellow WARN in CI dashboards.
+					indicator = yellow("INFO")
 				case strings.Contains(s, "error") || strings.Contains(s, "not configured") || strings.Contains(s, "unreachable") || strings.Contains(s, "invalid") || strings.Contains(s, "missing"):
 					indicator = red("FAIL")
 				case s == "not required":

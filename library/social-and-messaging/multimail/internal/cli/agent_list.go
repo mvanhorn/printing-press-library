@@ -33,12 +33,16 @@ func newAgentListCmd(flags *rootFlags) *cobra.Command {
 			if flagToken != "" {
 				params["token"] = fmt.Sprintf("%v", flagToken)
 			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "agent", false, path, params, nil)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "agent", false, path, params, nil, cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)

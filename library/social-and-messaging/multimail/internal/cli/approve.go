@@ -10,8 +10,9 @@ import (
 func newApproveCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:    "approve",
-		Short:  "Manage approve",
+		Short:  "Get and create approve",
 		Hidden: true,
+		RunE:   parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newApproveCreateCmd(flags))

@@ -10,7 +10,8 @@ import (
 func newMailboxesRequestUpgradeCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "request-upgrade",
-		Short: "Manage request upgrade",
+		Short: "Create request upgrade for mailboxes",
+		RunE:  parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newMailboxesRequestUpgradeCreateCmd(flags))

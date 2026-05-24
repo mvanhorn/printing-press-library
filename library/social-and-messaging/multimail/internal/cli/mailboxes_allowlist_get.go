@@ -15,7 +15,7 @@ func newMailboxesAllowlistGetCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "get <mailboxId>",
-		Short:       "Any API key with read scope can list entries. Returns all sending allowlist patterns for the mailbox. The allowlist...",
+		Short:       "Any API key with read scope can list entries. Returns all sending allowlist patterns for the mailbox.",
 		Example:     "  multimail-pp-cli mailboxes allowlist get 550e8400-e29b-41d4-a716-446655440000",
 		Annotations: map[string]string{"pp:endpoint": "allowlist.get", "pp:method": "GET", "pp:path": "/v1/mailboxes/{mailboxId}/allowlist", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -30,12 +30,16 @@ func newMailboxesAllowlistGetCmd(flags *rootFlags) *cobra.Command {
 			path := "/v1/mailboxes/{mailboxId}/allowlist"
 			path = replacePathParam(path, "mailboxId", args[0])
 			params := map[string]string{}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "allowlist", false, path, params, nil)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "allowlist", false, path, params, nil, cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
-			// Print provenance to stderr for human-facing output
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_promoted.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				_ = json.Unmarshal(data, &countItems)
 				printProvenance(cmd, len(countItems), prov)

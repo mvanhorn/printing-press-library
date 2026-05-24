@@ -10,8 +10,9 @@ import (
 func newWellKnownCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:    "well-known",
-		Short:  "Manage well known",
+		Short:  "List and get well known",
 		Hidden: true,
+		RunE:   parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newWellKnownGetCmd(flags))

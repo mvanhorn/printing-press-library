@@ -5,6 +5,7 @@ package mcp
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -27,14 +28,14 @@ func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("account_create",
 			mcplib.WithDescription("Requires a solved proof-of-work challenge. Creates a pending signup and sends a confirmation email. Response is always identical for privacy (anti-enumeration). Honors an optional Idempotency-Key request header (UUID) to safely retry without creating duplicate pending_signups rows. Required: accepted_anti_spam_policy, accepted_operator_agreement, accepted_tos, operator_name, oversight_email, pow_solution. Optional: attribution, cf_challenge_response, email_use_type (plus 8 more). Returns the new SignupResponse."),
-			mcplib.WithString("accepted_anti_spam_policy", mcplib.Required(), mcplib.Description("Must be true.")),
-			mcplib.WithString("accepted_operator_agreement", mcplib.Required(), mcplib.Description("Must be true.")),
-			mcplib.WithString("accepted_tos", mcplib.Required(), mcplib.Description("Must be true.")),
-			mcplib.WithString("attribution", mcplib.Description("Optional client-captured conversion attribution (Phase 2 of plan 2026-04-27-003). The browser persists this in...")),
-			mcplib.WithString("cf_challenge_response", mcplib.Description("Preferred browser Turnstile token field. Mirrors the hidden cf-turnstile-response input value. maxLength keeps API...")),
+			mcplib.WithBoolean("accepted_anti_spam_policy", mcplib.Required(), mcplib.Description("Must be true.")),
+			mcplib.WithBoolean("accepted_operator_agreement", mcplib.Required(), mcplib.Description("Must be true.")),
+			mcplib.WithBoolean("accepted_tos", mcplib.Required(), mcplib.Description("Must be true.")),
+			mcplib.WithString("attribution", mcplib.Description("Optional client-captured conversion attribution (Phase 2 of plan 2026-04-27-003).")),
+			mcplib.WithString("cf_challenge_response", mcplib.Description("Preferred browser Turnstile token field. Mirrors the hidden cf-turnstile-response input value.")),
 			mcplib.WithString("email_use_type", mcplib.Description("Only transactional is accepted today.")),
 			mcplib.WithString("fingerprint", mcplib.Description("Optional browser fingerprint used for signup throttling.")),
-			mcplib.WithString("form_open_at", mcplib.Description("Epoch milliseconds when the signup modal opened.")),
+			mcplib.WithNumber("form_open_at", mcplib.Description("Epoch milliseconds when the signup modal opened.")),
 			mcplib.WithString("operator_name", mcplib.Required(), mcplib.Description("Company or individual name. Included in identity headers and signature block.")),
 			mcplib.WithString("oversight_email", mcplib.Required(), mcplib.Description("Oversight email")),
 			mcplib.WithString("oversight_mode", mcplib.Description("Optional initial mailbox oversight mode. Unsafe modes are rejected.")),
@@ -42,12 +43,12 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("physical_address", mcplib.Description("Physical address")),
 			mcplib.WithString("pow_solution", mcplib.Required(), mcplib.Description("Solved ALTCHA proof-of-work challenge from POST /v1/account/challenge.")),
 			mcplib.WithString("slug", mcplib.Description("URL-safe slug. Auto-generated from operator_name if omitted.")),
-			mcplib.WithString("turnstile_token", mcplib.Description("Legacy Turnstile token field. Accepted for backward compatibility. maxLength matches cf_challenge_response — see...")),
+			mcplib.WithString("turnstile_token", mcplib.Description("Legacy Turnstile token field. Accepted for backward compatibility.")),
 			mcplib.WithString("use_case", mcplib.Description("Use case")),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v1/account", []mcpParamBinding{{PublicName: "accepted_anti_spam_policy", WireName: "accepted_anti_spam_policy", Location: "body"}, {PublicName: "accepted_operator_agreement", WireName: "accepted_operator_agreement", Location: "body"}, {PublicName: "accepted_tos", WireName: "accepted_tos", Location: "body"}, {PublicName: "attribution", WireName: "attribution", Location: "body"}, {PublicName: "cf_challenge_response", WireName: "cf_challenge_response", Location: "body"}, {PublicName: "email_use_type", WireName: "email_use_type", Location: "body"}, {PublicName: "fingerprint", WireName: "fingerprint", Location: "body"}, {PublicName: "form_open_at", WireName: "form_open_at", Location: "body"}, {PublicName: "operator_name", WireName: "operator_name", Location: "body"}, {PublicName: "oversight_email", WireName: "oversight_email", Location: "body"}, {PublicName: "oversight_mode", WireName: "oversight_mode", Location: "body"}, {PublicName: "payment_method", WireName: "payment_method", Location: "body"}, {PublicName: "physical_address", WireName: "physical_address", Location: "body"}, {PublicName: "pow_solution", WireName: "pow_solution", Location: "body"}, {PublicName: "slug", WireName: "slug", Location: "body"}, {PublicName: "turnstile_token", WireName: "turnstile_token", Location: "body"}, {PublicName: "use_case", WireName: "use_case", Location: "body"}}, []string{}),
+		makeAPIHandler("POST", "/v1/account", false, false, nil, []mcpParamBinding{{PublicName: "accepted_anti_spam_policy", WireName: "accepted_anti_spam_policy", Location: "body"}, {PublicName: "accepted_operator_agreement", WireName: "accepted_operator_agreement", Location: "body"}, {PublicName: "accepted_tos", WireName: "accepted_tos", Location: "body"}, {PublicName: "attribution", WireName: "attribution", Location: "body"}, {PublicName: "cf_challenge_response", WireName: "cf_challenge_response", Location: "body"}, {PublicName: "email_use_type", WireName: "email_use_type", Location: "body"}, {PublicName: "fingerprint", WireName: "fingerprint", Location: "body"}, {PublicName: "form_open_at", WireName: "form_open_at", Location: "body"}, {PublicName: "operator_name", WireName: "operator_name", Location: "body"}, {PublicName: "oversight_email", WireName: "oversight_email", Location: "body"}, {PublicName: "oversight_mode", WireName: "oversight_mode", Location: "body"}, {PublicName: "payment_method", WireName: "payment_method", Location: "body"}, {PublicName: "physical_address", WireName: "physical_address", Location: "body"}, {PublicName: "pow_solution", WireName: "pow_solution", Location: "body"}, {PublicName: "slug", WireName: "slug", Location: "body"}, {PublicName: "turnstile_token", WireName: "turnstile_token", Location: "body"}, {PublicName: "use_case", WireName: "use_case", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("account_create-challenge",
@@ -56,7 +57,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v1/account/challenge", []mcpParamBinding{{PublicName: "oversight_email", WireName: "oversight_email", Location: "body"}}, []string{}),
+		makeAPIHandler("POST", "/v1/account/challenge", false, false, nil, []mcpParamBinding{{PublicName: "oversight_email", WireName: "oversight_email", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("account_create-resendconfirmation",
@@ -64,7 +65,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v1/account/resend-confirmation", []mcpParamBinding{}, []string{}),
+		makeAPIHandler("POST", "/v1/account/resend-confirmation", false, false, nil, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("account_delete",
@@ -73,7 +74,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/v1/account", []mcpParamBinding{{PublicName: "approval_code", WireName: "approval_code", Location: "body"}}, []string{}),
+		makeAPIHandler("DELETE", "/v1/account", false, false, nil, []mcpParamBinding{{PublicName: "approval_code", WireName: "approval_code", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("account_list",
@@ -82,7 +83,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/account", []mcpParamBinding{}, []string{}),
+		makeAPIHandler("GET", "/v1/account", true, false, nil, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("account_update",
@@ -93,7 +94,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("physical_address", mcplib.Description("Physical address")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/v1/account", []mcpParamBinding{{PublicName: "approval_code", WireName: "approval_code", Location: "body"}, {PublicName: "name", WireName: "name", Location: "body"}, {PublicName: "oversight_email", WireName: "oversight_email", Location: "body"}, {PublicName: "physical_address", WireName: "physical_address", Location: "body"}}, []string{}),
+		makeAPIHandler("PATCH", "/v1/account", false, false, nil, []mcpParamBinding{{PublicName: "approval_code", WireName: "approval_code", Location: "body"}, {PublicName: "name", WireName: "name", Location: "body"}, {PublicName: "oversight_email", WireName: "oversight_email", Location: "body"}, {PublicName: "physical_address", WireName: "physical_address", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("admin_create",
@@ -103,7 +104,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v1/admin/recover-key", []mcpParamBinding{{PublicName: "reason", WireName: "reason", Location: "body"}, {PublicName: "tenant_id", WireName: "tenant_id", Location: "body"}}, []string{}),
+		makeAPIHandler("POST", "/v1/admin/recover-key", false, false, nil, []mcpParamBinding{{PublicName: "reason", WireName: "reason", Location: "body"}, {PublicName: "tenant_id", WireName: "tenant_id", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("agent_create",
@@ -117,7 +118,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/agent/auth", []mcpParamBinding{{PublicName: "assertion", WireName: "assertion", Location: "body"}, {PublicName: "assertion_type", WireName: "assertion_type", Location: "body"}, {PublicName: "operator_name", WireName: "operator_name", Location: "body"}, {PublicName: "requested_credential_type", WireName: "requested_credential_type", Location: "body"}, {PublicName: "requested_oversight_mode", WireName: "requested_oversight_mode", Location: "body"}, {PublicName: "type", WireName: "type", Location: "body"}}, []string{}),
+		makeAPIHandler("POST", "/agent/auth", false, false, nil, []mcpParamBinding{{PublicName: "assertion", WireName: "assertion", Location: "body"}, {PublicName: "assertion_type", WireName: "assertion_type", Location: "body"}, {PublicName: "operator_name", WireName: "operator_name", Location: "body"}, {PublicName: "requested_credential_type", WireName: "requested_credential_type", Location: "body"}, {PublicName: "requested_oversight_mode", WireName: "requested_oversight_mode", Location: "body"}, {PublicName: "type", WireName: "type", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("agent_create-auth",
@@ -127,7 +128,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/agent/auth/claim/complete", []mcpParamBinding{{PublicName: "claim_token", WireName: "claim_token", Location: "body"}, {PublicName: "otp", WireName: "otp", Location: "body"}}, []string{}),
+		makeAPIHandler("POST", "/agent/auth/claim/complete", false, false, nil, []mcpParamBinding{{PublicName: "claim_token", WireName: "claim_token", Location: "body"}, {PublicName: "otp", WireName: "otp", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("agent_list",
@@ -137,7 +138,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/agent/auth/claim/view", []mcpParamBinding{{PublicName: "token", WireName: "token", Location: "query"}}, []string{}),
+		makeAPIHandler("GET", "/agent/auth/claim/view", true, false, nil, []mcpParamBinding{{PublicName: "token", WireName: "token", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("api-keys_create",
@@ -147,7 +148,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v1/api-keys", []mcpParamBinding{{PublicName: "name", WireName: "name", Location: "body"}, {PublicName: "scopes", WireName: "scopes", Location: "body"}}, []string{}),
+		makeAPIHandler("POST", "/v1/api-keys", false, false, nil, []mcpParamBinding{{PublicName: "name", WireName: "name", Location: "body"}, {PublicName: "scopes", WireName: "scopes", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("api-keys_delete",
@@ -157,7 +158,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/v1/api-keys/{keyId}", []mcpParamBinding{{PublicName: "keyId", WireName: "keyId", Location: "path"}, {PublicName: "approval_code", WireName: "approval_code", Location: "body"}}, []string{"keyId"}),
+		makeAPIHandler("DELETE", "/v1/api-keys/{keyId}", false, false, nil, []mcpParamBinding{{PublicName: "keyId", WireName: "keyId", Location: "path"}, {PublicName: "approval_code", WireName: "approval_code", Location: "body"}}, []string{"keyId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("api-keys_list",
@@ -166,7 +167,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/api-keys", []mcpParamBinding{}, []string{}),
+		makeAPIHandler("GET", "/v1/api-keys", true, false, nil, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("api-keys_update",
@@ -176,7 +177,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("scopes", mcplib.Description("Scopes")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/v1/api-keys/{keyId}", []mcpParamBinding{{PublicName: "keyId", WireName: "keyId", Location: "path"}, {PublicName: "name", WireName: "name", Location: "body"}, {PublicName: "scopes", WireName: "scopes", Location: "body"}}, []string{"keyId"}),
+		makeAPIHandler("PATCH", "/v1/api-keys/{keyId}", false, false, nil, []mcpParamBinding{{PublicName: "keyId", WireName: "keyId", Location: "path"}, {PublicName: "name", WireName: "name", Location: "body"}, {PublicName: "scopes", WireName: "scopes", Location: "body"}}, []string{"keyId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("approve_create",
@@ -185,7 +186,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v1/approve/{token}", []mcpParamBinding{{PublicName: "token", WireName: "token", Location: "path"}}, []string{"token"}),
+		makeAPIHandler("POST", "/v1/approve/{token}", false, false, nil, []mcpParamBinding{{PublicName: "token", WireName: "token", Location: "path"}}, []string{"token"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("approve_get",
@@ -195,18 +196,18 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/approve/{token}", []mcpParamBinding{{PublicName: "token", WireName: "token", Location: "path"}}, []string{"token"}),
+		makeAPIHandler("GET", "/v1/approve/{token}", true, false, nil, []mcpParamBinding{{PublicName: "token", WireName: "token", Location: "path"}}, []string{"token"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("audit-log_list",
 			mcplib.WithDescription("Returns audit log entries with cursor pagination. Requires admin scope. Optional: limit (default: 50), cursor."),
-			mcplib.WithString("limit", mcplib.Description("Limit")),
+			mcplib.WithNumber("limit", mcplib.Description("Limit")),
 			mcplib.WithString("cursor", mcplib.Description("Cursor")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/audit-log", []mcpParamBinding{{PublicName: "limit", WireName: "limit", Location: "query"}, {PublicName: "cursor", WireName: "cursor", Location: "query"}}, []string{}),
+		makeAPIHandler("GET", "/v1/audit-log", true, false, nil, []mcpParamBinding{{PublicName: "limit", WireName: "limit", Location: "query"}, {PublicName: "cursor", WireName: "cursor", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("auth-md_list",
@@ -215,7 +216,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/auth.md", []mcpParamBinding{}, []string{}),
+		makeAPIHandler("GET", "/auth.md", true, false, nil, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("billing_create",
@@ -223,7 +224,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v1/billing/cancel", []mcpParamBinding{}, []string{}),
+		makeAPIHandler("POST", "/v1/billing/cancel", false, false, nil, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("billing_create-checkout",
@@ -235,7 +236,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v1/billing/checkout", []mcpParamBinding{{PublicName: "cancel_url", WireName: "cancel_url", Location: "body"}, {PublicName: "interval", WireName: "interval", Location: "body"}, {PublicName: "plan", WireName: "plan", Location: "body"}, {PublicName: "success_url", WireName: "success_url", Location: "body"}}, []string{}),
+		makeAPIHandler("POST", "/v1/billing/checkout", false, false, nil, []mcpParamBinding{{PublicName: "cancel_url", WireName: "cancel_url", Location: "body"}, {PublicName: "interval", WireName: "interval", Location: "body"}, {PublicName: "plan", WireName: "plan", Location: "body"}, {PublicName: "success_url", WireName: "success_url", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("billing_create-coinbasewebhook",
@@ -243,7 +244,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v1/billing/coinbase-webhook", []mcpParamBinding{}, []string{}),
+		makeAPIHandler("POST", "/v1/billing/coinbase-webhook", false, false, nil, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("billing_create-cryptocheckout",
@@ -252,7 +253,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v1/billing/crypto-checkout", []mcpParamBinding{{PublicName: "plan", WireName: "plan", Location: "body"}}, []string{}),
+		makeAPIHandler("POST", "/v1/billing/crypto-checkout", false, false, nil, []mcpParamBinding{{PublicName: "plan", WireName: "plan", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("billing_create-portal",
@@ -261,15 +262,15 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v1/billing/portal", []mcpParamBinding{{PublicName: "return_url", WireName: "return_url", Location: "body"}}, []string{}),
+		makeAPIHandler("POST", "/v1/billing/portal", false, false, nil, []mcpParamBinding{{PublicName: "return_url", WireName: "return_url", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("billing_create-pricingcheckout",
 			mcplib.WithDescription("Creates an inactive tenant, provisions a default mailbox, and returns a Stripe checkout URL. After payment, call GET /v1/billing/session-key to retrieve the API key. Honors an optional Idempotency-Key request header (UUID); the same key is forwarded to Stripe so duplicate Sessions are not created on retry. Required: accepted_anti_spam_policy, accepted_operator_agreement, accepted_tos, operator_name, oversight_email, plan. Optional: attribution, interval (default: monthly), oversight_mode (plus 2 more)."),
-			mcplib.WithString("accepted_anti_spam_policy", mcplib.Required(), mcplib.Description("Accepted anti spam policy")),
-			mcplib.WithString("accepted_operator_agreement", mcplib.Required(), mcplib.Description("Accepted operator agreement")),
-			mcplib.WithString("accepted_tos", mcplib.Required(), mcplib.Description("Accepted tos")),
-			mcplib.WithString("attribution", mcplib.Description("Optional client-captured conversion attribution (Phase 2 of plan 2026-04-27-003). The browser persists this in...")),
+			mcplib.WithBoolean("accepted_anti_spam_policy", mcplib.Required(), mcplib.Description("Accepted anti spam policy")),
+			mcplib.WithBoolean("accepted_operator_agreement", mcplib.Required(), mcplib.Description("Accepted operator agreement")),
+			mcplib.WithBoolean("accepted_tos", mcplib.Required(), mcplib.Description("Accepted tos")),
+			mcplib.WithString("attribution", mcplib.Description("Optional client-captured conversion attribution (Phase 2 of plan 2026-04-27-003).")),
 			mcplib.WithString("interval", mcplib.Description("Interval")),
 			mcplib.WithString("operator_name", mcplib.Required(), mcplib.Description("Operator name")),
 			mcplib.WithString("oversight_email", mcplib.Required(), mcplib.Description("Oversight email")),
@@ -280,7 +281,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v1/billing/pricing-checkout", []mcpParamBinding{{PublicName: "accepted_anti_spam_policy", WireName: "accepted_anti_spam_policy", Location: "body"}, {PublicName: "accepted_operator_agreement", WireName: "accepted_operator_agreement", Location: "body"}, {PublicName: "accepted_tos", WireName: "accepted_tos", Location: "body"}, {PublicName: "attribution", WireName: "attribution", Location: "body"}, {PublicName: "interval", WireName: "interval", Location: "body"}, {PublicName: "operator_name", WireName: "operator_name", Location: "body"}, {PublicName: "oversight_email", WireName: "oversight_email", Location: "body"}, {PublicName: "oversight_mode", WireName: "oversight_mode", Location: "body"}, {PublicName: "plan", WireName: "plan", Location: "body"}, {PublicName: "turnstile_token", WireName: "turnstile_token", Location: "body"}, {PublicName: "use_case", WireName: "use_case", Location: "body"}}, []string{}),
+		makeAPIHandler("POST", "/v1/billing/pricing-checkout", false, false, nil, []mcpParamBinding{{PublicName: "accepted_anti_spam_policy", WireName: "accepted_anti_spam_policy", Location: "body"}, {PublicName: "accepted_operator_agreement", WireName: "accepted_operator_agreement", Location: "body"}, {PublicName: "accepted_tos", WireName: "accepted_tos", Location: "body"}, {PublicName: "attribution", WireName: "attribution", Location: "body"}, {PublicName: "interval", WireName: "interval", Location: "body"}, {PublicName: "operator_name", WireName: "operator_name", Location: "body"}, {PublicName: "oversight_email", WireName: "oversight_email", Location: "body"}, {PublicName: "oversight_mode", WireName: "oversight_mode", Location: "body"}, {PublicName: "plan", WireName: "plan", Location: "body"}, {PublicName: "turnstile_token", WireName: "turnstile_token", Location: "body"}, {PublicName: "use_case", WireName: "use_case", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("billing_create-stripewebhook",
@@ -288,7 +289,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v1/billing/stripe-webhook", []mcpParamBinding{}, []string{}),
+		makeAPIHandler("POST", "/v1/billing/stripe-webhook", false, false, nil, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("billing_list",
@@ -298,7 +299,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/billing/session-key", []mcpParamBinding{{PublicName: "session_id", WireName: "session_id", Location: "query"}}, []string{}),
+		makeAPIHandler("GET", "/v1/billing/session-key", true, false, nil, []mcpParamBinding{{PublicName: "session_id", WireName: "session_id", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("confirm_create",
@@ -306,7 +307,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v1/confirm", []mcpParamBinding{}, []string{}),
+		makeAPIHandler("POST", "/v1/confirm", false, false, nil, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("confirm_get",
@@ -316,7 +317,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/confirm/{code}", []mcpParamBinding{{PublicName: "code", WireName: "code", Location: "path"}}, []string{"code"}),
+		makeAPIHandler("GET", "/v1/confirm/{code}", true, false, nil, []mcpParamBinding{{PublicName: "code", WireName: "code", Location: "path"}}, []string{"code"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("confirm_list",
@@ -325,7 +326,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/confirm", []mcpParamBinding{}, []string{}),
+		makeAPIHandler("GET", "/v1/confirm", true, false, nil, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("contacts_create",
@@ -336,7 +337,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v1/contacts", []mcpParamBinding{{PublicName: "email", WireName: "email", Location: "body"}, {PublicName: "name", WireName: "name", Location: "body"}, {PublicName: "tags", WireName: "tags", Location: "body"}}, []string{}),
+		makeAPIHandler("POST", "/v1/contacts", false, false, nil, []mcpParamBinding{{PublicName: "email", WireName: "email", Location: "body"}, {PublicName: "name", WireName: "name", Location: "body"}, {PublicName: "tags", WireName: "tags", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("contacts_delete",
@@ -345,7 +346,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/v1/contacts/{contactId}", []mcpParamBinding{{PublicName: "contactId", WireName: "contactId", Location: "path"}}, []string{"contactId"}),
+		makeAPIHandler("DELETE", "/v1/contacts/{contactId}", false, false, nil, []mcpParamBinding{{PublicName: "contactId", WireName: "contactId", Location: "path"}}, []string{"contactId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("contacts_list",
@@ -355,7 +356,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/contacts", []mcpParamBinding{{PublicName: "q", WireName: "q", Location: "query"}}, []string{}),
+		makeAPIHandler("GET", "/v1/contacts", true, false, nil, []mcpParamBinding{{PublicName: "q", WireName: "q", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("domains_create",
@@ -364,7 +365,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v1/domains", []mcpParamBinding{{PublicName: "domain", WireName: "domain", Location: "body"}}, []string{}),
+		makeAPIHandler("POST", "/v1/domains", false, false, nil, []mcpParamBinding{{PublicName: "domain", WireName: "domain", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("domains_delete",
@@ -373,7 +374,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/v1/domains/{id}", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
+		makeAPIHandler("DELETE", "/v1/domains/{id}", false, false, nil, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("domains_get",
@@ -383,7 +384,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/domains/{id}", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
+		makeAPIHandler("GET", "/v1/domains/{id}", true, false, nil, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("domains_list",
@@ -392,7 +393,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/domains", []mcpParamBinding{}, []string{}),
+		makeAPIHandler("GET", "/v1/domains", true, false, nil, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("domains_verify_create",
@@ -401,19 +402,19 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v1/domains/{id}/verify", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
+		makeAPIHandler("POST", "/v1/domains/{id}/verify", false, false, nil, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("emails_list",
 			mcplib.WithDescription("Requires read scope. Without a status filter, returns spam_flagged and spam_quarantined emails across all tenant mailboxes. Optional: status, limit (default: 20), cursor."),
 			mcplib.WithString("status", mcplib.Description("Status")),
-			mcplib.WithString("limit", mcplib.Description("Limit")),
+			mcplib.WithNumber("limit", mcplib.Description("Limit")),
 			mcplib.WithString("cursor", mcplib.Description("Pagination cursor (received_at epoch from previous page)")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/emails", []mcpParamBinding{{PublicName: "status", WireName: "status", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}, {PublicName: "cursor", WireName: "cursor", Location: "query"}}, []string{}),
+		makeAPIHandler("GET", "/v1/emails", true, false, nil, []mcpParamBinding{{PublicName: "status", WireName: "status", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}, {PublicName: "cursor", WireName: "cursor", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("emails_not-spam_create",
@@ -422,7 +423,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v1/emails/{id}/not-spam", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
+		makeAPIHandler("POST", "/v1/emails/{id}/not-spam", false, false, nil, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("emails_report-spam_create",
@@ -431,7 +432,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v1/emails/{id}/report-spam", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
+		makeAPIHandler("POST", "/v1/emails/{id}/report-spam", false, false, nil, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("funnel_create",
@@ -440,7 +441,16 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v1/funnel/event", []mcpParamBinding{{PublicName: "event", WireName: "event", Location: "body"}}, []string{}),
+		makeAPIHandler("POST", "/v1/funnel/event", false, false, nil, []mcpParamBinding{{PublicName: "event", WireName: "event", Location: "body"}}, []string{}),
+	)
+	s.AddTool(
+		mcplib.NewTool("health_list",
+			mcplib.WithDescription("Verifies D1 and R2 connectivity. No auth required. Returns the HealthListResponse."),
+			mcplib.WithReadOnlyHintAnnotation(true),
+			mcplib.WithDestructiveHintAnnotation(false),
+			mcplib.WithOpenWorldHintAnnotation(true),
+		),
+		makeAPIHandler("GET", "/health", true, false, nil, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("mailboxes_create",
@@ -452,7 +462,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v1/mailboxes", []mcpParamBinding{{PublicName: "address_local", WireName: "address_local", Location: "body"}, {PublicName: "display_name", WireName: "display_name", Location: "body"}, {PublicName: "oversight_mode", WireName: "oversight_mode", Location: "body"}, {PublicName: "webhook_url", WireName: "webhook_url", Location: "body"}}, []string{}),
+		makeAPIHandler("POST", "/v1/mailboxes", false, false, nil, []mcpParamBinding{{PublicName: "address_local", WireName: "address_local", Location: "body"}, {PublicName: "display_name", WireName: "display_name", Location: "body"}, {PublicName: "oversight_mode", WireName: "oversight_mode", Location: "body"}, {PublicName: "webhook_url", WireName: "webhook_url", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("mailboxes_delete",
@@ -461,7 +471,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/v1/mailboxes/{mailboxId}", []mcpParamBinding{{PublicName: "mailboxId", WireName: "mailboxId", Location: "path"}}, []string{"mailboxId"}),
+		makeAPIHandler("DELETE", "/v1/mailboxes/{mailboxId}", false, false, nil, []mcpParamBinding{{PublicName: "mailboxId", WireName: "mailboxId", Location: "path"}}, []string{"mailboxId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("mailboxes_list",
@@ -470,7 +480,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/mailboxes", []mcpParamBinding{}, []string{}),
+		makeAPIHandler("GET", "/v1/mailboxes", true, false, nil, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("mailboxes_update",
@@ -479,14 +489,14 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("auto_bcc", mcplib.Description("Auto bcc")),
 			mcplib.WithString("auto_cc", mcplib.Description("Auto cc")),
 			mcplib.WithString("display_name", mcplib.Description("Display name")),
-			mcplib.WithString("forward_inbound", mcplib.Description("Forward inbound")),
+			mcplib.WithBoolean("forward_inbound", mcplib.Description("Forward inbound")),
 			mcplib.WithString("oversight_mode", mcplib.Description("Downgrade only. To upgrade, use POST /v1/mailboxes/{id}/request-upgrade.")),
 			mcplib.WithString("oversight_webhook_url", mcplib.Description("Oversight webhook url")),
 			mcplib.WithString("signature_block", mcplib.Description("Signature block")),
 			mcplib.WithString("webhook_url", mcplib.Description("Webhook url")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PATCH", "/v1/mailboxes/{mailboxId}", []mcpParamBinding{{PublicName: "mailboxId", WireName: "mailboxId", Location: "path"}, {PublicName: "auto_bcc", WireName: "auto_bcc", Location: "body"}, {PublicName: "auto_cc", WireName: "auto_cc", Location: "body"}, {PublicName: "display_name", WireName: "display_name", Location: "body"}, {PublicName: "forward_inbound", WireName: "forward_inbound", Location: "body"}, {PublicName: "oversight_mode", WireName: "oversight_mode", Location: "body"}, {PublicName: "oversight_webhook_url", WireName: "oversight_webhook_url", Location: "body"}, {PublicName: "signature_block", WireName: "signature_block", Location: "body"}, {PublicName: "webhook_url", WireName: "webhook_url", Location: "body"}}, []string{"mailboxId"}),
+		makeAPIHandler("PATCH", "/v1/mailboxes/{mailboxId}", false, false, nil, []mcpParamBinding{{PublicName: "mailboxId", WireName: "mailboxId", Location: "path"}, {PublicName: "auto_bcc", WireName: "auto_bcc", Location: "body"}, {PublicName: "auto_cc", WireName: "auto_cc", Location: "body"}, {PublicName: "display_name", WireName: "display_name", Location: "body"}, {PublicName: "forward_inbound", WireName: "forward_inbound", Location: "body"}, {PublicName: "oversight_mode", WireName: "oversight_mode", Location: "body"}, {PublicName: "oversight_webhook_url", WireName: "oversight_webhook_url", Location: "body"}, {PublicName: "signature_block", WireName: "signature_block", Location: "body"}, {PublicName: "webhook_url", WireName: "webhook_url", Location: "body"}}, []string{"mailboxId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("mailboxes_allowlist_create",
@@ -498,7 +508,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v1/mailboxes/{mailboxId}/allowlist", []mcpParamBinding{{PublicName: "mailboxId", WireName: "mailboxId", Location: "path"}, {PublicName: "approval_code", WireName: "approval_code", Location: "body"}, {PublicName: "note", WireName: "note", Location: "body"}, {PublicName: "pattern", WireName: "pattern", Location: "body"}}, []string{"mailboxId"}),
+		makeAPIHandler("POST", "/v1/mailboxes/{mailboxId}/allowlist", false, false, nil, []mcpParamBinding{{PublicName: "mailboxId", WireName: "mailboxId", Location: "path"}, {PublicName: "approval_code", WireName: "approval_code", Location: "body"}, {PublicName: "note", WireName: "note", Location: "body"}, {PublicName: "pattern", WireName: "pattern", Location: "body"}}, []string{"mailboxId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("mailboxes_allowlist_delete",
@@ -509,7 +519,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/v1/mailboxes/{mailboxId}/allowlist/{entryId}", []mcpParamBinding{{PublicName: "mailboxId", WireName: "mailboxId", Location: "path"}, {PublicName: "entryId", WireName: "entryId", Location: "path"}, {PublicName: "approval_code", WireName: "approval_code", Location: "body"}}, []string{"mailboxId", "entryId"}),
+		makeAPIHandler("DELETE", "/v1/mailboxes/{mailboxId}/allowlist/{entryId}", false, false, nil, []mcpParamBinding{{PublicName: "mailboxId", WireName: "mailboxId", Location: "path"}, {PublicName: "entryId", WireName: "entryId", Location: "path"}, {PublicName: "approval_code", WireName: "approval_code", Location: "body"}}, []string{"mailboxId", "entryId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("mailboxes_allowlist_get",
@@ -519,7 +529,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/mailboxes/{mailboxId}/allowlist", []mcpParamBinding{{PublicName: "mailboxId", WireName: "mailboxId", Location: "path"}}, []string{"mailboxId"}),
+		makeAPIHandler("GET", "/v1/mailboxes/{mailboxId}/allowlist", true, false, nil, []mcpParamBinding{{PublicName: "mailboxId", WireName: "mailboxId", Location: "path"}}, []string{"mailboxId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("mailboxes_emails_create",
@@ -529,7 +539,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v1/mailboxes/{mailboxId}/emails/{emailId}/cancel", []mcpParamBinding{{PublicName: "mailboxId", WireName: "mailboxId", Location: "path"}, {PublicName: "emailId", WireName: "emailId", Location: "path"}}, []string{"mailboxId", "emailId"}),
+		makeAPIHandler("POST", "/v1/mailboxes/{mailboxId}/emails/{emailId}/cancel", false, false, nil, []mcpParamBinding{{PublicName: "mailboxId", WireName: "mailboxId", Location: "path"}, {PublicName: "emailId", WireName: "emailId", Location: "path"}}, []string{"mailboxId", "emailId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("mailboxes_emails_delete",
@@ -540,14 +550,14 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/v1/mailboxes/{mailboxId}/emails/{emailId}/tags/{key}", []mcpParamBinding{{PublicName: "mailboxId", WireName: "mailboxId", Location: "path"}, {PublicName: "emailId", WireName: "emailId", Location: "path"}, {PublicName: "key", WireName: "key", Location: "path"}}, []string{"mailboxId", "emailId", "key"}),
+		makeAPIHandler("DELETE", "/v1/mailboxes/{mailboxId}/emails/{emailId}/tags/{key}", false, false, nil, []mcpParamBinding{{PublicName: "mailboxId", WireName: "mailboxId", Location: "path"}, {PublicName: "emailId", WireName: "emailId", Location: "path"}, {PublicName: "key", WireName: "key", Location: "path"}}, []string{"mailboxId", "emailId", "key"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("mailboxes_emails_get",
 			mcplib.WithDescription("Requires read scope. Returns paginated email summaries (no body content). Required: mailboxId. Optional: status, limit (default: 20), cursor (plus 7 more)."),
 			mcplib.WithString("mailboxId", mcplib.Required(), mcplib.Description("Mailbox id")),
 			mcplib.WithString("status", mcplib.Description("Status")),
-			mcplib.WithString("limit", mcplib.Description("Limit")),
+			mcplib.WithNumber("limit", mcplib.Description("Limit")),
 			mcplib.WithString("cursor", mcplib.Description("Pagination cursor (received_at epoch from previous page)")),
 			mcplib.WithString("sender", mcplib.Description("Filter by sender address")),
 			mcplib.WithString("subject_contains", mcplib.Description("Substring search on subject")),
@@ -560,7 +570,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/mailboxes/{mailboxId}/emails", []mcpParamBinding{{PublicName: "mailboxId", WireName: "mailboxId", Location: "path"}, {PublicName: "status", WireName: "status", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}, {PublicName: "cursor", WireName: "cursor", Location: "query"}, {PublicName: "sender", WireName: "sender", Location: "query"}, {PublicName: "subject_contains", WireName: "subject_contains", Location: "query"}, {PublicName: "date_after", WireName: "date_after", Location: "query"}, {PublicName: "date_before", WireName: "date_before", Location: "query"}, {PublicName: "direction", WireName: "direction", Location: "query"}, {PublicName: "has_attachments", WireName: "has_attachments", Location: "query"}, {PublicName: "since_id", WireName: "since_id", Location: "query"}}, []string{"mailboxId"}),
+		makeAPIHandler("GET", "/v1/mailboxes/{mailboxId}/emails", true, false, nil, []mcpParamBinding{{PublicName: "mailboxId", WireName: "mailboxId", Location: "path"}, {PublicName: "status", WireName: "status", Location: "query"}, {PublicName: "limit", WireName: "limit", Location: "query"}, {PublicName: "cursor", WireName: "cursor", Location: "query"}, {PublicName: "sender", WireName: "sender", Location: "query"}, {PublicName: "subject_contains", WireName: "subject_contains", Location: "query"}, {PublicName: "date_after", WireName: "date_after", Location: "query"}, {PublicName: "date_before", WireName: "date_before", Location: "query"}, {PublicName: "direction", WireName: "direction", Location: "query"}, {PublicName: "has_attachments", WireName: "has_attachments", Location: "query"}, {PublicName: "since_id", WireName: "since_id", Location: "query"}}, []string{"mailboxId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("mailboxes_emails_get-mailboxes",
@@ -571,7 +581,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/mailboxes/{mailboxId}/emails/{emailId}", []mcpParamBinding{{PublicName: "mailboxId", WireName: "mailboxId", Location: "path"}, {PublicName: "emailId", WireName: "emailId", Location: "path"}}, []string{"mailboxId", "emailId"}),
+		makeAPIHandler("GET", "/v1/mailboxes/{mailboxId}/emails/{emailId}", true, false, nil, []mcpParamBinding{{PublicName: "mailboxId", WireName: "mailboxId", Location: "path"}, {PublicName: "emailId", WireName: "emailId", Location: "path"}}, []string{"mailboxId", "emailId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("mailboxes_emails_get-mailboxes-2",
@@ -582,7 +592,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/mailboxes/{mailboxId}/emails/{emailId}/tags", []mcpParamBinding{{PublicName: "mailboxId", WireName: "mailboxId", Location: "path"}, {PublicName: "emailId", WireName: "emailId", Location: "path"}}, []string{"mailboxId", "emailId"}),
+		makeAPIHandler("GET", "/v1/mailboxes/{mailboxId}/emails/{emailId}/tags", true, false, nil, []mcpParamBinding{{PublicName: "mailboxId", WireName: "mailboxId", Location: "path"}, {PublicName: "emailId", WireName: "emailId", Location: "path"}}, []string{"mailboxId", "emailId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("mailboxes_emails_get-mailboxes-3",
@@ -594,7 +604,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/mailboxes/{mailboxId}/emails/{emailId}/attachments/{filename}", []mcpParamBinding{{PublicName: "mailboxId", WireName: "mailboxId", Location: "path"}, {PublicName: "emailId", WireName: "emailId", Location: "path"}, {PublicName: "filename", WireName: "filename", Location: "path"}}, []string{"mailboxId", "emailId", "filename"}),
+		makeAPIHandler("GET", "/v1/mailboxes/{mailboxId}/emails/{emailId}/attachments/{filename}", true, false, nil, []mcpParamBinding{{PublicName: "mailboxId", WireName: "mailboxId", Location: "path"}, {PublicName: "emailId", WireName: "emailId", Location: "path"}, {PublicName: "filename", WireName: "filename", Location: "path"}}, []string{"mailboxId", "emailId", "filename"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("mailboxes_emails_update",
@@ -604,7 +614,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithString("tags", mcplib.Required(), mcplib.Description("Tags")),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("PUT", "/v1/mailboxes/{mailboxId}/emails/{emailId}/tags", []mcpParamBinding{{PublicName: "mailboxId", WireName: "mailboxId", Location: "path"}, {PublicName: "emailId", WireName: "emailId", Location: "path"}, {PublicName: "tags", WireName: "tags", Location: "body"}}, []string{"mailboxId", "emailId"}),
+		makeAPIHandler("PUT", "/v1/mailboxes/{mailboxId}/emails/{emailId}/tags", false, false, nil, []mcpParamBinding{{PublicName: "mailboxId", WireName: "mailboxId", Location: "path"}, {PublicName: "emailId", WireName: "emailId", Location: "path"}, {PublicName: "tags", WireName: "tags", Location: "body"}}, []string{"mailboxId", "emailId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("mailboxes_reply_create",
@@ -619,7 +629,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v1/mailboxes/{mailboxId}/reply/{emailId}", []mcpParamBinding{{PublicName: "mailboxId", WireName: "mailboxId", Location: "path"}, {PublicName: "emailId", WireName: "emailId", Location: "path"}, {PublicName: "attachments", WireName: "attachments", Location: "body"}, {PublicName: "bcc", WireName: "bcc", Location: "body"}, {PublicName: "cc", WireName: "cc", Location: "body"}, {PublicName: "idempotency_key", WireName: "idempotency_key", Location: "body"}, {PublicName: "markdown", WireName: "markdown", Location: "body"}}, []string{"mailboxId", "emailId"}),
+		makeAPIHandler("POST", "/v1/mailboxes/{mailboxId}/reply/{emailId}", false, false, nil, []mcpParamBinding{{PublicName: "mailboxId", WireName: "mailboxId", Location: "path"}, {PublicName: "emailId", WireName: "emailId", Location: "path"}, {PublicName: "attachments", WireName: "attachments", Location: "body"}, {PublicName: "bcc", WireName: "bcc", Location: "body"}, {PublicName: "cc", WireName: "cc", Location: "body"}, {PublicName: "idempotency_key", WireName: "idempotency_key", Location: "body"}, {PublicName: "markdown", WireName: "markdown", Location: "body"}}, []string{"mailboxId", "emailId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("mailboxes_request-upgrade_create",
@@ -629,7 +639,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v1/mailboxes/{mailboxId}/request-upgrade", []mcpParamBinding{{PublicName: "mailboxId", WireName: "mailboxId", Location: "path"}, {PublicName: "target_mode", WireName: "target_mode", Location: "body"}}, []string{"mailboxId"}),
+		makeAPIHandler("POST", "/v1/mailboxes/{mailboxId}/request-upgrade", false, false, nil, []mcpParamBinding{{PublicName: "mailboxId", WireName: "mailboxId", Location: "path"}, {PublicName: "target_mode", WireName: "target_mode", Location: "body"}}, []string{"mailboxId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("mailboxes_send_create",
@@ -647,7 +657,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v1/mailboxes/{mailboxId}/send", []mcpParamBinding{{PublicName: "mailboxId", WireName: "mailboxId", Location: "path"}, {PublicName: "attachments", WireName: "attachments", Location: "body"}, {PublicName: "bcc", WireName: "bcc", Location: "body"}, {PublicName: "cc", WireName: "cc", Location: "body"}, {PublicName: "gate_timing", WireName: "gate_timing", Location: "body"}, {PublicName: "idempotency_key", WireName: "idempotency_key", Location: "body"}, {PublicName: "markdown", WireName: "markdown", Location: "body"}, {PublicName: "send_at", WireName: "send_at", Location: "body"}, {PublicName: "subject", WireName: "subject", Location: "body"}, {PublicName: "to", WireName: "to", Location: "body"}}, []string{"mailboxId"}),
+		makeAPIHandler("POST", "/v1/mailboxes/{mailboxId}/send", false, false, nil, []mcpParamBinding{{PublicName: "mailboxId", WireName: "mailboxId", Location: "path"}, {PublicName: "attachments", WireName: "attachments", Location: "body"}, {PublicName: "bcc", WireName: "bcc", Location: "body"}, {PublicName: "cc", WireName: "cc", Location: "body"}, {PublicName: "gate_timing", WireName: "gate_timing", Location: "body"}, {PublicName: "idempotency_key", WireName: "idempotency_key", Location: "body"}, {PublicName: "markdown", WireName: "markdown", Location: "body"}, {PublicName: "send_at", WireName: "send_at", Location: "body"}, {PublicName: "subject", WireName: "subject", Location: "body"}, {PublicName: "to", WireName: "to", Location: "body"}}, []string{"mailboxId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("mailboxes_threads_get",
@@ -658,7 +668,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/mailboxes/{mailboxId}/threads/{threadId}", []mcpParamBinding{{PublicName: "mailboxId", WireName: "mailboxId", Location: "path"}, {PublicName: "threadId", WireName: "threadId", Location: "path"}}, []string{"mailboxId", "threadId"}),
+		makeAPIHandler("GET", "/v1/mailboxes/{mailboxId}/threads/{threadId}", true, false, nil, []mcpParamBinding{{PublicName: "mailboxId", WireName: "mailboxId", Location: "path"}, {PublicName: "threadId", WireName: "threadId", Location: "path"}}, []string{"mailboxId", "threadId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("mailboxes_upgrade_create",
@@ -668,7 +678,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v1/mailboxes/{mailboxId}/upgrade", []mcpParamBinding{{PublicName: "mailboxId", WireName: "mailboxId", Location: "path"}, {PublicName: "code", WireName: "code", Location: "body"}}, []string{"mailboxId"}),
+		makeAPIHandler("POST", "/v1/mailboxes/{mailboxId}/upgrade", false, false, nil, []mcpParamBinding{{PublicName: "mailboxId", WireName: "mailboxId", Location: "path"}, {PublicName: "code", WireName: "code", Location: "body"}}, []string{"mailboxId"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("multimail-export_list",
@@ -677,16 +687,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/export", []mcpParamBinding{}, []string{}),
-	)
-	s.AddTool(
-		mcplib.NewTool("multimail-health_list",
-			mcplib.WithDescription("Verifies D1 and R2 connectivity. No auth required. Returns the MultimailHealthListResponse."),
-			mcplib.WithReadOnlyHintAnnotation(true),
-			mcplib.WithDestructiveHintAnnotation(false),
-			mcplib.WithOpenWorldHintAnnotation(true),
-		),
-		makeAPIHandler("GET", "/health", []mcpParamBinding{}, []string{}),
+		makeAPIHandler("GET", "/v1/export", true, false, nil, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("operator_create",
@@ -694,7 +695,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v1/operator/end-session", []mcpParamBinding{}, []string{}),
+		makeAPIHandler("POST", "/v1/operator/end-session", false, false, nil, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("operator_create-startsession",
@@ -702,7 +703,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v1/operator/start-session", []mcpParamBinding{}, []string{}),
+		makeAPIHandler("POST", "/v1/operator/start-session", false, false, nil, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("operator_create-verifysession",
@@ -711,7 +712,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v1/operator/verify-session", []mcpParamBinding{{PublicName: "code", WireName: "code", Location: "body"}}, []string{}),
+		makeAPIHandler("POST", "/v1/operator/verify-session", false, false, nil, []mcpParamBinding{{PublicName: "code", WireName: "code", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("operator_list",
@@ -720,7 +721,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/operator/session", []mcpParamBinding{}, []string{}),
+		makeAPIHandler("GET", "/v1/operator/session", true, false, nil, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("oversight_create",
@@ -730,7 +731,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v1/oversight/decide", []mcpParamBinding{{PublicName: "action", WireName: "action", Location: "body"}, {PublicName: "email_id", WireName: "email_id", Location: "body"}}, []string{}),
+		makeAPIHandler("POST", "/v1/oversight/decide", false, false, nil, []mcpParamBinding{{PublicName: "action", WireName: "action", Location: "body"}, {PublicName: "email_id", WireName: "email_id", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("oversight_list",
@@ -739,7 +740,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/oversight/pending", []mcpParamBinding{}, []string{}),
+		makeAPIHandler("GET", "/v1/oversight/pending", true, false, nil, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("slug-check_get",
@@ -749,7 +750,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/slug-check/{slug}", []mcpParamBinding{{PublicName: "slug", WireName: "slug", Location: "path"}}, []string{"slug"}),
+		makeAPIHandler("GET", "/v1/slug-check/{slug}", true, false, nil, []mcpParamBinding{{PublicName: "slug", WireName: "slug", Location: "path"}}, []string{"slug"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("support_create",
@@ -762,7 +763,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v1/support", []mcpParamBinding{{PublicName: "email", WireName: "email", Location: "body"}, {PublicName: "message", WireName: "message", Location: "body"}, {PublicName: "name", WireName: "name", Location: "body"}, {PublicName: "pow_solution", WireName: "pow_solution", Location: "body"}, {PublicName: "subject", WireName: "subject", Location: "body"}}, []string{}),
+		makeAPIHandler("POST", "/v1/support", false, false, nil, []mcpParamBinding{{PublicName: "email", WireName: "email", Location: "body"}, {PublicName: "message", WireName: "message", Location: "body"}, {PublicName: "name", WireName: "name", Location: "body"}, {PublicName: "pow_solution", WireName: "pow_solution", Location: "body"}, {PublicName: "subject", WireName: "subject", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("suppression_delete",
@@ -771,7 +772,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/v1/suppression/{address}", []mcpParamBinding{{PublicName: "address", WireName: "address", Location: "path"}}, []string{"address"}),
+		makeAPIHandler("DELETE", "/v1/suppression/{address}", false, false, nil, []mcpParamBinding{{PublicName: "address", WireName: "address", Location: "path"}}, []string{"address"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("suppression_list",
@@ -780,7 +781,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/suppression", []mcpParamBinding{}, []string{}),
+		makeAPIHandler("GET", "/v1/suppression", true, false, nil, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("unsubscribe_create",
@@ -789,7 +790,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v1/unsubscribe/{token}", []mcpParamBinding{{PublicName: "token", WireName: "token", Location: "path"}}, []string{"token"}),
+		makeAPIHandler("POST", "/v1/unsubscribe/{token}", false, false, nil, []mcpParamBinding{{PublicName: "token", WireName: "token", Location: "path"}}, []string{"token"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("unsubscribe_get",
@@ -799,30 +800,30 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/unsubscribe/{token}", []mcpParamBinding{{PublicName: "token", WireName: "token", Location: "path"}}, []string{"token"}),
+		makeAPIHandler("GET", "/v1/unsubscribe/{token}", true, false, nil, []mcpParamBinding{{PublicName: "token", WireName: "token", Location: "path"}}, []string{"token"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("usage_list",
 			mcplib.WithDescription("Requires read scope. Returns usage counts for the current billing period. Optional: from, to, breakdown."),
-			mcplib.WithString("from", mcplib.Description("Start time (epoch ms)")),
-			mcplib.WithString("to", mcplib.Description("End time (epoch ms)")),
+			mcplib.WithNumber("from", mcplib.Description("Start time (epoch ms)")),
+			mcplib.WithNumber("to", mcplib.Description("End time (epoch ms)")),
 			mcplib.WithString("breakdown", mcplib.Description("Breakdown")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/usage", []mcpParamBinding{{PublicName: "from", WireName: "from", Location: "query"}, {PublicName: "to", WireName: "to", Location: "query"}, {PublicName: "breakdown", WireName: "breakdown", Location: "query"}}, []string{}),
+		makeAPIHandler("GET", "/v1/usage", true, false, nil, []mcpParamBinding{{PublicName: "from", WireName: "from", Location: "query"}, {PublicName: "to", WireName: "to", Location: "query"}, {PublicName: "breakdown", WireName: "breakdown", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("webhook-deliveries_list",
 			mcplib.WithDescription("Returns recent webhook delivery attempts. Requires admin scope. Optional: limit (default: 50), cursor."),
-			mcplib.WithString("limit", mcplib.Description("Limit")),
+			mcplib.WithNumber("limit", mcplib.Description("Limit")),
 			mcplib.WithString("cursor", mcplib.Description("Cursor")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/webhook-deliveries", []mcpParamBinding{{PublicName: "limit", WireName: "limit", Location: "query"}, {PublicName: "cursor", WireName: "cursor", Location: "query"}}, []string{}),
+		makeAPIHandler("GET", "/v1/webhook-deliveries", true, false, nil, []mcpParamBinding{{PublicName: "limit", WireName: "limit", Location: "query"}, {PublicName: "cursor", WireName: "cursor", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("webhooks_create",
@@ -833,7 +834,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v1/webhooks", []mcpParamBinding{{PublicName: "events", WireName: "events", Location: "body"}, {PublicName: "mailbox_id", WireName: "mailbox_id", Location: "body"}, {PublicName: "url", WireName: "url", Location: "body"}}, []string{}),
+		makeAPIHandler("POST", "/v1/webhooks", false, false, nil, []mcpParamBinding{{PublicName: "events", WireName: "events", Location: "body"}, {PublicName: "mailbox_id", WireName: "mailbox_id", Location: "body"}, {PublicName: "url", WireName: "url", Location: "body"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("webhooks_create-postmark",
@@ -841,7 +842,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v1/webhooks/postmark", []mcpParamBinding{}, []string{}),
+		makeAPIHandler("POST", "/v1/webhooks/postmark", false, false, nil, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("webhooks_create-postmarkinbound",
@@ -849,7 +850,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("POST", "/v1/webhooks/postmark-inbound", []mcpParamBinding{}, []string{}),
+		makeAPIHandler("POST", "/v1/webhooks/postmark-inbound", false, false, nil, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("webhooks_delete",
@@ -858,7 +859,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(true),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("DELETE", "/v1/webhooks/{id}", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
+		makeAPIHandler("DELETE", "/v1/webhooks/{id}", false, false, nil, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("webhooks_get",
@@ -868,7 +869,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/webhooks/{id}", []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
+		makeAPIHandler("GET", "/v1/webhooks/{id}", true, false, nil, []mcpParamBinding{{PublicName: "id", WireName: "id", Location: "path"}}, []string{"id"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("webhooks_list",
@@ -877,7 +878,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/v1/webhooks", []mcpParamBinding{}, []string{}),
+		makeAPIHandler("GET", "/v1/webhooks", true, false, nil, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("well-known_get",
@@ -887,7 +888,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/.well-known/reputation/{hash}", []mcpParamBinding{{PublicName: "hash", WireName: "hash", Location: "path"}}, []string{"hash"}),
+		makeAPIHandler("GET", "/.well-known/reputation/{hash}", true, false, nil, []mcpParamBinding{{PublicName: "hash", WireName: "hash", Location: "path"}}, []string{"hash"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("well-known_list",
@@ -896,7 +897,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/.well-known/multimail-signing-key", []mcpParamBinding{}, []string{}),
+		makeAPIHandler("GET", "/.well-known/multimail-signing-key", true, false, nil, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("well-known_list-wellknown",
@@ -905,7 +906,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/.well-known/oauth-authorization-server", []mcpParamBinding{}, []string{}),
+		makeAPIHandler("GET", "/.well-known/oauth-authorization-server", true, false, nil, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("well-known_list-wellknown-2",
@@ -914,7 +915,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/.well-known/oauth-protected-resource", []mcpParamBinding{}, []string{}),
+		makeAPIHandler("GET", "/.well-known/oauth-protected-resource", true, false, nil, []mcpParamBinding{}, []string{}),
 	)
 	// Search tool — faster than iterating list endpoints for finding specific items
 	s.AddTool(
@@ -961,7 +962,7 @@ type mcpParamBinding struct {
 }
 
 // makeAPIHandler creates a generic MCP tool handler for an API endpoint.
-func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, positionalParams []string) server.ToolHandlerFunc {
+func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse bool, headerOverrides map[string]string, bindings []mcpParamBinding, positionalParams []string) server.ToolHandlerFunc {
 	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 		c, err := newMCPClient()
 		if err != nil {
@@ -981,6 +982,19 @@ func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, pos
 		pathParams := make(map[string]bool, len(positionalParams))
 		params := make(map[string]string)
 		bodyArgs := make(map[string]any)
+		var headers map[string]string
+		if len(headerOverrides) > 0 {
+			headers = make(map[string]string, len(headerOverrides)+1)
+			for k, v := range headerOverrides {
+				headers[k] = v
+			}
+		}
+		if binaryResponse {
+			if headers == nil {
+				headers = map[string]string{}
+			}
+			headers[client.BinaryResponseHeader] = "true"
+		}
 		for _, binding := range bindings {
 			knownArgs[binding.PublicName] = true
 			v, ok := args[binding.PublicName]
@@ -1024,18 +1038,43 @@ func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, pos
 		var data json.RawMessage
 		switch method {
 		case "GET":
-			data, err = c.Get(path, params)
+			if len(headers) > 0 {
+				data, err = c.GetWithHeaders(ctx, path, params, headers)
+				break
+			}
+			data, err = c.Get(ctx, path, params)
 		case "POST":
-			body, _ := json.Marshal(bodyArgs)
-			data, _, err = c.Post(path, body)
+			if len(headers) > 0 {
+				if readOnly {
+					data, _, err = c.PostQueryWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				} else {
+					data, _, err = c.PostWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				}
+				break
+			}
+			if readOnly {
+				data, _, err = c.PostQueryWithParams(ctx, path, params, bodyArgs)
+			} else {
+				data, _, err = c.PostWithParams(ctx, path, params, bodyArgs)
+			}
 		case "PUT":
-			body, _ := json.Marshal(bodyArgs)
-			data, _, err = c.Put(path, body)
+			if len(headers) > 0 {
+				data, _, err = c.PutWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				break
+			}
+			data, _, err = c.PutWithParams(ctx, path, params, bodyArgs)
 		case "PATCH":
-			body, _ := json.Marshal(bodyArgs)
-			data, _, err = c.Patch(path, body)
+			if len(headers) > 0 {
+				data, _, err = c.PatchWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				break
+			}
+			data, _, err = c.PatchWithParams(ctx, path, params, bodyArgs)
 		case "DELETE":
-			data, _, err = c.Delete(path)
+			if len(headers) > 0 {
+				data, _, err = c.DeleteWithParamsAndHeaders(ctx, path, params, headers)
+				break
+			}
+			data, _, err = c.DeleteWithParams(ctx, path, params)
 		default:
 			return mcplib.NewToolResultError("unsupported method: " + method), nil
 		}
@@ -1086,6 +1125,14 @@ func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, pos
 					return mcplib.NewToolResultText(string(out)), nil
 				}
 			}
+		}
+		if binaryResponse {
+			out, _ := json.Marshal(map[string]any{
+				"content_encoding": "base64",
+				"data_base64":      base64.StdEncoding.EncodeToString(data),
+				"byte_count":       len(data),
+			})
+			return mcplib.NewToolResultText(string(out)), nil
 		}
 		return mcplib.NewToolResultText(string(data)), nil
 	}
@@ -1243,7 +1290,7 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	ctx := map[string]any{
 		"api":         "multimail",
-		"description": "Every MultiMail feature, plus cross-mailbox search, oversight analytics, and trust ladder tracking no other tool has.",
+		"description": "Email-as-a-Service for AI agents. Inbound email converted to markdown, outbound markdown converted to HTML.",
 		"archetype":   "communication",
 		"tool_count":  86,
 		// tool_surface tells agents which surface a capability lives on.
@@ -1347,6 +1394,12 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 				"searchable":  true,
 			},
 			{
+				"name":        "health",
+				"description": "Manage health",
+				"endpoints":   []string{"list"},
+				"syncable":    true,
+			},
+			{
 				"name":        "mailboxes",
 				"description": "Manage mailboxes",
 				"endpoints":   []string{"create", "delete", "list", "update"},
@@ -1356,12 +1409,6 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 			{
 				"name":        "multimail-export",
 				"description": "Manage multimail export",
-				"endpoints":   []string{"list"},
-				"syncable":    true,
-			},
-			{
-				"name":        "multimail-health",
-				"description": "Manage multimail health",
 				"endpoints":   []string{"list"},
 				"syncable":    true,
 			},
@@ -1443,20 +1490,20 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		// Command-mirror capabilities are exposed through MCP by shelling out
 		// to the companion CLI binary.
 		"command_mirror_capabilities": []map[string]string{
-			{"name": "Cross-mailbox search", "command": "search", "description": "Full-text search across all synced mailboxes at once — find any email regardless of which mailbox received it.", "rationale": "API search is per-mailbox only; cross-mailbox search requires N sequential API calls without local cache.", "via": "mcp-command-mirror"},
-			{"name": "Oversight velocity", "command": "oversight velocity", "description": "See approval/rejection rates and median decision latency per mailbox across your entire fleet.", "rationale": "Requires joining audit events with oversight decisions in local SQLite; no API endpoint aggregates decision velocity...", "via": "mcp-command-mirror"},
-			{"name": "Trust ladder status", "command": "trust status", "description": "Fleet-wide view of each mailbox's oversight mode, time-at-level, and upgrade history.", "rationale": "Requires joining mailbox configs with audit events filtered for upgrade actions; API returns current mode but not...", "via": "mcp-command-mirror"},
-			{"name": "Allowlist coverage", "command": "mailboxes allowlist coverage", "description": "See what percentage of recent recipients are covered by allowlist patterns vs gated.", "rationale": "Requires joining allowlist entries with sent emails and matching exact + wildcard patterns locally; no API endpoint...", "via": "mcp-command-mirror"},
-			{"name": "Inbox health", "command": "inbox health", "description": "Per-mailbox health snapshot: unread count, oldest unread age, reply rate, and thread depth.", "rationale": "Requires aggregation over synced emails table; no API endpoint returns these composite metrics.", "via": "mcp-command-mirror"},
-			{"name": "Stale thread detection", "command": "mailboxes threads stale", "description": "List conversation threads with no reply in N days — surfaces dropped conversations.", "rationale": "Requires time-windowed join of threads and emails in local SQLite; API has no 'inactive threads' query.", "via": "mcp-command-mirror"},
+			{"name": "Cross-mailbox search", "command": "search", "description": "Full-text search across all synced mailboxes at once — find any email regardless of which mailbox received it.", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Oversight velocity", "command": "oversight velocity", "description": "See approval/rejection rates and median decision latency per mailbox across your entire fleet.", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Trust ladder status", "command": "trust status", "description": "Fleet-wide view of each mailbox's oversight mode, time-at-level, and upgrade history.", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Allowlist coverage", "command": "mailboxes allowlist coverage", "description": "See what percentage of recent recipients are covered by allowlist patterns vs gated.", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Inbox health", "command": "inbox health", "description": "Per-mailbox health snapshot: unread count, oldest unread age, reply rate, and thread depth.", "rationale": "", "via": "mcp-command-mirror"},
+			{"name": "Stale thread detection", "command": "mailboxes threads stale", "description": "List conversation threads with no reply in N days — surfaces dropped conversations.", "rationale": "", "via": "mcp-command-mirror"},
 		},
 		"playbook": []map[string]string{
-			{"topic": "Cross-mailbox search", "insight": "API search is per-mailbox only; cross-mailbox search requires N sequential API calls without local cache."},
-			{"topic": "Oversight velocity", "insight": "Requires joining audit events with oversight decisions in local SQLite; no API endpoint aggregates decision velocity cross-mailbox."},
-			{"topic": "Trust ladder status", "insight": "Requires joining mailbox configs with audit events filtered for upgrade actions; API returns current mode but not progression timeline."},
-			{"topic": "Allowlist coverage", "insight": "Requires joining allowlist entries with sent emails and matching exact + wildcard patterns locally; no API endpoint diffs these."},
-			{"topic": "Inbox health", "insight": "Requires aggregation over synced emails table; no API endpoint returns these composite metrics."},
-			{"topic": "Stale thread detection", "insight": "Requires time-windowed join of threads and emails in local SQLite; API has no 'inactive threads' query."},
+			{"topic": "Cross-mailbox search", "insight": ""},
+			{"topic": "Oversight velocity", "insight": ""},
+			{"topic": "Trust ladder status", "insight": ""},
+			{"topic": "Allowlist coverage", "insight": ""},
+			{"topic": "Inbox health", "insight": ""},
+			{"topic": "Stale thread detection", "insight": ""},
 			{"topic": "Message search", "insight": "Use the search tool on synced data rather than paginating through message history. Message APIs often have aggressive rate limits."},
 			{"topic": "Channel health", "insight": "When analyzing channel activity, use the channel-health command or sql aggregation on synced messages. Don't iterate individual messages via API."},
 		},

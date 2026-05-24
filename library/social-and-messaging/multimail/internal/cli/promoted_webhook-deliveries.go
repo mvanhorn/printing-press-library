@@ -19,7 +19,7 @@ func newWebhookDeliveriesPromotedCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "webhook-deliveries",
 		Short:       "Returns recent webhook delivery attempts. Requires admin scope.",
-		Long:        "Shortcut for 'webhook-deliveries list'. Returns recent webhook delivery attempts. Requires admin scope.",
+		Long:        "Returns recent webhook delivery attempts. Requires admin scope.",
 		Example:     "  multimail-pp-cli webhook-deliveries",
 		Annotations: map[string]string{"pp:endpoint": "webhook-deliveries.list", "pp:method": "GET", "pp:path": "/v1/webhook-deliveries", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -32,7 +32,7 @@ func newWebhookDeliveriesPromotedCmd(flags *rootFlags) *cobra.Command {
 			data, prov, err := resolvePaginatedRead(cmd.Context(), c, flags, "webhook-deliveries", path, map[string]string{
 				"limit":  fmt.Sprintf("%v", flagLimit),
 				"cursor": fmt.Sprintf("%v", flagCursor),
-			}, nil, flagAll, "cursor", "", "")
+			}, nil, flagAll, "cursor", "cursor", "", cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -40,8 +40,12 @@ func newWebhookDeliveriesPromotedCmd(flags *rootFlags) *cobra.Command {
 			// so output helpers see the inner data, not the wrapper.
 			data = extractResponseData(data)
 
-			// Print provenance to stderr
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_endpoint.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				if json.Unmarshal(data, &countItems) != nil {
 					// Single object, not an array

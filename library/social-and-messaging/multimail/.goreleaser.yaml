@@ -45,7 +45,7 @@ brews:
       owner: h179922
       name: homebrew-tap
     homepage: "https://github.com/h179922/multimail-pp-cli"
-    description: "Every MultiMail feature, plus cross-mailbox search, oversight analytics, and trust ladder tracking no other tool has."
+    description: "Email-as-a-Service for AI agents. Inbound email converted to markdown, outbound markdown converted to HTML. Built on..."
     install: |
       bin.install "multimail-pp-cli"
       bin.install "multimail-pp-mcp"

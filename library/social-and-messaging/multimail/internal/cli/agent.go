@@ -10,8 +10,9 @@ import (
 func newAgentCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:    "agent",
-		Short:  "Manage agent",
+		Short:  "List and create agent",
 		Hidden: true,
+		RunE:   parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newAgentCreateCmd(flags))

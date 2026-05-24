@@ -19,7 +19,7 @@ func newUsagePromotedCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "usage",
 		Short:       "Requires read scope. Returns usage counts for the current billing period.",
-		Long:        "Shortcut for 'usage list'. Requires read scope. Returns usage counts for the current billing period.",
+		Long:        "Requires read scope. Returns usage counts for the current billing period.",
 		Example:     "  multimail-pp-cli usage",
 		Annotations: map[string]string{"pp:endpoint": "usage.list", "pp:method": "GET", "pp:path": "/v1/usage", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -52,7 +52,7 @@ func newUsagePromotedCmd(flags *rootFlags) *cobra.Command {
 			if flagBreakdown != "" {
 				params["breakdown"] = fmt.Sprintf("%v", flagBreakdown)
 			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "usage", false, path, params, nil)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "usage", false, path, params, nil, cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
@@ -60,8 +60,12 @@ func newUsagePromotedCmd(flags *rootFlags) *cobra.Command {
 			// so output helpers see the inner data, not the wrapper.
 			data = extractResponseData(data)
 
-			// Print provenance to stderr
-			{
+			// Print provenance to stderr for human-facing output only.
+			// Machine-format flags (--json, --csv, --compact, --quiet, --plain,
+			// --select) and piped stdout suppress this line; the JSON envelope
+			// already carries meta.source for those consumers.
+			// SYNC: keep this gate aligned with command_endpoint.go.tmpl.
+			if wantsHumanTable(cmd.OutOrStdout(), flags) {
 				var countItems []json.RawMessage
 				if json.Unmarshal(data, &countItems) != nil {
 					// Single object, not an array

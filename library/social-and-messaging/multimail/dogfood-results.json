@@ -1,5 +1,5 @@
 {
-  "dir": "/Users/auser/printing-press/.runstate/printing-press-library-aaa3203b/runs/20260523-201101/working/multimail-pp-cli",
+  "dir": "/Users/auser/printing-press/library/multimail",
   "spec_path": "/tmp/multimail-openapi-2026-05-23.json",
   "verdict": "PASS",
   "path_check": {
@@ -54,8 +54,9 @@
     }
   },
   "novel_features_check": {
-    "planned": 6,
-    "found": 6
+    "planned": 0,
+    "found": 0,
+    "skipped": true
   },
   "mcp_surface_parity": {
     "state": "runtime_walking",
@@ -63,8 +64,9 @@
     "detail": "MCP surface mirrors the Cobra tree at runtime"
   },
   "reimplementation_check": {
-    "checked": 6,
-    "exempted_via_store": 6
+    "checked": 0,
+    "exempted_via_store": 0,
+    "skipped": true
   },
   "source_client_check": {
     "checked": 0,

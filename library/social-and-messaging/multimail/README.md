@@ -1,23 +1,35 @@
-# MultiMail CLI
+# Multimail CLI
 
-**Every MultiMail feature, plus cross-mailbox search, oversight analytics, and trust ladder tracking no other tool has.**
+Email-as-a-Service for AI agents. Inbound email converted to markdown, outbound markdown converted to HTML. Built on Cloudflare Workers.
 
-Full CLI access to MultiMail's agent email platform. Manage mailboxes, send and read emails, configure oversight modes, and manage sending allowlists. Local SQLite cache with FTS5 search enables cross-mailbox queries, oversight velocity tracking, and trust progression analysis that the API alone cannot provide.
+Printed by [@H179922](https://github.com/H179922) (H179922).
 
 ## Install
 
-The recommended path installs both the `multimail-pp-cli` binary and the `pp-multimail` agent skill in one shot:
+The recommended path installs both the `multimail-pp-cli` binary and the `pp-multimail` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install multimail
+npx -y @mvanhorn/printing-press-library install multimail
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install multimail --cli-only
+npx -y @mvanhorn/printing-press-library install multimail --cli-only
 ```
 
+For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
+
+```bash
+npx -y @mvanhorn/printing-press-library install multimail --skill-only
+```
+
+To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
+
+```bash
+npx -y @mvanhorn/printing-press-library install multimail --agent claude-code
+npx -y @mvanhorn/printing-press-library install multimail --agent claude-code --agent codex
+```
 
 ### Without Node
 
@@ -50,79 +62,76 @@ Tell your OpenClaw agent (copy this):
 Install the pp-multimail skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-multimail. The skill defines how its required CLI can be installed.
 ```
 
-## Quick Start
+## Use with Claude Desktop
 
-```bash
-# Verify API key and connectivity
-multimail-pp-cli doctor
+This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
+
+To install:
+
+1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/multimail-current).
+2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
+3. Fill in `MULTIMAIL_BEARER_AUTH` when Claude Desktop prompts you.
+
+Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
+
+<details>
+<summary>Manual JSON config (advanced)</summary>
+
+If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
 
 
-# Cache all mailboxes and emails locally
-multimail-pp-cli sync --full
+Install the MCP binary from this CLI's published public-library entry or pre-built release.
 
+Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
 
-# See your mailbox fleet
-multimail-pp-cli mailboxes list --json
-
-
-# Search across all mailboxes at once
-multimail-pp-cli search 'meeting notes' --json --select subject,from,mailbox
-
-
-# See trust ladder progression fleet-wide
-multimail-pp-cli trust status --json
-
+```json
+{
+  "mcpServers": {
+    "multimail": {
+      "command": "multimail-pp-mcp",
+      "env": {
+        "MULTIMAIL_BEARER_AUTH": "<your-key>"
+      }
+    }
+  }
+}
 ```
 
-## Unique Features
+</details>
 
-These capabilities aren't available in any other tool for this API.
+## Quick Start
 
-### Local state that compounds
-- **`search`** — Full-text search across all synced mailboxes at once — find any email regardless of which mailbox received it.
+### 1. Install
 
-  _When an agent needs to find a specific email and doesn't know which mailbox has it, one search beats iterating._
+See [Install](#install) above.
 
-  ```bash
-  multimail-pp-cli search 'invoice Q2' --json --select subject,from,mailbox
-  ```
-- **`mailboxes allowlist coverage`** — See what percentage of recent recipients are covered by allowlist patterns vs gated.
+### 2. Set Up Credentials
 
-  _Before adding allowlist entries, an agent should know which recipients are already covered and which cause the most gating friction._
+Get your access token from your API provider's developer portal, then store it:
 
-  ```bash
-  multimail-pp-cli mailboxes allowlist coverage --mailbox primary --days 30 --json
-  ```
-- **`inbox health`** — Per-mailbox health snapshot: unread count, oldest unread age, reply rate, and thread depth.
+```bash
+multimail-pp-cli auth set-token YOUR_TOKEN_HERE
+```
 
-  _An agent monitoring its own inbox health can detect when it's falling behind on replies before the operator notices._
+Or set it via environment variable:
 
-  ```bash
-  multimail-pp-cli inbox health --json
-  ```
-- **`mailboxes threads stale`** — List conversation threads with no reply in N days — surfaces dropped conversations.
+```bash
+export MULTIMAIL_BEARER_AUTH="your-token-here"
+```
 
-  _A dropped conversation thread is a customer-facing failure; this is the agent's early warning system._
+### 3. Verify Setup
 
-  ```bash
-  multimail-pp-cli mailboxes threads stale --days 3 --json
-  ```
+```bash
+multimail-pp-cli doctor
+```
 
-### Agent-native plumbing
-- **`oversight velocity`** — See approval/rejection rates and median decision latency per mailbox across your entire fleet.
+This checks your configuration and credentials.
 
-  _When an agent's sends are stuck in approval queues, this pinpoints which mailbox's operator is the bottleneck._
+### 4. Try Your First Command
 
-  ```bash
-  multimail-pp-cli oversight velocity --json --days 7
-  ```
-- **`trust status`** — Fleet-wide view of each mailbox's oversight mode, time-at-level, and upgrade history.
-
-  _Before requesting a trust upgrade, an agent should know which mailboxes are ready and which have been at their current level longest._
-
-  ```bash
-  multimail-pp-cli trust status --json
-  ```
+```bash
+multimail-pp-cli account list
+```
 
 ## Usage
 
@@ -145,7 +154,7 @@ Manage account
 
 Manage admin
 
-- **`multimail-pp-cli admin create`** - Admin-only. Creates a new API key and emails it to the tenant's oversight email. Used when welcome email failed or KV expired before key retrieval.
+- **`multimail-pp-cli admin`** - Admin-only. Creates a new API key and emails it to the tenant's oversight email. Used when welcome email failed or KV expired before key retrieval.
 
 ### agent
 
@@ -175,13 +184,13 @@ Manage approve
 
 Manage audit log
 
-- **`multimail-pp-cli audit-log list`** - Returns audit log entries with cursor pagination. Requires admin scope.
+- **`multimail-pp-cli audit-log`** - Returns audit log entries with cursor pagination. Requires admin scope.
 
 ### auth-md
 
 Manage auth md
 
-- **`multimail-pp-cli auth-md list`** - Returns a markdown document describing MultiMail's agent registration flow, trust ladder, and scope model. Used by agents following the auth.md protocol.
+- **`multimail-pp-cli auth-md`** - Returns a markdown document describing MultiMail's agent registration flow, trust ladder, and scope model. Used by agents following the auth.md protocol.
 
 ### billing
 
@@ -225,13 +234,19 @@ Manage domains
 
 Manage emails
 
-- **`multimail-pp-cli emails list`** - Requires read scope. Without a status filter, returns spam_flagged and spam_quarantined emails across all tenant mailboxes.
+- **`multimail-pp-cli emails`** - Requires read scope. Without a status filter, returns spam_flagged and spam_quarantined emails across all tenant mailboxes.
 
 ### funnel
 
 Manage funnel
 
-- **`multimail-pp-cli funnel create`** - Pricing page beacon hit via navigator.sendBeacon to track open/submit/error events on the signup modal. Fire-and-forget; counters are best-effort (KV is non-atomic). IP-rate-limited to 30 req/min.
+- **`multimail-pp-cli funnel`** - Pricing page beacon hit via navigator.sendBeacon to track open/submit/error events on the signup modal. Fire-and-forget; counters are best-effort (KV is non-atomic). IP-rate-limited to 30 req/min.
+
+### health
+
+Manage health
+
+- **`multimail-pp-cli health`** - Verifies D1 and R2 connectivity. No auth required.
 
 ### mailboxes
 
@@ -246,13 +261,7 @@ Manage mailboxes
 
 Manage multimail export
 
-- **`multimail-pp-cli multimail-export list`** - Requires admin scope. Rate limited to 1 request per hour.
-
-### multimail-health
-
-Manage multimail health
-
-- **`multimail-pp-cli multimail-health list`** - Verifies D1 and R2 connectivity. No auth required.
+- **`multimail-pp-cli multimail-export`** - Requires admin scope. Rate limited to 1 request per hour.
 
 ### operator
 
@@ -274,13 +283,13 @@ Manage oversight
 
 Manage slug check
 
-- **`multimail-pp-cli slug-check get`** - Check if a slug is available for registration. Returns suggestions if taken or reserved. No auth required.
+- **`multimail-pp-cli slug-check <slug>`** - Check if a slug is available for registration. Returns suggestions if taken or reserved. No auth required.
 
 ### support
 
 Manage support
 
-- **`multimail-pp-cli support create`** - Public endpoint. Requires a solved ALTCHA proof-of-work payload. Sends a message to support@multimail.dev.
+- **`multimail-pp-cli support`** - Public endpoint. Requires a solved ALTCHA proof-of-work payload. Sends a message to support@multimail.dev.
 
 ### suppression
 
@@ -300,13 +309,13 @@ Manage unsubscribe
 
 Manage usage
 
-- **`multimail-pp-cli usage list`** - Requires read scope. Returns usage counts for the current billing period.
+- **`multimail-pp-cli usage`** - Requires read scope. Returns usage counts for the current billing period.
 
 ### webhook-deliveries
 
 Manage webhook deliveries
 
-- **`multimail-pp-cli webhook-deliveries list`** - Returns recent webhook delivery attempts. Requires admin scope.
+- **`multimail-pp-cli webhook-deliveries`** - Returns recent webhook delivery attempts. Requires admin scope.
 
 ### webhooks
 
@@ -364,69 +373,6 @@ This CLI is designed for AI agent consumption:
 
 Exit codes: `0` success, `2` usage error, `3` not found, `4` auth error, `5` API error, `7` rate limited, `10` config error.
 
-## Use with Claude Code
-
-Install the focused skill — it auto-installs the CLI on first invocation:
-
-```bash
-npx skills add mvanhorn/printing-press-library/cli-skills/pp-multimail -g
-```
-
-Then invoke `/pp-multimail <query>` in Claude Code. The skill is the most efficient path — Claude Code drives the CLI directly without an MCP server in the middle.
-
-<details>
-<summary>Use as an MCP server in Claude Code (advanced)</summary>
-
-If you'd rather register this CLI as an MCP server in Claude Code, install the MCP binary first:
-
-
-Install the MCP binary from this CLI's published public-library entry or pre-built release.
-
-Then register it:
-
-```bash
-claude mcp add multimail multimail-pp-mcp -e MULTIMAIL_BEARER_AUTH=<your-token>
-```
-
-</details>
-
-## Use with Claude Desktop
-
-This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
-
-To install:
-
-1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/multimail-current).
-2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
-3. Fill in `MULTIMAIL_BEARER_AUTH` when Claude Desktop prompts you.
-
-Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
-
-<details>
-<summary>Manual JSON config (advanced)</summary>
-
-If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
-
-
-Install the MCP binary from this CLI's published public-library entry or pre-built release.
-
-Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "multimail": {
-      "command": "multimail-pp-mcp",
-      "env": {
-        "MULTIMAIL_BEARER_AUTH": "<your-key>"
-      }
-    }
-  }
-}
-```
-
-</details>
-
 ## Health Check
 
 ```bash
@@ -454,13 +400,6 @@ Environment variables:
 **Not found errors (exit code 3)**
 - Check the resource ID is correct
 - Run the `list` command to see available items
-
-### API-specific
-
-- **401 Unauthorized on every command** — Check that MULTIMAIL_BEARER_AUTH is set. Get a key via `multimail-pp-cli auth register`.
-- **Emails not sending (stuck in pending)** — Mailbox is in gated_send or gated_all mode. Check `oversight pending` and approve, or add the recipient to the allowlist.
-- **Search returns no results** — Run `multimail-pp-cli sync --full` first to populate the local cache.
-- **Allowlist add returns 'approval required'** — This is the two-step OTP flow. Check operator email for the approval code, then rerun with --approval-code.
 
 ---
 

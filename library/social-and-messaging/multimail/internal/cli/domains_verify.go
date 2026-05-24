@@ -10,7 +10,8 @@ import (
 func newDomainsVerifyCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "verify",
-		Short: "Manage verify",
+		Short: "Run verify operations for domains",
+		RunE:  parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newDomainsVerifyCreateCmd(flags))
