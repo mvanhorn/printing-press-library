@@ -49,6 +49,22 @@
       "files": [
         "internal/cli/allowlist_coverage.go"
       ]
+    },
+    {
+      "id": "oversight-velocity-latency-from-audit-log",
+      "summary": "Derive median_latency from audit-log decision events joined with oversight items instead of querying only the oversight table.",
+      "reason": "Sync maps oversight to /v1/oversight/pending, so decided items leave that endpoint and the local DB never has status != 'pending'. The original query filtered status != 'pending' → always zero rows → always '—'. The fix joins audit-log approve/reject events (decision timestamp) with oversight items (received_at) via resource_id.",
+      "files": [
+        "internal/cli/oversight_velocity.go"
+      ]
+    },
+    {
+      "id": "oversight-velocity-pending-count-window",
+      "summary": "Apply --days cutoff filter to pending_count for consistency with windowed decision counts.",
+      "reason": "total_decisions, approved, and rejected are filtered by --days window but pending_count was unwindowed, making the row metrics inconsistent when comparing volumes across the same time window.",
+      "files": [
+        "internal/cli/oversight_velocity.go"
+      ]
     }
   ]
 }

@@ -106,18 +106,26 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 					rate = float64(approved) / float64(total) * 100
 				}
 
-				// Compute median latency from oversight records that have
-				// both created_at and decided_at (or resolved_at) timestamps.
+				// PATCH: Compute median latency by joining audit-log
+				// decisions with oversight items. The sync layer only
+				// fetches /v1/oversight/pending, so decided items never
+				// re-appear with updated status. Instead, correlate
+				// audit-log approve/reject events (which have the decision
+				// timestamp) with oversight items (which retain received_at)
+				// via resource_id.
 				medianLatency := "—"
 				latencyRows, lerr := db.DB().QueryContext(cmd.Context(),
 					`SELECT
-						COALESCE(json_extract(data, '$.created_at'), ''),
-						COALESCE(json_extract(data, '$.decided_at'), json_extract(data, '$.resolved_at'), '')
-					FROM resources
-					WHERE resource_type = 'oversight'
-					AND json_extract(data, '$.mailbox_id') = ?
-					AND json_extract(data, '$.status') != 'pending'
-					AND synced_at > ?`, mb.ID, cutoff)
+						COALESCE(json_extract(o.data, '$.received_at'), json_extract(o.data, '$.created_at'), ''),
+						json_extract(a.data, '$.created_at')
+					FROM resources a
+					JOIN resources o ON o.resource_type = 'oversight'
+						AND o.id = json_extract(a.data, '$.resource_id')
+					WHERE a.resource_type = 'audit-log'
+					AND (json_extract(a.data, '$.action') LIKE '%approve%'
+					  OR json_extract(a.data, '$.action') LIKE '%reject%')
+					AND json_extract(o.data, '$.mailbox_id') = ?
+					AND a.synced_at > ?`, mb.ID, cutoff)
 				if lerr == nil {
 					var latencies []float64
 					for latencyRows.Next() {
@@ -159,13 +167,15 @@ Requires synced data (run 'multimail-pp-cli sync --full' first).`,
 					}
 				}
 
-				// Count currently pending
+				// PATCH: Count currently pending within the --days window
+				// for consistency with the windowed decision counts above.
 				var pending int
 				pendingRow := db.DB().QueryRowContext(cmd.Context(),
 					`SELECT COUNT(*) FROM resources
 					WHERE resource_type = 'oversight'
 					AND json_extract(data, '$.mailbox_id') = ?
-					AND json_extract(data, '$.status') = 'pending'`, mb.ID)
+					AND json_extract(data, '$.status') = 'pending'
+					AND synced_at > ?`, mb.ID, cutoff)
 				_ = pendingRow.Scan(&pending)
 
 				results = append(results, velocityRow{
