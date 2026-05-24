@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/mvanhorn/printing-press-library/library/monitoring/adguard-home/internal/store"
+	"adguard-home-pp-cli/internal/store"
 	"github.com/spf13/cobra"
 )
 
@@ -111,28 +111,10 @@ In local mode: searches locally synced data only.`,
 				return cmd.Help()
 			}
 			query := args[0]
-			// This API has a search endpoint: POST /clients/search
-			if flags.dataSource != "local" {
-				c, err := flags.newClient()
-				if err != nil {
-					return err
-				}
-				data, _, getErr := c.Post("/clients/search", map[string]any{
-					"q":       query,
-					"clients": []any{},
-				})
-				if getErr == nil {
-					// Live search succeeded
-					results := extractSearchResults(data)
-					prov := DataProvenance{Source: "live"}
-					return outputSearchResults(cmd, flags, results, limit, prov)
-				}
-				// Check if it's a network error for auto-mode fallback
-				if flags.dataSource == "live" || !isNetworkError(getErr) {
-					return classifyAPIError(getErr, flags)
-				}
-				// auto mode + network error: fall through to local FTS
-				fmt.Fprintf(cmd.ErrOrStderr(), "API unreachable, falling back to local search.\n")
+			// Free-text search uses local FTS; the /clients/search API is a
+			// client-lookup endpoint, not a general search, so skip it.
+			if flags.dataSource == "live" {
+				fmt.Fprintf(cmd.ErrOrStderr(), "Note: live search not supported for this API; using local data.\n")
 			}
 
 			// Local FTS search

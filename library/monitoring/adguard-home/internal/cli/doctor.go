@@ -13,9 +13,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mvanhorn/printing-press-library/library/monitoring/adguard-home/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/monitoring/adguard-home/internal/config"
-	"github.com/mvanhorn/printing-press-library/library/monitoring/adguard-home/internal/store"
+	"adguard-home-pp-cli/internal/client"
+	"adguard-home-pp-cli/internal/config"
+	"adguard-home-pp-cli/internal/store"
 	"github.com/spf13/cobra"
 )
 

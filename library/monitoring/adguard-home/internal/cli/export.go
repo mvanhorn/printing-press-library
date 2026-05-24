@@ -37,14 +37,12 @@ large datasets as it has no memory pressure.`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			validResources := map[string]bool{
 				"clients":  true,
-				"logout":   true,
 				"querylog": true,
 				"stats":    true,
 				"status":   true,
 			}
 			validResourceList := []string{
 				"clients",
-				"logout",
 				"querylog",
 				"stats",
 				"status",

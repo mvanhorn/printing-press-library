@@ -318,7 +318,6 @@ func (s *Store) backfillColumns(ctx context.Context, conn *sql.Conn) error {
 		{table: "tls", column: "port_dns_over_quic", decl: "INTEGER"},
 		{table: "tls", column: "port_dns_over_tls", decl: "INTEGER"},
 		{table: "tls", column: "port_https", decl: "INTEGER"},
-		{table: "tls", column: "private_key", decl: "TEXT"},
 		{table: "tls", column: "private_key_path", decl: "TEXT"},
 		{table: "tls", column: "private_key_saved", decl: "INTEGER"},
 		{table: "tls", column: "serve_plain_dns", decl: "INTEGER"},
@@ -564,7 +563,6 @@ func (s *Store) migrate(ctx context.Context) error {
 			"port_dns_over_quic" INTEGER,
 			"port_dns_over_tls" INTEGER,
 			"port_https" INTEGER,
-			"private_key" TEXT,
 			"private_key_path" TEXT,
 			"private_key_saved" INTEGER,
 			"serve_plain_dns" INTEGER,
@@ -1854,9 +1852,9 @@ func (s *Store) UpsertStatus(data json.RawMessage) error {
 // opening a per-item transaction.
 func (s *Store) upsertTlsTx(tx *sql.Tx, id string, obj map[string]any, data json.RawMessage) error {
 	if _, err := tx.Exec(
-		`INSERT INTO "tls" ("id", "data", "synced_at", "certificate_chain", "certificate_path", "enabled", "force_https", "issuer", "key_type", "not_after", "not_before", "port_dns_over_quic", "port_dns_over_tls", "port_https", "private_key", "private_key_path", "private_key_saved", "serve_plain_dns", "server_name", "subject", "valid_cert", "valid_chain", "valid_key", "valid_pair", "warning_validation")
+		`INSERT INTO "tls" ("id", "data", "synced_at", "certificate_chain", "certificate_path", "enabled", "force_https", "issuer", "key_type", "not_after", "not_before", "port_dns_over_quic", "port_dns_over_tls", "port_https", "private_key_path", "private_key_saved", "serve_plain_dns", "server_name", "subject", "valid_cert", "valid_chain", "valid_key", "valid_pair", "warning_validation")
 		 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-		 ON CONFLICT("id") DO UPDATE SET "data" = excluded."data", "synced_at" = excluded."synced_at", "certificate_chain" = excluded."certificate_chain", "certificate_path" = excluded."certificate_path", "enabled" = excluded."enabled", "force_https" = excluded."force_https", "issuer" = excluded."issuer", "key_type" = excluded."key_type", "not_after" = excluded."not_after", "not_before" = excluded."not_before", "port_dns_over_quic" = excluded."port_dns_over_quic", "port_dns_over_tls" = excluded."port_dns_over_tls", "port_https" = excluded."port_https", "private_key" = excluded."private_key", "private_key_path" = excluded."private_key_path", "private_key_saved" = excluded."private_key_saved", "serve_plain_dns" = excluded."serve_plain_dns", "server_name" = excluded."server_name", "subject" = excluded."subject", "valid_cert" = excluded."valid_cert", "valid_chain" = excluded."valid_chain", "valid_key" = excluded."valid_key", "valid_pair" = excluded."valid_pair", "warning_validation" = excluded."warning_validation"`,
+		 ON CONFLICT("id") DO UPDATE SET "data" = excluded."data", "synced_at" = excluded."synced_at", "certificate_chain" = excluded."certificate_chain", "certificate_path" = excluded."certificate_path", "enabled" = excluded."enabled", "force_https" = excluded."force_https", "issuer" = excluded."issuer", "key_type" = excluded."key_type", "not_after" = excluded."not_after", "not_before" = excluded."not_before", "port_dns_over_quic" = excluded."port_dns_over_quic", "port_dns_over_tls" = excluded."port_dns_over_tls", "port_https" = excluded."port_https", "private_key_path" = excluded."private_key_path", "private_key_saved" = excluded."private_key_saved", "serve_plain_dns" = excluded."serve_plain_dns", "server_name" = excluded."server_name", "subject" = excluded."subject", "valid_cert" = excluded."valid_cert", "valid_chain" = excluded."valid_chain", "valid_key" = excluded."valid_key", "valid_pair" = excluded."valid_pair", "warning_validation" = excluded."warning_validation"`,
 		id,
 		string(data),
 		time.Now(),
@@ -1871,7 +1869,6 @@ func (s *Store) upsertTlsTx(tx *sql.Tx, id string, obj map[string]any, data json
 		lookupFieldValue(obj, "port_dns_over_quic"),
 		lookupFieldValue(obj, "port_dns_over_tls"),
 		lookupFieldValue(obj, "port_https"),
-		lookupFieldValue(obj, "private_key"),
 		lookupFieldValue(obj, "private_key_path"),
 		lookupFieldValue(obj, "private_key_saved"),
 		lookupFieldValue(obj, "serve_plain_dns"),

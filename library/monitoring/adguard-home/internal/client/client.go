@@ -4,8 +4,8 @@
 package client
 
 import (
-	"github.com/mvanhorn/printing-press-library/library/monitoring/adguard-home/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/monitoring/adguard-home/internal/config"
+	"adguard-home-pp-cli/internal/cliutil"
+	"adguard-home-pp-cli/internal/config"
 	"bytes"
 	"crypto/sha256"
 	"encoding/hex"

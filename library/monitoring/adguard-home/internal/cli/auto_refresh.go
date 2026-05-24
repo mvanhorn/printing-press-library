@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/mvanhorn/printing-press-library/library/monitoring/adguard-home/internal/store"
+	"adguard-home-pp-cli/internal/store"
 )
 
 func autoRefreshIfStale(ctx context.Context, staleAfter time.Duration) error {

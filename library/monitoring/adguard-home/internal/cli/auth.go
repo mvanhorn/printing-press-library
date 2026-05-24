@@ -4,8 +4,8 @@
 package cli
 
 import (
-	"github.com/mvanhorn/printing-press-library/library/monitoring/adguard-home/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/monitoring/adguard-home/internal/config"
+	"adguard-home-pp-cli/internal/cliutil"
+	"adguard-home-pp-cli/internal/config"
 	"fmt"
 	"github.com/spf13/cobra"
 	"os"
@@ -133,9 +133,9 @@ func newAuthStatusCmd(flags *rootFlags) *cobra.Command {
 
 func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 	return &cobra.Command{
-		Use:     "set-token <token>",
-		Short:   "Save an API token to the config file",
-		Example: "  adguard-home-pp-cli auth set-token YOUR_TOKEN_HERE",
+		Use:     "set-token <password>",
+		Short:   "Save AdGuard Home password to the config file. Username is read from ADGUARD_HOME_USERNAME env or config.",
+		Example: "  adguard-home-pp-cli auth set-token mypassword",
 		Args:    cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cfg, err := config.Load(flags.configPath)
@@ -143,19 +143,9 @@ func newAuthSetTokenCmd(flags *rootFlags) *cobra.Command {
 				return configErr(err)
 			}
 
-			// Clear any legacy auth_header so AuthHeader() falls through to
-			// the newly-saved credential. Without this, a pre-existing
-			// auth_header value (common after regenerate) shadows the saved
-			// token and set-token silently has no effect. Silent clear (no
-			// log line): a masked-tail variant could leak token bytes through
-			// scripted dogfood that captures stderr.
 			cfg.AuthHeaderVal = ""
-			// api_key auth: AuthHeader() reads the env-var-derived field, not
-			// AccessToken. Writing the token to AccessToken via SaveTokens
-			// would persist the bytes but leave doctor reporting "not
-			// configured" — the slot the header builder consults stays empty.
 			if err := cfg.SaveCredential(args[0]); err != nil {
-				return configErr(fmt.Errorf("saving token: %w", err))
+				return configErr(fmt.Errorf("saving credentials: %w", err))
 			}
 
 			// JSON envelope: {saved, config_path}.

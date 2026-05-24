@@ -6,7 +6,7 @@ package main
 import (
 	"os"
 
-	"github.com/mvanhorn/printing-press-library/library/monitoring/adguard-home/internal/cli"
+	"adguard-home-pp-cli/internal/cli"
 )
 
 func main() {
