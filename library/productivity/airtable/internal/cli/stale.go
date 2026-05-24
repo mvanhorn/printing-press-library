@@ -48,7 +48,6 @@ Reads against the synced 'records' table's created_time / last sync time.`,
 				return usageErr(fmt.Errorf("baseId and tableId are required\nUsage: %s <baseId> <tableId>", cmd.CommandPath()))
 			}
 			baseID, tableID := args[0], args[1]
-			_ = baseID // currently used only as context; records table is shared
 
 			window, err := cliutil.ParseDurationLoose(olderThan)
 			if err != nil {
@@ -83,12 +82,20 @@ Reads against the synced 'records' table's created_time / last sync time.`,
 			// Records table carries the synced JSON in `data` and a
 			// per-row `synced_at`. We pre-filter on synced_at and let the
 			// caller filter rows further by their field.
+			//
+			// PATCH(airtable-stale-base-scope): scope the lookup to baseID
+			// (parent_id is populated by dependent sync with the parent base
+			// ID). The original code passed tableID into the parent_id
+			// predicate, which never matched a real row in multi-base
+			// mirrors. tableID is still used for field/equals filtering and
+			// for user-facing messages below.
+			_ = tableID
 			rows, err := db.DB().QueryContext(cmd.Context(),
 				`SELECT id, data, synced_at FROM records
 				 WHERE (parent_id = ? OR parent_id IS NULL)
 				   AND synced_at <= ?
 				 ORDER BY synced_at ASC`,
-				tableID, cutoff)
+				baseID, cutoff)
 			if err != nil {
 				return fmt.Errorf("query records: %w", err)
 			}

@@ -31,6 +31,20 @@
       "reason": "Greptile P1 (PR #829, round 2) flagged that the original SELECT used only `WHERE resource_type='webhooks'` with no base scoping, so multi-base mirrors mixed payload events from every base whose webhook IDs accidentally collided in the local cache. Airtable webhook payloads don't carry baseId at the top level, so the correct scope is the webhook-subscription join.",
       "files": ["internal/cli/history_record.go"],
       "validated_outcome": "`go build`, `go vet`, and `go test ./...` all pass; the payload scan now joins through the dedicated webhooks subscription table and filters by `parent_id = baseID OR parent_id IS NULL` (the IS NULL branch keeps legacy mirrors functional)."
+    },
+    {
+      "id": "airtable-stale-base-scope",
+      "summary": "Scope `stale` record lookups by passing baseID (not tableID) into the `parent_id = ?` predicate. tableID is still consumed by the field/equals filter and the user-facing message.",
+      "reason": "Greptile P1 (PR #829, round 3) caught the same wrong-scope pattern in stale.go that earlier rounds patched in traverse.go and history_record.go: the original code threaded tableID into the parent_id filter, which never matches a real row (parent_id is populated by dependent sync with the parent baseID).",
+      "files": ["internal/cli/stale.go"],
+      "validated_outcome": "`go build`, `go vet`, and `go test -count=1 ./internal/cli/... ./internal/store/...` all pass; stale lookups now filter rows whose `parent_id = baseID` (or IS NULL for legacy mirrors)."
+    },
+    {
+      "id": "airtable-webhooks-fleet-all-profiles",
+      "summary": "Make `webhooks fleet --all-profiles` actually iterate profile databases. Builds a dedup'd list of (profile-name, db-path) targets from `loadProfileStore().Profiles[*].Values[\"db\"]`, opens each read-only, and aggregates results tagged with `profile`/`db_path` so multi-tenant operators can see which mirror each webhook came from. Missing/unopenable per-profile mirrors warn to stderr and are skipped, not fatal.",
+      "reason": "Greptile P1 (PR #829, round 3) flagged that the original `--all-profiles` flag's only code path was the early-return under `IsVerifyEnv()` — in every real invocation it was a silent no-op, despite documentation claiming multi-tenant scanning. This patch makes the flag actually do what the docs and Help text promise.",
+      "files": ["internal/cli/webhooks_fleet.go"],
+      "validated_outcome": "`go build`, `go vet`, and `go test -count=1 ./internal/cli/... ./internal/store/...` all pass; `--all-profiles` now enumerates configured profiles, dedupes by db-path, and aggregates webhook rows across each opened mirror. Default (no --all-profiles) behavior is unchanged."
     }
   ]
 }
