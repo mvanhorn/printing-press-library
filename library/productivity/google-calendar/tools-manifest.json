@@ -1,0 +1,3119 @@
+{
+  "api_name": "google-calendar",
+  "base_url": "https://www.googleapis.com/calendar/v3",
+  "description": "Manipulates events and other calendar data.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "GOOGLE_CALENDAR_CLIENT_ID",
+      "GOOGLE_CALENDAR_CLIENT_SECRET",
+      "GOOGLE_CALENDAR_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "GOOGLE_CALENDAR_CLIENT_ID",
+        "kind": "auth_flow_input",
+        "required": true,
+        "sensitive": false,
+        "description": "OAuth2 client ID from your Google Cloud project. Used by `auth login`."
+      },
+      {
+        "name": "GOOGLE_CALENDAR_CLIENT_SECRET",
+        "kind": "auth_flow_input",
+        "required": true,
+        "sensitive": true,
+        "description": "OAuth2 client secret from your Google Cloud project. Used by `auth login`."
+      },
+      {
+        "name": "GOOGLE_CALENDAR_TOKEN",
+        "kind": "harvested",
+        "required": false,
+        "sensitive": true,
+        "description": "OAuth2 access token, populated automatically by `auth login`; you normally do not set this manually."
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "calendars_delete",
+      "description": "Deletes a secondary calendar. Use calendars.clear for clearing all events on primary calendars. Required: calendarId. Destructive.",
+      "method": "DELETE",
+      "path": "/calendars/{calendarId}",
+      "params": [
+        {
+          "name": "calendarId",
+          "type": "string",
+          "location": "path",
+          "description": "Calendar identifier. To retrieve calendar IDs call the calendarList.list method. If you want...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "calendars_get",
+      "description": "Returns metadata for a calendar. Required: calendarId.",
+      "method": "GET",
+      "path": "/calendars/{calendarId}",
+      "params": [
+        {
+          "name": "calendarId",
+          "type": "string",
+          "location": "path",
+          "description": "Calendar identifier. To retrieve calendar IDs call the calendarList.list method. If you want...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "calendars_insert",
+      "description": "Creates a secondary calendar. Optional: conferenceProperties, description, etag (plus 5 more). Returns the new Calendar.",
+      "method": "POST",
+      "path": "/calendars",
+      "params": [
+        {
+          "name": "conferenceProperties",
+          "type": "object",
+          "location": "body",
+          "description": "Conference properties"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description of the calendar. Optional."
+        },
+        {
+          "name": "etag",
+          "type": "string",
+          "location": "body",
+          "description": "ETag of the resource."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Identifier of the calendar. To retrieve IDs call the calendarList.list() method."
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "Type of the resource ('calendar#calendar')."
+        },
+        {
+          "name": "location",
+          "type": "string",
+          "location": "body",
+          "description": "Geographic location of the calendar as free-form text. Optional."
+        },
+        {
+          "name": "summary",
+          "type": "string",
+          "location": "body",
+          "description": "Title of the calendar."
+        },
+        {
+          "name": "timeZone",
+          "type": "string",
+          "location": "body",
+          "description": "The time zone of the calendar."
+        }
+      ]
+    },
+    {
+      "name": "calendars_patch",
+      "description": "Updates metadata for a calendar. This method supports patch semantics. Required: calendarId. Optional: conferenceProperties, description, etag (plus 5 more). Returns the updated Calendar.",
+      "method": "PATCH",
+      "path": "/calendars/{calendarId}",
+      "params": [
+        {
+          "name": "calendarId",
+          "type": "string",
+          "location": "path",
+          "description": "Calendar identifier. To retrieve calendar IDs call the calendarList.list method. If you want...",
+          "required": true
+        },
+        {
+          "name": "conferenceProperties",
+          "type": "object",
+          "location": "body",
+          "description": "Conference properties"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description of the calendar. Optional."
+        },
+        {
+          "name": "etag",
+          "type": "string",
+          "location": "body",
+          "description": "ETag of the resource."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Identifier of the calendar. To retrieve IDs call the calendarList.list() method."
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "Type of the resource ('calendar#calendar')."
+        },
+        {
+          "name": "location",
+          "type": "string",
+          "location": "body",
+          "description": "Geographic location of the calendar as free-form text. Optional."
+        },
+        {
+          "name": "summary",
+          "type": "string",
+          "location": "body",
+          "description": "Title of the calendar."
+        },
+        {
+          "name": "timeZone",
+          "type": "string",
+          "location": "body",
+          "description": "The time zone of the calendar."
+        }
+      ]
+    },
+    {
+      "name": "calendars_update",
+      "description": "Updates metadata for a calendar. Required: calendarId. Optional: conferenceProperties, description, etag (plus 5 more). Returns the updated Calendar.",
+      "method": "PUT",
+      "path": "/calendars/{calendarId}",
+      "params": [
+        {
+          "name": "calendarId",
+          "type": "string",
+          "location": "path",
+          "description": "Calendar identifier. To retrieve calendar IDs call the calendarList.list method. If you want...",
+          "required": true
+        },
+        {
+          "name": "conferenceProperties",
+          "type": "object",
+          "location": "body",
+          "description": "Conference properties"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description of the calendar. Optional."
+        },
+        {
+          "name": "etag",
+          "type": "string",
+          "location": "body",
+          "description": "ETag of the resource."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Identifier of the calendar. To retrieve IDs call the calendarList.list() method."
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "Type of the resource ('calendar#calendar')."
+        },
+        {
+          "name": "location",
+          "type": "string",
+          "location": "body",
+          "description": "Geographic location of the calendar as free-form text. Optional."
+        },
+        {
+          "name": "summary",
+          "type": "string",
+          "location": "body",
+          "description": "Title of the calendar."
+        },
+        {
+          "name": "timeZone",
+          "type": "string",
+          "location": "body",
+          "description": "The time zone of the calendar."
+        }
+      ]
+    },
+    {
+      "name": "calendars_acl_delete",
+      "description": "Deletes an access control rule. Required: calendarId, ruleId. Destructive.",
+      "method": "DELETE",
+      "path": "/calendars/{calendarId}/acl/{ruleId}",
+      "params": [
+        {
+          "name": "calendarId",
+          "type": "string",
+          "location": "path",
+          "description": "Calendar identifier. To retrieve calendar IDs call the calendarList.list method. If you want...",
+          "required": true
+        },
+        {
+          "name": "ruleId",
+          "type": "string",
+          "location": "path",
+          "description": "ACL rule identifier.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "calendars_acl_get",
+      "description": "Returns an access control rule. Required: calendarId, ruleId.",
+      "method": "GET",
+      "path": "/calendars/{calendarId}/acl/{ruleId}",
+      "params": [
+        {
+          "name": "calendarId",
+          "type": "string",
+          "location": "path",
+          "description": "Calendar identifier. To retrieve calendar IDs call the calendarList.list method. If you want...",
+          "required": true
+        },
+        {
+          "name": "ruleId",
+          "type": "string",
+          "location": "path",
+          "description": "ACL rule identifier.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "calendars_acl_insert",
+      "description": "Creates an access control rule. Required: calendarId. Optional: sendNotifications, etag, id (plus 3 more). Returns the new AclRule.",
+      "method": "POST",
+      "path": "/calendars/{calendarId}/acl",
+      "params": [
+        {
+          "name": "calendarId",
+          "type": "string",
+          "location": "path",
+          "description": "Calendar identifier. To retrieve calendar IDs call the calendarList.list method. If you want...",
+          "required": true
+        },
+        {
+          "name": "sendNotifications",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether to send notifications about the calendar sharing change. Optional. The default is True."
+        },
+        {
+          "name": "etag",
+          "type": "string",
+          "location": "body",
+          "description": "ETag of the resource."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Identifier of the Access Control List (ACL) rule. See Sharing calendars."
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "Type of the resource ('calendar#aclRule')."
+        },
+        {
+          "name": "role",
+          "type": "string",
+          "location": "body",
+          "description": "The role assigned to the scope."
+        },
+        {
+          "name": "scope",
+          "type": "object",
+          "location": "body",
+          "description": "The extent to which calendar access is granted by this ACL rule."
+        }
+      ]
+    },
+    {
+      "name": "calendars_acl_list",
+      "description": "Returns the rules in the access control list for the calendar. Required: calendarId. Optional: maxResults, pageToken, showDeleted (plus 1 more).",
+      "method": "GET",
+      "path": "/calendars/{calendarId}/acl",
+      "params": [
+        {
+          "name": "calendarId",
+          "type": "string",
+          "location": "path",
+          "description": "Calendar identifier. To retrieve calendar IDs call the calendarList.list method. If you want...",
+          "required": true
+        },
+        {
+          "name": "maxResults",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of entries returned on one result page."
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "Token specifying which result page to return. Optional."
+        },
+        {
+          "name": "showDeleted",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether to include deleted ACLs in the result. Deleted ACLs are represented by role equal to 'none'. Deleted ACLs will always be included if syncToken is provided. Optional. The default is False."
+        },
+        {
+          "name": "syncToken",
+          "type": "string",
+          "location": "query",
+          "description": "Token obtained from the nextSyncToken field returned on the last page of results from the previous list request. It makes the result of this list request contain only entries that have changed since then. All entries deleted since the previous list request will always be in the result set and it is not allowed to set showDeleted to False. If the syncToken expires, the server will respond with a 410 GONE response code and the client should clear its storage and perform a full synchronization without any syncToken. Learn more about incremental synchronization. Optional. The default is to return all entries."
+        }
+      ]
+    },
+    {
+      "name": "calendars_acl_patch",
+      "description": "Updates an access control rule. This method supports patch semantics. Required: calendarId, ruleId. Optional: sendNotifications, etag, id (plus 3 more). Returns the updated AclRule.",
+      "method": "PATCH",
+      "path": "/calendars/{calendarId}/acl/{ruleId}",
+      "params": [
+        {
+          "name": "calendarId",
+          "type": "string",
+          "location": "path",
+          "description": "Calendar identifier. To retrieve calendar IDs call the calendarList.list method. If you want...",
+          "required": true
+        },
+        {
+          "name": "ruleId",
+          "type": "string",
+          "location": "path",
+          "description": "ACL rule identifier.",
+          "required": true
+        },
+        {
+          "name": "sendNotifications",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether to send notifications about the calendar sharing change. Note that there are no notifications on access removal. Optional. The default is True."
+        },
+        {
+          "name": "etag",
+          "type": "string",
+          "location": "body",
+          "description": "ETag of the resource."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Identifier of the Access Control List (ACL) rule. See Sharing calendars."
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "Type of the resource ('calendar#aclRule')."
+        },
+        {
+          "name": "role",
+          "type": "string",
+          "location": "body",
+          "description": "The role assigned to the scope."
+        },
+        {
+          "name": "scope",
+          "type": "object",
+          "location": "body",
+          "description": "The extent to which calendar access is granted by this ACL rule."
+        }
+      ]
+    },
+    {
+      "name": "calendars_acl_update",
+      "description": "Updates an access control rule. Required: calendarId, ruleId. Optional: sendNotifications, etag, id (plus 3 more). Returns the updated AclRule.",
+      "method": "PUT",
+      "path": "/calendars/{calendarId}/acl/{ruleId}",
+      "params": [
+        {
+          "name": "calendarId",
+          "type": "string",
+          "location": "path",
+          "description": "Calendar identifier. To retrieve calendar IDs call the calendarList.list method. If you want...",
+          "required": true
+        },
+        {
+          "name": "ruleId",
+          "type": "string",
+          "location": "path",
+          "description": "ACL rule identifier.",
+          "required": true
+        },
+        {
+          "name": "sendNotifications",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether to send notifications about the calendar sharing change. Note that there are no notifications on access removal. Optional. The default is True."
+        },
+        {
+          "name": "etag",
+          "type": "string",
+          "location": "body",
+          "description": "ETag of the resource."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Identifier of the Access Control List (ACL) rule. See Sharing calendars."
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "Type of the resource ('calendar#aclRule')."
+        },
+        {
+          "name": "role",
+          "type": "string",
+          "location": "body",
+          "description": "The role assigned to the scope."
+        },
+        {
+          "name": "scope",
+          "type": "object",
+          "location": "body",
+          "description": "The extent to which calendar access is granted by this ACL rule."
+        }
+      ]
+    },
+    {
+      "name": "calendars_acl_watch",
+      "description": "Watch for changes to ACL resources. Required: calendarId. Optional: maxResults, pageToken, showDeleted (plus 11 more). Returns the new Channel.",
+      "method": "POST",
+      "path": "/calendars/{calendarId}/acl/watch",
+      "params": [
+        {
+          "name": "calendarId",
+          "type": "string",
+          "location": "path",
+          "description": "Calendar identifier. To retrieve calendar IDs call the calendarList.list method. If you want...",
+          "required": true
+        },
+        {
+          "name": "maxResults",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of entries returned on one result page."
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "Token specifying which result page to return. Optional."
+        },
+        {
+          "name": "showDeleted",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether to include deleted ACLs in the result. Deleted ACLs are represented by role equal to 'none'. Deleted ACLs will always be included if syncToken is provided. Optional. The default is False."
+        },
+        {
+          "name": "syncToken",
+          "type": "string",
+          "location": "query",
+          "description": "Token obtained from the nextSyncToken field returned on the last page of results from the previous list request. It makes the result of this list request contain only entries that have changed since then. All entries deleted since the previous list request will always be in the result set and it is not allowed to set showDeleted to False. If the syncToken expires, the server will respond with a 410 GONE response code and the client should clear its storage and perform a full synchronization without any syncToken. Learn more about incremental synchronization. Optional. The default is to return all entries."
+        },
+        {
+          "name": "address",
+          "type": "string",
+          "location": "body",
+          "description": "The address where notifications are delivered for this channel."
+        },
+        {
+          "name": "expiration",
+          "type": "string",
+          "location": "body",
+          "description": "Date and time of notification channel expiration, expressed as a Unix timestamp, in..."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "A UUID or similar unique string that identifies this channel."
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "Identifies this as a notification channel used to watch for changes to a resource, which is..."
+        },
+        {
+          "name": "params",
+          "type": "object",
+          "location": "body",
+          "description": "Additional parameters controlling delivery channel behavior. Optional."
+        },
+        {
+          "name": "payload",
+          "type": "bool",
+          "location": "body",
+          "description": "A Boolean value to indicate whether payload is wanted. Optional."
+        },
+        {
+          "name": "resourceId",
+          "type": "string",
+          "location": "body",
+          "description": "An opaque ID that identifies the resource being watched on this channel."
+        },
+        {
+          "name": "resourceUri",
+          "type": "string",
+          "location": "body",
+          "description": "A version-specific identifier for the watched resource."
+        },
+        {
+          "name": "token",
+          "type": "string",
+          "location": "body",
+          "description": "An arbitrary string delivered to the target address with each notification delivered over..."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "The type of delivery mechanism used for this channel."
+        }
+      ]
+    },
+    {
+      "name": "calendars_clear_calendar-calendars",
+      "description": "Clears a primary calendar. This operation deletes all events associated with the primary calendar of an account. Required: calendarId.",
+      "method": "POST",
+      "path": "/calendars/{calendarId}/clear",
+      "params": [
+        {
+          "name": "calendarId",
+          "type": "string",
+          "location": "path",
+          "description": "Calendar identifier. To retrieve calendar IDs call the calendarList.list method. If you want...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "calendars_events_delete",
+      "description": "Deletes an event. Required: calendarId, eventId. Optional: sendNotifications, sendUpdates. Destructive.",
+      "method": "DELETE",
+      "path": "/calendars/{calendarId}/events/{eventId}",
+      "params": [
+        {
+          "name": "calendarId",
+          "type": "string",
+          "location": "path",
+          "description": "Calendar identifier. To retrieve calendar IDs call the calendarList.list method. If you want...",
+          "required": true
+        },
+        {
+          "name": "eventId",
+          "type": "string",
+          "location": "path",
+          "description": "Event identifier.",
+          "required": true
+        },
+        {
+          "name": "sendNotifications",
+          "type": "bool",
+          "location": "query",
+          "description": "Deprecated. Please use sendUpdates instead. Whether to send notifications about the deletion of the event. Note that some emails might still be sent even if you set the value to false. The default is false."
+        },
+        {
+          "name": "sendUpdates",
+          "type": "string",
+          "location": "query",
+          "description": "Guests who should receive notifications about the deletion of the event."
+        }
+      ]
+    },
+    {
+      "name": "calendars_events_get",
+      "description": "Returns an event based on its Google Calendar ID. To retrieve an event using its iCalendar ID, call the events.list method using the iCalUID parameter. Required: calendarId, eventId. Optional: alwaysIncludeEmail, maxAttendees, timeZone.",
+      "method": "GET",
+      "path": "/calendars/{calendarId}/events/{eventId}",
+      "params": [
+        {
+          "name": "calendarId",
+          "type": "string",
+          "location": "path",
+          "description": "Calendar identifier. To retrieve calendar IDs call the calendarList.list method. If you want...",
+          "required": true
+        },
+        {
+          "name": "eventId",
+          "type": "string",
+          "location": "path",
+          "description": "Event identifier.",
+          "required": true
+        },
+        {
+          "name": "alwaysIncludeEmail",
+          "type": "bool",
+          "location": "query",
+          "description": "Deprecated and ignored. A value will always be returned in the email field for the..."
+        },
+        {
+          "name": "maxAttendees",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of attendees to include in the response."
+        },
+        {
+          "name": "timeZone",
+          "type": "string",
+          "location": "query",
+          "description": "Time zone used in the response. Optional. The default is the time zone of the calendar."
+        }
+      ]
+    },
+    {
+      "name": "calendars_events_import",
+      "description": "Imports an event. This operation is used to add a private copy of an existing event to a calendar. Required: calendarId. Optional: conferenceDataVersion, supportsAttachments, anyoneCanAddSelf (default: false) (plus 39 more). Returns the new Event.",
+      "method": "POST",
+      "path": "/calendars/{calendarId}/events/import",
+      "params": [
+        {
+          "name": "calendarId",
+          "type": "string",
+          "location": "path",
+          "description": "Calendar identifier. To retrieve calendar IDs call the calendarList.list method. If you want...",
+          "required": true
+        },
+        {
+          "name": "conferenceDataVersion",
+          "type": "int",
+          "location": "query",
+          "description": "Version number of conference data supported by the API client."
+        },
+        {
+          "name": "supportsAttachments",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether API client performing operation supports event attachments. Optional. The default is False."
+        },
+        {
+          "name": "anyoneCanAddSelf",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether anyone can invite themselves to the event (deprecated). Optional. The default is False."
+        },
+        {
+          "name": "attachments",
+          "type": "array",
+          "location": "body",
+          "description": "File attachments for the event."
+        },
+        {
+          "name": "attendees",
+          "type": "array",
+          "location": "body",
+          "description": "The attendees of the event."
+        },
+        {
+          "name": "attendeesOmitted",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether attendees may have been omitted from the event's representation."
+        },
+        {
+          "name": "colorId",
+          "type": "string",
+          "location": "body",
+          "description": "The color of the event. This is an ID referring to an entry in the event section of the..."
+        },
+        {
+          "name": "conferenceData",
+          "type": "object",
+          "location": "body",
+          "description": "Conference data"
+        },
+        {
+          "name": "created",
+          "type": "string",
+          "location": "body",
+          "description": "Creation time of the event (as a RFC3339 timestamp). Read-only."
+        },
+        {
+          "name": "creator",
+          "type": "object",
+          "location": "body",
+          "description": "The creator of the event. Read-only."
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description of the event. Can contain HTML. Optional."
+        },
+        {
+          "name": "end",
+          "type": "object",
+          "location": "body",
+          "description": "End"
+        },
+        {
+          "name": "endTimeUnspecified",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the end time is actually unspecified."
+        },
+        {
+          "name": "etag",
+          "type": "string",
+          "location": "body",
+          "description": "ETag of the resource."
+        },
+        {
+          "name": "eventType",
+          "type": "string",
+          "location": "body",
+          "description": "Specific type of the event."
+        },
+        {
+          "name": "extendedProperties",
+          "type": "object",
+          "location": "body",
+          "description": "Extended properties of the event."
+        },
+        {
+          "name": "gadget",
+          "type": "object",
+          "location": "body",
+          "description": "A gadget that extends this event."
+        },
+        {
+          "name": "guestsCanInviteOthers",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether attendees other than the organizer can invite others to the event."
+        },
+        {
+          "name": "guestsCanModify",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether attendees other than the organizer can modify the event. Optional. The default is False."
+        },
+        {
+          "name": "guestsCanSeeOtherGuests",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether attendees other than the organizer can see who the event's attendees are."
+        },
+        {
+          "name": "hangoutLink",
+          "type": "string",
+          "location": "body",
+          "description": "An absolute link to the Google Hangout associated with this event. Read-only."
+        },
+        {
+          "name": "htmlLink",
+          "type": "string",
+          "location": "body",
+          "description": "An absolute link to this event in the Google Calendar Web UI. Read-only."
+        },
+        {
+          "name": "iCalUID",
+          "type": "string",
+          "location": "body",
+          "description": "Event unique identifier as defined in RFC5545."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Opaque identifier of the event."
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "Type of the resource ('calendar#event')."
+        },
+        {
+          "name": "location",
+          "type": "string",
+          "location": "body",
+          "description": "Geographic location of the event as free-form text. Optional."
+        },
+        {
+          "name": "locked",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether this is a locked event copy where no changes can be made to the main event fields..."
+        },
+        {
+          "name": "organizer",
+          "type": "object",
+          "location": "body",
+          "description": "The organizer of the event."
+        },
+        {
+          "name": "originalStartTime",
+          "type": "object",
+          "location": "body",
+          "description": "Original start time"
+        },
+        {
+          "name": "privateCopy",
+          "type": "bool",
+          "location": "body",
+          "description": "If set to True, Event propagation is disabled."
+        },
+        {
+          "name": "recurrence",
+          "type": "array",
+          "location": "body",
+          "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545."
+        },
+        {
+          "name": "recurringEventId",
+          "type": "string",
+          "location": "body",
+          "description": "For an instance of a recurring event, this is the id of the recurring event to which this..."
+        },
+        {
+          "name": "reminders",
+          "type": "object",
+          "location": "body",
+          "description": "Information about the event's reminders for the authenticated user."
+        },
+        {
+          "name": "sequence",
+          "type": "int",
+          "location": "body",
+          "description": "Sequence number as per iCalendar."
+        },
+        {
+          "name": "source",
+          "type": "object",
+          "location": "body",
+          "description": "Source from which the event was created."
+        },
+        {
+          "name": "start",
+          "type": "object",
+          "location": "body",
+          "description": "Start"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Status of the event. Optional. Possible values are: - 'confirmed' - The event is confirmed...."
+        },
+        {
+          "name": "summary",
+          "type": "string",
+          "location": "body",
+          "description": "Title of the event."
+        },
+        {
+          "name": "transparency",
+          "type": "string",
+          "location": "body",
+          "description": "Whether the event blocks time on the calendar."
+        },
+        {
+          "name": "updated",
+          "type": "string",
+          "location": "body",
+          "description": "Last modification time of the event (as a RFC3339 timestamp). Read-only."
+        },
+        {
+          "name": "visibility",
+          "type": "string",
+          "location": "body",
+          "description": "Visibility of the event."
+        },
+        {
+          "name": "workingLocationProperties",
+          "type": "object",
+          "location": "body",
+          "description": "Working location properties"
+        }
+      ]
+    },
+    {
+      "name": "calendars_events_insert",
+      "description": "Creates an event. Required: calendarId. Optional: conferenceDataVersion, maxAttendees, sendNotifications (plus 42 more). Returns the new Event.",
+      "method": "POST",
+      "path": "/calendars/{calendarId}/events",
+      "params": [
+        {
+          "name": "calendarId",
+          "type": "string",
+          "location": "path",
+          "description": "Calendar identifier. To retrieve calendar IDs call the calendarList.list method. If you want...",
+          "required": true
+        },
+        {
+          "name": "conferenceDataVersion",
+          "type": "int",
+          "location": "query",
+          "description": "Version number of conference data supported by the API client."
+        },
+        {
+          "name": "maxAttendees",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of attendees to include in the response."
+        },
+        {
+          "name": "sendNotifications",
+          "type": "bool",
+          "location": "query",
+          "description": "Deprecated. Please use sendUpdates instead. Whether to send notifications about the creation of the new event. Note that some emails might still be sent even if you set the value to false. The default is false."
+        },
+        {
+          "name": "sendUpdates",
+          "type": "string",
+          "location": "query",
+          "description": "Whether to send notifications about the creation of the new event. Note that some emails might still be sent. The default is false."
+        },
+        {
+          "name": "supportsAttachments",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether API client performing operation supports event attachments. Optional. The default is False."
+        },
+        {
+          "name": "anyoneCanAddSelf",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether anyone can invite themselves to the event (deprecated). Optional. The default is False."
+        },
+        {
+          "name": "attachments",
+          "type": "array",
+          "location": "body",
+          "description": "File attachments for the event."
+        },
+        {
+          "name": "attendees",
+          "type": "array",
+          "location": "body",
+          "description": "The attendees of the event."
+        },
+        {
+          "name": "attendeesOmitted",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether attendees may have been omitted from the event's representation."
+        },
+        {
+          "name": "colorId",
+          "type": "string",
+          "location": "body",
+          "description": "The color of the event. This is an ID referring to an entry in the event section of the..."
+        },
+        {
+          "name": "conferenceData",
+          "type": "object",
+          "location": "body",
+          "description": "Conference data"
+        },
+        {
+          "name": "created",
+          "type": "string",
+          "location": "body",
+          "description": "Creation time of the event (as a RFC3339 timestamp). Read-only."
+        },
+        {
+          "name": "creator",
+          "type": "object",
+          "location": "body",
+          "description": "The creator of the event. Read-only."
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description of the event. Can contain HTML. Optional."
+        },
+        {
+          "name": "end",
+          "type": "object",
+          "location": "body",
+          "description": "End"
+        },
+        {
+          "name": "endTimeUnspecified",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the end time is actually unspecified."
+        },
+        {
+          "name": "etag",
+          "type": "string",
+          "location": "body",
+          "description": "ETag of the resource."
+        },
+        {
+          "name": "eventType",
+          "type": "string",
+          "location": "body",
+          "description": "Specific type of the event."
+        },
+        {
+          "name": "extendedProperties",
+          "type": "object",
+          "location": "body",
+          "description": "Extended properties of the event."
+        },
+        {
+          "name": "gadget",
+          "type": "object",
+          "location": "body",
+          "description": "A gadget that extends this event."
+        },
+        {
+          "name": "guestsCanInviteOthers",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether attendees other than the organizer can invite others to the event."
+        },
+        {
+          "name": "guestsCanModify",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether attendees other than the organizer can modify the event. Optional. The default is False."
+        },
+        {
+          "name": "guestsCanSeeOtherGuests",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether attendees other than the organizer can see who the event's attendees are."
+        },
+        {
+          "name": "hangoutLink",
+          "type": "string",
+          "location": "body",
+          "description": "An absolute link to the Google Hangout associated with this event. Read-only."
+        },
+        {
+          "name": "htmlLink",
+          "type": "string",
+          "location": "body",
+          "description": "An absolute link to this event in the Google Calendar Web UI. Read-only."
+        },
+        {
+          "name": "iCalUID",
+          "type": "string",
+          "location": "body",
+          "description": "Event unique identifier as defined in RFC5545."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Opaque identifier of the event."
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "Type of the resource ('calendar#event')."
+        },
+        {
+          "name": "location",
+          "type": "string",
+          "location": "body",
+          "description": "Geographic location of the event as free-form text. Optional."
+        },
+        {
+          "name": "locked",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether this is a locked event copy where no changes can be made to the main event fields..."
+        },
+        {
+          "name": "organizer",
+          "type": "object",
+          "location": "body",
+          "description": "The organizer of the event."
+        },
+        {
+          "name": "originalStartTime",
+          "type": "object",
+          "location": "body",
+          "description": "Original start time"
+        },
+        {
+          "name": "privateCopy",
+          "type": "bool",
+          "location": "body",
+          "description": "If set to True, Event propagation is disabled."
+        },
+        {
+          "name": "recurrence",
+          "type": "array",
+          "location": "body",
+          "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545."
+        },
+        {
+          "name": "recurringEventId",
+          "type": "string",
+          "location": "body",
+          "description": "For an instance of a recurring event, this is the id of the recurring event to which this..."
+        },
+        {
+          "name": "reminders",
+          "type": "object",
+          "location": "body",
+          "description": "Information about the event's reminders for the authenticated user."
+        },
+        {
+          "name": "sequence",
+          "type": "int",
+          "location": "body",
+          "description": "Sequence number as per iCalendar."
+        },
+        {
+          "name": "source",
+          "type": "object",
+          "location": "body",
+          "description": "Source from which the event was created."
+        },
+        {
+          "name": "start",
+          "type": "object",
+          "location": "body",
+          "description": "Start"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Status of the event. Optional. Possible values are: - 'confirmed' - The event is confirmed...."
+        },
+        {
+          "name": "summary",
+          "type": "string",
+          "location": "body",
+          "description": "Title of the event."
+        },
+        {
+          "name": "transparency",
+          "type": "string",
+          "location": "body",
+          "description": "Whether the event blocks time on the calendar."
+        },
+        {
+          "name": "updated",
+          "type": "string",
+          "location": "body",
+          "description": "Last modification time of the event (as a RFC3339 timestamp). Read-only."
+        },
+        {
+          "name": "visibility",
+          "type": "string",
+          "location": "body",
+          "description": "Visibility of the event."
+        },
+        {
+          "name": "workingLocationProperties",
+          "type": "object",
+          "location": "body",
+          "description": "Working location properties"
+        }
+      ]
+    },
+    {
+      "name": "calendars_events_instances",
+      "description": "Returns instances of the specified recurring event. Required: calendarId, eventId. Optional: alwaysIncludeEmail, maxAttendees, maxResults (plus 6 more).",
+      "method": "GET",
+      "path": "/calendars/{calendarId}/events/{eventId}/instances",
+      "params": [
+        {
+          "name": "calendarId",
+          "type": "string",
+          "location": "path",
+          "description": "Calendar identifier. To retrieve calendar IDs call the calendarList.list method. If you want...",
+          "required": true
+        },
+        {
+          "name": "eventId",
+          "type": "string",
+          "location": "path",
+          "description": "Recurring event identifier.",
+          "required": true
+        },
+        {
+          "name": "alwaysIncludeEmail",
+          "type": "bool",
+          "location": "query",
+          "description": "Deprecated and ignored. A value will always be returned in the email field for the..."
+        },
+        {
+          "name": "maxAttendees",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of attendees to include in the response."
+        },
+        {
+          "name": "maxResults",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of events returned on one result page. By default the value is 250 events. The page size can never be larger than 2500 events. Optional."
+        },
+        {
+          "name": "originalStart",
+          "type": "string",
+          "location": "query",
+          "description": "The original start time of the instance in the result. Optional."
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "Token specifying which result page to return. Optional."
+        },
+        {
+          "name": "showDeleted",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether to include deleted events (with status equals 'cancelled') in the result. Cancelled instances of recurring events will still be included if singleEvents is False. Optional. The default is False."
+        },
+        {
+          "name": "timeMax",
+          "type": "string",
+          "location": "query",
+          "description": "Upper bound (exclusive) for an event's start time to filter by. Optional. The default is not to filter by start time. Must be an RFC3339 timestamp with mandatory time zone offset."
+        },
+        {
+          "name": "timeMin",
+          "type": "string",
+          "location": "query",
+          "description": "Lower bound (inclusive) for an event's end time to filter by. Optional. The default is not to filter by end time. Must be an RFC3339 timestamp with mandatory time zone offset."
+        },
+        {
+          "name": "timeZone",
+          "type": "string",
+          "location": "query",
+          "description": "Time zone used in the response. Optional. The default is the time zone of the calendar."
+        }
+      ]
+    },
+    {
+      "name": "calendars_events_list",
+      "description": "Returns events on the specified calendar. Required: calendarId. Optional: alwaysIncludeEmail, eventTypes, iCalUID (plus 15 more).",
+      "method": "GET",
+      "path": "/calendars/{calendarId}/events",
+      "params": [
+        {
+          "name": "calendarId",
+          "type": "string",
+          "location": "path",
+          "description": "Calendar identifier. To retrieve calendar IDs call the calendarList.list method. If you want...",
+          "required": true
+        },
+        {
+          "name": "alwaysIncludeEmail",
+          "type": "bool",
+          "location": "query",
+          "description": "Deprecated and ignored. A value will always be returned in the email field for the..."
+        },
+        {
+          "name": "eventTypes",
+          "type": "array",
+          "location": "query",
+          "description": "Event types to return. Optional. Possible values are: - 'default' - 'focusTime' - 'outOfOffice'This parameter can be repeated multiple times to return events of different types. Currently, this is the only allowed value for this field: - ['default', 'focusTime', 'outOfOffice'] This value will be the default. If you're enrolled in the Working Location developer preview program, in addition to the default value above you can also set the 'workingLocation' event type: - ['default', 'focusTime', 'outOfOffice', 'workingLocation'] - ['workingLocation'] Additional combinations of these 4 event types will be made available in later releases. Developer Preview."
+        },
+        {
+          "name": "iCalUID",
+          "type": "string",
+          "location": "query",
+          "description": "Specifies an event ID in the iCalendar format to be provided in the response. Optional. Use this if you want to search for an event by its iCalendar ID."
+        },
+        {
+          "name": "maxAttendees",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of attendees to include in the response."
+        },
+        {
+          "name": "maxResults",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of events returned on one result page. The number of events in the resulting page may be less than this value, or none at all, even if there are more events matching the query. Incomplete pages can be detected by a non-empty nextPageToken field in the response. By default the value is 250 events. The page size can never be larger than 2500 events. Optional."
+        },
+        {
+          "name": "orderBy",
+          "type": "string",
+          "location": "query",
+          "description": "The order of the events returned in the result. Optional. The default is an unspecified, stable order."
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "Token specifying which result page to return. Optional."
+        },
+        {
+          "name": "privateExtendedProperty",
+          "type": "array",
+          "location": "query",
+          "description": "Extended properties constraint specified as propertyName=value. Matches only private properties. This parameter might be repeated multiple times to return events that match all given constraints."
+        },
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Free text search terms to find events that match these terms in the following fields: summary, description, location, attendee's displayName, attendee's email. Optional."
+        },
+        {
+          "name": "sharedExtendedProperty",
+          "type": "array",
+          "location": "query",
+          "description": "Extended properties constraint specified as propertyName=value. Matches only shared properties. This parameter might be repeated multiple times to return events that match all given constraints."
+        },
+        {
+          "name": "showDeleted",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether to include deleted events (with status equals 'cancelled') in the result. Cancelled instances of recurring events (but not the underlying recurring event) will still be included if showDeleted and singleEvents are both False. If showDeleted and singleEvents are both True, only single instances of deleted events (but not the underlying recurring events) are returned. Optional. The default is False."
+        },
+        {
+          "name": "showHiddenInvitations",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether to include hidden invitations in the result. Optional. The default is False."
+        },
+        {
+          "name": "singleEvents",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether to expand recurring events into instances and only return single one-off events and instances of recurring events, but not the underlying recurring events themselves. Optional. The default is False."
+        },
+        {
+          "name": "syncToken",
+          "type": "string",
+          "location": "query",
+          "description": "Token obtained from the nextSyncToken field returned on the last page of results from the previous list request. It makes the result of this list request contain only entries that have changed since then. All events deleted since the previous list request will always be in the result set and it is not allowed to set showDeleted to False. There are several query parameters that cannot be specified together with nextSyncToken to ensure consistency of the client state. These are: - iCalUID - orderBy - privateExtendedProperty - q - sharedExtendedProperty - timeMin - timeMax - updatedMin If the syncToken expires, the server will respond with a 410 GONE response code and the client should clear its storage and perform a full synchronization without any syncToken. Learn more about incremental synchronization. Optional. The default is to return all entries."
+        },
+        {
+          "name": "timeMax",
+          "type": "string",
+          "location": "query",
+          "description": "Upper bound (exclusive) for an event's start time to filter by. Optional. The default is not to filter by start time. Must be an RFC3339 timestamp with mandatory time zone offset, for example, 2011-06-03T10:00:00-07:00, 2011-06-03T10:00:00Z. Milliseconds may be provided but are ignored. If timeMin is set, timeMax must be greater than timeMin."
+        },
+        {
+          "name": "timeMin",
+          "type": "string",
+          "location": "query",
+          "description": "Lower bound (exclusive) for an event's end time to filter by. Optional. The default is not to filter by end time. Must be an RFC3339 timestamp with mandatory time zone offset, for example, 2011-06-03T10:00:00-07:00, 2011-06-03T10:00:00Z. Milliseconds may be provided but are ignored. If timeMax is set, timeMin must be smaller than timeMax."
+        },
+        {
+          "name": "timeZone",
+          "type": "string",
+          "location": "query",
+          "description": "Time zone used in the response. Optional. The default is the time zone of the calendar."
+        },
+        {
+          "name": "updatedMin",
+          "type": "string",
+          "location": "query",
+          "description": "Lower bound for an event's last modification time (as a RFC3339 timestamp) to filter by. When specified, entries deleted since this time will always be included regardless of showDeleted. Optional. The default is not to filter by last modification time."
+        }
+      ]
+    },
+    {
+      "name": "calendars_events_move",
+      "description": "Moves an event to another calendar, i.e. changes an event's organizer. Required: calendarId, eventId, destination. Optional: sendNotifications, sendUpdates. Returns the new Event.",
+      "method": "POST",
+      "path": "/calendars/{calendarId}/events/{eventId}/move",
+      "params": [
+        {
+          "name": "calendarId",
+          "type": "string",
+          "location": "path",
+          "description": "Calendar identifier of the source calendar where the event currently is on.",
+          "required": true
+        },
+        {
+          "name": "eventId",
+          "type": "string",
+          "location": "path",
+          "description": "Event identifier.",
+          "required": true
+        },
+        {
+          "name": "destination",
+          "type": "string",
+          "location": "query",
+          "description": "Calendar identifier of the target calendar where the event is to be moved to.",
+          "required": true
+        },
+        {
+          "name": "sendNotifications",
+          "type": "bool",
+          "location": "query",
+          "description": "Deprecated. Please use sendUpdates instead. Whether to send notifications about the change of the event's organizer. Note that some emails might still be sent even if you set the value to false. The default is false."
+        },
+        {
+          "name": "sendUpdates",
+          "type": "string",
+          "location": "query",
+          "description": "Guests who should receive notifications about the change of the event's organizer."
+        }
+      ]
+    },
+    {
+      "name": "calendars_events_patch",
+      "description": "Updates an event. This method supports patch semantics. Required: calendarId, eventId. Optional: alwaysIncludeEmail, conferenceDataVersion, maxAttendees (plus 43 more). Returns the updated Event.",
+      "method": "PATCH",
+      "path": "/calendars/{calendarId}/events/{eventId}",
+      "params": [
+        {
+          "name": "calendarId",
+          "type": "string",
+          "location": "path",
+          "description": "Calendar identifier. To retrieve calendar IDs call the calendarList.list method. If you want...",
+          "required": true
+        },
+        {
+          "name": "eventId",
+          "type": "string",
+          "location": "path",
+          "description": "Event identifier.",
+          "required": true
+        },
+        {
+          "name": "alwaysIncludeEmail",
+          "type": "bool",
+          "location": "query",
+          "description": "Deprecated and ignored. A value will always be returned in the email field for the..."
+        },
+        {
+          "name": "conferenceDataVersion",
+          "type": "int",
+          "location": "query",
+          "description": "Version number of conference data supported by the API client."
+        },
+        {
+          "name": "maxAttendees",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of attendees to include in the response."
+        },
+        {
+          "name": "sendNotifications",
+          "type": "bool",
+          "location": "query",
+          "description": "Deprecated. Please use sendUpdates instead. Whether to send notifications about the event update (for example, description changes, etc.). Note that some emails might still be sent even if you set the value to false. The default is false."
+        },
+        {
+          "name": "sendUpdates",
+          "type": "string",
+          "location": "query",
+          "description": "Guests who should receive notifications about the event update (for example, title changes, etc.)."
+        },
+        {
+          "name": "supportsAttachments",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether API client performing operation supports event attachments. Optional. The default is False."
+        },
+        {
+          "name": "anyoneCanAddSelf",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether anyone can invite themselves to the event (deprecated). Optional. The default is False."
+        },
+        {
+          "name": "attachments",
+          "type": "array",
+          "location": "body",
+          "description": "File attachments for the event."
+        },
+        {
+          "name": "attendees",
+          "type": "array",
+          "location": "body",
+          "description": "The attendees of the event."
+        },
+        {
+          "name": "attendeesOmitted",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether attendees may have been omitted from the event's representation."
+        },
+        {
+          "name": "colorId",
+          "type": "string",
+          "location": "body",
+          "description": "The color of the event. This is an ID referring to an entry in the event section of the..."
+        },
+        {
+          "name": "conferenceData",
+          "type": "object",
+          "location": "body",
+          "description": "Conference data"
+        },
+        {
+          "name": "created",
+          "type": "string",
+          "location": "body",
+          "description": "Creation time of the event (as a RFC3339 timestamp). Read-only."
+        },
+        {
+          "name": "creator",
+          "type": "object",
+          "location": "body",
+          "description": "The creator of the event. Read-only."
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description of the event. Can contain HTML. Optional."
+        },
+        {
+          "name": "end",
+          "type": "object",
+          "location": "body",
+          "description": "End"
+        },
+        {
+          "name": "endTimeUnspecified",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the end time is actually unspecified."
+        },
+        {
+          "name": "etag",
+          "type": "string",
+          "location": "body",
+          "description": "ETag of the resource."
+        },
+        {
+          "name": "eventType",
+          "type": "string",
+          "location": "body",
+          "description": "Specific type of the event."
+        },
+        {
+          "name": "extendedProperties",
+          "type": "object",
+          "location": "body",
+          "description": "Extended properties of the event."
+        },
+        {
+          "name": "gadget",
+          "type": "object",
+          "location": "body",
+          "description": "A gadget that extends this event."
+        },
+        {
+          "name": "guestsCanInviteOthers",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether attendees other than the organizer can invite others to the event."
+        },
+        {
+          "name": "guestsCanModify",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether attendees other than the organizer can modify the event. Optional. The default is False."
+        },
+        {
+          "name": "guestsCanSeeOtherGuests",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether attendees other than the organizer can see who the event's attendees are."
+        },
+        {
+          "name": "hangoutLink",
+          "type": "string",
+          "location": "body",
+          "description": "An absolute link to the Google Hangout associated with this event. Read-only."
+        },
+        {
+          "name": "htmlLink",
+          "type": "string",
+          "location": "body",
+          "description": "An absolute link to this event in the Google Calendar Web UI. Read-only."
+        },
+        {
+          "name": "iCalUID",
+          "type": "string",
+          "location": "body",
+          "description": "Event unique identifier as defined in RFC5545."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Opaque identifier of the event."
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "Type of the resource ('calendar#event')."
+        },
+        {
+          "name": "location",
+          "type": "string",
+          "location": "body",
+          "description": "Geographic location of the event as free-form text. Optional."
+        },
+        {
+          "name": "locked",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether this is a locked event copy where no changes can be made to the main event fields..."
+        },
+        {
+          "name": "organizer",
+          "type": "object",
+          "location": "body",
+          "description": "The organizer of the event."
+        },
+        {
+          "name": "originalStartTime",
+          "type": "object",
+          "location": "body",
+          "description": "Original start time"
+        },
+        {
+          "name": "privateCopy",
+          "type": "bool",
+          "location": "body",
+          "description": "If set to True, Event propagation is disabled."
+        },
+        {
+          "name": "recurrence",
+          "type": "array",
+          "location": "body",
+          "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545."
+        },
+        {
+          "name": "recurringEventId",
+          "type": "string",
+          "location": "body",
+          "description": "For an instance of a recurring event, this is the id of the recurring event to which this..."
+        },
+        {
+          "name": "reminders",
+          "type": "object",
+          "location": "body",
+          "description": "Information about the event's reminders for the authenticated user."
+        },
+        {
+          "name": "sequence",
+          "type": "int",
+          "location": "body",
+          "description": "Sequence number as per iCalendar."
+        },
+        {
+          "name": "source",
+          "type": "object",
+          "location": "body",
+          "description": "Source from which the event was created."
+        },
+        {
+          "name": "start",
+          "type": "object",
+          "location": "body",
+          "description": "Start"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Status of the event. Optional. Possible values are: - 'confirmed' - The event is confirmed...."
+        },
+        {
+          "name": "summary",
+          "type": "string",
+          "location": "body",
+          "description": "Title of the event."
+        },
+        {
+          "name": "transparency",
+          "type": "string",
+          "location": "body",
+          "description": "Whether the event blocks time on the calendar."
+        },
+        {
+          "name": "updated",
+          "type": "string",
+          "location": "body",
+          "description": "Last modification time of the event (as a RFC3339 timestamp). Read-only."
+        },
+        {
+          "name": "visibility",
+          "type": "string",
+          "location": "body",
+          "description": "Visibility of the event."
+        },
+        {
+          "name": "workingLocationProperties",
+          "type": "object",
+          "location": "body",
+          "description": "Working location properties"
+        }
+      ]
+    },
+    {
+      "name": "calendars_events_quick-add",
+      "description": "Creates an event based on a simple text string. Required: calendarId, text. Optional: sendNotifications, sendUpdates. Returns the new Event.",
+      "method": "POST",
+      "path": "/calendars/{calendarId}/events/quickAdd",
+      "params": [
+        {
+          "name": "calendarId",
+          "type": "string",
+          "location": "path",
+          "description": "Calendar identifier. To retrieve calendar IDs call the calendarList.list method. If you want...",
+          "required": true
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "query",
+          "description": "The text describing the event to be created.",
+          "required": true
+        },
+        {
+          "name": "sendNotifications",
+          "type": "bool",
+          "location": "query",
+          "description": "Deprecated. Please use sendUpdates instead. Whether to send notifications about the creation of the event. Note that some emails might still be sent even if you set the value to false. The default is false."
+        },
+        {
+          "name": "sendUpdates",
+          "type": "string",
+          "location": "query",
+          "description": "Guests who should receive notifications about the creation of the new event."
+        }
+      ]
+    },
+    {
+      "name": "calendars_events_update",
+      "description": "Updates an event. Required: calendarId, eventId. Optional: alwaysIncludeEmail, conferenceDataVersion, maxAttendees (plus 43 more). Returns the updated Event.",
+      "method": "PUT",
+      "path": "/calendars/{calendarId}/events/{eventId}",
+      "params": [
+        {
+          "name": "calendarId",
+          "type": "string",
+          "location": "path",
+          "description": "Calendar identifier. To retrieve calendar IDs call the calendarList.list method. If you want...",
+          "required": true
+        },
+        {
+          "name": "eventId",
+          "type": "string",
+          "location": "path",
+          "description": "Event identifier.",
+          "required": true
+        },
+        {
+          "name": "alwaysIncludeEmail",
+          "type": "bool",
+          "location": "query",
+          "description": "Deprecated and ignored. A value will always be returned in the email field for the..."
+        },
+        {
+          "name": "conferenceDataVersion",
+          "type": "int",
+          "location": "query",
+          "description": "Version number of conference data supported by the API client."
+        },
+        {
+          "name": "maxAttendees",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of attendees to include in the response."
+        },
+        {
+          "name": "sendNotifications",
+          "type": "bool",
+          "location": "query",
+          "description": "Deprecated. Please use sendUpdates instead. Whether to send notifications about the event update (for example, description changes, etc.). Note that some emails might still be sent even if you set the value to false. The default is false."
+        },
+        {
+          "name": "sendUpdates",
+          "type": "string",
+          "location": "query",
+          "description": "Guests who should receive notifications about the event update (for example, title changes, etc.)."
+        },
+        {
+          "name": "supportsAttachments",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether API client performing operation supports event attachments. Optional. The default is False."
+        },
+        {
+          "name": "anyoneCanAddSelf",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether anyone can invite themselves to the event (deprecated). Optional. The default is False."
+        },
+        {
+          "name": "attachments",
+          "type": "array",
+          "location": "body",
+          "description": "File attachments for the event."
+        },
+        {
+          "name": "attendees",
+          "type": "array",
+          "location": "body",
+          "description": "The attendees of the event."
+        },
+        {
+          "name": "attendeesOmitted",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether attendees may have been omitted from the event's representation."
+        },
+        {
+          "name": "colorId",
+          "type": "string",
+          "location": "body",
+          "description": "The color of the event. This is an ID referring to an entry in the event section of the..."
+        },
+        {
+          "name": "conferenceData",
+          "type": "object",
+          "location": "body",
+          "description": "Conference data"
+        },
+        {
+          "name": "created",
+          "type": "string",
+          "location": "body",
+          "description": "Creation time of the event (as a RFC3339 timestamp). Read-only."
+        },
+        {
+          "name": "creator",
+          "type": "object",
+          "location": "body",
+          "description": "The creator of the event. Read-only."
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description of the event. Can contain HTML. Optional."
+        },
+        {
+          "name": "end",
+          "type": "object",
+          "location": "body",
+          "description": "End"
+        },
+        {
+          "name": "endTimeUnspecified",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the end time is actually unspecified."
+        },
+        {
+          "name": "etag",
+          "type": "string",
+          "location": "body",
+          "description": "ETag of the resource."
+        },
+        {
+          "name": "eventType",
+          "type": "string",
+          "location": "body",
+          "description": "Specific type of the event."
+        },
+        {
+          "name": "extendedProperties",
+          "type": "object",
+          "location": "body",
+          "description": "Extended properties of the event."
+        },
+        {
+          "name": "gadget",
+          "type": "object",
+          "location": "body",
+          "description": "A gadget that extends this event."
+        },
+        {
+          "name": "guestsCanInviteOthers",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether attendees other than the organizer can invite others to the event."
+        },
+        {
+          "name": "guestsCanModify",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether attendees other than the organizer can modify the event. Optional. The default is False."
+        },
+        {
+          "name": "guestsCanSeeOtherGuests",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether attendees other than the organizer can see who the event's attendees are."
+        },
+        {
+          "name": "hangoutLink",
+          "type": "string",
+          "location": "body",
+          "description": "An absolute link to the Google Hangout associated with this event. Read-only."
+        },
+        {
+          "name": "htmlLink",
+          "type": "string",
+          "location": "body",
+          "description": "An absolute link to this event in the Google Calendar Web UI. Read-only."
+        },
+        {
+          "name": "iCalUID",
+          "type": "string",
+          "location": "body",
+          "description": "Event unique identifier as defined in RFC5545."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Opaque identifier of the event."
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "Type of the resource ('calendar#event')."
+        },
+        {
+          "name": "location",
+          "type": "string",
+          "location": "body",
+          "description": "Geographic location of the event as free-form text. Optional."
+        },
+        {
+          "name": "locked",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether this is a locked event copy where no changes can be made to the main event fields..."
+        },
+        {
+          "name": "organizer",
+          "type": "object",
+          "location": "body",
+          "description": "The organizer of the event."
+        },
+        {
+          "name": "originalStartTime",
+          "type": "object",
+          "location": "body",
+          "description": "Original start time"
+        },
+        {
+          "name": "privateCopy",
+          "type": "bool",
+          "location": "body",
+          "description": "If set to True, Event propagation is disabled."
+        },
+        {
+          "name": "recurrence",
+          "type": "array",
+          "location": "body",
+          "description": "List of RRULE, EXRULE, RDATE and EXDATE lines for a recurring event, as specified in RFC5545."
+        },
+        {
+          "name": "recurringEventId",
+          "type": "string",
+          "location": "body",
+          "description": "For an instance of a recurring event, this is the id of the recurring event to which this..."
+        },
+        {
+          "name": "reminders",
+          "type": "object",
+          "location": "body",
+          "description": "Information about the event's reminders for the authenticated user."
+        },
+        {
+          "name": "sequence",
+          "type": "int",
+          "location": "body",
+          "description": "Sequence number as per iCalendar."
+        },
+        {
+          "name": "source",
+          "type": "object",
+          "location": "body",
+          "description": "Source from which the event was created."
+        },
+        {
+          "name": "start",
+          "type": "object",
+          "location": "body",
+          "description": "Start"
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "body",
+          "description": "Status of the event. Optional. Possible values are: - 'confirmed' - The event is confirmed...."
+        },
+        {
+          "name": "summary",
+          "type": "string",
+          "location": "body",
+          "description": "Title of the event."
+        },
+        {
+          "name": "transparency",
+          "type": "string",
+          "location": "body",
+          "description": "Whether the event blocks time on the calendar."
+        },
+        {
+          "name": "updated",
+          "type": "string",
+          "location": "body",
+          "description": "Last modification time of the event (as a RFC3339 timestamp). Read-only."
+        },
+        {
+          "name": "visibility",
+          "type": "string",
+          "location": "body",
+          "description": "Visibility of the event."
+        },
+        {
+          "name": "workingLocationProperties",
+          "type": "object",
+          "location": "body",
+          "description": "Working location properties"
+        }
+      ]
+    },
+    {
+      "name": "calendars_events_watch",
+      "description": "Watch for changes to Events resources. Required: calendarId. Optional: alwaysIncludeEmail, eventTypes, iCalUID (plus 25 more). Returns the new Channel.",
+      "method": "POST",
+      "path": "/calendars/{calendarId}/events/watch",
+      "params": [
+        {
+          "name": "calendarId",
+          "type": "string",
+          "location": "path",
+          "description": "Calendar identifier. To retrieve calendar IDs call the calendarList.list method. If you want...",
+          "required": true
+        },
+        {
+          "name": "alwaysIncludeEmail",
+          "type": "bool",
+          "location": "query",
+          "description": "Deprecated and ignored. A value will always be returned in the email field for the..."
+        },
+        {
+          "name": "eventTypes",
+          "type": "array",
+          "location": "query",
+          "description": "Event types to return. Optional. Possible values are: - 'default' - 'focusTime' - 'outOfOffice'This parameter can be repeated multiple times to return events of different types. Currently, this is the only allowed value for this field: - ['default', 'focusTime', 'outOfOffice'] This value will be the default. If you're enrolled in the Working Location developer preview program, in addition to the default value above you can also set the 'workingLocation' event type: - ['default', 'focusTime', 'outOfOffice', 'workingLocation'] - ['workingLocation'] Additional combinations of these 4 event types will be made available in later releases. Developer Preview."
+        },
+        {
+          "name": "iCalUID",
+          "type": "string",
+          "location": "query",
+          "description": "Specifies an event ID in the iCalendar format to be provided in the response. Optional. Use this if you want to search for an event by its iCalendar ID."
+        },
+        {
+          "name": "maxAttendees",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum number of attendees to include in the response."
+        },
+        {
+          "name": "maxResults",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of events returned on one result page. The number of events in the resulting page may be less than this value, or none at all, even if there are more events matching the query. Incomplete pages can be detected by a non-empty nextPageToken field in the response. By default the value is 250 events. The page size can never be larger than 2500 events. Optional."
+        },
+        {
+          "name": "orderBy",
+          "type": "string",
+          "location": "query",
+          "description": "The order of the events returned in the result. Optional. The default is an unspecified, stable order."
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "Token specifying which result page to return. Optional."
+        },
+        {
+          "name": "privateExtendedProperty",
+          "type": "array",
+          "location": "query",
+          "description": "Extended properties constraint specified as propertyName=value. Matches only private properties. This parameter might be repeated multiple times to return events that match all given constraints."
+        },
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Free text search terms to find events that match these terms in the following fields: summary, description, location, attendee's displayName, attendee's email. Optional."
+        },
+        {
+          "name": "sharedExtendedProperty",
+          "type": "array",
+          "location": "query",
+          "description": "Extended properties constraint specified as propertyName=value. Matches only shared properties. This parameter might be repeated multiple times to return events that match all given constraints."
+        },
+        {
+          "name": "showDeleted",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether to include deleted events (with status equals 'cancelled') in the result. Cancelled instances of recurring events (but not the underlying recurring event) will still be included if showDeleted and singleEvents are both False. If showDeleted and singleEvents are both True, only single instances of deleted events (but not the underlying recurring events) are returned. Optional. The default is False."
+        },
+        {
+          "name": "showHiddenInvitations",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether to include hidden invitations in the result. Optional. The default is False."
+        },
+        {
+          "name": "singleEvents",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether to expand recurring events into instances and only return single one-off events and instances of recurring events, but not the underlying recurring events themselves. Optional. The default is False."
+        },
+        {
+          "name": "syncToken",
+          "type": "string",
+          "location": "query",
+          "description": "Token obtained from the nextSyncToken field returned on the last page of results from the previous list request. It makes the result of this list request contain only entries that have changed since then. All events deleted since the previous list request will always be in the result set and it is not allowed to set showDeleted to False. There are several query parameters that cannot be specified together with nextSyncToken to ensure consistency of the client state. These are: - iCalUID - orderBy - privateExtendedProperty - q - sharedExtendedProperty - timeMin - timeMax - updatedMin If the syncToken expires, the server will respond with a 410 GONE response code and the client should clear its storage and perform a full synchronization without any syncToken. Learn more about incremental synchronization. Optional. The default is to return all entries."
+        },
+        {
+          "name": "timeMax",
+          "type": "string",
+          "location": "query",
+          "description": "Upper bound (exclusive) for an event's start time to filter by. Optional. The default is not to filter by start time. Must be an RFC3339 timestamp with mandatory time zone offset, for example, 2011-06-03T10:00:00-07:00, 2011-06-03T10:00:00Z. Milliseconds may be provided but are ignored. If timeMin is set, timeMax must be greater than timeMin."
+        },
+        {
+          "name": "timeMin",
+          "type": "string",
+          "location": "query",
+          "description": "Lower bound (exclusive) for an event's end time to filter by. Optional. The default is not to filter by end time. Must be an RFC3339 timestamp with mandatory time zone offset, for example, 2011-06-03T10:00:00-07:00, 2011-06-03T10:00:00Z. Milliseconds may be provided but are ignored. If timeMax is set, timeMin must be smaller than timeMax."
+        },
+        {
+          "name": "timeZone",
+          "type": "string",
+          "location": "query",
+          "description": "Time zone used in the response. Optional. The default is the time zone of the calendar."
+        },
+        {
+          "name": "updatedMin",
+          "type": "string",
+          "location": "query",
+          "description": "Lower bound for an event's last modification time (as a RFC3339 timestamp) to filter by. When specified, entries deleted since this time will always be included regardless of showDeleted. Optional. The default is not to filter by last modification time."
+        },
+        {
+          "name": "address",
+          "type": "string",
+          "location": "body",
+          "description": "The address where notifications are delivered for this channel."
+        },
+        {
+          "name": "expiration",
+          "type": "string",
+          "location": "body",
+          "description": "Date and time of notification channel expiration, expressed as a Unix timestamp, in..."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "A UUID or similar unique string that identifies this channel."
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "Identifies this as a notification channel used to watch for changes to a resource, which is..."
+        },
+        {
+          "name": "params",
+          "type": "object",
+          "location": "body",
+          "description": "Additional parameters controlling delivery channel behavior. Optional."
+        },
+        {
+          "name": "payload",
+          "type": "bool",
+          "location": "body",
+          "description": "A Boolean value to indicate whether payload is wanted. Optional."
+        },
+        {
+          "name": "resourceId",
+          "type": "string",
+          "location": "body",
+          "description": "An opaque ID that identifies the resource being watched on this channel."
+        },
+        {
+          "name": "resourceUri",
+          "type": "string",
+          "location": "body",
+          "description": "A version-specific identifier for the watched resource."
+        },
+        {
+          "name": "token",
+          "type": "string",
+          "location": "body",
+          "description": "An arbitrary string delivered to the target address with each notification delivered over..."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "The type of delivery mechanism used for this channel."
+        }
+      ]
+    },
+    {
+      "name": "channels_stop",
+      "description": "Stop watching resources through this channel. Optional: address, expiration, id (plus 7 more).",
+      "method": "POST",
+      "path": "/channels/stop",
+      "params": [
+        {
+          "name": "address",
+          "type": "string",
+          "location": "body",
+          "description": "The address where notifications are delivered for this channel."
+        },
+        {
+          "name": "expiration",
+          "type": "string",
+          "location": "body",
+          "description": "Date and time of notification channel expiration, expressed as a Unix timestamp, in..."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "A UUID or similar unique string that identifies this channel."
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "Identifies this as a notification channel used to watch for changes to a resource, which is..."
+        },
+        {
+          "name": "params",
+          "type": "object",
+          "location": "body",
+          "description": "Additional parameters controlling delivery channel behavior. Optional."
+        },
+        {
+          "name": "payload",
+          "type": "bool",
+          "location": "body",
+          "description": "A Boolean value to indicate whether payload is wanted. Optional."
+        },
+        {
+          "name": "resourceId",
+          "type": "string",
+          "location": "body",
+          "description": "An opaque ID that identifies the resource being watched on this channel."
+        },
+        {
+          "name": "resourceUri",
+          "type": "string",
+          "location": "body",
+          "description": "A version-specific identifier for the watched resource."
+        },
+        {
+          "name": "token",
+          "type": "string",
+          "location": "body",
+          "description": "An arbitrary string delivered to the target address with each notification delivered over..."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "The type of delivery mechanism used for this channel."
+        }
+      ]
+    },
+    {
+      "name": "colors_calendar",
+      "description": "Returns the color definitions for calendars and events.",
+      "method": "GET",
+      "path": "/colors",
+      "params": []
+    },
+    {
+      "name": "free-busy_calendar-query",
+      "description": "Returns free/busy information for a set of calendars. Optional: calendarExpansionMax, groupExpansionMax, items (plus 3 more).",
+      "method": "POST",
+      "path": "/freeBusy",
+      "params": [
+        {
+          "name": "calendarExpansionMax",
+          "type": "int",
+          "location": "body",
+          "description": "Maximal number of calendars for which FreeBusy information is to be provided. Optional. Maximum value is 50."
+        },
+        {
+          "name": "groupExpansionMax",
+          "type": "int",
+          "location": "body",
+          "description": "Maximal number of calendar identifiers to be provided for a single group. Optional. An error is returned for a group with more members than this value. Maximum value is 100."
+        },
+        {
+          "name": "items",
+          "type": "array",
+          "location": "body",
+          "description": "List of calendars and/or groups to query."
+        },
+        {
+          "name": "timeMax",
+          "type": "string",
+          "location": "body",
+          "description": "The end of the interval for the query formatted as per RFC3339."
+        },
+        {
+          "name": "timeMin",
+          "type": "string",
+          "location": "body",
+          "description": "The start of the interval for the query formatted as per RFC3339."
+        },
+        {
+          "name": "timeZone",
+          "type": "string",
+          "location": "body",
+          "description": "Time zone used in the response. Optional. The default is UTC."
+        }
+      ]
+    },
+    {
+      "name": "users_calendar-calendar-list-delete",
+      "description": "Removes a calendar from the user's calendar list. Required: calendarId. Destructive.",
+      "method": "DELETE",
+      "path": "/users/me/calendarList/{calendarId}",
+      "params": [
+        {
+          "name": "calendarId",
+          "type": "string",
+          "location": "path",
+          "description": "Calendar identifier. To retrieve calendar IDs call the calendarList.list method. If you want...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_calendar-calendar-list-get",
+      "description": "Returns a calendar from the user's calendar list. Required: calendarId.",
+      "method": "GET",
+      "path": "/users/me/calendarList/{calendarId}",
+      "params": [
+        {
+          "name": "calendarId",
+          "type": "string",
+          "location": "path",
+          "description": "Calendar identifier. To retrieve calendar IDs call the calendarList.list method. If you want...",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_calendar-calendar-list-insert",
+      "description": "Inserts an existing calendar into the user's calendar list. Optional: colorRgbFormat, accessRole, backgroundColor (plus 17 more). Returns the new CalendarListEntry.",
+      "method": "POST",
+      "path": "/users/me/calendarList",
+      "params": [
+        {
+          "name": "colorRgbFormat",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether to use the foregroundColor and backgroundColor fields to write the calendar colors..."
+        },
+        {
+          "name": "accessRole",
+          "type": "string",
+          "location": "body",
+          "description": "The effective access role that the authenticated user has on the calendar."
+        },
+        {
+          "name": "backgroundColor",
+          "type": "string",
+          "location": "body",
+          "description": "The main color of the calendar in the hexadecimal format '#0088aa'."
+        },
+        {
+          "name": "colorId",
+          "type": "string",
+          "location": "body",
+          "description": "The color of the calendar."
+        },
+        {
+          "name": "conferenceProperties",
+          "type": "object",
+          "location": "body",
+          "description": "Conference properties"
+        },
+        {
+          "name": "defaultReminders",
+          "type": "array",
+          "location": "body",
+          "description": "The default reminders that the authenticated user has for this calendar."
+        },
+        {
+          "name": "deleted",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether this calendar list entry has been deleted from the calendar list."
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description of the calendar. Optional. Read-only."
+        },
+        {
+          "name": "etag",
+          "type": "string",
+          "location": "body",
+          "description": "ETag of the resource."
+        },
+        {
+          "name": "foregroundColor",
+          "type": "string",
+          "location": "body",
+          "description": "The foreground color of the calendar in the hexadecimal format '#ffffff'."
+        },
+        {
+          "name": "hidden",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the calendar has been hidden from the list."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Identifier of the calendar."
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "Type of the resource ('calendar#calendarListEntry')."
+        },
+        {
+          "name": "location",
+          "type": "string",
+          "location": "body",
+          "description": "Geographic location of the calendar as free-form text. Optional. Read-only."
+        },
+        {
+          "name": "notificationSettings",
+          "type": "object",
+          "location": "body",
+          "description": "The notifications that the authenticated user is receiving for this calendar."
+        },
+        {
+          "name": "primary",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the calendar is the primary calendar of the authenticated user."
+        },
+        {
+          "name": "selected",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the calendar content shows up in the calendar UI. Optional. The default is False."
+        },
+        {
+          "name": "summary",
+          "type": "string",
+          "location": "body",
+          "description": "Title of the calendar. Read-only."
+        },
+        {
+          "name": "summaryOverride",
+          "type": "string",
+          "location": "body",
+          "description": "The summary that the authenticated user has set for this calendar. Optional."
+        },
+        {
+          "name": "timeZone",
+          "type": "string",
+          "location": "body",
+          "description": "The time zone of the calendar. Optional. Read-only."
+        }
+      ]
+    },
+    {
+      "name": "users_calendar-calendar-list-list",
+      "description": "Returns the calendars on the user's calendar list. Optional: maxResults, minAccessRole, pageToken (plus 3 more).",
+      "method": "GET",
+      "path": "/users/me/calendarList",
+      "params": [
+        {
+          "name": "maxResults",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of entries returned on one result page."
+        },
+        {
+          "name": "minAccessRole",
+          "type": "string",
+          "location": "query",
+          "description": "The minimum access role for the user in the returned entries. Optional. The default is no restriction."
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "Token specifying which result page to return. Optional."
+        },
+        {
+          "name": "showDeleted",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether to include deleted calendar list entries in the result. Optional. The default is False."
+        },
+        {
+          "name": "showHidden",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether to show hidden entries. Optional. The default is False."
+        },
+        {
+          "name": "syncToken",
+          "type": "string",
+          "location": "query",
+          "description": "Token obtained from the nextSyncToken field returned on the last page of results from the previous list request. It makes the result of this list request contain only entries that have changed since then. If only read-only fields such as calendar properties or ACLs have changed, the entry won't be returned. All entries deleted and hidden since the previous list request will always be in the result set and it is not allowed to set showDeleted neither showHidden to False. To ensure client state consistency minAccessRole query parameter cannot be specified together with nextSyncToken. If the syncToken expires, the server will respond with a 410 GONE response code and the client should clear its storage and perform a full synchronization without any syncToken. Learn more about incremental synchronization. Optional. The default is to return all entries."
+        }
+      ]
+    },
+    {
+      "name": "users_calendar-calendar-list-patch",
+      "description": "Updates an existing calendar on the user's calendar list. This method supports patch semantics. Required: calendarId. Optional: colorRgbFormat, accessRole, backgroundColor (plus 17 more). Returns the updated CalendarListEntry.",
+      "method": "PATCH",
+      "path": "/users/me/calendarList/{calendarId}",
+      "params": [
+        {
+          "name": "calendarId",
+          "type": "string",
+          "location": "path",
+          "description": "Calendar identifier. To retrieve calendar IDs call the calendarList.list method. If you want...",
+          "required": true
+        },
+        {
+          "name": "colorRgbFormat",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether to use the foregroundColor and backgroundColor fields to write the calendar colors..."
+        },
+        {
+          "name": "accessRole",
+          "type": "string",
+          "location": "body",
+          "description": "The effective access role that the authenticated user has on the calendar."
+        },
+        {
+          "name": "backgroundColor",
+          "type": "string",
+          "location": "body",
+          "description": "The main color of the calendar in the hexadecimal format '#0088aa'."
+        },
+        {
+          "name": "colorId",
+          "type": "string",
+          "location": "body",
+          "description": "The color of the calendar."
+        },
+        {
+          "name": "conferenceProperties",
+          "type": "object",
+          "location": "body",
+          "description": "Conference properties"
+        },
+        {
+          "name": "defaultReminders",
+          "type": "array",
+          "location": "body",
+          "description": "The default reminders that the authenticated user has for this calendar."
+        },
+        {
+          "name": "deleted",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether this calendar list entry has been deleted from the calendar list."
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description of the calendar. Optional. Read-only."
+        },
+        {
+          "name": "etag",
+          "type": "string",
+          "location": "body",
+          "description": "ETag of the resource."
+        },
+        {
+          "name": "foregroundColor",
+          "type": "string",
+          "location": "body",
+          "description": "The foreground color of the calendar in the hexadecimal format '#ffffff'."
+        },
+        {
+          "name": "hidden",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the calendar has been hidden from the list."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Identifier of the calendar."
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "Type of the resource ('calendar#calendarListEntry')."
+        },
+        {
+          "name": "location",
+          "type": "string",
+          "location": "body",
+          "description": "Geographic location of the calendar as free-form text. Optional. Read-only."
+        },
+        {
+          "name": "notificationSettings",
+          "type": "object",
+          "location": "body",
+          "description": "The notifications that the authenticated user is receiving for this calendar."
+        },
+        {
+          "name": "primary",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the calendar is the primary calendar of the authenticated user."
+        },
+        {
+          "name": "selected",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the calendar content shows up in the calendar UI. Optional. The default is False."
+        },
+        {
+          "name": "summary",
+          "type": "string",
+          "location": "body",
+          "description": "Title of the calendar. Read-only."
+        },
+        {
+          "name": "summaryOverride",
+          "type": "string",
+          "location": "body",
+          "description": "The summary that the authenticated user has set for this calendar. Optional."
+        },
+        {
+          "name": "timeZone",
+          "type": "string",
+          "location": "body",
+          "description": "The time zone of the calendar. Optional. Read-only."
+        }
+      ]
+    },
+    {
+      "name": "users_calendar-calendar-list-update",
+      "description": "Updates an existing calendar on the user's calendar list. Required: calendarId. Optional: colorRgbFormat, accessRole, backgroundColor (plus 17 more). Returns the updated CalendarListEntry.",
+      "method": "PUT",
+      "path": "/users/me/calendarList/{calendarId}",
+      "params": [
+        {
+          "name": "calendarId",
+          "type": "string",
+          "location": "path",
+          "description": "Calendar identifier. To retrieve calendar IDs call the calendarList.list method. If you want...",
+          "required": true
+        },
+        {
+          "name": "colorRgbFormat",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether to use the foregroundColor and backgroundColor fields to write the calendar colors..."
+        },
+        {
+          "name": "accessRole",
+          "type": "string",
+          "location": "body",
+          "description": "The effective access role that the authenticated user has on the calendar."
+        },
+        {
+          "name": "backgroundColor",
+          "type": "string",
+          "location": "body",
+          "description": "The main color of the calendar in the hexadecimal format '#0088aa'."
+        },
+        {
+          "name": "colorId",
+          "type": "string",
+          "location": "body",
+          "description": "The color of the calendar."
+        },
+        {
+          "name": "conferenceProperties",
+          "type": "object",
+          "location": "body",
+          "description": "Conference properties"
+        },
+        {
+          "name": "defaultReminders",
+          "type": "array",
+          "location": "body",
+          "description": "The default reminders that the authenticated user has for this calendar."
+        },
+        {
+          "name": "deleted",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether this calendar list entry has been deleted from the calendar list."
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description of the calendar. Optional. Read-only."
+        },
+        {
+          "name": "etag",
+          "type": "string",
+          "location": "body",
+          "description": "ETag of the resource."
+        },
+        {
+          "name": "foregroundColor",
+          "type": "string",
+          "location": "body",
+          "description": "The foreground color of the calendar in the hexadecimal format '#ffffff'."
+        },
+        {
+          "name": "hidden",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the calendar has been hidden from the list."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "Identifier of the calendar."
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "Type of the resource ('calendar#calendarListEntry')."
+        },
+        {
+          "name": "location",
+          "type": "string",
+          "location": "body",
+          "description": "Geographic location of the calendar as free-form text. Optional. Read-only."
+        },
+        {
+          "name": "notificationSettings",
+          "type": "object",
+          "location": "body",
+          "description": "The notifications that the authenticated user is receiving for this calendar."
+        },
+        {
+          "name": "primary",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the calendar is the primary calendar of the authenticated user."
+        },
+        {
+          "name": "selected",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether the calendar content shows up in the calendar UI. Optional. The default is False."
+        },
+        {
+          "name": "summary",
+          "type": "string",
+          "location": "body",
+          "description": "Title of the calendar. Read-only."
+        },
+        {
+          "name": "summaryOverride",
+          "type": "string",
+          "location": "body",
+          "description": "The summary that the authenticated user has set for this calendar. Optional."
+        },
+        {
+          "name": "timeZone",
+          "type": "string",
+          "location": "body",
+          "description": "The time zone of the calendar. Optional. Read-only."
+        }
+      ]
+    },
+    {
+      "name": "users_calendar-calendar-list-watch",
+      "description": "Watch for changes to CalendarList resources. Optional: maxResults, minAccessRole, pageToken (plus 13 more). Returns the new Channel.",
+      "method": "POST",
+      "path": "/users/me/calendarList/watch",
+      "params": [
+        {
+          "name": "maxResults",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of entries returned on one result page."
+        },
+        {
+          "name": "minAccessRole",
+          "type": "string",
+          "location": "query",
+          "description": "The minimum access role for the user in the returned entries. Optional. The default is no restriction."
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "Token specifying which result page to return. Optional."
+        },
+        {
+          "name": "showDeleted",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether to include deleted calendar list entries in the result. Optional. The default is False."
+        },
+        {
+          "name": "showHidden",
+          "type": "bool",
+          "location": "query",
+          "description": "Whether to show hidden entries. Optional. The default is False."
+        },
+        {
+          "name": "syncToken",
+          "type": "string",
+          "location": "query",
+          "description": "Token obtained from the nextSyncToken field returned on the last page of results from the previous list request. It makes the result of this list request contain only entries that have changed since then. If only read-only fields such as calendar properties or ACLs have changed, the entry won't be returned. All entries deleted and hidden since the previous list request will always be in the result set and it is not allowed to set showDeleted neither showHidden to False. To ensure client state consistency minAccessRole query parameter cannot be specified together with nextSyncToken. If the syncToken expires, the server will respond with a 410 GONE response code and the client should clear its storage and perform a full synchronization without any syncToken. Learn more about incremental synchronization. Optional. The default is to return all entries."
+        },
+        {
+          "name": "address",
+          "type": "string",
+          "location": "body",
+          "description": "The address where notifications are delivered for this channel."
+        },
+        {
+          "name": "expiration",
+          "type": "string",
+          "location": "body",
+          "description": "Date and time of notification channel expiration, expressed as a Unix timestamp, in..."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "A UUID or similar unique string that identifies this channel."
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "Identifies this as a notification channel used to watch for changes to a resource, which is..."
+        },
+        {
+          "name": "params",
+          "type": "object",
+          "location": "body",
+          "description": "Additional parameters controlling delivery channel behavior. Optional."
+        },
+        {
+          "name": "payload",
+          "type": "bool",
+          "location": "body",
+          "description": "A Boolean value to indicate whether payload is wanted. Optional."
+        },
+        {
+          "name": "resourceId",
+          "type": "string",
+          "location": "body",
+          "description": "An opaque ID that identifies the resource being watched on this channel."
+        },
+        {
+          "name": "resourceUri",
+          "type": "string",
+          "location": "body",
+          "description": "A version-specific identifier for the watched resource."
+        },
+        {
+          "name": "token",
+          "type": "string",
+          "location": "body",
+          "description": "An arbitrary string delivered to the target address with each notification delivered over..."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "The type of delivery mechanism used for this channel."
+        }
+      ]
+    },
+    {
+      "name": "users_calendar-settings-get",
+      "description": "Returns a single user setting. Required: setting.",
+      "method": "GET",
+      "path": "/users/me/settings/{setting}",
+      "params": [
+        {
+          "name": "setting",
+          "type": "string",
+          "location": "path",
+          "description": "The id of the user setting.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_calendar-settings-list",
+      "description": "Returns all user settings for the authenticated user. Optional: maxResults, pageToken, syncToken.",
+      "method": "GET",
+      "path": "/users/me/settings",
+      "params": [
+        {
+          "name": "maxResults",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of entries returned on one result page."
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "Token specifying which result page to return. Optional."
+        },
+        {
+          "name": "syncToken",
+          "type": "string",
+          "location": "query",
+          "description": "Token obtained from the nextSyncToken field returned on the last page of results from the previous list request. It makes the result of this list request contain only entries that have changed since then. If the syncToken expires, the server will respond with a 410 GONE response code and the client should clear its storage and perform a full synchronization without any syncToken. Learn more about incremental synchronization. Optional. The default is to return all entries."
+        }
+      ]
+    },
+    {
+      "name": "users_calendar-settings-watch",
+      "description": "Watch for changes to Settings resources. Optional: maxResults, pageToken, syncToken (plus 10 more). Returns the new Channel.",
+      "method": "POST",
+      "path": "/users/me/settings/watch",
+      "params": [
+        {
+          "name": "maxResults",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum number of entries returned on one result page."
+        },
+        {
+          "name": "pageToken",
+          "type": "string",
+          "location": "query",
+          "description": "Token specifying which result page to return. Optional."
+        },
+        {
+          "name": "syncToken",
+          "type": "string",
+          "location": "query",
+          "description": "Token obtained from the nextSyncToken field returned on the last page of results from the previous list request. It makes the result of this list request contain only entries that have changed since then. If the syncToken expires, the server will respond with a 410 GONE response code and the client should clear its storage and perform a full synchronization without any syncToken. Learn more about incremental synchronization. Optional. The default is to return all entries."
+        },
+        {
+          "name": "address",
+          "type": "string",
+          "location": "body",
+          "description": "The address where notifications are delivered for this channel."
+        },
+        {
+          "name": "expiration",
+          "type": "string",
+          "location": "body",
+          "description": "Date and time of notification channel expiration, expressed as a Unix timestamp, in..."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "body",
+          "description": "A UUID or similar unique string that identifies this channel."
+        },
+        {
+          "name": "kind",
+          "type": "string",
+          "location": "body",
+          "description": "Identifies this as a notification channel used to watch for changes to a resource, which is..."
+        },
+        {
+          "name": "params",
+          "type": "object",
+          "location": "body",
+          "description": "Additional parameters controlling delivery channel behavior. Optional."
+        },
+        {
+          "name": "payload",
+          "type": "bool",
+          "location": "body",
+          "description": "A Boolean value to indicate whether payload is wanted. Optional."
+        },
+        {
+          "name": "resourceId",
+          "type": "string",
+          "location": "body",
+          "description": "An opaque ID that identifies the resource being watched on this channel."
+        },
+        {
+          "name": "resourceUri",
+          "type": "string",
+          "location": "body",
+          "description": "A version-specific identifier for the watched resource."
+        },
+        {
+          "name": "token",
+          "type": "string",
+          "location": "body",
+          "description": "An arbitrary string delivered to the target address with each notification delivered over..."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "The type of delivery mechanism used for this channel."
+        }
+      ]
+    }
+  ]
+}

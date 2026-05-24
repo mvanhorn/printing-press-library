@@ -1,11 +1,51 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-05-24T01:16:01.225211178Z",
-  "printing_press_version": "4.9.0",
+  "generated_at": "2026-05-24T18:47:13.310910123Z",
+  "printing_press_version": "4.14.0",
   "api_name": "google-calendar",
+  "display_name": "Google Calendar",
   "cli_name": "google-calendar-pp-cli",
+  "owner": "rubenasgaspar",
+  "printer": "rubenasgaspar",
+  "printer_name": "Rúben Gaspar",
   "spec_path": "/home/ruben/printing-press/.runstate/second-brain-f6d6bae5/runs/20260524-001616/research/google-calendar-openapi.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:28d5d7d5c3f67681a903ed403bc654448a3758c03e4c11963db0abedb6446fef",
   "run_id": "20260524-001616",
+  "description": "Every gcalcli and MCP feature, plus a local SQLite mirror that makes free-time search, conflict detection, and 'what changed' instant and offline.",
+  "mcp_binary": "google-calendar-pp-mcp",
+  "mcp_tool_count": 37,
+  "mcp_ready": "full",
+  "api_version": "v3",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "GOOGLE_CALENDAR_CLIENT_ID",
+    "GOOGLE_CALENDAR_CLIENT_SECRET",
+    "GOOGLE_CALENDAR_TOKEN"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "GOOGLE_CALENDAR_CLIENT_ID",
+      "kind": "auth_flow_input",
+      "required": true,
+      "sensitive": false,
+      "description": "OAuth2 client ID from your Google Cloud project. Used by `auth login`."
+    },
+    {
+      "name": "GOOGLE_CALENDAR_CLIENT_SECRET",
+      "kind": "auth_flow_input",
+      "required": true,
+      "sensitive": true,
+      "description": "OAuth2 client secret from your Google Cloud project. Used by `auth login`."
+    },
+    {
+      "name": "GOOGLE_CALENDAR_TOKEN",
+      "kind": "harvested",
+      "required": false,
+      "sensitive": true,
+      "description": "OAuth2 access token, populated automatically by `auth login`; you normally do not set this manually."
+    }
+  ],
   "novel_features": [
     {
       "name": "Free-slot finder",
@@ -43,7 +83,5 @@
       "description": "Summarize accepted/declined/tentative counts per event across a window."
     }
   ],
-  "printer": "rubenasgaspar",
-  "printer_name": "Rúben Gaspar",
   "category": "productivity"
 }

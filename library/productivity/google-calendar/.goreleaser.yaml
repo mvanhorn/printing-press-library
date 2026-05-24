@@ -42,10 +42,10 @@ checksum:
 brews:
   - name: google-calendar-pp-cli
     repository:
-      owner: rben-gaspar
+      owner: rubenasgaspar
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Every gcalcli and MCP feature, plus a local SQLite mirror that makes free-time search, conflict detection, and 'what..."
+    description: "Every gcalcli and MCP feature, plus a local SQLite mirror that makes free-time search, conflict detection"
     install: |
       bin.install "google-calendar-pp-cli"
       bin.install "google-calendar-pp-mcp"

@@ -1,0 +1,27 @@
+{
+  "manifest_version": "0.3",
+  "name": "google-calendar-pp-mcp",
+  "display_name": "Google Calendar",
+  "version": "4.14.0",
+  "description": "Every gcalcli and MCP feature, plus a local SQLite mirror that makes free-time search, conflict detection, and 'what changed' instant and offline.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/google-calendar-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/google-calendar-pp-mcp",
+      "args": []
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

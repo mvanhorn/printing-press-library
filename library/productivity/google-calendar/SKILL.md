@@ -1,6 +1,6 @@
 ---
 name: pp-google-calendar
-description: "Every gcalcli and MCP feature, plus a local SQLite mirror that makes free-time search, conflict detection, and 'what... Trigger phrases: `what's on my calendar today`, `find a free slot`, `am I double-booked this week`, `what changed on my calendar since`, `book a meeting on google calendar`, `use google-calendar`, `run google-calendar`."
+description: "Every gcalcli and MCP feature, plus a local SQLite mirror that makes free-time search, conflict detection Trigger phrases: `what's on my calendar today`, `find a free slot`, `am I double-booked this week`, `what changed on my calendar since`, `book a meeting on google calendar`, `use google-calendar`, `run google-calendar`."
 author: "Rúben Gaspar"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
@@ -20,7 +20,7 @@ This skill drives the `google-calendar-pp-cli` binary. **You must verify the CLI
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install google-calendar --cli-only
+   npx -y @mvanhorn/printing-press-library install google-calendar --cli-only
    ```
 2. Verify: `google-calendar-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -144,7 +144,6 @@ google-calendar-pp-cli which "<capability in your own words>"
 
 ## Recipes
 
-
 ### Book without double-booking
 
 ```bash
@@ -229,7 +228,7 @@ google-calendar-pp-cli feedback --stdin < notes.txt
 google-calendar-pp-cli feedback list --json --limit 10
 ```
 
-Entries are stored locally at `~/.google-calendar-pp-cli/feedback.jsonl`. They are never POSTed unless `GOOGLE_CALENDAR_FEEDBACK_ENDPOINT` is set AND either `--send` is passed or `GOOGLE_CALENDAR_FEEDBACK_AUTO_SEND=true`. Default behavior is local-only.
+Entries are stored locally at `~/.local/share/google-calendar-pp-cli/feedback.jsonl`. They are never POSTed unless `GOOGLE_CALENDAR_FEEDBACK_ENDPOINT` is set AND either `--send` is passed or `GOOGLE_CALENDAR_FEEDBACK_AUTO_SEND=true`. Default behavior is local-only.
 
 Write what *surprised* you, not a bug report. Short, specific, one line: that is the part that compounds.
 

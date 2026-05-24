@@ -142,7 +142,7 @@ func newBookCmd(flags *rootFlags) *cobra.Command {
 				params["sendUpdates"] = sendUpdates
 			}
 			path := "/calendars/" + url.PathEscape(cal) + "/events"
-			data, _, err := c.PostWithParams(path, params, body)
+			data, _, err := c.PostWithParams(cmd.Context(), path, params, body)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

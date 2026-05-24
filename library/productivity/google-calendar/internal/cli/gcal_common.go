@@ -205,7 +205,7 @@ func gcalLoadEvents(cmd *cobra.Command, flags *rootFlags, q eventQuery) ([]gcalE
 			if pageToken != "" {
 				params["pageToken"] = pageToken
 			}
-			data, err := c.Get("/calendars/"+url.PathEscape(cal)+"/events", params)
+			data, err := c.Get(cmd.Context(), "/calendars/"+url.PathEscape(cal)+"/events", params)
 			if err != nil {
 				liveErr = err
 				break
@@ -384,7 +384,7 @@ func gcalLoadACL(cmd *cobra.Command, flags *rootFlags, calendars []string) ([]gc
 	var all []gcalACLRule
 	var liveErr error
 	for _, cal := range calendars {
-		data, err := c.Get("/calendars/"+url.PathEscape(cal)+"/acl", nil)
+		data, err := c.Get(cmd.Context(), "/calendars/"+url.PathEscape(cal)+"/acl", nil)
 		if err != nil {
 			liveErr = err
 			continue

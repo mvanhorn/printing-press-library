@@ -1,7 +1,8 @@
 {
-  "dir": "\u003ccli-dir\u003e/google-calendar-pp-cli",
-  "spec_path": "\u003crunstate\u003e/google-calendar-openapi.json",
-  "verdict": "PASS",
+  "dir": "\u003ccli-dir\u003e/fresh-gcal-414",
+  "spec_path": "\u003ccli-dir\u003e/spec.json",
+  "spec_source": "bundled",
+  "verdict": "WARN",
   "path_check": {
     "tested": 5,
     "valid": 5,
@@ -18,18 +19,25 @@
     "pass": true,
     "detail": "browser-session auth not required"
   },
+  "oauth_scope_coverage_check": {
+    "checked": 37,
+    "covered": 37,
+    "detail": "all OAuth-scoped endpoints covered by generated auth scopes"
+  },
   "dead_flags": {
-    "total": 20,
+    "total": 21,
     "dead": 0
   },
   "dead_functions": {
-    "total": 63,
+    "total": 66,
     "dead": 0
   },
   "pipeline_check": {
     "sync_calls_domain": true,
     "search_calls_domain": true,
     "domain_tables": 1,
+    "sync_file_emitted": true,
+    "sync_resources_present": true,
     "detail": "sync uses domain-specific Upsert methods; search uses domain-specific Search methods; 1 domain tables found"
   },
   "example_check": {
@@ -64,20 +72,58 @@
   },
   "reimplementation_check": {
     "checked": 7,
-    "exempted_via_store": 7
+    "exempted_via_store": 0,
+    "suspicious": [
+      {
+        "command": "free",
+        "file": "gcal_free.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "conflicts",
+        "file": "gcal_conflicts.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "changes",
+        "file": "gcal_changes.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "load",
+        "file": "gcal_load.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "acl-audit",
+        "file": "gcal_acl_audit.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      },
+      {
+        "command": "rsvp-status",
+        "file": "gcal_rsvp.go",
+        "reason": "hand-rolled response: no API client call, no store access"
+      }
+    ]
   },
   "source_client_check": {
     "checked": 0,
     "skipped": true
   },
   "print_json_filtered_check": {
-    "checked": 69
+    "checked": 70
   },
   "test_presence": {
     "checked": 0
   },
   "naming_check": {
-    "checked": 69
+    "checked": 70
   },
-  "issues": null
+  "sync_param_drop_check": {
+    "checked": 0,
+    "skipped": true
+  },
+  "issues": [
+    "6/7 novel features look reimplemented: free (gcal_free.go) — hand-rolled response: no API client call, no store access; conflicts (gcal_conflicts.go) — hand-rolled response: no API client call, no store access; changes (gcal_changes.go) — hand-rolled response: no API client call, no store access; load (gcal_load.go) — hand-rolled response: no API client call, no store access; acl-audit (gcal_acl_audit.go) — hand-rolled response: no API client call, no store access; rsvp-status (gcal_rsvp.go) — hand-rolled response: no API client call, no store access"
+  ]
 }

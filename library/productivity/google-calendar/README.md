@@ -13,26 +13,26 @@ Printed by [@rubenasgaspar](https://github.com/rubenasgaspar) (Rúben Gaspar).
 The recommended path installs both the `google-calendar-pp-cli` binary and the `pp-google-calendar` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install google-calendar
+npx -y @mvanhorn/printing-press-library install google-calendar
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install google-calendar --cli-only
+npx -y @mvanhorn/printing-press-library install google-calendar --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install google-calendar --skill-only
+npx -y @mvanhorn/printing-press-library install google-calendar --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install google-calendar --agent claude-code
-npx -y @mvanhorn/printing-press install google-calendar --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install google-calendar --agent claude-code
+npx -y @mvanhorn/printing-press-library install google-calendar --agent claude-code --agent codex
 ```
 
 ### Without Node
@@ -110,21 +110,17 @@ Google Calendar uses OAuth2 (authorization-code). Run `google-calendar-pp-cli au
 ## Quick Start
 
 ```bash
-# One-time browser OAuth; stores and auto-refreshes tokens locally.
-google-calendar-pp-cli auth login
-
+# Verify auth and connectivity (run `auth login` first to authorize — see Auth below).
+google-calendar-pp-cli doctor
 
 # Mirror your calendars and events into the local SQLite store.
 google-calendar-pp-cli sync --full
 
-
-# See today across all synced calendars, offline.
+# See today across your calendars, offline.
 google-calendar-pp-cli agenda --window today
-
 
 # Find open one-hour slots this week.
 google-calendar-pp-cli free --calendars primary --window 'next 7 days' --duration 60m
-
 
 # Surface any double-bookings across calendars as JSON.
 google-calendar-pp-cli conflicts --window 'this week' --agent
@@ -187,6 +183,49 @@ These capabilities aren't available in any other tool for this API.
   ```bash
   google-calendar-pp-cli book --summary 'Sync' --start 2026-05-25T14:00:00Z --end 2026-05-25T15:00:00Z --on-conflict abort
   ```
+
+## Recipes
+
+
+### Book without double-booking
+
+```bash
+google-calendar-pp-cli book --summary 'Design review' --start 2026-05-25T15:00:00Z --end 2026-05-25T16:00:00Z --on-conflict abort
+```
+
+Aborts with a typed exit code if the slot overlaps an existing event in the local store.
+
+### Find the next free 90 minutes
+
+```bash
+google-calendar-pp-cli free --calendars primary,work --window 'next 5 days' --duration 90m --agent
+```
+
+Returns open intervals long enough for the meeting as JSON, ready for an agent to pick from.
+
+### Weekly change review
+
+```bash
+google-calendar-pp-cli changes --since 2026-05-17 --agent --select id,summary,status,updated
+```
+
+Lists created/updated/cancelled events since a date, narrowing the deeply-nested event payload to four fields so agents don't burn context on full event bodies.
+
+### Who has access where
+
+```bash
+google-calendar-pp-cli acl-audit --role writer
+```
+
+Flattens sharing rules across all calendars into one table before onboarding a contractor.
+
+### Quantify a busy month
+
+```bash
+google-calendar-pp-cli load --window 'this month' --group-by week
+```
+
+Counts meetings and total booked hours per week.
 
 ## Usage
 
@@ -304,13 +343,10 @@ Environment variables:
 - Run the `list` command to see available items
 
 ### API-specific
-
 - **410 GONE on sync** — The sync token expired; run `sync --full` to clear the per-calendar cursor and resync from scratch.
 - **rateLimitExceeded (403/429)** — You hit a per-user/per-calendar quota; the client backs off exponentially — retry or narrow the window. Prefer `patch` over `update` to spend fewer quota units.
 - **auth token invalid / expired** — Run `google-calendar-pp-cli auth login` again to re-authorize; check `auth status`.
 - **free/busy returns 400 on timeZone** — Omit --timezone to use the calendar default, or pass an IANA name like Europe/Lisbon rather than an offset.
-
----
 
 ## Sources & Inspiration
 
