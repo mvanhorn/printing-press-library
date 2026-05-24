@@ -1,5 +1,5 @@
 // Copyright 2026 eric-jung. Licensed under Apache-2.0. See LICENSE.
-// Custom SRM transport layer for github.com/mvanhorn/printing-press-library/library/devices/synology-router.
+// Custom SRM transport layer for synology-router-pp-cli.
 //
 // Synology Router Manager (SRM) uses an RPC-style API where all operations
 // POST to /webapi/entry.cgi (or /webapi/auth.cgi) with form-encoded parameters:
@@ -39,6 +39,8 @@ type srmRoute struct {
 	NoAuth bool
 	// QueryParamsToForm lists which query params to add to the form body
 	QueryParamsToForm []string
+	// DefaultParams are always sent (overridable by query params)
+	DefaultParams map[string]string
 }
 
 // srmRouteTable maps "HTTP_METHOD /path" to SRM route info.
@@ -64,7 +66,7 @@ var srmRouteTable = map[string]srmRoute{
 		Endpoint:          "/webapi/entry.cgi",
 		API:               "SYNO.Core.Network.NSM.Device",
 		Method:            "get",
-		Version:           5,
+		Version:           4,
 		QueryParamsToForm: []string{"conntype", "info"},
 	},
 
@@ -96,24 +98,26 @@ var srmRouteTable = map[string]srmRoute{
 
 	// Wi-Fi
 	"GET /wifi/settings": {
-		Endpoint: "/webapi/entry.cgi",
-		API:      "SYNO.Wifi.Network.Setting",
-		Method:   "get",
-		Version:  1,
+		Endpoint:          "/webapi/entry.cgi",
+		API:               "SYNO.Mesh.Network.WifiDevice",
+		Method:            "get",
+		Version:           1,
+		QueryParamsToForm: []string{"band"},
 	},
 	"PUT /wifi/settings": {
 		Endpoint: "/webapi/entry.cgi",
-		API:      "SYNO.Wifi.Network.Setting",
+		API:      "SYNO.Mesh.Network.WifiDevice",
 		Method:   "set",
 		Version:  1,
 	},
 
 	// Wake-on-LAN
 	"GET /wol/devices": {
-		Endpoint: "/webapi/entry.cgi",
-		API:      "SYNO.Core.Network.WOL",
-		Method:   "get_devices",
-		Version:  1,
+		Endpoint:          "/webapi/entry.cgi",
+		API:               "SYNO.Core.Network.WOL",
+		Method:            "get_devices",
+		Version:           1,
+		QueryParamsToForm: []string{"client_list"},
 	},
 	"POST /wol/devices": {
 		Endpoint: "/webapi/entry.cgi",
@@ -143,6 +147,7 @@ var srmRouteTable = map[string]srmRoute{
 		Method:            "get",
 		Version:           1,
 		QueryParamsToForm: []string{"type"},
+		DefaultParams:     map[string]string{"type": "ipv4"},
 	},
 	"PUT /firewall/rules": {
 		Endpoint: "/webapi/entry.cgi",
@@ -158,6 +163,7 @@ var srmRouteTable = map[string]srmRoute{
 		Method:            "list",
 		Version:           1,
 		QueryParamsToForm: []string{"gatewaytype"},
+		DefaultParams:     map[string]string{"gatewaytype": "ipv4"},
 	},
 	"GET /smartwan/config": {
 		Endpoint: "/webapi/entry.cgi",
@@ -191,7 +197,7 @@ var srmRouteTable = map[string]srmRoute{
 		Endpoint: "/webapi/entry.cgi",
 		API:      "SYNO.Mesh.Node.List",
 		Method:   "get",
-		Version:  4,
+		Version:  3,
 	},
 	"GET /mesh/info": {
 		Endpoint: "/webapi/entry.cgi",
@@ -272,6 +278,11 @@ func (t *SRMTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 		form.Set("_sid", t.SID)
 	}
 
+	// Apply default params (query params override these below)
+	for k, v := range route.DefaultParams {
+		form.Set(k, v)
+	}
+
 	// Move query params to form body (for GET-style params that SRM expects in form)
 	queryParams := req.URL.Query()
 	for _, paramName := range route.QueryParamsToForm {
@@ -317,7 +328,7 @@ func (t *SRMTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	// The endpoint path is relative to the server root (not the webapi base)
 	srmPath := route.Endpoint
 	srmURL := *req.URL
-	srmURL.Path = stripWebAPIBase(req.URL.Path, t.BaseURL) + srmPath
+	srmURL.Path = srmPath
 	srmURL.RawQuery = "" // All params go in the form body
 
 	formEncoded := form.Encode()

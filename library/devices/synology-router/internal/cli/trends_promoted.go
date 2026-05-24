@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"github.com/mvanhorn/printing-press-library/library/devices/synology-router/internal/store"
+	"synology-router-pp-cli/internal/store"
 )
 
 func newTrendsPromotedCmd(flags *rootFlags) *cobra.Command {
@@ -77,5 +77,6 @@ func newTrendsPromotedCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&flagPeriod, "period", "day", "Grouping period for trend calculation: day or week")
+
 	return cmd
 }

@@ -21,8 +21,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mvanhorn/printing-press-library/library/devices/synology-router/internal/cliutil"
-	"github.com/mvanhorn/printing-press-library/library/devices/synology-router/internal/config"
+	"synology-router-pp-cli/internal/cliutil"
+	"synology-router-pp-cli/internal/config"
 )
 
 const BinaryResponseHeader = "X-Printing-Press-Binary-Response"
@@ -55,7 +55,6 @@ func newHTTPClient(timeout time.Duration, jar http.CookieJar) *http.Client {
 		Impersonate().
 		Chrome().
 		Timeout(timeout)
-	builder = builder.ForceHTTP2()
 	if jar == nil {
 		builder = builder.Session()
 	}

@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"github.com/mvanhorn/printing-press-library/library/devices/synology-router/internal/store"
+	"synology-router-pp-cli/internal/store"
 )
 
 func parseDuration(s string) time.Duration {

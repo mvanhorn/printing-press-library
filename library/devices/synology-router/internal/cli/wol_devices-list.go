@@ -26,7 +26,7 @@ func newWolDevicesListCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			path := "/wol/devices"
-			params := map[string]string{}
+			params := map[string]string{"client_list": "[]"}
 			data, prov, err := resolveRead(cmd.Context(), c, flags, "wol", false, path, params, nil)
 			if err != nil {
 				return classifyAPIError(err, flags)

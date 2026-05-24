@@ -10,7 +10,7 @@ import (
 	"sort"
 
 	"github.com/spf13/cobra"
-	"github.com/mvanhorn/printing-press-library/library/devices/synology-router/internal/store"
+	"synology-router-pp-cli/internal/store"
 )
 
 func newAnalyticsCmd(flags *rootFlags) *cobra.Command {

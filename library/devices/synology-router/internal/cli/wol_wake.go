@@ -58,6 +58,7 @@ func newWolWakeCmd(flags *rootFlags) *cobra.Command {
 				return classifyAPIError(err, flags)
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
+				// Check if response contains an array (directly or wrapped in "data")
 				var items []map[string]any
 				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
 					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
@@ -82,6 +83,10 @@ func newWolWakeCmd(flags *rootFlags) *cobra.Command {
 				if flags.quiet {
 					return nil
 				}
+				// Apply --compact and --select to the API response before wrapping.
+				// --select wins when both are set: explicit field choice trumps the
+				// generic high-gravity allow-list. Otherwise --compact still applies
+				// when --agent is on but the user did not name fields.
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)

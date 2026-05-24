@@ -14,8 +14,8 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"github.com/mvanhorn/printing-press-library/library/devices/synology-router/internal/client"
-	"github.com/mvanhorn/printing-press-library/library/devices/synology-router/internal/config"
+	"synology-router-pp-cli/internal/client"
+	"synology-router-pp-cli/internal/config"
 )
 
 // newSRMLoginCmd creates the 'login' command that authenticates with SRM and
@@ -31,20 +31,20 @@ func newSRMLoginCmd(flags *rootFlags) *cobra.Command {
 		Long: `Authenticate with the Synology Router Manager (SRM) API and save
 the session ID for subsequent requests.
 
-The session ID is stored in ~/.config/github.com/mvanhorn/printing-press-library/library/devices/synology-router/config.toml
+The session ID is stored in ~/.config/synology-router-pp-cli/config.toml
 under router_cookie_auth. It can also be set via the SYNOLOGY_ROUTER_COOKIE_AUTH
 environment variable.
 
 Note: SRM sessions expire after inactivity. Run 'login' again if you get
 authentication errors.`,
 		Example: `  # Interactive login (prompts for password)
-  github.com/mvanhorn/printing-press-library/library/devices/synology-router login --account admin
+  synology-router-pp-cli login --account admin
 
   # Non-interactive via stdin (recommended for scripts)
-  echo "$PASSWORD" | github.com/mvanhorn/printing-press-library/library/devices/synology-router login --account admin
+  echo "$PASSWORD" | synology-router-pp-cli login --account admin
 
   # Login without saving (just print the sid)
-  echo "$PASSWORD" | github.com/mvanhorn/printing-press-library/library/devices/synology-router login --account admin --no-save`,
+  echo "$PASSWORD" | synology-router-pp-cli login --account admin --no-save`,
 		Annotations: map[string]string{
 			"pp:endpoint": "session.auth-login",
 			"pp:method":   "POST",
@@ -146,7 +146,7 @@ authentication errors.`,
 					fmt.Fprintf(os.Stderr, "Session ID saved to config.\n")
 				}
 			} else {
-				fmt.Fprintf(os.Stderr, "To persist: github.com/mvanhorn/printing-press-library/library/devices/synology-router auth set-token <sid>\n")
+				fmt.Fprintf(os.Stderr, "To persist: synology-router-pp-cli auth set-token <sid>\n")
 				fmt.Fprintf(os.Stderr, "Or export: SYNOLOGY_ROUTER_COOKIE_AUTH=<sid>\n")
 			}
 
@@ -175,7 +175,7 @@ func saveSIDToConfig(configPath, sid string) error {
 	cfgPath := cfg.Path
 	if cfgPath == "" {
 		home, _ := os.UserHomeDir()
-		cfgPath = filepath.Join(home, ".config", "github.com/mvanhorn/printing-press-library/library/devices/synology-router", "config.toml")
+		cfgPath = filepath.Join(home, ".config", "synology-router-pp-cli", "config.toml")
 	}
 
 	// Ensure config directory exists
