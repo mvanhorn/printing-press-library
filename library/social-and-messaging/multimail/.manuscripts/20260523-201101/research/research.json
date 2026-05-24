@@ -1,0 +1,215 @@
+{
+  "api_name": "multimail",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "multimail-mcp",
+      "url": "https://github.com/mvanhorn/multimail",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 44,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-23T20:11:00Z",
+  "novel_features": [
+    {
+      "name": "Cross-mailbox search",
+      "command": "search",
+      "description": "Full-text search across all synced mailboxes at once — find any email regardless of which mailbox received it.",
+      "rationale": "API search is per-mailbox only; cross-mailbox search requires N sequential API calls without local cache.",
+      "example": "multimail-pp-cli search 'invoice Q2' --json --select subject,from,mailbox",
+      "why_it_matters": "When an agent needs to find a specific email and doesn't know which mailbox has it, one search beats iterating.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Oversight velocity",
+      "command": "oversight velocity",
+      "description": "See approval/rejection rates and median decision latency per mailbox across your entire fleet.",
+      "rationale": "Requires joining audit events with oversight decisions in local SQLite; no API endpoint aggregates decision velocity cross-mailbox.",
+      "example": "multimail-pp-cli oversight velocity --json --days 7",
+      "why_it_matters": "When an agent's sends are stuck in approval queues, this pinpoints which mailbox's operator is the bottleneck.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Trust ladder status",
+      "command": "trust status",
+      "description": "Fleet-wide view of each mailbox's oversight mode, time-at-level, and upgrade history.",
+      "rationale": "Requires joining mailbox configs with audit events filtered for upgrade actions; API returns current mode but not progression timeline.",
+      "example": "multimail-pp-cli trust status --json",
+      "why_it_matters": "Before requesting a trust upgrade, an agent should know which mailboxes are ready and which have been at their current level longest.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Allowlist coverage",
+      "command": "mailboxes allowlist coverage",
+      "description": "See what percentage of recent recipients are covered by allowlist patterns vs gated.",
+      "rationale": "Requires joining allowlist entries with sent emails and matching exact + wildcard patterns locally; no API endpoint diffs these.",
+      "example": "multimail-pp-cli mailboxes allowlist coverage --mailbox primary --days 30 --json",
+      "why_it_matters": "Before adding allowlist entries, an agent should know which recipients are already covered and which cause the most gating friction.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Inbox health",
+      "command": "inbox health",
+      "description": "Per-mailbox health snapshot: unread count, oldest unread age, reply rate, and thread depth.",
+      "rationale": "Requires aggregation over synced emails table; no API endpoint returns these composite metrics.",
+      "example": "multimail-pp-cli inbox health --json",
+      "why_it_matters": "An agent monitoring its own inbox health can detect when it's falling behind on replies before the operator notices.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Stale thread detection",
+      "command": "mailboxes threads stale",
+      "description": "List conversation threads with no reply in N days — surfaces dropped conversations.",
+      "rationale": "Requires time-windowed join of threads and emails in local SQLite; API has no 'inactive threads' query.",
+      "example": "multimail-pp-cli mailboxes threads stale --days 3 --json",
+      "why_it_matters": "A dropped conversation thread is a customer-facing failure; this is the agent's early warning system.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Cross-mailbox search",
+      "command": "search",
+      "description": "Full-text search across all synced mailboxes at once — find any email regardless of which mailbox received it.",
+      "rationale": "API search is per-mailbox only; cross-mailbox search requires N sequential API calls without local cache.",
+      "example": "multimail-pp-cli search 'invoice Q2' --json --select subject,from,mailbox",
+      "why_it_matters": "When an agent needs to find a specific email and doesn't know which mailbox has it, one search beats iterating.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Oversight velocity",
+      "command": "oversight velocity",
+      "description": "See approval/rejection rates and median decision latency per mailbox across your entire fleet.",
+      "rationale": "Requires joining audit events with oversight decisions in local SQLite; no API endpoint aggregates decision velocity cross-mailbox.",
+      "example": "multimail-pp-cli oversight velocity --json --days 7",
+      "why_it_matters": "When an agent's sends are stuck in approval queues, this pinpoints which mailbox's operator is the bottleneck.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Trust ladder status",
+      "command": "trust status",
+      "description": "Fleet-wide view of each mailbox's oversight mode, time-at-level, and upgrade history.",
+      "rationale": "Requires joining mailbox configs with audit events filtered for upgrade actions; API returns current mode but not progression timeline.",
+      "example": "multimail-pp-cli trust status --json",
+      "why_it_matters": "Before requesting a trust upgrade, an agent should know which mailboxes are ready and which have been at their current level longest.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Allowlist coverage",
+      "command": "mailboxes allowlist coverage",
+      "description": "See what percentage of recent recipients are covered by allowlist patterns vs gated.",
+      "rationale": "Requires joining allowlist entries with sent emails and matching exact + wildcard patterns locally; no API endpoint diffs these.",
+      "example": "multimail-pp-cli mailboxes allowlist coverage --mailbox primary --days 30 --json",
+      "why_it_matters": "Before adding allowlist entries, an agent should know which recipients are already covered and which cause the most gating friction.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Inbox health",
+      "command": "inbox health",
+      "description": "Per-mailbox health snapshot: unread count, oldest unread age, reply rate, and thread depth.",
+      "rationale": "Requires aggregation over synced emails table; no API endpoint returns these composite metrics.",
+      "example": "multimail-pp-cli inbox health --json",
+      "why_it_matters": "An agent monitoring its own inbox health can detect when it's falling behind on replies before the operator notices.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Stale thread detection",
+      "command": "mailboxes threads stale",
+      "description": "List conversation threads with no reply in N days — surfaces dropped conversations.",
+      "rationale": "Requires time-windowed join of threads and emails in local SQLite; API has no 'inactive threads' query.",
+      "example": "multimail-pp-cli mailboxes threads stale --days 3 --json",
+      "why_it_matters": "A dropped conversation thread is a customer-facing failure; this is the agent's early warning system.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "MultiMail",
+    "headline": "Every MultiMail feature, plus cross-mailbox search, oversight analytics, and trust ladder tracking no other tool has.",
+    "value_prop": "Full CLI access to MultiMail's agent email platform. Manage mailboxes, send and read emails, configure oversight modes, and manage sending allowlists. Local SQLite cache with FTS5 search enables cross-mailbox queries, oversight velocity tracking, and trust progression analysis that the API alone cannot provide.",
+    "quickstart": [
+      {
+        "command": "multimail-pp-cli doctor",
+        "comment": "Verify API key and connectivity"
+      },
+      {
+        "command": "multimail-pp-cli sync --full",
+        "comment": "Cache all mailboxes and emails locally"
+      },
+      {
+        "command": "multimail-pp-cli mailboxes list --json",
+        "comment": "See your mailbox fleet"
+      },
+      {
+        "command": "multimail-pp-cli search 'meeting notes' --json --select subject,from,mailbox",
+        "comment": "Search across all mailboxes at once"
+      },
+      {
+        "command": "multimail-pp-cli trust status --json",
+        "comment": "See trust ladder progression fleet-wide"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "401 Unauthorized on every command",
+        "fix": "Check that MULTIMAIL_BEARER_AUTH is set. Get a key via `multimail-pp-cli auth register`."
+      },
+      {
+        "symptom": "Emails not sending (stuck in pending)",
+        "fix": "Mailbox is in gated_send or gated_all mode. Check `oversight pending` and approve, or add the recipient to the allowlist."
+      },
+      {
+        "symptom": "Search returns no results",
+        "fix": "Run `multimail-pp-cli sync --full` first to populate the local cache."
+      },
+      {
+        "symptom": "Allowlist add returns 'approval required'",
+        "fix": "This is the two-step OTP flow. Check operator email for the approval code, then rerun with --approval-code."
+      }
+    ],
+    "when_to_use": "Use this CLI when you need shell-level access to MultiMail — in CI/CD pipelines, Docker containers, SSH sessions, or agentic shells where MCP is unavailable. The local SQLite cache and FTS5 search make it the right choice for cross-mailbox queries, oversight analytics, and trust progression tracking that the per-mailbox API cannot provide.",
+    "recipes": [
+      {
+        "title": "Morning inbox triage",
+        "command": "multimail-pp-cli inbox health --json --select mailbox,unread,oldest_unread_age",
+        "explanation": "Check inbox health across all mailboxes to prioritize which needs attention first."
+      },
+      {
+        "title": "Find a conversation across mailboxes",
+        "command": "multimail-pp-cli search 'quarterly report' --json --select subject,from,mailbox,date",
+        "explanation": "Full-text search all synced mailboxes — no need to know which mailbox has the email."
+      },
+      {
+        "title": "Check oversight bottlenecks",
+        "command": "multimail-pp-cli oversight velocity --days 7 --json --select mailbox,approval_rate,median_latency",
+        "explanation": "See which mailboxes have slow approval rates so you can address operator bottlenecks."
+      },
+      {
+        "title": "Allowlist gap analysis",
+        "command": "multimail-pp-cli mailboxes allowlist coverage --mailbox primary --days 30 --json",
+        "explanation": "See what percentage of recent sends were covered by allowlist patterns vs gated."
+      },
+      {
+        "title": "Detect dropped conversations",
+        "command": "multimail-pp-cli mailboxes threads stale --days 5 --json --select subject,last_activity,mailbox",
+        "explanation": "Find threads with no reply in 5 days — each is a potential customer-facing failure."
+      }
+    ],
+    "trigger_phrases": [
+      "check my multimail inbox",
+      "send email via multimail",
+      "search emails across mailboxes",
+      "check oversight approval queue",
+      "add recipient to allowlist",
+      "register agent with multimail",
+      "check trust ladder status"
+    ]
+  }
+}

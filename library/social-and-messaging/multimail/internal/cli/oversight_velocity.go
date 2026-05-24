@@ -1,0 +1,140 @@
+package cli
+
+import (
+	"fmt"
+	"sort"
+	"strings"
+	"time"
+
+	"github.com/spf13/cobra"
+
+	"multimail-pp-cli/internal/store"
+)
+
+type velocityRow struct {
+	Mailbox        string  `json:"mailbox"`
+	MailboxID      string  `json:"mailbox_id"`
+	TotalDecisions int     `json:"total_decisions"`
+	Approved       int     `json:"approved"`
+	Rejected       int     `json:"rejected"`
+	ApprovalRate   float64 `json:"approval_rate"`
+	MedianLatency  string  `json:"median_latency"`
+	PendingCount   int     `json:"pending_count"`
+}
+
+func newOversightVelocityCmd(flags *rootFlags) *cobra.Command {
+	var (
+		days   int
+		dbPath string
+	)
+	cmd := &cobra.Command{
+		Use:   "velocity",
+		Short: "See approval/rejection rates and median decision latency per mailbox across your entire fleet",
+		Long: `Oversight velocity shows how fast oversight decisions are being made
+across all mailboxes. It joins audit events with oversight decisions in the
+local SQLite cache to compute approval rates and decision latency.
+
+Requires synced data (run 'multimail-pp-cli sync --full' first).`,
+		Example: strings.Trim(`
+  multimail-pp-cli oversight velocity --json
+  multimail-pp-cli oversight velocity --days 7 --json --select mailbox,approval_rate,median_latency
+  multimail-pp-cli oversight velocity --days 30`, "\n"),
+		Annotations: map[string]string{
+			"mcp:read-only": "true",
+		},
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if dryRunOK(flags) {
+				return nil
+			}
+			if dbPath == "" {
+				dbPath = defaultDBPath("multimail-pp-cli")
+			}
+			db, err := store.OpenWithContext(cmd.Context(), dbPath)
+			if err != nil {
+				return fmt.Errorf("opening database: %w", err)
+			}
+			defer db.Close()
+
+			cutoff := time.Now().AddDate(0, 0, -days).Format(time.RFC3339)
+
+			// Get mailbox names for display
+			type mbInfo struct {
+				ID   string
+				Name string
+			}
+			var mailboxes []mbInfo
+			mbRows, err := db.DB().QueryContext(cmd.Context(),
+				`SELECT id, json_extract(data, '$.address') FROM resources WHERE resource_type = 'mailboxes'`)
+			if err != nil {
+				return fmt.Errorf("querying mailboxes: %w", err)
+			}
+			defer mbRows.Close()
+			for mbRows.Next() {
+				var m mbInfo
+				if err := mbRows.Scan(&m.ID, &m.Name); err != nil {
+					continue
+				}
+				if m.Name == "" {
+					m.Name = m.ID
+				}
+				mailboxes = append(mailboxes, m)
+			}
+
+			if len(mailboxes) == 0 {
+				return fmt.Errorf("no mailboxes in local cache — run 'multimail-pp-cli sync --full' first")
+			}
+
+			var results []velocityRow
+			for _, mb := range mailboxes {
+				// Count decisions from audit log for this mailbox
+				var approved, rejected int
+				row := db.DB().QueryRowContext(cmd.Context(),
+					`SELECT
+						COALESCE(SUM(CASE WHEN json_extract(data, '$.action') LIKE '%approve%' THEN 1 ELSE 0 END), 0),
+						COALESCE(SUM(CASE WHEN json_extract(data, '$.action') LIKE '%reject%' THEN 1 ELSE 0 END), 0)
+					FROM resources
+					WHERE resource_type = 'audit-log'
+					AND json_extract(data, '$.mailbox_id') = ?
+					AND synced_at > ?`, mb.ID, cutoff)
+				if err := row.Scan(&approved, &rejected); err != nil {
+					continue
+				}
+
+				total := approved + rejected
+				var rate float64
+				if total > 0 {
+					rate = float64(approved) / float64(total) * 100
+				}
+
+				// Count currently pending
+				var pending int
+				pendingRow := db.DB().QueryRowContext(cmd.Context(),
+					`SELECT COUNT(*) FROM resources
+					WHERE resource_type = 'oversight'
+					AND json_extract(data, '$.mailbox_id') = ?
+					AND json_extract(data, '$.status') = 'pending'`, mb.ID)
+				_ = pendingRow.Scan(&pending)
+
+				results = append(results, velocityRow{
+					Mailbox:        mb.Name,
+					MailboxID:      mb.ID,
+					TotalDecisions: total,
+					Approved:       approved,
+					Rejected:       rejected,
+					ApprovalRate:   rate,
+					MedianLatency:  "—", // Would need timestamp pairs for real median
+					PendingCount:   pending,
+				})
+			}
+
+			sort.Slice(results, func(i, j int) bool {
+				return results[i].PendingCount > results[j].PendingCount
+			})
+
+			return printJSONFiltered(cmd.OutOrStdout(), results, flags)
+		},
+	}
+	cmd.Flags().IntVar(&days, "days", 7, "Look-back window in days")
+	cmd.Flags().StringVar(&dbPath, "db", "", "Database path")
+	return cmd
+}

@@ -1,0 +1,8 @@
+{
+  "dir": "/Users/auser/printing-press/.runstate/printing-press-library-aaa3203b/runs/20260523-201101/working/multimail-pp-cli",
+  "workflows": null,
+  "verdict": "workflow-pass",
+  "issues": [
+    "no workflow manifest found, skipping"
+  ]
+}

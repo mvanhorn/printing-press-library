@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-24T00:36:03.938096Z",
+  "printing_press_version": "4.4.0",
+  "api_name": "multimail",
+  "display_name": "Multimail",
+  "cli_name": "multimail-pp-cli",
+  "owner": "h179922",
+  "printer_name": "H179922",
+  "spec_path": "/tmp/multimail-openapi-2026-05-23.json",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:80b0206722cfc2465c19806cedb8f0f1e55f354115f15d22f44e43590696110c",
+  "run_id": "20260523-201101",
+  "category": "social-and-messaging",
+  "mcp_binary": "multimail-pp-mcp",
+  "mcp_tool_count": 86,
+  "mcp_ready": "full",
+  "api_version": "2.0.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "MULTIMAIL_BEARER_AUTH"
+  ],
+  "novel_features": [
+    {
+      "name": "Cross-mailbox search",
+      "command": "search",
+      "description": "Full-text search across all synced mailboxes at once — find any email regardless of which mailbox received it."
+    },
+    {
+      "name": "Oversight velocity",
+      "command": "oversight velocity",
+      "description": "See approval/rejection rates and median decision latency per mailbox across your entire fleet."
+    },
+    {
+      "name": "Trust ladder status",
+      "command": "trust status",
+      "description": "Fleet-wide view of each mailbox's oversight mode, time-at-level, and upgrade history."
+    },
+    {
+      "name": "Allowlist coverage",
+      "command": "mailboxes allowlist coverage",
+      "description": "See what percentage of recent recipients are covered by allowlist patterns vs gated."
+    },
+    {
+      "name": "Inbox health",
+      "command": "inbox health",
+      "description": "Per-mailbox health snapshot: unread count, oldest unread age, reply rate, and thread depth."
+    },
+    {
+      "name": "Stale thread detection",
+      "command": "mailboxes threads stale",
+      "description": "List conversation threads with no reply in N days — surfaces dropped conversations."
+    }
+  ]
+}
