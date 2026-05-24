@@ -1,0 +1,991 @@
+{
+  "api_name": "airtable",
+  "base_url": "https://api.airtable.com/v0",
+  "description": "Every Airtable surface a CLI should have — plus a local SQLite mirror, cross-base SQL, and webhook tooling no SDK ships.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "format": "Bearer {AIRTABLE_PAT}",
+    "in": "header",
+    "env_vars": [
+      "AIRTABLE_PAT"
+    ],
+    "env_var_specs": [
+      {
+        "name": "AIRTABLE_PAT",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "bases_get_schema",
+      "description": "Get full schema (tables, fields, views) for a base. Required: base. Optional: include. Returns array of Table.",
+      "method": "GET",
+      "path": "/meta/bases/{baseId}/tables",
+      "params": [
+        {
+          "name": "base",
+          "wire_name": "baseId",
+          "type": "string",
+          "location": "path",
+          "description": "Base ID (e.g. appXXXXXXXXXXXXXX)",
+          "required": true
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Optional include hint (e.g. visibleFieldIds)"
+        }
+      ]
+    },
+    {
+      "name": "bases_list",
+      "description": "List bases the token can access. Optional: offset. Returns array of Base.",
+      "method": "GET",
+      "path": "/meta/bases",
+      "params": [
+        {
+          "name": "offset",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor returned from previous page"
+        }
+      ]
+    },
+    {
+      "name": "comments_create",
+      "description": "Add a comment to a record. Required: base, table, record, text. Optional: parent-comment, mentioned. Returns the new Comment.",
+      "method": "POST",
+      "path": "/{baseId}/{tableIdOrName}/{recordId}/comments",
+      "params": [
+        {
+          "name": "base",
+          "wire_name": "baseId",
+          "type": "string",
+          "location": "path",
+          "description": "Base ID",
+          "required": true
+        },
+        {
+          "name": "table",
+          "wire_name": "tableIdOrName",
+          "type": "string",
+          "location": "path",
+          "description": "Table ID or name",
+          "required": true
+        },
+        {
+          "name": "record",
+          "wire_name": "recordId",
+          "type": "string",
+          "location": "path",
+          "description": "Record ID",
+          "required": true
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "Comment body (supports @mentions like @[usrXXXX])",
+          "required": true
+        },
+        {
+          "name": "parent-comment",
+          "wire_name": "parentCommentId",
+          "type": "string",
+          "location": "body",
+          "description": "Parent comment ID to reply to"
+        },
+        {
+          "name": "mentioned",
+          "type": "string",
+          "location": "body",
+          "description": "JSON object of mentioned user/group references"
+        }
+      ]
+    },
+    {
+      "name": "comments_delete",
+      "description": "Delete a comment. Required: base, table, record, comment. Destructive.",
+      "method": "DELETE",
+      "path": "/{baseId}/{tableIdOrName}/{recordId}/comments/{rowCommentId}",
+      "params": [
+        {
+          "name": "base",
+          "wire_name": "baseId",
+          "type": "string",
+          "location": "path",
+          "description": "Base ID",
+          "required": true
+        },
+        {
+          "name": "table",
+          "wire_name": "tableIdOrName",
+          "type": "string",
+          "location": "path",
+          "description": "Table ID or name",
+          "required": true
+        },
+        {
+          "name": "record",
+          "wire_name": "recordId",
+          "type": "string",
+          "location": "path",
+          "description": "Record ID",
+          "required": true
+        },
+        {
+          "name": "comment",
+          "wire_name": "rowCommentId",
+          "type": "string",
+          "location": "path",
+          "description": "Comment ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "comments_list",
+      "description": "List comments on a record. Required: base, table, record. Optional: page-size (default: 100), offset. Returns array of Comment.",
+      "method": "GET",
+      "path": "/{baseId}/{tableIdOrName}/{recordId}/comments",
+      "params": [
+        {
+          "name": "base",
+          "wire_name": "baseId",
+          "type": "string",
+          "location": "path",
+          "description": "Base ID",
+          "required": true
+        },
+        {
+          "name": "table",
+          "wire_name": "tableIdOrName",
+          "type": "string",
+          "location": "path",
+          "description": "Table ID or name",
+          "required": true
+        },
+        {
+          "name": "record",
+          "wire_name": "recordId",
+          "type": "string",
+          "location": "path",
+          "description": "Record ID",
+          "required": true
+        },
+        {
+          "name": "page-size",
+          "wire_name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Comments per page"
+        },
+        {
+          "name": "offset",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "comments_update",
+      "description": "Edit a comment's text. Required: base, table, record, comment, text. Returns the updated Comment.",
+      "method": "PATCH",
+      "path": "/{baseId}/{tableIdOrName}/{recordId}/comments/{rowCommentId}",
+      "params": [
+        {
+          "name": "base",
+          "wire_name": "baseId",
+          "type": "string",
+          "location": "path",
+          "description": "Base ID",
+          "required": true
+        },
+        {
+          "name": "table",
+          "wire_name": "tableIdOrName",
+          "type": "string",
+          "location": "path",
+          "description": "Table ID or name",
+          "required": true
+        },
+        {
+          "name": "record",
+          "wire_name": "recordId",
+          "type": "string",
+          "location": "path",
+          "description": "Record ID",
+          "required": true
+        },
+        {
+          "name": "comment",
+          "wire_name": "rowCommentId",
+          "type": "string",
+          "location": "path",
+          "description": "Comment ID (comXXXXXXXXXXXXXX)",
+          "required": true
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "New comment text",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "records_create",
+      "description": "Create record(s). Use --fields for single, --records JSON for bulk. Required: base, table. Optional: fields, records, typecast (default: false) (plus 1 more). Returns the new Record.",
+      "method": "POST",
+      "path": "/{baseId}/{tableIdOrName}",
+      "params": [
+        {
+          "name": "base",
+          "wire_name": "baseId",
+          "type": "string",
+          "location": "path",
+          "description": "Base ID",
+          "required": true
+        },
+        {
+          "name": "table",
+          "wire_name": "tableIdOrName",
+          "type": "string",
+          "location": "path",
+          "description": "Table ID or name",
+          "required": true
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "body",
+          "description": "JSON object of field values for a single record"
+        },
+        {
+          "name": "records",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of record objects ([{'fields':{...}}, ...]) for bulk"
+        },
+        {
+          "name": "typecast",
+          "type": "bool",
+          "location": "body",
+          "description": "Allow Airtable to coerce values to the field type"
+        },
+        {
+          "name": "return-fields-by-id",
+          "wire_name": "returnFieldsByFieldId",
+          "type": "bool",
+          "location": "body",
+          "description": "Key returned fields by field ID"
+        }
+      ]
+    },
+    {
+      "name": "records_delete",
+      "description": "Delete record(s) by ID. Required: base, table, records. Destructive.",
+      "method": "DELETE",
+      "path": "/{baseId}/{tableIdOrName}",
+      "params": [
+        {
+          "name": "base",
+          "wire_name": "baseId",
+          "type": "string",
+          "location": "path",
+          "description": "Base ID",
+          "required": true
+        },
+        {
+          "name": "table",
+          "wire_name": "tableIdOrName",
+          "type": "string",
+          "location": "path",
+          "description": "Table ID or name",
+          "required": true
+        },
+        {
+          "name": "records",
+          "type": "string",
+          "location": "query",
+          "description": "Record IDs to delete (repeat ?records[]=rec... up to 10 per call)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "records_get",
+      "description": "Get a single record by ID. Required: base, table, record. Optional: cell-format (default: json), return-fields-by-id (default: false). Returns the Record.",
+      "method": "GET",
+      "path": "/{baseId}/{tableIdOrName}/{recordId}",
+      "params": [
+        {
+          "name": "base",
+          "wire_name": "baseId",
+          "type": "string",
+          "location": "path",
+          "description": "Base ID",
+          "required": true
+        },
+        {
+          "name": "table",
+          "wire_name": "tableIdOrName",
+          "type": "string",
+          "location": "path",
+          "description": "Table ID or name",
+          "required": true
+        },
+        {
+          "name": "record",
+          "wire_name": "recordId",
+          "type": "string",
+          "location": "path",
+          "description": "Record ID (recXXXXXXXXXXXXXX)",
+          "required": true
+        },
+        {
+          "name": "cell-format",
+          "wire_name": "cellFormat",
+          "type": "string",
+          "location": "query",
+          "description": "Cell value serialization"
+        },
+        {
+          "name": "return-fields-by-id",
+          "wire_name": "returnFieldsByFieldId",
+          "type": "bool",
+          "location": "query",
+          "description": "Key fields by field ID instead of name"
+        }
+      ]
+    },
+    {
+      "name": "records_list",
+      "description": "List records from a table. Required: base, table. Optional: fields, filter-formula, max-records (plus 9 more). Returns array of Record.",
+      "method": "GET",
+      "path": "/{baseId}/{tableIdOrName}",
+      "params": [
+        {
+          "name": "base",
+          "wire_name": "baseId",
+          "type": "string",
+          "location": "path",
+          "description": "Base ID",
+          "required": true
+        },
+        {
+          "name": "table",
+          "wire_name": "tableIdOrName",
+          "type": "string",
+          "location": "path",
+          "description": "Table ID or name",
+          "required": true
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated list of fields to return (repeat or comma-join)"
+        },
+        {
+          "name": "filter-formula",
+          "wire_name": "filterByFormula",
+          "type": "string",
+          "location": "query",
+          "description": "Airtable formula expression to filter records"
+        },
+        {
+          "name": "max-records",
+          "wire_name": "maxRecords",
+          "type": "int",
+          "location": "query",
+          "description": "Maximum total records to return"
+        },
+        {
+          "name": "page-size",
+          "wire_name": "pageSize",
+          "type": "int",
+          "location": "query",
+          "description": "Records per page (1-100)"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort spec, e.g. sort[0][field]=Name\u0026sort[0][direction]=asc"
+        },
+        {
+          "name": "view",
+          "type": "string",
+          "location": "query",
+          "description": "Restrict results to a named view"
+        },
+        {
+          "name": "cell-format",
+          "wire_name": "cellFormat",
+          "type": "string",
+          "location": "query",
+          "description": "Cell value serialization (json or string)"
+        },
+        {
+          "name": "time-zone",
+          "wire_name": "timeZone",
+          "type": "string",
+          "location": "query",
+          "description": "Required when cellFormat=string"
+        },
+        {
+          "name": "user-locale",
+          "wire_name": "userLocale",
+          "type": "string",
+          "location": "query",
+          "description": "Required when cellFormat=string"
+        },
+        {
+          "name": "return-fields-by-id",
+          "wire_name": "returnFieldsByFieldId",
+          "type": "bool",
+          "location": "query",
+          "description": "Key fields by field ID instead of name"
+        },
+        {
+          "name": "record-metadata",
+          "wire_name": "recordMetadata",
+          "type": "string",
+          "location": "query",
+          "description": "Include extra metadata (e.g. commentCount)"
+        },
+        {
+          "name": "offset",
+          "type": "string",
+          "location": "query",
+          "description": "Pagination cursor"
+        }
+      ]
+    },
+    {
+      "name": "records_replace",
+      "description": "Replace record(s) — clears any field not present in the payload. Required: base, table, records. Optional: typecast (default: false).",
+      "method": "PUT",
+      "path": "/{baseId}/{tableIdOrName}",
+      "params": [
+        {
+          "name": "base",
+          "wire_name": "baseId",
+          "type": "string",
+          "location": "path",
+          "description": "Base ID",
+          "required": true
+        },
+        {
+          "name": "table",
+          "wire_name": "tableIdOrName",
+          "type": "string",
+          "location": "path",
+          "description": "Table ID or name",
+          "required": true
+        },
+        {
+          "name": "records",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of full record objects: [{'id':'rec...','fields':{...}}, ...]",
+          "required": true
+        },
+        {
+          "name": "typecast",
+          "type": "bool",
+          "location": "body",
+          "description": "Allow Airtable to coerce values to the field type"
+        }
+      ]
+    },
+    {
+      "name": "records_sync_csv",
+      "description": "Push CSV content into a synced table (synced tables only). Required: base, table, csv.",
+      "method": "POST",
+      "path": "/{baseId}/{tableIdOrName}/syncCsv",
+      "params": [
+        {
+          "name": "base",
+          "wire_name": "baseId",
+          "type": "string",
+          "location": "path",
+          "description": "Base ID",
+          "required": true
+        },
+        {
+          "name": "table",
+          "wire_name": "tableIdOrName",
+          "type": "string",
+          "location": "path",
+          "description": "Table ID or name",
+          "required": true
+        },
+        {
+          "name": "csv",
+          "type": "string",
+          "location": "body",
+          "description": "Raw CSV body to sync",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "records_update",
+      "description": "Update record(s) — merges supplied fields, leaves others untouched. Required: base, table, records. Optional: typecast (default: false), return-fields-by-id (default: false). Partial update.",
+      "method": "PATCH",
+      "path": "/{baseId}/{tableIdOrName}",
+      "params": [
+        {
+          "name": "base",
+          "wire_name": "baseId",
+          "type": "string",
+          "location": "path",
+          "description": "Base ID",
+          "required": true
+        },
+        {
+          "name": "table",
+          "wire_name": "tableIdOrName",
+          "type": "string",
+          "location": "path",
+          "description": "Table ID or name",
+          "required": true
+        },
+        {
+          "name": "records",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of record patches: [{'id':'rec...','fields':{...}}, ...]",
+          "required": true
+        },
+        {
+          "name": "typecast",
+          "type": "bool",
+          "location": "body",
+          "description": "Allow Airtable to coerce values to the field type"
+        },
+        {
+          "name": "return-fields-by-id",
+          "wire_name": "returnFieldsByFieldId",
+          "type": "bool",
+          "location": "body",
+          "description": "Key returned fields by field ID"
+        }
+      ]
+    },
+    {
+      "name": "records_upsert",
+      "description": "Upsert records using Airtable's native performUpsert syntax. Required: base, table, records, perform-upsert. Optional: typecast (default: false). Partial update.",
+      "method": "PATCH",
+      "path": "/{baseId}/{tableIdOrName}",
+      "params": [
+        {
+          "name": "base",
+          "wire_name": "baseId",
+          "type": "string",
+          "location": "path",
+          "description": "Base ID",
+          "required": true
+        },
+        {
+          "name": "table",
+          "wire_name": "tableIdOrName",
+          "type": "string",
+          "location": "path",
+          "description": "Table ID or name",
+          "required": true
+        },
+        {
+          "name": "records",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of records to upsert: [{'fields':{...}}, ...]",
+          "required": true
+        },
+        {
+          "name": "perform-upsert",
+          "wire_name": "performUpsert",
+          "type": "string",
+          "location": "body",
+          "description": "JSON object, e.g. {'fieldsToMergeOn':['Email']}",
+          "required": true
+        },
+        {
+          "name": "typecast",
+          "type": "bool",
+          "location": "body",
+          "description": "Allow Airtable to coerce values to the field type"
+        }
+      ]
+    },
+    {
+      "name": "tables_create",
+      "description": "Create a table in a base. Required: base, name, fields. Optional: description. Returns the new Table.",
+      "method": "POST",
+      "path": "/meta/bases/{baseId}/tables",
+      "params": [
+        {
+          "name": "base",
+          "wire_name": "baseId",
+          "type": "string",
+          "location": "path",
+          "description": "Base ID",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Table name",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Optional table description"
+        },
+        {
+          "name": "fields",
+          "type": "string",
+          "location": "body",
+          "description": "JSON array of field definitions (e.g. [{'name':'Name','type':'singleLineText'}])",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tables_create_field",
+      "description": "Add a field to a table. Required: base, table, name, type. Optional: options, description. Returns the new Field.",
+      "method": "POST",
+      "path": "/meta/bases/{baseId}/tables/{tableIdOrName}/fields",
+      "params": [
+        {
+          "name": "base",
+          "wire_name": "baseId",
+          "type": "string",
+          "location": "path",
+          "description": "Base ID",
+          "required": true
+        },
+        {
+          "name": "table",
+          "wire_name": "tableIdOrName",
+          "type": "string",
+          "location": "path",
+          "description": "Table ID or name",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Field name",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Field type (e.g. singleLineText, number, singleSelect, multipleRecordLinks)",
+          "required": true
+        },
+        {
+          "name": "options",
+          "type": "string",
+          "location": "body",
+          "description": "JSON object of field-type-specific options"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Optional field description"
+        }
+      ]
+    },
+    {
+      "name": "tables_update",
+      "description": "Update table name or description. Required: base, table. Optional: name, description. Returns the updated Table.",
+      "method": "PATCH",
+      "path": "/meta/bases/{baseId}/tables/{tableIdOrName}",
+      "params": [
+        {
+          "name": "base",
+          "wire_name": "baseId",
+          "type": "string",
+          "location": "path",
+          "description": "Base ID",
+          "required": true
+        },
+        {
+          "name": "table",
+          "wire_name": "tableIdOrName",
+          "type": "string",
+          "location": "path",
+          "description": "Table ID or name",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "New table name"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "New table description"
+        }
+      ]
+    },
+    {
+      "name": "tables_update_field",
+      "description": "Update a field's name or description. Required: base, table, field. Optional: name, description. Returns the updated Field.",
+      "method": "PATCH",
+      "path": "/meta/bases/{baseId}/tables/{tableIdOrName}/fields/{fieldId}",
+      "params": [
+        {
+          "name": "base",
+          "wire_name": "baseId",
+          "type": "string",
+          "location": "path",
+          "description": "Base ID",
+          "required": true
+        },
+        {
+          "name": "table",
+          "wire_name": "tableIdOrName",
+          "type": "string",
+          "location": "path",
+          "description": "Table ID or name",
+          "required": true
+        },
+        {
+          "name": "field",
+          "wire_name": "fieldId",
+          "type": "string",
+          "location": "path",
+          "description": "Field ID",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "New field name"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "New field description"
+        }
+      ]
+    },
+    {
+      "name": "webhooks_create",
+      "description": "Create a webhook on a base. Required: base, specification. Optional: notification-url. Returns the new Webhook.",
+      "method": "POST",
+      "path": "/bases/{baseId}/webhooks",
+      "params": [
+        {
+          "name": "base",
+          "wire_name": "baseId",
+          "type": "string",
+          "location": "path",
+          "description": "Base ID",
+          "required": true
+        },
+        {
+          "name": "notification-url",
+          "wire_name": "notificationUrl",
+          "type": "string",
+          "location": "body",
+          "description": "HTTPS URL Airtable should POST notifications to"
+        },
+        {
+          "name": "specification",
+          "type": "string",
+          "location": "body",
+          "description": "JSON object: {'options':{'filters':{...},'includes':{...}}}",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_delete",
+      "description": "Delete a webhook. Required: base, webhook. Destructive.",
+      "method": "DELETE",
+      "path": "/bases/{baseId}/webhooks/{webhookId}",
+      "params": [
+        {
+          "name": "base",
+          "wire_name": "baseId",
+          "type": "string",
+          "location": "path",
+          "description": "Base ID",
+          "required": true
+        },
+        {
+          "name": "webhook",
+          "wire_name": "webhookId",
+          "type": "string",
+          "location": "path",
+          "description": "Webhook ID (achXXXXXXXXXXXXXX)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_enable_notifications",
+      "description": "Enable or disable notification delivery for a webhook. Required: base, webhook, enable.",
+      "method": "POST",
+      "path": "/bases/{baseId}/webhooks/{webhookId}/enableNotifications",
+      "params": [
+        {
+          "name": "base",
+          "wire_name": "baseId",
+          "type": "string",
+          "location": "path",
+          "description": "Base ID",
+          "required": true
+        },
+        {
+          "name": "webhook",
+          "wire_name": "webhookId",
+          "type": "string",
+          "location": "path",
+          "description": "Webhook ID",
+          "required": true
+        },
+        {
+          "name": "enable",
+          "type": "bool",
+          "location": "body",
+          "description": "true to enable notifications, false to pause",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_list",
+      "description": "List webhooks registered for a base. Required: base. Returns array of Webhook.",
+      "method": "GET",
+      "path": "/bases/{baseId}/webhooks",
+      "params": [
+        {
+          "name": "base",
+          "wire_name": "baseId",
+          "type": "string",
+          "location": "path",
+          "description": "Base ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "webhooks_list_payloads",
+      "description": "List recorded change-event payloads for a webhook. Required: base, webhook. Optional: cursor, limit. Returns array of WebhookPayload.",
+      "method": "GET",
+      "path": "/bases/{baseId}/webhooks/{webhookId}/payloads",
+      "params": [
+        {
+          "name": "base",
+          "wire_name": "baseId",
+          "type": "string",
+          "location": "path",
+          "description": "Base ID",
+          "required": true
+        },
+        {
+          "name": "webhook",
+          "wire_name": "webhookId",
+          "type": "string",
+          "location": "path",
+          "description": "Webhook ID",
+          "required": true
+        },
+        {
+          "name": "cursor",
+          "type": "int",
+          "location": "query",
+          "description": "Cursor value returned from previous page"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max payloads per page"
+        }
+      ]
+    },
+    {
+      "name": "webhooks_refresh",
+      "description": "Refresh a webhook's expiration timestamp. Required: base, webhook.",
+      "method": "POST",
+      "path": "/bases/{baseId}/webhooks/{webhookId}/refresh",
+      "params": [
+        {
+          "name": "base",
+          "wire_name": "baseId",
+          "type": "string",
+          "location": "path",
+          "description": "Base ID",
+          "required": true
+        },
+        {
+          "name": "webhook",
+          "wire_name": "webhookId",
+          "type": "string",
+          "location": "path",
+          "description": "Webhook ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "whoami_get",
+      "description": "Return the current user ID and granted scopes.",
+      "method": "GET",
+      "path": "/meta/whoami",
+      "params": []
+    },
+    {
+      "name": "workspaces_get_collaborators",
+      "description": "List collaborators on a workspace. Required: workspace. Optional: include.",
+      "method": "GET",
+      "path": "/meta/workspaces/{workspaceId}/collaborators",
+      "params": [
+        {
+          "name": "workspace",
+          "wire_name": "workspaceId",
+          "type": "string",
+          "location": "path",
+          "description": "Workspace ID (wspXXXXXXXXXXXXXX)",
+          "required": true
+        },
+        {
+          "name": "include",
+          "type": "string",
+          "location": "query",
+          "description": "Optional include hint (e.g. collaborators, inviteLinks)"
+        }
+      ]
+    }
+  ]
+}

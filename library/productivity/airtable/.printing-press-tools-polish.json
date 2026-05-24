@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-05-24T21:02:52.6887093Z",
+  "cli_dir": "\u003ccli-dir\u003e\\airtable-pp-cli",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "version",
+      "file": "root.go",
+      "line": 342,
+      "evidence": "Print version",
+      "status": "accepted",
+      "note": "Standard 'version' command; agents and humans both understand 'Print version' without elaboration, and the cobra Short is not the surface agents use for tool selection (version is framework-skipped from MCP tool registration)"
+    }
+  ],
+  "scorecard_before": {
+    "mcp_description_quality": 9,
+    "captured": "2026-05-24T20:57:04.3327683Z"
+  }
+}

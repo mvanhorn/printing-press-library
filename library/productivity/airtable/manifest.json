@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "airtable-pp-mcp",
+  "display_name": "Airtable",
+  "version": "4.14.0",
+  "description": "Every Airtable surface a CLI should have — plus a local SQLite mirror, cross-base SQL, and webhook tooling no SDK ships.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/airtable-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/airtable-pp-mcp",
+      "args": [],
+      "env": {
+        "AIRTABLE_PAT": "${user_config.airtable_pat}"
+      }
+    }
+  },
+  "user_config": {
+    "airtable_pat": {
+      "type": "string",
+      "title": "AIRTABLE_PAT",
+      "description": "Sets AIRTABLE_PAT for the Airtable MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

@@ -1,0 +1,100 @@
+name: airtable
+description: Discovered API spec for airtable (crowd-sniff)
+version: 0.1.0
+base_url: https://api.airtable.com
+spec_source: community
+auth:
+    type: bearer_token
+    header: Authorization
+    format: Bearer {token}
+    env_vars:
+        - AIRTABLE_TOKEN
+    env_var_specs:
+        - name: AIRTABLE_TOKEN
+          kind: per_call
+          required: true
+          sensitive: true
+          inferred: true
+    in: header
+config:
+    format: toml
+    path: ~/.config/airtable-pp-cli/config.toml
+resources:
+    daemon:
+        description: Operations on shutdown
+        endpoints:
+            create_shutdown:
+                method: POST
+                path: /daemon/shutdown
+                description: POST /daemon/shutdown
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+    listRecords:
+        description: Operations on listRecords
+        endpoints:
+            create_listRecords:
+                method: POST
+                path: /listRecords
+                description: POST /listRecords
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+    v:
+        description: Operations on v
+        endpoints:
+            create_v:
+                method: POST
+                path: /v
+                description: POST /v
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+    v0.3:
+        description: Operations on v0.3
+        endpoints:
+            get_v0.3:
+                method: GET
+                path: /v0.3/{id}
+                description: GET /v0.3/{id}
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+            list_getUserProperties:
+                method: GET
+                path: /v0.3/getUserProperties
+                description: GET /v0.3/getUserProperties
+                params: []
+                body: []
+                response:
+                    type: ""
+                    item: ""
+                pagination: null
+                meta:
+                    source_count: "1"
+                    source_tier: community-sdk
+types: {}

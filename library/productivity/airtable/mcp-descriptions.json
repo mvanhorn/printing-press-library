@@ -1,0 +1,5 @@
+{
+  "descriptions": {
+    "webhooks_delete": "Permanently delete a webhook subscription from a base. Required positional args: base (Airtable base ID, appXXXXXXXXXXXXXX) and webhook (webhook ID, achXXXXXXXXXXXXXX). Destructive: removes the webhook and stops further payload delivery; recorded payloads remain accessible via webhooks_list-payloads until they age out. Returns an empty object on success. Use webhooks_refresh instead if the goal is to extend an expiring webhook rather than tear it down."
+  }
+}

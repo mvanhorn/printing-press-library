@@ -1,0 +1,910 @@
+name: airtable
+description: "Airtable Web + Meta API — CLI with local SQLite mirror"
+version: "0.1.0"
+base_url: "https://api.airtable.com/v0"
+health_check_path: "/meta/whoami"
+spec_source: hand-authored
+
+auth:
+  type: bearer_token
+  header: "Authorization"
+  format: "Bearer {token}"
+  env_vars:
+    - AIRTABLE_PAT
+  in: header
+
+config:
+  format: toml
+  path: "~/.config/airtable-pp-cli/config.toml"
+
+category: productivity
+
+resources:
+  bases:
+    description: "Workspace bases (Meta API)"
+    endpoints:
+      list:
+        method: GET
+        path: "/meta/bases"
+        description: "List bases the token can access"
+        params:
+          - name: offset
+            type: string
+            description: "Pagination cursor returned from previous page"
+        response:
+          type: array
+          item: Base
+        pagination:
+          type: cursor
+          cursor_field: offset
+          has_more_field: offset
+        response_path: bases
+
+      get_schema:
+        method: GET
+        path: "/meta/bases/{baseId}/tables"
+        description: "Get full schema (tables, fields, views) for a base"
+        params:
+          - name: baseId
+            flag_name: base
+            type: string
+            required: true
+            positional: true
+            description: "Base ID (e.g. appXXXXXXXXXXXXXX)"
+          - name: include
+            type: string
+            description: "Optional include hint (e.g. visibleFieldIds)"
+        response:
+          type: array
+          item: Table
+        response_path: tables
+
+  tables:
+    description: "Table and field management (Meta API)"
+    endpoints:
+      create:
+        method: POST
+        path: "/meta/bases/{baseId}/tables"
+        description: "Create a table in a base"
+        params:
+          - name: baseId
+            flag_name: base
+            type: string
+            required: true
+            positional: true
+            description: "Base ID"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "Table name"
+          - name: description
+            type: string
+            description: "Optional table description"
+          - name: fields
+            type: string
+            required: true
+            description: "JSON array of field definitions (e.g. [{\"name\":\"Name\",\"type\":\"singleLineText\"}])"
+        response:
+          type: object
+          item: Table
+
+      update:
+        method: PATCH
+        path: "/meta/bases/{baseId}/tables/{tableIdOrName}"
+        description: "Update table name or description"
+        params:
+          - name: baseId
+            flag_name: base
+            type: string
+            required: true
+            positional: true
+            description: "Base ID"
+          - name: tableIdOrName
+            flag_name: table
+            type: string
+            required: true
+            positional: true
+            description: "Table ID or name"
+        body:
+          - name: name
+            type: string
+            description: "New table name"
+          - name: description
+            type: string
+            description: "New table description"
+        response:
+          type: object
+          item: Table
+
+      create_field:
+        method: POST
+        path: "/meta/bases/{baseId}/tables/{tableIdOrName}/fields"
+        description: "Add a field to a table"
+        params:
+          - name: baseId
+            flag_name: base
+            type: string
+            required: true
+            positional: true
+            description: "Base ID"
+          - name: tableIdOrName
+            flag_name: table
+            type: string
+            required: true
+            positional: true
+            description: "Table ID or name"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "Field name"
+          - name: type
+            type: string
+            required: true
+            description: "Field type (e.g. singleLineText, number, singleSelect, multipleRecordLinks)"
+          - name: options
+            type: string
+            description: "JSON object of field-type-specific options"
+          - name: description
+            type: string
+            description: "Optional field description"
+        response:
+          type: object
+          item: Field
+
+      update_field:
+        method: PATCH
+        path: "/meta/bases/{baseId}/tables/{tableIdOrName}/fields/{fieldId}"
+        description: "Update a field's name or description"
+        params:
+          - name: baseId
+            flag_name: base
+            type: string
+            required: true
+            positional: true
+            description: "Base ID"
+          - name: tableIdOrName
+            flag_name: table
+            type: string
+            required: true
+            positional: true
+            description: "Table ID or name"
+          - name: fieldId
+            flag_name: field
+            type: string
+            required: true
+            positional: true
+            description: "Field ID"
+        body:
+          - name: name
+            type: string
+            description: "New field name"
+          - name: description
+            type: string
+            description: "New field description"
+        response:
+          type: object
+          item: Field
+
+  records:
+    description: "Records — the dominant Airtable surface"
+    endpoints:
+      list:
+        method: GET
+        path: "/{baseId}/{tableIdOrName}"
+        description: "List records from a table"
+        params:
+          - name: baseId
+            flag_name: base
+            type: string
+            required: true
+            positional: true
+            description: "Base ID"
+          - name: tableIdOrName
+            flag_name: table
+            type: string
+            required: true
+            positional: true
+            description: "Table ID or name"
+          - name: fields
+            type: string
+            description: "Comma-separated list of fields to return (repeat or comma-join)"
+          - name: filterByFormula
+            flag_name: filter-formula
+            type: string
+            description: "Airtable formula expression to filter records"
+          - name: maxRecords
+            flag_name: max-records
+            type: int
+            description: "Maximum total records to return"
+          - name: pageSize
+            flag_name: page-size
+            type: int
+            default: 100
+            description: "Records per page (1-100)"
+          - name: sort
+            type: string
+            description: "Sort spec, e.g. sort[0][field]=Name&sort[0][direction]=asc"
+          - name: view
+            type: string
+            description: "Restrict results to a named view"
+          - name: cellFormat
+            flag_name: cell-format
+            type: string
+            enum: [json, string]
+            default: json
+            description: "Cell value serialization (json or string)"
+          - name: timeZone
+            flag_name: time-zone
+            type: string
+            description: "Required when cellFormat=string"
+          - name: userLocale
+            flag_name: user-locale
+            type: string
+            description: "Required when cellFormat=string"
+          - name: returnFieldsByFieldId
+            flag_name: return-fields-by-id
+            type: bool
+            default: false
+            description: "Key fields by field ID instead of name"
+          - name: recordMetadata
+            flag_name: record-metadata
+            type: string
+            description: "Include extra metadata (e.g. commentCount)"
+          - name: offset
+            type: string
+            description: "Pagination cursor"
+        response:
+          type: array
+          item: Record
+        pagination:
+          type: cursor
+          cursor_field: offset
+          has_more_field: offset
+        response_path: records
+
+      get:
+        method: GET
+        path: "/{baseId}/{tableIdOrName}/{recordId}"
+        description: "Get a single record by ID"
+        params:
+          - name: baseId
+            flag_name: base
+            type: string
+            required: true
+            positional: true
+            description: "Base ID"
+          - name: tableIdOrName
+            flag_name: table
+            type: string
+            required: true
+            positional: true
+            description: "Table ID or name"
+          - name: recordId
+            flag_name: record
+            type: string
+            required: true
+            positional: true
+            description: "Record ID (recXXXXXXXXXXXXXX)"
+          - name: cellFormat
+            flag_name: cell-format
+            type: string
+            enum: [json, string]
+            default: json
+            description: "Cell value serialization"
+          - name: returnFieldsByFieldId
+            flag_name: return-fields-by-id
+            type: bool
+            default: false
+            description: "Key fields by field ID instead of name"
+        response:
+          type: object
+          item: Record
+
+      create:
+        method: POST
+        path: "/{baseId}/{tableIdOrName}"
+        description: "Create record(s). Use --fields for single, --records JSON for bulk."
+        params:
+          - name: baseId
+            flag_name: base
+            type: string
+            required: true
+            positional: true
+            description: "Base ID"
+          - name: tableIdOrName
+            flag_name: table
+            type: string
+            required: true
+            positional: true
+            description: "Table ID or name"
+        body:
+          - name: fields
+            type: string
+            description: "JSON object of field values for a single record"
+          - name: records
+            type: string
+            description: "JSON array of record objects ([{\"fields\":{...}}, ...]) for bulk"
+          - name: typecast
+            type: bool
+            default: false
+            description: "Allow Airtable to coerce values to the field type"
+          - name: returnFieldsByFieldId
+            flag_name: return-fields-by-id
+            type: bool
+            default: false
+            description: "Key returned fields by field ID"
+        response:
+          type: object
+          item: Record
+
+      update:
+        method: PATCH
+        path: "/{baseId}/{tableIdOrName}"
+        description: "Update record(s) — merges supplied fields, leaves others untouched"
+        params:
+          - name: baseId
+            flag_name: base
+            type: string
+            required: true
+            positional: true
+            description: "Base ID"
+          - name: tableIdOrName
+            flag_name: table
+            type: string
+            required: true
+            positional: true
+            description: "Table ID or name"
+        body:
+          - name: records
+            type: string
+            required: true
+            description: "JSON array of record patches: [{\"id\":\"rec...\",\"fields\":{...}}, ...]"
+          - name: typecast
+            type: bool
+            default: false
+            description: "Allow Airtable to coerce values to the field type"
+          - name: returnFieldsByFieldId
+            flag_name: return-fields-by-id
+            type: bool
+            default: false
+            description: "Key returned fields by field ID"
+        response:
+          type: object
+
+      replace:
+        method: PUT
+        path: "/{baseId}/{tableIdOrName}"
+        description: "Replace record(s) — clears any field not present in the payload"
+        params:
+          - name: baseId
+            flag_name: base
+            type: string
+            required: true
+            positional: true
+            description: "Base ID"
+          - name: tableIdOrName
+            flag_name: table
+            type: string
+            required: true
+            positional: true
+            description: "Table ID or name"
+        body:
+          - name: records
+            type: string
+            required: true
+            description: "JSON array of full record objects: [{\"id\":\"rec...\",\"fields\":{...}}, ...]"
+          - name: typecast
+            type: bool
+            default: false
+            description: "Allow Airtable to coerce values to the field type"
+        response:
+          type: object
+
+      upsert:
+        method: PATCH
+        path: "/{baseId}/{tableIdOrName}"
+        description: "Upsert records using Airtable's native performUpsert syntax"
+        params:
+          - name: baseId
+            flag_name: base
+            type: string
+            required: true
+            positional: true
+            description: "Base ID"
+          - name: tableIdOrName
+            flag_name: table
+            type: string
+            required: true
+            positional: true
+            description: "Table ID or name"
+        body:
+          - name: records
+            type: string
+            required: true
+            description: "JSON array of records to upsert: [{\"fields\":{...}}, ...]"
+          - name: performUpsert
+            flag_name: perform-upsert
+            type: string
+            required: true
+            description: "JSON object, e.g. {\"fieldsToMergeOn\":[\"Email\"]}"
+          - name: typecast
+            type: bool
+            default: false
+            description: "Allow Airtable to coerce values to the field type"
+        response:
+          type: object
+
+      delete:
+        method: DELETE
+        path: "/{baseId}/{tableIdOrName}"
+        description: "Delete record(s) by ID"
+        params:
+          - name: baseId
+            flag_name: base
+            type: string
+            required: true
+            positional: true
+            description: "Base ID"
+          - name: tableIdOrName
+            flag_name: table
+            type: string
+            required: true
+            positional: true
+            description: "Table ID or name"
+          - name: records
+            type: string
+            required: true
+            description: "Record IDs to delete (repeat ?records[]=rec... up to 10 per call)"
+        response:
+          type: object
+
+      sync_csv:
+        method: POST
+        path: "/{baseId}/{tableIdOrName}/syncCsv"
+        description: "Push CSV content into a synced table (synced tables only)"
+        params:
+          - name: baseId
+            flag_name: base
+            type: string
+            required: true
+            positional: true
+            description: "Base ID"
+          - name: tableIdOrName
+            flag_name: table
+            type: string
+            required: true
+            positional: true
+            description: "Table ID or name"
+        body:
+          - name: csv
+            type: string
+            required: true
+            description: "Raw CSV body to sync"
+        response:
+          type: object
+
+  comments:
+    description: "Row-level comments on records"
+    endpoints:
+      list:
+        method: GET
+        path: "/{baseId}/{tableIdOrName}/{recordId}/comments"
+        description: "List comments on a record"
+        params:
+          - name: baseId
+            flag_name: base
+            type: string
+            required: true
+            positional: true
+            description: "Base ID"
+          - name: tableIdOrName
+            flag_name: table
+            type: string
+            required: true
+            positional: true
+            description: "Table ID or name"
+          - name: recordId
+            flag_name: record
+            type: string
+            required: true
+            positional: true
+            description: "Record ID"
+          - name: pageSize
+            flag_name: page-size
+            type: int
+            default: 100
+            description: "Comments per page"
+          - name: offset
+            type: string
+            description: "Pagination cursor"
+        response:
+          type: array
+          item: Comment
+        pagination:
+          type: cursor
+          cursor_field: offset
+          has_more_field: offset
+        response_path: comments
+
+      create:
+        method: POST
+        path: "/{baseId}/{tableIdOrName}/{recordId}/comments"
+        description: "Add a comment to a record"
+        params:
+          - name: baseId
+            flag_name: base
+            type: string
+            required: true
+            positional: true
+            description: "Base ID"
+          - name: tableIdOrName
+            flag_name: table
+            type: string
+            required: true
+            positional: true
+            description: "Table ID or name"
+          - name: recordId
+            flag_name: record
+            type: string
+            required: true
+            positional: true
+            description: "Record ID"
+        body:
+          - name: text
+            type: string
+            required: true
+            description: "Comment body (supports @mentions like @[usrXXXX])"
+          - name: parentCommentId
+            flag_name: parent-comment
+            type: string
+            description: "Parent comment ID to reply to"
+          - name: mentioned
+            type: string
+            description: "JSON object of mentioned user/group references"
+        response:
+          type: object
+          item: Comment
+
+      update:
+        method: PATCH
+        path: "/{baseId}/{tableIdOrName}/{recordId}/comments/{rowCommentId}"
+        description: "Edit a comment's text"
+        params:
+          - name: baseId
+            flag_name: base
+            type: string
+            required: true
+            positional: true
+            description: "Base ID"
+          - name: tableIdOrName
+            flag_name: table
+            type: string
+            required: true
+            positional: true
+            description: "Table ID or name"
+          - name: recordId
+            flag_name: record
+            type: string
+            required: true
+            positional: true
+            description: "Record ID"
+          - name: rowCommentId
+            flag_name: comment
+            type: string
+            required: true
+            positional: true
+            description: "Comment ID (comXXXXXXXXXXXXXX)"
+        body:
+          - name: text
+            type: string
+            required: true
+            description: "New comment text"
+        response:
+          type: object
+          item: Comment
+
+      delete:
+        method: DELETE
+        path: "/{baseId}/{tableIdOrName}/{recordId}/comments/{rowCommentId}"
+        description: "Delete a comment"
+        params:
+          - name: baseId
+            flag_name: base
+            type: string
+            required: true
+            positional: true
+            description: "Base ID"
+          - name: tableIdOrName
+            flag_name: table
+            type: string
+            required: true
+            positional: true
+            description: "Table ID or name"
+          - name: recordId
+            flag_name: record
+            type: string
+            required: true
+            positional: true
+            description: "Record ID"
+          - name: rowCommentId
+            flag_name: comment
+            type: string
+            required: true
+            positional: true
+            description: "Comment ID"
+        response:
+          type: object
+
+  webhooks:
+    description: "Change-notification webhooks for a base"
+    endpoints:
+      list:
+        method: GET
+        path: "/bases/{baseId}/webhooks"
+        description: "List webhooks registered for a base"
+        params:
+          - name: baseId
+            flag_name: base
+            type: string
+            required: true
+            positional: true
+            description: "Base ID"
+        response:
+          type: array
+          item: Webhook
+        response_path: webhooks
+
+      create:
+        method: POST
+        path: "/bases/{baseId}/webhooks"
+        description: "Create a webhook on a base"
+        params:
+          - name: baseId
+            flag_name: base
+            type: string
+            required: true
+            positional: true
+            description: "Base ID"
+        body:
+          - name: notificationUrl
+            flag_name: notification-url
+            type: string
+            description: "HTTPS URL Airtable should POST notifications to"
+          - name: specification
+            type: string
+            required: true
+            description: "JSON object: {\"options\":{\"filters\":{...},\"includes\":{...}}}"
+        response:
+          type: object
+          item: Webhook
+
+      delete:
+        method: DELETE
+        path: "/bases/{baseId}/webhooks/{webhookId}"
+        description: "Delete a webhook"
+        params:
+          - name: baseId
+            flag_name: base
+            type: string
+            required: true
+            positional: true
+            description: "Base ID"
+          - name: webhookId
+            flag_name: webhook
+            type: string
+            required: true
+            positional: true
+            description: "Webhook ID (achXXXXXXXXXXXXXX)"
+        response:
+          type: object
+
+      list_payloads:
+        method: GET
+        path: "/bases/{baseId}/webhooks/{webhookId}/payloads"
+        description: "List recorded change-event payloads for a webhook"
+        params:
+          - name: baseId
+            flag_name: base
+            type: string
+            required: true
+            positional: true
+            description: "Base ID"
+          - name: webhookId
+            flag_name: webhook
+            type: string
+            required: true
+            positional: true
+            description: "Webhook ID"
+          - name: cursor
+            type: int
+            description: "Cursor value returned from previous page"
+          - name: limit
+            type: int
+            description: "Max payloads per page"
+        response:
+          type: array
+          item: WebhookPayload
+        pagination:
+          type: cursor
+          cursor_field: cursor
+          has_more_field: mightHaveMore
+        response_path: payloads
+
+      refresh:
+        method: POST
+        path: "/bases/{baseId}/webhooks/{webhookId}/refresh"
+        description: "Refresh a webhook's expiration timestamp"
+        params:
+          - name: baseId
+            flag_name: base
+            type: string
+            required: true
+            positional: true
+            description: "Base ID"
+          - name: webhookId
+            flag_name: webhook
+            type: string
+            required: true
+            positional: true
+            description: "Webhook ID"
+        response:
+          type: object
+
+      enable_notifications:
+        method: POST
+        path: "/bases/{baseId}/webhooks/{webhookId}/enableNotifications"
+        description: "Enable or disable notification delivery for a webhook"
+        params:
+          - name: baseId
+            flag_name: base
+            type: string
+            required: true
+            positional: true
+            description: "Base ID"
+          - name: webhookId
+            flag_name: webhook
+            type: string
+            required: true
+            positional: true
+            description: "Webhook ID"
+        body:
+          - name: enable
+            type: bool
+            required: true
+            description: "true to enable notifications, false to pause"
+        response:
+          type: object
+
+  whoami:
+    description: "Auth introspection — returns current token's user and scopes"
+    endpoints:
+      get:
+        method: GET
+        path: "/meta/whoami"
+        description: "Return the current user ID and granted scopes"
+        response:
+          type: object
+
+  workspaces:
+    description: "Workspace metadata (Meta API)"
+    endpoints:
+      get_collaborators:
+        method: GET
+        path: "/meta/workspaces/{workspaceId}/collaborators"
+        description: "List collaborators on a workspace"
+        params:
+          - name: workspaceId
+            flag_name: workspace
+            type: string
+            required: true
+            positional: true
+            description: "Workspace ID (wspXXXXXXXXXXXXXX)"
+          - name: include
+            type: string
+            description: "Optional include hint (e.g. collaborators, inviteLinks)"
+        response:
+          type: object
+
+types:
+  Base:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: permissionLevel
+        type: string
+
+  Table:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: description
+        type: string
+      - name: primaryFieldId
+        type: string
+      - name: fields
+        type: string
+      - name: views
+        type: string
+
+  Field:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: type
+        type: string
+      - name: description
+        type: string
+      - name: options
+        type: string
+
+  Record:
+    fields:
+      - name: id
+        type: string
+      - name: createdTime
+        type: string
+      - name: fields
+        type: string
+      - name: commentCount
+        type: int
+
+  Comment:
+    fields:
+      - name: id
+        type: string
+      - name: author
+        type: string
+      - name: text
+        type: string
+      - name: createdTime
+        type: string
+      - name: lastUpdatedTime
+        type: string
+      - name: parentCommentId
+        type: string
+      - name: mentioned
+        type: string
+
+  Webhook:
+    fields:
+      - name: id
+        type: string
+      - name: areNotificationsEnabled
+        type: bool
+      - name: cursorForNextPayload
+        type: int
+      - name: isHookEnabled
+        type: bool
+      - name: lastNotificationResult
+        type: string
+      - name: notificationUrl
+        type: string
+      - name: expirationTime
+        type: string
+      - name: specification
+        type: string
+
+  WebhookPayload:
+    fields:
+      - name: timestamp
+        type: string
+      - name: baseTransactionNumber
+        type: int
+      - name: payloadFormat
+        type: string
+      - name: actionMetadata
+        type: string
+      - name: changedTablesById
+        type: string
+      - name: createdTablesById
+        type: string
+      - name: destroyedTableIds
+        type: string

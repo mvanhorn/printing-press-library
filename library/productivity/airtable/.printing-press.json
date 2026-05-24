@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-24T21:04:44.6142919Z",
+  "printing_press_version": "4.14.0",
+  "api_name": "airtable",
+  "display_name": "Airtable",
+  "cli_name": "airtable-pp-cli",
+  "owner": "joelsephus",
+  "printer": "joelsephus",
+  "printer_name": "joelsephus",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:63b8f12b603e0d95ee3d4c5c11d237f2d170e821ffa93c3778db6ebdba218aee",
+  "run_id": "20260524-153303",
+  "category": "productivity",
+  "description": "Every Airtable surface a CLI should have — plus a local SQLite mirror, cross-base SQL, and webhook tooling no SDK ships.",
+  "mcp_binary": "airtable-pp-mcp",
+  "mcp_tool_count": 26,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "AIRTABLE_PAT"
+  ],
+  "novel_features": [
+    {
+      "name": "Cross-base SQL over local mirror",
+      "command": "query",
+      "description": "Run arbitrary SQL over a local SQLite mirror of one or more Airtable bases. Tables surface as `\u003cbase_slug\u003e__\u003ctable_slug\u003e`; linked-record arrays are stored as JSON columns you can `json_each()` over."
+    },
+    {
+      "name": "What-changed analytics window",
+      "command": "changes",
+      "description": "Joins the synced webhook_payloads table with the current records snapshot to report what fields changed across a base in the last N hours/days, grouped by table, field, or actor."
+    },
+    {
+      "name": "Stale-record finder",
+      "command": "stale",
+      "description": "Find records older than a duration, optionally filtered by a singleSelect status field, joined against the local cache's last_modified_time."
+    },
+    {
+      "name": "Schema-drift watcher (multi-base)",
+      "command": "schema drift",
+      "description": "Compare cached schemas of every base under the active profile against a fresh fan-out of `bases get_schema`; report added, removed, and renamed tables and fields. Exit 1 on drift for CI."
+    },
+    {
+      "name": "Webhook fleet manager",
+      "command": "webhooks fleet",
+      "description": "List every webhook on every base under the active profile (or across `--all-profiles`), sorted by time-until-expiration, with last-payload age."
+    },
+    {
+      "name": "Linked-record graph traversal",
+      "command": "traverse",
+      "description": "Walk linked-record relationships from a starting record up to a depth limit; render as a tree (`--pretty`) or as ndjson edges (`--json`)."
+    },
+    {
+      "name": "Record revision history from webhook payloads",
+      "command": "history record",
+      "description": "Reconstruct a record's edit timeline (field-level diffs in cursor order) from the synced webhook_payloads table."
+    }
+  ]
+}
