@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "synology-dsm-pp-mcp",
+  "display_name": "Synology DSM",
+  "version": "1.0.0",
+  "description": "Synology DiskStation Manager (DSM 7.x) CLI — storage health, backup tasks, Docker containers, scheduled tasks, and file management via the Synology Web API",
+  "author": {
+    "name": "Eric Jung"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/synology-dsm-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/synology-dsm-pp-mcp",
+      "args": [],
+      "env": {
+        "SYNOLOGY_DSM_SIDCOOKIE": "${user_config.synology_dsm_sidcookie}"
+      }
+    }
+  },
+  "user_config": {
+    "synology_dsm_sidcookie": {
+      "type": "string",
+      "title": "SYNOLOGY_DSM_SIDCOOKIE",
+      "description": "Synology DSM session ID (SID) obtained via webapi login",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}
