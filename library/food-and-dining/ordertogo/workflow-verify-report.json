@@ -1,8 +1,0 @@
-{
-  "dir": "/Users/mvanhorn/printing-press/library/ordertogo",
-  "workflows": null,
-  "verdict": "workflow-pass",
-  "issues": [
-    "no workflow manifest found, skipping"
-  ]
-}

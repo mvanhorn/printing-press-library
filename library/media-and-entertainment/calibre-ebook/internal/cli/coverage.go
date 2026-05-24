@@ -25,7 +25,7 @@ so you can prioritize bulk metadata improvements.`,
 			}
 
 			data, err := c.Get("/books", map[string]string{
-				"fields": "id,title,authors,tags,series,publisher,language,isbn,formats,cover",
+				"fields": "id,title,authors,tags,series,publisher,languages,isbn,formats,cover",
 				"limit":  "0",
 			})
 			if err != nil {
@@ -43,7 +43,7 @@ so you can prioritize bulk metadata improvements.`,
 				return nil
 			}
 
-			fields := []string{"title", "authors", "tags", "series", "publisher", "language", "isbn", "formats", "cover"}
+			fields := []string{"title", "authors", "tags", "series", "publisher", "languages", "isbn", "formats", "cover"}
 			counts := map[string]int{}
 			for _, book := range books {
 				for _, f := range fields {

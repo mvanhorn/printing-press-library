@@ -139,11 +139,23 @@ func parseFormats(raw string) []string {
 	var result []string
 	for _, p := range parts {
 		p = strings.TrimSpace(p)
-		if p != "" {
-			result = append(result, p)
+		p = strings.Trim(p, "\"")
+		if ext := extractExt(p); ext != "" {
+			result = append(result, ext)
 		}
 	}
 	return result
+}
+
+func extractExt(path string) string {
+	if idx := strings.LastIndex(path, "."); idx >= 0 {
+		ext := path[idx+1:]
+		ext = strings.TrimRight(ext, "\"")
+		if ext != "" && len(ext) <= 10 {
+			return ext
+		}
+	}
+	return ""
 }
 
 func splitAuthors(raw string) []string {

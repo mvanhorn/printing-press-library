@@ -1,8 +1,0 @@
-{
-  "dir": "/Users/tmchow/printing-press/.runstate/swirling-spinning-blum-1bac0b4e/runs/20260501-164925/working/food52-pp-cli",
-  "workflows": null,
-  "verdict": "workflow-pass",
-  "issues": [
-    "no workflow manifest found, skipping"
-  ]
-}

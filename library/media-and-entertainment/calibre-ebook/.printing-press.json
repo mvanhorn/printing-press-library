@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "generated_at": "2026-05-24T11:15:00Z",
-  "printing_press_version": "4.8.0",
+  "printing_press_version": "4.14.0",
   "api_name": "calibre-ebook",
   "display_name": "Calibre Ebook",
   "cli_name": "calibre-ebook-pp-cli",

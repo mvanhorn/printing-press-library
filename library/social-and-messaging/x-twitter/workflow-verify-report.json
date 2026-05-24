@@ -1,8 +1,0 @@
-{
-  "dir": "library/social-and-messaging/x-twitter",
-  "workflows": null,
-  "verdict": "workflow-pass",
-  "issues": [
-    "no workflow manifest found, skipping"
-  ]
-}

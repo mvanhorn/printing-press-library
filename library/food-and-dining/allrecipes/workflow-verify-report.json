@@ -1,8 +1,0 @@
-{
-  "dir": "/Users/tmchow/printing-press/.runstate/cli-printing-press-8bdedb85/runs/20260503-154931/working/allrecipes-pp-cli",
-  "workflows": null,
-  "verdict": "workflow-pass",
-  "issues": [
-    "no workflow manifest found, skipping"
-  ]
-}

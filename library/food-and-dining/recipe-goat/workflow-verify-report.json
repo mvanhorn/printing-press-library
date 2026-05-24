@@ -1,8 +1,0 @@
-{
-  "dir": "/Users/tmchow/printing-press/.runstate/fizzy-moseying-frost-c63a1182/runs/20260426-002121/working/recipe-goat-pp-cli",
-  "workflows": null,
-  "verdict": "workflow-pass",
-  "issues": [
-    "no workflow manifest found, skipping"
-  ]
-}

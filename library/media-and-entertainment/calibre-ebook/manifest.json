@@ -18,5 +18,13 @@
     }
   },
   "user_config": {},
-  "tools": []
+  "tools": [],
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
 }

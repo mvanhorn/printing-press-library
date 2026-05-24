@@ -1,8 +1,0 @@
-{
-  "dir": "/Users/toriniku/printing-press/library/apartments",
-  "workflows": null,
-  "verdict": "workflow-pass",
-  "issues": [
-    "no workflow manifest found, skipping"
-  ]
-}

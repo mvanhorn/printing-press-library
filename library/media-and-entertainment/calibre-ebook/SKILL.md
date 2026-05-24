@@ -23,7 +23,7 @@ This skill drives the `calibre-ebook-pp-cli` binary. **You must verify the CLI i
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install calibre-ebook --cli-only
+   npx -y @mvanhorn/printing-press-library install calibre-ebook --cli-only
    ```
 2. Verify: `calibre-ebook-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.

@@ -1,8 +1,0 @@
-{
-  "dir": "/Users/tmchow/printing-press/.runstate/serene-hatching-meteor-2cee6bad/runs/20260507-000200/working/trigger-dev-pp-cli",
-  "workflows": null,
-  "verdict": "workflow-pass",
-  "issues": [
-    "no workflow manifest found, skipping"
-  ]
-}
