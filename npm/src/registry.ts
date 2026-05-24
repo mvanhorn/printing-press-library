@@ -18,8 +18,6 @@ export interface RegistryEntry {
   description: string;
   search_terms?: string[];
   path: string;
-  // Optional so cached older payloads without the field don't fail parsing.
-  install_module?: string;
   mcp?: MCPBlock;
 }
 
