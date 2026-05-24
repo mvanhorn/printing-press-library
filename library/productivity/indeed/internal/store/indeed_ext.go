@@ -12,17 +12,29 @@ import "context"
 // Upsert path uses. Use this instead of a bare `DELETE FROM resources` so
 // deletes don't leave orphaned FTS rows behind.
 func (s *Store) DeleteResource(ctx context.Context, resourceType, id string) error {
-	if _, err := s.db.ExecContext(ctx,
+	// Mirror the generated write paths (Upsert et al.): serialize on writeMu
+	// and commit both deletes in one transaction so a concurrent writer can't
+	// observe the resources row gone while its FTS entry still exists.
+	s.writeMu.Lock()
+	defer s.writeMu.Unlock()
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	if _, err := tx.ExecContext(ctx,
 		`DELETE FROM resources WHERE resource_type = ? AND id = ?`,
 		resourceType, id); err != nil {
 		return err
 	}
 	// FTS5 (modernc.org/sqlite) deletes by explicit rowid, matching the insert
 	// path in upsertGenericResourceTx.
-	_, err := s.db.ExecContext(ctx,
+	if _, err := tx.ExecContext(ctx,
 		`DELETE FROM resources_fts WHERE rowid = ?`,
-		ftsRowID(resourceType, id))
-	return err
+		ftsRowID(resourceType, id)); err != nil {
+		return err
+	}
+	return tx.Commit()
 }
 
 // ListAll returns every stored resource of a type with no row cap, ordered by
