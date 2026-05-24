@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-24T01:16:01.225211178Z",
+  "printing_press_version": "4.9.0",
+  "api_name": "google-calendar",
+  "cli_name": "google-calendar-pp-cli",
+  "spec_path": "/home/ruben/printing-press/.runstate/second-brain-f6d6bae5/runs/20260524-001616/research/google-calendar-openapi.json",
+  "run_id": "20260524-001616",
+  "novel_features": [
+    {
+      "name": "Free-slot finder",
+      "command": "free",
+      "description": "Find open time blocks of a given length across several calendars in one query."
+    },
+    {
+      "name": "Cross-calendar conflict detection",
+      "command": "conflicts",
+      "description": "List events that overlap across two or more calendars in a time window."
+    },
+    {
+      "name": "What-changed-since",
+      "command": "changes",
+      "description": "Show events created, updated, or cancelled since a date, by update timestamp (updatedMin), deletions included."
+    },
+    {
+      "name": "Meeting-load analytics",
+      "command": "load",
+      "description": "Count meetings and summed booked hours per day, week, or calendar over a window."
+    },
+    {
+      "name": "ACL audit across calendars",
+      "command": "acl-audit",
+      "description": "Flatten every calendar's sharing rules into one who-has-what-access table."
+    },
+    {
+      "name": "Conflict-guarded create",
+      "command": "book",
+      "description": "Create an event but abort (or warn) with a typed exit code if it overlaps an existing event."
+    },
+    {
+      "name": "Attendee/RSVP rollup",
+      "command": "rsvp-status",
+      "description": "Summarize accepted/declined/tentative counts per event across a window."
+    }
+  ],
+  "printer": "rubenasgaspar",
+  "printer_name": "Rúben Gaspar",
+  "category": "productivity"
+}

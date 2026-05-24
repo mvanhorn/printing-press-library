@@ -1,0 +1,278 @@
+{
+  "api_name": "google-calendar",
+  "novelty_score": 0,
+  "alternatives": [
+    {
+      "name": "gcalcli",
+      "url": "https://github.com/insanum/gcalcli",
+      "language": "Python",
+      "install_method": "",
+      "stars": 4200,
+      "last_updated": "",
+      "command_count": 14,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "google-calendar-mcp",
+      "url": "https://github.com/nspady/google-calendar-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 1100,
+      "last_updated": "",
+      "command_count": 12,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "gcal-cli",
+      "url": "https://github.com/toniov/gcal-cli",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 80,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "neocal",
+      "url": "https://github.com/oscarmcm/neocal",
+      "language": "Rust",
+      "install_method": "",
+      "stars": 40,
+      "last_updated": "",
+      "command_count": 4,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "google-calendar-simple-api",
+      "url": "https://github.com/kuzmoyev/google-calendar-simple-api",
+      "language": "Python",
+      "install_method": "",
+      "stars": 1500,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-24T00:18:00Z",
+  "novel_features": [
+    {
+      "name": "Free-slot finder",
+      "command": "free",
+      "description": "Find open time blocks of a given length across several calendars in one query.",
+      "rationale": "Inverts busy intervals from the local event store into free gaps offline; the live freeBusy endpoint only reports busy, never the gaps.",
+      "example": "google-calendar-pp-cli free --calendars primary,work --window 'next 7 days' --duration 90m --agent",
+      "why_it_matters": "When an agent needs to actually book something, reach for this instead of pulling every event and computing gaps yourself.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cross-calendar conflict detection",
+      "command": "conflicts",
+      "description": "List events that overlap across two or more calendars in a time window.",
+      "rationale": "A self-join over the local events table on overlapping start/end across calendars; no Google API endpoint returns cross-calendar overlaps.",
+      "example": "google-calendar-pp-cli conflicts --calendars primary,team --window 'this week' --agent",
+      "why_it_matters": "Use to detect double-bookings before they bite, without scanning calendars by hand.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "What-changed-since",
+      "command": "changes",
+      "description": "Show events created, updated, or cancelled since a date, by update timestamp (updatedMin), deletions included.",
+      "rationale": "Filters events by updatedMin (live) or stored update timestamps (local), with deletions included, for a historical window; live-only tools cannot show what changed.",
+      "example": "google-calendar-pp-cli changes --since 2026-05-17 --calendars primary --agent",
+      "why_it_matters": "Reach for this to answer 'what moved on my calendar since Friday?' in one call.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Meeting-load analytics",
+      "command": "load",
+      "description": "Count meetings and summed booked hours per day, week, or calendar over a window.",
+      "rationale": "A SQLite GROUP BY over the local events table; no single API call returns aggregated load.",
+      "example": "google-calendar-pp-cli load --window 'this month' --group-by week --agent",
+      "why_it_matters": "Use to quantify how booked a window is before committing to more meetings.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "ACL audit across calendars",
+      "command": "acl-audit",
+      "description": "Flatten every calendar's sharing rules into one who-has-what-access table.",
+      "rationale": "Joins local calendarList and acl_rules; the Google UI has no cross-calendar sharing view.",
+      "example": "google-calendar-pp-cli acl-audit --role writer --agent",
+      "why_it_matters": "Reach for this before onboarding or offboarding someone to audit access in one place.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Conflict-guarded create",
+      "command": "book",
+      "description": "Create an event but abort (or warn) with a typed exit code if it overlaps an existing event.",
+      "rationale": "Composes the local overlap query with the insert call and returns exit code 9 on conflict — agent-shaped write safety.",
+      "example": "google-calendar-pp-cli book --summary 'Sync' --start 2026-05-25T14:00:00Z --end 2026-05-25T15:00:00Z --on-conflict abort",
+      "why_it_matters": "Use when an agent books on a user's behalf and must never double-book.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Attendee/RSVP rollup",
+      "command": "rsvp-status",
+      "description": "Summarize accepted/declined/tentative counts per event across a window.",
+      "rationale": "Counts stored attendee response arrays in SQLite; mechanical aggregation no single API call provides.",
+      "example": "google-calendar-pp-cli rsvp-status --window 'next 14 days' --agent",
+      "why_it_matters": "Reach for this to see which upcoming meetings still need responses.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Free-slot finder",
+      "command": "free",
+      "description": "Find open time blocks of a given length across several calendars in one query.",
+      "rationale": "Inverts busy intervals from the local event store into free gaps offline; the live freeBusy endpoint only reports busy, never the gaps.",
+      "example": "google-calendar-pp-cli free --calendars primary,work --window 'next 7 days' --duration 90m --agent",
+      "why_it_matters": "When an agent needs to actually book something, reach for this instead of pulling every event and computing gaps yourself.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Cross-calendar conflict detection",
+      "command": "conflicts",
+      "description": "List events that overlap across two or more calendars in a time window.",
+      "rationale": "A self-join over the local events table on overlapping start/end across calendars; no Google API endpoint returns cross-calendar overlaps.",
+      "example": "google-calendar-pp-cli conflicts --calendars primary,team --window 'this week' --agent",
+      "why_it_matters": "Use to detect double-bookings before they bite, without scanning calendars by hand.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "What-changed-since",
+      "command": "changes",
+      "description": "Show events created, updated, or cancelled since a date, by update timestamp (updatedMin), deletions included.",
+      "rationale": "Filters events by updatedMin (live) or stored update timestamps (local), with deletions included, for a historical window; live-only tools cannot show what changed.",
+      "example": "google-calendar-pp-cli changes --since 2026-05-17 --calendars primary --agent",
+      "why_it_matters": "Reach for this to answer 'what moved on my calendar since Friday?' in one call.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Meeting-load analytics",
+      "command": "load",
+      "description": "Count meetings and summed booked hours per day, week, or calendar over a window.",
+      "rationale": "A SQLite GROUP BY over the local events table; no single API call returns aggregated load.",
+      "example": "google-calendar-pp-cli load --window 'this month' --group-by week --agent",
+      "why_it_matters": "Use to quantify how booked a window is before committing to more meetings.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "ACL audit across calendars",
+      "command": "acl-audit",
+      "description": "Flatten every calendar's sharing rules into one who-has-what-access table.",
+      "rationale": "Joins local calendarList and acl_rules; the Google UI has no cross-calendar sharing view.",
+      "example": "google-calendar-pp-cli acl-audit --role writer --agent",
+      "why_it_matters": "Reach for this before onboarding or offboarding someone to audit access in one place.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Conflict-guarded create",
+      "command": "book",
+      "description": "Create an event but abort (or warn) with a typed exit code if it overlaps an existing event.",
+      "rationale": "Composes the local overlap query with the insert call and returns exit code 9 on conflict — agent-shaped write safety.",
+      "example": "google-calendar-pp-cli book --summary 'Sync' --start 2026-05-25T14:00:00Z --end 2026-05-25T15:00:00Z --on-conflict abort",
+      "why_it_matters": "Use when an agent books on a user's behalf and must never double-book.",
+      "group": "Agent-native plumbing"
+    },
+    {
+      "name": "Attendee/RSVP rollup",
+      "command": "rsvp-status",
+      "description": "Summarize accepted/declined/tentative counts per event across a window.",
+      "rationale": "Counts stored attendee response arrays in SQLite; mechanical aggregation no single API call provides.",
+      "example": "google-calendar-pp-cli rsvp-status --window 'next 14 days' --agent",
+      "why_it_matters": "Reach for this to see which upcoming meetings still need responses.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "Google Calendar",
+    "headline": "Every gcalcli and MCP feature, plus a local SQLite mirror that makes free-time search, conflict detection, and 'what changed' instant and offline.",
+    "value_prop": "A complete Google Calendar v3 CLI with full CRUD on events, calendars, ACLs, free/busy, and settings — plus a local event store that caches events as you query them. That store unlocks commands no live-only tool can offer: free-slot finding (free), cross-calendar conflict detection (conflicts), change windows (changes), and meeting-load analytics (load). Agent-native throughout: --json, --select, --dry-run, and typed exit codes.",
+    "auth_narrative": "Google Calendar uses OAuth2 (authorization-code). Run `google-calendar-pp-cli auth login` once to authorize in your browser; tokens are stored locally and refreshed automatically. Scopes follow least-privilege: read-only commands request calendar.readonly.",
+    "quickstart": [
+      {
+        "command": "google-calendar-pp-cli doctor",
+        "comment": "Verify auth and connectivity (run `auth login` first to authorize — see Auth below)."
+      },
+      {
+        "command": "google-calendar-pp-cli sync --full",
+        "comment": "Mirror your calendars and events into the local SQLite store."
+      },
+      {
+        "command": "google-calendar-pp-cli agenda --window today",
+        "comment": "See today across your calendars, offline."
+      },
+      {
+        "command": "google-calendar-pp-cli free --calendars primary --window 'next 7 days' --duration 60m",
+        "comment": "Find open one-hour slots this week."
+      },
+      {
+        "command": "google-calendar-pp-cli conflicts --window 'this week' --agent",
+        "comment": "Surface any double-bookings across calendars as JSON."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "410 GONE on sync",
+        "fix": "The sync token expired; run `sync --full` to clear the per-calendar cursor and resync from scratch."
+      },
+      {
+        "symptom": "rateLimitExceeded (403/429)",
+        "fix": "You hit a per-user/per-calendar quota; the client backs off exponentially — retry or narrow the window. Prefer `patch` over `update` to spend fewer quota units."
+      },
+      {
+        "symptom": "auth token invalid / expired",
+        "fix": "Run `google-calendar-pp-cli auth login` again to re-authorize; check `auth status`."
+      },
+      {
+        "symptom": "free/busy returns 400 on timeZone",
+        "fix": "Omit --timezone to use the calendar default, or pass an IANA name like Europe/Lisbon rather than an offset."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent or a terminal user needs to read, search, or book Google Calendar events and wants offline-fast queries over a local mirror. It is the right choice for scheduling automations that must find free time, avoid double-bookings, or report what changed — all with structured output and typed exit codes. It is not the right tool for rendering a graphical calendar UI.",
+    "recipes": [
+      {
+        "title": "Book without double-booking",
+        "command": "google-calendar-pp-cli book --summary 'Design review' --start 2026-05-25T15:00:00Z --end 2026-05-25T16:00:00Z --on-conflict abort",
+        "explanation": "Aborts with a typed exit code if the slot overlaps an existing event in the local store."
+      },
+      {
+        "title": "Find the next free 90 minutes",
+        "command": "google-calendar-pp-cli free --calendars primary,work --window 'next 5 days' --duration 90m --agent",
+        "explanation": "Returns open intervals long enough for the meeting as JSON, ready for an agent to pick from."
+      },
+      {
+        "title": "Weekly change review",
+        "command": "google-calendar-pp-cli changes --since 2026-05-17 --agent --select id,summary,status,updated",
+        "explanation": "Lists created/updated/cancelled events since a date, narrowing the deeply-nested event payload to four fields so agents don't burn context on full event bodies."
+      },
+      {
+        "title": "Who has access where",
+        "command": "google-calendar-pp-cli acl-audit --role writer",
+        "explanation": "Flattens sharing rules across all calendars into one table before onboarding a contractor."
+      },
+      {
+        "title": "Quantify a busy month",
+        "command": "google-calendar-pp-cli load --window 'this month' --group-by week",
+        "explanation": "Counts meetings and total booked hours per week."
+      }
+    ],
+    "trigger_phrases": [
+      "what's on my calendar today",
+      "find a free slot",
+      "am I double-booked this week",
+      "what changed on my calendar since",
+      "book a meeting on google calendar",
+      "use google-calendar",
+      "run google-calendar"
+    ]
+  }
+}

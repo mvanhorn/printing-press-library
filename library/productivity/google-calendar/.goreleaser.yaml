@@ -1,0 +1,51 @@
+version: 2
+project_name: google-calendar-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: google-calendar-pp-cli
+    main: ./cmd/google-calendar-pp-cli
+    binary: google-calendar-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/productivity/google-calendar/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: google-calendar-pp-mcp
+    main: ./cmd/google-calendar-pp-mcp
+    binary: google-calendar-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: google-calendar-pp-cli
+    repository:
+      owner: rben-gaspar
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Every gcalcli and MCP feature, plus a local SQLite mirror that makes free-time search, conflict detection, and 'what..."
+    install: |
+      bin.install "google-calendar-pp-cli"
+      bin.install "google-calendar-pp-mcp"
