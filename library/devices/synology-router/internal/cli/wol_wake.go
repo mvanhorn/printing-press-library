@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/url"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -34,7 +35,8 @@ func newWolWakeCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/wol/wake"
 			params := map[string]string{}
-			var body map[string]any
+			var data json.RawMessage
+			var statusCode int
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)
 				if err != nil {
@@ -44,19 +46,18 @@ func newWolWakeCmd(flags *rootFlags) *cobra.Command {
 				if err := json.Unmarshal(stdinData, &jsonBody); err != nil {
 					return fmt.Errorf("parsing stdin JSON: %w", err)
 				}
-				body = jsonBody
+				data, statusCode, err = c.PostWithParams(path, params, jsonBody)
 			} else {
-				body = map[string]any{}
+				formFields := url.Values{}
 				if bodyMac != "" {
-					body["mac"] = bodyMac
+					formFields.Set("mac", bodyMac)
 				}
+				data, statusCode, err = c.PostFormWithParams(path, params, formFields)
 			}
-			data, statusCode, err := c.PostWithParams(path, params, body)
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
 			if wantsHumanTable(cmd.OutOrStdout(), flags) {
-				// Check if response contains an array (directly or wrapped in "data")
 				var items []map[string]any
 				if json.Unmarshal(data, &items) == nil && len(items) > 0 {
 					if err := printAutoTable(cmd.OutOrStdout(), items); err != nil {
@@ -81,10 +82,6 @@ func newWolWakeCmd(flags *rootFlags) *cobra.Command {
 				if flags.quiet {
 					return nil
 				}
-				// Apply --compact and --select to the API response before wrapping.
-				// --select wins when both are set: explicit field choice trumps the
-				// generic high-gravity allow-list. Otherwise --compact still applies
-				// when --agent is on but the user did not name fields.
 				filtered := data
 				if flags.selectFields != "" {
 					filtered = filterFields(filtered, flags.selectFields)
@@ -120,7 +117,6 @@ func newWolWakeCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&bodyMac, "mac", "", "MAC address of the device to send the magic packet to")
 	cmd.Flags().BoolVar(&stdinBody, "stdin", false, "Read request body as JSON from stdin")
-	_ = cmd.MarkFlagRequired("mac")
 
 	return cmd
 }

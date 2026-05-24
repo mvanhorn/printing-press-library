@@ -4,10 +4,23 @@ package cli
 
 import (
 	"fmt"
+	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/devices/synology-router/internal/store"
 )
+
+func parseDuration(s string) time.Duration {
+	s = strings.TrimSpace(s)
+	if strings.HasSuffix(s, "d") {
+		days, _ := strings.CutSuffix(s, "d")
+		h, _ := time.ParseDuration(days + "h")
+		return h * 24
+	}
+	d, _ := time.ParseDuration(s)
+	return d
+}
 
 func newStalePromotedCmd(flags *rootFlags) *cobra.Command {
 	var staleAfter string
@@ -31,12 +44,17 @@ func newStalePromotedCmd(flags *rootFlags) *cobra.Command {
 			}
 			defer rows.Close()
 
+			threshold := parseDuration(staleAfter)
 			var stale []map[string]any
 			for rows.Next() {
 				var rtype string
 				var count int
 				var lastSynced string
 				if rows.Scan(&rtype, &count, &lastSynced) != nil {
+					continue
+				}
+				syncTime, timeErr := time.Parse(time.RFC3339, lastSynced)
+				if timeErr == nil && time.Since(syncTime) < threshold {
 					continue
 				}
 				stale = append(stale, map[string]any{

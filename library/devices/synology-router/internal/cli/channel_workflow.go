@@ -98,7 +98,6 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 
 	cmd.Flags().BoolVar(&full, "full", false, "Perform a full re-archive ignoring any previous sync state markers")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Path to the local SQLite database file used for the archive workflow")
-	_ = cmd.MarkFlagRequired("full")
 
 	return cmd
 }

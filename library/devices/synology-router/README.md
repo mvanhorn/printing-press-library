@@ -1,12 +1,25 @@
 # Synology Router CLI
 
-REST-style API for managing Synology routers via SRM (Synology Router Manager).
-All operations use form-encoded POST requests to /webapi/entry.cgi with
-api, method, and version parameters. Authentication uses SYNO.API.Auth to
-obtain a session ID (sid) stored as a Cookie header id=<sid>.
-The router model is RT2600ac. Router IP defaults to 192.168.1.254 port 8001 (HTTPS).
+A command-line interface for managing Synology routers running SRM (Synology Router Manager). Monitor connected devices, analyze traffic, manage firewall rules, configure Wi-Fi, control Smart WAN, and wake sleeping machines — all from your terminal or AI agent.
 
-Learn more at [Synology Router](https://www.synology.com).
+Works with the RT2600ac and other SRM-based routers (MR2200ac, WRX560). Connects over your local network via HTTPS.
+
+## What You Can Do
+
+- **See who's online** — list every device on your network with hostname, IP, MAC address, and connection status
+- **Track bandwidth** — find your top talkers by time period (live, hourly, daily, weekly, monthly) with human-readable sizes
+- **Spot bottlenecks** — identify devices consuming a disproportionate share of your bandwidth
+- **Watch trends** — compare traffic patterns across days or weeks to spot anomalies
+- **Check router health** — single-command snapshot of device counts, WAN status, and bandwidth summary
+- **Manage firewall rules** — list and replace IPv4/IPv6 policy routing rules
+- **Configure Wi-Fi** — view and update SSID, security, and radio settings across profiles
+- **Control Smart WAN** — inspect and change failover/load-balancing mode, gateway priorities
+- **Wake sleeping devices** — register MAC addresses and send Wake-on-LAN magic packets
+- **Monitor resources** — CPU, memory, and network utilization in real time
+- **Inspect mesh networks** — node status, link rates, and connected device counts
+- **Audit security** — firewall rules, access control groups, and DDNS configuration at a glance
+- **Work offline** — sync data to a local SQLite store and search/query it without hitting the router API
+- **Use with AI agents** — JSON output, MCP server, compact mode, and non-interactive flags built in
 
 Printed by [@e-jung](https://github.com/e-jung) (Eric Jung).
 

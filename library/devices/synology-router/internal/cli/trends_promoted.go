@@ -31,7 +31,7 @@ func newTrendsPromotedCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			rows, err := s.DB().Query(fmt.Sprintf(
-				`SELECT %s AS period, COUNT(*) AS record_count, SUM(CAST(json_extract(data, '$.download') AS INTEGER)) AS total_download, SUM(CAST(json_extract(data, '$.upload') AS INTEGER)) AS total_upload FROM resources WHERE resource_type = 'traffic' GROUP BY period ORDER BY period DESC LIMIT 14`, groupExpr))
+				`SELECT %s AS period, COUNT(*) AS record_count, SUM(CAST(json_extract(data, '$.download') AS INTEGER)) AS total_download, SUM(CAST(json_extract(data, '$.upload') AS INTEGER)) AS total_upload FROM resources WHERE resource_type = 'traffic' GROUP BY period ORDER BY period ASC LIMIT 14`, groupExpr))
 			if err != nil {
 				return fmt.Errorf("querying traffic trends: %w", err)
 			}
@@ -77,6 +77,5 @@ func newTrendsPromotedCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&flagPeriod, "period", "day", "Grouping period for trend calculation: day or week")
-	_ = cmd.MarkFlagRequired("period")
 	return cmd
 }

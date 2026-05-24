@@ -88,8 +88,6 @@ Data must be synced first with the sync command.`,
 	cmd.Flags().StringVar(&groupBy, "group-by", "", "Field name to group results by for computing aggregate statistics")
 	cmd.Flags().StringVar(&dbPath, "db", "", "Path to the local SQLite database file")
 	cmd.Flags().IntVar(&limit, "limit", 25, "Maximum number of groups to display in the aggregated output")
-	_ = cmd.MarkFlagRequired("type")
-	_ = cmd.MarkFlagRequired("group-by")
 
 	return cmd
 }

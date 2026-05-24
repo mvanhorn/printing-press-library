@@ -156,6 +156,5 @@ func newBottleneckPromotedCmd(flags *rootFlags) *cobra.Command {
 		},
 	}
 	cmd.Flags().Float64Var(&flagThreshold, "threshold", 50, "Show devices consuming at least this percentage of total bandwidth")
-	_ = cmd.MarkFlagRequired("threshold")
 	return cmd
 }

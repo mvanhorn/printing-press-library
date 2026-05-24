@@ -88,6 +88,5 @@ func newBusiestPromotedCmd(flags *rootFlags) *cobra.Command {
 	}
 	cmd.Flags().StringVar(&flagInterval, "interval", "day", "Time window for measuring device bandwidth usage: live, day, week, month")
 	cmd.Flags().IntVar(&flagTop, "top", 10, "Maximum number of top bandwidth-consuming devices to display")
-	_ = cmd.MarkFlagRequired("interval")
 	return cmd
 }
