@@ -76,24 +76,24 @@
     },
     {
       "id": "threads-stale-derive-from-emails",
-      "summary": "Derive thread data from mailboxes_emails parent_id groups when the threads table is empty.",
-      "reason": "The API has no list-threads endpoint (only GET single thread by ID), so sync --full cannot populate the threads table. The command now falls back to grouping emails by parent_id to detect conversation threads.",
+      "summary": "Derive thread data from mailboxes_emails thread_id groups when the threads table is empty.",
+      "reason": "The API has no list-threads endpoint (only GET single thread by ID), so sync --full cannot populate the threads table. The command now falls back to grouping emails by $.thread_id from the API response.",
       "files": [
         "internal/cli/threads_stale.go"
       ]
     },
     {
       "id": "inbox-health-derive-reply-rate-from-emails",
-      "summary": "Derive reply_rate from mailboxes_emails outbound emails with parent_id instead of the reply table.",
-      "reason": "The reply endpoint is POST-only (no list GET), so sync cannot populate the reply table. Outbound emails with a parent_id are replies to existing conversations.",
+      "summary": "Derive reply_rate from mailboxes_emails outbound emails with $.thread_id instead of the reply table.",
+      "reason": "The reply endpoint is POST-only (no list GET), so sync cannot populate the reply table. Outbound emails with a thread_id are replies to existing conversations.",
       "files": [
         "internal/cli/inbox_health.go"
       ]
     },
     {
       "id": "inbox-health-derive-threads-from-emails",
-      "summary": "Derive thread_count and avg_thread_depth from mailboxes_emails parent_id groups instead of the threads table.",
-      "reason": "The API has no list-threads endpoint (only GET single thread by ID), so sync --full cannot populate the threads table. Thread metrics are now derived from parent_id grouping with HAVING COUNT(*) >= 2.",
+      "summary": "Derive thread_count and avg_thread_depth from mailboxes_emails $.thread_id groups instead of the threads table.",
+      "reason": "The API has no list-threads endpoint (only GET single thread by ID), so sync --full cannot populate the threads table. Thread metrics are now derived from $.thread_id grouping with HAVING COUNT(*) >= 2.",
       "files": [
         "internal/cli/inbox_health.go"
       ]
@@ -162,6 +162,23 @@
       "files": [
         "internal/cli/oversight_velocity.go",
         "internal/cli/trust_status.go"
+      ]
+    },
+    {
+      "id": "sync-guard-parent-id-injection",
+      "summary": "Guard parent_id injection in syncDependentResource so API-provided values are preserved.",
+      "reason": "Unconditional obj[\"parent_id\"] = parentIDJSON overwrites API thread-parent data with the mailbox UUID. The mailboxes_id FK injection was already guarded; parent_id was not.",
+      "files": [
+        "internal/cli/sync.go"
+      ]
+    },
+    {
+      "id": "thread-detection-use-thread-id-field",
+      "summary": "Use json_extract(data, '$.thread_id') from the API response for thread grouping and reply detection instead of the parent_id column.",
+      "reason": "The parent_id column in mailboxes_emails is the FK to the parent mailbox, not a thread-parent reference. The API returns thread_id in EmailSummary. Using parent_id caused reply_rate to equal outbound rate and thread_count to collapse to 1 per mailbox.",
+      "files": [
+        "internal/cli/inbox_health.go",
+        "internal/cli/threads_stale.go"
       ]
     }
   ]

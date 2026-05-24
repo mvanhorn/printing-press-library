@@ -1422,7 +1422,13 @@ func syncDependentResource(ctx context.Context, c interface {
 			for i, item := range items {
 				var obj map[string]json.RawMessage
 				if err := json.Unmarshal(item, &obj); err == nil {
-					obj["parent_id"] = parentIDJSON
+					// PATCH: Guard parent_id injection — only set when absent
+					// so API-provided values (e.g. thread_id mapped to parent_id)
+					// are preserved. The mailboxes_id FK injection already has
+					// this guard.
+					if _, ok := obj["parent_id"]; !ok {
+						obj["parent_id"] = parentIDJSON
+					}
 					if _, ok := obj[parentFKKey]; !ok {
 						obj[parentFKKey] = parentIDJSON
 					}

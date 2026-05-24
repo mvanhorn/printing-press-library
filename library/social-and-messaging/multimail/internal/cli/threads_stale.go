@@ -209,19 +209,22 @@ func staleFromThreadsTable(cmd *cobra.Command, db *store.Store, cutoff time.Time
 }
 
 // staleFromEmailParentGroups derives threads from mailboxes_emails by grouping
-// on parent_id. Any parent_id with 2+ emails is treated as a conversation thread.
+// on thread_id from the API response. Any thread_id with 2+ emails is treated
+// as a conversation thread. Uses json_extract(data, '$.thread_id') — not the
+// parent_id column, which stores the FK to the parent mailbox.
 func staleFromEmailParentGroups(cmd *cobra.Command, db *store.Store, cutoff time.Time, mbNames map[string]string) ([]staleThreadRow, error) {
 	rows, err := db.DB().QueryContext(cmd.Context(),
 		`SELECT
-			parent_id,
+			json_extract(data, '$.thread_id'),
 			mailboxes_id,
 			COUNT(*) as msg_count,
 			MAX(COALESCE(json_extract(data, '$.received_at'), json_extract(data, '$.created_at'), synced_at)) as last_ts,
 			-- Pick subject from any email in the thread
 			COALESCE(json_extract(data, '$.subject'), '')
 		FROM mailboxes_emails
-		WHERE parent_id IS NOT NULL AND parent_id != ''
-		GROUP BY parent_id, mailboxes_id
+		WHERE json_extract(data, '$.thread_id') IS NOT NULL
+		AND json_extract(data, '$.thread_id') != ''
+		GROUP BY json_extract(data, '$.thread_id'), mailboxes_id
 		HAVING COUNT(*) >= 2`)
 	if err != nil {
 		return nil, fmt.Errorf("querying email threads: %w", err)
