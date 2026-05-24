@@ -594,8 +594,10 @@ func newSavedSaveCmd(flags *rootFlags) *cobra.Command {
 			}
 			name := args[0]
 			f.Query = strings.TrimSpace(strings.Join(args[1:], " "))
-			if f.Query == "" && f.Location == "" {
-				return fmt.Errorf("a saved search needs a query and/or --location")
+			// --remote alone is a valid saved search (mirrors the search guard);
+			// don't reject a remote-only query.
+			if f.Query == "" && f.Location == "" && !f.Remote {
+				return fmt.Errorf("a saved search needs a query, --location, or --remote")
 			}
 			db, err := openIndeedStore(cmd.Context())
 			if err != nil {
