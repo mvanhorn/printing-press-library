@@ -7,6 +7,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 
@@ -104,6 +105,21 @@ func newBacklinkNewCmd(flags *rootFlags) *cobra.Command {
 			if err := rows.Err(); err != nil {
 				return fmt.Errorf("iterate backlink rows: %w", err)
 			}
+			// Deterministic top-N. The query has no ORDER BY, so SQLite
+			// returns rows in rowid order; without this sort, --limit
+			// would pick whichever 50 links happened to be inserted
+			// first, not the most interesting. Sort by Ascore desc
+			// (authority first), tiebreak by FirstSeen desc (newest
+			// first), final tiebreak by Source for stability.
+			sort.SliceStable(hits, func(i, j int) bool {
+				if hits[i].Ascore != hits[j].Ascore {
+					return hits[i].Ascore > hits[j].Ascore
+				}
+				if hits[i].FirstSeen != hits[j].FirstSeen {
+					return hits[i].FirstSeen > hits[j].FirstSeen
+				}
+				return hits[i].Source < hits[j].Source
+			})
 			if limit > 0 && len(hits) > limit {
 				hits = hits[:limit]
 			}

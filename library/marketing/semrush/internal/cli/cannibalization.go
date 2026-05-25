@@ -44,6 +44,11 @@ func newCannibalizationCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			domain := args[0]
+			// ORDER BY synced_at DESC so the dedup loop below (which keeps
+			// the FIRST row encountered per (phrase, URL)) retains the
+			// most-recent position, not the oldest. Without this, a user
+			// who syncs weekly would see positions from their first-ever
+			// sync rather than the current state.
 			rows, err := db.DB().QueryContext(ctx,
 				`SELECT COALESCE(json_extract(data, '$.Ph'), json_extract(data, '$.phrase'), '') AS phrase,
 				        COALESCE(json_extract(data, '$.Ur'), json_extract(data, '$.url'), '') AS url,
@@ -51,7 +56,8 @@ func newCannibalizationCmd(flags *rootFlags) *cobra.Command {
 				 FROM resources
 				 WHERE resource_type IN ('keyword', 'domain_keywords')
 				   AND (json_extract(data, '$.domain') = ? OR json_extract(data, '$.Dn') = ?)
-				   AND (? = '' OR json_extract(data, '$.database') = ? OR json_extract(data, '$.database') IS NULL)`,
+				   AND (? = '' OR json_extract(data, '$.database') = ? OR json_extract(data, '$.database') IS NULL)
+				 ORDER BY synced_at DESC`,
 				domain, domain, database, database)
 			if err != nil {
 				return fmt.Errorf("query keyword positions: %w", err)

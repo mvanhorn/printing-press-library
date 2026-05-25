@@ -7,6 +7,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"sort"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -161,7 +162,11 @@ func newSnapshotDiffCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			// Resource types to diff: intersection of both labels (or single
-			// override).
+			// override). Sort the intersection so the JSON output's diff
+			// section order is stable across runs — without this sort,
+			// ranging over the aTimes Go map produces a different order
+			// each invocation, breaking scripted diffs of two `snapshot
+			// diff` outputs.
 			var resourceTypes []string
 			if resource != "" {
 				resourceTypes = []string{resource}
@@ -171,6 +176,7 @@ func newSnapshotDiffCmd(flags *rootFlags) *cobra.Command {
 						resourceTypes = append(resourceTypes, rt)
 					}
 				}
+				sort.Strings(resourceTypes)
 			}
 
 			idsAt := func(rt string, takenAt int64) (map[string]string, error) {
