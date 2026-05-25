@@ -90,8 +90,11 @@ func normalizeFleetBase(raw string) string {
 	}
 	host := u.Hostname()
 	// Loopback is always allowed: a local mock server (tests) or the local
-	// tesla-http-proxy relay can't exfiltrate the bearer off-machine.
-	if host == "localhost" || host == "127.0.0.1" || host == "::1" {
+	// tesla-http-proxy relay can't exfiltrate the bearer off-machine. Still
+	// require http/https so an unsupported scheme is caught here instead of
+	// failing opaquely at request time with "unsupported protocol scheme".
+	if (host == "localhost" || host == "127.0.0.1" || host == "::1") &&
+		(u.Scheme == "http" || u.Scheme == "https") {
 		return s
 	}
 	// Any remote host must be https on tesla.com — the bearer's only legit
@@ -353,13 +356,15 @@ URI to a different port — but the CLI default expects 8585).`,
 				return err
 			}
 			expiresAt := time.Now().Add(time.Duration(tok.ExpiresIn) * time.Second).UTC()
+			// Sticky region: set the audience we logged in against on the
+			// in-memory struct BEFORE the single SaveFleetTokens write, so the
+			// tokens and api_base are persisted atomically. Two separate saves
+			// would leave api_base unwritten if the process died between them,
+			// silently reverting later reads to North America (the bug this
+			// whole change fixes). Mirrors fleet-register.
+			cfg.Fleet.APIBase = effAudience
 			if err := cfg.SaveFleetTokens("", "", tok.AccessToken, tok.RefreshToken, expiresAt, "", ""); err != nil {
 				return err
-			}
-			// Sticky region: persist the audience we logged in against so reads
-			// and later token refreshes target the same regional Fleet host.
-			if serr := cfg.SaveFleetAPIBase(effAudience); serr != nil {
-				return serr
 			}
 			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
 				"status":       "logged_in",
