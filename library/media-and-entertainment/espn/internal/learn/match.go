@@ -46,6 +46,14 @@ const (
 	// at the envelope level so agents can disambiguate via context
 	// or --debug-mismatches.
 	WarningAmbiguousAlias = "ambiguous_alias"
+	// WarningSimilarShapeDifferentEntity prefixes envelope-level
+	// warnings whose suffix is the canonical name of a stored row
+	// that shares the query's structural shape but resolves to a
+	// different entity. Format: "similar_shape_different_entity:<canonical>".
+	// Surfaces in the default envelope so an agent doesn't read
+	// no_learnings_for_query_family when a structurally-similar row
+	// for a different entity exists.
+	WarningSimilarShapeDifferentEntity = "similar_shape_different_entity"
 )
 
 // Jaccard returns the token-set Jaccard coefficient of two string

@@ -185,6 +185,13 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 
 	var hits []Hit
 	var mismatches []Hit
+	// Track canonicals of stored rows routed to mismatches[] so we
+	// can surface a top-level "similar_shape_different_entity"
+	// warning even when --debug-mismatches isn't passed. The agent
+	// then sees that a structurally-similar learning exists for a
+	// different entity, rather than the misleading
+	// no_learnings_for_query_family.
+	mismatchCanonicals := make(map[string]struct{})
 
 	for rows.Next() {
 		var (
@@ -323,6 +330,21 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 			hit.Warnings = append(hit.Warnings, WarningCrossAliasMatch)
 		}
 		if hit.EntityMatch == EntityMatchMismatch {
+			// Surface canonicals for the envelope-level similar-shape
+			// warning. Fall back to literal stored entities when the
+			// row has no canonical resolution — better to name the
+			// raw entity than to silently drop the hint.
+			if len(storedCanonicals) > 0 {
+				for c := range storedCanonicals {
+					mismatchCanonicals[c] = struct{}{}
+				}
+			} else {
+				for _, e := range storedEntitySlice {
+					if e = strings.TrimSpace(e); e != "" {
+						mismatchCanonicals[e] = struct{}{}
+					}
+				}
+			}
 			mismatches = append(mismatches, hit)
 		} else {
 			hits = append(hits, hit)
@@ -391,6 +413,24 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 	result.Found = len(hits) > 0
 	if result.Found {
 		result.MatchScore = hits[0].MatchScore
+	}
+
+	// Surface mismatches whose structural shape matches the query
+	// as envelope-level warnings naming the alternative canonical.
+	// Same-shape rows already passed the Jaccard floor; the only
+	// reason they landed in mismatches is the entity differed.
+	// Emitting the canonical here lets the agent see that a
+	// similar-shape learning exists for a different entity, instead
+	// of treating it as a cold start.
+	if len(mismatchCanonicals) > 0 {
+		canonicals := make([]string, 0, len(mismatchCanonicals))
+		for c := range mismatchCanonicals {
+			canonicals = append(canonicals, c)
+		}
+		sort.Strings(canonicals)
+		for _, c := range canonicals {
+			result.Warnings = append(result.Warnings, WarningSimilarShapeDifferentEntity+":"+c)
+		}
 	}
 
 	if !result.Found && len(mismatches) == 0 {

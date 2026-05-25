@@ -13,6 +13,7 @@ import (
 	"context"
 	"database/sql"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/mvanhorn/printing-press-library/library/media-and-entertainment/espn/internal/learn/entities"
@@ -281,6 +282,128 @@ func TestRecall_LegacyNullEntityRow_NoResolvableTokens(t *testing.T) {
 	}
 	if got.Found {
 		t.Errorf("unrelated query against a null-entity row should not match; got %+v", got)
+	}
+}
+
+// TestRecall_SimilarShapeDifferentEntity_SurfacesWarning exercises U3
+// of plan 2026-05-25-004. The dogfood session 4 scenario: a Mariners
+// learning exists, the agent asks about the Mets. Both queries share
+// the structural shape "how doing year/season" but the entities
+// differ. The default envelope should surface a top-level warning
+// naming the alternative canonical, not the misleading
+// no_learnings_for_query_family.
+func TestRecall_SimilarShapeDifferentEntity_SurfacesWarning(t *testing.T) {
+	t.Parallel()
+	db := openCanonicalTestDB(t)
+	seedCanonical(t, db, "mlb_team", "Seattle Mariners",
+		[]string{"Seattle Mariners", "Mariners", "SEA"})
+	seedCanonical(t, db, "mlb_team", "New York Mets",
+		[]string{"New York Mets", "Mets", "NYM"})
+	seedCanonicalLearning(t, db, "how mariners doing season year",
+		`["Mariners"]`, "12", "teams")
+
+	got, err := Recall(context.Background(), db, "how are the Mets doing this year", Opts{EntityConfig: espnLikeConfig()})
+	if err != nil {
+		t.Fatalf("recall: %v", err)
+	}
+	if got.Found {
+		t.Fatalf("different-entity query should not be found; got %+v", got)
+	}
+	want := WarningSimilarShapeDifferentEntity + ":Seattle Mariners"
+	foundWarning := false
+	for _, w := range got.Warnings {
+		if w == want {
+			foundWarning = true
+		}
+	}
+	if !foundWarning {
+		t.Errorf("want warning %q in envelope; got %v", want, got.Warnings)
+	}
+	for _, w := range got.Warnings {
+		if w == TopWarningNoLearningsForQueryFamily {
+			t.Errorf("similar-shape warning should suppress %q; got %v", TopWarningNoLearningsForQueryFamily, got.Warnings)
+		}
+	}
+}
+
+// TestRecall_SimilarShapeDifferentEntity_MultipleCanonicals confirms
+// the warning fires once per alternative canonical when several
+// stored rows share the shape but resolve to different entities.
+func TestRecall_SimilarShapeDifferentEntity_MultipleCanonicals(t *testing.T) {
+	t.Parallel()
+	db := openCanonicalTestDB(t)
+	seedCanonical(t, db, "mlb_team", "Seattle Mariners",
+		[]string{"Seattle Mariners", "Mariners"})
+	seedCanonical(t, db, "mlb_team", "New York Yankees",
+		[]string{"New York Yankees", "Yankees"})
+	seedCanonical(t, db, "mlb_team", "Boston Red Sox",
+		[]string{"Boston Red Sox", "Red Sox"})
+	seedCanonicalLearning(t, db, "how mariners doing season year",
+		`["Mariners"]`, "12", "teams")
+	seedCanonicalLearning(t, db, "how yankees doing season year",
+		`["Yankees"]`, "10", "teams")
+
+	got, err := Recall(context.Background(), db, "how are the Red Sox doing this year", Opts{EntityConfig: espnLikeConfig()})
+	if err != nil {
+		t.Fatalf("recall: %v", err)
+	}
+	wantM := WarningSimilarShapeDifferentEntity + ":Seattle Mariners"
+	wantY := WarningSimilarShapeDifferentEntity + ":New York Yankees"
+	foundM, foundY := false, false
+	for _, w := range got.Warnings {
+		if w == wantM {
+			foundM = true
+		}
+		if w == wantY {
+			foundY = true
+		}
+	}
+	if !foundM || !foundY {
+		t.Errorf("want both %q and %q in envelope; got %v", wantM, wantY, got.Warnings)
+	}
+}
+
+// TestRecall_NoMismatches_KeepsNoLearningsWarning confirms a true
+// cold-start envelope still carries no_learnings_for_query_family.
+func TestRecall_NoMismatches_KeepsNoLearningsWarning(t *testing.T) {
+	t.Parallel()
+	db := openCanonicalTestDB(t)
+	got, err := Recall(context.Background(), db, "completely cold query", Opts{EntityConfig: espnLikeConfig()})
+	if err != nil {
+		t.Fatalf("recall: %v", err)
+	}
+	hasNoLearnings := false
+	for _, w := range got.Warnings {
+		if w == TopWarningNoLearningsForQueryFamily {
+			hasNoLearnings = true
+		}
+	}
+	if !hasNoLearnings {
+		t.Errorf("cold envelope should carry %q; got %v", TopWarningNoLearningsForQueryFamily, got.Warnings)
+	}
+}
+
+// TestRecall_TrueCrossAliasHit_DoesNotSurfaceSimilarShapeWarning
+// confirms a row promoted to a real Hit via cross-alias canonical
+// resolution doesn't double-surface as a similar-shape mismatch.
+func TestRecall_TrueCrossAliasHit_DoesNotSurfaceSimilarShapeWarning(t *testing.T) {
+	t.Parallel()
+	db := openCanonicalTestDB(t)
+	seedCanonical(t, db, "nfl_team", "San Francisco 49ers",
+		[]string{"San Francisco 49ers", "Niners", "49ers"})
+	seedCanonicalLearning(t, db, "niners game tonight", `["Niners"]`, "401547432", "events")
+
+	got, err := Recall(context.Background(), db, "49ers game tonight", Opts{EntityConfig: espnLikeConfig()})
+	if err != nil {
+		t.Fatalf("recall: %v", err)
+	}
+	if !got.Found {
+		t.Fatalf("cross-alias query should hit; got %+v", got)
+	}
+	for _, w := range got.Warnings {
+		if strings.HasPrefix(w, WarningSimilarShapeDifferentEntity+":") {
+			t.Errorf("real hit should not surface similar-shape warning; got %v", got.Warnings)
+		}
 	}
 }
 
