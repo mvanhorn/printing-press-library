@@ -1323,20 +1323,28 @@ func newSQLCmd(flags *rootFlags) *cobra.Command {
 			// tokens that the shell may have split (verifier tooling tends to
 			// treat the latter as multiple args). Join them back with spaces.
 			query := strings.Join(args, " ")
-			// Honor the mcp:read-only annotation: reject DML/DDL so MCP agents
-			// (which advertise this tool as read-only) cannot mutate the store
-			// via raw SQL.
+			// PATCH(greptile-sql-readonly-cte): The previous gate was a keyword
+			// prefix blocklist on the joined query string. That can be bypassed
+			// with CTE-wrapped writes — `WITH x AS (INSERT INTO t VALUES(...))
+			// SELECT 1` starts with "WITH" and slips through. Because this
+			// command is annotated mcp:read-only, an MCP host or agent could be
+			// tricked into mutating the local store. The defensive fix is to
+			// open the SQLite connection itself in read-only mode (mode=ro),
+			// so the driver rejects every mutation regardless of how the SQL
+			// was shaped. The keyword check is kept only as a friendlier error
+			// for the common direct cases.
 			head := strings.ToUpper(strings.TrimLeft(query, " \t\n("))
 			for _, banned := range []string{"INSERT ", "UPDATE ", "DELETE ", "DROP ", "ALTER ", "CREATE ", "REPLACE ", "TRUNCATE ", "VACUUM ", "ATTACH ", "DETACH "} {
 				if strings.HasPrefix(head, banned) {
 					return fmt.Errorf("sql is read-only; %s statements are not allowed (use the dedicated commands like `watchlist add`, `portfolio add`)", strings.TrimSpace(banned))
 				}
 			}
-			db, err := openDB(flags)
+			roStore, err := store.OpenReadOnly(defaultDBPath("yahoo-finance-pp-cli"))
 			if err != nil {
-				return err
+				return fmt.Errorf("opening database (read-only): %w", err)
 			}
-			defer db.Close()
+			defer roStore.Close()
+			db := roStore.DB()
 			rows, err := db.Query(query)
 			if err != nil {
 				return fmt.Errorf("sql: %w", err)
