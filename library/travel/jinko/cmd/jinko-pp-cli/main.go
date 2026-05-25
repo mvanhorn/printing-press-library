@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/mvanhorn/printing-press-library/library/travel/jinko/internal/cmd"
+	"github.com/mvanhorn/printing-press-library/library/travel/jinko/internal/cli"
 )
 
 func main() {
-	if err := cmd.Execute(); err != nil {
+	if err := cli.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
-		os.Exit(cmd.ExitCode(err))
+		os.Exit(cli.ExitCode(err))
 	}
 }
