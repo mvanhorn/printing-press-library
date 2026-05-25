@@ -317,22 +317,34 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 				len(normalized.Entities) > 0 && len(storedEntitySlice) > 0 {
 				score = Jaccard(normalized.Entities, storedEntitySlice)
 			}
-			if score < jMin && canonicalOverlap {
-				// Use the higher of literal-non-entity Jaccard and
-				// canonical Jaccard so ambiguous aliases that
-				// partially overlap canonical sets still score
-				// meaningfully. Gate on the cross-alias floor (lower
-				// than jMin) rather than the boolean at-threshold
-				// hack the previous cascade used.
-				canonScore := canonicalJaccard(queryCanonicals, storedCanonicals)
-				if canonScore > score {
-					score = canonScore
-				}
-				if score < crossAliasMin {
+			if score < jMin {
+				// Three fallback branches, gated by the lower
+				// crossAliasMin floor:
+				//   - canonicalOverlap: cross-alias hit candidate,
+				//     promotion to Exact happens downstream.
+				//   - no overlap, both sides have entities,
+				//     structural overlap >= crossAliasMin:
+				//     similar-shape mismatch candidate. Surfaces in
+				//     mismatches[] so the U3 envelope warning
+				//     carries an alternative canonical instead of
+				//     misleading no_learnings_for_query_family.
+				//   - otherwise: row is genuine noise, drop it.
+				switch {
+				case canonicalOverlap:
+					canonScore := canonicalJaccard(queryCanonicals, storedCanonicals)
+					if canonScore > score {
+						score = canonScore
+					}
+					if score < crossAliasMin {
+						continue
+					}
+				case len(normalized.Entities) > 0 && len(storedEntitySlice) > 0:
+					if score < crossAliasMin {
+						continue
+					}
+				default:
 					continue
 				}
-			} else if score < jMin {
-				continue
 			}
 		}
 
