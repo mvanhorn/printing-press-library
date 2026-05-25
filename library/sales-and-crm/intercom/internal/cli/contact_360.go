@@ -203,11 +203,22 @@ func readContactConversations(db *store.Store, contactID string) (open, recent [
 	open = []json.RawMessage{}
 	recent = []json.RawMessage{}
 	tags = nil
-	// Scan all conversations and filter by participant contact id (lives
-	// inside `data.contacts.contacts[].id` per Intercom's payload shape).
-	rows, err := db.DB().Query(
-		`SELECT data, json_extract(data, '$.state') AS state, json_extract(data, '$.updated_at') AS updated_at FROM conversations`,
-	)
+	// PATCH(contact-360-sql-pushdown): the participant contact id lives inside
+	// `data.contacts.contacts[].id`. Push the membership test down into SQLite
+	// via json_each so the engine eliminates non-matching conversations before
+	// we deserialize. Previously the query did `SELECT data FROM conversations`
+	// (no WHERE) and the Go loop did the filter, which is O(total conversations)
+	// per call — on a 500k-conversation workspace that meant loading and
+	// JSON-parsing every blob per `contact 360`.
+	rows, err := db.DB().Query(`
+		SELECT data, json_extract(data, '$.state') AS state, json_extract(data, '$.updated_at') AS updated_at
+		FROM conversations
+		WHERE EXISTS (
+			SELECT 1
+			FROM json_each(json_extract(data, '$.contacts.contacts')) AS c
+			WHERE json_extract(c.value, '$.id') = ?
+		)
+	`, contactID)
 	if err != nil {
 		return
 	}
@@ -297,8 +308,20 @@ func collectConversationTags(raw json.RawMessage, acc []string) []string {
 
 func readContactTickets(db *store.Store, contactID string) []json.RawMessage {
 	out := []json.RawMessage{}
-	// Tickets are stored in the generic resources table under resource_type='tickets'.
-	rows, err := db.DB().Query(`SELECT data FROM resources WHERE resource_type = 'tickets'`)
+	// PATCH(contact-360-sql-pushdown): push the contact-membership filter into
+	// SQLite via json_each on `data.contacts.contacts[]`. Previously this
+	// scanned every row of resources WHERE resource_type='tickets' and ran
+	// ticketHasContact in Go — O(total tickets) per `contact 360` call.
+	rows, err := db.DB().Query(`
+		SELECT data
+		FROM resources
+		WHERE resource_type = 'tickets'
+		  AND EXISTS (
+			SELECT 1
+			FROM json_each(json_extract(data, '$.contacts.contacts')) AS c
+			WHERE json_extract(c.value, '$.id') = ?
+		  )
+	`, contactID)
 	if err != nil {
 		return out
 	}
@@ -308,9 +331,11 @@ func readContactTickets(db *store.Store, contactID string) []json.RawMessage {
 		if err := rows.Scan(&raw); err != nil {
 			continue
 		}
-		if ticketHasContact(json.RawMessage(raw), contactID) {
-			out = append(out, json.RawMessage(raw))
-		}
+		// The SQL filter already enforced membership; we keep this trivial
+		// loop as the cheap deserialize step. ticketHasContact() is no
+		// longer load-bearing for filtering but stays as a defensive
+		// double-check for callers that bypass this helper.
+		out = append(out, json.RawMessage(raw))
 	}
 	return out
 }

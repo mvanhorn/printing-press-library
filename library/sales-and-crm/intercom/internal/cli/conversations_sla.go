@@ -146,15 +146,24 @@ func computeSLA(db *store.Store, groupBy string, sinceEpoch int64, wantFR, wantR
 	// min(parts.created_at where author.type='admin') - conversations.created_at
 	// Resolution per conversation (only when state='closed'):
 	// conversations.updated_at - conversations.created_at  (Intercom has no closed_at)
+	//
+	// PATCH(sla-cast-integer): CAST(json_extract(...) AS INTEGER) on every
+	// timestamp pulled from a JSON blob. Intercom emits created_at and
+	// updated_at as Unix integers on the wire, but JSON1's json_extract
+	// returns whatever scalar type the stored JSON literal carries. If a
+	// sync run stored "1779668479" as a JSON string instead of a number,
+	// scanning into sql.NullInt64 silently yields NULL — which would zero
+	// out every first_response sample. Forcing INTEGER coerces both
+	// shapes consistently.
 	q := fmt.Sprintf(`
 		SELECT
 			COALESCE(CAST(%s AS TEXT), '(unassigned)') AS grp,
 			c.id,
 			c.created_at,
-			json_extract(c.data, '$.updated_at') AS updated_at,
+			CAST(json_extract(c.data, '$.updated_at') AS INTEGER) AS updated_at,
 			json_extract(c.data, '$.state') AS state,
 			(
-				SELECT MIN(json_extract(p.data, '$.created_at'))
+				SELECT MIN(CAST(json_extract(p.data, '$.created_at') AS INTEGER))
 				FROM parts p
 				WHERE p.conversations_id = c.id
 				  AND json_extract(p.data, '$.author.type') = 'admin'
