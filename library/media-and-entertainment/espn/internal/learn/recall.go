@@ -181,14 +181,51 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 		_ = notes
 
 		storedNorm := Normalize(queryPattern, cfg)
-		score := Jaccard(queryTokens, strings.Fields(storedNorm.NonEntityNormalized))
-		if score < jMin {
-			continue
-		}
-
 		storedEntitySlice, _ := ParseStoredEntities(storedEntities)
 		if len(storedEntitySlice) == 0 {
 			storedEntitySlice = storedNorm.Entities
+		}
+
+		// Compute the stored non-entity tokens by stripping case-folded
+		// stored entities (from the query_entities column, which preserves
+		// the original case the entity extractor saw at teach time) plus
+		// stopwords from the lowercased query_pattern. The plain
+		// Normalize(queryPattern, cfg) misses entities like "Niners" here
+		// because query_pattern is lowercased by store.NormalizeQuery on
+		// write — the capitalization-based entity detector can't recover
+		// the entity in "niners". Using the stored entity column directly
+		// rebuilds the correct non-entity token set.
+		storedEntitySet := make(map[string]struct{}, len(storedEntitySlice))
+		for _, e := range storedEntitySlice {
+			storedEntitySet[strings.ToLower(strings.TrimSpace(e))] = struct{}{}
+		}
+		storedNonEntityTokens := make([]string, 0)
+		for _, raw := range strings.Fields(strings.ToLower(queryPattern)) {
+			if _, isEntity := storedEntitySet[raw]; isEntity {
+				continue
+			}
+			if cfg.IsStopword(raw) {
+				continue
+			}
+			storedNonEntityTokens = append(storedNonEntityTokens, raw)
+		}
+
+		score := Jaccard(queryTokens, storedNonEntityTokens)
+
+		// Entity-only fallback: when both sides have no non-entity
+		// content (everything is entities + stopwords), Jaccard is 0
+		// by definition. Fall back to entity-overlap so queries like
+		// "Niners game tonight" match rows taught from the same shape.
+		// The downstream validateResource still gates on full entity
+		// match against the stored resource.
+		if score < jMin {
+			if len(queryTokens) == 0 && len(storedNonEntityTokens) == 0 &&
+				len(normalized.Entities) > 0 && len(storedEntitySlice) > 0 {
+				score = Jaccard(normalized.Entities, storedEntitySlice)
+			}
+			if score < jMin {
+				continue
+			}
 		}
 
 		hit := Hit{

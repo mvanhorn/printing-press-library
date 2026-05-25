@@ -79,11 +79,19 @@ func (c *Config) RegisterStopwords(words ...string) {
 	}
 }
 
-// isStopword reports whether a lowercase token is a stopword for this
-// Config. Caller must lowercase the token first.
-func (c *Config) isStopword(lower string) bool {
+// IsStopword reports whether a lowercase token is a stopword for this
+// Config. Caller must lowercase the token first. Exported so the
+// learn package's recall path can rebuild stored non-entity tokens
+// from the lowercased query_pattern column.
+func (c *Config) IsStopword(lower string) bool {
 	_, ok := c.stopwords[lower]
 	return ok
+}
+
+// isStopword is the internal-package alias retained for backward
+// compatibility with the entity extractor's own call sites.
+func (c *Config) isStopword(lower string) bool {
+	return c.IsStopword(lower)
 }
 
 // matchesTicker reports whether a token matches any registered ticker
