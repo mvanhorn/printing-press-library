@@ -78,7 +78,10 @@ Per-hotel filters (brand, max-price, min-rating, etc.) apply normally.`,
 				return err
 			}
 
-			// Resolve center coordinates when --radius is set
+			// Resolve center coordinates when --radius is set.
+			// The dryRunOK short-circuit at the top of RunE means the
+			// dry-run-vs-live branch here is no longer reachable —
+			// always do the real geocode when we get this far.
 			var centerLat, centerLng float64
 			var centerSource string
 			if radiusMiles > 0 {
@@ -89,16 +92,11 @@ Per-hotel filters (brand, max-price, min-rating, etc.) apply normally.`,
 					}
 					centerSource = "user"
 				} else {
-					if dryRunOK(flags) {
-						centerLat, centerLng = 0, 0
-						centerSource = "would-geocode-nominatim"
-					} else {
-						centerLat, centerLng, err = geocodeNominatim(cmd.Context(), address)
-						if err != nil {
-							return fmt.Errorf("geocoding %q via Nominatim: %w", address, err)
-						}
-						centerSource = "nominatim"
+					centerLat, centerLng, err = geocodeNominatim(cmd.Context(), address)
+					if err != nil {
+						return fmt.Errorf("geocoding %q via Nominatim: %w", address, err)
 					}
+					centerSource = "nominatim"
 				}
 			}
 
@@ -113,16 +111,6 @@ Per-hotel filters (brand, max-price, min-rating, etc.) apply normally.`,
 			}
 
 			query := "hotels near " + address
-			if dryRunOK(flags) {
-				params := url.Values{}
-				params.Set("q", query)
-				params.Set("checkin", checkin)
-				params.Set("checkout", checkout)
-				u := "https://www.google.com/travel/search?" + params.Encode()
-				return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
-					"meta": map[string]any{"dry_run": true, "url": u, "radius_miles": radiusMiles, "center_source": centerSource},
-				}, flags)
-			}
 
 			ctx, cancel := context.WithTimeout(cmd.Context(), 60*time.Second)
 			defer cancel()

@@ -12,6 +12,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -525,12 +526,25 @@ var brandPrefixes = map[string][]string{
 
 func inferBrand(name string) string {
 	lower := strings.ToLower(name)
-	for program, subs := range brandPrefixes {
+	// Go map iteration is randomized, so iterating brandPrefixes directly
+	// produces non-deterministic matches: "JW Marriott" could match
+	// "JW Marriott" or just "Marriott" depending on the run. Flatten to
+	// a slice and sort by descending length so longest-prefix wins,
+	// which is both deterministic AND semantically correct (the more
+	// specific sub-brand should beat the parent chain name).
+	type candidate struct{ sub string }
+	all := make([]candidate, 0, 64)
+	for _, subs := range brandPrefixes {
 		for _, sub := range subs {
-			if strings.Contains(lower, strings.ToLower(sub)) {
-				_ = program
-				return sub
-			}
+			all = append(all, candidate{sub: sub})
+		}
+	}
+	sort.SliceStable(all, func(i, j int) bool {
+		return len(all[i].sub) > len(all[j].sub)
+	})
+	for _, c := range all {
+		if strings.Contains(lower, strings.ToLower(c.sub)) {
+			return c.sub
 		}
 	}
 	return ""

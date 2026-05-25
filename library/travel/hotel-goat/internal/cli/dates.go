@@ -116,7 +116,19 @@ parser limiter). Cap with --max-pairs to keep runtime bounded.`,
 					pr.Error = err.Error()
 				} else {
 					sort.SliceStable(hotels, func(i, j int) bool {
-						return hotels[i].PricePerNight < hotels[j].PricePerNight && hotels[i].PricePerNight > 0
+						pi, pj := hotels[i].PricePerNight, hotels[j].PricePerNight
+						// Zero-priced hotels go to the end. The previous
+						// comparator `pi < pj && pi > 0` violated strict
+						// weak ordering — both directions returned false
+						// when pi > 0 and pj == 0, so a zero-priced hotel
+						// could land at top with sort.SliceStable.
+						if pi <= 0 {
+							return false
+						}
+						if pj <= 0 {
+							return true
+						}
+						return pi < pj
 					})
 					if len(hotels) > 0 {
 						h := hotels[0]

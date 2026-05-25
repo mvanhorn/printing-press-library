@@ -14,6 +14,28 @@
         "internal/cli/hotels_positional.go"
       ],
       "validated_outcome": "cli-printing-press publish validate --dir <hotel-goat> --json reports 11/11 checks PASS, verify pass rate 100%."
+    },
+    {
+      "id": "hotel-goat-dates-zero-price-sort",
+      "summary": "Fix dates.go SliceStable comparator to enforce strict weak ordering by routing zero-priced hotels to the end explicitly.",
+      "reason": "The original `pi < pj && pi > 0` comparator returns false for both less(i,j) and less(j,i) when pi > 0 and pj == 0, violating strict weak ordering. sort.SliceStable in that state may land a zero-priced hotel at index 0, mis-identifying it as 'cheapest'. New comparator: zero-priced rows go to the tail; otherwise standard ascending by price.",
+      "files": ["internal/cli/dates.go"],
+      "validated_outcome": "Greptile P1 finding on dates.go:120 resolved.",
+      "upstream_issue": "https://github.com/mvanhorn/printing-press-library/pull/849#discussion"
+    },
+    {
+      "id": "hotel-goat-brand-inference-deterministic",
+      "summary": "Make inferBrand deterministic by flattening sub-brand candidates and sorting by descending length before matching.",
+      "reason": "Go map iteration is randomized, so iterating brandPrefixes directly could return different sub-brands for the same hotel name across runs ('JW Marriott' could match 'JW Marriott' or just 'Marriott'). Longest-prefix-wins is both deterministic AND semantically correct — the more specific sub-brand should beat the parent chain.",
+      "files": ["internal/parser/google_hotels.go"],
+      "validated_outcome": "Greptile P2 finding on google_hotels.go:537 resolved."
+    },
+    {
+      "id": "hotel-goat-near-remove-dead-dryrun",
+      "summary": "Remove unreachable dry-run blocks in near.go that were stranded after the earlier dryRunOK-first reorder.",
+      "reason": "The dryRunOK short-circuit at the top of RunE made two inner dry-run blocks (lines 92-95 around geocoding, and lines 116-125 around the URL-emit envelope) unreachable. Removed both so the only live dry-run path is the early return.",
+      "files": ["internal/cli/near.go"],
+      "validated_outcome": "Greptile P2 finding on near.go:125 resolved."
     }
   ]
 }
