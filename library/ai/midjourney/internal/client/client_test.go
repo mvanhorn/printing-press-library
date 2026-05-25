@@ -5,6 +5,9 @@ package client
 
 import (
 	"bytes"
+	"encoding/json"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"unicode/utf8"
@@ -68,5 +71,36 @@ func TestTruncateBody_UTF8RuneAtBoundary(t *testing.T) {
 	// Partial rune must be dropped, not replaced: 4094 valid bytes + "...".
 	if want := 4094 + 3; len(got) != want {
 		t.Fatalf("len = %d, want %d (partial rune should be dropped, not replaced)", len(got), want)
+	}
+}
+
+func TestWriteCacheUsesOwnerOnlyPermissions(t *testing.T) {
+	t.Parallel()
+
+	cacheDir := filepath.Join(t.TempDir(), "cache")
+	c := &Client{cacheDir: cacheDir}
+	c.writeCache("/api/test", map[string]string{"a": "b"}, json.RawMessage("{\"ok\":true}"))
+
+	dirInfo, err := os.Stat(cacheDir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := dirInfo.Mode().Perm(); got != 0o700 {
+		t.Fatalf("cache dir mode = %#o, want 0700", got)
+	}
+
+	entries, err := os.ReadDir(cacheDir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(entries) != 1 {
+		t.Fatalf("cache files = %d, want 1", len(entries))
+	}
+	fileInfo, err := entries[0].Info()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := fileInfo.Mode().Perm(); got != 0o600 {
+		t.Fatalf("cache file mode = %#o, want 0600", got)
 	}
 }
