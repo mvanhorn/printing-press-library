@@ -76,18 +76,21 @@ them to Clockify as real time entries (a live API write).`,
 				total += d.End.Sub(d.Start)
 			}
 
-			if flags.asJSON {
-				if err := flags.printJSON(cmd, map[string]any{
+			// When --commit is set, defer all JSON to commitDrafts so a single
+			// top-level object is written to stdout (preview + result combined).
+			// Without this gate, --json --commit emits two separate JSON
+			// objects, which is not valid JSON and breaks downstream parsers.
+			if flags.asJSON && !commit {
+				return flags.printJSON(cmd, map[string]any{
 					"source":      fromFlag,
 					"file":        file,
 					"drafts":      drafts,
 					"draft_count": len(drafts),
 					"total_hours": round2(total.Hours()),
 					"committed":   false,
-				}); err != nil {
-					return err
-				}
-			} else {
+				})
+			}
+			if !flags.asJSON {
 				fmt.Fprintf(out, "Backfill drafts from %s (%s)\n\n", fromFlag, file)
 				if len(drafts) == 0 {
 					fmt.Fprintln(out, "No entries could be reconstructed from this source.")
@@ -102,22 +105,44 @@ them to Clockify as real time entries (a live API write).`,
 				}
 				tw.Flush()
 				fmt.Fprintf(out, "\n%d draft entr(ies), %.2fh total.\n", len(drafts), total.Hours())
-			}
-
-			if !commit {
-				if !flags.asJSON && len(drafts) > 0 {
+				if !commit {
 					fmt.Fprintln(out, "Preview only — re-run with --commit to write these to Clockify.")
+					return nil
+				}
+			}
+			// --commit path below; len(drafts)==0 still emits a single JSON
+			// object so a piped parser sees a valid response.
+			if len(drafts) == 0 {
+				if flags.asJSON {
+					return flags.printJSON(cmd, map[string]any{
+						"source":      fromFlag,
+						"file":        file,
+						"drafts":      drafts,
+						"draft_count": 0,
+						"total_hours": 0.0,
+						"committed":   true,
+						"created":     0,
+						"failed":      0,
+					})
 				}
 				return nil
 			}
-			if len(drafts) == 0 {
-				return nil
-			}
 			if cliutil.IsVerifyEnv() {
+				if flags.asJSON {
+					return flags.printJSON(cmd, map[string]any{
+						"source":      fromFlag,
+						"file":        file,
+						"drafts":      drafts,
+						"draft_count": len(drafts),
+						"total_hours": round2(total.Hours()),
+						"committed":   false,
+						"verify_env":  true,
+					})
+				}
 				fmt.Fprintf(out, "would commit %d draft entr(ies) to Clockify\n", len(drafts))
 				return nil
 			}
-			return commitDrafts(cmd, flags, workspace, project, task, drafts)
+			return commitDrafts(cmd, flags, workspace, project, task, drafts, fromFlag, file, total)
 		},
 	}
 
@@ -133,7 +158,9 @@ them to Clockify as real time entries (a live API write).`,
 }
 
 // commitDrafts posts each draft to the Clockify time-entries endpoint.
-func commitDrafts(cmd *cobra.Command, flags *rootFlags, workspace, project, task string, drafts []draftEntry) error {
+// In --json mode it emits a single top-level object combining the draft
+// preview with the commit result, so the caller's printJSON is suppressed.
+func commitDrafts(cmd *cobra.Command, flags *rootFlags, workspace, project, task string, drafts []draftEntry, fromFlag, file string, total time.Duration) error {
 	c, err := flags.newClient()
 	if err != nil {
 		return err
@@ -169,7 +196,14 @@ func commitDrafts(cmd *cobra.Command, flags *rootFlags, workspace, project, task
 	}
 	if flags.asJSON {
 		return flags.printJSON(cmd, map[string]any{
-			"committed": true, "created": created, "failed": failed,
+			"source":      fromFlag,
+			"file":        file,
+			"drafts":      drafts,
+			"draft_count": len(drafts),
+			"total_hours": round2(total.Hours()),
+			"committed":   true,
+			"created":     created,
+			"failed":      failed,
 		})
 	}
 	fmt.Fprintf(out, "\nCommitted: %d created, %d failed.\n", created, failed)
