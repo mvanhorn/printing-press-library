@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "generated_at": "2026-05-21T04:26:11.9357777Z",
-  "printing_press_version": "4.9.0",
+  "printing_press_version": "4.14.0",
   "api_name": "clockify",
   "display_name": "Clockify",
   "cli_name": "clockify-pp-cli",
