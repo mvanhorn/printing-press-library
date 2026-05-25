@@ -164,6 +164,8 @@ registry.json                       — top-level catalog: every CLI's name, cat
 tools/generate-skills/              — regenerates cli-skills/pp-*
 .github/scripts/verify-skill/       — Python verifier that checks SKILL.md matches shipped Go source
 .github/workflows/                  — CI: verify-skills.yml, generate-skills.yml
+
+docs/solutions/                     — documented solutions to past problems (bugs, workflow patterns, best practices), organized by category with YAML frontmatter (module, tags, problem_type). Relevant when debugging or hand-patching published CLIs.
 ```
 
 ## Naming conventions
