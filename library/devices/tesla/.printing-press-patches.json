@@ -200,10 +200,12 @@
         "internal/cli/root.go",
         "internal/cli/tesla_auth_autorefresh.go",
         "internal/cli/tesla_fleet_region_test.go",
+        "internal/cli/tesla_fleet_routing_test.go",
         "internal/client/client.go",
-        "internal/client/client_fleet_subset_test.go"
+        "internal/client/client_fleet_subset_test.go",
+        "internal/config/config_fleet_test.go"
       ],
-      "validated_outcome": "New unit tests (fleetAPIBase, teslaShouldUseFleetForReads, SaveFleetAPIBase, rewriteFleetSubsetPath, unwrapFleetSubset) plus full module build/vet/test/govulncheck pass. Validated live against an EU vehicle: products, full vehicle_data, ready --force-refresh, and the get-data-* subset commands all return real data with zero env vars after fleet-register persisted api_base=eu, where the unpatched CLI returned HTTP 404/421/412."
+      "validated_outcome": "Unit tests (fleetAPIBase, teslaShouldUseFleetForReads, SaveFleetAPIBase, rewriteFleetSubsetPath, unwrapFleetSubset, AuthHeader fleet-bearer, no-persist regression, newClient routing) plus full module build/vet/test/govulncheck pass. Read-routing uses a non-persisted UseFleetBearer flag + a client-level base URL so a token refresh never writes a transient auth_header/base_url to disk. Validated live against an EU vehicle: products, full vehicle_data, ready --force-refresh, and get-data-* subset commands return real data with zero env vars; the fleet 401->refresh path was exercised with an invalid token and re-minted cleanly without polluting the config."
     }
   ]
 }

@@ -312,14 +312,21 @@ func (f *rootFlags) newClient() (*client.Client, error) {
 	// generated client would hit the dead owner-api host with no usable token.
 	fleetReads := teslaShouldUseFleetForReads(cfg)
 	if fleetReads {
-		cfg.BaseURL = fleetAPIBase(cfg)
-		cfg.AuthHeaderVal = "Bearer " + cfg.Fleet.AccessToken
-		cfg.AuthSource = "fleet"
+		// Route the read bearer to the [fleet] token via a non-persisted flag
+		// (AuthHeader()), and set the regional base on the client itself
+		// (below) rather than on cfg.BaseURL. Mutating the persisted cfg fields
+		// would let a later SaveFleetTokens write a fleet bearer/base_url to
+		// disk, which would disable Fleet routing or misdirect the owner-api
+		// path on the next run.
+		cfg.UseFleetBearer = true
 	}
 	c := client.New(cfg, f.timeout, f.rateLimit)
 	c.DryRun = f.dryRun
 	c.NoCache = f.noCache
 	c.FleetMode = fleetReads
+	if fleetReads {
+		c.BaseURL = strings.TrimRight(fleetAPIBase(cfg), "/")
+	}
 	// Tesla bearer auto-refresh on 401. Wired unless TESLA_PP_NO_AUTOREFRESH=1.
 	// On 401 the transport calls the matching refresh closure (Fleet when reads
 	// route through the Fleet API, otherwise owner-api), which exchanges the

@@ -32,6 +32,12 @@ type Config struct {
 	// some vehicles route via the iOS-app bearer, others via the Fleet user
 	// token. See KD3 in 2026-05-22-001 plan.
 	Fleet FleetConfig `toml:"fleet"`
+
+	// UseFleetBearer routes AuthHeader() to the [fleet] access token instead
+	// of the owner-api credential. Set in-memory by the cli layer when reads
+	// are routed through the Fleet API; never persisted (toml:"-") so it can
+	// never be written to disk and silently flip routing on a later run.
+	UseFleetBearer bool `toml:"-"`
 }
 
 // FleetConfig stores the partner-app credentials (client_id, client_secret,
@@ -123,6 +129,14 @@ func Load(configPath string) (*Config, error) {
 }
 
 func (c *Config) AuthHeader() string {
+	// Fleet read-routing: prefer the [fleet] bearer when the cli layer flagged
+	// this config for Fleet reads. Read dynamically from Fleet.AccessToken so a
+	// mid-process token refresh (which updates that field) is picked up, and so
+	// nothing transient is ever written to the persisted auth_header field.
+	if c.UseFleetBearer && c.Fleet.AccessToken != "" {
+		c.AuthSource = "fleet"
+		return "Bearer " + c.Fleet.AccessToken
+	}
 	if c.AuthHeaderVal != "" {
 		return c.AuthHeaderVal
 	}

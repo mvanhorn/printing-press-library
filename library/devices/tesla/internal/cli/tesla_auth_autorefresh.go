@@ -134,8 +134,8 @@ func makeTeslaFleetRefreshCallback(cfg *config.Config) func() (string, error) {
 			fresh.Fleet.TokenExpiry.After(time.Now()) &&
 			fresh.Fleet.AccessToken != cfg.Fleet.AccessToken {
 			cfg.Fleet = fresh.Fleet
-			cfg.AuthHeaderVal = "Bearer " + fresh.Fleet.AccessToken
-			return cfg.AuthHeaderVal, nil
+			// AuthHeader() (UseFleetBearer) returns the new token from Fleet.AccessToken.
+			return "Bearer " + fresh.Fleet.AccessToken, nil
 		}
 
 		ft := cfg.FleetTokens()
@@ -159,7 +159,8 @@ func makeTeslaFleetRefreshCallback(cfg *config.Config) func() (string, error) {
 		if serr := cfg.SaveFleetTokens("", "", tok.AccessToken, finalRefresh, expiresAt, "", ""); serr != nil {
 			return "", fmt.Errorf("fleet auto-refresh save: %w", serr)
 		}
-		cfg.AuthHeaderVal = "Bearer " + tok.AccessToken
-		return cfg.AuthHeaderVal, nil
+		// SaveFleetTokens updated cfg.Fleet.AccessToken in memory; AuthHeader()
+		// (UseFleetBearer) now returns this token for subsequent requests.
+		return "Bearer " + tok.AccessToken, nil
 	}
 }
