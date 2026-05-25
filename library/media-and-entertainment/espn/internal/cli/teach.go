@@ -200,6 +200,14 @@ Disabling: pass --no-learn or set ` + noLearnEnvVar + `=true.`,
 			defer s.Close()
 
 			normalized := learn.Normalize(query, learnCfg)
+			// Apply entity_lookups promotion symmetrically with recall so
+			// lowercase/numeric-prefix aliases (e.g., "mariners", "49ers")
+			// land in query_entities even when the capitalization-based
+			// extractor missed them. Without this, recall's cross-alias
+			// canonical resolver has nothing to compare against on the
+			// stored side.
+			resolver := learn.NewCanonicalResolver(cmd.Context(), s.DB())
+			normalized = learn.PromoteEntities(normalized, resolver)
 			for _, rid := range resources {
 				rid = strings.TrimSpace(rid)
 				if rid == "" {

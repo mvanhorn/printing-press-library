@@ -147,37 +147,22 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 	// entity_lookups to find the canonical(s) it belongs to. Caches
 	// per-call so a query with N entities does N lookups max, not
 	// N*M where M is the number of candidate rows.
-	resolver := newCanonicalResolver(ctx, db)
+	resolver := NewCanonicalResolver(ctx, db)
 
 	// Post-Normalize entity promotion via entity_lookups. The
 	// capitalization-based entity extractor misses aliases like
 	// "49ers" (numeric prefix) or "sf" (lowercase) because they
-	// don't match any of its detection rules. Walk queryTokens —
-	// the tokens Normalize classified as non-entity content — and
-	// promote any whose lowercased form has a row in entity_lookups
-	// into normalized.Entities. This lets a "49ers game tonight"
-	// query reach the canonical resolution path that an "Niners game
-	// tonight" query already reached via the capitalization rule.
+	// don't match any of its detection rules. PromoteEntities walks
+	// the non-entity tokens and promotes any whose lowercased form
+	// has a row in entity_lookups. Same helper runs at teach time so
+	// stored query_entities stays symmetric with what recall sees.
+	normalized = PromoteEntities(normalized, resolver)
 	queryTokens := strings.Fields(normalized.NonEntityNormalized)
-	{
-		var kept []string
-		for _, tok := range queryTokens {
-			if cans := resolver.Resolve(tok); len(cans) > 0 {
-				normalized.Entities = append(normalized.Entities, tok)
-				continue
-			}
-			kept = append(kept, tok)
-		}
-		queryTokens = kept
-		// Mirror the promotion into the envelope so the agent sees
-		// the expanded entity set.
-		result.QueryEntities = append([]string(nil), normalized.Entities...)
-		if result.QueryEntities == nil {
-			result.QueryEntities = []string{}
-		}
-		// Recompute the normalized form to match the promotion.
-		result.Normalized = strings.Join(queryTokens, " ")
+	result.QueryEntities = append([]string(nil), normalized.Entities...)
+	if result.QueryEntities == nil {
+		result.QueryEntities = []string{}
 	}
+	result.Normalized = normalized.NonEntityNormalized
 
 	queryCanonicals := resolver.ResolveSet(normalized.Entities)
 	if len(queryCanonicals) > 1 {
@@ -483,25 +468,32 @@ func entityMatchPriority(em string) int {
 	}
 }
 
-// canonicalResolver looks up entities in the entity_lookups table to
+// CanonicalResolver looks up entities in the entity_lookups table to
 // find their canonical(s). Caches per-call so a query with N distinct
 // entities issues at most N SQL lookups regardless of how many
 // candidate rows the row loop walks.
-type canonicalResolver struct {
+//
+// Implements the EntityResolver interface so the shared
+// PromoteEntities helper runs at both teach and recall time without
+// duplicating the resolver shape.
+type CanonicalResolver struct {
 	ctx   context.Context
 	db    *sql.DB
 	cache map[string][]string // lowercased entity → distinct canonicals
 }
 
-func newCanonicalResolver(ctx context.Context, db *sql.DB) *canonicalResolver {
-	return &canonicalResolver{ctx: ctx, db: db, cache: make(map[string][]string)}
+// NewCanonicalResolver constructs a per-call canonical resolver.
+// Cache is per-instance so concurrent recall/teach calls don't share
+// stale lookups.
+func NewCanonicalResolver(ctx context.Context, db *sql.DB) *CanonicalResolver {
+	return &CanonicalResolver{ctx: ctx, db: db, cache: make(map[string][]string)}
 }
 
 // Resolve returns the canonical(s) for a single entity. A single token
 // may map to multiple canonicals when the same alias exists across
 // kinds (e.g., "Cards" → Arizona Cardinals NFL + St. Louis Cardinals
 // MLB). Empty slice when the entity has no row in entity_lookups.
-func (r *canonicalResolver) Resolve(entity string) []string {
+func (r *CanonicalResolver) Resolve(entity string) []string {
 	key := strings.ToLower(strings.TrimSpace(entity))
 	if key == "" {
 		return nil
@@ -537,7 +529,7 @@ func (r *canonicalResolver) Resolve(entity string) []string {
 // ResolveSet expands a slice of entities into a set of canonicals.
 // Entries that don't resolve are dropped silently — they simply don't
 // contribute to the cross-alias matching score.
-func (r *canonicalResolver) ResolveSet(entities []string) map[string]struct{} {
+func (r *CanonicalResolver) ResolveSet(entities []string) map[string]struct{} {
 	out := make(map[string]struct{})
 	for _, e := range entities {
 		for _, c := range r.Resolve(e) {

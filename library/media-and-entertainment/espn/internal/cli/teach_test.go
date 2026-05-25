@@ -6,6 +6,7 @@ package cli
 import (
 	"bytes"
 	"context"
+	"database/sql"
 	"encoding/json"
 	"os"
 	"path/filepath"
@@ -487,6 +488,170 @@ func TestRecallCommand_EnvelopeCarriesQueryEntities(t *testing.T) {
 	}
 	if env.QueryEntities == nil {
 		t.Errorf("cold recall should populate query_entities as a non-nil slice")
+	}
+}
+
+// seedLookupForTest inserts an entity_lookups row into the supplied
+// DB. The teach path's PromoteEntities helper consults this table at
+// write time so lowercase / numeric-prefix aliases land in
+// query_entities even when the capitalization-based extractor misses
+// them.
+func seedLookupForTest(t *testing.T, dbPath, kind, canonical string, values ...string) {
+	t.Helper()
+	s, err := store.OpenWithContext(context.Background(), dbPath)
+	if err != nil {
+		t.Fatalf("seedLookupForTest: open db: %v", err)
+	}
+	defer s.Close()
+	for _, v := range values {
+		if _, err := s.DB().Exec(
+			`INSERT OR IGNORE INTO entity_lookups (kind, canonical, value, source) VALUES (?, ?, ?, 'seeded')`,
+			kind, canonical, v,
+		); err != nil {
+			t.Fatalf("seedLookupForTest: insert (%s, %s, %s): %v", kind, canonical, v, err)
+		}
+	}
+}
+
+// TestTeach_PromotesLowercaseEntityViaLookups exercises U1 of plan
+// 2026-05-25-004: teach time symmetric entity promotion. Before this
+// fix, "how are the mariners doing this year" stored
+// query_entities=null because the capitalization-based extractor
+// misses lowercase entities; the recall path then had nothing to
+// canonical-resolve against on the stored side, killing cross-alias
+// matching.
+func TestTeach_PromotesLowercaseEntityViaLookups(t *testing.T) {
+	home := withTempLearnHome(t)
+	dbPath := filepath.Join(home, "data.db")
+
+	seedLookupForTest(t, dbPath, "mlb_team", "Seattle Mariners",
+		"Seattle Mariners", "Mariners", "SEA")
+
+	if _, _, err := runRootArgs(t,
+		"teach",
+		"--query", "how are the mariners doing this year",
+		"--resource", "12",
+		"--resource-type", "teams",
+		"--db", dbPath,
+	); err != nil {
+		t.Fatalf("teach: %v", err)
+	}
+
+	s, err := store.OpenWithContext(context.Background(), dbPath)
+	if err != nil {
+		t.Fatalf("reopen db: %v", err)
+	}
+	defer s.Close()
+	var stored sql.NullString
+	if err := s.DB().QueryRow(
+		`SELECT query_entities FROM search_learnings WHERE resource_id = ?`,
+		"12",
+	).Scan(&stored); err != nil {
+		t.Fatalf("query stored row: %v", err)
+	}
+	if !stored.Valid || stored.String == "" || stored.String == "null" {
+		t.Fatalf("query_entities should be populated; got %v", stored)
+	}
+	var entitiesSlice []string
+	if err := json.Unmarshal([]byte(stored.String), &entitiesSlice); err != nil {
+		t.Fatalf("decode query_entities: %v", err)
+	}
+	foundMariners := false
+	for _, e := range entitiesSlice {
+		if strings.EqualFold(e, "mariners") {
+			foundMariners = true
+			break
+		}
+	}
+	if !foundMariners {
+		t.Errorf("want 'mariners' in stored query_entities; got %v", entitiesSlice)
+	}
+}
+
+// TestTeach_PromotesNumericPrefixAlias exercises the "49ers" case:
+// numeric-prefix tokens slipped past the capitalization rule but
+// resolve via entity_lookups. After U1, teach stores them in
+// query_entities so cross-alias recall fires.
+func TestTeach_PromotesNumericPrefixAlias(t *testing.T) {
+	home := withTempLearnHome(t)
+	dbPath := filepath.Join(home, "data.db")
+
+	seedLookupForTest(t, dbPath, "nfl_team", "San Francisco 49ers",
+		"San Francisco 49ers", "Niners", "49ers", "SF")
+
+	if _, _, err := runRootArgs(t,
+		"teach",
+		"--query", "49ers game tonight",
+		"--resource", "401547432",
+		"--resource-type", "events",
+		"--db", dbPath,
+	); err != nil {
+		t.Fatalf("teach: %v", err)
+	}
+
+	s, err := store.OpenWithContext(context.Background(), dbPath)
+	if err != nil {
+		t.Fatalf("reopen db: %v", err)
+	}
+	defer s.Close()
+	var stored sql.NullString
+	if err := s.DB().QueryRow(
+		`SELECT query_entities FROM search_learnings WHERE resource_id = ?`,
+		"401547432",
+	).Scan(&stored); err != nil {
+		t.Fatalf("query stored row: %v", err)
+	}
+	var entitiesSlice []string
+	if stored.Valid {
+		_ = json.Unmarshal([]byte(stored.String), &entitiesSlice)
+	}
+	found := false
+	for _, e := range entitiesSlice {
+		if strings.EqualFold(e, "49ers") {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Errorf("want '49ers' in stored query_entities; got %v", entitiesSlice)
+	}
+}
+
+// TestTeach_NoMatch_StoresEmptyEntities confirms a query with no
+// resolvable alias doesn't get spurious entries — the helper is
+// strictly additive.
+func TestTeach_NoMatch_StoresEmptyEntities(t *testing.T) {
+	home := withTempLearnHome(t)
+	dbPath := filepath.Join(home, "data.db")
+
+	if _, _, err := runRootArgs(t,
+		"teach",
+		"--query", "what is the weather",
+		"--resource", "weather-1",
+		"--resource-type", "weather",
+		"--db", dbPath,
+	); err != nil {
+		t.Fatalf("teach: %v", err)
+	}
+
+	s, err := store.OpenWithContext(context.Background(), dbPath)
+	if err != nil {
+		t.Fatalf("reopen db: %v", err)
+	}
+	defer s.Close()
+	var stored sql.NullString
+	if err := s.DB().QueryRow(
+		`SELECT query_entities FROM search_learnings WHERE resource_id = ?`,
+		"weather-1",
+	).Scan(&stored); err != nil {
+		t.Fatalf("query stored row: %v", err)
+	}
+	var entitiesSlice []string
+	if stored.Valid && stored.String != "" && stored.String != "null" {
+		_ = json.Unmarshal([]byte(stored.String), &entitiesSlice)
+	}
+	if len(entitiesSlice) != 0 {
+		t.Errorf("want empty stored query_entities (no resolvable tokens); got %v", entitiesSlice)
 	}
 }
 
