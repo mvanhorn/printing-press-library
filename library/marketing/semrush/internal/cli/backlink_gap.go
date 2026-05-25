@@ -87,21 +87,34 @@ func newBacklinkGapCmd(flags *rootFlags) *cobra.Command {
 				return fmt.Errorf("loading %s refs: %w", them, err)
 			}
 
-			// If the per-target query returned nothing for either side, the
-			// store has no target-scoped referring-domain data. Do NOT fall
-			// back to an unscoped load: that would dump every stored row as
-			// a "gap" because myRefs stays empty (every entry passes the
-			// "not in myRefs" filter), masking the real signal with noise.
-			// The hint helper has already told the user to sync; return an
-			// empty result with a clear note so they trust the answer.
-			if len(myRefs) == 0 && len(theirRefs) == 0 {
+			// If EITHER side has no target-scoped referring-domain data, we
+			// cannot produce a meaningful gap. The naive loop below would
+			// either (a) emit every theirRefs entry as a "gap" when myRefs
+			// is empty (false positives — myRefs's "not present" filter
+			// trivially passes), or (b) return zero hits when theirRefs is
+			// empty (misleading — looks like no opportunities exist when
+			// the user simply hasn't synced the competitor). `hintIfUnsynced`
+			// upstream checks sync_state by resource type only, not by
+			// domain, so a user who synced backlinks for ANY target won't
+			// see the generic stale hint when they query for one they
+			// HAVEN'T synced. Surface the specific missing side here.
+			if len(myRefs) == 0 || len(theirRefs) == 0 {
+				var missing []string
+				if len(myRefs) == 0 {
+					missing = append(missing, me)
+				}
+				if len(theirRefs) == 0 {
+					missing = append(missing, them)
+				}
 				out := map[string]any{
-					"me":         me,
-					"them":       them,
-					"min_ascore": minAscore,
-					"count":      0,
-					"hits":       []any{},
-					"hint":       "no target-scoped referring-domain data in local store; run 'semrush-pp-cli sync --resources backlink' against both targets first",
+					"me":              me,
+					"them":            them,
+					"min_ascore":      minAscore,
+					"hit_count":       0,
+					"hit_count_shown": 0,
+					"truncated":       false,
+					"hits":            []any{},
+					"hint":            fmt.Sprintf("no target-scoped referring-domain data in local store for: %s. Run 'semrush-pp-cli sync --resources backlink' against %s before trusting this gap result.", strings.Join(missing, ", "), strings.Join(missing, " and ")),
 				}
 				raw, err := json.Marshal(out)
 				if err != nil {
