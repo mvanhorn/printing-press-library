@@ -14,10 +14,10 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"mercadolibre-pp-cli/internal/client"
-	"mercadolibre-pp-cli/internal/cliutil"
-	"mercadolibre-pp-cli/internal/config"
-	"mercadolibre-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/commerce/mercadolibre/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/commerce/mercadolibre/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/commerce/mercadolibre/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/commerce/mercadolibre/internal/store"
 )
 
 // looksLikeDoctorInterstitial reports whether the response body matches a known

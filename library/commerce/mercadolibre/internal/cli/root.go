@@ -13,8 +13,8 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"mercadolibre-pp-cli/internal/client"
-	"mercadolibre-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/commerce/mercadolibre/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/commerce/mercadolibre/internal/config"
 )
 
 var version = "1.0.0"

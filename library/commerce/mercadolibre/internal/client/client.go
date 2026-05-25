@@ -24,8 +24,8 @@ import (
 	"strings"
 	"time"
 
-	"mercadolibre-pp-cli/internal/cliutil"
-	"mercadolibre-pp-cli/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/commerce/mercadolibre/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/commerce/mercadolibre/internal/config"
 )
 
 const BinaryResponseHeader = "X-Printing-Press-Binary-Response"

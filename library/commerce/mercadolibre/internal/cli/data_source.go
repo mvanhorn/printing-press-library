@@ -17,8 +17,8 @@ import (
 	"strings"
 	"time"
 
-	"mercadolibre-pp-cli/internal/client"
-	"mercadolibre-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/commerce/mercadolibre/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/commerce/mercadolibre/internal/store"
 )
 
 // isNetworkError returns true for errors caused by network connectivity issues

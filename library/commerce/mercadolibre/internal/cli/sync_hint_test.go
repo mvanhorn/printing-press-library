@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"mercadolibre-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/commerce/mercadolibre/internal/store"
 )
 
 func newSyncHintTestStore(t *testing.T) *store.Store {

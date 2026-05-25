@@ -15,12 +15,12 @@ import (
 
 	mcplib "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
-	"mercadolibre-pp-cli/internal/cli"
-	"mercadolibre-pp-cli/internal/client"
-	"mercadolibre-pp-cli/internal/cliutil"
-	"mercadolibre-pp-cli/internal/config"
-	"mercadolibre-pp-cli/internal/mcp/cobratree"
-	"mercadolibre-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/commerce/mercadolibre/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/commerce/mercadolibre/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/commerce/mercadolibre/internal/cliutil"
+	"github.com/mvanhorn/printing-press-library/library/commerce/mercadolibre/internal/config"
+	"github.com/mvanhorn/printing-press-library/library/commerce/mercadolibre/internal/mcp/cobratree"
+	"github.com/mvanhorn/printing-press-library/library/commerce/mercadolibre/internal/store"
 )
 
 // RegisterTools registers all API operations as MCP tools.

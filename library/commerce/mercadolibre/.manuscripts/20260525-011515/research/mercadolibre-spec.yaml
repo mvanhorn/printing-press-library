@@ -1,0 +1,344 @@
+name: mercadolibre
+description: CLI cross-platform para la API de MercadoLibre. Acceso a catalogo de productos, paises, sitios, categorias, perfiles, publicaciones, preguntas y ventas. Cobertura LATAM (AR, BR, MX, CL, CO, UY, etc.). Endpoints publicos no requieren auth; resto via OAuth 2.0 (token en MERCADOLIBRE_ACCESS_TOKEN).
+version: 0.1.0
+base_url: https://api.mercadolibre.com
+spec_source: community
+auth:
+    type: bearer_token
+    header: Authorization
+    format: Bearer {token}
+    env_vars:
+        - MERCADOLIBRE_ACCESS_TOKEN
+    env_var_specs:
+        - name: MERCADOLIBRE_ACCESS_TOKEN
+          kind: per_call
+          required: false
+          sensitive: true
+          inferred: false
+    in: header
+config:
+    format: toml
+    path: ~/.config/mercadolibre-pp-cli/config.toml
+resources:
+    countries:
+        description: Operaciones sobre paises (endpoint publico, no requiere auth)
+        endpoints:
+            list:
+                method: GET
+                path: /classified_locations/countries
+                description: Lista todos los paises soportados por MercadoLibre (publico, sin OAuth)
+                params: []
+                body: []
+                response:
+                    type: array
+                    item: Country
+                pagination: null
+                meta:
+                    source_tier: hand-authored
+            get:
+                method: GET
+                path: /classified_locations/countries/{country_id}
+                description: Detalle de un pais (estados, geografia)
+                params:
+                    - name: country_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: "Codigo ISO del pais (ej AR, BR, MX)"
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: Country
+                pagination: null
+                meta:
+                    source_tier: hand-authored
+    sites:
+        description: Operaciones sobre sitios de MercadoLibre (AR, BR, MX, etc.)
+        endpoints:
+            list:
+                method: GET
+                path: /sites
+                description: Lista todos los sitios MercadoLibre (codigo de pais + currency)
+                params: []
+                body: []
+                response:
+                    type: array
+                    item: Site
+                pagination: null
+                meta:
+                    source_tier: hand-authored
+    catalog:
+        description: Busqueda y detalle del catalogo canonico de productos (universo cross-vendor). Requiere OAuth.
+        endpoints:
+            search:
+                method: GET
+                path: /products/search
+                description: Buscar productos canonicos por keyword en un sitio (ej iphone en MLA)
+                params:
+                    - name: site_id
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: "Codigo sitio (MLA=Argentina, MLB=Brasil, MLM=Mexico)"
+                      fields: []
+                    - name: q
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: "Keyword de busqueda (ej iphone)"
+                      fields: []
+                    - name: domain_id
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: "Filtrar por dominio (ej MLA-CELLPHONES)"
+                      fields: []
+                    - name: limit
+                      type: integer
+                      required: false
+                      positional: false
+                      default: 50
+                      description: "Maximo de resultados (default 50, max 200)"
+                      fields: []
+                    - name: offset
+                      type: integer
+                      required: false
+                      positional: false
+                      default: 0
+                      description: "Offset de paginacion"
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: CatalogSearchResult
+                pagination:
+                    style: offset
+                    limit_param: limit
+                    offset_param: offset
+                meta:
+                    source_tier: hand-authored
+            get:
+                method: GET
+                path: /products/{product_id}
+                description: Detalle completo de un producto canonico (atributos, fotos, descripcion)
+                params:
+                    - name: product_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: "ID del producto canonico (ej MLA52108525)"
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: CatalogProduct
+                pagination: null
+                meta:
+                    source_tier: hand-authored
+    categories:
+        description: Operaciones sobre categorias (taxonomia, atributos requeridos)
+        endpoints:
+            list_by_site:
+                method: GET
+                path: /sites/{site_id}/categories
+                description: Categorias raiz de un sitio (top-level)
+                params:
+                    - name: site_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: "Codigo sitio (MLA, MLB, MLM, etc.)"
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: Category
+                pagination: null
+                meta:
+                    source_tier: hand-authored
+            get:
+                method: GET
+                path: /categories/{category_id}
+                description: Detalle de categoria con path desde root, atributos requeridos, total items
+                params:
+                    - name: category_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: "ID de categoria (ej MLA1055 para Celulares)"
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: Category
+                pagination: null
+                meta:
+                    source_tier: hand-authored
+    users:
+        description: Operaciones sobre usuarios y vendedores (perfil publico, reputacion)
+        endpoints:
+            get:
+                method: GET
+                path: /users/{user_id}
+                description: Perfil de usuario/vendedor (nick, reputacion, fecha registro)
+                params:
+                    - name: user_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: "ID numerico del usuario (ej 1234567890)"
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: User
+                pagination: null
+                meta:
+                    source_tier: hand-authored
+            items:
+                method: GET
+                path: /users/{user_id}/items/search
+                description: Publicaciones de un vendedor (con filtros de estado)
+                params:
+                    - name: user_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: "ID numerico del usuario"
+                      fields: []
+                    - name: status
+                      type: string
+                      required: false
+                      positional: false
+                      default: active
+                      description: "Filtro estado (active/paused/closed)"
+                      fields: []
+                    - name: limit
+                      type: integer
+                      required: false
+                      positional: false
+                      default: 50
+                      description: "Maximo resultados"
+                      fields: []
+                    - name: offset
+                      type: integer
+                      required: false
+                      positional: false
+                      default: 0
+                      description: "Offset paginacion"
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: SearchResult
+                pagination:
+                    style: offset
+                    limit_param: limit
+                    offset_param: offset
+                meta:
+                    source_tier: hand-authored
+    items:
+        description: Operaciones sobre publicaciones individuales (un item especifico en el marketplace)
+        endpoints:
+            get:
+                method: GET
+                path: /items/{item_id}
+                description: Detalle completo de una publicacion (precio, stock, fotos, descripcion, vendedor)
+                params:
+                    - name: item_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: "ID de la publicacion (ej MLA1549047969)"
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: Item
+                pagination: null
+                meta:
+                    source_tier: hand-authored
+    questions:
+        description: Preguntas y respuestas en publicaciones (gestion de Q&A)
+        endpoints:
+            list:
+                method: GET
+                path: /questions/search
+                description: Listar preguntas en publicaciones de un vendedor
+                params:
+                    - name: seller_id
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: "ID del vendedor cuyas preguntas se quieren listar"
+                      fields: []
+                    - name: status
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: "Filtro (UNANSWERED/ANSWERED/CLOSED_UNANSWERED)"
+                      fields: []
+                    - name: limit
+                      type: integer
+                      required: false
+                      positional: false
+                      default: 50
+                      description: "Maximo resultados"
+                      fields: []
+                    - name: offset
+                      type: integer
+                      required: false
+                      positional: false
+                      default: 0
+                      description: "Offset paginacion"
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: QuestionList
+                pagination:
+                    style: offset
+                    limit_param: limit
+                    offset_param: offset
+                meta:
+                    source_tier: hand-authored
+            answer:
+                method: POST
+                path: /answers
+                description: Responder una pregunta especifica
+                params: []
+                body:
+                    - name: question_id
+                      type: integer
+                      required: true
+                      positional: false
+                      default: null
+                      description: "ID de la pregunta a responder"
+                      fields: []
+                    - name: text
+                      type: string
+                      required: true
+                      positional: false
+                      default: null
+                      description: "Texto de la respuesta (max 2000 chars)"
+                      fields: []
+                response:
+                    type: object
+                    item: Answer
+                pagination: null
+                meta:
+                    source_tier: hand-authored
+types: {}

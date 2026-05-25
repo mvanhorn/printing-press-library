@@ -6,7 +6,7 @@ package main
 import (
 	"os"
 
-	"mercadolibre-pp-cli/internal/cli"
+	"github.com/mvanhorn/printing-press-library/library/commerce/mercadolibre/internal/cli"
 )
 
 func main() {
