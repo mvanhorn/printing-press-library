@@ -326,6 +326,13 @@ func (f *rootFlags) newClient() (*client.Client, error) {
 	c.FleetMode = fleetReads
 	if fleetReads {
 		c.BaseURL = strings.TrimRight(fleetAPIBase(cfg), "/")
+		// Permit drive_state to also fetch the location_data endpoint (GPS)
+		// only when the Fleet token actually carries the vehicle_location
+		// scope; requesting it without the scope 403s the whole call.
+		tok := firstNonEmpty(os.Getenv("TESLA_FLEET_TOKEN"), cfg.Fleet.AccessToken)
+		if _, scopes, derr := decodeJWTClaims(tok); derr == nil && strings.Contains(scopes, "vehicle_location") {
+			c.FleetLocation = true
+		}
 	}
 	// Tesla bearer auto-refresh on 401. Wired unless TESLA_PP_NO_AUTOREFRESH=1.
 	// On 401 the transport calls the matching refresh closure (Fleet when reads

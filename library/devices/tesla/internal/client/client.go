@@ -52,6 +52,12 @@ type Client struct {
 	// and the response is unwrapped back to the owner-api shape so subset
 	// callers parse it unchanged. See rewriteFleetSubsetPath / unwrapFleetSubset.
 	FleetMode bool
+
+	// FleetLocation indicates the Fleet token carries the vehicle_location
+	// scope, so drive_state reads may also request the location_data endpoint
+	// for GPS (Tesla 403s the whole call if it's requested without the scope).
+	// Set by the cli layer from the token's decoded scopes.
+	FleetLocation bool
 }
 
 // APIError carries HTTP status information for structured exit codes.
@@ -376,11 +382,11 @@ func (c *Client) doInternal(method, path string, params map[string]string, body 
 	// the owner-api /data_request/<name> path 404s there. When routing reads
 	// through Fleet, rewrite the path and remember the key to unwrap from the
 	// nested response so subset callers parse the owner-api shape unchanged.
-	var fleetUnwrapKey string
+	var fleetUnwrapKeys []string
 	if c.FleetMode {
-		if rewritten, key := rewriteFleetSubsetPath(path); key != "" {
+		if rewritten, keys := rewriteFleetSubsetPath(path, c.FleetLocation); keys != nil {
 			path = rewritten
-			fleetUnwrapKey = key
+			fleetUnwrapKeys = keys
 		}
 	}
 	targetURL := c.BaseURL + path
@@ -509,8 +515,8 @@ func (c *Client) doInternal(method, path string, params map[string]string, body 
 				return env, resp.StatusCode, nil
 			}
 			sanitized := sanitizeJSONResponse(respBody)
-			if fleetUnwrapKey != "" {
-				sanitized = unwrapFleetSubset(sanitized, fleetUnwrapKey)
+			if len(fleetUnwrapKeys) > 0 {
+				sanitized = unwrapFleetSubset(sanitized, fleetUnwrapKeys)
 			}
 			return json.RawMessage(sanitized), resp.StatusCode, nil
 		}
@@ -578,42 +584,75 @@ var fleetSubsetPathRe = regexp.MustCompile(`^(/api/1/vehicles/[^/]+)/data_reques
 
 // rewriteFleetSubsetPath converts an owner-api subset path to the Fleet API
 // equivalent (/vehicle_data?endpoints=<name>). Returns the rewritten path and
-// the response key to unwrap, or (path, "") when it does not match (leaving
-// non-subset paths untouched).
+// the response key(s) to unwrap, or (path, nil) when it does not match.
 //
-// Note on drive_state GPS: owner-api drive_state included latitude/longitude,
-// but Fleet exposes location only via the separate location_data endpoint,
-// which requires the vehicle_location OAuth scope. Requesting location_data
-// without that scope makes the whole call 403, so we deliberately do NOT add it
-// here — a scopeless get-data-drive-state returns its non-location fields
-// instead of failing. Restoring GPS needs the partner app registered with
-// vehicle_location plus a user re-consent; tracked as a follow-up.
-func rewriteFleetSubsetPath(path string) (string, string) {
+// drive_state is special-cased when includeLocation is true: owner-api
+// drive_state included latitude/longitude, but Fleet exposes location only via
+// the separate location_data endpoint, which requires the vehicle_location
+// OAuth scope (requesting it without the scope 403s the whole call). The caller
+// passes includeLocation only when the token carries that scope, so we request
+// both endpoints and merge their fields. Without it, drive_state is fetched
+// alone and returns its non-location fields. The ';' separator is
+// percent-encoded so net/url round-trips it as a value.
+func rewriteFleetSubsetPath(path string, includeLocation bool) (string, []string) {
 	m := fleetSubsetPathRe.FindStringSubmatch(path)
 	if m == nil {
-		return path, ""
+		return path, nil
 	}
-	return m[1] + "/vehicle_data?endpoints=" + m[2], m[2]
+	name := m[2]
+	if name == "drive_state" && includeLocation {
+		return m[1] + "/vehicle_data?endpoints=drive_state%3Blocation_data", []string{"drive_state", "location_data"}
+	}
+	return m[1] + "/vehicle_data?endpoints=" + name, []string{name}
 }
 
-// unwrapFleetSubset reshapes a Fleet vehicle_data?endpoints=<key> response
+// unwrapFleetSubset reshapes a Fleet vehicle_data?endpoints=<keys> response
 // ({"response":{"<key>":{...}}}) back to the owner-api subset shape
-// ({"response":{...}}) so subset-command parsers work unchanged. Fail-safe:
-// returns the input untouched if the body doesn't have the expected shape.
-func unwrapFleetSubset(body []byte, key string) []byte {
+// ({"response":{...}}). A single key is returned verbatim; multiple keys
+// (drive_state + location_data) have their top-level fields shallow-merged.
+// Fail-safe: returns the input untouched if the body doesn't have the expected
+// shape.
+func unwrapFleetSubset(body []byte, keys []string) []byte {
 	var env struct {
 		Response map[string]json.RawMessage `json:"response"`
 	}
 	if err := json.Unmarshal(body, &env); err != nil || env.Response == nil {
 		return body
 	}
-	sub, ok := env.Response[key]
-	if !ok {
+	if len(keys) == 1 {
+		sub, ok := env.Response[keys[0]]
+		if !ok {
+			return body
+		}
+		out, err := json.Marshal(struct {
+			Response json.RawMessage `json:"response"`
+		}{Response: sub})
+		if err != nil {
+			return body
+		}
+		return out
+	}
+	merged := map[string]json.RawMessage{}
+	found := false
+	for _, k := range keys {
+		sub, ok := env.Response[k]
+		if !ok {
+			continue
+		}
+		var fields map[string]json.RawMessage
+		if json.Unmarshal(sub, &fields) == nil {
+			for fk, fv := range fields {
+				merged[fk] = fv
+			}
+			found = true
+		}
+	}
+	if !found {
 		return body
 	}
 	out, err := json.Marshal(struct {
-		Response json.RawMessage `json:"response"`
-	}{Response: sub})
+		Response map[string]json.RawMessage `json:"response"`
+	}{Response: merged})
 	if err != nil {
 		return body
 	}
