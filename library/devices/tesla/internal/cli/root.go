@@ -12,9 +12,9 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mvanhorn/printing-press-library/library/devices/tesla/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/devices/tesla/internal/config"
+	"github.com/spf13/cobra"
 )
 
 var version = "1.0.0"
@@ -305,15 +305,31 @@ func (f *rootFlags) newClient() (*client.Client, error) {
 	if err != nil {
 		return nil, configErr(err)
 	}
+	// Fleet-aware read routing: when no owner-api (iOS-app) credential is
+	// configured but a Fleet user token is present, point the read client at
+	// the regional Fleet API with the Fleet bearer. 2021+ vehicles and non-NA
+	// accounts have no working owner-api read path, so without this the
+	// generated client would hit the dead owner-api host with no usable token.
+	fleetReads := teslaShouldUseFleetForReads(cfg)
+	if fleetReads {
+		cfg.BaseURL = fleetAPIBase(cfg)
+		cfg.AuthHeaderVal = "Bearer " + cfg.Fleet.AccessToken
+		cfg.AuthSource = "fleet"
+	}
 	c := client.New(cfg, f.timeout, f.rateLimit)
 	c.DryRun = f.dryRun
 	c.NoCache = f.noCache
 	// Tesla bearer auto-refresh on 401. Wired unless TESLA_PP_NO_AUTOREFRESH=1.
-	// On 401 the transport calls back into makeTeslaAutoRefreshCallback,
-	// which exchanges the stored refresh token for a fresh bearer and
-	// returns the new Authorization header. See tesla_auth_autorefresh.go.
+	// On 401 the transport calls the matching refresh closure (Fleet when reads
+	// route through the Fleet API, otherwise owner-api), which exchanges the
+	// stored refresh token for a fresh bearer and returns the new Authorization
+	// header. See tesla_auth_autorefresh.go.
 	if teslaAutoRefreshEnabled() {
-		c.OnTokenExpired = makeTeslaAutoRefreshCallback(cfg)
+		if fleetReads {
+			c.OnTokenExpired = makeTeslaFleetRefreshCallback(cfg)
+		} else {
+			c.OnTokenExpired = makeTeslaAutoRefreshCallback(cfg)
+		}
 	}
 	return c, nil
 }

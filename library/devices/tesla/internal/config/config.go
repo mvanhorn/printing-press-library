@@ -47,6 +47,27 @@ type FleetConfig struct {
 	TokenExpiry     time.Time `toml:"token_expiry"`
 	PublicKeyDomain string    `toml:"public_key_domain,omitempty"`
 	PrivateKeyPath  string    `toml:"private_key_path,omitempty"`
+	// APIBase is the regional Fleet API root (e.g.
+	// https://fleet-api.prd.eu.vn.cloud.tesla.com). Persisted at
+	// fleet-register/fleet-login time so subsequent invocations route to the
+	// region the partner account was registered in. Empty falls back to the
+	// North America default. See the tesla-regional-fleet-reads patch.
+	APIBase string `toml:"api_base,omitempty"`
+}
+
+// SaveFleetAPIBase persists the regional Fleet API root into the [fleet] block
+// without touching any other field. Empty input is a no-op so callers can
+// unconditionally record a resolved base without clobbering an existing value
+// with a blank. Mirrors the partial-update discipline of SaveFleetTokens.
+func (c *Config) SaveFleetAPIBase(apiBase string) error {
+	if c == nil {
+		return fmt.Errorf("config is nil")
+	}
+	if apiBase == "" {
+		return nil
+	}
+	c.Fleet.APIBase = apiBase
+	return c.save()
 }
 
 func Load(configPath string) (*Config, error) {

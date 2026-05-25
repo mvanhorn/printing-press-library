@@ -52,9 +52,25 @@ const (
 	// Regional Fleet API audience — North America. Other regions ship later;
 	// for now this matches the fleet-oauth helper that produced the working
 	// token on the reference user.
-	fleetAPIAudience       = "https://fleet-api.prd.na.vn.cloud.tesla.com"
-	fleetPartnerAccountURL = "https://fleet-api.prd.na.vn.cloud.tesla.com/api/1/partner_accounts"
+	fleetAPIAudience = "https://fleet-api.prd.na.vn.cloud.tesla.com"
 )
+
+// fleetAPIBase resolves the regional Fleet API root used for partner
+// registration, token audience, and (when reads route through Fleet) data and
+// command calls. Resolution order: the TESLA_FLEET_API_URL env override, then
+// the persisted [fleet].api_base (recorded at register/login time), then the
+// North America default. Non-NA owners — whose vehicles live in eu/cn/etc. —
+// need the correct regional host, or Tesla returns HTTP 421 (misdirected) for
+// the wrong region and HTTP 412 ("must be registered in the current region").
+func fleetAPIBase(cfg *config.Config) string {
+	if v := strings.TrimSpace(os.Getenv("TESLA_FLEET_API_URL")); v != "" {
+		return strings.TrimRight(v, "/")
+	}
+	if cfg != nil && cfg.Fleet.APIBase != "" {
+		return strings.TrimRight(cfg.Fleet.APIBase, "/")
+	}
+	return fleetAPIAudience
+}
 
 // fleetTokenResponse is the shape every Tesla fleet token endpoint returns
 // (client_credentials, authorization_code, refresh_token grants all share this
@@ -202,17 +218,20 @@ honored when neither flag is set.`,
 				return configErr(err)
 			}
 
+			// Resolve the regional Fleet base once: TESLA_FLEET_API_URL env >
+			// persisted [fleet].api_base > North America default. The partner
+			// token audience, the partner_accounts endpoint, and the persisted
+			// api_base must all agree on the region, or Tesla returns HTTP 412
+			// ("must be registered in the current region").
+			fleetBase := fleetAPIBase(cfg)
 			partnerTokenURL := fleetTokenURL
-			partnerAccountsURL := fleetPartnerAccountURL
+			partnerAccountsURL := fleetBase + "/api/1/partner_accounts"
 			if base := os.Getenv("TESLA_FLEET_AUTH_URL"); base != "" {
 				partnerTokenURL = base + "/oauth2/v3/token"
 			}
-			if base := os.Getenv("TESLA_FLEET_API_URL"); base != "" {
-				partnerAccountsURL = base + "/api/1/partner_accounts"
-			}
 
 			// Step 1: client_credentials grant -> partner token (8h).
-			partnerTok, _, err := fleetClientCredentialsGrant(partnerTokenURL, effClientID, effSecret)
+			partnerTok, _, err := fleetClientCredentialsGrant(partnerTokenURL, effClientID, effSecret, fleetBase)
 			if err != nil {
 				return apiErr(err)
 			}
@@ -221,7 +240,8 @@ honored when neither flag is set.`,
 				return apiErr(err)
 			}
 
-			// Persist client_id + secret + domain into [fleet].
+			// Persist client_id + secret + domain + resolved region into [fleet].
+			cfg.Fleet.APIBase = fleetBase
 			if err := cfg.SaveFleetTokens(effClientID, effSecret, "", "", time.Time{}, publicKeyDomain, ""); err != nil {
 				return err
 			}
@@ -291,7 +311,7 @@ URI to a different port — but the CLI default expects 8585).`,
 			if effClientID == "" {
 				return usageErr(fmt.Errorf("no Fleet client_id available; run `tesla auth fleet-register` first or pass --client-id"))
 			}
-			effAudience := firstNonEmpty(audience, fleetAPIAudience)
+			effAudience := firstNonEmpty(audience, fleetAPIBase(cfg))
 			effAuthURL := fleetAuthURL
 			effTokenURL := fleetTokenURL
 			if base := os.Getenv("TESLA_FLEET_AUTH_URL"); base != "" {
@@ -305,6 +325,11 @@ URI to a different port — but the CLI default expects 8585).`,
 			expiresAt := time.Now().Add(time.Duration(tok.ExpiresIn) * time.Second).UTC()
 			if err := cfg.SaveFleetTokens("", "", tok.AccessToken, tok.RefreshToken, expiresAt, "", ""); err != nil {
 				return err
+			}
+			// Sticky region: persist the audience we logged in against so reads
+			// and later token refreshes target the same regional Fleet host.
+			if serr := cfg.SaveFleetAPIBase(effAudience); serr != nil {
+				return serr
 			}
 			return printJSONFiltered(cmd.OutOrStdout(), map[string]any{
 				"status":       "logged_in",
@@ -580,13 +605,16 @@ func runFleetLoginFlow(cmd *cobra.Command, cfg *config.Config, clientID, authURL
 
 // fleetClientCredentialsGrant mints the partner token (8h lifespan). Used by
 // fleet-register; not stored.
-func fleetClientCredentialsGrant(tokenURL, clientID, clientSecret string) (string, *fleetTokenResponse, error) {
+func fleetClientCredentialsGrant(tokenURL, clientID, clientSecret, audience string) (string, *fleetTokenResponse, error) {
+	if audience == "" {
+		audience = fleetAPIAudience
+	}
 	form := url.Values{
 		"grant_type":    {"client_credentials"},
 		"client_id":     {clientID},
 		"client_secret": {clientSecret},
 		"scope":         {fleetScopes},
-		"audience":      {fleetAPIAudience},
+		"audience":      {audience},
 	}
 	resp, err := http.PostForm(tokenURL, form)
 	if err != nil {

@@ -82,3 +82,84 @@ func makeTeslaAutoRefreshCallback(cfg *config.Config) func() (string, error) {
 func teslaAutoRefreshEnabled() bool {
 	return os.Getenv("TESLA_PP_NO_AUTOREFRESH") == ""
 }
+
+// teslaShouldUseFleetForReads reports whether the read client should target the
+// regional Fleet API with the Fleet bearer instead of the owner-api host. True
+// when no owner-api credential is configured but a Fleet user token is present
+// — the case for 2021+ vehicles and non-NA accounts, where the owner-api read
+// path is gone. Set TESLA_PP_FORCE_FLEET_READS=0 to force the legacy path.
+func teslaShouldUseFleetForReads(cfg *config.Config) bool {
+	if cfg == nil {
+		return false
+	}
+	// Never affects users who haven't set up Fleet (e.g. pre-2021 cars on the
+	// owner-api read path).
+	if cfg.Fleet.AccessToken == "" {
+		return false
+	}
+	switch os.Getenv("TESLA_PP_FORCE_FLEET_READS") {
+	case "0":
+		return false
+	case "1":
+		return true
+	}
+	// Fleet is configured. Prefer it for reads unless a *usable* owner-api
+	// credential exists: an explicit header/env override, or a file-stored
+	// owner-api token that hasn't expired. A stale owner-api token — the common
+	// leftover after moving a 2021+ car to Fleet, often persisted with a zero
+	// expiry — must not block Fleet reads.
+	ownerUsable := cfg.AuthHeaderVal != "" || cfg.TeslaAuthToken != "" ||
+		(cfg.AccessToken != "" && cfg.TokenExpiry.After(time.Now()))
+	return !ownerUsable
+}
+
+// makeTeslaFleetRefreshCallback mirrors makeTeslaAutoRefreshCallback but for the
+// [fleet] block: on a 401 it re-mints the Fleet user token via the Fleet
+// refresh-token grant and returns the fresh bearer. Used when reads route
+// through the Fleet API (see newClient / teslaShouldUseFleetForReads). Shares
+// teslaRefreshGuard so a Fleet and an owner-api refresh never race the config
+// file.
+func makeTeslaFleetRefreshCallback(cfg *config.Config) func() (string, error) {
+	if cfg == nil {
+		return nil
+	}
+	return func() (string, error) {
+		teslaRefreshGuard.Lock()
+		defer teslaRefreshGuard.Unlock()
+
+		// Another invocation may have refreshed already; adopt disk state
+		// rather than re-firing the network exchange.
+		if fresh, lerr := config.Load(cfg.Path); lerr == nil &&
+			fresh.Fleet.AccessToken != "" &&
+			fresh.Fleet.TokenExpiry.After(time.Now()) &&
+			fresh.Fleet.AccessToken != cfg.Fleet.AccessToken {
+			cfg.Fleet = fresh.Fleet
+			cfg.AuthHeaderVal = "Bearer " + fresh.Fleet.AccessToken
+			return cfg.AuthHeaderVal, nil
+		}
+
+		ft := cfg.FleetTokens()
+		if ft.RefreshToken == "" {
+			return "", fmt.Errorf("no Fleet refresh token available; run 'tesla auth fleet-login' first")
+		}
+		effClientID := firstNonEmpty(os.Getenv("TESLA_FLEET_CLIENT_ID"), ft.ClientID)
+		tokenURL := fleetTokenURL
+		if base := os.Getenv("TESLA_FLEET_AUTH_URL"); base != "" {
+			tokenURL = base + "/oauth2/v3/token"
+		}
+		tok, err := fleetRefreshGrant(tokenURL, effClientID, ft.RefreshToken)
+		if err != nil {
+			return "", fmt.Errorf("fleet auto-refresh: %w (run 'tesla auth fleet-login' to re-authenticate)", err)
+		}
+		expiresAt := time.Now().Add(time.Duration(tok.ExpiresIn) * time.Second).UTC()
+		finalRefresh := tok.RefreshToken
+		if finalRefresh == "" {
+			finalRefresh = ft.RefreshToken
+		}
+		if serr := cfg.SaveFleetTokens("", "", tok.AccessToken, finalRefresh, expiresAt, "", ""); serr != nil {
+			return "", fmt.Errorf("fleet auto-refresh save: %w", serr)
+		}
+		cfg.AuthHeaderVal = "Bearer " + tok.AccessToken
+		return cfg.AuthHeaderVal, nil
+	}
+}
