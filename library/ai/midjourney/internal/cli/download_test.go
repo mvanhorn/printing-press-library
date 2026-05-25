@@ -21,3 +21,14 @@ func TestURLPathEscapeEncodesSpecialCharacters(t *testing.T) {
 		}
 	}
 }
+
+func TestRenderedImageNeedleUsesSafeJSLiteral(t *testing.T) {
+	t.Parallel()
+	got := jsStringLiteral("/job\u2028id/0_0")
+	if strings.Contains(got, "\u2028") {
+		t.Fatalf("jsStringLiteral() left raw JavaScript line separator in %q", got)
+	}
+	if !strings.Contains(got, "\\u2028") {
+		t.Fatalf("jsStringLiteral() = %q, want escaped line separator", got)
+	}
+}

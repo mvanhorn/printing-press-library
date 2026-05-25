@@ -14,7 +14,6 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"time"
 
@@ -124,7 +123,7 @@ func browserFindRenderedImage(ctx context.Context, cdpBase, jobID string, index 
 	}
 	needle := fmt.Sprintf("/%s/0_%d", jobID, index)
 	expression := "(() => {" +
-		"const needle = " + strconv.Quote(needle) + ";" +
+		"const needle = " + jsStringLiteral(needle) + ";" +
 		"const visible = Array.from(document.images)" +
 		".filter(img => (img.currentSrc || img.src || '').includes(needle))" +
 		".map(img => { const r = img.getBoundingClientRect(); return {src: img.currentSrc || img.src || '', x: r.x, y: r.y, width: r.width, height: r.height}; })" +
