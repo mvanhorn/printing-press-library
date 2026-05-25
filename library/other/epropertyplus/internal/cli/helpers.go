@@ -5,6 +5,7 @@ package cli
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"github.com/mvanhorn/printing-press-library/library/other/epropertyplus/internal/client"
 	"errors"
@@ -16,6 +17,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 	"text/tabwriter"
 	"time"
@@ -23,6 +25,8 @@ import (
 )
 
 var As = errors.As
+
+const paginatedGetMaxPages = 100
 
 // noColor is set by the --no-color flag
 var noColor bool
@@ -122,6 +126,32 @@ func dryRunOK(flags *rootFlags) bool {
 	return flags != nil && flags.dryRun
 }
 
+// parentNoSubcommandRunE returns a RunE that handles parents invoked without a
+// subcommand. In machine output (--json/--agent) the parent emits a structured
+// error to stdout listing valid subcommands and exits 2; otherwise cobra's
+// default help text is printed. Without this, agents driving the CLI in
+// --agent mode received only human-readable help on stdout and exit 0, with no
+// signal that the invocation was incomplete.
+func parentNoSubcommandRunE(flags *rootFlags) func(*cobra.Command, []string) error {
+	return func(cmd *cobra.Command, args []string) error {
+		if flags != nil && flags.asJSON {
+			subs := make([]string, 0, len(cmd.Commands()))
+			for _, c := range cmd.Commands() {
+				if c.IsAvailableCommand() && c.Name() != "help" {
+					subs = append(subs, c.Name())
+				}
+			}
+			sort.Strings(subs)
+			_ = json.NewEncoder(cmd.OutOrStdout()).Encode(map[string]any{
+				"error":             "subcommand required",
+				"valid_subcommands": subs,
+			})
+			return usageErr(fmt.Errorf("subcommand required for %q", cmd.CommandPath()))
+		}
+		return cmd.Help()
+	}
+}
+
 // accessWarning describes an API access-denial that sync converts into a
 // non-fatal warning. It carries enough structured data for the sync_warning
 // JSON event without parsing free-form error strings downstream.
@@ -166,29 +196,43 @@ func syncErrorJSON(resource, parent string, err error) string {
 	return string(out)
 }
 
-// syncUserParams carries user-supplied query parameters injected into every
-// sync HTTP request. perResource entries win over global on key conflict.
+// syncUserParams carries user-supplied query parameters injected into sync
+// HTTP requests. flatGlobal entries come from --param and inject into
+// flat-list requests only; trueGlobal entries come from --global-param and
+// inject into every request including dependent path-scoped calls.
+// perResource entries win over both on key conflict.
+//
+// The flat/dependent split avoids a real failure mode: a top-level scope
+// like workspace=<gid> belongs on flat-list requests (/projects, /tags) but
+// re-injecting it onto a path-scoped dependent request
+// (/projects/<gid>/tasks?workspace=<gid>) makes APIs like Asana reject the
+// call ("Must specify exactly one of project, tag, ..."). Operators who
+// need the old "apply everywhere" semantic opt back in with --global-param.
 type syncUserParams struct {
-	global      map[string]string
+	flatGlobal  map[string]string
+	trueGlobal  map[string]string
 	perResource map[string]map[string]string
 }
 
-// parseSyncUserParams parses the repeatable --param key=value and
-// --resource-param resource:key=value flags. Returns usage errors keyed on the
-// specific invalid token so the user sees which entry was rejected.
-func parseSyncUserParams(globalFlags, perResourceFlags []string) (*syncUserParams, error) {
+// parseSyncUserParams parses the repeatable --param key=value,
+// --global-param key=value, and --resource-param resource:key=value flags.
+// Returns usage errors keyed on the specific invalid token so the user
+// sees which entry was rejected.
+func parseSyncUserParams(flatGlobalFlags, resourceParamFlags, trueGlobalFlags []string) (*syncUserParams, error) {
+	flatGlobal, err := parseSyncKVFlags(flatGlobalFlags, "--param")
+	if err != nil {
+		return nil, err
+	}
+	trueGlobal, err := parseSyncKVFlags(trueGlobalFlags, "--global-param")
+	if err != nil {
+		return nil, err
+	}
 	p := &syncUserParams{
-		global:      map[string]string{},
+		flatGlobal:  flatGlobal,
+		trueGlobal:  trueGlobal,
 		perResource: map[string]map[string]string{},
 	}
-	for _, kv := range globalFlags {
-		k, v, ok := strings.Cut(kv, "=")
-		if !ok || k == "" {
-			return nil, fmt.Errorf("invalid --param %q: expected key=value", kv)
-		}
-		p.global[k] = v
-	}
-	for _, spec := range perResourceFlags {
+	for _, spec := range resourceParamFlags {
 		resource, kv, ok := strings.Cut(spec, ":")
 		if !ok || resource == "" {
 			return nil, fmt.Errorf("invalid --resource-param %q: expected resource:key=value", spec)
@@ -205,13 +249,36 @@ func parseSyncUserParams(globalFlags, perResourceFlags []string) (*syncUserParam
 	return p, nil
 }
 
-// applyTo merges user params into the request map. Called after spec-derived
-// params (cursor, since, page-size, dates) so user flags can override them.
-func (p *syncUserParams) applyTo(resource string, params map[string]string) {
+// parseSyncKVFlags parses a slice of "key=value" tokens into a map. The
+// flagName label flows into the usage error so a malformed entry tells
+// the user which flag was at fault.
+func parseSyncKVFlags(flags []string, flagName string) (map[string]string, error) {
+	out := map[string]string{}
+	for _, kv := range flags {
+		k, v, ok := strings.Cut(kv, "=")
+		if !ok || k == "" {
+			return nil, fmt.Errorf("invalid %s %q: expected key=value", flagName, kv)
+		}
+		out[k] = v
+	}
+	return out, nil
+}
+
+// applyTo merges user params into the request map. Called after
+// spec-derived params (cursor, since, page-size, dates) so user flags can
+// override them. isDependent=true skips flatGlobal (--param), which
+// targets flat-list endpoints; trueGlobal (--global-param) and perResource
+// always apply.
+func (p *syncUserParams) applyTo(resource string, params map[string]string, isDependent bool) {
 	if p == nil {
 		return
 	}
-	for k, v := range p.global {
+	if !isDependent {
+		for k, v := range p.flatGlobal {
+			params[k] = v
+		}
+	}
+	for k, v := range p.trueGlobal {
 		params[k] = v
 	}
 	for k, v := range p.perResource[resource] {
@@ -276,6 +343,11 @@ func writeAPIErrorEnvelope(flags *rootFlags, err error, code int) {
 
 // classifyAPIError maps API errors to structured exit codes with actionable hints.
 func classifyAPIError(err error, flags *rootFlags) error {
+	var typed *cliError
+	if errors.As(err, &typed) {
+		return err
+	}
+
 	msg := err.Error()
 	switch {
 	case strings.Contains(msg, "HTTP 409"):
@@ -324,9 +396,9 @@ func replacePathParam(path, name, value string) string {
 // argument carries per-endpoint required headers (e.g. cal-api-version) that
 // must be sent on every page request, including the first; pass nil when the
 // endpoint has no per-endpoint header overrides.
-func paginatedGet(c interface {
-	GetWithHeaders(path string, params map[string]string, headers map[string]string) (json.RawMessage, error)
-}, path string, params map[string]string, headers map[string]string, fetchAll bool, cursorParam, nextCursorPath, hasMoreField string) (json.RawMessage, error) {
+func paginatedGet(ctx context.Context, c interface {
+	GetWithHeaders(ctx context.Context, path string, params map[string]string, headers map[string]string) (json.RawMessage, error)
+}, path string, params map[string]string, headers map[string]string, fetchAll bool, cursorParam, paginationType, limitParam, nextCursorPath, hasMoreField string) (json.RawMessage, error) {
 	// Cursor params are exempt from the "0"/"false" strip: offset-paginated
 	// APIs send offset=0 on the first page.
 	clean := map[string]string{}
@@ -340,11 +412,11 @@ func paginatedGet(c interface {
 	}
 
 	if !fetchAll {
-		data, err := c.GetWithHeaders(path, clean, headers)
+		data, err := c.GetWithHeaders(ctx, path, clean, headers)
 		if err != nil {
 			return nil, err
 		}
-		emitTruncationWarning(data, nextCursorPath, hasMoreField)
+		emitTruncationWarning(data, nextCursorPath, hasMoreField, paginationType)
 		return data, nil
 	}
 
@@ -359,7 +431,7 @@ func paginatedGet(c interface {
 			fmt.Fprintf(os.Stderr, `{"event":"page_fetch","page":%d}`+"\n", page)
 		}
 
-		data, err := c.GetWithHeaders(path, clean, headers)
+		data, err := c.GetWithHeaders(ctx, path, clean, headers)
 		if err != nil {
 			return nil, err
 		}
@@ -379,20 +451,33 @@ func paginatedGet(c interface {
 				// Check for next cursor
 				if nextCursorPath != "" {
 					if tokenRaw, ok := rawAtPath(obj, nextCursorPath); ok {
-						var token string
-						if json.Unmarshal(tokenRaw, &token) == nil && token != "" {
+						if token := paginationCursorToken(tokenRaw); token != "" {
+							if page >= paginatedGetMaxPages {
+								emitPaginatedGetMaxPagesWarning()
+								break
+							}
 							clean[cursorParam] = token
 							continue
 						}
 					}
 				}
 
-				// Check has_more
+				// Check has_more. Page and offset paginators can advance
+				// client-side; cursor-based APIs still need a body cursor.
 				if hasMoreField != "" {
 					if moreRaw, ok := rawAtPath(obj, hasMoreField); ok {
 						var more bool
 						if json.Unmarshal(moreRaw, &more) == nil && more {
-							continue
+							if next, ok := nextClientSidePaginationCursor(clean, cursorParam, paginationType, limitParam); ok {
+								if page >= paginatedGetMaxPages {
+									emitPaginatedGetMaxPagesWarning()
+									break
+								}
+								clean[cursorParam] = next
+								continue
+							}
+							emitMissingPaginationCursorWarning(nextCursorPath)
+							break
 						}
 					}
 				}
@@ -405,6 +490,9 @@ func paginatedGet(c interface {
 		break
 	}
 
+	if fetchAll && page == 1 && nextCursorPath == "" && hasMoreField == "" {
+		emitMissingPaginationSignalWarning()
+	}
 	if humanFriendly {
 		fmt.Fprintf(os.Stderr, "fetched %d items across %d pages\n", len(allItems), page)
 	} else {
@@ -414,10 +502,44 @@ func paginatedGet(c interface {
 	return json.RawMessage(result), nil
 }
 
+func nextClientSidePaginationCursor(params map[string]string, cursorParam, paginationType, limitParam string) (string, bool) {
+	if cursorParam == "" {
+		return "", false
+	}
+	switch paginationType {
+	case "page":
+		current := params[cursorParam]
+		if current == "" {
+			current = "1"
+		}
+		n, err := strconv.Atoi(current)
+		if err != nil {
+			return "", false
+		}
+		return strconv.Itoa(n + 1), true
+	case "offset":
+		current := params[cursorParam]
+		if current == "" {
+			current = "0"
+		}
+		n, err := strconv.Atoi(current)
+		if err != nil {
+			return "", false
+		}
+		limit, err := strconv.Atoi(params[limitParam])
+		if err != nil || limit <= 0 {
+			return "", false
+		}
+		return strconv.Itoa(n + limit), true
+	default:
+		return "", false
+	}
+}
+
 // Silent page-1 truncation is the worst-possible mode for agents,
 // who otherwise compute totals against an incomplete set without
 // passing --all.
-func emitTruncationWarning(data json.RawMessage, nextCursorPath, hasMoreField string) {
+func emitTruncationWarning(data json.RawMessage, nextCursorPath, hasMoreField, paginationType string) {
 	if nextCursorPath == "" && hasMoreField == "" {
 		return
 	}
@@ -428,7 +550,7 @@ func emitTruncationWarning(data json.RawMessage, nextCursorPath, hasMoreField st
 	var nextCursor string
 	if nextCursorPath != "" {
 		if tokenRaw, ok := rawAtPath(obj, nextCursorPath); ok {
-			_ = json.Unmarshal(tokenRaw, &nextCursor)
+			nextCursor = paginationCursorToken(tokenRaw)
 		}
 	}
 	var hasMore bool
@@ -440,11 +562,10 @@ func emitTruncationWarning(data json.RawMessage, nextCursorPath, hasMoreField st
 	if nextCursor == "" && !hasMore {
 		return
 	}
-	// --all only advances when a next-cursor is configured. has_more-only
-	// endpoints have no cursor to set on the next page, so the --all loop
-	// re-fetches the same response forever. Don't advertise an escape
-	// hatch that doesn't work for this topology.
-	if nextCursor != "" {
+	// --all advances when a next-cursor is configured, or when the endpoint
+	// uses client-side numeric page/offset advancement. Opaque cursor APIs
+	// still need a returned cursor to advance safely.
+	if nextCursor != "" || ((paginationType == "page" || paginationType == "offset") && hasMore) {
 		if humanFriendly {
 			fmt.Fprintf(os.Stderr, "warning: results truncated; more pages available. Re-run with --all to fetch every page.\n")
 		} else {
@@ -457,6 +578,46 @@ func emitTruncationWarning(data json.RawMessage, nextCursorPath, hasMoreField st
 	} else {
 		fmt.Fprintf(os.Stderr, `{"event":"truncated"}`+"\n")
 	}
+}
+
+func emitMissingPaginationSignalWarning() {
+	if humanFriendly {
+		fmt.Fprintf(os.Stderr, "warning: --all requested, but this endpoint does not declare a next cursor or has-more field; returning page 1 only.\n")
+	} else {
+		fmt.Fprintf(os.Stderr, `{"event":"truncated","reason":"pagination_signal_missing","message":"--all requested but this endpoint does not declare a next cursor or has-more field; returning page 1 only"}`+"\n")
+	}
+}
+
+func emitPaginatedGetMaxPagesWarning() {
+	if humanFriendly {
+		fmt.Fprintf(os.Stderr, "warning: --all reached the %d-page safety limit; returning fetched pages only.\n", paginatedGetMaxPages)
+	} else {
+		fmt.Fprintf(os.Stderr, `{"event":"truncated","reason":"max_pages_cap_hit","message":"--all reached the %d-page safety limit; returning fetched pages only"}`+"\n", paginatedGetMaxPages)
+	}
+}
+
+func emitMissingPaginationCursorWarning(nextCursorPath string) {
+	if humanFriendly {
+		fmt.Fprintf(os.Stderr, "warning: --all requested, but the response indicated more pages without a usable next cursor; returning fetched pages only.\n")
+	} else if nextCursorPath != "" {
+		fmt.Fprintf(os.Stderr, `{"event":"truncated","reason":"pagination_cursor_missing","next_cursor_path":%q,"message":"--all requested but the response indicated more pages without a usable next cursor; returning fetched pages only"}`+"\n", nextCursorPath)
+	} else {
+		fmt.Fprintf(os.Stderr, `{"event":"truncated","reason":"pagination_cursor_missing","message":"--all requested but the response indicated more pages without a usable next cursor; returning fetched pages only"}`+"\n")
+	}
+}
+
+func paginationCursorToken(raw json.RawMessage) string {
+	var token string
+	if json.Unmarshal(raw, &token) == nil && token != "" {
+		return token
+	}
+	var number json.Number
+	if json.Unmarshal(raw, &number) == nil {
+		if n, err := number.Int64(); err == nil && n > 0 {
+			return number.String()
+		}
+	}
+	return ""
 }
 
 func extractPaginatedItems(obj map[string]json.RawMessage) ([]json.RawMessage, bool) {
@@ -569,17 +730,47 @@ func filterFieldsRec(data json.RawMessage, paths [][]string) json.RawMessage {
 			}
 		}
 		filtered := map[string]json.RawMessage{}
+		matchedAny := false
 		for k, v := range obj {
 			matched := matchSelectSegment(k, keepWhole, subPaths)
 			if matched == "" {
 				continue
 			}
+			matchedAny = true
 			if keepWhole[matched] {
 				filtered[k] = v
 				continue
 			}
 			if subs := subPaths[matched]; subs != nil {
 				filtered[k] = filterFieldsRec(v, subs)
+			}
+		}
+		// Envelope fallback: when no top-level keys matched but at least one
+		// sibling is a non-null array, treat the object as a list envelope
+		// (`{"items":[...]}`, `{"data":[...]}`, `{"total_count":N,"items":[...]}`)
+		// and apply the selector inside the array(s). Non-array siblings pass
+		// through verbatim so envelope metadata (counts, null pagination
+		// cursors) stays visible. The foundArray guard preserves the prior
+		// empty-object result for flat objects where no key matches and no
+		// array exists. The `arr != nil` check rejects JSON null, which
+		// json.Unmarshal otherwise accepts into a []json.RawMessage as a
+		// nil slice and would coerce to `[]`.
+		if !matchedAny {
+			pending := map[string]json.RawMessage{}
+			foundArray := false
+			for k, v := range obj {
+				var arr []json.RawMessage
+				if json.Unmarshal(v, &arr) == nil && arr != nil {
+					foundArray = true
+					pending[k] = filterFieldsRec(v, paths)
+				} else {
+					pending[k] = v
+				}
+			}
+			if foundArray {
+				for k, v := range pending {
+					filtered[k] = v
+				}
 			}
 		}
 		result, _ := json.Marshal(filtered)
@@ -640,40 +831,23 @@ func printOutputWithFlags(w io.Writer, data json.RawMessage, flags *rootFlags) e
 	return printOutput(w, data, flags.asJSON)
 }
 
-// extractResponseData unwraps common API response envelopes for display.
-// Many APIs return {"status":"success","data":[...]} instead of a bare array.
-// This extracts the inner data for output helpers (filterFields, compactFields,
-// printAutoTable) that expect arrays or flat objects.
-//
-// Only unwraps when a "status" field is present and indicates success — this
-// avoids false positives on APIs where "data" is a regular field (e.g., Stripe
-// returns {"data":[...],"has_more":true} where "data" is the list, not an
-// envelope wrapper).
-func extractResponseData(data json.RawMessage) json.RawMessage {
-	var envelope struct {
-		Status string          `json:"status"`
-		Data   json.RawMessage `json:"data"`
-	}
-	if err := json.Unmarshal(data, &envelope); err != nil {
-		return data
-	}
-	if envelope.Data == nil || envelope.Status == "" {
-		return data // No status field = not an envelope, might be regular "data" field
-	}
-	switch envelope.Status {
-	case "success", "ok", "OK", "Success":
-		return envelope.Data
-	default:
-		return data
-	}
-}
-
-// compactVerboseFields are the prose-shaped fields stripped by both the
-// list and single-object compact paths. Centralised so the contract stays
-// in lockstep across both helpers.
-var compactVerboseFields = map[string]bool{
+// compactVerboseListFields are prose-shaped fields stripped from list-item
+// projections. On lists, "body"/"content"/"html"/"markdown" are verbose
+// noise and the row's identity is carried by id/name/title/etc.
+var compactVerboseListFields = map[string]bool{
 	"description": true, "body": true, "content": true,
 	"comments": true, "attachments": true, "html": true, "markdown": true,
+}
+
+// compactVerboseObjectFields are metadata fields stripped from single-object
+// responses. "body"/"content"/"html"/"markdown" are intentionally absent:
+// for a `get` command those fields are the primary payload, and stripping
+// them under `--agent`/`--compact` silently emits a useless envelope.
+// Use `--select` to drop them explicitly.
+var compactVerboseObjectFields = map[string]bool{
+	"description": true,
+	"comments":    true,
+	"attachments": true,
 }
 
 // compactFields keeps only the most important fields for agent consumption.
@@ -740,7 +914,7 @@ func compactListFields(items []map[string]any) json.RawMessage {
 		keyCounts := map[string]int{}
 		for _, item := range items {
 			for k, v := range item {
-				if compactVerboseFields[k] || !isCompactScalar(v) {
+				if compactVerboseListFields[k] || !isCompactScalar(v) {
 					continue
 				}
 				keyCounts[k]++
@@ -793,12 +967,15 @@ func isCompactScalar(v any) bool {
 	}
 }
 
-// compactObjectFields strips known-verbose fields from single-object responses.
-// Uses a blocklist so it works across all API domains (project management, payments, CRM, etc.).
+// compactObjectFields strips known-verbose metadata fields from single-object
+// responses. The blocklist deliberately excludes "body"/"content"/"html"/
+// "markdown" — those fields are payload on `get` commands and stripping them
+// under `--agent`/`--compact` is a silent loss; agents who want to omit them
+// can pass `--select` to specify only the fields they need.
 func compactObjectFields(obj map[string]any) json.RawMessage {
 	compact := map[string]any{}
 	for k, v := range obj {
-		if !compactVerboseFields[k] {
+		if !compactVerboseObjectFields[k] {
 			compact[k] = v
 		}
 	}
@@ -836,7 +1013,12 @@ func printCSV(w io.Writer, data json.RawMessage) error {
 			if v == nil {
 				vals = append(vals, "")
 			} else {
-				s := fmt.Sprintf("%v", v)
+				var s string
+				if f, ok := v.(float64); ok {
+					s = strconv.FormatFloat(f, 'f', -1, 64)
+				} else {
+					s = fmt.Sprintf("%v", v)
+				}
 				if strings.ContainsAny(s, ",\"\n") {
 					s = `"` + strings.ReplaceAll(s, `"`, `""`) + `"`
 				}

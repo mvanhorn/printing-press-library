@@ -11,7 +11,6 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/mvanhorn/printing-press-library/library/other/epropertyplus/internal/client"
 	"github.com/mvanhorn/printing-press-library/library/other/epropertyplus/internal/config"
@@ -24,8 +23,6 @@ import (
 // compareSampleCap bounds the live hydrate per instance when no synced data is
 // available, keeping `compare` fast and polite while still estimating the
 // structure ratio.
-const compareSampleCap = 60
-
 type instanceStats struct {
 	Instance       string   `json:"instance"`
 	Source         string   `json:"source"`
@@ -36,6 +33,7 @@ type instanceStats struct {
 	AvgAskingPrice *float64 `json:"avg_asking_price"`
 	IndexSize      int      `json:"index_size,omitempty"`
 	Sampled        int      `json:"sampled,omitempty"`
+	NeedsSync      bool     `json:"needs_sync,omitempty"`
 }
 
 func newCompareCmd(flags *rootFlags) *cobra.Command {
@@ -49,8 +47,8 @@ Compute and compare per-instance summary stats: total, structures, lots,
 structure_pct, and avg_asking_price.
 
 For each instance, the synced local store is used when it has data; otherwise a
-sample of up to 60 properties is hydrated live to estimate the structure ratio
-(in which case index_size and sampled are reported alongside the estimate).
+only the total inventory size is reported (run 'sync' first for the
+structure/lot breakdown; needs_sync is set in that case).
 
 Human output is a table; --json / --agent emit structured stats.
 `, "\n"),
@@ -136,8 +134,10 @@ func computeInstanceStats(ctx context.Context, flags *rootFlags, slug string) (i
 		}
 	}
 
-	// Live sample. Build a dedicated client pointed at this slug rather than
-	// the active --instance, so compare can span instances in one invocation.
+	// No local store: return index-level totals only. Each detail call against
+	// the live API is ~1s, so hydrating enough properties to estimate the
+	// structure ratio is too slow for a quick compare. Report total inventory
+	// size and flag that `sync` is needed for the structure/lot breakdown.
 	cfg, err := config.Load(flags.configPath)
 	if err != nil {
 		return st, err
@@ -146,25 +146,15 @@ func computeInstanceStats(ctx context.Context, flags *rootFlags, slug string) (i
 	c := client.New(cfg, flags.timeout, flags.rateLimit)
 	c.NoCache = flags.noCache
 
-	idx, err := fetchIndex(c)
+	idx, err := fetchIndex(ctx, c)
 	if err != nil {
 		return st, err
 	}
-	var loaded []loadedProperty
-	sampled := 0
-	for _, row := range idx.Rows {
-		if sampled >= compareSampleCap {
-			break
-		}
-		p, raw, herr := hydrateProperty(c, row.ID.String())
-		if herr != nil {
-			continue
-		}
-		sampled++
-		loaded = append(loaded, loadedProperty{Prop: p, Raw: raw})
-		time.Sleep(politeDelay)
-	}
-	return statsFromLoaded(slug, "live", loaded, idx.Size, sampled), nil
+	st.Source = "index"
+	st.Total = idx.Size
+	st.IndexSize = idx.Size
+	st.NeedsSync = true
+	return st, nil
 }
 
 func rowsToLoaded(rows []store.PropertyRow) []loadedProperty {
@@ -180,9 +170,10 @@ func rowsToLoaded(rows []store.PropertyRow) []loadedProperty {
 }
 
 // statsFromLoaded computes summary stats from a set of hydrated properties.
-// When indexSize/sampled are non-zero (live sampling), Total is scaled to the
-// full index size from the sampled structure ratio; otherwise Total is the
-// exact loaded count (synced store).
+// Total is always the measured count (structures+lots) so the invariant
+// structures+lots==total holds. When indexSize/sampled are non-zero (live
+// sampling) the full catalogue size is reported separately as index_size and
+// the sample size as sampled, marking the stats as an estimate over a sample.
 func statsFromLoaded(slug, source string, loaded []loadedProperty, indexSize, sampled int) instanceStats {
 	st := instanceStats{Instance: slug, Source: source}
 	var priceSum float64
@@ -208,10 +199,11 @@ func statsFromLoaded(slug, source string, loaded []loadedProperty, indexSize, sa
 	}
 
 	if indexSize > 0 && sampled > 0 {
-		// Live sample: report the full index size as the total and surface the
-		// sample provenance.
-		// Total reflects the sampled subset so structures+lots==total stays
-		// internally consistent; IndexSize surfaces the full inventory count.
+		// Live sample: Total is the measured count (structures+lots) so the
+		// invariant structures+lots==total holds in the emitted stats. The full
+		// catalogue size is surfaced separately as index_size, and the sample
+		// size as sampled, so consumers can see this is an estimate over a
+		// sample of a larger index without breaking the per-row arithmetic.
 		st.Total = measured
 		st.IndexSize = indexSize
 		st.Sampled = sampled

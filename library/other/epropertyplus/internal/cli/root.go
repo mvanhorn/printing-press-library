@@ -37,6 +37,7 @@ type rootFlags struct {
 	deliverSpec   string
 	timeout       time.Duration
 	rateLimit     float64
+	maxAge        time.Duration
 	dataSource    string
 	instance      string
 	freshnessMeta any
@@ -66,6 +67,13 @@ func Execute() error {
 		if idx := strings.Index(msg, "unknown flag: "); idx >= 0 {
 			flagStr := strings.TrimSpace(msg[idx+len("unknown flag: "):])
 			if suggestion := suggestFlag(flagStr, rootCmd); suggestion != "" {
+				// Cobra already printed `Error: unknown flag: --foob` before
+				// returning; the wrap below attaches the hint to err.Error()
+				// for downstream consumers and exit-code classification, but
+				// would never reach stderr now that main.go no longer prints
+				// err. Emit the hint explicitly so the suggestion still
+				// shows up under Cobra's error line.
+				fmt.Fprintf(os.Stderr, "hint: did you mean --%s?\n", suggestion)
 				err = fmt.Errorf("%w\nhint: did you mean --%s?", err, suggestion)
 			}
 		}
@@ -102,9 +110,17 @@ func Execute() error {
 //   - "unknown flag: --foo"                            (pflag)
 //   - "unknown shorthand flag: 'x' in -x"              (pflag)
 //   - "unknown command \"foo\" for ..."                (Cobra)
-//   - "required flag(s) \"foo\" not set"               (Cobra MarkFlagRequired)
+//   - "required flag \"foo\" not set"                  (Cobra, single missing)
+//   - "required flag(s) \"foo\" not set"               (Cobra, multiple missing)
 //   - "flag needs an argument: --foo"                  (pflag, missing value)
 //   - "invalid argument \"x\" for \"--y\" flag: ..."   (pflag, parse failure)
+//
+// Cobra emits the singular form ("required flag") when exactly one
+// MarkFlagRequired flag is missing, and the plural form ("required
+// flag(s)") only when multiple are missing on the same command. Both
+// shapes must be anchored to avoid matching app-level errors that
+// happen to mention "required flag" as prose; the trailing space + quote
+// (`required flag "`) is the literal punctuation cobra emits.
 //
 // Returns false for nil err.
 func isCobraUsageError(err error) bool {
@@ -115,6 +131,7 @@ func isCobraUsageError(err error) bool {
 	return strings.HasPrefix(msg, "unknown flag") ||
 		strings.HasPrefix(msg, "unknown shorthand flag") ||
 		strings.HasPrefix(msg, "unknown command") ||
+		strings.HasPrefix(msg, `required flag "`) ||
 		strings.HasPrefix(msg, `required flag(s) "`) ||
 		strings.HasPrefix(msg, "flag needs an argument:") ||
 		strings.HasPrefix(msg, `invalid argument "`)
@@ -160,6 +177,7 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.PersistentFlags().BoolVar(&humanFriendly, "human-friendly", false, "Enable colored output and rich formatting")
 	rootCmd.PersistentFlags().BoolVar(&flags.agent, "agent", false, "Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)")
 	rootCmd.PersistentFlags().StringVar(&flags.dataSource, "data-source", "auto", "Data source for read commands: auto (live with local fallback), live (API only), local (synced data only)")
+	rootCmd.PersistentFlags().DurationVar(&flags.maxAge, "max-age", 30*time.Minute, "Maximum acceptable age of local-store data before a stderr hint suggests sync; 0 disables")
 	rootCmd.PersistentFlags().StringVar(&flags.profileName, "profile", "", "Apply values from a saved profile (see 'epropertyplus-pp-cli profile list')")
 	rootCmd.PersistentFlags().StringVar(&flags.deliverSpec, "deliver", "", "Route output to a sink: stdout (default), file:<path>, webhook:<url>")
 	rootCmd.PersistentFlags().Float64Var(&flags.rateLimit, "rate-limit", 0, "Max requests per second (0 to disable)")
@@ -321,7 +339,7 @@ func newVersionCliCmd() *cobra.Command {
 		Use:   "version",
 		Short: "Print version",
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Printf("epropertyplus-pp-cli %s\n", version)
+			fmt.Printf("%s %s\n", cmd.Root().Name(), version)
 		},
 	}
 }

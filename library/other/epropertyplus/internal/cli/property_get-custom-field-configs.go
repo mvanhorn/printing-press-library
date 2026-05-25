@@ -15,7 +15,7 @@ func newPropertyGetCustomFieldConfigsCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "get-custom-field-configs",
-		Short:       "Returns the instance's custom-field configuration so the cryptic s_custom_*/n_custom_* keys on a Property can be...",
+		Short:       "Returns the instance's custom-field configuration so the cryptic s_custom_*/n_custom_* keys on a Property can be mapped",
 		Example:     "  epropertyplus-pp-cli property get-custom-field-configs",
 		Annotations: map[string]string{"pp:endpoint": "property.get-custom-field-configs", "pp:method": "GET", "pp:path": "/property/getCustomFieldConfigs", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -26,7 +26,7 @@ func newPropertyGetCustomFieldConfigsCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/property/getCustomFieldConfigs"
 			params := map[string]string{}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "property", false, path, params, nil)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "property", false, path, params, nil, cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

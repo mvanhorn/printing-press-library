@@ -59,7 +59,7 @@ when present (run 'sync' first); otherwise detail is hydrated live up to
 
 			// --kind all: just the index rows, no hydration.
 			if kind == "" || strings.EqualFold(kind, "all") {
-				idx, err := fetchIndex(c)
+				idx, err := fetchIndex(cmd.Context(), c)
 				if err != nil {
 					return classifyAPIError(err, flags)
 				}

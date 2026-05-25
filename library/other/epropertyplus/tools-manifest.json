@@ -1,7 +1,7 @@
 {
   "api_name": "epropertyplus",
   "base_url": "https://public-kclb.epropertyplus.com/landmgmtpub/remote/public",
-  "description": "Every land bank's public inventory in one CLI. ePropertyPlus is a SaaS land-management platform many US land banks run on; this CLI talks to its public JSON API, parameterized by instance (slug). Enumerate a land bank's published properties, hydrate full per-property detail (parcel geometry, zoning, potential use, condition custom fields), filter structures vs vacant lots, export to CSV/GeoJSON, and resolve/download listing images. No auth required.",
+  "description": "Every land bank's public inventory, one command — enumerate, filter, export, and image any ePropertyPlus instance by slug.",
   "mcp_ready": "full",
   "http_transport": "standard",
   "auth": {
@@ -53,6 +53,12 @@
           "location": "path",
           "description": "Filename",
           "required": true
+        }
+      ],
+      "header_overrides": [
+        {
+          "name": "Accept",
+          "value": "image/jpeg"
         }
       ]
     },

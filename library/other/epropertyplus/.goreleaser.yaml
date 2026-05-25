@@ -45,7 +45,7 @@ brews:
       owner: startos00
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Every land bank's public inventory, one command — enumerate, filter, export, and image any ePropertyPlus instance..."
+    description: "Every land bank's public inventory, one command — enumerate, filter, export"
     install: |
       bin.install "epropertyplus-pp-cli"
       bin.install "epropertyplus-pp-mcp"

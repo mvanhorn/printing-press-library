@@ -10,7 +10,8 @@ import (
 func newPropertyCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "property",
-		Short: "Manage property",
+		Short: "Every land bank's public inventory in one CLI.",
+		RunE:  parentNoSubcommandRunE(flags),
 	}
 
 	cmd.AddCommand(newPropertyGetCmd(flags))

@@ -5,6 +5,7 @@ package mcp
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -26,12 +27,12 @@ func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("property_get",
 			mcplib.WithDescription("Returns the full property record (parcel number, address, geometry, zoning, potential use, structure type, occupancy, asking price, image thumbnail, and custom condition fields) under the returnVal envelope. Required: propertyId."),
-			mcplib.WithString("propertyId", mcplib.Required(), mcplib.Description("Property id from listProperties rows[].id")),
+			mcplib.WithNumber("propertyId", mcplib.Required(), mcplib.Description("Property id from listProperties rows[].id")),
 			mcplib.WithReadOnlyHintAnnotation(true),
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/property/getPublishedProperty", []mcpParamBinding{{PublicName: "propertyId", WireName: "propertyId", Location: "query"}}, []string{}),
+		makeAPIHandler("GET", "/property/getPublishedProperty", true, false, nil, []mcpParamBinding{{PublicName: "propertyId", WireName: "propertyId", Location: "query"}}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("property_get-custom-field-configs",
@@ -40,7 +41,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/property/getCustomFieldConfigs", []mcpParamBinding{}, []string{}),
+		makeAPIHandler("GET", "/property/getCustomFieldConfigs", true, false, nil, []mcpParamBinding{}, []string{}),
 	)
 	s.AddTool(
 		mcplib.NewTool("property_get-image",
@@ -51,7 +52,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/property/viewImage/{imageId}/{filename}", []mcpParamBinding{{PublicName: "imageId", WireName: "imageId", Location: "path"}, {PublicName: "filename", WireName: "filename", Location: "path"}}, []string{"imageId", "filename"}),
+		makeAPIHandler("GET", "/property/viewImage/{imageId}/{filename}", true, true, map[string]string{"Accept": "image/jpeg"}, []mcpParamBinding{{PublicName: "imageId", WireName: "imageId", Location: "path"}, {PublicName: "filename", WireName: "filename", Location: "path"}}, []string{"imageId", "filename"}),
 	)
 	s.AddTool(
 		mcplib.NewTool("property_list-properties",
@@ -60,7 +61,7 @@ func RegisterTools(s *server.MCPServer) {
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
-		makeAPIHandler("GET", "/property/searchSummaryPublicMapQuery", []mcpParamBinding{}, []string{}),
+		makeAPIHandler("GET", "/property/searchSummaryPublicMapQuery", true, false, nil, []mcpParamBinding{}, []string{}),
 	)
 	// SQL tool — ad-hoc analysis on synced data without API calls
 	s.AddTool(
@@ -96,7 +97,7 @@ type mcpParamBinding struct {
 }
 
 // makeAPIHandler creates a generic MCP tool handler for an API endpoint.
-func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, positionalParams []string) server.ToolHandlerFunc {
+func makeAPIHandler(method, pathTemplate string, readOnly bool, binaryResponse bool, headerOverrides map[string]string, bindings []mcpParamBinding, positionalParams []string) server.ToolHandlerFunc {
 	return func(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 		c, err := newMCPClient()
 		if err != nil {
@@ -116,6 +117,19 @@ func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, pos
 		pathParams := make(map[string]bool, len(positionalParams))
 		params := make(map[string]string)
 		bodyArgs := make(map[string]any)
+		var headers map[string]string
+		if len(headerOverrides) > 0 {
+			headers = make(map[string]string, len(headerOverrides)+1)
+			for k, v := range headerOverrides {
+				headers[k] = v
+			}
+		}
+		if binaryResponse {
+			if headers == nil {
+				headers = map[string]string{}
+			}
+			headers[client.BinaryResponseHeader] = "true"
+		}
 		for _, binding := range bindings {
 			knownArgs[binding.PublicName] = true
 			v, ok := args[binding.PublicName]
@@ -159,15 +173,43 @@ func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, pos
 		var data json.RawMessage
 		switch method {
 		case "GET":
-			data, err = c.Get(path, params)
+			if len(headers) > 0 {
+				data, err = c.GetWithHeaders(ctx, path, params, headers)
+				break
+			}
+			data, err = c.Get(ctx, path, params)
 		case "POST":
-			data, _, err = c.PostWithParams(path, params, bodyArgs)
+			if len(headers) > 0 {
+				if readOnly {
+					data, _, err = c.PostQueryWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				} else {
+					data, _, err = c.PostWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				}
+				break
+			}
+			if readOnly {
+				data, _, err = c.PostQueryWithParams(ctx, path, params, bodyArgs)
+			} else {
+				data, _, err = c.PostWithParams(ctx, path, params, bodyArgs)
+			}
 		case "PUT":
-			data, _, err = c.PutWithParams(path, params, bodyArgs)
+			if len(headers) > 0 {
+				data, _, err = c.PutWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				break
+			}
+			data, _, err = c.PutWithParams(ctx, path, params, bodyArgs)
 		case "PATCH":
-			data, _, err = c.PatchWithParams(path, params, bodyArgs)
+			if len(headers) > 0 {
+				data, _, err = c.PatchWithParamsAndHeaders(ctx, path, params, bodyArgs, headers)
+				break
+			}
+			data, _, err = c.PatchWithParams(ctx, path, params, bodyArgs)
 		case "DELETE":
-			data, _, err = c.DeleteWithParams(path, params)
+			if len(headers) > 0 {
+				data, _, err = c.DeleteWithParamsAndHeaders(ctx, path, params, headers)
+				break
+			}
+			data, _, err = c.DeleteWithParams(ctx, path, params)
 		default:
 			return mcplib.NewToolResultError("unsupported method: " + method), nil
 		}
@@ -211,6 +253,14 @@ func makeAPIHandler(method, pathTemplate string, bindings []mcpParamBinding, pos
 					return mcplib.NewToolResultText(string(out)), nil
 				}
 			}
+		}
+		if binaryResponse {
+			out, _ := json.Marshal(map[string]any{
+				"content_encoding": "base64",
+				"data_base64":      base64.StdEncoding.EncodeToString(data),
+				"byte_count":       len(data),
+			})
+			return mcplib.NewToolResultText(string(out)), nil
 		}
 		return mcplib.NewToolResultText(string(data)), nil
 	}
@@ -341,7 +391,7 @@ func handleSQL(ctx context.Context, req mcplib.CallToolRequest) (*mcplib.CallToo
 func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToolResult, error) {
 	ctx := map[string]any{
 		"api":         "epropertyplus",
-		"description": "Every land bank's public inventory, one command — enumerate, filter, export, and image any ePropertyPlus instance...",
+		"description": "Every land bank's public inventory, one command — enumerate, filter, export",
 		"archetype":   "generic",
 		"tool_count":  4,
 		// tool_surface tells agents which surface a capability lives on.
@@ -365,7 +415,7 @@ func handleContext(_ context.Context, _ mcplib.CallToolRequest) (*mcplib.CallToo
 		// Command-mirror capabilities are exposed through MCP by shelling out
 		// to the companion CLI binary.
 		"command_mirror_capabilities": []map[string]string{
-			{"name": "Multi-instance registry", "command": "instances", "description": "Point the same commands at any ePropertyPlus land bank by slug; manage a list of known instances.", "rationale": "The web UI serves one land bank at a time; a slug-parameterized client makes every ePropertyPlus land bank one...", "via": "mcp-command-mirror"},
+			{"name": "Multi-instance registry", "command": "instances", "description": "Point the same commands at any ePropertyPlus land bank by slug; manage a list of known instances.", "rationale": "The web UI serves one land bank at a time; a slug-parameterized client makes every ePropertyPlus land bank one uniform", "via": "mcp-command-mirror"},
 			{"name": "Structure vs lot classifier", "command": "list", "description": "Filter an instance's inventory to structures (buildings) or vacant lots.", "rationale": "Requires hydrating detail and applying the propertyClass/structureType rule the web UI never exposes as a filter.", "via": "mcp-command-mirror"},
 			{"name": "Bulk hydrate-all", "command": "sync", "description": "Enumerate the index and hydrate every property's full detail into a local SQLite dataset.", "rationale": "Index-to-detail fan-out across a whole instance into one queryable dataset; the UI paginates one property at a time.", "via": "mcp-command-mirror"},
 			{"name": "GeoJSON land export", "command": "export", "description": "Export inventory as GIS-ready GeoJSON features using lat/lng and parcel geometry.", "rationale": "Joins coordinates and parcel dimensions into a GeoJSON shape no land-bank web UI exports.", "via": "mcp-command-mirror"},

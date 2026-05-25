@@ -1,15 +1,17 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-05-25T08:52:44.347931Z",
-  "printing_press_version": "4.6.1",
+  "generated_at": "2026-05-25T11:48:15.20146Z",
+  "printing_press_version": "4.15.0",
   "api_name": "epropertyplus",
-  "display_name": "Epropertyplus Public Land",
+  "display_name": "ePropertyPlus",
   "cli_name": "epropertyplus-pp-cli",
   "owner": "startos00",
+  "printer": "startos00",
   "printer_name": "startos00",
   "spec_format": "openapi3",
   "spec_checksum": "sha256:ec20c7da5e8e9dd7666cca59e4d6c74464fc83f89c4ddbec316dbb1f668f673b",
   "run_id": "20260525-161302",
+  "description": "Every land bank's public inventory, one command — enumerate, filter, export, and image any ePropertyPlus instance by slug.",
   "mcp_binary": "epropertyplus-pp-mcp",
   "mcp_tool_count": 4,
   "mcp_public_tool_count": 4,
@@ -40,7 +42,7 @@
     {
       "name": "Land Designer feed",
       "command": "land-export",
-      "description": "Export vacant-land parcels with geometry, zoning, and potential use \u2014 the fields the Land Designer needs."
+      "description": "Export vacant-land parcels with geometry, zoning, and potential use — the fields the Land Designer needs."
     },
     {
       "name": "Parcel/condition join hook",
@@ -52,6 +54,5 @@
       "command": "compare",
       "description": "Compare synced inventories across two or more land-bank instances."
     }
-  ],
-  "printer": "startos00"
+  ]
 }

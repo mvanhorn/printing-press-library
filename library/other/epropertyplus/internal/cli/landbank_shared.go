@@ -25,8 +25,8 @@ import (
 const politeDelay = 120 * time.Millisecond
 
 // fetchIndex pulls the lightweight index for the active instance.
-func fetchIndex(c *client.Client) (*landbank.IndexResponse, error) {
-	data, err := c.Get("/property/searchSummaryPublicMapQuery", nil)
+func fetchIndex(ctx context.Context, c *client.Client) (*landbank.IndexResponse, error) {
+	data, err := c.Get(ctx, "/property/searchSummaryPublicMapQuery", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -34,8 +34,8 @@ func fetchIndex(c *client.Client) (*landbank.IndexResponse, error) {
 }
 
 // hydrateProperty fetches and parses a single property's full detail live.
-func hydrateProperty(c *client.Client, id string) (landbank.Property, json.RawMessage, error) {
-	data, err := c.Get("/property/getPublishedProperty", map[string]string{"propertyId": id})
+func hydrateProperty(ctx context.Context, c *client.Client, id string) (landbank.Property, json.RawMessage, error) {
+	data, err := c.Get(ctx, "/property/getPublishedProperty", map[string]string{"propertyId": id})
 	if err != nil {
 		return landbank.Property{}, nil, err
 	}
@@ -76,7 +76,7 @@ func loadProperties(ctx context.Context, c *client.Client, flags *rootFlags, lim
 	}
 
 	// Live hydration.
-	idx, err := fetchIndex(c)
+	idx, err := fetchIndex(ctx, c)
 	if err != nil {
 		return nil, "", err
 	}
@@ -91,15 +91,15 @@ func loadProperties(ctx context.Context, c *client.Client, flags *rootFlags, lim
 			break
 		}
 		id := row.ID.String()
-		p, raw, err := hydrateProperty(c, id)
+		p, raw, err := hydrateProperty(ctx, c, id)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "warning: skipping property %s: %v\n", id, err)
 			continue
 		}
 		hydrated++
-		// Throttle every hydrated request, not just kind-matching ones, so a
-		// mostly-non-matching filter (e.g. lots on a structure-heavy instance)
-		// can't fire rapid unthrottled requests at the unauthenticated API.
+		// Throttle every request, not just matches — sleep immediately after a
+		// successful hydrate and before the kind-filter guard so a long run of
+		// non-matching rows is still rate-limited.
 		time.Sleep(politeDelay)
 		if !p.MatchesKind(kindFilter) {
 			continue

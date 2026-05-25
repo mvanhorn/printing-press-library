@@ -16,6 +16,7 @@ func newWorkflowCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "workflow",
 		Short: "Compound workflows that combine multiple API operations",
+		RunE:  parentNoSubcommandRunE(flags),
 	}
 	cmd.AddCommand(newWorkflowArchiveCmd(flags))
 	cmd.AddCommand(newWorkflowStatusCmd(flags))
@@ -53,8 +54,12 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 			}
 			defer s.Close()
 
-			resources := []string{"property", "property-search-summary-public-map-query"}
+			resources := []string{"property"}
 			totalSynced := 0
+			syncEventWriter := cmd.OutOrStdout()
+			if flags.asJSON {
+				syncEventWriter = cmd.ErrOrStderr()
+			}
 
 			// --full clears the cursor here because syncResource reads
 			// existingCursor unconditionally; its full param only gates the
@@ -66,7 +71,7 @@ and full resync. After archiving, use 'search' for instant full-text search.`,
 			}
 
 			for _, resource := range resources {
-				res := syncResource(c, s, resource, "", full, 100, false, nil)
+				res := syncResource(cmd.Context(), c, s, resource, "", full, 100, false, nil, syncEventWriter)
 				if res.Err != nil {
 					fmt.Fprintf(cmd.ErrOrStderr(), "  %s: error: %v\n", resource, res.Err)
 					continue

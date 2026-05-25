@@ -15,7 +15,7 @@ func newPropertyListPropertiesCmd(flags *rootFlags) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:         "list-properties",
-		Short:       "Returns the full set of published public properties as lightweight index rows (id, latitude, longitude, status,...",
+		Short:       "Returns the full set of published public properties as lightweight index rows (id, latitude, longitude, status",
 		Example:     "  epropertyplus-pp-cli property list-properties",
 		Annotations: map[string]string{"pp:endpoint": "property.list-properties", "pp:method": "GET", "pp:path": "/property/searchSummaryPublicMapQuery", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -26,7 +26,7 @@ func newPropertyListPropertiesCmd(flags *rootFlags) *cobra.Command {
 
 			path := "/property/searchSummaryPublicMapQuery"
 			params := map[string]string{}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "property", false, path, params, nil)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "property", false, path, params, nil, cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}

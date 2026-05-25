@@ -116,7 +116,7 @@ func buildAgentContext(rootCmd *cobra.Command) agentContext {
 		SchemaVersion: agentContextSchemaVersion,
 		CLI: agentContextCLI{
 			Name:        "epropertyplus-pp-cli",
-			Description: "Every land bank's public inventory, one command — enumerate, filter, export, and image any ePropertyPlus instance...",
+			Description: "Every land bank's public inventory, one command — enumerate, filter, export",
 			Version:     rootCmd.Version,
 		},
 		Auth: agentContextAuth{

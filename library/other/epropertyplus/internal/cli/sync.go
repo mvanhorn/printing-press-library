@@ -4,11 +4,14 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
+	"github.com/mvanhorn/printing-press-library/library/other/epropertyplus/internal/cliutil"
 	"github.com/mvanhorn/printing-press-library/library/other/epropertyplus/internal/landbank"
 	"github.com/mvanhorn/printing-press-library/library/other/epropertyplus/internal/store"
 	"fmt"
 	"github.com/spf13/cobra"
+	"io"
 	"net/url"
 	"os"
 	"regexp"
@@ -48,6 +51,7 @@ func newSyncCmd(flags *rootFlags) *cobra.Command {
 	var strict bool
 	var paramFlags []string
 	var resourceParamFlags []string
+	var globalParamFlags []string
 	var hydrateLimit int
 	var noHydrate bool
 
@@ -70,7 +74,17 @@ Exit codes & warnings:
   emit {"event":"sync_warning","reason":"exit_policy_default_changed",
   ...} so callers can detect that a partial failure was tolerated. Pass
   --strict to exit non-zero on any per-resource failure. Exit is always
-  non-zero when every selected resource failed, regardless of --strict.`,
+  non-zero when every selected resource failed, regardless of --strict.
+
+Resource scoping:
+  --resources runs the named top-level resources, plus any parent-keyed
+  dependent whose own name is listed OR whose parent table is listed.
+  Naming a parent therefore cascades to its dependents (so "sync this
+  parent and its children" works without listing every nested resource
+  by hand). There is no flag today to suppress the cascade for a named
+  parent. To run a dependent without re-syncing its parent, list only
+  the dependent by name; the parent table must already be populated
+  from a prior sync.`,
 		Example: `  # Sync all resources
   epropertyplus-pp-cli sync
 
@@ -89,7 +103,7 @@ Exit codes & warnings:
   # Latest-only: refresh head of each resource, no historical backfill
   epropertyplus-pp-cli sync --latest-only`,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			userParams, err := parseSyncUserParams(paramFlags, resourceParamFlags)
+			userParams, err := parseSyncUserParams(paramFlags, resourceParamFlags, globalParamFlags)
 			if err != nil {
 				return usageErr(err)
 			}
@@ -109,6 +123,8 @@ Exit codes & warnings:
 				return fmt.Errorf("opening local database: %w", err)
 			}
 			defer db.Close()
+
+			syncEventWriter := cmd.OutOrStdout()
 
 			// If no specific resources, sync top-level resources
 			if len(resources) == 0 {
@@ -175,6 +191,13 @@ Exit codes & warnings:
 			if concurrency < 1 {
 				concurrency = 4
 			}
+			// Under PRINTING_PRESS_VERIFY=1 (mock/dry-run), all goroutines
+			// reach SQLite without the natural serialization that network
+			// latency provides in real syncs, so the worker pool races on
+			// the writer and trips SQLITE_BUSY despite _busy_timeout.
+			if cliutil.IsVerifyEnv() {
+				concurrency = 1
+			}
 
 			started := time.Now()
 			work := make(chan string, len(resources))
@@ -186,7 +209,7 @@ Exit codes & warnings:
 				go func() {
 					defer wg.Done()
 					for resource := range work {
-						res := syncResource(c, db, resource, sinceTS, full, maxPages, effectiveLatestOnly, userParams)
+						res := syncResource(cmd.Context(), c, db, resource, sinceTS, full, maxPages, effectiveLatestOnly, userParams, syncEventWriter)
 						results <- res
 					}
 				}()
@@ -243,7 +266,7 @@ Exit codes & warnings:
 						totalSynced, totalResources, elapsed.Seconds())
 				}
 			} else {
-				fmt.Fprintf(os.Stdout, `{"event":"sync_summary","total_records":%d,"resources":%d,"success":%d,"warned":%d,"errored":%d,"duration_ms":%d}`+"\n",
+				fmt.Fprintf(syncEventWriter, `{"event":"sync_summary","total_records":%d,"resources":%d,"success":%d,"warned":%d,"errored":%d,"duration_ms":%d}`+"\n",
 					totalSynced, totalResources, successCount, warnCount, errCount, elapsed.Milliseconds())
 			}
 
@@ -273,7 +296,7 @@ Exit codes & warnings:
 			if errCount > 0 && !strict && criticalErrCount == 0 && successCount > 0 {
 				if !humanFriendly {
 					msg := fmt.Sprintf("%d resource(s) failed but exit code is 0 because the new default treats non-critical failures as warnings. Pass --strict to restore the old behavior, or annotate critical resources with x-critical: true. See CHANGELOG.", errCount)
-					fmt.Fprintf(os.Stdout, `{"event":"sync_warning","reason":"exit_policy_default_changed","errored":%d,"message":"%s"}`+"\n",
+					fmt.Fprintf(syncEventWriter, `{"event":"sync_warning","reason":"exit_policy_default_changed","errored":%d,"message":"%s"}`+"\n",
 						errCount, strings.ReplaceAll(msg, `"`, `\"`))
 				} else {
 					fmt.Fprintf(os.Stderr, "warning: %d resource(s) failed but exit code is 0 because the new default treats non-critical failures as warnings. Pass --strict to restore the old behavior, or annotate critical resources with x-critical: true.\n", errCount)
@@ -285,7 +308,7 @@ Exit codes & warnings:
 			// `properties` table so offline `list --kind`, `export`,
 			// `land-export`, `enrich`, and `compare` work. Politely rate-limited.
 			if !noHydrate {
-				if herr := hydratePropertiesPass(cmd, c, db, flags.activeSlug(), hydrateLimit); herr != nil {
+				if herr := hydratePropertiesPass(cmd.Context(), c, db, flags.activeSlug(), hydrateLimit, syncEventWriter); herr != nil {
 					// Non-fatal: the generated sync already succeeded; surface
 					// the hydration failure as a warning.
 					fmt.Fprintf(os.Stderr, "warning: full-detail hydration failed: %v\n", herr)
@@ -295,7 +318,7 @@ Exit codes & warnings:
 		},
 	}
 
-	cmd.Flags().StringSliceVar(&resources, "resources", nil, "Comma-separated resource types to sync")
+	cmd.Flags().StringSliceVar(&resources, "resources", nil, "Comma-separated resource types to sync. Naming a parent also runs its parent-keyed dependents (see Long help for scoping).")
 	cmd.Flags().BoolVar(&full, "full", false, "Full resync (ignore previous checkpoint)")
 	cmd.Flags().StringVar(&since, "since", "", "Incremental sync duration (e.g. 7d, 24h, 1w, 30m)")
 	cmd.Flags().IntVar(&concurrency, "concurrency", 4, "Number of parallel sync workers")
@@ -303,8 +326,9 @@ Exit codes & warnings:
 	cmd.Flags().IntVar(&maxPages, "max-pages", 100, "Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event)")
 	cmd.Flags().BoolVar(&latestOnly, "latest-only", false, "Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).")
 	cmd.Flags().BoolVar(&strict, "strict", false, "Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).")
-	cmd.Flags().StringArrayVar(&paramFlags, "param", nil, "Extra query param to inject into every sync request (repeatable, key=value). Use for APIs whose spec marks a filter optional but the endpoint rejects calls without it (e.g. --param mine=true). Avoid pagination keys (limit/since/cursor) — overriding them corrupts resume state.")
-	cmd.Flags().StringArrayVar(&resourceParamFlags, "resource-param", nil, "Per-resource extra query param (repeatable, resource:key=value). Wins over --param when both define the same key.")
+	cmd.Flags().StringArrayVar(&paramFlags, "param", nil, "Extra query param to inject into flat-list sync requests (repeatable, key=value). Skipped on path-scoped dependent requests so a top-level scope like workspace=<id> does not double up on /parents/<id>/children calls. Use --global-param to inject everywhere. Avoid pagination keys (limit/since/cursor) — overriding them corrupts resume state.")
+	cmd.Flags().StringArrayVar(&resourceParamFlags, "resource-param", nil, "Per-resource extra query param (repeatable, resource:key=value). Wins over --param and --global-param when keys conflict.")
+	cmd.Flags().StringArrayVar(&globalParamFlags, "global-param", nil, "Extra query param to inject into every sync request including dependent path-scoped calls (repeatable, key=value). Use when an API requires a scope on every call regardless of path nesting.")
 	cmd.Flags().IntVar(&hydrateLimit, "hydrate-limit", 0, "Max properties to hydrate to full detail (0 = all rows in the index). Use a small value for testing.")
 	cmd.Flags().BoolVar(&noHydrate, "no-hydrate", false, "Skip the full-detail hydration pass (index/config sync only)")
 
@@ -316,10 +340,13 @@ Exit codes & warnings:
 // politely rate-limited and supports a limit for testing. Errors fetching an
 // individual property are logged and skipped; only a failure to read the index
 // aborts the pass.
-func hydratePropertiesPass(cmd *cobra.Command, c interface {
-	Get(string, map[string]string) (json.RawMessage, error)
-}, db *store.Store, slug string, limit int) error {
-	data, err := c.Get("/property/searchSummaryPublicMapQuery", nil)
+func hydratePropertiesPass(ctx context.Context, c interface {
+	Get(context.Context, string, map[string]string) (json.RawMessage, error)
+}, db *store.Store, slug string, limit int, events io.Writer) error {
+	if events == nil {
+		events = io.Discard
+	}
+	data, err := c.Get(ctx, "/property/searchSummaryPublicMapQuery", nil)
 	if err != nil {
 		return fmt.Errorf("fetching index: %w", err)
 	}
@@ -329,7 +356,7 @@ func hydratePropertiesPass(cmd *cobra.Command, c interface {
 	}
 
 	if !humanFriendly {
-		fmt.Fprintf(os.Stdout, `{"event":"hydrate_start","instance":"%s","index_size":%d}`+"\n", slug, idx.Size)
+		fmt.Fprintf(events, `{"event":"hydrate_start","instance":"%s","index_size":%d}`+"\n", slug, idx.Size)
 	} else {
 		fmt.Fprintf(os.Stderr, "hydrating full detail for %d properties (instance %s)...\n", idx.Size, slug)
 	}
@@ -340,7 +367,7 @@ func hydratePropertiesPass(cmd *cobra.Command, c interface {
 			break
 		}
 		id := row.ID.String()
-		detail, derr := c.Get("/property/getPublishedProperty", map[string]string{"propertyId": id})
+		detail, derr := c.Get(ctx, "/property/getPublishedProperty", map[string]string{"propertyId": id})
 		if derr != nil {
 			fmt.Fprintf(os.Stderr, "warning: hydrate %s: %v\n", id, derr)
 			continue
@@ -362,7 +389,7 @@ func hydratePropertiesPass(cmd *cobra.Command, c interface {
 	}
 
 	if !humanFriendly {
-		fmt.Fprintf(os.Stdout, `{"event":"hydrate_complete","instance":"%s","stored":%d}`+"\n", slug, stored)
+		fmt.Fprintf(events, `{"event":"hydrate_complete","instance":"%s","stored":%d}`+"\n", slug, stored)
 	} else {
 		fmt.Fprintf(os.Stderr, "\nhydration complete: %d properties stored for instance %s\n", stored, slug)
 	}
@@ -373,14 +400,17 @@ func hydratePropertiesPass(cmd *cobra.Command, c interface {
 // It resumes from the last cursor unless sinceTS or full mode overrides it.
 // channel_workflow.go.tmpl mirrors the trailing dates arg conditional;
 // keep both call sites in sync if this signature changes.
-func syncResource(c interface {
-	Get(string, map[string]string) (json.RawMessage, error)
+func syncResource(ctx context.Context, c interface {
+	Get(context.Context, string, map[string]string) (json.RawMessage, error)
 	RateLimit() float64
-}, db *store.Store, resource, sinceTS string, full bool, maxPages int, latestOnly bool, userParams *syncUserParams) syncResult {
+}, db *store.Store, resource, sinceTS string, full bool, maxPages int, latestOnly bool, userParams *syncUserParams, syncEvents io.Writer) syncResult {
 	started := time.Now()
+	if syncEvents == nil {
+		syncEvents = io.Discard
+	}
 
 	if !humanFriendly {
-		fmt.Fprintf(os.Stdout, `{"event":"sync_start","resource":"%s"}`+"\n", resource)
+		fmt.Fprintf(syncEvents, `{"event":"sync_start","resource":"%s"}`+"\n", resource)
 	}
 
 	path, err := syncResourcePath(resource)
@@ -412,7 +442,7 @@ func syncResource(c interface {
 				Message:  fmt.Sprintf("path %s requires parent context (%s); resource skipped", path, strings.Join(missingKeys, ", ")),
 			}
 			payloadJSON, _ := json.Marshal(payload)
-			fmt.Fprintf(os.Stdout, "%s\n", payloadJSON)
+			fmt.Fprintf(syncEvents, "%s\n", payloadJSON)
 		} else {
 			fmt.Fprintf(os.Stderr, "  %s skipped (requires parent context: %s)\n",
 				resource, strings.Join(missingKeys, ", "))
@@ -446,7 +476,7 @@ func syncResource(c interface {
 		if humanFriendly {
 			fmt.Fprintf(os.Stderr, "  %s: incremental sync ignored (endpoint declares no temporal filter; falling back to full pagination)\n", resource)
 		} else {
-			fmt.Fprintf(os.Stdout, `{"event":"sync_warning","resource":"%s","reason":"resource_not_incremental","message":"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource"}`+"\n", resource)
+			fmt.Fprintf(syncEvents, `{"event":"sync_warning","resource":"%s","reason":"resource_not_incremental","message":"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource"}`+"\n", resource)
 		}
 		effectiveSince = ""
 	}
@@ -472,12 +502,11 @@ func syncResource(c interface {
 	for {
 		params := map[string]string{}
 
-		// Set page size
-		params[pageSize.limitParam] = strconv.Itoa(pageSize.limit)
-
-		// Set cursor for resume
-		if cursor != "" {
-			params[pageSize.cursorParam] = cursor
+		if resourceSupportsPagination(resource) {
+			params[pageSize.limitParam] = strconv.Itoa(pageSize.limit)
+			if cursor != "" {
+				params[pageSize.cursorParam] = cursor
+			}
 		}
 
 		// Set since filter
@@ -488,26 +517,54 @@ func syncResource(c interface {
 		// Apply user-supplied --param / --resource-param overrides last so they
 		// win over spec-derived defaults (e.g. forcing mine=true on a list
 		// endpoint whose OpenAPI spec marks the filter optional).
-		userParams.applyTo(resource, params)
+		userParams.applyTo(resource, params, false)
 
-		data, err := c.Get(path, params)
+		data, err := c.Get(ctx, path, params)
 		if err != nil {
 			if w, ok := isSyncAccessWarning(err); ok {
 				if !humanFriendly {
-					fmt.Fprintf(os.Stdout, `{"event":"sync_warning","resource":"%s","status":%d,"reason":"%s","message":"%s"}`+"\n",
+					fmt.Fprintf(syncEvents, `{"event":"sync_warning","resource":"%s","status":%d,"reason":"%s","message":"%s"}`+"\n",
 						resource, w.Status, w.Reason, strings.ReplaceAll(w.Message, `"`, `\"`))
 				}
 				return syncResult{Resource: resource, Count: totalCount, Warn: fmt.Errorf("skipped %s: %s", resource, w.Reason), Duration: time.Since(started)}
 			}
 			if !humanFriendly {
-				fmt.Fprintln(os.Stdout, syncErrorJSON(resource, "", err))
+				fmt.Fprintln(syncEvents, syncErrorJSON(resource, "", err))
 			}
 			return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("fetching %s: %w", resource, err), Duration: time.Since(started)}
+		}
+
+		// Dry-run sentinel: client.dryRun returns `{"dry_run": true}` instead
+		// of a real response when --dry-run is set. The upsert path below
+		// would otherwise fail with "missing id for <resource>" because the
+		// sentinel has no items and no id; emit a synthetic success event so
+		// validate-narrative --full-examples (which auto-appends --dry-run)
+		// sees a clean exit.
+		if isDryRunResponse(data) {
+			if !humanFriendly {
+				fmt.Fprintf(syncEvents, `{"event":"sync_dryrun","resource":"%s"}`+"\n", resource)
+			}
+			return syncResult{Resource: resource, Count: 0, Duration: time.Since(started)}
 		}
 
 		// Try to extract items from the response.
 		// Strategy: try array first, then common wrapper keys.
 		items, nextCursor, hasMore := extractPageItems(data, pageSize.cursorParam)
+
+		// Page-int paginator fallback: when the API paginates by integer
+		// ?page=N and emits no body cursor, treat a full page as a signal
+		// to advance numerically. Without this the loop breaks after page
+		// 1 even though more pages exist (the original symptom in #1296).
+		// Guard on cursorType, not cursorParam name, so all canonical
+		// spellings (page / page_number / pageNumber / page[number]) work.
+		if pageSize.cursorType == "page" && nextCursor == "" && len(items) >= pageSize.limit {
+			currentPage, _ := strconv.Atoi(cursor)
+			if currentPage < 1 {
+				currentPage = 1
+			}
+			nextCursor = strconv.Itoa(currentPage + 1)
+			hasMore = true
+		}
 
 		if len(items) == 0 {
 			if isEmptyPageResponse(data) {
@@ -516,7 +573,7 @@ func syncResource(c interface {
 			// Single object response - try to store as-is
 			if err := upsertSingleObject(db, resource, data); err != nil {
 				if !humanFriendly {
-					fmt.Fprintln(os.Stdout, syncErrorJSON(resource, "", err))
+					fmt.Fprintln(syncEvents, syncErrorJSON(resource, "", err))
 				}
 				return syncResult{Resource: resource, Err: err, Duration: time.Since(started)}
 			}
@@ -538,7 +595,7 @@ func syncResource(c interface {
 		stored, extractFailures, err := upsertResourceBatch(db, resource, items)
 		if err != nil {
 			if !humanFriendly {
-				fmt.Fprintln(os.Stdout, syncErrorJSON(resource, "", err))
+				fmt.Fprintln(syncEvents, syncErrorJSON(resource, "", err))
 			}
 			return syncResult{Resource: resource, Count: totalCount, Err: fmt.Errorf("upserting batch for %s: %w", resource, err), Duration: time.Since(started)}
 		}
@@ -555,7 +612,7 @@ func syncResource(c interface {
 			if humanFriendly {
 				fmt.Fprintf(os.Stderr, "warning: %s returned %d items but stored 0 — the local store will be empty for this resource. Likely cause: scalar item shape rather than objects with extractable IDs.\n", resource, len(items))
 			} else {
-				fmt.Fprintf(os.Stdout, `{"event":"sync_anomaly","resource":"%s","consumed":%d,"stored":0,"reason":"all_items_failed_id_extraction"}`+"\n", resource, len(items))
+				fmt.Fprintf(syncEvents, `{"event":"sync_anomaly","resource":"%s","consumed":%d,"stored":0,"reason":"all_items_failed_id_extraction"}`+"\n", resource, len(items))
 			}
 			anomalyEmitted = true
 		} else if extractFailures > 0 && !anomalyEmitted {
@@ -566,7 +623,7 @@ func syncResource(c interface {
 			if humanFriendly {
 				fmt.Fprintf(os.Stderr, "\nwarning: %s had %d item(s) on this page with no extractable primary key — those rows were dropped silently. Annotate the spec with x-resource-id to fix.\n", resource, extractFailures)
 			} else {
-				fmt.Fprintf(os.Stdout, `{"event":"sync_anomaly","resource":"%s","consumed":%d,"stored":%d,"count":%d,"reason":"primary_key_unresolved"}`+"\n", resource, len(items), stored, extractFailures)
+				fmt.Fprintf(syncEvents, `{"event":"sync_anomaly","resource":"%s","consumed":%d,"stored":%d,"count":%d,"reason":"primary_key_unresolved"}`+"\n", resource, len(items), stored, extractFailures)
 			}
 			anomalyEmitted = true
 		}
@@ -584,16 +641,10 @@ func syncResource(c interface {
 			}
 		} else {
 			if currentRate > 0 {
-				fmt.Fprintf(os.Stdout, `{"event":"sync_progress","resource":"%s","fetched":%d,"rate_rps":%.1f}`+"\n", resource, atomic.LoadInt64(&progressCount), currentRate)
+				fmt.Fprintf(syncEvents, `{"event":"sync_progress","resource":"%s","fetched":%d,"rate_rps":%.1f}`+"\n", resource, atomic.LoadInt64(&progressCount), currentRate)
 			} else {
-				fmt.Fprintf(os.Stdout, `{"event":"sync_progress","resource":"%s","fetched":%d}`+"\n", resource, atomic.LoadInt64(&progressCount))
+				fmt.Fprintf(syncEvents, `{"event":"sync_progress","resource":"%s","fetched":%d}`+"\n", resource, atomic.LoadInt64(&progressCount))
 			}
-		}
-
-		// Save cursor after each page for resumability
-		if err := db.SaveSyncState(resource, nextCursor, totalCount); err != nil {
-			// Non-fatal: log and continue
-			fmt.Fprintf(os.Stderr, "\nwarning: failed to save sync state for %s: %v\n", resource, err)
 		}
 
 		pagesFetched++
@@ -608,7 +659,7 @@ func syncResource(c interface {
 				if humanFriendly {
 					fmt.Fprintf(os.Stderr, "\n  %s: reached --max-pages limit (%d pages, %d items)\n", resource, maxPages, totalCount)
 				} else {
-					fmt.Fprintf(os.Stdout, `{"event":"sync_warning","resource":"%s","reason":"max_pages_cap_hit","message":"reached --max-pages cap of %d; data may be truncated. Re-run with --max-pages 0 (unlimited) or higher to verify."}`+"\n", resource, maxPages)
+					fmt.Fprintf(syncEvents, `{"event":"sync_warning","resource":"%s","reason":"max_pages_cap_hit","message":"reached --max-pages cap of %d; data may be truncated. Re-run with --max-pages 0 (unlimited) or higher to verify."}`+"\n", resource, maxPages)
 				}
 			}
 			break
@@ -624,15 +675,36 @@ func syncResource(c interface {
 			if humanFriendly {
 				fmt.Fprintf(os.Stderr, "\n  %s: API returned the same next cursor across two pages; aborting to prevent budget waste.\n", resource)
 			} else {
-				fmt.Fprintf(os.Stdout, `{"event":"sync_warning","resource":"%s","reason":"stuck_pagination","message":"API returned the same next cursor across two pages for resource %s; aborting to prevent budget waste."}`+"\n", resource, resource)
+				fmt.Fprintf(syncEvents, `{"event":"sync_warning","resource":"%s","reason":"stuck_pagination","message":"API returned the same next cursor across two pages for resource %s; aborting to prevent budget waste."}`+"\n", resource, resource)
 			}
 			break
 		}
 		lastNextCursor = nextCursor
 
-		// Determine if there are more pages
-		if !hasMore || len(items) < pageSize.limit || nextCursor == "" {
+		// Determine if there are more pages.
+		if !resourceSupportsPagination(resource) {
 			break
+		}
+		if !hasMore || len(items) < pageSize.limit {
+			break
+		}
+		if nextCursor == "" {
+			if pageSize.cursorParam == "offset" {
+				// Cursor-based APIs return the next cursor in the envelope.
+				// Offset-based APIs carry their pagination position client-side.
+				currentOffset, _ := strconv.Atoi(cursor)
+				nextCursor = strconv.Itoa(currentOffset + pageSize.limit)
+			} else {
+				// A cursor-based API reporting has_more without a next cursor
+				// cannot advance safely; stop instead of looping silently.
+				break
+			}
+		}
+
+		// Save cursor after each page for resumability
+		if err := db.SaveSyncState(resource, nextCursor, totalCount); err != nil {
+			// Non-fatal: log and continue
+			fmt.Fprintf(os.Stderr, "\nwarning: failed to save sync state for %s: %v\n", resource, err)
 		}
 
 		cursor = nextCursor
@@ -652,12 +724,12 @@ func syncResource(c interface {
 		if humanFriendly {
 			fmt.Fprintf(os.Stderr, "\nwarning: %s consumed %d items, extracted %d primary keys, but stored 0 rows — extraction succeeded yet nothing landed. Investigate FTS triggers / transaction rollback / encoding.\n", resource, consumedTotal, consumedTotal-extractFailureTotal)
 		} else {
-			fmt.Fprintf(os.Stdout, `{"event":"sync_anomaly","resource":"%s","consumed":%d,"stored":0,"extract_failures":%d,"reason":"stored_count_zero_after_extraction"}`+"\n", resource, consumedTotal, extractFailureTotal)
+			fmt.Fprintf(syncEvents, `{"event":"sync_anomaly","resource":"%s","consumed":%d,"stored":0,"extract_failures":%d,"reason":"stored_count_zero_after_extraction"}`+"\n", resource, consumedTotal, extractFailureTotal)
 		}
 	}
 
 	if !humanFriendly {
-		fmt.Fprintf(os.Stdout, `{"event":"sync_complete","resource":"%s","total":%d,"duration_ms":%d}`+"\n", resource, totalCount, time.Since(started).Milliseconds())
+		fmt.Fprintf(syncEvents, `{"event":"sync_complete","resource":"%s","total":%d,"duration_ms":%d}`+"\n", resource, totalCount, time.Since(started).Milliseconds())
 	}
 
 	return syncResult{Resource: resource, Count: totalCount, Duration: time.Since(started)}
@@ -666,6 +738,7 @@ func syncResource(c interface {
 // paginationDefaults holds the resolved pagination parameter names and page size.
 type paginationDefaults struct {
 	cursorParam string
+	cursorType  string // paginator class: "", "cursor", "page_token", "offset", "page"
 	limitParam  string
 	limit       int
 }
@@ -675,9 +748,16 @@ type paginationDefaults struct {
 func determinePaginationDefaults() paginationDefaults {
 	return paginationDefaults{
 		cursorParam: "after",
+		cursorType:  "",
 		limitParam:  "limit",
 		limit:       100,
 	}
+}
+
+func resourceSupportsPagination(resource string) bool {
+	switch resource {
+	}
+	return false
 }
 
 // syncResourceSinceParam returns the query parameter name this resource's
@@ -694,6 +774,7 @@ func syncResourceSinceParam(resource string) string {
 // It tries multiple strategies:
 // 1. Direct JSON array
 // 2. Common wrapper keys: "data", "results", "items", "records", "nodes", "entries"
+// 3. JSend-style nested data envelopes: {"data":{"<resource>":[...]}}
 // It also extracts the next cursor from common response fields.
 func extractPageItems(data json.RawMessage, cursorParam string) ([]json.RawMessage, string, bool) {
 	// Strategy 1: direct array
@@ -708,37 +789,120 @@ func extractPageItems(data json.RawMessage, cursorParam string) ([]json.RawMessa
 		return nil, "", false
 	}
 
-	// Try common item keys first (fast path)
-	for _, key := range pageItemKeys {
-		if raw, ok := envelope[key]; ok {
-			if err := json.Unmarshal(raw, &items); err == nil && len(items) > 0 {
-				nextCursor, hasMore := extractPaginationFromEnvelope(envelope, cursorParam)
-				return items, nextCursor, hasMore
+	if items, ok := extractItemsByKnownKeys(envelope); ok {
+		nextCursor, hasMore := extractPaginationFromEnvelope(envelope, cursorParam)
+		return items, nextCursor, hasMore
+	}
+
+	for _, key := range dataEnvelopeKeys {
+		raw, ok := envelope[key]
+		if !ok {
+			continue
+		}
+		var inner map[string]json.RawMessage
+		if json.Unmarshal(raw, &inner) != nil {
+			continue
+		}
+		if items, ok := extractItemsFromEnvelope(inner); ok {
+			nextCursor, hasMore := extractPaginationFromEnvelope(inner, cursorParam)
+			outerCursor, outerHasMore := extractPaginationFromEnvelope(envelope, cursorParam)
+			if nextCursor == "" {
+				nextCursor = outerCursor
 			}
+			hasMore = hasMore || outerHasMore
+			return items, nextCursor, hasMore
 		}
 	}
 
-	// Fallback: try every key in the envelope. If exactly one maps to a JSON
-	// array with items, use it. This handles APIs that wrap responses with the
-	// resource name (e.g., {"markets": [...], "cursor": "..."}).
-	var arrayKey string
-	var arrayItems []json.RawMessage
-	arrayCount := 0
-	for key, raw := range envelope {
-		var candidate []json.RawMessage
-		if err := json.Unmarshal(raw, &candidate); err == nil && len(candidate) > 0 {
-			arrayKey = key
-			arrayItems = candidate
-			arrayCount++
-		}
-	}
-	if arrayCount == 1 {
+	if items, ok := extractSingleObjectArraySibling(envelope); ok {
 		nextCursor, hasMore := extractPaginationFromEnvelope(envelope, cursorParam)
-		_ = arrayKey // used for detection, items extracted above
-		return arrayItems, nextCursor, hasMore
+		return items, nextCursor, hasMore
 	}
 
 	return nil, "", false
+}
+
+func extractItemsFromEnvelope(envelope map[string]json.RawMessage) ([]json.RawMessage, bool) {
+	if items, ok := extractItemsByKnownKeys(envelope); ok {
+		return items, true
+	}
+	return extractSingleObjectArraySibling(envelope)
+}
+
+func extractItemsByKnownKeys(envelope map[string]json.RawMessage) ([]json.RawMessage, bool) {
+	for _, key := range pageItemKeys {
+		if raw, ok := envelope[key]; ok {
+			if items, ok := extractObjectArray(raw); ok {
+				return items, true
+			}
+		}
+	}
+	return nil, false
+}
+
+func extractSingleObjectArraySibling(envelope map[string]json.RawMessage) ([]json.RawMessage, bool) {
+	// Fallback: try every key in the envelope. If exactly one maps to a JSON
+	// array with items, use it. This handles APIs that wrap responses with the
+	// resource name (e.g., {"markets": [...], "cursor": "..."}).
+	var arrayItems []json.RawMessage
+	arrayCount := 0
+	for key, raw := range envelope {
+		if pageMetadataArrayKeys[key] {
+			continue
+		}
+		if candidate, ok := extractObjectArray(raw); ok {
+			arrayItems = candidate
+			arrayCount++
+			continue
+		}
+		var rawArray []json.RawMessage
+		if json.Unmarshal(raw, &rawArray) == nil && !isJSONNull(raw) {
+			continue
+		}
+		if !pageEnvelopeMetadataKeys[key] {
+			return nil, false
+		}
+	}
+	if arrayCount == 1 {
+		return arrayItems, true
+	}
+	return nil, false
+}
+
+func extractObjectArray(raw json.RawMessage) ([]json.RawMessage, bool) {
+	var items []json.RawMessage
+	if err := json.Unmarshal(raw, &items); err != nil || len(items) == 0 {
+		return nil, false
+	}
+	var obj map[string]json.RawMessage
+	if err := json.Unmarshal(items[0], &obj); err != nil {
+		return nil, false
+	}
+	return items, true
+}
+
+// isDryRunResponse detects the `{"dry_run": true}` sentinel that
+// client.dryRun returns instead of a real API response. The sync loop
+// uses this to short-circuit before the upsert path, which would
+// otherwise fail with "missing id for <resource>" against a sentinel
+// that has no items and no id. The check requires exactly one key
+// (dry_run) so a live API response that happens to include a top-level
+// dry_run field alongside real data isn't misclassified as the
+// sentinel and silently zero out the sync count.
+func isDryRunResponse(data json.RawMessage) bool {
+	var envelope map[string]json.RawMessage
+	if err := json.Unmarshal(data, &envelope); err != nil {
+		return false
+	}
+	if len(envelope) != 1 {
+		return false
+	}
+	raw, ok := envelope["dry_run"]
+	if !ok {
+		return false
+	}
+	var v bool
+	return json.Unmarshal(raw, &v) == nil && v
 }
 
 func isEmptyPageResponse(data json.RawMessage) bool {
@@ -752,20 +916,87 @@ func isEmptyPageResponse(data json.RawMessage) bool {
 		return false
 	}
 
+	if isEmptyPageEnvelope(envelope) {
+		return true
+	}
+
+	for _, key := range dataEnvelopeKeys {
+		raw, ok := envelope[key]
+		if !ok {
+			continue
+		}
+		if isJSONNull(raw) {
+			if envelopeReportsFailure(envelope) {
+				return true
+			}
+			continue
+		}
+		var inner map[string]json.RawMessage
+		if json.Unmarshal(raw, &inner) == nil && isEmptyPageEnvelope(inner) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func envelopeReportsFailure(envelope map[string]json.RawMessage) bool {
+	for _, key := range []string{"success", "Success"} {
+		if raw, ok := envelope[key]; ok {
+			var success bool
+			if json.Unmarshal(raw, &success) == nil {
+				return !success
+			}
+		}
+	}
+	for _, key := range []string{"status", "Status"} {
+		if raw, ok := envelope[key]; ok {
+			var status string
+			if json.Unmarshal(raw, &status) == nil {
+				switch strings.ToLower(status) {
+				case "error", "fail", "failed":
+					return true
+				}
+				return false
+			}
+		}
+	}
+	return false
+}
+
+func isEmptyPageEnvelope(envelope map[string]json.RawMessage) bool {
 	for _, key := range pageItemKeys {
 		if raw, ok := envelope[key]; ok {
 			var items []json.RawMessage
 			if err := json.Unmarshal(raw, &items); err == nil && !isJSONNull(raw) {
+				if len(items) > 0 {
+					var obj map[string]json.RawMessage
+					if err := json.Unmarshal(items[0], &obj); err != nil {
+						continue
+					}
+				}
 				return len(items) == 0
 			}
 		}
 	}
+	return hasExactlyOneEmptyArray(envelope)
+}
 
+func hasExactlyOneEmptyArray(envelope map[string]json.RawMessage) bool {
 	arrayCount := 0
 	for _, raw := range envelope {
 		var candidate []json.RawMessage
-		if err := json.Unmarshal(raw, &candidate); err == nil && len(candidate) == 0 && !isJSONNull(raw) {
-			arrayCount++
+		if err := json.Unmarshal(raw, &candidate); err == nil && !isJSONNull(raw) {
+			// Skip candidate arrays that contain primitives (not objects).
+			if len(candidate) > 0 {
+				var obj map[string]json.RawMessage
+				if err := json.Unmarshal(candidate[0], &obj); err != nil {
+					continue
+				}
+			}
+			if len(candidate) == 0 {
+				arrayCount++
+			}
 		}
 	}
 	return arrayCount == 1
@@ -1005,7 +1236,6 @@ func parseSinceDuration(s string) (time.Time, error) {
 func defaultSyncResources() []string {
 	return []string{
 		"property",
-		"property-search-summary-public-map-query",
 	}
 }
 
@@ -1013,7 +1243,9 @@ func defaultSyncResources() []string {
 // flat resources plus any parent-child dependents. Used by --resource-param
 // validation to reject misspellings before they become silent no-ops.
 func knownSyncResourceNames() []string {
-	names := defaultSyncResources()
+	names := []string{
+		"property",
+	}
 	return names
 }
 
@@ -1022,8 +1254,7 @@ func knownSyncResourceNames() []string {
 // this preserves the actual endpoint path like "/ISteamApps/GetAppList/v2".
 func syncResourcePath(resource string) (string, error) {
 	paths := map[string]string{
-		"property": "/property/getCustomFieldConfigs",
-		"property-search-summary-public-map-query": "/property/searchSummaryPublicMapQuery",
+		"property": "/property/searchSummaryPublicMapQuery",
 	}
 	if p, ok := paths[resource]; ok {
 		return p, nil
@@ -1041,21 +1272,62 @@ func syncResourcePath(resource string) (string, error) {
 // annotations on a child path-item are honored at runtime, not just on
 // flat paths.
 var resourceIDFieldOverrides = map[string]string{
-	"property-search-summary-public-map-query": "id",
+	"property": "id",
 }
 
 // genericIDFieldFallbacks is the runtime safety net for resources that did
 // NOT receive a templated IDField. API-specific names belong in spec
-// annotations (x-resource-id), not this list.
-var genericIDFieldFallbacks = []string{"id", "ID", "name", "uuid", "slug", "key", "code", "uid"}
+// annotations (x-resource-id), not this list. Order matters: vendor
+// identifier names (gid, sid, uid, uuid, guid) take precedence over `name`
+// so APIs like Asana (gid) and Twilio (sid) don't fall through to a display
+// field and upsert on names — see #1394.
+var genericIDFieldFallbacks = []string{"id", "ID", "gid", "sid", "uid", "uuid", "guid", "name", "slug", "key", "code"}
 
 // pageItemKeys is scanned in priority order; lowercase REST-convention keys
 // come first, PascalCase .NET variants second. Without the PascalCase row,
 // {"Items": [...]} envelopes fall through to the ambiguity scan and a
 // single-array sibling miscount silently truncates sync.
 var pageItemKeys = []string{
-	"data", "results", "items", "records", "nodes", "entries",
-	"Data", "Results", "Items", "Records", "Nodes", "Entries",
+	"data", "results", "items", "records", "nodes", "entries", "features",
+	"Data", "Results", "Items", "Records", "Nodes", "Entries", "Features",
+}
+
+var dataEnvelopeKeys = []string{"data", "Data", "result", "Result"}
+
+var pageMetadataArrayKeys = map[string]bool{
+	"errors": true, "Errors": true,
+	"warnings": true, "Warnings": true,
+}
+
+var pageEnvelopeMetadataKeys = map[string]bool{
+	// list wrappers themselves
+	"data": true, "results": true, "items": true,
+	"Data": true, "Results": true, "Items": true,
+	// pagination cursors / tokens
+	"next_cursor": true, "nextCursor": true, "NextCursor": true,
+	"next_page_token": true, "nextPageToken": true, "NextPageToken": true,
+	"page_token": true, "pageToken": true, "PageToken": true,
+	"end_cursor": true, "endCursor": true, "EndCursor": true,
+	"start_cursor": true, "startCursor": true, "StartCursor": true,
+	"cursor": true, "Cursor": true, "after": true, "After": true, "before": true, "Before": true,
+	// has-more flags and page numbers
+	"has_more": true, "hasMore": true, "HasMore": true,
+	"has_next": true, "hasNext": true, "HasNext": true,
+	"next_page": true, "nextPage": true, "NextPage": true,
+	"previous_page": true, "previousPage": true, "PreviousPage": true,
+	"page": true, "Page": true, "page_size": true, "pageSize": true, "PageSize": true,
+	"per_page": true, "perPage": true, "PerPage": true,
+	// counts / totals
+	"total": true, "Total": true, "count": true, "Count": true, "size": true, "Size": true,
+	"total_count": true, "totalCount": true, "TotalCount": true,
+	// JSend / common status envelopes
+	"success": true, "status": true, "message": true, "error": true, "errors": true,
+	"warnings": true, "Warnings": true, "ok": true, "Ok": true,
+	// wrapper objects
+	"links": true, "meta": true, "pagination": true,
+	"response_metadata": true, "paging": true,
+	// links shape
+	"next": true, "prev": true, "previous": true, "first": true, "last": true,
 }
 
 // criticalResources is the template-time projection of per-resource Critical

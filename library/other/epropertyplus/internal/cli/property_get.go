@@ -17,7 +17,7 @@ func newPropertyGetCmd(flags *rootFlags) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "get",
 		Aliases:     []string{"list"},
-		Short:       "Returns the full property record (parcel number, address, geometry, zoning, potential use, structure type,...",
+		Short:       "Returns the full property record (parcel number, address, geometry, zoning, potential use, structure type, occupancy",
 		Example:     "  epropertyplus-pp-cli property get --property-id 42",
 		Annotations: map[string]string{"pp:endpoint": "property.get", "pp:method": "GET", "pp:path": "/property/getPublishedProperty", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -34,7 +34,7 @@ func newPropertyGetCmd(flags *rootFlags) *cobra.Command {
 			if flagPropertyId != "" {
 				params["propertyId"] = fmt.Sprintf("%v", flagPropertyId)
 			}
-			data, prov, err := resolveRead(cmd.Context(), c, flags, "property", false, path, params, nil)
+			data, prov, err := resolveRead(cmd.Context(), c, flags, "property", false, path, params, nil, cmd.ErrOrStderr())
 			if err != nil {
 				return classifyAPIError(err, flags)
 			}
