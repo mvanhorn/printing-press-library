@@ -10,8 +10,8 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"memberstack-pp-cli/internal/client"
-	"memberstack-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/auth/memberstack/internal/client"
+	"github.com/mvanhorn/printing-press-library/library/auth/memberstack/internal/store"
 )
 
 func newBulkCmd(flags *rootFlags) *cobra.Command {

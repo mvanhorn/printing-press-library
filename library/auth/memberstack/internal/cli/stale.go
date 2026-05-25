@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"memberstack-pp-cli/internal/store"
+	"github.com/mvanhorn/printing-press-library/library/auth/memberstack/internal/store"
 )
 
 type staleMember struct {
