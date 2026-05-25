@@ -159,7 +159,8 @@ func makeTeslaFleetRefreshCallback(cfg *config.Config) func() (string, error) {
 		if base := os.Getenv("TESLA_FLEET_AUTH_URL"); base != "" {
 			tokenURL = base + "/oauth2/v3/token"
 		}
-		tok, err := fleetRefreshGrant(tokenURL, effClientID, ft.RefreshToken)
+		_, curScope, _ := decodeJWTClaims(ft.AccessToken)
+		tok, err := fleetRefreshGrant(tokenURL, effClientID, ft.RefreshToken, curScope)
 		if err != nil {
 			return "", fmt.Errorf("fleet auto-refresh: %w (run 'tesla auth fleet-login' to re-authenticate)", err)
 		}

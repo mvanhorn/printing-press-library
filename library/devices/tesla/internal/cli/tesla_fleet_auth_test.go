@@ -369,7 +369,7 @@ func TestFleetLogin_HappyPath_CSRF(t *testing.T) {
 	cobraCmd.SetOut(errBuf)
 
 	go func() {
-		tok, err := runFleetLoginFlow(cobraCmd, nil, "cid", authSrv.URL+"/oauth2/v3/authorize", authSrv.URL+"/oauth2/v3/token", fleetAPIAudience, false)
+		tok, err := runFleetLoginFlow(cobraCmd, nil, "cid", authSrv.URL+"/oauth2/v3/authorize", authSrv.URL+"/oauth2/v3/token", fleetAPIAudience, fleetScopes, false)
 		resCh <- result{tok, err}
 	}()
 
@@ -420,7 +420,7 @@ func TestFleetLogin_CSRFMismatch(t *testing.T) {
 	}
 	resCh := make(chan result, 1)
 	go func() {
-		tok, err := runFleetLoginFlow(cobraCmd, nil, "cid", authSrv.URL+"/oauth2/v3/authorize", authSrv.URL+"/oauth2/v3/token", fleetAPIAudience, false)
+		tok, err := runFleetLoginFlow(cobraCmd, nil, "cid", authSrv.URL+"/oauth2/v3/authorize", authSrv.URL+"/oauth2/v3/token", fleetAPIAudience, fleetScopes, false)
 		resCh <- result{tok, err}
 	}()
 

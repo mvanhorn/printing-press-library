@@ -675,7 +675,8 @@ func tryRefreshFleetToken(cfg *config.Config) (string, error) {
 	if base := os.Getenv("TESLA_FLEET_AUTH_URL"); base != "" {
 		tokenURL = base + "/oauth2/v3/token"
 	}
-	tok, err := fleetRefreshGrant(tokenURL, clientID, ft.RefreshToken)
+	_, curScope, _ := decodeJWTClaims(ft.AccessToken)
+	tok, err := fleetRefreshGrant(tokenURL, clientID, ft.RefreshToken, curScope)
 	if err != nil {
 		return "", err
 	}

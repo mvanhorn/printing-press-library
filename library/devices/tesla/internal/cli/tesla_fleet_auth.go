@@ -305,9 +305,10 @@ honored when neither flag is set.`,
 // ~/snowflake-bypass/fleet-oauth/main.go for the working pattern.
 func newFleetLoginCmd(flags *rootFlags) *cobra.Command {
 	var (
-		noOpen      bool
-		audience    string
-		clientIDArg string
+		noOpen          bool
+		vehicleLocation bool
+		audience        string
+		clientIDArg     string
 	)
 	cmd := &cobra.Command{
 		Use:   "fleet-login",
@@ -351,7 +352,11 @@ URI to a different port — but the CLI default expects 8585).`,
 				effAuthURL = base + "/oauth2/v3/authorize"
 				effTokenURL = base + "/oauth2/v3/token"
 			}
-			tok, err := runFleetLoginFlow(cmd, cfg, effClientID, effAuthURL, effTokenURL, effAudience, !noOpen)
+			effScope := fleetScopes
+			if vehicleLocation {
+				effScope += " vehicle_location"
+			}
+			tok, err := runFleetLoginFlow(cmd, cfg, effClientID, effAuthURL, effTokenURL, effAudience, effScope, !noOpen)
 			if err != nil {
 				return err
 			}
@@ -377,6 +382,7 @@ URI to a different port — but the CLI default expects 8585).`,
 		},
 	}
 	cmd.Flags().BoolVar(&noOpen, "no-open", false, "Print the auth URL but don't auto-open the browser")
+	cmd.Flags().BoolVar(&vehicleLocation, "vehicle-location", false, "Also request the vehicle_location scope (GPS) — the app must be registered for it at developer.tesla.com")
 	cmd.Flags().StringVar(&audience, "audience", "", "Override the token audience (default: regional Fleet API)")
 	cmd.Flags().StringVar(&clientIDArg, "client-id", "", "Client ID override (default: stored value from fleet-register, env: TESLA_FLEET_CLIENT_ID)")
 	return cmd
@@ -425,7 +431,8 @@ on a Fleet API call, or whenever you want to confirm refresh works.`,
 			if base := os.Getenv("TESLA_FLEET_AUTH_URL"); base != "" {
 				effTokenURL = base + "/oauth2/v3/token"
 			}
-			tok, err := fleetRefreshGrant(effTokenURL, effClientID, ft.RefreshToken)
+			_, curScope, _ := decodeJWTClaims(ft.AccessToken)
+			tok, err := fleetRefreshGrant(effTokenURL, effClientID, ft.RefreshToken, curScope)
 			if err != nil {
 				// Tesla's refresh-token-expired response is a 401 with
 				// invalid_grant. Surface a friendly hint to re-run fleet-login.
@@ -521,7 +528,10 @@ refresh token, or client_secret literal.`,
 // the redirect. The handler closure compares state before accepting any code.
 //
 // Patterned after ~/snowflake-bypass/fleet-oauth/main.go.
-func runFleetLoginFlow(cmd *cobra.Command, cfg *config.Config, clientID, authURL, tokenURL, audience string, openBrowserFlag bool) (*fleetTokenResponse, error) {
+func runFleetLoginFlow(cmd *cobra.Command, cfg *config.Config, clientID, authURL, tokenURL, audience, scope string, openBrowserFlag bool) (*fleetTokenResponse, error) {
+	if scope == "" {
+		scope = fleetScopes
+	}
 	// Pre-flight: refuse to bind if 8585 is already in use. We surface a
 	// clear error rather than try a different port because Tesla enforces
 	// exact-match redirect_uri.
@@ -541,7 +551,7 @@ func runFleetLoginFlow(cmd *cobra.Command, cfg *config.Config, clientID, authURL
 		"response_type": {"code"},
 		"client_id":     {clientID},
 		"redirect_uri":  {fleetRedirectURI},
-		"scope":         {fleetScopes},
+		"scope":         {scope},
 		"state":         {state},
 		"prompt":        {"login"},
 	}
@@ -698,12 +708,17 @@ func fleetRegisterPartnerAccount(partnerAccountsURL, partnerToken, domain string
 }
 
 // fleetRefreshGrant re-mints the access token via refresh_token grant.
-func fleetRefreshGrant(tokenURL, clientID, refreshToken string) (*fleetTokenResponse, error) {
+func fleetRefreshGrant(tokenURL, clientID, refreshToken, scope string) (*fleetTokenResponse, error) {
+	// Re-request the scopes the current token already carries so a refresh
+	// never silently narrows the grant (e.g. dropping vehicle_location).
+	if scope == "" {
+		scope = fleetScopes
+	}
 	form := url.Values{
 		"grant_type":    {"refresh_token"},
 		"client_id":     {clientID},
 		"refresh_token": {refreshToken},
-		"scope":         {fleetScopes},
+		"scope":         {scope},
 	}
 	resp, err := http.PostForm(tokenURL, form)
 	if err != nil {
