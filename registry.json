@@ -4017,44 +4017,6 @@
       "printer_name": "salmonumbrella"
     },
     {
-      "name": "mercadolibre",
-      "category": "commerce",
-      "api": "MercadoLibre",
-      "description": "CLI cross-platform para la API de MercadoLibre — catálogo de productos, categorías, países, sitios, perfiles, publicaciones y preguntas. Cobertura LATAM (AR, BR, MX, CL, CO, UY, PE). Compatible con Claude Code, Codex, Gemini CLI, Cursor y cualquier agente que lea SKILL.md.",
-      "search_terms": [
-        "mercadolibre",
-        "MercadoLibre",
-        "meli",
-        "mercadolibre-pp-cli",
-        "LATAM ecommerce",
-        "Argentina marketplace",
-        "Brasil marketplace",
-        "Mexico marketplace",
-        "catalog search",
-        "Search the canonical MercadoLibre product catalog across any LATAM site (MLA, MLB, MLM, MLC, MLU, MCO, MPE). Returns 10K+ canonical products per keyword in MLA alone with full attributes, photos, and descriptions.",
-        "categories taxonomy",
-        "Browse the MercadoLibre category tree per site, get full ancestor path and required attributes for any category.",
-        "questions Q&A",
-        "List and answer questions on your publications.",
-        "Public-path auth omission",
-        "HTTP client skips Authorization header on /classified_locations/* so the CLI works without a token AND for users with expired tokens.",
-        "Spanish-language SKILL.md and README primary for LATAM developers"
-      ],
-      "path": "library/commerce/mercadolibre",
-      "printer": "LeaCast",
-      "printer_name": "Leandro Castagno",
-      "mcp": {
-        "binary": "mercadolibre-pp-mcp",
-        "transports": ["stdio"],
-        "tool_count": 12,
-        "public_tool_count": 2,
-        "auth_type": "bearer_token",
-        "env_vars": ["MERCADOLIBRE_ACCESS_TOKEN"],
-        "mcp_ready": "full",
-        "spec_format": "internal"
-      }
-    },
-    {
       "name": "mercury",
       "category": "payments",
       "api": "Mercury",

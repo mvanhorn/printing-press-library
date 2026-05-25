@@ -1,4 +1,4 @@
-// Copyright 2026 LeaCast. Licensed under MIT. See LICENSE.
+// Copyright 2026 LeaCast. Licensed under Apache-2.0. See LICENSE.
 // Novel-feature stubs — wired into the command tree as hidden + experimental.
 // Each ships as an honest "coming next" message in v0.1.x. The infrastructure
 // (HTTP client, OAuth, SQLite store) all exists; what's missing is the
