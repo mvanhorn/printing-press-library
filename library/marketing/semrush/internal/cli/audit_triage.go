@@ -176,16 +176,21 @@ func newAuditTriageCmd(flags *rootFlags) *cobra.Command {
 				}
 				return pages[i].PageID < pages[j].PageID
 			})
+			totalPageCount := len(pages)
+			truncated := false
 			if top > 0 && len(pages) > top {
 				pages = pages[:top]
+				truncated = true
 			}
 
 			out := map[string]any{
-				"project_id": projectID,
-				"snapshot":   snapshot,
-				"top":        top,
-				"page_count": len(pages),
-				"pages":      pages,
+				"project_id":       projectID,
+				"snapshot":         snapshot,
+				"top":              top,
+				"page_count":       totalPageCount,
+				"page_count_shown": len(pages),
+				"truncated":        truncated,
+				"pages":            pages,
 			}
 			raw, err := json.Marshal(out)
 			if err != nil {

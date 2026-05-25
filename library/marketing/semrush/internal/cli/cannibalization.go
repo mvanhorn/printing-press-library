@@ -113,15 +113,20 @@ func newCannibalizationCmd(flags *rootFlags) *cobra.Command {
 				}
 				return hits[i].Phrase < hits[j].Phrase
 			})
+			totalHitCount := len(hits)
+			truncated := false
 			if limit > 0 && len(hits) > limit {
 				hits = hits[:limit]
+				truncated = true
 			}
 
 			out := map[string]any{
-				"domain":    domain,
-				"database":  database,
-				"hit_count": len(hits),
-				"hits":      hits,
+				"domain":          domain,
+				"database":        database,
+				"hit_count":       totalHitCount,
+				"hit_count_shown": len(hits),
+				"truncated":       truncated,
+				"hits":            hits,
 			}
 			raw, err := json.Marshal(out)
 			if err != nil {

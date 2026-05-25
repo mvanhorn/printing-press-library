@@ -139,15 +139,20 @@ func newBacklinkGapCmd(flags *rootFlags) *cobra.Command {
 				}
 				return hits[i].Domain < hits[j].Domain
 			})
+			totalHitCount := len(hits)
+			truncated := false
 			if limit > 0 && len(hits) > limit {
 				hits = hits[:limit]
+				truncated = true
 			}
 
 			out := map[string]any{
-				"me":         me,
-				"them":       them,
-				"min_ascore": minAscore,
-				"hit_count":  len(hits),
+				"me":              me,
+				"them":            them,
+				"min_ascore":      minAscore,
+				"hit_count":       totalHitCount,
+				"hit_count_shown": len(hits),
+				"truncated":       truncated,
 				"hits":       hits,
 			}
 			raw, err := json.Marshal(out)

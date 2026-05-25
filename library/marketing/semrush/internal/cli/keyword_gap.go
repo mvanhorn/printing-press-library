@@ -225,17 +225,22 @@ Run 'semrush-pp-cli sync --resource keyword' to populate the store first.`,
 				return hits[i].Phrase < hits[j].Phrase
 			})
 
+			totalHitCount := len(hits)
+			truncated := false
 			if limit > 0 && len(hits) > limit {
 				hits = hits[:limit]
+				truncated = true
 			}
 			out := map[string]any{
-				"mode":        mode,
-				"me":          me,
-				"competitors": others,
-				"database":    database,
-				"kd_max":      kdMax,
-				"hit_count":   len(hits),
-				"hits":        hits,
+				"mode":            mode,
+				"me":              me,
+				"competitors":     others,
+				"database":        database,
+				"kd_max":          kdMax,
+				"hit_count":       totalHitCount,
+				"hit_count_shown": len(hits),
+				"truncated":       truncated,
+				"hits":            hits,
 			}
 			raw, err := json.Marshal(out)
 			if err != nil {

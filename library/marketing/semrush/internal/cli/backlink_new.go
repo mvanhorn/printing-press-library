@@ -120,17 +120,22 @@ func newBacklinkNewCmd(flags *rootFlags) *cobra.Command {
 				}
 				return hits[i].Source < hits[j].Source
 			})
+			totalHitCount := len(hits)
+			truncated := false
 			if limit > 0 && len(hits) > limit {
 				hits = hits[:limit]
+				truncated = true
 			}
 
 			out := map[string]any{
-				"domain":      domain,
-				"since":       since,
-				"target_type": targetType,
-				"cutoff":      cutoff.Format(time.RFC3339),
-				"hit_count":   len(hits),
-				"new_links":   hits,
+				"domain":          domain,
+				"since":           since,
+				"target_type":     targetType,
+				"cutoff":          cutoff.Format(time.RFC3339),
+				"hit_count":       totalHitCount,
+				"hit_count_shown": len(hits),
+				"truncated":       truncated,
+				"new_links":       hits,
 			}
 			raw, err := json.Marshal(out)
 			if err != nil {
