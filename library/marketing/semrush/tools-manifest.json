@@ -1,0 +1,4327 @@
+{
+  "api_name": "semrush",
+  "base_url": "https://api.semrush.com",
+  "description": "Every Semrush Analytics + Projects feature, plus a local SQLite store and cross-domain joins no other Semrush tool has.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "mcp": {
+    "endpoint_tools": "hidden",
+    "orchestration": "code"
+  },
+  "auth": {
+    "type": "api_key",
+    "header": "key",
+    "in": "query",
+    "env_vars": [
+      "SEMRUSH_API_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "SEMRUSH_API_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "account_balance",
+      "description": "Get remaining API units balance (free probe; no units cost). Returns the UnitsBalance.",
+      "method": "GET",
+      "path": "/users/countapiunits.html",
+      "params": []
+    },
+    {
+      "name": "audit_campaign-info",
+      "description": "Get Site Audit campaign configuration and current status. Required: project_id. Returns the AuditCampaign.",
+      "method": "GET",
+      "path": "/reports/v1/projects/{project_id}/siteaudit/info",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "audit_edit",
+      "description": "Edit Site Audit campaign settings (page limit, user-agent, scope, etc.). Required: project_id. Optional: domain, scope, limit (plus 2 more). Returns the new AuditCampaign.",
+      "method": "POST",
+      "path": "/management/v1/projects/{project_id}/siteaudit/save",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric project ID",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "body",
+          "description": "Root domain to crawl"
+        },
+        {
+          "name": "scope",
+          "type": "string",
+          "location": "body",
+          "description": "domain | subdomain | subfolder"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "body",
+          "description": "Max pages per run"
+        },
+        {
+          "name": "crawl_subdomains",
+          "type": "bool",
+          "location": "body",
+          "description": "Crawl subdomains too"
+        },
+        {
+          "name": "user_agent",
+          "type": "string",
+          "location": "body",
+          "description": "Crawl user-agent"
+        }
+      ]
+    },
+    {
+      "name": "audit_enable",
+      "description": "Enable Site Audit on a project. One-time per project. Free (config call). Required: project_id, domain. Optional: scope, limit, crawl_subdomains (plus 1 more). Returns the new AuditCampaign.",
+      "method": "POST",
+      "path": "/management/v1/projects/{project_id}/siteaudit/enable",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric project ID",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "body",
+          "description": "Root domain to crawl",
+          "required": true
+        },
+        {
+          "name": "scope",
+          "type": "string",
+          "location": "body",
+          "description": "domain | subdomain | subfolder"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "body",
+          "description": "Max pages to crawl per run"
+        },
+        {
+          "name": "crawl_subdomains",
+          "type": "bool",
+          "location": "body",
+          "description": "Crawl subdomains too"
+        },
+        {
+          "name": "user_agent",
+          "type": "string",
+          "location": "body",
+          "description": "Crawl user-agent (SemrushBot, GoogleBot, ...)"
+        }
+      ]
+    },
+    {
+      "name": "audit_history",
+      "description": "Site Audit snapshots history (time series of issue counts and score). Required: project_id. Optional: limit (default: 30), offset. Returns array of AuditHistoryRow.",
+      "method": "GET",
+      "path": "/reports/v1/projects/{project_id}/siteaudit/history",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric project ID",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max history rows"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        }
+      ]
+    },
+    {
+      "name": "audit_issue",
+      "description": "Detailed report for one issue in a snapshot (affected pages, status). Required: project_id, snapshot_id, issue_id. Optional: limit (default: 100), page, filter (plus 1 more). Returns the AuditIssueDetail.",
+      "method": "GET",
+      "path": "/reports/v1/projects/{project_id}/siteaudit/snapshot/{snapshot_id}/issue/{issue_id}",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric project ID",
+          "required": true
+        },
+        {
+          "name": "snapshot_id",
+          "type": "string",
+          "location": "path",
+          "description": "Snapshot ID",
+          "required": true
+        },
+        {
+          "name": "issue_id",
+          "type": "string",
+          "location": "path",
+          "description": "Issue ID (see 'audit issue-catalog')",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max affected pages"
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number for pagination"
+        },
+        {
+          "name": "filter",
+          "type": "string",
+          "location": "query",
+          "description": "Filter string"
+        },
+        {
+          "name": "sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort key"
+        }
+      ]
+    },
+    {
+      "name": "audit_issue-catalog",
+      "description": "Get text descriptions for all Site Audit issue codes. Free. Required: project_id. Returns array of AuditIssueDef.",
+      "method": "GET",
+      "path": "/reports/v1/projects/{project_id}/siteaudit/meta/issues",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "audit_page",
+      "description": "Get full details for one crawled page (issues found, status, metrics). Required: project_id, page_id. Returns the AuditPage.",
+      "method": "GET",
+      "path": "/reports/v1/projects/{project_id}/siteaudit/page/{page_id}",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric project ID",
+          "required": true
+        },
+        {
+          "name": "page_id",
+          "type": "string",
+          "location": "path",
+          "description": "Page ID (from 'audit page-by-url')",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "audit_page-by-url",
+      "description": "Look up the page_id for a given URL within a snapshot. Required: project_id, url. Optional: limit (default: 10). Returns array of AuditPageRef.",
+      "method": "GET",
+      "path": "/reports/v1/projects/{project_id}/siteaudit/page/list",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric project ID",
+          "required": true
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "URL to look up",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max matches"
+        }
+      ]
+    },
+    {
+      "name": "audit_run",
+      "description": "Trigger a new Site Audit crawl. Free to launch; counts against page-credit pool. Required: project_id. Returns the new AuditRunResult.",
+      "method": "POST",
+      "path": "/reports/v1/projects/{project_id}/siteaudit/launch",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "audit_snapshot-info",
+      "description": "Get aggregated counts for a snapshot (errors/warnings/notices, total checks). Required: project_id, snapshot_id. Returns the AuditSnapshot.",
+      "method": "GET",
+      "path": "/reports/v1/projects/{project_id}/siteaudit/snapshot",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric project ID",
+          "required": true
+        },
+        {
+          "name": "snapshot_id",
+          "type": "string",
+          "location": "query",
+          "description": "Snapshot ID (from 'audit snapshots')",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "audit_snapshots",
+      "description": "List Site Audit snapshots for a project. Free (no API units). Required: project_id. Returns array of AuditSnapshot.",
+      "method": "GET",
+      "path": "/reports/v1/projects/{project_id}/siteaudit/snapshots",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "backlink_anchors",
+      "description": "Anchors. 40 units/line. Anchor texts used in backlinks pointing at a target. Required: type (default: backlinks_anchors), target. Optional: target_type (default: root_domain), limit (default: 100), offset (plus 2 more). Returns array of AnchorText.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "target",
+          "type": "string",
+          "location": "path",
+          "description": "Target URL/domain/root_domain",
+          "required": true
+        },
+        {
+          "name": "target_type",
+          "type": "string",
+          "location": "query",
+          "description": "url | domain | root_domain"
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max anchors"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "sort",
+          "wire_name": "display_sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort key"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns to return"
+        }
+      ]
+    },
+    {
+      "name": "backlink_authority-score",
+      "description": "Authority Score profile. 40 units/request. Snapshot of Semrush Authority Score (AS) for a target. Required: type (default: backlinks_ascore_profile), target. Optional: target_type (default: root_domain), export_columns. Returns the AuthorityScoreProfile.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "target",
+          "type": "string",
+          "location": "path",
+          "description": "Target URL/domain/root_domain",
+          "required": true
+        },
+        {
+          "name": "target_type",
+          "type": "string",
+          "location": "query",
+          "description": "url | domain | root_domain"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns to return"
+        }
+      ]
+    },
+    {
+      "name": "backlink_categories",
+      "description": "Categories. 40 units/line. Subject-matter categories of referring domains. Required: type (default: backlinks_categories), target. Optional: target_type (default: root_domain), limit (default: 50), offset (plus 1 more). Returns array of BacklinkCategory.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "target",
+          "type": "string",
+          "location": "path",
+          "description": "Target URL/domain/root_domain",
+          "required": true
+        },
+        {
+          "name": "target_type",
+          "type": "string",
+          "location": "query",
+          "description": "url | domain | root_domain"
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max categories"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns to return"
+        }
+      ]
+    },
+    {
+      "name": "backlink_categories-profile",
+      "description": "Categories profile. 40 units/request. Subject-matter categories of a target with confidence ratings. Required: type (default: backlinks_categories_profile), target. Optional: target_type (default: root_domain), limit (default: 50), offset (plus 1 more). Returns array of BacklinkCategory.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "target",
+          "type": "string",
+          "location": "path",
+          "description": "Target URL/domain/root_domain",
+          "required": true
+        },
+        {
+          "name": "target_type",
+          "type": "string",
+          "location": "query",
+          "description": "url | domain | root_domain"
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max categories"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns to return"
+        }
+      ]
+    },
+    {
+      "name": "backlink_compare-batch",
+      "description": "Batch Comparison. 40 units/request per domain. Side-by-side backlink stats for up to 200 domains. Required: type (default: backlinks_comparison), targets. Optional: target_types, export_columns. Returns array of BacklinksOverview.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "targets",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated targets (up to 200)",
+          "required": true
+        },
+        {
+          "name": "target_types",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated target types matching 'targets'"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns to return"
+        }
+      ]
+    },
+    {
+      "name": "backlink_compare-refdomains",
+      "description": "Comparison by Referring Domains. 40 units/line. Which refdomains link to multiple targets (matrix). Required: type (default: backlinks_matrix), targets. Optional: target_types, limit (default: 100), offset (plus 1 more). Returns array of ReferringDomain.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "targets",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated target URLs/domains (up to 5)",
+          "required": true
+        },
+        {
+          "name": "target_types",
+          "type": "string",
+          "location": "query",
+          "description": "Comma-separated target types matching 'targets'"
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max refdomain rows"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns to return"
+        }
+      ]
+    },
+    {
+      "name": "backlink_competitors",
+      "description": "Backlink Competitors. 40 units/line. Domains with similar backlink profiles to the target. Required: type (default: backlinks_competitors), target. Optional: target_type (default: root_domain), limit (default: 20), offset (plus 1 more). Returns array of BacklinkCompetitor.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "target",
+          "type": "string",
+          "location": "path",
+          "description": "Target URL/domain/root_domain",
+          "required": true
+        },
+        {
+          "name": "target_type",
+          "type": "string",
+          "location": "query",
+          "description": "url | domain | root_domain"
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max competitors"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns to return"
+        }
+      ]
+    },
+    {
+      "name": "backlink_geo",
+      "description": "Referring Domains by Country. 40 units/line. Country distribution of referring domains. Required: type (default: backlinks_geo), target. Optional: target_type (default: root_domain), limit (default: 50), offset (plus 1 more). Returns array of CountryDistribution.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "target",
+          "type": "string",
+          "location": "path",
+          "description": "Target URL/domain/root_domain",
+          "required": true
+        },
+        {
+          "name": "target_type",
+          "type": "string",
+          "location": "query",
+          "description": "url | domain | root_domain"
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max countries"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns to return"
+        }
+      ]
+    },
+    {
+      "name": "backlink_history",
+      "description": "Historical data (Backlinks). 40 units/line. Time series of backlink/refdomain counts and AS. Required: type (default: backlinks_historical), target. Optional: target_type (default: root_domain), limit (default: 50), offset (plus 1 more). Returns array of BacklinkHistoryRow.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "target",
+          "type": "string",
+          "location": "path",
+          "description": "Target URL/domain/root_domain",
+          "required": true
+        },
+        {
+          "name": "target_type",
+          "type": "string",
+          "location": "query",
+          "description": "url | domain | root_domain"
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max history rows"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns to return"
+        }
+      ]
+    },
+    {
+      "name": "backlink_indexed-pages",
+      "description": "Indexed Pages. 40 units/line. Pages on the target receiving backlinks. Required: type (default: backlinks_pages), target. Optional: target_type (default: root_domain), limit (default: 100), offset (plus 2 more). Returns array of BacklinkedPage.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "target",
+          "type": "string",
+          "location": "path",
+          "description": "Target URL/domain/root_domain",
+          "required": true
+        },
+        {
+          "name": "target_type",
+          "type": "string",
+          "location": "query",
+          "description": "url | domain | root_domain"
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max pages"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "sort",
+          "wire_name": "display_sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort key"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns to return"
+        }
+      ]
+    },
+    {
+      "name": "backlink_list",
+      "description": "Backlinks. 40 units/line. Individual backlinks pointing at a target. Required: type (default: backlinks), target. Optional: target_type (default: root_domain), limit (default: 100), offset (plus 3 more). Returns array of Backlink.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "target",
+          "type": "string",
+          "location": "path",
+          "description": "Target URL/domain/root_domain",
+          "required": true
+        },
+        {
+          "name": "target_type",
+          "type": "string",
+          "location": "query",
+          "description": "url | domain | root_domain"
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max backlinks"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "filter",
+          "wire_name": "display_filter",
+          "type": "string",
+          "location": "query",
+          "description": "URL-encoded filter string"
+        },
+        {
+          "name": "sort",
+          "wire_name": "display_sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort key"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns to return"
+        }
+      ]
+    },
+    {
+      "name": "backlink_overview",
+      "description": "Backlinks Overview. 40 units/request. Total backlinks, refdomains, refips, follow ratio, AS. Required: type (default: backlinks_overview), target. Optional: target_type (default: root_domain), export_columns. Returns the BacklinksOverview.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "target",
+          "type": "string",
+          "location": "path",
+          "description": "Target URL/domain/root_domain",
+          "required": true
+        },
+        {
+          "name": "target_type",
+          "type": "string",
+          "location": "query",
+          "description": "url | domain | root_domain"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns to return"
+        }
+      ]
+    },
+    {
+      "name": "backlink_referring-domains",
+      "description": "Referring Domains. 40 units/line. Deduped domains linking to a target. Required: type (default: backlinks_refdomains), target. Optional: target_type (default: root_domain), limit (default: 100), offset (plus 3 more). Returns array of ReferringDomain.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "target",
+          "type": "string",
+          "location": "path",
+          "description": "Target URL/domain/root_domain",
+          "required": true
+        },
+        {
+          "name": "target_type",
+          "type": "string",
+          "location": "query",
+          "description": "url | domain | root_domain"
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max referring domains"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "filter",
+          "wire_name": "display_filter",
+          "type": "string",
+          "location": "query",
+          "description": "URL-encoded filter string"
+        },
+        {
+          "name": "sort",
+          "wire_name": "display_sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort key"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns to return"
+        }
+      ]
+    },
+    {
+      "name": "backlink_referring-ips",
+      "description": "Referring IPs. 40 units/line. Deduped IP addresses hosting referring domains. Required: type (default: backlinks_refips), target. Optional: target_type (default: root_domain), limit (default: 100), offset (plus 1 more). Returns array of ReferringIP.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "target",
+          "type": "string",
+          "location": "path",
+          "description": "Target URL/domain/root_domain",
+          "required": true
+        },
+        {
+          "name": "target_type",
+          "type": "string",
+          "location": "query",
+          "description": "url | domain | root_domain"
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max IPs"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns to return"
+        }
+      ]
+    },
+    {
+      "name": "backlink_tld",
+      "description": "TLD Distribution. 40 units/line. Distribution of referring domains by TLD. Required: type (default: backlinks_tld), target. Optional: target_type (default: root_domain), limit (default: 50), offset (plus 1 more). Returns array of TLDDistribution.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "target",
+          "type": "string",
+          "location": "path",
+          "description": "Target URL/domain/root_domain",
+          "required": true
+        },
+        {
+          "name": "target_type",
+          "type": "string",
+          "location": "query",
+          "description": "url | domain | root_domain"
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max TLDs"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns to return"
+        }
+      ]
+    },
+    {
+      "name": "domain_ad-copies",
+      "description": "Domain Ads Copies. 20 units/line. Unique ad creatives a domain has run (title + description). Required: type (default: domain_adwords_unique), domain. Optional: database (default: us), limit (default: 50), offset (plus 1 more). Returns array of AdCopy.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Root domain",
+          "required": true
+        },
+        {
+          "name": "database",
+          "type": "string",
+          "location": "query",
+          "description": "Database/country code"
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max ad copies"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns (Tt=title, Ds=desc, Pc=keyword count, Un=ad id)"
+        }
+      ]
+    },
+    {
+      "name": "domain_ad-history",
+      "description": "Domain Ad History. 100 units/line. 12-month archive of ad copies a domain ran for paid keywords. Required: type (default: domain_adwords_historical), domain. Optional: database (default: us), limit (default: 50), offset (plus 2 more). Returns array of AdHistoryRow.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Root domain",
+          "required": true
+        },
+        {
+          "name": "database",
+          "type": "string",
+          "location": "query",
+          "description": "Database/country code"
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max history rows"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "sort",
+          "wire_name": "display_sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort key"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns (Cv=coverage %, Dt=date)"
+        }
+      ]
+    },
+    {
+      "name": "domain_compare",
+      "description": "Domain vs. Domain. 80 units/line. Side-by-side keyword overlap between 2-5 domains. Required: type (default: domain_domains), domains. Optional: database (default: us), limit (default: 100), offset (plus 1 more). Returns array of DomainCompareRow.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "domains",
+          "type": "string",
+          "location": "query",
+          "description": "Semrush 'domains' param string (e.g., '*|or|example.com|*|or|other.com'). The CLI command 'domain compare' wraps this.",
+          "required": true
+        },
+        {
+          "name": "database",
+          "type": "string",
+          "location": "query",
+          "description": "Database/country code"
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max overlap keywords"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns (P0-P4 = position of each compared domain)"
+        }
+      ]
+    },
+    {
+      "name": "domain_competitors-organic",
+      "description": "Competitors in Organic Search. 40 units/line. Domains sharing organic keywords with the target. Required: type (default: domain_organic_organic), domain. Optional: database (default: us), limit (default: 20), offset (plus 2 more). Returns array of DomainCompetitor.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Root domain",
+          "required": true
+        },
+        {
+          "name": "database",
+          "type": "string",
+          "location": "query",
+          "description": "Database/country code"
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max competitors"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "sort",
+          "wire_name": "display_sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort key (cr_desc, np_desc, ...)"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns (Cr=competitor relevance, Np=common kws)"
+        }
+      ]
+    },
+    {
+      "name": "domain_competitors-paid",
+      "description": "Competitors in Paid Search. 40 units/line. Domains overlapping the target's Google Ads keyword set. Required: type (default: domain_adwords_adwords), domain. Optional: database (default: us), limit (default: 20), offset (plus 2 more). Returns array of DomainCompetitor.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Root domain",
+          "required": true
+        },
+        {
+          "name": "database",
+          "type": "string",
+          "location": "query",
+          "description": "Database/country code"
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max competitors"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "sort",
+          "wire_name": "display_sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort key"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns"
+        }
+      ]
+    },
+    {
+      "name": "domain_competitors-pla",
+      "description": "PLA Competitors. 40 units/line. Domains overlapping the target's Google Shopping PLA keyword set. Required: type (default: domain_shopping_competitors), domain. Optional: database (default: us), limit (default: 20), offset (plus 1 more). Returns array of DomainCompetitor.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Root domain",
+          "required": true
+        },
+        {
+          "name": "database",
+          "type": "string",
+          "location": "query",
+          "description": "Database/country code"
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max competitors"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns (Sh=PLA keywords)"
+        }
+      ]
+    },
+    {
+      "name": "domain_organic-keywords",
+      "description": "Domain Organic Search Keywords. 30 units/line. Keywords a domain ranks for in Google's top 100 organic results. Required: type (default: domain_organic), domain. Optional: database (default: us), limit (default: 100), offset (plus 4 more). Returns array of DomainOrganicKeyword.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Root domain",
+          "required": true
+        },
+        {
+          "name": "database",
+          "type": "string",
+          "location": "query",
+          "description": "Database/country code"
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max keywords"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "filter",
+          "wire_name": "display_filter",
+          "type": "string",
+          "location": "query",
+          "description": "URL-encoded filter string (see Semrush filter syntax)"
+        },
+        {
+          "name": "sort",
+          "wire_name": "display_sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort key (e.g., tr_desc, nq_desc, po_asc)"
+        },
+        {
+          "name": "date",
+          "wire_name": "display_date",
+          "type": "string",
+          "location": "query",
+          "description": "Snapshot date in YYYYMM15 format"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns (Ph=phrase, Po=pos, Pp=prev pos, Pd=delta, Nq=volume, Tr=traffic %, Kd=difficulty)"
+        }
+      ]
+    },
+    {
+      "name": "domain_organic-pages",
+      "description": "Domain Organic Pages. 30 units/line. Top organic landing pages on a domain by traffic. Required: type (default: domain_organic_pages), domain. Optional: database (default: us), limit (default: 100), offset (plus 2 more). Returns array of DomainOrganicPage.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Root domain",
+          "required": true
+        },
+        {
+          "name": "database",
+          "type": "string",
+          "location": "query",
+          "description": "Database/country code"
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max pages"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "sort",
+          "wire_name": "display_sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort key (tg_desc by default useful)"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns (Ur=URL, Pc=keyword count, Tg=traffic, Tr=traffic %, Sr=SERP-feature positions, St=SERP-feature traffic)"
+        }
+      ]
+    },
+    {
+      "name": "domain_overview",
+      "description": "Domain Overview (one database). 10 units/line. Live or historical rankings in one regional database. Required: type (default: domain_rank), domain. Optional: database (default: us), date, export_columns (default: Dn,Rk,Or,Ot,Oc,Ad,At,Ac). Returns the DomainOverview.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Root domain (e.g., example.com)",
+          "required": true
+        },
+        {
+          "name": "database",
+          "type": "string",
+          "location": "query",
+          "description": "Database/country code (us, uk, ca, au, de, fr, es, it, br, in, ...)"
+        },
+        {
+          "name": "date",
+          "wire_name": "display_date",
+          "type": "string",
+          "location": "query",
+          "description": "Snapshot date in YYYYMM15 format (omit for current)"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns (Dn=domain, Rk=rank, Or=organic kws, Ot=organic traffic, Oc=organic cost, Ad/At/Ac=paid)"
+        }
+      ]
+    },
+    {
+      "name": "domain_overview-all",
+      "description": "Domain Overview (all databases). 10 units/line. ~140 lines covering every regional database. Required: type (default: domain_ranks), domain. Optional: limit (default: 200), offset, date (plus 1 more). Returns array of DomainOverview.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Root domain",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max database rows"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "date",
+          "wire_name": "display_date",
+          "type": "string",
+          "location": "query",
+          "description": "Snapshot date in YYYYMM15 format"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns (Db=database, Sh=PLA kws, Sv=PLA uniques)"
+        }
+      ]
+    },
+    {
+      "name": "domain_overview-history",
+      "description": "Domain Overview (history). 10 units/line. Monthly historical rankings for one database (back to 2012-2016). Required: type (default: domain_rank_history), domain. Optional: database (default: us), limit (default: 24), offset (plus 2 more). Returns array of DomainRankHistoryRow.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Root domain",
+          "required": true
+        },
+        {
+          "name": "database",
+          "type": "string",
+          "location": "query",
+          "description": "Database/country code"
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max history rows (months)"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "daily",
+          "wire_name": "display_daily",
+          "type": "string",
+          "location": "query",
+          "description": "Set to 1 for daily rather than monthly history (last 31 days)"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns (Dt=date)"
+        }
+      ]
+    },
+    {
+      "name": "domain_paid-keywords",
+      "description": "Domain Paid Search Keywords. 30 units/line. Keywords a domain buys in Google Ads. Required: type (default: domain_adwords), domain. Optional: database (default: us), limit (default: 100), offset (plus 4 more). Returns array of DomainPaidKeyword.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Root domain",
+          "required": true
+        },
+        {
+          "name": "database",
+          "type": "string",
+          "location": "query",
+          "description": "Database/country code"
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max keywords"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "filter",
+          "wire_name": "display_filter",
+          "type": "string",
+          "location": "query",
+          "description": "URL-encoded filter string"
+        },
+        {
+          "name": "sort",
+          "wire_name": "display_sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort key"
+        },
+        {
+          "name": "date",
+          "wire_name": "display_date",
+          "type": "string",
+          "location": "query",
+          "description": "Snapshot date in YYYYMM15 format"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns (Ab=ad block, Tt=ad title, Ds=ad description, Vu=visible URL)"
+        }
+      ]
+    },
+    {
+      "name": "domain_pla-copies",
+      "description": "Domain PLA Copies. 20 units/line. Unique PLA ad creatives (title, price, shop). Required: type (default: domain_shopping_unique), domain. Optional: database (default: us), limit (default: 50), offset (plus 1 more). Returns array of PLACopy.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Root domain",
+          "required": true
+        },
+        {
+          "name": "database",
+          "type": "string",
+          "location": "query",
+          "description": "Database/country code"
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max PLA copies"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns"
+        }
+      ]
+    },
+    {
+      "name": "domain_pla-keywords",
+      "description": "Domain PLA Search Keywords. 30 units/line. Google Shopping PLA keywords for a domain. Required: type (default: domain_shopping), domain. Optional: database (default: us), limit (default: 100), offset (plus 2 more). Returns array of PLAKeyword.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Root domain",
+          "required": true
+        },
+        {
+          "name": "database",
+          "type": "string",
+          "location": "query",
+          "description": "Database/country code"
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max keywords"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "sort",
+          "wire_name": "display_sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort key"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns (Pr=product price, Sn=shop name)"
+        }
+      ]
+    },
+    {
+      "name": "domain_subdomains",
+      "description": "Domain Organic Subdomains. 30 units/line. Subdomains of a domain ranked by organic traffic. Required: type (default: domain_organic_subdomains), domain. Optional: database (default: us), limit (default: 100), offset (plus 1 more). Returns array of DomainOrganicPage.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Root domain",
+          "required": true
+        },
+        {
+          "name": "database",
+          "type": "string",
+          "location": "query",
+          "description": "Database/country code"
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max subdomains"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns"
+        }
+      ]
+    },
+    {
+      "name": "keyword_ads-history",
+      "description": "Keyword Ads History. 100 units/line. 12-month archive of advertisers who bid on the keyword. Required: type (default: phrase_adwords_historical), phrase. Optional: database (default: us), limit (default: 50), offset (plus 1 more). Returns array of AdHistoryRow.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "phrase",
+          "type": "string",
+          "location": "path",
+          "description": "Keyword phrase",
+          "required": true
+        },
+        {
+          "name": "database",
+          "type": "string",
+          "location": "query",
+          "description": "Database/country code"
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max history rows"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns (Dt=date)"
+        }
+      ]
+    },
+    {
+      "name": "keyword_batch",
+      "description": "Batch Keyword Overview. 10 units/line. Up to 100 keywords in one call. Required: type (default: phrase_these), phrase. Optional: database (default: us), export_columns (default: Ph,Nq,Cp,Co,Nr,Td,In). Returns array of KeywordOverview.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "phrase",
+          "type": "string",
+          "location": "query",
+          "description": "Semicolon-separated keywords (max 100)",
+          "required": true
+        },
+        {
+          "name": "database",
+          "type": "string",
+          "location": "query",
+          "description": "Database/country code"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns"
+        }
+      ]
+    },
+    {
+      "name": "keyword_broad-match",
+      "description": "Broad Match Keywords. 20 units/line. Phrase-match variants of a seed term. Required: type (default: phrase_fullsearch), phrase. Optional: database (default: us), limit (default: 100), offset (plus 3 more). Returns array of KeywordOverview.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "phrase",
+          "type": "string",
+          "location": "path",
+          "description": "Seed keyword",
+          "required": true
+        },
+        {
+          "name": "database",
+          "type": "string",
+          "location": "query",
+          "description": "Database/country code"
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max variants"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "filter",
+          "wire_name": "display_filter",
+          "type": "string",
+          "location": "query",
+          "description": "URL-encoded filter string"
+        },
+        {
+          "name": "sort",
+          "wire_name": "display_sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort key"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns"
+        }
+      ]
+    },
+    {
+      "name": "keyword_difficulty",
+      "description": "Keyword Difficulty. 50 units/line. KDI (0-100) for one or more keywords. Required: type (default: phrase_kdi), phrase. Optional: database (default: us), export_columns (default: Ph,Kd). Returns array of KeywordDifficulty.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "phrase",
+          "type": "string",
+          "location": "query",
+          "description": "Semicolon-separated keywords (max 100)",
+          "required": true
+        },
+        {
+          "name": "database",
+          "type": "string",
+          "location": "query",
+          "description": "Database/country code"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns (Ph=phrase, Kd=KDI 0-100)"
+        }
+      ]
+    },
+    {
+      "name": "keyword_organic-serp",
+      "description": "Organic Results (SERP) for a keyword. 10 units/line. Top organic ranking URLs for a phrase. Required: type (default: phrase_organic), phrase. Optional: database (default: us), limit (default: 100), offset (plus 1 more). Returns array of SERPResult.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "phrase",
+          "type": "string",
+          "location": "path",
+          "description": "Keyword phrase",
+          "required": true
+        },
+        {
+          "name": "database",
+          "type": "string",
+          "location": "query",
+          "description": "Database/country code"
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max SERP rows"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns (Pt=position type, Fp/Fk=SERP feature flags)"
+        }
+      ]
+    },
+    {
+      "name": "keyword_overview",
+      "description": "Keyword Overview (one database). 10 units/line. Single-database volume, CPC, competition, results count. Required: type (default: phrase_this), phrase. Optional: database (default: us), export_columns (default: Ph,Nq,Cp,Co,Nr,Td,In). Returns the KeywordOverview.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "phrase",
+          "type": "string",
+          "location": "path",
+          "description": "Keyword phrase to look up",
+          "required": true
+        },
+        {
+          "name": "database",
+          "type": "string",
+          "location": "query",
+          "description": "Database/country code"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns (Ph=phrase, Nq=volume, Cp=CPC, Co=comp, Nr=results, Td=trend, In=intent)"
+        }
+      ]
+    },
+    {
+      "name": "keyword_overview-all",
+      "description": "Keyword Overview (all databases). 10 units/line. ~140 rows covering every regional database. Required: type (default: phrase_all), phrase. Optional: limit (default: 200), offset, export_columns (default: Db,Dt,Ph,Nq,Cp,Co,Nr). Returns array of KeywordOverview.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "phrase",
+          "type": "string",
+          "location": "path",
+          "description": "Keyword phrase to look up",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max database rows"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns"
+        }
+      ]
+    },
+    {
+      "name": "keyword_paid-serp",
+      "description": "Paid Results (SERP) for a keyword. 20 units/line. Advertisers bidding on the phrase. Required: type (default: phrase_adwords), phrase. Optional: database (default: us), limit (default: 50), offset (plus 1 more). Returns array of SERPResult.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "phrase",
+          "type": "string",
+          "location": "path",
+          "description": "Keyword phrase",
+          "required": true
+        },
+        {
+          "name": "database",
+          "type": "string",
+          "location": "query",
+          "description": "Database/country code"
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max ad rows"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns"
+        }
+      ]
+    },
+    {
+      "name": "keyword_questions",
+      "description": "Phrase Questions. 40 units/line. Question-form keywords containing a seed phrase. Required: type (default: phrase_questions), phrase. Optional: database (default: us), limit (default: 100), offset (plus 2 more). Returns array of KeywordOverview.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "phrase",
+          "type": "string",
+          "location": "path",
+          "description": "Seed keyword",
+          "required": true
+        },
+        {
+          "name": "database",
+          "type": "string",
+          "location": "query",
+          "description": "Database/country code"
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max question keywords"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "sort",
+          "wire_name": "display_sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort key"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns"
+        }
+      ]
+    },
+    {
+      "name": "keyword_related",
+      "description": "Related Keywords. 40 units/line. Keywords semantically related to a seed phrase. Required: type (default: phrase_related), phrase. Optional: database (default: us), limit (default: 100), offset (plus 3 more). Returns array of KeywordOverview.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "phrase",
+          "type": "string",
+          "location": "path",
+          "description": "Seed keyword",
+          "required": true
+        },
+        {
+          "name": "database",
+          "type": "string",
+          "location": "query",
+          "description": "Database/country code"
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max related keywords"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "filter",
+          "wire_name": "display_filter",
+          "type": "string",
+          "location": "query",
+          "description": "URL-encoded filter string"
+        },
+        {
+          "name": "sort",
+          "wire_name": "display_sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort key (nq_desc, rr_desc, ...)"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns (Rr=related relevance)"
+        }
+      ]
+    },
+    {
+      "name": "project_create",
+      "description": "Create a new Semrush project (container) with a name and root domain. Required: name, url. Returns the new Project.",
+      "method": "POST",
+      "path": "/management/v1/projects",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Project name",
+          "required": true
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "Root domain (e.g., example.com)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "project_delete",
+      "description": "Delete a project. CLI requires --yes to confirm; otherwise dry-runs. Required: project_id. Returns the ProjectDeleteResult. Destructive.",
+      "method": "DELETE",
+      "path": "/management/v1/projects/{project_id}",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "project_get",
+      "description": "Get a single project by ID. Free (no API units). Required: project_id. Returns the Project.",
+      "method": "GET",
+      "path": "/management/v1/projects/{project_id}",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "project_list",
+      "description": "List all projects on your account. Free (no API units). Returns array of Project.",
+      "method": "GET",
+      "path": "/management/v1/projects",
+      "params": []
+    },
+    {
+      "name": "project_update",
+      "description": "Update an existing project's name/url. Required: project_id. Optional: name, url. Returns the updated Project.",
+      "method": "PUT",
+      "path": "/management/v1/projects/{project_id}",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric project ID",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "New project name"
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "New root domain"
+        }
+      ]
+    },
+    {
+      "name": "subdomain_organic-keywords",
+      "description": "Subdomain Organic Search Keywords. 30 units/line. Required: type (default: subdomain_organic), domain. Optional: database (default: us), limit (default: 100), offset (plus 3 more). Returns array of DomainOrganicKeyword.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Subdomain",
+          "required": true
+        },
+        {
+          "name": "database",
+          "type": "string",
+          "location": "query",
+          "description": "Database/country code"
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max keywords"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "filter",
+          "wire_name": "display_filter",
+          "type": "string",
+          "location": "query",
+          "description": "URL-encoded filter string"
+        },
+        {
+          "name": "sort",
+          "wire_name": "display_sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort key"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns"
+        }
+      ]
+    },
+    {
+      "name": "subdomain_organic-pages",
+      "description": "Subdomain Organic Pages. 30 units/line. Required: type (default: subdomain_organic_pages), domain. Optional: database (default: us), limit (default: 100), offset (plus 1 more). Returns array of DomainOrganicPage.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Subdomain",
+          "required": true
+        },
+        {
+          "name": "database",
+          "type": "string",
+          "location": "query",
+          "description": "Database/country code"
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max pages"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns"
+        }
+      ]
+    },
+    {
+      "name": "subdomain_overview",
+      "description": "Subdomain Overview (one database). 10 units/line. Required: type (default: subdomain_rank), domain. Optional: database (default: us), date, export_columns (default: Dn,Rk,Or,Ot,Oc,Ad,At,Ac). Returns the DomainOverview.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Subdomain (e.g., blog.example.com)",
+          "required": true
+        },
+        {
+          "name": "database",
+          "type": "string",
+          "location": "query",
+          "description": "Database/country code"
+        },
+        {
+          "name": "date",
+          "wire_name": "display_date",
+          "type": "string",
+          "location": "query",
+          "description": "Snapshot date in YYYYMM15 format"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns"
+        }
+      ]
+    },
+    {
+      "name": "subdomain_overview-all",
+      "description": "Subdomain Overview (all databases). 10 units/line. Required: type (default: subdomain_ranks), domain. Optional: limit (default: 200), offset, date (plus 1 more). Returns array of DomainOverview.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Subdomain",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max database rows"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "date",
+          "wire_name": "display_date",
+          "type": "string",
+          "location": "query",
+          "description": "Snapshot date in YYYYMM15 format"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns"
+        }
+      ]
+    },
+    {
+      "name": "subdomain_overview-history",
+      "description": "Subdomain Overview (history). 10 units/line. Monthly historical rankings. Required: type (default: subdomain_rank_history), domain. Optional: database (default: us), limit (default: 24), offset (plus 1 more). Returns array of DomainRankHistoryRow.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Subdomain",
+          "required": true
+        },
+        {
+          "name": "database",
+          "type": "string",
+          "location": "query",
+          "description": "Database/country code"
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max history rows (months)"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns"
+        }
+      ]
+    },
+    {
+      "name": "subdomain_paid-keywords",
+      "description": "Subdomain Paid Search Keywords. 30 units/line. Required: type (default: subdomain_adwords), domain. Optional: database (default: us), limit (default: 100), offset (plus 2 more). Returns array of DomainPaidKeyword.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Subdomain",
+          "required": true
+        },
+        {
+          "name": "database",
+          "type": "string",
+          "location": "query",
+          "description": "Database/country code"
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max keywords"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "sort",
+          "wire_name": "display_sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort key"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns"
+        }
+      ]
+    },
+    {
+      "name": "subfolder_organic-keywords",
+      "description": "Subfolder Organic Search Keywords. 30 units/line. Required: type (default: subfolder_organic), domain. Optional: database (default: us), limit (default: 100), offset (plus 3 more). Returns array of DomainOrganicKeyword.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Subfolder URL",
+          "required": true
+        },
+        {
+          "name": "database",
+          "type": "string",
+          "location": "query",
+          "description": "Database/country code"
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max keywords"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "filter",
+          "wire_name": "display_filter",
+          "type": "string",
+          "location": "query",
+          "description": "URL-encoded filter string"
+        },
+        {
+          "name": "sort",
+          "wire_name": "display_sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort key"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns"
+        }
+      ]
+    },
+    {
+      "name": "subfolder_organic-pages",
+      "description": "Subfolder Organic Pages. 30 units/line. Required: type (default: subfolder_organic_pages), domain. Optional: database (default: us), limit (default: 100), offset (plus 1 more). Returns array of DomainOrganicPage.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Subfolder URL",
+          "required": true
+        },
+        {
+          "name": "database",
+          "type": "string",
+          "location": "query",
+          "description": "Database/country code"
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max pages"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns"
+        }
+      ]
+    },
+    {
+      "name": "subfolder_organic-pages-unique",
+      "description": "Subfolder Organic Pages (unique). 30 units/line. Unique top organic landing pages within a subfolder. Required: type (default: subfolder_organic_unique), domain. Optional: database (default: us), limit (default: 100), offset (plus 1 more). Returns array of DomainOrganicPage.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Subfolder URL",
+          "required": true
+        },
+        {
+          "name": "database",
+          "type": "string",
+          "location": "query",
+          "description": "Database/country code"
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max pages"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns"
+        }
+      ]
+    },
+    {
+      "name": "subfolder_overview",
+      "description": "Subfolder Overview (one database). 10 units/line. Required: type (default: subfolder_rank), domain. Optional: database (default: us), date, export_columns (default: Dn,Rk,Or,Ot,Oc,Ad,At,Ac). Returns the DomainOverview.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Subfolder URL (e.g., example.com/blog/)",
+          "required": true
+        },
+        {
+          "name": "database",
+          "type": "string",
+          "location": "query",
+          "description": "Database/country code"
+        },
+        {
+          "name": "date",
+          "wire_name": "display_date",
+          "type": "string",
+          "location": "query",
+          "description": "Snapshot date in YYYYMM15 format"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns"
+        }
+      ]
+    },
+    {
+      "name": "subfolder_overview-all",
+      "description": "Subfolder Overview (all databases). 10 units/line. Required: type (default: subfolder_ranks), domain. Optional: limit (default: 200), offset, export_columns (default: Db,Dn,Rk,Or,Ot,Oc,Ad,At,Ac). Returns array of DomainOverview.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Subfolder URL",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max database rows"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns"
+        }
+      ]
+    },
+    {
+      "name": "subfolder_overview-history",
+      "description": "Subfolder Overview (history). 10 units/line. Monthly historical rankings. Required: type (default: subfolder_rank_history), domain. Optional: database (default: us), limit (default: 24), offset (plus 1 more). Returns array of DomainRankHistoryRow.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Subfolder URL",
+          "required": true
+        },
+        {
+          "name": "database",
+          "type": "string",
+          "location": "query",
+          "description": "Database/country code"
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max history rows (months)"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns"
+        }
+      ]
+    },
+    {
+      "name": "subfolder_paid-keywords",
+      "description": "Subfolder Paid Search Keywords. 30 units/line. Required: type (default: subfolder_adwords), domain. Optional: database (default: us), limit (default: 100), offset (plus 2 more). Returns array of DomainPaidKeyword.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "domain",
+          "type": "string",
+          "location": "path",
+          "description": "Subfolder URL",
+          "required": true
+        },
+        {
+          "name": "database",
+          "type": "string",
+          "location": "query",
+          "description": "Database/country code"
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max keywords"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "sort",
+          "wire_name": "display_sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort key"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns"
+        }
+      ]
+    },
+    {
+      "name": "tracking_campaigns",
+      "description": "List Position Tracking campaigns under a project. Use this to find the campaign_id. Required: project_id. Returns the TrackingCampaignList.",
+      "method": "GET",
+      "path": "/management/v1/projects/{project_id}/tracking/campaigns",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric project ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tracking_competitors-add",
+      "description": "Add competitors to an existing Position Tracking campaign. Required: campaign_id, competitors. Returns the updated TrackingOperationResult.",
+      "method": "PUT",
+      "path": "/management/v1/projects/{campaign_id}/competitors",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "string",
+          "location": "path",
+          "description": "Position Tracking campaign ID",
+          "required": true
+        },
+        {
+          "name": "competitors",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated competitor domains",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tracking_competitors-remove",
+      "description": "Remove competitors from an existing Position Tracking campaign. Required: campaign_id, competitors. Returns the TrackingOperationResult. Destructive.",
+      "method": "DELETE",
+      "path": "/management/v1/projects/{campaign_id}/competitors",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "string",
+          "location": "path",
+          "description": "Position Tracking campaign ID",
+          "required": true
+        },
+        {
+          "name": "competitors",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated competitor domains",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tracking_create",
+      "description": "Create a Position Tracking campaign on a project. Required: project_id, url. Optional: location, location_id, device (default: desktop) (plus 4 more). Returns the new TrackingCampaign.",
+      "method": "POST",
+      "path": "/management/v1/projects/{project_id}/tracking/enable",
+      "params": [
+        {
+          "name": "project_id",
+          "type": "string",
+          "location": "path",
+          "description": "Numeric project ID",
+          "required": true
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "body",
+          "description": "Tracked URL pattern (e.g., *.example.com/*)",
+          "required": true
+        },
+        {
+          "name": "location",
+          "type": "string",
+          "location": "body",
+          "description": "Geo target (use 'tracking location-search' to find the location_id)"
+        },
+        {
+          "name": "location_id",
+          "type": "int",
+          "location": "body",
+          "description": "Numeric location ID from 'tracking location-search'"
+        },
+        {
+          "name": "device",
+          "type": "string",
+          "location": "body",
+          "description": "desktop | mobile | tablet"
+        },
+        {
+          "name": "language_code",
+          "type": "string",
+          "location": "body",
+          "description": "Language code"
+        },
+        {
+          "name": "keywords",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated initial keyword list"
+        },
+        {
+          "name": "competitors",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated competitor domains"
+        },
+        {
+          "name": "search_engine",
+          "type": "string",
+          "location": "body",
+          "description": "Google search engine domain (e.g., google.com)"
+        }
+      ]
+    },
+    {
+      "name": "tracking_dates",
+      "description": "Available snapshot dates for a tracking campaign (used by --snapshot flag elsewhere). Required: campaign_id, type (default: tracking_campaign_dates), action (default: report). Returns array of TrackingDate.",
+      "method": "GET",
+      "path": "/reports/v1/projects/{campaign_id}/tracking/",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "string",
+          "location": "path",
+          "description": "Position Tracking campaign ID",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "action",
+          "type": "string",
+          "location": "query",
+          "description": "Semrush requires action=report (do not override)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tracking_emails-disable",
+      "description": "Disable weekly status emails for a Position Tracking campaign. Required: campaign_id. Returns the TrackingOperationResult. Destructive.",
+      "method": "DELETE",
+      "path": "/management/v1/projects/{campaign_id}/tracking/notifications",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "string",
+          "location": "path",
+          "description": "Position Tracking campaign ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tracking_emails-enable",
+      "description": "Enable weekly status emails for a Position Tracking campaign. Required: campaign_id. Returns the updated TrackingOperationResult.",
+      "method": "PUT",
+      "path": "/management/v1/projects/{campaign_id}/tracking/notifications",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "string",
+          "location": "path",
+          "description": "Position Tracking campaign ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tracking_keywords-add",
+      "description": "Add keywords to an existing Position Tracking campaign. Required: campaign_id, keywords. Optional: tags. Returns the updated TrackingOperationResult.",
+      "method": "PUT",
+      "path": "/management/v1/projects/{campaign_id}/keywords",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "string",
+          "location": "path",
+          "description": "Position Tracking campaign ID",
+          "required": true
+        },
+        {
+          "name": "keywords",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated keyword list (becomes JSON array)",
+          "required": true
+        },
+        {
+          "name": "tags",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated tags to attach to these keywords"
+        }
+      ]
+    },
+    {
+      "name": "tracking_keywords-remove",
+      "description": "Remove keywords from an existing Position Tracking campaign. Required: campaign_id, keywords. Returns the TrackingOperationResult. Destructive.",
+      "method": "DELETE",
+      "path": "/management/v1/projects/{campaign_id}/keywords",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "string",
+          "location": "path",
+          "description": "Position Tracking campaign ID",
+          "required": true
+        },
+        {
+          "name": "keywords",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated keyword list to remove",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tracking_location-search",
+      "description": "Universal location search (returns location IDs for cities/regions/countries). Required: query. Optional: country, limit (default: 20).",
+      "method": "GET",
+      "path": "/position-tracking/management/v1/info/locations",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Location text to search (e.g., 'San Francisco')",
+          "required": true
+        },
+        {
+          "name": "country",
+          "type": "string",
+          "location": "query",
+          "description": "Restrict to country code (e.g., 'US')"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max matches"
+        }
+      ]
+    },
+    {
+      "name": "tracking_organic-competitors",
+      "description": "Organic competitors discovery (auto-detected competitors ranked across the tracked keyword set). Required: campaign_id, type (default: tracking_competitors_organic), action (default: report). Optional: main_domain, begin, end (plus 7 more). Returns array of TrackingCompetitor.",
+      "method": "GET",
+      "path": "/reports/v1/projects/{campaign_id}/tracking/",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "string",
+          "location": "path",
+          "description": "Position Tracking campaign ID",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "action",
+          "type": "string",
+          "location": "query",
+          "description": "Semrush requires action=report (do not override)",
+          "required": true
+        },
+        {
+          "name": "main_domain",
+          "type": "string",
+          "location": "query",
+          "description": "Your main domain (used to anchor the competitor set)"
+        },
+        {
+          "name": "begin",
+          "wire_name": "date_begin",
+          "type": "string",
+          "location": "query",
+          "description": "Start date in YYYYMMDD format"
+        },
+        {
+          "name": "end",
+          "wire_name": "date_end",
+          "type": "string",
+          "location": "query",
+          "description": "End date in YYYYMMDD format"
+        },
+        {
+          "name": "top_start",
+          "type": "int",
+          "location": "query",
+          "description": "Start of SERP position range"
+        },
+        {
+          "name": "top_end",
+          "type": "int",
+          "location": "query",
+          "description": "End of SERP position range"
+        },
+        {
+          "name": "url_type",
+          "type": "string",
+          "location": "query",
+          "description": "rootdomain | subdomain | url"
+        },
+        {
+          "name": "linktype_filter",
+          "type": "string",
+          "location": "query",
+          "description": "0=organic only, 1=incl. SERP features"
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max competitor rows"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "sort",
+          "wire_name": "display_sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort key"
+        }
+      ]
+    },
+    {
+      "name": "tracking_organic-landings",
+      "description": "Top organic landing pages by tracked-keyword traffic. Required: campaign_id, type (default: tracking_landing_pages_organic), action (default: report), url. Optional: begin, end, linktype_filter (plus 3 more). Returns array of TrackingLandingPage.",
+      "method": "GET",
+      "path": "/reports/v1/projects/{campaign_id}/tracking/",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "string",
+          "location": "path",
+          "description": "Position Tracking campaign ID",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "action",
+          "type": "string",
+          "location": "query",
+          "description": "Semrush requires action=report (do not override)",
+          "required": true
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Tracked domain (e.g., example.com)",
+          "required": true
+        },
+        {
+          "name": "begin",
+          "wire_name": "date_begin",
+          "type": "string",
+          "location": "query",
+          "description": "Start date in YYYYMMDD format"
+        },
+        {
+          "name": "end",
+          "wire_name": "date_end",
+          "type": "string",
+          "location": "query",
+          "description": "End date in YYYYMMDD format"
+        },
+        {
+          "name": "linktype_filter",
+          "type": "string",
+          "location": "query",
+          "description": "0=organic only, 1=incl. SERP features"
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max landing pages"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "sort",
+          "wire_name": "display_sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort key (e.g., 1_mc_desc = mostly clicks desc)"
+        }
+      ]
+    },
+    {
+      "name": "tracking_organic-overview",
+      "description": "Organic overview report (visibility, estimated traffic, average position over a date range). Required: campaign_id, type (default: tracking_overview_organic), action (default: report), url. Optional: begin, end, linktype_filter. Returns the TrackingOverview.",
+      "method": "GET",
+      "path": "/reports/v1/projects/{campaign_id}/tracking/",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "string",
+          "location": "path",
+          "description": "Position Tracking campaign ID",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "action",
+          "type": "string",
+          "location": "query",
+          "description": "Semrush requires action=report (do not override)",
+          "required": true
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Tracked URL pattern (e.g., *.example.com/*)",
+          "required": true
+        },
+        {
+          "name": "begin",
+          "wire_name": "date_begin",
+          "type": "string",
+          "location": "query",
+          "description": "Start date in YYYYMMDD format"
+        },
+        {
+          "name": "end",
+          "wire_name": "date_end",
+          "type": "string",
+          "location": "query",
+          "description": "End date in YYYYMMDD format"
+        },
+        {
+          "name": "linktype_filter",
+          "type": "string",
+          "location": "query",
+          "description": "0=organic only, 1=incl. SERP features"
+        }
+      ]
+    },
+    {
+      "name": "tracking_organic-positions",
+      "description": "Per-keyword organic positions report. Supports tag filters and competitor comparison. Required: campaign_id, type (default: tracking_position_organic), action (default: report), url. Optional: begin, end, tags (plus 4 more). Returns array of TrackingPosition.",
+      "method": "GET",
+      "path": "/reports/v1/projects/{campaign_id}/tracking/",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "string",
+          "location": "path",
+          "description": "Position Tracking campaign ID",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "action",
+          "type": "string",
+          "location": "query",
+          "description": "Semrush requires action=report (do not override)",
+          "required": true
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Colon-separated list of tracked URL + competitor URL patterns",
+          "required": true
+        },
+        {
+          "name": "begin",
+          "wire_name": "date_begin",
+          "type": "string",
+          "location": "query",
+          "description": "Start date in YYYYMMDD format"
+        },
+        {
+          "name": "end",
+          "wire_name": "date_end",
+          "type": "string",
+          "location": "query",
+          "description": "End date in YYYYMMDD format"
+        },
+        {
+          "name": "tags",
+          "wire_name": "display_tags",
+          "type": "string",
+          "location": "query",
+          "description": "Tag-filter expression (URL-encoded; tag1\u0026!tag2 = include tag1 and exclude tag2)"
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max rows"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "sort",
+          "wire_name": "display_sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort key (0_pos_asc, 0_pos_desc, ...)"
+        },
+        {
+          "name": "linktype_filter",
+          "type": "string",
+          "location": "query",
+          "description": "0=organic only, 1=incl. SERP features"
+        }
+      ]
+    },
+    {
+      "name": "tracking_organic-visibility",
+      "description": "Organic visibility (Share-of-Voice) index over a date range. Required: campaign_id, type (default: tracking_visibility_organic), action (default: report), url. Optional: begin, end, linktype_filter. Returns array of TrackingVisibility.",
+      "method": "GET",
+      "path": "/reports/v1/projects/{campaign_id}/tracking/",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "string",
+          "location": "path",
+          "description": "Position Tracking campaign ID",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "action",
+          "type": "string",
+          "location": "query",
+          "description": "Semrush requires action=report (do not override)",
+          "required": true
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Tracked URL pattern",
+          "required": true
+        },
+        {
+          "name": "begin",
+          "wire_name": "date_begin",
+          "type": "string",
+          "location": "query",
+          "description": "Start date in YYYYMMDD format"
+        },
+        {
+          "name": "end",
+          "wire_name": "date_end",
+          "type": "string",
+          "location": "query",
+          "description": "End date in YYYYMMDD format"
+        },
+        {
+          "name": "linktype_filter",
+          "type": "string",
+          "location": "query",
+          "description": "0=organic only, 1=incl. SERP features"
+        }
+      ]
+    },
+    {
+      "name": "tracking_paid-competitors",
+      "description": "AdWords competitors discovery (auto-detected paid competitors). Required: campaign_id, type (default: tracking_competitors_adwords), action (default: report). Optional: main_domain, begin, end (plus 6 more). Returns array of TrackingCompetitor.",
+      "method": "GET",
+      "path": "/reports/v1/projects/{campaign_id}/tracking/",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "string",
+          "location": "path",
+          "description": "Position Tracking campaign ID",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "action",
+          "type": "string",
+          "location": "query",
+          "description": "Semrush requires action=report (do not override)",
+          "required": true
+        },
+        {
+          "name": "main_domain",
+          "type": "string",
+          "location": "query",
+          "description": "Your main domain"
+        },
+        {
+          "name": "begin",
+          "wire_name": "date_begin",
+          "type": "string",
+          "location": "query",
+          "description": "Start date in YYYYMMDD format"
+        },
+        {
+          "name": "end",
+          "wire_name": "date_end",
+          "type": "string",
+          "location": "query",
+          "description": "End date in YYYYMMDD format"
+        },
+        {
+          "name": "top_start",
+          "type": "int",
+          "location": "query",
+          "description": "Start of SERP position range"
+        },
+        {
+          "name": "top_end",
+          "type": "int",
+          "location": "query",
+          "description": "End of SERP position range"
+        },
+        {
+          "name": "url_type",
+          "type": "string",
+          "location": "query",
+          "description": "rootdomain | subdomain | url"
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max competitor rows"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "sort",
+          "wire_name": "display_sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort key"
+        }
+      ]
+    },
+    {
+      "name": "tracking_paid-landings",
+      "description": "Top paid (AdWords) landing pages by tracked-keyword traffic. Required: campaign_id, type (default: tracking_landing_pages_adwords), action (default: report), url. Optional: begin, end, linktype_filter (plus 3 more). Returns array of TrackingLandingPage.",
+      "method": "GET",
+      "path": "/reports/v1/projects/{campaign_id}/tracking/",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "string",
+          "location": "path",
+          "description": "Position Tracking campaign ID",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "action",
+          "type": "string",
+          "location": "query",
+          "description": "Semrush requires action=report (do not override)",
+          "required": true
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Tracked URL pattern",
+          "required": true
+        },
+        {
+          "name": "begin",
+          "wire_name": "date_begin",
+          "type": "string",
+          "location": "query",
+          "description": "Start date in YYYYMMDD format"
+        },
+        {
+          "name": "end",
+          "wire_name": "date_end",
+          "type": "string",
+          "location": "query",
+          "description": "End date in YYYYMMDD format"
+        },
+        {
+          "name": "linktype_filter",
+          "type": "string",
+          "location": "query",
+          "description": "0=organic only, 1=incl. SERP features"
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max landing pages"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "sort",
+          "wire_name": "display_sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort key"
+        }
+      ]
+    },
+    {
+      "name": "tracking_paid-overview",
+      "description": "AdWords overview report (paid visibility, estimated traffic over a date range). Required: campaign_id, type (default: tracking_overview_adwords), action (default: report), url. Optional: begin, end. Returns the TrackingOverview.",
+      "method": "GET",
+      "path": "/reports/v1/projects/{campaign_id}/tracking/",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "string",
+          "location": "path",
+          "description": "Position Tracking campaign ID",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "action",
+          "type": "string",
+          "location": "query",
+          "description": "Semrush requires action=report (do not override)",
+          "required": true
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Tracked URL pattern",
+          "required": true
+        },
+        {
+          "name": "begin",
+          "wire_name": "date_begin",
+          "type": "string",
+          "location": "query",
+          "description": "Start date in YYYYMMDD format"
+        },
+        {
+          "name": "end",
+          "wire_name": "date_end",
+          "type": "string",
+          "location": "query",
+          "description": "End date in YYYYMMDD format"
+        }
+      ]
+    },
+    {
+      "name": "tracking_paid-positions",
+      "description": "Per-keyword paid (AdWords) positions report. Required: campaign_id, type (default: tracking_position_adwords), action (default: report), url. Optional: begin, end, tags (plus 3 more). Returns array of TrackingPosition.",
+      "method": "GET",
+      "path": "/reports/v1/projects/{campaign_id}/tracking/",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "string",
+          "location": "path",
+          "description": "Position Tracking campaign ID",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "action",
+          "type": "string",
+          "location": "query",
+          "description": "Semrush requires action=report (do not override)",
+          "required": true
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Colon-separated list of tracked URL + competitor URL patterns",
+          "required": true
+        },
+        {
+          "name": "begin",
+          "wire_name": "date_begin",
+          "type": "string",
+          "location": "query",
+          "description": "Start date in YYYYMMDD format"
+        },
+        {
+          "name": "end",
+          "wire_name": "date_end",
+          "type": "string",
+          "location": "query",
+          "description": "End date in YYYYMMDD format"
+        },
+        {
+          "name": "tags",
+          "wire_name": "display_tags_condition",
+          "type": "string",
+          "location": "query",
+          "description": "Tag-filter expression (URL-encoded)"
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max rows"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "sort",
+          "wire_name": "display_sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort key"
+        }
+      ]
+    },
+    {
+      "name": "tracking_paid-visibility",
+      "description": "AdWords visibility (Share-of-Voice) index over a date range. Required: campaign_id, type (default: tracking_visibility_adwords), action (default: report), url. Optional: begin, end. Returns array of TrackingVisibility.",
+      "method": "GET",
+      "path": "/reports/v1/projects/{campaign_id}/tracking/",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "string",
+          "location": "path",
+          "description": "Position Tracking campaign ID",
+          "required": true
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "action",
+          "type": "string",
+          "location": "query",
+          "description": "Semrush requires action=report (do not override)",
+          "required": true
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "query",
+          "description": "Tracked URL pattern",
+          "required": true
+        },
+        {
+          "name": "begin",
+          "wire_name": "date_begin",
+          "type": "string",
+          "location": "query",
+          "description": "Start date in YYYYMMDD format"
+        },
+        {
+          "name": "end",
+          "wire_name": "date_end",
+          "type": "string",
+          "location": "query",
+          "description": "End date in YYYYMMDD format"
+        }
+      ]
+    },
+    {
+      "name": "tracking_tags-add",
+      "description": "Add tags to existing keywords in a Position Tracking campaign. Required: campaign_id, keywords, tags. Returns the updated TrackingOperationResult.",
+      "method": "PUT",
+      "path": "/management/v1/projects/{campaign_id}/tags",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "string",
+          "location": "path",
+          "description": "Position Tracking campaign ID",
+          "required": true
+        },
+        {
+          "name": "keywords",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated keyword list",
+          "required": true
+        },
+        {
+          "name": "tags",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated tags to apply",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "tracking_tags-remove",
+      "description": "Remove tags from existing keywords in a Position Tracking campaign. Required: campaign_id, keywords, tags. Returns the TrackingOperationResult. Destructive.",
+      "method": "DELETE",
+      "path": "/management/v1/projects/{campaign_id}/tags",
+      "params": [
+        {
+          "name": "campaign_id",
+          "type": "string",
+          "location": "path",
+          "description": "Position Tracking campaign ID",
+          "required": true
+        },
+        {
+          "name": "keywords",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated keyword list",
+          "required": true
+        },
+        {
+          "name": "tags",
+          "type": "string",
+          "location": "body",
+          "description": "Comma-separated tags to remove",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "url_organic-keywords",
+      "description": "URL Organic Search Keywords. 30 units/line. Keywords this URL ranks for organically. Required: type (default: url_organic), url. Optional: database (default: us), limit (default: 100), offset (plus 2 more). Returns array of DomainOrganicKeyword.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "path",
+          "description": "Exact URL",
+          "required": true
+        },
+        {
+          "name": "database",
+          "type": "string",
+          "location": "query",
+          "description": "Database/country code"
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max keywords"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "sort",
+          "wire_name": "display_sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort key"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns"
+        }
+      ]
+    },
+    {
+      "name": "url_overview",
+      "description": "URL Overview (one database). 10 units/line. Required: type (default: url_rank), url. Optional: database (default: us), date, export_columns (default: Or,Ot,Oc,Ad,At,Ac). Returns the DomainOverview.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "path",
+          "description": "Exact URL (e.g., https://example.com/page)",
+          "required": true
+        },
+        {
+          "name": "database",
+          "type": "string",
+          "location": "query",
+          "description": "Database/country code"
+        },
+        {
+          "name": "date",
+          "wire_name": "display_date",
+          "type": "string",
+          "location": "query",
+          "description": "Snapshot date in YYYYMM15 format"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns (no Dn — URL is the target)"
+        }
+      ]
+    },
+    {
+      "name": "url_overview-all",
+      "description": "URL Overview (all databases). 10 units/line. Required: type (default: url_ranks), url. Optional: limit (default: 200), offset, export_columns (default: Db,Rk,Or,Ot,Oc,Ad,At,Ac). Returns array of DomainOverview.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "path",
+          "description": "Exact URL",
+          "required": true
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max database rows"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns"
+        }
+      ]
+    },
+    {
+      "name": "url_overview-history",
+      "description": "URL Overview (history). 10 units/line. Monthly historical rankings for a URL. Required: type (default: url_rank_history), url. Optional: database (default: us), limit (default: 24), offset (plus 1 more). Returns array of DomainRankHistoryRow.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "path",
+          "description": "Exact URL",
+          "required": true
+        },
+        {
+          "name": "database",
+          "type": "string",
+          "location": "query",
+          "description": "Database/country code"
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max history rows (months)"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns"
+        }
+      ]
+    },
+    {
+      "name": "url_paid-keywords",
+      "description": "URL Paid Search Keywords. 30 units/line. Keywords this URL has been advertised against. Required: type (default: url_adwords), url. Optional: database (default: us), limit (default: 100), offset (plus 2 more). Returns array of DomainPaidKeyword.",
+      "method": "GET",
+      "path": "/",
+      "params": [
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "v3 report type (do not override)",
+          "required": true
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "location": "path",
+          "description": "Exact URL",
+          "required": true
+        },
+        {
+          "name": "database",
+          "type": "string",
+          "location": "query",
+          "description": "Database/country code"
+        },
+        {
+          "name": "limit",
+          "wire_name": "display_limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max keywords"
+        },
+        {
+          "name": "offset",
+          "wire_name": "display_offset",
+          "type": "int",
+          "location": "query",
+          "description": "Skip N rows before returning"
+        },
+        {
+          "name": "sort",
+          "wire_name": "display_sort",
+          "type": "string",
+          "location": "query",
+          "description": "Sort key"
+        },
+        {
+          "name": "export_columns",
+          "type": "string",
+          "location": "query",
+          "description": "Columns"
+        }
+      ]
+    }
+  ]
+}
