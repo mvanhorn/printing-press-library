@@ -255,15 +255,22 @@ func tryParseHotel(payload any) (Hotel, bool) {
 	//   [6][2][1] = ["$184", "$217", 184.02, null, 184]  -- display nightly rate
 	if len(rec) > 6 {
 		if priceBlock, ok := rec[6].([]any); ok {
-			// Currency at [1][3]
-			if meta, ok := priceBlock[1].([]any); ok && len(meta) > 3 {
-				if cur, ok := meta[3].(string); ok {
-					h.Currency = cur
+			// Currency at [1][3]. Bounds-check priceBlock — Google's
+			// price block has varied shape (sometimes a single nested
+			// array, sometimes empty when no OTA returned a price).
+			// Without the len() guard this panics on the short shape.
+			if len(priceBlock) > 1 {
+				if meta, ok := priceBlock[1].([]any); ok && len(meta) > 3 {
+					if cur, ok := meta[3].(string); ok {
+						h.Currency = cur
+					}
 				}
 			}
-			// Price at [2][1] when present
-			if detail, ok := priceBlock[2].([]any); ok && len(detail) > 1 {
-				h.PricePerNight = parsePriceArray(detail[1])
+			// Price at [2][1] when present.
+			if len(priceBlock) > 2 {
+				if detail, ok := priceBlock[2].([]any); ok && len(detail) > 1 {
+					h.PricePerNight = parsePriceArray(detail[1])
+				}
 			}
 		}
 	}
