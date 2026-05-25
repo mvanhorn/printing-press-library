@@ -1,0 +1,31 @@
+{
+  "query_family_examples": [
+    "top 3 $LEAGUE teams in each division",
+    "bottom 3 $LEAGUE teams in each division",
+    "top 3 mlb teams each division"
+  ],
+  "steps": [
+    {
+      "cmd": "espn-pp-cli standings $SPORT $LEAGUE --agent",
+      "purpose": "live league-wide standings (returned as flat AL/NL or conf-wide list, NOT pre-grouped by division)"
+    },
+    {
+      "client_side": "group_by_division",
+      "args": {
+        "league": "$LEAGUE",
+        "static_map": "use team abbreviation -> division mapping (AL East: BAL/BOS/NYY/TB/TOR; AL Central: CHW/CLE/DET/KC/MIN; AL West: HOU/LAA/OAK/SEA/TEX; NL East: ATL/MIA/NYM/PHI/WSH; NL Central: CHC/CIN/MIL/PIT/STL; NL West: ARI/COL/LAD/SD/SF)"
+      },
+      "purpose": "client-side bucket teams by division -- ESPN returns league-flat, not pre-grouped"
+    },
+    {
+      "client_side": "rank_by_win_pct",
+      "args": {
+        "direction": "$DIRECTION (top|bottom)",
+        "n": "$N"
+      },
+      "purpose": "sort by win % then take top or bottom N"
+    }
+  ],
+  "entity_slots": ["$LEAGUE", "$SPORT", "$DIRECTION", "$N"],
+  "expected_tool_calls": 1
+}

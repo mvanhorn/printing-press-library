@@ -1,0 +1,30 @@
+{
+  "query_family_examples": [
+    "$ATHLETE last game",
+    "how did $ATHLETE do last game",
+    "Carter Bryant last game"
+  ],
+  "steps": [
+    {
+      "cmd": "espn-pp-cli compare {athlete.name} {known_athlete_name} --sport basketball --league nba --agent",
+      "purpose": "resolve $ATHLETE to athlete.id + athlete.team.id via the compare command's lookup pass"
+    },
+    {
+      "cmd": "espn-pp-cli teams basketball nba {athlete.team.id} --agent",
+      "purpose": "team's recent events -- find last completed event"
+    },
+    {
+      "cmd": "espn-pp-cli boxscore {event.id} --sport basketball --league nba --agent",
+      "purpose": "per-player stats line for the last completed event"
+    },
+    {
+      "client_side": "find_athlete_in_boxscore",
+      "args": {
+        "athlete_id": "$ATHLETE.id"
+      },
+      "purpose": "walk boxscore .players[][].statistics[].athletes[] to find the row"
+    }
+  ],
+  "entity_slots": ["$ATHLETE"],
+  "expected_tool_calls": 3
+}

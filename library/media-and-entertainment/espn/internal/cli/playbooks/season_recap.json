@@ -1,0 +1,32 @@
+{
+  "query_family_examples": [
+    "how did $TEAM end the season who led in ppg rpg spg",
+    "how did Warriors end the season",
+    "how did Pistons end the season who led in stats"
+  ],
+  "steps": [
+    {
+      "cmd": "espn-pp-cli teams basketball nba {team.id} --agent",
+      "purpose": "team object + standing summary + last/next event hints"
+    },
+    {
+      "cmd": "espn-pp-cli standings basketball nba --season 2026 --agent",
+      "purpose": "confirm final record + playoff seed"
+    },
+    {
+      "cmd": "curl -sk https://site.api.espn.com/apis/common/v3/sports/basketball/nba/statistics/byathlete?limit=50&page={page}&seasontype=2",
+      "purpose": "per-game leaders -- paginate manually, filter by team.abbr client-side",
+      "pagination": "auto, ~12 pages for NBA"
+    },
+    {
+      "client_side": "rank_by",
+      "args": {
+        "stats": "$STATS",
+        "filter_team_abbr": "$TEAM.abbr"
+      },
+      "purpose": "client-side ranking by user-requested stats"
+    }
+  ],
+  "entity_slots": ["$TEAM", "$STATS"],
+  "expected_tool_calls": 4
+}
