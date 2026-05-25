@@ -223,7 +223,7 @@ func submitWeek(cmd *cobra.Command, flags *rootFlags, workspace string, ws time.
 		}
 	}
 	out := cmd.OutOrStdout()
-	periodStart := time.Date(ws.Year(), ws.Month(), ws.Day(), 0, 0, 0, 0, time.UTC).Format("2006-01-02T15:04:05.000Z")
+	periodStart := ws.UTC().Format("2006-01-02T15:04:05.000Z")
 
 	if cliutil.IsVerifyEnv() {
 		fmt.Fprintf(out, "would submit week of %s for approval (periodStart=%s)\n", ws.Format("2006-01-02"), periodStart)
