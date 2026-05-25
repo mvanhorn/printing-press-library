@@ -347,7 +347,23 @@ func (s *Store) migrate(ctx context.Context) error {
 		`CREATE UNIQUE INDEX IF NOT EXISTS idx_patterns_unique ON search_patterns(query_template, resource_template, strategy)`,
 	}
 
-	for _, m := range migrations {
+	// Two-pass migration. Pass 1: CREATE TABLE IF NOT EXISTS statements
+	// only — these are idempotent (no-op on existing tables, create
+	// fresh on first install). Pass 2 (interleaved): reconcile each
+	// existing table's columns against canonical via ALTER TABLE ADD
+	// COLUMN, so subsequent index creation against newer columns
+	// doesn't fail on stale user DBs. Pass 3: remaining migrations
+	// (indexes, virtual tables) — now safe to run.
+	createTables, others := partitionCreateTableStatements(migrations)
+	for _, m := range createTables {
+		if _, err := s.db.ExecContext(ctx, m); err != nil {
+			return fmt.Errorf("migration failed: %w", err)
+		}
+	}
+	if err := s.reconcileSchema(ctx, createTables); err != nil {
+		return fmt.Errorf("reconcile schema: %w", err)
+	}
+	for _, m := range others {
 		if _, err := s.db.ExecContext(ctx, m); err != nil {
 			return fmt.Errorf("migration failed: %w", err)
 		}
@@ -359,6 +375,146 @@ func (s *Store) migrate(ctx context.Context) error {
 		return fmt.Errorf("stamp user_version: %w", err)
 	}
 	return nil
+}
+
+// partitionCreateTableStatements splits a flat migrations slice into
+// CREATE TABLE statements (which establish column shape and can no-op
+// on existing tables) and everything else (CREATE INDEX, CREATE VIRTUAL
+// TABLE, etc.). Order within each partition is preserved; CREATE
+// VIRTUAL TABLE goes into the "others" bucket because it doesn't
+// participate in column-shape reconciliation.
+func partitionCreateTableStatements(migrations []string) (createTables, others []string) {
+	for _, m := range migrations {
+		stripped := strings.TrimLeftFunc(m, func(r rune) bool {
+			return r == ' ' || r == '\t' || r == '\n'
+		})
+		upper := strings.ToUpper(stripped)
+		if strings.HasPrefix(upper, "CREATE TABLE ") || strings.HasPrefix(upper, "CREATE TABLE\n") || strings.HasPrefix(upper, "CREATE TABLE\t") {
+			createTables = append(createTables, m)
+		} else {
+			others = append(others, m)
+		}
+	}
+	return createTables, others
+}
+
+// reconcileSchema heals stale-schema user DBs by adding canonical
+// columns that are missing. The canonical column shape is derived
+// from the SAME migration list passed in (running the CREATE TABLE
+// statements against an in-memory SQLite DB) — so any future column
+// addition to a CREATE TABLE statement automatically flows into
+// reconciliation without a separate declaration to keep in sync.
+//
+// SQLite limitations honored:
+//   - PRIMARY KEY columns cannot be added via ALTER. If a canonical
+//     PK column is missing on disk, return an error explaining the
+//     user can recover by removing the DB file.
+//   - NOT NULL columns without defaults will fail at ALTER time if
+//     the table has rows. The error message is propagated as-is.
+//
+// Forward-compatible: columns present on disk but not in canonical
+// are left alone (no DROP COLUMN). Type-mismatched columns aren't
+// auto-repaired — destructive repair belongs to the operator, not
+// the migration.
+func (s *Store) reconcileSchema(ctx context.Context, createTables []string) error {
+	canon, err := sql.Open("sqlite", ":memory:")
+	if err != nil {
+		return fmt.Errorf("open canonical reference: %w", err)
+	}
+	defer canon.Close()
+	for _, m := range createTables {
+		if _, err := canon.ExecContext(ctx, m); err != nil {
+			return fmt.Errorf("canonical reference build: %w", err)
+		}
+	}
+	canonRows, err := canon.QueryContext(ctx, `SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'`)
+	if err != nil {
+		return fmt.Errorf("list canonical tables: %w", err)
+	}
+	var canonicalTables []string
+	for canonRows.Next() {
+		var name string
+		if err := canonRows.Scan(&name); err != nil {
+			canonRows.Close()
+			return fmt.Errorf("scan canonical table: %w", err)
+		}
+		canonicalTables = append(canonicalTables, name)
+	}
+	canonRows.Close()
+	for _, table := range canonicalTables {
+		var userTableName string
+		err := s.db.QueryRowContext(ctx, `SELECT name FROM sqlite_master WHERE type='table' AND name=?`, table).Scan(&userTableName)
+		if err == sql.ErrNoRows {
+			continue
+		}
+		if err != nil {
+			return fmt.Errorf("check user table %s: %w", table, err)
+		}
+		canonCols, err := pragmaColumns(ctx, canon, table)
+		if err != nil {
+			return fmt.Errorf("canonical columns for %s: %w", table, err)
+		}
+		userCols, err := pragmaColumns(ctx, s.db, table)
+		if err != nil {
+			return fmt.Errorf("user columns for %s: %w", table, err)
+		}
+		for _, col := range canonCols {
+			if _, present := userCols[col.name]; present {
+				continue
+			}
+			if col.pk {
+				return fmt.Errorf("table %s on disk is missing canonical primary-key column %s; SQLite cannot add a primary key via ALTER TABLE. Remove %s to start with a fresh DB", table, col.name, s.path)
+			}
+			alter := fmt.Sprintf(`ALTER TABLE %s ADD COLUMN %s %s`, table, col.name, col.spec)
+			if _, err := s.db.ExecContext(ctx, alter); err != nil {
+				return fmt.Errorf("reconcile %s.%s: %w (consider removing %s if recovery is acceptable)", table, col.name, err, s.path)
+			}
+		}
+	}
+	return nil
+}
+
+// colInfo captures the shape of a column as PRAGMA table_info reports
+// it. spec is the ALTER-suitable type + nullability + default fragment
+// (e.g., "INTEGER NOT NULL DEFAULT 0" or "TEXT"); pk is true when the
+// column is part of the table's primary key.
+type colInfo struct {
+	name string
+	spec string
+	pk   bool
+}
+
+// pragmaColumns returns a name->colInfo map for the given table using
+// PRAGMA table_info. The map is suitable for diffing two schemas:
+// missing keys in one direction are columns to add (with ALTER), missing
+// keys in the other direction are columns the operator added and we
+// should leave alone (forward-compat).
+func pragmaColumns(ctx context.Context, db *sql.DB, table string) (map[string]colInfo, error) {
+	rows, err := db.QueryContext(ctx, `PRAGMA table_info(`+table+`)`)
+	if err != nil {
+		return nil, fmt.Errorf("pragma table_info(%s): %w", table, err)
+	}
+	defer rows.Close()
+	out := make(map[string]colInfo)
+	for rows.Next() {
+		var cid int
+		var name, typ string
+		var notnull int
+		var dflt sql.NullString
+		var pk int
+		if err := rows.Scan(&cid, &name, &typ, &notnull, &dflt, &pk); err != nil {
+			return nil, fmt.Errorf("scan pragma row: %w", err)
+		}
+		spec := typ
+		if notnull == 1 {
+			spec += " NOT NULL"
+		}
+		if dflt.Valid {
+			spec += " DEFAULT " + dflt.String
+		}
+		out[name] = colInfo{name: name, spec: spec, pk: pk > 0}
+	}
+	return out, nil
 }
 
 // ── Domain Upsert Methods ──
