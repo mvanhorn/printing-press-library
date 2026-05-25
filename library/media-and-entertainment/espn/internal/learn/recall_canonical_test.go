@@ -412,6 +412,160 @@ func TestRecall_TrueCrossAliasHit_DoesNotSurfaceSimilarShapeWarning(t *testing.T
 // at-threshold hack was needed to pass cross-alias hits at all; with
 // a separate crossAliasMin=0.3 the canonical-overlap path admits
 // paraphrased same-shape queries on their actual Jaccard ratio.
+// seedPlaybook directly inserts a learning_playbooks row. Mirrors the
+// shape store.UpsertPlaybook writes; keeps these tests decoupled from
+// the store API surface.
+func seedPlaybook(t *testing.T, db *sql.DB, family, playbookJSON, notes string) {
+	t.Helper()
+	// Ensure the table exists; canonical test DB doesn't create it.
+	if _, err := db.Exec(`CREATE TABLE IF NOT EXISTS learning_playbooks (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		query_family TEXT NOT NULL,
+		playbook_json TEXT,
+		notes_text TEXT,
+		source TEXT NOT NULL DEFAULT 'taught',
+		confidence INTEGER NOT NULL DEFAULT 2,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+		last_observed_at DATETIME
+	)`); err != nil {
+		t.Fatalf("seed playbook table: %v", err)
+	}
+	if _, err := db.Exec(
+		`INSERT INTO learning_playbooks (query_family, playbook_json, notes_text, confidence)
+		 VALUES (?, ?, ?, 2)`,
+		family, playbookJSON, notes,
+	); err != nil {
+		t.Fatalf("seed playbook row: %v", err)
+	}
+}
+
+func TestRecall_PlaybookSurfaces_OnFamilyMatch(t *testing.T) {
+	t.Parallel()
+	db := openCanonicalTestDB(t)
+	seedCanonical(t, db, "nba_team", "Detroit Pistons",
+		[]string{"Detroit Pistons", "Pistons", "DET"})
+
+	pbJSON := `{"steps":[{"cmd":"teams basketball nba {team.id}"}],"entity_slots":["$TEAM"],"expected_tool_calls":3}`
+	notes := "byathlete needs seasontype=2; categories has dup labels"
+	// Family for "how did $TEAM end the season who led in ppg rpg spg"
+	// is "end led ppg rpg season spg" after entities + stopwords stripped.
+	seedPlaybook(t, db, "end led ppg rpg season spg", pbJSON, notes)
+
+	got, err := Recall(context.Background(), db,
+		"how did Pistons end the season who led in ppg rpg spg",
+		Opts{EntityConfig: espnLikeConfig()})
+	if err != nil {
+		t.Fatalf("recall: %v", err)
+	}
+	if got.Playbook == nil {
+		t.Fatalf("expected playbook attached; got %+v", got)
+	}
+	if got.Notes != notes {
+		t.Errorf("notes mismatch: got %q want %q", got.Notes, notes)
+	}
+	if len(got.Playbook.Playbook.Steps) != 1 {
+		t.Errorf("expected 1 step; got %d", len(got.Playbook.Playbook.Steps))
+	}
+	if got.Playbook.SlotsResolved == nil {
+		t.Errorf("expected slots resolved")
+	} else if slot, ok := got.Playbook.SlotsResolved["$TEAM"]; !ok {
+		t.Errorf("$TEAM slot missing in %+v", got.Playbook.SlotsResolved)
+	} else if slot["canonical"] != "Detroit Pistons" {
+		t.Errorf("canonical = %v, want Detroit Pistons", slot["canonical"])
+	}
+}
+
+func TestRecall_PlaybookSurfaces_DifferentEntitySameFamily(t *testing.T) {
+	t.Parallel()
+	db := openCanonicalTestDB(t)
+	seedCanonical(t, db, "nba_team", "Golden State Warriors",
+		[]string{"Golden State Warriors", "Warriors", "GSW"})
+	seedCanonical(t, db, "nba_team", "Detroit Pistons",
+		[]string{"Detroit Pistons", "Pistons", "DET"})
+
+	pbJSON := `{"steps":[{"cmd":"teams basketball nba {team.id}"}],"entity_slots":["$TEAM"]}`
+	seedPlaybook(t, db, "end led ppg rpg season spg", pbJSON, "")
+
+	// Teach was for Warriors; recall asks Pistons. Same family.
+	got, err := Recall(context.Background(), db,
+		"how did Pistons end the season who led in ppg rpg spg",
+		Opts{EntityConfig: espnLikeConfig()})
+	if err != nil {
+		t.Fatalf("recall: %v", err)
+	}
+	if got.Playbook == nil {
+		t.Fatalf("playbook should fire across entities of same family; got %+v", got)
+	}
+	slot := got.Playbook.SlotsResolved["$TEAM"]
+	if slot["canonical"] != "Detroit Pistons" {
+		t.Errorf("slot should resolve to Pistons (the current query), got %v", slot["canonical"])
+	}
+}
+
+func TestRecall_PlaybookAbsent_NoMatch(t *testing.T) {
+	t.Parallel()
+	db := openCanonicalTestDB(t)
+	got, err := Recall(context.Background(), db, "completely cold query",
+		Opts{EntityConfig: espnLikeConfig()})
+	if err != nil {
+		t.Fatalf("recall: %v", err)
+	}
+	if got.Playbook != nil {
+		t.Errorf("no playbook stored -> envelope should have nil Playbook; got %+v", got.Playbook)
+	}
+	if got.Notes != "" {
+		t.Errorf("no playbook stored -> envelope Notes should be empty; got %q", got.Notes)
+	}
+}
+
+func TestRecall_PlaybookNotesOnly(t *testing.T) {
+	t.Parallel()
+	db := openCanonicalTestDB(t)
+	// Seed Mets so it gets promoted to entity (stripped from family).
+	seedCanonical(t, db, "mlb_team", "New York Mets", []string{"Mets", "NYM"})
+	seedPlaybook(t, db, "doing far so year", "", "use the byathlete endpoint")
+
+	got, err := Recall(context.Background(), db, "how are the mets doing so far this year",
+		Opts{EntityConfig: espnLikeConfig()})
+	if err != nil {
+		t.Fatalf("recall: %v", err)
+	}
+	if got.Notes != "use the byathlete endpoint" {
+		t.Errorf("notes-only row should surface notes; got %q (normalized=%q)", got.Notes, got.Normalized)
+	}
+	// Playbook field should be nil when playbook_json is empty AND has no steps.
+	if got.Playbook != nil && len(got.Playbook.Playbook.Steps) != 0 {
+		t.Errorf("notes-only row should not synthesize steps; got %+v", got.Playbook)
+	}
+}
+
+func TestRecall_PlaybookCoexistsWithResourceHit(t *testing.T) {
+	t.Parallel()
+	db := openCanonicalTestDB(t)
+	seedCanonical(t, db, "nba_team", "Detroit Pistons",
+		[]string{"Detroit Pistons", "Pistons", "DET"})
+	// Resource learning AND playbook for the same query.
+	seedCanonicalLearning(t, db,
+		"how pistons end season who led ppg rpg spg",
+		`["Pistons"]`, "8", "teams")
+	seedPlaybook(t, db, "end led ppg rpg season spg",
+		`{"steps":[{"cmd":"teams basketball nba {team.id}"}]}`,
+		"recipe goes here")
+
+	got, err := Recall(context.Background(), db,
+		"how did Pistons end the season who led in ppg rpg spg",
+		Opts{EntityConfig: espnLikeConfig()})
+	if err != nil {
+		t.Fatalf("recall: %v", err)
+	}
+	if !got.Found {
+		t.Errorf("resource hit should still fire; got found=false")
+	}
+	if got.Playbook == nil {
+		t.Errorf("playbook should also fire; got nil")
+	}
+}
+
 func TestRecall_CrossAliasJaccardMin_LowerFloorCatchesParaphrase(t *testing.T) {
 	t.Parallel()
 	db := openCanonicalTestDB(t)

@@ -277,6 +277,10 @@ Disabling: pass --no-learn or set ` + noLearnEnvVar + `=true.`,
 
 // recallEnvelope is the JSON shape returned by `recall --agent`. The
 // LLM consumes this before deciding whether to skip discovery.
+//
+// Playbook is non-nil when the query's structural family has a stored
+// playbook/notes pair. Read it (and Notes verbatim) before any discovery
+// step — see SKILL.md's six-branch decision tree for the protocol.
 type recallEnvelope struct {
 	Found         bool                   `json:"found"`
 	Query         string                 `json:"query"`
@@ -286,6 +290,8 @@ type recallEnvelope struct {
 	Results       []recallEnvelopeResult `json:"results"`
 	Mismatches    []recallEnvelopeResult `json:"mismatches,omitempty"`
 	Warnings      []string               `json:"warnings,omitempty"`
+	Playbook      *learn.ResolvedPlaybook `json:"playbook,omitempty"`
+	Notes         string                 `json:"notes,omitempty"`
 }
 
 type recallEnvelopeResult struct {
@@ -376,6 +382,8 @@ when learnings exist.`,
 				envelope.Mismatches = toEnvelopeResults(result.Mismatches)
 			}
 			envelope.Warnings = result.Warnings
+			envelope.Playbook = result.Playbook
+			envelope.Notes = result.Notes
 			return emitRecall(cmd, flags, envelope)
 		},
 	}

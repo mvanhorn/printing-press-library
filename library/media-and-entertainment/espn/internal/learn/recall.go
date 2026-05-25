@@ -59,15 +59,23 @@ type Hit struct {
 
 // Result is the top-level recall envelope. Found mirrors the legacy
 // {found, results} shape with additive entity-aware fields.
+//
+// Playbook is non-nil when the query's structural family matches a
+// stored learning_playbooks row. The agent reads it before any
+// discovery step. Notes mirror playbook.notes_text verbatim so the
+// agent can surface the gotchas/workarounds even when the structured
+// playbook itself is sparse.
 type Result struct {
-	Query         string   `json:"query"`
-	Normalized    string   `json:"normalized"`
-	QueryEntities []string `json:"query_entities"`
-	Found         bool     `json:"found"`
-	MatchScore    float64  `json:"match_score,omitempty"`
-	Results       []Hit    `json:"results"`
-	Mismatches    []Hit    `json:"mismatches,omitempty"`
-	Warnings      []string `json:"warnings,omitempty"`
+	Query         string            `json:"query"`
+	Normalized    string            `json:"normalized"`
+	QueryEntities []string          `json:"query_entities"`
+	Found         bool              `json:"found"`
+	MatchScore    float64           `json:"match_score,omitempty"`
+	Results       []Hit             `json:"results"`
+	Mismatches    []Hit             `json:"mismatches,omitempty"`
+	Warnings      []string          `json:"warnings,omitempty"`
+	Playbook      *ResolvedPlaybook `json:"playbook,omitempty"`
+	Notes         string            `json:"notes,omitempty"`
 }
 
 // Opts tunes Recall behavior. Zero-value defaults:
@@ -477,6 +485,47 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 
 	if !result.Found && len(mismatches) == 0 {
 		result.Warnings = append(result.Warnings, TopWarningNoLearningsForQueryFamily)
+	}
+
+	// Playbook + notes surface: orthogonal to the per-resource path.
+	// Look up the structural query family in learning_playbooks. A hit
+	// attaches the resolved playbook (with slot bindings) and the notes
+	// text verbatim so the agent reads the gotchas before any step.
+	family := QueryFamily(normalized)
+	if family != "" {
+		var (
+			playbookJSON sql.NullString
+			notesText    sql.NullString
+			confidence   int
+		)
+		err := db.QueryRowContext(ctx,
+			`SELECT COALESCE(playbook_json, ''), COALESCE(notes_text, ''), confidence
+			 FROM learning_playbooks WHERE query_family = ?`,
+			family,
+		).Scan(&playbookJSON, &notesText, &confidence)
+		if err == nil {
+			rp := &ResolvedPlaybook{
+				QueryFamily: family,
+				Confidence:  confidence,
+				Notes:       notesText.String,
+			}
+			if playbookJSON.String != "" {
+				if pb, perr := ParsePlaybook([]byte(playbookJSON.String), "learning_playbooks:"+family); perr == nil {
+					rp.Playbook = pb
+					rp.SlotsResolved = ResolveSlots(pb, normalized, resolver)
+				}
+			}
+			// Only attach when there's at least one piece of content.
+			// An empty row (would have been rejected at upsert time, but
+			// defense in depth) doesn't pollute the envelope.
+			if rp.Notes != "" || len(rp.Playbook.Steps) > 0 {
+				result.Playbook = rp
+				result.Notes = notesText.String
+			}
+		}
+		// sql.ErrNoRows is the common case; any other error is swallowed
+		// to preserve the legacy contract that recall doesn't fail when
+		// the optional tables are absent or queryable in unexpected ways.
 	}
 
 	return result, nil

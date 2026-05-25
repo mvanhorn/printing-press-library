@@ -345,6 +345,27 @@ func (s *Store) migrate(ctx context.Context) error {
 		)`,
 		`CREATE INDEX IF NOT EXISTS idx_patterns_query_template ON search_patterns(query_template)`,
 		`CREATE UNIQUE INDEX IF NOT EXISTS idx_patterns_unique ON search_patterns(query_template, resource_template, strategy)`,
+		// learning_playbooks: keyed on the structural query family (all
+		// entities stripped, see learn.queryFamily). One row per family
+		// holds the optional structured playbook (ordered CLI command
+		// sequence with entity slots) and the optional free-text notes
+		// (gotchas, workarounds the CLI surface doesn't expose). Either
+		// field may be empty; non-empty in both is the strongest signal.
+		//
+		// Read at recall time by query_family; surfaces to the agent
+		// alongside the existing per-resource hits so a future inquiry
+		// of the same shape can skip rediscovery of the choreography.
+		`CREATE TABLE IF NOT EXISTS learning_playbooks (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			query_family TEXT NOT NULL,
+			playbook_json TEXT,
+			notes_text TEXT,
+			source TEXT NOT NULL DEFAULT 'taught',
+			confidence INTEGER NOT NULL DEFAULT 2,
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			last_observed_at DATETIME
+		)`,
+		`CREATE UNIQUE INDEX IF NOT EXISTS idx_playbooks_family ON learning_playbooks(query_family)`,
 	}
 
 	// Two-pass migration. Pass 1: CREATE TABLE IF NOT EXISTS statements
