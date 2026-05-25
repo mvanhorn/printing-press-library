@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "intercom-pp-mcp",
+  "display_name": "Intercom",
+  "version": "4.14.0",
+  "description": "Every Intercom resource as a typed CLI with offline sync and EU/AU regions.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/intercom-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/intercom-pp-mcp",
+      "args": [],
+      "env": {
+        "INTERCOM_ACCESS_TOKEN": "${user_config.intercom_access_token}"
+      }
+    }
+  },
+  "user_config": {
+    "intercom_access_token": {
+      "type": "string",
+      "title": "INTERCOM_ACCESS_TOKEN",
+      "description": "Sets INTERCOM_ACCESS_TOKEN for the Intercom MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

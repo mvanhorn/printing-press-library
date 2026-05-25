@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-25T01:05:10.995888Z",
+  "printing_press_version": "4.14.0",
+  "api_name": "intercom",
+  "display_name": "Intercom",
+  "cli_name": "intercom-pp-cli",
+  "owner": "rob-coco",
+  "printer": "rob-coco",
+  "printer_name": "Rob Zehner",
+  "spec_format": "openapi3",
+  "spec_checksum": "sha256:d78bdca097efa15b4ead664c607a3beda423ce14c57adae605cbe36461136520",
+  "run_id": "20260524-134520",
+  "description": "Every Intercom resource as a typed CLI with offline sync and EU/AU regions.",
+  "mcp_binary": "intercom-pp-mcp",
+  "mcp_tool_count": 133,
+  "mcp_ready": "full",
+  "api_version": "2.13",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "INTERCOM_ACCESS_TOKEN"
+  ],
+  "novel_features": [
+    {
+      "name": "Incident-tag dry-run",
+      "command": "conversations incident-tag",
+      "description": "Tag every conversation mentioning a phrase in a time window with one safe-by-default command."
+    },
+    {
+      "name": "Articles git round-trip",
+      "command": "articles pull",
+      "description": "Flatten every help-center article into a markdown tree you can edit in git, then push changes back."
+    },
+    {
+      "name": "Contact 360",
+      "command": "contact 360",
+      "description": "One nested payload joining a contact across companies, conversations, tickets, notes, and tags."
+    },
+    {
+      "name": "SLA analytics",
+      "command": "conversations sla",
+      "description": "First-response and resolution-time metrics grouped by team or admin, computed over the local store."
+    }
+  ]
+}
