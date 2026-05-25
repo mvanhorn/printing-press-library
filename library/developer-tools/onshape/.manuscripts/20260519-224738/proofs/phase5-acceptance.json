@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "api_name": "onshape",
+  "run_id": "20260519-224738",
+  "status": "pass",
+  "level": "full",
+  "matrix_size": 90,
+  "tests_passed": 90,
+  "tests_skipped": 57,
+  "auth_context": {
+    "type": "basic",
+    "api_key_available": true
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-20",
+  "base_run_id": "20260519-224738",
+  "base_printing_press_version": "4.9.0",
+  "patches": [
+    {
+      "id": "onshape-signed-api-key-auth",
+      "summary": "Sign Onshape API-key requests with the documented HMAC headers and accept the user's API-key env aliases.",
+      "reason": "The generated CLI read access/secret keys but emitted no usable Authorization header, so live API calls could not be validated honestly during Phase 5.",
+      "files": [
+        "internal/config/config.go",
+        "internal/client/client.go",
+        "internal/cli/doctor.go"
+      ],
+      "validated_outcome": "Live document search, workspace/version listing, element listing, assembly get, parts list, and full Phase 5 dogfood passed with real credentials."
+    },
+    {
+      "id": "onshape-live-dogfood-examples",
+      "summary": "Replace placeholder help examples with known-good Onshape fixture IDs and cap sync pagination at Onshape's 20-item limit.",
+      "reason": "The full live dogfood runner executes help examples; placeholder UUIDs produced false live failures, and Onshape rejects document list limits above 20.",
+      "files": [
+        "internal/cli/assemblies_get.go",
+        "internal/cli/assemblies_list.go",
+        "internal/cli/promoted_elements.go",
+        "internal/cli/exports_element.go",
+        "internal/cli/exports_part.go",
+        "internal/cli/parts_get.go",
+        "internal/cli/parts_list.go",
+        "internal/cli/versions_list.go",
+        "internal/cli/workspaces_list.go",
+        "internal/cli/sync.go",
+        "internal/cli/channel_workflow.go"
+      ],
+      "validated_outcome": "Full live dogfood passed: 90/90 counted tests, 0 failures."
+    }
+  ]
+}

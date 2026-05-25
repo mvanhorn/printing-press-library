@@ -1,0 +1,51 @@
+version: 2
+project_name: onshape-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: onshape-pp-cli
+    main: ./cmd/onshape-pp-cli
+    binary: onshape-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/mvanhorn/printing-press-library/library/developer-tools/onshape/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: onshape-pp-mcp
+    main: ./cmd/onshape-pp-mcp
+    binary: onshape-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: onshape-pp-cli
+    repository:
+      owner: markimus
+      name: homebrew-tap
+    homepage: "https://github.com/mvanhorn/printing-press-library"
+    description: "Onshape cloud CAD API CLI — manage documents, parts, assemblies, and exports"
+    install: |
+      bin.install "onshape-pp-cli"
+      bin.install "onshape-pp-mcp"

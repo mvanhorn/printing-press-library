@@ -1,0 +1,16 @@
+{
+  "timestamp": "2026-05-19T22:59:54.999773429Z",
+  "cli_dir": "/home/markimus/printing-press/library/onshape",
+  "findings": [
+    {
+      "kind": "thin-short",
+      "command": "translations",
+      "file": "translations.go",
+      "line": 11,
+      "evidence": "Async translation/export jobs",
+      "status": "accepted",
+      "note": "DO-NOT-EDIT generated parent grouper (Hidden: true, RunE: parentNoSubcommandRunE); not agent-facing. Subcommands translations.get and translations.create have proper Shorts.",
+      "accepted_at": "2026-05-19T23:00:00Z"
+    }
+  ]
+}

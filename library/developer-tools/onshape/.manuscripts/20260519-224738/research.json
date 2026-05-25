@@ -1,0 +1,228 @@
+{
+  "api_name": "onshape",
+  "novelty_score": 8,
+  "alternatives": [
+    {
+      "name": "Onshape Glassworks API Explorer",
+      "url": "https://cad.onshape.com/glassworks/explorer/",
+      "language": "OpenAPI",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": true,
+      "has_auth_support": true
+    },
+    {
+      "name": "onshape-rest-api-client",
+      "url": "https://pypi.org/project/onshape-rest-api-client/",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": true
+    },
+    {
+      "name": "onshape-client",
+      "url": "https://pypi.org/project/onshape-client/",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": true
+    },
+    {
+      "name": "onshape-mcp",
+      "url": "https://github.com/BLamy/onshape-mcp",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": true,
+      "has_auth_support": true
+    }
+  ],
+  "gaps": [
+    "Most existing clients expose raw REST methods but do not provide a terminal workflow for CAD document triage, assembly inspection, and downstream export handoff.",
+    "Glassworks is excellent for endpoint discovery and examples, but it is browser-centered and not designed for repeatable agent runs, local search, or scripted delivery.",
+    "Existing SDKs do not make Onshape document/workspace/version/element IDs easy for agents to discover and reuse across CAD-to-rendering workflows."
+  ],
+  "patterns": [
+    "Onshape models are organized around document, workspace/version/microversion, and element IDs; useful CLIs must preserve that DWVME mental model.",
+    "API-key automation should support signed request headers and custom enterprise base URLs, while keeping keys in environment variables.",
+    "Export and translation workflows are central to downstream CAD interoperability with Blender, simulation tools, and manufacturing formats."
+  ],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-20T00:00:00Z",
+  "novel_features": [
+    {
+      "name": "CAD document triage for agents",
+      "command": "documents search",
+      "description": "Find recent CAD documents with compact structured fields that agents can carry into follow-up workspace, element, and export calls.",
+      "rationale": "Combines Onshape document search with Printing Press field selection, compact JSON, local cache provenance, and non-interactive defaults.",
+      "example": "onshape-pp-cli documents search --query Trailer --limit 5 --agent --select id,name,modifiedAt",
+      "why_it_matters": "Use this first when an agent needs to locate the right assembly or part studio without burning context on full document metadata.",
+      "group": "Agent-native CAD navigation"
+    },
+    {
+      "name": "Workspace-aware element routing",
+      "command": "elements",
+      "description": "Turn an Onshape document/workspace pair into a typed map of Part Studios, assemblies, BOM tabs, blobs, and application elements.",
+      "rationale": "Onshape's DWVME URL model is powerful but hard for agents; this command turns it into a compact routing table for later CAD operations.",
+      "example": "onshape-pp-cli elements --did 3cb6ad4256bb099a0e4813ab --wvm w --wvmid b3fe484986a689a317b7259b --agent --select id,name,elementType",
+      "why_it_matters": "Use this after choosing a document to identify which element should feed part inspection, assembly inspection, export, or rendering.",
+      "group": "Agent-native CAD navigation"
+    },
+    {
+      "name": "Assembly instance graph capture",
+      "command": "assemblies get",
+      "description": "Fetch an assembly definition and select just the instance graph fields needed for CAD review, BOM reasoning, or downstream Blender planning.",
+      "rationale": "Raw assembly responses are nested and verbose; field selection makes the assembly graph usable inside an agent context window.",
+      "example": "onshape-pp-cli assemblies get --did 3cb6ad4256bb099a0e4813ab --wvm w --wvmid b3fe484986a689a317b7259b --eid f22782a9f60e037e2f4d7c39 --agent --select rootAssembly.instances.id,rootAssembly.instances.name",
+      "why_it_matters": "Use this when an agent needs to understand assembly composition before exporting geometry or planning an animation/rendering scene.",
+      "group": "Assembly intelligence"
+    },
+    {
+      "name": "Part studio inventory for export decisions",
+      "command": "parts list",
+      "description": "List part IDs and names from a Part Studio so an agent can choose export targets without opening Onshape manually.",
+      "rationale": "Part IDs are the bridge between Onshape design structure and translation/export endpoints; the CLI makes them scriptable.",
+      "example": "onshape-pp-cli parts list --did 3cb6ad4256bb099a0e4813ab --wvm w --wvmid b3fe484986a689a317b7259b --eid 1753f0a84436bf2bc39d6da6 --agent --select name,partId",
+      "why_it_matters": "Use this before exporting a single component to Blender, CAM, simulation, or a rendering pipeline.",
+      "group": "Export readiness"
+    },
+    {
+      "name": "Offline CAD archive and search",
+      "command": "sync",
+      "description": "Hydrate a local SQLite mirror so agents can search and analyze previously seen Onshape data without repeated live API calls.",
+      "rationale": "Onshape is cloud-native; local sync gives agents memory across document searches, element lookups, and workflow runs.",
+      "example": "onshape-pp-cli sync --resources documents --latest-only --agent",
+      "why_it_matters": "Use this when an agent will work across many CAD documents or needs resilient offline search during a longer design/review session.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "CAD document triage for agents",
+      "command": "documents search",
+      "description": "Find recent CAD documents with compact structured fields that agents can carry into follow-up workspace, element, and export calls.",
+      "rationale": "Combines Onshape document search with Printing Press field selection, compact JSON, local cache provenance, and non-interactive defaults.",
+      "example": "onshape-pp-cli documents search --query Trailer --limit 5 --agent --select id,name,modifiedAt",
+      "why_it_matters": "Use this first when an agent needs to locate the right assembly or part studio without burning context on full document metadata.",
+      "group": "Agent-native CAD navigation"
+    },
+    {
+      "name": "Workspace-aware element routing",
+      "command": "elements",
+      "description": "Turn an Onshape document/workspace pair into a typed map of Part Studios, assemblies, BOM tabs, blobs, and application elements.",
+      "rationale": "Onshape's DWVME URL model is powerful but hard for agents; this command turns it into a compact routing table for later CAD operations.",
+      "example": "onshape-pp-cli elements --did 3cb6ad4256bb099a0e4813ab --wvm w --wvmid b3fe484986a689a317b7259b --agent --select id,name,elementType",
+      "why_it_matters": "Use this after choosing a document to identify which element should feed part inspection, assembly inspection, export, or rendering.",
+      "group": "Agent-native CAD navigation"
+    },
+    {
+      "name": "Assembly instance graph capture",
+      "command": "assemblies get",
+      "description": "Fetch an assembly definition and select just the instance graph fields needed for CAD review, BOM reasoning, or downstream Blender planning.",
+      "rationale": "Raw assembly responses are nested and verbose; field selection makes the assembly graph usable inside an agent context window.",
+      "example": "onshape-pp-cli assemblies get --did 3cb6ad4256bb099a0e4813ab --wvm w --wvmid b3fe484986a689a317b7259b --eid f22782a9f60e037e2f4d7c39 --agent --select rootAssembly.instances.id,rootAssembly.instances.name",
+      "why_it_matters": "Use this when an agent needs to understand assembly composition before exporting geometry or planning an animation/rendering scene.",
+      "group": "Assembly intelligence"
+    },
+    {
+      "name": "Part studio inventory for export decisions",
+      "command": "parts list",
+      "description": "List part IDs and names from a Part Studio so an agent can choose export targets without opening Onshape manually.",
+      "rationale": "Part IDs are the bridge between Onshape design structure and translation/export endpoints; the CLI makes them scriptable.",
+      "example": "onshape-pp-cli parts list --did 3cb6ad4256bb099a0e4813ab --wvm w --wvmid b3fe484986a689a317b7259b --eid 1753f0a84436bf2bc39d6da6 --agent --select name,partId",
+      "why_it_matters": "Use this before exporting a single component to Blender, CAM, simulation, or a rendering pipeline.",
+      "group": "Export readiness"
+    },
+    {
+      "name": "Offline CAD archive and search",
+      "command": "sync",
+      "description": "Hydrate a local SQLite mirror so agents can search and analyze previously seen Onshape data without repeated live API calls.",
+      "rationale": "Onshape is cloud-native; local sync gives agents memory across document searches, element lookups, and workflow runs.",
+      "example": "onshape-pp-cli sync --resources documents --latest-only --agent",
+      "why_it_matters": "Use this when an agent will work across many CAD documents or needs resilient offline search during a longer design/review session.",
+      "group": "Local state that compounds"
+    }
+  ],
+  "narrative": {
+    "display_name": "Onshape",
+    "headline": "Cloud CAD inspection for agents: discover documents, route through DWVME IDs, inspect assemblies and parts, and prepare geometry for export workflows.",
+    "value_prop": "Onshape is unusually strong for API-driven CAD: the Developer Portal explains the document model, Glassworks exposes the live endpoint catalog, and API keys support repeatable automation. This CLI turns that into an agent-friendly terminal workflow for CAD assemblies, part studios, geometry export, and future Blender/rendering handoff.",
+    "auth_narrative": "Onshape automation can use API keys for personal/internal tools. This CLI reads ONSHAPE_ACCESS_KEY and ONSHAPE_SECRET_KEY, also accepting the user's ONSHAPE_API_ACCESSKEY and ONSHAPE_API_SECRETKEY aliases, and signs requests with Onshape's request-signature headers.",
+    "quickstart": [
+      {
+        "command": "onshape-pp-cli doctor --json",
+        "comment": "Confirm config, key presence, and API reachability before touching CAD data."
+      },
+      {
+        "command": "onshape-pp-cli documents search --query Trailer --limit 5 --agent --select id,name,modifiedAt",
+        "comment": "Find the likely CAD document while keeping output small."
+      },
+      {
+        "command": "onshape-pp-cli elements --did 3cb6ad4256bb099a0e4813ab --wvm w --wvmid b3fe484986a689a317b7259b --agent --select id,name,elementType",
+        "comment": "Route from the document/workspace to Part Studios, assemblies, BOMs, blobs, and application tabs."
+      },
+      {
+        "command": "onshape-pp-cli assemblies get --did 3cb6ad4256bb099a0e4813ab --wvm w --wvmid b3fe484986a689a317b7259b --eid f22782a9f60e037e2f4d7c39 --agent --select rootAssembly.instances.id,rootAssembly.instances.name",
+        "comment": "Inspect assembly instances before export or rendering."
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Commands say auth is missing even though API keys are available",
+        "fix": "Export ONSHAPE_ACCESS_KEY and ONSHAPE_SECRET_KEY, or use the accepted aliases ONSHAPE_API_ACCESSKEY and ONSHAPE_API_SECRETKEY."
+      },
+      {
+        "symptom": "A document ID works in the browser but element calls fail",
+        "fix": "Run `workspaces list` or `versions list`, then pass the matching `--wvm` and `--wvmid`; Onshape URLs distinguish workspaces, versions, and microversions."
+      },
+      {
+        "symptom": "Assembly or part output is too large for an agent",
+        "fix": "Add `--agent --select` with dotted fields such as `rootAssembly.instances.id,rootAssembly.instances.name` or `name,partId`."
+      },
+      {
+        "symptom": "Enterprise stack keys fail on cad.onshape.com",
+        "fix": "Set ONSHAPE_BASE_URL to the matching enterprise API base URL, for example `https://companyName.onshape.com/api/v6`."
+      }
+    ],
+    "when_to_use": "Use the Onshape CLI when an agent needs to inspect cloud CAD documents, assemblies, parts, versions, and export targets without opening a browser. It is especially useful before downstream Blender rendering, animation, simulation, or manufacturing workflows because it turns Onshape IDs and geometry structure into compact, scriptable JSON.",
+    "recipes": [
+      {
+        "title": "Find a CAD assembly and keep only routing fields",
+        "command": "onshape-pp-cli documents search --query Trailer --limit 5 --agent --select id,name,defaultWorkspace.id",
+        "explanation": "Use this as the first step in a CAD review so the agent has document and workspace IDs without full metadata."
+      },
+      {
+        "title": "Map tabs inside a workspace",
+        "command": "onshape-pp-cli elements --did 3cb6ad4256bb099a0e4813ab --wvm w --wvmid b3fe484986a689a317b7259b --agent --select id,name,elementType",
+        "explanation": "This produces the compact element routing table that later part, assembly, export, and rendering steps need."
+      },
+      {
+        "title": "Inspect an assembly graph for animation planning",
+        "command": "onshape-pp-cli assemblies get --did 3cb6ad4256bb099a0e4813ab --wvm w --wvmid b3fe484986a689a317b7259b --eid f22782a9f60e037e2f4d7c39 --agent --select rootAssembly.instances.id,rootAssembly.instances.name",
+        "explanation": "Use dotted field selection to keep nested assembly data small enough for an agent context window."
+      },
+      {
+        "title": "List part export targets",
+        "command": "onshape-pp-cli parts list --did 3cb6ad4256bb099a0e4813ab --wvm w --wvmid b3fe484986a689a317b7259b --eid 1753f0a84436bf2bc39d6da6 --agent --select name,partId",
+        "explanation": "Part IDs are the practical handoff point for single-part export and later Blender import workflows."
+      }
+    ],
+    "trigger_phrases": [
+      "inspect my Onshape assembly",
+      "find Onshape parts",
+      "export Onshape geometry",
+      "prepare CAD for Blender",
+      "review Onshape document structure"
+    ]
+  }
+}

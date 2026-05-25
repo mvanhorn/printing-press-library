@@ -1,0 +1,45 @@
+{
+  "manifest_version": "0.3",
+  "name": "onshape-pp-mcp",
+  "display_name": "Onshape",
+  "version": "4.9.0",
+  "description": "Onshape API surface as MCP tools.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/onshape-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/onshape-pp-mcp",
+      "args": [],
+      "env": {
+        "ONSHAPE_ACCESS_KEY": "${user_config.onshape_access_key}",
+        "ONSHAPE_SECRET_KEY": "${user_config.onshape_secret_key}"
+      }
+    }
+  },
+  "user_config": {
+    "onshape_access_key": {
+      "type": "string",
+      "title": "ONSHAPE_ACCESS_KEY",
+      "description": "Optional. Sets ONSHAPE_ACCESS_KEY for the Onshape MCP server.",
+      "sensitive": true
+    },
+    "onshape_secret_key": {
+      "type": "string",
+      "title": "ONSHAPE_SECRET_KEY",
+      "description": "Optional. Sets ONSHAPE_SECRET_KEY for the Onshape MCP server.",
+      "sensitive": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

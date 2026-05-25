@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-19T22:47:38.918844469Z",
+  "printing_press_version": "4.9.0",
+  "api_name": "onshape",
+  "display_name": "Onshape",
+  "cli_name": "onshape-pp-cli",
+  "owner": "markimus",
+  "printer": "mhintz1980",
+  "printer_name": "Markimus",
+  "spec_path": "onshape.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:73c58f061b2eaa002e06efffbc49ebe270bb04c6e002e65d85bf0744044c85a7",
+  "run_id": "20260519-224738",
+  "mcp_binary": "onshape-pp-mcp",
+  "mcp_tool_count": 18,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "basic",
+  "auth_env_vars": [
+    "ONSHAPE_ACCESS_KEY",
+    "ONSHAPE_SECRET_KEY"
+  ],
+  "novel_features": [
+    {
+      "name": "CAD document triage for agents",
+      "command": "documents search",
+      "description": "Find recent CAD documents with compact structured fields that agents can carry into follow-up workspace, element, and export calls."
+    },
+    {
+      "name": "Workspace-aware element routing",
+      "command": "elements",
+      "description": "Turn an Onshape document/workspace pair into a typed map of Part Studios, assemblies, BOM tabs, blobs, and application elements."
+    },
+    {
+      "name": "Assembly instance graph capture",
+      "command": "assemblies get",
+      "description": "Fetch an assembly definition and select just the instance graph fields needed for CAD review, BOM reasoning, or downstream Blender planning."
+    },
+    {
+      "name": "Part studio inventory for export decisions",
+      "command": "parts list",
+      "description": "List part IDs and names from a Part Studio so an agent can choose export targets without opening Onshape manually."
+    },
+    {
+      "name": "Offline CAD archive and search",
+      "command": "sync",
+      "description": "Hydrate a local SQLite mirror so agents can search and analyze previously seen Onshape data without repeated live API calls."
+    }
+  ]
+}

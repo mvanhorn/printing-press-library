@@ -1,0 +1,546 @@
+name: onshape
+description: "Onshape cloud CAD API CLI — manage documents, parts, assemblies, and exports"
+version: "0.1.0"
+base_url: "https://cad.onshape.com/api/v6"
+
+auth:
+  type: basic
+  env_vars:
+    - ONSHAPE_ACCESS_KEY
+    - ONSHAPE_SECRET_KEY
+
+config:
+  format: toml
+  path: "~/.config/onshape-cli/config.toml"
+
+resources:
+  documents:
+    description: "Search and manage Onshape documents"
+    endpoints:
+      search:
+        method: GET
+        path: "/documents"
+        description: "Search documents by name or query"
+        params:
+          - name: query
+            type: string
+            description: "Search query string"
+          - name: type
+            type: string
+            description: "Document type filter (document, assembly, partstudio, drawing)"
+          - name: owner
+            type: string
+            description: "Owner filter (user ID or 'me')"
+          - name: sort_column
+            type: string
+            default: "modifiedAt"
+            description: "Sort field (createdAt, modifiedAt, name)"
+          - name: sort_order
+            type: string
+            default: "desc"
+            description: "Sort order (asc, desc)"
+          - name: limit
+            type: int
+            default: 20
+            description: "Max results to return"
+          - name: offset
+            type: int
+            description: "Pagination offset"
+        response:
+          type: array
+          item: Document
+        pagination:
+          type: offset
+          offset_field: "offset"
+
+      get:
+        method: GET
+        path: "/documents/{did}"
+        description: "Get document metadata by ID"
+        params:
+          - name: did
+            type: string
+            required: true
+            positional: true
+            description: "Document ID"
+        response:
+          type: object
+          item: Document
+
+      create:
+        method: POST
+        path: "/documents"
+        description: "Create a new document"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "Document name"
+          - name: description
+            type: string
+            description: "Document description"
+          - name: is_public
+            type: bool
+            description: "Make document public"
+        response:
+          type: object
+          item: Document
+
+      delete:
+        method: DELETE
+        path: "/documents/{did}"
+        description: "Delete a document"
+        params:
+          - name: did
+            type: string
+            required: true
+            positional: true
+            description: "Document ID"
+
+  workspaces:
+    description: "Manage workspaces within a document"
+    endpoints:
+      list:
+        method: GET
+        path: "/documents/d/{did}/workspaces"
+        description: "List workspaces in a document"
+        params:
+          - name: did
+            type: string
+            required: true
+            description: "Document ID"
+        response:
+          type: array
+          item: Workspace
+
+      create:
+        method: POST
+        path: "/documents/d/{did}/workspaces"
+        description: "Create a new workspace"
+        params:
+          - name: did
+            type: string
+            required: true
+            description: "Document ID"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "Workspace name"
+          - name: description
+            type: string
+            description: "Workspace description"
+        response:
+          type: object
+          item: Workspace
+
+      delete:
+        method: DELETE
+        path: "/documents/d/{did}/workspaces/{wid}"
+        description: "Delete a workspace"
+        params:
+          - name: did
+            type: string
+            required: true
+            description: "Document ID"
+          - name: wid
+            type: string
+            required: true
+            description: "Workspace ID"
+
+  versions:
+    description: "Manage versions within a document"
+    endpoints:
+      list:
+        method: GET
+        path: "/documents/d/{did}/versions"
+        description: "List versions in a document"
+        params:
+          - name: did
+            type: string
+            required: true
+            description: "Document ID"
+        response:
+          type: array
+          item: Version
+
+      create:
+        method: POST
+        path: "/documents/d/{did}/versions"
+        description: "Create a new version"
+        params:
+          - name: did
+            type: string
+            required: true
+            description: "Document ID"
+        body:
+          - name: name
+            type: string
+            required: true
+            description: "Version name"
+          - name: description
+            type: string
+            description: "Version description"
+          - name: workspace_id
+            type: string
+            required: true
+            description: "Source workspace ID"
+        response:
+          type: object
+          item: Version
+
+  elements:
+    description: "List elements (tabs) in a document"
+    endpoints:
+      list:
+        method: GET
+        path: "/documents/d/{did}/{wvm}/{wvmid}/elements"
+        description: "List elements in a document version/workspace"
+        params:
+          - name: did
+            type: string
+            required: true
+            description: "Document ID"
+          - name: wvm
+            type: string
+            required: true
+            default: "w"
+            description: "Version type: w (workspace), v (version), m (microversion)"
+          - name: wvmid
+            type: string
+            required: true
+            description: "Workspace, version, or microversion ID"
+          - name: element_type
+            type: string
+            description: "Filter by type (PARTSTUDIO, ASSEMBLY, DRAWING, CONFIGURATION)"
+        response:
+          type: array
+          item: Element
+
+  parts:
+    description: "Inspect parts and their metadata"
+    endpoints:
+      list:
+        method: GET
+        path: "/parts/d/{did}/{wvm}/{wvmid}/e/{eid}"
+        description: "List parts in an element"
+        params:
+          - name: did
+            type: string
+            required: true
+            description: "Document ID"
+          - name: wvm
+            type: string
+            required: true
+            default: "w"
+            description: "Version type: w (workspace), v (version), m (microversion)"
+          - name: wvmid
+            type: string
+            required: true
+            description: "Workspace, version, or microversion ID"
+          - name: eid
+            type: string
+            required: true
+            description: "Element ID"
+          - name: with_thumbnails
+            type: bool
+            description: "Include thumbnail URLs"
+        response:
+          type: array
+          item: Part
+
+      get:
+        method: GET
+        path: "/parts/d/{did}/{wvm}/{wvmid}/e/{eid}/partid/{partid}"
+        description: "Get part metadata"
+        params:
+          - name: did
+            type: string
+            required: true
+            description: "Document ID"
+          - name: wvm
+            type: string
+            required: true
+            default: "w"
+            description: "Version type"
+          - name: wvmid
+            type: string
+            required: true
+            description: "Workspace/version/microversion ID"
+          - name: eid
+            type: string
+            required: true
+            description: "Element ID"
+          - name: partid
+            type: string
+            required: true
+            description: "Part ID"
+        response:
+          type: object
+          item: Part
+
+  assemblies:
+    description: "Inspect assemblies and their structure"
+    endpoints:
+      list:
+        method: GET
+        path: "/assemblies/d/{did}/{wvm}/{wvmid}"
+        description: "List assemblies in a document"
+        params:
+          - name: did
+            type: string
+            required: true
+            description: "Document ID"
+          - name: wvm
+            type: string
+            required: true
+            default: "w"
+            description: "Version type"
+          - name: wvmid
+            type: string
+            required: true
+            description: "Workspace/version/microversion ID"
+        response:
+          type: array
+          item: Assembly
+
+      get:
+        method: GET
+        path: "/assemblies/d/{did}/{wvm}/{wvmid}/e/{eid}"
+        description: "Get assembly definition and instances"
+        params:
+          - name: did
+            type: string
+            required: true
+            description: "Document ID"
+          - name: wvm
+            type: string
+            required: true
+            default: "w"
+            description: "Version type"
+          - name: wvmid
+            type: string
+            required: true
+            description: "Workspace/version/microversion ID"
+          - name: eid
+            type: string
+            required: true
+            description: "Element (assembly) ID"
+        response:
+          type: object
+          item: Assembly
+
+  exports:
+    description: "Export geometry and drawings"
+    endpoints:
+      part:
+        method: GET
+        path: "/parts/d/{did}/{wvm}/{wvmid}/e/{eid}/partid/{partid}/parasolid"
+        description: "Export a single part"
+        params:
+          - name: did
+            type: string
+            required: true
+            description: "Document ID"
+          - name: wvm
+            type: string
+            required: true
+            default: "w"
+            description: "Version type"
+          - name: wvmid
+            type: string
+            required: true
+            description: "Workspace/version/microversion ID"
+          - name: eid
+            type: string
+            required: true
+            description: "Element ID"
+          - name: partid
+            type: string
+            required: true
+            description: "Part ID"
+          - name: format
+            type: string
+            default: "STEP"
+            description: "Export format (STEP, STL, IGES, PARASOLID, OBJ)"
+        response:
+          type: binary
+
+      element:
+        method: GET
+        path: "/partstudios/d/{did}/{wvm}/{wvmid}/e/{eid}/parasolid"
+        description: "Export all parts in a part studio"
+        params:
+          - name: did
+            type: string
+            required: true
+            description: "Document ID"
+          - name: wvm
+            type: string
+            required: true
+            default: "w"
+            description: "Version type"
+          - name: wvmid
+            type: string
+            required: true
+            description: "Workspace/version/microversion ID"
+          - name: eid
+            type: string
+            required: true
+            description: "Element ID"
+          - name: format
+            type: string
+            default: "STEP"
+            description: "Export format"
+        response:
+          type: binary
+
+  translations:
+    description: "Async translation/export jobs"
+    endpoints:
+      create:
+        method: POST
+        path: "/translations/d/{did}/{wvm}/{wvmid}"
+        description: "Create a translation (export) job"
+        params:
+          - name: did
+            type: string
+            required: true
+            description: "Document ID"
+          - name: wvm
+            type: string
+            required: true
+            default: "w"
+            description: "Version type"
+          - name: wvmid
+            type: string
+            required: true
+            description: "Workspace/version/microversion ID"
+        body:
+          - name: format_name
+            type: string
+            required: true
+            description: "Target format (STEP, STL, IGES, PARASOLID, PDF, PNG, DWG, DXF)"
+          - name: element_id
+            type: string
+            description: "Specific element to export"
+          - name: part_id
+            type: string
+            description: "Specific part to export"
+          - name: assembly_id
+            type: string
+            description: "Assembly to export"
+          - name: store_in_document
+            type: bool
+            description: "Store result in document"
+        response:
+          type: object
+          item: Translation
+
+      get:
+        method: GET
+        path: "/translations/{tid}"
+        description: "Check translation job status"
+        params:
+          - name: tid
+            type: string
+            required: true
+            positional: true
+            description: "Translation ID"
+        response:
+          type: object
+          item: Translation
+
+types:
+  Document:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: description
+        type: string
+      - name: owner
+        type: string
+      - name: created_at
+        type: string
+      - name: modified_at
+        type: string
+      - name: is_public
+        type: bool
+      - name: default_workspace
+        type: string
+
+  Workspace:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: description
+        type: string
+      - name: created_at
+        type: string
+      - name: modified_at
+        type: string
+
+  Version:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: description
+        type: string
+      - name: created_at
+        type: string
+      - name: microversion
+        type: string
+
+  Element:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: type
+        type: string
+      - name: data_type
+        type: string
+
+  Part:
+    fields:
+      - name: part_id
+        type: string
+      - name: name
+        type: string
+      - name: body_type
+        type: string
+      - name: material
+        type: string
+      - name: mass
+        type: float
+      - name: bounding_box
+        type: string
+
+  Assembly:
+    fields:
+      - name: id
+        type: string
+      - name: name
+        type: string
+      - name: instances
+        type: array
+
+  Translation:
+    fields:
+      - name: id
+        type: string
+      - name: state
+        type: string
+      - name: created_at
+        type: string
+      - name: request_state
+        type: string
+      - name: result_data
+        type: array

@@ -1,0 +1,606 @@
+{
+  "api_name": "onshape",
+  "base_url": "https://cad.onshape.com/api/v6",
+  "description": "Onshape cloud CAD API CLI \u2014 manage documents, parts, assemblies, and exports",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "basic",
+    "env_vars": [
+      "ONSHAPE_ACCESS_KEY",
+      "ONSHAPE_SECRET_KEY"
+    ],
+    "env_var_specs": [
+      {
+        "name": "ONSHAPE_ACCESS_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      },
+      {
+        "name": "ONSHAPE_SECRET_KEY",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "assemblies_get",
+      "description": "Get assembly definition and instances. Required: did, wvm (default: w), wvmid, eid. Returns the Assembly.",
+      "method": "GET",
+      "path": "/assemblies/d/{did}/{wvm}/{wvmid}/e/{eid}",
+      "params": [
+        {
+          "name": "did",
+          "type": "string",
+          "location": "path",
+          "description": "Document ID",
+          "required": true
+        },
+        {
+          "name": "wvm",
+          "type": "string",
+          "location": "path",
+          "description": "Version type",
+          "required": true
+        },
+        {
+          "name": "wvmid",
+          "type": "string",
+          "location": "path",
+          "description": "Workspace/version/microversion ID",
+          "required": true
+        },
+        {
+          "name": "eid",
+          "type": "string",
+          "location": "path",
+          "description": "Element (assembly) ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "assemblies_list",
+      "description": "List assemblies in a document. Required: did, wvm (default: w), wvmid. Returns array of Assembly.",
+      "method": "GET",
+      "path": "/assemblies/d/{did}/{wvm}/{wvmid}",
+      "params": [
+        {
+          "name": "did",
+          "type": "string",
+          "location": "path",
+          "description": "Document ID",
+          "required": true
+        },
+        {
+          "name": "wvm",
+          "type": "string",
+          "location": "path",
+          "description": "Version type",
+          "required": true
+        },
+        {
+          "name": "wvmid",
+          "type": "string",
+          "location": "path",
+          "description": "Workspace/version/microversion ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "documents_create",
+      "description": "Create a new document. Required: name. Optional: description, is_public. Returns the new Document.",
+      "method": "POST",
+      "path": "/documents",
+      "params": [
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Document name",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Document description"
+        },
+        {
+          "name": "is_public",
+          "type": "bool",
+          "location": "body",
+          "description": "Make document public"
+        }
+      ]
+    },
+    {
+      "name": "documents_delete",
+      "description": "Delete a document by ID. This is a destructive operation and cannot be undone. Required: did.",
+      "method": "DELETE",
+      "path": "/documents/{did}",
+      "params": [
+        {
+          "name": "did",
+          "type": "string",
+          "location": "path",
+          "description": "Document ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "documents_get",
+      "description": "Get document metadata by ID. Required: did. Returns the Document.",
+      "method": "GET",
+      "path": "/documents/{did}",
+      "params": [
+        {
+          "name": "did",
+          "type": "string",
+          "location": "path",
+          "description": "Document ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "documents_search",
+      "description": "Search documents by name or query. Optional: query, type, owner (plus 4 more). Returns array of Document.",
+      "method": "GET",
+      "path": "/documents",
+      "params": [
+        {
+          "name": "query",
+          "type": "string",
+          "location": "query",
+          "description": "Search query string"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "query",
+          "description": "Document type filter (document, assembly, partstudio, drawing)"
+        },
+        {
+          "name": "owner",
+          "type": "string",
+          "location": "query",
+          "description": "Owner filter (user ID or 'me')"
+        },
+        {
+          "name": "sort_column",
+          "type": "string",
+          "location": "query",
+          "description": "Sort field (createdAt, modifiedAt, name)"
+        },
+        {
+          "name": "sort_order",
+          "type": "string",
+          "location": "query",
+          "description": "Sort order (asc, desc)"
+        },
+        {
+          "name": "limit",
+          "type": "int",
+          "location": "query",
+          "description": "Max results to return"
+        },
+        {
+          "name": "offset",
+          "type": "int",
+          "location": "query",
+          "description": "Pagination offset"
+        }
+      ]
+    },
+    {
+      "name": "elements_list",
+      "description": "List elements in a document version/workspace. Required: did, wvm (default: w), wvmid. Optional: element_type. Returns array of Element.",
+      "method": "GET",
+      "path": "/documents/d/{did}/{wvm}/{wvmid}/elements",
+      "params": [
+        {
+          "name": "did",
+          "type": "string",
+          "location": "path",
+          "description": "Document ID",
+          "required": true
+        },
+        {
+          "name": "wvm",
+          "type": "string",
+          "location": "path",
+          "description": "Version type: w (workspace), v (version), m (microversion)",
+          "required": true
+        },
+        {
+          "name": "wvmid",
+          "type": "string",
+          "location": "path",
+          "description": "Workspace, version, or microversion ID",
+          "required": true
+        },
+        {
+          "name": "element_type",
+          "type": "string",
+          "location": "query",
+          "description": "Filter by type (PARTSTUDIO, ASSEMBLY, DRAWING, CONFIGURATION)"
+        }
+      ]
+    },
+    {
+      "name": "exports_element",
+      "description": "Export all parts in a part studio. Required: did, wvm (default: w), wvmid, eid. Optional: format (default: STEP).",
+      "method": "GET",
+      "path": "/partstudios/d/{did}/{wvm}/{wvmid}/e/{eid}/parasolid",
+      "params": [
+        {
+          "name": "did",
+          "type": "string",
+          "location": "path",
+          "description": "Document ID",
+          "required": true
+        },
+        {
+          "name": "wvm",
+          "type": "string",
+          "location": "path",
+          "description": "Version type",
+          "required": true
+        },
+        {
+          "name": "wvmid",
+          "type": "string",
+          "location": "path",
+          "description": "Workspace/version/microversion ID",
+          "required": true
+        },
+        {
+          "name": "eid",
+          "type": "string",
+          "location": "path",
+          "description": "Element ID",
+          "required": true
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Export format"
+        }
+      ]
+    },
+    {
+      "name": "exports_part",
+      "description": "Export a single part. Required: did, wvm (default: w), wvmid, eid, partid. Optional: format (default: STEP).",
+      "method": "GET",
+      "path": "/parts/d/{did}/{wvm}/{wvmid}/e/{eid}/partid/{partid}/parasolid",
+      "params": [
+        {
+          "name": "did",
+          "type": "string",
+          "location": "path",
+          "description": "Document ID",
+          "required": true
+        },
+        {
+          "name": "wvm",
+          "type": "string",
+          "location": "path",
+          "description": "Version type",
+          "required": true
+        },
+        {
+          "name": "wvmid",
+          "type": "string",
+          "location": "path",
+          "description": "Workspace/version/microversion ID",
+          "required": true
+        },
+        {
+          "name": "eid",
+          "type": "string",
+          "location": "path",
+          "description": "Element ID",
+          "required": true
+        },
+        {
+          "name": "partid",
+          "type": "string",
+          "location": "path",
+          "description": "Part ID",
+          "required": true
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "location": "query",
+          "description": "Export format (STEP, STL, IGES, PARASOLID, OBJ)"
+        }
+      ]
+    },
+    {
+      "name": "parts_get",
+      "description": "Get part metadata. Required: did, wvm (default: w), wvmid, eid, partid. Returns the Part.",
+      "method": "GET",
+      "path": "/parts/d/{did}/{wvm}/{wvmid}/e/{eid}/partid/{partid}",
+      "params": [
+        {
+          "name": "did",
+          "type": "string",
+          "location": "path",
+          "description": "Document ID",
+          "required": true
+        },
+        {
+          "name": "wvm",
+          "type": "string",
+          "location": "path",
+          "description": "Version type",
+          "required": true
+        },
+        {
+          "name": "wvmid",
+          "type": "string",
+          "location": "path",
+          "description": "Workspace/version/microversion ID",
+          "required": true
+        },
+        {
+          "name": "eid",
+          "type": "string",
+          "location": "path",
+          "description": "Element ID",
+          "required": true
+        },
+        {
+          "name": "partid",
+          "type": "string",
+          "location": "path",
+          "description": "Part ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "parts_list",
+      "description": "List parts in an element. Required: did, wvm (default: w), wvmid, eid. Optional: with_thumbnails. Returns array of Part.",
+      "method": "GET",
+      "path": "/parts/d/{did}/{wvm}/{wvmid}/e/{eid}",
+      "params": [
+        {
+          "name": "did",
+          "type": "string",
+          "location": "path",
+          "description": "Document ID",
+          "required": true
+        },
+        {
+          "name": "wvm",
+          "type": "string",
+          "location": "path",
+          "description": "Version type: w (workspace), v (version), m (microversion)",
+          "required": true
+        },
+        {
+          "name": "wvmid",
+          "type": "string",
+          "location": "path",
+          "description": "Workspace, version, or microversion ID",
+          "required": true
+        },
+        {
+          "name": "eid",
+          "type": "string",
+          "location": "path",
+          "description": "Element ID",
+          "required": true
+        },
+        {
+          "name": "with_thumbnails",
+          "type": "bool",
+          "location": "query",
+          "description": "Include thumbnail URLs"
+        }
+      ]
+    },
+    {
+      "name": "translations_create",
+      "description": "Create a translation (export) job. Required: did, wvm (default: w), wvmid, format_name. Optional: element_id, part_id, assembly_id (plus 1 more). Returns the new Translation.",
+      "method": "POST",
+      "path": "/translations/d/{did}/{wvm}/{wvmid}",
+      "params": [
+        {
+          "name": "did",
+          "type": "string",
+          "location": "path",
+          "description": "Document ID",
+          "required": true
+        },
+        {
+          "name": "wvm",
+          "type": "string",
+          "location": "path",
+          "description": "Version type",
+          "required": true
+        },
+        {
+          "name": "wvmid",
+          "type": "string",
+          "location": "path",
+          "description": "Workspace/version/microversion ID",
+          "required": true
+        },
+        {
+          "name": "format_name",
+          "type": "string",
+          "location": "body",
+          "description": "Target format (STEP, STL, IGES, PARASOLID, PDF, PNG, DWG, DXF)",
+          "required": true
+        },
+        {
+          "name": "element_id",
+          "type": "string",
+          "location": "body",
+          "description": "Specific element to export"
+        },
+        {
+          "name": "part_id",
+          "type": "string",
+          "location": "body",
+          "description": "Specific part to export"
+        },
+        {
+          "name": "assembly_id",
+          "type": "string",
+          "location": "body",
+          "description": "Assembly to export"
+        },
+        {
+          "name": "store_in_document",
+          "type": "bool",
+          "location": "body",
+          "description": "Store result in document"
+        }
+      ]
+    },
+    {
+      "name": "translations_get",
+      "description": "Check translation job status. Required: tid. Returns the Translation.",
+      "method": "GET",
+      "path": "/translations/{tid}",
+      "params": [
+        {
+          "name": "tid",
+          "type": "string",
+          "location": "path",
+          "description": "Translation ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "versions_create",
+      "description": "Create a new version. Required: did, name, workspace_id. Optional: description. Returns the new Version.",
+      "method": "POST",
+      "path": "/documents/d/{did}/versions",
+      "params": [
+        {
+          "name": "did",
+          "type": "string",
+          "location": "path",
+          "description": "Document ID",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Version name",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Version description"
+        },
+        {
+          "name": "workspace_id",
+          "type": "string",
+          "location": "body",
+          "description": "Source workspace ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "versions_list",
+      "description": "List versions in a document. Required: did. Returns array of Version.",
+      "method": "GET",
+      "path": "/documents/d/{did}/versions",
+      "params": [
+        {
+          "name": "did",
+          "type": "string",
+          "location": "path",
+          "description": "Document ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workspaces_create",
+      "description": "Create a new workspace. Required: did, name. Optional: description. Returns the new Workspace.",
+      "method": "POST",
+      "path": "/documents/d/{did}/workspaces",
+      "params": [
+        {
+          "name": "did",
+          "type": "string",
+          "location": "path",
+          "description": "Document ID",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "Workspace name",
+          "required": true
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Workspace description"
+        }
+      ]
+    },
+    {
+      "name": "workspaces_delete",
+      "description": "Delete a workspace by ID. This is a destructive operation and cannot be undone. Required: did, wid.",
+      "method": "DELETE",
+      "path": "/documents/d/{did}/workspaces/{wid}",
+      "params": [
+        {
+          "name": "did",
+          "type": "string",
+          "location": "path",
+          "description": "Document ID",
+          "required": true
+        },
+        {
+          "name": "wid",
+          "type": "string",
+          "location": "path",
+          "description": "Workspace ID",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "workspaces_list",
+      "description": "List workspaces in a document. Required: did. Returns array of Workspace.",
+      "method": "GET",
+      "path": "/documents/d/{did}/workspaces",
+      "params": [
+        {
+          "name": "did",
+          "type": "string",
+          "location": "path",
+          "description": "Document ID",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

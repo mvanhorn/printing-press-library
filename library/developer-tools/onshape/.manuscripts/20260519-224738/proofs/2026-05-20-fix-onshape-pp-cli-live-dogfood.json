@@ -1,0 +1,1589 @@
+{
+  "dir": "/home/markimus/printing-press/library/onshape",
+  "binary": "/home/markimus/printing-press/library/onshape/build/stage/bin/onshape-pp-cli",
+  "level": "full",
+  "verdict": "PASS",
+  "matrix_size": 90,
+  "passed": 90,
+  "failed": 0,
+  "skipped": 57,
+  "commands": [
+    "analytics",
+    "api",
+    "assemblies get",
+    "assemblies list",
+    "doctor",
+    "documents create",
+    "documents delete",
+    "documents get",
+    "documents search",
+    "elements",
+    "export",
+    "exports element",
+    "exports part",
+    "feedback list",
+    "import",
+    "parts get",
+    "parts list",
+    "profile delete",
+    "profile list",
+    "profile save",
+    "profile show",
+    "profile use",
+    "search",
+    "sync",
+    "tail",
+    "translations create",
+    "translations get",
+    "versions create",
+    "versions list",
+    "which",
+    "workflow archive",
+    "workflow status",
+    "workspaces create",
+    "workspaces delete",
+    "workspaces list"
+  ],
+  "tests": [
+    {
+      "command": "analytics",
+      "kind": "help",
+      "args": [
+        "analytics",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Analyze locally synced data with count, group-by, and summary operations.\nData must be synced first with the sync command.\n\nUsage:\n  onshape-pp-cli analytics [flags]\n\nExamples:\n  # Count records by type\n  onshape-pp-cli analytics --type messages\n\n  # Group by a field\n  onshape-pp-cli analytics --type messages --group-by author_id\n\n  # Top 10 most frequent values\n  onshape-pp-cli analytics --type messages --group-by channel_id --limit 10 --json\n\nFlags:\n      --db string         Database path\n      --group-by string   Field to group by\n  -h, --help              help for analytics\n      --limit int         Max groups to show (default 25)\n      --type string       Resource type to analyze\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'onshape-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "happy_path",
+      "args": [
+        "analytics",
+        "--type",
+        "messages"
+      ],
+      "status": "pass",
+      "output_sample": "messages: 0 records\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "json_fidelity",
+      "args": [
+        "analytics",
+        "--type",
+        "messages",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"count\": 0,\n  \"resource_type\": \"messages\"\n}\n"
+    },
+    {
+      "command": "analytics",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "api",
+      "kind": "help",
+      "args": [
+        "api",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Browse and call any API endpoint using the raw interface names.\n\nThe friendly top-level commands cover the most common operations.\nThis command provides access to ALL endpoints for power users and\nagents that need full API coverage.\n\nRun 'api' with no arguments to list all interfaces.\nRun 'api \u003cinterface\u003e' to see that interface's methods.\n\nUsage:\n  onshape-pp-cli api [interface] [flags]\n\nExamples:\n  # List all available interfaces\n  onshape-pp-cli api\n\n  # Show methods for a specific interface\n  onshape-pp-cli api \u003cinterface-name\u003e\n\nFlags:\n  -h, --help   help for api\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'onshape-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "api",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [api] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "api",
+      "kind": "error_path",
+      "args": [
+        "api",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: interface \"__printing_press_invalid__\" not found. Run 'onshape-pp-cli api' to list all interfaces\n"
+    },
+    {
+      "command": "assemblies get",
+      "kind": "help",
+      "args": [
+        "assemblies",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get assembly definition and instances\n\nUsage:\n  onshape-pp-cli assemblies get [flags]\n\nExamples:\n  onshape-pp-cli assemblies get --did 3cb6ad4256bb099a0e4813ab --wvm w --wvmid b3fe484986a689a317b7259b --eid f22782a9f60e037e2f4d7c39\n\nFlags:\n      --did string     Document ID\n      --eid string     Element (assembly) ID\n  -h, --help           help for get\n      --wvm string     Version type (default \"w\")\n      --wvmid string   Workspace/version/microversion ID\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'onshape-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "assemblies get",
+      "kind": "happy_path",
+      "args": [
+        "assemblies",
+        "get",
+        "--did",
+        "3cb6ad4256bb099a0e4813ab",
+        "--wvm",
+        "w",
+        "--wvmid",
+        "b3fe484986a689a317b7259b",
+        "--eid",
+        "f22782a9f60e037e2f4d7c39"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"rootAssembly\": {\n      \"occurrences\": [\n        {\n          \"transform\": [\n            0.999999999999972,\n            1.7483883700226146E-42,\n            -1.2855506318191875E-42,\n            -3.608224830031759E-14,\n            -5.842485887909472E-42,\n            0.9999999999999887,\n            -1.887379141862766E-15,\n            0.6,\n            2.615803553678874E-42,\n            -1.887379141862766E-15,\n            0.9999999999999833,\n            -0.41000000000000003,\n            0.0,\n            0.0,\n            0.0,\n            1.0\n          ],\n          \"fixed\": false,\n          \"hidden\": false,\n          \"path\": [\n            \"M2LpBH5XZ1vT5zWeE\"\n          ]\n        },\n        {\n          \"transform\": [\n            1.0,\n            4.014652075982617E-15,\n            4.3302133461295737E-17,\n            5.058055332397086E-17,\n            -4.0146520774228595E-15,\n            1.000000000000004,\n            8.631984016460592E-14,\n            0.2000000000000102,\n            -4.3302133920558674E-17,\n            -8.631984016460592E-14,\n            1.000000000000004,\n            0.08300000000010874,\n            0.0,\n            0.0,\n            0.0,\n            1.0\n          ],\n          \"fixed\": false,\n          \"hidden\": false,\n          \"path\": [\n            \"M3KAvWGBdLjp4rKsL\"\n          ]\n        },\n        {\n          \"transform\": [\n            1.0,\n            0.0,\n            0.0,\n            -1.1421144008636475,\n            0.0,\n            1.0,\n            0.0,\n            -1.3106001972754961,\n            0.0,\n            0.0,\n            1.0,\n            -0.6464663791656494,\n            0.0,\n            0.0,\n            0.0,\n            1.0\n          ],\n          \"fixed\": false,\n          \"hidden\": false,\n          \"path\": [\n            \"MEyaLezsIHUkUbvoC\"\n          ]\n        },\n        {\n          \"transform\": [\n            1.0,\n            0.0,\n            0.0,\n            0.0,\n            0.0,\n            1.0,\n            0.0,\n            0.0,\n            0.0,\n            0.0,\n            1.0,\n            0.0,\n            0.0,\n            0.0,\n            0.0,\n            1.0\n          ],\n          \"fixed\": false,\n          \"hidden\": false,\n          \"path\": [\n            \"McurgE1178ou0Gfc3\"\n          ]\n        },\n        {\n          \"transform\": [\n            1.0,\n            0.0,\n            0.0,\n            -1.0327604774752661,\n            0.0,\n            1.0,\n            0.0,\n            -1.7079484462736865,\n            0.0,\n            0.0,\n            1.0,\n            -1.19652602914122,\n            0.0,\n            0.0,\n            0.0,\n            1.0\n          ],\n          \"fixed\": false,\n          \"hidden\": false,\n          \"path\": [\n            \"Mtkk65BsxlBid1BiB\"\n          ]\n        },\n        {\n          \"transform\": [\n            -6.823495863145013E-43,\n            -1.0000000000000009,\n            2.217088203099567E-43,\n            0.9374999999999988,\n            1.0000000000000009,\n            6.823495863145013E-43,\n            0.0,\n            0.6,\n            0.0,\n            -2.217088203099569E-43,\n            1.0,\n            -0.4100000000000001,\n            0.0,\n            0.0,\n            0.0,\n            1.0\n          ],\n          \"fixed\": false,\n          \"hidden\": false,\n          \"path\": [\n            \"M2LpBH5XZ1vT5zWeE\",\n            \"M+UtfmKGH4wIFXArw\"\n          ]\n        },\n        {\n          \"transform\": [\n            6.823495863145007E-43,\n            1.0,\n            9.39173634044263E-43,\n            -0.9374999999999992,\n            -1.0,\n            -6.823495863145007E-43,\n            0.0,\n            0.6,\n            0.0,\n            2.217088203099567E-43,\n            1.0,\n            -0.41000000000000014,\n            0.0,\n            0.0,\n            0.0,\n            1.0\n          ],\n          \"fixed\": false,\n          \"hidden\": false,\n          \"path\": [\n            \"M2LpBH5XZ1vT5zWeE\",\n            \"M6ecy7I3u/2pmSLRe\"\n          ]\n        },\n        {\n          \"transform\": [\n            0.999999999999972,\n            1.…[truncated]"
+    },
+    {
+      "command": "assemblies get",
+      "kind": "json_fidelity",
+      "args": [
+        "assemblies",
+        "get",
+        "--did",
+        "3cb6ad4256bb099a0e4813ab",
+        "--wvm",
+        "w",
+        "--wvmid",
+        "b3fe484986a689a317b7259b",
+        "--eid",
+        "f22782a9f60e037e2f4d7c39",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"rootAssembly\": {\n      \"occurrences\": [\n        {\n          \"transform\": [\n            0.999999999999972,\n            1.7483883700226146E-42,\n            -1.2855506318191875E-42,\n            -3.608224830031759E-14,\n            -5.842485887909472E-42,\n            0.9999999999999887,\n            -1.887379141862766E-15,\n            0.6,\n            2.615803553678874E-42,\n            -1.887379141862766E-15,\n            0.9999999999999833,\n            -0.41000000000000003,\n            0.0,\n            0.0,\n            0.0,\n            1.0\n          ],\n          \"fixed\": false,\n          \"hidden\": false,\n          \"path\": [\n            \"M2LpBH5XZ1vT5zWeE\"\n          ]\n        },\n        {\n          \"transform\": [\n            1.0,\n            4.014652075982617E-15,\n            4.3302133461295737E-17,\n            5.058055332397086E-17,\n            -4.0146520774228595E-15,\n            1.000000000000004,\n            8.631984016460592E-14,\n            0.2000000000000102,\n            -4.3302133920558674E-17,\n            -8.631984016460592E-14,\n            1.000000000000004,\n            0.08300000000010874,\n            0.0,\n            0.0,\n            0.0,\n            1.0\n          ],\n          \"fixed\": false,\n          \"hidden\": false,\n          \"path\": [\n            \"M3KAvWGBdLjp4rKsL\"\n          ]\n        },\n        {\n          \"transform\": [\n            1.0,\n            0.0,\n            0.0,\n            -1.1421144008636475,\n            0.0,\n            1.0,\n            0.0,\n            -1.3106001972754961,\n            0.0,\n            0.0,\n            1.0,\n            -0.6464663791656494,\n            0.0,\n            0.0,\n            0.0,\n            1.0\n          ],\n          \"fixed\": false,\n          \"hidden\": false,\n          \"path\": [\n            \"MEyaLezsIHUkUbvoC\"\n          ]\n        },\n        {\n          \"transform\": [\n            1.0,\n            0.0,\n            0.0,\n            0.0,\n            0.0,\n            1.0,\n            0.0,\n            0.0,\n            0.0,\n            0.0,\n            1.0,\n            0.0,\n            0.0,\n            0.0,\n            0.0,\n            1.0\n          ],\n          \"fixed\": false,\n          \"hidden\": false,\n          \"path\": [\n            \"McurgE1178ou0Gfc3\"\n          ]\n        },\n        {\n          \"transform\": [\n            1.0,\n            0.0,\n            0.0,\n            -1.0327604774752661,\n            0.0,\n            1.0,\n            0.0,\n            -1.7079484462736865,\n            0.0,\n            0.0,\n            1.0,\n            -1.19652602914122,\n            0.0,\n            0.0,\n            0.0,\n            1.0\n          ],\n          \"fixed\": false,\n          \"hidden\": false,\n          \"path\": [\n            \"Mtkk65BsxlBid1BiB\"\n          ]\n        },\n        {\n          \"transform\": [\n            -6.823495863145013E-43,\n            -1.0000000000000009,\n            2.217088203099567E-43,\n            0.9374999999999988,\n            1.0000000000000009,\n            6.823495863145013E-43,\n            0.0,\n            0.6,\n            0.0,\n            -2.217088203099569E-43,\n            1.0,\n            -0.4100000000000001,\n            0.0,\n            0.0,\n            0.0,\n            1.0\n          ],\n          \"fixed\": false,\n          \"hidden\": false,\n          \"path\": [\n            \"M2LpBH5XZ1vT5zWeE\",\n            \"M+UtfmKGH4wIFXArw\"\n          ]\n        },\n        {\n          \"transform\": [\n            6.823495863145007E-43,\n            1.0,\n            9.39173634044263E-43,\n            -0.9374999999999992,\n            -1.0,\n            -6.823495863145007E-43,\n            0.0,\n            0.6,\n            0.0,\n            2.217088203099567E-43,\n            1.0,\n            -0.41000000000000014,\n            0.0,\n            0.0,\n            0.0,\n            1.0\n          ],\n          \"fixed\": false,\n          \"hidden\": false,\n          \"path\": [\n            \"M2LpBH5XZ1vT5zWeE\",\n            \"M6ecy7I3u/2pmSLRe\"\n          ]\n        },\n        {\n          \"transform\": [\n            0.999999999999972,\n            1.…[truncated]"
+    },
+    {
+      "command": "assemblies get",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "assemblies list",
+      "kind": "help",
+      "args": [
+        "assemblies",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List assemblies in a document\n\nUsage:\n  onshape-pp-cli assemblies list [flags]\n\nExamples:\n  onshape-pp-cli assemblies list --did 3cb6ad4256bb099a0e4813ab --wvm w --wvmid b3fe484986a689a317b7259b --dry-run\n\nFlags:\n      --did string     Document ID\n  -h, --help           help for list\n      --wvm string     Version type (default \"w\")\n      --wvmid string   Workspace/version/microversion ID\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'onshape-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "assemblies list",
+      "kind": "happy_path",
+      "args": [
+        "assemblies",
+        "list",
+        "--did",
+        "3cb6ad4256bb099a0e4813ab",
+        "--wvm",
+        "w",
+        "--wvmid",
+        "b3fe484986a689a317b7259b",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"dry_run\": true\n  }\n}\nGET https://cad.onshape.com/api/v6/assemblies/d/3cb6ad4256bb099a0e4813ab/w/b3fe484986a689a317b7259b\n\n(dry run - no request sent)\nwarning: 1/1 assemblies items skipped (no extractable ID field found)\n"
+    },
+    {
+      "command": "assemblies list",
+      "kind": "json_fidelity",
+      "args": [
+        "assemblies",
+        "list",
+        "--did",
+        "3cb6ad4256bb099a0e4813ab",
+        "--wvm",
+        "w",
+        "--wvmid",
+        "b3fe484986a689a317b7259b",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"dry_run\": true\n  }\n}\nGET https://cad.onshape.com/api/v6/assemblies/d/3cb6ad4256bb099a0e4813ab/w/b3fe484986a689a317b7259b\n\n(dry run - no request sent)\nwarning: 1/1 assemblies items skipped (no extractable ID field found)\n"
+    },
+    {
+      "command": "assemblies list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "doctor",
+      "kind": "help",
+      "args": [
+        "doctor",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check CLI health\n\nUsage:\n  onshape-pp-cli doctor [flags]\n\nExamples:\n  onshape-pp-cli doctor\n  onshape-pp-cli doctor --json\n  onshape-pp-cli doctor --fail-on warn\n\nFlags:\n      --fail-on string   Exit non-zero when a health level is reached: stale, error. Default is never.\n  -h, --help             help for doctor\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'onshape-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "happy_path",
+      "args": [
+        "doctor"
+      ],
+      "status": "pass",
+      "output_sample": "  OK Config: ok\n  OK Auth: configured\n  OK Env Vars: OK 2/2 available\n  OK API: reachable (HTTP 404 at /)\n  WARN Credentials: present (not verified — set auth.verify_path in spec for an API acceptance check)\n  config_path: /tmp/printing-press-subprocess-PP_PROCESS_PID/.config/onshape-pp-cli/config.toml\n  base_url: https://cad.onshape.com/api/v6\n  auth_source: env:ONSHAPE_SECRET_KEY\n  version: 1.0.0\n  INFO Cache: unknown\n    db_path: /tmp/printing-press-subprocess-PP_PROCESS_PID/.local/share/onshape-pp-cli/data.db\n    schema_version: 2\n    db_bytes: 188416\n    stale_after: 6h0m0s\n    hint: sync_state is empty; run 'onshape-pp-cli sync' to hydrate.\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "json_fidelity",
+      "args": [
+        "doctor",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"api\": \"reachable (HTTP 404 at /)\",\n  \"auth\": \"configured\",\n  \"auth_source\": \"env:ONSHAPE_SECRET_KEY\",\n  \"base_url\": \"https://cad.onshape.com/api/v6\",\n  \"cache\": {\n    \"db_bytes\": 188416,\n    \"db_path\": \"/tmp/printing-press-subprocess-PP_PROCESS_PID/.local/share/onshape-pp-cli/data.db\",\n    \"hint\": \"sync_state is empty; run 'onshape-pp-cli sync' to hydrate.\",\n    \"resources\": null,\n    \"schema_version\": 2,\n    \"stale_after\": \"6h0m0s\",\n    \"status\": \"unknown\"\n  },\n  \"config\": \"ok\",\n  \"config_path\": \"/tmp/printing-press-subprocess-PP_PROCESS_PID/.config/onshape-pp-cli/config.toml\",\n  \"credentials\": \"present (not verified — set auth.verify_path in spec for an API acceptance check)\",\n  \"env_vars\": \"OK 2/2 available\",\n  \"version\": \"1.0.0\"\n}\n"
+    },
+    {
+      "command": "doctor",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "documents create",
+      "kind": "help",
+      "args": [
+        "documents",
+        "create",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Create a new document\n\nUsage:\n  onshape-pp-cli documents create [flags]\n\nExamples:\n  onshape-pp-cli documents create --name example-resource\n\nFlags:\n      --description string   Document description\n  -h, --help                 help for create\n      --is-public            Make document public\n      --name string          Document name\n      --stdin                Read request body as JSON from stdin\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'onshape-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "documents create",
+      "kind": "happy_path",
+      "args": [
+        "documents",
+        "create",
+        "--name",
+        "example-resource",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/documents\",\n  \"resource\": \"documents\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://cad.onshape.com/api/v6/documents\n  Body:\n{\n    \"name\": \"example-resource\"\n  }\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "documents create",
+      "kind": "json_fidelity",
+      "args": [
+        "documents",
+        "create",
+        "--name",
+        "example-resource",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/documents\",\n  \"resource\": \"documents\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://cad.onshape.com/api/v6/documents\n  Body:\n{\n    \"name\": \"example-resource\"\n  }\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "documents create",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "documents create",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "documents delete",
+      "kind": "help",
+      "args": [
+        "documents",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Delete a document\n\nUsage:\n  onshape-pp-cli documents delete \u003cdid\u003e [flags]\n\nExamples:\n  onshape-pp-cli documents delete 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'onshape-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "documents delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no id parseable from companion at depth 0"
+    },
+    {
+      "command": "documents delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no id parseable from companion at depth 0"
+    },
+    {
+      "command": "documents delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "documents delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "no id parseable from companion at depth 0"
+    },
+    {
+      "command": "documents get",
+      "kind": "help",
+      "args": [
+        "documents",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get document metadata by ID\n\nUsage:\n  onshape-pp-cli documents get \u003cdid\u003e [flags]\n\nExamples:\n  onshape-pp-cli documents get 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n  -h, --help   help for get\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'onshape-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "documents get",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion previously failed at depth 0 for \"did\""
+    },
+    {
+      "command": "documents get",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "list companion previously failed at depth 0 for \"did\""
+    },
+    {
+      "command": "documents get",
+      "kind": "error_path",
+      "args": [
+        "documents",
+        "get",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /documents/__printing_press_invalid__ returned HTTP 404: {\n  \"message\" : \"Not found.\",\n  \"moreInfoUrl\" : \"\",\n  \"status\" : 404,\n  \"code\" : 0\n}\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "documents search",
+      "kind": "help",
+      "args": [
+        "documents",
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search documents by name or query\n\nUsage:\n  onshape-pp-cli documents search [flags]\n\nExamples:\n  onshape-pp-cli documents search\n\nFlags:\n      --all                  Fetch all pages\n  -h, --help                 help for search\n      --limit int            Max results to return (default 20)\n      --offset string        Pagination offset\n      --owner string         Owner filter (user ID or 'me')\n      --query string         Search query string\n      --sort-column string   Sort field (createdAt, modifiedAt, name) (default \"modifiedAt\")\n      --sort-order string    Sort order (asc, desc) (default \"desc\")\n      --type string          Document type filter (document, assembly, partstudio, drawing)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'onshape-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "documents search",
+      "kind": "happy_path",
+      "args": [
+        "documents",
+        "search"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"next\": \"https://cad.onshape.com/api/documents?sort_column=modifiedAt\\u0026limit=20\\u0026sort_order=desc\\u0026offset=20\",\n    \"href\": \"https://cad.onshape.com/api/documents?sort_column=modifiedAt\\u0026limit=20\\u0026sort_order=desc\",\n    \"items\": [\n      {\n        \"jsonType\": \"document-summary\",\n        \"public\": false,\n        \"permission\": \"OWNER\",\n        \"userAccountLimitsBreached\": false,\n        \"supportTeamUserAndShared\": false,\n        \"isUsingManagedWorkflow\": false,\n        \"likedByCurrentUser\": false,\n        \"defaultVersionGraphMode\": \"ALL_BRANCHES\",\n        \"defaultVersionGraphShowMerges\": true,\n        \"defaultVersionGraphShowAutoVersions\": true,\n        \"defaultElementId\": null,\n        \"recentVersion\": null,\n        \"hasRelevantInsertables\": false,\n        \"canUnshare\": false,\n        \"sequence\": null,\n        \"tags\": [],\n        \"thumbnail\": {\n          \"sizes\": [\n            {\n              \"size\": \"70x40\",\n              \"sheetName\": null,\n              \"href\": \"https://cad.onshape.com/api/thumbnails/d/3cb6ad4256bb099a0e4813ab/w/b3fe484986a689a317b7259b/s/70x40?t=1778159743436\",\n              \"mediaType\": \"image/png\",\n              \"uniqueId\": null,\n              \"viewOrientation\": \"\",\n              \"renderMode\": \"\"\n            },\n            {\n              \"size\": \"300x170\",\n              \"sheetName\": null,\n              \"href\": \"https://cad.onshape.com/api/thumbnails/d/3cb6ad4256bb099a0e4813ab/w/b3fe484986a689a317b7259b/s/300x170?t=1778159743436\",\n              \"mediaType\": \"image/png\",\n              \"uniqueId\": null,\n              \"viewOrientation\": \"\",\n              \"renderMode\": \"\"\n            },\n            {\n              \"size\": \"600x340\",\n              \"sheetName\": null,\n              \"href\": \"https://cad.onshape.com/api/thumbnails/d/3cb6ad4256bb099a0e4813ab/w/b3fe484986a689a317b7259b/s/600x340?t=1778159743436\",\n              \"mediaType\": \"image/png\",\n              \"uniqueId\": null,\n              \"viewOrientation\": \"\",\n              \"renderMode\": \"\"\n            },\n            {\n              \"size\": \"300x300\",\n              \"sheetName\": null,\n              \"href\": \"https://cad.onshape.com/api/thumbnails/d/3cb6ad4256bb099a0e4813ab/w/b3fe484986a689a317b7259b/s/300x300?t=1778159743436\",\n              \"mediaType\": \"image/png\",\n              \"uniqueId\": null,\n              \"viewOrientation\": \"\",\n              \"renderMode\": \"\"\n            }\n          ],\n          \"secondarySizes\": null,\n          \"id\": null,\n          \"href\": \"https://cad.onshape.com/api/thumbnails/d/3cb6ad4256bb099a0e4813ab/w/b3fe484986a689a317b7259b?t=1778159743436\"\n        },\n        \"parentId\": null,\n        \"projectId\": null,\n        \"anonymousAllowsExport\": false,\n        \"defaultWorkspace\": {\n          \"state\": null,\n          \"canDelete\": true,\n          \"protectionRule\": \"OPEN\",\n          \"isReadOnly\": false,\n          \"parent\": null,\n          \"type\": null,\n          \"creator\": null,\n          \"lastModifier\": null,\n          \"description\": null,\n          \"modifiedAt\": null,\n          \"thumbnail\": null,\n          \"documentId\": null,\n          \"createdAt\": null,\n          \"microversion\": null,\n          \"parents\": null,\n          \"overrideDate\": null,\n          \"name\": \"Main\",\n          \"id\": \"b3fe484986a689a317b7259b\",\n          \"href\": \"https://cad.onshape.com/api/v6/documents/d/3cb6ad4256bb099a0e4813ab/workspaces/b3fe484986a689a317b7259b\"\n        },\n        \"permissionSet\": [\n          \"OWNER\",\n          \"DELETE\",\n          \"RESHARE\",\n          \"WRITE\",\n          \"READ\",\n          \"LINK\",\n          \"COPY\",\n          \"EXPORT\",\n          \"COMMENT\"\n        ],\n        \"trash\": false,\n        \"totalWorkspacesUpdating\": 0,\n        \"totalWorkspacesScheduledForUpdate\": 0,\n        \"documentLabels\": null,\n        \"numberOfTimesReferenced\": 0,\n        \"numberOfTimesCopied\": 0,\n        \"likes\": 0,\n        \"notes\": null,\n        \"publishedVersionId\": null,\n        \"documentType\": 0,\n        \"notRevisionManaged\": false,\n        \"forceExportRules\": false,\n        \"createdWithEdu…[truncated]"
+    },
+    {
+      "command": "documents search",
+      "kind": "json_fidelity",
+      "args": [
+        "documents",
+        "search",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"next\": \"https://cad.onshape.com/api/documents?sort_column=modifiedAt\\u0026limit=20\\u0026sort_order=desc\\u0026offset=20\",\n    \"href\": \"https://cad.onshape.com/api/documents?sort_column=modifiedAt\\u0026limit=20\\u0026sort_order=desc\",\n    \"items\": [\n      {\n        \"jsonType\": \"document-summary\",\n        \"public\": false,\n        \"permission\": \"OWNER\",\n        \"userAccountLimitsBreached\": false,\n        \"supportTeamUserAndShared\": false,\n        \"isUsingManagedWorkflow\": false,\n        \"likedByCurrentUser\": false,\n        \"defaultVersionGraphMode\": \"ALL_BRANCHES\",\n        \"defaultVersionGraphShowMerges\": true,\n        \"defaultVersionGraphShowAutoVersions\": true,\n        \"defaultElementId\": null,\n        \"recentVersion\": null,\n        \"hasRelevantInsertables\": false,\n        \"canUnshare\": false,\n        \"sequence\": null,\n        \"tags\": [],\n        \"thumbnail\": {\n          \"sizes\": [\n            {\n              \"size\": \"70x40\",\n              \"sheetName\": null,\n              \"href\": \"https://cad.onshape.com/api/thumbnails/d/3cb6ad4256bb099a0e4813ab/w/b3fe484986a689a317b7259b/s/70x40?t=1778159743436\",\n              \"mediaType\": \"image/png\",\n              \"uniqueId\": null,\n              \"viewOrientation\": \"\",\n              \"renderMode\": \"\"\n            },\n            {\n              \"size\": \"300x170\",\n              \"sheetName\": null,\n              \"href\": \"https://cad.onshape.com/api/thumbnails/d/3cb6ad4256bb099a0e4813ab/w/b3fe484986a689a317b7259b/s/300x170?t=1778159743436\",\n              \"mediaType\": \"image/png\",\n              \"uniqueId\": null,\n              \"viewOrientation\": \"\",\n              \"renderMode\": \"\"\n            },\n            {\n              \"size\": \"600x340\",\n              \"sheetName\": null,\n              \"href\": \"https://cad.onshape.com/api/thumbnails/d/3cb6ad4256bb099a0e4813ab/w/b3fe484986a689a317b7259b/s/600x340?t=1778159743436\",\n              \"mediaType\": \"image/png\",\n              \"uniqueId\": null,\n              \"viewOrientation\": \"\",\n              \"renderMode\": \"\"\n            },\n            {\n              \"size\": \"300x300\",\n              \"sheetName\": null,\n              \"href\": \"https://cad.onshape.com/api/thumbnails/d/3cb6ad4256bb099a0e4813ab/w/b3fe484986a689a317b7259b/s/300x300?t=1778159743436\",\n              \"mediaType\": \"image/png\",\n              \"uniqueId\": null,\n              \"viewOrientation\": \"\",\n              \"renderMode\": \"\"\n            }\n          ],\n          \"secondarySizes\": null,\n          \"id\": null,\n          \"href\": \"https://cad.onshape.com/api/thumbnails/d/3cb6ad4256bb099a0e4813ab/w/b3fe484986a689a317b7259b?t=1778159743436\"\n        },\n        \"parentId\": null,\n        \"projectId\": null,\n        \"anonymousAllowsExport\": false,\n        \"defaultWorkspace\": {\n          \"state\": null,\n          \"canDelete\": true,\n          \"protectionRule\": \"OPEN\",\n          \"isReadOnly\": false,\n          \"parent\": null,\n          \"type\": null,\n          \"creator\": null,\n          \"lastModifier\": null,\n          \"description\": null,\n          \"modifiedAt\": null,\n          \"thumbnail\": null,\n          \"documentId\": null,\n          \"createdAt\": null,\n          \"microversion\": null,\n          \"parents\": null,\n          \"overrideDate\": null,\n          \"name\": \"Main\",\n          \"id\": \"b3fe484986a689a317b7259b\",\n          \"href\": \"https://cad.onshape.com/api/v6/documents/d/3cb6ad4256bb099a0e4813ab/workspaces/b3fe484986a689a317b7259b\"\n        },\n        \"permissionSet\": [\n          \"OWNER\",\n          \"DELETE\",\n          \"RESHARE\",\n          \"WRITE\",\n          \"READ\",\n          \"LINK\",\n          \"COPY\",\n          \"EXPORT\",\n          \"COMMENT\"\n        ],\n        \"trash\": false,\n        \"totalWorkspacesUpdating\": 0,\n        \"totalWorkspacesScheduledForUpdate\": 0,\n        \"documentLabels\": null,\n        \"numberOfTimesReferenced\": 0,\n        \"numberOfTimesCopied\": 0,\n        \"likes\": 0,\n        \"notes\": null,\n        \"publishedVersionId\": null,\n        \"documentType\": 0,\n        \"notRevisionManaged\": false,\n        \"forceExportRules\": false,\n        \"createdWithEdu…[truncated]"
+    },
+    {
+      "command": "documents search",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "elements",
+      "kind": "help",
+      "args": [
+        "elements",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Shortcut for 'elements list'. List elements in a document version/workspace\n\nUsage:\n  onshape-pp-cli elements [flags]\n\nExamples:\n  onshape-pp-cli elements --did 3cb6ad4256bb099a0e4813ab --wvm w --wvmid b3fe484986a689a317b7259b\n\nFlags:\n      --did string            Document ID\n      --element-type string   Filter by type (PARTSTUDIO, ASSEMBLY, DRAWING, CONFIGURATION)\n  -h, --help                  help for elements\n      --wvm string            Version type: w (workspace), v (version), m (microversion) (default \"w\")\n      --wvmid string          Workspace, version, or microversion ID\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'onshape-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "elements",
+      "kind": "happy_path",
+      "args": [
+        "elements",
+        "--did",
+        "3cb6ad4256bb099a0e4813ab",
+        "--wvm",
+        "w",
+        "--wvmid",
+        "b3fe484986a689a317b7259b"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": [\n    {\n      \"name\": \"7 Pin Trailer Plug\",\n      \"id\": \"6c6523f470e1f08b7d3b1532\",\n      \"type\": \"Part Studio\",\n      \"elementType\": \"PARTSTUDIO\",\n      \"filename\": null,\n      \"thumbnailInfo\": null,\n      \"applicationTarget\": null,\n      \"foreignDataId\": null,\n      \"unupdatable\": false,\n      \"safeToShow\": true,\n      \"specifiedUnit\": null,\n      \"prettyType\": null,\n      \"microversionId\": \"42c13126ab47bca187a18181\",\n      \"thumbnails\": null,\n      \"dataType\": \"onshape/partstudio\",\n      \"zip\": null,\n      \"lengthUnits\": \"millimeter\",\n      \"angleUnits\": \"degree\",\n      \"massUnits\": \"kilogram\",\n      \"timeUnits\": \"second\",\n      \"forceUnits\": \"newton\",\n      \"pressureUnits\": \"pascal\",\n      \"momentUnits\": \"newtonMeter\",\n      \"accelerationUnits\": \"meterPerSecondSquared\",\n      \"angularVelocityUnits\": \"degreePerSecond\",\n      \"energyUnits\": \"joule\",\n      \"areaUnits\": \"squareMillimeter\",\n      \"volumeUnits\": \"cubicMillimeter\",\n      \"densityUnits\": \"kilogramPerCubicMeter\"\n    },\n    {\n      \"name\": \"Wire Lock Clevis Pin\",\n      \"id\": \"498f0cd0d5741a2b1353bc63\",\n      \"type\": \"Part Studio\",\n      \"elementType\": \"PARTSTUDIO\",\n      \"filename\": null,\n      \"thumbnailInfo\": null,\n      \"applicationTarget\": null,\n      \"foreignDataId\": null,\n      \"unupdatable\": false,\n      \"safeToShow\": true,\n      \"specifiedUnit\": null,\n      \"prettyType\": null,\n      \"microversionId\": \"eaef01375f9aa02270dc6f9a\",\n      \"thumbnails\": null,\n      \"dataType\": \"onshape/partstudio\",\n      \"zip\": null,\n      \"lengthUnits\": \"millimeter\",\n      \"angleUnits\": \"degree\",\n      \"massUnits\": \"kilogram\",\n      \"timeUnits\": \"second\",\n      \"forceUnits\": \"newton\",\n      \"pressureUnits\": \"pascal\",\n      \"momentUnits\": \"newtonMeter\",\n      \"accelerationUnits\": \"meterPerSecondSquared\",\n      \"angularVelocityUnits\": \"degreePerSecond\",\n      \"energyUnits\": \"joule\",\n      \"areaUnits\": \"squareMillimeter\",\n      \"volumeUnits\": \"cubicMillimeter\",\n      \"densityUnits\": \"kilogramPerCubicMeter\"\n    },\n    {\n      \"name\": \"Tapered Roller Bearing\",\n      \"id\": \"dfdf82daa02874279fbf9813\",\n      \"type\": \"Part Studio\",\n      \"elementType\": \"PARTSTUDIO\",\n      \"filename\": null,\n      \"thumbnailInfo\": null,\n      \"applicationTarget\": null,\n      \"foreignDataId\": null,\n      \"unupdatable\": false,\n      \"safeToShow\": true,\n      \"specifiedUnit\": null,\n      \"prettyType\": null,\n      \"microversionId\": \"c9898faa6544bc2409f60bd6\",\n      \"thumbnails\": null,\n      \"dataType\": \"onshape/partstudio\",\n      \"zip\": null,\n      \"lengthUnits\": \"millimeter\",\n      \"angleUnits\": \"degree\",\n      \"massUnits\": \"kilogram\",\n      \"timeUnits\": \"second\",\n      \"forceUnits\": \"newton\",\n      \"pressureUnits\": \"pascal\",\n      \"momentUnits\": \"newtonMeter\",\n      \"accelerationUnits\": \"meterPerSecondSquared\",\n      \"angularVelocityUnits\": \"degreePerSecond\",\n      \"energyUnits\": \"joule\",\n      \"areaUnits\": \"squareMillimeter\",\n      \"volumeUnits\": \"cubicMillimeter\",\n      \"densityUnits\": \"kilogramPerCubicMeter\"\n    },\n    {\n      \"name\": \"Weld Nut, Square, M8x1.25mm\",\n      \"id\": \"ae0c5aa9c3e33c6b28cce1f8\",\n      \"type\": \"Part Studio\",\n      \"elementType\": \"PARTSTUDIO\",\n      \"filename\": null,\n      \"thumbnailInfo\": null,\n      \"applicationTarget\": null,\n      \"foreignDataId\": null,\n      \"unupdatable\": false,\n      \"safeToShow\": true,\n      \"specifiedUnit\": null,\n      \"prettyType\": null,\n      \"microversionId\": \"1049faa19e79a578a596ca64\",\n      \"thumbnails\": null,\n      \"dataType\": \"onshape/partstudio\",\n      \"zip\": null,\n      \"lengthUnits\": \"millimeter\",\n      \"angleUnits\": \"degree\",\n      \"massUnits\": \"kilogram\",\n      \"timeUnits\": \"second\",\n      \"forceUnits\": \"newton\",\n      \"pressureUnits\": \"pascal\",\n      \"momentUnits\": \"newtonMeter\",\n      \"accelerationUnits\": \"meterPerSecondSquared\",\n      \"angularVelocityUnits\": \"degreePerSecond\",\n      \"energyUnits\": \"joule\",\n      \"areaUnits\": \"squareMillimeter\",\n      \"volumeUnits\": \"cubicMillimeter\",\n      \"densityUnits\": \"kilogramPerCubicMeter\"\n    },\n    {\n      \"name\": \"Drawbar Ring\",\n      \"id\": \"e…[truncated]"
+    },
+    {
+      "command": "elements",
+      "kind": "json_fidelity",
+      "args": [
+        "elements",
+        "--did",
+        "3cb6ad4256bb099a0e4813ab",
+        "--wvm",
+        "w",
+        "--wvmid",
+        "b3fe484986a689a317b7259b",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": [\n    {\n      \"name\": \"7 Pin Trailer Plug\",\n      \"id\": \"6c6523f470e1f08b7d3b1532\",\n      \"type\": \"Part Studio\",\n      \"elementType\": \"PARTSTUDIO\",\n      \"filename\": null,\n      \"thumbnailInfo\": null,\n      \"applicationTarget\": null,\n      \"foreignDataId\": null,\n      \"unupdatable\": false,\n      \"safeToShow\": true,\n      \"specifiedUnit\": null,\n      \"prettyType\": null,\n      \"microversionId\": \"42c13126ab47bca187a18181\",\n      \"thumbnails\": null,\n      \"dataType\": \"onshape/partstudio\",\n      \"zip\": null,\n      \"lengthUnits\": \"millimeter\",\n      \"angleUnits\": \"degree\",\n      \"massUnits\": \"kilogram\",\n      \"timeUnits\": \"second\",\n      \"forceUnits\": \"newton\",\n      \"pressureUnits\": \"pascal\",\n      \"momentUnits\": \"newtonMeter\",\n      \"accelerationUnits\": \"meterPerSecondSquared\",\n      \"angularVelocityUnits\": \"degreePerSecond\",\n      \"energyUnits\": \"joule\",\n      \"areaUnits\": \"squareMillimeter\",\n      \"volumeUnits\": \"cubicMillimeter\",\n      \"densityUnits\": \"kilogramPerCubicMeter\"\n    },\n    {\n      \"name\": \"Wire Lock Clevis Pin\",\n      \"id\": \"498f0cd0d5741a2b1353bc63\",\n      \"type\": \"Part Studio\",\n      \"elementType\": \"PARTSTUDIO\",\n      \"filename\": null,\n      \"thumbnailInfo\": null,\n      \"applicationTarget\": null,\n      \"foreignDataId\": null,\n      \"unupdatable\": false,\n      \"safeToShow\": true,\n      \"specifiedUnit\": null,\n      \"prettyType\": null,\n      \"microversionId\": \"eaef01375f9aa02270dc6f9a\",\n      \"thumbnails\": null,\n      \"dataType\": \"onshape/partstudio\",\n      \"zip\": null,\n      \"lengthUnits\": \"millimeter\",\n      \"angleUnits\": \"degree\",\n      \"massUnits\": \"kilogram\",\n      \"timeUnits\": \"second\",\n      \"forceUnits\": \"newton\",\n      \"pressureUnits\": \"pascal\",\n      \"momentUnits\": \"newtonMeter\",\n      \"accelerationUnits\": \"meterPerSecondSquared\",\n      \"angularVelocityUnits\": \"degreePerSecond\",\n      \"energyUnits\": \"joule\",\n      \"areaUnits\": \"squareMillimeter\",\n      \"volumeUnits\": \"cubicMillimeter\",\n      \"densityUnits\": \"kilogramPerCubicMeter\"\n    },\n    {\n      \"name\": \"Tapered Roller Bearing\",\n      \"id\": \"dfdf82daa02874279fbf9813\",\n      \"type\": \"Part Studio\",\n      \"elementType\": \"PARTSTUDIO\",\n      \"filename\": null,\n      \"thumbnailInfo\": null,\n      \"applicationTarget\": null,\n      \"foreignDataId\": null,\n      \"unupdatable\": false,\n      \"safeToShow\": true,\n      \"specifiedUnit\": null,\n      \"prettyType\": null,\n      \"microversionId\": \"c9898faa6544bc2409f60bd6\",\n      \"thumbnails\": null,\n      \"dataType\": \"onshape/partstudio\",\n      \"zip\": null,\n      \"lengthUnits\": \"millimeter\",\n      \"angleUnits\": \"degree\",\n      \"massUnits\": \"kilogram\",\n      \"timeUnits\": \"second\",\n      \"forceUnits\": \"newton\",\n      \"pressureUnits\": \"pascal\",\n      \"momentUnits\": \"newtonMeter\",\n      \"accelerationUnits\": \"meterPerSecondSquared\",\n      \"angularVelocityUnits\": \"degreePerSecond\",\n      \"energyUnits\": \"joule\",\n      \"areaUnits\": \"squareMillimeter\",\n      \"volumeUnits\": \"cubicMillimeter\",\n      \"densityUnits\": \"kilogramPerCubicMeter\"\n    },\n    {\n      \"name\": \"Weld Nut, Square, M8x1.25mm\",\n      \"id\": \"ae0c5aa9c3e33c6b28cce1f8\",\n      \"type\": \"Part Studio\",\n      \"elementType\": \"PARTSTUDIO\",\n      \"filename\": null,\n      \"thumbnailInfo\": null,\n      \"applicationTarget\": null,\n      \"foreignDataId\": null,\n      \"unupdatable\": false,\n      \"safeToShow\": true,\n      \"specifiedUnit\": null,\n      \"prettyType\": null,\n      \"microversionId\": \"1049faa19e79a578a596ca64\",\n      \"thumbnails\": null,\n      \"dataType\": \"onshape/partstudio\",\n      \"zip\": null,\n      \"lengthUnits\": \"millimeter\",\n      \"angleUnits\": \"degree\",\n      \"massUnits\": \"kilogram\",\n      \"timeUnits\": \"second\",\n      \"forceUnits\": \"newton\",\n      \"pressureUnits\": \"pascal\",\n      \"momentUnits\": \"newtonMeter\",\n      \"accelerationUnits\": \"meterPerSecondSquared\",\n      \"angularVelocityUnits\": \"degreePerSecond\",\n      \"energyUnits\": \"joule\",\n      \"areaUnits\": \"squareMillimeter\",\n      \"volumeUnits\": \"cubicMillimeter\",\n      \"densityUnits\": \"kilogramPerCubicMeter\"\n    },\n    {\n      \"name\": \"Drawbar Ring\",\n      \"id\": \"e…[truncated]"
+    },
+    {
+      "command": "elements",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "export",
+      "kind": "help",
+      "args": [
+        "export",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Export paginated API data to a local file. Supports JSONL (one JSON object\nper line, streaming-friendly) and JSON (array). JSONL is recommended for\nlarge datasets as it has no memory pressure.\n\nUsage:\n  onshape-pp-cli export \u003cresource\u003e [id] [flags]\n\nExamples:\n  # Export all items as JSONL (streaming, recommended for large datasets)\n  onshape-pp-cli export \u003cresource\u003e --format jsonl --output data.jsonl\n\n  # Export with limit\n  onshape-pp-cli export \u003cresource\u003e --format jsonl --limit 1000\n\n  # Pipe to another tool\n  onshape-pp-cli export \u003cresource\u003e --format jsonl | jq '.id'\n\nFlags:\n      --format string   Output format: jsonl or json (default \"jsonl\")\n  -h, --help            help for export\n      --limit int       Maximum records to export (0 = unlimited)\n      --no-cache        Bypass response cache for fresh data\n  -o, --output string   Output file path (default: stdout)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'onshape-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "export",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [export] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "export",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [export] has fewer segments than placeholders (2)"
+    },
+    {
+      "command": "export",
+      "kind": "error_path",
+      "args": [
+        "export",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: unknown resource \"__printing_press_invalid__\"; valid: documents\n"
+    },
+    {
+      "command": "exports element",
+      "kind": "help",
+      "args": [
+        "exports",
+        "element",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Export all parts in a part studio\n\nUsage:\n  onshape-pp-cli exports element [flags]\n\nExamples:\n  onshape-pp-cli exports element --did 3cb6ad4256bb099a0e4813ab --wvm w --wvmid b3fe484986a689a317b7259b --eid 1753f0a84436bf2bc39d6da6 --dry-run\n\nFlags:\n      --did string      Document ID\n      --eid string      Element ID\n      --format string   Export format (default \"STEP\")\n  -h, --help            help for element\n      --wvm string      Version type (default \"w\")\n      --wvmid string    Workspace/version/microversion ID\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'onshape-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "exports element",
+      "kind": "happy_path",
+      "args": [
+        "exports",
+        "element",
+        "--did",
+        "3cb6ad4256bb099a0e4813ab",
+        "--wvm",
+        "w",
+        "--wvmid",
+        "b3fe484986a689a317b7259b",
+        "--eid",
+        "1753f0a84436bf2bc39d6da6",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"dry_run\": true\n  }\n}\nGET https://cad.onshape.com/api/v6/partstudios/d/3cb6ad4256bb099a0e4813ab/w/b3fe484986a689a317b7259b/e/1753f0a84436bf2bc39d6da6/parasolid\n  ?format=STEP\n\n(dry run - no request sent)\nwarning: 1/1 exports items skipped (no extractable ID field found)\n"
+    },
+    {
+      "command": "exports element",
+      "kind": "json_fidelity",
+      "args": [
+        "exports",
+        "element",
+        "--did",
+        "3cb6ad4256bb099a0e4813ab",
+        "--wvm",
+        "w",
+        "--wvmid",
+        "b3fe484986a689a317b7259b",
+        "--eid",
+        "1753f0a84436bf2bc39d6da6",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"dry_run\": true\n  }\n}\nGET https://cad.onshape.com/api/v6/partstudios/d/3cb6ad4256bb099a0e4813ab/w/b3fe484986a689a317b7259b/e/1753f0a84436bf2bc39d6da6/parasolid\n  ?format=STEP\n\n(dry run - no request sent)\nwarning: 1/1 exports items skipped (no extractable ID field found)\n"
+    },
+    {
+      "command": "exports element",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "exports part",
+      "kind": "help",
+      "args": [
+        "exports",
+        "part",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Export a single part\n\nUsage:\n  onshape-pp-cli exports part [flags]\n\nExamples:\n  onshape-pp-cli exports part --did 3cb6ad4256bb099a0e4813ab --wvm w --wvmid b3fe484986a689a317b7259b --eid 1753f0a84436bf2bc39d6da6 --partid RpZD --dry-run\n\nFlags:\n      --did string      Document ID\n      --eid string      Element ID\n      --format string   Export format (STEP, STL, IGES, PARASOLID, OBJ) (default \"STEP\")\n  -h, --help            help for part\n      --partid string   Part ID\n      --wvm string      Version type (default \"w\")\n      --wvmid string    Workspace/version/microversion ID\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'onshape-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "exports part",
+      "kind": "happy_path",
+      "args": [
+        "exports",
+        "part",
+        "--did",
+        "3cb6ad4256bb099a0e4813ab",
+        "--wvm",
+        "w",
+        "--wvmid",
+        "b3fe484986a689a317b7259b",
+        "--eid",
+        "1753f0a84436bf2bc39d6da6",
+        "--partid",
+        "RpZD",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"dry_run\": true\n  }\n}\nGET https://cad.onshape.com/api/v6/parts/d/3cb6ad4256bb099a0e4813ab/w/b3fe484986a689a317b7259b/e/1753f0a84436bf2bc39d6da6/partid/RpZD/parasolid\n  ?format=STEP\n\n(dry run - no request sent)\nwarning: 1/1 exports items skipped (no extractable ID field found)\n"
+    },
+    {
+      "command": "exports part",
+      "kind": "json_fidelity",
+      "args": [
+        "exports",
+        "part",
+        "--did",
+        "3cb6ad4256bb099a0e4813ab",
+        "--wvm",
+        "w",
+        "--wvmid",
+        "b3fe484986a689a317b7259b",
+        "--eid",
+        "1753f0a84436bf2bc39d6da6",
+        "--partid",
+        "RpZD",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"dry_run\": true\n  }\n}\nGET https://cad.onshape.com/api/v6/parts/d/3cb6ad4256bb099a0e4813ab/w/b3fe484986a689a317b7259b/e/1753f0a84436bf2bc39d6da6/partid/RpZD/parasolid\n  ?format=STEP\n\n(dry run - no request sent)\nwarning: 1/1 exports items skipped (no extractable ID field found)\n"
+    },
+    {
+      "command": "exports part",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "feedback list",
+      "kind": "help",
+      "args": [
+        "feedback",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List recent feedback entries\n\nUsage:\n  onshape-pp-cli feedback list [flags]\n\nExamples:\n  onshape-pp-cli feedback list\n  onshape-pp-cli feedback list --limit 5\n  onshape-pp-cli feedback list --json\n\nFlags:\n  -h, --help        help for list\n      --limit int   Maximum number of recent entries to return (default 20)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'onshape-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "happy_path",
+      "args": [
+        "feedback",
+        "list"
+      ],
+      "status": "pass"
+    },
+    {
+      "command": "feedback list",
+      "kind": "json_fidelity",
+      "args": [
+        "feedback",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "feedback list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "import",
+      "kind": "help",
+      "args": [
+        "import",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Import data from a JSONL file by issuing POST requests for each record.\nEach line must be a valid JSON object. Failed records are logged to stderr\nbut do not stop the import.\n\nUsage:\n  onshape-pp-cli import \u003cresource\u003e [flags]\n\nExamples:\n  # Import from a JSONL file\n  onshape-pp-cli import \u003cresource\u003e --input data.jsonl\n\n  # Dry-run to preview without sending\n  onshape-pp-cli import \u003cresource\u003e --input data.jsonl --dry-run\n\n  # Import from stdin\n  cat data.jsonl | onshape-pp-cli import \u003cresource\u003e --input -\n\nFlags:\n      --batch-size int   Records per batch (future: batch API support) (default 1)\n      --dry-run          Preview import without sending requests\n  -h, --help             help for import\n  -i, --input string     Input JSONL file path (use - for stdin)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'onshape-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "import",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [import] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "import",
+      "kind": "error_path",
+      "args": [
+        "import",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 2,
+      "output_sample": "Error: required flag(s) \"input\" not set\n"
+    },
+    {
+      "command": "parts get",
+      "kind": "help",
+      "args": [
+        "parts",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Get part metadata\n\nUsage:\n  onshape-pp-cli parts get [flags]\n\nExamples:\n  onshape-pp-cli parts get --did 3cb6ad4256bb099a0e4813ab --wvm w --wvmid b3fe484986a689a317b7259b --eid 1753f0a84436bf2bc39d6da6 --partid RpZD --dry-run\n\nFlags:\n      --did string      Document ID\n      --eid string      Element ID\n  -h, --help            help for get\n      --partid string   Part ID\n      --wvm string      Version type (default \"w\")\n      --wvmid string    Workspace/version/microversion ID\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'onshape-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "parts get",
+      "kind": "happy_path",
+      "args": [
+        "parts",
+        "get",
+        "--did",
+        "3cb6ad4256bb099a0e4813ab",
+        "--wvm",
+        "w",
+        "--wvmid",
+        "b3fe484986a689a317b7259b",
+        "--eid",
+        "1753f0a84436bf2bc39d6da6",
+        "--partid",
+        "RpZD",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"dry_run\": true\n  }\n}\nGET https://cad.onshape.com/api/v6/parts/d/3cb6ad4256bb099a0e4813ab/w/b3fe484986a689a317b7259b/e/1753f0a84436bf2bc39d6da6/partid/RpZD\n\n(dry run - no request sent)\nwarning: 1/1 parts items skipped (no extractable ID field found)\n"
+    },
+    {
+      "command": "parts get",
+      "kind": "json_fidelity",
+      "args": [
+        "parts",
+        "get",
+        "--did",
+        "3cb6ad4256bb099a0e4813ab",
+        "--wvm",
+        "w",
+        "--wvmid",
+        "b3fe484986a689a317b7259b",
+        "--eid",
+        "1753f0a84436bf2bc39d6da6",
+        "--partid",
+        "RpZD",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": {\n    \"dry_run\": true\n  }\n}\nGET https://cad.onshape.com/api/v6/parts/d/3cb6ad4256bb099a0e4813ab/w/b3fe484986a689a317b7259b/e/1753f0a84436bf2bc39d6da6/partid/RpZD\n\n(dry run - no request sent)\nwarning: 1/1 parts items skipped (no extractable ID field found)\n"
+    },
+    {
+      "command": "parts get",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "parts list",
+      "kind": "help",
+      "args": [
+        "parts",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List parts in an element\n\nUsage:\n  onshape-pp-cli parts list [flags]\n\nExamples:\n  onshape-pp-cli parts list --did 3cb6ad4256bb099a0e4813ab --wvm w --wvmid b3fe484986a689a317b7259b --eid 1753f0a84436bf2bc39d6da6\n\nFlags:\n      --did string        Document ID\n      --eid string        Element ID\n  -h, --help              help for list\n      --with-thumbnails   Include thumbnail URLs\n      --wvm string        Version type: w (workspace), v (version), m (microversion) (default \"w\")\n      --wvmid string      Workspace, version, or microversion ID\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'onshape-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "parts list",
+      "kind": "happy_path",
+      "args": [
+        "parts",
+        "list",
+        "--did",
+        "3cb6ad4256bb099a0e4813ab",
+        "--wvm",
+        "w",
+        "--wvmid",
+        "b3fe484986a689a317b7259b",
+        "--eid",
+        "1753f0a84436bf2bc39d6da6"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": [\n    {\n      \"name\": \"Part 1\",\n      \"state\": \"IN_PROGRESS\",\n      \"description\": null,\n      \"revision\": null,\n      \"microversionId\": \"e8e4a5fc4df9655f90e581e6\",\n      \"partNumber\": null,\n      \"elementId\": \"1753f0a84436bf2bc39d6da6\",\n      \"partId\": \"JTD\",\n      \"bodyType\": \"solid\",\n      \"customProperties\": {\n        \"5ace8269c046ad612c65a0bb\": \"0\"\n      },\n      \"isFlattenedBody\": false,\n      \"partQuery\": \"query=qCompressed(1.0,\\\"\\u002647a$eJylU9tymzAQ/Rn1pTNmEHceMcg2cQBbok3sF48MIqbhFiE7l6+vbNyM62QmnenDCkk75+zZo+Xb2ATLPeOvkUm2IGe8PLB8wtva03xV3lHAGlGK1/S1Y2MK0PuBGAAFUyRBu7IXLR8uHeBj5KVhEstE2zFORdk2YT7WQJh7kECoWGCy+8kiZ+VUvtjbqNiozyVnSUdc8HRUciLKAZmj1J9tUJyG6Yow0D8yke0GAWFOMrAuMBWuE5lPaiO12lg9Kj6t1rAnUAN52dN6Wz7sT0oCKqgHI+1j5iw/TRbJbTJdye2p8ZL1njV4ceaHWMM6NrDpO+eGFFuBiqnI7YiCCbfW3WH2Ng5u0A8bbtRB99nZ7zXjD2zy6HVx9OZSvIXWGm1U7GAXU5JJc+Cuv0N4XDXFr3zbCtHWVxVH0FBG0JRhybBlODJcxQZl3fGyEdghNgijBQ7jNBjBz8VjqJ2LjuBW0YFou8ukJZPQDv4JbICKFeIjGkP2FTyTxrlgOavmb5W+nBs3UC3KqmLC49lnhO7XhCNN2qLZwLmv93Ud+VPXmPwn1a2q6od1VLi7OfmUCkNfl//DxPPRdQ7r+vFKjmvZ9II2GYtpzQgE8Oo5TWmEtxet2nYLKgTjjXxHA/jJYvXOcgFhClRBx1tpFyN7XtCMtR16EZxm4nyWCnQX58dxx6oHcYZlXR2g+xTh2LvdBGiB4gDF/kUB3cS69Zcy+xRy1eGfegPx0PM4CVYfhnPAmHIk+2fGurYjx4/shwJyhxbp5oj6DbbTTfE=\\\",id);\",\n      \"partIdentity\": \"5929104187f772439f32ae01\",\n      \"meshState\": \"NO_MESH\",\n      \"isHidden\": false,\n      \"configurationId\": \"\",\n      \"thumbnailConfigurationId\": \"\",\n      \"propertySourceTypes\": {\n        \"57f3fb8efa3416c06701d60d\": 3,\n        \"5ace8269c046ad612c65a0bb\": 11\n      },\n      \"metadataMicroversion\": \"24e8a2901da1f26e22553869\",\n      \"defaultColorHash\": \"Fr6ZpvHzBDJEU71_0_0\",\n      \"ordinal\": 0,\n      \"isMesh\": false,\n      \"appearance\": {\n        \"color\": {\n          \"red\": 157,\n          \"green\": 207,\n          \"blue\": 237\n        },\n        \"isGenerated\": true,\n        \"opacity\": 255\n      }\n    },\n    {\n      \"name\": \"Part 2\",\n      \"state\": \"IN_PROGRESS\",\n      \"description\": null,\n      \"revision\": null,\n      \"microversionId\": \"e8e4a5fc4df9655f90e581e6\",\n      \"partNumber\": null,\n      \"elementId\": \"1753f0a84436bf2bc39d6da6\",\n      \"partId\": \"JXD\",\n      \"bodyType\": \"solid\",\n      \"customProperties\": {\n        \"5ace8269c046ad612c65a0bb\": \"0\"\n      },\n      \"isFlattenedBody\": false,\n      \"partQuery\": \"query=qCompressed(1.0,\\\"\\u002653a$eJylVNtymzAQ/Rn1pTNmEHceMciJ44AdiSa2XzwyiJjGXApy0uTruwaScR3PpDN9WBDa2bPnHLT6NjbR3UE0r6HJtigVTf4s0klTFZ7mq7DHkShlLl/j11qMOSIfH8xAJLgiULTLW1k1/aaDfEq8eDqPIFHVouEyr8ppOtbQNPUww1ix0GR3L0Jn5ex9ebBJtlFf8kbMa+aiX0cmHVCK2IzE/vWGRPE0XjGB2ichk11PYJqyBB1sc1Umgb/MuDxypSo8LYbVUxkTnoi210KxrzML3RMakyXVqUFNalOHupSzRNHROqNcuk5o/lJLUaZQYneQA3C/ZlhDad7yYps/HjpxAZfcw6H2OTM4Es8X89v51QqWnZc5ELIGSj0+plrPx3cGjxRbwYqpwHLE0aSx1vXz9ds4uCE/bLxReysGld8L0TyKyZNXR+Gby+kWW2uyUT+EWQjv2gdCx/sy+5luKymr4qzjCLvKCHOILUQCkUIIxUZ5UTd5KanDbDQNF3QaxcEIXyZPsTU0HWkq+Cmr+jTJIYm3wT8VG2gvMvm5mmraV+UJGOeiu+v97G2v382MG6xm+X4vpNckFwBx+jXgSANbtAQ5y+JQFKF/5RqT/4S6VVX9eR1m7m7GLkJ1h9VAE88n5zmq28ctmIC8bCUvExHxQjCM8NnvNMEI7yArtaoXXErRlPAfDeTPF6sPlJMSocDo1E0Fdgl2aDKYnKomv2XDEzl8AwMdqOHjeaeqh8+EDtNEsEYxzIOOyDImNPJuNwFZkCggkX/SWXepzv+inHRhKyPdeicydHzXDCeyZZI3cnKh0IQD274IUVc1O75ALdxH3mLTuXhB8WlHuOh6qUPHzv7xPFgN2gygArcheyCLeHPc/wPS2Ilg\\\",id);\",\n      \"partIdentity\": null,\n      \"meshState\": \"NO_MESH\",\n      \"isHidden\": false,\n      \"configurationId\": \"\",\n      \"thumbnailConfigurationId\": \"\",\n      \"propertySourceTypes\": {\n        \"57f3fb8efa3416c06701d60d\": 0,\n        \"5ace8269c046ad612c65a0bb\": 11\n      },\n      \"metadataMicroversion\": \"24e8a2901da1f26e22553869\",\n      \"defaultColorHash\": \"Fr6ZpvHzBDJEU71_0_0\",\n      \"ordinal\": 1,\n      \"isMesh\": false,\n      \"appearance\": {\n        \"color\": {\n          \"red\": 157,\n          \"green\": 207,\n          \"blue\": 237\n        },\n        \"isGenerated\": true,\n        \"opacity\": 255\n      }\n    },\n    {\n      \"name\": \"Part 3\",\n      \"state\": \"IN_PROGRESS\",\n      \"description\": null,\n      \"revision\": null,\n      \"microversionId\": \"e8e4a5fc4df9655f90e581e6\",\n      \"partNumber\": null,\n      \"elementId\": \"1753f0a844…[truncated]"
+    },
+    {
+      "command": "parts list",
+      "kind": "json_fidelity",
+      "args": [
+        "parts",
+        "list",
+        "--did",
+        "3cb6ad4256bb099a0e4813ab",
+        "--wvm",
+        "w",
+        "--wvmid",
+        "b3fe484986a689a317b7259b",
+        "--eid",
+        "1753f0a84436bf2bc39d6da6",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": [\n    {\n      \"name\": \"Part 1\",\n      \"state\": \"IN_PROGRESS\",\n      \"description\": null,\n      \"revision\": null,\n      \"microversionId\": \"e8e4a5fc4df9655f90e581e6\",\n      \"partNumber\": null,\n      \"elementId\": \"1753f0a84436bf2bc39d6da6\",\n      \"partId\": \"JTD\",\n      \"bodyType\": \"solid\",\n      \"customProperties\": {\n        \"5ace8269c046ad612c65a0bb\": \"0\"\n      },\n      \"isFlattenedBody\": false,\n      \"partQuery\": \"query=qCompressed(1.0,\\\"\\u002647a$eJylU9tymzAQ/Rn1pTNmEHceMcg2cQBbok3sF48MIqbhFiE7l6+vbNyM62QmnenDCkk75+zZo+Xb2ATLPeOvkUm2IGe8PLB8wtva03xV3lHAGlGK1/S1Y2MK0PuBGAAFUyRBu7IXLR8uHeBj5KVhEstE2zFORdk2YT7WQJh7kECoWGCy+8kiZ+VUvtjbqNiozyVnSUdc8HRUciLKAZmj1J9tUJyG6Yow0D8yke0GAWFOMrAuMBWuE5lPaiO12lg9Kj6t1rAnUAN52dN6Wz7sT0oCKqgHI+1j5iw/TRbJbTJdye2p8ZL1njV4ceaHWMM6NrDpO+eGFFuBiqnI7YiCCbfW3WH2Ng5u0A8bbtRB99nZ7zXjD2zy6HVx9OZSvIXWGm1U7GAXU5JJc+Cuv0N4XDXFr3zbCtHWVxVH0FBG0JRhybBlODJcxQZl3fGyEdghNgijBQ7jNBjBz8VjqJ2LjuBW0YFou8ukJZPQDv4JbICKFeIjGkP2FTyTxrlgOavmb5W+nBs3UC3KqmLC49lnhO7XhCNN2qLZwLmv93Ud+VPXmPwn1a2q6od1VLi7OfmUCkNfl//DxPPRdQ7r+vFKjmvZ9II2GYtpzQgE8Oo5TWmEtxet2nYLKgTjjXxHA/jJYvXOcgFhClRBx1tpFyN7XtCMtR16EZxm4nyWCnQX58dxx6oHcYZlXR2g+xTh2LvdBGiB4gDF/kUB3cS69Zcy+xRy1eGfegPx0PM4CVYfhnPAmHIk+2fGurYjx4/shwJyhxbp5oj6DbbTTfE=\\\",id);\",\n      \"partIdentity\": \"5929104187f772439f32ae01\",\n      \"meshState\": \"NO_MESH\",\n      \"isHidden\": false,\n      \"configurationId\": \"\",\n      \"thumbnailConfigurationId\": \"\",\n      \"propertySourceTypes\": {\n        \"57f3fb8efa3416c06701d60d\": 3,\n        \"5ace8269c046ad612c65a0bb\": 11\n      },\n      \"metadataMicroversion\": \"24e8a2901da1f26e22553869\",\n      \"defaultColorHash\": \"Fr6ZpvHzBDJEU71_0_0\",\n      \"ordinal\": 0,\n      \"isMesh\": false,\n      \"appearance\": {\n        \"color\": {\n          \"red\": 157,\n          \"green\": 207,\n          \"blue\": 237\n        },\n        \"isGenerated\": true,\n        \"opacity\": 255\n      }\n    },\n    {\n      \"name\": \"Part 2\",\n      \"state\": \"IN_PROGRESS\",\n      \"description\": null,\n      \"revision\": null,\n      \"microversionId\": \"e8e4a5fc4df9655f90e581e6\",\n      \"partNumber\": null,\n      \"elementId\": \"1753f0a84436bf2bc39d6da6\",\n      \"partId\": \"JXD\",\n      \"bodyType\": \"solid\",\n      \"customProperties\": {\n        \"5ace8269c046ad612c65a0bb\": \"0\"\n      },\n      \"isFlattenedBody\": false,\n      \"partQuery\": \"query=qCompressed(1.0,\\\"\\u002653a$eJylVNtymzAQ/Rn1pTNmEHceMciJ44AdiSa2XzwyiJjGXApy0uTruwaScR3PpDN9WBDa2bPnHLT6NjbR3UE0r6HJtigVTf4s0klTFZ7mq7DHkShlLl/j11qMOSIfH8xAJLgiULTLW1k1/aaDfEq8eDqPIFHVouEyr8ppOtbQNPUww1ix0GR3L0Jn5ex9ebBJtlFf8kbMa+aiX0cmHVCK2IzE/vWGRPE0XjGB2ichk11PYJqyBB1sc1Umgb/MuDxypSo8LYbVUxkTnoi210KxrzML3RMakyXVqUFNalOHupSzRNHROqNcuk5o/lJLUaZQYneQA3C/ZlhDad7yYps/HjpxAZfcw6H2OTM4Es8X89v51QqWnZc5ELIGSj0+plrPx3cGjxRbwYqpwHLE0aSx1vXz9ds4uCE/bLxReysGld8L0TyKyZNXR+Gby+kWW2uyUT+EWQjv2gdCx/sy+5luKymr4qzjCLvKCHOILUQCkUIIxUZ5UTd5KanDbDQNF3QaxcEIXyZPsTU0HWkq+Cmr+jTJIYm3wT8VG2gvMvm5mmraV+UJGOeiu+v97G2v382MG6xm+X4vpNckFwBx+jXgSANbtAQ5y+JQFKF/5RqT/4S6VVX9eR1m7m7GLkJ1h9VAE88n5zmq28ctmIC8bCUvExHxQjCM8NnvNMEI7yArtaoXXErRlPAfDeTPF6sPlJMSocDo1E0Fdgl2aDKYnKomv2XDEzl8AwMdqOHjeaeqh8+EDtNEsEYxzIOOyDImNPJuNwFZkCggkX/SWXepzv+inHRhKyPdeicydHzXDCeyZZI3cnKh0IQD274IUVc1O75ALdxH3mLTuXhB8WlHuOh6qUPHzv7xPFgN2gygArcheyCLeHPc/wPS2Ilg\\\",id);\",\n      \"partIdentity\": null,\n      \"meshState\": \"NO_MESH\",\n      \"isHidden\": false,\n      \"configurationId\": \"\",\n      \"thumbnailConfigurationId\": \"\",\n      \"propertySourceTypes\": {\n        \"57f3fb8efa3416c06701d60d\": 0,\n        \"5ace8269c046ad612c65a0bb\": 11\n      },\n      \"metadataMicroversion\": \"24e8a2901da1f26e22553869\",\n      \"defaultColorHash\": \"Fr6ZpvHzBDJEU71_0_0\",\n      \"ordinal\": 1,\n      \"isMesh\": false,\n      \"appearance\": {\n        \"color\": {\n          \"red\": 157,\n          \"green\": 207,\n          \"blue\": 237\n        },\n        \"isGenerated\": true,\n        \"opacity\": 255\n      }\n    },\n    {\n      \"name\": \"Part 3\",\n      \"state\": \"IN_PROGRESS\",\n      \"description\": null,\n      \"revision\": null,\n      \"microversionId\": \"e8e4a5fc4df9655f90e581e6\",\n      \"partNumber\": null,\n      \"elementId\": \"1753f0a844…[truncated]"
+    },
+    {
+      "command": "parts list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile delete",
+      "kind": "help",
+      "args": [
+        "profile",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Remove a profile\n\nUsage:\n  onshape-pp-cli profile delete \u003cname\u003e [flags]\n\nExamples:\n  onshape-pp-cli profile delete my-defaults --yes\n  onshape-pp-cli profile delete old-profile --yes --json\n\nFlags:\n  -h, --help   help for delete\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'onshape-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile delete",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command; error_path would call live API without --dry-run"
+    },
+    {
+      "command": "profile delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile list",
+      "kind": "help",
+      "args": [
+        "profile",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List saved profiles\n\nUsage:\n  onshape-pp-cli profile list [flags]\n\nExamples:\n  onshape-pp-cli profile list\n  onshape-pp-cli profile list --json\n\nFlags:\n  -h, --help   help for list\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'onshape-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "happy_path",
+      "args": [
+        "profile",
+        "list"
+      ],
+      "status": "pass",
+      "output_sample": "NAME  FIELDS  DESCRIPTION\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "json_fidelity",
+      "args": [
+        "profile",
+        "list",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "[]\n"
+    },
+    {
+      "command": "profile list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "profile save",
+      "kind": "help",
+      "args": [
+        "profile",
+        "save",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Captures every flag explicitly set on the invocation and stores\nthem under \u003cname\u003e. To update an existing profile, run save again; the\nentry is replaced.\n\nTo avoid creating empty profiles, at least one non-default flag must be\npresent (other than --profile and --config).\n\nUsage:\n  onshape-pp-cli profile save \u003cname\u003e [--\u003cflag\u003e \u003cvalue\u003e ...] [flags]\n\nExamples:\n  onshape-pp-cli profile save my-defaults --json --compact\n  onshape-pp-cli profile save tonight-defaults --region US\n\nFlags:\n      --description string   Short description shown in 'profile list'\n  -h, --help                 help for save\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'onshape-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile save",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile save",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "save",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: no non-default flags set - pass at least one flag to save into \"__printing_press_invalid__\"\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "help",
+      "args": [
+        "profile",
+        "show",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show a profile's values as JSON\n\nUsage:\n  onshape-pp-cli profile show \u003cname\u003e [flags]\n\nExamples:\n  onshape-pp-cli profile show my-defaults\n  onshape-pp-cli profile show tonight-defaults --json\n\nFlags:\n  -h, --help   help for show\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'onshape-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile show",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile show",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "show",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "help",
+      "args": [
+        "profile",
+        "use",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Print the flag values a profile will apply (does not execute anything)\n\nUsage:\n  onshape-pp-cli profile use \u003cname\u003e [flags]\n\nExamples:\n  onshape-pp-cli profile use my-defaults\n  onshape-pp-cli profile use tonight-defaults --json\n\nFlags:\n  -h, --help   help for use\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'onshape-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "profile use",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "non-id positional \"name\" at depth 0"
+    },
+    {
+      "command": "profile use",
+      "kind": "error_path",
+      "args": [
+        "profile",
+        "use",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 1,
+      "output_sample": "Error: profile \"__printing_press_invalid__\" not found\n"
+    },
+    {
+      "command": "search",
+      "kind": "help",
+      "args": [
+        "search",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Search data using FTS5 full-text search on locally synced data,\nor hit the API's search endpoint when available.\n\nIn auto mode (default): uses the API search endpoint if the API has one,\notherwise searches local data. Falls back to local on network failure.\nIn live mode: uses the API search endpoint only.\nIn local mode: searches locally synced data only.\n\nUsage:\n  onshape-pp-cli search \u003cquery\u003e [flags]\n\nExamples:\n  # Search (uses API endpoint if available, local FTS otherwise)\n  onshape-pp-cli search \"error timeout\"\n\n  # Force local search only\n  onshape-pp-cli search \"payment failed\" --data-source local\n\n  # Search a specific resource type locally\n  onshape-pp-cli search \"critical\" --type transactions --data-source local\n\n  # JSON output for piping\n  onshape-pp-cli search \"critical\" --json --limit 20\n\nFlags:\n      --db string     Database path (default: ~/.local/share/onshape-pp-cli/data.db)\n  -h, --help          help for search\n      --limit int     Maximum results to return (default 50)\n      --type string   Filter by resource type\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'onshape-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "search",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [search] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "search",
+      "kind": "error_path",
+      "args": [
+        "search",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": [\n    {\n      \"jsonType\": \"document-summary\",\n      \"public\": false,\n      \"permission\": \"OWNER\",\n      \"defaultElementId\": null,\n      \"recentVersion\": null,\n      \"hasRelevantInsertables\": false,\n      \"canUnshare\": false,\n      \"userAccountLimitsBreached\": false,\n      \"supportTeamUserAndShared\": false,\n      \"isUsingManagedWorkflow\": false,\n      \"likedByCurrentUser\": false,\n      \"defaultVersionGraphMode\": \"ALL_BRANCHES\",\n      \"defaultVersionGraphShowMerges\": true,\n      \"defaultVersionGraphShowAutoVersions\": true,\n      \"sequence\": null,\n      \"tags\": [],\n      \"parentId\": null,\n      \"projectId\": null,\n      \"anonymousAllowsExport\": false,\n      \"thumbnail\": {\n        \"sizes\": [\n          {\n            \"size\": \"70x40\",\n            \"viewOrientation\": \"\",\n            \"sheetName\": null,\n            \"href\": \"https://cad.onshape.com/api/thumbnails/d/3cb6ad4256bb099a0e4813ab/w/b3fe484986a689a317b7259b/s/70x40?t=1778159743436\",\n            \"mediaType\": \"image/png\",\n            \"uniqueId\": null,\n            \"renderMode\": \"\"\n          },\n          {\n            \"size\": \"300x170\",\n            \"viewOrientation\": \"\",\n            \"sheetName\": null,\n            \"href\": \"https://cad.onshape.com/api/thumbnails/d/3cb6ad4256bb099a0e4813ab/w/b3fe484986a689a317b7259b/s/300x170?t=1778159743436\",\n            \"mediaType\": \"image/png\",\n            \"uniqueId\": null,\n            \"renderMode\": \"\"\n          },\n          {\n            \"size\": \"600x340\",\n            \"viewOrientation\": \"\",\n            \"sheetName\": null,\n            \"href\": \"https://cad.onshape.com/api/thumbnails/d/3cb6ad4256bb099a0e4813ab/w/b3fe484986a689a317b7259b/s/600x340?t=1778159743436\",\n            \"mediaType\": \"image/png\",\n            \"uniqueId\": null,\n            \"renderMode\": \"\"\n          },\n          {\n            \"size\": \"300x300\",\n            \"viewOrientation\": \"\",\n            \"sheetName\": null,\n            \"href\": \"https://cad.onshape.com/api/thumbnails/d/3cb6ad4256bb099a0e4813ab/w/b3fe484986a689a317b7259b/s/300x300?t=1778159743436\",\n            \"mediaType\": \"image/png\",\n            \"uniqueId\": null,\n            \"renderMode\": \"\"\n          }\n        ],\n        \"secondarySizes\": null,\n        \"id\": null,\n        \"href\": \"https://cad.onshape.com/api/thumbnails/d/3cb6ad4256bb099a0e4813ab/w/b3fe484986a689a317b7259b?t=1778159743436\"\n      },\n      \"defaultWorkspace\": {\n        \"state\": null,\n        \"canDelete\": true,\n        \"protectionRule\": \"OPEN\",\n        \"isReadOnly\": false,\n        \"parent\": null,\n        \"type\": null,\n        \"creator\": null,\n        \"lastModifier\": null,\n        \"description\": null,\n        \"createdAt\": null,\n        \"modifiedAt\": null,\n        \"thumbnail\": null,\n        \"documentId\": null,\n        \"microversion\": null,\n        \"parents\": null,\n        \"overrideDate\": null,\n        \"name\": \"Main\",\n        \"id\": \"b3fe484986a689a317b7259b\",\n        \"href\": \"https://cad.onshape.com/api/v6/documents/d/3cb6ad4256bb099a0e4813ab/workspaces/b3fe484986a689a317b7259b\"\n      },\n      \"permissionSet\": [\n        \"OWNER\",\n        \"DELETE\",\n        \"RESHARE\",\n        \"WRITE\",\n        \"READ\",\n        \"LINK\",\n        \"COPY\",\n        \"EXPORT\",\n        \"COMMENT\"\n      ],\n      \"trash\": false,\n      \"totalWorkspacesUpdating\": 0,\n      \"totalWorkspacesScheduledForUpdate\": 0,\n      \"documentLabels\": null,\n      \"numberOfTimesReferenced\": 0,\n      \"numberOfTimesCopied\": 0,\n      \"likes\": 0,\n      \"notes\": null,\n      \"publishedVersionId\": null,\n      \"documentType\": 0,\n      \"notRevisionManaged\": false,\n      \"forceExportRules\": false,\n      \"createdWithEducationPlan\": false,\n      \"anonymousAccessAllowed\": false,\n      \"trashedAt\": null,\n      \"isOrphaned\": false,\n      \"hasReleaseRevisionableObjects\": false,\n      \"owner\": {\n        \"type\": 0,\n        \"isEnterpriseOwnedResource\": false,\n        \"image\": \"/images/placeholder-user.png\",\n        \"name\": \"mark hintz\",\n        \"id\": \"69d84fedd7252e94b0e8335c\",\n        \"href\": \"https://cad.onshape.com/api/v6/users/69d84fedd7252e94b0e8335c\"\n      },\n      \"connectionName…[truncated]"
+    },
+    {
+      "command": "sync",
+      "kind": "help",
+      "args": [
+        "sync",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Sync data from the API into a local SQLite database. Supports resumable\nincremental sync (only fetches new data since last sync) and full resync.\nOnce synced, use the 'search' command for instant full-text search.\n\nExit codes \u0026 warnings:\n  Resources the API denies access to (HTTP 403, or HTTP 400 with an\n  access-policy body) are reported as warnings rather than failing the\n  run. In --json mode each is emitted as a {\"event\":\"sync_warning\",...}\n  line carrying status, reason, and message fields, and a final\n  {\"event\":\"sync_summary\",...} aggregates the run.\n\n  Exit 0 when at least one resource synced and no resource flagged in\n  the spec as critical (x-critical: true) failed; non-critical failures\n  emit {\"event\":\"sync_warning\",\"reason\":\"exit_policy_default_changed\",\n  ...} so callers can detect that a partial failure was tolerated. Pass\n  --strict to exit non-zero on any per-resource failure. Exit is always\n  non-zero when every selected resource failed, regardless of --strict.\n\nResource scoping:\n  --resources runs the named top-level resources, plus any parent-keyed\n  dependent whose own name is listed OR whose parent table is listed.\n  Naming a parent therefore cascades to its dependents (so \"sync this\n  parent and its children\" works without listing every nested resource\n  by hand). There is no flag today to suppress the cascade for a named\n  parent. To run a dependent without re-syncing its parent, list only\n  the dependent by name; the parent table must already be populated\n  from a prior sync.\n\nUsage:\n  onshape-pp-cli sync [flags]\n\nExamples:\n  # Sync all resources\n  onshape-pp-cli sync\n\n  # Sync specific resources only\n  onshape-pp-cli sync --resources channels,messages\n\n  # Full resync (ignore previous checkpoint)\n  onshape-pp-cli sync --full\n\n  # Incremental sync: only records from the last 7 days\n  onshape-pp-cli sync --since 7d\n\n  # Parallel sync with 8 workers\n  onshape-pp-cli sync --concurrency 8\n\n  # Latest-only: refresh head of each resource, no historical backfill\n  onshape-pp-cli sync --latest-only\n\nFlags:\n      --concurrency int              Number of parallel sync workers (default 4)\n      --db string                    Database path (default: ~/.local/share/onshape-pp-cli/data.db)\n      --full                         Full resync (ignore previous checkpoint)\n      --global-param stringArray     Extra query param to inject into every sync request including dependent path-scoped calls (repeatable, key=value). Use when an API requires a scope on every call regardless of path nesting.\n  -h, --help                         help for sync\n      --latest-only                  Refresh head of each resource only; clears resume cursor and caps pages at 1. Mutually exclusive with --since (--since wins).\n      --max-pages int                Maximum pages to fetch per resource (0 = unlimited; cap-hit emits a sync_warning event) (default 100)\n      --param stringArray            Extra query param to inject into flat-list sync requests (repeatable, key=value). Skipped on path-scoped dependent requests so a top-level scope like workspace=\u003cid\u003e does not double up on /parents/\u003cid\u003e/children calls. Use --global-param to inject everywhere. Avoid pagination keys (limit/since/cursor) — overriding them corrupts resume state.\n      --resource-param stringArray   Per-resource extra query param (repeatable, resource:key=value). Wins over --param and --global-param when keys conflict.\n      --resources strings            Comma-separated resource types to sync. Naming a parent also runs its parent-keyed dependents (see Long help for scoping).\n      --since string                 Incremental sync duration (e.g. 7d, 24h, 1w, 30m)\n      --strict                       Exit non-zero on any per-resource failure (default: only critical failures or all-resource failure exit non-zero).\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero…[truncated]"
+    },
+    {
+      "command": "sync",
+      "kind": "happy_path",
+      "args": [
+        "sync"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"documents\"}\n{\"event\":\"sync_progress\",\"resource\":\"documents\",\"fetched\":20}\n{\"event\":\"sync_complete\",\"resource\":\"documents\",\"total\":20,\"duration_ms\":952}\n{\"event\":\"sync_summary\",\"total_records\":20,\"resources\":1,\"success\":1,\"warned\":0,\"errored\":0,\"duration_ms\":952}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "json_fidelity",
+      "args": [
+        "sync",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"documents\"}\n{\"event\":\"sync_warning\",\"resource\":\"documents\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"documents\",\"fetched\":20}\n{\"event\":\"sync_complete\",\"resource\":\"documents\",\"total\":20,\"duration_ms\":762}\n{\"event\":\"sync_summary\",\"total_records\":20,\"resources\":1,\"success\":1,\"warned\":0,\"errored\":0,\"duration_ms\":763}\n"
+    },
+    {
+      "command": "sync",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "tail",
+      "kind": "help",
+      "args": [
+        "tail",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Tail streams live data changes by polling the API at configurable intervals.\nEvents are emitted as NDJSON to stdout for piping to other tools.\nGracefully shuts down on SIGTERM/SIGINT.\n\nNote: For APIs with WebSocket or SSE support, a future version will use\nnative streaming instead of polling.\n\nUsage:\n  onshape-pp-cli tail [resource] [flags]\n\nExamples:\n  # Tail all changes every 10 seconds\n  onshape-pp-cli tail --interval 10s\n\n  # Tail a specific resource\n  onshape-pp-cli tail messages --interval 5s\n\n  # Pipe to jq for filtering\n  onshape-pp-cli tail events --interval 30s | jq 'select(.type == \"error\")'\n\nFlags:\n      --follow              Keep running (set --follow=false for single poll) (default true)\n  -h, --help                help for tail\n      --interval duration   Poll interval (default 10s)\n      --resource string     Resource type to tail\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'onshape-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "tail",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [tail] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "tail",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [tail] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "tail",
+      "kind": "error_path",
+      "args": [
+        "tail",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": -1,
+      "output_sample": "Tailing __printing_press_invalid__ every 10s (Ctrl+C to stop)\nwarning: initial fetch failed: GET /__printing_press_invalid__ returned HTTP 404: {\n  \"message\" : \"Not found.\",\n  \"moreInfoUrl\" : \"\",\n  \"status\" : 404,\n  \"code\" : 0\n}\nwarning: poll failed: GET /__printing_press_invalid__ returned HTTP 404: {\n  \"message\" : \"Not found.\",\n  \"moreInfoUrl\" : \"\",\n  \"status\" : 404,\n  \"code\" : 0\n}\nwarning: poll failed: GET /__printing_press_invalid__ returned HTTP 404: {\n  \"message\" : \"Not found.\",\n  \"status\" : 404,\n  \"code\" : 0,\n  \"moreInfoUrl\" : \"\"\n}\n"
+    },
+    {
+      "command": "translations create",
+      "kind": "help",
+      "args": [
+        "translations",
+        "create",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Create a translation (export) job\n\nUsage:\n  onshape-pp-cli translations create [flags]\n\nExamples:\n  onshape-pp-cli translations create --did 550e8400-e29b-41d4-a716-446655440000 --wvm example-value --wvmid 550e8400-e29b-41d4-a716-446655440000 --format-name example-resource\n\nFlags:\n      --assembly-id string   Assembly to export\n      --did string           Document ID\n      --element-id string    Specific element to export\n      --format-name string   Target format (STEP, STL, IGES, PARASOLID, PDF, PNG, DWG, DXF)\n  -h, --help                 help for create\n      --part-id string       Specific part to export\n      --stdin                Read request body as JSON from stdin\n      --store-in-document    Store result in document\n      --wvm string           Version type (default \"w\")\n      --wvmid string         Workspace/version/microversion ID\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'onshape-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "translations create",
+      "kind": "happy_path",
+      "args": [
+        "translations",
+        "create",
+        "--did",
+        "550e8400-e29b-41d4-a716-446655440000",
+        "--wvm",
+        "example-value",
+        "--wvmid",
+        "550e8400-e29b-41d4-a716-446655440000",
+        "--format-name",
+        "example-resource",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/translations/d/550e8400-e29b-41d4-a716-446655440000/example-value/550e8400-e29b-41d4-a716-446655440000\",\n  \"resource\": \"translations\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://cad.onshape.com/api/v6/translations/d/550e8400-e29b-41d4-a716-446655440000/example-value/550e8400-e29b-41d4-a716-446655440000\n  Body:\n{\n    \"format_name\": \"example-resource\"\n  }\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "translations create",
+      "kind": "json_fidelity",
+      "args": [
+        "translations",
+        "create",
+        "--did",
+        "550e8400-e29b-41d4-a716-446655440000",
+        "--wvm",
+        "example-value",
+        "--wvmid",
+        "550e8400-e29b-41d4-a716-446655440000",
+        "--format-name",
+        "example-resource",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/translations/d/550e8400-e29b-41d4-a716-446655440000/example-value/550e8400-e29b-41d4-a716-446655440000\",\n  \"resource\": \"translations\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://cad.onshape.com/api/v6/translations/d/550e8400-e29b-41d4-a716-446655440000/example-value/550e8400-e29b-41d4-a716-446655440000\n  Body:\n{\n    \"format_name\": \"example-resource\"\n  }\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "translations create",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "translations create",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "translations get",
+      "kind": "help",
+      "args": [
+        "translations",
+        "get",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Check translation job status\n\nUsage:\n  onshape-pp-cli translations get \u003ctid\u003e [flags]\n\nExamples:\n  onshape-pp-cli translations get 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n  -h, --help   help for get\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'onshape-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "translations get",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"tid\""
+    },
+    {
+      "command": "translations get",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "no list companion at depth 0 for \"tid\""
+    },
+    {
+      "command": "translations get",
+      "kind": "error_path",
+      "args": [
+        "translations",
+        "get",
+        "__printing_press_invalid__"
+      ],
+      "status": "pass",
+      "exit_code": 3,
+      "output_sample": "Error: GET /translations/__printing_press_invalid__ returned HTTP 404: {\n  \"message\" : \"Not found.\",\n  \"moreInfoUrl\" : \"\",\n  \"status\" : 404,\n  \"code\" : 0\n}\nhint: resource not found. Run the 'list' command to see available items\n"
+    },
+    {
+      "command": "versions create",
+      "kind": "help",
+      "args": [
+        "versions",
+        "create",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Create a new version\n\nUsage:\n  onshape-pp-cli versions create [flags]\n\nExamples:\n  onshape-pp-cli versions create --did 550e8400-e29b-41d4-a716-446655440000 --name example-resource\n\nFlags:\n      --description string    Version description\n      --did string            Document ID\n  -h, --help                  help for create\n      --name string           Version name\n      --stdin                 Read request body as JSON from stdin\n      --workspace-id string   Source workspace ID\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'onshape-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "versions create",
+      "kind": "happy_path",
+      "args": [
+        "versions",
+        "create",
+        "--did",
+        "550e8400-e29b-41d4-a716-446655440000",
+        "--name",
+        "example-resource",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/documents/d/550e8400-e29b-41d4-a716-446655440000/versions\",\n  \"resource\": \"versions\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://cad.onshape.com/api/v6/documents/d/550e8400-e29b-41d4-a716-446655440000/versions\n  Body:\n{\n    \"name\": \"example-resource\"\n  }\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "versions create",
+      "kind": "json_fidelity",
+      "args": [
+        "versions",
+        "create",
+        "--did",
+        "550e8400-e29b-41d4-a716-446655440000",
+        "--name",
+        "example-resource",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/documents/d/550e8400-e29b-41d4-a716-446655440000/versions\",\n  \"resource\": \"versions\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://cad.onshape.com/api/v6/documents/d/550e8400-e29b-41d4-a716-446655440000/versions\n  Body:\n{\n    \"name\": \"example-resource\"\n  }\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "versions create",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "versions create",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "versions list",
+      "kind": "help",
+      "args": [
+        "versions",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List versions in a document\n\nUsage:\n  onshape-pp-cli versions list [flags]\n\nExamples:\n  onshape-pp-cli versions list --did 3cb6ad4256bb099a0e4813ab\n\nFlags:\n      --did string   Document ID\n  -h, --help         help for list\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'onshape-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "versions list",
+      "kind": "happy_path",
+      "args": [
+        "versions",
+        "list",
+        "--did",
+        "3cb6ad4256bb099a0e4813ab"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": [\n    {\n      \"metadataWorkspaceId\": \"7bc79a1d5556419ffb269146\",\n      \"purpose\": 0,\n      \"parent\": \"\",\n      \"type\": \"version\",\n      \"creator\": {\n        \"jsonType\": \"user-summary\",\n        \"state\": 1,\n        \"isOnshapeSupport\": false,\n        \"image\": \"/images/placeholder-user.png\",\n        \"name\": \"mark hintz\",\n        \"id\": \"69d84fedd7252e94b0e8335c\",\n        \"href\": \"https://cad.onshape.com/api/v6/users/69d84fedd7252e94b0e8335c\"\n      },\n      \"lastModifier\": null,\n      \"description\": \"\",\n      \"createdAt\": \"2026-05-07T13:13:43.633+00:00\",\n      \"modifiedAt\": \"2026-05-07T13:13:46.437+00:00\",\n      \"thumbnail\": null,\n      \"documentId\": \"3cb6ad4256bb099a0e4813ab\",\n      \"microversion\": \"0550670ecceebf18f0fbeac8\",\n      \"parents\": null,\n      \"overrideDate\": null,\n      \"name\": \"Start\",\n      \"id\": \"5d0e111e540a4fb0e9ad6385\",\n      \"href\": null\n    }\n  ]\n}\n"
+    },
+    {
+      "command": "versions list",
+      "kind": "json_fidelity",
+      "args": [
+        "versions",
+        "list",
+        "--did",
+        "3cb6ad4256bb099a0e4813ab",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": [\n    {\n      \"metadataWorkspaceId\": \"7bc79a1d5556419ffb269146\",\n      \"purpose\": 0,\n      \"parent\": \"\",\n      \"type\": \"version\",\n      \"creator\": {\n        \"jsonType\": \"user-summary\",\n        \"state\": 1,\n        \"isOnshapeSupport\": false,\n        \"image\": \"/images/placeholder-user.png\",\n        \"name\": \"mark hintz\",\n        \"id\": \"69d84fedd7252e94b0e8335c\",\n        \"href\": \"https://cad.onshape.com/api/v6/users/69d84fedd7252e94b0e8335c\"\n      },\n      \"lastModifier\": null,\n      \"description\": \"\",\n      \"createdAt\": \"2026-05-07T13:13:43.633+00:00\",\n      \"modifiedAt\": \"2026-05-07T13:13:46.437+00:00\",\n      \"thumbnail\": null,\n      \"documentId\": \"3cb6ad4256bb099a0e4813ab\",\n      \"microversion\": \"0550670ecceebf18f0fbeac8\",\n      \"parents\": null,\n      \"overrideDate\": null,\n      \"name\": \"Start\",\n      \"id\": \"5d0e111e540a4fb0e9ad6385\",\n      \"href\": null\n    }\n  ]\n}\n"
+    },
+    {
+      "command": "versions list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "which",
+      "kind": "help",
+      "args": [
+        "which",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "which resolves a natural-language capability query (for example, \"search messages\" or \"stale tickets\") to the best matching command from this CLI's curated feature index.\n\nExit codes:\n  0  at least one match found\n  2  no confident match - the query did not score against any indexed capability; fall back to '--help' or 'search' if this CLI has one\n\nUsage:\n  onshape-pp-cli which [query] [flags]\n\nExamples:\n  onshape-pp-cli which \"stale tickets\"\n  onshape-pp-cli which \"bottleneck\"\n  onshape-pp-cli which --limit 1 \"send message\"\n  onshape-pp-cli which                                # list the full capability index\n\nFlags:\n  -h, --help        help for which\n      --limit int   Maximum number of matches to return (default 3)\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'onshape-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "which",
+      "kind": "happy_path",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "json_fidelity",
+      "args": null,
+      "status": "skip",
+      "reason": "command path [which] has fewer segments than placeholders (1)"
+    },
+    {
+      "command": "which",
+      "kind": "error_path",
+      "args": [
+        "which",
+        "__printing_press_invalid__",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"matches\": []\n}\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "archive",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Archive fetches all syncable resources from the API and stores them in a\nlocal SQLite database. Supports incremental sync (only new data since last run)\nand full resync. After archiving, use 'search' for instant full-text search.\n\nUsage:\n  onshape-pp-cli workflow archive [flags]\n\nExamples:\n  # Archive all resources\n  onshape-pp-cli workflow archive\n\n  # Full re-archive (ignore previous sync state)\n  onshape-pp-cli workflow archive --full\n\nFlags:\n      --db string   Database path (default: ~/.local/share/onshape-pp-cli/data.db)\n      --full        Full re-archive (ignore previous sync state)\n  -h, --help        help for archive\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'onshape-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "archive"
+      ],
+      "status": "pass",
+      "output_sample": "{\"event\":\"sync_start\",\"resource\":\"documents\"}\n{\"event\":\"sync_warning\",\"resource\":\"documents\",\"reason\":\"resource_not_incremental\",\"message\":\"endpoint does not declare a temporal filter parameter; incremental sync has no effect for this resource\"}\n{\"event\":\"sync_progress\",\"resource\":\"documents\",\"fetched\":20}\n{\"event\":\"sync_complete\",\"resource\":\"documents\",\"total\":20,\"duration_ms\":892}\nArchived 20 items across 1 resources to /tmp/printing-press-subprocess-PP_PROCESS_PID/.local/share/onshape-pp-cli/data.db\n  documents: 20 synced\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "archive",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"resources_synced\": 1,\n  \"store_path\": \"/tmp/printing-press-subprocess-PP_PROCESS_PID/.local/share/onshape-pp-cli/data.db\",\n  \"timestamp\": \"2026-05-20T01:01:22Z\",\n  \"total_items\": 20\n}\n  documents: incremental sync ignored (endpoint declares no temporal filter; falling back to full pagination)\n\r  documents: 20 synced  documents: 20 synced\n"
+    },
+    {
+      "command": "workflow archive",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "workflow status",
+      "kind": "help",
+      "args": [
+        "workflow",
+        "status",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Show local archive status and sync state for all resources\n\nUsage:\n  onshape-pp-cli workflow status [flags]\n\nExamples:\n  # Show archive status\n  onshape-pp-cli workflow status\n\n  # Show status as JSON\n  onshape-pp-cli workflow status --json\n\nFlags:\n      --db string   Database path\n  -h, --help        help for status\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'onshape-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "happy_path",
+      "args": [
+        "workflow",
+        "status"
+      ],
+      "status": "pass",
+      "output_sample": "Archive Status:\n  parts                          40 items\n  versions                       1 items\n  documents                      20 items\n  elements                       76 items\n\n  Total: 137 items\n  Store: /tmp/printing-press-subprocess-PP_PROCESS_PID/.local/share/onshape-pp-cli/data.db\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "json_fidelity",
+      "args": [
+        "workflow",
+        "status",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"documents\": 20,\n  \"elements\": 76,\n  \"parts\": 40,\n  \"versions\": 1\n}\n"
+    },
+    {
+      "command": "workflow status",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "workspaces create",
+      "kind": "help",
+      "args": [
+        "workspaces",
+        "create",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Create a new workspace\n\nUsage:\n  onshape-pp-cli workspaces create [flags]\n\nExamples:\n  onshape-pp-cli workspaces create --did 550e8400-e29b-41d4-a716-446655440000 --name example-resource\n\nFlags:\n      --description string   Workspace description\n      --did string           Document ID\n  -h, --help                 help for create\n      --name string          Workspace name\n      --stdin                Read request body as JSON from stdin\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'onshape-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workspaces create",
+      "kind": "happy_path",
+      "args": [
+        "workspaces",
+        "create",
+        "--did",
+        "550e8400-e29b-41d4-a716-446655440000",
+        "--name",
+        "example-resource",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/documents/d/550e8400-e29b-41d4-a716-446655440000/workspaces\",\n  \"resource\": \"workspaces\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://cad.onshape.com/api/v6/documents/d/550e8400-e29b-41d4-a716-446655440000/workspaces\n  Body:\n{\n    \"name\": \"example-resource\"\n  }\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "workspaces create",
+      "kind": "json_fidelity",
+      "args": [
+        "workspaces",
+        "create",
+        "--did",
+        "550e8400-e29b-41d4-a716-446655440000",
+        "--name",
+        "example-resource",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"post\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/documents/d/550e8400-e29b-41d4-a716-446655440000/workspaces\",\n  \"resource\": \"workspaces\",\n  \"status\": 0,\n  \"success\": false\n}\nPOST https://cad.onshape.com/api/v6/documents/d/550e8400-e29b-41d4-a716-446655440000/workspaces\n  Body:\n{\n    \"name\": \"example-resource\"\n  }\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "workspaces create",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "workspaces create",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "workspaces delete",
+      "kind": "help",
+      "args": [
+        "workspaces",
+        "delete",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "Delete a workspace\n\nUsage:\n  onshape-pp-cli workspaces delete [flags]\n\nExamples:\n  onshape-pp-cli workspaces delete --did 550e8400-e29b-41d4-a716-446655440000 --wid 550e8400-e29b-41d4-a716-446655440000\n\nFlags:\n      --did string   Document ID\n  -h, --help         help for delete\n      --wid string   Workspace ID\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'onshape-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workspaces delete",
+      "kind": "happy_path",
+      "args": [
+        "workspaces",
+        "delete",
+        "--did",
+        "550e8400-e29b-41d4-a716-446655440000",
+        "--wid",
+        "550e8400-e29b-41d4-a716-446655440000",
+        "--dry-run"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"delete\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/documents/d/550e8400-e29b-41d4-a716-446655440000/workspaces/550e8400-e29b-41d4-a716-446655440000\",\n  \"resource\": \"workspaces\",\n  \"status\": 0,\n  \"success\": false\n}\nDELETE https://cad.onshape.com/api/v6/documents/d/550e8400-e29b-41d4-a716-446655440000/workspaces/550e8400-e29b-41d4-a716-446655440000\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "workspaces delete",
+      "kind": "json_fidelity",
+      "args": [
+        "workspaces",
+        "delete",
+        "--did",
+        "550e8400-e29b-41d4-a716-446655440000",
+        "--wid",
+        "550e8400-e29b-41d4-a716-446655440000",
+        "--dry-run",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"action\": \"delete\",\n  \"data\": {\n    \"dry_run\": true\n  },\n  \"dry_run\": true,\n  \"path\": \"/documents/d/550e8400-e29b-41d4-a716-446655440000/workspaces/550e8400-e29b-41d4-a716-446655440000\",\n  \"resource\": \"workspaces\",\n  \"status\": 0,\n  \"success\": false\n}\nDELETE https://cad.onshape.com/api/v6/documents/d/550e8400-e29b-41d4-a716-446655440000/workspaces/550e8400-e29b-41d4-a716-446655440000\n\n(dry run - no request sent)\n"
+    },
+    {
+      "command": "workspaces delete",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    },
+    {
+      "command": "workspaces delete",
+      "kind": "error_path_real",
+      "args": null,
+      "status": "skip",
+      "reason": "mutating command dry-run only"
+    },
+    {
+      "command": "workspaces list",
+      "kind": "help",
+      "args": [
+        "workspaces",
+        "list",
+        "--help"
+      ],
+      "status": "pass",
+      "output_sample": "List workspaces in a document\n\nUsage:\n  onshape-pp-cli workspaces list [flags]\n\nExamples:\n  onshape-pp-cli workspaces list --did 3cb6ad4256bb099a0e4813ab\n\nFlags:\n      --did string   Document ID\n  -h, --help         help for list\n\nGlobal Flags:\n      --agent                   Set all agent-friendly defaults (--json --compact --no-input --no-color --yes)\n      --allow-partial-failure   Downgrade response-body partial-failure (e.g. partialFailureError) to a warning instead of a non-zero exit\n      --compact                 Return only key fields (id, name, status, timestamps) for minimal token usage\n      --config string           Config file path\n      --csv                     Output as CSV (table and array responses)\n      --data-source string      Data source for read commands: auto (live with local fallback), live (API only), local (synced data only) (default \"auto\")\n      --deliver string          Route output to a sink: stdout (default), file:\u003cpath\u003e, webhook:\u003curl\u003e\n      --dry-run                 Show request without sending\n      --human-friendly          Enable colored output and rich formatting\n      --idempotent              Treat already-existing create results as a successful no-op\n      --ignore-missing          Treat missing delete targets as a successful no-op\n      --json                    Output as JSON\n      --no-cache                Bypass response cache\n      --no-color                Disable colored output\n      --no-input                Disable all interactive prompts (for CI/agents)\n      --plain                   Output as plain tab-separated text\n      --profile string          Apply values from a saved profile (see 'onshape-pp-cli profile list')\n      --quiet                   Bare output, one value per line\n      --rate-limit float        Max requests per second (0 to disable)\n      --select string           Comma-separated fields to include in output (e.g. --select id,name,status)\n      --timeout duration        Request timeout (default 30s)\n      --yes                     Skip confirmation prompts (for agents and scripts)\n"
+    },
+    {
+      "command": "workspaces list",
+      "kind": "happy_path",
+      "args": [
+        "workspaces",
+        "list",
+        "--did",
+        "3cb6ad4256bb099a0e4813ab"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": [\n    {\n      \"state\": \"ACTIVE\",\n      \"canDelete\": false,\n      \"protectionRule\": \"OPEN\",\n      \"isReadOnly\": false,\n      \"parent\": \"5d0e111e540a4fb0e9ad6385\",\n      \"type\": \"workspace\",\n      \"creator\": {\n        \"jsonType\": \"user-summary\",\n        \"state\": 1,\n        \"isOnshapeSupport\": false,\n        \"image\": \"/images/placeholder-user.png\",\n        \"name\": \"mark hintz\",\n        \"id\": \"69d84fedd7252e94b0e8335c\",\n        \"href\": \"https://cad.onshape.com/api/v6/users/69d84fedd7252e94b0e8335c\"\n      },\n      \"lastModifier\": {\n        \"jsonType\": \"user-summary\",\n        \"state\": 1,\n        \"isOnshapeSupport\": false,\n        \"image\": \"/images/placeholder-user.png\",\n        \"name\": \"mark hintz\",\n        \"id\": \"69d84fedd7252e94b0e8335c\",\n        \"href\": \"https://cad.onshape.com/api/v6/users/69d84fedd7252e94b0e8335c\"\n      },\n      \"description\": \"\",\n      \"modifiedAt\": \"2026-05-07T13:13:45.031+00:00\",\n      \"thumbnail\": null,\n      \"documentId\": \"3cb6ad4256bb099a0e4813ab\",\n      \"createdAt\": \"2026-05-07T13:13:43.555+00:00\",\n      \"microversion\": \"0550670ecceebf18f0fbeac8\",\n      \"parents\": null,\n      \"overrideDate\": \"2026-05-07T13:13:45.031+00:00\",\n      \"name\": \"Main\",\n      \"id\": \"b3fe484986a689a317b7259b\",\n      \"href\": \"https://cad.onshape.com/api/v6/documents/d/3cb6ad4256bb099a0e4813ab/workspaces/b3fe484986a689a317b7259b\"\n    }\n  ]\n}\n"
+    },
+    {
+      "command": "workspaces list",
+      "kind": "json_fidelity",
+      "args": [
+        "workspaces",
+        "list",
+        "--did",
+        "3cb6ad4256bb099a0e4813ab",
+        "--json"
+      ],
+      "status": "pass",
+      "output_sample": "{\n  \"meta\": {\n    \"source\": \"live\"\n  },\n  \"results\": [\n    {\n      \"state\": \"ACTIVE\",\n      \"canDelete\": false,\n      \"protectionRule\": \"OPEN\",\n      \"isReadOnly\": false,\n      \"parent\": \"5d0e111e540a4fb0e9ad6385\",\n      \"type\": \"workspace\",\n      \"creator\": {\n        \"jsonType\": \"user-summary\",\n        \"state\": 1,\n        \"isOnshapeSupport\": false,\n        \"image\": \"/images/placeholder-user.png\",\n        \"name\": \"mark hintz\",\n        \"id\": \"69d84fedd7252e94b0e8335c\",\n        \"href\": \"https://cad.onshape.com/api/v6/users/69d84fedd7252e94b0e8335c\"\n      },\n      \"lastModifier\": {\n        \"jsonType\": \"user-summary\",\n        \"state\": 1,\n        \"isOnshapeSupport\": false,\n        \"image\": \"/images/placeholder-user.png\",\n        \"name\": \"mark hintz\",\n        \"id\": \"69d84fedd7252e94b0e8335c\",\n        \"href\": \"https://cad.onshape.com/api/v6/users/69d84fedd7252e94b0e8335c\"\n      },\n      \"description\": \"\",\n      \"modifiedAt\": \"2026-05-07T13:13:45.031+00:00\",\n      \"thumbnail\": null,\n      \"documentId\": \"3cb6ad4256bb099a0e4813ab\",\n      \"createdAt\": \"2026-05-07T13:13:43.555+00:00\",\n      \"microversion\": \"0550670ecceebf18f0fbeac8\",\n      \"parents\": null,\n      \"overrideDate\": \"2026-05-07T13:13:45.031+00:00\",\n      \"name\": \"Main\",\n      \"id\": \"b3fe484986a689a317b7259b\",\n      \"href\": \"https://cad.onshape.com/api/v6/documents/d/3cb6ad4256bb099a0e4813ab/workspaces/b3fe484986a689a317b7259b\"\n    }\n  ]\n}\n"
+    },
+    {
+      "command": "workspaces list",
+      "kind": "error_path",
+      "args": null,
+      "status": "skip",
+      "reason": "no positional argument"
+    }
+  ],
+  "ran_at": "2026-05-20T01:00:38.219160525Z"
+}
