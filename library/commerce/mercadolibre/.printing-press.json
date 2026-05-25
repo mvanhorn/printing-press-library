@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-25T01:15:15.3165263Z",
+  "printing_press_version": "4.14.0",
+  "api_name": "mercadolibre",
+  "display_name": "Mercadolibre",
+  "cli_name": "mercadolibre-pp-cli",
+  "owner": "leacast",
+  "printer": "LeaCast",
+  "printer_name": "Leandro Castagno",
+  "spec_path": "C:\\Users\\leand\\printing-press\\library\\mercadolibre\\spec.yaml",
+  "spec_format": "internal",
+  "spec_checksum": "sha256:9821c48aebbb5678f4ad7fa267c33cd645fc8444bc42cc1f1b715c68103943d3",
+  "run_id": "20260525-011515",
+  "description": "CLI cross-platform para la API de MercadoLibre.",
+  "mcp_binary": "mercadolibre-pp-mcp",
+  "mcp_tool_count": 12,
+  "mcp_ready": "full",
+  "api_version": "0.1.0",
+  "auth_type": "bearer_token",
+  "auth_env_vars": [
+    "MERCADOLIBRE_ACCESS_TOKEN"
+  ],
+  "auth_env_var_specs": [
+    {
+      "name": "MERCADOLIBRE_ACCESS_TOKEN",
+      "kind": "per_call",
+      "required": false,
+      "sensitive": true
+    }
+  ],
+  "novel_features": [
+    {
+      "name": "watch (stub)",
+      "command": "watch",
+      "description": "Poll a saved catalog search at interval; emit JSON line on new product appearance (diff vs prior run). Cron-friendly resale-opportunity radar."
+    },
+    {
+      "name": "compare (stub)",
+      "command": "compare",
+      "description": "Token-bag fingerprint dedup of catalog search results. Collapses near-duplicate listings to one exemplar per fingerprint."
+    },
+    {
+      "name": "ml-analytics (stub)",
+      "command": "ml-analytics",
+      "description": "Local SQLite analytics over synced catalog: price percentiles, IQR outlier trim, top sellers by category, std-dev distribution."
+    }
+  ]
+}

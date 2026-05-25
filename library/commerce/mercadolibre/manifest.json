@@ -1,0 +1,38 @@
+{
+  "manifest_version": "0.3",
+  "name": "mercadolibre-pp-mcp",
+  "display_name": "Mercadolibre",
+  "version": "4.14.0",
+  "description": "CLI cross-platform para la API de MercadoLibre.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/mercadolibre-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/mercadolibre-pp-mcp",
+      "args": [],
+      "env": {
+        "MERCADOLIBRE_ACCESS_TOKEN": "${user_config.mercadolibre_access_token}"
+      }
+    }
+  },
+  "user_config": {
+    "mercadolibre_access_token": {
+      "type": "string",
+      "title": "MERCADOLIBRE_ACCESS_TOKEN",
+      "description": "Optional. Sets MERCADOLIBRE_ACCESS_TOKEN for the Mercadolibre MCP server.",
+      "sensitive": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

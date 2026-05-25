@@ -1,0 +1,51 @@
+version: 2
+project_name: mercadolibre-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: mercadolibre-pp-cli
+    main: ./cmd/mercadolibre-pp-cli
+    binary: mercadolibre-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X mercadolibre-pp-cli/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: mercadolibre-pp-mcp
+    main: ./cmd/mercadolibre-pp-mcp
+    binary: mercadolibre-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: mercadolibre-pp-cli
+    repository:
+      owner: leacast
+      name: homebrew-tap
+    homepage: "https://github.com/leacast/mercadolibre-pp-cli"
+    description: "CLI cross-platform para la API de MercadoLibre."
+    install: |
+      bin.install "mercadolibre-pp-cli"
+      bin.install "mercadolibre-pp-mcp"

@@ -1,0 +1,89 @@
+{
+  "api_name": "mercadolibre",
+  "novelty_score": 3,
+  "alternatives": [
+    {
+      "name": "mercadolibre/ml-api-node-sdk",
+      "url": "https://github.com/mercadolibre/ml-api-node-sdk",
+      "language": "JavaScript",
+      "install_method": "npm install meli",
+      "stars": 154,
+      "last_updated": "2020-03-04",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": true
+    },
+    {
+      "name": "newaeonweb/mercadolibre",
+      "url": "https://github.com/newaeonweb/mercadolibre",
+      "language": "PHP",
+      "install_method": "composer require newaeonweb/mercadolibre",
+      "stars": 38,
+      "last_updated": "2022-11-10",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": true
+    },
+    {
+      "name": "mercadolibre/python-sdk",
+      "url": "https://github.com/mercadolibre/python-sdk",
+      "language": "Python",
+      "install_method": "pip install mercadolibre",
+      "stars": 99,
+      "last_updated": "2019-06-20",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": true
+    }
+  ],
+  "gaps": null,
+  "patterns": null,
+  "recommendation": "",
+  "researched_at": "0001-01-01T00:00:00Z",
+  "novel_features": [
+    {
+      "name": "Public-path auth omission",
+      "command": "countries (implicit)",
+      "description": "HTTP client skips Authorization header on documented public path prefixes (/classified_locations/*). The CLI works for users without a token AND for users whose 6h OAuth token has expired or become invalid.",
+      "rationale": "Discovered during release v0.1.0 smoke test: ML rejects expired tokens with HTTP 401 even on endpoints that don't require auth. README documented countries as public but the CLI made it unreachable for any user with a stale token. Fixed by isPublicPath() check in internal/client/client.go."
+    },
+    {
+      "name": "watch (stub)",
+      "command": "watch",
+      "description": "Poll a saved catalog search at interval; emit JSON line on new product appearance (diff vs prior run). Cron-friendly resale-opportunity radar.",
+      "rationale": "ML API has no native webhook for new products in a category. Client-side poll-and-diff is the only path. Hidden experimental stub in v0.1.x; per-command logic ships in v0.2.x."
+    },
+    {
+      "name": "compare (stub)",
+      "command": "compare",
+      "description": "Token-bag fingerprint dedup of catalog search results. Collapses near-duplicate listings to one exemplar per fingerprint.",
+      "rationale": "ML catalog search returns variant collisions (same product in 3 colors as 3 entries). Client-side dedup helps analytics workflows. Hidden experimental stub in v0.1.x."
+    },
+    {
+      "name": "ml-analytics (stub)",
+      "command": "ml-analytics",
+      "description": "Local SQLite analytics over synced catalog: price percentiles, IQR outlier trim, top sellers by category, std-dev distribution.",
+      "rationale": "ML API does not expose category-level price aggregations. Client-side stats over synced data fills the gap for pricing-intelligence workflows. Hidden experimental stub in v0.1.x."
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "watch (stub)",
+      "command": "watch",
+      "description": "Poll a saved catalog search at interval; emit JSON line on new product appearance (diff vs prior run). Cron-friendly resale-opportunity radar.",
+      "rationale": "ML API has no native webhook for new products in a category. Client-side poll-and-diff is the only path. Hidden experimental stub in v0.1.x; per-command logic ships in v0.2.x."
+    },
+    {
+      "name": "compare (stub)",
+      "command": "compare",
+      "description": "Token-bag fingerprint dedup of catalog search results. Collapses near-duplicate listings to one exemplar per fingerprint.",
+      "rationale": "ML catalog search returns variant collisions (same product in 3 colors as 3 entries). Client-side dedup helps analytics workflows. Hidden experimental stub in v0.1.x."
+    },
+    {
+      "name": "ml-analytics (stub)",
+      "command": "ml-analytics",
+      "description": "Local SQLite analytics over synced catalog: price percentiles, IQR outlier trim, top sellers by category, std-dev distribution.",
+      "rationale": "ML API does not expose category-level price aggregations. Client-side stats over synced data fills the gap for pricing-intelligence workflows. Hidden experimental stub in v0.1.x."
+    }
+  ]
+}

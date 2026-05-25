@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "applied_at": "2026-05-24",
+  "base_run_id": "20260525-005514",
+  "base_printing_press_version": "4.14.0",
+  "patches": [
+    {
+      "id": "no-auth-on-public-endpoints",
+      "summary": "Omit Authorization header for MercadoLibre's public endpoints (/classified_locations/*) so the CLI works without a token AND for users with an expired/invalid token.",
+      "reason": "Discovered during release v0.1.0 smoke test: the generated HTTP client sends Authorization: Bearer <token> on every request when a token is present in config. MercadoLibre rejects expired tokens with HTTP 401 even on endpoints that don't require auth (like /classified_locations/countries). The README documented this endpoint as 'public — no auth required', but the CLI made it unreachable for any user whose 6h token had expired. Patch adds an isPublicPath() check that clears the auth header for known public path prefixes.",
+      "files": [
+        "internal/client/client.go"
+      ],
+      "validated_outcome": "Built local binary, ran `countries list` with (a) no token, (b) expired token, (c) explicitly invalid token via env — all 3 returned HTTP 200 with 24 countries. `catalog search` with valid token still works (regression check passed).",
+      "deferred_to_upstream": [
+        {
+          "feature": "Per-endpoint auth flag in the Printing Press spec format (e.g. `endpoints.<name>.auth: false` or top-level `public_path_prefixes`), so the generator emits this guard automatically based on the spec instead of requiring a manual patch.",
+          "reason": "Spec format currently has only a top-level `auth` block applied to all endpoints. Many APIs (ML, Stripe webhooks, Twitter status, etc.) mix public and authenticated endpoints; the generator should honor that without per-CLI patches."
+        }
+      ],
+      "upstream_issue": "https://github.com/mvanhorn/cli-printing-press/issues/new?title=Per-endpoint+auth+flag+(public+endpoints)"
+    }
+  ]
+}

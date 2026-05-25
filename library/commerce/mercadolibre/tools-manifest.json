@@ -1,0 +1,258 @@
+{
+  "api_name": "mercadolibre",
+  "base_url": "https://api.mercadolibre.com",
+  "description": "CLI cross-platform para la API de MercadoLibre. Acceso a catalogo de productos, paises, sitios, categorias, perfiles, publicaciones, preguntas y ventas. Cobertura LATAM (AR, BR, MX, CL, CO, UY, etc.). Endpoints publicos no requieren auth; resto via OAuth 2.0 (token en MERCADOLIBRE_ACCESS_TOKEN).",
+  "mcp_ready": "full",
+  "http_transport": "browser-chrome-h2",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "format": "Bearer {MERCADOLIBRE_ACCESS_TOKEN}",
+    "in": "header",
+    "env_vars": [
+      "MERCADOLIBRE_ACCESS_TOKEN"
+    ],
+    "env_var_specs": [
+      {
+        "name": "MERCADOLIBRE_ACCESS_TOKEN",
+        "kind": "per_call",
+        "required": false,
+        "sensitive": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "catalog_get",
+      "description": "Detalle completo de un producto canonico (atributos, fotos, descripcion). Required: product_id. Returns the CatalogProduct.",
+      "method": "GET",
+      "path": "/products/{product_id}",
+      "params": [
+        {
+          "name": "product_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID del producto canonico (ej MLA52108525)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "catalog_search",
+      "description": "Buscar productos canonicos por keyword en un sitio (ej iphone en MLA). Required: site_id. Optional: q, domain_id, limit (default: 50) (plus 1 more). Returns the CatalogSearchResult.",
+      "method": "GET",
+      "path": "/products/search",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "query",
+          "description": "Codigo sitio (MLA=Argentina, MLB=Brasil, MLM=Mexico)",
+          "required": true
+        },
+        {
+          "name": "q",
+          "type": "string",
+          "location": "query",
+          "description": "Keyword de busqueda (ej iphone)"
+        },
+        {
+          "name": "domain_id",
+          "type": "string",
+          "location": "query",
+          "description": "Filtrar por dominio (ej MLA-CELLPHONES)"
+        },
+        {
+          "name": "limit",
+          "type": "integer",
+          "location": "query",
+          "description": "Maximo de resultados (default 50, max 200)"
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "location": "query",
+          "description": "Offset de paginacion"
+        }
+      ]
+    },
+    {
+      "name": "categories_get",
+      "description": "Detalle de categoria con path desde root, atributos requeridos, total items. Required: category_id. Returns the Category.",
+      "method": "GET",
+      "path": "/categories/{category_id}",
+      "params": [
+        {
+          "name": "category_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID de categoria (ej MLA1055 para Celulares)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "categories_list_by_site",
+      "description": "Categorias raiz de un sitio (top-level). Required: site_id. Returns array of Category.",
+      "method": "GET",
+      "path": "/sites/{site_id}/categories",
+      "params": [
+        {
+          "name": "site_id",
+          "type": "string",
+          "location": "path",
+          "description": "Codigo sitio (MLA, MLB, MLM, etc.)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "countries_get",
+      "description": "Detalle de un pais (estados, geografia). Required: country_id. Returns the Country.",
+      "method": "GET",
+      "path": "/classified_locations/countries/{country_id}",
+      "params": [
+        {
+          "name": "country_id",
+          "type": "string",
+          "location": "path",
+          "description": "Codigo ISO del pais (ej AR, BR, MX)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "countries_list",
+      "description": "Lista todos los paises soportados por MercadoLibre (publico, sin OAuth). Returns array of Country.",
+      "method": "GET",
+      "path": "/classified_locations/countries",
+      "params": []
+    },
+    {
+      "name": "items_get",
+      "description": "Detalle completo de una publicacion (precio, stock, fotos, descripcion, vendedor). Required: item_id. Returns the Item.",
+      "method": "GET",
+      "path": "/items/{item_id}",
+      "params": [
+        {
+          "name": "item_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID de la publicacion (ej MLA1549047969)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "questions_answer",
+      "description": "Responder una pregunta especifica. Required: question_id, text. Returns the new Answer.",
+      "method": "POST",
+      "path": "/answers",
+      "params": [
+        {
+          "name": "question_id",
+          "type": "integer",
+          "location": "body",
+          "description": "ID de la pregunta a responder",
+          "required": true
+        },
+        {
+          "name": "text",
+          "type": "string",
+          "location": "body",
+          "description": "Texto de la respuesta (max 2000 chars)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "questions_list",
+      "description": "Listar preguntas en publicaciones de un vendedor. Required: seller_id. Optional: status, limit (default: 50), offset (default: 0). Returns the QuestionList.",
+      "method": "GET",
+      "path": "/questions/search",
+      "params": [
+        {
+          "name": "seller_id",
+          "type": "string",
+          "location": "query",
+          "description": "ID del vendedor cuyas preguntas se quieren listar",
+          "required": true
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Filtro (UNANSWERED/ANSWERED/CLOSED_UNANSWERED)"
+        },
+        {
+          "name": "limit",
+          "type": "integer",
+          "location": "query",
+          "description": "Maximo resultados"
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "location": "query",
+          "description": "Offset paginacion"
+        }
+      ]
+    },
+    {
+      "name": "sites_list",
+      "description": "Lista todos los sitios MercadoLibre (codigo de pais + currency). Returns array of Site.",
+      "method": "GET",
+      "path": "/sites",
+      "params": []
+    },
+    {
+      "name": "users_get",
+      "description": "Perfil de usuario/vendedor (nick, reputacion, fecha registro). Required: user_id. Returns the User.",
+      "method": "GET",
+      "path": "/users/{user_id}",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID numerico del usuario (ej 1234567890)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "users_items",
+      "description": "Publicaciones de un vendedor (con filtros de estado). Required: user_id. Optional: status (default: active), limit (default: 50), offset (default: 0). Returns the SearchResult.",
+      "method": "GET",
+      "path": "/users/{user_id}/items/search",
+      "params": [
+        {
+          "name": "user_id",
+          "type": "string",
+          "location": "path",
+          "description": "ID numerico del usuario",
+          "required": true
+        },
+        {
+          "name": "status",
+          "type": "string",
+          "location": "query",
+          "description": "Filtro estado (active/paused/closed)"
+        },
+        {
+          "name": "limit",
+          "type": "integer",
+          "location": "query",
+          "description": "Maximo resultados"
+        },
+        {
+          "name": "offset",
+          "type": "integer",
+          "location": "query",
+          "description": "Offset paginacion"
+        }
+      ]
+    }
+  ]
+}
