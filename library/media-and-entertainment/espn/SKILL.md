@@ -286,7 +286,7 @@ Given `$ARGUMENTS`:
 <!-- pr-218-features -->
 ## Automatic learning
 
-Two-call protocol: `recall` before discovery, `teach &` before emitting. The CLI does entity-aware match validation; you read the envelope and follow the four-branch decision tree. Skipping either side costs you free recall hits in future sessions.
+Two-call protocol: `recall` before discovery, `teach &` before emitting. The CLI does entity-aware match validation AND surfaces stored playbooks for the query family; you read the envelope and follow the six-branch decision tree. Skipping either side costs you free recall hits in future sessions.
 
 ### Step 1: `recall` before any discovery
 
@@ -311,28 +311,56 @@ The response envelope:
       "source": "taught|preseed|pattern", "warnings": ["..."] }
   ],
   "mismatches": [ /* only when --debug-mismatches */ ],
-  "warnings": [ /* top-level */ ]
+  "warnings": [ /* top-level */ ],
+  "playbook": {
+    "query_family": "...",
+    "playbook": {
+      "steps": [ { "cmd": "teams basketball nba {team.id}", "purpose": "..." }, ... ],
+      "entity_slots": ["$TEAM", "$STATS"],
+      "expected_tool_calls": 3
+    },
+    "slots_resolved": { "$TEAM": { "token": "pistons", "canonical": "Detroit Pistons" } },
+    "notes": "byathlete needs seasontype=2; categories has dup labels"
+  },
+  "notes": "byathlete needs seasontype=2; categories has dup labels"
 }
 ```
 
-### Step 2: four-branch decision tree
+### Step 2: six-branch decision tree
 
-Read `results[0]` and decide:
+Read `playbook`, `notes`, `results[0]`, and warnings in that order:
 
 ```
-if Found AND Results[0].EntityMatch == "exact" AND Results[0].Confidence >= 2:
+if Playbook present:
+    -> READ Playbook.notes verbatim FIRST (workarounds + gotchas the CLI surface doesn't expose)
+    -> replay Playbook.steps in order, substituting Playbook.slots_resolved entries
+       for the entity slot tokens. If a step's slot is unresolved, fall back to
+       discovery for that step only.
+    -> the Playbook's expected_tool_calls is a budget; if you find yourself running
+       materially more, record the divergence via teach-playbook at end-of-session.
+
+elif Notes present (no Playbook):
+    -> read Notes verbatim before any discovery step; they carry known gotchas
+       for this query family even when no structured choreography exists yet.
+
+elif Found AND Results[0].EntityMatch == "exact" AND Results[0].Confidence >= 2:
     -> skip discovery; fetch live data for Results[*].ResourceID in parallel
        (e.g., espn-pp-cli boxscore <eid> for an event, espn-pp-cli teams ... for a team)
+
 elif Found AND Results[0].EntityMatch == "partial":
     -> candidate hint, NOT a hit; read the resource title to validate before trusting
+
 elif (any row in Mismatches[] when --debug-mismatches was passed):
     -> treat as cold start; the stored learning is for a different entity
        (e.g., a "Cowboys" learning won't satisfy a "Niners" query — different canonical)
-else:  // Found == false
-    -> cold start; run discovery normally; teach the answer afterward
+
+else:  // Found == false, no playbook, no notes
+    -> cold start; run discovery normally; teach the answer afterward AND record
+       a playbook + notes via teach --playbook-file --playbook-notes-file so the
+       next session of the same family is faster.
 ```
 
-Default to skipping `mismatches` (mismatch rows are filtered out of `results`). Pass `--debug-mismatches` only when investigating *why* a query you expected to recall came back cold.
+Playbook and Notes are orthogonal to the per-resource path. A recall response can carry both a Playbook AND a Results[] hit — use both: the Playbook tells you which choreography to run; the resource hits short-circuit specific steps. Default to skipping `mismatches`; pass `--debug-mismatches` only when investigating cold-start surprises.
 
 ### Step 3: always read `warnings`
 
@@ -350,6 +378,27 @@ espn-pp-cli teach --query "<user's question>" --resource-type <events|news|teams
 ```
 
 Silent on success. Teach the **most specific** resource — if the user asked "when's next Spurs game" and you walked the teams scoreboard to find event `401747632`, teach that event ID, not the team ID. The CLI uses the seeded entity_lookups (NFL/NBA/MLB/MLS team rosters with aliases like Niners/49ers/SF) for cross-alias resolution at recall time, so a teach under "Niners" will satisfy future "49ers" queries automatically.
+
+### Step 5: record a playbook when discovery took >5 calls
+
+If you ran more than 5 tool calls to answer the question AND you discovered workarounds the CLI didn't surface (silently-dropped flags, undocumented params, pagination tricks, payload gotchas), record them so the next session of the same query family skips that discovery. Two surfaces:
+
+```bash
+# Common case: along with the resource teach
+espn-pp-cli teach --query "<question>" --resource-type <type> --resource <id> \
+  --playbook-file ~/playbooks/season-recap.json \
+  --playbook-notes-file ~/playbooks/season-recap-notes.md
+# (append shell `&` to background it)
+
+# Standalone: notes-only or recipe-only
+espn-pp-cli teach-playbook --query "<question>" \
+  --playbook-file ~/playbooks/season-recap.json \
+  --notes "byathlete needs seasontype=2; categories has dup labels"
+```
+
+Playbook files are JSON with `steps`, `entity_slots`, `expected_tool_calls`. Notes files are markdown carrying the gotchas verbatim. Either field may be empty; both empty is rejected. Playbooks are keyed on the structural query family (entities stripped) so a recipe taught from "how did Warriors end the season" applies to Pistons, Heat, and every other team query of the same shape.
+
+When you DO find a playbook on a future recall, treat it as ground truth: replay the steps with `slots_resolved` substitutions, skip the discovery that the choreography already documents, and read `notes` before any step.
 
 ### Worked examples
 
