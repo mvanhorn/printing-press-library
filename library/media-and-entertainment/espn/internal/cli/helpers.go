@@ -1040,3 +1040,47 @@ func defaultDBPath(name string) string {
 	home, _ := os.UserHomeDir()
 	return filepath.Join(home, ".local", "share", name, "data.db")
 }
+
+// dryRunOK reports whether the command should exit early because the user
+// passed --dry-run. Centralizing the check keeps the no-op shape uniform
+// across hand-written novel commands (export, import, sync, etc.) and the
+// generator-emitted commands.
+func dryRunOK(flags *rootFlags) bool {
+	return flags != nil && flags.dryRun
+}
+
+// parentNoSubcommandRunE returns a RunE that handles parents invoked without a
+// subcommand. In machine output (--json/--agent) the parent emits a structured
+// error to stdout listing valid subcommands and exits 2; otherwise cobra's
+// default help text is printed.
+func parentNoSubcommandRunE(flags *rootFlags) func(*cobra.Command, []string) error {
+	return func(cmd *cobra.Command, args []string) error {
+		if flags != nil && flags.asJSON {
+			subs := make([]string, 0, len(cmd.Commands()))
+			for _, c := range cmd.Commands() {
+				if c.IsAvailableCommand() && c.Name() != "help" {
+					subs = append(subs, c.Name())
+				}
+			}
+			sort.Strings(subs)
+			_ = json.NewEncoder(cmd.OutOrStdout()).Encode(map[string]any{
+				"error":             "subcommand required",
+				"valid_subcommands": subs,
+			})
+			return usageErr(fmt.Errorf("subcommand required for %q", cmd.CommandPath()))
+		}
+		return cmd.Help()
+	}
+}
+
+// printJSONFiltered routes a Go value through the same output pipeline the
+// pipeline endpoint-mirror commands use. Hand-written novel commands that
+// build a typed slice/struct call this so --select, --compact, --csv, and
+// --quiet all behave the same way as on generator-emitted commands.
+func printJSONFiltered(w io.Writer, v any, flags *rootFlags) error {
+	raw, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	return printOutputWithFlags(w, json.RawMessage(raw), flags)
+}

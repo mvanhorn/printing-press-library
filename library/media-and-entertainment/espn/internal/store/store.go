@@ -4,6 +4,7 @@
 package store
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -11,6 +12,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 
 	_ "modernc.org/sqlite"
@@ -23,12 +25,30 @@ func IsUUID(s string) bool {
 	return uuidPattern.MatchString(s)
 }
 
+// StoreSchemaVersion is the on-disk schema version this binary understands.
+// It is stamped into SQLite's PRAGMA user_version on fresh databases and
+// checked on every open. Learn-enabled CLIs advance to v6 for the
+// canonical learn-loop tables ported from prediction-goat.
+const StoreSchemaVersion = 6
+
 type Store struct {
-	db   *sql.DB
-	path string
+	db *sql.DB
+	// writeMu serializes all DB writes. Read paths bypass the lock and run
+	// concurrently against WAL.
+	writeMu sync.Mutex
+	path    string
 }
 
+// Open opens or creates the SQLite store at dbPath using the background
+// context. Prefer OpenWithContext from a Cobra command so SIGINT during
+// a slow migration interrupts the open instead of stranding the caller.
 func Open(dbPath string) (*Store, error) {
+	return OpenWithContext(context.Background(), dbPath)
+}
+
+// OpenWithContext opens or creates the SQLite store at dbPath. The
+// context is honored by the migration path.
+func OpenWithContext(ctx context.Context, dbPath string) (*Store, error) {
 	if err := os.MkdirAll(filepath.Dir(dbPath), 0o755); err != nil {
 		return nil, fmt.Errorf("creating db directory: %w", err)
 	}
@@ -38,10 +58,12 @@ func Open(dbPath string) (*Store, error) {
 		return nil, fmt.Errorf("opening database: %w", err)
 	}
 
-	db.SetMaxOpenConns(1)
+	// WAL mode + 2 connections allows one read cursor open while a second
+	// query executes. Writes are still serialized by SQLite's WAL lock.
+	db.SetMaxOpenConns(2)
 
 	s := &Store{db: db, path: dbPath}
-	if err := s.migrate(); err != nil {
+	if err := s.migrate(ctx); err != nil {
 		db.Close()
 		return nil, fmt.Errorf("running migrations: %w", err)
 	}
@@ -53,7 +75,29 @@ func (s *Store) Close() error {
 	return s.db.Close()
 }
 
-func (s *Store) migrate() error {
+// Path returns the on-disk path of the backing SQLite file.
+func (s *Store) Path() string {
+	return s.path
+}
+
+// DB exposes the underlying *sql.DB for callers that need to run ad-hoc
+// queries (e.g., learn-loop helpers). Callers must not call Close on the
+// returned handle.
+func (s *Store) DB() *sql.DB {
+	return s.db
+}
+
+// SchemaVersion reads PRAGMA user_version, which is stamped by migrate().
+// A zero value means the database predates the schema-version gate.
+func (s *Store) SchemaVersion() (int, error) {
+	var v int
+	if err := s.db.QueryRow(`PRAGMA user_version`).Scan(&v); err != nil {
+		return 0, fmt.Errorf("read user_version: %w", err)
+	}
+	return v, nil
+}
+
+func (s *Store) migrate(ctx context.Context) error {
 	migrations := []string{
 		// Generic resources table (kept for backward compat)
 		`CREATE TABLE IF NOT EXISTS resources (
@@ -222,12 +266,97 @@ func (s *Store) migrate() error {
 			data JSON NOT NULL,
 			synced_at DATETIME DEFAULT CURRENT_TIMESTAMP
 		)`,
+
+		// CLI Printing Press: learn migrations
+		//
+		// search_learnings: LLM-driven per-query reranking. Populated by
+		// the `teach` command (silent, backgrounded by the LLM after a
+		// successful response) and read by the rerank layer to
+		// boost/hide/alias hits on subsequent queries. See learnings.go
+		// for the full semantics. Per-user table; stays small.
+		//
+		// query_entities: JSON array of case-preserving entity tokens
+		// extracted from query_pattern at teach time. Used by the recall
+		// match validator to reject cross-entity matches that would
+		// otherwise score high on non-entity Jaccard.
+		`CREATE TABLE IF NOT EXISTS search_learnings (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			query_pattern TEXT NOT NULL,
+			query_entities TEXT,
+			venue TEXT,
+			resource_type TEXT,
+			resource_id TEXT NOT NULL,
+			action TEXT NOT NULL,
+			alias_target TEXT,
+			source TEXT NOT NULL,
+			confidence INTEGER DEFAULT 1,
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			last_observed_at DATETIME,
+			notes TEXT
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_learn_query ON search_learnings(query_pattern)`,
+		`CREATE UNIQUE INDEX IF NOT EXISTS idx_learn_unique ON search_learnings(query_pattern, resource_id, action)`,
+		// entity_lookups: canonical-to-value reference data for the
+		// pattern substitution engine in internal/learn/patterns. Seeded
+		// at migration time by the consumer (e.g., a CLI may register
+		// country codes, sports team abbreviations, etc.); per-user
+		// additions land via the `teach-lookup` CLI command with
+		// source='taught'. PK is the (kind, canonical, value) triple so
+		// multiple aliases under the same kind coexist without
+		// collision.
+		`CREATE TABLE IF NOT EXISTS entity_lookups (
+			kind TEXT NOT NULL,
+			canonical TEXT NOT NULL,
+			value TEXT NOT NULL,
+			source TEXT NOT NULL DEFAULT 'seeded',
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY (kind, canonical, value)
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_entity_lookup_canonical ON entity_lookups(canonical)`,
+		`CREATE INDEX IF NOT EXISTS idx_entity_lookup_kind ON entity_lookups(kind)`,
+		// search_patterns: inferred and taught templates for the
+		// generalization layer in internal/learn/patterns. Each row
+		// encodes a query_template with one {entity[:kind]} slot and a
+		// resource_template that names how the entity substitutes into
+		// the resource ID. Extract() writes "inferred" rows whenever
+		// two or more search_learnings rows share a structural shape;
+		// the teach-pattern CLI command writes "taught" rows directly
+		// for explicit template authorship.
+		//
+		// Idempotency leans on idx_patterns_unique: a re-Extract pass
+		// over the same source learnings re-asserts the same
+		// (query_template, resource_template, strategy) triple, which
+		// bumps confidence and refreshes last_observed_at on the
+		// existing row rather than spawning a duplicate.
+		`CREATE TABLE IF NOT EXISTS search_patterns (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			query_template TEXT NOT NULL,
+			resource_template TEXT NOT NULL,
+			resource_type TEXT NOT NULL,
+			venue TEXT,
+			strategy TEXT NOT NULL,
+			entity_kind TEXT NOT NULL,
+			confidence INTEGER NOT NULL DEFAULT 2,
+			source TEXT NOT NULL,
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			last_observed_at DATETIME,
+			example_query TEXT,
+			example_resource TEXT
+		)`,
+		`CREATE INDEX IF NOT EXISTS idx_patterns_query_template ON search_patterns(query_template)`,
+		`CREATE UNIQUE INDEX IF NOT EXISTS idx_patterns_unique ON search_patterns(query_template, resource_template, strategy)`,
 	}
 
 	for _, m := range migrations {
-		if _, err := s.db.Exec(m); err != nil {
+		if _, err := s.db.ExecContext(ctx, m); err != nil {
 			return fmt.Errorf("migration failed: %w", err)
 		}
+	}
+	// Stamp the schema version. On a fresh DB this writes the current
+	// StoreSchemaVersion; on an already-stamped DB this is a no-op
+	// write of the same value.
+	if _, err := s.db.ExecContext(ctx, fmt.Sprintf(`PRAGMA user_version = %d`, StoreSchemaVersion)); err != nil {
+		return fmt.Errorf("stamp user_version: %w", err)
 	}
 	return nil
 }
