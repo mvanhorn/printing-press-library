@@ -90,8 +90,8 @@ func OpenReadOnly(dbPath string) (*Store, error) {
 // retry-on-SQLITE_BUSY loop and propagates ctx.Err() back to the caller
 // instead of waiting out the full migrationLockTimeout.
 func OpenWithContext(ctx context.Context, dbPath string) (*Store, error) {
-	if err := os.MkdirAll(filepath.Dir(dbPath), 0o755); err != nil {
-		return nil, fmt.Errorf("creating db directory: %w", err)
+	if err := ensureStorePathPermissions(dbPath); err != nil {
+		return nil, err
 	}
 
 	db, err := sql.Open("sqlite", dbPath+"?_journal_mode=WAL&_synchronous=NORMAL&_busy_timeout=5000&_foreign_keys=ON&_temp_store=MEMORY&_mmap_size=268435456")
@@ -111,6 +111,27 @@ func OpenWithContext(ctx context.Context, dbPath string) (*Store, error) {
 	}
 
 	return s, nil
+}
+
+func ensureStorePathPermissions(dbPath string) error {
+	dir := filepath.Dir(dbPath)
+	if err := os.MkdirAll(dir, 0o700); err != nil {
+		return fmt.Errorf("creating db directory: %w", err)
+	}
+	if err := os.Chmod(dir, 0o700); err != nil {
+		return fmt.Errorf("securing db directory: %w", err)
+	}
+	f, err := os.OpenFile(dbPath, os.O_RDWR|os.O_CREATE, 0o600)
+	if err != nil {
+		return fmt.Errorf("creating db file: %w", err)
+	}
+	if err := f.Close(); err != nil {
+		return fmt.Errorf("closing db file: %w", err)
+	}
+	if err := os.Chmod(dbPath, 0o600); err != nil {
+		return fmt.Errorf("securing db file: %w", err)
+	}
+	return nil
 }
 
 func (s *Store) Close() error {

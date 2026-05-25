@@ -7,6 +7,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"os"
 	"path/filepath"
 	"sync"
 	"testing"
@@ -33,6 +34,32 @@ func TestSchemaVersion_StampedOnFreshDB(t *testing.T) {
 	}
 	if v != StoreSchemaVersion {
 		t.Fatalf("fresh db version = %d, want %d", v, StoreSchemaVersion)
+	}
+}
+
+func TestOpenCreatesOwnerOnlyStoreFiles(t *testing.T) {
+	t.Parallel()
+
+	dbPath := filepath.Join(t.TempDir(), "store", "data.db")
+	s, err := Open(dbPath)
+	if err != nil {
+		t.Fatalf("open fresh db: %v", err)
+	}
+	defer s.Close()
+
+	dirInfo, err := os.Stat(filepath.Dir(dbPath))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := dirInfo.Mode().Perm(); got != 0o700 {
+		t.Fatalf("store dir mode = %#o, want 0700", got)
+	}
+	dbInfo, err := os.Stat(dbPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := dbInfo.Mode().Perm(); got != 0o600 {
+		t.Fatalf("store db mode = %#o, want 0600", got)
 	}
 }
 
