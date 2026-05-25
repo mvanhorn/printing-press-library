@@ -7,6 +7,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -206,6 +207,23 @@ Run 'semrush-pp-cli sync --resource keyword' to populate the store first.`,
 					}
 				}
 			}
+
+			// Deterministic order before truncating with --limit. All three
+			// modes (gap/common/unique) build `hits` by ranging over Go maps,
+			// which iterate non-deterministically — without this sort, two
+			// `keyword gap --limit 50` invocations would return different
+			// phrases, making the flag behave like a random sample. Sort by
+			// search volume desc (most-impactful first), tiebreak by KD asc
+			// (easier first), final tiebreak by phrase asc.
+			sort.SliceStable(hits, func(i, j int) bool {
+				if hits[i].NQ != hits[j].NQ {
+					return hits[i].NQ > hits[j].NQ
+				}
+				if hits[i].KD != hits[j].KD {
+					return hits[i].KD < hits[j].KD
+				}
+				return hits[i].Phrase < hits[j].Phrase
+			})
 
 			if limit > 0 && len(hits) > limit {
 				hits = hits[:limit]

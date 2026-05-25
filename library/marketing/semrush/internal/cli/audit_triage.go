@@ -98,15 +98,37 @@ func newAuditTriageCmd(flags *rootFlags) *cobra.Command {
 			}
 
 			// If audit_page rows don't carry per-severity counts, fall back
-			// to aggregating from audit_issue rows.
+			// to aggregating from audit_issue rows — but only when we
+			// actually resolved a snapshot for THIS project. If snapshot is
+			// still empty (the snapshot lookup above didn't match the
+			// requested project_id), running the fallback would dump every
+			// audit_issue across every project in the local store and
+			// aggregate them into a triage report unrelated to the
+			// requested project. Bail with a clean empty result instead.
 			if len(pages) == 0 {
+				if snapshot == "" {
+					out := map[string]any{
+						"project_id": projectID,
+						"snapshot":   "",
+						"page_count": 0,
+						"pages":      []any{},
+						"hint":       fmt.Sprintf("no audit_snapshot rows for project %s in local store; run 'semrush-pp-cli sync --resources audit' first", projectID),
+					}
+					raw, err := json.Marshal(out)
+					if err != nil {
+						return fmt.Errorf("encoding empty triage response: %w", err)
+					}
+					return printOutputWithFlags(cmd.OutOrStdout(), raw, flags)
+				}
 				issueRows, err := db.DB().QueryContext(ctx,
 					`SELECT COALESCE(json_extract(data, '$.page_id'), '') AS pid,
 					        COALESCE(json_extract(data, '$.url'), '') AS url,
 					        COALESCE(json_extract(data, '$.severity'), '') AS sev
 					 FROM resources
 					 WHERE resource_type IN ('audit_issue', 'audit_issues')
-					   AND (? = '' OR json_extract(data, '$.snapshot_id') = ?)`, snapshot, snapshot)
+					   AND json_extract(data, '$.snapshot_id') = ?
+					   AND (json_extract(data, '$.project_id') = ? OR json_extract(data, '$.project_id') = CAST(? AS INTEGER) OR json_extract(data, '$.project_id') IS NULL)`,
+					snapshot, projectID, projectID)
 				if err != nil {
 					return fmt.Errorf("query audit issues: %w", err)
 				}
