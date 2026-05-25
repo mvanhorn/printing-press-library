@@ -48,7 +48,7 @@ func RegisterTools(s *server.MCPServer) {
 		mcplib.NewTool("contact-lists_get",
 			mcplib.WithDescription("Get the people in a saved contact list (1 credit per person returned). Required: list_id. Returns array of Person."),
 			mcplib.WithNumber("list_id", mcplib.Required(), mcplib.Description("Contact list id")),
-			mcplib.WithReadOnlyHintAnnotation(true),
+			// PATCH(billed-endpoints-not-readonly): bills Sumble credits, so no readOnlyHint — MCP hosts prompt before spending.
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
@@ -57,7 +57,7 @@ func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("contact-lists_list",
 			mcplib.WithDescription("List your saved contact lists (1 credit per list returned). Returns array of ContactListSummary."),
-			mcplib.WithReadOnlyHintAnnotation(true),
+			// PATCH(billed-endpoints-not-readonly): bills Sumble credits, so no readOnlyHint — MCP hosts prompt before spending.
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
@@ -87,7 +87,7 @@ func RegisterTools(s *server.MCPServer) {
 		mcplib.NewTool("organization-lists_get",
 			mcplib.WithDescription("Get the organizations in a saved list (1 credit per organization returned). Required: list_id. Returns array of Organization."),
 			mcplib.WithNumber("list_id", mcplib.Required(), mcplib.Description("Organization list id")),
-			mcplib.WithReadOnlyHintAnnotation(true),
+			// PATCH(billed-endpoints-not-readonly): bills Sumble credits, so no readOnlyHint — MCP hosts prompt before spending.
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
@@ -96,7 +96,7 @@ func RegisterTools(s *server.MCPServer) {
 	s.AddTool(
 		mcplib.NewTool("organization-lists_list",
 			mcplib.WithDescription("List your saved organization lists (1 credit per list returned). Returns array of OrganizationListSummary."),
-			mcplib.WithReadOnlyHintAnnotation(true),
+			// PATCH(billed-endpoints-not-readonly): bills Sumble credits, so no readOnlyHint — MCP hosts prompt before spending.
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
@@ -130,7 +130,7 @@ func RegisterTools(s *server.MCPServer) {
 		mcplib.NewTool("organizations_intelligence-brief",
 			mcplib.WithDescription("AI-generated intelligence brief for an organization (50 credits when complete; 202 while pending is free). Required: organization_id. Returns the IntelligenceBrief."),
 			mcplib.WithNumber("organization_id", mcplib.Required(), mcplib.Description("Sumble organization id")),
-			mcplib.WithReadOnlyHintAnnotation(true),
+			// PATCH(billed-endpoints-not-readonly): bills Sumble credits, so no readOnlyHint — MCP hosts prompt before spending.
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
@@ -207,7 +207,7 @@ func RegisterTools(s *server.MCPServer) {
 		mcplib.NewTool("postings_get",
 			mcplib.WithDescription("Get a single job posting with its full description (1 credit). Required: job_id. Returns the JobDetail."),
 			mcplib.WithNumber("job_id", mcplib.Required(), mcplib.Description("Job id")),
-			mcplib.WithReadOnlyHintAnnotation(true),
+			// PATCH(billed-endpoints-not-readonly): bills Sumble credits, so no readOnlyHint — MCP hosts prompt before spending.
 			mcplib.WithDestructiveHintAnnotation(false),
 			mcplib.WithOpenWorldHintAnnotation(true),
 		),
