@@ -238,6 +238,13 @@ func newSnapshotDiffCmd(flags *rootFlags) *cobra.Command {
 						sec.Removed = append(sec.Removed, id)
 					}
 				}
+				// Sort each id array for deterministic JSON output — all
+				// three are built by ranging over Go maps (aIDs/bIDs), so
+				// without this sort the order within each diff section
+				// varies between runs and scripted diff-of-diffs breaks.
+				sort.Strings(sec.Added)
+				sort.Strings(sec.Removed)
+				sort.Strings(sec.Changed)
 				sec.AddedCount = len(sec.Added)
 				sec.RemovedCount = len(sec.Removed)
 				sec.ChangedCount = len(sec.Changed)

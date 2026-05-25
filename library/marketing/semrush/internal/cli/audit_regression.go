@@ -7,6 +7,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -131,6 +132,12 @@ func newAuditRegressionCmd(flags *rootFlags) *cobra.Command {
 					resolved = append(resolved, id)
 				}
 			}
+			// Sort for deterministic JSON output. Both arrays are built by
+			// ranging over Go maps (aIssues/bIssues), so without this sort
+			// the order varies between runs and scripted diffing of two
+			// 'audit regression' reports would be unreliable.
+			sort.Strings(newIssues)
+			sort.Strings(resolved)
 			delta := map[string]int{}
 			seen := map[string]bool{}
 			for s := range aSev {

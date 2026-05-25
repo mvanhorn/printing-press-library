@@ -165,7 +165,17 @@ func newAuditTriageCmd(flags *rootFlags) *cobra.Command {
 				}
 			}
 
-			sort.SliceStable(pages, func(i, j int) bool { return pages[i].Score > pages[j].Score })
+			// Sort by weighted score desc, with a PageID tiebreak so pages
+			// with identical scores (rare but real on small audits) always
+			// appear in the same order across runs. Without the tiebreak,
+			// equal-score pages would inherit the upstream map's
+			// non-deterministic iteration order.
+			sort.SliceStable(pages, func(i, j int) bool {
+				if pages[i].Score != pages[j].Score {
+					return pages[i].Score > pages[j].Score
+				}
+				return pages[i].PageID < pages[j].PageID
+			})
 			if top > 0 && len(pages) > top {
 				pages = pages[:top]
 			}
