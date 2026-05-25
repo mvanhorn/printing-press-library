@@ -218,6 +218,8 @@ func newRootCmd(flags *rootFlags) *cobra.Command {
 	rootCmd.AddCommand(newLearningsCmd(flags, learnCfg))
 	rootCmd.AddCommand(newTeachPatternCmd(flags))
 	rootCmd.AddCommand(newTeachLookupCmd(flags))
+	rootCmd.AddCommand(newTeachPlaybookCmd(flags, learnCfg))
+	rootCmd.AddCommand(newPlaybookCmd(flags))
 
 	return rootCmd
 }
