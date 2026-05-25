@@ -156,18 +156,28 @@ func newTrackingDriftCmd(flags *rootFlags) *cobra.Command {
 				movers = append(movers, m)
 			}
 			sort.SliceStable(movers, func(i, j int) bool { return math.Abs(movers[i].DeltaPosition) > math.Abs(movers[j].DeltaPosition) })
+			// Capture pre-truncation count so the response distinguishes
+			// "exactly N movers exist" from "N+ movers exist, --limit capped
+			// the response." Without this, an agent reading mover_count=200
+			// (the default --limit) can't tell whether to paginate or
+			// follow up to see the rest.
+			totalMoverCount := len(movers)
+			truncated := false
 			if limit > 0 && len(movers) > limit {
 				movers = movers[:limit]
+				truncated = true
 			}
 
 			out := map[string]any{
-				"project_id":  projectID,
-				"since":       since,
-				"min_delta":   minDelta,
-				"region":      region,
-				"device":      device,
-				"mover_count": len(movers),
-				"movers":      movers,
+				"project_id":        projectID,
+				"since":             since,
+				"min_delta":         minDelta,
+				"region":            region,
+				"device":            device,
+				"mover_count":       totalMoverCount,
+				"mover_count_shown": len(movers),
+				"truncated":         truncated,
+				"movers":            movers,
 			}
 			raw, err := json.Marshal(out)
 			if err != nil {
