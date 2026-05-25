@@ -139,9 +139,53 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 		jMin = 0
 	}
 
-	queryTokens := strings.Fields(normalized.NonEntityNormalized)
-	if len(queryTokens) == 0 && len(normalized.Entities) == 0 && len(normalized.Tickers) == 0 {
+	if len(strings.Fields(normalized.NonEntityNormalized)) == 0 && len(normalized.Entities) == 0 && len(normalized.Tickers) == 0 {
 		return result, nil
+	}
+
+	// Build a per-call canonical resolver. Looks up each entity in
+	// entity_lookups to find the canonical(s) it belongs to. Caches
+	// per-call so a query with N entities does N lookups max, not
+	// N*M where M is the number of candidate rows.
+	resolver := newCanonicalResolver(ctx, db)
+
+	// Post-Normalize entity promotion via entity_lookups. The
+	// capitalization-based entity extractor misses aliases like
+	// "49ers" (numeric prefix) or "sf" (lowercase) because they
+	// don't match any of its detection rules. Walk queryTokens —
+	// the tokens Normalize classified as non-entity content — and
+	// promote any whose lowercased form has a row in entity_lookups
+	// into normalized.Entities. This lets a "49ers game tonight"
+	// query reach the canonical resolution path that an "Niners game
+	// tonight" query already reached via the capitalization rule.
+	queryTokens := strings.Fields(normalized.NonEntityNormalized)
+	{
+		var kept []string
+		for _, tok := range queryTokens {
+			if cans := resolver.Resolve(tok); len(cans) > 0 {
+				normalized.Entities = append(normalized.Entities, tok)
+				continue
+			}
+			kept = append(kept, tok)
+		}
+		queryTokens = kept
+		// Mirror the promotion into the envelope so the agent sees
+		// the expanded entity set.
+		result.QueryEntities = append([]string(nil), normalized.Entities...)
+		if result.QueryEntities == nil {
+			result.QueryEntities = []string{}
+		}
+		// Recompute the normalized form to match the promotion.
+		result.Normalized = strings.Join(queryTokens, " ")
+	}
+
+	queryCanonicals := resolver.ResolveSet(normalized.Entities)
+	if len(queryCanonicals) > 1 {
+		// Ambiguous-alias warning surfaces when a single query entity
+		// resolves to multiple canonicals (e.g., "Cards" → both
+		// Arizona Cardinals NFL and St. Louis Cardinals MLB). The
+		// agent can pass --debug-mismatches to investigate.
+		result.Warnings = append(result.Warnings, WarningAmbiguousAlias)
 	}
 
 	rows, err := db.QueryContext(ctx, `SELECT id, query_pattern, COALESCE(query_entities, ''),
@@ -212,16 +256,39 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 
 		score := Jaccard(queryTokens, storedNonEntityTokens)
 
-		// Entity-only fallback: when both sides have no non-entity
-		// content (everything is entities + stopwords), Jaccard is 0
-		// by definition. Fall back to entity-overlap so queries like
-		// "Niners game tonight" match rows taught from the same shape.
-		// The downstream validateResource still gates on full entity
-		// match against the stored resource.
+		// Resolve stored entities to canonicals for cross-alias matching.
+		// Combined with queryCanonicals computed once at the top, this
+		// lets a query like "49ers game tonight" match a row taught
+		// under "Niners game tonight" because both entities resolve to
+		// the same canonical "San Francisco 49ers" via entity_lookups.
+		storedCanonicals := resolver.ResolveSet(storedEntitySlice)
+		canonicalOverlap := setIntersects(queryCanonicals, storedCanonicals)
+
+		// Two fallback paths when literal non-entity Jaccard misses:
+		//   1. Entity-only fallback (U21): both sides have empty
+		//      non-entity content, both have entities → use literal
+		//      entity-Jaccard. Covers "Niners game tonight" vs same.
+		//   2. Cross-alias fallback (this unit): canonicals overlap
+		//      even when literal entities don't. Covers "49ers" query
+		//      against "Niners" stored learning, and also handles
+		//      ambiguous aliases ("SF" → both 49ers and Giants) by
+		//      gating on overlap presence rather than Jaccard ratio.
+		//      The downstream validateResource still gates entity
+		//      match against the stored resource, so an ambiguous
+		//      query that happens to canonical-overlap a stored row
+		//      for a different sport still gets caught at that layer.
 		if score < jMin {
 			if len(queryTokens) == 0 && len(storedNonEntityTokens) == 0 &&
 				len(normalized.Entities) > 0 && len(storedEntitySlice) > 0 {
 				score = Jaccard(normalized.Entities, storedEntitySlice)
+			}
+			if score < jMin && canonicalOverlap {
+				// Any canonical overlap counts. Jaccard ratio drops
+				// to <0.6 for ambiguous-alias cases (e.g., "SF"
+				// resolves to multiple canonicals), which would
+				// gate out a legitimate cross-alias hit. Use the
+				// overlap as a boolean signal at-threshold.
+				score = jMin
 			}
 			if score < jMin {
 				continue
@@ -243,6 +310,14 @@ func Recall(ctx context.Context, db *sql.DB, query string, opts Opts) (Result, e
 			hit.LastObservedAt = &t
 		}
 		validateResource(ctx, db, cfg, &hit, normalized.Entities, storedEntitySlice, opts.ResourceTypeFields)
+		// Cross-alias promotion: if canonicals overlap, the entities
+		// are equivalent even when their literal forms differ. Override
+		// a Mismatch verdict so the learning isn't filtered into the
+		// mismatches bucket. The warning flags it for diagnostic clarity.
+		if canonicalOverlap && hit.EntityMatch == EntityMatchMismatch {
+			hit.EntityMatch = EntityMatchExact
+			hit.Warnings = append(hit.Warnings, WarningCrossAliasMatch)
+		}
 		if hit.EntityMatch == EntityMatchMismatch {
 			mismatches = append(mismatches, hit)
 		} else {
@@ -406,4 +481,107 @@ func entityMatchPriority(em string) int {
 	default:
 		return 4
 	}
+}
+
+// canonicalResolver looks up entities in the entity_lookups table to
+// find their canonical(s). Caches per-call so a query with N distinct
+// entities issues at most N SQL lookups regardless of how many
+// candidate rows the row loop walks.
+type canonicalResolver struct {
+	ctx   context.Context
+	db    *sql.DB
+	cache map[string][]string // lowercased entity → distinct canonicals
+}
+
+func newCanonicalResolver(ctx context.Context, db *sql.DB) *canonicalResolver {
+	return &canonicalResolver{ctx: ctx, db: db, cache: make(map[string][]string)}
+}
+
+// Resolve returns the canonical(s) for a single entity. A single token
+// may map to multiple canonicals when the same alias exists across
+// kinds (e.g., "Cards" → Arizona Cardinals NFL + St. Louis Cardinals
+// MLB). Empty slice when the entity has no row in entity_lookups.
+func (r *canonicalResolver) Resolve(entity string) []string {
+	key := strings.ToLower(strings.TrimSpace(entity))
+	if key == "" {
+		return nil
+	}
+	if cached, ok := r.cache[key]; ok {
+		return cached
+	}
+	// Match against both `value` (alias side) and `canonical` (so an
+	// already-canonical query like "San Francisco 49ers" resolves to
+	// itself). DISTINCT collapses multi-kind duplicates of the same
+	// canonical.
+	rows, err := r.db.QueryContext(r.ctx,
+		`SELECT DISTINCT canonical FROM entity_lookups
+		 WHERE LOWER(value) = ? OR LOWER(canonical) = ?`,
+		key, key)
+	if err != nil {
+		r.cache[key] = nil
+		return nil
+	}
+	defer rows.Close()
+	var out []string
+	for rows.Next() {
+		var c string
+		if err := rows.Scan(&c); err != nil {
+			break
+		}
+		out = append(out, c)
+	}
+	r.cache[key] = out
+	return out
+}
+
+// ResolveSet expands a slice of entities into a set of canonicals.
+// Entries that don't resolve are dropped silently — they simply don't
+// contribute to the cross-alias matching score.
+func (r *canonicalResolver) ResolveSet(entities []string) map[string]struct{} {
+	out := make(map[string]struct{})
+	for _, e := range entities {
+		for _, c := range r.Resolve(e) {
+			out[c] = struct{}{}
+		}
+	}
+	return out
+}
+
+// setIntersects reports whether two canonical sets share at least one
+// element. Used as the cross-alias gate for entity-classification
+// promotion (Mismatch → Exact when canonicals overlap).
+func setIntersects(a, b map[string]struct{}) bool {
+	if len(a) == 0 || len(b) == 0 {
+		return false
+	}
+	// Walk the smaller set for efficiency.
+	if len(a) > len(b) {
+		a, b = b, a
+	}
+	for k := range a {
+		if _, ok := b[k]; ok {
+			return true
+		}
+	}
+	return false
+}
+
+// canonicalJaccard returns the Jaccard score between two canonical
+// sets. Used as the score for cross-alias matches when literal
+// Jaccard misses the threshold but canonicals overlap.
+func canonicalJaccard(a, b map[string]struct{}) float64 {
+	if len(a) == 0 || len(b) == 0 {
+		return 0
+	}
+	var inter int
+	for k := range a {
+		if _, ok := b[k]; ok {
+			inter++
+		}
+	}
+	union := len(a) + len(b) - inter
+	if union == 0 {
+		return 0
+	}
+	return float64(inter) / float64(union)
 }
