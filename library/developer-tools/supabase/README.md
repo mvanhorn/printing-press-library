@@ -138,6 +138,65 @@ supabase-pp-cli pgrst schema --table profiles --json
 
 These capabilities aren't available in any other tool for this API.
 
+### Safe production-mutation lifecycle
+
+Make every database change a structured, inspectable, reversible, attestable transaction — and make autonomous production migrations real without removing the guardrails. Authorization can be a human approving an immutable, dry-run'd plan hash, **or** a policy that self-authorizes only the provably-safe class of changes.
+
+- **`db plan <file.sql | --sql "...">`** — Parse SQL into a typed change manifest. Each statement is classified by operation class (`ddl` | `grant` | `rls` | `data-write` | `destructive`), the objects it touches, a reversibility verdict (`auto` | `snapshot` | `none`), and a structured `est_rows_affected` (`0` = no existing data rows touched; `-1` = unknown/unbounded). Emits a deterministic `plan_hash`.
+
+  ```bash
+  supabase-pp-cli db plan migrations/008_rls.sql --json
+  ```
+- **`db apply <ref> <file.sql> --approved <plan-hash>`** — **Human approver.** Execute ONLY the approved plan; refuse on hash drift (the SQL changed since approval). Statements run inside a single transaction with a savepoint per statement, so a partial migration never lands.
+
+  ```bash
+  supabase-pp-cli db apply abcdefgh migrations/008_rls.sql --approved sha256:... --json
+  ```
+- **`db apply <ref> <file.sql> --policy safe-default | <file.json>`** — **Policy approver (autonomous).** Evaluate the typed manifest against a declared safe envelope and self-authorize the apply ONLY when every statement is in an allowed class, reversible, lint-clean, and touches zero existing data rows (`est_rows_affected == 0`). The built-in `safe-default` envelope is additive + reversible only: `CREATE table/index/policy/function`, `ADD COLUMN` (nullable or constant default), `GRANT`, RLS policy add/rewrite. The policy replaces only the human paste — the plan_hash drift gate, savepoint transaction, and reversal receipt all still run. A refusal is a structured, machine-readable no-op (never a silent pass-through), and the authorization mode is recorded in the receipt.
+
+  ```bash
+  supabase-pp-cli db apply abcdefgh migrations/008_rls.sql --policy safe-default --json
+  ```
+- **`db apply ... --stage-branch <branch-ref>`** — **Branch-first staging gate.** Require the exact transaction to apply cleanly to a Supabase preview branch with the `security` AND `performance` advisors green before the prod apply runs. A plan that passes the policy but trips an advisor on the throwaway branch never reaches production.
+
+  ```bash
+  supabase-pp-cli db apply abcdefgh migrations/008_rls.sql --policy safe-default --stage-branch preview-123 --json
+  ```
+- **`db decompose <file.sql>`** — Rewrite destructive operation classes into a safe expand/contract step sequence whose individual steps each fall inside the safe envelope. `DROP COLUMN` becomes a reversible tombstone-rename (now) plus a deferred hard drop; `ALTER COLUMN ... TYPE` becomes expand (add new typed column) / backfill (app-owned, manual) / contract (drop old, rename new). `TRUNCATE`, unbounded `DELETE`, and `DROP TABLE`/`DROP SCHEMA` are refused with a structured machine-readable reason and a no-op. Replaces the blunt `--allow-destructive` boolean.
+
+  ```bash
+  supabase-pp-cli db decompose migrations/012_drop_legacy.sql --json
+  ```
+- **`db receipt` / `db revert <receipt>`** — Before mutating, snapshot affected object definitions (`pg_get_functiondef`, `pg_policies`, `information_schema` grants) and auto-derive the mechanical inverse (CREATE→DROP, ADD COLUMN→DROP COLUMN, REVOKE→GRANT). `db revert` is the one-command undo.
+
+  ```bash
+  supabase-pp-cli db revert abcdefgh-20260525T193300Z --json
+  ```
+- **`db lint <file.sql>`** — Run splinter-style security/performance checks locally, BEFORE apply. Catches SECURITY DEFINER functions with un-revoked `public`/`anon` EXECUTE, RLS policies using bare `auth.uid()` (init-plan re-eval), and grants to `anon` on tables without RLS. Exits non-zero on any ERROR finding, so it gates CI.
+
+  ```bash
+  supabase-pp-cli db lint migrations/008_rls.sql --json
+  ```
+- **`db diff <ref>`** — Compare the local `supabase/migrations/` directory against remote applied migration history; report unapplied local versions.
+
+  ```bash
+  supabase-pp-cli db diff abcdefgh --json
+  ```
+
+### Reads + audit
+
+- **`query <ref> <sql>`** — Run SQL, **read-only by default** (`read_only=true`, so an accidental write is rejected by the database). Pass `--write` to opt into mutations.
+
+  ```bash
+  supabase-pp-cli query abcdefgh "select count(*) from auth.users" --json
+  ```
+- **`advisors security|performance <ref>`** — Pull splinter advisor findings in one command instead of reading the dashboard. Sweep a fleet with `--refs a,b,c`.
+
+  ```bash
+  supabase-pp-cli advisors security abcdefgh --json
+  supabase-pp-cli advisors performance --refs proj1,proj2,proj3 --json
+  ```
+
 ### Cross-project rollups
 - **`secrets where-name`** — Find every project (across orgs) holding a secret with a given name, plus when each was last synced.
 

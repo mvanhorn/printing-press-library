@@ -194,6 +194,22 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			// whether to trust the cached data before issuing queries.
 			report["cache"] = collectCacheReport(cmd.Context(), "")
 
+			// PATCH: list reachable project refs when the PAT is valid, so the
+			// operator sees what the lifecycle commands (db apply, query,
+			// advisors) can target. Best-effort: a scope-limited PAT that can't
+			// list projects degrades to a note, not a failure.
+			if cfg != nil && cfg.AuthHeader() != "" {
+				if c, cerr := flags.newClient(); cerr == nil {
+					if pdata, perr := c.Get("/v1/projects", nil); perr == nil {
+						refs := extractProjectRefs(pdata)
+						report["reachable_refs"] = refs
+						report["reachable_ref_count"] = len(refs)
+					} else {
+						report["reachable_refs"] = "could not list (PAT may be scope-limited): " + truncate(perr.Error(), 120)
+					}
+				}
+			}
+
 			report["version"] = version
 
 			if flags.asJSON {
@@ -248,6 +264,18 @@ func newDoctorCmd(flags *rootFlags) *cobra.Command {
 			// Print auth setup hints (indented under Auth line)
 			if hint, ok := report["auth_hint"]; ok {
 				fmt.Fprintf(w, "  hint: %v\n", hint)
+			}
+			// PATCH: reachable project refs block.
+			if refsAny, ok := report["reachable_refs"]; ok {
+				switch v := refsAny.(type) {
+				case []string:
+					fmt.Fprintf(w, "  %s Reachable refs: %d\n", green("OK"), len(v))
+					for _, ref := range v {
+						fmt.Fprintf(w, "    - %s\n", ref)
+					}
+				case string:
+					fmt.Fprintf(w, "  %s Reachable refs: %s\n", yellow("WARN"), v)
+				}
 			}
 			// Cache section: render after the primary health block so it
 			// sits next to version info, mirroring the JSON report layout.

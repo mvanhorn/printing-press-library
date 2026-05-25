@@ -1146,6 +1146,20 @@ func lookupFieldValue(obj map[string]any, snakeKey string) any {
 	return LookupFieldValue(obj, snakeKey)
 }
 
+// notNullStr coerces an optional field value into a non-null string for binding
+// into a NOT NULL TEXT column (e.g. projects_id). A missing field (nil) becomes
+// "" rather than SQL NULL, so a generic paginated UpsertBatch whose items lack
+// the parent project id does not violate the NOT NULL constraint.
+func notNullStr(v any) string {
+	if v == nil {
+		return ""
+	}
+	if s, ok := v.(string); ok {
+		return s
+	}
+	return fmt.Sprint(v)
+}
+
 // upsertBranchesTx writes the typed-table portion of a branches upsert
 // inside an existing transaction. The caller is responsible for the generic
 // resources insert (via upsertGenericResourceTx) and for committing the tx.
@@ -1217,7 +1231,7 @@ func (s *Store) upsertDiffTx(tx *sql.Tx, id string, obj map[string]any, data jso
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT("id") DO UPDATE SET "branches_id" = excluded."branches_id", "data" = excluded."data", "synced_at" = excluded."synced_at"`,
 		id,
-		lookupFieldValue(obj, "branches_id"),
+		notNullStr(lookupFieldValue(obj, "branches_id")),
 		string(data),
 		time.Now(),
 	); err != nil {
@@ -1268,7 +1282,7 @@ func (s *Store) upsertMergeTx(tx *sql.Tx, id string, obj map[string]any, data js
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT("id") DO UPDATE SET "branches_id" = excluded."branches_id", "data" = excluded."data", "synced_at" = excluded."synced_at"`,
 		id,
-		lookupFieldValue(obj, "branches_id"),
+		notNullStr(lookupFieldValue(obj, "branches_id")),
 		string(data),
 		time.Now(),
 	); err != nil {
@@ -1319,7 +1333,7 @@ func (s *Store) upsertPushTx(tx *sql.Tx, id string, obj map[string]any, data jso
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT("id") DO UPDATE SET "branches_id" = excluded."branches_id", "data" = excluded."data", "synced_at" = excluded."synced_at"`,
 		id,
-		lookupFieldValue(obj, "branches_id"),
+		notNullStr(lookupFieldValue(obj, "branches_id")),
 		string(data),
 		time.Now(),
 	); err != nil {
@@ -1370,7 +1384,7 @@ func (s *Store) upsertResetTx(tx *sql.Tx, id string, obj map[string]any, data js
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT("id") DO UPDATE SET "branches_id" = excluded."branches_id", "data" = excluded."data", "synced_at" = excluded."synced_at"`,
 		id,
-		lookupFieldValue(obj, "branches_id"),
+		notNullStr(lookupFieldValue(obj, "branches_id")),
 		string(data),
 		time.Now(),
 	); err != nil {
@@ -1421,7 +1435,7 @@ func (s *Store) upsertBranchesRestoreTx(tx *sql.Tx, id string, obj map[string]an
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT("id") DO UPDATE SET "branches_id" = excluded."branches_id", "data" = excluded."data", "synced_at" = excluded."synced_at"`,
 		id,
-		lookupFieldValue(obj, "branches_id"),
+		notNullStr(lookupFieldValue(obj, "branches_id")),
 		string(data),
 		time.Now(),
 	); err != nil {
@@ -1525,7 +1539,7 @@ func (s *Store) upsertEntitlementsTx(tx *sql.Tx, id string, obj map[string]any, 
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT("id") DO UPDATE SET "organizations_id" = excluded."organizations_id", "data" = excluded."data", "synced_at" = excluded."synced_at"`,
 		id,
-		lookupFieldValue(obj, "organizations_id"),
+		notNullStr(lookupFieldValue(obj, "organizations_id")),
 		string(data),
 		time.Now(),
 	); err != nil {
@@ -1576,7 +1590,7 @@ func (s *Store) upsertMembersTx(tx *sql.Tx, id string, obj map[string]any, data 
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT("id") DO UPDATE SET "organizations_id" = excluded."organizations_id", "data" = excluded."data", "synced_at" = excluded."synced_at"`,
 		id,
-		lookupFieldValue(obj, "organizations_id"),
+		notNullStr(lookupFieldValue(obj, "organizations_id")),
 		string(data),
 		time.Now(),
 	); err != nil {
@@ -1627,7 +1641,7 @@ func (s *Store) upsertProjectClaimTx(tx *sql.Tx, id string, obj map[string]any, 
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT("id") DO UPDATE SET "organizations_id" = excluded."organizations_id", "data" = excluded."data", "synced_at" = excluded."synced_at"`,
 		id,
-		lookupFieldValue(obj, "organizations_id"),
+		notNullStr(lookupFieldValue(obj, "organizations_id")),
 		string(data),
 		time.Now(),
 	); err != nil {
@@ -1678,7 +1692,7 @@ func (s *Store) upsertOrganizationsProjectsTx(tx *sql.Tx, id string, obj map[str
 		 VALUES (?, ?, ?, ?, ?)
 		 ON CONFLICT("id") DO UPDATE SET "organizations_id" = excluded."organizations_id", "data" = excluded."data", "synced_at" = excluded."synced_at", "parent_id" = excluded."parent_id"`,
 		id,
-		lookupFieldValue(obj, "organizations_id"),
+		notNullStr(lookupFieldValue(obj, "organizations_id")),
 		string(data),
 		time.Now(),
 		lookupFieldValue(obj, "parent_id"),
@@ -1787,7 +1801,7 @@ func (s *Store) upsertActionsTx(tx *sql.Tx, id string, obj map[string]any, data 
 		 VALUES (?, ?, ?, ?, ?)
 		 ON CONFLICT("id") DO UPDATE SET "projects_id" = excluded."projects_id", "data" = excluded."data", "synced_at" = excluded."synced_at", "parent_id" = excluded."parent_id"`,
 		id,
-		lookupFieldValue(obj, "projects_id"),
+		notNullStr(lookupFieldValue(obj, "projects_id")),
 		string(data),
 		time.Now(),
 		lookupFieldValue(obj, "parent_id"),
@@ -1839,7 +1853,7 @@ func (s *Store) upsertAdvisorsTx(tx *sql.Tx, id string, obj map[string]any, data
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT("id") DO UPDATE SET "projects_id" = excluded."projects_id", "data" = excluded."data", "synced_at" = excluded."synced_at"`,
 		id,
-		lookupFieldValue(obj, "projects_id"),
+		notNullStr(lookupFieldValue(obj, "projects_id")),
 		string(data),
 		time.Now(),
 	); err != nil {
@@ -1890,7 +1904,7 @@ func (s *Store) upsertAnalyticsTx(tx *sql.Tx, id string, obj map[string]any, dat
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT("id") DO UPDATE SET "projects_id" = excluded."projects_id", "data" = excluded."data", "synced_at" = excluded."synced_at"`,
 		id,
-		lookupFieldValue(obj, "projects_id"),
+		notNullStr(lookupFieldValue(obj, "projects_id")),
 		string(data),
 		time.Now(),
 	); err != nil {
@@ -1941,7 +1955,7 @@ func (s *Store) upsertApiKeysTx(tx *sql.Tx, id string, obj map[string]any, data 
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT("id") DO UPDATE SET "projects_id" = excluded."projects_id", "data" = excluded."data", "synced_at" = excluded."synced_at"`,
 		id,
-		lookupFieldValue(obj, "projects_id"),
+		notNullStr(lookupFieldValue(obj, "projects_id")),
 		string(data),
 		time.Now(),
 	); err != nil {
@@ -1992,7 +2006,7 @@ func (s *Store) upsertBillingTx(tx *sql.Tx, id string, obj map[string]any, data 
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT("id") DO UPDATE SET "projects_id" = excluded."projects_id", "data" = excluded."data", "synced_at" = excluded."synced_at"`,
 		id,
-		lookupFieldValue(obj, "projects_id"),
+		notNullStr(lookupFieldValue(obj, "projects_id")),
 		string(data),
 		time.Now(),
 	); err != nil {
@@ -2043,7 +2057,7 @@ func (s *Store) upsertProjectsBranchesTx(tx *sql.Tx, id string, obj map[string]a
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT("id") DO UPDATE SET "projects_id" = excluded."projects_id", "data" = excluded."data", "synced_at" = excluded."synced_at"`,
 		id,
-		lookupFieldValue(obj, "projects_id"),
+		notNullStr(lookupFieldValue(obj, "projects_id")),
 		string(data),
 		time.Now(),
 	); err != nil {
@@ -2094,7 +2108,7 @@ func (s *Store) upsertClaimTokenTx(tx *sql.Tx, id string, obj map[string]any, da
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT("id") DO UPDATE SET "projects_id" = excluded."projects_id", "data" = excluded."data", "synced_at" = excluded."synced_at"`,
 		id,
-		lookupFieldValue(obj, "projects_id"),
+		notNullStr(lookupFieldValue(obj, "projects_id")),
 		string(data),
 		time.Now(),
 	); err != nil {
@@ -2145,7 +2159,7 @@ func (s *Store) upsertCliTx(tx *sql.Tx, id string, obj map[string]any, data json
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT("id") DO UPDATE SET "projects_id" = excluded."projects_id", "data" = excluded."data", "synced_at" = excluded."synced_at"`,
 		id,
-		lookupFieldValue(obj, "projects_id"),
+		notNullStr(lookupFieldValue(obj, "projects_id")),
 		string(data),
 		time.Now(),
 	); err != nil {
@@ -2196,7 +2210,7 @@ func (s *Store) upsertConfigTx(tx *sql.Tx, id string, obj map[string]any, data j
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT("id") DO UPDATE SET "projects_id" = excluded."projects_id", "data" = excluded."data", "synced_at" = excluded."synced_at"`,
 		id,
-		lookupFieldValue(obj, "projects_id"),
+		notNullStr(lookupFieldValue(obj, "projects_id")),
 		string(data),
 		time.Now(),
 	); err != nil {
@@ -2247,7 +2261,7 @@ func (s *Store) upsertCustomHostnameTx(tx *sql.Tx, id string, obj map[string]any
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT("id") DO UPDATE SET "projects_id" = excluded."projects_id", "data" = excluded."data", "synced_at" = excluded."synced_at"`,
 		id,
-		lookupFieldValue(obj, "projects_id"),
+		notNullStr(lookupFieldValue(obj, "projects_id")),
 		string(data),
 		time.Now(),
 	); err != nil {
@@ -2298,7 +2312,7 @@ func (s *Store) upsertDatabaseTx(tx *sql.Tx, id string, obj map[string]any, data
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT("id") DO UPDATE SET "projects_id" = excluded."projects_id", "data" = excluded."data", "synced_at" = excluded."synced_at"`,
 		id,
-		lookupFieldValue(obj, "projects_id"),
+		notNullStr(lookupFieldValue(obj, "projects_id")),
 		string(data),
 		time.Now(),
 	); err != nil {
@@ -2349,7 +2363,7 @@ func (s *Store) upsertFunctionsTx(tx *sql.Tx, id string, obj map[string]any, dat
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT("id") DO UPDATE SET "projects_id" = excluded."projects_id", "data" = excluded."data", "synced_at" = excluded."synced_at"`,
 		id,
-		lookupFieldValue(obj, "projects_id"),
+		notNullStr(lookupFieldValue(obj, "projects_id")),
 		string(data),
 		time.Now(),
 	); err != nil {
@@ -2400,7 +2414,7 @@ func (s *Store) upsertHealthTx(tx *sql.Tx, id string, obj map[string]any, data j
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT("id") DO UPDATE SET "projects_id" = excluded."projects_id", "data" = excluded."data", "synced_at" = excluded."synced_at"`,
 		id,
-		lookupFieldValue(obj, "projects_id"),
+		notNullStr(lookupFieldValue(obj, "projects_id")),
 		string(data),
 		time.Now(),
 	); err != nil {
@@ -2451,7 +2465,7 @@ func (s *Store) upsertJitAccessTx(tx *sql.Tx, id string, obj map[string]any, dat
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT("id") DO UPDATE SET "projects_id" = excluded."projects_id", "data" = excluded."data", "synced_at" = excluded."synced_at"`,
 		id,
-		lookupFieldValue(obj, "projects_id"),
+		notNullStr(lookupFieldValue(obj, "projects_id")),
 		string(data),
 		time.Now(),
 	); err != nil {
@@ -2502,7 +2516,7 @@ func (s *Store) upsertNetworkBansTx(tx *sql.Tx, id string, obj map[string]any, d
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT("id") DO UPDATE SET "projects_id" = excluded."projects_id", "data" = excluded."data", "synced_at" = excluded."synced_at"`,
 		id,
-		lookupFieldValue(obj, "projects_id"),
+		notNullStr(lookupFieldValue(obj, "projects_id")),
 		string(data),
 		time.Now(),
 	); err != nil {
@@ -2553,7 +2567,7 @@ func (s *Store) upsertNetworkRestrictionsTx(tx *sql.Tx, id string, obj map[strin
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT("id") DO UPDATE SET "projects_id" = excluded."projects_id", "data" = excluded."data", "synced_at" = excluded."synced_at"`,
 		id,
-		lookupFieldValue(obj, "projects_id"),
+		notNullStr(lookupFieldValue(obj, "projects_id")),
 		string(data),
 		time.Now(),
 	); err != nil {
@@ -2604,7 +2618,7 @@ func (s *Store) upsertPauseTx(tx *sql.Tx, id string, obj map[string]any, data js
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT("id") DO UPDATE SET "projects_id" = excluded."projects_id", "data" = excluded."data", "synced_at" = excluded."synced_at"`,
 		id,
-		lookupFieldValue(obj, "projects_id"),
+		notNullStr(lookupFieldValue(obj, "projects_id")),
 		string(data),
 		time.Now(),
 	); err != nil {
@@ -2655,7 +2669,7 @@ func (s *Store) upsertPgsodiumTx(tx *sql.Tx, id string, obj map[string]any, data
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT("id") DO UPDATE SET "projects_id" = excluded."projects_id", "data" = excluded."data", "synced_at" = excluded."synced_at"`,
 		id,
-		lookupFieldValue(obj, "projects_id"),
+		notNullStr(lookupFieldValue(obj, "projects_id")),
 		string(data),
 		time.Now(),
 	); err != nil {
@@ -2706,7 +2720,7 @@ func (s *Store) upsertPostgrestTx(tx *sql.Tx, id string, obj map[string]any, dat
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT("id") DO UPDATE SET "projects_id" = excluded."projects_id", "data" = excluded."data", "synced_at" = excluded."synced_at"`,
 		id,
-		lookupFieldValue(obj, "projects_id"),
+		notNullStr(lookupFieldValue(obj, "projects_id")),
 		string(data),
 		time.Now(),
 	); err != nil {
@@ -2757,7 +2771,7 @@ func (s *Store) upsertReadReplicasTx(tx *sql.Tx, id string, obj map[string]any, 
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT("id") DO UPDATE SET "projects_id" = excluded."projects_id", "data" = excluded."data", "synced_at" = excluded."synced_at"`,
 		id,
-		lookupFieldValue(obj, "projects_id"),
+		notNullStr(lookupFieldValue(obj, "projects_id")),
 		string(data),
 		time.Now(),
 	); err != nil {
@@ -2808,7 +2822,7 @@ func (s *Store) upsertReadonlyTx(tx *sql.Tx, id string, obj map[string]any, data
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT("id") DO UPDATE SET "projects_id" = excluded."projects_id", "data" = excluded."data", "synced_at" = excluded."synced_at"`,
 		id,
-		lookupFieldValue(obj, "projects_id"),
+		notNullStr(lookupFieldValue(obj, "projects_id")),
 		string(data),
 		time.Now(),
 	); err != nil {
@@ -2859,7 +2873,7 @@ func (s *Store) upsertProjectsRestoreTx(tx *sql.Tx, id string, obj map[string]an
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT("id") DO UPDATE SET "projects_id" = excluded."projects_id", "data" = excluded."data", "synced_at" = excluded."synced_at"`,
 		id,
-		lookupFieldValue(obj, "projects_id"),
+		notNullStr(lookupFieldValue(obj, "projects_id")),
 		string(data),
 		time.Now(),
 	); err != nil {
@@ -2910,7 +2924,7 @@ func (s *Store) upsertSecretsTx(tx *sql.Tx, id string, obj map[string]any, data 
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT("id") DO UPDATE SET "projects_id" = excluded."projects_id", "data" = excluded."data", "synced_at" = excluded."synced_at"`,
 		id,
-		lookupFieldValue(obj, "projects_id"),
+		notNullStr(lookupFieldValue(obj, "projects_id")),
 		string(data),
 		time.Now(),
 	); err != nil {
@@ -2961,7 +2975,7 @@ func (s *Store) upsertSslEnforcementTx(tx *sql.Tx, id string, obj map[string]any
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT("id") DO UPDATE SET "projects_id" = excluded."projects_id", "data" = excluded."data", "synced_at" = excluded."synced_at"`,
 		id,
-		lookupFieldValue(obj, "projects_id"),
+		notNullStr(lookupFieldValue(obj, "projects_id")),
 		string(data),
 		time.Now(),
 	); err != nil {
@@ -3012,7 +3026,7 @@ func (s *Store) upsertStorageTx(tx *sql.Tx, id string, obj map[string]any, data 
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT("id") DO UPDATE SET "projects_id" = excluded."projects_id", "data" = excluded."data", "synced_at" = excluded."synced_at"`,
 		id,
-		lookupFieldValue(obj, "projects_id"),
+		notNullStr(lookupFieldValue(obj, "projects_id")),
 		string(data),
 		time.Now(),
 	); err != nil {
@@ -3063,7 +3077,7 @@ func (s *Store) upsertTypesTx(tx *sql.Tx, id string, obj map[string]any, data js
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT("id") DO UPDATE SET "projects_id" = excluded."projects_id", "data" = excluded."data", "synced_at" = excluded."synced_at"`,
 		id,
-		lookupFieldValue(obj, "projects_id"),
+		notNullStr(lookupFieldValue(obj, "projects_id")),
 		string(data),
 		time.Now(),
 	); err != nil {
@@ -3114,7 +3128,7 @@ func (s *Store) upsertUpgradeTx(tx *sql.Tx, id string, obj map[string]any, data 
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT("id") DO UPDATE SET "projects_id" = excluded."projects_id", "data" = excluded."data", "synced_at" = excluded."synced_at"`,
 		id,
-		lookupFieldValue(obj, "projects_id"),
+		notNullStr(lookupFieldValue(obj, "projects_id")),
 		string(data),
 		time.Now(),
 	); err != nil {
@@ -3165,7 +3179,7 @@ func (s *Store) upsertVanitySubdomainTx(tx *sql.Tx, id string, obj map[string]an
 		 VALUES (?, ?, ?, ?)
 		 ON CONFLICT("id") DO UPDATE SET "projects_id" = excluded."projects_id", "data" = excluded."data", "synced_at" = excluded."synced_at"`,
 		id,
-		lookupFieldValue(obj, "projects_id"),
+		notNullStr(lookupFieldValue(obj, "projects_id")),
 		string(data),
 		time.Now(),
 	); err != nil {

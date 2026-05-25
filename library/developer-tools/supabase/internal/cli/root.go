@@ -230,6 +230,10 @@ See README.md or the bundled SKILL.md for recipes.`,
 	rootCmd.AddCommand(newOauthCmd(flags))
 	rootCmd.AddCommand(newOrganizationsCmd(flags))
 	rootCmd.AddCommand(newProjectsCmd(flags))
+	// PATCH: novel safe-mutation lifecycle + read/audit commands (db, query, advisors).
+	rootCmd.AddCommand(newDBTopCmd(flags))
+	rootCmd.AddCommand(newQueryTopCmd(flags))
+	rootCmd.AddCommand(newAdvisorsTopCmd(flags))
 	rootCmd.AddCommand(newSnippetsCmd(flags))
 	rootCmd.AddCommand(newSecretsTopCmd(flags))
 	rootCmd.AddCommand(newFunctionsTopCmd(flags))

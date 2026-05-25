@@ -40,6 +40,54 @@
       "summary": "Hand-edited README and SKILL with calibrated headline, explicit Known Gaps section, and trigger phrases narrowed to built capabilities.",
       "reason": "Generated README/SKILL inherited the overclaim from the default headline and included triggers (`supabase start`, `supabase db push`) that this CLI cannot satisfy (those are local-dev/migration tooling owned by the official Supabase CLI). Narrowing triggers prevents misrouting from agents that load this skill.",
       "files": ["README.md", "SKILL.md"]
+    },
+    {
+      "id": "safe-mutation-lifecycle",
+      "date": "2026-05-25",
+      "amend_run_id": "amend-2026-05-25T1933",
+      "summary": "Novel safe production-mutation lifecycle plus read/audit commands: db plan/apply/receipt/revert/lint/diff, top-level query (read-only default, --write opt-in), advisors security|performance with cross-project --refs fleet mode, and doctor reachable-refs listing. plan parses SQL into a typed change manifest (operation class, objects, est-rows, reversibility) with a deterministic plan_hash; apply executes ONLY an approved plan_hash and refuses on hash drift, wrapping statements in a transaction with savepoint-per-statement; receipt snapshots affected object defs and derives mechanical inverses (CREATE->DROP, ADD COLUMN->DROP COLUMN, REVOKE->GRANT); revert replays the inverse. db lint runs splinter-style checks locally before apply and catches the SECURITY-DEFINER-unrevoked-grant + bare-auth.uid()-init-plan class of issues at author time. The statement splitter is dollar-quote-tag-aware: it tracks arbitrary tags ($$ and $tag$) so a `DO $ttl$ ... $ttl$` block (migration 008's TTL cleanup) is never split on a semicolon inside its body, and $1 positional parameters are not mistaken for tags (spec build-correctness note #1).",
+      "reason": "Motivated by a real incident: an opaque prod migration (008 RLS/grants) could not be safely auto-applied because the change had no legible, reversible representation a human or safety layer could reason about. The lifecycle makes every DB mutation a structured, inspectable, reversible, attestable transaction. The typed manifest lets a safety classifier gate by operation class (allow additive RLS rewrite, gate data deletion) instead of blunt-blocking everything, STRENGTHENING the human-in-the-loop gate: authorization becomes 'approve this immutable, dry-run'd, inspected plan hash' rather than 'trust the agent.' Built on the existing Management API client (/v1/projects/{ref}/database/query) and advisor endpoints; reuses parseDayDuration, classifyAPIError, printJSONFiltered, and the cliError exit-code helpers. New internal/dbchange package carries the parser/classifier with unit tests.",
+      "files": [
+        "internal/dbchange/manifest.go",
+        "internal/dbchange/manifest_test.go",
+        "internal/cli/db_top.go",
+        "internal/cli/db_shared.go",
+        "internal/cli/db_plan.go",
+        "internal/cli/db_apply.go",
+        "internal/cli/db_receipt.go",
+        "internal/cli/db_revert.go",
+        "internal/cli/db_lint.go",
+        "internal/cli/db_diff.go",
+        "internal/cli/query_top.go",
+        "internal/cli/advisors_top.go",
+        "internal/cli/doctor.go",
+        "internal/cli/root.go",
+        "README.md"
+      ],
+      "findings_addressed": ["F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8"],
+      "patch_count": 17
+    },
+    {
+      "id": "autonomous-prod-migrations",
+      "date": "2026-05-25",
+      "amend_run_id": "amend-2026-05-25T2110",
+      "summary": "Make autonomous production migrations real: replace the human-in-the-loop approver with a policy approver, swap the blunt --allow-destructive boolean for expand/contract decomposition, and add a branch-first staging gate. (1) `db apply --policy safe-default|<file>` evaluates the typed dbchange.Manifest against a declared safe envelope and self-authorizes apply ONLY when every statement is in an allowed class, reversible, lint-clean, and est_rows_affected==0; the plan_hash drift gate, savepoint transaction, and reversal receipt are kept exactly as-is — the policy replaces only the human paste, not the safety primitives. The safe-default envelope is additive+reversible only (CREATE table/index/policy/function, ADD COLUMN nullable-or-constant-default, GRANT, RLS add/rewrite, est_rows 0, lint clean). A new structured EstRowsAffected field (0=no data rows touched, -1=unknown/unbounded) plus a MaxEstRowsAffected rollup make the est-rows gate machine-evaluable; a volatile-default ADD COLUMN (now()/gen_random_uuid()) is correctly scored -1 since it rewrites every row. (2) New `db decompose` rewrites DROP COLUMN into a reversible tombstone-rename (now) plus a deferred hard drop, and ALTER COLUMN TYPE into expand (add new typed column) / backfill (app-owned, manual gate) / contract (drop old, rename new) — each auto-eligible step independently inside the safe envelope; TRUNCATE, unbounded DELETE, and DROP TABLE/SCHEMA are refused with a structured machine-readable reason and a no-op, never silently. (3) `db apply --stage-branch <ref>` requires the exact transaction to apply cleanly to a Supabase preview branch with the security AND performance advisors green before the prod apply runs, reusing the branch-config + database/query + advisor endpoints. The authorization mode (human plan-hash vs named policy) is recorded in the reversal receipt as an audit attestation.",
+      "reason": "The prior safe-mutation-lifecycle made every DB change legible, reversible, and attestable but still required a human to paste an approved plan_hash. This amend closes the autonomy loop: the typed manifest the prior run built is exactly the input a safety classifier needs, so authorization becomes 'this immutable, dry-run'd plan is provably inside a declared safe envelope' instead of 'a human looked at it.' Crucially the policy STRENGTHENS rather than removes the gate — it can only ever self-authorize the additive+reversible+zero-row class, and it refuses everything else with a structured reason. Destructive intent is no longer a blunt boolean override; it is either mechanically decomposed into safe online steps or refused with a machine-readable explanation an agent can branch on. Branch-first staging adds a real preflight (advisors green on a throwaway branch) so a plan that passes the policy but trips an advisor never reaches prod. The GitHub Action runner that drives this autonomously is intentionally NOT built here — it is companion infra in a separate repo. Built entirely on the existing dbchange.Manifest, Management API database/query + advisor endpoints, and branch config endpoint; reuses assembleTransaction, lintManifest, replacePathParam, classifyAPIError, printJSONFiltered.",
+      "files": [
+        "internal/dbchange/manifest.go",
+        "internal/dbchange/policy.go",
+        "internal/dbchange/policy_test.go",
+        "internal/dbchange/decompose.go",
+        "internal/dbchange/decompose_test.go",
+        "internal/cli/db_apply.go",
+        "internal/cli/db_shared.go",
+        "internal/cli/db_top.go",
+        "internal/cli/db_decompose.go",
+        "internal/cli/db_stage.go",
+        "README.md"
+      ],
+      "findings_addressed": ["A1", "A2", "A3"],
+      "patch_count": 17
     }
   ]
 }
