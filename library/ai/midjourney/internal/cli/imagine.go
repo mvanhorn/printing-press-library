@@ -13,6 +13,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math"
 	"net"
 	"net/http"
 	"net/url"
@@ -621,6 +622,9 @@ func readWebSocketFrame(r *bufio.Reader) (byte, []byte, error) {
 		if err != nil {
 			return 0, nil, err
 		}
+	}
+	if length > uint64(math.MaxInt) {
+		return 0, nil, fmt.Errorf("websocket frame too large: %d bytes", length)
 	}
 	payload, err := readN(r, int(length))
 	if err != nil {

@@ -3,6 +3,8 @@
 package cli
 
 import (
+	"bufio"
+	"bytes"
 	"strings"
 	"testing"
 )
@@ -148,5 +150,17 @@ func TestJSStringLiteralEscapesLineSeparators(t *testing.T) {
 		if !strings.Contains(got, want) {
 			t.Fatalf("jsStringLiteral() = %q, want escaped %s", got, want)
 		}
+	}
+}
+
+func TestReadWebSocketFrameRejectsOversizedLength(t *testing.T) {
+	t.Parallel()
+	frame := []byte{0x82, 0x7f, 0x80, 0, 0, 0, 0, 0, 0, 0}
+	_, _, err := readWebSocketFrame(bufio.NewReader(bytes.NewReader(frame)))
+	if err == nil {
+		t.Fatal("expected oversized websocket frame to return an error")
+	}
+	if !strings.Contains(err.Error(), "websocket frame too large") {
+		t.Fatalf("error = %v, want websocket frame too large", err)
 	}
 }

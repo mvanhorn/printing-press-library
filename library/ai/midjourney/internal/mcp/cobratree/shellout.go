@@ -49,12 +49,14 @@ func shellOutToCLI(cliPath func() (string, error), commandPath []string) server.
 // config file, or change the delivery target — all of which sit outside the
 // per-command surface the agent is supposed to be calling.
 var blockedRootFlags = map[string]bool{
-	"args":     true,
-	"base-url": true,
-	"config":   true,
-	"deliver":  true,
-	"profile":  true,
-	"token":    true,
+	"args":        true,
+	"base-url":    true,
+	"browser":     true,
+	"browser-cdp": true,
+	"config":      true,
+	"deliver":     true,
+	"profile":     true,
+	"token":       true,
 }
 
 func cliArgsFromMCP(args map[string]any) []string {
