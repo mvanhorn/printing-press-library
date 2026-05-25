@@ -4,31 +4,33 @@ Ecommerce orders, products, customers, inventory, fulfillment orders, and bulk o
 
 Learn more at [Shopify](https://shopify.dev/docs/api/admin-graphql).
 
+Printed by [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
+
 ## Install
 
 The recommended path installs both the `shopify-pp-cli` binary and the `pp-shopify` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install shopify
+npx -y @mvanhorn/printing-press-library install shopify
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install shopify --cli-only
+npx -y @mvanhorn/printing-press-library install shopify --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install shopify --skill-only
+npx -y @mvanhorn/printing-press-library install shopify --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install shopify --agent claude-code
-npx -y @mvanhorn/printing-press install shopify --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install shopify --agent claude-code
+npx -y @mvanhorn/printing-press-library install shopify --agent claude-code --agent codex
 ```
 
 ### Without Node (Go fallback)
@@ -68,6 +70,47 @@ Tell your OpenClaw agent (copy this):
 Install the pp-shopify skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-shopify. The skill defines how its required CLI can be installed.
 ```
 
+## Use with Claude Desktop
+
+This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
+
+To install:
+
+1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/shopify-current).
+2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
+3. Fill in `SHOPIFY_ACCESS_TOKEN` when Claude Desktop prompts you.
+
+Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
+
+<details>
+<summary>Manual JSON config (advanced)</summary>
+
+If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
+
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/commerce/shopify/cmd/shopify-pp-mcp@latest
+```
+
+Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "shopify": {
+      "command": "shopify-pp-mcp",
+      "env": {
+        "SHOPIFY_SHOP": "<your-store>.myshopify.com",
+        "SHOPIFY_API_VERSION": "2026-04",
+        "SHOPIFY_ACCESS_TOKEN": "<your-key>"
+      }
+    }
+  }
+}
+```
+
+</details>
+
 ## Quick Start
 
 ### 1. Install
@@ -103,7 +146,7 @@ This checks your configuration and credentials.
 ### 4. Try Your First Command
 
 ```bash
-shopify-pp-cli customers list
+shopify-pp-cli abandoned-checkouts list
 ```
 
 ## Usage
@@ -111,6 +154,13 @@ shopify-pp-cli customers list
 Run `shopify-pp-cli --help` for the full command reference and flag list.
 
 ## Commands
+
+### abandoned-checkouts
+
+Shopify abandoned checkouts for recovery campaigns and lost-cart analysis.
+
+- **`shopify-pp-cli abandoned-checkouts get`** - Get one Shopify abandoned checkout by GraphQL ID.
+- **`shopify-pp-cli abandoned-checkouts list`** - List abandoned checkouts from the Shopify Admin GraphQL API.
 
 ### customers
 
@@ -147,30 +197,24 @@ Shopify products with product status, catalog metadata, and a compact variant in
 - **`shopify-pp-cli products get`** - Get one Shopify product by GraphQL ID.
 - **`shopify-pp-cli products list`** - List products from the Shopify Admin GraphQL API.
 
-### bulk-operations
-
-Shopify Admin GraphQL bulk operation helpers.
-
-- **`shopify-pp-cli bulk-operations current`** - Show the current or most recent Shopify bulk operation.
-- **`shopify-pp-cli bulk-operations run-query --query-file <path>`** - Start a bulk export job from a GraphQL query file.
 
 ## Output Formats
 
 ```bash
 # Human-readable table (default in terminal, JSON when piped)
-shopify-pp-cli customers list
+shopify-pp-cli abandoned-checkouts list
 
 # JSON for scripting and agents
-shopify-pp-cli customers list --json
+shopify-pp-cli abandoned-checkouts list --json
 
 # Filter to specific fields
-shopify-pp-cli customers list --json --select id,name,status
+shopify-pp-cli abandoned-checkouts list --json --select id,name,status
 
 # Dry run — show the request without sending
-shopify-pp-cli customers list --dry-run
+shopify-pp-cli abandoned-checkouts list --dry-run
 
 # Agent mode — JSON + compact + no prompts in one flag
-shopify-pp-cli customers list --agent
+shopify-pp-cli abandoned-checkouts list --agent
 ```
 
 ## Agent Usage
@@ -181,7 +225,7 @@ This CLI is designed for AI agent consumption:
 - **Pipeable** - `--json` output to stdout, errors to stderr
 - **Filterable** - `--select id,name` returns only fields you need
 - **Previewable** - `--dry-run` shows the request without sending
-- **Read-mostly by default** - resource commands are read-only; `bulk-operations run-query` starts a remote bulk export job only when explicitly invoked
+- **Read-only by default** - this CLI does not create, update, delete, publish, send, or mutate remote resources
 - **Offline-friendly** - sync/search commands can use the local SQLite store when available
 - **Agent-safe by default** - no colors or formatting unless `--human-friendly` is set
 
@@ -194,21 +238,30 @@ This CLI owns bounded freshness for registered store-backed read command paths. 
 Set `SHOPIFY_NO_AUTO_REFRESH=1` to disable the pre-read freshness hook while preserving the selected data source.
 
 Covered command paths:
+- `shopify-pp-cli abandoned-checkouts`
+- `shopify-pp-cli abandoned-checkouts get`
+- `shopify-pp-cli abandoned-checkouts list`
+- `shopify-pp-cli abandoned-checkouts search`
 - `shopify-pp-cli customers`
 - `shopify-pp-cli customers get`
 - `shopify-pp-cli customers list`
+- `shopify-pp-cli customers search`
 - `shopify-pp-cli fulfillment-orders`
 - `shopify-pp-cli fulfillment-orders get`
 - `shopify-pp-cli fulfillment-orders list`
+- `shopify-pp-cli fulfillment-orders search`
 - `shopify-pp-cli inventory-items`
 - `shopify-pp-cli inventory-items get`
 - `shopify-pp-cli inventory-items list`
+- `shopify-pp-cli inventory-items search`
 - `shopify-pp-cli orders`
 - `shopify-pp-cli orders get`
 - `shopify-pp-cli orders list`
+- `shopify-pp-cli orders search`
 - `shopify-pp-cli products`
 - `shopify-pp-cli products get`
 - `shopify-pp-cli products list`
+- `shopify-pp-cli products search`
 
 JSON outputs that use the generated provenance envelope include freshness metadata at `meta.freshness`. This metadata describes the freshness decision for the covered command path; it does not claim full historical backfill or API-specific enrichment.
 
@@ -224,35 +277,6 @@ Base URL: `https://{shop}`
 
 GraphQL path: `/admin/api/{api_version}/graphql.json`
 
-## Use as MCP Server
-
-This CLI ships a companion MCP server for use with Claude Desktop, Cursor, and other MCP-compatible tools.
-
-### Claude Code
-
-```bash
-claude mcp add shopify shopify-pp-mcp -e SHOPIFY_SHOP=<your-store>.myshopify.com -e SHOPIFY_API_VERSION=2026-04 -e SHOPIFY_ACCESS_TOKEN=<your-key>
-```
-
-### Claude Desktop
-
-Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "shopify": {
-      "command": "shopify-pp-mcp",
-      "env": {
-        "SHOPIFY_SHOP": "<your-store>.myshopify.com",
-        "SHOPIFY_API_VERSION": "2026-04",
-        "SHOPIFY_ACCESS_TOKEN": "<your-key>"
-      }
-    }
-  }
-}
-```
-
 ## Health Check
 
 ```bash
@@ -265,10 +289,15 @@ Verifies configuration, credentials, and connectivity to the API.
 
 Config file: `~/.config/shopify-pp-cli/config.toml`
 
+Static request headers can be configured under `headers`; per-command header overrides take precedence.
+
 Environment variables:
-- `SHOPIFY_SHOP`
-- `SHOPIFY_API_VERSION`
-- `SHOPIFY_ACCESS_TOKEN`
+
+| Name | Kind | Required | Description |
+| --- | --- | --- | --- |
+| `SHOPIFY_SHOP` | endpoint | Yes |  |
+| `SHOPIFY_API_VERSION` | endpoint | Yes |  |
+| `SHOPIFY_ACCESS_TOKEN` | per_call | Yes | Set to your API credential. |
 
 ## Troubleshooting
 **Authentication errors (exit code 4)**

@@ -1,0 +1,39 @@
+{
+  "manifest_version": "0.3",
+  "name": "strava-pp-mcp",
+  "display_name": "Strava",
+  "version": "4.11.0",
+  "description": "Every Strava feature, plus offline analytics — training load, power curves, zone time, and segment progression — that the website can't show you.",
+  "author": {
+    "name": "CLI Printing Press"
+  },
+  "license": "Apache-2.0",
+  "server": {
+    "type": "binary",
+    "entry_point": "bin/strava-pp-mcp",
+    "mcp_config": {
+      "command": "${__dirname}/bin/strava-pp-mcp",
+      "args": [],
+      "env": {
+        "STRAVA_STRAVA_OAUTH": "${user_config.strava_strava_oauth}"
+      }
+    }
+  },
+  "user_config": {
+    "strava_strava_oauth": {
+      "type": "string",
+      "title": "STRAVA_STRAVA_OAUTH",
+      "description": "Sets STRAVA_STRAVA_OAUTH for the Strava MCP server.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "linux",
+      "win32"
+    ]
+  }
+}

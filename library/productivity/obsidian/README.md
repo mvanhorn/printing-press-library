@@ -15,26 +15,26 @@ Printed by [@DrDriftwood](https://github.com/DrDriftwood) (Angelo Pullen).
 The recommended path installs both the `obsidian-pp-cli` binary and the `pp-obsidian` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install obsidian
+npx -y @mvanhorn/printing-press-library install obsidian
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install obsidian --cli-only
+npx -y @mvanhorn/printing-press-library install obsidian --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install obsidian --skill-only
+npx -y @mvanhorn/printing-press-library install obsidian --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install obsidian --agent claude-code
-npx -y @mvanhorn/printing-press install obsidian --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install obsidian --agent claude-code
+npx -y @mvanhorn/printing-press-library install obsidian --agent claude-code --agent codex
 ```
 
 ### Without Node (Go fallback)
@@ -172,7 +172,6 @@ Mirror-backed commands check whether the local SQLite copy is older than 24h. If
 ### V2 (not in V1)
 
 Write commands (create, delete, append, prepend, move, property:set) are intentionally absent in V1. They wait on the upstream `markdown-patch` frontmatter-corruption fix. Skipping them in V1 means zero corruption exposure — V1 reads from the live binary or a SQLite copy of your vault, and never writes back. Multi-vault and non-macOS platforms are also V2.
-
 
 ## Output Formats
 

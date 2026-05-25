@@ -21,7 +21,7 @@ This skill drives the `redfin-pp-cli` binary. **You must verify the CLI is insta
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install redfin --cli-only
+   npx -y @mvanhorn/printing-press-library install redfin --cli-only
    ```
 2. Verify: `redfin-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -33,8 +33,6 @@ go install github.com/mvanhorn/printing-press-library/library/other/redfin/cmd/r
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-Search homes for sale via Redfin's internal Stingray endpoints from the terminal, sync results to a local SQLite store, and run the workflows the website never built: diff a saved search week-over-week with `watch`, rank by $/sqft net of HOA with `rank`, pull sold comps for a subject property with `comps`, surface price drops or stale listings with `drops`, and overlay market trends across multiple cities with `trends`. Every command is `--json` / `--select`-shaped so an agent can pipe the output without burning context.
 
 ## When to Use This CLI
 

@@ -29,7 +29,7 @@ This skill drives the `facebook-marketplace-pp-cli` binary. **You must verify th
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install facebook-marketplace --cli-only
+   npx -y @mvanhorn/printing-press-library install facebook-marketplace --cli-only
    ```
 2. Verify: `facebook-marketplace-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -41,8 +41,6 @@ go install github.com/mvanhorn/printing-press-library/library/commerce/facebook-
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-Facebook Marketplace is an authenticated browser surface, so this CLI treats the browser session as the credential and keeps writes opt-in. It turns captured Marketplace GraphQL traffic into repeatable commands, then layers local watches, matches, stale listing checks, and seller drafting on top.
 
 ## When to Use This CLI
 

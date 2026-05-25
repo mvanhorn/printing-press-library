@@ -45,7 +45,7 @@ brews:
       owner: hiten-shah
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Printing Press CLI for Digitalocean."
+    description: "Manage DigitalOcean Droplets, Kubernetes, databases, firewalls, networking, billing, and other cloud resources from the terminal."
     install: |
       bin.install "digitalocean-pp-cli"
       bin.install "digitalocean-pp-mcp"

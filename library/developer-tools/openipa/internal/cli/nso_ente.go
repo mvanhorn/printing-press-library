@@ -20,7 +20,7 @@ func newNsoEnteCmd(flags *rootFlags) *cobra.Command {
 		Use:         "ente",
 		Short:       "Canali NSO attivi di un ente per codice IPA",
 		Example:     "  openipa-pp-cli nso ente --codice example-value",
-		Annotations: map[string]string{"pp:endpoint": "nso.ente", "pp:method": "POST", "pp:path": "/WS15_NSO.php"},
+		Annotations: map[string]string{"pp:endpoint": "nso.ente", "pp:method": "POST", "pp:path": "/ws/WS15NSOServices/api/WS15_NSO"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
 				if !cmd.Flags().Changed("codice") && !flags.dryRun {
@@ -32,7 +32,7 @@ func newNsoEnteCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "/WS15_NSO.php"
+			path := "/ws/WS15NSOServices/api/WS15_NSO"
 			var body map[string]any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)

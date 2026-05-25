@@ -1,0 +1,856 @@
+{
+  "api_name": "strava",
+  "base_url": "https://www.strava.com/api/v3",
+  "description": "Every Strava feature, plus offline analytics — training load, power curves, zone time, and segment progression — that the website can't show you.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "bearer_token",
+    "header": "Authorization",
+    "env_vars": [
+      "STRAVA_STRAVA_OAUTH"
+    ],
+    "env_var_specs": [
+      {
+        "name": "STRAVA_STRAVA_OAUTH",
+        "kind": "per_call",
+        "required": true,
+        "sensitive": true,
+        "inferred": true
+      }
+    ]
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "activities_create-activity",
+      "description": "Creates a manual activity for an athlete, requires activity:write scope. Required: elapsed_time, name, sport_type, start_date_local. Optional: commute, description, distance (plus 2 more). Returns the new SwaggerActivityDetailedActivity.",
+      "method": "POST",
+      "path": "/activities",
+      "params": [
+        {
+          "name": "commute",
+          "type": "int",
+          "location": "body",
+          "description": "Set to 1 to mark as commute."
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "Description of the activity."
+        },
+        {
+          "name": "distance",
+          "type": "float",
+          "location": "body",
+          "description": "In meters."
+        },
+        {
+          "name": "elapsed_time",
+          "type": "int",
+          "location": "body",
+          "description": "In seconds.",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the activity.",
+          "required": true
+        },
+        {
+          "name": "sport_type",
+          "type": "string",
+          "location": "body",
+          "description": "Sport type of activity. For example - Run, MountainBikeRide, Ride, etc.",
+          "required": true
+        },
+        {
+          "name": "start_date_local",
+          "type": "string",
+          "location": "body",
+          "description": "ISO 8601 formatted date time.",
+          "required": true
+        },
+        {
+          "name": "trainer",
+          "type": "int",
+          "location": "body",
+          "description": "Set to 1 to mark as a trainer activity."
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "Type of activity. For example - Run, Ride etc."
+        }
+      ]
+    },
+    {
+      "name": "activities_get-activity-by-id",
+      "description": "Returns the given activity that is owned by the authenticated athlete. Requires activity:read for Everyone and Followers activities. Requires activity:read_all for Only Me activities. We strongly encourage you to display the appropriate attribution that identifies Garmin as the data source and the device name in your application. Please see example below from VeloViewer (that provides an attribution for a Garmin Forerunner device). ![Attribution](/images/device-attribution-image.png). Required: id. Optional: include_all_efforts.",
+      "method": "GET",
+      "path": "/activities/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "The identifier of the activity.",
+          "required": true
+        },
+        {
+          "name": "include_all_efforts",
+          "type": "bool",
+          "location": "query",
+          "description": "To include all segments efforts."
+        }
+      ]
+    },
+    {
+      "name": "activities_update-activity-by-id",
+      "description": "Updates the given activity that is owned by the authenticated athlete. Requires activity:write. Also requires activity:read_all in order to update Only Me activities. Required: id. Optional: commute, description, gear_id (plus 5 more). Returns the updated SwaggerActivityDetailedActivity.",
+      "method": "PUT",
+      "path": "/activities/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "The identifier of the activity.",
+          "required": true
+        },
+        {
+          "name": "commute",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether this activity is a commute"
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "The description of the activity"
+        },
+        {
+          "name": "gear_id",
+          "type": "string",
+          "location": "body",
+          "description": "Identifier for the gear associated with the activity. ‘none’ clears gear from activity"
+        },
+        {
+          "name": "hide_from_home",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether this activity is muted"
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The name of the activity"
+        },
+        {
+          "name": "sport_type",
+          "type": "string",
+          "location": "body",
+          "description": "An enumeration of the sport types an activity may have. Distinct from ActivityType in that it has new types (e.g. MountainBikeRide)"
+        },
+        {
+          "name": "trainer",
+          "type": "bool",
+          "location": "body",
+          "description": "Whether this activity was recorded on a training machine"
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "location": "body",
+          "description": "An enumeration of the types an activity may have. Note that this enumeration does not include new sport types (e.g. MountainBikeRide, EMountainBikeRide), activities with these sport types will have the corresponding activity type (e.g. Ride for MountainBikeRide, EBikeRide for EMountainBikeRide)"
+        }
+      ]
+    },
+    {
+      "name": "activities_comments_get-by-activity-id",
+      "description": "Returns the comments on the given activity. Requires activity:read for Everyone and Followers activities. Requires activity:read_all for Only Me activities. Required: id. Optional: page, per_page (default: 30), page_size (default: 30) (plus 1 more).",
+      "method": "GET",
+      "path": "/activities/{id}/comments",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "The identifier of the activity.",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Deprecated. Prefer to use after_cursor."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Deprecated. Prefer to use page_size."
+        },
+        {
+          "name": "page_size",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items per page. Defaults to 30."
+        },
+        {
+          "name": "after_cursor",
+          "type": "string",
+          "location": "query",
+          "description": "Cursor of the last item in the previous page of results, used to request the subsequent page of results. When omitted, the first page of results is fetched."
+        }
+      ]
+    },
+    {
+      "name": "activities_kudos_get-kudoers-by-activity-id",
+      "description": "Returns the athletes who kudoed an activity identified by an identifier. Requires activity:read for Everyone and Followers activities. Requires activity:read_all for Only Me activities. Required: id. Optional: page, per_page (default: 30).",
+      "method": "GET",
+      "path": "/activities/{id}/kudos",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "The identifier of the activity.",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number. Defaults to 1."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items per page. Defaults to 30."
+        }
+      ]
+    },
+    {
+      "name": "activities_laps_get-by-activity-id",
+      "description": "Returns the laps of an activity identified by an identifier. Requires activity:read for Everyone and Followers activities. Requires activity:read_all for Only Me activities. Required: id.",
+      "method": "GET",
+      "path": "/activities/{id}/laps",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "The identifier of the activity.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "activities_streams_get-activity",
+      "description": "Returns the given activity's streams. Requires activity:read scope. Requires activity:read_all scope for Only Me activities. Required: id, keys, key_by_type (default: true).",
+      "method": "GET",
+      "path": "/activities/{id}/streams",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "The identifier of the activity.",
+          "required": true
+        },
+        {
+          "name": "keys",
+          "type": "array",
+          "location": "query",
+          "description": "Desired stream types.",
+          "required": true
+        },
+        {
+          "name": "key_by_type",
+          "type": "bool",
+          "location": "query",
+          "description": "Must be true.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "activities_zones_get-by-activity-id",
+      "description": "Summit Feature. Returns the zones of a given activity. Requires activity:read for Everyone and Followers activities. Requires activity:read_all for Only Me activities. Required: id.",
+      "method": "GET",
+      "path": "/activities/{id}/zones",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "The identifier of the activity.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "athlete_get-logged-in",
+      "description": "Returns the currently authenticated athlete. Tokens with profile:read_all scope will receive a detailed athlete representation; all others will receive a summary representation.",
+      "method": "GET",
+      "path": "/athlete",
+      "params": []
+    },
+    {
+      "name": "athlete_get-logged-in-activities",
+      "description": "Returns the activities of an athlete for a specific identifier. Requires activity:read. Only Me activities will be filtered out unless requested by a token with activity:read_all. Optional: before, after, page (plus 1 more).",
+      "method": "GET",
+      "path": "/athlete/activities",
+      "params": [
+        {
+          "name": "before",
+          "type": "int",
+          "location": "query",
+          "description": "An epoch timestamp to use for filtering activities that have taken place before a certain time."
+        },
+        {
+          "name": "after",
+          "type": "int",
+          "location": "query",
+          "description": "An epoch timestamp to use for filtering activities that have taken place after a certain time."
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number. Defaults to 1."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items per page. Defaults to 30."
+        }
+      ]
+    },
+    {
+      "name": "athlete_get-logged-in-clubs",
+      "description": "Returns a list of the clubs whose membership includes the authenticated athlete. Optional: page, per_page (default: 30).",
+      "method": "GET",
+      "path": "/athlete/clubs",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number. Defaults to 1."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items per page. Defaults to 30."
+        }
+      ]
+    },
+    {
+      "name": "athlete_get-logged-in-zones",
+      "description": "Returns the the authenticated athlete's heart rate and power zones. Requires profile:read_all.",
+      "method": "GET",
+      "path": "/athlete/zones",
+      "params": []
+    },
+    {
+      "name": "athlete_update-logged-in",
+      "description": "Update the currently authenticated athlete. Requires profile:write scope. Required: weight. Returns the updated SwaggerAthleteDetailedAthlete.",
+      "method": "PUT",
+      "path": "/athlete",
+      "params": [
+        {
+          "name": "weight",
+          "type": "float",
+          "location": "path",
+          "description": "The weight of the athlete in kilograms.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "athletes_routes_get-by-athlete-id",
+      "description": "Returns a list of the routes created by the authenticated athlete. Private routes are filtered out unless requested by a token with read_all scope. Required: id. Optional: page, per_page (default: 30).",
+      "method": "GET",
+      "path": "/athletes/{id}/routes",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number. Defaults to 1."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items per page. Defaults to 30."
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "athletes_stats_get",
+      "description": "Returns the activity stats of an athlete. Only includes data from activities set to Everyone visibilty. Required: id.",
+      "method": "GET",
+      "path": "/athletes/{id}/stats",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "The identifier of the athlete. Must match the authenticated athlete.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "clubs_get-by-id",
+      "description": "Returns a given a club using its identifier. Required: id.",
+      "method": "GET",
+      "path": "/clubs/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "The identifier of the club.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "clubs_activities_get-club-by-id",
+      "description": "Retrieve recent activities from members of a specific club. The authenticated athlete must belong to the requested club in order to hit this endpoint. Pagination is supported. Athlete profile visibility is respected for all activities. Required: id. Optional: page, per_page (default: 30). Returns array of SwaggerActivityClubActivity.",
+      "method": "GET",
+      "path": "/clubs/{id}/activities",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "The identifier of the club.",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number. Defaults to 1."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items per page. Defaults to 30."
+        }
+      ]
+    },
+    {
+      "name": "clubs_admins_get-club-by-id",
+      "description": "Returns a list of the administrators of a given club. Required: id. Optional: page, per_page (default: 30).",
+      "method": "GET",
+      "path": "/clubs/{id}/admins",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "The identifier of the club.",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number. Defaults to 1."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items per page. Defaults to 30."
+        }
+      ]
+    },
+    {
+      "name": "clubs_members_get-club-by-id",
+      "description": "Returns a list of the athletes who are members of a given club. Required: id. Optional: page, per_page (default: 30).",
+      "method": "GET",
+      "path": "/clubs/{id}/members",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "The identifier of the club.",
+          "required": true
+        },
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number. Defaults to 1."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items per page. Defaults to 30."
+        }
+      ]
+    },
+    {
+      "name": "gear_get-by-id",
+      "description": "Returns an equipment using its identifier. Required: id.",
+      "method": "GET",
+      "path": "/gear/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "string",
+          "location": "path",
+          "description": "The identifier of the gear.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "routes_get-by-id",
+      "description": "Returns a route using its identifier. Requires read_all scope for private routes. Required: id.",
+      "method": "GET",
+      "path": "/routes/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "The identifier of the route.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "routes_export-gpx_get-route-as-gpx",
+      "description": "Returns a GPX file of the route. Requires read_all scope for private routes. Required: id.",
+      "method": "GET",
+      "path": "/routes/{id}/export_gpx",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "The identifier of the route.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "routes_export-tcx_get-route-as-tcx",
+      "description": "Returns a TCX file of the route. Requires read_all scope for private routes. Required: id.",
+      "method": "GET",
+      "path": "/routes/{id}/export_tcx",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "The identifier of the route.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "routes_streams_get-route",
+      "description": "Returns the given route's streams. Requires read_all scope for private routes. Required: id.",
+      "method": "GET",
+      "path": "/routes/{id}/streams",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "The identifier of the route.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "segment-efforts_get-by-id",
+      "description": "Returns a segment effort from an activity that is owned by the authenticated athlete. Requires subscription. Required: id.",
+      "method": "GET",
+      "path": "/segment_efforts/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "The identifier of the segment effort.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "segment-efforts_get-efforts-by-segment-id",
+      "description": "Returns a set of the authenticated athlete's segment efforts for a given segment. Requires subscription. Required: segment_id. Optional: start_date_local, end_date_local, per_page (default: 30).",
+      "method": "GET",
+      "path": "/segment_efforts",
+      "params": [
+        {
+          "name": "segment_id",
+          "type": "int",
+          "location": "query",
+          "description": "The identifier of the segment.",
+          "required": true
+        },
+        {
+          "name": "start_date_local",
+          "type": "string",
+          "location": "query",
+          "description": "ISO 8601 formatted date time."
+        },
+        {
+          "name": "end_date_local",
+          "type": "string",
+          "location": "query",
+          "description": "ISO 8601 formatted date time."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items per page. Defaults to 30."
+        }
+      ]
+    },
+    {
+      "name": "segment-efforts_streams_get-segment-effort",
+      "description": "Returns a set of streams for a segment effort completed by the authenticated athlete. Requires read_all scope. Required: id, keys, key_by_type (default: true).",
+      "method": "GET",
+      "path": "/segment_efforts/{id}/streams",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "The identifier of the segment effort.",
+          "required": true
+        },
+        {
+          "name": "keys",
+          "type": "array",
+          "location": "query",
+          "description": "The types of streams to return.",
+          "required": true
+        },
+        {
+          "name": "key_by_type",
+          "type": "bool",
+          "location": "query",
+          "description": "Must be true.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "segments_explore",
+      "description": "Returns the top 10 segments matching a specified query. Required: bounds. Optional: activity_type, min_cat, max_cat.",
+      "method": "GET",
+      "path": "/segments/explore",
+      "params": [
+        {
+          "name": "bounds",
+          "type": "array",
+          "location": "query",
+          "description": "The latitude and longitude for two points describing a rectangular boundary for the search: [southwest corner latitutde, southwest corner longitude, northeast corner latitude, northeast corner longitude]",
+          "required": true
+        },
+        {
+          "name": "activity_type",
+          "type": "string",
+          "location": "query",
+          "description": "Desired activity type."
+        },
+        {
+          "name": "min_cat",
+          "type": "int",
+          "location": "query",
+          "description": "The minimum climbing category."
+        },
+        {
+          "name": "max_cat",
+          "type": "int",
+          "location": "query",
+          "description": "The maximum climbing category."
+        }
+      ]
+    },
+    {
+      "name": "segments_get-by-id",
+      "description": "Returns the specified segment. read_all scope required in order to retrieve athlete-specific segment information, or to retrieve private segments. Required: id.",
+      "method": "GET",
+      "path": "/segments/{id}",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "The identifier of the segment.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "segments_get-logged-in-athlete-starred",
+      "description": "List of the authenticated athlete's starred segments. Private segments are filtered out unless requested by a token with read_all scope. Optional: page, per_page (default: 30). Returns array of SwaggerSegmentSummarySegment.",
+      "method": "GET",
+      "path": "/segments/starred",
+      "params": [
+        {
+          "name": "page",
+          "type": "int",
+          "location": "query",
+          "description": "Page number. Defaults to 1."
+        },
+        {
+          "name": "per_page",
+          "type": "int",
+          "location": "query",
+          "description": "Number of items per page. Defaults to 30."
+        }
+      ]
+    },
+    {
+      "name": "segments_starred_star-segment",
+      "description": "Stars/Unstars the given segment for the authenticated athlete. Requires profile:write scope. Required: id, starred (default: false). Returns the updated SwaggerSegmentDetailedSegment.",
+      "method": "PUT",
+      "path": "/segments/{id}/starred",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "The identifier of the segment to star.",
+          "required": true
+        },
+        {
+          "name": "starred",
+          "type": "bool",
+          "location": "body",
+          "description": "If true, star the segment; if false, unstar the segment.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "segments_streams_get-segment",
+      "description": "Returns the given segment's streams. Requires read_all scope for private segments. Required: id, keys, key_by_type (default: true).",
+      "method": "GET",
+      "path": "/segments/{id}/streams",
+      "params": [
+        {
+          "name": "id",
+          "type": "int",
+          "location": "path",
+          "description": "The identifier of the segment.",
+          "required": true
+        },
+        {
+          "name": "keys",
+          "type": "array",
+          "location": "query",
+          "description": "The types of streams to return.",
+          "required": true
+        },
+        {
+          "name": "key_by_type",
+          "type": "bool",
+          "location": "query",
+          "description": "Must be true.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "uploads_create",
+      "description": "Uploads a new data file to create an activity from. Requires activity:write scope. Optional: commute, data_type, description (plus 4 more). Returns the new SwaggerUploadUpload.",
+      "method": "POST",
+      "path": "/uploads",
+      "params": [
+        {
+          "name": "commute",
+          "type": "string",
+          "location": "body",
+          "description": "Whether the resulting activity should be tagged as a commute."
+        },
+        {
+          "name": "data_type",
+          "type": "string",
+          "location": "body",
+          "description": "The format of the uploaded file."
+        },
+        {
+          "name": "description",
+          "type": "string",
+          "location": "body",
+          "description": "The desired description of the resulting activity."
+        },
+        {
+          "name": "external_id",
+          "type": "string",
+          "location": "body",
+          "description": "The desired external identifier of the resulting activity."
+        },
+        {
+          "name": "file",
+          "type": "string",
+          "location": "body",
+          "description": "The uploaded file."
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "location": "body",
+          "description": "The desired name of the resulting activity."
+        },
+        {
+          "name": "trainer",
+          "type": "string",
+          "location": "body",
+          "description": "Whether the resulting activity should be marked as having been performed on a trainer."
+        }
+      ]
+    },
+    {
+      "name": "uploads_get-by-id",
+      "description": "Returns an upload for a given identifier. Requires activity:write scope. Required: uploadId.",
+      "method": "GET",
+      "path": "/uploads/{uploadId}",
+      "params": [
+        {
+          "name": "uploadId",
+          "type": "int",
+          "location": "path",
+          "description": "The identifier of the upload.",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

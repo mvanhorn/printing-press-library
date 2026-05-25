@@ -24,7 +24,7 @@ This skill drives the `coffee-goat-pp-cli` binary. **You must verify the CLI is 
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install coffee-goat --cli-only
+   npx -y @mvanhorn/printing-press-library install coffee-goat --cli-only
    ```
 2. Verify: `coffee-goat-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -36,8 +36,6 @@ go install github.com/mvanhorn/printing-press-library/library/food-and-dining/co
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-coffee-goat aggregates the global specialty-coffee shelf via Shopify-backed roaster storefronts, Coffee Review scores, and James Hoffmann + Lance Hedrick YouTube transcripts (via the youtube-pp-cli sibling) into one no-auth local SQLite corpus — then joins it with your personal brew log. Cross-roaster search, restock watch, closest-twin replacement, creator-clip lookup, SCA flavor-wheel palate mapping, friend-pick recommendations, and the eponymous `god-cup` recommender that integrates shelf freshness + brew history + Coffee Review + creator coverage into one brew-now and one buy-next pick. (Champion recipes, cafe finder, drift diagnostics, and 11 other commands documented in the absorb manifest are Phase 3 follow-up.)
 
 ## When to Use This CLI
 

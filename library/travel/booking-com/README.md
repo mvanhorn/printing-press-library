@@ -13,31 +13,37 @@ Printed by [@mvanhorn](https://github.com/mvanhorn) (Matt Van Horn).
 The recommended path installs both the `booking-com-pp-cli` binary and the `pp-booking-com` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install booking-com
+npx -y @mvanhorn/printing-press-library install booking-com
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install booking-com --cli-only
+npx -y @mvanhorn/printing-press-library install booking-com --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install booking-com --skill-only
+npx -y @mvanhorn/printing-press-library install booking-com --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install booking-com --agent claude-code
-npx -y @mvanhorn/printing-press install booking-com --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install booking-com --agent claude-code
+npx -y @mvanhorn/printing-press-library install booking-com --agent claude-code --agent codex
 ```
 
-### Without Node
+### Without Node (Go fallback)
 
-The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/travel/booking-com/cmd/booking-com-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
 
 ### Pre-built binary
 
@@ -115,22 +121,17 @@ Public search, hotel detail, reviews, destinations, and map markers run anonymou
 # Headline hotel search — 25 SSR-extracted property cards with --select narrowing the response shape.
 booking-com-pp-cli hotels list --query Paris --checkin 2026-06-20 --checkout 2026-06-23 --adults 2 --json --select '[].name,[].price,[].review_score,[].url'
 
-
 # Drill into a property: amenities, address, geo, rating from the JSON-LD Hotel schema.
 booking-com-pp-cli hotels get fr auliviaopera --checkin 2026-06-20 --checkout 2026-06-23 --json
-
 
 # Local price_history sweep — answers 'when is this hotel cheapest in summer?' in one call.
 booking-com-pp-cli prices cheapest --slug auliviaopera --country fr --window 2026-06-01..2026-08-31 --nights 3 --agent
 
-
 # Verify auth + reachability before authenticated commands. Run 'booking-com-pp-cli auth login --chrome' first if doctor reports missing cookies.
 booking-com-pp-cli doctor --json
 
-
 # Weekly digest of wishlist items whose price dropped at least 5 percent in the last 7 days.
 booking-com-pp-cli wishlist drops --since 168h --min-pct 5 --agent
-
 
 # Monday-morning alarm: upcoming trips whose free-cancellation deadline is within 7 days.
 booking-com-pp-cli trips deadlines --within 168h --agent
@@ -311,7 +312,6 @@ Authenticated `My Trips` page at `secure.booking.com/mytrips.html`. Lists upcomi
 Authenticated `Saved` wishlist at `www.booking.com/mywishlist.html?wl_id=<id>`. The user's wishlist id is server-resolved from the session cookie. Returns the saved properties with last-seen price snapshots.
 
 - **`booking-com-pp-cli wishlist`** - Fetch the authenticated user's wishlist. Returns each saved property's name, slug, country, last-seen price, and the date it was added.
-
 
 ## Output Formats
 

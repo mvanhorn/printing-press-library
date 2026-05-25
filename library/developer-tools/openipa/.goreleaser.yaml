@@ -45,7 +45,7 @@ brews:
       owner: aborruso
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Il primo CLI per l'Indice delle Pubbliche Amministrazioni — lookup istantaneo di enti, PEC, codici IPA,..."
+    description: "Search Italy's IndicePA for public administrations, PEC addresses, IPA codes, billing codes, and compliance details."
     install: |
       bin.install "openipa-pp-cli"
       bin.install "openipa-pp-mcp"

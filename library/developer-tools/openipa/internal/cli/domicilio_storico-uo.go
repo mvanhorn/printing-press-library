@@ -20,7 +20,7 @@ func newDomicilioStoricoUoCmd(flags *rootFlags) *cobra.Command {
 		Use:         "storico-uo",
 		Short:       "Storico domicili digitali di una UO (inclusi cessati)",
 		Example:     "  openipa-pp-cli domicilio storico-uo --codice-uni example-value",
-		Annotations: map[string]string{"pp:endpoint": "domicilio.storico-uo", "pp:method": "POST", "pp:path": "/WS12_DOM_DIG_STOR_OU.php"},
+		Annotations: map[string]string{"pp:endpoint": "domicilio.storico-uo", "pp:method": "POST", "pp:path": "/ws/WS12DOMDIGSTOROUServices/api/WS12_DOM_DIG_STOR_OU"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
 				if !cmd.Flags().Changed("codice-uni") && !flags.dryRun {
@@ -32,7 +32,7 @@ func newDomicilioStoricoUoCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "/WS12_DOM_DIG_STOR_OU.php"
+			path := "/ws/WS12DOMDIGSTOROUServices/api/WS12_DOM_DIG_STOR_OU"
 			var body map[string]any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)

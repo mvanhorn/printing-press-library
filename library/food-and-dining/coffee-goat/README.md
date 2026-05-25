@@ -17,26 +17,26 @@ Printed by [@justinwfu](https://github.com/justinwfu) (Justin Fu).
 The recommended path installs both the `coffee-goat-pp-cli` binary and the `pp-coffee-goat` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install coffee-goat
+npx -y @mvanhorn/printing-press-library install coffee-goat
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install coffee-goat --cli-only
+npx -y @mvanhorn/printing-press-library install coffee-goat --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install coffee-goat --skill-only
+npx -y @mvanhorn/printing-press-library install coffee-goat --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install coffee-goat --agent claude-code
-npx -y @mvanhorn/printing-press install coffee-goat --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install coffee-goat --agent claude-code
+npx -y @mvanhorn/printing-press-library install coffee-goat --agent claude-code --agent codex
 ```
 
 ### Without Node (Go fallback)
@@ -121,22 +121,17 @@ No API key required. All shipped sources are no-auth: roaster storefronts via pu
 # Confirm youtube-pp-cli is on PATH and the representative roaster (Onyx) is reachable
 coffee-goat doctor
 
-
 # Pull catalogs from Shopify roasters, Coffee Review, and the Hoffmann + Hedrick YouTube channels into the local store
 coffee-goat sync
-
 
 # Cross-roaster origin/process search — every Ethiopian natural under $25 ($25.00 = 2500 cents) across the global shelf
 coffee-goat search "ethiopia natural" --in-stock --price-lt 2500 --agent
 
-
 # Find the closest current match across roasters for a bean you loved (use any synced roaster_products handle)
 coffee-goat twin sey-banko-gotiti --top 5 --agent
 
-
 # Show every Hoffmann/Hedrick clip mentioning Onyx with transcript excerpts
 coffee-goat creator-review onyx --agent
-
 
 # Integrates shelf + brews + Coffee Review + creator transcripts into one brew-now and one buy-next pick (works against fixture data; cellar/brew CLI is Phase 3 follow-up)
 coffee-goat god-cup --method espresso --agent
@@ -377,7 +372,6 @@ Run `coffee-goat-pp-cli --help` for the full command reference and flag list.
 Unified roaster product corpus synced from 24 specialty coffee roasters
 
 - **`coffee-goat-pp-cli products`** - List synced roaster products with structured filters
-
 
 ## Output Formats
 

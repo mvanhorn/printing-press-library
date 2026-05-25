@@ -45,7 +45,7 @@ brews:
       owner: conduyt
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "The Conduyt CRM API provides programmatic access to your CRM data including contacts, companies, deals, pipelines,..."
+    description: "Manage Conduyt CRM contacts, deals, pipelines, automations, campaigns, invoices, and local insight reports from the terminal."
     install: |
       bin.install "conduyt-crm-pp-cli"
       bin.install "conduyt-crm-pp-mcp"

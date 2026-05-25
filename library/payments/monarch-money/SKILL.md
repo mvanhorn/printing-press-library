@@ -24,7 +24,7 @@ This skill drives the `monarch-money-pp-cli` binary. **You must verify the CLI i
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install monarch-money --cli-only
+   npx -y @mvanhorn/printing-press-library install monarch-money --cli-only
    ```
 2. Verify: `monarch-money-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.

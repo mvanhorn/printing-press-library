@@ -20,7 +20,7 @@ func newFatturazioneEnteCmd(flags *rootFlags) *cobra.Command {
 		Use:         "ente",
 		Short:       "Canali SFE attivi di un ente per codice IPA",
 		Example:     "  openipa-pp-cli fatturazione ente --codice example-value",
-		Annotations: map[string]string{"pp:endpoint": "fatturazione.ente", "pp:method": "POST", "pp:path": "/WS04_SFE.php"},
+		Annotations: map[string]string{"pp:endpoint": "fatturazione.ente", "pp:method": "POST", "pp:path": "/ws/WS04SFEServices/api/WS04_SFE"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
 				if !cmd.Flags().Changed("codice") && !flags.dryRun {
@@ -32,7 +32,7 @@ func newFatturazioneEnteCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "/WS04_SFE.php"
+			path := "/ws/WS04SFEServices/api/WS04_SFE"
 			var body map[string]any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)

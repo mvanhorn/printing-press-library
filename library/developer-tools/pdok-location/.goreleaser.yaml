@@ -45,7 +45,7 @@ brews:
       owner: markvandeven
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "One Go binary for every Dutch location workflow — geocode, reverse-geocode, batch CSVs, full GeoJSON geometries,..."
+    description: "Geocode Dutch addresses, reverse-geocode coordinates, convert RD/WGS84, and query PDOK location data with offline helpers."
     install: |
       bin.install "pdok-location-pp-cli"
       bin.install "pdok-location-pp-mcp"

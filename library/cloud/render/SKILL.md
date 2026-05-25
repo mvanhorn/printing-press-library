@@ -20,7 +20,7 @@ This skill drives the `render-pp-cli` binary. **You must verify the CLI is insta
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install render --cli-only
+   npx -y @mvanhorn/printing-press-library install render --cli-only
    ```
 2. Verify: `render-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -32,7 +32,6 @@ go install github.com/mvanhorn/printing-press-library/library/cloud/render/cmd/r
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
 
 ## When to Use This CLI
 

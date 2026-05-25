@@ -1,0 +1,53 @@
+{
+  "api_name": "delta-trip",
+  "novelty_score": 6,
+  "alternatives": [],
+  "novel_features": [
+    {
+      "name": "Connection Risk Scoring",
+      "command": "trip layover",
+      "description": "Score every layover in a trip as OK, TIGHT, or HIGH with a per-connection recommended action — in one command, without parsing the full flights table.",
+      "rationale": "Requires correlating arrival time, connection window, domestic/international status, and MCT thresholds per airport — data only available once the full itinerary is fetched and parsed. No other Delta tool returns a structured risk report.",
+      "example": "delta-trip-pp-cli trip layover ABC123 JANE SMITH --json",
+      "why_it_matters": "Use when an agent needs to check whether a traveler will make their connection or needs to recommend rebooking — returns overallRisk: HIGH/TIGHT/OK without parsing the full flight table.",
+      "group": "Agent-native travel intelligence"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Connection Risk Scoring",
+      "command": "trip layover",
+      "description": "Score every layover in a trip as OK, TIGHT, or HIGH with a per-connection recommended action — in one command, without parsing the full flights table.",
+      "rationale": "Requires correlating arrival time, connection window, domestic/international status, and MCT thresholds per airport — data only available once the full itinerary is fetched and parsed. No other Delta tool returns a structured risk report.",
+      "example": "delta-trip-pp-cli trip layover ABC123 JANE SMITH --json",
+      "why_it_matters": "Use when an agent needs to check whether a traveler will make their connection or needs to recommend rebooking — returns overallRisk: HIGH/TIGHT/OK without parsing the full flight table.",
+      "group": "Agent-native travel intelligence"
+    }
+  ],
+  "narrative": {
+    "display_name": "Delta Air Lines",
+    "headline": "Look up any Delta trip by confirmation number — flights, seats, baggage, and connection risk — without logging in.",
+    "value_prop": "delta-trip-pp-cli fetches your full Delta itinerary from delta.com using only a confirmation number and name. It surfaces per-passenger seat assignments, fare class, connection risk ratings, baggage allowance, and check-in windows — all without requiring a SkyMiles login or API key.",
+    "quickstart": [
+      {"command": "delta-trip-pp-cli trips --confirmation ABC123 --first-name JANE --last-name SMITH", "comment": "Look up a trip by confirmation number"},
+      {"command": "delta-trip-pp-cli trip layover ABC123 JANE SMITH --json", "comment": "Check connection risk for every layover"},
+      {"command": "delta-trip-pp-cli trip checkin ABC123 JANE SMITH", "comment": "See when check-in opens for each flight"},
+      {"command": "delta-trip-pp-cli seats --confirmation ABC123 --first-name JANE --last-name SMITH", "comment": "View seat assignments and upgrade options"}
+    ],
+    "troubleshoots": [
+      {"symptom": "Browser window opens but trip lookup times out", "fix": "Ensure Chrome is installed and not blocked by corporate proxy. Try --timeout 90s."},
+      {"symptom": "No flight data found", "fix": "Verify the confirmation number format (6 characters, no dashes) and that first/last names match the ticket exactly."}
+    ],
+    "when_to_use": "Use this CLI when an agent needs trip details for a Delta Air Lines booking — flight times, seat assignments, connection risk, or check-in status. Does not require a Delta account or API key. Best for read-only travel lookup tasks.",
+    "recipes": [
+      {"title": "Connection risk check", "command": "delta-trip-pp-cli trip layover ABC123 JANE SMITH --json --select overallRisk,connections", "explanation": "Returns structured risk data; overallRisk is HIGH/TIGHT/OK for quick agent decisions."},
+      {"title": "Full itinerary JSON", "command": "delta-trip-pp-cli trip show ABC123 JANE SMITH --json --select confirmationNumber,flights", "explanation": "Returns structured flights array with departure/arrival times and passenger seats."},
+      {"title": "Check-in window", "command": "delta-trip-pp-cli trip checkin ABC123 JANE SMITH --agent", "explanation": "Shows check-in open/closed status with opens-at timestamp for each flight."}
+    ],
+    "trigger_phrases": ["check delta trip", "look up flight confirmation", "when does delta check-in open", "will I make my connection", "delta seat assignment", "use delta-trip"]
+  },
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-23T00:00:00Z"
+}

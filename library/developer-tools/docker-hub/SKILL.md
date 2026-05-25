@@ -24,7 +24,7 @@ This skill drives the `docker-hub-pp-cli` binary. **You must verify the CLI is i
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install docker-hub --cli-only
+   npx -y @mvanhorn/printing-press-library install docker-hub --cli-only
    ```
 2. Verify: `docker-hub-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.

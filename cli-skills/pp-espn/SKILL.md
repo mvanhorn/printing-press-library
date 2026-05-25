@@ -29,7 +29,7 @@ This skill drives the `espn-pp-cli` binary. **You must verify the CLI is install
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install espn --cli-only
+   npx -y @mvanhorn/printing-press-library install espn --cli-only
    ```
 2. Verify: `espn-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.

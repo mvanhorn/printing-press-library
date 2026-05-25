@@ -25,7 +25,7 @@ This skill drives the `namecheap-pp-cli` binary. **You must verify the CLI is in
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install namecheap --cli-only
+   npx -y @mvanhorn/printing-press-library install namecheap --cli-only
    ```
 2. Verify: `namecheap-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -37,12 +37,6 @@ go install github.com/mvanhorn/printing-press-library/library/developer-tools/na
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-Curated OpenAPI description for Namecheap's XML API. The real API uses a single
-endpoint (`/xml.response`) with a `Command` query parameter plus Namecheap's
-query-string authentication parameters (`ApiUser`, `ApiKey`, `UserName`, `ClientIp`).
-Generation uses command-shaped pseudo paths that are normalized back to `/xml.response`
-by the Namecheap printed CLI patch layer.
 
 ## When Not to Use This CLI
 

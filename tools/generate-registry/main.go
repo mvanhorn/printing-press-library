@@ -72,6 +72,7 @@ type RegistryEntry struct {
 	Description string   `json:"description"`
 	SearchTerms []string `json:"search_terms,omitempty"`
 	Path        string   `json:"path"`
+	sourceAPI   string
 	// Printer is the GitHub @handle of the human who originally ran the
 	// press for this CLI. Sourced verbatim from .printing-press.json's
 	// `printer` field; never derived from operator git config or curated
@@ -149,7 +150,7 @@ var brewsDescriptionRE = regexp.MustCompile(`^\s+description:\s*"?(.*?)"?\s*$`)
 func main() {
 	check := flag.Bool("check", false, "exit non-zero if generated outputs differ from on-disk registry.json or README.md sentinel regions")
 	printOnly := flag.Bool("print", false, "print generated registry to stdout instead of writing")
-	validate := flag.Bool("validate", false, "exit non-zero if any entry would have an empty required field after fallback resolution (sources only — ignores prior registry.json curated values). Designed for the PR-time CI gate.")
+	validate := flag.Bool("validate", false, "exit non-zero if any entry would have an empty required field or duplicate display label after fallback resolution (sources only — ignores prior registry.json curated values). Designed for the PR-time CI gate.")
 	flag.Parse()
 
 	// --validate runs before the normal flow so it never depends on the
@@ -169,16 +170,21 @@ func main() {
 		if err != nil {
 			log.Fatalf("building entries for validation: %v", err)
 		}
-		if restrict := flag.Args(); len(restrict) > 0 {
+		allSourceEntries := sourceEntries
+		restrict := flag.Args()
+		if len(restrict) > 0 {
 			sourceEntries = filterEntriesBySlug(sourceEntries, restrict)
 		}
-		if errs := validateEntries(sourceEntries); len(errs) > 0 {
+		errs := validateEntries(sourceEntries)
+		errs = append(errs, validateUniqueAPIDisplayNames(allSourceEntries, restrict)...)
+		if len(errs) > 0 {
 			fmt.Fprintln(os.Stderr, "Registry validation failed:")
 			for _, e := range errs {
 				fmt.Fprintln(os.Stderr, "  - "+e)
 			}
 			fmt.Fprintln(os.Stderr, "\nFix the source files:")
 			fmt.Fprintln(os.Stderr, "  - description: populate .printing-press.json's `description` or the `.goreleaser.yaml` brews `description` for the affected CLI(s).")
+			fmt.Fprintln(os.Stderr, "  - api:         give each CLI a unique .printing-press.json `display_name` so catalog labels do not collide.")
 			fmt.Fprintln(os.Stderr, "  - mcp.*:       populate .printing-press.json's `mcp_binary`, `auth_type`, and related fields for any CLI advertising an MCP block.")
 			os.Exit(2)
 		}
@@ -191,6 +197,14 @@ func main() {
 	entries, err := buildEntries(libraryDir, existing)
 	if err != nil {
 		log.Fatalf("building entries: %v", err)
+	}
+	if errs := validateUniqueAPIDisplayNames(entries, nil); len(errs) > 0 {
+		fmt.Fprintln(os.Stderr, "Registry generation failed:")
+		for _, e := range errs {
+			fmt.Fprintln(os.Stderr, "  - "+e)
+		}
+		fmt.Fprintln(os.Stderr, "\nFix .printing-press.json `display_name` values so catalog labels do not collide.")
+		os.Exit(2)
 	}
 
 	registry := Registry{
@@ -313,6 +327,7 @@ func buildEntries(root string, existing map[string]RegistryEntry) ([]RegistryEnt
 	sort.Slice(entries, func(i, j int) bool {
 		return entries[i].Name < entries[j].Name
 	})
+	repairDuplicateAPIDisplayNames(entries)
 	return entries, nil
 }
 
@@ -342,6 +357,11 @@ func buildEntry(dir, category, slug string, existing map[string]RegistryEntry) (
 		Category: category,
 		API:      apiDisplayName(pp, prior, slug),
 		Path:     filepath.ToSlash(dir),
+		sourceAPI: strings.TrimSpace(firstNonEmpty(
+			pp.DisplayName,
+			pp.APIName,
+			slug,
+		)),
 		// Printer attribution: always derive from the manifest. Do not
 		// honor a curated prior.Printer value — the manifest is the
 		// only source of truth, and a curated map would re-introduce
@@ -396,25 +416,73 @@ func buildEntry(dir, category, slug string, existing map[string]RegistryEntry) (
 	return &entry, nil
 }
 
+func repairDuplicateAPIDisplayNames(entries []RegistryEntry) {
+	groups := make(map[string][]int)
+	for i, entry := range entries {
+		label := strings.TrimSpace(entry.API)
+		if label == "" {
+			continue
+		}
+		groups[strings.ToLower(label)] = append(groups[strings.ToLower(label)], i)
+	}
+
+	for _, indexes := range groups {
+		if len(indexes) < 2 {
+			continue
+		}
+		for _, i := range indexes {
+			source := strings.TrimSpace(entries[i].sourceAPI)
+			if source != "" && !strings.EqualFold(source, strings.TrimSpace(entries[i].API)) {
+				entries[i].API = source
+			}
+		}
+	}
+}
+
 // registryDescription picks the final description for a registry entry from
 // three tiers in preference order: prior curated value > goreleaser brews
-// description > .printing-press.json description. The bare-markdown-heading
-// exception applies only to the prior tier — that's the only tier with the
-// legacy "# Introduction" bug history. The two source tiers are author-written
-// one-liners and don't need the exception.
+// description > .printing-press.json description. Prior values that match
+// known generated-junk shapes (boilerplate, raw HTML, truncation, oversized
+// prose blobs) are not treated as curated; the current source one-liner repairs
+// them on the next regen. The bare-markdown-heading exception applies only to
+// the prior tier — that's the only tier with the legacy "# Introduction" bug
+// history. The two source tiers are author-written one-liners and don't need
+// the exception.
 //
 // Returns "" only when every tier is empty. The --validate mode treats that
 // as a fail-stop; the regular write path lets it through so first-time runs
 // of new CLIs that intentionally have no description can complete (validation
 // is a separate concern from generation).
 func registryDescription(prior, goreleaser, ppDescription string) string {
-	if prior != "" && !isBareMarkdownHeading(prior) {
+	source := firstNonEmpty(goreleaser, ppDescription)
+	stalePrior := isStaleRegistryDescription(prior)
+	if source != "" && stalePrior {
+		return source
+	}
+	if prior != "" && !isBareMarkdownHeading(prior) && !stalePrior {
 		return prior
 	}
-	if goreleaser != "" {
-		return goreleaser
+	return source
+}
+
+func firstNonEmpty(values ...string) string {
+	for _, value := range values {
+		if value != "" {
+			return value
+		}
 	}
-	return ppDescription
+	return ""
+}
+
+func isStaleRegistryDescription(prior string) bool {
+	trimmed := strings.TrimSpace(prior)
+	if trimmed == "" || isBareMarkdownHeading(trimmed) {
+		return false
+	}
+	return strings.HasPrefix(trimmed, "<") ||
+		strings.HasPrefix(trimmed, "Printing Press CLI for ") ||
+		strings.HasSuffix(trimmed, "...") ||
+		len(trimmed) > 240
 }
 
 func searchTerms(pp printingPressManifest) []string {
@@ -517,6 +585,59 @@ func validateEntries(entries []RegistryEntry) []string {
 	return errs
 }
 
+// validateUniqueAPIDisplayNames rejects duplicate human-facing catalog labels.
+// When scopedSlugs is non-empty, it reports only duplicate groups involving at
+// least one scoped entry; this lets PR-time validation catch a touched CLI that
+// collides with an unchanged sibling without making unrelated baseline issues
+// block stale branches.
+func validateUniqueAPIDisplayNames(entries []RegistryEntry, scopedSlugs []string) []string {
+	scoped := make(map[string]bool, len(scopedSlugs))
+	for _, slug := range scopedSlugs {
+		scoped[strings.TrimSpace(slug)] = true
+	}
+
+	type apiGroup struct {
+		label string
+		names []string
+	}
+
+	groups := make(map[string]*apiGroup)
+	for _, e := range entries {
+		label := strings.TrimSpace(e.API)
+		if label == "" {
+			continue
+		}
+		key := strings.ToLower(label)
+		if groups[key] == nil {
+			groups[key] = &apiGroup{label: label}
+		}
+		groups[key].names = append(groups[key].names, e.Name)
+	}
+
+	var errs []string
+	for _, group := range groups {
+		if len(group.names) < 2 {
+			continue
+		}
+		if len(scoped) > 0 {
+			inScope := false
+			for _, name := range group.names {
+				if scoped[name] {
+					inScope = true
+					break
+				}
+			}
+			if !inScope {
+				continue
+			}
+		}
+		sort.Strings(group.names)
+		errs = append(errs, fmt.Sprintf("api display name %q is used by multiple entries: %s", group.label, strings.Join(group.names, ", ")))
+	}
+	sort.Strings(errs)
+	return errs
+}
+
 // filterEntriesBySlug returns the subset of entries whose Name is in slugs.
 // Used by --validate to scope the PR-time gate to the CLIs a PR actually
 // touched: validation runs against the PR's whole tree, but a stale PR that
@@ -551,15 +672,20 @@ func isBareMarkdownHeading(s string) bool {
 // apiDisplayName picks the best human-facing name for the registry's
 // `api` field. Preference order:
 //
-//  1. The current registry.json's existing `api` value, when it differs
+//  1. .printing-press.json's display_name when the prior registry value
+//     matches a known stale generated shape: bare slug echo, naive title-cased
+//     slug ("Setlist Fm"), a long description accidentally stored in `api`, or
+//     a generic suffix such as "Pricebook" when the manifest has the parent
+//     product ("ServiceTitan Pricebook").
+//  2. The current registry.json's existing `api` value, when it differs
 //     from the slug — registry api values are hand-curated (e.g.,
 //     "PokéAPI", "Cal.com", "Product Hunt") and frequently better than
 //     what .printing-press.json's display_name auto-derives. Treating
 //     prior == slug as "not curated" lets the generator replace bare
 //     slug echoes with a proper display name when one shows up.
-//  2. .printing-press.json's display_name (modern-generator best guess).
-//  3. .printing-press.json's api_name (machine slug fallback).
-//  4. The slug itself, last resort.
+//  3. .printing-press.json's display_name (modern-generator best guess).
+//  4. .printing-press.json's api_name (machine slug fallback).
+//  5. The slug itself, last resort.
 //
 // Choosing prior over pp.DisplayName here is deliberate. Several
 // existing registry entries have curated names (PokéAPI, Product Hunt)
@@ -569,6 +695,9 @@ func isBareMarkdownHeading(s string) bool {
 // curated value also won't regress. A future cleanup could lift
 // curated api values back into .printing-press.json explicitly.
 func apiDisplayName(pp printingPressManifest, prior RegistryEntry, slug string) string {
+	if pp.DisplayName != "" && isStaleAPIValue(prior.API, pp.DisplayName, slug) {
+		return pp.DisplayName
+	}
 	if prior.API != "" && prior.API != slug {
 		return prior.API
 	}
@@ -579,6 +708,38 @@ func apiDisplayName(pp printingPressManifest, prior RegistryEntry, slug string) 
 		return pp.APIName
 	}
 	return slug
+}
+
+func isStaleAPIValue(prior, displayName, slug string) bool {
+	prior = strings.TrimSpace(prior)
+	displayName = strings.TrimSpace(displayName)
+	if prior == "" || prior == slug || displayName == "" || prior == displayName {
+		return false
+	}
+	if len(prior) > 80 {
+		return true
+	}
+	if prior == titleCaseSlug(slug) {
+		return true
+	}
+	if strings.HasSuffix(displayName, " "+prior) && !strings.Contains(prior, " ") {
+		return true
+	}
+	return false
+}
+
+func titleCaseSlug(slug string) string {
+	parts := strings.FieldsFunc(slug, func(r rune) bool {
+		return r == '-' || r == '_' || r == ' '
+	})
+	for i, part := range parts {
+		if part == "" {
+			continue
+		}
+		runes := []rune(part)
+		parts[i] = strings.ToUpper(string(runes[:1])) + strings.ToLower(string(runes[1:]))
+	}
+	return strings.Join(parts, " ")
 }
 
 // buildMCPBlock constructs an MCP block from a CLI's .printing-press.json

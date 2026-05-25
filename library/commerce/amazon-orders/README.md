@@ -8,18 +8,30 @@ Learn more at [Amazon Orders](https://www.amazon.com).
 
 ## Install
 
-The recommended path installs both the `amazon-orders-pp-cli` binary and the `pp-amazon-orders` agent skill in one shot:
+The recommended path installs both the `amazon-orders-pp-cli` binary and the `pp-amazon-orders` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install amazon-orders
+npx -y @mvanhorn/printing-press-library install amazon-orders
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install amazon-orders --cli-only
+npx -y @mvanhorn/printing-press-library install amazon-orders --cli-only
 ```
 
+For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
+
+```bash
+npx -y @mvanhorn/printing-press-library install amazon-orders --skill-only
+```
+
+To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
+
+```bash
+npx -y @mvanhorn/printing-press-library install amazon-orders --agent claude-code
+npx -y @mvanhorn/printing-press-library install amazon-orders --agent claude-code --agent codex
+```
 
 ### Without Node (Go fallback)
 
@@ -58,6 +70,47 @@ Tell your OpenClaw agent (copy this):
 Install the pp-amazon-orders skill from https://github.com/mvanhorn/printing-press-library/tree/main/cli-skills/pp-amazon-orders. The skill defines how its required CLI can be installed.
 ```
 
+## Use with Claude Desktop
+
+This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
+
+The bundle reuses your local browser session — set it up first if you haven't:
+
+```bash
+amazon-orders-pp-cli auth login --chrome
+```
+
+To install:
+
+1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/amazon-orders-current).
+2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
+
+Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
+
+<details>
+<summary>Manual JSON config (advanced)</summary>
+
+If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
+
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/commerce/amazon-orders/cmd/amazon-orders-pp-mcp@latest
+```
+
+Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "amazon-orders": {
+      "command": "amazon-orders-pp-mcp"
+    }
+  }
+}
+```
+
+</details>
+
 ## Authentication
 
 Amazon publishes no buyer API. The CLI imports cookies from your logged-in Chrome / Firefox / Safari / Brave session via `auth login --chrome`. Those cookies persist locally, refresh automatically, and authenticate every subsequent fetch — no API key, no OAuth, no resident browser at runtime.
@@ -82,18 +135,14 @@ The exported JSON shape is `amazon-orders-session/v1`. `auth import` also accept
 # Import cookies from your logged-in browser session — required for any authenticated fetch.
 amazon-orders-pp-cli auth login --chrome
 
-
 # Walk the last 3 months of orders into the local store, including per-order item detail.
 amazon-orders-pp-cli sync --since 90d --concurrency 1
-
 
 # See every in-flight package with current status and ETA.
 amazon-orders-pp-cli where-is-my-stuff --json
 
-
 # Roll up your 2026 Amazon spending by month.
 amazon-orders-pp-cli spend --by month --year 2026 --json
-
 
 # Find every order containing 'usb-c cable' — FTS5-backed, instant, offline.
 amazon-orders-pp-cli find 'usb-c cable' --json
@@ -196,7 +245,6 @@ Charges and refunds across all orders, recurring services, and Prime.
 
 - **`amazon-orders-pp-cli transactions list`** - First page of your transactions list, grouped by date. Each row has payment method, last-4, signed amount, and (when applicable) the linked order ID.
 
-
 ## Output Formats
 
 ```bash
@@ -244,78 +292,6 @@ Covered command paths:
 - `amazon-orders-pp-cli transactions`
 
 JSON outputs that use the generated provenance envelope include freshness metadata at `meta.freshness`. This metadata describes the freshness decision for the covered command path; it does not claim full historical backfill or API-specific enrichment.
-
-## Use with Claude Code
-
-Install the focused skill — it auto-installs the CLI on first invocation:
-
-```bash
-npx skills add mvanhorn/printing-press-library/cli-skills/pp-amazon-orders -g
-```
-
-Then invoke `/pp-amazon-orders <query>` in Claude Code. The skill is the most efficient path — Claude Code drives the CLI directly without an MCP server in the middle.
-
-<details>
-<summary>Use as an MCP server in Claude Code (advanced)</summary>
-
-If you'd rather register this CLI as an MCP server in Claude Code, install the MCP binary first:
-
-
-```bash
-go install github.com/mvanhorn/printing-press-library/library/commerce/amazon-orders/cmd/amazon-orders-pp-mcp@latest
-```
-
-Then register it:
-
-```bash
-# Some tools work without auth. For full access, set up auth first:
-amazon-orders-pp-cli auth login --chrome
-
-claude mcp add amazon-orders amazon-orders-pp-mcp
-```
-
-</details>
-
-## Use with Claude Desktop
-
-This CLI ships an [MCPB](https://github.com/modelcontextprotocol/mcpb) bundle — Claude Desktop's standard format for one-click MCP extension installs (no JSON config required).
-
-The bundle reuses your local browser session — set it up first if you haven't:
-
-```bash
-amazon-orders-pp-cli auth login --chrome
-```
-
-To install:
-
-1. Download the `.mcpb` for your platform from the [latest release](https://github.com/mvanhorn/printing-press-library/releases/tag/amazon-orders-current).
-2. Double-click the `.mcpb` file. Claude Desktop opens and walks you through the install.
-
-Requires Claude Desktop 1.0.0 or later. Pre-built bundles ship for macOS Apple Silicon (`darwin-arm64`) and Windows (`amd64`, `arm64`); for other platforms, use the manual config below.
-
-<details>
-<summary>Manual JSON config (advanced)</summary>
-
-If you can't use the MCPB bundle (older Claude Desktop, unsupported platform), install the MCP binary and configure it manually.
-
-
-```bash
-go install github.com/mvanhorn/printing-press-library/library/commerce/amazon-orders/cmd/amazon-orders-pp-mcp@latest
-```
-
-Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "amazon-orders": {
-      "command": "amazon-orders-pp-mcp"
-    }
-  }
-}
-```
-
-</details>
 
 ## Health Check
 

@@ -13,26 +13,26 @@ Printed by [@vinnyp](https://github.com/vinnyp) (Vinny Pasceri).
 The recommended path installs both the `blu-ray-pp-cli` binary and the `pp-blu-ray` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install blu-ray
+npx -y @mvanhorn/printing-press-library install blu-ray
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install blu-ray --cli-only
+npx -y @mvanhorn/printing-press-library install blu-ray --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install blu-ray --skill-only
+npx -y @mvanhorn/printing-press-library install blu-ray --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install blu-ray --agent claude-code
-npx -y @mvanhorn/printing-press install blu-ray --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install blu-ray --agent claude-code
+npx -y @mvanhorn/printing-press-library install blu-ray --agent claude-code --agent codex
 ```
 
 ### Without Node (Go fallback)
@@ -117,18 +117,14 @@ No account, no API key, no OAuth — Blu-ray.com is read from its published HTML
 # Pull the public sitemap into a local SQLite + FTS5 index (~400k+ Blu-ray releases). Run weekly.
 blu-ray-pp-cli sync
 
-
 # Offline title search — instant, regex-capable, no round-trip.
 blu-ray-pp-cli search 'fight club' --format 4k --json
-
 
 # Fetch one release in full (specs, ratings, audio, subtitles, packaging) — cached locally.
 blu-ray-pp-cli releases get Fight-Club-4K-Blu-ray 406956 --json
 
-
 # Live 4K UHD deals at 30%+ off, narrowed to the columns an agent cares about.
 blu-ray-pp-cli deals --country USA --format 4k --min-discount 30 --json --select title,sale_price,percent_off
-
 
 # Add a release to the local watchlist, then rescan deals and alert when the target is hit.
 blu-ray-pp-cli watch add 406956 --target-price 14.99 && blu-ray-pp-cli watch check
@@ -268,7 +264,6 @@ Public XML sitemaps. Used by `sync` to enumerate every release id; safe to fetch
 - **`blu-ray-pp-cli sitemap bluraymovies`** - One of nine gzipped Blu-ray release shards (50,000 URLs each). Pull all nine for the full Blu-ray catalog.
 - **`blu-ray-pp-cli sitemap index`** - Sitemap index — points at gzipped sub-sitemaps for main, news, bluraymovies (9 shards), dvdmovies (7), itunesmovies (5), digitalmovies (2), cast (11), ma, games, other.
 - **`blu-ray-pp-cli sitemap news`** - Compressed news sitemap — each entry has title + publication_date inline (no per-story fetch needed for enumeration).
-
 
 ## Output Formats
 

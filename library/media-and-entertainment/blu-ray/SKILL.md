@@ -24,7 +24,7 @@ This skill drives the `blu-ray-pp-cli` binary. **You must verify the CLI is inst
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install blu-ray --cli-only
+   npx -y @mvanhorn/printing-press-library install blu-ray --cli-only
    ```
 2. Verify: `blu-ray-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -36,8 +36,6 @@ go install github.com/mvanhorn/printing-press-library/library/media-and-entertai
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-Sync the public Blu-ray.com sitemap into a local SQLite + FTS5 index and search ~400,000 releases without a network round-trip. Track prices with a local watchlist that pings you on new historical lows. Pipe everything as JSON.
 
 ## When to Use This CLI
 

@@ -20,7 +20,7 @@ func newAooListCmd(flags *rootFlags) *cobra.Command {
 		Use:         "list",
 		Short:       "Lista delle AOO di un ente",
 		Example:     "  openipa-pp-cli aoo list --codice example-value",
-		Annotations: map[string]string{"pp:endpoint": "aoo.list", "pp:method": "POST", "pp:path": "/WS02_AOO.php", "mcp:read-only": "true"},
+		Annotations: map[string]string{"pp:endpoint": "aoo.list", "pp:method": "POST", "pp:path": "/ws/WS02AOOServices/api/WS02_AOO", "mcp:read-only": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if !stdinBody {
 				if !cmd.Flags().Changed("codice") && !flags.dryRun {
@@ -32,7 +32,7 @@ func newAooListCmd(flags *rootFlags) *cobra.Command {
 				return err
 			}
 
-			path := "/WS02_AOO.php"
+			path := "/ws/WS02AOOServices/api/WS02_AOO"
 			var body map[string]any
 			if stdinBody {
 				stdinData, err := io.ReadAll(os.Stdin)

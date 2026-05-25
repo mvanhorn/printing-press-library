@@ -24,20 +24,18 @@ This skill drives the `harris-teeter-pp-cli` binary. **You must verify the CLI i
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install harris-teeter --cli-only
+   npx -y @mvanhorn/printing-press-library install harris-teeter --cli-only
    ```
 2. Verify: `harris-teeter-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
 
-If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.25+):
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
 
 ```bash
 go install github.com/mvanhorn/printing-press-library/library/commerce/harris-teeter/cmd/harris-teeter-pp-cli@latest
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-Harris Teeter grocery shopping API discovered from the logged-in web app
 
 ## When Not to Use This CLI
 

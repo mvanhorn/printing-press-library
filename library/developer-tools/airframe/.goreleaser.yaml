@@ -45,7 +45,7 @@ brews:
       owner: chris-drit
       name: homebrew-tap
     homepage: "https://github.com/mvanhorn/printing-press-library"
-    description: "Aircraft forensics from open public records — tail-number dossiers, fleet research, model-level safety, and NTSB event archaeology."
+    description: "Build aircraft dossiers from FAA registry and NTSB records, with owner, fleet, model-safety, and accident-history searches."
     install: |
       bin.install "airframe-pp-cli"
       bin.install "airframe-pp-mcp"

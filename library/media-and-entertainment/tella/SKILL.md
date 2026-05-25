@@ -20,16 +20,18 @@ This skill drives the `tella-pp-cli` binary. **You must verify the CLI is instal
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install tella --cli-only
+   npx -y @mvanhorn/printing-press-library install tella --cli-only
    ```
 2. Verify: `tella-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
 
-If the `npx` install fails before this CLI has a public-library category, install Node or use the category-specific Go fallback after publish.
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/tella/cmd/tella-pp-cli@latest
+```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-Tella ships an API and an official MCP server; this CLI gives you both surfaces in one binary, plus a local-first store that makes cross-video transcript search, view-milestone rollups, and webhook replay actually fast. Every endpoint is a Cobra command, every command emits structured JSON, and every mutation supports --dry-run.
 
 ## When to Use This CLI
 

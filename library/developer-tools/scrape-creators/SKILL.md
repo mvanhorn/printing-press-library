@@ -24,7 +24,7 @@ This skill drives the `scrape-creators-pp-cli` binary. **You must verify the CLI
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install scrape-creators --cli-only
+   npx -y @mvanhorn/printing-press-library install scrape-creators --cli-only
    ```
 2. Verify: `scrape-creators-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.

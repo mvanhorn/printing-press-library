@@ -26,31 +26,37 @@ Printed by [@markvandeven](https://github.com/markvandeven) (markvandeven).
 The recommended path installs both the `pdok-location-pp-cli` binary and the `pp-pdok-location` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install pdok-location
+npx -y @mvanhorn/printing-press-library install pdok-location
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install pdok-location --cli-only
+npx -y @mvanhorn/printing-press-library install pdok-location --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install pdok-location --skill-only
+npx -y @mvanhorn/printing-press-library install pdok-location --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install pdok-location --agent claude-code
-npx -y @mvanhorn/printing-press install pdok-location --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install pdok-location --agent claude-code
+npx -y @mvanhorn/printing-press-library install pdok-location --agent claude-code --agent codex
 ```
 
-### Without Node
+### Without Node (Go fallback)
 
-The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/developer-tools/pdok-location/cmd/pdok-location-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
 
 ### Pre-built binary
 
@@ -122,18 +128,14 @@ Both PDOK Location services are free, open, and require no authentication or API
 # Verify the API is reachable with a real Dutch address — should return one match with lat/lon and RD coords.
 pdok-location-pp-cli free --q 'Hertog Aalbrechtweg 5 1823DL Alkmaar' --rows 1 --json
 
-
 # Demonstrate the suggest→lookup chain returning full GeoJSON geometry for the canonical match.
 pdok-location-pp-cli resolve 'Damrak Amsterdam' --geojson
-
 
 # Seed the local gazetteer (342 gemeenten, 12 provincies) so offline lookups work immediately.
 pdok-location-pp-cli sync
 
-
 # Show that gemeente lookups are now served from the local cache.
 pdok-location-pp-cli gemeente get amsterdam --json
-
 
 # Cross-source reverse geocode — nearest address, parcel, hectometer marker, and gemeente in one call.
 pdok-location-pp-cli nearest --lat 52.3731 --lon 4.8922 --json
@@ -302,7 +304,6 @@ Manage suggest
 
 - **`pdok-location-pp-cli suggest`** - De Suggest API biedt de mogelijkheid om een (gedeelte van een) zoekopdracht op
 te voeren, waarnaar er suggesties teruggegeven worden.
-
 
 ## Output Formats
 

@@ -25,7 +25,7 @@ This skill drives the `openrouter-pp-cli` binary. **You must verify the CLI is i
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install openrouter --cli-only
+   npx -y @mvanhorn/printing-press-library install openrouter --cli-only
    ```
 2. Verify: `openrouter-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -37,8 +37,6 @@ go install github.com/mvanhorn/printing-press-library/library/ai/openrouter/cmd/
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-Other OpenRouter CLIs are chat REPLs. This one is built for the cron job and the AI agent calling out to `Bash`. Absorbed introspection commands (`credits`, `models`, `key`, `generation`, `providers`) honor the global `--agent` flag (sets --json --compact --no-input). Eight novel commands (`usage cost-by`, `models query`, `key eta`, `providers degraded`, `generation explain`, `usage anomaly`, `endpoints failover`, `budget`) ship a `--llm` mode that returns under 200 tokens of key:value output. A local SQLite catalog lets you query the 400+ model list with `models query "tools=true cost.completion<1"` instead of pasting 425KB of JSON into context.
 
 ## When to Use This CLI
 

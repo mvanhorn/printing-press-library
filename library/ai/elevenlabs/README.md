@@ -11,26 +11,26 @@ Printed by [@cathrynlavery](https://github.com/cathrynlavery) (Cathryn Lavery).
 The recommended path installs both the `elevenlabs-pp-cli` binary and the `pp-elevenlabs` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install elevenlabs
+npx -y @mvanhorn/printing-press-library install elevenlabs
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install elevenlabs --cli-only
+npx -y @mvanhorn/printing-press-library install elevenlabs --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install elevenlabs --skill-only
+npx -y @mvanhorn/printing-press-library install elevenlabs --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install elevenlabs --agent claude-code
-npx -y @mvanhorn/printing-press install elevenlabs --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install elevenlabs --agent claude-code
+npx -y @mvanhorn/printing-press-library install elevenlabs --agent claude-code --agent codex
 ```
 
 ### Without Node (Go fallback)

@@ -31,26 +31,26 @@ Printed by [@mircobabini](https://github.com/mircobabini) (Mirco Babini).
 The recommended path installs both the `pop-pp-cli` binary and the `pp-pop` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install pop
+npx -y @mvanhorn/printing-press-library install pop
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install pop --cli-only
+npx -y @mvanhorn/printing-press-library install pop --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install pop --skill-only
+npx -y @mvanhorn/printing-press-library install pop --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install pop --agent claude-code
-npx -y @mvanhorn/printing-press install pop --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install pop --agent claude-code
+npx -y @mvanhorn/printing-press-library install pop --agent claude-code --agent codex
 ```
 
 ### Without Node (Go fallback)
@@ -200,7 +200,6 @@ Manage SdI document workflows
 - **`pop-pp-cli sdi get-sdi-document`** - Retrieve a stored SdI document by UUID.
 - **`pop-pp-cli sdi preserve-sdi-document`** - Archive an accepted SdI document in POP's long-term storage.
 - **`pop-pp-cli sdi verify-sdi-document`** - Validate a Base64-encoded SdI XML document before submission.
-
 
 ## Output Formats
 

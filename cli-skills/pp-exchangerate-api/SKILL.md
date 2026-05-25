@@ -25,16 +25,18 @@ This skill drives the `exchangerate-api-pp-cli` binary. **You must verify the CL
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install exchangerate-api --cli-only
+   npx -y @mvanhorn/printing-press-library install exchangerate-api --cli-only
    ```
 2. Verify: `exchangerate-api-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
 
-If the `npx` install fails before this CLI has a public-library category, install Node or use the category-specific Go fallback after publish.
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/payments/exchangerate-api/cmd/exchangerate-api-pp-cli@latest
+```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-This CLI exposes every ExchangeRate-API endpoint (latest, pair, codes, quota, enriched, history) as typed commands and layers on offline-first features the API can't provide: local snapshots in SQLite, watchlists with drift alerts, quota burn projection, N×N cross-rate matrices from a single API call, and an MCP server for AI agents. Free-tier users get time travel from their own captured history without paying for /history access.
 
 ## When to Use This CLI
 

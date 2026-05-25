@@ -3,6 +3,8 @@
   "generated_at": "2026-05-13T00:22:17.427686Z",
   "printing_press_version": "4.5.1",
   "api_name": "alaska-airlines",
+  "display_name": "Alaska Airlines",
+  "description": "Search Alaska Airlines flights, manage Atmos Rewards data, and build checkout-ready cart links from the terminal.",
   "cli_name": "alaska-airlines-pp-cli",
   "run_id": "20260512-151223",
   "novel_features": [

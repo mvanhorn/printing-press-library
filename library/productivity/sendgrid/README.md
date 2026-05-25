@@ -13,31 +13,37 @@ Printed by [@natekettles](https://github.com/natekettles) (Nathan Kettles).
 The recommended path installs both the `sendgrid-pp-cli` binary and the `pp-sendgrid` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install sendgrid
+npx -y @mvanhorn/printing-press-library install sendgrid
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install sendgrid --cli-only
+npx -y @mvanhorn/printing-press-library install sendgrid --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install sendgrid --skill-only
+npx -y @mvanhorn/printing-press-library install sendgrid --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install sendgrid --agent claude-code
-npx -y @mvanhorn/printing-press install sendgrid --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install sendgrid --agent claude-code
+npx -y @mvanhorn/printing-press-library install sendgrid --agent claude-code --agent codex
 ```
 
-### Without Node
+### Without Node (Go fallback)
 
-The generated install path is category-agnostic until this CLI is published. If `npx` is not available before publish, install Node or use the category-specific Go fallback from the public-library entry after publish.
+If `npx` isn't available (no Node, offline), install the CLI directly via Go (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/productivity/sendgrid/cmd/sendgrid-pp-cli@latest
+```
+
+This installs the CLI only — no skill.
 
 ### Pre-built binary
 
@@ -113,18 +119,14 @@ sendgrid-pp-cli reads SENDGRID_API_KEY (Bearer token) from the environment. Use 
 # Verify auth and reachability
 sendgrid-pp-cli doctor
 
-
 # Mirror suppressions locally so diffs and joins are instant
 sendgrid-pp-cli sync suppressions
-
 
 # Audit drift between your CRM and SendGrid
 sendgrid-pp-cli suppression diff bounces --against crm.csv --json
 
-
 # Get a real time-series view without writing SQL
 sendgrid-pp-cli stats rollup --by week --metric opens,clicks --window 30d --json
-
 
 # Catch missing template variables before you send
 sendgrid-pp-cli templates lint d-abc123 --against '{"first_name":"Sam"}' --json
@@ -389,7 +391,6 @@ Adds existing recipients to a list, passing in the recipient IDs to add. Recipie
 **You can create up to 120 custom fields.**
 - **`sendgrid-pp-cli contactdb create-segment`** - **This endpoint allows you to create a new segment.**
 
-
   Valid operators for create and update depend on the type of the field for which you are searching.
 
 **Dates**
@@ -419,10 +420,8 @@ Adds existing recipients to a list, passing in the recipient IDs to add. Recipie
 
 All field values must be a string.
 
-
 Conditions using "eq" or "ne" for email clicks and opens should provide a "field" of either `clicks.campaign_identifier` or `opens.campaign_identifier`.
 The condition value should be a string containing the id of a completed campaign.
-
 
 The conditions list may contain multiple conditions, joined by an "and" or "or" in the "and_or" field.
 
@@ -713,12 +712,10 @@ Manage mail
 
 - **`sendgrid-pp-cli mail create-batch`** - **This operation allows you to generate a new mail batch ID.**
 
-
 Once a batch ID is created, you can associate it with a mail send by passing
 it in the request body of the [Mail Send operation](https://docs.sendgrid.com/api-reference/mail-send/mail-send).
 This makes it possible to group multiple requests to the Mail Send operation
 by assigning them the same batch ID.
-
 
 A batch ID that's associated with a mail send can be used to access and modify the associated send. For example, you can pause or cancel a send using its batch ID. See the [Scheduled Sends API](https://www.twilio.com/docs/sendgrid/api-reference/cancel-scheduled-sends) for more information about pausing and cancelling a mail send.
 - **`sendgrid-pp-cli mail get-batch`** - **This operation allows you to validate a mail batch ID.**
@@ -1059,7 +1056,6 @@ A `400` status code is returned if any searched addresses are invalid.
 
 Twilio SendGrid recommends exporting your contacts regularly as a backup to avoid issues or lost data.
 - **`sendgrid-pp-cli marketing list-contact-count`** - **This endpoint returns the total number of contacts you have stored.**
-
 
 Twilio SendGrid recommends exporting your contacts regularly as a backup to avoid issues or lost data.
 - **`sendgrid-pp-cli marketing list-contact-count-lists`** - **This endpoint returns the number of contacts on a specific list.**
@@ -1518,7 +1514,6 @@ Click Tracking overrides all the links and URLs in your emails and points them t
 Click tracking helps you understand how users are engaging with your communications. SendGrid can track up to 1000 links per email
 - **`sendgrid-pp-cli tracking-settings list-google-analytics`** - **This endpoint allows you to retrieve your current setting for Google Analytics.**
 
-
 Google Analytics helps you understand how users got to your site and what they're doing there. For more information about using Google Analytics, please refer to [Google’s URL Builder](https://support.google.com/analytics/answer/1033867?hl=en) and their article on ["Best Practices for Campaign Building"](https://support.google.com/analytics/answer/1037445).
 
 We default the settings to Google’s recommendations. For more information, see [Google Analytics Demystified](https://sendgrid.com/docs/ui/analytics-and-reporting/google-analytics/).
@@ -1812,16 +1807,12 @@ Link branding can be associated with subusers from the parent account. This func
 - **`sendgrid-pp-cli whitelabel associate-subuser-with-domain`** - **This endpoint allows you to associate a specific authenticated domain with a subuser.**
 Authenticated domains can be associated with (i.e. assigned to) subusers from a parent account. This functionality allows subusers to send mail using their parent's domain. To associate an authenticated domain with a subuser, the parent account must first authenticate and validate the domain. The parent may then associate the authenticated domain via the subuser management tools.
 
-
 [You can associate more than one domain with a subuser using the `v3/whitelabel/domains/{domain_id}/subuser:add` endpoint](https://www.twilio.com/docs/sendgrid/api-reference/domain-authentication/associate-an-authenticated-domain-with-a-subuser-multiple).
 - **`sendgrid-pp-cli whitelabel associate-subuser-with-domain-multiple`** - **This endpoint allows you to associate a specific authenticated domain with a subuser. It can be used to associate up to five authenticated domains.**
 
-
 This functionality allows subusers to send mail using their parent's domain. Authenticated domains can be associated with (i.e. assigned to) subusers from a parent account. To associate an authenticated domain with a subuser, the parent account must first authenticate and validate the domain. The parent may then associate the authenticated domain via the subuser management tools.
 
-
 A subuser can have up to five associated authenticated domains. To see the domains that have already been associated with this user, you can [use the API to list the domains currently associated with the subuser](https://www.twilio.com/docs/sendgrid/api-reference/domain-authentication/list-the-authenticated-domain-associated-with-a-subuser-multiple).
-
 
 When selecting a domain to send email from, SendGrid checks for domains in the following order and chooses the first one that appears in the hierarchy: 
 1. Domain assigned by the subuser that matches the email's `From` address domain. 
@@ -1855,7 +1846,6 @@ You can retrieve the IDs associated with all your reverse DNS records using the 
 
 Authenticated domains can be associated with (i.e. assigned to) subusers from a parent account. This functionality allows subusers to send mail using their parent's domain. To associate an authenticated domain with a subuser, the parent account must first authenticate and validate the domain. The parent may then associate the authenticated domain via the subuser management tools.
 
-
 Note that if you used the [`/v3/whitelabel/domains/{domain_id}/subuser:add` endpoint](https://www.twilio.com/docs/sendgrid/api-reference/domain-authentication/associate-an-authenticated-domain-with-a-subuser-multiple) to add multiple domains to the subuser, you should use the [`/v3/whitelabel/domains/{domain_id}/subuser` endpoint](https://www.twilio.com/docs/sendgrid/api-reference/domain-authentication/disassociate-an-authenticated-domain-from-a-subuser-multiple) to disassociate those domains.
 - **`sendgrid-pp-cli whitelabel disassociate-branded-link-from-subuser`** - **This endpoint allows you to take a branded link away from a subuser.**
 
@@ -1863,7 +1853,6 @@ Link branding can be associated with subusers from the parent account. This func
 
 Your request will receive a response with a 204 status code if the disassociation was successful.
 - **`sendgrid-pp-cli whitelabel disassociate-subuser-from-domain`** - **This endpoint allows you to disassociate a specific authenticated domain from a subuser, for users with up to five associated domains.**
-
 
 This functionality allows subusers to send mail using their parent's domain. Authenticated domains can be associated with (i.e. assigned to) subusers kknt, and a subuser can have up to five associated authenticated domains. 
 
@@ -1886,11 +1875,9 @@ You can submit this request as one of your subusers if you include their ID in t
 You can retrieve the IDs associated with all your reverse DNS records using the "Retrieve all reverse DNS records" endpoint.
 - **`sendgrid-pp-cli whitelabel list-all-authenticated-domain-with-user`** - **This endpoint allows you to retrieve all of the authenticated domains that have been assigned to a specific subuser.**
 
-
 This functionality allows subusers to send mail using their parent's domain. Authenticated domains can be associated with (i.e. assigned to) subusers from a parent account, and a subuser can have up to five associated domains. 
 
 To associate an authenticated domain with a subuser, the parent account must first authenticate and validate the domain. The parent may then associate the authenticated domain via the subuser management tools.
-
 
 When selecting a domain to send email from, SendGrid checks for domains in the following order and chooses the first one that appears in the hierarchy: 
 1. Domain assigned by the subuser that matches the email's `From` address domain. 
@@ -1904,7 +1891,6 @@ You can use the `limit` query parameter to set the page size. If your list conta
 - **`sendgrid-pp-cli whitelabel list-authenticated-domain-with-user`** - **This endpoint allows you to retrieve all of the authenticated domains that have been assigned to a specific subuser.**
 
 Authenticated domains can be associated with (i.e. assigned to) subusers from a parent account. This functionality allows subusers to send mail using their parent's domain. To associate an authenticated domain with a subuser, the parent account must first authenticate and validate the domain. The parent may then associate the authenticated domain via the subuser management tools.
-
 
 Note that if you used the [`/v3/whitelabel/domains/{domain_id}/subuser:add` endpoint]( https://www.twilio.com/docs/sendgrid/api-reference/domain-authentication/associate-an-authenticated-domain-with-a-subuser-multiple) to add multiple domains to the subuser, you can use the [`/v3/whitelabel/domains/subuser/all` endpoint](https://www.twilio.com/docs/sendgrid/api-reference/domain-authentication/list-the-authenticated-domain-associated-with-a-subuser-multiple) to list those associated domains.
 - **`sendgrid-pp-cli whitelabel list-branded-link`** - **This endpoint allows you to retrieve all branded links**.
@@ -1948,7 +1934,6 @@ Always check the `valid` property of the response’s `validation_results.a_reco
 If validity couldn’t be determined, you can check the value of `validation_results.a_record.reason` to find out why.
 
 You can retrieve the IDs associated with all your reverse DNS records using the "Retrieve all reverse DNS records" endpoint.
-
 
 ## Output Formats
 

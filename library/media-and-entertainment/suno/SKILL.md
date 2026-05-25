@@ -20,16 +20,18 @@ This skill drives the `suno-pp-cli` binary. **You must verify the CLI is install
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install suno --cli-only
+   npx -y @mvanhorn/printing-press-library install suno --cli-only
    ```
 2. Verify: `suno-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
 
-If the `npx` install fails before this CLI has a public-library category, install Node or use the category-specific Go fallback after publish.
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/media-and-entertainment/suno/cmd/suno-pp-cli@latest
+```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-Every Suno workflow lands in a single Go binary: generate from a prompt, extend, concat, remaster, download with embedded lyrics and cover art. On top of that, every clip you generate syncs to a local SQLite store so you can list your library offline, run cross-table SQL queries, build vibe recipes that compound across sessions, and watch your credit burn by tag or persona. Built-in MCP server exposes the whole surface (stdio and HTTP) so agents reach Suno through one orchestration pair instead of 30 raw tools.
 
 ## When to Use This CLI
 

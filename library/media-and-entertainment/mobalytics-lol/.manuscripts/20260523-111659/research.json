@@ -1,0 +1,346 @@
+{
+  "api_name": "mobalytics-lol",
+  "novelty_score": 9,
+  "alternatives": [
+    {
+      "name": "op.gg",
+      "url": "https://op.gg/lol/champions",
+      "language": "Web",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "u.gg",
+      "url": "https://u.gg/",
+      "language": "Web",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 7,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "lolalytics.com",
+      "url": "https://lolalytics.com/",
+      "language": "Web",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "League of Graphs",
+      "url": "https://www.leagueofgraphs.com/champions/stats",
+      "language": "Web",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 5,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "Championify",
+      "url": "https://github.com/dustinblackman/Championify",
+      "language": "JavaScript",
+      "install_method": "",
+      "stars": 800,
+      "last_updated": "",
+      "command_count": 1,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "League-of-Legends-MCP",
+      "url": "https://github.com/kostadindev/League-of-Legends-MCP",
+      "language": "TypeScript",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 8,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "mcp-riot",
+      "url": "https://github.com/jifrozen0110/mcp-riot",
+      "language": "Python",
+      "install_method": "",
+      "stars": 0,
+      "last_updated": "",
+      "command_count": 6,
+      "has_json_output": false,
+      "has_auth_support": false
+    },
+    {
+      "name": "golio",
+      "url": "https://github.com/KnutZuidema/golio",
+      "language": "Go",
+      "install_method": "",
+      "stars": 89,
+      "last_updated": "",
+      "command_count": 0,
+      "has_json_output": false,
+      "has_auth_support": false
+    }
+  ],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-23T09:40:00Z",
+  "novel_features": [
+    {
+      "name": "Counter-pool analysis",
+      "command": "counter-pool",
+      "description": "Given our champion pool and the enemy pool, return the full matchup matrix ranked by WR delta with sample-size floor — the SQL coaches do in their head.",
+      "rationale": "Mobalytics, u.gg, and op.gg all show counters one champion at a time. The cross-product of two pools is a single SQL join over the local champion_matchups table; no aggregator page exposes it.",
+      "example": "mobalytics-lol-pp-cli counter-pool --our darius,aatrox,garen --their fiora,sett,renekton --agent",
+      "why_it_matters": "Reach for this when an agent or coach needs to know 'given two confirmed champion pools, who picks into whom.' Avoids N×M page loads.",
+      "group": "Cross-pool draft analysis"
+    },
+    {
+      "name": "Patch meta-shift",
+      "command": "meta-shift",
+      "description": "Diff two tier_snapshots and list champions that gained or lost ≥1 tier or ≥2% WR since a prior patch, with sample-size guard.",
+      "rationale": "Every aggregator shows the current patch's tier list. None of them show what moved. The diff is trivial against a local store that synced two snapshots.",
+      "example": "mobalytics-lol-pp-cli meta-shift --since-patch 14.10 --role top --agent --select winner,loser,delta",
+      "why_it_matters": "Use when an agent or coach needs to answer 'what changed this patch' without manually diffing tier-list screenshots.",
+      "group": "Cross-pool draft analysis"
+    },
+    {
+      "name": "Head-to-head champion compare",
+      "command": "compare",
+      "description": "Side-by-side join across tier, build, counters, and matchups for two champions — including item-overlap percentage.",
+      "rationale": "No aggregator renders two champions on one page. The query joins three local tables for the chosen patch/role/rank.",
+      "example": "mobalytics-lol-pp-cli compare aatrox darius",
+      "why_it_matters": "Resolves draft-time 'which of these two is better right now' questions in one command.",
+      "group": "Cross-pool draft analysis"
+    },
+    {
+      "name": "ARAM batch item-set export",
+      "command": "item-set",
+      "description": "Write LoL client item-set JSON for N champions in ARAM mode in one command, refreshing all stale files in the client config folder.",
+      "rationale": "Championify did this for Summoner's Rift in 2019 and died; no maintained successor exists for ARAM. The build data is already in the local store after sync.",
+      "example": "mobalytics-lol-pp-cli item-set --aram --to client aatrox,jinx,lulu,yasuo,sett",
+      "why_it_matters": "Use when an ARAM player wants game-ready item-sets across their reroll pool without alt-tabbing between champ select and a website.",
+      "group": "Build artifact export"
+    },
+    {
+      "name": "Duo-finder with candidate-pool filter",
+      "command": "duo-finder",
+      "description": "Best support pairings for a given ADC, restricted to a candidate support pool — coaches' player pools are fixed.",
+      "rationale": "u.gg has a duo-finder but it ranks across all supports; coaches need 'best from these three I can actually run.'",
+      "example": "mobalytics-lol-pp-cli duo-finder --bot jinx --supports-from lulu,nami,leona",
+      "why_it_matters": "Use when the support pool is fixed (coach, duo queue, ranked flex) and you need WR-ranked picks from that subset.",
+      "group": "Cross-pool draft analysis"
+    },
+    {
+      "name": "Personal pool tier digest",
+      "command": "pool-digest",
+      "description": "For each champion in your pool: current tier, WR delta since last patch, top-1 counter, top-1 synergy — all in one composite query.",
+      "rationale": "Daily-check-in commands collapse multi-tab morning rituals into one read. Composite query over four local tables, no equivalent on any aggregator.",
+      "example": "mobalytics-lol-pp-cli pool-digest --pool darius,aatrox,garen --agent",
+      "why_it_matters": "Use as a morning ritual or pre-queue command to surface what changed about your specific champions.",
+      "group": "Daily-ritual collapse"
+    },
+    {
+      "name": "Power-spike phase filter",
+      "command": "power-spike",
+      "description": "List champions ranked by early/mid/late spike strength for a chosen role — inverts Mobalytics's per-champion data into a leaderboard.",
+      "rationale": "Mobalytics shows power-spike phase on each champion page but never aggregates 'who spikes early in jungle.' Inverting it requires the data in a local store.",
+      "example": "mobalytics-lol-pp-cli power-spike --phase early --role jungle --top 20 --agent",
+      "why_it_matters": "Use when picking around a teammate's pick (ARAM, draft) to find spike-aligned champions.",
+      "group": "Mobalytics signature features"
+    },
+    {
+      "name": "Flex-pick detector",
+      "command": "flex",
+      "description": "Champions that are ≥A-tier in 2+ roles for the same patch and rank — the SQL no aggregator surfaces because they index by role first.",
+      "rationale": "Aggregators all start with role → champion list. The inverse (champion → list of roles where they are strong) requires a self-join over tier_snapshots.",
+      "example": "mobalytics-lol-pp-cli flex --min-roles 2",
+      "why_it_matters": "Use when drafting champions who don't tip your hand about role — invaluable for fearless-draft formats and amateur scrims.",
+      "group": "Draft toolkit"
+    },
+    {
+      "name": "Region-split tier compare",
+      "command": "tier-list",
+      "description": "Same patch, same rank — three regions side-by-side. Surfaces pick-priority drift between KR/EUW/NA that no aggregator defaults to.",
+      "rationale": "Every aggregator scopes a tier-list view to one region per page-load. The multi-region pivot is one SQL with the regions as columns.",
+      "example": "mobalytics-lol-pp-cli tier-list --compare-regions kr,euw,na",
+      "why_it_matters": "Use to spot regional meta divergence — KR is usually 2 weeks ahead of NA, and this surfaces it in one view.",
+      "group": "Draft toolkit"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Counter-pool analysis",
+      "command": "counter-pool",
+      "description": "Given our champion pool and the enemy pool, return the full matchup matrix ranked by WR delta with sample-size floor — the SQL coaches do in their head.",
+      "rationale": "Mobalytics, u.gg, and op.gg all show counters one champion at a time. The cross-product of two pools is a single SQL join over the local champion_matchups table; no aggregator page exposes it.",
+      "example": "mobalytics-lol-pp-cli counter-pool --our darius,aatrox,garen --their fiora,sett,renekton --agent",
+      "why_it_matters": "Reach for this when an agent or coach needs to know 'given two confirmed champion pools, who picks into whom.' Avoids N×M page loads.",
+      "group": "Cross-pool draft analysis"
+    },
+    {
+      "name": "Patch meta-shift",
+      "command": "meta-shift",
+      "description": "Diff two tier_snapshots and list champions that gained or lost ≥1 tier or ≥2% WR since a prior patch, with sample-size guard.",
+      "rationale": "Every aggregator shows the current patch's tier list. None of them show what moved. The diff is trivial against a local store that synced two snapshots.",
+      "example": "mobalytics-lol-pp-cli meta-shift --since-patch 14.10 --role top --agent --select winner,loser,delta",
+      "why_it_matters": "Use when an agent or coach needs to answer 'what changed this patch' without manually diffing tier-list screenshots.",
+      "group": "Cross-pool draft analysis"
+    },
+    {
+      "name": "Head-to-head champion compare",
+      "command": "compare",
+      "description": "Side-by-side join across tier, build, counters, and matchups for two champions — including item-overlap percentage.",
+      "rationale": "No aggregator renders two champions on one page. The query joins three local tables for the chosen patch/role/rank.",
+      "example": "mobalytics-lol-pp-cli compare aatrox darius",
+      "why_it_matters": "Resolves draft-time 'which of these two is better right now' questions in one command.",
+      "group": "Cross-pool draft analysis"
+    },
+    {
+      "name": "ARAM batch item-set export",
+      "command": "item-set",
+      "description": "Write LoL client item-set JSON for N champions in ARAM mode in one command, refreshing all stale files in the client config folder.",
+      "rationale": "Championify did this for Summoner's Rift in 2019 and died; no maintained successor exists for ARAM. The build data is already in the local store after sync.",
+      "example": "mobalytics-lol-pp-cli item-set --aram --to client aatrox,jinx,lulu,yasuo,sett",
+      "why_it_matters": "Use when an ARAM player wants game-ready item-sets across their reroll pool without alt-tabbing between champ select and a website.",
+      "group": "Build artifact export"
+    },
+    {
+      "name": "Duo-finder with candidate-pool filter",
+      "command": "duo-finder",
+      "description": "Best support pairings for a given ADC, restricted to a candidate support pool — coaches' player pools are fixed.",
+      "rationale": "u.gg has a duo-finder but it ranks across all supports; coaches need 'best from these three I can actually run.'",
+      "example": "mobalytics-lol-pp-cli duo-finder --bot jinx --supports-from lulu,nami,leona",
+      "why_it_matters": "Use when the support pool is fixed (coach, duo queue, ranked flex) and you need WR-ranked picks from that subset.",
+      "group": "Cross-pool draft analysis"
+    },
+    {
+      "name": "Personal pool tier digest",
+      "command": "pool-digest",
+      "description": "For each champion in your pool: current tier, WR delta since last patch, top-1 counter, top-1 synergy — all in one composite query.",
+      "rationale": "Daily-check-in commands collapse multi-tab morning rituals into one read. Composite query over four local tables, no equivalent on any aggregator.",
+      "example": "mobalytics-lol-pp-cli pool-digest --pool darius,aatrox,garen --agent",
+      "why_it_matters": "Use as a morning ritual or pre-queue command to surface what changed about your specific champions.",
+      "group": "Daily-ritual collapse"
+    },
+    {
+      "name": "Power-spike phase filter",
+      "command": "power-spike",
+      "description": "List champions ranked by early/mid/late spike strength for a chosen role — inverts Mobalytics's per-champion data into a leaderboard.",
+      "rationale": "Mobalytics shows power-spike phase on each champion page but never aggregates 'who spikes early in jungle.' Inverting it requires the data in a local store.",
+      "example": "mobalytics-lol-pp-cli power-spike --phase early --role jungle --top 20 --agent",
+      "why_it_matters": "Use when picking around a teammate's pick (ARAM, draft) to find spike-aligned champions.",
+      "group": "Mobalytics signature features"
+    },
+    {
+      "name": "Flex-pick detector",
+      "command": "flex",
+      "description": "Champions that are ≥A-tier in 2+ roles for the same patch and rank — the SQL no aggregator surfaces because they index by role first.",
+      "rationale": "Aggregators all start with role → champion list. The inverse (champion → list of roles where they are strong) requires a self-join over tier_snapshots.",
+      "example": "mobalytics-lol-pp-cli flex --min-roles 2",
+      "why_it_matters": "Use when drafting champions who don't tip your hand about role — invaluable for fearless-draft formats and amateur scrims.",
+      "group": "Draft toolkit"
+    },
+    {
+      "name": "Region-split tier compare",
+      "command": "tier-list",
+      "description": "Same patch, same rank — three regions side-by-side. Surfaces pick-priority drift between KR/EUW/NA that no aggregator defaults to.",
+      "rationale": "Every aggregator scopes a tier-list view to one region per page-load. The multi-region pivot is one SQL with the regions as columns.",
+      "example": "mobalytics-lol-pp-cli tier-list --compare-regions kr,euw,na",
+      "why_it_matters": "Use to spot regional meta divergence — KR is usually 2 weeks ahead of NA, and this surfaces it in one view.",
+      "group": "Draft toolkit"
+    }
+  ],
+  "narrative": {
+    "display_name": "Mobalytics LoL",
+    "headline": "Every League of Legends aggregator, plus a local SQLite for cross-champion queries no single page surfaces.",
+    "value_prop": "mobalytics-lol-pp-cli pulls champion data, builds, runes, counters, and tier ratings from Mobalytics and Riot Data Dragon, hydrates them into a local SQLite store, then exposes cross-champion SQL queries no aggregator page surfaces: counter-pool matrices, patch meta-shift deltas, head-to-head compares, region-split tier views, and ARAM batch item-set exports for the LoL client. Free, offline-after-sync, agent-native (--json + --select + --agent), and the only LoL data source agentically accessible without a headless browser.",
+    "quickstart": [
+      {
+        "command": "mobalytics-lol-pp-cli sync --full",
+        "comment": "Hydrate the local store with the latest patch's champions, items, runes, tier snapshots, builds, and matchups"
+      },
+      {
+        "command": "mobalytics-lol-pp-cli champion build aatrox",
+        "comment": "Look up the recommended Aatrox top build for Emerald+ — the single most common ritual"
+      },
+      {
+        "command": "mobalytics-lol-pp-cli tier-list --role mid",
+        "comment": "Diamond+ mid-lane tier list with WR/PR/BR"
+      },
+      {
+        "command": "mobalytics-lol-pp-cli counter-pool --our darius,aatrox,garen --their fiora,sett,renekton",
+        "comment": "Pool-vs-pool matchup matrix coaches do in their head"
+      },
+      {
+        "command": "mobalytics-lol-pp-cli meta-shift --since-patch 14.10 --agent --select winner,loser,delta",
+        "comment": "What moved up or down since two patches ago"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Empty results from any Mobalytics command",
+        "fix": "Run `mobalytics-lol-pp-cli sync --full` once after first install; the local store has to be hydrated before queries return data."
+      },
+      {
+        "symptom": "tier-list returns stale tier ratings",
+        "fix": "Run `mobalytics-lol-pp-cli sync --resources tier_snapshots --since 1d` to refresh; tier data moves daily as games are played."
+      },
+      {
+        "symptom": "HTTP 422 when calling Mobalytics commands",
+        "fix": "Mobalytics GraphQL rejects requests without `Origin: https://mobalytics.gg`; verify with `mobalytics-lol-pp-cli doctor`."
+      },
+      {
+        "symptom": "item-set --to client doesn't show in League client",
+        "fix": "Restart the League client after writing item sets; the client only reads the config folder on startup. Use `--to file` for ad-hoc JSON export instead."
+      }
+    ],
+    "when_to_use": "Use this CLI when an agent needs aggregator-quality LoL champion data without a headless browser, when you want to compose cross-champion queries (pool vs pool, patch diffs, flex pickers) no aggregator page surfaces, or when you want ARAM/SR item-sets exported to the LoL client in batch. Reach for it during draft analysis, agentic Discord-bot prompts about 'who beats X this patch', morning-ritual pool digests, or coach pre-scrim preparation. Don't use it for live game data (Riot's match API is the right source) or personal summoner profiles (Mobalytics Plus's overlay is the right tool).",
+    "recipes": [
+      {
+        "title": "Diamond+ jungle picks that spike early",
+        "command": "mobalytics-lol-pp-cli power-spike --phase early --role jungle --top 10 --agent",
+        "explanation": "Inverts Mobalytics's per-champion power-spike data into a leaderboard scoped by role and rank — useful when picking around a teammate's pick or when an agent needs to recommend early-game junglers for a side comp."
+      },
+      {
+        "title": "Pre-scrim pool-vs-pool matrix as JSON",
+        "command": "mobalytics-lol-pp-cli counter-pool --our darius,aatrox,garen --their fiora,sett,renekton --agent --select our,their,wr,sample",
+        "explanation": "Coaches' classic question — given our 3 picks and their 3 picks in top lane, what's the full 3×3 matchup matrix with sample sizes. The --select keeps only the four columns an agent needs."
+      },
+      {
+        "title": "Export ARAM item-sets to the LoL client for tonight's session",
+        "command": "mobalytics-lol-pp-cli item-set --aram --to client aatrox,jinx,lulu,yasuo,sett,thresh,brand",
+        "explanation": "Replaces the dead Championify workflow for ARAM: one command writes 7 game-ready item-set JSON files into the LoL client config folder. No browser, no copy-paste, restart client to use."
+      },
+      {
+        "title": "What moved up since last patch in mid lane",
+        "command": "mobalytics-lol-pp-cli meta-shift --since-patch 16.9 --role mid --agent",
+        "explanation": "Diffs the current tier_snapshots against the snapshot from patch 16.9. The --agent flag returns structured JSON of winners (gained ≥1 tier) and losers, with sample guard so noise gets filtered."
+      },
+      {
+        "title": "Agent draft prompt — head-to-head with field narrowing",
+        "command": "mobalytics-lol-pp-cli compare aatrox darius --agent --select tier,winrate,top_counter,top_synergy,build_overlap_pct",
+        "explanation": "A Discord-bot or Claude-driven draft assistant pipes this through jq to surface 'which is the better top pick right now' in one call. The --select keeps the payload tight enough for agent context windows even when both champions have 50+ matchup rows in the underlying tables."
+      }
+    ],
+    "trigger_phrases": [
+      "look up the build for {champion}",
+      "what's the tier list for {role}",
+      "who counters {champion} in {role}",
+      "compare {champion1} and {champion2}",
+      "what changed in the meta this patch",
+      "use mobalytics-lol",
+      "run mobalytics-lol-pp-cli"
+    ]
+  }
+}

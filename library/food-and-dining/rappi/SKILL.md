@@ -20,7 +20,7 @@ This skill drives the `rappi-pp-cli` binary. **You must verify the CLI is instal
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install rappi --cli-only
+   npx -y @mvanhorn/printing-press-library install rappi --cli-only
    ```
 2. Verify: `rappi-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -32,8 +32,6 @@ go install github.com/mvanhorn/printing-press-library/library/food-and-dining/ra
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-Browse restaurants and stores across every Mexican city Rappi serves, snapshot the catalog to a local SQLite database, then ask questions the Rappi UI cannot answer — like "which sushi spots opened in Roma Norte this month," "top-rated burgers with 100+ reviews," or "pharmacies within 1km of a supermarket." All read-only and proxy-free.
 
 ## When to Use This CLI
 

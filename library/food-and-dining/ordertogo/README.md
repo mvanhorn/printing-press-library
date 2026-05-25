@@ -11,26 +11,26 @@ Learn more at [OrderToGo](https://www.ordertogo.com).
 The recommended path installs both the `ordertogo-pp-cli` binary and the `pp-ordertogo` agent skill (Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, and other agents supported by the upstream [`skills`](https://github.com/vercel-labs/skills) CLI) in one shot:
 
 ```bash
-npx -y @mvanhorn/printing-press install ordertogo
+npx -y @mvanhorn/printing-press-library install ordertogo
 ```
 
 For CLI only (no skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install ordertogo --cli-only
+npx -y @mvanhorn/printing-press-library install ordertogo --cli-only
 ```
 
 For skill only — installs the skill into the same agents as the default command above, but skips the CLI binary (use this to update or reinstall just the skill):
 
 ```bash
-npx -y @mvanhorn/printing-press install ordertogo --skill-only
+npx -y @mvanhorn/printing-press-library install ordertogo --skill-only
 ```
 
 To constrain the skill install to one or more specific agents (repeatable — agent names match the [`skills`](https://github.com/vercel-labs/skills) CLI):
 
 ```bash
-npx -y @mvanhorn/printing-press install ordertogo --agent claude-code
-npx -y @mvanhorn/printing-press install ordertogo --agent claude-code --agent codex
+npx -y @mvanhorn/printing-press-library install ordertogo --agent claude-code
+npx -y @mvanhorn/printing-press-library install ordertogo --agent claude-code --agent codex
 ```
 
 ### Without Node (Go fallback)

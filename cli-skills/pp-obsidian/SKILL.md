@@ -29,7 +29,7 @@ This skill drives the `obsidian-pp-cli` binary. **You must verify the CLI is ins
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install obsidian --cli-only
+   npx -y @mvanhorn/printing-press-library install obsidian --cli-only
    ```
 2. Verify: `obsidian-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
@@ -41,11 +41,6 @@ go install github.com/mvanhorn/printing-press-library/library/productivity/obsid
 ```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-SYNTHETIC OpenAPI 3.0 spec mapping Obsidian's official command-line interface (v1.12+) to virtual REST endpoints. NOT a real HTTP API. It is a structural description the Printing Press factory consumes to generate a Go CLI scaffold (Cobra + MCP server + agent-native flags + golden fixtures). During the build, the generated HTTP client in internal/client/ is replaced with exec.Command("obsidian", ...) subprocess dispatch, annotated // pp:client-call.
-SCOPE: V1 is READ-ONLY (14 endpoints). Zero write operations — this dodges the upstream markdown-patch frontmatter-corruption bug entirely (three corruption paths confirmed in Phase A eval 2026-05-19, all in the write path). The 6 write commands (create, delete, append, prepend, move, property:set) are DEFERRED to V2, gated on the upstream markdown-patch fix. The full ~95-command surface is also V2.
-Param convention in the Obsidian CLI: commands take ARG=value pairs, not POSIX flags. `file=<name>` resolves wikilink-style; `path=<rel>` is exact. Both are optional alternates on most commands — modeled here as the {name} path parameter (file) plus an optional `path` query parameter (exact).
-Source command surface: projects/morpheus/research/obsidian-cli-command-surface-2026-05-19.md
 
 ## When Not to Use This CLI
 

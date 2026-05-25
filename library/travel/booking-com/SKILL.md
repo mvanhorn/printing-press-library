@@ -20,16 +20,18 @@ This skill drives the `booking-com-pp-cli` binary. **You must verify the CLI is 
 
 1. Install via the Printing Press installer:
    ```bash
-   npx -y @mvanhorn/printing-press install booking-com --cli-only
+   npx -y @mvanhorn/printing-press-library install booking-com --cli-only
    ```
 2. Verify: `booking-com-pp-cli --version`
 3. Ensure `$GOPATH/bin` (or `$HOME/go/bin`) is on `$PATH`.
 
-If the `npx` install fails before this CLI has a public-library category, install Node or use the category-specific Go fallback after publish.
+If the `npx` install fails (no Node, offline, etc.), fall back to a direct Go install (requires Go 1.26.3 or newer):
+
+```bash
+go install github.com/mvanhorn/printing-press-library/library/travel/booking-com/cmd/booking-com-pp-cli@latest
+```
 
 If `--version` reports "command not found" after install, the install step did not put the binary on `$PATH`. Do not proceed with skill commands until verification succeeds.
-
-Search Booking.com, scrape hotel detail and reviews, watch prices over time, and read your trips, wishlist, and Genius rewards via a Chrome cookie import. Local SQLite price_history powers cheapest-date sweeps, price-drop watch, wishlist diff, and seasonal price-band rollups that the booking.com UI cannot answer.
 
 ## When to Use This CLI
 
