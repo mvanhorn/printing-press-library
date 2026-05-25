@@ -238,6 +238,17 @@ var flexTimeLayouts = []string{
 	"01/02/2006",
 }
 
+// unixSecsOrMillis decodes a raw integer epoch as seconds or milliseconds.
+// Values above ~year 2286 in seconds (>9_999_999_999) are treated as ms —
+// Node.js, Discord, Slack, and most JS-based loggers emit ms, and feeding
+// a ms value to time.Unix as seconds lands the result in the year 57,000s.
+func unixSecsOrMillis(n int64) time.Time {
+	if n > 9_999_999_999 {
+		return time.UnixMilli(n).Local()
+	}
+	return time.Unix(n, 0).Local()
+}
+
 // parseFlexTime parses a timestamp in any of several common layouts.
 func parseFlexTime(s string) (time.Time, bool) {
 	s = strings.TrimSpace(s)
@@ -245,7 +256,7 @@ func parseFlexTime(s string) (time.Time, bool) {
 		return time.Time{}, false
 	}
 	if epoch, err := strconv.ParseInt(s, 10, 64); err == nil && epoch > 100000000 {
-		return time.Unix(epoch, 0).Local(), true
+		return unixSecsOrMillis(epoch), true
 	}
 	for _, layout := range flexTimeLayouts {
 		if t, err := time.ParseInLocation(layout, s, time.Local); err == nil {
@@ -401,7 +412,7 @@ func parseShellHistoryDrafts(file string, idleGap time.Duration, billable bool) 
 		line := strings.TrimRight(sc.Text(), "\r\n")
 		if strings.HasPrefix(line, "#") {
 			if epoch, err := strconv.ParseInt(strings.TrimSpace(line[1:]), 10, 64); err == nil && epoch > 100000000 {
-				pendingTS = time.Unix(epoch, 0).Local()
+				pendingTS = unixSecsOrMillis(epoch)
 				havePending = true
 			}
 			continue
@@ -471,7 +482,7 @@ func timeFromJSON(obj map[string]json.RawMessage, keys ...string) (time.Time, bo
 		}
 		var n int64
 		if json.Unmarshal(raw, &n) == nil && n > 100000000 {
-			return time.Unix(n, 0).Local(), true
+			return unixSecsOrMillis(n), true
 		}
 	}
 	return time.Time{}, false
