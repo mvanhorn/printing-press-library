@@ -1,0 +1,68 @@
+{
+  "api_name": "epropertyplus-public-land",
+  "base_url": "https://public-kclb.epropertyplus.com/landmgmtpub/remote/public",
+  "description": "Every land bank's public inventory in one CLI. ePropertyPlus is a SaaS land-management platform many US land banks run on; this CLI talks to its public JSON API, parameterized by instance (slug). Enumerate a land bank's published properties, hydrate full per-property detail (parcel geometry, zoning, potential use, condition custom fields), filter structures vs vacant lots, export to CSV/GeoJSON, and resolve/download listing images. No auth required.",
+  "mcp_ready": "full",
+  "http_transport": "standard",
+  "auth": {
+    "type": "none"
+  },
+  "required_headers": [],
+  "tools": [
+    {
+      "name": "property_get",
+      "description": "Returns the full property record (parcel number, address, geometry, zoning, potential use, structure type, occupancy, asking price, image thumbnail, and custom condition fields) under the returnVal envelope. Required: propertyId.",
+      "method": "GET",
+      "path": "/property/getPublishedProperty",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "propertyId",
+          "type": "int",
+          "location": "query",
+          "description": "Property id from listProperties rows[].id",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "property_get-custom-field-configs",
+      "description": "Returns the instance's custom-field configuration so the cryptic s_custom_*/n_custom_* keys on a Property can be mapped to human-readable names (e.g. condition flags). Note: the upstream wraps the JSON in a 'var customFieldConfigs = JSON.parse(...)' assignment.",
+      "method": "GET",
+      "path": "/property/getCustomFieldConfigs",
+      "no_auth": true,
+      "params": []
+    },
+    {
+      "name": "property_get-image",
+      "description": "Returns the binary image. The imageId and filename come from a Property's publicThumbImgUrl (path shape /property/viewImage/{imageId}/{filename}). Required: imageId, filename.",
+      "method": "GET",
+      "path": "/property/viewImage/{imageId}/{filename}",
+      "no_auth": true,
+      "params": [
+        {
+          "name": "imageId",
+          "type": "string",
+          "location": "path",
+          "description": "Image id",
+          "required": true
+        },
+        {
+          "name": "filename",
+          "type": "string",
+          "location": "path",
+          "description": "Filename",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "property_list-properties",
+      "description": "Returns the full set of published public properties as lightweight index rows (id, latitude, longitude, status, class code). This is the enumeration entry point; hydrate each id with getPublishedProperty for full detail.",
+      "method": "GET",
+      "path": "/property/searchSummaryPublicMapQuery",
+      "no_auth": true,
+      "params": []
+    }
+  ]
+}

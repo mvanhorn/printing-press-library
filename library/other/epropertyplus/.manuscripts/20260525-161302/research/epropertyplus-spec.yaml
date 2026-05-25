@@ -1,0 +1,149 @@
+openapi: 3.0.3
+info:
+  title: ePropertyPlus Public Land-Bank API
+  version: "1.0.0"
+  description: >
+    Every land bank's public inventory in one CLI. ePropertyPlus is a SaaS land-management
+    platform many US land banks run on; this CLI talks to its public JSON API, parameterized
+    by instance (slug). Enumerate a land bank's published properties, hydrate full per-property
+    detail (parcel geometry, zoning, potential use, condition custom fields), filter structures
+    vs vacant lots, export to CSV/GeoJSON, and resolve/download listing images. No auth required.
+  x-cli-description: >
+    Enumerate and export any ePropertyPlus land bank's public inventory — parcels, geometry,
+    zoning, condition, and images — parameterized by instance slug.
+servers:
+  - url: https://public-kclb.epropertyplus.com/landmgmtpub/remote/public
+    description: >
+      Default instance: Kansas City Land Bank (slug kclb). Multi-tenant — override the host for
+      any other ePropertyPlus land bank via the EPROPERTYPLUS_BASE_URL env var, e.g.
+      https://public-<slug>.epropertyplus.com/landmgmtpub/remote/public
+paths:
+  /property/searchSummaryPublicMapQuery:
+    get:
+      operationId: listProperties
+      summary: List the published property index (id + lat/lng) for the instance
+      description: >
+        Returns the full set of published public properties as lightweight index rows
+        (id, latitude, longitude, status, class code). This is the enumeration entry point;
+        hydrate each id with getPublishedProperty for full detail.
+      responses:
+        "200":
+          description: Property index
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  size: { type: integer }
+                  metaData: { type: object, nullable: true }
+                  rows:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: integer, description: Property id; pass to getPublishedProperty }
+                        lt: { type: number, format: double, description: Latitude }
+                        lg: { type: number, format: double, description: Longitude }
+                        s: { type: string, nullable: true, description: Status code }
+                        c: { type: string, nullable: true, description: Class code }
+  /property/getPublishedProperty:
+    get:
+      operationId: getProperty
+      summary: Hydrate full detail for one published property by id
+      description: >
+        Returns the full property record (parcel number, address, geometry, zoning, potential
+        use, structure type, occupancy, asking price, image thumbnail, and custom condition
+        fields) under the returnVal envelope.
+      parameters:
+        - name: propertyId
+          in: query
+          required: true
+          schema: { type: integer }
+          description: Property id from listProperties rows[].id
+      responses:
+        "200":
+          description: Property detail
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  errors: { type: array, items: { type: string }, nullable: true }
+                  warnings: { type: array, items: { type: string }, nullable: true }
+                  returnVal:
+                    $ref: "#/components/schemas/Property"
+  /property/getCustomFieldConfigs:
+    get:
+      operationId: getCustomFieldConfigs
+      summary: Custom field definitions for the instance (decodes s_custom_*/n_custom_*)
+      description: >
+        Returns the instance's custom-field configuration so the cryptic s_custom_*/n_custom_*
+        keys on a Property can be mapped to human-readable names (e.g. condition flags). Note:
+        the upstream wraps the JSON in a 'var customFieldConfigs = JSON.parse(...)' assignment.
+      responses:
+        "200":
+          description: Custom field config (may be JS-wrapped JSON)
+          content:
+            application/json:
+              schema: { type: object }
+  /property/viewImage/{imageId}/{filename}:
+    get:
+      operationId: getImage
+      summary: Fetch a property image by image id and filename
+      description: >
+        Returns the binary image. The imageId and filename come from a Property's
+        publicThumbImgUrl (path shape /property/viewImage/{imageId}/{filename}).
+      parameters:
+        - name: imageId
+          in: path
+          required: true
+          schema: { type: string }
+        - name: filename
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Image bytes
+          content:
+            image/jpeg: { schema: { type: string, format: binary } }
+components:
+  schemas:
+    Property:
+      type: object
+      description: A land-bank property record (returnVal of getPublishedProperty).
+      properties:
+        id: { type: integer }
+        parcelNumber: { type: string, description: Assessor parcel number; join key to county/Socrata condition data }
+        propertyAddress1: { type: string }
+        city: { type: string }
+        state: { type: string }
+        postalCode: { type: string }
+        county: { type: string }
+        neighborhood: { type: string }
+        latitude: { type: number, format: double }
+        longitude: { type: number, format: double }
+        propertyClass: { type: string, description: e.g. "Residential Vacant", "Residential Vacant - Side Lot" }
+        structureType: { type: string, nullable: true, description: Non-null indicates a structure (vs vacant lot) }
+        inventoryType: { type: string, description: e.g. "Land Bank", "KCMHA" }
+        occupied: { type: string, nullable: true }
+        zonedAs: { type: string }
+        potentialUse: { type: string, description: Land Designer input — intended/allowed reuse }
+        askingPrice: { type: number, nullable: true }
+        currentAssessment: { type: number, nullable: true }
+        squareFootage: { type: number, nullable: true }
+        structureSquareFootage: { type: number, nullable: true }
+        parcelSquareFootage: { type: number, nullable: true }
+        parcelLength: { type: number, nullable: true }
+        parcelWidth: { type: number, nullable: true }
+        bedrooms: { type: integer, nullable: true }
+        numberOfFullRooms: { type: integer, nullable: true }
+        numberOfHalfRooms: { type: integer, nullable: true }
+        schoolDistrict: { type: string, nullable: true }
+        foreclosureYear: { type: integer, nullable: true }
+        legalDescription: { type: string, nullable: true }
+        comments: { type: string, nullable: true }
+        thumbImgUrl: { type: string, nullable: true, description: Internal image path (/landmgmt/...) }
+        publicThumbImgUrl: { type: string, nullable: true, description: Public image path (/landmgmtpub/remote/public/property/viewImage/...) }

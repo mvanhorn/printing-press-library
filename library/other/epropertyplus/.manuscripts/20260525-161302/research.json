@@ -1,0 +1,198 @@
+{
+  "api_name": "epropertyplus",
+  "novelty_score": 8,
+  "alternatives": [],
+  "gaps": [],
+  "patterns": [],
+  "recommendation": "proceed",
+  "researched_at": "2026-05-25T16:14:00Z",
+  "novel_features": [
+    {
+      "name": "Multi-instance registry",
+      "command": "instances",
+      "description": "Point the same commands at any ePropertyPlus land bank by slug; manage a list of known instances.",
+      "rationale": "The web UI serves one land bank at a time; a slug-parameterized client makes every ePropertyPlus land bank one uniform, queryable surface.",
+      "example": "epropertyplus-pp-cli instances list --agent",
+      "why_it_matters": "Reach for this to compare or batch across many land banks instead of one city's web portal.",
+      "group": "Multi-tenant reach"
+    },
+    {
+      "name": "Structure vs lot classifier",
+      "command": "list",
+      "description": "Filter an instance's inventory to structures (buildings) or vacant lots.",
+      "rationale": "Requires hydrating detail and applying the propertyClass/structureType rule the web UI never exposes as a filter.",
+      "example": "epropertyplus-pp-cli list --kind structure --agent",
+      "why_it_matters": "Use it to separate photographed buildings from vacant land for condition vs Land-Designer pipelines.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Bulk hydrate-all",
+      "command": "sync",
+      "description": "Enumerate the index and hydrate every property's full detail into a local SQLite dataset.",
+      "rationale": "Index-to-detail fan-out across a whole instance into one queryable dataset; the UI paginates one property at a time.",
+      "example": "epropertyplus-pp-cli sync --instance kclb",
+      "why_it_matters": "Reach for this before any offline analysis, search, or export.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "GeoJSON land export",
+      "command": "export",
+      "description": "Export inventory as GIS-ready GeoJSON features using lat/lng and parcel geometry.",
+      "rationale": "Joins coordinates and parcel dimensions into a GeoJSON shape no land-bank web UI exports.",
+      "example": "epropertyplus-pp-cli export --format geojson --kind lot",
+      "why_it_matters": "Use it to drop a land bank's parcels straight into GIS or the Land Designer.",
+      "group": "Export for downstream"
+    },
+    {
+      "name": "Land Designer feed",
+      "command": "land-export",
+      "description": "Export vacant-land parcels with geometry, zoning, and potential use — the fields the Land Designer needs.",
+      "rationale": "Filters to land parcels and projects exactly the reuse-relevant fields; the UI has no such projection.",
+      "example": "epropertyplus-pp-cli land-export --instance kclb --json",
+      "why_it_matters": "Reach for this to feed distressed-land parcels into adaptive-reuse visualization.",
+      "group": "Export for downstream"
+    },
+    {
+      "name": "Parcel/condition join hook",
+      "command": "enrich",
+      "description": "Emit parcelNumber plus join instructions to county/Socrata condition and market-value data.",
+      "rationale": "parcelNumber is the external join key; only a local dataset can be joined against condition/assessment sources.",
+      "example": "epropertyplus-pp-cli enrich --parcels --instance kclb --json",
+      "why_it_matters": "Use it to attach city-graded condition and assessment to land-bank inventory.",
+      "group": "Export for downstream"
+    },
+    {
+      "name": "Cross-instance compare",
+      "command": "compare",
+      "description": "Compare synced inventories across two or more land-bank instances.",
+      "rationale": "Requires multiple synced local datasets side by side; impossible in any single-tenant web UI.",
+      "example": "epropertyplus-pp-cli compare --instances kclb,\u003cslug\u003e --agent",
+      "why_it_matters": "Reach for this to benchmark inventory size, structure ratio, or pricing across cities.",
+      "group": "Multi-tenant reach"
+    }
+  ],
+  "novel_features_built": [
+    {
+      "name": "Multi-instance registry",
+      "command": "instances",
+      "description": "Point the same commands at any ePropertyPlus land bank by slug; manage a list of known instances.",
+      "rationale": "The web UI serves one land bank at a time; a slug-parameterized client makes every ePropertyPlus land bank one uniform, queryable surface.",
+      "example": "epropertyplus-pp-cli instances list --agent",
+      "why_it_matters": "Reach for this to compare or batch across many land banks instead of one city's web portal.",
+      "group": "Multi-tenant reach"
+    },
+    {
+      "name": "Structure vs lot classifier",
+      "command": "list",
+      "description": "Filter an instance's inventory to structures (buildings) or vacant lots.",
+      "rationale": "Requires hydrating detail and applying the propertyClass/structureType rule the web UI never exposes as a filter.",
+      "example": "epropertyplus-pp-cli list --kind structure --agent",
+      "why_it_matters": "Use it to separate photographed buildings from vacant land for condition vs Land-Designer pipelines.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "Bulk hydrate-all",
+      "command": "sync",
+      "description": "Enumerate the index and hydrate every property's full detail into a local SQLite dataset.",
+      "rationale": "Index-to-detail fan-out across a whole instance into one queryable dataset; the UI paginates one property at a time.",
+      "example": "epropertyplus-pp-cli sync --instance kclb",
+      "why_it_matters": "Reach for this before any offline analysis, search, or export.",
+      "group": "Local state that compounds"
+    },
+    {
+      "name": "GeoJSON land export",
+      "command": "export",
+      "description": "Export inventory as GIS-ready GeoJSON features using lat/lng and parcel geometry.",
+      "rationale": "Joins coordinates and parcel dimensions into a GeoJSON shape no land-bank web UI exports.",
+      "example": "epropertyplus-pp-cli export --format geojson --kind lot",
+      "why_it_matters": "Use it to drop a land bank's parcels straight into GIS or the Land Designer.",
+      "group": "Export for downstream"
+    },
+    {
+      "name": "Land Designer feed",
+      "command": "land-export",
+      "description": "Export vacant-land parcels with geometry, zoning, and potential use — the fields the Land Designer needs.",
+      "rationale": "Filters to land parcels and projects exactly the reuse-relevant fields; the UI has no such projection.",
+      "example": "epropertyplus-pp-cli land-export --instance kclb --json",
+      "why_it_matters": "Reach for this to feed distressed-land parcels into adaptive-reuse visualization.",
+      "group": "Export for downstream"
+    },
+    {
+      "name": "Parcel/condition join hook",
+      "command": "enrich",
+      "description": "Emit parcelNumber plus join instructions to county/Socrata condition and market-value data.",
+      "rationale": "parcelNumber is the external join key; only a local dataset can be joined against condition/assessment sources.",
+      "example": "epropertyplus-pp-cli enrich --parcels --instance kclb --json",
+      "why_it_matters": "Use it to attach city-graded condition and assessment to land-bank inventory.",
+      "group": "Export for downstream"
+    },
+    {
+      "name": "Cross-instance compare",
+      "command": "compare",
+      "description": "Compare synced inventories across two or more land-bank instances.",
+      "rationale": "Requires multiple synced local datasets side by side; impossible in any single-tenant web UI.",
+      "example": "epropertyplus-pp-cli compare --instances kclb,\u003cslug\u003e --agent",
+      "why_it_matters": "Reach for this to benchmark inventory size, structure ratio, or pricing across cities.",
+      "group": "Multi-tenant reach"
+    }
+  ],
+  "narrative": {
+    "display_name": "ePropertyPlus",
+    "headline": "Every land bank's public inventory, one command — enumerate, filter, export, and image any ePropertyPlus instance by slug.",
+    "value_prop": "ePropertyPlus runs dozens of US land banks behind one-city-at-a-time web UIs. This CLI talks to their public JSON API parameterized by instance slug, hydrates the full inventory into a local SQLite dataset, splits structures from vacant lots, and exports CSV/GeoJSON for GIS, distressed-asset intelligence, and the Land Designer. No auth.",
+    "quickstart": [
+      {
+        "command": "epropertyplus-pp-cli doctor",
+        "comment": "confirm the default instance (kclb) is reachable"
+      },
+      {
+        "command": "epropertyplus-pp-cli sync --instance kclb",
+        "comment": "enumerate + hydrate the whole inventory into the local store"
+      },
+      {
+        "command": "epropertyplus-pp-cli list --kind lot --csv",
+        "comment": "list vacant lots as CSV for analysis"
+      },
+      {
+        "command": "epropertyplus-pp-cli export --format geojson --kind lot",
+        "comment": "export land parcels as GeoJSON for GIS / Land Designer"
+      }
+    ],
+    "troubleshoots": [
+      {
+        "symptom": "Empty results for an instance",
+        "fix": "Verify the slug: open https://public-\u003cslug\u003e.epropertyplus.com/landmgmtpub/ in a browser; set --instance \u003cslug\u003e or EPROPERTYPLUS_BASE_URL."
+      },
+      {
+        "symptom": "custom-fields output looks like JS, not JSON",
+        "fix": "The upstream wraps it in 'var customFieldConfigs = JSON.parse(...)'; the CLI unwraps it — re-run with --json."
+      }
+    ],
+    "when_to_use": "Use this CLI to turn any ePropertyPlus land bank's public listings into a uniform, queryable, exportable dataset — for distressed-land targeting, condition joins by parcel number, GIS export, and adaptive-reuse (Land Designer) inputs across multiple cities.",
+    "recipes": [
+      {
+        "title": "Structures with detail, slim JSON",
+        "command": "epropertyplus-pp-cli list --kind structure --json --select id,propertyAddress1,parcelNumber,propertyClass,structureType",
+        "explanation": "Narrow the deep property record to the join + classification fields agents actually need."
+      },
+      {
+        "title": "Land Designer parcel feed",
+        "command": "epropertyplus-pp-cli land-export --instance kclb --json",
+        "explanation": "Vacant parcels with geometry, zoning, and potential use for adaptive-reuse visualization."
+      },
+      {
+        "title": "Cross-city structure ratio",
+        "command": "epropertyplus-pp-cli compare --instances kclb,\u003cslug\u003e --agent",
+        "explanation": "Benchmark how many real buildings vs vacant lots each land bank actually lists."
+      }
+    ],
+    "trigger_phrases": [
+      "list land bank properties",
+      "export land bank parcels",
+      "sync epropertyplus inventory",
+      "find vacant lots in a land bank",
+      "use epropertyplus",
+      "run epropertyplus"
+    ]
+  }
+}
