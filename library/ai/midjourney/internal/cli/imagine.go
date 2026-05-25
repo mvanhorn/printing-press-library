@@ -36,6 +36,7 @@ type submitJobFlags struct {
 	styleRefs    []string
 	omniRefs     []string
 	imagePrompts []string
+	imageAliases []string
 	aspectRatio  string
 	stylize      string
 	imageWeight  string
@@ -113,7 +114,7 @@ func newImagineCmd(flags *rootFlags) *cobra.Command {
 	cmd.Flags().StringArrayVar(&submit.styleRefs, "sref", nil, "Style reference URL/code to append as --sref (repeatable)")
 	cmd.Flags().StringArrayVar(&submit.omniRefs, "oref", nil, "Omni reference URL/code to append as --oref (repeatable)")
 	cmd.Flags().StringArrayVar(&submit.imagePrompts, "image-prompt", nil, "Image prompt URL to prepend to the prompt (repeatable)")
-	cmd.Flags().StringArrayVar(&submit.imagePrompts, "image", nil, "Alias for --image-prompt")
+	cmd.Flags().StringArrayVar(&submit.imageAliases, "image", nil, "Alias for --image-prompt")
 	cmd.Flags().StringVar(&submit.aspectRatio, "ar", "", "Aspect ratio to append as --ar, for example 16:9")
 	cmd.Flags().StringVar(&submit.stylize, "stylize", "", "Stylize value to append as --stylize")
 	cmd.Flags().StringVar(&submit.imageWeight, "iw", "", "Image prompt weight to append as --iw")
@@ -203,8 +204,9 @@ func (f *submitJobFlags) validate() error {
 }
 
 func (f *submitJobFlags) buildPrompt(base string) (string, error) {
-	parts := make([]string, 0, 8+len(f.imagePrompts)+len(f.styleRefs)+len(f.omniRefs))
-	for _, imagePrompt := range f.imagePrompts {
+	imagePrompts := f.allImagePrompts()
+	parts := make([]string, 0, 8+len(imagePrompts)+len(f.styleRefs)+len(f.omniRefs))
+	for _, imagePrompt := range imagePrompts {
 		if imagePrompt = strings.TrimSpace(imagePrompt); imagePrompt != "" {
 			parts = append(parts, imagePrompt)
 		}
@@ -267,12 +269,22 @@ func (f *submitJobFlags) buildPrompt(base string) (string, error) {
 func (f *submitJobFlags) metadata() submitJobMetadata {
 	return submitJobMetadata{
 		IsMobile:            nil,
-		ImagePrompts:        countOrZero(f.imagePrompts),
+		ImagePrompts:        countOrZero(f.allImagePrompts()),
 		ImageReferences:     countOrZero(f.styleRefs),
 		CharacterReferences: countOrZero(f.omniRefs),
 		DepthReferences:     0,
 		LightboxOpen:        nil,
 	}
+}
+
+func (f *submitJobFlags) allImagePrompts() []string {
+	if len(f.imageAliases) == 0 {
+		return f.imagePrompts
+	}
+	values := make([]string, 0, len(f.imagePrompts)+len(f.imageAliases))
+	values = append(values, f.imagePrompts...)
+	values = append(values, f.imageAliases...)
+	return values
 }
 
 func countOrZero(values []string) int {

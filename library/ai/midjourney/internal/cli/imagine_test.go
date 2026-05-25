@@ -29,6 +29,35 @@ func TestSubmitJobBuildPromptReferences(t *testing.T) {
 	}
 }
 
+func TestSubmitJobBuildPromptMergesImageAlias(t *testing.T) {
+	t.Parallel()
+	flags := submitJobFlags{
+		version:      "",
+		imagePrompts: []string{"https://cdn.midjourney.com/first.png"},
+		imageAliases: []string{"https://cdn.midjourney.com/alias.png"},
+	}
+	got, err := flags.buildPrompt("green glass sphere")
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := "https://cdn.midjourney.com/first.png https://cdn.midjourney.com/alias.png green glass sphere"
+	if got != want {
+		t.Fatalf("buildPrompt() = %q, want %q", got, want)
+	}
+}
+
+func TestSubmitJobMetadataCountsImageAlias(t *testing.T) {
+	t.Parallel()
+	flags := submitJobFlags{
+		imagePrompts: []string{"image-a"},
+		imageAliases: []string{"image-b"},
+	}
+	got := flags.metadata()
+	if got.ImagePrompts != 2 {
+		t.Fatalf("ImagePrompts = %v, want 2", got.ImagePrompts)
+	}
+}
+
 func TestSubmitJobBuildPromptStyleAndNiji(t *testing.T) {
 	t.Parallel()
 	flags := submitJobFlags{
