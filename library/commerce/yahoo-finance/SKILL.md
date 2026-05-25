@@ -1,7 +1,7 @@
 ---
 name: pp-yahoo-finance
 description: "Every Yahoo Finance endpoint plus a SQLite portfolio, covered-call screener Trigger phrases: `quote AAPL`, `options on TSLA`, `what's my portfolio doing`, `dividend income this year`, `screen for value stocks`, `daily market briefing`, `use yahoo-finance`, `run yahoo-finance`."
-author: "Charles Garrison"
+author: "Trevin Chow"
 license: "Apache-2.0"
 argument-hint: "<command> [args] | install cli|mcp"
 allowed-tools: "Read Bash"
