@@ -7,6 +7,7 @@ package cli
 import (
 	"encoding/json"
 	"fmt"
+	"sort"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -124,6 +125,15 @@ Free probe — invoking 'budget' costs zero API units.`,
 			for _, g := range groups {
 				groupList = append(groupList, g)
 			}
+			// Deterministic order: by most-recent activity desc, tiebreak by key.
+			// Go map iteration is non-deterministic, so without this sort,
+			// scripted diffs of two budget reports flap between runs.
+			sort.Slice(groupList, func(i, j int) bool {
+				if groupList[i].LastTS != groupList[j].LastTS {
+					return groupList[i].LastTS > groupList[j].LastTS
+				}
+				return groupList[i].Key < groupList[j].Key
+			})
 
 			// Month-end burn projection
 			var balanceNow int64

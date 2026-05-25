@@ -86,35 +86,27 @@ func newBacklinkGapCmd(flags *rootFlags) *cobra.Command {
 				return fmt.Errorf("loading %s refs: %w", them, err)
 			}
 
-			// If the per-target query returned nothing for either side, fall
-			// back to the unscoped local set (typical when sync wrote rows
-			// without an explicit target field). The hint helper has already
-			// warned the user about local-store freshness, so this is an
-			// "any referring domain we know about" answer.
+			// If the per-target query returned nothing for either side, the
+			// store has no target-scoped referring-domain data. Do NOT fall
+			// back to an unscoped load: that would dump every stored row as
+			// a "gap" because myRefs stays empty (every entry passes the
+			// "not in myRefs" filter), masking the real signal with noise.
+			// The hint helper has already told the user to sync; return an
+			// empty result with a clear note so they trust the answer.
 			if len(myRefs) == 0 && len(theirRefs) == 0 {
-				rows, err := db.DB().QueryContext(ctx,
-					`SELECT COALESCE(json_extract(data, '$.domain'), json_extract(data, '$.Dn'), '') AS domain,
-					        COALESCE(json_extract(data, '$.domain_ascore'), json_extract(data, '$.As'), 0) AS ascore,
-					        COALESCE(json_extract(data, '$.backlinks_num'), json_extract(data, '$.Bn'), 0) AS backlinks
-					 FROM resources
-					 WHERE resource_type IN ('backlink', 'backlink_referring_domains', 'referring_domains', 'referring_domain')`)
+				out := map[string]any{
+					"me":         me,
+					"them":       them,
+					"min_ascore": minAscore,
+					"count":      0,
+					"hits":       []any{},
+					"hint":       "no target-scoped referring-domain data in local store; run 'semrush-pp-cli sync --resources backlink' against both targets first",
+				}
+				raw, err := json.Marshal(out)
 				if err != nil {
-					return fmt.Errorf("scan referring domains: %w", err)
+					return fmt.Errorf("encoding empty gap response: %w", err)
 				}
-				defer rows.Close()
-				for rows.Next() {
-					var r refRow
-					if err := rows.Scan(&r.Domain, &r.Ascore, &r.Backlinks); err != nil {
-						return fmt.Errorf("scan referring row: %w", err)
-					}
-					if strings.TrimSpace(r.Domain) == "" {
-						continue
-					}
-					theirRefs[strings.ToLower(r.Domain)] = r
-				}
-				if err := rows.Err(); err != nil {
-					return fmt.Errorf("iterate referring rows: %w", err)
-				}
+				return printOutputWithFlags(cmd.OutOrStdout(), raw, flags)
 			}
 
 			type hit struct {

@@ -121,13 +121,29 @@ Run 'semrush-pp-cli sync --resource keyword' to populate the store first.`,
 				}
 				s := snap{position: posRaw, kd: kdRaw, traffic: trafficRaw, when: syncedAt}
 				if syncedAt.After(cutoff) {
-					if existing, ok := latest[*phrase]; !ok || syncedAt.After(existing.when) {
-						if ok {
-							if existing.when.Before(syncedAt) {
-								prior[*phrase] = existing
-							}
+					// Within --since window. The query uses ORDER BY synced_at DESC,
+					// so the first within-window row we see for a phrase is the
+					// newest; subsequent within-window rows are older. Place the
+					// newest in `latest` and any other within-window row in `prior`
+					// (preferring the newest of those). This populates `prior` for
+					// users who synced multiple times inside the window even when
+					// no pre-cutoff snapshot exists.
+					existing, hasLatest := latest[*phrase]
+					switch {
+					case !hasLatest:
+						latest[*phrase] = s
+					case syncedAt.After(existing.when):
+						// Newer than current latest (defensive — shouldn't happen
+						// with DESC ordering, but handle ASC + concurrent writes).
+						if priorExisting, hasPrior := prior[*phrase]; !hasPrior || existing.when.After(priorExisting.when) {
+							prior[*phrase] = existing
 						}
 						latest[*phrase] = s
+					default:
+						// Older than current latest but still within window: candidate for prior.
+						if priorExisting, hasPrior := prior[*phrase]; !hasPrior || syncedAt.After(priorExisting.when) {
+							prior[*phrase] = s
+						}
 					}
 				} else {
 					if existing, ok := prior[*phrase]; !ok || syncedAt.After(existing.when) {
